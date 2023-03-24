@@ -14,7 +14,7 @@ import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.move.MoveCameraTool;
-import com.marginallyclever.robotoverlord.tools.move.MoveTool;
+import com.marginallyclever.robotoverlord.tools.move.MoveEntityTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +68,7 @@ public class OpenGLRenderPanel extends JPanel {
     private transient final ViewCube viewCube = new ViewCube();
     private transient final SkyBoxEntity sky = new SkyBoxEntity();
 
-    private transient final MoveTool moveTool;
+    private transient final MoveEntityTool moveEntityTool;
     private transient final MoveCameraTool moveCameraTool = new MoveCameraTool();
 
     List<EditorTool> editorTools = new ArrayList<>();
@@ -78,7 +78,7 @@ public class OpenGLRenderPanel extends JPanel {
         this.robotOverlord = robotOverlord;
         this.scene = scene;
 
-        moveTool = new MoveTool(robotOverlord);
+        moveEntityTool = new MoveEntityTool(robotOverlord);
 
         createCanvas();
         addCanvasListeners();
@@ -91,7 +91,7 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     private void setupTools() {
-        editorTools.add(moveTool);
+        editorTools.add(moveEntityTool);
         editorTools.add(moveCameraTool);
     }
 
@@ -334,7 +334,7 @@ public class OpenGLRenderPanel extends JPanel {
         sky.render(gl2,camera);
         scene.render(gl2);
         // 3D overlays
-        moveTool.render(gl2);
+        moveEntityTool.render(gl2);
 
         // 2D overlays
         gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
@@ -477,14 +477,14 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     public void updateSubjects() {
-        moveTool.setSubject(null);
+        moveEntityTool.setSubject(null);
 
         List<Entity> list = robotOverlord.getSelectedEntities();
         if( !list.isEmpty()) {
             if(list.size() == 1) {
                 Entity firstEntity = list.get(0);
                 if(firstEntity.findFirstComponent(PoseComponent.class) != null) {
-                    moveTool.setSubject(firstEntity);
+                    moveEntityTool.setSubject(firstEntity);
                 }
             }
         }

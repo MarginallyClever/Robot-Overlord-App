@@ -32,7 +32,7 @@ import java.awt.event.MouseWheelEvent;
  * A visual manipulator that facilitates moving objects in 3D.
  * @author Dan Royer
  */
-public class MoveTool extends Entity implements EditorTool {
+public class MoveEntityTool extends Entity implements EditorTool {
 	private static final double STEP_SIZE = Math.PI/120.0;
 
 	private boolean isShiftDown = false;
@@ -68,7 +68,7 @@ public class MoveTool extends Entity implements EditorTool {
 	// In what frame of reference?
 	private final IntEntity frameOfReferenceChoice = new IntEntity("Frame of Reference", FrameOfReference.WORLD.toInt());
 	// drawing scale of ball
-	private final DoubleEntity ballSize = new DoubleEntity("Scale",10);
+	private final DoubleEntity ballSize = new DoubleEntity("Scale",0.2);
 	// snap at all?
 	private final BooleanEntity snapOn = new BooleanEntity("Snap On",true);
 	// snap to what number of degrees rotation?
@@ -98,7 +98,7 @@ public class MoveTool extends Entity implements EditorTool {
 
 	private final RobotOverlord ro;
 	
-	public MoveTool(RobotOverlord ro) {
+	public MoveEntityTool(RobotOverlord ro) {
 		super();
 		this.ro=ro;
 
@@ -122,28 +122,6 @@ public class MoveTool extends Entity implements EditorTool {
 		pickPointInBallSpace.sub(pivotMatrix.getPosition());
 		iMe.transform(pickPointInBallSpace);
 		return pickPointInBallSpace;
-	}
-	
-	@Override
-	public void update(double dt) {
-		if(subject==null) return;
-
-		CameraComponent cameraComponent = ro.getCamera();
-		if(cameraComponent==null) return;
-
-		PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
-		if(subjectPose==null) return;
-
-		Matrix4d subjectPoseWorld = pivotMatrix.getWorld();
-		Vector3d mp = MatrixHelper.getPosition(subjectPoseWorld);
-
-		PoseComponent cameraPose = cameraComponent.getEntity().findFirstComponent(PoseComponent.class);
-		mp.sub(cameraPose.getPosition());
-		cameraDistance = mp.length();
-
-		if(!isActivelyMoving) {
-			updateFrameOfReference(subjectPose.getWorld(),cameraPose);
-		}
 	}
 
 	/**
@@ -435,6 +413,8 @@ public class MoveTool extends Entity implements EditorTool {
 		PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
 		if(subjectPose==null) return;
 
+		updateCameraDistance();
+
 		gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
 
 		boolean wasText = OpenGLHelper.disableTextureStart(gl2);
@@ -452,6 +432,24 @@ public class MoveTool extends Entity implements EditorTool {
 		OpenGLHelper.disableTextureEnd(gl2, wasText);
 
 		printDistanceOnScreen(gl2,ro);
+	}
+
+	public void updateCameraDistance() {
+		if(subject==null) return;
+
+		CameraComponent cameraComponent = ro.getCamera();
+		if(cameraComponent==null) return;
+
+		PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
+		if(subjectPose==null) return;
+
+		Matrix4d subjectPoseWorld = pivotMatrix.getWorld();
+		Vector3d mp = MatrixHelper.getPosition(subjectPoseWorld);
+
+		PoseComponent cameraPose = cameraComponent.getEntity().findFirstComponent(PoseComponent.class);
+		mp.sub(cameraPose.getPosition());
+		cameraDistance = mp.length();
+
 	}
 	
 	private void printDistanceOnScreen(GL2 gl2,RobotOverlord ro) { 
@@ -867,21 +865,19 @@ public class MoveTool extends Entity implements EditorTool {
 		}
 
 		// change frame of reference.
-		boolean changed=false;
-		if(e.getKeyCode() == KeyEvent.VK_F1) {
-			frameOfReferenceChoice.set(FrameOfReference.WORLD.toInt());
-			changed=true;
-		}
-		if(e.getKeyCode() == KeyEvent.VK_F2) {
-			frameOfReferenceChoice.set(FrameOfReference.CAMERA.toInt());
-			changed=true;
-		}
-		if(e.getKeyCode() == KeyEvent.VK_F3) {
-			frameOfReferenceChoice.set(FrameOfReference.SUBJECT.toInt());
-			changed=true;
-		}
-		if(changed) {
+		if(!isActivelyMoving) {
+			CameraComponent cameraComponent = ro.getCamera();
+			if(cameraComponent != null) {
+				if(e.getKeyCode() == KeyEvent.VK_F1) frameOfReferenceChoice.set(FrameOfReference.WORLD.toInt());
+				if(e.getKeyCode() == KeyEvent.VK_F2) frameOfReferenceChoice.set(FrameOfReference.CAMERA.toInt());
+				if(e.getKeyCode() == KeyEvent.VK_F3) frameOfReferenceChoice.set(FrameOfReference.SUBJECT.toInt());
 
+				PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
+				if(subjectPose==null) return;
+
+				PoseComponent cameraPose = cameraComponent.getEntity().findFirstComponent(PoseComponent.class);
+				updateFrameOfReference(subjectPose.getWorld(), cameraPose);
+			}
 		}
 	}
 
