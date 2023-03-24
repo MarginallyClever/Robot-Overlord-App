@@ -193,17 +193,17 @@ public class MathHelper {
 
 	
 	/**
-	 * interpolate from a to b
-	 * @param a
-	 * @param b
+	 * interpolate from start to end
+	 * @param start
+	 * @param end
 	 * @param t [0...1]
 	 * @return
 	 */
-	static public Vector3d interpolate(Vector3d a,Vector3d b,double t) {
-		Vector3d n = new Vector3d(b);
-		n.sub(a);
+	static public Vector3d interpolate(Vector3d start,Vector3d end,double t) {
+		Vector3d n = new Vector3d(end);
+		n.sub(start);
 		n.scale((float)t);
-		n.add(a);
+		n.add(start);
 		
 		return n;
 	}
