@@ -13,6 +13,8 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -110,6 +112,7 @@ public class RobotComponent extends Component implements Robot {
             case JOINT_PRISMATIC: return false;
             case END_EFFECTOR: return getEndEffector();
             case END_EFFECTOR_TARGET: return getEndEffectorTargetPose();
+            case END_EFFECTOR_TARGET_POSITION: return getEndEffectorTargetPosition();
             case TOOL_CENTER_POINT: return getToolCenterPoint();
             case POSE: return getPoseWorld();
             case JOINT_POSE: return getActiveJointPose();
@@ -133,6 +136,7 @@ public class RobotComponent extends Component implements Robot {
             case ACTIVE_JOINT -> activeJoint = Math.max(0, Math.min(getNumBones(), (int) value));
             case JOINT_VALUE -> updateJointValue((double) value);
             case END_EFFECTOR_TARGET -> setEndEffectorTargetPose((Matrix4d) value);
+            case END_EFFECTOR_TARGET_POSITION -> setEndEffectorTargetPosition((Vector3d) value);
             case TOOL_CENTER_POINT -> setToolCenterPointOffset((Matrix4d) value);
             case POSE -> setPoseWorld((Matrix4d) value);
             case JOINT_HOME -> getBone(activeJoint).setThetaHome((double) value);
@@ -162,6 +166,10 @@ public class RobotComponent extends Component implements Robot {
         ee.setToolCenterPoint(base);
     }
 
+    /**
+     * Returns the end effector's target pose relative to the robot's base.
+     * @return the end effector's target pose relative to the robot's base.
+     */
     private Matrix4d getEndEffectorTargetPose() {
         ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
         if(ee==null) return null;
@@ -177,6 +185,15 @@ public class RobotComponent extends Component implements Robot {
     }
 
     /**
+     * Returns the end effector's position relative to the robot's base.
+     * @return the end effector's position relative to the robot's base.
+     */
+    private Point3d getEndEffectorTargetPosition() {
+        Matrix4d m = getEndEffectorTargetPose();
+        return new Point3d(m.m03, m.m13, m.m23);
+    }
+
+    /**
      * Sets the end effector target pose and immediately attempts to move the robot to that pose.
      * @param targetPose the target pose relative to the robot's base.
      * @throws RuntimeException if the robot cannot be moved to the target pose.
@@ -184,8 +201,19 @@ public class RobotComponent extends Component implements Robot {
     private void setEndEffectorTargetPose(Matrix4d targetPose) {
         Matrix4d m0 = this.getEndEffector();
         double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrixes(m0, targetPose);
-        // Log.message("cartesianDistance="+Arrays.toString(cartesianDistance));
         applyCartesianForceToEndEffector(cartesianVelocity);
+    }
+
+    /**
+     * Sets the end effector target position and immediately attempts to move the robot to that position.
+     * Intended for 3 axis robots only.
+     * @param targetPosition the target position relative to the robot's base.
+     */
+    private void setEndEffectorTargetPosition(Vector3d targetPosition) {
+        Matrix4d m0 = this.getEndEffector();
+        double[] cartesianVelocity = new double[]{targetPosition.x - m0.m03, targetPosition.y - m0.m13, targetPosition.z - m0.m23, 0, 0, 0};
+        applyCartesianForceToEndEffector(cartesianVelocity);
+
     }
 
     /**
