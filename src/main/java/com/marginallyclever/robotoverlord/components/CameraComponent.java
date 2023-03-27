@@ -81,7 +81,7 @@ public class CameraComponent extends RenderComponent {
      */
     @Override
     public void update(double dt) {
-        isCurrentlyMoving=true;
+        super.update(dt);
     }
 
     /**
