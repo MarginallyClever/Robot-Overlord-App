@@ -450,6 +450,9 @@ public class MoveEntityTool extends Entity implements EditorTool {
 		mp.sub(cameraPose.getPosition());
 		cameraDistance = mp.length();
 
+		if(!isActivelyMoving) {
+			updateFrameOfReference(subjectPose.getWorld(), cameraPose);
+		}
 	}
 	
 	private void printDistanceOnScreen(GL2 gl2,RobotOverlord ro) { 
@@ -837,11 +840,6 @@ public class MoveEntityTool extends Entity implements EditorTool {
 	}
 
 	@Override
-	public void mouseMoved(MouseEvent e) {
-
-	}
-
-	@Override
 	public void keyPressed(KeyEvent e) {
 		// remember if shift is down.
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
@@ -871,18 +869,13 @@ public class MoveEntityTool extends Entity implements EditorTool {
 				if(e.getKeyCode() == KeyEvent.VK_F1) frameOfReferenceChoice.set(FrameOfReference.WORLD.toInt());
 				if(e.getKeyCode() == KeyEvent.VK_F2) frameOfReferenceChoice.set(FrameOfReference.CAMERA.toInt());
 				if(e.getKeyCode() == KeyEvent.VK_F3) frameOfReferenceChoice.set(FrameOfReference.SUBJECT.toInt());
-
-				PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
-				if(subjectPose==null) return;
-
-				PoseComponent cameraPose = cameraComponent.getEntity().findFirstComponent(PoseComponent.class);
-				updateFrameOfReference(subjectPose.getWorld(), cameraPose);
 			}
 		}
 	}
 
 	@Override
-	public void mouseWheelMoved(MouseWheelEvent e) {
+	public void mouseMoved(MouseEvent e) {}
 
-	}
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {}
 }
