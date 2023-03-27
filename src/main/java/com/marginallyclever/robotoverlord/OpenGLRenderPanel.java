@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class OpenGLRenderPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLRenderPanel.class);
-    private static final int FSAA_NUM_SAMPLES = 1;
+    private static final int FSAA_NUM_SAMPLES = 2;
     private static final int VERTICAL_SYNC_ON = 1;  // 1 on, 0 off
     private static final int DEFAULT_FRAMES_PER_SECOND = 30;
     private static final int PICK_BUFFER_SIZE = 256;
