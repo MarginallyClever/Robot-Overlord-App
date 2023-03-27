@@ -32,7 +32,7 @@ public class MaterialComponent extends Component {
         texture.addPropertyChangeListener((e)->{
             Scene myScene = getScene();
             if(myScene!=null) {
-                myScene.warnIfAssetPathIsNotInScenePath(texture.getFullPath());
+                myScene.warnIfAssetPathIsNotInScenePath(texture.getTextureFilename());
             }
         });
     }
