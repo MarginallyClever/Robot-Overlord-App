@@ -200,21 +200,13 @@ public class Entity implements PropertyChangeListener {
 			if (name.contentEquals(PATH_PREVIOUS)) {
 				// ".." = my parent
 				e = e.getParent();
+				continue;
 			} else if (name.contentEquals(PATH_CURRENT)) {
 				// "." is me!
 				continue;
-			} else {
-				boolean found = false;
-				for (Entity c : e.getChildren()) {
-					if (name.contentEquals(c.getName())) {
-						e = c;
-						found = true;
-						break;
-					}
-				}
-				if (!found)
-					return null; // does not exist
 			}
+
+			e = e.getChildren().stream().filter( c -> name.contentEquals(c.getName()) ).findFirst().orElse(null);
 		}
 
 		return e;
@@ -438,7 +430,14 @@ public class Entity implements PropertyChangeListener {
 		for (Object o : jo) {
 			JSONObject jo2 = (JSONObject) o;
 			Component component = ComponentFactory.load(jo2.getString("type"));
-			this.addComponent(component);
+			// It's possible that a component creates another component upon which it is dependent.
+			// Only one of each component class is allowed in an Entity.
+			// So we check for that condition and only use the existing component.
+			if(!containsAnInstanceOfTheSameClass(component)) {
+				this.addComponent(component);
+			} else {
+				component = findFirstComponent(component.getClass());
+			}
 			component.parseJSON(jo2);
 		}
 	}
