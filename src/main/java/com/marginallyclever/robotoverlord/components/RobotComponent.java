@@ -52,12 +52,17 @@ public class RobotComponent extends Component implements Robot {
             final Robot me = this;
 
             new Thread(() -> {
-                JDialog frame = new JDialog(parentFrame,"Control panel");
-                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                frame.add(new RobotArmInterface(me));
-                frame.pack();
-                frame.setLocationRelativeTo(parentFrame);
-                frame.setVisible(true);
+                try {
+                    JDialog frame = new JDialog(parentFrame, "Control panel");
+                    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    frame.add(new RobotArmInterface(me));
+                    frame.pack();
+                    frame.setLocationRelativeTo(parentFrame);
+                    frame.setVisible(true);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showConfirmDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
+                }
             }).start();
         });
 
