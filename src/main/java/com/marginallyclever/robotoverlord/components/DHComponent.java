@@ -52,7 +52,7 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         jo.put("Theta", theta.toJSON());
         jo.put("ThetaMax", thetaMax.toJSON());
         jo.put("ThetaMin", thetaMin.toJSON());
-        jo.put("ThetaHome", thetaMin.toJSON());
+        jo.put("ThetaHome", thetaHome.toJSON());
         return jo;
     }
 
@@ -65,7 +65,7 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         theta.parseJSON(jo.getJSONObject("Theta"));
         if(jo.has("ThetaMax")) thetaMax.parseJSON(jo.getJSONObject("ThetaMax"));
         if(jo.has("ThetaMin")) thetaMin.parseJSON(jo.getJSONObject("ThetaMin"));
-        if(jo.has("ThetaHome")) thetaMin.parseJSON(jo.getJSONObject("ThetaHome"));
+        if(jo.has("ThetaHome")) thetaHome.parseJSON(jo.getJSONObject("ThetaHome"));
         refreshLocalMatrix();
     }
 
