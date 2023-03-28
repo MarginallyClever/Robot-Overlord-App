@@ -175,13 +175,13 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         return pose.getLocal();
     }
 
-    public void set(double d, double r, double a, double t, double tMax, double tMin) {
-        myD.set(d);
-        myR.set(r);
-        alpha.set(a);
-        theta.set(theta);
-        thetaMax.set(tMax);
-        thetaMin.set(tMin);
+    public void set(double d, double r, double alpha, double theta, double tMax, double tMin) {
+        this.myD.set(d);
+        this.myR.set(r);
+        this.alpha.set(alpha);
+        this.theta.set(theta);
+        this.thetaMax.set(tMax);
+        this.thetaMin.set(tMin);
     }
 
     public void setD(double d) {
