@@ -31,9 +31,6 @@ public class RobotComponentTest {
         dh.get(0).set(0,0,90,0,60,-60);
         dh.get(1).set(0,10,0,45,170,-170);
         dh.get(2).set(0,10,0,-90,170,-170);
-        for(int i=0;i<3;++i) {
-            dh.get(i).refreshLocalMatrix();
-        }
         joints.get(2).addComponent(new ArmEndEffectorComponent());
         robot.findBones();
         return robot;

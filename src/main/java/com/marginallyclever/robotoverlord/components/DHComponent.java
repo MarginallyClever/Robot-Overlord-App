@@ -182,6 +182,7 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         this.theta.set(theta);
         this.thetaMax.set(tMax);
         this.thetaMin.set(tMin);
+        refreshLocalMatrix();
     }
 
     public void setD(double d) {
