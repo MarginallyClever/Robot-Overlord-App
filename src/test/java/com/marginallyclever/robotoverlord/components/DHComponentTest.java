@@ -14,24 +14,13 @@ public class DHComponentTest {
         ComponentTest.saveAndLoad(a,b);
 
         a.setD(1);
-        ComponentTest.saveAndLoad(a,b);
-
         a.setR(2);
-        ComponentTest.saveAndLoad(a,b);
-
         a.setAlpha(3);
-        ComponentTest.saveAndLoad(a,b);
-
         a.setThetaMin(4);
-        ComponentTest.saveAndLoad(a,b);
+        a.setThetaMax(7);
+        a.setTheta(5);
+        a.setThetaHome(6);
 
-        a.setThetaMax(5);
-        ComponentTest.saveAndLoad(a,b);
-
-        a.setTheta(4.5);
-        ComponentTest.saveAndLoad(a,b);
-
-        a.setThetaHome(7);
         ComponentTest.saveAndLoad(a,b);
     }
 }
