@@ -14,7 +14,6 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -115,7 +114,7 @@ public class RobotComponent extends Component implements Robot {
             case JOINT_RANGE_MIN: return getBone(activeJoint).getThetaMin();
             case JOINT_HAS_RANGE_LIMITS: return true;
             case JOINT_PRISMATIC: return false;
-            case END_EFFECTOR: return getEndEffector();
+            case END_EFFECTOR: return getEndEffectorPose();
             case END_EFFECTOR_TARGET: return getEndEffectorTargetPose();
             case END_EFFECTOR_TARGET_POSITION: return getEndEffectorTargetPosition();
             case TOOL_CENTER_POINT: return getToolCenterPoint();
@@ -141,7 +140,7 @@ public class RobotComponent extends Component implements Robot {
             case ACTIVE_JOINT -> activeJoint = Math.max(0, Math.min(getNumBones(), (int) value));
             case JOINT_VALUE -> updateJointValue((double) value);
             case END_EFFECTOR_TARGET -> setEndEffectorTargetPose((Matrix4d) value);
-            case END_EFFECTOR_TARGET_POSITION -> setEndEffectorTargetPosition((Vector3d) value);
+            case END_EFFECTOR_TARGET_POSITION -> setEndEffectorTargetPosition((Point3d) value);
             case TOOL_CENTER_POINT -> setToolCenterPointOffset((Matrix4d) value);
             case POSE -> setPoseWorld((Matrix4d) value);
             case JOINT_HOME -> getBone(activeJoint).setThetaHome((double) value);
@@ -204,7 +203,7 @@ public class RobotComponent extends Component implements Robot {
      * @throws RuntimeException if the robot cannot be moved to the target pose.
      */
     private void setEndEffectorTargetPose(Matrix4d targetPose) {
-        Matrix4d m0 = this.getEndEffector();
+        Matrix4d m0 = this.getEndEffectorPose();
         double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrixes(m0, targetPose);
         applyCartesianForceToEndEffector(cartesianVelocity);
     }
@@ -214,11 +213,17 @@ public class RobotComponent extends Component implements Robot {
      * Intended for 3 axis robots only.
      * @param targetPosition the target position relative to the robot's base.
      */
-    private void setEndEffectorTargetPosition(Vector3d targetPosition) {
-        Matrix4d m0 = this.getEndEffector();
-        double[] cartesianVelocity = new double[]{targetPosition.x - m0.m03, targetPosition.y - m0.m13, targetPosition.z - m0.m23, 0, 0, 0};
+    private void setEndEffectorTargetPosition(Point3d targetPosition) {
+        Matrix4d endEffectorPose = this.getEndEffectorPose();
+        double[] cartesianVelocity = new double[]{
+                targetPosition.x - endEffectorPose.m03,
+                targetPosition.y - endEffectorPose.m13,
+                targetPosition.z - endEffectorPose.m23,
+                0, 0, 0};
+        if(Math.abs(cartesianVelocity[0])<0.001) cartesianVelocity[0] = 0;
+        if(Math.abs(cartesianVelocity[1])<0.001) cartesianVelocity[1] = 0;
+        if(Math.abs(cartesianVelocity[2])<0.001) cartesianVelocity[2] = 0;
         applyCartesianForceToEndEffector(cartesianVelocity);
-
     }
 
     /**
@@ -229,8 +234,8 @@ public class RobotComponent extends Component implements Robot {
     private void applyCartesianForceToEndEffector(double[] cartesianVelocity) {
         ApproximateJacobian2 aj = new ApproximateJacobian2(this);
         try {
-            double[] jointVelocity = aj.getJointFromCartesian(cartesianVelocity);
-            double[] angles = this.getAngles();
+            double[] jointVelocity = aj.getJointVelocityFromCartesianVelocity(cartesianVelocity);  // uses inverse jacobian
+            double[] angles = this.getAngles();  // # dof long
             for (int i = 0; i < angles.length; ++i) {
                 angles[i] += jointVelocity[i];
             }
@@ -251,7 +256,7 @@ public class RobotComponent extends Component implements Robot {
     public void setAngles(double[] angles) {
         assert angles.length == getNumBones();
 
-        Matrix4d eeOld = getEndEffector();
+        Matrix4d eeOld = getEndEffectorPose();
         boolean changed = false;
         for(int i=0;i<getNumBones();++i) {
             DHComponent bone = getBone(i);
@@ -260,7 +265,7 @@ public class RobotComponent extends Component implements Robot {
             changed |= (t!=angles[i]);
         }
         if(changed) {
-            Matrix4d eeNew = getEndEffector();
+            Matrix4d eeNew = getEndEffectorPose();
             notifyPropertyChangeListeners(new PropertyChangeEvent(this, "ee", eeOld, eeNew));
         }
     }
@@ -268,12 +273,12 @@ public class RobotComponent extends Component implements Robot {
     /**
      * @return The pose of the end effector relative to the robot's base.
      */
-    public Matrix4d getEndEffector() {
+    public Matrix4d getEndEffectorPose() {
         ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
         if(ee==null) return null;
-        PoseComponent pose = ee.getEntity().findFirstComponent(PoseComponent.class);
-        if(pose==null) return null;
-        Matrix4d m = pose.getWorld();
+        PoseComponent endEffectorPose = ee.getEntity().findFirstComponent(PoseComponent.class);
+        if(endEffectorPose==null) return null;
+        Matrix4d m = endEffectorPose.getWorld();
         Matrix4d base = getPoseWorld();
         assert base != null;
         base.invert();
@@ -322,9 +327,9 @@ public class RobotComponent extends Component implements Robot {
      * @param value the new angle for the active joint, in degrees.
      */
     private void updateJointValue(double value) {
-        Matrix4d eeOld = getEndEffector();
+        Matrix4d eeOld = getEndEffectorPose();
         getBone(activeJoint).setAngleWRTLimits(value);
-        Matrix4d eeNew = getEndEffector();
+        Matrix4d eeNew = getEndEffectorPose();
 
         notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",eeOld,eeNew));
     }
