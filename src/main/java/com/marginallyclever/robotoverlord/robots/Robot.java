@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.robots;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeListener;
 
@@ -41,7 +42,7 @@ public interface Robot {
      *      <li>{@link #JOINT_PRISMATIC}: returns true if the active joint is prismatic (linear mm) and false if it is angular (rotation degrees).</li>
      *      <li>{@link #END_EFFECTOR}: returns a {@link Matrix4d} of the end effector post relative to the origin of this robot.</li>
      *      <li>{@link #END_EFFECTOR_TARGET}: returns a {@link Matrix4d} of the end effector target post relative to the origin of this robot.</li>
-     *      <li>{@link #END_EFFECTOR_TARGET_POSITION}: returns a {@link Vector3d} of the end effector position relative to the origin of this robot.</li>
+     *      <li>{@link #END_EFFECTOR_TARGET_POSITION}: returns a {@link Point3d} of the end effector position relative to the origin of this robot.</li>
      *      <li>{@link #TOOL_CENTER_POINT}: returns a {@link Matrix4d} relative to the origin of this robot.</li>
      *      <li>{@link #POSE}: returns a {@link Matrix4d}.  Returns the pose of the robot base relative to the world.</li>
      *      <li>{@link #JOINT_POSE}: returns a {@link Matrix4d} relative to the origin of this robot.</li>
@@ -59,7 +60,7 @@ public interface Robot {
      *      <li>{@link #JOINT_VALUE}: a double representing the degrees or millimeters of the active joint.</li>
      *      <li>{@link #END_EFFECTOR_TARGET}: a {@link Matrix4d} relative to the origin of this robot.  Sets the end
      *             effector target pose and immediately attempts to move the robot to that position.</li>
-     *      <li>{@link #END_EFFECTOR_TARGET_POSITION}: a {@link Vector3d} relative to the origin of this robot. Sets the
+     *      <li>{@link #END_EFFECTOR_TARGET_POSITION}: a {@link Point3d} relative to the origin of this robot. Sets the
      *             end effector target position and immediately attempts to move the robot to that position.  Intended
      *             for 3 axis robots only.</li>
      *      <li>{@link #TOOL_CENTER_POINT}: a {@link Matrix4d} relative to the origin of this robot.</li>
