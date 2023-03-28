@@ -1,5 +1,6 @@
 package com.marginallyclever.convenience;
 
+import javax.vecmath.Point3d;
 import javax.vecmath.Quat4d;
 import javax.vecmath.Vector3d;
 
@@ -207,7 +208,23 @@ public class MathHelper {
 		
 		return n;
 	}
-	
+
+	/**
+	 * interpolate from start to end
+	 * @param start
+	 * @param end
+	 * @param t [0...1]
+	 * @return
+	 */
+	static public Point3d interpolate(Point3d start, Point3d end, double t) {
+		Point3d n = new Point3d(end);
+		n.sub(start);
+		n.scale((float)t);
+		n.add(start);
+
+		return n;
+	}
+
 	// https://en.wikipedia.org/wiki/Slerp
 	static public Vector3d slerp(Vector3d a,Vector3d b,double t) {
 		
