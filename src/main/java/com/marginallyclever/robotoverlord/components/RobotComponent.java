@@ -35,6 +35,7 @@ public class RobotComponent extends Component implements Robot {
     @Override
     public void setEntity(Entity entity) {
         super.setEntity(entity);
+        entity.addComponent(new PoseComponent());
         findBones();
     }
 
@@ -184,7 +185,7 @@ public class RobotComponent extends Component implements Robot {
         if(pose==null) return null;
         Matrix4d m = pose.getWorld();
         base.invert();
-        m.mul(base);
+        m.mul(base,m);
         return m;
     }
 
@@ -203,8 +204,8 @@ public class RobotComponent extends Component implements Robot {
      * @throws RuntimeException if the robot cannot be moved to the target pose.
      */
     private void setEndEffectorTargetPose(Matrix4d targetPose) {
-        Matrix4d m0 = this.getEndEffectorPose();
-        double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrixes(m0, targetPose);
+        Matrix4d startPose = this.getEndEffectorPose();
+        double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrices(startPose, targetPose);
         applyCartesianForceToEndEffector(cartesianVelocity);
     }
 
@@ -214,11 +215,11 @@ public class RobotComponent extends Component implements Robot {
      * @param targetPosition the target position relative to the robot's base.
      */
     private void setEndEffectorTargetPosition(Point3d targetPosition) {
-        Matrix4d endEffectorPose = this.getEndEffectorPose();
+        Matrix4d startPose = this.getEndEffectorPose();
         double[] cartesianVelocity = new double[]{
-                targetPosition.x - endEffectorPose.m03,
-                targetPosition.y - endEffectorPose.m13,
-                targetPosition.z - endEffectorPose.m23,
+                targetPosition.x - startPose.m03,
+                targetPosition.y - startPose.m13,
+                targetPosition.z - startPose.m23,
                 0, 0, 0};
         applyCartesianForceToEndEffector(cartesianVelocity);
     }
@@ -243,7 +244,7 @@ public class RobotComponent extends Component implements Robot {
         } else {
             // split the big move in to smaller moves.
             int total = (int) Math.ceil(sum);
-            // allocate a new buffer so we don't smash the original.
+            // allocate a new buffer so that we don't smash the original.
             double[] cartesianVelocityUnit = new double[cartesianVelocity.length];
             for (int i = 0; i < cartesianVelocity.length; ++i) {
                 cartesianVelocityUnit[i] = cartesianVelocity[i] / total;
