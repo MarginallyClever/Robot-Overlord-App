@@ -850,32 +850,24 @@ public class MatrixHelper {
 	 * @param mEnd matrix of end pose
 	 * @return 6 doubles that will be filled with the XYZ translation and RPY rotation.
 	 */
-	static public double[] getCartesianBetweenTwoMatrixes(final Matrix4d mStart,final Matrix4d mEnd) {
-		Vector3d p0 = new Vector3d();
-		Vector3d p1 = new Vector3d();
-		Vector3d dp = new Vector3d();
-		mStart.get(p0);
-		mEnd.get(p1);
-		dp.sub(p1,p0);
-
-		// get the 3x3 part of the matrixes
-		Matrix3d mStart3 = new Matrix3d();
-		Matrix3d mEnd3 = new Matrix3d();
-		mStart.get(mStart3);
-		mEnd.get(mEnd3);
-		// then use the 3x3 to get the quaternions
-		Quat4d q0 = new Quat4d();
-		Quat4d q1 = new Quat4d();
-		q0.set(mStart3);
-		q1.set(mEnd3);
-		// then get the difference in quaternions.  diff * q0 = q1 --> diff = q1 * invert(q0)
+	static public double[] getCartesianBetweenTwoMatrices(final Matrix4d mStart, final Matrix4d mEnd) {
+		// get the linear movement
+		Vector3d diff = new Vector3d(
+				mEnd.m03-mStart.m03,
+				mEnd.m13-mStart.m13,
+				mEnd.m23-mStart.m23);
+		// get the quaternions
+		Quat4d qStart = new Quat4d();
+		Quat4d qEnd = new Quat4d();
+		qStart.set(mStart);
+		qEnd.set(mEnd);
+		// then get the difference in quaternions.  diff * qStart = qEnd --> diff = qEnd * invert(qStart)
 		Quat4d qDiff = new Quat4d();
-		qDiff.mulInverse(q1,q0);
-		
+		qDiff.mulInverse(qEnd,qStart);
 		// get the radian roll/pitch/yaw
 		double [] rpy = MathHelper.quatToEuler(qDiff);
 		
-		return new double[] { dp.x,dp.y,dp.z, -rpy[0],-rpy[1],-rpy[2] };
+		return new double[] { diff.x,diff.y,diff.z, -rpy[0],-rpy[1],-rpy[2] };
 	}
 
 	public static double[][] createMatrix(int rows, int cols) {
