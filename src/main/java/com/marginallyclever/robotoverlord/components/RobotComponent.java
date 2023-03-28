@@ -220,10 +220,15 @@ public class RobotComponent extends Component implements Robot {
                 targetPosition.y - endEffectorPose.m13,
                 targetPosition.z - endEffectorPose.m23,
                 0, 0, 0};
-        if(Math.abs(cartesianVelocity[0])<0.001) cartesianVelocity[0] = 0;
-        if(Math.abs(cartesianVelocity[1])<0.001) cartesianVelocity[1] = 0;
-        if(Math.abs(cartesianVelocity[2])<0.001) cartesianVelocity[2] = 0;
         applyCartesianForceToEndEffector(cartesianVelocity);
+    }
+
+    private double sumCartesianVelocityComponents(double [] cartesianVelocity) {
+        double sum = 0;
+        for (double v : cartesianVelocity) {
+            sum += Math.abs(v);
+        }
+        return sum;
     }
 
     /**
@@ -232,6 +237,30 @@ public class RobotComponent extends Component implements Robot {
      * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
      */
     private void applyCartesianForceToEndEffector(double[] cartesianVelocity) {
+        double sum = sumCartesianVelocityComponents(cartesianVelocity);
+        if(sum <= 1) {
+            applySmallCartesianForceToEndEffector(cartesianVelocity);
+        } else {
+            // split the big move in to smaller moves.
+            int total = (int) Math.ceil(sum);
+            // allocate a new buffer so we don't smash the original.
+            double[] cartesianVelocityUnit = new double[cartesianVelocity.length];
+            for (int i = 0; i < cartesianVelocity.length; ++i) {
+                cartesianVelocityUnit[i] = cartesianVelocity[i] / total;
+            }
+            //for (int i = 0; i < total; ++i)
+            {
+                applySmallCartesianForceToEndEffector(cartesianVelocityUnit);
+            }
+        }
+    }
+
+    /**
+     * Applies a cartesian force to the robot, moving it in the direction of the cartesian force.
+     * @param cartesianVelocity three linear forces (mm) and three angular forces (degrees).
+     * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
+     */
+    private void applySmallCartesianForceToEndEffector(double[] cartesianVelocity) {
         ApproximateJacobian2 aj = new ApproximateJacobian2(this);
         try {
             double[] jointVelocity = aj.getJointVelocityFromCartesianVelocity(cartesianVelocity);  // uses inverse jacobian
