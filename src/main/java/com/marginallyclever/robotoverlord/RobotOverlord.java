@@ -389,7 +389,9 @@ public class RobotOverlord extends Entity {
 		EntityPasteAction entityPasteAction = new EntityPasteAction(this);
 		entityDeleteAction = new EntityDeleteAction(this);
 		EntityCutAction entityCutAction = new EntityCutAction(entityDeleteAction, entityCopyAction);
+		EntityRenameAction entityRenameAction = new EntityRenameAction(this);
 
+		menu.add(entityRenameAction);
 		menu.add(entityCopyAction);
 		menu.add(entityPasteAction);
 		menu.add(entityCutAction);
@@ -399,6 +401,7 @@ public class RobotOverlord extends Entity {
 		actions.add(entityPasteAction);
 		actions.add(entityCutAction);
 		actions.add(entityDeleteAction);
+		actions.add(entityRenameAction);
 
 		return menu;
 	}

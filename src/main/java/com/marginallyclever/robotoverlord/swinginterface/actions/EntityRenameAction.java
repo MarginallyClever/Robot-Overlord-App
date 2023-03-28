@@ -10,6 +10,7 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 /**
@@ -23,6 +24,7 @@ public class EntityRenameAction extends AbstractAction implements EditorAction {
 	public EntityRenameAction(RobotOverlord ro) {
 		super(Translator.get("EntityRenameAction.name"));
 		putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityRenameAction.shortDescription"));
+		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F2,0));
 		this.ro = ro;
 	}
 
