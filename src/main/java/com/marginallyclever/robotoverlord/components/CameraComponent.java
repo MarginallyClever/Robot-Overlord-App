@@ -255,10 +255,9 @@ public class CameraComponent extends RenderComponent {
      * @param view the ViewPanel to decorate.
      */
     public void getView(ViewPanel view) {
-        view.pushStack("Camera", true);
-        view.add(orbitDistance);
-        view.popStack();
         super.getView(view);
+
+        view.add(orbitDistance);
     }
 
     public void setCurrentlyMoving(boolean state) {
