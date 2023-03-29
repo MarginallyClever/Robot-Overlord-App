@@ -3,22 +3,24 @@ package com.marginallyclever.convenience;
 import com.marginallyclever.convenience.log.Log;
 
 import javax.swing.*;
+import javax.vecmath.Vector2d;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.Serial;
 import java.util.ArrayList;
 
 
+/**
+ * A dial that can be turned with the mouse wheel, mouse click+drag, or the keyboard +/- keys.
+ * @author Dan Royer
+ */
 public class Dial extends JComponent {
-	/**
-	 * 
-	 */
-	@Serial
-	private static final long serialVersionUID = 1L;
-	private int value=0;
-	private int change=0;
+	private double value=0;
+	private double change=0;
 
-	private ArrayList<ActionListener> listeners = new ArrayList<>();
+	private boolean dragging=false;
+	private int dragPreviousX,dragPreviousY;
+
+	private final ArrayList<ActionListener> listeners = new ArrayList<>();
 
 	public Dial() {
 		super();
@@ -30,43 +32,95 @@ public class Dial extends JComponent {
 		addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
-				switch(e.getID()) {
-				case KeyEvent.VK_PLUS:
-					setChange(1);
-					setValue(value+1);
-					break;
-				case KeyEvent.VK_MINUS:
-					setChange(-1);
-					setValue(value-1);
-					break;
-				default: break;
+				switch (e.getID()) {
+					case KeyEvent.VK_PLUS -> {
+						setChange(1);
+						setValue(value + 1);
+					}
+					case KeyEvent.VK_MINUS -> {
+						setChange(-1);
+						setValue(value - 1);
+					}
+					default -> {
+					}
 				}
 			}
 		});
-		addMouseWheelListener(new MouseAdapter() {
+
+		addMouseWheelListener((MouseWheelEvent e)->{
+			onChange(-e.getWheelRotation());
+		});
+
+		addMouseListener(new MouseAdapter() {
 			@Override
-		    public void mouseWheelMoved(MouseWheelEvent e) {
-				int v = -e.getWheelRotation();
-				setChange(v);
-				setValue(value+v);
-				notifyActionListeners(new ActionEvent(this,ActionEvent.ACTION_PERFORMED,"turn"));
+			public void mousePressed(MouseEvent e) {
+				dragging=true;
+				setPrevious(e);
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				dragging=false;
+			}
+		});
+
+		addMouseMotionListener(new MouseAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				super.mouseDragged(e);
+				if(!dragging) return;
+
+				Vector2d center = new Vector2d(getWidth()/2.0,getHeight()/2.0);
+
+				// find the current mouse position relative to the center of the dial.
+				Vector2d delta = new Vector2d(e.getX(),e.getY());
+				delta.sub(center);
+				delta.normalize();
+
+				// find the previous mouse position relative to the center of the dial.
+				Vector2d previous = new Vector2d(dragPreviousX,dragPreviousY);
+				previous.sub(center);
+
+				// find the orthogonal vector to the previous vector
+				Vector2d ortho = new Vector2d(-previous.y,previous.x);
+				ortho.normalize();
+
+				// dot product of delta and ortho is the change in angle.
+				double dot = delta.dot(ortho);
+				double change = Math.acos(dot) * Math.signum(dot);
+
+				if(change!=0) onChange(change);
+
+				// remember the mouse moved.
+				setPrevious(e);
 			}
 		});
 	}
+
+	private void onChange(double amount) {
+		setChange(amount);
+		setValue(value+amount);
+		notifyActionListeners(new ActionEvent(this,ActionEvent.ACTION_PERFORMED,"turn"));
+	}
+
+	private void setPrevious(MouseEvent e) {
+		dragPreviousX = e.getX();
+		dragPreviousY = e.getY();
+	}
 	
-	public int getChange() {
+	public double getChange() {
 		return change;
 	}
 
-	public void setChange(int change) {
+	public void setChange(double change) {
 		this.change = change;
 	}
 	
-	public int getValue() {
+	public double getValue() {
 		return value;
 	}
 
-	public void setValue(int value) {
+	public void setValue(double value) {
 		this.value = (value+360)%360;
 		repaint();
 	}
