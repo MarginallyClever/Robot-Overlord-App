@@ -37,8 +37,17 @@ public class DemoSpidee implements Demo {
 		PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
 		pose.setPosition(new Vector3d(40/4f,-91/4f,106/4f));
 		camera.lookAt(new Vector3d(0,0,0));
-		camera.setOrbitDistance(20);
+		camera.setOrbitDistance(50);
 
+		// add a grid
+		Entity gridEntity = new Entity("Grid");
+		Grid grid = new Grid();
+		gridEntity.addComponent(grid);
+		sc.addEntity(gridEntity);
+		grid.setWidth(100);
+		grid.setLength(100);
+
+		// add spidee
 		Entity spidee = new Entity("Spidee-1");
 		spidee.addComponent(new CrabRobotComponent());
 		sc.addEntity(spidee);
