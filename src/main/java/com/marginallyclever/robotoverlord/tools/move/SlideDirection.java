@@ -6,19 +6,23 @@ public enum SlideDirection {
 	SLIDE_YPOS(2,"Y+"),
 	SLIDE_YNEG(3,"Y-");
 	
-	private int number;
-	private String name;
-	private SlideDirection(int n,String s) {
+	private final int number;
+	private final String name;
+
+	private SlideDirection(int n,String name) {
 		number=n;
-		name=s;
+		this.name =name;
 	}
+
 	public int toInt() {
 		return number;
 	}
+
 	@Override
 	public String toString() {
 		return name;
 	}
+
 	static public String [] getAll() {
 		SlideDirection[] allModes = SlideDirection.values();
 		String[] labels = new String[allModes.length];

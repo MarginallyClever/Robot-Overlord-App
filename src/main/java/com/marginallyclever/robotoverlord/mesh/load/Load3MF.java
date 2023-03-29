@@ -39,9 +39,7 @@ public class Load3MF implements MeshLoader {
 	}
 
 	@Override
-	public Mesh load(BufferedInputStream inputStream) throws Exception {
-        Mesh model = new Mesh();
-        
+	public void load(BufferedInputStream inputStream,Mesh model) throws Exception {
 		BufferedInputStream stream2 = openZipAndFind3DFile(inputStream);
 		Element modelNode = buildTreeAndReturnRootNode(stream2);
         double scale = getScale(modelNode);
@@ -49,8 +47,6 @@ public class Load3MF implements MeshLoader {
         parseMaterials(modelNode);
         parseAllObjects(model,modelNode,scale);
         MeshNormalBuilder.buildNormals(model);
-        
-		return model;
 	}
     
 	private void parseMaterials(Element modelNode) {

@@ -1,6 +1,8 @@
 package com.marginallyclever.robotoverlord.robots;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeListener;
 
 /**
@@ -24,25 +26,27 @@ public interface Robot {
     int POSE = 12;
     int JOINT_POSE = 13;
     int JOINT_HOME = 14;
+    int END_EFFECTOR_TARGET_POSITION = 15;
 
     /**
      * @param property can be any one of the following:
      * <ul>
-     *      <li>{@link #NAME}: returns a string</li>
-     *      <li>{@link #NUM_JOINTS}: returns an int</li>
-     *      <li>{@link #ACTIVE_JOINT}: returns an int</li>
-     *      <li>{@link #JOINT_NAME}: returns a string</li>
-     *      <li>{@link #JOINT_VALUE}: returns a double representing the degrees or millimeters of the active joint</li>
-     *      <li>{@link #JOINT_RANGE_MAX}: returns a double representing degrees</li>
-     *      <li>{@link #JOINT_RANGE_MIN}: returns a double representing degrees</li>
-     *      <li>{@link #JOINT_HAS_RANGE_LIMITS}: returns true if there are limits</li>
-     *      <li>{@link #JOINT_PRISMATIC}: returns true if the joint is prismatic (linear mm) and false if it is angular (rotation degrees)</li>
-     *      <li>{@link #END_EFFECTOR}: returns a {@link Matrix4d} relative to the origin of this robot</li>
-     *      <li>{@link #END_EFFECTOR_TARGET}: returns a {@link Matrix4d} relative to the origin of this robot</li>
-     *      <li>{@link #TOOL_CENTER_POINT}: returns a {@link Matrix4d} relative to the origin of this robot</li>
-     *      <li>{@link #POSE}: returns a {@link Matrix4d} </li>
-     *      <li>{@link #JOINT_POSE}: returns a {@link Matrix4d} relative to the origin of this robot</li>
-     *      <li>{@link #JOINT_HOME}: returns a double representing the degrees or millimeters of the active joint at its home position</li>
+     *      <li>{@link #NAME}: returns a String with the simple name of this class.</li>
+     *      <li>{@link #NUM_JOINTS}: returns the number of joints as an int.</li>
+     *      <li>{@link #ACTIVE_JOINT}: returns the index of the active joint as an int.</li>
+     *      <li>{@link #JOINT_NAME}: returns a String with the active joint name.</li>
+     *      <li>{@link #JOINT_VALUE}: returns a double representing the position of the active joint in degrees or millimeters.</li>
+     *      <li>{@link #JOINT_RANGE_MAX}: returns a double for the upper limit of the active joint.</li>
+     *      <li>{@link #JOINT_RANGE_MIN}: returns a double for the lower limit of the active joint.</li>
+     *      <li>{@link #JOINT_HAS_RANGE_LIMITS}: returns true if there are limits.</li>
+     *      <li>{@link #JOINT_PRISMATIC}: returns true if the active joint is prismatic (linear mm) and false if it is angular (rotation degrees).</li>
+     *      <li>{@link #END_EFFECTOR}: returns a {@link Matrix4d} of the end effector post relative to the origin of this robot.</li>
+     *      <li>{@link #END_EFFECTOR_TARGET}: returns a {@link Matrix4d} of the end effector target post relative to the origin of this robot.</li>
+     *      <li>{@link #END_EFFECTOR_TARGET_POSITION}: returns a {@link Point3d} of the end effector position relative to the origin of this robot.</li>
+     *      <li>{@link #TOOL_CENTER_POINT}: returns a {@link Matrix4d} relative to the origin of this robot.</li>
+     *      <li>{@link #POSE}: returns a {@link Matrix4d}.  Returns the pose of the robot base relative to the world.</li>
+     *      <li>{@link #JOINT_POSE}: returns a {@link Matrix4d} relative to the origin of this robot.</li>
+     *      <li>{@link #JOINT_HOME}: returns a double representing the degrees or millimeters of the active joint at its home position.</li>
      * </ul>
      * @return the requested property or null.
      */
@@ -52,12 +56,16 @@ public interface Robot {
      * @param property see value for valid properties
      * @param value is based on the property flag:
      * <ul>
-     *      <li>{@link #ACTIVE_JOINT}: an int in the range 0 ... <code>get(NUM_JOINTS)</code></li>
-     *      <li>{@link #JOINT_VALUE}: a double representing the degrees or millimeters of the active joint</li>
-     *      <li>{@link #END_EFFECTOR_TARGET}: a {@link Matrix4d} relative to the origin of this robot</li>
-     *      <li>{@link #TOOL_CENTER_POINT}: a {@link Matrix4d} relative to the origin of this robot</li>
-     *      <li>{@link #POSE}: a {@link Matrix4d} </li>
-     *      <li>{@link #JOINT_POSE}: a {@link Matrix4d} relative to the origin of this robot</li>
+     *      <li>{@link #ACTIVE_JOINT}: an int in the range 0 ... <code>get(NUM_JOINTS)</code>.</li>
+     *      <li>{@link #JOINT_VALUE}: a double representing the degrees or millimeters of the active joint.</li>
+     *      <li>{@link #END_EFFECTOR_TARGET}: a {@link Matrix4d} relative to the origin of this robot.  Sets the end
+     *             effector target pose and immediately attempts to move the robot to that position.</li>
+     *      <li>{@link #END_EFFECTOR_TARGET_POSITION}: a {@link Point3d} relative to the origin of this robot. Sets the
+     *             end effector target position and immediately attempts to move the robot to that position.  Intended
+     *             for 3 axis robots only.</li>
+     *      <li>{@link #TOOL_CENTER_POINT}: a {@link Matrix4d} relative to the origin of this robot.</li>
+     *      <li>{@link #POSE}: a {@link Matrix4d}.  Sets the pose of the base of the robot.</li>
+     *      <li>{@link #JOINT_POSE}: a {@link Matrix4d} relative to the origin of this robot.</li>
      * </ul>
      * @return the requested property or null.
      */

@@ -3,13 +3,16 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.UnicodeIcon;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.*;
 import java.nio.file.Paths;
 import java.util.LinkedList;
@@ -24,10 +27,13 @@ public class SceneLoadAction extends AbstractAction {
      */
     private static final JFileChooser fc = new JFileChooser();
 
-    public SceneLoadAction(String name, RobotOverlord ro) {
-        super(name);
+    public SceneLoadAction(RobotOverlord ro) {
+        super(Translator.get("SceneLoadAction.name"));
         this.ro=ro;
         fc.setFileFilter(RobotOverlord.FILE_FILTER);
+        putValue(Action.SMALL_ICON,new UnicodeIcon("🗁"));
+        putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneLoadAction.shortDescription"));
+        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK) );
     }
 
     public static void setLastDirectory(String s) {
@@ -44,7 +50,7 @@ public class SceneLoadAction extends AbstractAction {
             try {
                 Scene source = loadScene(fc.getSelectedFile());
 
-                SceneClearAction clear = new SceneClearAction("Clear Scene",ro);
+                SceneClearAction clear = new SceneClearAction(ro);
                 clear.clearScene();
 
                 Scene destination = ro.getScene();
@@ -89,4 +95,5 @@ public class SceneLoadAction extends AbstractAction {
 
         return nextScene;
     }
+
 }

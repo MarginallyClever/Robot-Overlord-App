@@ -13,30 +13,33 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
+import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
-import java.io.Serial;
 
 /**
  * Wrapper for all projection matrix stuff at the start of the render pipeline.
-	// OpenGL camera: -Z=forward, +X=right, +Y=up
+ * OpenGL camera: -Z=forward, +X=right, +Y=up
  * @author Dan Royer
  * @since 1.6.0
  *
  */
 public class Viewport extends Entity {
-	@Serial
-	private static final long serialVersionUID = -7613439702723031982L;
-	
 	private int canvasWidth, canvasHeight;
-	// mouse position in GUI
-	private double cursorX,cursorY;
+
+	/**
+	 * The mouse cursor position in screen coordinates.
+ 	 */
+	private double cursorX, cursorY;
+
 	// is mouse pressed in GUI?
 	private boolean isPressed;
 
-	private final DoubleEntity nearZ=new DoubleEntity("Near Z",5.0);
+	private final DoubleEntity nearZ=new DoubleEntity("Near Z",0.5);
 	private final DoubleEntity farZ=new DoubleEntity("Far Z",2000.0);
 	private final DoubleEntity fieldOfView=new DoubleEntity("FOV",60.0);
 	private final BooleanEntity drawOrthographic=new BooleanEntity("Orthographic",false);
+	
+	private CameraComponent camera;
 	
 	
 	public Viewport() {
@@ -59,43 +62,48 @@ public class Viewport extends Entity {
 	
 		gl2.glFrustum(-fW,fW,-fH,fH,zNear,zFar);
 	}
-	
+
+	/**
+	 * Render the scene in orthographic projection.
+	 * @param gl2 the OpenGL context
+	 * @param zoom the zoom factor
+	 */
 	public void renderOrthographic(GL2 gl2, double zoom) {
-        double w = canvasWidth/10.0;
-        double h = canvasHeight/10.0;
+        double w = canvasWidth/2.0;
+        double h = canvasHeight/2.0;
 		gl2.glOrtho(-w/zoom, w/zoom, -h/zoom, h/zoom, nearZ.get(), farZ.get());
 	}
 	
-	public void renderOrthographic(GL2 gl2, CameraComponent cameraComponent) {
-        renderOrthographic(gl2,cameraComponent.getOrbitDistance()/100.0);
+	public void renderOrthographic(GL2 gl2) {
+        renderOrthographic(gl2,camera.getOrbitDistance()/100.0);
 	}
 
-	public void renderShared(GL2 gl2,CameraComponent cameraComponent) {
+	public void renderShared(GL2 gl2,CameraComponent camera) {
     	gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
 
-		if(cameraComponent !=null) {
-			PoseComponent pose = cameraComponent.getEntity().findFirstComponent(PoseComponent.class);
+		if(camera !=null) {
+			PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
 			Matrix4d inverseCamera = pose.getWorld();
 			inverseCamera.invert();
 			MatrixHelper.applyMatrix(gl2, inverseCamera);
 		}
 	}
 	
-	public void renderChosenProjection(GL2 gl2, CameraComponent cameraComponent) {
+	public void renderChosenProjection(GL2 gl2) {
     	gl2.glMatrixMode(GL2.GL_PROJECTION);
 		gl2.glLoadIdentity();
 		
 		if(drawOrthographic.get()) {
-			renderOrthographic(gl2,cameraComponent);
+			renderOrthographic(gl2);
 		} else {
 			renderPerspective(gl2);
 		}
 		
-        renderShared(gl2,cameraComponent);
+        renderShared(gl2,camera);
 	}
 	
-	public void renderPick(GL2 gl2,CameraComponent cameraComponent,double pickX,double pickY) {
+	public void renderPick(GL2 gl2) {
         // get the current viewport dimensions to set up the projection matrix
         int[] viewportDimensions = new int[4];
 		gl2.glGetIntegerv(GL2.GL_VIEWPORT,viewportDimensions,0);
@@ -106,123 +114,141 @@ public class Viewport extends Entity {
 		// Tiny viewports are faster.
         gl2.glMatrixMode(GL2.GL_PROJECTION);
         gl2.glLoadIdentity();
-		glu.gluPickMatrix(pickX, canvasHeight-pickY, 5.0, 5.0, viewportDimensions,0);
+		glu.gluPickMatrix(cursorX,
+				canvasHeight-cursorY,
+				5.0,
+				5.0,
+				viewportDimensions,
+				0);
 
 		if(drawOrthographic.get()) {
-			renderOrthographic(gl2,cameraComponent);
+			renderOrthographic(gl2);
 		} else {
 			renderPerspective(gl2);
 		}
 		
-		renderShared(gl2,cameraComponent);
+		renderShared(gl2,camera);
 	}
-	
-	// reach out from the camera into the world and find the nearest object (if any) that the ray intersects.
-	public Ray rayPick(CameraComponent cameraComponent) {
+
+	/**
+	 * Return the ray coming through the viewport in the current projection.
+	 * @return the ray coming through the viewport in the current projection.
+	 */
+	public Ray getRayThroughCursor() {
 		// OpenGL camera: -Z=forward, +X=right, +Y=up
 		// get the ray coming through the viewport in the current projection.
-		Ray ray = new Ray();
+		Point3d origin;
+		Vector3d direction;
+
+		//double px = (cursorX+1.0) * canvasWidth / 2.0d;
+		//double py = (cursorY+1.0) * canvasHeight / 2.0d;
 
 		if(drawOrthographic.get()) {
 			// orthographic projection
-			ray.start = new Point3d(
+			origin = new Point3d(
 					cursorX*canvasWidth/10,
 					cursorY*canvasHeight/10,
 					0);
-			ray.direction.set(0,0,-1);
-			PoseComponent pose = cameraComponent.getEntity().findFirstComponent(PoseComponent.class);
+			direction = new Vector3d(0,0,-1);
+			PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
 			Matrix4d m2 = pose.getWorld();
-			m2.transform(ray.direction);
-			m2.transform(ray.start);
+			m2.transform(direction);
+			m2.transform(origin);
 		} else {
 			// perspective projection
-			double aspect = (double)canvasWidth / (double)canvasHeight;
 			double t = Math.tan(Math.toRadians(fieldOfView.get()/2));
-			ray.direction.set(cursorX*t*aspect,cursorY*t,-1);
+			direction = new Vector3d(cursorX*t*getAspectRatio(),cursorY*t,-1);
 			
 			// adjust the ray by the camera world pose.
-			PoseComponent pose = cameraComponent.getEntity().findFirstComponent(PoseComponent.class);
+			PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
 			Matrix4d m2 = pose.getWorld();
-			m2.transform(ray.direction);
-			ray.start.set(pose.getPosition());
+			m2.transform(direction);
+			origin = new Point3d(pose.getPosition());
 		}
-		ray.direction.normalize();
-		
-		return ray; 
+
+		return new Ray(origin,direction);
 	}
 
-	public void showPickingTest(GL2 gl2,CameraComponent cameraComponent) {
-		renderChosenProjection(gl2,cameraComponent);
+	public void showPickingTest(GL2 gl2) {
+		renderChosenProjection(gl2);
 		gl2.glPushMatrix();
 
-		Ray r = rayPick(cameraComponent);
+		Ray r = getRayThroughCursor();
 
 		double cx=cursorX;
 		double cy=cursorY;
         int w = canvasWidth;
         int h = canvasHeight;
-        setCursor(0,0);	Ray tl = rayPick(cameraComponent);
-        setCursor(w,0);		Ray tr = rayPick(cameraComponent);
-        setCursor(0,h);		Ray bl = rayPick(cameraComponent);
-        setCursor(w,h);			Ray br = rayPick(cameraComponent);
+        setCursor(0,0);	Ray tl = getRayThroughCursor();
+        setCursor(w,0);		Ray tr = getRayThroughCursor();
+        setCursor(0,h);		Ray bl = getRayThroughCursor();
+        setCursor(w,h);			Ray br = getRayThroughCursor();
 		cursorX=cx;
 		cursorY=cy;
 
         double scale=20;
-        tl.direction.scale(scale);
-        tr.direction.scale(scale);
-        bl.direction.scale(scale);
-        br.direction.scale(scale);
-        r.direction .scale(scale);
         
-        Vector3d tl2 = new Vector3d(tl.direction);
-        Vector3d tr2 = new Vector3d(tr.direction);
-        Vector3d bl2 = new Vector3d(bl.direction);
-        Vector3d br2 = new Vector3d(br.direction);
-        Vector3d r2  = new Vector3d(r.direction );
-        
-        tl2.add(tl.start);
-        tr2.add(tr.start);
-        bl2.add(bl.start);
-        br2.add(br.start);
-        r2.add(r.start);
+        Vector3d tl2 = new Vector3d(tl.getDirection());
+        Vector3d tr2 = new Vector3d(tr.getDirection());
+        Vector3d bl2 = new Vector3d(bl.getDirection());
+        Vector3d br2 = new Vector3d(br.getDirection());
+        Vector3d r2  = new Vector3d(r .getDirection());
+
+		tl2.scale(scale);
+		tr2.scale(scale);
+		bl2.scale(scale);
+		br2.scale(scale);
+		r2 .scale(scale);
+
+        tl2.add(tl.getOrigin());
+        tr2.add(tr.getOrigin());
+        bl2.add(bl.getOrigin());
+        br2.add(br.getOrigin());
+        r2.add(r.getOrigin());
         
         gl2.glDisable(GL2.GL_TEXTURE_2D);
 		gl2.glDisable(GL2.GL_LIGHTING);
 		
         gl2.glColor3d(1, 0, 0);
 		gl2.glBegin(GL2.GL_LINES);
-		gl2.glVertex3d(tl.start.x, tl.start.y, tl.start.z);		gl2.glVertex3d(tl2.x, tl2.y, tl2.z);
-		gl2.glVertex3d(tr.start.x, tr.start.y, tr.start.z);		gl2.glVertex3d(tr2.x, tr2.y, tr2.z);
-		gl2.glVertex3d(bl.start.x, bl.start.y, bl.start.z);		gl2.glVertex3d(bl2.x, bl2.y, bl2.z);
-		gl2.glVertex3d(br.start.x, br.start.y, br.start.z);		gl2.glVertex3d(br2.x, br2.y, br2.z);
-
+		drawPoint(gl2,tl.getOrigin());		drawPoint(gl2,tl2);
+		drawPoint(gl2,tr.getOrigin());		drawPoint(gl2,tr2);
+		drawPoint(gl2,bl.getOrigin());		drawPoint(gl2,bl2);
+		drawPoint(gl2,br.getOrigin());		drawPoint(gl2,br2);
         gl2.glColor3d(1, 1, 1);
-		gl2.glVertex3d(r.start.x, r.start.y, r.start.z);		gl2.glVertex3d(r2.x,r2.y,r2.z);
+		drawPoint(gl2,r.getOrigin());		drawPoint(gl2,r2);
 		gl2.glEnd();
         gl2.glColor3d(0, 1, 0);
 		gl2.glBegin(GL2.GL_LINE_LOOP);
-		gl2.glVertex3d(tl2.x, tl2.y, tl2.z);
-		gl2.glVertex3d(tr2.x, tr2.y, tr2.z);
-		gl2.glVertex3d(br2.x, br2.y, br2.z);
-		gl2.glVertex3d(bl2.x, bl2.y, bl2.z);
+		drawPoint(gl2,tl2);
+		drawPoint(gl2,tr2);
+		drawPoint(gl2,br2);
+		drawPoint(gl2,bl2);
 		gl2.glEnd();
         gl2.glColor3d(0, 0, 1);
 		gl2.glBegin(GL2.GL_LINE_LOOP);
-		gl2.glVertex3d(tl.start.x, tl.start.y, tl.start.z);
-		gl2.glVertex3d(tr.start.x, tr.start.y, tr.start.z);
-		gl2.glVertex3d(br.start.x, br.start.y, br.start.z);
-		gl2.glVertex3d(bl.start.x, bl.start.y, bl.start.z);
+		drawPoint(gl2,tl.getOrigin());
+		drawPoint(gl2,tr.getOrigin());
+		drawPoint(gl2,br.getOrigin());
+		drawPoint(gl2,bl.getOrigin());
 		gl2.glEnd();
 		
 		PrimitiveSolids.drawStar(gl2,r2,5);
 		gl2.glPopMatrix();
 	}
 
+	private void drawPoint(GL2 gl2, Tuple3d vector) {
+		gl2.glVertex3d(vector.x, vector.y, vector.z);
+	}
+
+	/**
+	 * Set the cursor position in the canvas.
+	 * @param x the x position in the canvas.  0....canvasWidth
+	 * @param y the y position in the canvas.  0....canvasHeight
+	 */
 	public void setCursor(int x,int y) {
-		cursorX= (2.0*x/canvasWidth)-1.0;
-		cursorY= 1.0-(2.0*y/canvasHeight);
-        //Log.message("X"+cursorX+" Y"+cursorY);
+		cursorX = x;
+		cursorY = y;
 	}
 
 	// mouse was pressed in GUI
@@ -260,6 +286,10 @@ public class Viewport extends Entity {
 		return (double)canvasWidth/(double)canvasHeight;
 	}
 
+	public double getFieldOfView() {
+		return fieldOfView.get();
+	}
+
 	@Override
 	public void getView(ViewPanel view) {
 		view.pushStack("Viewport",true);
@@ -269,5 +299,28 @@ public class Viewport extends Entity {
 		view.add(fieldOfView);
 		view.popStack();
 		super.getView(view);
+	}
+
+	public double [] getCursor() {
+		return new double[]{cursorX,cursorY};
+	}
+
+	/**
+	 * Returns the cursor position as values from -1...1.
+	 * @return the cursor position as values from -1...1.
+	 */
+	public double [] getCursorAsNormalized() {
+		double px = (2.0*cursorX/canvasWidth)-1.0;
+		double py = 1.0-(2.0*cursorY/canvasHeight);
+
+		return new double[]{px,py};
+	}
+
+	public CameraComponent getCamera() {
+		return camera;
+	}
+
+	public void setCamera(CameraComponent camera) {
+		this.camera = camera;
 	}
 }

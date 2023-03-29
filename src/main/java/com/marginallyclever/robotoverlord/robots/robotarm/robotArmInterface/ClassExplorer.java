@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.marlinInterface.TextInterfaceToListeners;
-import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.marlinInterface.TextInterfaceToNetworkSession;
+import com.marginallyclever.robotoverlord.robots.robotarm.robotArmInterface.marlinInterface.TextInterfaceToSessionLayer;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -80,6 +80,6 @@ public class ClassExplorer {
 	public static void main(String[] args) {
 		reportOnClass(new TapeDeckPanel());
 		reportOnClass(new TextInterfaceToListeners());
-		reportOnClass(new TextInterfaceToNetworkSession());
+		reportOnClass(new TextInterfaceToSessionLayer());
 	}
 }

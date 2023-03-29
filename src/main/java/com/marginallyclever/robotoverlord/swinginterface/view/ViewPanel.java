@@ -109,9 +109,7 @@ public class ViewPanel extends ViewElement {
 	private void setPopupMenu(Component component,JComponent panel) {
 		JPopupMenu popup = new JPopupMenu();
 
-		ComponentDeleteAction componentDeleteAction = new ComponentDeleteAction("ComponentDeleteAction.name",component,ro);
-		componentDeleteAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("ComponentDeleteAction.shortDescription"));
-		componentDeleteAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🗑"));
+		ComponentDeleteAction componentDeleteAction = new ComponentDeleteAction(component,ro);
 		popup.add(componentDeleteAction);
 
 		panel.setComponentPopupMenu(popup);

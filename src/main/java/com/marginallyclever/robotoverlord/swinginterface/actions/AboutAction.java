@@ -6,6 +6,7 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serial;
 
 /**
  * Display an About dialog box. This action is not undoable.
@@ -16,6 +17,7 @@ public class AboutAction extends AbstractAction implements ActionListener {
 	/**
 	 * 
 	 */
+	@Serial
 	private static final long serialVersionUID = 1L;
 	
 	public AboutAction() {

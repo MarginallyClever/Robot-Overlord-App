@@ -12,10 +12,10 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 public class MeshFactory {
-	private static MeshLoader [] loaders = { new LoadSTL(), new LoadOBJ(), new Load3MF(), new LoadAMF(), new LoadPLY() };
+	private static final MeshLoader [] loaders = { new LoadSTL(), new LoadOBJ(), new Load3MF(), new LoadAMF(), new LoadPLY() };
 	
 	// the pool of all shapes loaded
-	private static LinkedList<Mesh> meshPool = new LinkedList<>();
+	private static final LinkedList<Mesh> meshPool = new LinkedList<>();
 	
 	/**
 	 * Makes sure to only load one instance of each source file.  Loads all the data immediately.
@@ -25,21 +25,13 @@ public class MeshFactory {
 	public static Mesh load(String filename) {
 		if(filename == null || filename.trim().length()==0) return null;
 		
-		Mesh m = getMeshFromPool(filename);
-		if(m!=null) return m;
+		Mesh mesh = getMeshFromPool(filename);
+		if(mesh!=null) return mesh;
 
-		try {
-			m = attemptLoad(filename);
-		}
-		catch(Exception e) {
-			Log.error("Failed to load mesh: "+e.getLocalizedMessage());
-		}
-		if(m!=null) {
-			meshPool.add(m);
-			return m;
-		}
-		// failed to load, return empty mesh
-		return new Mesh();
+		mesh = new Mesh();
+		attemptLoad(filename,mesh);
+		meshPool.add(mesh);
+		return mesh;
 	}
 
 	private static Mesh getMeshFromPool(String filename) {
@@ -53,13 +45,13 @@ public class MeshFactory {
 		return null;
 	}
 
-	private static Mesh attemptLoad(String filename) throws Exception {
+	private static void attemptLoad(String filename,Mesh mesh) {
 		for( MeshLoader loader : loaders ) {
-			if(isValidExtension(filename,loader)) {			
-				return loadMeshWithLoader(filename,loader);
+			if(isValidExtension(filename,loader)) {
+				loadMeshWithLoader(filename,mesh,loader);
+				return;
 			}
 		}
-		return null;
 	}
 	
 	private static boolean isValidExtension(String filename, MeshLoader loader) {
@@ -71,27 +63,30 @@ public class MeshFactory {
 		return false;
 	}
 
-	private static Mesh loadMeshWithLoader(String filename, MeshLoader loader) throws Exception {
-		Mesh m=null;
+	private static void loadMeshWithLoader(String filename, Mesh mesh, MeshLoader loader) {
+		Log.message("Loading "+filename+" with "+loader.getEnglishName());
+
+		mesh.setSourceName(filename);
+		mesh.setDirty(true);
 
 		try(BufferedInputStream stream = FileAccess.open(filename)) {
-			m = loader.load(stream);
+			loader.load(stream,mesh);
+		}
+		catch(Exception e) {
+			Log.error("Failed to load mesh: "+e.getLocalizedMessage());
 		}
 
-		if(m!=null) {
-			m.setSourceName(filename);
-			m.updateCuboid();
-		}
-
-		return m;
+		mesh.updateCuboid();
+		mesh.setDirty(true);
 	}
 
-	public static void reload(Mesh myMesh) throws Exception {
-		throw new java.lang.UnsupportedOperationException("MeshFactory.reload() not implemented.");
+	public static void reload(Mesh myMesh) {
+		myMesh.clear();
+		attemptLoad(myMesh.getSourceName(),myMesh);
 	}
 
 	public static ArrayList<FileFilter> getAllExtensions() {
-		ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
+		ArrayList<FileFilter> filters = new ArrayList<>();
 		
 		for( MeshLoader loader : loaders ) {
 			filters.add( new FileNameExtensionFilter(loader.getEnglishName(), loader.getValidExtensions()) );

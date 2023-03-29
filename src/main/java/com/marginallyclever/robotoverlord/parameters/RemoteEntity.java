@@ -1,9 +1,9 @@
 package com.marginallyclever.robotoverlord.parameters;
 
-import com.marginallyclever.communications.NetworkSession;
-import com.marginallyclever.communications.NetworkSessionEvent;
-import com.marginallyclever.communications.NetworkSessionListener;
-import com.marginallyclever.communications.NetworkSessionManager;
+import com.marginallyclever.communications.SessionLayer;
+import com.marginallyclever.communications.SessionLayerEvent;
+import com.marginallyclever.communications.SessionLayerListener;
+import com.marginallyclever.communications.SessionLayerManager;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Entity;
@@ -27,7 +27,7 @@ import java.util.LinkedList;
  * @since 1.6.0
  *
  */
-public class RemoteEntity extends StringEntity implements NetworkSessionListener {
+public class RemoteEntity extends StringEntity implements SessionLayerListener {
 	/**
 	 * 
 	 */
@@ -58,7 +58,7 @@ public class RemoteEntity extends StringEntity implements NetworkSessionListener
 		}
 	}
 
-	private transient NetworkSession networkSession;
+	private transient SessionLayer sessionLayer;
 	
 	private transient int lastNumberAdded=0;
 	private transient int nextNumberToSend=0;
@@ -95,9 +95,9 @@ public class RemoteEntity extends StringEntity implements NetworkSessionListener
 	}
 	
 	public void closeConnection() {
-		if(networkSession!=null) {
-			networkSession.closeConnection();
-			networkSession=null;
+		if(sessionLayer !=null) {
+			sessionLayer.closeConnection();
+			sessionLayer =null;
 		}
 		resetCommands();
 		partialMessage.clear();
@@ -107,16 +107,16 @@ public class RemoteEntity extends StringEntity implements NetworkSessionListener
 		Entity e = getRoot();
 		Component parent = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
 		
-		networkSession = NetworkSessionManager.requestNewSession(parent);
-		if(networkSession!=null) {
-			networkSession.addListener(this);
+		sessionLayer = SessionLayerManager.requestNewSession(parent);
+		if(sessionLayer !=null) {
+			sessionLayer.addListener(this);
 			waitingForCue = true;
 		}
 	}
 
 	@Override
 	public void update(double dt) {
-		if(networkSession==null) return;
+		if(sessionLayer ==null) return;
 		
 		if(!waitingForCue && !commands.isEmpty()) {
 			if(commands.get(commands.size()-1).n > nextNumberToSend) {
@@ -126,7 +126,7 @@ public class RemoteEntity extends StringEntity implements NetworkSessionListener
 	}
 
 	public boolean isConnectionOpen() {
-		return networkSession!=null;
+		return sessionLayer !=null;
 	}
 	
 	/**
@@ -176,7 +176,7 @@ public class RemoteEntity extends StringEntity implements NetworkSessionListener
 		try {
 			waitingForCue=true;
 			reportDataSent(command);
-			networkSession.sendMessage(command);
+			sessionLayer.sendMessage(command);
 		} catch (Exception e) {
 			Log.error(e.getLocalizedMessage());
 		}
@@ -262,12 +262,12 @@ public class RemoteEntity extends StringEntity implements NetworkSessionListener
 	}
 
 	@Override
-	public void networkSessionEvent(NetworkSessionEvent evt) {
-		if(evt.flag == NetworkSessionEvent.DATA_AVAILABLE) receiveData((NetworkSession)evt.getSource(),(String)evt.data);
-		else if(evt.flag == NetworkSessionEvent.TRANSPORT_ERROR) transportError((NetworkSession)evt.getSource(),(String)evt.data);
+	public void networkSessionEvent(SessionLayerEvent evt) {
+		if(evt.flag == SessionLayerEvent.DATA_AVAILABLE) receiveData((SessionLayer)evt.getSource(),(String)evt.data);
+		else if(evt.flag == SessionLayerEvent.TRANSPORT_ERROR) transportError((SessionLayer)evt.getSource(),(String)evt.data);
 	}
 	
-	private void receiveData(NetworkSession arg0, String data) {
+	private void receiveData(SessionLayer arg0, String data) {
 		reportDataReceived(data);
 		
 		if (data.startsWith("> ")) {
@@ -286,7 +286,7 @@ public class RemoteEntity extends StringEntity implements NetworkSessionListener
 		}
 	}
 
-	private void transportError(NetworkSession arg0, String errorMessage) {
+	private void transportError(SessionLayer arg0, String errorMessage) {
 		Log.error("RemoteEntity error: "+errorMessage);
 		arg0.closeConnection();
 	}

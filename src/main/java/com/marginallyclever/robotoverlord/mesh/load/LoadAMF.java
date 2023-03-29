@@ -25,7 +25,7 @@ public class LoadAMF implements MeshLoader {
 
 	// much help from https://www.sculpteo.com/en/glossary/amf-definition/
 	@Override
-	public Mesh load(BufferedInputStream inputStream) throws Exception {
+	public void load(BufferedInputStream inputStream,Mesh model) throws Exception {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         Document doc = dBuilder.parse(inputStream);
@@ -33,11 +33,9 @@ public class LoadAMF implements MeshLoader {
         if(!doc.getDocumentElement().getNodeName().contains("amf")) {
         	throw new Exception("I can't find AMF node!");
         }
-        
-        Mesh model = new Mesh();
-        
-		ArrayList<Float> vertexArray = new ArrayList<Float>();
-		//ArrayList<Integer> faceArray = new ArrayList<Integer>();
+
+		ArrayList<Float> vertexArray = new ArrayList<>();
+		//ArrayList<Integer> faceArray = new ArrayList<>();
 		
     	NodeList coordinateList = doc.getElementsByTagName("coordinates");
 		int numCoordinates = coordinateList.getLength();
@@ -71,15 +69,15 @@ public class LoadAMF implements MeshLoader {
             	int v3 = Integer.parseInt(triangle.getElementsByTagName("v3").item(0).getTextContent());
                 //Log.message("\t\t"+v1+", "+v2+", "+v3);
             	
-            	float x1 = vertexArray.get(v1*3+0);
+            	float x1 = vertexArray.get(v1*3  );
             	float y1 = vertexArray.get(v1*3+1);
             	float z1 = vertexArray.get(v1*3+2);
 
-            	float x2 = vertexArray.get(v2*3+0);
+            	float x2 = vertexArray.get(v2*3  );
             	float y2 = vertexArray.get(v2*3+1);
             	float z2 = vertexArray.get(v2*3+2);
             	
-            	float x3 = vertexArray.get(v3*3+0);
+            	float x3 = vertexArray.get(v3*3  );
             	float y3 = vertexArray.get(v3*3+1);
             	float z3 = vertexArray.get(v3*3+2);
             	
@@ -103,8 +101,6 @@ public class LoadAMF implements MeshLoader {
 				model.addNormal(p1.x, p1.y, p1.z);
             }
         }
-        
-		return model;
 	}
 
 }

@@ -14,11 +14,7 @@ import java.net.URI;
  *
  */
 public class ForumsAction extends AbstractAction implements ActionListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private final String FORUM_URL = "https://www.marginallyclever.com/learn/forum/forum/sixi-robot-arm/";
+	private final String FORUM_URL = "https://discord.gg/p2NRZFxXbh";
 	
 	public ForumsAction() {
 		super(Translator.get("Online help"));

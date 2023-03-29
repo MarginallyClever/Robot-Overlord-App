@@ -2,10 +2,13 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.UnicodeIcon;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 /**
@@ -14,9 +17,12 @@ import java.util.List;
 public class EntityCopyAction extends AbstractAction implements EditorAction {
     protected final RobotOverlord ro;
 
-    public EntityCopyAction(String name, RobotOverlord ro) {
-        super(name);
+    public EntityCopyAction(RobotOverlord ro) {
+        super(Translator.get("EntityCopyAction.name"));
         this.ro=ro;
+        putValue(Action.SMALL_ICON,new UnicodeIcon("📋"));
+        putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityCopyAction.shortDescription"));
+        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK) );
     }
 
     @Override

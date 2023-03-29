@@ -3,23 +3,24 @@ package com.marginallyclever.robotoverlord.robots.spidee;
 
 import com.jogamp.opengl.GL2;
 
+@Deprecated
 public class SpideeJoint extends SpideeLocation {
 	public static final int ANGLE_HISTORY_LENGTH = (30*3);
 
 	double angle;
-	int last_angle;
-	int servo_address;
+	int lastAngle;
+	int servoAddress;
 
 	// thresholds so we don't grind & damage servos.
-	int angle_max;
-	int angle_min;
+	int angleMax;
+	int angleMin;
 	// adjust for real world inaccuracies
 	double scale;
 	double zero;
 
-	double [] angle_history = new double[ANGLE_HISTORY_LENGTH];
+	double [] angleHistory = new double[ANGLE_HISTORY_LENGTH];
 
-	void Draw(GL2 gl2,double scale) {
+	void draw(GL2 gl2, double scale) {
 
 		gl2.glPushMatrix();
 		gl2.glTranslated(pos.x,pos.y,pos.z);
@@ -59,5 +60,13 @@ public class SpideeJoint extends SpideeLocation {
 		gl2.glEnd();
 
 		gl2.glPopMatrix();
+	}
+
+	public void set(SpideeJoint panJoint) {
+		forward.set(panJoint.forward);
+		up.set(panJoint.up);
+		left.set(panJoint.left);
+		angle = panJoint.angle;
+		lastAngle = panJoint.lastAngle;
 	}
 }

@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.robotoverlord.components.*;
+import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
 import com.marginallyclever.robotoverlord.components.shapes.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,10 +14,6 @@ public class ComponentFactory {
 	private static final Logger logger = LoggerFactory.getLogger(ComponentFactory.class);
 	private static final Class<?> [] available = {
 			PoseComponent.class,
-			DHComponent.class,
-			OriginAdjustComponent.class,
-			ArmEndEffectorComponent.class,
-			RobotComponent.class,
 
 			LightComponent.class,
 			CameraComponent.class,
@@ -28,6 +25,14 @@ public class ComponentFactory {
 			Sphere.class,
 			Decal.class,
 			Cylinder.class,
+
+			OriginAdjustComponent.class,
+
+			DHComponent.class,
+			RobotComponent.class,
+			ArmEndEffectorComponent.class,
+
+			CrabRobotComponent.class,
 	};
 	
 	public static ArrayList<String> getAllComponentNames() {

@@ -7,6 +7,7 @@ import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -21,8 +22,9 @@ import java.util.List;
 public class EntityAddChildAction extends AbstractAction implements EditorAction {
 	protected RobotOverlord ro;
 	
-	public EntityAddChildAction(String name, RobotOverlord ro) {
-		super(name);
+	public EntityAddChildAction(RobotOverlord ro) {
+		super(Translator.get("EntityAddChildAction.name"));
+		putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityAddChildAction.shortDescription"));
 		this.ro = ro;
 	}
 	

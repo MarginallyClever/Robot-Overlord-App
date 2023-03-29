@@ -1,12 +1,15 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.UndoManager;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.io.Serial;
 
 /**
  * go forward one step in the undo/redo history.
@@ -16,16 +19,17 @@ public class RedoAction extends AbstractAction {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-	private UndoManager undo;
+	@Serial
+    private static final long serialVersionUID = 1L;
+	private final UndoManager undo;
 	private UndoAction undoCommand;
 	
     public RedoAction(UndoManager undo) {
-        super("Redo");
+        super(Translator.get("RedoAction.name"));
         this.undo = undo;
         setEnabled(false);
 
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_Y, ActionEvent.CTRL_MASK));
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
     }
 
     @Override

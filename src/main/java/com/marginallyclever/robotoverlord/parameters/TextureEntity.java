@@ -11,8 +11,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.IOException;
 import java.io.Serial;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 // TODO Load textures from a texture pool to eliminate duplicates?  See ShapeEntity for example.
 public class TextureEntity extends StringEntity {
@@ -83,7 +82,7 @@ public class TextureEntity extends StringEntity {
 	@Override
 	public void getView(ViewPanel view) {
 		//TODO Swing elements like FileFilter should not be mentioned outside of the view.
-		ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
+		ArrayList<FileFilter> filters = new ArrayList<>();
 		// supported file formats
 		filters.add(new FileNameExtensionFilter("PNG", "png"));
 		filters.add(new FileNameExtensionFilter("BMP", "bmp"));
@@ -91,5 +90,14 @@ public class TextureEntity extends StringEntity {
 		filters.add(new FileNameExtensionFilter("TGA", "tga"));
 		
 		view.addFilename(this,filters);
+	}
+
+	public String getTextureFilename() {
+		for (Map.Entry<String, Texture> entry : texturePool.entrySet()) {
+			if (entry.getValue().equals(texture)) {
+				return entry.getKey();
+			}
+		}
+		throw new RuntimeException("Texture not found in pool.");
 	}
 }

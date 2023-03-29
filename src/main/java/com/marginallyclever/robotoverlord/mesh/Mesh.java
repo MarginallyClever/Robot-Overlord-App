@@ -61,7 +61,8 @@ public class Mesh {
 	}
 	
 	/**
-	 * remove all vertexes, normals, colors, texture coordinates, etc.
+	 * Remove all vertexes, normals, colors, texture coordinates, etc.
+	 * on the next call to render() the mesh will be rebuilt to nothing.
 	 */
 	public void clear() {
 		vertexArray.clear();
@@ -74,7 +75,6 @@ public class Mesh {
 
 	public void setSourceName(String filename) {
 		this.fileName = filename;
-		isDirty=true;
 	}
 	
 	public String getSourceName() {
@@ -91,21 +91,25 @@ public class Mesh {
 
 	public void unload(GL2 gl2) {
 		if(!isLoaded) return;
-		if(VBO == null) return;
-		gl2.glDeleteBuffers(NUM_BUFFERS, VBO,0);
-		VBO=null;
 		isLoaded=false;
+		destroyBuffers(gl2);
 	}
 	
 	private void createBuffers(GL2 gl2) {
 		VBO = new int[NUM_BUFFERS];
 		gl2.glGenBuffers(NUM_BUFFERS, VBO, 0);
 	}
+
+	private void destroyBuffers(GL2 gl2) {
+		if(VBO == null) return;
+		gl2.glDeleteBuffers(NUM_BUFFERS, VBO,0);
+		VBO=null;
+	}
 	
 	/**
 	 * Regenerate the optimized rendering buffers for the fixed function pipeline.
 	 * Also recalculate the bounding box.
-	 * @param gl2
+	 * @param gl2 the OpenGL context
 	 */
 	private void updateBuffers(GL2 gl2) {
 		int numVertexes = vertexArray.size()/3;
@@ -115,9 +119,9 @@ public class Mesh {
 		FloatBuffer vertices = FloatBuffer.allocate(vertexArray.size());
 		fi = vertexArray.iterator();
 		while(fi.hasNext()) {
-			vertices.put(j++, fi.next().floatValue());
-			vertices.put(j++, fi.next().floatValue());
-			vertices.put(j++, fi.next().floatValue());
+			vertices.put(j++, fi.next());
+			vertices.put(j++, fi.next());
+			vertices.put(j++, fi.next());
 		}
 
 		final int BYTES_PER_FLOAT=(Float.SIZE/8);  // bits per float / bits per byte = bytes per float
@@ -137,9 +141,9 @@ public class Mesh {
 			FloatBuffer normals = FloatBuffer.allocate(normalArray.size());
 			fi = normalArray.iterator();
 			while(fi.hasNext()) {
-				normals.put(fi.next().floatValue());
-				normals.put(fi.next().floatValue());
-				normals.put(fi.next().floatValue());
+				normals.put(fi.next());
+				normals.put(fi.next());
+				normals.put(fi.next());
 			}
 			
 			normals.rewind();
@@ -153,7 +157,7 @@ public class Mesh {
 			FloatBuffer colors = FloatBuffer.allocate(colorArray.size());
 			fi = colorArray.iterator();
 			while(fi.hasNext()) {
-				colors.put(fi.next().floatValue());
+				colors.put(fi.next());
 			}
 			
 			colors.rewind();
@@ -167,36 +171,35 @@ public class Mesh {
 			FloatBuffer texCoords = FloatBuffer.allocate(texCoordArray.size());
 			fi = texCoordArray.iterator();
 			while(fi.hasNext()) {
-				texCoords.put(fi.next().floatValue());
+				texCoords.put(fi.next());
 			}
 			
 		    texCoords.rewind();
 			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
-		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, numVertexes*2*BYTES_PER_FLOAT, texCoords, GL2.GL_STATIC_DRAW);
+		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, (long) numVertexes *2*BYTES_PER_FLOAT, texCoords, GL2.GL_STATIC_DRAW);
 		    vboIndex++;
 		}
 		
 		if(hasIndexes) {
 			IntBuffer indexes = IntBuffer.allocate(indexArray.size());
-			Iterator<Integer> ii = indexArray.iterator();
-			while(ii.hasNext()) {
-				indexes.put(ii.next().intValue());
+			for (Integer integer : indexArray) {
+				indexes.put(integer);
 			}
 			final int BYTES_PER_INT = Integer.SIZE/8;
 			indexes.rewind();
 			gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, VBO[vboIndex]);
-			gl2.glBufferData(GL2.GL_ELEMENT_ARRAY_BUFFER, indexArray.size()*BYTES_PER_INT, indexes, GL2.GL_STATIC_DRAW);
+			gl2.glBufferData(GL2.GL_ELEMENT_ARRAY_BUFFER, (long) indexArray.size() *BYTES_PER_INT, indexes, GL2.GL_STATIC_DRAW);
 		    vboIndex++;
 		}
 	}
 	
 	public void render(GL2 gl2) {
 		if(!isLoaded) {
-			createBuffers(gl2);
-			isDirty=true;
 			isLoaded=true;
+			isDirty=true;
 		}
 		if(isDirty) {
+			if(VBO==null) createBuffers(gl2);
 			updateBuffers(gl2);
 			isDirty=false;
 		}
@@ -311,9 +314,9 @@ public class Mesh {
 		Iterator<Float> fi = vertexArray.iterator();
 		double x,y,z;
 		while(fi.hasNext()) {
-			x = fi.next().floatValue();
-			y = fi.next().floatValue();
-			z = fi.next().floatValue();
+			x = fi.next();
+			y = fi.next();
+			z = fi.next();
 			boundTop.x = Math.max(x, boundTop.x);
 			boundTop.y = Math.max(y, boundTop.y);
 			boundTop.z = Math.max(z, boundTop.z);

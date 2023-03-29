@@ -18,6 +18,7 @@ public class RobotArmInterface extends JPanel {
 	private final JogInterface jogInterface;
 	private final ProgramInterface programInterface;
 
+	private final JButton bHome = new JButton("Home");
 	private final JButton bRewind = new JButton("Rewind");
 	private final JButton bStart = new JButton("Play");
 	private final JButton bStep = new JButton("Step");
@@ -58,12 +59,14 @@ public class RobotArmInterface extends JPanel {
 	private JToolBar getToolBar() {
 		JToolBar bar = new JToolBar();
 		bar.setFloatable(false);
+		bar.add(bHome);
 		bar.addSeparator();
 		bar.add(bRewind);
 		bar.add(bStart);
 		bar.add(bPause);
 		bar.add(bStep);
 
+		bHome.addActionListener((e) -> home());
 		bRewind.addActionListener((e) -> rewind());
 		bStart.addActionListener((e) -> play());
 		bPause.addActionListener((e) -> pause());
@@ -113,7 +116,12 @@ public class RobotArmInterface extends JPanel {
 		progress.setValue(0);
 	}
 
+	private void home() {
+		marlinInterface.sendGoHome();
+	}
+
 	private void updateButtonStatus() {
+		bHome.setEnabled(!isRunning);
 		bRewind.setEnabled(!isRunning);
 		bStart.setEnabled(!isRunning);
 		bPause.setEnabled(isRunning);

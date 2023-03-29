@@ -1,33 +1,25 @@
 package com.marginallyclever.robotoverlord;
 
-import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.*;
-import com.jogamp.opengl.awt.GLJPanel;
-import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.demos.ODEPhysicsDemo;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
-import com.marginallyclever.robotoverlord.entities.SkyBoxEntity;
-import com.marginallyclever.robotoverlord.entities.ViewCube;
+import com.marginallyclever.robotoverlord.demos.DemoSpidee;
 import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.swinginterface.*;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
-import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanel;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanelEvent;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import com.marginallyclever.robotoverlord.tools.move.MoveTool;
 import com.marginallyclever.util.PropertiesFileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.vecmath.Vector2d;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -38,7 +30,6 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -55,11 +46,6 @@ public class RobotOverlord extends Entity {
 
 	public static final String APP_TITLE = "Robot Overlord";
 	public static final String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
-	private static final int FSAA_NUM_SAMPLES = 3;
-	private static final int VERTICAL_SYNC_ON = 1;  // 1 on, 0 off
-	private static final int DEFAULT_FRAMES_PER_SECOND = 30;
-	private static final int PICK_BUFFER_SIZE = 256;
-
 
 	private static final String KEY_WINDOW_WIDTH = "windowWidth";
 	private static final String KEY_WINDOW_HEIGHT = "windowHeight";
@@ -86,9 +72,20 @@ public class RobotOverlord extends Entity {
 	// settings
 	private final Preferences prefs = Preferences.userRoot().node("Evil Overlord");
     //private RecentFiles recentFiles = new RecentFiles();
-    
-    private final Scene scene;
+
+	/**
+	 * The scene being edited and all the entities therein.
+	 */
+	private final Scene scene = new Scene(System.getProperty("user.dir"));
+
+	/**
+	 * The list of entities selected in the editor.  This list is used by Actions.
+	 */
 	private transient final List<Entity> selectedEntities = new ArrayList<>();
+
+	/**
+	 * The list of entities copied to the clipboard.  This list is used by Actions.
+	 */
 	private transient Entity copiedEntities = new Entity();
 
 	/**
@@ -97,45 +94,48 @@ public class RobotOverlord extends Entity {
 	 */
 	private final ArrayList<AbstractAction> actions = new ArrayList<>();
 
-	private final MoveTool moveTool = new MoveTool(this);
-	private transient final ViewCube viewCube = new ViewCube();
-	
-	// The main frame of the GUI
-	private JFrame mainFrame; 
+	/**
+	 * The main frame of the GUI
+	 */
+	private JFrame mainFrame;
+
+	/**
+	 * The frame that contains the log panel.
+	 */
 	private static JFrame logFrame;
+
+	/**
+	 * The panel that contains the OpenGL canvas.
+	 */
+	private OpenGLRenderPanel renderPanel;
+
+	/**
+	 * The menu bar of the main frame.
+	 */
     private JMenuBar mainMenu;
+
+	/**
+	 * The left contains the renderPanel.  The right contains the rightFrameSplitter.
+	 */
 	private final JSplitPane splitLeftRight = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+
+	/**
+	 * The panel that contains the entity tree and the component panel.
+	 */
 	private final JSplitPane rightFrameSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
+	/**
+	 * Tree view of all Entities in the scene.
+	 */
 	private final EntityTreePanel entityTree = new EntityTreePanel();
-	private final ComponentPanel componentPanel = new ComponentPanel();
+
+	/**
+	 * Collated view of all components in all selected Entities.
+	 */
+	private final ComponentPanel componentPanel = new ComponentPanel(this);
 	
 	private EntityRenameAction entityRenameAction;
 	private EntityDeleteAction entityDeleteAction;
-
-	private final FPSAnimator animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND);
-	private GLJPanel glCanvas;
-	
-	// should I check the state of the OpenGL stack size?  true=every frame, false=never
-	private final boolean checkStackSize = false;
-	
-	// mouse steering controls
-	private boolean isMouseIn=false;
-
-	private final Viewport viewport = new Viewport();
-	
-    // timing for animations
-    private long lastTime;
-    private double frameDelay;
-    private double frameLength;
-
-	// click on screen to change which entity is selected
-	private transient boolean pickNow = false;
-	private final transient Vector2d pickPoint = new Vector2d();
-
-	private final SkyBoxEntity sky = new SkyBoxEntity();
-
-	// drag files into the app with {@link DropTarget}
-	private DropTarget dropTarget;
 
  	private RobotOverlord() {
 		super("");
@@ -148,7 +148,7 @@ public class RobotOverlord extends Entity {
 
 		Translator.start();
 		SoundSystem.start();
-		InputManager.start();
+		UndoSystem.start();
 
 		preferencesLoad();
 
@@ -156,19 +156,14 @@ public class RobotOverlord extends Entity {
 		buildMainMenu();
 		createSimulationPanel();
 		layoutComponents();
-		startAnimationSystem();
+		renderPanel.startAnimationSystem();
 
-		scene = new Scene(System.getProperty("user.dir"));
 		entityTree.addEntity(scene);
 		scene.addSceneChangeListener(entityTree);
 
-		addEntity(sky);
-		addEntity(viewport);
 		addEntity(scene);
-		addEntity(moveTool);
-		addEntity(viewCube);
 
-		SceneClearAction action = new SceneClearAction("Clear Scene",this);
+		SceneClearAction action = new SceneClearAction(this);
 		action.clearScene();
 		action.addDefaultEntities();
 
@@ -188,155 +183,9 @@ public class RobotOverlord extends Entity {
 	}
 
 	private void createSimulationPanel() {
-		createCanvas();
-        addCanvasListeners();
-        glCanvas.setMinimumSize(new Dimension(300,300));
+		renderPanel = new OpenGLRenderPanel(this,scene);
 	}
 
-	private void createCanvas() {
-        try {
-            Log.message("...get default caps");
-    		GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
-            Log.message("...set caps");
-    		caps.setBackgroundOpaque(true);
-    		caps.setDoubleBuffered(true);
-    		caps.setHardwareAccelerated(true);
-            if(FSAA_NUM_SAMPLES>1) {
-            	caps.setSampleBuffers(true);
-                caps.setNumSamples(FSAA_NUM_SAMPLES);
-            }
-            Log.message("...create panel");
-            glCanvas = new GLJPanel(caps);
-    	} catch(GLException e) {
-    		Log.error("Failed the first call to OpenGL.  Are your native drivers missing?");
-    	}
-	}
-
-	private void addCanvasListeners() {
-		glCanvas.addGLEventListener(new GLEventListener() {
-			private final boolean glDebug=false;
-			private final boolean glTrace=false;
-
-		    @Override
-		    public void init( GLAutoDrawable drawable ) {
-		        GL gl = drawable.getGL();
-		    	if(glDebug) gl = useGLDebugPipeline(gl);
-		        if(glTrace) gl = useTracePipeline(gl);
-		        
-		    	GL2 gl2 = drawable.getGL().getGL2();
-		    	
-		    	// turn on vsync
-		        gl2.setSwapInterval(VERTICAL_SYNC_ON);
-		        
-				// make things pretty
-				gl2.glEnable(GL2.GL_NORMALIZE);
-		    	gl2.glEnable(GL2.GL_LINE_SMOOTH);      
-		        gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
-		        gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
-		        // TODO add a settings toggle for this option, it really slows down older machines.
-		        gl2.glEnable(GL2.GL_MULTISAMPLE);
-
-				// Don't draw triangles facing away from camera
-				gl2.glCullFace(GL2.GL_BACK);
-
-		        int [] buf = new int[1];
-		        int [] sbuf = new int[1];
-		        gl2.glGetIntegerv(GL2.GL_SAMPLES, buf, 0);
-		        gl2.glGetIntegerv(GL2.GL_SAMPLE_BUFFERS, sbuf, 0);
-
-		        // depth testing and culling options
-				gl2.glDepthFunc(GL2.GL_LESS);
-				gl2.glEnable(GL2.GL_DEPTH_TEST);
-				gl2.glDepthMask(true);
-		        
-		        // Scale normals using the scale of the transform matrix so that lighting is sane.
-		        // This is more efficient than gl2.gleEnable(GL2.GL_NORMALIZE);
-				//gl2.glEnable(GL2.GL_RESCALE_NORMAL);
-				//gl2.glEnable(GL2.GL_NORMALIZE);
-		        
-				// default blending option for transparent materials
-		        gl2.glEnable(GL2.GL_BLEND);
-		        gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
-				
-		        // set the color to use when wiping the draw buffer
-				gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
-				
-				// draw to the back buffer, so we can swap buffer later and avoid vertical sync tearing
-		    	gl2.glDrawBuffer(GL2.GL_BACK);
-		    }
-			
-		    @Override
-		    public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
-		        // set up the projection matrix
-		        viewport.setCanvasWidth(glCanvas.getSurfaceWidth());
-		        viewport.setCanvasHeight(glCanvas.getSurfaceHeight());
-		    }
-
-			@Override
-		    public void dispose( GLAutoDrawable drawable ) {}
-			
-		    @Override
-		    public void display( GLAutoDrawable drawable ) {
-		        long nowTime = System.currentTimeMillis();
-		        long dt = nowTime - lastTime;
-		    	lastTime = nowTime;
-		    	updateStep(dt*0.001);  // to seconds
-		    	
-		    	GL2 gl2 = drawable.getGL().getGL2();
-				if(checkStackSize) checkRenderStep(gl2);
-				else renderStep(gl2);
-		    	pickStep(gl2);
-		    }
-		});  // this class also listens to the glcanvas (messy!) 
-		glCanvas.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				// if they dragged the cursor around before releasing the mouse button, don't pick.
-				if (e.getClickCount() == 2) {
-					pickPoint.set(e.getX(),e.getY());
-					pickNow=true;
-				}
-			}
-			
-			@Override
-			public void mousePressed(MouseEvent e) {
-				if(SwingUtilities.isLeftMouseButton(e)) {
-					pickPoint.set(e.getX(),e.getY());
-					viewport.pressed();
-				}
-			}
-			
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				if(SwingUtilities.isLeftMouseButton(e)) {
-					viewport.released();
-				}
-			}
-			
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				isMouseIn=true;
-				glCanvas.requestFocus();
-			}
-			
-			@Override
-			public void mouseExited(MouseEvent e) {
-				isMouseIn=false;
-			}
-		});  // this class also listens to the mouse button clicks.
-		glCanvas.addMouseMotionListener(new MouseMotionListener() {
-			@Override
-			public void mouseDragged(MouseEvent e) {
-		        viewport.setCursor(e.getX(),e.getY());
-			}
-			
-			@Override
-			public void mouseMoved(MouseEvent e) {
-		        viewport.setCursor(e.getX(),e.getY());
-			}
-		});  // this class also listens to the mouse movement.
-	}
-	
 	public static void main(String[] argv) {
 		logFrame = LogPanel.createFrame();
 		Log.start();
@@ -366,8 +215,7 @@ public class RobotOverlord extends Entity {
 	private JPopupMenu buildEntityTreePopupMenu() {
 		JPopupMenu popupMenu = new JPopupMenu();
 
-		EntityAddChildAction EntityaddChildAction = new EntityAddChildAction(Translator.get("EntityAddChildAction.name"),this);
-		EntityaddChildAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityAddChildAction.shortDescription"));
+		EntityAddChildAction EntityaddChildAction = new EntityAddChildAction(this);
 
 		for( AbstractAction action : actions ) {
 			if(action instanceof EntityCopyAction || action instanceof EntityPasteAction) {
@@ -375,8 +223,7 @@ public class RobotOverlord extends Entity {
 			}
 		}
 
-		entityRenameAction =new EntityRenameAction(Translator.get("EntityRenameAction.name"),this);
-		entityRenameAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityRenameAction.shortDescription"));
+		entityRenameAction = new EntityRenameAction(this);
 		entityRenameAction.setEnabled(false);
 
 		actions.add(EntityaddChildAction);
@@ -401,10 +248,10 @@ public class RobotOverlord extends Entity {
         Dimension minimumSize = new Dimension(360,300);
         rightFrameSplitter.setMinimumSize(minimumSize);
         // if the window resizes, give top and bottom halves equal share of the real estate
-		rightFrameSplitter.setResizeWeight(0.5);
+		rightFrameSplitter.setResizeWeight(0.25);
 
         Log.message("build splitters");
-        splitLeftRight.add(glCanvas);
+        splitLeftRight.add(renderPanel);
         splitLeftRight.add(rightFrameSplitter);
         // if the window resizes, give left half as much real estate as it can get.
         splitLeftRight.setResizeWeight(1);
@@ -436,14 +283,12 @@ public class RobotOverlord extends Entity {
         	@Override
             public void windowActivated(WindowEvent e) {
         		super.windowActivated(e);
-        		InputManager.focusGained();
         	}
 
     		// switch away to another window
         	@Override
             public void windowDeactivated(WindowEvent e) {
         		super.windowDeactivated(e);
-        		InputManager.focusLost();
         	}
 		});
 
@@ -517,37 +362,20 @@ public class RobotOverlord extends Entity {
 	private JComponent createFileMenu() {
 		JMenu menu = new JMenu(APP_TITLE);
 
-		SceneClearAction sceneClearAction = new SceneClearAction(Translator.get("SceneClearAction.name"),this);
-		sceneClearAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🌱"));
-		sceneClearAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneClearAction.shortDescription"));
-		sceneClearAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
-
-		SceneLoadAction sceneLoadAction = new SceneLoadAction(Translator.get("SceneLoadAction.name"),this);
-		sceneLoadAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🗁"));
-		sceneLoadAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneLoadAction.shortDescription"));
-		sceneLoadAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK) );
-
-		SceneImportAction sceneImportAction = new SceneImportAction(Translator.get("SceneImportAction.name"),this);
-		sceneImportAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🗁"));
-		sceneImportAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneImportAction.shortDescription"));
-
-		SceneSaveAction sceneSaveAction = new SceneSaveAction(Translator.get("SceneSaveAction.name"),this);
-		sceneSaveAction.putValue(Action.SMALL_ICON,new UnicodeIcon("💾"));
-		sceneSaveAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneSaveAction.shortDescription"));
-		sceneSaveAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
-
-		menu.add(sceneClearAction);
-		menu.add(sceneLoadAction);
-		menu.add(sceneImportAction);
-		menu.add(sceneSaveAction);
+		menu.add(new SceneClearAction(this));
+		menu.add(new SceneLoadAction(this));
+		menu.add(new SceneImportAction(this));
+		menu.add(new SceneSaveAction(this));
 		menu.add(new JSeparator());
 		menu.add(new QuitAction(this));
+
 		return menu;
 	}
 
 	private JComponent createDemoMenu() {
 		JMenu menu = new JMenu("Demos");
-		menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
+		menu.add(new JMenuItem(new DemoAction(this,new DemoSpidee())));
+		//menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
 		return menu;
 	}
 
@@ -557,26 +385,13 @@ public class RobotOverlord extends Entity {
 		menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
 		menu.add(new JSeparator());
 
-		EntityCopyAction entityCopyAction = new EntityCopyAction(Translator.get("EntityCopyAction.name"),this);
-		entityCopyAction.putValue(Action.SMALL_ICON,new UnicodeIcon("📋"));
-		entityCopyAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityCopyAction.shortDescription"));
-		entityCopyAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK) );
+		EntityCopyAction entityCopyAction = new EntityCopyAction(this);
+		EntityPasteAction entityPasteAction = new EntityPasteAction(this);
+		entityDeleteAction = new EntityDeleteAction(this);
+		EntityCutAction entityCutAction = new EntityCutAction(entityDeleteAction, entityCopyAction);
+		EntityRenameAction entityRenameAction = new EntityRenameAction(this);
 
-		EntityPasteAction entityPasteAction = new EntityPasteAction(Translator.get("EntityPasteAction.name"),this);
-		entityPasteAction.putValue(Action.SMALL_ICON,new UnicodeIcon("📎"));
-		entityPasteAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityPasteAction.shortDescription"));
-		entityPasteAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK) );
-
-		entityDeleteAction = new EntityDeleteAction(Translator.get("EntityDeleteAction.name"),this);
-		entityDeleteAction.putValue(Action.SMALL_ICON,new UnicodeIcon("🗑"));
-		entityDeleteAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityDeleteAction.shortDescription"));
-		entityDeleteAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0) );
-
-		EntityCutAction entityCutAction = new EntityCutAction(Translator.get("EntityCutAction.name"), entityDeleteAction, entityCopyAction);
-		entityCutAction.putValue(Action.SMALL_ICON,new UnicodeIcon("✂"));
-		entityCutAction.putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityCutAction.shortDescription"));
-		entityCutAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK) );
-
+		menu.add(entityRenameAction);
 		menu.add(entityCopyAction);
 		menu.add(entityPasteAction);
 		menu.add(entityCutAction);
@@ -586,6 +401,7 @@ public class RobotOverlord extends Entity {
 		actions.add(entityPasteAction);
 		actions.add(entityCutAction);
 		actions.add(entityDeleteAction);
+		actions.add(entityRenameAction);
 
 		return menu;
 	}
@@ -607,24 +423,14 @@ public class RobotOverlord extends Entity {
 	}
 
     private void updateSelectEntities() {
-		if(entityRenameAction !=null) entityRenameAction.setEnabled(false);
+		if( entityRenameAction != null ) entityRenameAction.setEnabled(false);
 
-		moveTool.setSubject(null);
-
-		List<Entity> list = getSelectedEntities();
-    	if( !list.isEmpty()) {
-			if(list.size() == 1) {
-				Entity firstEntity = list.get(0);
-				if(firstEntity.findFirstComponent(PoseComponent.class) != null) {
-					moveTool.setSubject(firstEntity);
-				}
-			}
-    	}
+		renderPanel.updateSubjects();
 		updateComponentPanel();
 	}
 
 	public void updateComponentPanel() {
-		componentPanel.refreshContents(getSelectedEntities(),this);
+		componentPanel.refreshContents(getSelectedEntities());
 	}
 
 	public void confirmClose() {
@@ -640,7 +446,7 @@ public class RobotOverlord extends Entity {
 
         	// Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
 	        new Thread(() -> {
-				stopAnimationSystem();
+				renderPanel.stopAnimationSystem();
 				mainFrame.dispose();
 			}).start();
         }
@@ -663,164 +469,8 @@ public class RobotOverlord extends Entity {
 		return null;
 	}
 
-    private GL useTracePipeline(GL gl) {
-        try {
-            return gl.getContext().setGL( GLPipelineFactory.create("com.jogamp.opengl.Trace", null, gl, new Object[] { System.err } ) );
-        } catch (Exception e) {
-        	e.printStackTrace();
-        }
-		return gl;
-	}
-
-	private GL useGLDebugPipeline(GL gl) {
-        Log.message("using GL debug pipeline");
-        try {
-			return gl.getContext().setGL( GLPipelineFactory.create("com.jogamp.opengl.Debug", null, gl, null) );
-        } catch (Exception e) {
-        	e.printStackTrace();
-        }
-		return gl;
-	}
-
-	private void pickStep(GL2 gl2) {
-        if(!pickNow) return;
-
-		pickNow = false;
-
-		CameraComponent cameraComponent = findFirstComponentRecursive(CameraComponent.class);
-		if(cameraComponent==null) return;
-
-		int pickName = findItemUnderCursor(gl2,cameraComponent);
-		Entity next = scene.pickEntityWithName(pickName);
-		UndoSystem.addEvent(this,new SelectEdit(this,getSelectedEntities(),next));
-    }
-    
-    private void checkRenderStep(GL2 gl2) {
-		IntBuffer stackDepth = IntBuffer.allocate(1);
-		gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,stackDepth);
-		logger.debug("stack depth start = "+stackDepth.get(0));
-
-		renderStep(gl2);
-		
-		gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,stackDepth);
-		logger.debug("stack depth end = "+stackDepth.get(0));
-	}
-	
-    private void renderStep(GL2 gl2) {
-		clearAll(gl2);
-
-		CameraComponent camera = scene.findFirstComponentRecursive(CameraComponent.class);
-		if(camera==null) return;
-
-        viewport.renderChosenProjection(gl2,camera);
-
-		sky.render(gl2);
-        scene.render(gl2);
-        // overlays
-		moveTool.render(gl2);
-		viewCube.render(gl2);
-	}
-
-	private void clearAll(GL2 gl2) {
-		// Clear the screen and depth buffer
-		//gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_COLOR_BUFFER_BIT);
-		gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
-	}
-
-	private void updateStep(double dt) {
-    	frameDelay+=dt;
-    	if(frameDelay>frameLength) {
-   			frameDelay-=frameLength;
-	    	InputManager.update(isMouseIn);
-	    	update( frameLength );
-    	}
-	}
-
-	private void startAnimationSystem() {
-		logger.debug("setup the animation system");
-        frameDelay=0;
-        frameLength=1.0f/(float)DEFAULT_FRAMES_PER_SECOND;
-        animator.add(glCanvas);
-        // record the start time of the application, also the end of the core initialization process.
-        lastTime = System.currentTimeMillis();
-        // start the main application loop.  it will call display() repeatedly.
-        animator.start();
-	}
-
-	private void stopAnimationSystem() {
-		animator.stop();
-	}
-
-	/**
-	 * Use glRenderMode(GL_SELECT) to ray pick the item under the cursor.
-	 * See <a href="https://github.com/sgothel/jogl-demos/blob/master/src/demos/misc/Picking.java">1</a>
-	 * and <a href="http://web.engr.oregonstate.edu/~mjb/cs553/Handouts/Picking/picking.pdf">2</a>
-	 * @param gl2 the openGL render context
-	 */
-	private int findItemUnderCursor(GL2 gl2,CameraComponent cameraComponent) {
-    	IntBuffer pickBuffer = Buffers.newDirectIntBuffer(PICK_BUFFER_SIZE);
-        gl2.glSelectBuffer(PICK_BUFFER_SIZE, pickBuffer);
-
-		gl2.glRenderMode( GL2.GL_SELECT );
-		// wipe the select buffer
-		gl2.glInitNames();
-
-		viewport.renderPick(gl2,cameraComponent,pickPoint.x,pickPoint.y);
-		
-        gl2.glLoadName(0);
-        // render in selection mode, without advancing time in the simulation.
-        scene.render(gl2);
-
-        gl2.glPopName();
-        gl2.glFlush();
-        
-        // get the picking results and return the render mode to the default 
-        int hits = gl2.glRenderMode( GL2.GL_RENDER );
-
-        return getPickNameFromPickList(pickBuffer,hits,false);
-    }
-    
-	private int getPickNameFromPickList(IntBuffer pickBuffer,int hits,boolean verbose) {
-		if(verbose) logger.debug(hits+" PICKS @ "+pickPoint.x+","+pickPoint.y);
-
-        float zMinBest = Float.MAX_VALUE;
-    	int i, index=0, bestPick=0;
-    	
-    	for(i=0;i<hits;++i) {
-    		if(verbose) describePickBuffer(pickBuffer,index);
-    		
-    		int nameCount=pickBuffer.get(index++);
-    		float z1 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-    	    @SuppressWarnings("unused")
-    		float z2 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-
-			index+=nameCount;
-			if(nameCount>0 && zMinBest > z1) {
-    			zMinBest = z1;
-    			bestPick = pickBuffer.get(index-1);
-    		}
-    	}
-    	return bestPick;
-    }
-    
-    private void describePickBuffer(IntBuffer pickBuffer, int index) {
-		int nameCount=pickBuffer.get(index++);
-		float z1 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-		float z2 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-		
-		StringBuilder msg= new StringBuilder("  names=" + nameCount + " zMin=" + z1 + " zMax=" + z2 + ": ");
-		String add="";
-		int pickName;
-		for(int j=0;j<nameCount;++j) {
-			pickName = pickBuffer.get(index++);
-			msg.append(add).append(pickName);
-    		add=", ";
-		}
-		logger.debug(msg.toString());
-	}
-
 	public Viewport getViewport() {
-		return viewport;
+		return renderPanel.getViewport();
 	}
 
 	public CameraComponent getCamera() {
@@ -851,7 +501,7 @@ public class RobotOverlord extends Entity {
 	}
 
 	/**
-	 * All Actions have the tools to check for themselves if they are active.
+	 * Tell all Actions to check if they are active.
 	 */
 	private void updateActionEnableStatus() {
 		for(AbstractAction a : actions) {
@@ -862,8 +512,8 @@ public class RobotOverlord extends Entity {
 	}
 
 	private void setupDropTarget() {
-		logger.debug("adding drag & drop support...");
-		dropTarget = new DropTarget(mainFrame,new DropTargetAdapter() {
+		logger.debug("adding drag + drop support...");
+		new DropTarget(mainFrame,new DropTargetAdapter() {
 			@Override
 			public void drop(DropTargetDropEvent dtde) {
 				try {
@@ -873,15 +523,21 @@ public class RobotOverlord extends Entity {
 						logger.debug("Possible flavor: {}", flavor.getMimeType());
 						if (flavor.isFlavorJavaFileListType()) {
 							dtde.acceptDrop(DnDConstants.ACTION_COPY);
-							Object o = tr.getTransferData(flavor);
-							if (o instanceof List<?>) {
-								List<?> list = (List<?>) o;
+							Object object = tr.getTransferData(flavor);
+							if (object instanceof List<?>) {
+								List<?> list = (List<?>) object;
 								if (list.size() > 0) {
-									o = list.get(0);
-									if (o instanceof File) {
-										openFile(((File) o).getAbsolutePath());
-										dtde.dropComplete(true);
-										return;
+									object = list.get(0);
+									if (object instanceof File) {
+										File file = (File) object;
+										if(loadMesh(file.getAbsolutePath())) {
+											dtde.dropComplete(true);
+											return;
+										}
+										if(importScene(file)) {
+											dtde.dropComplete(true);
+											return;
+										}
 									}
 								}
 							}
@@ -897,24 +553,35 @@ public class RobotOverlord extends Entity {
 		});
 	}
 
-	private void openFile(String absolutePath) {
-		logger.debug("openFile({})",absolutePath);
-		try {
-			if(MeshFactory.canLoad(absolutePath)) {
-				Entity entity = new Entity();
-				ShapeComponent shape = new MeshFromFile(absolutePath);
-				String name = getFilenameWithoutExtensionFromPath(absolutePath);
-				entity.setName(name);
-				entity.addComponent(shape);
-				scene.addEntity(entity);
-				setSelectedEntity(entity);
-				PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
-				pose.setPosition(getCamera().getOrbitPoint());
-			}
+	private boolean importScene(File file) {
+		SceneImportAction action = new SceneImportAction(this);
+		return action.loadFile(file);
+	}
+
+	private boolean loadMesh(String absolutePath) {
+		if(!MeshFactory.canLoad(absolutePath)) return false;
+
+		logger.debug("loadMesh({})",absolutePath);
+        try {
+			// create entity.
+			Entity entity = new Entity();
+			entity.setName(getFilenameWithoutExtensionFromPath(absolutePath));
+			// add shape, which will add pose and material.
+			ShapeComponent shape = new MeshFromFile(absolutePath);
+			entity.addComponent(shape);
+			// move entity to camera orbit point so it's visible.
+			PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
+			pose.setPosition(getCamera().getOrbitPoint());
+
+			// add entity to scene.
+			UndoSystem.addEvent(this,new EntityAddEdit(getScene(),entity));
+			//robotOverlord.setSelectedEntity(entity);
 		}
 		catch(Exception e) {
 			logger.error("Error opening file",e);
+			return false;
 		}
+		return true;
 	}
 
 	private String getFilenameWithoutExtensionFromPath(String absolutePath) {

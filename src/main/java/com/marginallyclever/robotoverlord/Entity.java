@@ -20,6 +20,10 @@ import java.util.List;
  *
  */
 public class Entity implements PropertyChangeListener {
+	public static final String PATH_SEPARATOR = "/";
+	public static final String PATH_PREVIOUS = "..";
+	public static final String PATH_CURRENT = ".";
+
 	private String name;
 
 	protected transient Entity parent;
@@ -114,7 +118,7 @@ public class Entity implements PropertyChangeListener {
 	}
 	
 	public void addEntity(Entity child) {
-		System.out.println("add "+child.getFullPath()+" to "+this.getFullPath());
+		//System.out.println("add "+child.getFullPath()+" to "+this.getFullPath());
 		checkForAddToScene(this,child);
 		children.add(child);
 		child.setParent(this);
@@ -176,12 +180,12 @@ public class Entity implements PropertyChangeListener {
 	 * @return the requested entity or null.
 	 */
 	public Entity findByPath(String path) {
-		String[] pathComponents = path.split("/");
+		String[] pathComponents = path.split(PATH_SEPARATOR);
 
 		// if absolute path, start with root node.
 		int i = 0;
 		Entity e;
-		if (path.startsWith("/")) {
+		if (path.startsWith(PATH_SEPARATOR)) {
 			e = getRoot();
 			i = 2;
 		} else {
@@ -193,24 +197,16 @@ public class Entity implements PropertyChangeListener {
 
 			if (e == null)
 				break;
-			if (name.contentEquals("..")) {
+			if (name.contentEquals(PATH_PREVIOUS)) {
 				// ".." = my parent
 				e = e.getParent();
-			} else if (name.contentEquals(".")) {
+				continue;
+			} else if (name.contentEquals(PATH_CURRENT)) {
 				// "." is me!
 				continue;
-			} else {
-				boolean found = false;
-				for (Entity c : e.getChildren()) {
-					if (name.contentEquals(c.getName())) {
-						e = c;
-						found = true;
-						break;
-					}
-				}
-				if (!found)
-					return null; // does not exist
 			}
+
+			e = e.getChildren().stream().filter( c -> name.contentEquals(c.getName()) ).findFirst().orElse(null);
 		}
 
 		return e;
@@ -434,12 +430,18 @@ public class Entity implements PropertyChangeListener {
 		for (Object o : jo) {
 			JSONObject jo2 = (JSONObject) o;
 			Component component = ComponentFactory.load(jo2.getString("type"));
-			this.addComponent(component);
+			// It's possible that a component creates another component upon which it is dependent.
+			// Only one of each component class is allowed in an Entity.
+			// So we check for that condition and only use the existing component.
+			if(!containsAnInstanceOfTheSameClass(component)) {
+				this.addComponent(component);
+			} else {
+				component = findFirstComponent(component.getClass());
+			}
 			component.parseJSON(jo2);
 		}
 	}
 
-	@Deprecated
 	public Entity deepCopy() {
 		Entity e = new Entity();
 		e.parseJSON(this.toJSON());

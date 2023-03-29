@@ -7,12 +7,19 @@ import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoManager;
 
+/**
+ * A singleton to manage undo/redo actions.
+ * @author Dan Royer
+ */
 public class UndoSystem {
 	private static final UndoManager undoManager = new UndoManager();
 	private static final UndoAction commandUndo = new UndoAction(undoManager);
 	private static final RedoAction commandRedo = new RedoAction(undoManager);
-	
-	public void start() {
+
+	/**
+	 * Start the undo system.  This is called by the main frame after the menu bar is created.
+	 */
+	public static void start() {
         commandUndo.setRedoCommand(commandRedo);
     	commandRedo.setUndoCommand(commandUndo);
 	}

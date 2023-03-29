@@ -1,6 +1,6 @@
 package com.marginallyclever.communications.serial;
 
-import com.marginallyclever.communications.NetworkSession;
+import com.marginallyclever.communications.SessionLayer;
 import com.marginallyclever.communications.TransportLayer;
 import com.marginallyclever.communications.TransportLayerPanel;
 import jssc.SerialPortList;
@@ -45,19 +45,19 @@ public class SerialTransportLayer implements TransportLayer {
 	 * @return <code>serialConnection</code> if connection successful.  <code>null</code> on failure.
 	 */
 	@Override
-	public NetworkSession openConnection(String connectionName) {
+	public SessionLayer openConnection(String connectionName) {
 		//if(connectionName.equals(recentPort)) return null;
 
-		SerialConnection serialConnection = new SerialConnection(this);
+		SerialSession serialSession = new SerialSession(this);
 
 		try {
-			serialConnection.openConnection(connectionName);
+			serialSession.openConnection(connectionName);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 
-		return serialConnection;
+		return serialSession;
 	}
 
 	/**

@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +20,8 @@ public class BrowseURLAction extends AbstractAction {
 
     private final String address;
 
-    public BrowseURLAction(String label, String address) {
-        super(label);
+    public BrowseURLAction(String address) {
+        super(Translator.get("BrowseURl.name"));
         this.address = address;
     }
 

@@ -16,8 +16,8 @@ public interface MeshLoader {
 	/**
 	 * Load data from stream
 	 * @param inputStream source of data
-	 * @returns Mesh containing all parsed data
-	 * @throws Exception
+	 * @param model mesh into which data will be loaded
+	 * @throws Exception if something goes wrong
 	 */
-	Mesh load(BufferedInputStream inputStream) throws Exception;
+	void load(BufferedInputStream inputStream,Mesh model) throws Exception;
 }

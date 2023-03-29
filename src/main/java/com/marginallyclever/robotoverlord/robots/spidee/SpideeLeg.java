@@ -4,23 +4,23 @@ import com.jogamp.opengl.GL2;
 
 import javax.vecmath.Vector3d;
 
-
+@Deprecated
 public class SpideeLeg  {
 	String name;
 	  int base_servo_address;
 	  
-	  SpideeJoint pan_joint = new SpideeJoint();
-	  SpideeJoint tilt_joint = new SpideeJoint();
-	  SpideeJoint knee_joint = new SpideeJoint();
-	  SpideeJoint ankle_joint = new SpideeJoint();
+	  SpideeJoint shoulderPan = new SpideeJoint();
+	  SpideeJoint shoulderTilt = new SpideeJoint();
+	  SpideeJoint knee = new SpideeJoint();
+	  SpideeJoint ankle = new SpideeJoint();
 
-	  Vector3d lpoc = new Vector3d();  // last point of contact on the ground
-	  Vector3d npoc = new Vector3d();  // next point of contact on the ground
+	  Vector3d lastPointOfContact = new Vector3d();  // last point of contact on the ground
+	  Vector3d nextPointOfContact = new Vector3d();  // next point of contact on the ground
 
-	  float facing_angle;   // angle relative to body in resting state
+	  float facingAngle;   // angle relative to body in resting state
 
 	  boolean active;
-	  boolean on_ground;
+	  boolean onGround;
 	  
 	  
 	  void render(GL2 gl2,int color_index) {
@@ -41,34 +41,34 @@ public class SpideeLeg  {
 				  colors[color_index*3+2]);
 		  // last point of contact
 		  gl2.glBegin(GL2.GL_LINE_LOOP);
-		  gl2.glVertex3d(lpoc.x+0.5f, lpoc.y-0.5f, 0);
-		  gl2.glVertex3d(lpoc.x+0.5f, lpoc.y+0.5f, 0);
-		  gl2.glVertex3d(lpoc.x-0.5f, lpoc.y+0.5f, 0);
-		  gl2.glVertex3d(lpoc.x-0.5f, lpoc.y-0.5f, 0);
+		  gl2.glVertex3d(lastPointOfContact.x+0.5f, lastPointOfContact.y-0.5f, 0);
+		  gl2.glVertex3d(lastPointOfContact.x+0.5f, lastPointOfContact.y+0.5f, 0);
+		  gl2.glVertex3d(lastPointOfContact.x-0.5f, lastPointOfContact.y+0.5f, 0);
+		  gl2.glVertex3d(lastPointOfContact.x-0.5f, lastPointOfContact.y-0.5f, 0);
 		  gl2.glEnd();
 		  gl2.glBegin(GL2.GL_LINES);
-		  gl2.glVertex3d(npoc.x-1.0f, npoc.y, 0);
-		  gl2.glVertex3d(npoc.x+1.0f, npoc.y, 0);
-		  gl2.glVertex3d(npoc.x, npoc.y-1.0f, 0);
-		  gl2.glVertex3d(npoc.x, npoc.y+1.0f, 0);
+		  gl2.glVertex3d(nextPointOfContact.x-1.0f, nextPointOfContact.y, 0);
+		  gl2.glVertex3d(nextPointOfContact.x+1.0f, nextPointOfContact.y, 0);
+		  gl2.glVertex3d(nextPointOfContact.x, nextPointOfContact.y-1.0f, 0);
+		  gl2.glVertex3d(nextPointOfContact.x, nextPointOfContact.y+1.0f, 0);
 		  gl2.glEnd();
 
 		  // next point of contact
 		  gl2.glBegin(GL2.GL_LINE_LOOP);
-		  gl2.glVertex3d(npoc.x+0.75f, npoc.y-0.75f, 0);
-		  gl2.glVertex3d(npoc.x+0.75f, npoc.y+0.75f, 0);
-		  gl2.glVertex3d(npoc.x-0.75f, npoc.y+0.75f, 0);
-		  gl2.glVertex3d(npoc.x-0.75f, npoc.y-0.75f, 0);
+		  gl2.glVertex3d(nextPointOfContact.x+0.75f, nextPointOfContact.y-0.75f, 0);
+		  gl2.glVertex3d(nextPointOfContact.x+0.75f, nextPointOfContact.y+0.75f, 0);
+		  gl2.glVertex3d(nextPointOfContact.x-0.75f, nextPointOfContact.y+0.75f, 0);
+		  gl2.glVertex3d(nextPointOfContact.x-0.75f, nextPointOfContact.y-0.75f, 0);
 		  gl2.glEnd();
 
 		  gl2.glBegin(GL2.GL_LINES);
-		  gl2.glVertex3d(ankle_joint.pos.x,ankle_joint.pos.y,ankle_joint.pos.z);
-		  gl2.glVertex3d(ankle_joint.pos.x,ankle_joint.pos.y,0);
+		  gl2.glVertex3d(ankle.pos.x, ankle.pos.y, ankle.pos.z);
+		  gl2.glVertex3d(ankle.pos.x, ankle.pos.y,0);
 		  gl2.glEnd();
 
-		  pan_joint.Draw(gl2,2);
-		  tilt_joint.Draw(gl2,1);
-		  knee_joint.Draw(gl2,3);
+		  shoulderPan.draw(gl2,2);
+		  shoulderTilt.draw(gl2,1);
+		  knee.draw(gl2,3);
 
 		  gl2.glEnable(GL2.GL_LIGHTING);
 	  }

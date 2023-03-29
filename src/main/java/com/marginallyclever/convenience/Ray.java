@@ -12,18 +12,56 @@ import javax.vecmath.Vector3d;
  *
  */
 public class Ray {
-	public Point3d start = new Point3d();
-	public Vector3d direction = new Vector3d();
-	
+	private final Point3d origin = new Point3d();
+	private final Vector3d direction = new Vector3d();
+
+	public Ray() {
+		direction.set(0,0,1);
+	}
+
+	public Ray(Point3d origin,Vector3d direction) {
+		this.origin.set(origin);
+		this.direction.set(direction);
+	}
+
+	public Ray(Ray r) {
+		this.origin.set(r.origin);
+		this.direction.set(r.direction);
+	}
+
+	/**
+	 * @param direction the direction of this ray.  cannot be a zero vector.
+	 * @throws IllegalArgumentException if direction is too small
+	 */
+	public void setDirection(Vector3d direction) throws IllegalArgumentException {
+		if(direction.lengthSquared()<0.0001) {
+			throw new IllegalArgumentException("direction is too small");
+		}
+		this.direction.set(direction);
+		this.direction.normalize();
+	}
+
+	public Vector3d getDirection() {
+		return direction;
+	}
+
+	public void setOrigin(Point3d origin) {
+		this.origin.set(origin);
+	}
+
+	public Point3d getOrigin() {
+		return origin;
+	}
+
 	public void render(GL2 gl2) {
 		gl2.glBegin(GL2.GL_LINES);
 		gl2.glColor3d(1,0,0); 
-		gl2.glVertex3d(start.x, start.y, start.z);
+		gl2.glVertex3d(origin.x, origin.y, origin.z);
 		gl2.glColor3d(0,1,0);
 		gl2.glVertex3d(
-				start.x+direction.x*50,
-				start.y+direction.y*50, 
-				start.z+direction.z*50);
+				origin.x+direction.x*50,
+				origin.y+direction.y*50,
+				origin.z+direction.z*50);
 	}
 	
 	/**
@@ -31,8 +69,8 @@ public class Ray {
 	 */
 	public Vector3d getPoint(double t) {
 		return new Vector3d(
-				start.x+direction.x*t,
-				start.y+direction.y*t,
-				start.z+direction.z*t);
+				origin.x+direction.x*t,
+				origin.y+direction.y*t,
+				origin.z+direction.z*t);
 	}
 }

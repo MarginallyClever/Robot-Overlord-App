@@ -20,9 +20,7 @@ public class LoadPLY implements MeshLoader {
 	}
 
 	@Override
-	public Mesh load(BufferedInputStream inputStream) throws Exception {
-		Mesh model = new Mesh();
-		
+	public void load(BufferedInputStream inputStream,Mesh model) throws Exception {
 		model.renderStyle = GL2.GL_POINTS;
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream,"UTF-8"));
@@ -39,8 +37,5 @@ public class LoadPLY implements MeshLoader {
 			//float strength=Float.parseFloat(tokens[3]);
 			model.addVertex(x,y,z);
 		}
-		
-		return model;
 	}
-
 }

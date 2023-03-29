@@ -204,50 +204,21 @@ public class IntersectionHelper {
 
 		return values;
 	}
-	
-	/**
-	 * https://en.wikipedia.org/wiki/Line%E2%80%93plane_intersection
-	 * @param r ray
-	 * @param p plane
-	 * @return single intersection point or null
-	 */
-	static Vector3d rayPlane(Ray r,Plane p) {
-		Vector3d diff = new Vector3d();
-		diff.sub(p.start,r.start);
-		double denominator = r.direction.dot(p.normal);
-		if(denominator<1e-6) {  // some tiny epsilon
-			// ray is parallel to plane.
-			return null;
-		}
-		double numerator = diff.dot(p.normal);
-		double d = p.distanceToPlane();
-		double t = (numerator +d) / denominator;
-		if(t<0) {
-			// plane behind ray aka ray heading away from plane
-			return null;
-		}
 
-		Vector3d intersection = new Vector3d(r.direction);
-		intersection.scale(t);
-		intersection.add(r.start);
-		
-		return intersection;
-	}
-	
 	/**
 	 * First fine ray/plane intersection, then test if intersection is inside triangle.
 	 * Uses the first three points of the polygon to construct a plane.
-	 * https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/ray-triangle-intersection-geometric-solution
-	 * @param r ray
+	 * See <a href="https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/ray-triangle-intersection-geometric-solution">scratchapixel.com</a>
+	 * @param ray ray
 	 * @param points 3+ points that make up a convex polygon in a plane
 	 * @return single intersection point or null.
 	 */
-	static Vector3d rayConvexPolygon(Ray r, Point3d [] points) {
+	static Point3d rayConvexPolygon(Ray ray, Point3d [] points) {
 		assert(points.length>3);
 		
 		Plane plane = new Plane(points[0],points[1],points[2]);
-		Vector3d planePoint = rayPlane(r,plane);
-		if(planePoint==null) {
+		Point3d intersection = new Point3d();
+		if(!plane.intersect(ray,intersection)) {
 			// no intersection
 			return null;
 		}
@@ -256,12 +227,12 @@ public class IntersectionHelper {
 		int s = points.length;
 		for(int i=0;i<s;++i) {
 			Vector3d e0 = new Vector3d(points[(i+1)%s]); e0.sub(points[i]);
-			Vector3d c0 = new Vector3d(planePoint); c0.sub(points[i]);
+			Vector3d c0 = new Vector3d(intersection); c0.sub(points[i]);
 			Vector3d temp = new Vector3d();
 			temp.cross(e0,c0);	if(plane.normal.dot(temp)<=0) return null;
 		}
 		
-		return planePoint;
+		return intersection;
 	}
 
 	/**
@@ -275,7 +246,7 @@ public class IntersectionHelper {
 
 
 	/**
-	 * ray/sphere intersection. @see <a href='https://viclw17.github.io/2018/07/16/raytracing-ray-sphere-intersection/'>reference</a>.
+	 * ray/sphere intersection. see <a href="https://viclw17.github.io/2018/07/16/raytracing-ray-sphere-intersection/">reference</a>.
 	 * @param ray
 	 * @param center
 	 * @param radius
@@ -283,9 +254,9 @@ public class IntersectionHelper {
 	 */
 	static public double raySphere(final Ray ray,final Point3d center,final double radius) {
 		Vector3d oc = new Vector3d();
-		oc.sub(ray.start,center);
-	    double a = ray.direction.dot(ray.direction);
-	    double b = 2.0 * oc.dot(ray.direction);
+		oc.sub(ray.getOrigin(),center);
+	    double a = ray.getDirection().dot(ray.getDirection());
+	    double b = 2.0 * oc.dot(ray.getDirection());
 	    double c = oc.dot(oc) - radius*radius;
 	    double discriminant = b*b - 4*a*c;
 	    if(discriminant >= 0) {
@@ -304,8 +275,10 @@ public class IntersectionHelper {
 	 * @return &gt;=0 for hit, negative numbers for hits behind camera and no hit.
 	 */
 	static public double rayBox(final Ray ray,final Point3d boxMin,final Point3d boxMax) {
-	    double tmin = (boxMin.x - ray.start.x) / ray.direction.x; 
-	    double tmax = (boxMax.x - ray.start.x) / ray.direction.x; 
+		Vector3d rayDirection = ray.getDirection();
+		Point3d rayOrigin = ray.getOrigin();
+	    double tmin = (boxMin.x - rayOrigin.x) / rayDirection.x;
+	    double tmax = (boxMax.x - rayOrigin.x) / rayDirection.x;
 	
 	    if (tmin > tmax) {
 	    	double temp = tmin;
@@ -313,8 +286,8 @@ public class IntersectionHelper {
 	    	tmax=temp;
 	    }
 	
-	    double tymin = (boxMin.y - ray.start.y) / ray.direction.y; 
-	    double tymax = (boxMax.y - ray.start.y) / ray.direction.y; 
+	    double tymin = (boxMin.y - rayOrigin.y) / rayDirection.y;
+	    double tymax = (boxMax.y - rayOrigin.y) / rayDirection.y;
 	
 	    if (tymin > tymax) {
 	    	double temp = tymin;
@@ -331,8 +304,8 @@ public class IntersectionHelper {
 	    if (tymax < tmax) 
 	        tmax = tymax; 
 	
-	    double tzmin = (boxMin.z - ray.start.z) / ray.direction.z; 
-	    double tzmax = (boxMax.z - ray.start.z) / ray.direction.z; 
+	    double tzmin = (boxMin.z - rayOrigin.z) / rayDirection.z;
+	    double tzmax = (boxMax.z - rayOrigin.z) / rayDirection.z;
 	
 	    if (tzmin > tzmax) {
 	    	double temp = tzmin;
@@ -350,29 +323,6 @@ public class IntersectionHelper {
 	    //    tmax = tzmax; 
 	
 	    return tmin; 
-	}
-
-
-	/**
-	 * 
-	 * @param planePoint point on plane
-	 * @param planeNormal normal of plane
-	 * @param rayPoint origin of ray
-	 * @param rayNormal direction of ray
-	 * @return Double.POSITIVE_INFINITY if no collision (orthogonal).  otherwise, distance to plane.
-	 */
-	static public double rayPlane(final Vector3d planePoint,final Vector3d planeNormal,final Vector3d rayPoint,final Vector3d rayNormal) {
-		Vector3d dp = new Vector3d(planePoint);
-		dp.sub(rayPoint);
-	
-		double denominator = rayNormal.dot(planeNormal);
-		if(denominator==0) {
-			// rays are orthogonal, never collide.
-			return Double.POSITIVE_INFINITY;
-		} else {
-			double numerator = dp.dot(planeNormal);
-			return numerator/denominator;
-		}
 	}
 
 	/**

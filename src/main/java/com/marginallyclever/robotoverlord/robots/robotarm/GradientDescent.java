@@ -15,7 +15,7 @@ public class GradientDescent {
 	}
 
 	private double getDistanceToTarget(RobotComponent robot,Matrix4d target) {
-		double [] distance = MatrixHelper.getCartesianBetweenTwoMatrixes(myRobot.getEndEffector(),target);
+		double [] distance = MatrixHelper.getCartesianBetweenTwoMatrices(myRobot.getEndEffectorPose(),target);
 		double sum=0;
 		for( double d : distance ) sum += Math.abs(d);
 		return sum;

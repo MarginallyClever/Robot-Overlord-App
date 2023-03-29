@@ -11,7 +11,6 @@ module com.marginallyclever.robotOverlord {
 	
 	requires vecmath;
 	requires jsch;
-	requires jinput;
 	requires jogamp.fat;
 	requires annotations;
 	requires jssc;

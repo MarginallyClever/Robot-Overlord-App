@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
 import javax.swing.undo.CannotUndoException;
@@ -17,11 +18,11 @@ public class UndoAction extends AbstractAction {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private UndoManager undo;
+	private final UndoManager undo;
 	private RedoAction redoAction;
 	
     public UndoAction(UndoManager undo) {
-        super("Undo");  
+        super(Translator.get("UndoAction.name"));
     	this.undo=undo;
         setEnabled(false);
         

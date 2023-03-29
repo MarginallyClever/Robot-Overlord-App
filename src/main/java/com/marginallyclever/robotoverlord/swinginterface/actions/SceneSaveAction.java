@@ -2,11 +2,14 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.UnicodeIcon;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -25,10 +28,13 @@ public class SceneSaveAction extends AbstractAction implements ActionListener {
 	 */
 	private static final JFileChooser fc = new JFileChooser();
 	
-	public SceneSaveAction(String name, RobotOverlord ro) {
-		super(name);
+	public SceneSaveAction(RobotOverlord ro) {
+		super(Translator.get("SceneSaveAction.name"));
 		this.ro = ro;
 		fc.setFileFilter(RobotOverlord.FILE_FILTER);
+		putValue(Action.SMALL_ICON,new UnicodeIcon("💾"));
+		putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneSaveAction.shortDescription"));
+		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
 	}
 
 	public static void setLastDirectory(String s) {

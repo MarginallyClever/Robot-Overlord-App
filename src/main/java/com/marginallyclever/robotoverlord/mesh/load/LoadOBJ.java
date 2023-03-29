@@ -21,9 +21,7 @@ public class LoadOBJ implements MeshLoader {
 	}
 	
 	@Override
-	public Mesh load(BufferedInputStream inputStream) throws Exception {
-		Mesh model = new Mesh();
-		
+	public void load(BufferedInputStream inputStream,Mesh model) throws Exception {
 		ArrayList<Float> vertexArray = new ArrayList<Float>();
 		ArrayList<Float> normalArray = new ArrayList<Float>();
 		ArrayList<Float> texCoordArray = new ArrayList<Float>();
@@ -103,7 +101,5 @@ public class LoadOBJ implements MeshLoader {
 				}
 			}
 		}
-		
-		return model;
 	}
 }

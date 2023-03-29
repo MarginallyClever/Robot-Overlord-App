@@ -14,7 +14,7 @@ import javax.vecmath.Matrix4d;
  *      Academy tutorial</a>
  */
 public class ApproximateJacobian2 {
-	static public final double ANGLE_STEP_SIZE_DEGREES = 0.001; // degrees
+	static public final double ANGLE_STEP_SIZE_DEGREES = 0.1; // degrees
 	private final RobotComponent myArm;
 
 	/**
@@ -23,61 +23,48 @@ public class ApproximateJacobian2 {
 	 */
 	public double[][] jacobian;
 
+	/**
+	 * Given the current pose of the robot, find the approximate jacobian.
+	 * @param arm the robot to analyze.
+	 */
 	public ApproximateJacobian2(RobotComponent arm) {
 		myArm = arm;
 
-		Matrix4d T = arm.getEndEffector();
+		Matrix4d endEffectorPose = arm.getEndEffectorPose();
 		Entity newCopy = arm.getEntity().deepCopy();
 		RobotComponent temp = newCopy.findFirstComponent(RobotComponent.class);
 		temp.findBones();
 
 		int DOF = arm.getNumBones();
 		jacobian = MatrixHelper.createMatrix(6, DOF);
+		Matrix4d endEffectorDifference = new Matrix4d();
+		Matrix3d endEffectorPoseRotation = new Matrix3d();
+		Matrix3d endEffectorDifferenceRotation = new Matrix3d();
+		Matrix3d skewSymmetric = new Matrix3d();
 
 		for (int i = 0; i < DOF; ++i) {
 			// use anglesB to get the hand matrix after a tiny adjustment on one joint.
-			double[] newAngles = arm.getAngles();
-			newAngles[i] += ANGLE_STEP_SIZE_DEGREES;
-			temp.setAngles(newAngles);
-			Matrix4d Tnew = temp.getEndEffector();
+			double[] jointAnglesPlusDelta = arm.getAngles();
+			jointAnglesPlusDelta[i] += ANGLE_STEP_SIZE_DEGREES;
+			temp.setAngles(jointAnglesPlusDelta);
+			Matrix4d endEffectorPosePlusDelta = temp.getEndEffectorPose();
 
 			// use the finite difference in the two matrixes
 			// aka the approximate the rate of change (aka the integral, aka the velocity)
 			// in one column of the jacobian matrix at this position.
-			Matrix4d dT = new Matrix4d();
-			dT.sub(Tnew, T);
-			dT.mul(1.0 / Math.toRadians(ANGLE_STEP_SIZE_DEGREES));
+			endEffectorDifference.sub(endEffectorPosePlusDelta, endEffectorPose);
+			endEffectorDifference.mul(1.0 / Math.toRadians(ANGLE_STEP_SIZE_DEGREES));
 
-			jacobian[0][i] = dT.m03;
-			jacobian[1][i] = dT.m13;
-			jacobian[2][i] = dT.m23;
+			jacobian[0][i] = endEffectorDifference.m03;
+			jacobian[1][i] = endEffectorDifference.m13;
+			jacobian[2][i] = endEffectorDifference.m23;
 
-			// find the rotation part
-			// these initialT and initialTd were found in the comments on
-			// https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346
-			// and used to confirm that our skew-symmetric matrix match theirs.
-			/*
-			 * double[] initialT = { 0, 0 , 1 , 0.5963, 0, 1 , 0 , -0.1501, -1, 0 , 0 ,-0.01435, 0, 0 , 0 , 1 };
-			 * double[] initialTd = { 0, -0.01, 1 , 0.5978, 0, 1 , 0.01, -0.1441, -1, 0 , 0 , -0.01435, 0, 0 , 0 , 1 };
-			 * T.set(initialT);
-			 * Td.set(initialTd);
-			 * dT.sub(Td,T);
-			 * dT.mul(1.0/Math.toRadians(ANGLE_STEP_SIZE_DEGREES));
-			 */
+			// Find the rotation part.
+			endEffectorPose.getRotationScale(endEffectorPoseRotation);
+			endEffectorDifference.getRotationScale(endEffectorDifferenceRotation);
+			endEffectorPoseRotation.transpose(); // inverse of a rotation matrix is its transpose
+			skewSymmetric.mul(endEffectorDifferenceRotation, endEffectorPoseRotation);
 
-			// Log.message("T="+T);
-			// Log.message("Td="+Td);
-			// Log.message("dT="+dT);
-			Matrix3d T3 = new Matrix3d(T.m00, T.m01, T.m02, T.m10, T.m11, T.m12, T.m20, T.m21, T.m22);
-			// Log.message("R="+R);
-			Matrix3d dT3 = new Matrix3d(dT.m00, dT.m01, dT.m02, dT.m10, dT.m11, dT.m12, dT.m20, dT.m21, dT.m22);
-			// Log.message("dT3="+dT3);
-			Matrix3d skewSymmetric = new Matrix3d();
-
-			T3.transpose(); // inverse of a rotation matrix is its transpose
-			skewSymmetric.mul(dT3, T3);
-
-			// Log.message("SS="+skewSymmetric);
 			// [ 0 -Wz Wy]
 			// [ Wz 0 -Wx]
 			// [-Wy Wx 0]
@@ -93,7 +80,7 @@ public class ApproximateJacobian2 {
 	 * @param jointVelocity joint velocity in degrees.
 	 * @return 6 doubles containing the XYZ translation and UVW rotation forces on the end effector.
 	 */
-	public double[] getCartesianFromJoint(final double[] jointVelocity) {
+	public double[] getCartesianVelocityFromJointVelocity(final double[] jointVelocity) {
 		// vector-matrix multiplication (y = x^T A)
 		double[] cartesianVelocity = new double[6];
 		int j, k;
@@ -137,22 +124,19 @@ public class ApproximateJacobian2 {
 
 	/**
 	 * Use the Jacobian to get the joint velocity from the cartesian velocity.
-	 * 
-	 * @param cartesianVelocity 6 doubles - the XYZ translation and UVW rotation
-	 *                          forces on the end effector.
-	 * @return jointVelocity joint velocity in degrees. Will be filled with the new
-	 *         velocity.
+	 * @param cartesianVelocity 6 doubles - the XYZ translation and UVW rotation forces on the end effector.
+	 * @return jointVelocity joint velocity in degrees. Will be filled with the new velocity.
 	 * @throws Exception if joint velocities have NaN values
 	 */
-	public double[] getJointFromCartesian(final double[] cartesianVelocity) throws Exception {
+	public double[] getJointVelocityFromCartesianVelocity(final double[] cartesianVelocity) throws Exception {
+		int DOF = myArm.getNumBones();
 		double[][] inverseJacobian = getInverseJacobian();
-		double[] jointVelocity = new double[myArm.getNumBones()];
+		double[] jointVelocity = new double[DOF];
 
 		// vector-matrix multiplication (y = x^T A)
-		double sum;
-		for (int j = 0; j < myArm.getNumBones(); ++j) {
-			sum = 0;
-			for (int k = 0; k < 6; ++k) {
+		for (int j=0; j<DOF; ++j) {
+			double sum = 0;
+			for (int k=0; k<cartesianVelocity.length; ++k) {
 				sum += inverseJacobian[j][k] * cartesianVelocity[k];
 			}
 			if (Double.isNaN(sum)) {

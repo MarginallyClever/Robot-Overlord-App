@@ -3,9 +3,11 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.UnicodeIcon;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +33,12 @@ public class SceneImportAction extends AbstractAction {
      */
     private static final JFileChooser fc = new JFileChooser();
 
-    public SceneImportAction(String name, RobotOverlord ro) {
-        super(name);
+    public SceneImportAction(RobotOverlord ro) {
+        super(Translator.get("SceneImportAction.name"));
         this.ro=ro;
         fc.setFileFilter(RobotOverlord.FILE_FILTER);
+        putValue(Action.SMALL_ICON,new UnicodeIcon("🗁"));
+        putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneImportAction.shortDescription"));
     }
 
     public static void setLastDirectory(String s) {
@@ -48,20 +52,28 @@ public class SceneImportAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent evt) {
         if (fc.showOpenDialog(ro.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
-            try {
-                SceneLoadAction loader = new SceneLoadAction("Load Scene",ro);
-                Scene source = loader.loadScene(fc.getSelectedFile());
-                Scene destination = ro.getScene();
-
-                updateSceneAssetPaths(source,destination);
-
-                UndoSystem.reset();
-            } catch(Exception e1) {
-                logger.error(e1.getMessage());
-                JOptionPane.showMessageDialog(ro.getMainFrame(),e1.getLocalizedMessage());
-                e1.printStackTrace();
-            }
+            loadFile(fc.getSelectedFile());
         }
+    }
+
+    public boolean loadFile(File file) {
+        if(!fc.getFileFilter().accept(file)) return false;
+
+        try {
+            SceneLoadAction loader = new SceneLoadAction(ro);
+            Scene source = loader.loadScene(file);
+            Scene destination = ro.getScene();
+
+            updateSceneAssetPaths(source,destination);
+
+            UndoSystem.reset();
+        } catch(Exception e1) {
+            logger.error(e1.getMessage());
+            JOptionPane.showMessageDialog(ro.getMainFrame(),e1.getLocalizedMessage());
+            e1.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     /**
