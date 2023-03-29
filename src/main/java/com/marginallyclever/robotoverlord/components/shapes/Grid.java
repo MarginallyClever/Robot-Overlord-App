@@ -126,4 +126,12 @@ public class Grid extends ShapeComponent {
         length.parseJSON(jo.getJSONObject("length"));
         snap.parseJSON(jo.getJSONObject("snap"));
     }
+
+    public void setWidth(int width) {
+        this.width.set(width);
+    }
+
+    public void setLength(int length) {
+        this.length.set(length);
+    }
 }
