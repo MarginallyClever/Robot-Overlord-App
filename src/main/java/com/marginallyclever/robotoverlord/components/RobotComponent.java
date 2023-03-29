@@ -149,16 +149,20 @@ public class RobotComponent extends Component implements Robot {
         }
     }
 
+    private Matrix4d inBaseFrameOfReference(Matrix4d m) {
+        Matrix4d base = getPoseWorld();
+        assert base != null;
+        base.invert();
+        m.mul(base,m);
+        return m;
+    }
+
     private Matrix4d getToolCenterPoint() {
         ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
         if(ee==null) return null;
-        Matrix4d base = getPoseWorld();
-        assert base != null;
 
         Matrix4d m = ee.getToolCenterPoint();
-        base.invert();
-        m.mul(base);
-        return m;
+        return inBaseFrameOfReference(m);
     }
 
     private void setToolCenterPointOffset(Matrix4d value) {
@@ -178,15 +182,11 @@ public class RobotComponent extends Component implements Robot {
     private Matrix4d getEndEffectorTargetPose() {
         ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
         if(ee==null) return null;
-        Matrix4d base = getPoseWorld();
-        assert base != null;
 
         PoseComponent pose = ee.getEntity().findFirstComponent(PoseComponent.class);
         if(pose==null) return null;
         Matrix4d m = pose.getWorld();
-        base.invert();
-        m.mul(base,m);
-        return m;
+        return inBaseFrameOfReference(m);
     }
 
     /**
@@ -309,11 +309,7 @@ public class RobotComponent extends Component implements Robot {
         PoseComponent endEffectorPose = ee.getEntity().findFirstComponent(PoseComponent.class);
         if(endEffectorPose==null) return null;
         Matrix4d m = endEffectorPose.getWorld();
-        Matrix4d base = getPoseWorld();
-        assert base != null;
-        base.invert();
-        m.mul(base);
-        return m;
+        return inBaseFrameOfReference(m);
     }
 
     /**
