@@ -1,20 +1,21 @@
 package com.marginallyclever.robotoverlord.components.demo;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.MathHelper;
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.parameters.IntEntity;
-import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
+import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
+import java.awt.*;
 
 public class CrabRobotComponent extends RenderComponent {
     private static final int NUM_LEGS = 6;
@@ -38,9 +39,10 @@ public class CrabRobotComponent extends RenderComponent {
     private final DoubleEntity strideLength = new DoubleEntity("Stride length", 15);
     private final DoubleEntity strideHeight = new DoubleEntity("Stride height", 5);
     private final DoubleEntity speedScale = new DoubleEntity("Speed scale", 1);
-    private final Entity [] legs = new Entity[NUM_LEGS];
-    private final Vector3d [] lastPOC = new Vector3d[NUM_LEGS];
-    private final Vector3d [] nextPOC = new Vector3d[NUM_LEGS];
+    private final RobotComponent [] legs = new RobotComponent[NUM_LEGS];
+    private final Point3d [] lastPOC = new Point3d[NUM_LEGS];
+    private final Point3d [] nextPOC = new Point3d[NUM_LEGS];
+    private final Point3d [] targets = new Point3d[NUM_LEGS];
 
     double gaitCycleTime = 0;
 
@@ -50,19 +52,19 @@ public class CrabRobotComponent extends RenderComponent {
 
     @Override
     public void render(GL2 gl2) {
-        gl2.glColor3d(1,0,1);
-        PrimitiveSolids.drawCircleXY(gl2,standingRadius.get(),32);
-
         gl2.glPushMatrix();
         //MatrixHelper.setMatrix(gl2,MatrixHelper.createIdentityMatrix4());
+        PrimitiveSolids.drawCircleXY(gl2,standingRadius.get(),32);
+
         for(int i=0;i<NUM_LEGS;++i) {
-            drawVectorAsStar(gl2,lastPOC[i],0);
-            drawVectorAsStar(gl2,nextPOC[i],1);
+            //drawVectorAsStar(gl2,lastPOC[i],0);
+            //drawVectorAsStar(gl2,nextPOC[i],1);
+            drawMarker(gl2,targets[i],0);
         }
         gl2.glPopMatrix();
     }
 
-    private void drawVectorAsStar(GL2 gl2,Vector3d v,int color) {
+    private void drawMarker(GL2 gl2, Tuple3d v, int color) {
         if(color==0) PrimitiveSolids.drawStar(gl2,v,5);
         else PrimitiveSolids.drawSphere(gl2,v,1);
     }
@@ -74,7 +76,7 @@ public class CrabRobotComponent extends RenderComponent {
 
         getEntity().addComponent(new PoseComponent());
 
-        createMesh(getEntity(),"/Spidee/body.stl");
+        createMesh(getEntity(),"/Spidee/body.stl",new ColorRGB(0x3333FF));
 
         // 0   5
         // 1 x 4
@@ -86,8 +88,8 @@ public class CrabRobotComponent extends RenderComponent {
         legs[4] = createLimb("RM",4,true,     0);
         legs[5] = createLimb("RF",5,true,    45);
 
-        for(Entity leg : legs) {
-            getEntity().addEntity(leg);
+        for(RobotComponent leg : legs) {
+            getEntity().addEntity(leg.getEntity());
         }
     }
 
@@ -114,30 +116,6 @@ public class CrabRobotComponent extends RenderComponent {
         updateBasedOnMode(dt);
     }
 
-    /**
-     * Update the gait for one leg.
-     * @param index the leg to update
-     * @param step 0 to 1, 0 is start of step, 1 is end of step
-     */
-    private void updateGaitForOneLeg(int index, double step) {
-        Entity leg = legs[index];
-        RobotComponent robotLeg = leg.findFirstComponent(RobotComponent.class);
-        if(robotLeg==null) return;
-
-        // horizontal distance from foot to next point of contact.
-        Vector3d start = lastPOC[index];
-        Vector3d end = nextPOC[index];
-        Vector3d mid = MathHelper.interpolate(start, end, step);
-
-        // add in the height of the step.
-        double stepAdj = (step <= 0.5f) ? step : 1 - step;
-        stepAdj = Math.sin(stepAdj * Math.PI);
-        mid.z = stepAdj * strideHeight.get();
-
-        // tell the leg where to go.
-        robotLeg.set(RobotComponent.END_EFFECTOR_TARGET_POSITION,mid);
-    }
-
     private void setPointOfContact(Entity poc,Vector3d point) {
         PoseComponent pose = poc.findFirstComponent(PoseComponent.class);
         Matrix4d m = pose.getLocal();
@@ -159,7 +137,10 @@ public class CrabRobotComponent extends RenderComponent {
 
     private void updateCalibrate(double dt) {
         for(int i=0;i<NUM_LEGS;++i) {
-            updateGaitForOneLeg(i, 0);
+            RobotComponent leg = legs[i];
+            leg.getBone(0).setTheta(0);
+            leg.getBone(1).setTheta(45);
+            leg.getBone(2).setTheta(-90);
         }
     }
 
@@ -181,7 +162,7 @@ public class CrabRobotComponent extends RenderComponent {
 
         //updateGaitTarget(dt, 1d/6d);
 
-        for(int i = 0; i < NUM_LEGS; ++i) {
+        for (int i = 0; i < NUM_LEGS; ++i) {
             if (i != legToMove) {
                 putFootDown(i);
             } else {
@@ -227,8 +208,7 @@ public class CrabRobotComponent extends RenderComponent {
         updateGaitForOneLeg(o2, step2);
 
         // Put all feet down except the active leg(s).
-        int i;
-        for (i = 0; i < NUM_LEGS; ++i) {
+        for (int i = 0; i < NUM_LEGS; ++i) {
             if (i != o1 && i != o2) {
                 putFootDown(i);
             }
@@ -245,7 +225,6 @@ public class CrabRobotComponent extends RenderComponent {
 
         // put all feet down except the active leg(s).
         for (int i = 0; i < NUM_LEGS; ++i) {
-            Entity leg = legs[i];
             if ((i % 2) != legToMove) {
                 putFootDown(i);
             } else {
@@ -255,29 +234,55 @@ public class CrabRobotComponent extends RenderComponent {
     }
 
     private void putFootDown(int index) {
-        Vector3d toe = lastPOC[index];
+        Point3d toe = lastPOC[index];
         toe.z=0;
         setLegTargetPosition(index,toe);
     }
 
-    private void setLegTargetPosition(int index,Vector3d point) {
-        Entity leg = legs[index];
-        RobotComponent robotLeg = leg.findFirstComponent(RobotComponent.class);
+    private void setLegTargetPosition(int index,Point3d point) {
+        RobotComponent robotLeg = legs[index];
         if(robotLeg==null) return;
-        PoseComponent bodyPose = leg.findFirstComponent(PoseComponent.class);
-        if(bodyPose==null) return;
-        Matrix4d bodyMatrix = bodyPose.getWorld();
-        //bodyMatrix.invert();
-        Point3d p1 = new Point3d(point);
-        Point3d p2 = new Point3d();
+        PoseComponent legBasePose = robotLeg.getEntity().findFirstComponent(PoseComponent.class);
+        if(legBasePose==null) return;
 
-        bodyMatrix.transform(p1,p2);
-        Vector3d point2 = new Vector3d(p2);
-        robotLeg.set(RobotComponent.END_EFFECTOR_TARGET_POSITION,point2);
+        // the leg is a robot arm.  the base of the arm is the crab's shoulder.
+        Matrix4d legBaseMatrix = legBasePose.getWorld();
+        // all end effector positions are relative to the base of the arm.
+        // so we need to transform the point into the arm's coordinate system.
+        Matrix4d legBaseMatrixInv = new Matrix4d(legBaseMatrix);
+        legBaseMatrixInv.invert();
+        Point3d p2 = new Point3d();
+        legBaseMatrixInv.transform(point,p2);
+        Point3d point2 = new Point3d();
+        legBaseMatrix.transform(p2,point2);
+        targets[index].set(point2);
+        robotLeg.set(RobotComponent.END_EFFECTOR_TARGET_POSITION,p2);
     }
 
+    /**
+     * Update the gait for one leg.
+     * @param index the leg to update
+     * @param step 0 to 1, 0 is start of step, 1 is end of step
+     */
+    private void updateGaitForOneLeg(int index, double step) {
+        RobotComponent robotLeg = legs[index];
+        if(robotLeg==null) return;
 
-    private Entity createLimb(String name,int index,boolean isRight, float degrees) {
+        // horizontal distance from foot to next point of contact.
+        Point3d start = lastPOC[index];
+        Point3d end = nextPOC[index];
+        Point3d mid = MathHelper.interpolate(start, end, step);
+
+        // add in the height of the step.
+        double stepAdj = (step <= 0.5f) ? step : 1 - step;
+        stepAdj = Math.sin(stepAdj * Math.PI);
+        mid.z = stepAdj * strideHeight.get();
+
+        // tell the leg where to go.
+        setLegTargetPosition(index,mid);
+    }
+
+    private RobotComponent createLimb(String name,int index,boolean isRight, float degrees) {
         DHComponent[] dh = new DHComponent[3];
         for(int i=0;i<dh.length;++i) {
             dh[i] = new DHComponent();
@@ -296,17 +301,17 @@ public class CrabRobotComponent extends RenderComponent {
 
         hip.addComponent(dh[0]);
         dh[0].set(0,2.2,90,0,60,-60);
-        if(isRight) createMesh(hip,"/Spidee/shoulder_right.obj");
-        else        createMesh(hip,"/Spidee/shoulder_left.obj");
+        if(isRight) createMesh(hip,"/Spidee/shoulder_right.obj",new ColorRGB(0x9999FF));
+        else        createMesh(hip,"/Spidee/shoulder_left.obj",new ColorRGB(0x9999FF));
 
         thigh.addComponent(dh[1]);
         dh[1].set( 0,8.5,0,0,106,-72);
-        createMesh(thigh,"/Spidee/thigh.obj");
+        createMesh(thigh,"/Spidee/thigh.obj",new ColorRGB(0xFFFFFF));
 
         calf.addComponent(dh[2]);
         dh[2].set(0,10.5,0,0,15,-160);
-        if(isRight) createMesh(calf,"/Spidee/calf_right.obj");
-        else		createMesh(calf,"/Spidee/calf_left.obj");
+        if(isRight) createMesh(calf,"/Spidee/calf_right.obj",new ColorRGB(0xFFFF99));
+        else		createMesh(calf,"/Spidee/calf_left.obj",new ColorRGB(0xFFFF99));
 
         foot.addComponent(new ArmEndEffectorComponent());
 
@@ -317,11 +322,12 @@ public class CrabRobotComponent extends RenderComponent {
         pose.setRotation(new Vector3d(0,0,degrees));
 
         // Done at the end so RobotComponent can find all bones DHComponents.
-        limb.addComponent(new RobotComponent());
+        RobotComponent robot = new RobotComponent();
+        limb.addComponent(robot);
 
         setInitialPointOfContact(limb,index);
 
-        return limb;
+        return robot;
     }
 
     private void setInitialPointOfContact(Entity limb,int index) {
@@ -338,8 +344,9 @@ public class CrabRobotComponent extends RenderComponent {
         toe.normalize();
         toe.scaleAdd(standingRadius.get(),body);
         toe.z=0;
-        nextPOC[index] = new Vector3d(toe);
-        lastPOC[index] = new Vector3d(toe);
+        nextPOC[index] = new Point3d(toe);
+        lastPOC[index] = new Point3d(toe);
+        targets[index] = new Point3d();
     }
 
     private Entity createPoseEntity(String name) {
@@ -348,11 +355,13 @@ public class CrabRobotComponent extends RenderComponent {
         return result;
     }
 
-    private void createMesh(Entity parent,String filename) {
+    private void createMesh(Entity parent, String filename, ColorRGB color) {
         Entity mesh = createPoseEntity("Mesh");
         parent.addEntity(mesh);
 
-        mesh.addComponent(new MaterialComponent());
+        MaterialComponent mc = new MaterialComponent();
+        mc.setDiffuseColor(color.red/255.0,color.green/255.0,color.blue/255.0,1);
+        mesh.addComponent(mc);
 
         MeshFromFile mff = new MeshFromFile();
         mff.setFilename(filename);
