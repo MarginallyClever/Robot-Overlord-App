@@ -46,6 +46,9 @@ public class DemoSpidee implements Demo {
 		sc.addEntity(gridEntity);
 		grid.setWidth(100);
 		grid.setLength(100);
+		MaterialComponent mat = gridEntity.findFirstComponent(MaterialComponent.class);
+		mat.setDiffuseColor(0,0,0,0);
+		mat.setLit(false);
 
 		// add spidee
 		Entity spidee = new Entity("Spidee-1");

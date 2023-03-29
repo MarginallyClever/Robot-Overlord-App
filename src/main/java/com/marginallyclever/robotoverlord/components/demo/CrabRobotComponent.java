@@ -286,7 +286,7 @@ public class CrabRobotComponent extends RenderComponent {
         DHComponent[] dh = new DHComponent[3];
         for(int i=0;i<dh.length;++i) {
             dh[i] = new DHComponent();
-            dh[i].setVisible(true);
+            dh[i].setVisible(false);
         }
         Entity limb = createPoseEntity(name);
 
