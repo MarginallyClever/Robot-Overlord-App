@@ -14,7 +14,7 @@ import javax.vecmath.Matrix4d;
  *      Academy tutorial</a>
  */
 public class ApproximateJacobian2 {
-	static public final double ANGLE_STEP_SIZE_DEGREES = 0.01; // degrees
+	static public final double ANGLE_STEP_SIZE_DEGREES = 0.1; // degrees
 	private final RobotComponent myArm;
 
 	/**
