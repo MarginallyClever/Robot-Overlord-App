@@ -25,14 +25,8 @@ public abstract class ShapeComponent extends RenderComponent {
     public void setEntity(Entity entity) {
         super.setEntity(entity);
         if(entity!=null) {
-            PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
-            if(pose==null) {
-                entity.addComponent(new PoseComponent());
-            }
-            MaterialComponent mat = entity.findFirstComponent(MaterialComponent.class);
-            if(mat==null) {
-                entity.addComponent(new MaterialComponent());
-            }
+            entity.addComponent(new PoseComponent());
+            entity.addComponent(new MaterialComponent());
         }
     }
 
