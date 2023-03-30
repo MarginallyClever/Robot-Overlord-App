@@ -34,15 +34,12 @@ public class Dial extends JComponent {
 			public void keyReleased(KeyEvent e) {
 				switch (e.getID()) {
 					case KeyEvent.VK_PLUS -> {
-						setChange(1);
-						setValue(value + 1);
+						onChange(1);
 					}
 					case KeyEvent.VK_MINUS -> {
-						setChange(-1);
-						setValue(value - 1);
+						onChange(-1);
 					}
-					default -> {
-					}
+					default -> {}
 				}
 			}
 		});
@@ -80,14 +77,15 @@ public class Dial extends JComponent {
 				// find the previous mouse position relative to the center of the dial.
 				Vector2d previous = new Vector2d(dragPreviousX,dragPreviousY);
 				previous.sub(center);
+				previous.normalize();
 
 				// find the orthogonal vector to the previous vector
 				Vector2d ortho = new Vector2d(-previous.y,previous.x);
-				ortho.normalize();
 
 				// dot product of delta and ortho is the change in angle.
-				double dot = delta.dot(ortho);
-				double change = Math.acos(dot) * Math.signum(dot);
+				double y = delta.dot(ortho);
+				double x = delta.dot(previous);
+				double change = Math.toDegrees(Math.atan2(y,x));
 
 				if(change!=0) onChange(change);
 
@@ -99,7 +97,6 @@ public class Dial extends JComponent {
 
 	private void onChange(double amount) {
 		setChange(amount);
-		setValue(value+amount);
 		notifyActionListeners(new ActionEvent(this,ActionEvent.ACTION_PERFORMED,"turn"));
 	}
 
@@ -112,29 +109,46 @@ public class Dial extends JComponent {
 		return change;
 	}
 
+	/**
+	 * Set the change value.  The change value is the amount the dial moved on the last update.
+	 * @param change the change value
+	 */
 	public void setChange(double change) {
-		this.change = change;
+		setValue(value+change);
 	}
-	
+
+	/**
+	 * Returns the current value of the dial.
+	 * @return the current value of the dial, a value between 0 (inclusive) and 360 (exclusive).
+	 */
 	public double getValue() {
 		return value;
 	}
 
-	public void setValue(double value) {
-		this.value = (value+360)%360;
+	/**
+	 * Set the value of the dial.  The value is clamped to 0..360.  Does not alter the results of getChange().
+	 * @param arg0 the new value
+	 */
+	public void setValue(double arg0) {
+		this.change = arg0-this.value;
+		this.value = (arg0+360)%360;
 		repaint();
 	}
-	
-	public void addActionListener(ActionListener a) {
-		listeners.add(a);
+
+	/**
+	 * Subscribe to receivei the "turn" command when the dial is turned.
+	 * @param listener the listener
+	 */
+	public void addActionListener(ActionListener listener) {
+		listeners.add(listener);
 	}
 	
-	public void removeActionListener(ActionListener a) {
-		listeners.remove(a);
+	public void removeActionListener(ActionListener listener) {
+		listeners.remove(listener);
 	}
 	
 	private void notifyActionListeners(ActionEvent ae) {
-		for( ActionListener a : listeners ) a.actionPerformed(ae);
+		for( ActionListener listener : listeners ) listener.actionPerformed(ae);
 	}
 
 	@Override
