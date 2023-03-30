@@ -1,12 +1,6 @@
-com.marginallyclever.robotoverlord.dhrobotentity.DHBuilderApp
-com.marginallyclever.robotoverlord.robots.robotarm.implementations.Sixi3_5axis
-com.marginallyclever.robotoverlord.robots.robotarm.implementations.Sixi3_6axis
 com.marginallyclever.robotoverlord.robots.stewartplatform.linear.LinearStewartPlatformCore
 com.marginallyclever.robotoverlord.robots.stewartplatform.rotary.RotaryStewartPlatform
 com.marginallyclever.robotoverlord.robots.skycam.Skycam
-com.marginallyclever.robotoverlord.robots.robotarm.implementations.Sixi2
-com.marginallyclever.robotoverlord.entities.ShapeEntity
-com.marginallyclever.robotoverlord.entities.BoxEntity
 com.marginallyclever.robotoverlord.robots.robotarm.robotarmtools.Sixi2ChuckGripper
 com.marginallyclever.robotoverlord.robots.robotarm.robotarmtools.Sixi2LinearGripper
 com.marginallyclever.robotoverlord.robots.dog.DogRobot
