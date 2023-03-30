@@ -17,6 +17,7 @@ import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
 import java.io.Serial;
 
+@Deprecated
 public class LinearStewartPlatformCore extends PoseEntity {
 	@Serial
 	private static final long serialVersionUID = 1L;

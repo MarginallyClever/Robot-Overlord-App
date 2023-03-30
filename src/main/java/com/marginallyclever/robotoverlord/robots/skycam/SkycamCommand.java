@@ -9,6 +9,7 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import javax.vecmath.Vector3d;
 import java.io.Serializable;
 
+@Deprecated
 public class SkycamCommand extends PoseEntity implements Cloneable, Serializable {
 
 	protected transient DoubleEntity feedrateSlider = new DoubleEntity("Feedrate",SkycamModel.DEFAULT_FEEDRATE);

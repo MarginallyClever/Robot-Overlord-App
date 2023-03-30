@@ -22,6 +22,7 @@ import java.util.ArrayList;
  * @author Dan Royer
  * @since 1.6.0
  */
+@Deprecated
 public class DogRobot extends PoseEntity {
 	/**
 	 * 
