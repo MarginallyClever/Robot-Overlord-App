@@ -30,6 +30,8 @@ public class MeshFactory {
 
 		mesh = new Mesh();
 		attemptLoad(filename,mesh);
+		if(mesh.getNumVertices()==0) return null;
+
 		meshPool.add(mesh);
 		return mesh;
 	}
@@ -37,7 +39,9 @@ public class MeshFactory {
 	private static Mesh getMeshFromPool(String filename) {
 		// find the existing shape in the pool
 		for( Mesh m : meshPool ) {
-			if(m.getSourceName().equals(filename)) {
+			String sourceName = m.getSourceName();
+			if(sourceName==null) continue;
+			if(filename.equals(sourceName)) {
 				return m;
 			}
 		}

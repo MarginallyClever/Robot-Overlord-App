@@ -32,10 +32,17 @@ public abstract class ShapeComponent extends RenderComponent {
 
     public void setModel(Mesh m) {
         myMesh = m;
-        numTriangles.set(myMesh.getNumTriangles());
-        hasNormals.set(myMesh.getHasNormals());
-        hasColors.set(myMesh.getHasColors());
-        hasUVs.set(myMesh.getHasUVs());
+        if(m==null) {
+            numTriangles.set(0);
+            hasNormals.set(false);
+            hasColors.set(false);
+            hasUVs.set(false);
+        } else {
+            numTriangles.set(myMesh.getNumTriangles());
+            hasNormals.set(myMesh.getHasNormals());
+            hasColors.set(myMesh.getHasColors());
+            hasUVs.set(myMesh.getHasUVs());
+        }
     }
 
     public Mesh getModel() {
