@@ -95,7 +95,6 @@ public class Scene extends Entity {
 	 * @param entity the entity to render
 	 */
 	private void renderEntity(GL2 gl2, Entity entity) {
-		gl2.glPushName(entity.getPickName());
 		gl2.glPushMatrix();
 
 		PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
@@ -104,7 +103,6 @@ public class Scene extends Entity {
 		renderOneEntityWithMaterial(gl2, entity);
 
 		gl2.glPopMatrix();
-		gl2.glPopName();
 	}
 
 	private void renderOneEntityWithMaterial(GL2 gl2, Entity obj) {
@@ -142,52 +140,6 @@ public class Scene extends Entity {
 		for(int i=0;i<maxLights;++i) {
 			gl2.glDisable(GL2.GL_LIGHT0+i);
 		}
-	}
-
-	// Search only my children to find the PhysicalEntity with matching pickName.
-	public Entity pickEntityWithName(int pickName) {
-		Queue<Entity> found = new LinkedList<>(children);
-		while(!found.isEmpty()) {
-			Entity obj = found.remove();
-			if( obj.getPickName()==pickName ) {
-				return obj;  // found!
-			}
-			found.addAll(obj.children);
-		}
-		
-		return null;
-	}
-		
-	/**
-	 * Find all Entities within epsilon mm of pose.
-	 * TODO Much optimization could be done here to reduce the search time.
-	 * @param target the center of the cube around which to search.   
-	 * @param radius the maximum distance to search for entities.
-	 * @return a list of found PhysicalObjects
-	 */
-	public List<PoseEntity> findPhysicalObjectsNear(Vector3d target, double radius) {
-		radius/=2;
-		
-		//Log.message("Finding within "+epsilon+" of " + target);
-		List<PoseEntity> found = new ArrayList<>();
-		
-		// check all children
-		for( Entity e : children) {
-			if(e instanceof PoseEntity) {
-				// is physical, therefore has position
-				PoseEntity po = (PoseEntity)e;
-				//Log.message("  Checking "+po.getDisplayName()+" at "+pop);
-				Vector3d pop = new Vector3d();
-				pop.sub(po.getPosition(),target);
-				if(pop.length()<=radius) {
-					//Log.message("  in range!");
-					// in range!
-					found.add(po);
-				}
-			}
-		}
-		
-		return found;
 	}
 
 	/**

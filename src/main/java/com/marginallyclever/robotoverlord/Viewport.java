@@ -25,17 +25,15 @@ import javax.vecmath.Vector3d;
  */
 public class Viewport extends Entity {
 	private int canvasWidth, canvasHeight;
+	private final int[] viewportDimensions = new int[4];
 
 	/**
 	 * The mouse cursor position in screen coordinates.
  	 */
 	private double cursorX, cursorY;
 
-	// is mouse pressed in GUI?
-	private boolean isPressed;
-
-	private final DoubleEntity nearZ=new DoubleEntity("Near Z",0.5);
-	private final DoubleEntity farZ=new DoubleEntity("Far Z",2000.0);
+	private final DoubleEntity nearZ=new DoubleEntity("Near Z",1.0);
+	private final DoubleEntity farZ=new DoubleEntity("Far Z",1000.0);
 	private final DoubleEntity fieldOfView=new DoubleEntity("FOV",60.0);
 	private final BooleanEntity drawOrthographic=new BooleanEntity("Orthographic",false);
 	
@@ -49,8 +47,6 @@ public class Viewport extends Entity {
 		addEntity(farZ);
 		addEntity(nearZ);
 		addEntity(fieldOfView);
-			
-		isPressed=false;
 	}
 	
 	public void renderPerspective(GL2 gl2) {
@@ -77,9 +73,18 @@ public class Viewport extends Entity {
 	public void renderOrthographic(GL2 gl2) {
         renderOrthographic(gl2,camera.getOrbitDistance()/100.0);
 	}
+	
+	public void renderChosenProjection(GL2 gl2) {
+    	gl2.glMatrixMode(GL2.GL_PROJECTION);
+		gl2.glLoadIdentity();
 
-	public void renderShared(GL2 gl2,CameraComponent camera) {
-    	gl2.glMatrixMode(GL2.GL_MODELVIEW);
+		if(drawOrthographic.get()) {
+			renderOrthographic(gl2);
+		} else {
+			renderPerspective(gl2);
+		}
+
+		gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
 
 		if(camera !=null) {
@@ -88,46 +93,6 @@ public class Viewport extends Entity {
 			inverseCamera.invert();
 			MatrixHelper.applyMatrix(gl2, inverseCamera);
 		}
-	}
-	
-	public void renderChosenProjection(GL2 gl2) {
-    	gl2.glMatrixMode(GL2.GL_PROJECTION);
-		gl2.glLoadIdentity();
-		
-		if(drawOrthographic.get()) {
-			renderOrthographic(gl2);
-		} else {
-			renderPerspective(gl2);
-		}
-		
-        renderShared(gl2,camera);
-	}
-	
-	public void renderPick(GL2 gl2) {
-        // get the current viewport dimensions to set up the projection matrix
-        int[] viewportDimensions = new int[4];
-		gl2.glGetIntegerv(GL2.GL_VIEWPORT,viewportDimensions,0);
-
-		GLU glu = GLU.createGLU(gl2);
-        
-		// Set up a tiny viewport that only covers the area behind the cursor. 
-		// Tiny viewports are faster.
-        gl2.glMatrixMode(GL2.GL_PROJECTION);
-        gl2.glLoadIdentity();
-		glu.gluPickMatrix(cursorX,
-				canvasHeight-cursorY,
-				5.0,
-				5.0,
-				viewportDimensions,
-				0);
-
-		if(drawOrthographic.get()) {
-			renderOrthographic(gl2);
-		} else {
-			renderPerspective(gl2);
-		}
-		
-		renderShared(gl2,camera);
 	}
 
 	/**
@@ -156,8 +121,9 @@ public class Viewport extends Entity {
 			m2.transform(origin);
 		} else {
 			// perspective projection
+			double [] cn = getCursorAsNormalized();
 			double t = Math.tan(Math.toRadians(fieldOfView.get()/2));
-			direction = new Vector3d(cursorX*t*getAspectRatio(),cursorY*t,-1);
+			direction = new Vector3d((cn[0])*t*getAspectRatio(),(cn[1])*t,-1);
 			
 			// adjust the ray by the camera world pose.
 			PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
@@ -251,21 +217,6 @@ public class Viewport extends Entity {
 		cursorY = y;
 	}
 
-	// mouse was pressed in GUI
-	public void pressed() {
-		isPressed=true;
-	}
-
-	// mouse was released in GUI
-	public void released() {
-		isPressed=false;
-	}
-	
-	// is mouse pressed in GUI?
-	public boolean isPressed() {
-		return isPressed;
-	}
-	
 	public int getCanvasWidth() {
 		return canvasWidth;
 	}
