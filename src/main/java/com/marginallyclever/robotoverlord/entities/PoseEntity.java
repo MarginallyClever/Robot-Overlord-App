@@ -78,10 +78,6 @@ public class PoseEntity extends Entity implements Removable {
 		myPose.set(b.myPose);
 	}
 
-	public int getPickName() {
-		return pickName;
-	}
-
 	/**
 	 * Render this Entity to the display
 	 * @param gl2

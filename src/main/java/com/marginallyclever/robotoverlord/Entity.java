@@ -380,7 +380,7 @@ public class Entity implements PropertyChangeListener {
 		return null;
 	}
 
-	protected int getPickName() {
+	public int getPickName() {
 		return pickName;
 	}
 
