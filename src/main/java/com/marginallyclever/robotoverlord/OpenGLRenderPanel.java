@@ -25,6 +25,8 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -405,9 +407,17 @@ public class OpenGLRenderPanel extends JPanel {
         Ray ray = viewport.getRayThroughCursor();
 
         // traverse the scene Entities and find the ShapeComponent that collides with the ray.
-        Entity found = null;
+        List<RayHit> rayHits = scene.findRayIntersections(ray);
+        if(rayHits.size()==0) return null;
 
-        return found;
+        rayHits.sort(new Comparator<RayHit>() {
+            @Override
+            public int compare(RayHit o1, RayHit o2) {
+                return Double.compare(o1.distance, o2.distance);
+            }
+        });
+
+        return rayHits.get(0).target.getEntity();
     }
 
     public void updateSubjects() {
