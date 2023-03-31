@@ -1,15 +1,9 @@
 package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.Cuboid;
-import com.marginallyclever.convenience.IntersectionHelper;
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.convenience.*;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.components.LightComponent;
-import com.marginallyclever.robotoverlord.components.MaterialComponent;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.components.RenderComponent;
+import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.ColorEntity;
@@ -74,16 +68,15 @@ public class Scene extends Entity {
 		PrimitiveSolids.drawStar(gl2,10);
 	}
 
-
 	/**
 	 * Recursively render all entities.
 	 * @param gl2 the OpenGL context
 	 */
 	private void renderAllEntities(GL2 gl2) {
 		defaultMaterial.render(gl2);
-		List<Entity> toRender = new ArrayList<>(children);
+		Queue<Entity> toRender = new LinkedList<>(children);
 		while(!toRender.isEmpty()) {
-			Entity child = toRender.remove(0);
+			Entity child = toRender.remove();
 			renderEntity(gl2, child);
 			toRender.addAll(child.getChildren());
 		}
@@ -279,4 +272,25 @@ public class Scene extends Entity {
 		gl2.glGetIntegerv(GL2.GL_MAX_LIGHTS, intBuffer);
 		return intBuffer.get();
 	}
+
+	/**
+	 * test ray intersection with all entities in the scene.
+	 * @param ray the ray to test.
+	 */
+	public List<RayHit> findRayIntersections(Ray ray) {
+		List<RayHit> rayHits = new ArrayList<>();
+
+		Queue<Entity> toTest = new LinkedList<>(children);
+		while(!toTest.isEmpty()) {
+			Entity child = toTest.remove();
+			toTest.addAll(child.getChildren());
+			List<ShapeComponent> shapes = child.findAllComponents(ShapeComponent.class);
+			for(ShapeComponent shape : shapes) {
+				RayHit hit = shape.intersect(ray);
+				if(hit!=null) rayHits.add(hit);
+			}
+		}
+		return rayHits;
+	}
+
 }
