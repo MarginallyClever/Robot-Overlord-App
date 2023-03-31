@@ -23,6 +23,7 @@ import javax.swing.*;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.io.File;
+import java.nio.IntBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class Scene extends Entity {
 
 	/**
 	 * Initialize the scene with a path to the root of the project.
-	 * @param absolutePath
+	 * @param absolutePath the absolute path to the root of the project.
 	 */
 	public Scene(String absolutePath) {
 		super();
@@ -121,7 +122,8 @@ public class Scene extends Entity {
 		// global ambient light
 		gl2.glLightModelfv( GL2.GL_LIGHT_MODEL_AMBIENT, ambientLight.getFloatArray(),0);
 
-		turnOffAllLights(gl2);
+		int maxLights = getMaxLights(gl2);
+		turnOffAllLights(gl2,maxLights);
 
 		Queue<Entity> found = new LinkedList<>(children);
 		int i=0;
@@ -130,14 +132,14 @@ public class Scene extends Entity {
 			LightComponent light = obj.findFirstComponent(LightComponent.class);
 			if(light!=null && light.getEnabled()) {
 				light.setupLight(gl2,i++);
-				if(i==GL2.GL_MAX_LIGHTS) return;
+				if(i==maxLights) return;
 			}
 			found.addAll(obj.children);
 		}
 	}
 
-	private void turnOffAllLights(GL2 gl2) {
-		for(int i=0;i<GL2.GL_MAX_LIGHTS;++i) {
+	private void turnOffAllLights(GL2 gl2,int maxLights) {
+		for(int i=0;i<maxLights;++i) {
 			gl2.glDisable(GL2.GL_LIGHT0+i);
 		}
 	}
@@ -253,7 +255,7 @@ public class Scene extends Entity {
 
 	/**
 	 * Set the scene path.  This is the path to the directory containing the scene file.
-	 * @param absolutePath
+	 * @param absolutePath the absolute path to the scene directory.
 	 */
 	public void setScenePath(String absolutePath) {
 		File file = new File(absolutePath);
@@ -283,7 +285,7 @@ public class Scene extends Entity {
 
 	/**
 	 * Displays a warning to the user if the asset is not within the scene path.
-	 * @param unCheckedAssetFilename
+	 * @param unCheckedAssetFilename a file that may or may not be within the scene path.
 	 */
 	public void warnIfAssetPathIsNotInScenePath(String unCheckedAssetFilename) {
 		if(isAssetPathInScenePath(unCheckedAssetFilename)) return;
@@ -305,7 +307,7 @@ public class Scene extends Entity {
 
 	/**
 	 * Returns the relative path to the asset, or absolute if the asset is not within the scene path.
-	 * @param unCheckedAssetFilename
+	 * @param unCheckedAssetFilename a file that may or may not be within the scene path.
 	 * @return the relative path to the asset, or absolute if the asset is not within the scene path.
 	 */
 	public String removeScenePath(String unCheckedAssetFilename) {
@@ -318,5 +320,11 @@ public class Scene extends Entity {
 
 	public String addScenePath(String fn) {
 		return getScenePath() + fn;
+	}
+
+	public int getMaxLights(GL2 gl2) {
+		IntBuffer intBuffer = IntBuffer.allocate(1);
+		gl2.glGetIntegerv(GL2.GL_MAX_LIGHTS, intBuffer);
+		return intBuffer.get();
 	}
 }
