@@ -11,6 +11,7 @@ import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.RenderComponent;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.ColorEntity;
 import com.marginallyclever.robotoverlord.parameters.StringEntity;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
@@ -40,6 +41,7 @@ public class Scene extends Entity {
 	private final StringEntity scenePath = new StringEntity("Scene Path", "");
 
 	private final ColorEntity ambientLight = new ColorEntity("Ambient light",0.2,0.2,0.2,1);
+	private final BooleanEntity showWorldOrigin = new BooleanEntity("Show world origin",false);
 	private final MaterialComponent defaultMaterial = new MaterialComponent();
 
 	private final List<SceneChangeListener> sceneChangeListeners = new ArrayList<>();
@@ -59,7 +61,8 @@ public class Scene extends Entity {
 
 	@Override
 	public void render(GL2 gl2) {
-		renderWorldOrigin(gl2);
+		if(showWorldOrigin.get()) renderWorldOrigin(gl2);
+
 		renderLights(gl2);
 		renderAllEntities(gl2);
 		// PASS 2: everything transparent?
