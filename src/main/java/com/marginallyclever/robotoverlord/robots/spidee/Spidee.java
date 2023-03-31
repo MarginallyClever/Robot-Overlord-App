@@ -586,7 +586,6 @@ public class Spidee extends RobotEntity {
     @Override
     public void render(GL2 gl2) {
         super.render(gl2);
-        gl2.glPushName(getPickName());
         gl2.glPushMatrix();
 
         Vector3d p = getPosition();
@@ -595,7 +594,6 @@ public class Spidee extends RobotEntity {
         drawLegs(gl2);
         drawBody(gl2);
         gl2.glPopMatrix();
-        gl2.glPopName();
     }
 
 
