@@ -8,14 +8,6 @@ import java.util.ArrayList;
 public class EntityFactory {
 	private static final Class<?> [] available = {
 			com.marginallyclever.robotoverlord.Entity.class,
-
-			com.marginallyclever.robotoverlord.robots.dog.DogRobot.class,
-			com.marginallyclever.robotoverlord.robots.skycam.Skycam.class,
-			com.marginallyclever.robotoverlord.robots.deltarobot3.DeltaRobot3.class,
-			com.marginallyclever.robotoverlord.robots.stewartplatform.rotary.RotaryStewartPlatform2.class,
-			com.marginallyclever.robotoverlord.robots.stewartplatform.rotary.RotaryStewartPlatformAdjustable.class,
-			com.marginallyclever.robotoverlord.robots.stewartplatform.linear.LinearStewartPlatform1.class,
-			com.marginallyclever.robotoverlord.robots.stewartplatform.linear.LinearStewartPlatformAdjustable.class,
 	};
 	
 	public static ArrayList<String> getAllEntityNames() {
