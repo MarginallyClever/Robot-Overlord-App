@@ -387,4 +387,61 @@ public class IntersectionHelper {
 
 		return d;
 	}
+
+	/**
+	 * The implementation uses the Möller–Trumbore intersection algorithm to compute the intersection between a ray
+	 * and a triangle. The algorithm works by computing the intersection point between the ray and the plane defined
+	 * by the triangle, and then checking if the intersection point is inside the triangle.<br>
+	 * Note that this implementation assumes that the triangle is defined in a counter-clockwise winding order when
+	 * viewed from the outside. If the triangle is defined in clockwise order, the direction of one of the cross
+	 * products needs to be reversed to get the correct intersection result.
+	 * See also <a href="https://en.wikipedia.org/wiki/Incircle_and_excircles_of_a_triangle">Wikipedia</a>.
+	 * @param ray origin & direction
+	 * @param v0 point 1
+	 * @param v1 point 2
+	 * @param v2 point 3
+	 * @return distance to the intersection, negative numbers for hits behind camera, Double.MAX_VALUE for no hit.
+	 */
+    public static double rayTriangle(Ray ray, Vector3d v0, Vector3d v1, Vector3d v2) {
+		Vector3d edge1 = new Vector3d();
+		Vector3d edge2 = new Vector3d();
+		Vector3d tvec = new Vector3d();
+		Vector3d pvec = new Vector3d();
+		Vector3d qvec = new Vector3d();
+		double det, inv_det;
+		double u, v;
+		final double EPSILON = 1e-8;
+
+		edge1.sub(v1, v0);
+		edge2.sub(v2, v0);
+		pvec.cross(ray.getDirection(), edge2);
+		det = edge1.dot(pvec);
+
+		if (det > -EPSILON && det < EPSILON) {
+			return Double.MAX_VALUE; // Ray and triangle are parallel
+		}
+
+		inv_det = 1.0 / det;
+		tvec.sub(ray.getOrigin(), v0);
+		u = tvec.dot(pvec) * inv_det;
+
+		if (u < 0.0 || u > 1.0) {
+			return Double.MAX_VALUE;
+		}
+
+		qvec.cross(tvec, edge1);
+		v = ray.getDirection().dot(qvec) * inv_det;
+
+		if (v < 0.0 || u + v > 1.0) {
+			return Double.MAX_VALUE;
+		}
+
+		double t = edge2.dot(qvec) * inv_det;
+
+		if (t < EPSILON) {
+			return Double.MAX_VALUE; // Intersection is behind the ray origin
+		}
+
+		return t;
+    }
 }
