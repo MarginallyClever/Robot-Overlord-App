@@ -1,8 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.translator.edits;
 
-import com.marginallyclever.robotoverlord.ComponentFactory;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
@@ -11,9 +9,15 @@ import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentPasteA
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
 
-import javax.swing.undo.UndoManager;
-
+/**
+ * Test the {@link ComponentCopyAction} and {@link ComponentPasteAction} classes.
+ * Do not run in a headless environment.
+ * @author Dan Royer
+ * @since 2.4.0
+ */
+@DisabledIf(value = "java.awt.GraphicsEnvironment#isHeadless", disabledReason = "headless environment")
 public class ComponentActionTests {
     /**
      * Test copying a {@link com.marginallyclever.robotoverlord.Component} from one {@link Entity} and pasting to another.
