@@ -89,6 +89,11 @@ public class RobotOverlord extends Entity {
 	private transient Entity copiedEntities = new Entity();
 
 	/**
+	 * The list of components copied to the clipboard.  This list is used by Actions.
+	 */
+	private transient Component copiedComponents = null;
+
+	/**
 	 * The list of actions registered in the editor.  This list is used for calls to
 	 * {@link #updateActionEnableStatus()}.
 	 */
@@ -498,6 +503,15 @@ public class RobotOverlord extends Entity {
 
 	public Entity getCopiedEntities() {
 		return copiedEntities;
+	}
+
+	public void setCopiedComponents(Component container) {
+		copiedComponents=container;
+		updateActionEnableStatus();
+	}
+
+	public Component getCopiedComponents() {
+		return copiedComponents;
 	}
 
 	/**
