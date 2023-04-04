@@ -417,7 +417,6 @@ public class RobotOverlord extends Entity {
 
     private void updateSelectEntities() {
 		entityTree.setSelection(Clipboard.getSelectedEntities());
-
 		renderPanel.updateSubjects();
 		updateComponentPanel();
 	}
