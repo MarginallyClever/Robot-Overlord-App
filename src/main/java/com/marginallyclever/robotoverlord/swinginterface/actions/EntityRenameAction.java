@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.EntityRenameEdit;
@@ -30,7 +31,7 @@ public class EntityRenameAction extends AbstractAction implements EditorAction {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		List<Entity> entityList = ro.getSelectedEntities();
+		List<Entity> entityList = Clipboard.getSelectedEntities();
 		if (entityList.size() != 1) {
 			Log.error("Rename more than one entity at the same time?!");
 			return;
@@ -52,6 +53,6 @@ public class EntityRenameAction extends AbstractAction implements EditorAction {
 
 	@Override
 	public void updateEnableStatus() {
-		setEnabled(ro.getSelectedEntities().size()==1);
+		setEnabled(Clipboard.getSelectedEntities().size()==1);
 	}
 }

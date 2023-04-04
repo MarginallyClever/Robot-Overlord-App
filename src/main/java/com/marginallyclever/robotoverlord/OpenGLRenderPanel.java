@@ -7,6 +7,7 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.entities.SkyBoxEntity;
@@ -288,7 +289,7 @@ public class OpenGLRenderPanel extends JPanel {
     private void pickItemUnderCursor() {
         Entity found = findEntityUnderCursor();
         System.out.println((found==null)?"found=null":"found=" + found.getName());
-        UndoSystem.addEvent(this,new SelectEdit(robotOverlord,robotOverlord.getSelectedEntities(),found));
+        UndoSystem.addEvent(this,new SelectEdit(robotOverlord, Clipboard.getSelectedEntities(),found));
     }
 
     private CameraComponent getCamera() {
@@ -423,7 +424,7 @@ public class OpenGLRenderPanel extends JPanel {
     public void updateSubjects() {
         moveEntityTool.setSubject(null);
 
-        List<Entity> list = robotOverlord.getSelectedEntities();
+        List<Entity> list = Clipboard.getSelectedEntities();
         if( !list.isEmpty()) {
             if(list.size() == 1) {
                 Entity firstEntity = list.get(0);

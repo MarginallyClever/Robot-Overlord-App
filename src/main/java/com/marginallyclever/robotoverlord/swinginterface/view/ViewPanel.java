@@ -114,10 +114,10 @@ public class ViewPanel extends ViewElement {
 		ComponentDeleteAction componentDeleteAction = new ComponentDeleteAction(component,ro);
 		popup.add(componentDeleteAction);
 
-		ComponentCopyAction componentCopyAction = new ComponentCopyAction(component,ro);
+		ComponentCopyAction componentCopyAction = new ComponentCopyAction(component);
 		popup.add(componentCopyAction);
 
-		ComponentPasteAction componentPasteAction = new ComponentPasteAction(ro);
+		ComponentPasteAction componentPasteAction = new ComponentPasteAction();
 		popup.add(componentPasteAction);
 
 		panel.setComponentPopupMenu(popup);

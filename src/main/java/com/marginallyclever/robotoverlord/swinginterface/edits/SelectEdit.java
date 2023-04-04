@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -47,12 +48,12 @@ public class SelectEdit extends AbstractUndoableEdit {
 	}
 
 	private void doIt() {
-		ro.setSelectedEntity(next);
+		Clipboard.setSelectedEntity(next);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		ro.setSelectedEntities(prev);
+		Clipboard.setSelectedEntities(prev);
 	}
 }

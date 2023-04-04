@@ -4,6 +4,7 @@ import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.ComponentFactory;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import org.json.JSONObject;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -14,15 +15,13 @@ import java.util.List;
 
 public class ComponentPasteEdit extends AbstractUndoableEdit {
     private final String name;
-    private final RobotOverlord ro;
     private final Component copiedComponent;
     private final List<Entity> parents = new LinkedList<>();
     private final List<Component> copies = new LinkedList<>();
 
-    public ComponentPasteEdit(String name, RobotOverlord ro, Component copiedComponent, List<Entity> parents) {
+    public ComponentPasteEdit(String name, Component copiedComponent, List<Entity> parents) {
         super();
         this.name = name;
-        this.ro = ro;
         this.copiedComponent = copiedComponent;
         this.parents.addAll(parents);
         doIt();
@@ -45,6 +44,7 @@ public class ComponentPasteEdit extends AbstractUndoableEdit {
             Component copy = ComponentFactory.load(copiedComponent.getClass().getName());
             parent.addComponent(copy);
             copy.parseJSON(serialized);
+            copies.add(copy);
         }
     }
 
@@ -56,7 +56,7 @@ public class ComponentPasteEdit extends AbstractUndoableEdit {
                 parent.removeComponent(copy);
             }
         }
-        ro.setSelectedEntity(null);
+        Clipboard.setSelectedEntity(null);
     }
 
     @Override

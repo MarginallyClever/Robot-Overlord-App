@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel;
+import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
@@ -79,21 +80,6 @@ public class RobotOverlord extends Entity {
 	private final Scene scene = new Scene(System.getProperty("user.dir"));
 
 	/**
-	 * The list of entities selected in the editor.  This list is used by Actions.
-	 */
-	private transient final List<Entity> selectedEntities = new ArrayList<>();
-
-	/**
-	 * The list of entities copied to the clipboard.  This list is used by Actions.
-	 */
-	private transient Entity copiedEntities = new Entity();
-
-	/**
-	 * The list of components copied to the clipboard.  This list is used by Actions.
-	 */
-	private transient Component copiedComponents = null;
-
-	/**
 	 * The list of actions registered in the editor.  This list is used for calls to
 	 * {@link #updateActionEnableStatus()}.
 	 */
@@ -138,11 +124,11 @@ public class RobotOverlord extends Entity {
 	 * Collated view of all components in all selected Entities.
 	 */
 	private final ComponentPanel componentPanel = new ComponentPanel(this);
-	
+
 	private EntityRenameAction entityRenameAction;
 	private EntityDeleteAction entityDeleteAction;
 
- 	private RobotOverlord() {
+	private RobotOverlord() {
 		super("");
 
 		this.addComponent(new PoseComponent());
@@ -172,8 +158,14 @@ public class RobotOverlord extends Entity {
 		action.clearScene();
 		action.addDefaultEntities();
 
+		listenToClipboardChanges();
+
 		Log.message("** READY **");
     }
+
+	private void listenToClipboardChanges() {
+		Clipboard.addListener(this::updateActionEnableStatus);
+	}
 
 	private void preferencesLoad() {
 		SceneImportAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_IMPORT, System.getProperty("user.dir")));
@@ -197,10 +189,10 @@ public class RobotOverlord extends Entity {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception ignored) {}
-		
-	    //Schedule a job for the event-dispatching thread:
-	    //creating and showing this application's GUI.
-	    javax.swing.SwingUtilities.invokeLater(RobotOverlord::new);
+
+		//Schedule a job for the event-dispatching thread:
+		//creating and showing this application's GUI.
+		javax.swing.SwingUtilities.invokeLater(RobotOverlord::new);
 	}
 
 	private JComponent buildEntityManagerPanel() {
@@ -208,7 +200,7 @@ public class RobotOverlord extends Entity {
 
 		entityTree.addEntityTreePanelListener((e)-> {
 			if (e.eventType == EntityTreePanelEvent.SELECT) {
-				setSelectedEntities(e.subjects);
+				Clipboard.setSelectedEntities(e.subjects);
 			}
 		});
 
@@ -229,7 +221,7 @@ public class RobotOverlord extends Entity {
 		}
 
 		entityRenameAction = new EntityRenameAction(this);
-		entityRenameAction.setEnabled(false);
+		entityRenameAction.setEnabled(false);  // TODO is this needed?
 
 		actions.add(EntityaddChildAction);
 		actions.add(entityRenameAction);
@@ -245,8 +237,8 @@ public class RobotOverlord extends Entity {
 
 	private void layoutComponents() {
         Log.message("layoutComponents()");
-        
-		// the right hand stuff			        
+
+		// the right hand stuff
 		rightFrameSplitter.add(buildEntityManagerPanel());
 		rightFrameSplitter.add(new JScrollPane(componentPanel));
 		// make sure the master panel can't be squished.
@@ -264,37 +256,37 @@ public class RobotOverlord extends Entity {
         mainFrame.add(splitLeftRight);
         
         mainFrame.setJMenuBar(mainMenu);
- 	}
+	}
 
 	private void buildMainFrame() {
 		Log.message("buildMainFrame()");
 		// start the main application frame - the largest visible rectangle on the screen with the minimize/maximize/close buttons.
-        mainFrame = new JFrame( APP_TITLE + " " + VERSION ); 
-    	mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        mainFrame = new JFrame( APP_TITLE + " " + VERSION );
+		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         mainFrame.setLayout(new java.awt.BorderLayout());
         mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
         mainFrame.setVisible(true);
-    	setWindowSizeAndPosition();
+		setWindowSizeAndPosition();
 		setupDropTarget();
         mainFrame.addWindowListener(new WindowAdapter() {
             // when someone tries to close the app, confirm it.
-        	@Override
-        	public void windowClosing(WindowEvent e) {
-        		confirmClose();
-        		super.windowClosing(e);
-        	}
-        	
-    		// switch back to this window
-        	@Override
-            public void windowActivated(WindowEvent e) {
-        		super.windowActivated(e);
-        	}
+			@Override
+			public void windowClosing(WindowEvent e) {
+				confirmClose();
+				super.windowClosing(e);
+			}
 
-    		// switch away to another window
-        	@Override
+			// switch back to this window
+			@Override
+            public void windowActivated(WindowEvent e) {
+				super.windowActivated(e);
+			}
+
+			// switch away to another window
+			@Override
             public void windowDeactivated(WindowEvent e) {
-        		super.windowDeactivated(e);
-        	}
+				super.windowDeactivated(e);
+			}
 		});
 
 		mainFrame.addComponentListener(new ComponentAdapter() {
@@ -313,7 +305,7 @@ public class RobotOverlord extends Entity {
 	private void setWindowSizeAndPosition() {
 		Log.message("Set window size and position");
 
-    	Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		int windowW = prefs.getInt(KEY_WINDOW_WIDTH, dim.width);
 		int windowH = prefs.getInt(KEY_WINDOW_HEIGHT, dim.height);
 		int windowX = prefs.getInt(KEY_WINDOW_X, (dim.width - windowW)/2);
@@ -343,18 +335,14 @@ public class RobotOverlord extends Entity {
 	public JFrame getMainFrame() {
 		return mainFrame;
 	}
-		
+
 	public Scene getScene() {
 		return scene;
-	}
-	
-	public List<Entity> getSelectedEntities() {
-		return new ArrayList<>(selectedEntities);
 	}
 
 	private void buildMainMenu() {
 		Log.message("buildMainMenu()");
-		
+
 		mainMenu = new JMenuBar();
 		mainMenu.removeAll();
 		mainMenu.add(createFileMenu());
@@ -390,9 +378,9 @@ public class RobotOverlord extends Entity {
 		menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
 		menu.add(new JSeparator());
 
-		EntityCopyAction entityCopyAction = new EntityCopyAction(this);
+		EntityCopyAction entityCopyAction = new EntityCopyAction();
 		EntityPasteAction entityPasteAction = new EntityPasteAction(this);
-		entityDeleteAction = new EntityDeleteAction(this);
+		entityDeleteAction = new EntityDeleteAction();
 		EntityCutAction entityCutAction = new EntityCutAction(entityDeleteAction, entityCopyAction);
 		EntityRenameAction entityRenameAction = new EntityRenameAction(this);
 
@@ -428,14 +416,14 @@ public class RobotOverlord extends Entity {
 	}
 
     private void updateSelectEntities() {
-		if( entityRenameAction != null ) entityRenameAction.setEnabled(false);
+		entityTree.setSelection(Clipboard.getSelectedEntities());
 
 		renderPanel.updateSubjects();
 		updateComponentPanel();
 	}
 
 	public void updateComponentPanel() {
-		componentPanel.refreshContents(getSelectedEntities());
+		componentPanel.refreshContents(Clipboard.getSelectedEntities());
 	}
 
 	public void confirmClose() {
@@ -445,18 +433,18 @@ public class RobotOverlord extends Entity {
 				Translator.get("RobotOverlord.quitTitle"),
 				JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
-        	mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 			preferencesSave();
 
-        	// Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
-	        new Thread(() -> {
+			// Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
+			new Thread(() -> {
 				renderPanel.stopAnimationSystem();
 				mainFrame.dispose();
 			}).start();
         }
 	}
-	
+
 	/**
 	 * Deep search for a child with this name.
 	 * @param name the name to match
@@ -482,42 +470,12 @@ public class RobotOverlord extends Entity {
 		return findFirstComponentRecursive(CameraComponent.class);
 	}
 
-	public void setSelectedEntity(Entity entity) {
-		List<Entity> list = new ArrayList<>();
-		if(entity!=null) list.add(entity);
-		setSelectedEntities(list);
-	}
-
-	public void setSelectedEntities(List<Entity> list) {
-		selectedEntities.clear();
-		selectedEntities.addAll(list);
-		entityTree.setSelection(list);
-		updateSelectEntities();
-		updateActionEnableStatus();
-	}
-
-	public void setCopiedEntities(Entity container) {
-		copiedEntities=container;
-		updateActionEnableStatus();
-	}
-
-	public Entity getCopiedEntities() {
-		return copiedEntities;
-	}
-
-	public void setCopiedComponents(Component container) {
-		copiedComponents=container;
-		updateActionEnableStatus();
-	}
-
-	public Component getCopiedComponents() {
-		return copiedComponents;
-	}
-
 	/**
 	 * Tell all Actions to check if they are active.
 	 */
 	private void updateActionEnableStatus() {
+		updateSelectEntities();
+
 		for(AbstractAction a : actions) {
 			if(a instanceof EditorAction) {
 				((EditorAction)a).updateEnableStatus();
@@ -590,8 +548,7 @@ public class RobotOverlord extends Entity {
 			// add entity to scene.
 			UndoSystem.addEvent(this,new EntityAddEdit(getScene(),entity));
 			//robotOverlord.setSelectedEntity(entity);
-		}
-		catch(Exception e) {
+		} catch(Exception e) {
 			logger.error("Error opening file",e);
 			return false;
 		}
