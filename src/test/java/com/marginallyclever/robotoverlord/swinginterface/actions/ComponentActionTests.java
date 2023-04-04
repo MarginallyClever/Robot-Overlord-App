@@ -10,6 +10,7 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIf;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 /**
  * Test the {@link ComponentCopyAction} and {@link ComponentPasteAction} classes.
@@ -17,7 +18,7 @@ import org.junit.jupiter.api.condition.DisabledIf;
  * @author Dan Royer
  * @since 2.4.0
  */
-@DisabledIf(value = "java.awt.GraphicsEnvironment#isHeadless", disabledReason = "headless environment")
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless environment")
 public class ComponentActionTests {
     /**
      * Test copying a {@link com.marginallyclever.robotoverlord.Component} from one {@link Entity} and pasting to another.
