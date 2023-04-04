@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swinginterface.translator.edits;
+package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
