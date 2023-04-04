@@ -9,7 +9,7 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
-
+@Deprecated
 public class DogWalkTwo extends DogWalkOne {
 	private static final long serialVersionUID = -1161074262097357976L;
 	private static final double NOMINAL_STEP_LENGTH = 5;

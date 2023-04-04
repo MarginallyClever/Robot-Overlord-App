@@ -6,6 +6,7 @@ import com.marginallyclever.convenience.OpenGLHelper;
 import javax.vecmath.Vector3d;
 import java.security.InvalidParameterException;
 
+@Deprecated
 public class ArcZPlanner {
 	private Vector3d pointFrom = new Vector3d();
 	private Vector3d pointTo = new Vector3d();
