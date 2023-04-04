@@ -1,0 +1,56 @@
+package com.marginallyclever.robotoverlord.swinginterface.translator.edits;
+
+import com.marginallyclever.robotoverlord.ComponentFactory;
+import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.clipboard.Clipboard;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentCopyAction;
+import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentPasteAction;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import javax.swing.undo.UndoManager;
+
+public class ComponentActionTests {
+    /**
+     * Test copying a {@link com.marginallyclever.robotoverlord.Component} from one {@link Entity} and pasting to another.
+     */
+    @Test
+    public void testComponentCopyAction() {
+        // translator is needed by actions.
+        Translator.start();
+        UndoSystem.start();
+
+        Entity entityA = new Entity();
+        Entity entityB = new Entity();
+        entityA.addComponent(new PoseComponent());
+
+        // select the first entity and copy the first component
+        Clipboard.setSelectedEntity(entityA);
+        ComponentCopyAction copyAction = new ComponentCopyAction(entityA.getComponent(0));
+        copyAction.actionPerformed(null);
+
+        // select the second entity and paste.
+        Clipboard.setSelectedEntity(entityB);
+        ComponentPasteAction pasteAction = new ComponentPasteAction();
+        pasteAction.actionPerformed(null);
+
+        // confirm paste was ok.
+        Assertions.assertNotEquals(0,entityB.getComponentCount());
+        Assertions.assertNotEquals(null,entityB.getComponent(0));
+        Assertions.assertEquals(entityA.getComponent(0).toString(), entityB.getComponent(0).toString());
+
+        // test undo
+        Assertions.assertTrue(UndoSystem.getCommandUndo().isEnabled());
+        UndoSystem.getCommandUndo().actionPerformed(null);
+        Assertions.assertEquals(0,entityB.getComponentCount());
+
+        // test redo
+        Assertions.assertTrue(UndoSystem.getCommandRedo().isEnabled());
+        UndoSystem.getCommandRedo().actionPerformed(null);
+        Assertions.assertEquals(1,entityB.getComponentCount());
+    }
+}
