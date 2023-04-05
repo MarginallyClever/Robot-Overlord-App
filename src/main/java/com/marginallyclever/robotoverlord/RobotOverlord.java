@@ -236,7 +236,7 @@ public class RobotOverlord extends Entity {
 	}
 
 	private void layoutComponents() {
-        Log.message("layoutComponents()");
+        Log.message("build main splitter");
 
 		// the right hand stuff
 		rightFrameSplitter.add(buildEntityManagerPanel());
@@ -247,7 +247,7 @@ public class RobotOverlord extends Entity {
         // if the window resizes, give top and bottom halves equal share of the real estate
 		rightFrameSplitter.setResizeWeight(0.25);
 
-        Log.message("build splitters");
+        Log.message("Build right side splitter");
         splitLeftRight.add(renderPanel);
         splitLeftRight.add(rightFrameSplitter);
         // if the window resizes, give left half as much real estate as it can get.
