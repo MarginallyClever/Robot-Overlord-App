@@ -415,6 +415,7 @@
 		    <artifactId>core</artifactId>
 		    <version>0.4.2</version>
 		</dependency>
+
 	</dependencies>
 
 	<repositories>
