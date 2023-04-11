@@ -1,8 +1,11 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
+import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
+import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -16,7 +19,7 @@ import java.awt.event.MouseWheelEvent;
  * Hold the CTRL key to move the camera in the Z direction (dolly).
  */
 public class MoveCameraTool implements EditorTool {
-    private CameraComponent cameraComponent;
+    private Viewport viewport;
 
     /**
      * Must be greater than or equal to zero.
@@ -40,10 +43,28 @@ public class MoveCameraTool implements EditorTool {
 
 
     @Override
-    public void mousePressed(MouseEvent e) {
-        if(SwingUtilities.isMiddleMouseButton(e)) {
-            isMoving=true;
-            updatePrevious(e);
+    public void activate(SelectedItems selectedItems) {}
+
+    @Override
+    public void deactivate() {}
+
+    @Override
+    public void handleMouseEvent(MouseEvent event) {
+        if (event.getID() == MouseEvent.MOUSE_PRESSED) {
+            if (SwingUtilities.isMiddleMouseButton(event)) {
+                isMoving = true;
+                updatePrevious(event);
+            }
+        } else if(event.getID() == MouseEvent.MOUSE_RELEASED) {
+            if(SwingUtilities.isMiddleMouseButton(event)) {
+                isMoving=false;
+            }
+        } else if(event.getID() == MouseEvent.MOUSE_DRAGGED) {
+            if(SwingUtilities.isMiddleMouseButton(event)) {
+                mouseDragged(event);
+            }
+        } else if(event.getID() == MouseEvent.MOUSE_WHEEL) {
+            mouseWheelMoved((MouseWheelEvent)event);
         }
     }
 
@@ -52,15 +73,8 @@ public class MoveCameraTool implements EditorTool {
         previousY = e.getY();
     }
 
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        if(SwingUtilities.isMiddleMouseButton(e)) {
-            isMoving=false;
-        }
-    }
-
-    @Override
     public void mouseDragged(MouseEvent e) {
+        CameraComponent cameraComponent = viewport.getCamera();
         if(cameraComponent==null) return;
         if(!isMoving) return;
 
@@ -82,11 +96,8 @@ public class MoveCameraTool implements EditorTool {
         }
     }
 
-    @Override
-    public void mouseMoved(MouseEvent e) {}
-
-    @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
+        CameraComponent cameraComponent = viewport.getCamera();
         if(cameraComponent==null) return;
 
         if(e.getWheelRotation()>0) {
@@ -97,30 +108,41 @@ public class MoveCameraTool implements EditorTool {
     }
 
     @Override
-    public void keyPressed(KeyEvent e) {
-        // remember if SHIFT is down
-        if(e.getKeyCode()==KeyEvent.VK_SHIFT) {
-            isShiftDown =true;
-        }
-        // remember if CTRL is down
-        if(e.getKeyCode()==KeyEvent.VK_CONTROL) {
-            isControlDown =true;
+    public void update(double deltaTime) {}
+
+    /**
+     * Renders any tool-specific visuals to the 3D scene.
+     *
+     * @param gl2
+     */
+    @Override
+    public void render(GL2 gl2) {}
+
+    @Override
+    public void handleKeyEvent(KeyEvent event) {
+        if(event.getID() == KeyEvent.KEY_PRESSED) {
+            // remember if SHIFT is down
+            if (event.getKeyCode() == KeyEvent.VK_SHIFT) {
+                isShiftDown = true;
+            }
+            // remember if CTRL is down
+            if (event.getKeyCode() == KeyEvent.VK_CONTROL) {
+                isControlDown = true;
+            }
+        } else if(event.getID() == KeyEvent.KEY_RELEASED) {
+            // remember if SHIFT is down
+            if (event.getKeyCode() == KeyEvent.VK_SHIFT) {
+                isShiftDown = false;
+            }
+            // remember if CTRL is down
+            if (event.getKeyCode() == KeyEvent.VK_CONTROL) {
+                isControlDown = false;
+            }
         }
     }
 
     @Override
-    public void keyReleased(KeyEvent e) {
-        // remember if SHIFT is down
-        if(e.getKeyCode()==KeyEvent.VK_SHIFT) {
-            isShiftDown =false;
-        }
-        // remember if CTRL is down
-        if(e.getKeyCode()==KeyEvent.VK_CONTROL) {
-            isControlDown =false;
-        }
-    }
-
-    public void setCamera(CameraComponent cameraComponent) {
-        this.cameraComponent = cameraComponent;
+    public void setViewport(Viewport viewport) {
+        this.viewport = viewport;
     }
 }
