@@ -21,14 +21,12 @@ public class SelectEdit extends AbstractUndoableEdit {
 	@Serial
 	private static final long serialVersionUID = 1L;
 
-	private final RobotOverlord ro;
-	private final Entity next;
+	private final List<Entity> next;
 	private final List<Entity> prev;
 
-	public SelectEdit(RobotOverlord ro, List<Entity> prev, Entity next) {
+	public SelectEdit(List<Entity> prev, List<Entity> next) {
 		super();
 
-		this.ro = ro;
 		this.next = next;
 		this.prev = prev;
 
@@ -37,7 +35,14 @@ public class SelectEdit extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		String name = (next == null) ? Translator.get("nothing") : next.getName();
+		String name;
+		if(next.size()==1) {
+			name = next.get(0).getName();
+		} else if(next.size()>1) {
+			name = Translator.get("multiple");
+		} else {
+			name = Translator.get("nothing");
+		}
 		return Translator.get("Select ") + name;
 	}
 
@@ -48,7 +53,7 @@ public class SelectEdit extends AbstractUndoableEdit {
 	}
 
 	private void doIt() {
-		Clipboard.setSelectedEntity(next);
+		Clipboard.setSelectedEntities(next);
 	}
 
 	@Override

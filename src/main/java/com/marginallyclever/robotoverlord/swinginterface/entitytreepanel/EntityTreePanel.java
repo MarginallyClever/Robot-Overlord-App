@@ -72,10 +72,14 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 			}
 		}
 
-		TreePath[] paths = new TreePath[pathList.size()];
-		pathList.toArray(paths);
+		if(pathList.size()>0) {
+			TreePath[] paths = new TreePath[pathList.size()];
+			pathList.toArray(paths);
 
-		myTree.setSelectionPaths(paths);
+			myTree.setSelectionPaths(paths);
+		} else {
+			myTree.clearSelection();
+		}
 	}
 
 	private EntityTreeNode findTreeNode(Entity e) {

@@ -12,6 +12,7 @@ import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.swinginterface.*;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
 import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanel;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanelEvent;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
@@ -200,7 +201,7 @@ public class RobotOverlord extends Entity {
 
 		entityTree.addEntityTreePanelListener((e)-> {
 			if (e.eventType == EntityTreePanelEvent.SELECT) {
-				Clipboard.setSelectedEntities(e.subjects);
+				UndoSystem.addEvent(this,new SelectEdit(Clipboard.getSelectedEntities(),e.subjects));
 			}
 		});
 
@@ -417,7 +418,7 @@ public class RobotOverlord extends Entity {
 
     private void updateSelectEntities() {
 		entityTree.setSelection(Clipboard.getSelectedEntities());
-		renderPanel.updateSubjects();
+		renderPanel.updateSubjects(Clipboard.getSelectedEntities());
 		updateComponentPanel();
 	}
 
