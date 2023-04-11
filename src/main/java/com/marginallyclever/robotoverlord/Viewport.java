@@ -100,6 +100,16 @@ public class Viewport extends Entity {
 	 * @return the ray coming through the viewport in the current projection.
 	 */
 	public Ray getRayThroughCursor() {
+		return getRayThroughPoint(cursorX,cursorY);
+	}
+
+	/**
+	 * Return the ray coming through the viewport in the current projection.
+	 * @param x the cursor position in screen coordinates [-1,1]
+	 * @param y the cursor position in screen coordinates [-1,1]
+	 * @return the ray coming through the viewport in the current projection.
+	 */
+	public Ray getRayThroughPoint(double x,double y) {
 		// OpenGL camera: -Z=forward, +X=right, +Y=up
 		// get the ray coming through the viewport in the current projection.
 		Point3d origin;
@@ -111,8 +121,8 @@ public class Viewport extends Entity {
 		if(drawOrthographic.get()) {
 			// orthographic projection
 			origin = new Point3d(
-					cursorX*canvasWidth/10,
-					cursorY*canvasHeight/10,
+					x*canvasWidth/10,
+					y*canvasHeight/10,
 					0);
 			direction = new Vector3d(0,0,-1);
 			PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
