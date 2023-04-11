@@ -14,7 +14,7 @@ public class PlaneTest {
     @Test
     public void testPlane() {
         Plane p = new Plane();
-        Assertions.assertEquals(0, p.d);
+        Assertions.assertEquals(0, p.distance);
         Assertions.assertEquals(0, p.normal.x);
         Assertions.assertEquals(0, p.normal.y);
         Assertions.assertEquals(1, p.normal.z);
