@@ -90,7 +90,7 @@ public class OpenGLRenderPanel extends JPanel {
 
     private void setupTools() {
         editorTools.add(new TranslateEntityMultiTool());
-        editorTools.add(new RotateEntityTool());
+        editorTools.add(new RotateEntityOneAxisTool());
         editorTools.add(new ScaleEntityTool());
         editorTools.add(new MoveCameraTool());
 
