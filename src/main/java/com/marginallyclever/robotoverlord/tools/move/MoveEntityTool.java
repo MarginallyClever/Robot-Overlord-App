@@ -14,9 +14,9 @@ import com.marginallyclever.robotoverlord.parameters.IntEntity;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.PoseMoveEdit;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.FrameOfReference;
+import com.marginallyclever.robotoverlord.tools.SelectedItems;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -32,7 +32,8 @@ import java.awt.event.MouseWheelEvent;
  * A visual manipulator that facilitates moving objects in 3D.
  * @author Dan Royer
  */
-public class MoveEntityTool extends Entity implements EditorTool {
+@Deprecated
+public class MoveEntityTool implements EditorTool {
 	private static final double STEP_SIZE = Math.PI/120.0;
 
 	private boolean isShiftDown = false;
@@ -64,6 +65,8 @@ public class MoveEntityTool extends Entity implements EditorTool {
 
 	// Who is being moved?
 	private Entity subject;
+
+	private Viewport viewport;
 	
 	// In what frame of reference?
 	private final IntEntity frameOfReferenceChoice = new IntEntity("Frame of Reference", FrameOfReference.WORLD.toInt());
@@ -96,17 +99,11 @@ public class MoveEntityTool extends Entity implements EditorTool {
 	// distance from camera to moving item
 	private double cameraDistance=1;
 
-	private final RobotOverlord ro;
+	private final RobotOverlord robotOverlord;
 	
-	public MoveEntityTool(RobotOverlord ro) {
+	public MoveEntityTool(RobotOverlord robotOverlord) {
 		super();
-		this.ro=ro;
-
-		setName("MoveTool");
-		addEntity(ballSize);
-		addEntity(snapOn);
-		addEntity(snapDegrees);
-		addEntity(snapDistance);
+		this.robotOverlord = robotOverlord;
 	}
 
 	/**
@@ -143,8 +140,7 @@ public class MoveEntityTool extends Entity implements EditorTool {
 	 * If the ray intersects a translation handle, start translating.
 	 */
 	private void checkMovementBegins() {
-		// get ray
-		Viewport viewport = ro.getViewport();
+		// get ray from camera through cursor
 		PoseComponent cameraPose = viewport.getCamera().getEntity().findFirstComponent(PoseComponent.class);
 		Ray ray = viewport.getRayThroughCursor();
 
@@ -301,7 +297,6 @@ public class MoveEntityTool extends Entity implements EditorTool {
 	private void updateRotation() {
 		valueNow = valueLast;
 
-		Viewport viewport = ro.getViewport();
 		Ray ray = viewport.getRayThroughCursor();
 
 		Vector3d dp = new Vector3d(pivotMatrix.getPosition());
@@ -431,13 +426,18 @@ public class MoveEntityTool extends Entity implements EditorTool {
 		OpenGLHelper.disableLightingEnd(gl2, lightWasOn);
 		OpenGLHelper.disableTextureEnd(gl2, wasText);
 
-		printDistanceOnScreen(gl2,ro);
+		printDistanceOnScreen(gl2);
+	}
+
+	@Override
+	public void setViewport(Viewport viewport) {
+		this.viewport = viewport;
 	}
 
 	public void updateCameraDistance() {
 		if(subject==null) return;
 
-		CameraComponent cameraComponent = ro.getCamera();
+		CameraComponent cameraComponent = viewport.getCamera();
 		if(cameraComponent==null) return;
 
 		PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
@@ -455,11 +455,11 @@ public class MoveEntityTool extends Entity implements EditorTool {
 		}
 	}
 	
-	private void printDistanceOnScreen(GL2 gl2,RobotOverlord ro) { 
+	private void printDistanceOnScreen(GL2 gl2) {
 		gl2.glEnable(GL2.GL_TEXTURE_2D);
 		
-		//ro.viewport.renderOrtho(gl2);
-		textRender.beginRendering(ro.getViewport().getCanvasWidth(), ro.getViewport().getCanvasHeight());
+		//viewport.renderOrtho(gl2);
+		textRender.beginRendering(viewport.getCanvasWidth(), viewport.getCanvasHeight());
 		textRender.setColor(0,0,0,1);
 		Matrix4d w = resultMatrix;
 		Vector3d wp = MatrixHelper.getPosition(w);
@@ -472,7 +472,7 @@ public class MoveEntityTool extends Entity implements EditorTool {
 				+StringHelper.formatDouble(Math.toDegrees(eu.y))+","
 				+StringHelper.formatDouble(Math.toDegrees(eu.z))+")", 20, 20);
 		textRender.endRendering();
-		//ro.viewport.renderPerspective(gl2);
+		//viewport.renderPerspective(gl2);
 	}
 
 	public void renderRotation(GL2 gl2) {
@@ -480,7 +480,7 @@ public class MoveEntityTool extends Entity implements EditorTool {
 			double scale = ballSize.get()*cameraDistance;
 			gl2.glScaled(scale,scale,scale);
 
-			PoseComponent camera = ro.getCamera().getEntity().findFirstComponent(PoseComponent.class);
+			PoseComponent camera = viewport.getCamera().getEntity().findFirstComponent(PoseComponent.class);
 			Matrix4d pw = camera.getWorld();
 			pw.m03=
 			pw.m13=
@@ -622,7 +622,7 @@ public class MoveEntityTool extends Entity implements EditorTool {
 			gl2.glScaled(scale,scale,scale);
 			
 			// camera forward is -z axis
-			PoseComponent camera = ro.getCamera().getEntity().findFirstComponent(PoseComponent.class);
+			PoseComponent camera = viewport.getCamera().getEntity().findFirstComponent(PoseComponent.class);
 
 			PoseComponent subjectPose = subject.findFirstComponent(PoseComponent.class);
 			Matrix4d pw = subjectPose.getWorld();
@@ -788,28 +788,21 @@ public class MoveEntityTool extends Entity implements EditorTool {
 		pivotMatrix.setPosition(mp);
 	}
 
+	/**
+	 * This method is called when the tool is activated. It receives the SelectedItems object containing the selected
+	 * entities and their initial world poses.
+	 *
+	 * @param selectedItems The selected items to be manipulated by the tool.
+	 */
 	@Override
-	public void getView(ViewPanel view) {
-		view.pushStack("MoveTool",true);
-		view.add(ballSize);
-		view.add(snapOn);
-		view.add(snapDegrees);
-		view.add(snapDistance);
-		
-		view.addComboBox(frameOfReferenceChoice,FrameOfReference.getAll());
-		view.popStack();
-		
-		super.getView(view);
-	}
+	public void activate(SelectedItems selectedItems) {}
 
+	/**
+	 * This method is called when the tool is deactivated. It allows the tool to perform any necessary cleanup
+	 * actions before another tool takes over.
+	 */
 	@Override
-	public void mousePressed(MouseEvent e) {
-		if(!isActivelyMoving) {
-			// button is pressed, try to start movement.
-			updatePrevious(e);
-			checkMovementBegins();
-		}
-	}
+	public void deactivate() {}
 
 	private void updatePrevious(MouseEvent e) {
 		previousX = e.getX();
@@ -817,14 +810,31 @@ public class MoveEntityTool extends Entity implements EditorTool {
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent e) {
+	public void handleMouseEvent(MouseEvent e) {
+		if(e.getID() == MouseEvent.MOUSE_PRESSED) {
+			mousePressed(e);
+		} else if(e.getID() == MouseEvent.MOUSE_RELEASED) {
+			mouseReleased(e);
+		} else if(e.getID() == MouseEvent.MOUSE_DRAGGED) {
+			mouseDragged(e);
+		}
+	}
+
+	private void mousePressed(MouseEvent e) {
+		if(!isActivelyMoving) {
+			// button is pressed, try to start movement.
+			updatePrevious(e);
+			checkMovementBegins();
+		}
+	}
+
+	private void mouseReleased(MouseEvent e) {
 		if(SwingUtilities.isLeftMouseButton(e)) {
 			isActivelyMoving=false;
 		}
 	}
 
-	@Override
-	public void mouseDragged(MouseEvent e) {
+	private void mouseDragged(MouseEvent e) {
 		if(!SwingUtilities.isLeftMouseButton(e)) return;
 
 		double dx = e.getX() - previousX;
@@ -840,7 +850,15 @@ public class MoveEntityTool extends Entity implements EditorTool {
 	}
 
 	@Override
-	public void keyPressed(KeyEvent e) {
+	public void handleKeyEvent(KeyEvent event) {
+		if(event.getID() == KeyEvent.KEY_PRESSED) {
+			keyPressed(event);
+		} else if(event.getID() == KeyEvent.KEY_RELEASED) {
+			keyReleased(event);
+		}
+	}
+
+	private void keyPressed(KeyEvent e) {
 		// remember if shift is down.
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
 			isShiftDown = true;
@@ -851,8 +869,7 @@ public class MoveEntityTool extends Entity implements EditorTool {
 		}
 	}
 
-	@Override
-	public void keyReleased(KeyEvent e) {
+	private void keyReleased(KeyEvent e) {
 		// remember if shift is down.
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
 			isShiftDown = false;
@@ -864,7 +881,7 @@ public class MoveEntityTool extends Entity implements EditorTool {
 
 		// change frame of reference.
 		if(!isActivelyMoving) {
-			CameraComponent cameraComponent = ro.getCamera();
+			CameraComponent cameraComponent = viewport.getCamera();
 			if(cameraComponent != null) {
 				if(e.getKeyCode() == KeyEvent.VK_F1) frameOfReferenceChoice.set(FrameOfReference.WORLD.toInt());
 				if(e.getKeyCode() == KeyEvent.VK_F2) frameOfReferenceChoice.set(FrameOfReference.CAMERA.toInt());
@@ -873,9 +890,11 @@ public class MoveEntityTool extends Entity implements EditorTool {
 		}
 	}
 
+	/**
+	 * Updates the tool's internal state, if necessary.
+	 *
+	 * @param deltaTime Time elapsed since the last update.
+	 */
 	@Override
-	public void mouseMoved(MouseEvent e) {}
-
-	@Override
-	public void mouseWheelMoved(MouseWheelEvent e) {}
+	public void update(double deltaTime) {}
 }
