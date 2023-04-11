@@ -29,7 +29,6 @@ public interface EditorTool {
      */
     void deactivate();
 
-
     /**
      * Handles mouse input events for the tool.
      *
@@ -58,9 +57,20 @@ public interface EditorTool {
 
     void setViewport(Viewport viewport);
 
+    /**
+     * Returns true if the tool is active (was clicked correctly and could be dragged)
+     * @return true if the tool is active (was clicked correctly and could be dragged)
+     */
     boolean isInUse();
 
+    /**
+     * Force cancel the tool.  useful if two tools are activated at once.
+     */
     void cancelUse();
 
+    /**
+     * Returns the point on the tool clicked by the user.  This is used to determine which tool is closer to the user.
+     * @return the point on the tool clicked by the user.
+     */
     Point3d getStartPoint();
 }
