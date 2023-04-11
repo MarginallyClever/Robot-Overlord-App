@@ -39,11 +39,6 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
     private Point3d startPoint;
 
     /**
-     * The origin of the translation plane.
-     */
-    private Point3d origin;
-
-    /**
      * The plane on which the user is picking.
      */
     private final Plane translationPlane = new Plane();
@@ -53,19 +48,21 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
      */
     private final Vector3d translationAxisX = new Vector3d();
     private final Vector3d translationAxisY = new Vector3d();
+    private Matrix4d pivotMatrix;
 
     @Override
     public void activate(SelectedItems selectedItems) {
         this.selectedItems = selectedItems;
-        if(selectedItems.isEmpty()) return;
+        if (selectedItems.isEmpty()) return;
 
-        // Set up the translationPlane and translationAxis based on the scene or selected items
-        Matrix4d pivot = EditorUtils.getFirstItemSelectedMatrix(selectedItems);
+        setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+    }
+
+    public void setPivotMatrix(Matrix4d pivot) {
+        pivotMatrix = pivot;
         translationPlane.set(EditorUtils.getXYPlane(pivot));
         translationAxisX.set(MatrixHelper.getXAxis(pivot));
-        translationAxisY.set(MatrixHelper.getXAxis(pivot));
-
-        origin = getLastSelectedItemPosition();
+        translationAxisY.set(MatrixHelper.getYAxis(pivot));
     }
 
     @Override
@@ -73,24 +70,11 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
         dragging = false;
     }
 
-    private Point3d getLastSelectedItemPosition() {
-        if(selectedItems==null || selectedItems.isEmpty()) return new Point3d();
-
-        List<Entity> list = selectedItems.getEntities();
-        Entity last = list.get(list.size()-1);
-        PoseComponent pose = last.findFirstComponent(PoseComponent.class);
-        if(pose==null) return new Point3d();
-
-        return new Point3d(MatrixHelper.getPosition(pose.getWorld()));
-    }
-
     @Override
     public void handleMouseEvent(MouseEvent event) {
         if (event.getID() == MouseEvent.MOUSE_PRESSED) {
-            origin = getLastSelectedItemPosition();
             mousePressed(event);
         } else if (event.getID() == MouseEvent.MOUSE_DRAGGED && dragging) {
-            origin = getLastSelectedItemPosition();
             mouseDragged(event);
         } else if (event.getID() == MouseEvent.MOUSE_RELEASED) {
             dragging = false;
@@ -113,7 +97,7 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
 
         // Apply the translation to the selected items
         for (Entity entity : selectedItems.getEntities()) {
-            Matrix4d pose = new Matrix4d(selectedItems.getWorldPose(entity));
+            Matrix4d pose = new Matrix4d(selectedItems.getWorldPoseAtStart(entity));
             pose.m03 += translation.x;
             pose.m13 += translation.y;
             pose.m23 += translation.z;
@@ -147,7 +131,7 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
 
         // Check if the point is within the handle's bounds
         Vector3d diff = new Vector3d();
-        diff.sub(point, origin);
+        diff.sub(point, MatrixHelper.getPosition(pivotMatrix));
 
         double dx = diff.dot(translationAxisX);
         if( dx<0 || dx>=padSize ) return false;
@@ -174,14 +158,13 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
 
         // Render the translation pad on the plane
         boolean light = OpenGLHelper.disableLightingStart(gl2);
-        int depth = OpenGLHelper.drawAtopEverythingStart(gl2);
 
         gl2.glPushMatrix();
 
-        gl2.glTranslated(origin.x, origin.y, origin.z);
+        MatrixHelper.applyMatrix(gl2, pivotMatrix);
 
         float [] colors = new float[4];
-        gl2.glGetFloatv(GL2.GL_COLOR, colors, 0);
+        gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, colors, 0);
         gl2.glColor4d(colors[0], colors[1], colors[2], 0.5);
         drawQuad(gl2,GL2.GL_TRIANGLE_FAN);
         gl2.glColor4d(colors[0], colors[1], colors[2], 1.0);
@@ -189,21 +172,41 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
 
         gl2.glPopMatrix();
 
-        OpenGLHelper.drawAtopEverythingEnd(gl2, depth);
         OpenGLHelper.disableLightingEnd(gl2, light);
     }
 
     private void drawQuad(GL2 gl2,int mode) {
         gl2.glBegin(mode);
-        gl2.glVertex3d(0, 0, 0);
-        gl2.glVertex3d(padSize, 0, 0);
-        gl2.glVertex3d(padSize, padSize, 0);
-        gl2.glVertex3d(0, padSize, 0);
+        gl2.glVertex3d( 0, 0,0);
+        gl2.glVertex3d(padSize, 0,0);
+        gl2.glVertex3d(padSize, padSize,0);
+        gl2.glVertex3d(0, padSize,0);
+        gl2.glEnd();
+        gl2.glBegin(mode);
+        gl2.glVertex3d( 0, 0,0);
+        gl2.glVertex3d(0, padSize,0);
+        gl2.glVertex3d(padSize, padSize,0);
+        gl2.glVertex3d(padSize, 0,0);
         gl2.glEnd();
     }
 
     @Override
     public void setViewport(Viewport viewport) {
         this.viewport = viewport;
+    }
+
+    @Override
+    public boolean isInUse() {
+        return dragging;
+    }
+
+    @Override
+    public void cancelUse() {
+        dragging = false;
+    }
+
+    @Override
+    public Point3d getStartPoint() {
+    	return startPoint;
     }
 }

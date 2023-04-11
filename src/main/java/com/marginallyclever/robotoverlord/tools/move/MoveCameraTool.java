@@ -8,6 +8,7 @@ import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
 import javax.swing.*;
+import javax.vecmath.Point3d;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -144,5 +145,20 @@ public class MoveCameraTool implements EditorTool {
     @Override
     public void setViewport(Viewport viewport) {
         this.viewport = viewport;
+    }
+
+    @Override
+    public boolean isInUse() {
+        return isMoving;
+    }
+
+    @Override
+    public void cancelUse() {
+        isMoving=false;
+    }
+
+    @Override
+    public Point3d getStartPoint() {
+        return null;
     }
 }

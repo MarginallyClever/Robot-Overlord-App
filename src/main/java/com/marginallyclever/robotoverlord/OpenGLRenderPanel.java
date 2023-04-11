@@ -89,8 +89,7 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     private void setupTools() {
-        editorTools.add(new TranslateEntityToolTwoAxis());
-        editorTools.add(new TranslateEntityToolOneAxis());
+        editorTools.add(new TranslateEntityMultiTool());
         editorTools.add(new RotateEntityTool());
         editorTools.add(new ScaleEntityTool());
         editorTools.add(new MoveCameraTool());
@@ -326,11 +325,13 @@ public class OpenGLRenderPanel extends JPanel {
 
         //viewport.showPickingTest(gl2);
 
+
+        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
+
         // 3D overlays
         editorTools.get(activeToolIndex).render(gl2);
 
         // 2D overlays
-        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
         viewCube.render(gl2,viewport);
         drawCursor(gl2);
     }

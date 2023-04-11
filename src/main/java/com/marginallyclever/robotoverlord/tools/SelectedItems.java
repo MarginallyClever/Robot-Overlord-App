@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.tools;
 
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 
@@ -34,9 +35,12 @@ public class SelectedItems {
 
     public void addEntity(Entity entity) {
         entities.add(entity);
+        setEntityWorldPose(entity);
+    }
+
+    private void setEntityWorldPose(Entity entity) {
         PoseComponent poseComponent = entity.findFirstComponent(PoseComponent.class);
         if (poseComponent != null) {
-            entities.add(entity);
             entityWorldPoses.put(entity, poseComponent.getWorld());
         }
     }
@@ -50,8 +54,16 @@ public class SelectedItems {
         return entities;
     }
 
-    public Matrix4d getWorldPose(Entity entity) {
+    public Matrix4d getWorldPoseAtStart(Entity entity) {
         return entityWorldPoses.get(entity);
+    }
+
+    public Matrix4d getWorldPoseNow(Entity entity) {
+        PoseComponent poseComponent = entity.findFirstComponent(PoseComponent.class);
+        if (poseComponent != null) {
+            return poseComponent.getWorld();
+        }
+        return MatrixHelper.createIdentityMatrix4();
     }
 
     public boolean isEmpty() {
@@ -61,5 +73,11 @@ public class SelectedItems {
     public void clear() {
         entities.clear();
         entityWorldPoses.clear();
+    }
+
+    public void savePose() {
+        for(Entity e : entities) {
+            setEntityWorldPose(e);
+        }
     }
 }

@@ -40,11 +40,6 @@ public class TranslateEntityToolOneAxis implements EditorTool {
     private Point3d startPoint;
 
     /**
-     * The origin of the translation plane.
-     */
-    private Point3d origin;
-
-    /**
      * The plane on which the user is picking.
      */
     private final Plane translationPlane = new Plane();
@@ -54,17 +49,20 @@ public class TranslateEntityToolOneAxis implements EditorTool {
      */
     private final Vector3d translationAxis = new Vector3d();
 
+    private Matrix4d pivotMatrix;
+
     @Override
     public void activate(SelectedItems selectedItems) {
         this.selectedItems = selectedItems;
         if(selectedItems.isEmpty()) return;
 
-        // Set up the translationPlane and translationAxis based on the scene or selected items
-        Matrix4d pivot = EditorUtils.getFirstItemSelectedMatrix(selectedItems);
+        setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+    }
+
+    public void setPivotMatrix(Matrix4d pivot) {
+        pivotMatrix = pivot;
         translationPlane.set(EditorUtils.getXYPlane(pivot));
         translationAxis.set(MatrixHelper.getXAxis(pivot));
-
-        origin = getLastSelectedItemPosition();
     }
 
     @Override
@@ -72,24 +70,11 @@ public class TranslateEntityToolOneAxis implements EditorTool {
         dragging = false;
     }
 
-    private Point3d getLastSelectedItemPosition() {
-        if(selectedItems==null || selectedItems.isEmpty()) return new Point3d();
-
-        List<Entity> list = selectedItems.getEntities();
-        Entity last = list.get(list.size()-1);
-        PoseComponent pose = last.findFirstComponent(PoseComponent.class);
-        if(pose==null) return new Point3d();
-
-        return new Point3d(MatrixHelper.getPosition(pose.getWorld()));
-    }
-
     @Override
     public void handleMouseEvent(MouseEvent event) {
         if (event.getID() == MouseEvent.MOUSE_PRESSED) {
-            origin = getLastSelectedItemPosition();
             mousePressed(event);
         } else if (event.getID() == MouseEvent.MOUSE_DRAGGED && dragging) {
-            origin = getLastSelectedItemPosition();
             mouseDragged(event);
         } else if (event.getID() == MouseEvent.MOUSE_RELEASED) {
             dragging = false;
@@ -114,7 +99,7 @@ public class TranslateEntityToolOneAxis implements EditorTool {
 
         // Apply the translation to the selected items
         for (Entity entity : selectedItems.getEntities()) {
-            Matrix4d pose = new Matrix4d(selectedItems.getWorldPose(entity));
+            Matrix4d pose = new Matrix4d(selectedItems.getWorldPoseAtStart(entity));
             pose.m03 += translation.x;
             pose.m13 += translation.y;
             pose.m23 += translation.z;
@@ -164,7 +149,7 @@ public class TranslateEntityToolOneAxis implements EditorTool {
 
         // Check if the point is within the handle's bounds
         Vector3d diff = new Vector3d();
-        diff.sub(point, origin);
+        diff.sub(point, MatrixHelper.getPosition(pivotMatrix));
         double d = diff.dot(translationAxis);
         return (Math.abs(d-handleLength) < gripRadius);
     }
@@ -183,31 +168,43 @@ public class TranslateEntityToolOneAxis implements EditorTool {
     public void render(GL2 gl2) {
         if(selectedItems==null || selectedItems.isEmpty()) return;
 
-        // Render the translation handles on the plane
+        // Render the translation handle on the axis
         boolean light = OpenGLHelper.disableLightingStart(gl2);
-        int depth = OpenGLHelper.drawAtopEverythingStart(gl2);
 
         gl2.glPushMatrix();
 
-        gl2.glTranslated(origin.x, origin.y, origin.z);
+        MatrixHelper.applyMatrix(gl2, pivotMatrix);
 
         gl2.glBegin(GL2.GL_LINES);
         gl2.glVertex3d(0, 0, 0);
         gl2.glVertex3d(handleLength, 0, 0);
         gl2.glEnd();
-        gl2.glPushMatrix();
+
         gl2.glTranslated(handleLength, 0, 0);
         PrimitiveSolids.drawSphere(gl2, gripRadius);
 
         gl2.glPopMatrix();
-        gl2.glPopMatrix();
 
-        OpenGLHelper.drawAtopEverythingEnd(gl2, depth);
         OpenGLHelper.disableLightingEnd(gl2, light);
     }
 
     @Override
     public void setViewport(Viewport viewport) {
         this.viewport = viewport;
+    }
+
+    @Override
+    public boolean isInUse() {
+        return dragging;
+    }
+
+    @Override
+    public void cancelUse() {
+        dragging = false;
+    }
+
+    @Override
+    public Point3d getStartPoint() {
+        return startPoint;
     }
 }

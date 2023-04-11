@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 
+import javax.vecmath.Point3d;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
@@ -56,4 +57,10 @@ public interface EditorTool {
     void render(GL2 gl2);
 
     void setViewport(Viewport viewport);
+
+    boolean isInUse();
+
+    void cancelUse();
+
+    Point3d getStartPoint();
 }

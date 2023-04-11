@@ -6,23 +6,30 @@ import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
+import java.util.List;
 
 public class EditorUtils {
-
-    public static Matrix4d getFirstItemSelectedMatrix(SelectedItems selectedItems) {
+    public static Matrix4d getLastItemSelectedMatrix(SelectedItems selectedItems) {
         if (selectedItems == null || selectedItems.isEmpty()) {
             return null;
         }
 
-        Entity firstEntity = selectedItems.getEntities().get(0);
-        return selectedItems.getWorldPose(firstEntity);
+        List<Entity> list = selectedItems.getEntities();
+        Entity lastEntity = list.get(list.size() - 1);
+        return selectedItems.getWorldPoseNow(lastEntity);
     }
 
     public static Plane getXYPlane(Matrix4d pivot) {
-        Vector3d zAxis = MatrixHelper.getZAxis(pivot);
-        Vector3d point = MatrixHelper.getPosition(pivot);
-        return new Plane(point, zAxis);
+        return new Plane(
+                MatrixHelper.getPosition(pivot),
+                MatrixHelper.getZAxis(pivot)
+        );
+    }
+
+    public static Plane getYZPlane(Matrix4d pivot) {
+        return new Plane(
+                MatrixHelper.getPosition(pivot),
+                MatrixHelper.getXAxis(pivot)
+        );
     }
 }

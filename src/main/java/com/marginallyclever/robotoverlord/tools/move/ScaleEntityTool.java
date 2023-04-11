@@ -5,6 +5,7 @@ import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
+import javax.vecmath.Point3d;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -63,5 +64,20 @@ public class ScaleEntityTool implements EditorTool {
     @Override
     public void setViewport(Viewport viewport) {
 
+    }
+
+    @Override
+    public boolean isInUse() {
+        return false;
+    }
+
+    @Override
+    public void cancelUse() {
+
+    }
+
+    @Override
+    public Point3d getStartPoint() {
+        return null;
     }
 }

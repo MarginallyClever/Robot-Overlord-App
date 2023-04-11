@@ -434,6 +434,21 @@ public class MoveEntityTool implements EditorTool {
 		this.viewport = viewport;
 	}
 
+	@Override
+	public boolean isInUse() {
+		return isActivelyMoving;
+	}
+
+	@Override
+	public void cancelUse() {
+		isActivelyMoving = false;
+	}
+
+	@Override
+	public Point3d getStartPoint() {
+		return null;
+	}
+
 	public void updateCameraDistance() {
 		if(subject==null) return;
 
