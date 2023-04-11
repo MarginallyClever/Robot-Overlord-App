@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord;
 
-import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
@@ -9,14 +8,13 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.entities.SkyBoxEntity;
 import com.marginallyclever.robotoverlord.entities.ViewCube;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
-import com.marginallyclever.robotoverlord.tools.move.MoveCameraTool;
-import com.marginallyclever.robotoverlord.tools.move.MoveEntityTool;
+import com.marginallyclever.robotoverlord.tools.SelectedItems;
+import com.marginallyclever.robotoverlord.tools.move.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +24,6 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -64,27 +61,22 @@ public class OpenGLRenderPanel extends JPanel {
     private double frameLength;
 
     // click on screen to change which entity is selected
-    private transient boolean pickNow = false;
     private final Viewport viewport = new Viewport();
 
     // elements in view, not really part of the scene
     private transient final ViewCube viewCube = new ViewCube();
     private transient final SkyBoxEntity sky = new SkyBoxEntity();
 
-    private transient final MoveEntityTool moveEntityTool;
-    private transient final MoveCameraTool moveCameraTool = new MoveCameraTool();
-
     private final List<EditorTool> editorTools = new ArrayList<>();
+    private int activeToolIndex = 0;
 
-    private final IntBuffer pickBuffer = Buffers.newDirectIntBuffer(PICK_BUFFER_SIZE);
+    private SelectedItems selectedItems = new SelectedItems();
 
 
     public OpenGLRenderPanel(RobotOverlord robotOverlord,Scene scene) {
         super(new BorderLayout());
         this.robotOverlord = robotOverlord;
         this.scene = scene;
-
-        moveEntityTool = new MoveEntityTool(robotOverlord);
 
         createCanvas();
         addCanvasListeners();
@@ -97,8 +89,15 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     private void setupTools() {
-        editorTools.add(moveEntityTool);
-        editorTools.add(moveCameraTool);
+        editorTools.add(new TranslateEntityToolTwoAxis());
+        editorTools.add(new TranslateEntityToolOneAxis());
+        editorTools.add(new RotateEntityTool());
+        editorTools.add(new ScaleEntityTool());
+        editorTools.add(new MoveCameraTool());
+
+        for(EditorTool t : editorTools) {
+            t.setViewport(viewport);
+        }
     }
 
     private void hideDefaultCursor() {
@@ -209,12 +208,12 @@ public class OpenGLRenderPanel extends JPanel {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                for(EditorTool tool : editorTools) tool.mousePressed(e);
+                for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                for(EditorTool tool : editorTools) tool.mouseReleased(e);
+                for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
             }
 
             @Override
@@ -233,13 +232,13 @@ public class OpenGLRenderPanel extends JPanel {
             @Override
             public void mouseDragged(MouseEvent e) {
                 viewport.setCursor(e.getX(),e.getY());
-                for(EditorTool tool : editorTools) tool.mouseDragged(e);
+                for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
                 viewport.setCursor(e.getX(),e.getY());
-                for(EditorTool tool : editorTools) tool.mouseMoved(e);
+                for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
             }
         });
 
@@ -247,7 +246,7 @@ public class OpenGLRenderPanel extends JPanel {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
                 super.mouseWheelMoved(e);
-                for(EditorTool tool : editorTools) tool.mouseWheelMoved(e);
+                for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
             }
         });
 
@@ -255,13 +254,13 @@ public class OpenGLRenderPanel extends JPanel {
             @Override
             public void keyPressed(KeyEvent e) {
                 super.keyPressed(e);
-                for(EditorTool tool : editorTools) tool.keyPressed(e);
+                for(EditorTool tool : editorTools) tool.handleKeyEvent(e);
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
                 super.keyReleased(e);
-                for(EditorTool tool : editorTools) tool.keyReleased(e);
+                for(EditorTool tool : editorTools) tool.handleKeyEvent(e);
             }
         });
     }
@@ -289,7 +288,10 @@ public class OpenGLRenderPanel extends JPanel {
     private void pickItemUnderCursor() {
         Entity found = findEntityUnderCursor();
         System.out.println((found==null)?"found=null":"found=" + found.getName());
-        UndoSystem.addEvent(this,new SelectEdit(robotOverlord, Clipboard.getSelectedEntities(),found));
+
+        List<Entity> list = new ArrayList<>();
+        if(found!=null) list.add(found);
+        UndoSystem.addEvent(this,new SelectEdit(Clipboard.getSelectedEntities(),list));
     }
 
     private CameraComponent getCamera() {
@@ -316,7 +318,6 @@ public class OpenGLRenderPanel extends JPanel {
         }
         gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
 
-        moveCameraTool.setCamera(camera);
         viewport.setCamera(camera);
         viewport.renderChosenProjection(gl2);
 
@@ -326,7 +327,7 @@ public class OpenGLRenderPanel extends JPanel {
         //viewport.showPickingTest(gl2);
 
         // 3D overlays
-        moveEntityTool.render(gl2);
+        editorTools.get(activeToolIndex).render(gl2);
 
         // 2D overlays
         gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
@@ -411,28 +412,14 @@ public class OpenGLRenderPanel extends JPanel {
         List<RayHit> rayHits = scene.findRayIntersections(ray);
         if(rayHits.size()==0) return null;
 
-        rayHits.sort(new Comparator<RayHit>() {
-            @Override
-            public int compare(RayHit o1, RayHit o2) {
-                return Double.compare(o1.distance, o2.distance);
-            }
-        });
+        rayHits.sort(Comparator.comparingDouble(o -> o.distance));
 
         return rayHits.get(0).target.getEntity();
     }
 
-    public void updateSubjects() {
-        moveEntityTool.setSubject(null);
-
-        List<Entity> list = Clipboard.getSelectedEntities();
-        if( !list.isEmpty()) {
-            if(list.size() == 1) {
-                Entity firstEntity = list.get(0);
-                if(firstEntity.findFirstComponent(PoseComponent.class) != null) {
-                    moveEntityTool.setSubject(firstEntity);
-                }
-            }
-        }
+    public void updateSubjects(List<Entity> list) {
+        editorTools.get(activeToolIndex).deactivate();
+        editorTools.get(activeToolIndex).activate(new SelectedItems(list));
     }
 
     public Viewport getViewport() {
