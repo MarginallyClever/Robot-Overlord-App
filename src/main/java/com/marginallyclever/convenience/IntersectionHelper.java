@@ -444,4 +444,34 @@ public class IntersectionHelper {
 
 		return t;
     }
+
+	/**
+	 * Returns the distance to the plane, or Double.MAX_VALUE if there is no intersection.
+	 * @param ray origin & direction
+	 * @param translationPlane plane
+	 * @return the distance to the plane, or Double.MAX_VALUE if there is no intersection.
+	 */
+    public static double rayPlane(Ray ray, Plane translationPlane) {
+		// Calculate the dot product of the ray direction and plane normal
+		double dotProduct = ray.getDirection().dot(translationPlane.getNormal());
+
+		// Check if the ray is parallel to the plane (no intersection)
+		if (Math.abs(dotProduct) < 1e-6) {
+			return Double.MAX_VALUE;
+		}
+
+		// Calculate the distance between the ray origin and plane point
+		Vector3d distanceVector = new Vector3d();
+		distanceVector.sub(translationPlane.getPoint(), ray.getOrigin());
+
+		// Calculate the intersection distance using the dot product
+		double distance = distanceVector.dot(translationPlane.getNormal()) / dotProduct;
+
+		// Check if the intersection point is behind the ray origin (no valid intersection)
+		if (distance < 0) {
+			return Double.MAX_VALUE;
+		}
+
+		return distance;
+	}
 }
