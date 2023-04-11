@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
+@Deprecated
 public enum SlideDirection {
 	SLIDE_XPOS(0,"X+"),
 	SLIDE_XNEG(1,"X-"),
