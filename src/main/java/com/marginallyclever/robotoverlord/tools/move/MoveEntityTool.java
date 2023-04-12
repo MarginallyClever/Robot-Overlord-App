@@ -308,40 +308,40 @@ public class MoveEntityTool implements EditorTool {
 
 		// find the pick point on the plane of rotation
 		double denominator = ray.getDirection().dot(majorAxisVector);
-		if(denominator!=0) {
-			double numerator = dp.dot(majorAxisVector);
-			double t0 = numerator/denominator;
-			pickPoint.set(ray.getPoint(t0));
+		if(Math.abs(denominator)<1e-6) return;
 
-			Vector3d pickPointInFOR = getPickPointInFrameOfReference(pickPoint,FOR);
+		double numerator = dp.dot(majorAxisVector);
+		double t0 = numerator/denominator;
+		pickPoint.set(ray.getPoint(t0));
+
+		Vector3d pickPointInFOR = getPickPointInFrameOfReference(pickPoint,FOR);
+		switch (nearestPlane) {
+			case YZ -> valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);
+			case XZ -> valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);
+			case XY -> valueNow = Math.atan2(pickPointInFOR.y, pickPointInFOR.x);
+		}
+
+		double da=valueNow - valueStart;
+		if(snapOn.get()) {
+			// round to snapDegrees
+			double deg = snapDegrees.get();
+			if(isControlDown) {
+				deg *= 0.1;
+			}
+
+			da = Math.toDegrees(da);
+			da = Math.signum(da)*Math.round(Math.abs(da)/deg)*deg;
+			da = Math.toRadians(da);
+		}
+		if(da!=0) {
 			switch (nearestPlane) {
-				case YZ -> valueNow = -Math.atan2(pickPointInFOR.y, pickPointInFOR.z);
-				case XZ -> valueNow = -Math.atan2(pickPointInFOR.z, pickPointInFOR.x);
-				case XY -> valueNow = Math.atan2(pickPointInFOR.y, pickPointInFOR.x);
+				case YZ -> rollX(da);
+				case XZ -> rollY(da);
+				case XY -> rollZ(da);
 			}
+			valueLast = valueStart + da;
 
-			double da=valueNow - valueStart;
-			if(snapOn.get()) {
-				// round to snapDegrees
-				double deg = snapDegrees.get();
-				if(isControlDown) {
-					deg *= 0.1;
-				}
-				
-				da = Math.toDegrees(da);
-				da = Math.signum(da)*Math.round(Math.abs(da)/deg)*deg;
-				da = Math.toRadians(da);
-			}
-			if(da!=0) {
-				switch (nearestPlane) {
-					case YZ -> rollX(da);
-					case XZ -> rollY(da);
-					case XY -> rollZ(da);
-				}
-				valueLast = valueStart + da;
-				
-				attemptMove();
-			}
+			attemptMove();
 		}
 	}
 
@@ -735,14 +735,14 @@ public class MoveEntityTool implements EditorTool {
 
 		// invert frame of reference to transform world target matrix into frame of reference space.
 
-		Matrix4d subjectRotation = new Matrix4d(startMatrix);
+		Matrix4d startMatrixCopy = new Matrix4d(startMatrix);
 		resultMatrix.set(pivotMatrix.getWorld());
 		Matrix4d iFOR = new Matrix4d(resultMatrix);
 		iFOR.invert();
 
 		resultMatrix.mul(rotation);
 		resultMatrix.mul(iFOR);
-		resultMatrix.mul(subjectRotation);
+		resultMatrix.mul(startMatrixCopy);
 		resultMatrix.setTranslation(MatrixHelper.getPosition(startMatrix));
 	}
 
