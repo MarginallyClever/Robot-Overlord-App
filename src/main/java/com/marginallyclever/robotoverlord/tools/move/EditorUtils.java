@@ -30,13 +30,6 @@ public class EditorUtils {
         );
     }
 
-    public static Plane getYZPlane(Matrix4d pivot) {
-        return new Plane(
-                MatrixHelper.getPosition(pivot),
-                MatrixHelper.getXAxis(pivot)
-        );
-    }
-
     /**
      * Looks through the camera's viewport and returns the point on the translationPlane, if any.
      * @param x the x coordinate of the viewport, in screen coordinates [-1,1]
