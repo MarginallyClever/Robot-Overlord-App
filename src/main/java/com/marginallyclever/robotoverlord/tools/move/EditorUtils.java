@@ -1,11 +1,15 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
+import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.Plane;
+import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
 import java.util.List;
 
 public class EditorUtils {
@@ -31,5 +35,23 @@ public class EditorUtils {
                 MatrixHelper.getPosition(pivot),
                 MatrixHelper.getXAxis(pivot)
         );
+    }
+
+    /**
+     * Looks through the camera's viewport and returns the point on the translationPlane, if any.
+     * @param x the x coordinate of the viewport, in screen coordinates [-1,1]
+     * @param y the y coordinate of the viewport, in screen coordinates [-1,1]
+     * @return the point on the translationPlane, or null if no intersection
+     */
+    public static Point3d getPointOnPlane(Plane translationPlane, Viewport viewport, double x, double y) {
+        // get ray from camera through viewport
+        Ray ray = viewport.getRayThroughPoint(x, y);
+
+        // get intersection of ray with translationPlane
+        double distance = IntersectionHelper.rayPlane(ray, translationPlane);
+        if(distance == Double.MAX_VALUE) {
+            return null;
+        }
+        return new Point3d(ray.getPoint(distance));
     }
 }
