@@ -707,15 +707,15 @@ public class MatrixHelper {
 		return lookAt;
 	}
 
+	static public Vector3d getXAxis(Matrix4d m) {		return new Vector3d(m.m00, m.m10, m.m20);	}
+	static public Vector3d getYAxis(Matrix4d m) {		return new Vector3d(m.m01, m.m11, m.m21);	}
+	static public Vector3d getZAxis(Matrix4d m) {		return new Vector3d(m.m02, m.m12, m.m22);	}
 	static public Vector3d getPosition(Matrix4d m) {	return new Vector3d(m.m03, m.m13, m.m23);	}
-	static public Vector3d getXAxis(Matrix4d m) {	return new Vector3d(m.m00, m.m10, m.m20);	}
-	static public Vector3d getYAxis(Matrix4d m) {	return new Vector3d(m.m01, m.m11, m.m21);	}
-	static public Vector3d getZAxis(Matrix4d m) {	return new Vector3d(m.m02, m.m12, m.m22);	}
 
-	static public void setPosition(Matrix4d m,Vector3d v) {	m.m03=v.x;  m.m13=v.y;  m.m23=v.z;	}
 	static public void setXAxis(Matrix4d m,Vector3d v) {	m.m00=v.x;  m.m10=v.y;  m.m20=v.z;	}
 	static public void setYAxis(Matrix4d m,Vector3d v) {	m.m01=v.x;  m.m11=v.y;  m.m21=v.z;	}
 	static public void setZAxis(Matrix4d m,Vector3d v) {	m.m02=v.x;  m.m12=v.y;  m.m22=v.z;	}
+	static public void setPosition(Matrix4d m,Vector3d v) {	m.m03=v.x;  m.m13=v.y;  m.m23=v.z;	}
 
 	/**
 	 * normalize the 3x3 component of the mTarget matrix.  Do not affect position. 
