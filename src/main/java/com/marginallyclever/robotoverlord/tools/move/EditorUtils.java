@@ -6,6 +6,10 @@ import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Viewport;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.edits.PoseMoveEdit;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
 import javax.vecmath.Matrix4d;
@@ -46,5 +50,14 @@ public class EditorUtils {
             return null;
         }
         return new Point3d(ray.getPoint(distance));
+    }
+
+    public static void updateUndoState(Object src,SelectedItems selectedItems) {
+        for (Entity entity : selectedItems.getEntities()) {
+            Matrix4d before = selectedItems.getWorldPoseAtStart(entity);
+            Matrix4d after = selectedItems.getWorldPoseNow(entity);
+            entity.findFirstComponent(PoseComponent.class).setWorld(before);
+            UndoSystem.addEvent(src, new PoseMoveEdit(entity, before, after, Translator.get("MoveTool.editName")));
+        }
     }
 }

@@ -182,7 +182,10 @@ public class RotateEntityToolOneAxis implements EditorTool {
     @Override
     public void mouseReleased(MouseEvent event) {
         dragging = false;
-        if(selectedItems!=null) selectedItems.savePose();
+        if(selectedItems!=null) {
+            EditorUtils.updateUndoState(this,selectedItems);
+            selectedItems.savePose();
+        }
     }
 
     /**

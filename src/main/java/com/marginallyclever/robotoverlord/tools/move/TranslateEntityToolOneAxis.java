@@ -5,6 +5,9 @@ import com.marginallyclever.convenience.*;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.edits.PoseMoveEdit;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
@@ -97,6 +100,7 @@ public class TranslateEntityToolOneAxis implements EditorTool {
             dragging = true;
             hovering = true;
             startPoint = EditorUtils.getPointOnPlane(translationPlane,viewport,event.getX(), event.getY());
+            selectedItems.savePose();
         }
     }
 
@@ -113,7 +117,8 @@ public class TranslateEntityToolOneAxis implements EditorTool {
 
         // Apply the translation to the selected items
         for (Entity entity : selectedItems.getEntities()) {
-            Matrix4d pose = new Matrix4d(selectedItems.getWorldPoseAtStart(entity));
+            Matrix4d before = selectedItems.getWorldPoseAtStart(entity);
+            Matrix4d pose = new Matrix4d(before);
             pose.m03 += translation.x;
             pose.m13 += translation.y;
             pose.m23 += translation.z;
@@ -123,7 +128,10 @@ public class TranslateEntityToolOneAxis implements EditorTool {
 
     public void mouseReleased(MouseEvent event) {
         dragging = false;
-        if(selectedItems!=null) selectedItems.savePose();
+        if(selectedItems!=null) {
+            EditorUtils.updateUndoState(this,selectedItems);
+            selectedItems.savePose();
+        }
     }
 
     private Point3d getNearestPointOnAxis(Point3d currentPoint) {
