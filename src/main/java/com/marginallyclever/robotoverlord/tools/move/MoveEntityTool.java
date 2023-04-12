@@ -99,11 +99,9 @@ public class MoveEntityTool implements EditorTool {
 	// distance from camera to moving item
 	private double cameraDistance=1;
 
-	private final RobotOverlord robotOverlord;
 	
-	public MoveEntityTool(RobotOverlord robotOverlord) {
+	public MoveEntityTool() {
 		super();
-		this.robotOverlord = robotOverlord;
 	}
 
 	/**
