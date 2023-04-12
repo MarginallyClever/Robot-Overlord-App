@@ -32,12 +32,12 @@ public class ScaleEntityTool implements EditorTool {
     }
 
     @Override
-    public void handleMouseEvent(MouseEvent e) {
+    public void handleMouseEvent(MouseEvent event) {
 
     }
 
     @Override
-    public void handleKeyEvent(KeyEvent e) {
+    public void handleKeyEvent(KeyEvent event) {
 
     }
 
@@ -47,9 +47,7 @@ public class ScaleEntityTool implements EditorTool {
      * @param deltaTime Time elapsed since the last update.
      */
     @Override
-    public void update(double deltaTime) {
-
-    }
+    public void update(double deltaTime) {}
 
     /**
      * Renders any tool-specific visuals to the 3D scene.
