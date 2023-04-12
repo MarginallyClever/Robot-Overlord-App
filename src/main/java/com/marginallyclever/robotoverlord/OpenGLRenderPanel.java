@@ -89,8 +89,8 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     private void setupTools() {
+        editorTools.add(new RotateEntityMultiTool());
         editorTools.add(new TranslateEntityMultiTool());
-        editorTools.add(new RotateEntityOneAxisTool());
         editorTools.add(new ScaleEntityTool());
         editorTools.add(new MoveCameraTool());
 
@@ -324,7 +324,6 @@ public class OpenGLRenderPanel extends JPanel {
         scene.render(gl2);
 
         //viewport.showPickingTest(gl2);
-
 
         gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
 
