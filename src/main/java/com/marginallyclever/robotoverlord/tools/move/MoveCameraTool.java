@@ -52,40 +52,47 @@ public class MoveCameraTool implements EditorTool {
     @Override
     public void handleMouseEvent(MouseEvent event) {
         if (event.getID() == MouseEvent.MOUSE_PRESSED) {
-            if (SwingUtilities.isMiddleMouseButton(event)) {
-                isMoving = true;
-                updatePrevious(event);
-            }
+            mousePressed(event);
         } else if(event.getID() == MouseEvent.MOUSE_RELEASED) {
-            if(SwingUtilities.isMiddleMouseButton(event)) {
-                isMoving=false;
-            }
+            mouseReleased(event);
         } else if(event.getID() == MouseEvent.MOUSE_DRAGGED) {
-            if(SwingUtilities.isMiddleMouseButton(event)) {
-                mouseDragged(event);
-            }
+            mouseDragged(event);
         } else if(event.getID() == MouseEvent.MOUSE_WHEEL) {
             mouseWheelMoved((MouseWheelEvent)event);
         }
     }
 
-    private void updatePrevious(MouseEvent e) {
-        previousX = e.getX();
-        previousY = e.getY();
+    private void updatePrevious(MouseEvent event) {
+        previousX = event.getX();
+        previousY = event.getY();
     }
 
-    public void mouseDragged(MouseEvent e) {
+    @Override
+    public void mouseMoved(MouseEvent event) {
+    }
+
+    @Override
+    public void mousePressed(MouseEvent event) {
+        if (SwingUtilities.isMiddleMouseButton(event)) {
+            isMoving = true;
+            updatePrevious(event);
+        }
+    }
+    @Override
+    public void mouseDragged(MouseEvent event) {
+        if(!SwingUtilities.isMiddleMouseButton(event)) return;
+
         CameraComponent cameraComponent = viewport.getCamera();
         if(cameraComponent==null) return;
         if(!isMoving) return;
 
         cameraComponent.setCurrentlyMoving(true);
 
-        double dx = e.getX() - previousX;
-        double dy = e.getY() - previousY;
+        double dx = event.getX() - previousX;
+        double dy = event.getY() - previousY;
         if(dx==0 && dy==0) return;
 
-        updatePrevious(e);
+        updatePrevious(event);
 
         if(isShiftDown) {
             cameraComponent.pedestalCamera(dy);
@@ -94,6 +101,13 @@ public class MoveCameraTool implements EditorTool {
             cameraComponent.dollyCamera(dy);
         } else {
             cameraComponent.orbitCamera(dx,dy);
+        }
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent event) {
+        if(SwingUtilities.isMiddleMouseButton(event)) {
+            isMoving=false;
         }
     }
 

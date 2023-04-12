@@ -34,14 +34,14 @@ public interface EditorTool {
      *
      * @param event The MouseEvent object representing the input event.
      */
-    public void handleMouseEvent(MouseEvent event);
+    void handleMouseEvent(MouseEvent event);
 
     /**
      * Handles keyboard input events for the tool.
      *
      * @param event The KeyEvent object representing the input event.
      */
-    public void handleKeyEvent(KeyEvent event);
+    void handleKeyEvent(KeyEvent event);
 
     /**
      * Updates the tool's internal state, if necessary.
@@ -73,4 +73,9 @@ public interface EditorTool {
      * @return the point on the tool clicked by the user.
      */
     Point3d getStartPoint();
+
+    void mouseMoved(MouseEvent event);
+    void mousePressed(MouseEvent event);
+    void mouseDragged(MouseEvent event);
+    void mouseReleased(MouseEvent event);
 }

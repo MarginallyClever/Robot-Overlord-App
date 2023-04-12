@@ -13,7 +13,6 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.util.List;
 
 public class TranslateEntityToolTwoAxis implements EditorTool {
     private final double padSize = 1;
@@ -50,6 +49,8 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
     private final Vector3d translationAxisY = new Vector3d();
     private Matrix4d pivotMatrix;
 
+    private boolean hovering = false;
+
     @Override
     public void activate(SelectedItems selectedItems) {
         this.selectedItems = selectedItems;
@@ -72,23 +73,36 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
 
     @Override
     public void handleMouseEvent(MouseEvent event) {
-        if (event.getID() == MouseEvent.MOUSE_PRESSED) {
+        if(selectedItems!=null) setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+
+        if (event.getID() == MouseEvent.MOUSE_MOVED) {
+            mouseMoved(event);
+        } else if (event.getID() == MouseEvent.MOUSE_PRESSED) {
             mousePressed(event);
-        } else if (event.getID() == MouseEvent.MOUSE_DRAGGED && dragging) {
+        } else if (event.getID() == MouseEvent.MOUSE_DRAGGED) {
             mouseDragged(event);
         } else if (event.getID() == MouseEvent.MOUSE_RELEASED) {
-            dragging = false;
+            mouseReleased(event);
         }
     }
 
-    private void mousePressed(MouseEvent event) {
-        if (isPadClicked(event.getX(), event.getY())) {
+    @Override
+    public void mouseMoved(MouseEvent event) {
+        hovering = isCursorOverPad(event.getX(), event.getY());
+    }
+
+    @Override
+    public void mousePressed(MouseEvent event) {
+        if (isCursorOverPad(event.getX(), event.getY())) {
             dragging = true;
+            hovering = true;
             startPoint = EditorUtils.getPointOnPlane(translationPlane,viewport,event.getX(), event.getY());
         }
     }
 
-    private void mouseDragged(MouseEvent event) {
+    public void mouseDragged(MouseEvent event) {
+        if(!dragging) return;
+
         Point3d currentPoint = EditorUtils.getPointOnPlane(translationPlane,viewport,event.getX(), event.getY());
         if(currentPoint==null) return;
 
@@ -105,7 +119,12 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
         }
     }
 
-    private boolean isPadClicked(int x, int y) {
+    public void mouseReleased(MouseEvent event) {
+        dragging = false;
+        if(selectedItems!=null) selectedItems.savePose();
+    }
+
+    private boolean isCursorOverPad(int x, int y) {
         if(selectedItems==null || selectedItems.isEmpty()) return false;
 
         Point3d point = EditorUtils.getPointOnPlane(translationPlane,viewport,x, y);
@@ -143,9 +162,11 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
 
         float [] colors = new float[4];
         gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, colors, 0);
-        gl2.glColor4d(colors[0], colors[1], colors[2], 0.5);
+        double colorScale = hovering? 1:0.8;
+
+        gl2.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 0.5);
         drawQuad(gl2,GL2.GL_TRIANGLE_FAN);
-        gl2.glColor4d(colors[0], colors[1], colors[2], 1.0);
+        gl2.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 1.0);
         drawQuad(gl2,GL2.GL_LINE_LOOP);
 
         gl2.glPopMatrix();

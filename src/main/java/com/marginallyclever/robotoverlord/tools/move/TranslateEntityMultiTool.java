@@ -108,12 +108,12 @@ public class TranslateEntityMultiTool implements EditorTool {
 
         setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
 
-        for(EditorTool t : tools) t.handleMouseEvent(event);
-
         if(event.getID() == MouseEvent.MOUSE_PRESSED) {
-            if (twoToolsInUseAtOnce()) {
-                cancelFurthestTool();
-            }
+            mousePressed(event);
+        } else if(event.getID() == MouseEvent.MOUSE_DRAGGED) {
+            mouseDragged(event);
+        } else if(event.getID() == MouseEvent.MOUSE_RELEASED) {
+            mouseReleased(event);
         }
     }
 
@@ -246,5 +246,26 @@ public class TranslateEntityMultiTool implements EditorTool {
     @Override
     public Point3d getStartPoint() {
         return null;
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent event) {
+        for(EditorTool t : tools) t.mouseMoved(event);
+    }
+
+    @Override
+    public void mousePressed(MouseEvent event) {
+        for(EditorTool t : tools) t.mousePressed(event);
+        if (twoToolsInUseAtOnce()) cancelFurthestTool();
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent event) {
+        for(EditorTool t : tools) t.mouseDragged(event);
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent event) {
+        for(EditorTool t : tools) t.mouseReleased(event);
     }
 }

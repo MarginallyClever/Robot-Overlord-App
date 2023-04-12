@@ -78,4 +78,23 @@ public class ScaleEntityTool implements EditorTool {
     public Point3d getStartPoint() {
         return null;
     }
+
+    @Override
+    public void mouseMoved(MouseEvent event) {
+    }
+
+    @Override
+    public void mousePressed(MouseEvent event) {
+
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent event) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent event) {
+
+    }
 }

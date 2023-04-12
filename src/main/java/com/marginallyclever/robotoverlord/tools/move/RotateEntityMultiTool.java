@@ -7,8 +7,10 @@ import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
+import javax.vecmath.AxisAngle4d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -30,7 +32,6 @@ public class RotateEntityMultiTool implements EditorTool {
         tools.add(toolX);
         tools.add(toolY);
         tools.add(toolZ);
-
         toolX.setRotation(0);
         toolY.setRotation(1);
         toolZ.setRotation(2);
@@ -59,13 +60,17 @@ public class RotateEntityMultiTool implements EditorTool {
         Matrix4d rot = new Matrix4d();
 
         Matrix4d pivotX = new Matrix4d(pivot);
-        rot.rotY(Math.toRadians(90));        pivotX.mul(rot);
-        rot.rotZ(Math.toRadians(90));        pivotX.mul(rot);
+        //rot.set(new AxisAngle4d(MatrixHelper.getYAxis(pivot), Math.toRadians( 90)));        pivotX.mul(rot);
+        //rot.set(new AxisAngle4d(MatrixHelper.getZAxis(pivot), Math.toRadians( 90)));        pivotX.mul(rot);
+        rot.rotY(Math.toRadians( 90));        pivotX.mul(rot);
+        rot.rotZ(Math.toRadians( 90));        pivotX.mul(rot);
         toolX.setPivotMatrix(pivotX);
 
         Matrix4d pivotY = new Matrix4d(pivot);
-        rot.rotX(Math.toRadians(90));        pivotY.mul(rot);
-        rot.rotZ(Math.toRadians(90));        pivotY.mul(rot);
+        //rot.set(new AxisAngle4d(MatrixHelper.getXAxis(pivot), Math.toRadians( 90)));        pivotY.mul(rot);
+        //rot.set(new AxisAngle4d(MatrixHelper.getZAxis(pivot), Math.toRadians( 90)));        pivotY.mul(rot);
+        rot.rotX(Math.toRadians(-90));        pivotY.mul(rot);
+        rot.rotZ(Math.toRadians( 90));        pivotY.mul(rot);
         toolY.setPivotMatrix(pivotY);
     }
 
@@ -89,12 +94,14 @@ public class RotateEntityMultiTool implements EditorTool {
 
         setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
 
-        for(EditorTool t : tools) t.handleMouseEvent(event);
-
-        if(event.getID() == MouseEvent.MOUSE_PRESSED) {
-            if (twoToolsInUseAtOnce()) {
-                cancelFurthestTool();
-            }
+        if(event.getID() == MouseEvent.MOUSE_MOVED) {
+            mouseMoved(event);
+        } else if(event.getID() == MouseEvent.MOUSE_PRESSED) {
+            mousePressed(event);
+        } else if(event.getID() == MouseEvent.MOUSE_DRAGGED) {
+            mouseDragged(event);
+        } else if(event.getID() == MouseEvent.MOUSE_RELEASED) {
+            mouseReleased(event);
         }
     }
 
@@ -215,5 +222,26 @@ public class RotateEntityMultiTool implements EditorTool {
     @Override
     public Point3d getStartPoint() {
         return null;
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent event) {
+        for(EditorTool t : tools) t.mouseMoved(event);
+    }
+
+    @Override
+    public void mousePressed(MouseEvent event) {
+        for(EditorTool t : tools) t.mousePressed(event);
+        if (twoToolsInUseAtOnce()) cancelFurthestTool();
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent event) {
+        for(EditorTool t : tools) t.mouseDragged(event);
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent event) {
+        for(EditorTool t : tools) t.mouseReleased(event);
     }
 }

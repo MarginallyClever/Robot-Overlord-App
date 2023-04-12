@@ -731,17 +731,16 @@ public class MoveEntityTool implements EditorTool {
 	}
 	
 	protected void rotationInternal(Matrix4d rotation) {
-		// multiply robot origin by target matrix to get target matrix in world space.
+		Matrix4d startMatrixCopy = new Matrix4d(startMatrix);
 
 		// invert frame of reference to transform world target matrix into frame of reference space.
 
-		Matrix4d startMatrixCopy = new Matrix4d(startMatrix);
 		resultMatrix.set(pivotMatrix.getWorld());
-		Matrix4d iFOR = new Matrix4d(resultMatrix);
-		iFOR.invert();
+		Matrix4d inverseFrameOfReference = new Matrix4d(resultMatrix);
+		inverseFrameOfReference.invert();
 
 		resultMatrix.mul(rotation);
-		resultMatrix.mul(iFOR);
+		resultMatrix.mul(inverseFrameOfReference);
 		resultMatrix.mul(startMatrixCopy);
 		resultMatrix.setTranslation(MatrixHelper.getPosition(startMatrix));
 	}
@@ -826,7 +825,9 @@ public class MoveEntityTool implements EditorTool {
 
 	@Override
 	public void handleMouseEvent(MouseEvent e) {
-		if(e.getID() == MouseEvent.MOUSE_PRESSED) {
+		if(e.getID() == MouseEvent.MOUSE_MOVED) {
+			mouseMoved(e);
+		} else if(e.getID() == MouseEvent.MOUSE_PRESSED) {
 			mousePressed(e);
 		} else if(e.getID() == MouseEvent.MOUSE_RELEASED) {
 			mouseReleased(e);
@@ -835,7 +836,12 @@ public class MoveEntityTool implements EditorTool {
 		}
 	}
 
-	private void mousePressed(MouseEvent e) {
+	@Override
+	public void mouseMoved(MouseEvent event) {
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
 		if(!isActivelyMoving) {
 			// button is pressed, try to start movement.
 			updatePrevious(e);
@@ -843,13 +849,8 @@ public class MoveEntityTool implements EditorTool {
 		}
 	}
 
-	private void mouseReleased(MouseEvent e) {
-		if(SwingUtilities.isLeftMouseButton(e)) {
-			isActivelyMoving=false;
-		}
-	}
-
-	private void mouseDragged(MouseEvent e) {
+	@Override
+	public void mouseDragged(MouseEvent e) {
 		if(!SwingUtilities.isLeftMouseButton(e)) return;
 
 		double dx = e.getX() - previousX;
@@ -862,6 +863,13 @@ public class MoveEntityTool implements EditorTool {
 			else					 updateTranslation(dx,dy);
 		}
 		updatePrevious(e);
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		if(SwingUtilities.isLeftMouseButton(e)) {
+			isActivelyMoving=false;
+		}
 	}
 
 	@Override
