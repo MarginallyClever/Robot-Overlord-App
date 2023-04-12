@@ -59,7 +59,7 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
     }
 
     public void setPivotMatrix(Matrix4d pivot) {
-        pivotMatrix = pivot;
+        pivotMatrix = new Matrix4d(pivot);
         translationPlane.set(EditorUtils.getXYPlane(pivot));
         translationAxisX.set(MatrixHelper.getXAxis(pivot));
         translationAxisY.set(MatrixHelper.getYAxis(pivot));
@@ -84,12 +84,12 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
     private void mousePressed(MouseEvent event) {
         if (isPadClicked(event.getX(), event.getY())) {
             dragging = true;
-            startPoint = getPointOnPlane(event.getX(), event.getY());
+            startPoint = EditorUtils.getPointOnPlane(translationPlane,viewport,event.getX(), event.getY());
         }
     }
 
     private void mouseDragged(MouseEvent event) {
-        Point3d currentPoint = getPointOnPlane(event.getX(), event.getY());
+        Point3d currentPoint = EditorUtils.getPointOnPlane(translationPlane,viewport,event.getX(), event.getY());
         if(currentPoint==null) return;
 
         Vector3d translation = new Vector3d();
@@ -105,28 +105,10 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
         }
     }
 
-    /**
-     * Looks through the camera's viewport and returns the point on the translationPlane, if any.
-     * @param x the x coordinate of the viewport, in screen coordinates [-1,1]
-     * @param y the y coordinate of the viewport, in screen coordinates [-1,1]
-     * @return the point on the translationPlane, or null if no intersection
-     */
-    private Point3d getPointOnPlane(double x, double y) {
-        // get ray from camera through viewport
-        Ray ray = viewport.getRayThroughPoint(x, y);
-
-        // get intersection of ray with translationPlane
-        double distance = IntersectionHelper.rayPlane(ray, translationPlane);
-        if(distance == Double.MAX_VALUE) {
-            return null;
-        }
-        return new Point3d(ray.getPoint(distance));
-    }
-
     private boolean isPadClicked(int x, int y) {
         if(selectedItems==null || selectedItems.isEmpty()) return false;
 
-        Point3d point = getPointOnPlane(x, y);
+        Point3d point = EditorUtils.getPointOnPlane(translationPlane,viewport,x, y);
         if (point == null) return false;
 
         // Check if the point is within the handle's bounds
@@ -143,14 +125,10 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
     }
 
     @Override
-    public void handleKeyEvent(KeyEvent event) {
-        // Handle keyboard events, if necessary
-    }
+    public void handleKeyEvent(KeyEvent event) {}
 
     @Override
-    public void update(double deltaTime) {
-        // Update the tool's state, if necessary
-    }
+    public void update(double deltaTime) {}
 
     @Override
     public void render(GL2 gl2) {

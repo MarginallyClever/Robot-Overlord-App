@@ -60,7 +60,7 @@ public class TranslateEntityToolOneAxis implements EditorTool {
     }
 
     public void setPivotMatrix(Matrix4d pivot) {
-        pivotMatrix = pivot;
+        pivotMatrix = new Matrix4d(pivot);
         translationPlane.set(EditorUtils.getXYPlane(pivot));
         translationAxis.set(MatrixHelper.getXAxis(pivot));
     }
@@ -78,18 +78,19 @@ public class TranslateEntityToolOneAxis implements EditorTool {
             mouseDragged(event);
         } else if (event.getID() == MouseEvent.MOUSE_RELEASED) {
             dragging = false;
+            selectedItems.savePose();
         }
     }
 
     private void mousePressed(MouseEvent event) {
         if (isHandleClicked(event.getX(), event.getY())) {
             dragging = true;
-            startPoint = getPointOnPlane(event.getX(), event.getY());
+            startPoint = EditorUtils.getPointOnPlane(translationPlane,viewport,event.getX(), event.getY());
         }
     }
 
     private void mouseDragged(MouseEvent event) {
-        Point3d currentPoint = getPointOnPlane(event.getX(), event.getY());
+        Point3d currentPoint = EditorUtils.getPointOnPlane(translationPlane,viewport,event.getX(), event.getY());
         if(currentPoint==null) return;
 
         Point3d nearestPoint = getNearestPointOnAxis(currentPoint);
@@ -123,28 +124,10 @@ public class TranslateEntityToolOneAxis implements EditorTool {
         return new Point3d(diff);
     }
 
-    /**
-     * Looks through the camera's viewport and returns the point on the translationPlane, if any.
-     * @param x the x coordinate of the viewport, in screen coordinates [-1,1]
-     * @param y the y coordinate of the viewport, in screen coordinates [-1,1]
-     * @return the point on the translationPlane, or null if no intersection
-     */
-    private Point3d getPointOnPlane(double x, double y) {
-        // get ray from camera through viewport
-        Ray ray = viewport.getRayThroughPoint(x, y);
-
-        // get intersection of ray with translationPlane
-        double distance = IntersectionHelper.rayPlane(ray, translationPlane);
-        if(distance == Double.MAX_VALUE) {
-            return null;
-        }
-        return new Point3d(ray.getPoint(distance));
-    }
-
     private boolean isHandleClicked(int x, int y) {
         if(selectedItems==null || selectedItems.isEmpty()) return false;
 
-        Point3d point = getPointOnPlane(x, y);
+        Point3d point = EditorUtils.getPointOnPlane(translationPlane,viewport,x, y);
         if (point == null) return false;
 
         // Check if the point is within the handle's bounds
@@ -169,6 +152,7 @@ public class TranslateEntityToolOneAxis implements EditorTool {
         if(selectedItems==null || selectedItems.isEmpty()) return;
 
         // Render the translation handle on the axis
+        boolean texture = OpenGLHelper.disableTextureStart(gl2);
         boolean light = OpenGLHelper.disableLightingStart(gl2);
 
         gl2.glPushMatrix();
@@ -186,6 +170,7 @@ public class TranslateEntityToolOneAxis implements EditorTool {
         gl2.glPopMatrix();
 
         OpenGLHelper.disableLightingEnd(gl2, light);
+        OpenGLHelper.disableTextureEnd(gl2, texture);
     }
 
     @Override

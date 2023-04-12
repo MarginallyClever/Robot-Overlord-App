@@ -115,9 +115,6 @@ public class TranslateEntityMultiTool implements EditorTool {
                 cancelFurthestTool();
             }
         }
-        if(event.getID() == MouseEvent.MOUSE_RELEASED) {
-            selectedItems.savePose();
-        }
     }
 
     private boolean twoToolsInUseAtOnce() {
