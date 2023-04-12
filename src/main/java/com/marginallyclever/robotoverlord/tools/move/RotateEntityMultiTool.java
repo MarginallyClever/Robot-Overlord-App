@@ -31,13 +31,9 @@ public class RotateEntityMultiTool implements EditorTool {
         tools.add(toolY);
         tools.add(toolZ);
 
-        Matrix4d xToolTransform = new Matrix4d();
-        xToolTransform.rotX(Math.PI / 2);
-        toolX.setToolTransform(xToolTransform);
-
-        Matrix4d yToolTransform = new Matrix4d();
-        yToolTransform.rotY(-Math.PI / 2);
-        toolY.setToolTransform(yToolTransform);
+        toolX.setRotation(0);
+        toolY.setRotation(1);
+        toolZ.setRotation(2);
     }
 
     /**
@@ -63,17 +59,13 @@ public class RotateEntityMultiTool implements EditorTool {
         Matrix4d rot = new Matrix4d();
 
         Matrix4d pivotX = new Matrix4d(pivot);
-        rot.rotY(Math.toRadians(90));
-        pivotX.mul(rot);
-        rot.rotZ(Math.toRadians(90));
-        pivotX.mul(rot);
+        rot.rotY(Math.toRadians(90));        pivotX.mul(rot);
+        rot.rotZ(Math.toRadians(90));        pivotX.mul(rot);
         toolX.setPivotMatrix(pivotX);
 
         Matrix4d pivotY = new Matrix4d(pivot);
-        rot.rotX(Math.toRadians(90));
-        pivotY.mul(rot);
-        rot.rotZ(Math.toRadians(90));
-        pivotY.mul(rot);
+        rot.rotX(Math.toRadians(90));        pivotY.mul(rot);
+        rot.rotZ(Math.toRadians(90));        pivotY.mul(rot);
         toolY.setPivotMatrix(pivotY);
     }
 
