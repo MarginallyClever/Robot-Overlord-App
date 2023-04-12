@@ -69,6 +69,7 @@ public class TranslateEntityToolOneAxis implements EditorTool {
     @Override
     public void deactivate() {
         dragging = false;
+        selectedItems = null;
     }
 
     @Override

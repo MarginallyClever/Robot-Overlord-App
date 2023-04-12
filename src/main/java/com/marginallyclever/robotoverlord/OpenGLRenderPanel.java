@@ -33,10 +33,9 @@ import java.util.List;
  */
 public class OpenGLRenderPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLRenderPanel.class);
-    private static final int FSAA_NUM_SAMPLES = 4;
+    private static final int FSAA_NUM_SAMPLES = 4;  // 1,2,4,8
     private static final int VERTICAL_SYNC_ON = 1;  // 1 on, 0 off
     private static final int DEFAULT_FRAMES_PER_SECOND = 30;
-    private static final int PICK_BUFFER_SIZE = 256;
 
     private final RobotOverlord robotOverlord;
     private final Scene scene;
@@ -69,8 +68,7 @@ public class OpenGLRenderPanel extends JPanel {
 
     private final List<EditorTool> editorTools = new ArrayList<>();
     private int activeToolIndex = 0;
-
-    private SelectedItems selectedItems = new SelectedItems();
+    private SelectedItems selectedItems;
 
 
     public OpenGLRenderPanel(RobotOverlord robotOverlord,Scene scene) {
@@ -89,9 +87,14 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     private void setupTools() {
-        editorTools.add(new RotateEntityMultiTool());
+        //editorTools.add(new TranslateEntityToolOneAxis());
+        //editorTools.add(new TranslateEntityToolTwoAxis());
         editorTools.add(new TranslateEntityMultiTool());
-        editorTools.add(new ScaleEntityTool());
+
+        //editorTools.add(new RotateEntityToolOneAxis());
+        editorTools.add(new RotateEntityMultiTool());
+
+        //editorTools.add(new ScaleEntityTool());
         editorTools.add(new MoveCameraTool());
 
         for(EditorTool t : editorTools) {
@@ -260,8 +263,18 @@ public class OpenGLRenderPanel extends JPanel {
             public void keyReleased(KeyEvent e) {
                 super.keyReleased(e);
                 for(EditorTool tool : editorTools) tool.handleKeyEvent(e);
+
+                if(e.getKeyCode() == KeyEvent.VK_F1) {
+                    deactivateAllTools();
+                    activeToolIndex = (activeToolIndex + 1) % 2;
+                    editorTools.get(activeToolIndex).activate(selectedItems);
+                }
             }
         });
+    }
+
+    private void deactivateAllTools() {
+        for(EditorTool tool : editorTools) tool.deactivate();
     }
 
     private GL useTracePipeline(GL gl) {
@@ -328,7 +341,7 @@ public class OpenGLRenderPanel extends JPanel {
         gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
 
         // 3D overlays
-        editorTools.get(activeToolIndex).render(gl2);
+        for(EditorTool tool : editorTools) tool.render(gl2);
 
         // 2D overlays
         viewCube.render(gl2,viewport);
@@ -418,8 +431,9 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     public void updateSubjects(List<Entity> list) {
+        selectedItems = new SelectedItems(list);
         editorTools.get(activeToolIndex).deactivate();
-        editorTools.get(activeToolIndex).activate(new SelectedItems(list));
+        editorTools.get(activeToolIndex).activate(selectedItems);
     }
 
     public Viewport getViewport() {

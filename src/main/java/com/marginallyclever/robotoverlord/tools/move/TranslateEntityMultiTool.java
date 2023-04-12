@@ -108,7 +108,9 @@ public class TranslateEntityMultiTool implements EditorTool {
 
         setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
 
-        if(event.getID() == MouseEvent.MOUSE_PRESSED) {
+        if(event.getID() == MouseEvent.MOUSE_MOVED) {
+            mouseMoved(event);
+        } else if(event.getID() == MouseEvent.MOUSE_PRESSED) {
             mousePressed(event);
         } else if(event.getID() == MouseEvent.MOUSE_DRAGGED) {
             mouseDragged(event);
