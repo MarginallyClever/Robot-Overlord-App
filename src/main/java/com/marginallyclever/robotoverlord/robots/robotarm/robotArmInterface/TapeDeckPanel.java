@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serial;
 import java.util.ArrayList;
 
 /**
@@ -20,15 +21,18 @@ public class TapeDeckPanel extends JPanel {
 	/**
 	 * 
 	 */
+	@Serial
 	private static final long serialVersionUID = -8342180275906617044L;
 	public static final int ACTION_STOP = 0;
 	public static final int ACTION_PLAY = 1;
 	public static final int ACTION_REWIND = 2;
 	
-	private JButton bPlay = new JButton();
-	private JButton bStop = new JButton();
-	private JButton bRewind = new JButton();
-	private JProgressBar progressBar = new JProgressBar(0,100); 
+	private final JButton bPlay = new JButton();
+	private final JButton bStop = new JButton();
+	private final JButton bRewind = new JButton();
+	private final JProgressBar progressBar = new JProgressBar(0,100);
+
+	private final ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
 
 	public TapeDeckPanel() {
 		super();
@@ -86,8 +90,7 @@ public class TapeDeckPanel extends JPanel {
 	}
 
 	// OBSERVER PATTERN
-	
-	private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
+
 	public void addActionListener(ActionListener a) {
 		listeners.add(a);
 	}
