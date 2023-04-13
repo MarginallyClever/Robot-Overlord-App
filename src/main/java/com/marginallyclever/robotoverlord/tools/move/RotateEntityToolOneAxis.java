@@ -367,7 +367,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
 
         float [] colors = new float[4];
         gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, colors, 0);
-        double colorScale = hovering? 1:0.8;
+        double colorScale = hovering? 1:0.5;
         gl2.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 1.0);
 
         PrimitiveSolids.drawCircleXY(gl2, ringRadius, ringResolution);
