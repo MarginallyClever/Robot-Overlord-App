@@ -15,11 +15,33 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 public class RotateEntityToolOneAxis implements EditorTool {
+    /**
+     * visual "tick" marks for snapping.
+     */
+    private static final double TICK_RATIO_INSIDE_45 = 0.25;
+    private static final double TICK_RATIO_OUTSIDE_45 = 0.75;
+    private static final double TICK_RATIO_INSIDE_5 = 1.00;
+    private static final double TICK_RATIO_OUTSIDE_5 = 1.05;
+    private static final double TICK_RATIO_INSIDE_10 = 1.00;
+    private static final double TICK_RATIO_OUTSIDE_10 = 1.10;
+    /**
+     * how close the cursor has to get to a tick for it to be considered "snapped"
+     */
+    private final double SNAP_RADIANS_5 = Math.toRadians(2);
+    private final double SNAP_RADIANS_45 = Math.toRadians(3);
+
+    /**
+     * The size of the handle and ring.
+     */
+    private final double ringRadius = 5.0;
     private final double handleLength = 4.89898;
     private final double handleOffsetY = 1.0;
     private final double gripRadius = 0.5;
 
-    private final int ringResolution = 32;
+    /**
+     * The number of segments to use when drawing the ring.
+     */
+    private final int ringResolution = 64;
 
     /**
      * The viewport to which this tool is attached.
@@ -50,9 +72,14 @@ public class RotateEntityToolOneAxis implements EditorTool {
     private final Matrix4d pivotMatrix = new Matrix4d();
     private final Matrix4d startMatrix = new Matrix4d();
 
+    /**
+     * which axis of rotation will be used?  0,1,2 = x,y,z
+     */
     private int rotation=2;
 
     private boolean hovering = false;
+
+    private double angleAtStartOfDrag;
 
     /**
      * This method is called when the tool is activated. It receives the SelectedItems object containing the selected
@@ -109,7 +136,9 @@ public class RotateEntityToolOneAxis implements EditorTool {
         if (isCursorOverHandle(event.getX(), event.getY())) {
             dragging = true;
             hovering = true;
-            startPoint = EditorUtils.getPointOnPlane(EditorUtils.getXYPlane(startMatrix),viewport,event.getX(), event.getY());
+            startPoint = EditorUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,event.getX(), event.getY());
+            angleAtStartOfDrag = getAngleBetweenPoints(startPoint);
+            System.out.println("start angle = "+Math.toDegrees(angleAtStartOfDrag));
             if(selectedItems!=null) selectedItems.savePose();
         }
     }
@@ -117,7 +146,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
     private boolean isCursorOverHandle(int x, int y) {
         if(selectedItems==null || selectedItems.isEmpty()) return false;
 
-        Point3d point = EditorUtils.getPointOnPlane(EditorUtils.getXYPlane(startMatrix),viewport,x, y);
+        Point3d point = EditorUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,x, y);
         if (point == null) return false;
 
         // Check if the point is within the handle's bounds
@@ -137,10 +166,12 @@ public class RotateEntityToolOneAxis implements EditorTool {
     public void mouseDragged(MouseEvent event) {
         if(!dragging) return;
 
-        Point3d currentPoint = EditorUtils.getPointOnPlane(EditorUtils.getXYPlane(startMatrix),viewport,event.getX(), event.getY());
+        Point3d currentPoint = EditorUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,event.getX(), event.getY());
         if(currentPoint==null) return;
 
-        double startAngle = getAngleBetweenPoints(startPoint);
+        currentPoint = snapToTicks(currentPoint);
+
+        double startAngle = 0;//getAngleBetweenPoints(startPoint);
         double currentAngle = getAngleBetweenPoints(currentPoint);
         double rotationAngle = currentAngle - startAngle;
         Matrix4d rot = new Matrix4d();
@@ -176,6 +207,49 @@ public class RotateEntityToolOneAxis implements EditorTool {
 
             PoseComponent pc = entity.findFirstComponent(PoseComponent.class);
             pc.setWorld(pose);
+        }
+    }
+
+    private Point3d snapToTicks(Point3d currentPoint) {
+        Vector3d diff = new Vector3d();
+        Vector3d center = MatrixHelper.getPosition(startMatrix);
+        diff.sub(currentPoint, center);
+        double diffLength = diff.length()/ringRadius;
+        Vector3d xAxis = MatrixHelper.getXAxis(startMatrix);
+        Vector3d yAxis = MatrixHelper.getYAxis(startMatrix);
+        double angle = Math.atan2(yAxis.dot(diff),xAxis.dot(diff));
+
+        // if the diff length is within the TICK_RATIO_INSIDE_5 and TICK_RATIO_INSIDE_10 and
+        // if angle is within SNAP_RADIANS_5 of every 5 degrees, snap to 5 degrees.
+        if(diffLength > TICK_RATIO_INSIDE_5 && diffLength < TICK_RATIO_OUTSIDE_10) {
+            angle = roundToNearestSnap(angle, SNAP_RADIANS_5,5);
+            double angle5 = Math.round(angle / (Math.PI/36)) * (Math.PI/36);
+            diff.scaleAdd(Math.cos(angle5), xAxis, center);
+            diff.scaleAdd(Math.sin(angle5), yAxis, diff);
+            currentPoint.set(diff);
+            return currentPoint;
+        }
+        // if the diff length is within the TICK_RATIO_OUTSIDE_45 and TICK_RATIO_OUTSIDE_45 and
+        // if angle is within SNAP_RADIANS_45 of every 45 degrees, snap to 45 degrees.
+        if(diffLength > TICK_RATIO_INSIDE_45 && diffLength < TICK_RATIO_OUTSIDE_45) {
+            angle = roundToNearestSnap(angle, SNAP_RADIANS_45,45);
+            double angle5 = Math.round(angle / (Math.PI/4)) * (Math.PI/4);
+            diff.scaleAdd(Math.cos(angle5), xAxis, center);
+            diff.scaleAdd(Math.sin(angle5), yAxis, diff);
+            currentPoint.set(diff);
+            return currentPoint;
+        }
+        return currentPoint;
+    }
+
+    public static double roundToNearestSnap(double angleRadians, double snapRange,double nearest) {
+        double nearestFive = Math.round(angleRadians / nearest) * nearest;
+        double difference = Math.abs(angleRadians - nearestFive);
+
+        if (difference <= snapRange) {
+            return nearestFive;
+        } else {
+            return angleRadians;
         }
     }
 
@@ -225,16 +299,70 @@ public class RotateEntityToolOneAxis implements EditorTool {
         boolean texture = OpenGLHelper.disableTextureStart(gl2);
         boolean light = OpenGLHelper.disableLightingStart(gl2);
 
+        drawMainRingAndHandles(gl2);
+        if(dragging) drawWhileDragging(gl2);
+
+        OpenGLHelper.disableLightingEnd(gl2, light);
+        OpenGLHelper.disableTextureEnd(gl2, texture);
+    }
+
+    private void drawWhileDragging(GL2 gl2) {
+        gl2.glColor3d(1,1,1);
+
         gl2.glPushMatrix();
 
-        if(dragging) {
-            gl2.glPushMatrix();
-            gl2.glTranslated(startMatrix.m03, startMatrix.m13, startMatrix.m23);
-            drawLine(gl2,MatrixHelper.getXAxis(startMatrix), 4);
-            drawLine(gl2,MatrixHelper.getYAxis(startMatrix), 4);
-            //drawLine(gl2,MatrixHelper.getZAxis(startMatrix), 4);
-            gl2.glPopMatrix();
+        gl2.glTranslated(startMatrix.m03, startMatrix.m13, startMatrix.m23);
+        Vector3d xAxis = MatrixHelper.getXAxis(startMatrix);
+        Vector3d yAxis = MatrixHelper.getYAxis(startMatrix);
+
+        gl2.glBegin(GL2.GL_LINES);
+        // major line
+        gl2.glVertex3d(0,0,0);
+        gl2.glVertex3d(xAxis.x*ringRadius, xAxis.y*ringRadius, xAxis.z*ringRadius);
+
+        double d0 = ringRadius * TICK_RATIO_INSIDE_45;
+        double d1 = ringRadius * TICK_RATIO_OUTSIDE_45;
+        // 45 degree lines
+        for(int i=45;i<360;i+=45) {
+            Vector3d a = new Vector3d(xAxis);
+            Vector3d b = new Vector3d(yAxis);
+            a.scale(Math.cos(Math.toRadians(i)));
+            b.scale(Math.sin(Math.toRadians(i)));
+            a.add(b);
+            gl2.glVertex3d(a.x*d0, a.y*d0, a.z*d0);
+            gl2.glVertex3d(a.x*d1, a.y*d1, a.z*d1);
         }
+
+        // 5 and 10 degree lines
+        for(int i=0;i<360;i+=5) {
+            Vector3d a = new Vector3d(xAxis);
+            Vector3d b = new Vector3d(yAxis);
+            a.scale(Math.cos(Math.toRadians(i)));
+            b.scale(Math.sin(Math.toRadians(i)));
+            a.add(b);
+            if(i%10==0) {
+                d0 = ringRadius * TICK_RATIO_INSIDE_10;
+                d1 = ringRadius * TICK_RATIO_OUTSIDE_10;
+            } else {
+                d0 = ringRadius * TICK_RATIO_INSIDE_5;
+                d1 = ringRadius * TICK_RATIO_OUTSIDE_5;
+            }
+            gl2.glVertex3d(a.x*d0, a.y*d0, a.z*d0);
+            gl2.glVertex3d(a.x*d1, a.y*d1, a.z*d1);
+        }
+
+        gl2.glEnd();
+
+        gl2.glPushMatrix();
+        MatrixHelper.applyMatrix(gl2, pivotMatrix);
+        drawLine(gl2,new Vector3d(1,0,0),ringRadius);
+        gl2.glEnd();
+
+        gl2.glPopMatrix();
+    }
+
+    private void drawMainRingAndHandles(GL2 gl2) {
+        gl2.glPushMatrix();
 
         MatrixHelper.applyMatrix(gl2, pivotMatrix);
 
@@ -243,10 +371,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
         double colorScale = hovering? 1:0.8;
         gl2.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 1.0);
 
-        //drawLine(gl2, new Vector3d(1,0,0), handleLength);
-        //drawLine(gl2, new Vector3d(0,1,0), handleLength);
-
-        PrimitiveSolids.drawCircleXY(gl2, handleLength, ringResolution);
+        PrimitiveSolids.drawCircleXY(gl2, ringRadius, ringResolution);
 
         gl2.glTranslated(handleLength,handleOffsetY,-gripRadius*0.5);
         PrimitiveSolids.drawBox(gl2, gripRadius, gripRadius, gripRadius);
@@ -254,9 +379,6 @@ public class RotateEntityToolOneAxis implements EditorTool {
         PrimitiveSolids.drawBox(gl2, gripRadius, gripRadius, gripRadius);
 
         gl2.glPopMatrix();
-
-        OpenGLHelper.disableLightingEnd(gl2, light);
-        OpenGLHelper.disableTextureEnd(gl2, texture);
     }
 
     private void drawLine(GL2 gl2, Tuple3d dest,double scale) {
