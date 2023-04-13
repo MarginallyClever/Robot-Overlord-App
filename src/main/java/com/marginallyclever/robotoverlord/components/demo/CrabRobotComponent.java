@@ -57,8 +57,8 @@ public class CrabRobotComponent extends RenderComponent {
         PrimitiveSolids.drawCircleXY(gl2,standingRadius.get(),32);
 
         for(int i=0;i<NUM_LEGS;++i) {
-            //drawVectorAsStar(gl2,lastPOC[i],0);
-            //drawVectorAsStar(gl2,nextPOC[i],1);
+            //PrimitiveSolids.drawStar(gl2,lastPOC[i],0);
+            //PrimitiveSolids.drawStar(gl2,nextPOC[i],1);
             drawMarker(gl2,targets[i],0);
         }
         gl2.glPopMatrix();
