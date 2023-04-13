@@ -7,6 +7,7 @@ import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
+import com.marginallyclever.robotoverlord.demos.DemoDog;
 import com.marginallyclever.robotoverlord.demos.DemoSpidee;
 import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.swinginterface.*;
@@ -369,6 +370,7 @@ public class RobotOverlord extends Entity {
 	private JComponent createDemoMenu() {
 		JMenu menu = new JMenu("Demos");
 		menu.add(new JMenuItem(new DemoAction(this,new DemoSpidee())));
+		menu.add(new JMenuItem(new DemoAction(this,new DemoDog())));
 		//menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
 		return menu;
 	}
