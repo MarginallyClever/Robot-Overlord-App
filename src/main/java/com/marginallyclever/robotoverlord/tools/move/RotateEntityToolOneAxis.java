@@ -138,7 +138,6 @@ public class RotateEntityToolOneAxis implements EditorTool {
             hovering = true;
             startPoint = EditorUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,event.getX(), event.getY());
             angleAtStartOfDrag = getAngleBetweenPoints(startPoint);
-            System.out.println("start angle = "+Math.toDegrees(angleAtStartOfDrag));
             if(selectedItems!=null) selectedItems.savePose();
         }
     }
