@@ -154,10 +154,10 @@ public class TranslateEntityToolOneAxis implements EditorTool {
         if (point == null) return false;
 
         // Check if the point is within the handle's bounds
-        Vector3d diff = new Vector3d();
-        diff.sub(point, MatrixHelper.getPosition(pivotMatrix));
-        double d = diff.dot(translationAxis);
-        return (Math.abs(d-handleLength) < gripRadius);
+        Vector3d diff = new Vector3d(translationAxis);
+        diff.scaleAdd(handleLength, MatrixHelper.getPosition(pivotMatrix));
+        diff.sub(point);
+        return (diff.lengthSquared() < gripRadius*gripRadius);
     }
 
     @Override
@@ -184,7 +184,7 @@ public class TranslateEntityToolOneAxis implements EditorTool {
 
         float [] colors = new float[4];
         gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, colors, 0);
-        double colorScale = hovering? 1:0.8;
+        double colorScale = hovering? 1:0.5;
         gl2.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 1.0);
 
         gl2.glBegin(GL2.GL_LINES);
