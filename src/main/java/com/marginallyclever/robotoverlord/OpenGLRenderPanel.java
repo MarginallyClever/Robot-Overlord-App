@@ -67,7 +67,7 @@ public class OpenGLRenderPanel extends JPanel {
     private transient final SkyBoxEntity sky = new SkyBoxEntity();
 
     private final List<EditorTool> editorTools = new ArrayList<>();
-    private int activeToolIndex = 0;
+    private int activeToolIndex = -1;
     private SelectedItems selectedItems;
 
 
@@ -266,8 +266,9 @@ public class OpenGLRenderPanel extends JPanel {
 
                 if(e.getKeyCode() == KeyEvent.VK_F1) {
                     deactivateAllTools();
-                    activeToolIndex = (activeToolIndex + 1) % 2;
-                    editorTools.get(activeToolIndex).activate(selectedItems);
+                    activeToolIndex = (activeToolIndex + 1) % 3;
+                    if(activeToolIndex==3) activeToolIndex = -1;
+                    if(activeToolIndex>=0) editorTools.get(activeToolIndex).activate(selectedItems);
                 }
             }
         });
@@ -432,8 +433,10 @@ public class OpenGLRenderPanel extends JPanel {
 
     public void updateSubjects(List<Entity> list) {
         selectedItems = new SelectedItems(list);
-        editorTools.get(activeToolIndex).deactivate();
-        editorTools.get(activeToolIndex).activate(selectedItems);
+        if(activeToolIndex>=0) {
+            editorTools.get(activeToolIndex).deactivate();
+            editorTools.get(activeToolIndex).activate(selectedItems);
+        }
     }
 
     public Viewport getViewport() {
