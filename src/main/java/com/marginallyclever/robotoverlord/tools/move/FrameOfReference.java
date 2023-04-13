@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.tools;
+package com.marginallyclever.robotoverlord.tools.move;
 
 public enum FrameOfReference {
 	SUBJECT(0,"SUBJECT"),
