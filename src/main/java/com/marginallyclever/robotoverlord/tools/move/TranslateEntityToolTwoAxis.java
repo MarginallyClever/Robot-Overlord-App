@@ -5,9 +5,6 @@ import com.marginallyclever.convenience.*;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.PoseMoveEdit;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
@@ -64,7 +61,7 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
 
     public void setPivotMatrix(Matrix4d pivot) {
         pivotMatrix = new Matrix4d(pivot);
-        translationPlane.set(EditorUtils.getXYPlane(pivot));
+        translationPlane.set(MatrixHelper.getXYPlane(pivot));
         translationAxisX.set(MatrixHelper.getXAxis(pivot));
         translationAxisY.set(MatrixHelper.getYAxis(pivot));
     }
@@ -100,7 +97,7 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
         if (isCursorOverPad(event.getX(), event.getY())) {
             dragging = true;
             hovering = true;
-            startPoint = EditorUtils.getPointOnPlane(translationPlane,viewport,event.getX(), event.getY());
+            startPoint = EditorUtils.getPointOnPlaneFromCursor(translationPlane,viewport,event.getX(), event.getY());
             selectedItems.savePose();
         }
     }
@@ -108,7 +105,7 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
     public void mouseDragged(MouseEvent event) {
         if(!dragging) return;
 
-        Point3d currentPoint = EditorUtils.getPointOnPlane(translationPlane,viewport,event.getX(), event.getY());
+        Point3d currentPoint = EditorUtils.getPointOnPlaneFromCursor(translationPlane,viewport,event.getX(), event.getY());
         if(currentPoint==null) return;
 
         Vector3d translation = new Vector3d();
@@ -136,7 +133,7 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
     private boolean isCursorOverPad(int x, int y) {
         if(selectedItems==null || selectedItems.isEmpty()) return false;
 
-        Point3d point = EditorUtils.getPointOnPlane(translationPlane,viewport,x, y);
+        Point3d point = EditorUtils.getPointOnPlaneFromCursor(translationPlane,viewport,x, y);
         if (point == null) return false;
 
         // Check if the point is within the handle's bounds
