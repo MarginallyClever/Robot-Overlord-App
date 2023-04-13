@@ -116,7 +116,7 @@ public class Matrix4dEntity extends AbstractEntity<Matrix4d> {
 	@Override
 	public JSONObject toJSON() {
 		JSONObject jo = super.toJSON();
-		double [] list = MatrixHelper.matrixtoArray(get());
+		double [] list = MatrixHelper.matrixToArray(get());
 		JSONArray array = new JSONArray();
 		for(double d : list) array.put(d);
 		jo.put("value",array);
