@@ -3,14 +3,18 @@ package com.marginallyclever.robotoverlord.components.demo;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.robot.RobotComponent;
+import com.marginallyclever.robotoverlord.components.shapes.Box;
+import com.marginallyclever.robotoverlord.components.shapes.Cylinder;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.parameters.IntEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.ode4j.ode.internal.Matrix;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -18,6 +22,13 @@ import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 
 public class DogRobotComponent extends RenderComponent {
+    public static final double KINEMATIC_BODY_WIDTH = 8;
+    public static final double KINEMATIC_BODY_LENGTH = 8;
+    public static final double KINEMATIC_BODY_HEIGHT = 18.5;
+
+    public static final double VISUAL_BODY_WIDTH = 12;
+    public static final double VISUAL_BODY_LENGTH = 8;
+    public static final double VISUAL_BODY_HEIGHT = 30;
     private static final int NUM_LEGS = 4;
     static final String HIP = "Hip";
     static final String THIGH = "Thigh";
@@ -52,15 +63,19 @@ public class DogRobotComponent extends RenderComponent {
     @Override
     public void render(GL2 gl2) {
         gl2.glPushMatrix();
-        //MatrixHelper.setMatrix(gl2,MatrixHelper.createIdentityMatrix4());
-        PrimitiveSolids.drawCircleXY(gl2,standingRadius.get(),32);
+        PoseComponent myPose = getEntity().findFirstComponent(PoseComponent.class);
+        Matrix4d m = myPose.getWorld();
+        m.invert();
+        MatrixHelper.applyMatrix(gl2,m);
 
         for(int i=0;i<NUM_LEGS;++i) {
-            //drawVectorAsStar(gl2,lastPOC[i],0);
-            //drawVectorAsStar(gl2,nextPOC[i],1);
+            PrimitiveSolids.drawStar(gl2,lastPOC[i],2);
+            //PrimitiveSolids.drawStar(gl2,nextPOC[i],4);
             drawMarker(gl2,targets[i],0);
         }
         gl2.glPopMatrix();
+
+        PrimitiveSolids.drawCircleXY(gl2,standingRadius.get(),32);
     }
 
     private void drawMarker(GL2 gl2, Tuple3d v, int color) {
@@ -73,18 +88,29 @@ public class DogRobotComponent extends RenderComponent {
         super.setEntity(entity);
         if(entity==null) return;
 
-        getEntity().addComponent(new PoseComponent());
+        Entity myEntity = getEntity();
+        myEntity.addComponent(new PoseComponent());
+        PoseComponent myPose = myEntity.findFirstComponent(PoseComponent.class);
+        myPose.setPosition(new Vector3d(0,0,5.4));
+        myPose.setRotation(new Vector3d(90,0,0));
 
-        createMesh(getEntity(),"/robots/SpotMicro/torso.obj",new ColorRGB(0xffffff));
+        Entity mesh = createMesh("/robots/SpotMicro/torso.obj",new ColorRGB(0xffffff));
+        myEntity.addEntity(mesh);
+        PoseComponent meshPose = mesh.findFirstComponent(PoseComponent.class);
+        meshPose.setRotation(new Vector3d(90,180,180));
+        meshPose.setPosition(new Vector3d(-0.7,4.1,7));
+
 
         // head
         // 0   2
         // 1   1
+        double w = KINEMATIC_BODY_WIDTH/2;
+        double h = KINEMATIC_BODY_HEIGHT/2;
         int i=0;
-        legs[i] = createLimb("LF",i,false,  135);  i++;
-        legs[i] = createLimb("LB",i,false, -135);  i++;
-        legs[i] = createLimb("RB",i,true,   -45);  i++;
-        legs[i] = createLimb("RF",i,true,    45);  i++;
+        legs[i] = createLimb("RF",i, true, -w, h, 1);  i++;
+        legs[i] = createLimb("RB",i, true, -w,-h, 1);  i++;
+        legs[i] = createLimb("LF",i,false,  w, h, 1);  i++;
+        legs[i] = createLimb("LB",i,false,  w,-h, 1);  i++;
 
         for(RobotComponent leg : legs) {
             getEntity().addEntity(leg.getEntity());
@@ -136,9 +162,9 @@ public class DogRobotComponent extends RenderComponent {
     private void updateCalibrate(double dt) {
         for(int i=0;i<NUM_LEGS;++i) {
             RobotComponent leg = legs[i];
-            leg.getBone(0).setTheta(0);
-            leg.getBone(1).setTheta(45);
-            leg.getBone(2).setTheta(-90);
+            //leg.getBone(0).setTheta(0);
+            //leg.getBone(1).setTheta(45);
+            //leg.getBone(2).setTheta(-90);
         }
     }
 
@@ -280,13 +306,17 @@ public class DogRobotComponent extends RenderComponent {
         setLegTargetPosition(index,mid);
     }
 
-    private RobotComponent createLimb(String name,int index,boolean isRight, float degrees) {
-        DHComponent[] dh = new DHComponent[3];
+    private RobotComponent createLimb(String name,int index,boolean isRight, double r, double d, double s) {
+        DHComponent[] dh = new DHComponent[4];
         for(int i=0;i<dh.length;++i) {
             dh[i] = new DHComponent();
-            dh[i].setVisible(false);
+            dh[i].setVisible(true);
         }
         Entity limb = createPoseEntity(name);
+        PoseComponent limbPose = limb.findFirstComponent(PoseComponent.class);
+        limbPose.setPosition(new Vector3d(r,0,d));
+
+        limb.addEntity(createCylinder(4,2.1,new ColorRGB(0x9999FF)));
 
         Entity hip = createPoseEntity(HIP);
         limb.addEntity(hip);
@@ -298,26 +328,19 @@ public class DogRobotComponent extends RenderComponent {
         calf.addEntity(foot);
 
         hip.addComponent(dh[0]);
-        dh[0].set(0,2.2,90,0,60,-60);
-        if(isRight) createMesh(hip,"/robots/SpotMicro/shoulder_right.obj",new ColorRGB(0x9999FF));
-        else        createMesh(hip,"/robots/SpotMicro/shoulder_left.obj",new ColorRGB(0x9999FF));
+        dh[0].set( 0, 0, 90*(isRight?1:-1), 90, 360, -360);
+        hip.addEntity(createCylinder(5,2,new ColorRGB(0xFFFFFF)));
 
         thigh.addComponent(dh[1]);
-        dh[1].set( 0,8.5,0,0,106,-72);
-        createMesh(thigh,"/robots/SpotMicro/thigh.obj",new ColorRGB(0xFFFFFF));
+        dh[1].set(-3.5 * s, 11.5, 0, 135*(isRight?-1:1), 360, -360);
+        thigh.addEntity(createBox(dh[1].getR(),1,new ColorRGB(0xFFFF99)));
 
+        calf.addComponent(new ArmEndEffectorComponent());
         calf.addComponent(dh[2]);
-        dh[2].set(0,10.5,0,0,15,-160);
-        if(isRight) createMesh(calf,"/robots/SpotMicro/calf_right.obj",new ColorRGB(0xFFFF99));
-        else		createMesh(calf,"/robots/SpotMicro/calf_left.obj",new ColorRGB(0xFFFF99));
+        dh[2].set(0, 13, 0, 90*(isRight?-1:1), 360, -360);
+        calf.addEntity(createBox(dh[2].getR(),0.7,new ColorRGB(0xFFFF66)));
 
         foot.addComponent(new ArmEndEffectorComponent());
-
-        // position limb
-        PoseComponent pose = limb.findFirstComponent(PoseComponent.class);
-        double r = Math.toRadians(degrees);
-        pose.setPosition(new Vector3d(Math.cos(r)*10,Math.sin(r)*10,2.6));
-        pose.setRotation(new Vector3d(0,0,degrees));
 
         // Done at the end so RobotComponent can find all bones DHComponents.
         RobotComponent robot = new RobotComponent();
@@ -328,17 +351,49 @@ public class DogRobotComponent extends RenderComponent {
         return robot;
     }
 
+    private Entity createBox(double r, double v,ColorRGB color) {
+        Entity result = new Entity("Mesh");
+
+        PoseComponent pose = new PoseComponent();
+        result.addComponent(pose);
+        pose.setPosition(new Vector3d(-r/2,0,0));
+        pose.setScale(new Vector3d(r,v*2,v*2));
+
+        MaterialComponent material = new MaterialComponent();
+        result.addComponent(material);
+        material.setDiffuseColor(color.red/255.0f, color.green/255.0f, color.blue/255.0f,1.0);
+
+        result.addComponent(new Box());
+
+        return result;
+    }
+
+    private Entity createCylinder(double r,double v,ColorRGB color) {
+        Entity result = new Entity("Mesh");
+
+        PoseComponent pose = new PoseComponent();
+        result.addComponent(pose);
+        pose.setScale(new Vector3d(v*2,v*2,r));
+
+        MaterialComponent material = new MaterialComponent();
+        result.addComponent(material);
+        material.setDiffuseColor(color.red/255.0f, color.green/255.0f, color.blue/255.0f,1.0);
+
+        result.addComponent(new Cylinder());
+
+        return result;
+    }
+
     private void setInitialPointOfContact(Entity limb,int index) {
         Entity foot = limb.findByPath(HIP+"/"+THIGH+"/"+CALF+"/"+FOOT);
         PoseComponent footPose = foot.findFirstComponent(PoseComponent.class);
-        Vector3d toe = new Vector3d();
-        footPose.getWorld().get(toe);
+        Vector3d toe = MatrixHelper.getPosition(footPose.getWorld());
 
-        PoseComponent bodyPose = getEntity().findFirstComponent(PoseComponent.class);
-        Vector3d body = new Vector3d();
-        bodyPose.getWorld().get(body);
+        PoseComponent bodyPose = limb.findFirstComponent(PoseComponent.class);
+        Vector3d body = MatrixHelper.getPosition(bodyPose.getWorld());
 
         toe.sub(body);
+        toe.z=0;
         toe.normalize();
         toe.scaleAdd(standingRadius.get(),body);
         toe.z=0;
@@ -353,9 +408,8 @@ public class DogRobotComponent extends RenderComponent {
         return result;
     }
 
-    private void createMesh(Entity parent, String filename, ColorRGB color) {
+    private Entity createMesh(String filename, ColorRGB color) {
         Entity mesh = createPoseEntity("Mesh");
-        parent.addEntity(mesh);
 
         MaterialComponent mc = new MaterialComponent();
         mc.setDiffuseColor(color.red/255.0,color.green/255.0,color.blue/255.0,1);
@@ -364,10 +418,11 @@ public class DogRobotComponent extends RenderComponent {
         MeshFromFile mff = new MeshFromFile();
         mff.setFilename(filename);
         mesh.addComponent(mff);
-
+/*
         OriginAdjustComponent oac = new OriginAdjustComponent();
         mesh.addComponent(oac);
         oac.adjust();
-        mesh.removeComponent(oac);
+        mesh.removeComponent(oac);*/
+        return mesh;
     }
 }
