@@ -76,7 +76,7 @@ public class CrabRobotComponent extends RenderComponent {
 
         getEntity().addComponent(new PoseComponent());
 
-        createMesh(getEntity(),"/Spidee/body.stl",new ColorRGB(0x3333FF));
+        createMesh(getEntity(),"/robots/Spidee/body.stl",new ColorRGB(0x3333FF));
 
         // 0   5
         // 1 x 4
@@ -301,17 +301,17 @@ public class CrabRobotComponent extends RenderComponent {
 
         hip.addComponent(dh[0]);
         dh[0].set(0,2.2,90,0,60,-60);
-        if(isRight) createMesh(hip,"/Spidee/shoulder_right.obj",new ColorRGB(0x9999FF));
-        else        createMesh(hip,"/Spidee/shoulder_left.obj",new ColorRGB(0x9999FF));
+        if(isRight) createMesh(hip,"/robots/Spidee/shoulder_right.obj",new ColorRGB(0x9999FF));
+        else        createMesh(hip,"/robots/Spidee/shoulder_left.obj",new ColorRGB(0x9999FF));
 
         thigh.addComponent(dh[1]);
         dh[1].set( 0,8.5,0,0,106,-72);
-        createMesh(thigh,"/Spidee/thigh.obj",new ColorRGB(0xFFFFFF));
+        createMesh(thigh,"/robots/Spidee/thigh.obj",new ColorRGB(0xFFFFFF));
 
         calf.addComponent(dh[2]);
         dh[2].set(0,10.5,0,0,15,-160);
-        if(isRight) createMesh(calf,"/Spidee/calf_right.obj",new ColorRGB(0xFFFF99));
-        else		createMesh(calf,"/Spidee/calf_left.obj",new ColorRGB(0xFFFF99));
+        if(isRight) createMesh(calf,"/robots/Spidee/calf_right.obj",new ColorRGB(0xFFFF99));
+        else		createMesh(calf,"/robots/Spidee/calf_left.obj",new ColorRGB(0xFFFF99));
 
         foot.addComponent(new ArmEndEffectorComponent());
 
