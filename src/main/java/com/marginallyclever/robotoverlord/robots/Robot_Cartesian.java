@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.robots;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
-import com.marginallyclever.robotoverlord.components.RobotComponent;
+import com.marginallyclever.robotoverlord.components.robot.RobotComponent;
 
 /**
  * Cartesian 3 axis CNC robot like 3d printer or milling machine.
