@@ -50,7 +50,7 @@ public class DogRobotComponent extends RenderComponent {
     private final DoubleEntity strideHeight = new DoubleEntity("Stride height", 5);
     private final DoubleEntity speedScale = new DoubleEntity("Speed scale", 1);
     private final RobotComponent[] legs = new RobotComponent[NUM_LEGS];
-    private final Point3d[] lastPOC = new Point3d[NUM_LEGS];
+    private final Point3d [] lastPOC = new Point3d[NUM_LEGS];
     private final Point3d [] nextPOC = new Point3d[NUM_LEGS];
     private final Point3d [] targets = new Point3d[NUM_LEGS];
 
@@ -58,6 +58,12 @@ public class DogRobotComponent extends RenderComponent {
 
     public DogRobotComponent() {
         super();
+
+        for(int i=0;i<NUM_LEGS;++i) {
+            lastPOC[i] = new Point3d();
+            nextPOC[i] = new Point3d();
+            targets[i] = new Point3d();
+        }
     }
 
     @Override
@@ -70,7 +76,7 @@ public class DogRobotComponent extends RenderComponent {
 
         for(int i=0;i<NUM_LEGS;++i) {
             PrimitiveSolids.drawStar(gl2,lastPOC[i],2);
-            //PrimitiveSolids.drawStar(gl2,nextPOC[i],4);
+            PrimitiveSolids.drawStar(gl2,nextPOC[i],4);
             drawMarker(gl2,targets[i],0);
         }
         gl2.glPopMatrix();
@@ -112,8 +118,10 @@ public class DogRobotComponent extends RenderComponent {
         legs[i] = createLimb("LF",i,false,  w, h, 1);  i++;
         legs[i] = createLimb("LB",i,false,  w,-h, 1);  i++;
 
+        i=0;
         for(RobotComponent leg : legs) {
-            getEntity().addEntity(leg.getEntity());
+            myEntity.addEntity(leg.getEntity());
+            setInitialPointOfContact(leg.getEntity(),i++);
         }
     }
 
@@ -207,24 +215,21 @@ public class DogRobotComponent extends RenderComponent {
         double x2 = gc2 - Math.floor(gc2);
         double step1 = Math.max(0, x1);
         double step2 = Math.max(0, x2);
-        int leg1 = (int) Math.floor(gc1) % 3;
-        int leg2 = (int) Math.floor(gc2) % 3;
+        int leg1 = (int) Math.floor(gc1) % 2;
+        int leg2 = (int) Math.floor(gc2) % 2;
 
-        // 0   5
-        // 1 x 4
-        // 2   3
-        // order should be 0,3,1,5,2,4
+        // 0   3
+        // 1 x 2
+        // order should be 0,3,1,2
         int o1, o2;
         o1 = switch (leg1) {
             case 0 -> 0;
             case 1 -> 1;
-            case 2 -> 2;
             default -> 0;
         };
         o2 = switch (leg2) {
-            case 0 -> 3;
-            case 1 -> 5;
-            case 2 -> 4;
+            case 0 -> 2;
+            case 1 -> 3;
             default -> 0;
         };
 
@@ -385,21 +390,13 @@ public class DogRobotComponent extends RenderComponent {
     }
 
     private void setInitialPointOfContact(Entity limb,int index) {
-        Entity foot = limb.findByPath(HIP+"/"+THIGH+"/"+CALF+"/"+FOOT);
+        Entity foot = limb.findByPath(HIP);
         PoseComponent footPose = foot.findFirstComponent(PoseComponent.class);
+
         Vector3d toe = MatrixHelper.getPosition(footPose.getWorld());
-
-        PoseComponent bodyPose = limb.findFirstComponent(PoseComponent.class);
-        Vector3d body = MatrixHelper.getPosition(bodyPose.getWorld());
-
-        toe.sub(body);
         toe.z=0;
-        toe.normalize();
-        toe.scaleAdd(standingRadius.get(),body);
-        toe.z=0;
-        nextPOC[index] = new Point3d(toe);
-        lastPOC[index] = new Point3d(toe);
-        targets[index] = new Point3d();
+        nextPOC[index].set(toe);
+        lastPOC[index].set(toe);
     }
 
     private Entity createPoseEntity(String name) {
@@ -418,11 +415,7 @@ public class DogRobotComponent extends RenderComponent {
         MeshFromFile mff = new MeshFromFile();
         mff.setFilename(filename);
         mesh.addComponent(mff);
-/*
-        OriginAdjustComponent oac = new OriginAdjustComponent();
-        mesh.addComponent(oac);
-        oac.adjust();
-        mesh.removeComponent(oac);*/
+
         return mesh;
     }
 }

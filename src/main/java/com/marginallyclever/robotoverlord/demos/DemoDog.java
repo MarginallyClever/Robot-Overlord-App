@@ -45,7 +45,7 @@ public class DemoDog implements Demo {
 
 		// add dog
 		Entity dog = new Entity("SpotMicro");
-		dog.addComponent(new DogRobotComponent());
 		sc.addEntity(dog);
+		dog.addComponent(new DogRobotComponent());
 	}
 }
