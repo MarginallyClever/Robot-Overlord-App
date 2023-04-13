@@ -7,10 +7,8 @@ import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
-import javax.vecmath.AxisAngle4d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -55,15 +53,17 @@ public class RotateEntityMultiTool implements EditorTool {
     }
 
     private void setPivotMatrix(Matrix4d pivot) {
-        toolZ.setPivotMatrix(pivot);
-
         Matrix4d rot = new Matrix4d();
+
+        Matrix4d pivotZ = new Matrix4d(pivot);
+        rot.rotZ(Math.toRadians(190));        pivotZ.mul(rot);
+        toolZ.setPivotMatrix(pivotZ);
 
         Matrix4d pivotX = new Matrix4d(pivot);
         //rot.set(new AxisAngle4d(MatrixHelper.getYAxis(pivot), Math.toRadians( 90)));        pivotX.mul(rot);
         //rot.set(new AxisAngle4d(MatrixHelper.getZAxis(pivot), Math.toRadians( 90)));        pivotX.mul(rot);
         rot.rotY(Math.toRadians( 90));        pivotX.mul(rot);
-        rot.rotZ(Math.toRadians( 90));        pivotX.mul(rot);
+        rot.rotZ(Math.toRadians(-90));        pivotX.mul(rot);
         toolX.setPivotMatrix(pivotX);
 
         Matrix4d pivotY = new Matrix4d(pivot);
