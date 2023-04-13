@@ -14,6 +14,7 @@ import java.util.LinkedList;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class SkycamSim extends Entity {
 	/**
 	 * 

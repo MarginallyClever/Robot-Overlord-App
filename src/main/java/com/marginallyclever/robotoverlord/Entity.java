@@ -31,13 +31,6 @@ public class Entity implements PropertyChangeListener {
 	protected transient ArrayList<Entity> children = new ArrayList<>();
 	private final List<Component> components = new ArrayList<>();
 
-	// unique ids for all objects in the world.
-	// zero is reserved to indicate no object.
-	static private int pickNameCounter=1;
-
-	// my unique id
-	private final transient int pickName = pickNameCounter++;
-
 	// who is listening to me?
 	protected ArrayList<PropertyChangeListener> propertyChangeListeners = new ArrayList<>();
 
@@ -378,10 +371,6 @@ public class Entity implements PropertyChangeListener {
 			p = p.getParent();
 		}
 		return null;
-	}
-
-	protected int getPickName() {
-		return pickName;
 	}
 
     public JSONObject toJSON() {

@@ -3,6 +3,7 @@ package com.marginallyclever.convenience;
 import com.jogamp.opengl.GL2;
 
 import javax.vecmath.Point3d;
+import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 
 /**
@@ -11,7 +12,7 @@ import javax.vecmath.Vector3d;
  *
  */
 public class Plane {
-	public double d;
+	public double distance;
 	public Vector3d normal = new Vector3d();
 
 	public Plane() {
@@ -20,10 +21,10 @@ public class Plane {
 	}
 
 	// build a plane from a point and a normal
-	public Plane(Point3d point,Vector3d normal) {
+	public Plane(Tuple3d point, Vector3d normal) {
 		super();
 		this.normal.set(normal);
-		d = distanceAlongNormal(point);
+		distance = distanceAlongNormal(point);
 	}
 	
 	// build a plane from three points.  normal is cross product of p1-p0 and p2-p0
@@ -35,26 +36,26 @@ public class Plane {
 		v2.sub(p2,p0);
 		normal.cross(v1, v2);
 		normal.normalize();
-		d = distanceAlongNormal(p0);
+		distance = distanceAlongNormal(p0);
 	}
 
-	public Plane(Vector3d normal,double d) {
+	public Plane(Vector3d normal,double distance) {
 		super();
 		this.normal.set(normal);
-		this.d = d;
+		this.distance = distance;
 	}
 	
 	public void render(GL2 gl2) {
 		gl2.glBegin(GL2.GL_LINES);
 		gl2.glColor3d(1,1,1);
-		gl2.glVertex3d(normal.x*d, normal.y*d, normal.z*d);
-		gl2.glVertex3d(normal.x*(d+1), normal.y*(d+1), normal.z*(d+1));
+		gl2.glVertex3d(normal.x* distance, normal.y* distance, normal.z* distance);
+		gl2.glVertex3d(normal.x*(distance +1), normal.y*(distance +1), normal.z*(distance +1));
 	}
 	
 	/**
 	 * @return distance to plane from origin.  effectively normal.dot(start)
 	 */
-	private double distanceAlongNormal(Point3d point) {
+	private double distanceAlongNormal(Tuple3d point) {
 		return point.x * normal.x
 			 + point.y * normal.y
 			 + point.z * normal.z;
@@ -66,7 +67,7 @@ public class Plane {
 	 * @return true if the point is on the plane
 	 */
 	public boolean intersects(Point3d point, double epsilon) {
-		return Math.abs(distanceAlongNormal(point) - d) < epsilon;
+		return Math.abs(distanceAlongNormal(point) - distance) < epsilon;
 	}
 
 	/**
@@ -89,7 +90,7 @@ public class Plane {
 			return Double.NaN;
 		}
 
-		return (d - distanceAlongNormal(ray.getOrigin())) / d2;
+		return (distance - distanceAlongNormal(ray.getOrigin())) / d2;
 	}
 
 	public boolean intersect(Ray r, Point3d intersection) {
@@ -97,5 +98,26 @@ public class Plane {
 		if(Double.isNaN(d)) return false;
 		intersection.scaleAdd(d, r.getDirection(), r.getOrigin());
 		return true;
+	}
+
+	/**
+	 * set this plane to the same values as arg0
+	 * @param arg0
+	 */
+	public void set(Plane arg0) {
+		distance = arg0.distance;
+		normal.set(arg0.normal);
+	}
+
+    public Vector3d getNormal() {
+		return normal;
+    }
+
+	public double getDistance() {
+		return distance;
+	}
+
+	public Tuple3d getPoint() {
+		return new Point3d(normal.x*distance,normal.y*distance,normal.z*distance);
 	}
 }

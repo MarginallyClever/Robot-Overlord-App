@@ -5,6 +5,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
+@Deprecated
 public class LinearStewartPlatformAdjustable extends LinearStewartPlatformCore {
     public LinearStewartPlatformAdjustable() {
         super("Linear Stewart Platform Adjustable");

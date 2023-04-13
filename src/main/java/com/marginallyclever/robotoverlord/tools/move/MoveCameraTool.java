@@ -1,10 +1,14 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
+import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
+import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
 import javax.swing.*;
+import javax.vecmath.Point3d;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -16,7 +20,7 @@ import java.awt.event.MouseWheelEvent;
  * Hold the CTRL key to move the camera in the Z direction (dolly).
  */
 public class MoveCameraTool implements EditorTool {
-    private CameraComponent cameraComponent;
+    private Viewport viewport;
 
     /**
      * Must be greater than or equal to zero.
@@ -40,37 +44,55 @@ public class MoveCameraTool implements EditorTool {
 
 
     @Override
-    public void mousePressed(MouseEvent e) {
-        if(SwingUtilities.isMiddleMouseButton(e)) {
-            isMoving=true;
-            updatePrevious(e);
+    public void activate(SelectedItems selectedItems) {}
+
+    @Override
+    public void deactivate() {}
+
+    @Override
+    public void handleMouseEvent(MouseEvent event) {
+        if (event.getID() == MouseEvent.MOUSE_PRESSED) {
+            mousePressed(event);
+        } else if(event.getID() == MouseEvent.MOUSE_RELEASED) {
+            mouseReleased(event);
+        } else if(event.getID() == MouseEvent.MOUSE_DRAGGED) {
+            mouseDragged(event);
+        } else if(event.getID() == MouseEvent.MOUSE_WHEEL) {
+            mouseWheelMoved((MouseWheelEvent)event);
         }
     }
 
-    private void updatePrevious(MouseEvent e) {
-        previousX = e.getX();
-        previousY = e.getY();
+    private void updatePrevious(MouseEvent event) {
+        previousX = event.getX();
+        previousY = event.getY();
     }
 
     @Override
-    public void mouseReleased(MouseEvent e) {
-        if(SwingUtilities.isMiddleMouseButton(e)) {
-            isMoving=false;
+    public void mouseMoved(MouseEvent event) {
+    }
+
+    @Override
+    public void mousePressed(MouseEvent event) {
+        if (SwingUtilities.isMiddleMouseButton(event)) {
+            isMoving = true;
+            updatePrevious(event);
         }
     }
-
     @Override
-    public void mouseDragged(MouseEvent e) {
+    public void mouseDragged(MouseEvent event) {
+        if(!SwingUtilities.isMiddleMouseButton(event)) return;
+
+        CameraComponent cameraComponent = viewport.getCamera();
         if(cameraComponent==null) return;
         if(!isMoving) return;
 
         cameraComponent.setCurrentlyMoving(true);
 
-        double dx = e.getX() - previousX;
-        double dy = e.getY() - previousY;
+        double dx = event.getX() - previousX;
+        double dy = event.getY() - previousY;
         if(dx==0 && dy==0) return;
 
-        updatePrevious(e);
+        updatePrevious(event);
 
         if(isShiftDown) {
             cameraComponent.pedestalCamera(dy);
@@ -83,10 +105,14 @@ public class MoveCameraTool implements EditorTool {
     }
 
     @Override
-    public void mouseMoved(MouseEvent e) {}
+    public void mouseReleased(MouseEvent event) {
+        if(SwingUtilities.isMiddleMouseButton(event)) {
+            isMoving=false;
+        }
+    }
 
-    @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
+        CameraComponent cameraComponent = viewport.getCamera();
         if(cameraComponent==null) return;
 
         if(e.getWheelRotation()>0) {
@@ -97,30 +123,56 @@ public class MoveCameraTool implements EditorTool {
     }
 
     @Override
-    public void keyPressed(KeyEvent e) {
-        // remember if SHIFT is down
-        if(e.getKeyCode()==KeyEvent.VK_SHIFT) {
-            isShiftDown =true;
-        }
-        // remember if CTRL is down
-        if(e.getKeyCode()==KeyEvent.VK_CONTROL) {
-            isControlDown =true;
+    public void update(double deltaTime) {}
+
+    /**
+     * Renders any tool-specific visuals to the 3D scene.
+     *
+     * @param gl2
+     */
+    @Override
+    public void render(GL2 gl2) {}
+
+    @Override
+    public void handleKeyEvent(KeyEvent event) {
+        if(event.getID() == KeyEvent.KEY_PRESSED) {
+            // remember if SHIFT is down
+            if (event.getKeyCode() == KeyEvent.VK_SHIFT) {
+                isShiftDown = true;
+            }
+            // remember if CTRL is down
+            if (event.getKeyCode() == KeyEvent.VK_CONTROL) {
+                isControlDown = true;
+            }
+        } else if(event.getID() == KeyEvent.KEY_RELEASED) {
+            // remember if SHIFT is down
+            if (event.getKeyCode() == KeyEvent.VK_SHIFT) {
+                isShiftDown = false;
+            }
+            // remember if CTRL is down
+            if (event.getKeyCode() == KeyEvent.VK_CONTROL) {
+                isControlDown = false;
+            }
         }
     }
 
     @Override
-    public void keyReleased(KeyEvent e) {
-        // remember if SHIFT is down
-        if(e.getKeyCode()==KeyEvent.VK_SHIFT) {
-            isShiftDown =false;
-        }
-        // remember if CTRL is down
-        if(e.getKeyCode()==KeyEvent.VK_CONTROL) {
-            isControlDown =false;
-        }
+    public void setViewport(Viewport viewport) {
+        this.viewport = viewport;
     }
 
-    public void setCamera(CameraComponent cameraComponent) {
-        this.cameraComponent = cameraComponent;
+    @Override
+    public boolean isInUse() {
+        return isMoving;
+    }
+
+    @Override
+    public void cancelUse() {
+        isMoving=false;
+    }
+
+    @Override
+    public Point3d getStartPoint() {
+        return null;
     }
 }

@@ -12,6 +12,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
+@Deprecated
 public class SkycamModel extends Entity {
 	/**
 	 * 

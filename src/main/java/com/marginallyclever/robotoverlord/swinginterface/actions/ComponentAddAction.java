@@ -5,6 +5,7 @@ import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.ComponentFactory;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.ComponentDependency;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.ComponentAddEdit;
@@ -36,7 +37,7 @@ public class ComponentAddAction extends AbstractAction {
      */
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		List<Entity> list = ro.getSelectedEntities();
+		List<Entity> list = Clipboard.getSelectedEntities();
 
 		JComboBox<String> additionComboBox = buildComponentComboBox();
 		int result = JOptionPane.showConfirmDialog(

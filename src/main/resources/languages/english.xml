@@ -1283,4 +1283,13 @@ to check yourself.</value>
 		<key>RedoAction.name</key>
 		<value>Redo</value>
 	</string>
+
+	<string>
+		<key>ComponentCopyAction.name</key>
+		<value>Copy component</value>
+	</string>
+	<string>
+		<key>ComponentPasteAction.name</key>
+		<value>Paste component</value>
+	</string>
 </language>

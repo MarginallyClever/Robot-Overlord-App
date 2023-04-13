@@ -2,6 +2,8 @@ package com.marginallyclever.robotoverlord.mesh;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Cuboid;
+import com.marginallyclever.convenience.IntersectionHelper;
+import com.marginallyclever.convenience.Ray;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -27,7 +29,7 @@ public class Mesh {
 	public final transient List<Float> colorArray = new ArrayList<>();
 	private transient boolean hasColors;
 
-	public final transient List<Float> texCoordArray = new ArrayList<>();
+	public final transient List<Float> textureArray = new ArrayList<>();
 	private transient boolean hasUVs;
 
 	public final transient List<Integer> indexArray = new ArrayList<>();
@@ -68,7 +70,7 @@ public class Mesh {
 		vertexArray.clear();
 		normalArray.clear();
 		colorArray.clear();
-		texCoordArray.clear();
+		textureArray.clear();
 		indexArray.clear();
 		isDirty=true;
 	}
@@ -168,8 +170,8 @@ public class Mesh {
 		
 		if(hasUVs) {
 		    // repeat for textures
-			FloatBuffer texCoords = FloatBuffer.allocate(texCoordArray.size());
-			fi = texCoordArray.iterator();
+			FloatBuffer texCoords = FloatBuffer.allocate(textureArray.size());
+			fi = textureArray.iterator();
 			while(fi.hasNext()) {
 				texCoords.put(fi.next());
 			}
@@ -240,10 +242,10 @@ public class Mesh {
 		}
 		
 		gl2.glDisableClientState(GL2.GL_VERTEX_ARRAY);
-		gl2.glDisableClientState(GL2.GL_NORMAL_ARRAY);
-		gl2.glDisableClientState(GL2.GL_COLOR_ARRAY);
-		gl2.glDisableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
-		gl2.glDisableClientState(GL2.GL_ELEMENT_ARRAY_BUFFER);
+		if(hasNormals) gl2.glDisableClientState(GL2.GL_NORMAL_ARRAY);
+		if(hasColors) gl2.glDisableClientState(GL2.GL_COLOR_ARRAY);
+		if(hasUVs) gl2.glDisableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
+		if(hasIndexes) gl2.glDisableClientState(GL2.GL_ELEMENT_ARRAY_BUFFER);
 	}
 	
 	public void drawNormals(GL2 gl2) {
@@ -291,8 +293,8 @@ public class Mesh {
 	}
 	
 	public void addTexCoord(float x,float y) {
-		texCoordArray.add(x);
-		texCoordArray.add(y);
+		textureArray.add(x);
+		textureArray.add(y);
 		hasUVs=true;
 	}
 	
@@ -370,5 +372,40 @@ public class Mesh {
 
 	public boolean getHasIndexes() {
 		return hasIndexes;
+	}
+
+	public double intersect(Ray ray) {
+		if (hasIndexes) {
+			return intersectWithIndexes(ray);
+		} else {
+			return intersectWithoutIndexes(ray);
+		}
+	}
+
+	private double intersectWithIndexes(Ray ray) {
+		double nearest = Double.MAX_VALUE;
+		for(int i=0;i<indexArray.size();i+=3) {
+			int i0 = indexArray.get(i);
+			int i1 = indexArray.get(i+1);
+			int i2 = indexArray.get(i+2);
+			Vector3d v0 = getVertex(i0);
+			Vector3d v1 = getVertex(i1);
+			Vector3d v2 = getVertex(i2);
+			double t = IntersectionHelper.rayTriangle(ray, v0, v1, v2);
+			nearest = Math.min(nearest, t);
+		}
+		return nearest;
+	}
+
+	private double intersectWithoutIndexes(Ray ray) {
+		double nearest = Double.MAX_VALUE;
+		for(int i=0;i<getNumTriangles();i+=3) {
+			Vector3d v0 = getVertex(i);
+			Vector3d v1 = getVertex(i+1);
+			Vector3d v2 = getVertex(i+2);
+			double t = IntersectionHelper.rayTriangle(ray, v0, v1, v2);
+			nearest = Math.min(nearest, t);
+		}
+		return nearest;
 	}
 }

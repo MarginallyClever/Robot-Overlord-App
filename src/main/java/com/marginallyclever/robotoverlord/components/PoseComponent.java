@@ -96,9 +96,7 @@ public class PoseComponent extends Component implements PropertyChangeListener {
         Vector3d euler = MatrixHelper.matrixToEuler(m);
         euler.scale(Math.toDegrees(1));
         setRotation(euler);
-        Vector3d pos = new Vector3d();
-        m.get(pos);
-        setPosition(pos);
+        setPosition(MatrixHelper.getPosition(m));
     }
 
     /**
@@ -171,7 +169,7 @@ public class PoseComponent extends Component implements PropertyChangeListener {
 
     @Override
     public String toString() {
-        return super.toString()+",local="+ Arrays.toString(MatrixHelper.matrixtoArray(local))+",\n";
+        return super.toString()+",local="+ Arrays.toString(MatrixHelper.matrixToArray(local))+",\n";
     }
 
     /**

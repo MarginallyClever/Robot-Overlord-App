@@ -7,6 +7,7 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 
 import javax.vecmath.Vector3d;
 
+@Deprecated
 public class DogWalkThree extends DogWalkTwo implements DogAnimator {	
 	/**
 	 * 

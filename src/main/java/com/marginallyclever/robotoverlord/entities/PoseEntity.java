@@ -29,11 +29,6 @@ import java.io.Serial;
  */
 @Deprecated
 public class PoseEntity extends Entity implements Removable {
-	/**
-	 * 
-	 */
-	@Serial
-	private static final long serialVersionUID = -7250407040741008778L;
 
 	// axis names
 	static public final String [] AXIS_LABELS = new String[] { "X","Y","Z","Xr","Yr","Zr"};
@@ -49,9 +44,9 @@ public class PoseEntity extends Entity implements Removable {
 	protected Matrix4d myPose = new Matrix4d();
 
 	// which axis do we want to move?
-	private IntEntity axisChoice = new IntEntity("Jog direction",0);
+	private final IntEntity axisChoice = new IntEntity("Jog direction",0);
 	// how fast do we want to move?
-	private DoubleEntity axisAmount = new DoubleEntity("Jog speed",0);
+	private final DoubleEntity axisAmount = new DoubleEntity("Jog speed",0);
 	
 	// draw collidable Cuboid(s)?
 	public BooleanEntity showBoundingBox = new BooleanEntity("Show Bounding Box",false);
@@ -81,10 +76,6 @@ public class PoseEntity extends Entity implements Removable {
 	public void set(PoseEntity b) {
 		super.set(b);
 		myPose.set(b.myPose);
-	}
-
-	public int getPickName() {
-		return pickName;
 	}
 
 	/**

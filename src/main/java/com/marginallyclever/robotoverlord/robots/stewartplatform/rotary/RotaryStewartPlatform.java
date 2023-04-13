@@ -22,6 +22,7 @@ import java.io.Serial;
  * @author Dan Royer
  * @since 2015?
  */
+@Deprecated
 public class RotaryStewartPlatform extends PoseEntity {
 	@Serial
 	private static final long serialVersionUID = 1L;

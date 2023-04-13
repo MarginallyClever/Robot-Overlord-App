@@ -10,6 +10,7 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
  * @author Dan Royer
  * @since 2022-06-27
  */
+@Deprecated
 public class RotaryStewartPlatformAdjustable extends RotaryStewartPlatform {
 
 	public RotaryStewartPlatformAdjustable(String name) {

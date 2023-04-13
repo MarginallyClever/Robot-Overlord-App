@@ -8,6 +8,7 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import javax.vecmath.Vector3d;
 import java.io.Serial;
 
+@Deprecated
 public class RotaryStewartPlatform2 extends RotaryStewartPlatform {
 	@Serial
 	private static final long serialVersionUID = 1L;

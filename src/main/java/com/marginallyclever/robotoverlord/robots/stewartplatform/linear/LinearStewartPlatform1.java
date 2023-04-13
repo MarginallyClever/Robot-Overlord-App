@@ -8,6 +8,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.io.Serial;
 
+@Deprecated
 public class LinearStewartPlatform1 extends LinearStewartPlatformCore {
     @Serial
     private static final long serialVersionUID = 1L;

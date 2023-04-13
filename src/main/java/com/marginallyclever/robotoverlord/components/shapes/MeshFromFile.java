@@ -2,7 +2,6 @@ package com.marginallyclever.robotoverlord.components.shapes;
 
 import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
-import com.marginallyclever.robotoverlord.mesh.Mesh;
 import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.StringEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
@@ -99,4 +98,5 @@ public class MeshFromFile extends ShapeComponent {
         return super.toString()+",\n"
                 + filename.toString();
     }
+
 }

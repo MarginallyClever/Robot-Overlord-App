@@ -16,6 +16,7 @@ import java.beans.PropertyChangeEvent;
 import java.io.*;
 import java.util.ArrayList;
 
+@Deprecated
 public class Skycam extends PoseEntity {
 	/**
 	 * 

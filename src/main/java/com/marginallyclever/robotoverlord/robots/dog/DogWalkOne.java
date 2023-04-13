@@ -5,6 +5,7 @@ import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
+@Deprecated
 public class DogWalkOne extends Entity implements DogAnimator {
 	/**
 	 * 

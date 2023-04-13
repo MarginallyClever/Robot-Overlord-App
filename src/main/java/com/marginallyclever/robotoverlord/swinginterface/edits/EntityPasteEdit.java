@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import org.json.JSONObject;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -12,15 +13,13 @@ import java.util.List;
 
 public class EntityPasteEdit extends AbstractUndoableEdit {
     private final String name;
-    private final RobotOverlord ro;
     private final Entity copiedEntities;
     private final List<Entity> parents;
     private final List<Entity> copies = new LinkedList<>();
 
-    public EntityPasteEdit(String name, RobotOverlord ro, Entity copiedEntities, List<Entity> parents) {
+    public EntityPasteEdit(String name, Entity copiedEntities, List<Entity> parents) {
         super();
         this.name = name;
-        this.ro = ro;
         this.copiedEntities = copiedEntities;
         this.parents = parents;
         doIt();
@@ -43,7 +42,7 @@ public class EntityPasteEdit extends AbstractUndoableEdit {
                 copies.add(copy);
             }
         }
-        ro.setSelectedEntity(null);
+        Clipboard.setSelectedEntity(null);
     }
 
     @Override
@@ -54,7 +53,7 @@ public class EntityPasteEdit extends AbstractUndoableEdit {
                 parent.removeEntity(copy);
             }
         }
-        ro.setSelectedEntity(null);
+        Clipboard.setSelectedEntity(null);
     }
 
     @Override

@@ -1,20 +1,20 @@
 package com.marginallyclever.robotoverlord;
 
-import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.entities.SkyBoxEntity;
 import com.marginallyclever.robotoverlord.entities.ViewCube;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
-import com.marginallyclever.robotoverlord.tools.move.MoveCameraTool;
-import com.marginallyclever.robotoverlord.tools.move.MoveEntityTool;
+import com.marginallyclever.robotoverlord.tools.SelectedItems;
+import com.marginallyclever.robotoverlord.tools.move.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +24,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -33,10 +33,9 @@ import java.util.List;
  */
 public class OpenGLRenderPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLRenderPanel.class);
-    private static final int FSAA_NUM_SAMPLES = 2;
+    private static final int FSAA_NUM_SAMPLES = 4;  // 1,2,4,8
     private static final int VERTICAL_SYNC_ON = 1;  // 1 on, 0 off
     private static final int DEFAULT_FRAMES_PER_SECOND = 30;
-    private static final int PICK_BUFFER_SIZE = 256;
 
     private final RobotOverlord robotOverlord;
     private final Scene scene;
@@ -44,12 +43,12 @@ public class OpenGLRenderPanel extends JPanel {
     // OpenGL debugging
     private final boolean glDebug=false;
     private final boolean glTrace=false;
+
     // should I check the state of the OpenGL stack size?  true=every frame, false=never
     private final boolean checkStackSize = false;
 
     // the render canvas
     private GLJPanel glCanvas;
-
 
     // mouse steering controls
     private boolean isMouseIn=false;
@@ -61,27 +60,21 @@ public class OpenGLRenderPanel extends JPanel {
     private double frameLength;
 
     // click on screen to change which entity is selected
-    private transient boolean pickNow = false;
     private final Viewport viewport = new Viewport();
 
     // elements in view, not really part of the scene
     private transient final ViewCube viewCube = new ViewCube();
     private transient final SkyBoxEntity sky = new SkyBoxEntity();
 
-    private transient final MoveEntityTool moveEntityTool;
-    private transient final MoveCameraTool moveCameraTool = new MoveCameraTool();
-
     private final List<EditorTool> editorTools = new ArrayList<>();
-
-    private final IntBuffer pickBuffer = Buffers.newDirectIntBuffer(PICK_BUFFER_SIZE);
+    private int activeToolIndex = 0;
+    private SelectedItems selectedItems;
 
 
     public OpenGLRenderPanel(RobotOverlord robotOverlord,Scene scene) {
         super(new BorderLayout());
         this.robotOverlord = robotOverlord;
         this.scene = scene;
-
-        moveEntityTool = new MoveEntityTool(robotOverlord);
 
         createCanvas();
         addCanvasListeners();
@@ -94,8 +87,19 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     private void setupTools() {
-        editorTools.add(moveEntityTool);
-        editorTools.add(moveCameraTool);
+        //editorTools.add(new TranslateEntityToolOneAxis());
+        //editorTools.add(new TranslateEntityToolTwoAxis());
+        editorTools.add(new TranslateEntityMultiTool());
+
+        //editorTools.add(new RotateEntityToolOneAxis());
+        editorTools.add(new RotateEntityMultiTool());
+
+        //editorTools.add(new ScaleEntityTool());
+        editorTools.add(new MoveCameraTool());
+
+        for(EditorTool t : editorTools) {
+            t.setViewport(viewport);
+        }
     }
 
     private void hideDefaultCursor() {
@@ -139,7 +143,6 @@ public class OpenGLRenderPanel extends JPanel {
                 gl2.setSwapInterval(VERTICAL_SYNC_ON);
 
                 // make things pretty
-                gl2.glEnable(GL2.GL_NORMALIZE);
                 gl2.glEnable(GL2.GL_LINE_SMOOTH);
                 gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
                 gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
@@ -160,9 +163,9 @@ public class OpenGLRenderPanel extends JPanel {
                 gl2.glDepthMask(true);
 
                 // Scale normals using the scale of the transform matrix so that lighting is sane.
-                // This is more efficient than gl2.gleEnable(GL2.GL_NORMALIZE);
+                // This is more efficient than gl2.glEnable(GL2.GL_NORMALIZE);
                 //gl2.glEnable(GL2.GL_RESCALE_NORMAL);
-                //gl2.glEnable(GL2.GL_NORMALIZE);
+                gl2.glEnable(GL2.GL_NORMALIZE);
 
                 // default blending option for transparent materials
                 gl2.glEnable(GL2.GL_BLEND);
@@ -170,14 +173,10 @@ public class OpenGLRenderPanel extends JPanel {
 
                 // set the color to use when wiping the draw buffer
                 gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
-
-                // draw to the back buffer, so we can swap buffer later and avoid vertical sync tearing
-                gl2.glDrawBuffer(GL2.GL_BACK);
             }
 
             @Override
             public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
-                // set up the projection matrix
                 viewport.setCanvasWidth(glCanvas.getSurfaceWidth());
                 viewport.setCanvasHeight(glCanvas.getSurfaceHeight());
             }
@@ -196,8 +195,6 @@ public class OpenGLRenderPanel extends JPanel {
 
                 if(checkStackSize) checkRenderStep(gl2);
                 else renderStep(gl2);
-
-                pickStep(gl2);
             }
         });
 
@@ -207,24 +204,18 @@ public class OpenGLRenderPanel extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 // if they dragged the cursor around before releasing the mouse button, don't pick.
                 if (e.getClickCount() == 2) {
-                    pickNow=true;
+                    pickItemUnderCursor();
                 }
             }
 
             @Override
             public void mousePressed(MouseEvent e) {
-                if(SwingUtilities.isLeftMouseButton(e)) {
-                    viewport.pressed();
-                }
-                for(EditorTool tool : editorTools) tool.mousePressed(e);
+                for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                if(SwingUtilities.isLeftMouseButton(e)) {
-                    viewport.released();
-                }
-                for(EditorTool tool : editorTools) tool.mouseReleased(e);
+                for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
             }
 
             @Override
@@ -239,42 +230,52 @@ public class OpenGLRenderPanel extends JPanel {
             }
         });
 
-        // this class also listens to the mouse button clicks.
         glCanvas.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
                 viewport.setCursor(e.getX(),e.getY());
-                for(EditorTool tool : editorTools) tool.mouseDragged(e);
+                for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
                 viewport.setCursor(e.getX(),e.getY());
-                for(EditorTool tool : editorTools) tool.mouseMoved(e);
+                for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
             }
-        });  // this class also listens to the mouse movement.
+        });
 
         glCanvas.addMouseWheelListener(new MouseAdapter() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
-                for(EditorTool tool : editorTools) tool.mouseWheelMoved(e);
+                super.mouseWheelMoved(e);
+                for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
             }
         });
+
         glCanvas.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 super.keyPressed(e);
-                for(EditorTool tool : editorTools) tool.keyPressed(e);
+                for(EditorTool tool : editorTools) tool.handleKeyEvent(e);
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
                 super.keyReleased(e);
-                for(EditorTool tool : editorTools) tool.keyReleased(e);
+                for(EditorTool tool : editorTools) tool.handleKeyEvent(e);
+
+                if(e.getKeyCode() == KeyEvent.VK_F1) {
+                    deactivateAllTools();
+                    activeToolIndex = (activeToolIndex + 1) % 2;
+                    editorTools.get(activeToolIndex).activate(selectedItems);
+                }
             }
         });
     }
 
+    private void deactivateAllTools() {
+        for(EditorTool tool : editorTools) tool.deactivate();
+    }
 
     private GL useTracePipeline(GL gl) {
         logger.debug("using GL trace pipeline");
@@ -296,14 +297,13 @@ public class OpenGLRenderPanel extends JPanel {
         return gl;
     }
 
-    private void pickStep(GL2 gl2) {
-        if(!pickNow) return;
-        pickNow = false;
+    private void pickItemUnderCursor() {
+        Entity found = findEntityUnderCursor();
+        System.out.println((found==null)?"found=null":"found=" + found.getName());
 
-        int pickName = findItemUnderCursor(gl2);
-        Entity next = scene.pickEntityWithName(pickName);
-
-        UndoSystem.addEvent(this,new SelectEdit(robotOverlord,robotOverlord.getSelectedEntities(),next));
+        List<Entity> list = new ArrayList<>();
+        if(found!=null) list.add(found);
+        UndoSystem.addEvent(this,new SelectEdit(Clipboard.getSelectedEntities(),list));
     }
 
     private CameraComponent getCamera() {
@@ -330,17 +330,20 @@ public class OpenGLRenderPanel extends JPanel {
         }
         gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
 
-        moveCameraTool.setCamera(camera);
         viewport.setCamera(camera);
         viewport.renderChosenProjection(gl2);
 
         sky.render(gl2,camera);
         scene.render(gl2);
+
+        //viewport.showPickingTest(gl2);
+
+        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
+
         // 3D overlays
-        moveEntityTool.render(gl2);
+        for(EditorTool tool : editorTools) tool.render(gl2);
 
         // 2D overlays
-        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
         viewCube.render(gl2,viewport);
         drawCursor(gl2);
     }
@@ -409,97 +412,28 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     /**
-     * Use glRenderMode(GL_SELECT) to ray pick the item under the cursor.
-     * See <a href="https://github.com/sgothel/jogl-demos/blob/master/src/demos/misc/Picking.java">1</a>
-     * and <a href="http://web.engr.oregonstate.edu/~mjb/cs553/Handouts/Picking/picking.pdf">2</a>
-     * @param gl2 the openGL render context
+     * Use ray tracing to find the Entity at the cursor position closest to the camera.
      * @return the name of the item under the cursor, or -1 if nothing was picked.
      */
-    private int findItemUnderCursor(GL2 gl2) {
-        if(gl2==null) return -1;
+    private Entity findEntityUnderCursor() {
         CameraComponent camera = getCamera();
-        if(camera==null) return -1;
+        if(camera==null) return null;
 
-        pickBuffer.rewind();
-        gl2.glSelectBuffer(PICK_BUFFER_SIZE, pickBuffer);
-        gl2.glRenderMode( GL2.GL_SELECT );
-        // wipe the select buffer
-        gl2.glInitNames();
+        Ray ray = viewport.getRayThroughCursor();
 
-        moveCameraTool.setCamera(camera);
-        viewport.setCamera(camera);
-        viewport.renderPick(gl2);
+        // traverse the scene Entities and find the ShapeComponent that collides with the ray.
+        List<RayHit> rayHits = scene.findRayIntersections(ray);
+        if(rayHits.size()==0) return null;
 
-        gl2.glLoadName(0);
-        // render in selection mode, without advancing time in the simulation.
-        scene.render(gl2);
+        rayHits.sort(Comparator.comparingDouble(o -> o.distance));
 
-        gl2.glPopName();
-        gl2.glFlush();
-
-        // get the picking results and return the render mode to the default
-        int hits = gl2.glRenderMode( GL2.GL_RENDER );
-
-        return getPickNameFromPickList(hits,false);
+        return rayHits.get(0).target.getEntity();
     }
 
-    /**
-     * Parse the pick buffer to find the name of the item under the cursor.
-     * @param hits the number of hits in the pick buffer.
-     * @param verbose if true, print the contents of the pick buffer to the log.
-     * @return the name of the item under the cursor, or -1 if nothing was picked.
-     */
-    private int getPickNameFromPickList(int hits,boolean verbose) {
-        if(verbose) logger.debug(hits+" PICKS @ "+ Arrays.toString(viewport.getCursor()));
-
-        float zMinBest = Float.MAX_VALUE;
-        int i, index=0, bestPick=-1;
-
-        for(i=0;i<hits;++i) {
-            if(verbose) describePickBuffer(pickBuffer,index);
-
-            int nameCount=pickBuffer.get(index++);
-            float z1 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-            @SuppressWarnings("unused")
-            float z2 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-
-            index+=nameCount;
-            if(nameCount>0 && zMinBest > z1) {
-                zMinBest = z1;
-                bestPick = pickBuffer.get(index-1);
-            }
-        }
-        return bestPick;
-    }
-
-    private void describePickBuffer(IntBuffer pickBuffer, int index) {
-        int nameCount=pickBuffer.get(index++);
-        float z1 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-        float z2 = (float) (pickBuffer.get(index++) & 0xffffffffL) / (float)0x7fffffff;
-
-        StringBuilder msg= new StringBuilder("  names=" + nameCount + " zMin=" + z1 + " zMax=" + z2 + ": ");
-        String add="";
-        int pickName;
-        for(int j=0;j<nameCount;++j) {
-            pickName = pickBuffer.get(index++);
-            msg.append(add).append(pickName);
-            add=", ";
-        }
-        logger.debug(msg.toString());
-    }
-
-    public void updateSubjects() {
-        moveEntityTool.setSubject(null);
-
-        List<Entity> list = robotOverlord.getSelectedEntities();
-        if( !list.isEmpty()) {
-            if(list.size() == 1) {
-                Entity firstEntity = list.get(0);
-                if(firstEntity.findFirstComponent(PoseComponent.class) != null) {
-                    moveEntityTool.setSubject(firstEntity);
-                }
-            }
-        }
+    public void updateSubjects(List<Entity> list) {
+        selectedItems = new SelectedItems(list);
+        editorTools.get(activeToolIndex).deactivate();
+        editorTools.get(activeToolIndex).activate(selectedItems);
     }
 
     public Viewport getViewport() {

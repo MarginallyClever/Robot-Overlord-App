@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -20,14 +21,12 @@ public class SelectEdit extends AbstractUndoableEdit {
 	@Serial
 	private static final long serialVersionUID = 1L;
 
-	private final RobotOverlord ro;
-	private final Entity next;
+	private final List<Entity> next;
 	private final List<Entity> prev;
 
-	public SelectEdit(RobotOverlord ro, List<Entity> prev, Entity next) {
+	public SelectEdit(List<Entity> prev, List<Entity> next) {
 		super();
 
-		this.ro = ro;
 		this.next = next;
 		this.prev = prev;
 
@@ -36,7 +35,14 @@ public class SelectEdit extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		String name = (next == null) ? Translator.get("nothing") : next.getName();
+		String name;
+		if(next.size()==1) {
+			name = next.get(0).getName();
+		} else if(next.size()>1) {
+			name = Translator.get("multiple");
+		} else {
+			name = Translator.get("nothing");
+		}
 		return Translator.get("Select ") + name;
 	}
 
@@ -47,12 +53,12 @@ public class SelectEdit extends AbstractUndoableEdit {
 	}
 
 	private void doIt() {
-		ro.setSelectedEntity(next);
+		Clipboard.setSelectedEntities(next);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		ro.setSelectedEntities(prev);
+		Clipboard.setSelectedEntities(prev);
 	}
 }

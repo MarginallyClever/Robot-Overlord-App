@@ -144,10 +144,10 @@ public class MatrixHelper {
 	
 	/**
 	 * Confirms that this matrix is a rotation matrix.  Matrix A * transpose(A) should be the Identity.
-	 * See also https://www.learnopencv.com/rotation-matrix-to-euler-angles/
+	 * See also <a href="https://www.learnopencv.com/rotation-matrix-to-euler-angles/">...</a>
 	 * Eulers are using the ZYX convention.
-	 * @param mat
-	 * @return
+	 * @param mat the {@link Matrix3d} to check.
+	 * @return true if this is a rotation matrix.
 	 */
 	static public boolean isRotationMatrix(Matrix3d mat) {
 		Matrix3d m1 = new Matrix3d(mat);
@@ -187,7 +187,7 @@ public class MatrixHelper {
 	 * Convenience method to call matrixToEuler() with only the rotational component.
 	 * Assumes the rotational component is a valid rotation matrix.
 	 * Eulers are using the ZYX convention.
-	 * @param mat
+	 * @param mat the Matrix4d to convert.
 	 * @return a valid Euler solution to the matrix.
 	 */
 	static public Vector3d matrixToEuler(Matrix4d mat) {
@@ -198,7 +198,7 @@ public class MatrixHelper {
 	
 	/**
 	 * Convert Euler rotations to a matrix.
-	 * See also https://www.learnopencv.com/rotation-matrix-to-euler-angles/
+	 * See also <a href="https://www.learnopencv.com/rotation-matrix-to-euler-angles/">...</a>
 	 * Eulers are using the ZYX convention.
 	 * @param v radian rotation values
 	 * @return Matrix3d resulting matrix
@@ -313,7 +313,7 @@ public class MatrixHelper {
 		return inverse;
 	}
 	
-	static public double [][] transpose(double a[][]) {
+	static public double [][] transpose(double [][] a) {
 		int h = a.length;
 		int w = a[0].length;
 		
@@ -336,7 +336,7 @@ public class MatrixHelper {
 	 * @return determinant of given matrix
 	 */
 	static public double matrixDeterminant (double[][] matrix) {
-		double temporary[][];
+		double [][] temporary;
 		double result = 0;
 
 		if (matrix.length == 1) {
@@ -393,8 +393,8 @@ public class MatrixHelper {
 	
 	/**
 	 * Method to carry out the partial-pivoting Gaussian elimination.
-	 * From https://www.sanfoundry.com/java-program-find-inverse-matrix/
-	 * 
+	 * From <a href="https://www.sanfoundry.com/java-program-find-inverse-matrix/">...</a>
+	 *
 	 * @param a the matrix
 	 * @param index the pivoting order.
 	 */
@@ -594,7 +594,7 @@ public class MatrixHelper {
 	 * @param id     what does the matrix contain?
 	 */
 	static public void printMatrix (int[][] matrix, int id) {
-		double doubleMatrix[][] = new double[matrix.length][matrix[0].length];
+		double [][] doubleMatrix = new double[matrix.length][matrix[0].length];
 
 		for (int i = 0; i < matrix.length; i++) {
 			for (int j = 0; j < matrix[i].length; j++) {
@@ -618,32 +618,32 @@ public class MatrixHelper {
 		cols = matrix[0].length;
 
 		switch (id) {
-			case  1: Log.message(MessageFormat.format ("First matrix[{0}][{1}]:", rows, cols)); break;
-			case  2: Log.message(MessageFormat.format ("Second matrix[{0}][{1}]:", rows, cols)); break;
-			case  3: Log.message(MessageFormat.format ("Result[{0}][{1}]:", rows, cols)); break;
-			case  4: Log.message(MessageFormat.format ("Inverted matrix[{0}][{1}]:", rows, cols)); break;
-			default: Log.message(MessageFormat.format ("Matrix[{0}][{1}]:", rows, cols)); break;
+			case 1 -> Log.message(MessageFormat.format("First matrix[{0}][{1}]:", rows, cols));
+			case 2 -> Log.message(MessageFormat.format("Second matrix[{0}][{1}]:", rows, cols));
+			case 3 -> Log.message(MessageFormat.format("Result[{0}][{1}]:", rows, cols));
+			case 4 -> Log.message(MessageFormat.format("Inverted matrix[{0}][{1}]:", rows, cols));
+			default -> Log.message(MessageFormat.format("Matrix[{0}][{1}]:", rows, cols));
 		}
 
-		String message = "";
+		StringBuilder message = new StringBuilder();
 		for (int i = 0; i < matrix.length; i++) {
-			message+="[";
+			message.append("[");
 
 			for (int j = 0; j < matrix[i].length; j++) {
-				message+=(matrix[i][j]);
+				message.append(matrix[i][j]);
 				if ((j + 1) != matrix[i].length) {
-					message+=(", ");
+					message.append(", ");
 				}
 			}
 
 			if ((i + 1) != matrix.length) {
-				message+=("]");
+				message.append("]");
 			} else {
-				message+=("].");
+				message.append("].");
 			}
 		}
 
-		Log.message(message);
+		Log.message(message.toString());
 	}
 
 	/**
@@ -707,15 +707,15 @@ public class MatrixHelper {
 		return lookAt;
 	}
 
+	static public Vector3d getXAxis(Matrix4d m) {		return new Vector3d(m.m00, m.m10, m.m20);	}
+	static public Vector3d getYAxis(Matrix4d m) {		return new Vector3d(m.m01, m.m11, m.m21);	}
+	static public Vector3d getZAxis(Matrix4d m) {		return new Vector3d(m.m02, m.m12, m.m22);	}
 	static public Vector3d getPosition(Matrix4d m) {	return new Vector3d(m.m03, m.m13, m.m23);	}
-	static public Vector3d getXAxis(Matrix4d m) {	return new Vector3d(m.m00, m.m10, m.m20);	}
-	static public Vector3d getYAxis(Matrix4d m) {	return new Vector3d(m.m01, m.m11, m.m21);	}
-	static public Vector3d getZAxis(Matrix4d m) {	return new Vector3d(m.m02, m.m12, m.m22);	}
 
-	static public void setPosition(Matrix4d m,Vector3d v) {	m.m03=v.x;  m.m13=v.y;  m.m23=v.z;	}
 	static public void setXAxis(Matrix4d m,Vector3d v) {	m.m00=v.x;  m.m10=v.y;  m.m20=v.z;	}
 	static public void setYAxis(Matrix4d m,Vector3d v) {	m.m01=v.x;  m.m11=v.y;  m.m21=v.z;	}
 	static public void setZAxis(Matrix4d m,Vector3d v) {	m.m02=v.x;  m.m12=v.y;  m.m22=v.z;	}
+	static public void setPosition(Matrix4d m,Vector3d v) {	m.m03=v.x;  m.m13=v.y;  m.m23=v.z;	}
 
 	/**
 	 * normalize the 3x3 component of the mTarget matrix.  Do not affect position. 
@@ -878,7 +878,7 @@ public class MatrixHelper {
 		return m;
 	}
 
-	public static double [] matrixtoArray(Matrix3d m) {
+	public static double [] matrixToArray(Matrix3d m) {
 		double [] list = new double[9];
 
 		list[0]=m.m00;
@@ -896,7 +896,7 @@ public class MatrixHelper {
 		return list;
 	}
 
-	public static double [] matrixtoArray(Matrix4d m) {
+	public static double [] matrixToArray(Matrix4d m) {
 		double [] list = new double[16];
 
 		list[0]=m.m00;
@@ -934,5 +934,26 @@ public class MatrixHelper {
 		gl2.glGetDoublev(type, list,0);
 		m.set(list);
 		return m;
+	}
+
+	public static Plane getXYPlane(Matrix4d pivot) {
+		return new Plane(
+				getPosition(pivot),
+				getZAxis(pivot)
+		);
+	}
+
+	public static Plane getXZPlane(Matrix4d pivot) {
+		return new Plane(
+				getPosition(pivot),
+				getYAxis(pivot)
+		);
+	}
+
+	public static Plane getYZPlane(Matrix4d pivot) {
+		return new Plane(
+				getPosition(pivot),
+				getXAxis(pivot)
+		);
 	}
 }

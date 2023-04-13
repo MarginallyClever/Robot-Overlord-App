@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Entity;
 
 
+@Deprecated
 public class DogWalkZero extends Entity implements DogAnimator {
 
 	/**

@@ -1,16 +1,11 @@
 package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.Cuboid;
-import com.marginallyclever.convenience.IntersectionHelper;
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.convenience.*;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.components.LightComponent;
-import com.marginallyclever.robotoverlord.components.MaterialComponent;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.components.RenderComponent;
+import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.ColorEntity;
 import com.marginallyclever.robotoverlord.parameters.StringEntity;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
@@ -22,6 +17,7 @@ import javax.swing.*;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.io.File;
+import java.nio.IntBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -40,6 +36,7 @@ public class Scene extends Entity {
 	private final StringEntity scenePath = new StringEntity("Scene Path", "");
 
 	private final ColorEntity ambientLight = new ColorEntity("Ambient light",0.2,0.2,0.2,1);
+	private final BooleanEntity showWorldOrigin = new BooleanEntity("Show world origin",false);
 	private final MaterialComponent defaultMaterial = new MaterialComponent();
 
 	private final List<SceneChangeListener> sceneChangeListeners = new ArrayList<>();
@@ -50,7 +47,7 @@ public class Scene extends Entity {
 
 	/**
 	 * Initialize the scene with a path to the root of the project.
-	 * @param absolutePath
+	 * @param absolutePath the absolute path to the root of the project.
 	 */
 	public Scene(String absolutePath) {
 		super();
@@ -59,7 +56,8 @@ public class Scene extends Entity {
 
 	@Override
 	public void render(GL2 gl2) {
-		renderWorldOrigin(gl2);
+		if(showWorldOrigin.get()) renderWorldOrigin(gl2);
+
 		renderLights(gl2);
 		renderAllEntities(gl2);
 		// PASS 2: everything transparent?
@@ -70,16 +68,15 @@ public class Scene extends Entity {
 		PrimitiveSolids.drawStar(gl2,10);
 	}
 
-
 	/**
 	 * Recursively render all entities.
 	 * @param gl2 the OpenGL context
 	 */
 	private void renderAllEntities(GL2 gl2) {
 		defaultMaterial.render(gl2);
-		List<Entity> toRender = new ArrayList<>(children);
+		Queue<Entity> toRender = new LinkedList<>(children);
 		while(!toRender.isEmpty()) {
-			Entity child = toRender.remove(0);
+			Entity child = toRender.remove();
 			renderEntity(gl2, child);
 			toRender.addAll(child.getChildren());
 		}
@@ -91,7 +88,6 @@ public class Scene extends Entity {
 	 * @param entity the entity to render
 	 */
 	private void renderEntity(GL2 gl2, Entity entity) {
-		gl2.glPushName(entity.getPickName());
 		gl2.glPushMatrix();
 
 		PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
@@ -100,7 +96,6 @@ public class Scene extends Entity {
 		renderOneEntityWithMaterial(gl2, entity);
 
 		gl2.glPopMatrix();
-		gl2.glPopName();
 	}
 
 	private void renderOneEntityWithMaterial(GL2 gl2, Entity obj) {
@@ -118,7 +113,8 @@ public class Scene extends Entity {
 		// global ambient light
 		gl2.glLightModelfv( GL2.GL_LIGHT_MODEL_AMBIENT, ambientLight.getFloatArray(),0);
 
-		turnOffAllLights(gl2);
+		int maxLights = getMaxLights(gl2);
+		turnOffAllLights(gl2,maxLights);
 
 		Queue<Entity> found = new LinkedList<>(children);
 		int i=0;
@@ -127,62 +123,16 @@ public class Scene extends Entity {
 			LightComponent light = obj.findFirstComponent(LightComponent.class);
 			if(light!=null && light.getEnabled()) {
 				light.setupLight(gl2,i++);
-				if(i==GL2.GL_MAX_LIGHTS) return;
+				if(i==maxLights) return;
 			}
 			found.addAll(obj.children);
 		}
 	}
 
-	private void turnOffAllLights(GL2 gl2) {
-		for(int i=0;i<GL2.GL_MAX_LIGHTS;++i) {
+	private void turnOffAllLights(GL2 gl2,int maxLights) {
+		for(int i=0;i<maxLights;++i) {
 			gl2.glDisable(GL2.GL_LIGHT0+i);
 		}
-	}
-
-	// Search only my children to find the PhysicalEntity with matching pickName.
-	public Entity pickEntityWithName(int pickName) {
-		Queue<Entity> found = new LinkedList<>(children);
-		while(!found.isEmpty()) {
-			Entity obj = found.remove();
-			if( obj.getPickName()==pickName ) {
-				return obj;  // found!
-			}
-			found.addAll(obj.children);
-		}
-		
-		return null;
-	}
-		
-	/**
-	 * Find all Entities within epsilon mm of pose.
-	 * TODO Much optimization could be done here to reduce the search time.
-	 * @param target the center of the cube around which to search.   
-	 * @param radius the maximum distance to search for entities.
-	 * @return a list of found PhysicalObjects
-	 */
-	public List<PoseEntity> findPhysicalObjectsNear(Vector3d target, double radius) {
-		radius/=2;
-		
-		//Log.message("Finding within "+epsilon+" of " + target);
-		List<PoseEntity> found = new ArrayList<>();
-		
-		// check all children
-		for( Entity e : children) {
-			if(e instanceof PoseEntity) {
-				// is physical, therefore has position
-				PoseEntity po = (PoseEntity)e;
-				//Log.message("  Checking "+po.getDisplayName()+" at "+pop);
-				Vector3d pop = new Vector3d();
-				pop.sub(po.getPosition(),target);
-				if(pop.length()<=radius) {
-					//Log.message("  in range!");
-					// in range!
-					found.add(po);
-				}
-			}
-		}
-		
-		return found;
 	}
 
 	/**
@@ -250,7 +200,7 @@ public class Scene extends Entity {
 
 	/**
 	 * Set the scene path.  This is the path to the directory containing the scene file.
-	 * @param absolutePath
+	 * @param absolutePath the absolute path to the scene directory.
 	 */
 	public void setScenePath(String absolutePath) {
 		File file = new File(absolutePath);
@@ -280,7 +230,7 @@ public class Scene extends Entity {
 
 	/**
 	 * Displays a warning to the user if the asset is not within the scene path.
-	 * @param unCheckedAssetFilename
+	 * @param unCheckedAssetFilename a file that may or may not be within the scene path.
 	 */
 	public void warnIfAssetPathIsNotInScenePath(String unCheckedAssetFilename) {
 		if(isAssetPathInScenePath(unCheckedAssetFilename)) return;
@@ -302,7 +252,7 @@ public class Scene extends Entity {
 
 	/**
 	 * Returns the relative path to the asset, or absolute if the asset is not within the scene path.
-	 * @param unCheckedAssetFilename
+	 * @param unCheckedAssetFilename a file that may or may not be within the scene path.
 	 * @return the relative path to the asset, or absolute if the asset is not within the scene path.
 	 */
 	public String removeScenePath(String unCheckedAssetFilename) {
@@ -316,4 +266,31 @@ public class Scene extends Entity {
 	public String addScenePath(String fn) {
 		return getScenePath() + fn;
 	}
+
+	public int getMaxLights(GL2 gl2) {
+		IntBuffer intBuffer = IntBuffer.allocate(1);
+		gl2.glGetIntegerv(GL2.GL_MAX_LIGHTS, intBuffer);
+		return intBuffer.get();
+	}
+
+	/**
+	 * test ray intersection with all entities in the scene.
+	 * @param ray the ray to test.
+	 */
+	public List<RayHit> findRayIntersections(Ray ray) {
+		List<RayHit> rayHits = new ArrayList<>();
+
+		Queue<Entity> toTest = new LinkedList<>(children);
+		while(!toTest.isEmpty()) {
+			Entity child = toTest.remove();
+			toTest.addAll(child.getChildren());
+			List<ShapeComponent> shapes = child.findAllComponents(ShapeComponent.class);
+			for(ShapeComponent shape : shapes) {
+				RayHit hit = shape.intersect(ray);
+				if(hit!=null) rayHits.add(hit);
+			}
+		}
+		return rayHits;
+	}
+
 }
