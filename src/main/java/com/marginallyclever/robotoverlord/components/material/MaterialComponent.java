@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components;
+package com.marginallyclever.robotoverlord.components.material;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Component;

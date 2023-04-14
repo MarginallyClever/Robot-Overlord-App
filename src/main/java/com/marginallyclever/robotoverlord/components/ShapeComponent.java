@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RayHit;
+import com.marginallyclever.robotoverlord.components.material.MaterialComponent;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.IntEntity;

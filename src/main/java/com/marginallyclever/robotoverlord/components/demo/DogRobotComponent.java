@@ -7,6 +7,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.*;
+import com.marginallyclever.robotoverlord.components.material.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.robot.RobotComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.components.shapes.Cylinder;
@@ -14,7 +15,6 @@ import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.parameters.IntEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
-import org.ode4j.ode.internal.Matrix;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;

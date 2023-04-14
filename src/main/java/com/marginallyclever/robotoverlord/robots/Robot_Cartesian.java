@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.robots;
 
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.components.MaterialComponent;
+import com.marginallyclever.robotoverlord.components.material.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.robot.RobotComponent;
 
 /**

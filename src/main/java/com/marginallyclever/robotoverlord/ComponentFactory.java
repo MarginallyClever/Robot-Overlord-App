@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
+import com.marginallyclever.robotoverlord.components.material.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.robot.RobotComponent;
 import com.marginallyclever.robotoverlord.components.shapes.*;
 import org.slf4j.Logger;
