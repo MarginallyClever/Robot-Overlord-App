@@ -9,15 +9,11 @@ import java.io.Serializable;
 import java.nio.IntBuffer;
 
 /**
- * A box aligned to the world axies.  used for fast sorting and filtering.
+ * Axially-aligned bounding box.  Used for fast sorting and filtering.
  * @author Dan Royer
  * @since 2.1.0
  */
-public class Cuboid implements BoundingVolume, Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1617983108751476098L;
+public class AABB implements BoundingVolume, Serializable {
 
 	// pose of this {@link Cuboid} in the world.
 	protected Matrix4d pose = new Matrix4d();
@@ -31,13 +27,13 @@ public class Cuboid implements BoundingVolume, Serializable {
 	private Mesh myShape;
 	
 	
-	public Cuboid() {
+	public AABB() {
 		super();
 		pose.setIdentity();
 		for(int i=0;i<p.length;++i) p[i] = new Point3d();
 	}
 
-	public void set(Cuboid b) {
+	public void set(AABB b) {
 		pose.set(b.pose);
 		boundTop.set(b.boundTop);
 		boundBottom.set(b.boundBottom);

@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.mesh.load;
 
-import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
 
+import javax.vecmath.Vector3d;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +11,12 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
 
+
+/**
+ * Loads <a href="https://en.wikipedia.org/wiki/STL_(file_format)">STL files</a> into a Mesh.
+ * @author Dan Royer
+ * @since 1.6.0
+ */
 public class LoadSTL implements MeshLoader {
 	@Override
 	public String getEnglishName() {
@@ -104,11 +110,12 @@ public class LoadSTL implements MeshLoader {
 			line = line.trim();
 			if( line.startsWith(facet_normal) ) {
 				line = line.substring(facet_normal.length()).trim();
-				String c[] = line.split(" ");
+				String [] c = line.split(" ");
 				x=Float.parseFloat(c[0]);
 				y=Float.parseFloat(c[1]);
 				z=Float.parseFloat(c[2]);
-				len = (float)MathHelper.length((double)x,(double)y,(double)z);
+				Vector3d v = new Vector3d(x,y,z);
+				len = (float)v.length();
 				x/=len;
 				y/=len;
 				z/=len;
@@ -118,7 +125,7 @@ public class LoadSTL implements MeshLoader {
 				model.addNormal(x,y,z);
 			} else if( line.startsWith(vertex) ) {
 				line = line.substring(vertex.length()).trim();
-				String c[] = line.split(" ");
+				String [] c = line.split(" ");
 				x=Float.parseFloat(c[0]);
 				y=Float.parseFloat(c[1]);
 				z=Float.parseFloat(c[2]);

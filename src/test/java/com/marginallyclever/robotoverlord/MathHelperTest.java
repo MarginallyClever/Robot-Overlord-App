@@ -17,7 +17,9 @@ public class MathHelperTest {
 	public void after() {
 		Log.end();
 	}
+
     @Test
+    @Deprecated
     public void testWrapDegrees() {
         Log.message("testWrapDegrees start");
         for (double i = -360 * 2; i <= 360 * 2; i += 10) {

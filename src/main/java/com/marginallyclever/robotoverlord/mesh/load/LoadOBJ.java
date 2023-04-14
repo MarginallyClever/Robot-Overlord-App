@@ -1,14 +1,18 @@
 package com.marginallyclever.robotoverlord.mesh.load;
 
-import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotoverlord.mesh.Mesh;
 
+import javax.vecmath.Vector3d;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-// see https://en.wikipedia.org/wiki/Wavefront_.obj_file
+/**
+ * Loads <a href="https://en.wikipedia.org/wiki/Wavefront_.obj_file">OBJ files</a> into a Mesh.
+ * @author Dan Royer
+ * @since 1.6.0
+ */
 public class LoadOBJ implements MeshLoader {
 	@Override
 	public String getEnglishName() {
@@ -43,7 +47,8 @@ public class LoadOBJ implements MeshLoader {
 				float x=Float.parseFloat(tokens[1]);
 				float y=Float.parseFloat(tokens[2]);
 				float z=Float.parseFloat(tokens[3]);
-				float len = (float)MathHelper.length((double)x,(double)y,(double)z);
+				Vector3d v = new Vector3d(x,y,z);
+				float len = (float)v.length();
 				if(len>0) {
 					x/=len;
 					y/=len;

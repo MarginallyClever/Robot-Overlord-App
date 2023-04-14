@@ -19,6 +19,7 @@ public class MathHelper {
 	 * @param dz z component
 	 * @return Square of length of vector (dx,dy,dz) 
 	 */
+	@Deprecated
 	public static double lengthSquared(double dx,double dy,double dz) {
 		return dx*dx+dy*dy+dz*dz;
 	}
@@ -30,6 +31,7 @@ public class MathHelper {
 	 * @param dz z component
 	 * @return Length of vector (dx,dy,dz) 
 	 */
+	@Deprecated
 	public static double length(double dx,double dy,double dz) {
 		return (float)Math.sqrt(lengthSquared(dx,dy,dz));
 	}
@@ -40,6 +42,7 @@ public class MathHelper {
 	 * @param dy y component
 	 * @return Square of length of vector (dx,dy) 
 	 */
+	@Deprecated
 	public static double lengthSquared(double dx,double dy) {
 		return dx*dx+dy*dy;
 	}
@@ -50,23 +53,25 @@ public class MathHelper {
 	 * @param dy y component
 	 * @return Length of vector (dx,dy) 
 	 */
+	@Deprecated
 	public static double length(double dx,double dy) {
 		return (float)Math.sqrt(lengthSquared(dx,dy));
 	}
 
-	
+
 	/**
 	 * Round a double off to 3 decimal places.
 	 * @param v a value
 	 * @return Value rounded off to 3 decimal places
 	 */
+	@Deprecated
 	public static double roundOff3(double v) {
 		float SCALE = 1000.0f;
-		
+
 		return Math.round(v*SCALE)/SCALE;
 	}
-	
-	
+
+
 	/**
 	 * Rotate the point xyz around the line passing through abc with direction uvw
 	 * http://inside.mines.edu/~gmurray/ArbitraryAxisRotation/ArbitraryAxisRotation.html
@@ -76,6 +81,7 @@ public class MathHelper {
 	 * @param radians the angle in radians to rotate
 	 * @return the new vector
 	 */
+	@Deprecated
 	static public Vector3d rotateAroundAxis(Vector3d vec,Vector3d axis,double radians) {
 		double C = Math.cos(radians);
 		double S = Math.sin(radians);
@@ -106,6 +112,7 @@ public class MathHelper {
 	 * @param arg0
 	 * @return adjusted value
 	 */
+	@Deprecated
 	static public double wrapRadians(double arg0) {
 		return wrapRadians(arg0,0);
 	}
@@ -115,6 +122,7 @@ public class MathHelper {
 	 * @param arg0
 	 * @return adjusted value
 	 */
+	@Deprecated
 	static public double wrapRadians(double arg0,double centerPoint) {
 		arg0 -= centerPoint-Math.PI;
 		arg0 = ((arg0 % TWOPI) + TWOPI ) % TWOPI;
@@ -127,6 +135,7 @@ public class MathHelper {
 	 * @param arg0
 	 * @return adjusted value
 	 */
+	@Deprecated
 	static public double wrapDegrees(double arg0) {
 		return wrapDegrees(arg0,0);
 	}
@@ -136,6 +145,7 @@ public class MathHelper {
 	 * @param arg0
 	 * @return adjusted value
 	 */
+	@Deprecated
 	static public double wrapDegrees(double arg0,double centerPoint) {
 		arg0 -= centerPoint-180;
 		arg0 = ((arg0 % 360) + 360 ) % 360;
@@ -149,6 +159,7 @@ public class MathHelper {
 	 * @param b
 	 * @return greatest common divider
 	 */
+	@Deprecated
 	static public long gcd(long a, long b) {
 		long temp;
 	    while (b > 0) {
@@ -165,6 +176,7 @@ public class MathHelper {
 	 * @param b
 	 * @return least common multiplier
 	 */
+	@Deprecated
 	static public long lcm(long a, long b) {
 	    return a * (b / gcd(a, b));
 	}
@@ -175,8 +187,9 @@ public class MathHelper {
 	 * @param a
 	 * @param b
 	 * @param t [0...1]
-	 * @return
+	 * @return a + (b-a)*t
 	 */
+	@Deprecated
 	static public float interpolate(float a,float b,double t) {
 		return (b-a)*(float)t + a;
 	}
@@ -186,8 +199,9 @@ public class MathHelper {
 	 * @param a
 	 * @param b
 	 * @param t [0...1]
-	 * @return
+	 * @return a + (b-a)*t
 	 */
+	@Deprecated
 	static public double interpolate(double a,double b,double t) {
 		return (b-a)*t + a;
 	}
@@ -225,7 +239,14 @@ public class MathHelper {
 		return n;
 	}
 
-	// https://en.wikipedia.org/wiki/Slerp
+	/**
+	 * <a href="https://en.wikipedia.org/wiki/Slerp">Spherical linear interpolation</a> between two vectors.
+	 *
+	 * @param a start vector
+	 * @param b end vector
+	 * @param t [0...1]
+	 * @return interpolated vector
+	 */
 	static public Vector3d slerp(Vector3d a,Vector3d b,double t) {
 		
 		// Dot product - the cosine of the angle between 2 vectors.
@@ -292,22 +313,24 @@ public class MathHelper {
 
 	    return new double[] { roll, pitch, yaw };
 	}
-	
+
+	@Deprecated
 	static public Vector3d getNewRandomInRange(int xRadius, int yRadius, int zRadius) {
 		double x=Math.random()*xRadius*2 - xRadius;
 		double y=Math.random()*yRadius*2 - yRadius;
 		double z=Math.random()*zRadius*2 - zRadius;
-		Vector3d a = new Vector3d(x,y,z);
-		return a;
+		return new Vector3d(x,y,z);
 	}
 
 
 	/**
+	 * Scale start to 0, end to 1, and x.  Returns the new value of x.
 	 * @param start
 	 * @param end
-	 * @param theta
-	 * @return where x sits between start and end.  value may be outside rante 0...1
+	 * @param x
+	 * @return where x sits between start and end.  value may be outside range 0...1
 	 */
+	@Deprecated
 	public static double getUnitInRange(double start, double end, double x) {
 		double range = end-start;
 		double p = x-start;
