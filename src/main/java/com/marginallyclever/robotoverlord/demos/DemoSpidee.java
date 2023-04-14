@@ -4,7 +4,7 @@ import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
-import com.marginallyclever.robotoverlord.components.material.MaterialComponent;
+import com.marginallyclever.robotoverlord.components.shapes.material.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Grid;
 
 import javax.vecmath.Vector3d;

@@ -4,7 +4,7 @@ import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.LightComponent;
-import com.marginallyclever.robotoverlord.components.material.MaterialComponent;
+import com.marginallyclever.robotoverlord.components.shapes.material.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.physics.ode.ODEPhysicsComponent;
 import com.marginallyclever.robotoverlord.physics.ode.ODEPhysicsEngine;

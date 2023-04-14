@@ -5,7 +5,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
-import com.marginallyclever.robotoverlord.components.material.MaterialComponent;
+import com.marginallyclever.robotoverlord.components.shapes.material.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.material;
+package com.marginallyclever.robotoverlord.components.shapes.material;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
