@@ -1,6 +1,6 @@
 package com.marginallyclever.convenience;
 
-import com.marginallyclever.robotoverlord.mesh.Mesh;
+import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;

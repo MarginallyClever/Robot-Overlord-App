@@ -1,6 +1,6 @@
-package com.marginallyclever.robotoverlord.mesh.load;
+package com.marginallyclever.robotoverlord.components.shapes.mesh.load;
 
-import com.marginallyclever.robotoverlord.mesh.Mesh;
+import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 
 import javax.vecmath.Vector3d;
 import java.io.BufferedInputStream;
@@ -25,7 +25,7 @@ public class LoadOBJ implements MeshLoader {
 	}
 	
 	@Override
-	public void load(BufferedInputStream inputStream,Mesh model) throws Exception {
+	public void load(BufferedInputStream inputStream, Mesh model) throws Exception {
 		ArrayList<Float> vertexArray = new ArrayList<Float>();
 		ArrayList<Float> normalArray = new ArrayList<Float>();
 		ArrayList<Float> texCoordArray = new ArrayList<Float>();

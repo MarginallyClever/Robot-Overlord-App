@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.mesh;
+package com.marginallyclever.robotoverlord.components.shapes.mesh;
 
 import com.marginallyclever.convenience.log.Log;
 

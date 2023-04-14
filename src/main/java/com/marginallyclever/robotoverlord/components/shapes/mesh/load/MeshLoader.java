@@ -1,6 +1,6 @@
-package com.marginallyclever.robotoverlord.mesh.load;
+package com.marginallyclever.robotoverlord.components.shapes.mesh.load;
 
-import com.marginallyclever.robotoverlord.mesh.Mesh;
+import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 
 import java.io.BufferedInputStream;
 
@@ -19,5 +19,5 @@ public interface MeshLoader {
 	 * @param model mesh into which data will be loaded
 	 * @throws Exception if something goes wrong
 	 */
-	void load(BufferedInputStream inputStream,Mesh model) throws Exception;
+	void load(BufferedInputStream inputStream, Mesh model) throws Exception;
 }

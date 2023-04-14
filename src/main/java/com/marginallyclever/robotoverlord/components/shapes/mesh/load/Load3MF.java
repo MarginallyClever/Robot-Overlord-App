@@ -1,8 +1,8 @@
-package com.marginallyclever.robotoverlord.mesh.load;
+package com.marginallyclever.robotoverlord.components.shapes.mesh.load;
 
 import com.marginallyclever.convenience.ColorRGB;
-import com.marginallyclever.robotoverlord.mesh.Mesh;
-import com.marginallyclever.robotoverlord.mesh.MeshNormalBuilder;
+import com.marginallyclever.robotoverlord.components.shapes.mesh.MeshNormalBuilder;
+import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

@@ -1,6 +1,6 @@
-package com.marginallyclever.robotoverlord.mesh.load;
+package com.marginallyclever.robotoverlord.components.shapes.mesh.load;
 
-import com.marginallyclever.robotoverlord.mesh.Mesh;
+import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 
 import javax.vecmath.Vector3d;
 import java.io.BufferedInputStream;

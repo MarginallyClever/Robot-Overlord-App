@@ -1,7 +1,7 @@
 package com.marginallyclever.convenience;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotoverlord.mesh.Mesh;
+import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;

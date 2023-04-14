@@ -1,6 +1,6 @@
-package com.marginallyclever.robotoverlord.mesh.save;
+package com.marginallyclever.robotoverlord.components.shapes.mesh.save;
 
-import com.marginallyclever.robotoverlord.mesh.Mesh;
+import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 
 import java.io.OutputStream;
 
@@ -15,5 +15,5 @@ public abstract interface MeshSaver {
 	 * @param model
 	 * @throws Exception
 	 */
-	public void save(OutputStream outputStream,Mesh model) throws Exception;
+	public void save(OutputStream outputStream, Mesh model) throws Exception;
 }

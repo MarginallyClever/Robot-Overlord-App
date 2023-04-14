@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.mesh;
+package com.marginallyclever.robotoverlord.components.shapes.mesh;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.AABB;

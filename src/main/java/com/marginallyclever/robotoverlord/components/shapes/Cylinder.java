@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.components.shapes;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
-import com.marginallyclever.robotoverlord.mesh.Mesh;
+import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 
 /**
  * A cylinder with a radius of 0.5 and a height of 1.  It is centered at the origin.

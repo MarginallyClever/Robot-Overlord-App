@@ -7,7 +7,7 @@ package com.marginallyclever.robotoverlord.components.material;
  */
 public class LoadMTL implements MaterialLoader {
     public MaterialComponent load(String filename) {
-        
+
         return null;
     }
 }

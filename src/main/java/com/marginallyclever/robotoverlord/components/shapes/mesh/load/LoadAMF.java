@@ -1,7 +1,7 @@
-package com.marginallyclever.robotoverlord.mesh.load;
+package com.marginallyclever.robotoverlord.components.shapes.mesh.load;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.mesh.Mesh;
+import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -25,7 +25,7 @@ public class LoadAMF implements MeshLoader {
 
 	// much help from https://www.sculpteo.com/en/glossary/amf-definition/
 	@Override
-	public void load(BufferedInputStream inputStream,Mesh model) throws Exception {
+	public void load(BufferedInputStream inputStream, Mesh model) throws Exception {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         Document doc = dBuilder.parse(inputStream);

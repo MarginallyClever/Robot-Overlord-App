@@ -1,7 +1,7 @@
-package com.marginallyclever.robotoverlord.mesh;
+package com.marginallyclever.robotoverlord.components.shapes.mesh;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
+import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
