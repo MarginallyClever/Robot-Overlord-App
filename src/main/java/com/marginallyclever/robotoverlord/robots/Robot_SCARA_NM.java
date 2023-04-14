@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.robots;
 
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.components.RobotComponent;
+import com.marginallyclever.robotoverlord.components.robot.RobotComponent;
 
 /**
  * FANUC cylindrical coordinate robot GMF M-100

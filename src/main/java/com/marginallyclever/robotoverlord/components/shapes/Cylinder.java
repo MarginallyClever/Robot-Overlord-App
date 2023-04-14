@@ -31,7 +31,7 @@ public class Cylinder extends ShapeComponent {
 
     private void addFace(int z) {
         for (int i = 0; i < RESOLUTION_CIRCULAR; ++i) {
-            myMesh.addVertex(0, 0, z);
+            myMesh.addVertex(0, 0, (float)z*0.5f);
             myMesh.addNormal(0, 0, z);
 
             addCirclePoint(i, RESOLUTION_CIRCULAR, z);
@@ -42,7 +42,7 @@ public class Cylinder extends ShapeComponent {
     // points on the end caps
     private void addCirclePoint(int i,int resolution,float z) {
         double a = Math.PI*2.0 * (double)i/(double)resolution;
-        myMesh.addVertex((float)Math.cos(a)*0.5f,(float)Math.sin(a)*0.5f,z);
+        myMesh.addVertex((float)Math.cos(a)*0.5f,(float)Math.sin(a)*0.5f,z*0.5f);
         myMesh.addNormal(0,0,z);
     }
 
@@ -74,6 +74,6 @@ public class Cylinder extends ShapeComponent {
         float x = (float)Math.cos(a);
         float y = (float)Math.sin(a);
         myMesh.addVertex(x*0.5f,y*0.5f,z);
-        myMesh.addNormal(x,y,z);
+        myMesh.addNormal(x,y,0);
     }
 }

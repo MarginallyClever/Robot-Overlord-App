@@ -1,6 +1,6 @@
 com.marginallyclever.robotoverlord.robots.stewartplatform.linear.LinearStewartPlatformCore
 com.marginallyclever.robotoverlord.robots.stewartplatform.rotary.RotaryStewartPlatform
 com.marginallyclever.robotoverlord.robots.skycam.Skycam
-com.marginallyclever.robotoverlord.robots.robotarm.robotarmtools.Sixi2ChuckGripper
-com.marginallyclever.robotoverlord.robots.robotarm.robotarmtools.Sixi2LinearGripper
+com.marginallyclever.robotoverlord.components.robot.robotarm.robotarmtools.Sixi2ChuckGripper
+com.marginallyclever.robotoverlord.components.robot.robotarm.robotarmtools.Sixi2LinearGripper
 com.marginallyclever.robotoverlord.robots.dog.DogRobot
