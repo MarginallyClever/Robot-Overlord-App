@@ -120,7 +120,7 @@ public class MaterialComponent extends Component {
         return ambient.getDoubleArray();
     }
 
-    public double[] getSpecular() {
+    public double[] getSpecularColor() {
         return specular.getDoubleArray();
     }
 
