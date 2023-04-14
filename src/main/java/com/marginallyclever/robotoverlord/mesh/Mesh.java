@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.mesh;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.Cuboid;
+import com.marginallyclever.convenience.AABB;
 import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.Ray;
 
@@ -45,7 +45,7 @@ public class Mesh {
 	private String fileName;
 	
 	// bounding limits
-	protected final Cuboid cuboid = new Cuboid();
+	protected final AABB AABB = new AABB();
 
 	public Mesh() {
 		super();
@@ -59,7 +59,7 @@ public class Mesh {
 		hasIndexes=false;
 		renderStyle = GL2.GL_TRIANGLES;
 		isDirty=false;
-		cuboid.setShape(this);
+		AABB.setShape(this);
 	}
 	
 	/**
@@ -326,11 +326,11 @@ public class Mesh {
 			boundBottom.y = Math.min(y, boundBottom.y);
 			boundBottom.z = Math.min(z, boundBottom.z);
 		}
-		cuboid.setBounds(boundTop, boundBottom);
+		AABB.setBounds(boundTop, boundBottom);
 	}
 
-	public Cuboid getCuboid() {
-		return cuboid;
+	public AABB getCuboid() {
+		return AABB;
 	}
 	
 	public int getNumTriangles() {

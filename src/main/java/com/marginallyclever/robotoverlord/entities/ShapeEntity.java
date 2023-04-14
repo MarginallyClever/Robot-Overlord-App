@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.entities;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.Cuboid;
+import com.marginallyclever.convenience.AABB;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.log.Log;
@@ -49,7 +49,7 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 	private final BooleanEntity hasColors = new BooleanEntity("Has colors",false);
 	private final BooleanEntity hasUVs = new BooleanEntity("Has UVs",false);
 	
-	private final Cuboid cuboid = new Cuboid();
+	private final AABB AABB = new AABB();
 	
 	public ShapeEntity() {
 		this("Shape");
@@ -82,7 +82,7 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 	public void set(ShapeEntity b) {
 		super.set(b);
 		scale.set(b.scale.get());
-		cuboid.set(b.cuboid);
+		AABB.set(b.AABB);
 		
 		filename.set(b.filename.get());
 		myMesh = b.myMesh;
@@ -264,26 +264,26 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 	}
 
 	/**
-	 * Updates the {@link Cuboid} bounds.
+	 * Updates the {@link AABB} bounds.
 	 */
 	public void updateCuboid() {
 		if(myMesh != null) {
-			cuboid.set(myMesh.getCuboid());
+			AABB.set(myMesh.getCuboid());
 		} else {
-			cuboid.setShape(null);
-			cuboid.setBounds(new Point3d(0,0,0),new Point3d(0,0,0));
+			AABB.setShape(null);
+			AABB.setBounds(new Point3d(0,0,0),new Point3d(0,0,0));
 		}
 	}
 
 	/**
-	 * @return a list of {@link Cuboid}, or null.
+	 * @return a list of {@link AABB}, or null.
 	 */
 	@Override
-	public ArrayList<Cuboid> getCuboidList() {
-		ArrayList<Cuboid> list = new ArrayList<Cuboid>();
-		list.add(cuboid);
+	public ArrayList<AABB> getCuboidList() {
+		ArrayList<AABB> list = new ArrayList<AABB>();
+		list.add(AABB);
 		Matrix4d m2 = getPoseWorld();
-		cuboid.setPose(m2);
+		AABB.setPose(m2);
 
 		return list;
 	}

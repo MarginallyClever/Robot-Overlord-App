@@ -4,7 +4,6 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.*;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.*;
-import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.ColorEntity;
 import com.marginallyclever.robotoverlord.parameters.StringEntity;
@@ -14,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.io.File;
 import java.nio.IntBuffer;
@@ -137,14 +135,14 @@ public class Scene extends Entity {
 
 	/**
 	 * @param listA all the cuboids being tested against the world.
-	 * @return true if any cuboid in {@code listA} intersects any {@link Cuboid} in the world.
+	 * @return true if any cuboid in {@code listA} intersects any {@link AABB} in the world.
 	 */
-	public boolean collisionTest(ArrayList<Cuboid> listA) {
+	public boolean collisionTest(ArrayList<AABB> listA) {
 		// check all children
 		for( Entity b : children) {
 			if( !(b instanceof Collidable) ) continue;
 			
-			ArrayList<Cuboid> listB = ((Collidable)b).getCuboidList();
+			ArrayList<AABB> listB = ((Collidable)b).getCuboidList();
 			if( listB == null ) continue;
 			
 			if(listB.get(0)==listA.get(0)) {
@@ -153,13 +151,13 @@ public class Scene extends Entity {
 			}
 			
 			// now we have both lists, test them against each other.
-			for( Cuboid cuboidA : listA ) {
-				for( Cuboid cuboidB : listB ) {
-					if( IntersectionHelper.cuboidCuboid(cuboidA,cuboidB) ) {
+			for( AABB AABB1 : listA ) {
+				for( AABB AABB2 : listB ) {
+					if( IntersectionHelper.cuboidCuboid(AABB1, AABB2) ) {
 						Log.message("Collision between "+
-							listA.indexOf(cuboidA)+
+							listA.indexOf(AABB1)+
 							" and "+
-							b.getName()+"."+listB.indexOf(cuboidB));
+							b.getName()+"."+listB.indexOf(AABB2));
 						return true;
 					}
 				}

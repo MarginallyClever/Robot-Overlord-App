@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord;
 
-import com.marginallyclever.convenience.Cuboid;
+import com.marginallyclever.convenience.AABB;
 
 import java.util.ArrayList;
 
@@ -12,7 +12,7 @@ import java.util.ArrayList;
  */
 public abstract interface Collidable {
 	/**
-	 * @return a list of {@link Cuboid} relative to the world.
+	 * @return a list of {@link AABB} relative to the world.
 	 */
-	public ArrayList<Cuboid> getCuboidList();
+	public ArrayList<AABB> getCuboidList();
 }

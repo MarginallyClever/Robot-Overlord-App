@@ -135,7 +135,7 @@ public class IntersectionHelper {
 	 * @param b second cuboid
 	 * @return true if cuboids intersect
 	 */
-	static public boolean cuboidCuboid(Cuboid a,Cuboid b) {
+	static public boolean cuboidCuboid(AABB a, AABB b) {
 		// infinitely small cuboids will incorrectly report hitting everything.
 		if(a.boundTop.epsilonEquals(a.boundBottom, 1e-6)) {
 			return false;
@@ -150,7 +150,7 @@ public class IntersectionHelper {
 	}
 	
 	
-	static protected boolean cuboidCuboidInternal(Cuboid a,Cuboid b) {
+	static protected boolean cuboidCuboidInternal(AABB a, AABB b) {
 		// get the normals for A
 		Vector3d[] n = new Vector3d[3];
 		n[0] = new Vector3d(a.pose.m00, a.pose.m10, a.pose.m20);
