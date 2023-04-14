@@ -1,4 +1,4 @@
-package com.marginallyclever.convenience;
+package com.marginallyclever.convenience.swing;
 
 import com.marginallyclever.convenience.log.Log;
 
