@@ -9,7 +9,7 @@ import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.demos.DemoDog;
 import com.marginallyclever.robotoverlord.demos.DemoSpidee;
-import com.marginallyclever.robotoverlord.mesh.load.MeshFactory;
+import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.swinginterface.*;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
 import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;

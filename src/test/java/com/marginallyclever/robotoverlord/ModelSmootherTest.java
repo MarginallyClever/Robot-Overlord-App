@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.mesh.MeshSmoother;
+import com.marginallyclever.robotoverlord.components.shapes.mesh.MeshSmoother;
 
 import java.io.IOException;
 

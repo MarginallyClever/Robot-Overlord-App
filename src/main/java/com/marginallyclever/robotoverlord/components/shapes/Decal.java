@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.components.shapes;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
-import com.marginallyclever.robotoverlord.mesh.Mesh;
+import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 
 import javax.vecmath.Vector3d;
 
