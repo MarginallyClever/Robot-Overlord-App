@@ -2,13 +2,13 @@ package com.marginallyclever.robotoverlord.swinginterface.pluginExplorer;
 
 import org.assertj.swing.core.BasicRobot;
 import org.assertj.swing.core.Robot;
-import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
-import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import javax.swing.*;
 
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless environment")
 public class MultiVersionPropertiesPanelTest {
 
     private FrameFixture window;
