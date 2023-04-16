@@ -372,6 +372,8 @@ public class RobotOverlord extends Entity {
 		menu.add(new JMenuItem(new DemoAction(this,new DemoSpidee())));
 		menu.add(new JMenuItem(new DemoAction(this,new DemoDog())));
 		//menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
+		menu.addSeparator();
+		menu.add(new JMenuItem(new ShowRobotLibraryPanel(this)));
 		return menu;
 	}
 
