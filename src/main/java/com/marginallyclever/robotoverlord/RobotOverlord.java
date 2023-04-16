@@ -379,9 +379,9 @@ public class RobotOverlord extends Entity {
 	}
 
 	/**
-	 * Assuming that the folder scenes/owner/repo/tag/something.ro, this method will search three levels deep.
-	 * If the 3rd level contains one or more '*.ro' files it adds each folder to the JMenu tree AND adds a
-	 * new JMenuItem(SceneImportAction(this, roFile)) to the leaf of the tree.
+	 * Searches for all files matching <code>scenes/[owner]/[repo]/[tag]/something.ro</code>
+	 * builds <code>[owner]/[repo]/[tag]</code> to the JMenu tree AND adds a
+	 * new SceneImportAction(this, something.ro)) to the leaf of the tree.
 	 * @param menu the JMenu that is the root of the new menu tree.
 	 */
 	private void buildAvailableScenesTree(JMenu menu) {
