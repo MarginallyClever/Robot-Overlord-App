@@ -5,11 +5,20 @@ import okhttp3.Request;
 import okhttp3.Response;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -136,5 +145,42 @@ public class GithubFetcher {
     public static String getLocalPath(String owner, String repoName) {
         Path destinationPath = Paths.get("./scenes", owner, repoName);
         return destinationPath.toString();
+    }
+
+    public static void installRepository(String githubRepositoryUrl,String tag) {
+        try {
+            URI uri = new URI(githubRepositoryUrl);
+            String[] urlParts = uri.getPath().split("/");
+            String owner = urlParts[1];
+            String repoName = urlParts[2];
+
+            File destination = new File(GithubFetcher.getLocalPath(owner,repoName,tag));
+
+            if (!destination.exists()) {
+                destination.mkdirs();
+
+                try (Git git = Git.cloneRepository()
+                        .setURI(githubRepositoryUrl)
+                        .setDirectory(destination)
+                        .call()) {
+
+                    Ref tagRef = git.tagList().call().stream()
+                            .filter(ref -> ref.getName().equals(Constants.R_TAGS + tag))
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("Tag not found: " + tag));
+
+                    RevWalk revWalk = new RevWalk(git.getRepository());
+                    ObjectId objectId = tagRef.getObjectId();
+                    RevCommit commit = revWalk.parseCommit(objectId);
+                    git.checkout().setName(commit.getName()).call();
+                } catch (GitAPIException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 }

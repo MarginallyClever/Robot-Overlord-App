@@ -66,18 +66,14 @@ public class MultiVersionPropertiesPanel extends JPanel {
             String[] urlParts = uri.getPath().split("/");
             String owner = urlParts[1];
             String repoName = urlParts[2];
-
             String libraryPath = GithubFetcher.getLocalPath(owner, repoName, tag);
-
             if (!new File(libraryPath).exists()) {
+                // not installed - display an install button.
                 JButton installButton = new JButton("Install");
-                installButton.addActionListener(e -> {
-                    // Add the install action here
-                    installRobotLibrary(githubRepositoryUrl, tag);
-                });
+                installButton.addActionListener(e -> installRobotLibrary(githubRepositoryUrl, tag));
                 libraryStatus.add(installButton, BorderLayout.CENTER);
             } else {
-                // display the path to the library.
+                // installed - display the path to the library.
                 libraryStatus.add(new JLabel(libraryPath), BorderLayout.CENTER);
             }
         } catch (URISyntaxException e) {
@@ -89,40 +85,7 @@ public class MultiVersionPropertiesPanel extends JPanel {
     }
 
     private void installRobotLibrary(String githubRepositoryUrl, String tag) {
-        try {
-            URI uri = new URI(githubRepositoryUrl);
-            String[] urlParts = uri.getPath().split("/");
-            String owner = urlParts[1];
-            String repoName = urlParts[2];
-
-            File destination = new File(GithubFetcher.getLocalPath(owner,repoName,tag));
-
-            if (!destination.exists()) {
-                destination.mkdirs();
-
-                try (Git git = Git.cloneRepository()
-                        .setURI(githubRepositoryUrl)
-                        .setDirectory(destination)
-                        .call()) {
-
-                    Ref tagRef = git.tagList().call().stream()
-                            .filter(ref -> ref.getName().equals(Constants.R_TAGS + tag))
-                            .findFirst()
-                            .orElseThrow(() -> new RuntimeException("Tag not found: " + tag));
-
-                    RevWalk revWalk = new RevWalk(git.getRepository());
-                    ObjectId objectId = tagRef.getObjectId();
-                    RevCommit commit = revWalk.parseCommit(objectId);
-                    git.checkout().setName(commit.getName()).call();
-                } catch (GitAPIException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+        GithubFetcher.installRepository(githubRepositoryUrl, tag);
 
         updateLibraryStatusPanel(githubRepositoryUrl, tag);
     }
