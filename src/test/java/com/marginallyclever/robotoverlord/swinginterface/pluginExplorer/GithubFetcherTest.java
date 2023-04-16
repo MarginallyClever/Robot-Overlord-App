@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class GithubFetcherTest {
-    private static String githubUrl = "https://github.com/marginallyclever/robot-overlord-app";
+    private static String githubUrl = "https://github.com/marginallyclever/Sixi-";
     @Test
     public void testFetchGitHubTags() {
         List<String> tags = GithubFetcher.fetchTags(githubUrl);

@@ -21,8 +21,9 @@ public class RobotLibraryPanelTest {
         robot = BasicRobot.robotWithNewAwtHierarchy();
 
         List<String> repositories = Arrays.asList(
-                "https://github.com/MarginallyClever/Sixi-3",
-                "https://github.com/marginallyclever/robot-overlord-app"
+                "https://github.com/MarginallyClever/Sixi-",
+                "https://github.com/marginallyclever/AR4",
+                "https://github.com/marginallyclever/Mecademic-Meca500"
         );
 
         RobotLibraryPanel panel = new RobotLibraryPanel(repositories);

@@ -17,7 +17,7 @@ public class MultiVersionPropertiesPanelTest {
     @BeforeEach
     public void setUp() {
         robot = BasicRobot.robotWithNewAwtHierarchy();
-        MultiVersionPropertiesPanel panel = new MultiVersionPropertiesPanel("https://github.com/MarginallyClever/Sixi-3"); // Replace OWNER and REPO with the GitHub repository you want to test
+        MultiVersionPropertiesPanel panel = new MultiVersionPropertiesPanel("https://github.com/MarginallyClever/Sixi-"); // Replace OWNER and REPO with the GitHub repository you want to test
         JFrame frame = new JFrame();
         frame.setContentPane(panel);
         frame.pack();
