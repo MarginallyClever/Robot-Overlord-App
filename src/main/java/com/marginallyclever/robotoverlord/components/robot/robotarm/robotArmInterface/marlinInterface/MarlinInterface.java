@@ -5,7 +5,7 @@ import com.marginallyclever.communications.SessionLayerEvent;
 import com.marginallyclever.communications.SessionLayerListener;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.components.robot.RobotComponent;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;
 
 import javax.swing.*;

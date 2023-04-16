@@ -1,4 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.pluginExplorer;
+
+import com.marginallyclever.robotoverlord.swinginterface.actions.SceneImportAction;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
@@ -15,23 +17,21 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
 public class MultiVersionPropertiesPanel extends JPanel {
-    private JComboBox<String> tagComboBox;
+    private final JComboBox<String> tagComboBox;
     private final JPanel propertiesPanel = new JPanel();
     private final JPanel libraryStatus = new JPanel(new BorderLayout());
-    private int numTags;
+    private final int numTags;
 
     public MultiVersionPropertiesPanel(String githubRepositoryUrl) {
         setLayout(new BorderLayout());
 
         List<String> tags = GithubFetcher.fetchTags(githubRepositoryUrl);
+        if(tags.size()==0) tags = GithubFetcher.lookForLocalCopy(githubRepositoryUrl);
         numTags = tags.size();
-        if(numTags==0) tags = GithubFetcher.lookForLocalCopy(githubRepositoryUrl);
 
         JPanel pageEnd = new JPanel(new BorderLayout());
         pageEnd.setName("pageEnd");
@@ -40,12 +40,9 @@ public class MultiVersionPropertiesPanel extends JPanel {
 
         tagComboBox = new JComboBox<>(tags.toArray(new String[0]));
         tagComboBox.setName("tagComboBox");
-        tagComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updatePropertiesPanel(githubRepositoryUrl, (String) tagComboBox.getSelectedItem());
-                updateLibraryStatusPanel(githubRepositoryUrl, (String) tagComboBox.getSelectedItem());
-            }
+        tagComboBox.addActionListener(e -> {
+            updatePropertiesPanel(githubRepositoryUrl, (String) tagComboBox.getSelectedItem());
+            updateLibraryStatusPanel(githubRepositoryUrl, (String) tagComboBox.getSelectedItem());
         });
 
         propertiesPanel.setName("propertiesPanel");
@@ -141,11 +138,10 @@ public class MultiVersionPropertiesPanel extends JPanel {
             newCenterPanel = new JPanel();
             newCenterPanel.add(new JLabel("missing " + tag +" robot.properties."));
         }
-        JPanel alignment = new JPanel(new BorderLayout());
-        alignment.add(newCenterPanel, BorderLayout.LINE_START);
-        alignment.add(new JPanel(), BorderLayout.CENTER);
+        newCenterPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
         propertiesPanel.removeAll();
-        propertiesPanel.add(alignment);
+        propertiesPanel.add(newCenterPanel);
         propertiesPanel.revalidate();
         propertiesPanel.repaint();
     }

@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.components.robot.robotarm.robotArmInterface.jogInterface;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.components.robot.RobotComponent;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;
 
 import javax.swing.*;

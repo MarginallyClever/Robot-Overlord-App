@@ -4,11 +4,12 @@ import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.UnicodeIcon;
-import com.marginallyclever.robotoverlord.components.shapes.material.MaterialComponent;
+import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,12 +34,20 @@ public class SceneImportAction extends AbstractAction {
      */
     private static final JFileChooser fc = new JFileChooser();
 
+    private File preselectedFile = null;
+
     public SceneImportAction(RobotOverlord ro) {
         super(Translator.get("SceneImportAction.name"));
         this.ro=ro;
         fc.setFileFilter(RobotOverlord.FILE_FILTER);
         putValue(Action.SMALL_ICON,new UnicodeIcon("🗁"));
         putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneImportAction.shortDescription"));
+    }
+
+    public SceneImportAction(RobotOverlord ro,File preselectedFile) {
+        this(ro);
+        putValue(Action.NAME, Translator.get("SceneImportAction.name")+preselectedFile.getName());
+        this.preselectedFile = preselectedFile;
     }
 
     public static void setLastDirectory(String s) {
@@ -51,6 +60,10 @@ public class SceneImportAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent evt) {
+        if(preselectedFile !=null) {
+            loadFile(preselectedFile);
+            return;
+        }
         if (fc.showOpenDialog(ro.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
             loadFile(fc.getSelectedFile());
         }
@@ -91,10 +104,26 @@ public class SceneImportAction extends AbstractAction {
         String destinationPath = destination.getScenePath() + File.separator + lastPath.toString();
 
         if(!source.getScenePath().equals(destinationPath)) {
-            FileUtils.copyDirectory(
-                    new File(source.getScenePath()),
-                    new File(destinationPath)
-            );
+            IOFileFilter dotFileFilter = new IOFileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return !file.getName().startsWith(".");
+                }
+
+                @Override
+                public boolean accept(File dir, String name) {
+                    return !name.startsWith(".");
+                }
+            };
+
+            try {
+                FileUtils.copyDirectory(
+                        new File(source.getScenePath()),
+                        new File(destinationPath),
+                        dotFileFilter);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         recursivelyUpdatePaths(source,destinationPath);

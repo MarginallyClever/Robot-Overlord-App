@@ -39,11 +39,11 @@ public class PropertiesPanel extends JPanel {
             urlLabel.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    try {
-                        Desktop.getDesktop().browse(new URI(urlString));
-                    } catch (IOException | URISyntaxException ex) {
-                        ex.printStackTrace();
-                    }
+                try {
+                    Desktop.getDesktop().browse(new URI(urlString));
+                } catch (IOException | URISyntaxException ex) {
+                    ex.printStackTrace();
+                }
                 }
             });
             add(new JLabel(), constraints);

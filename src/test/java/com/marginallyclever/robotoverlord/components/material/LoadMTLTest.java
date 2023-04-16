@@ -1,8 +1,6 @@
 package com.marginallyclever.robotoverlord.components.material;
 
-import com.marginallyclever.robotoverlord.components.shapes.material.LoadMTL;
-import com.marginallyclever.robotoverlord.components.shapes.material.MaterialComponent;
-import com.marginallyclever.robotoverlord.components.shapes.material.MaterialLoader;
+import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
