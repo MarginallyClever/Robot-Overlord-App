@@ -416,6 +416,35 @@
 		    <version>0.4.2</version>
 		</dependency>
 
+		<!-- for making http requests -->
+		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>4.10.0</version>
+		</dependency>
+
+		<!-- for turning markdown to html -->
+		<!-- https://mvnrepository.com/artifact/com.vladsch.flexmark/flexmark-all -->
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-all</artifactId>
+			<version>0.64.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.10.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.jgit</groupId>
+			<artifactId>org.eclipse.jgit</artifactId>
+			<version>6.5.0.202303070854-r</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<repositories>
