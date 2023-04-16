@@ -42,16 +42,15 @@ public class RobotLibraryPanel extends JPanel {
     }
 
     public static void main(String[] args) {
-        RobotLibraryPanel panel = new RobotLibraryPanel(new ArrayList<>(List.of(
+        RobotLibraryPanel panel = new RobotLibraryPanel(List.of(
                 "https://github.com/MarginallyClever/Sixi-",
                 "https://github.com/MarginallyClever/AR4",
                 "https://github.com/MarginallyClever/Mecademic-Meca500",
                 "https://github.com/MarginallyClever/Arctos",
                 "https://github.com/MarginallyClever/K1",
                 "https://github.com/MarginallyClever/Mantis",
-                //"https://github.com/MarginallyClever/Roci",
                 "https://github.com/MarginallyClever/Thor"
-        ))); // Replace OWNER and REPO with the GitHub repository you want to test
+        ));
         JFrame frame = new JFrame("Robot Library");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setContentPane(panel);
