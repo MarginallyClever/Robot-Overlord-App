@@ -12,6 +12,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
+/**
+ * Displays the properties of a robot as provided by a map of properties.
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class PropertiesPanel extends JPanel {
     public PropertiesPanel(Map<String, String> properties) {
         setLayout(new GridBagLayout());
@@ -68,6 +73,13 @@ public class PropertiesPanel extends JPanel {
         }
     }
 
+    /**
+     * Show a key/value pair as a {@link JLabel} if the key exists in the map.
+     * @param properties the map of properties
+     * @param key the key to look for
+     * @param constraints the layout constraints
+     * @param label the label to show
+     */
     private void addPropertyLabel(Map<String, String> properties, String key, GridBagConstraints constraints,String label) {
         String value = properties.get(key);
         if (value != null) {
@@ -80,6 +92,13 @@ public class PropertiesPanel extends JPanel {
         }
     }
 
+    /**
+     * Show a key/value pair as a {@link JTextArea} if the key exists in the map.
+     * @param properties the map of properties
+     * @param key the key to look for
+     * @param constraints the layout constraints
+     * @param label the label to show
+     */
     private void addPropertyTextArea(Map<String, String> properties, String key, GridBagConstraints constraints,String label) {
         String value = properties.get(key);
         if (value != null) {

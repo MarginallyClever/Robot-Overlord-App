@@ -16,6 +16,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+/**
+ * Displays the README.md file from a GitHub repository.
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class ReadmePanel extends JPanel {
     private static final OkHttpClient client = new OkHttpClient();
     private static final String GITHUB_API = "https://api.github.com/repos/";

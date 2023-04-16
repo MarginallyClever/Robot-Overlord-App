@@ -1,18 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.pluginExplorer;
 
-import com.marginallyclever.robotoverlord.swinginterface.actions.SceneImportAction;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -20,6 +9,13 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Combine many {@link PropertiesPanel}s into one panel. Each {@link PropertiesPanel} is a different version of the
+ * same library. The user can select which version to use from a {@link JComboBox}.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class MultiVersionPropertiesPanel extends JPanel {
     private final JComboBox<String> tagComboBox;
     private final JPanel propertiesPanel = new JPanel();
@@ -58,6 +54,11 @@ public class MultiVersionPropertiesPanel extends JPanel {
         }
     }
 
+    /**
+     * Display either the install button or the path to the library.
+     * @param githubRepositoryUrl The URL of the repository.
+     * @param tag The tag to install.
+     */
     private void updateLibraryStatusPanel(String githubRepositoryUrl, String tag) {
         libraryStatus.removeAll();
 
@@ -86,10 +87,14 @@ public class MultiVersionPropertiesPanel extends JPanel {
 
     private void installRobotLibrary(String githubRepositoryUrl, String tag) {
         GithubFetcher.installRepository(githubRepositoryUrl, tag);
-
         updateLibraryStatusPanel(githubRepositoryUrl, tag);
     }
 
+    /**
+     * Update the properties panel to display the properties for the given tag.
+     * @param githubRepositoryUrl The URL of the repository.
+     * @param tag The tag to display.
+     */
     private void updatePropertiesPanel(String githubRepositoryUrl, String tag) {
         JPanel newCenterPanel;
         try {
@@ -109,12 +114,20 @@ public class MultiVersionPropertiesPanel extends JPanel {
         propertiesPanel.repaint();
     }
 
+    /**
+     * Returns the number of tags in the repository.
+     * @return The number of tags in the repository.
+     */
     public int getNumTags() {
         return numTags;
     }
 
+    /**
+     * Launch a test window.
+     * @param args Unused.
+     */
     public static void main(String[] args) {
-        MultiVersionPropertiesPanel panel = new MultiVersionPropertiesPanel("https://github.com/MarginallyClever/Sixi-"); // Replace OWNER and REPO with the GitHub repository you want to test
+        MultiVersionPropertiesPanel panel = new MultiVersionPropertiesPanel("https://github.com/MarginallyClever/Sixi-");
         JFrame frame = new JFrame("MultiVersionPropertiesPanel");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setContentPane(panel);

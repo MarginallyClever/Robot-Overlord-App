@@ -24,6 +24,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+/**
+ * Methods for fetching data from <a href="https://www.github.com/">GitHub</a>.
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class GithubFetcher {
 
     private static final String GITHUB_API_BASE_URL = "https://api.github.com/repos";
@@ -31,14 +36,34 @@ public class GithubFetcher {
     private static final Gson gson = new Gson();
     private static final String ROBOT_PROPERTIES_FILE = "robot.properties";
 
+    /**
+     * Fetches the robot.properties file from the given repository and branch.
+     * @param repositoryUrl The URL of the repository to fetch from.
+     * @param version The branch to fetch from.
+     * @return A map of the properties.
+     * @throws IOException If the properties file could not be fetched.
+     */
     public static Map<String, String> fetchRobotProperties(String repositoryUrl, String version) throws IOException {
         return fetchRobotPropertiesInternal(repositoryUrl,version);
     }
 
+    /**
+     * Fetches the robot.properties file from the main branch of the given repository.
+     * @param repositoryUrl The URL of the repository to fetch from.
+     * @return A map of the properties.
+     * @throws IOException If the properties file could not be fetched.
+     */
     public static Map<String, String> fetchRobotProperties(String repositoryUrl) throws IOException {
         return fetchRobotPropertiesInternal(repositoryUrl,"main");
     }
 
+    /**
+     * Fetches the robot.properties file from the given repository and branch.
+     * @param repositoryUrl The URL of the repository to fetch from.
+     * @param branch The branch to fetch from.
+     * @return A map of the properties.
+     * @throws IOException If the properties file could not be fetched.
+     */
     private static Map<String, String> fetchRobotPropertiesInternal(String repositoryUrl, String branch) throws IOException {
         OkHttpClient client = new OkHttpClient();
         String propertiesUrl = repositoryUrl + "/raw/"+branch+"/"+ROBOT_PROPERTIES_FILE;
@@ -63,6 +88,11 @@ public class GithubFetcher {
         return propertiesMap;
     }
 
+    /**
+     * Fetches the list of tags from the given repository.
+     * @param githubUrl The URL of the repository to fetch from.
+     * @return A list of the tags.
+     */
     public static List<String> fetchTags(String githubUrl) {
         String[] urlParts = githubUrl.split("/");
         String owner = urlParts[urlParts.length - 2];
@@ -102,6 +132,11 @@ public class GithubFetcher {
         return results;
     }
 
+    /**
+     * Fetches the list of locally-installed tags for the given repository.
+     * @param githubUrl The URL of the repository to fetch from.
+     * @return A list of the tags.
+     */
     public static List<String> lookForLocalCopy(String githubUrl) {
         String[] urlParts = githubUrl.split("/");
         String owner = urlParts[urlParts.length - 2];
@@ -109,13 +144,17 @@ public class GithubFetcher {
 
         File f = new File(getLocalPath(owner, repo));
         if(f.exists()) {
-            List<String> results = findSubfoldersContainingPropertiesFile(f, ROBOT_PROPERTIES_FILE);
-
-            return results;
+            return findSubfoldersContainingPropertiesFile(f, ROBOT_PROPERTIES_FILE);
         }
         return new ArrayList<>();
     }
 
+    /**
+     * Fetches the list of locally-installed tags for the given repository.
+     * @param rootFolder The root folder to search.
+     * @param propertiesFileName The name of the properties file to search for.
+     * @return A list of the tags.
+     */
     private static List<String> findSubfoldersContainingPropertiesFile(File rootFolder, String propertiesFileName) {
         List<String> result = new ArrayList<>();
 
@@ -137,16 +176,34 @@ public class GithubFetcher {
         return result;
     }
 
+    /**
+     * Gets the local path for the given repository.
+     * @param owner The owner of the repository.
+     * @param repoName The name of the repository.
+     * @param tag The tag of the repository.
+     * @return The local path.
+     */
     public static String getLocalPath(String owner, String repoName, String tag) {
         Path destinationPath = Paths.get("./scenes", owner, repoName, tag);
         return destinationPath.toString();
     }
 
+    /**
+     * Gets the local path for the given repository.
+     * @param owner The owner of the repository.
+     * @param repoName The name of the repository.
+     * @return The local path.
+     */
     public static String getLocalPath(String owner, String repoName) {
         Path destinationPath = Paths.get("./scenes", owner, repoName);
         return destinationPath.toString();
     }
 
+    /**
+     * Installs the given repository and tag.
+     * @param githubRepositoryUrl The URL of the repository to install.
+     * @param tag The tag to install.
+     */
     public static void installRepository(String githubRepositoryUrl,String tag) {
         try {
             URI uri = new URI(githubRepositoryUrl);
