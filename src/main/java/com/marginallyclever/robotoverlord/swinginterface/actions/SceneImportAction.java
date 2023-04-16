@@ -46,7 +46,7 @@ public class SceneImportAction extends AbstractAction {
 
     public SceneImportAction(RobotOverlord ro,File preselectedFile) {
         this(ro);
-        putValue(Action.NAME, Translator.get("SceneImportAction.name")+preselectedFile.getName());
+        putValue(Action.NAME, Translator.get("SceneImportAction.name")+" "+preselectedFile.getName());
         this.preselectedFile = preselectedFile;
     }
 

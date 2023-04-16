@@ -374,7 +374,73 @@ public class RobotOverlord extends Entity {
 		//menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
 		menu.addSeparator();
 		menu.add(new JMenuItem(new ShowRobotLibraryPanel(this)));
+		buildAvailableScenesTree(menu);
 		return menu;
+	}
+
+	/**
+	 * Assuming that the folder scenes/owner/repo/tag/something.ro, this method will search three levels deep.
+	 * If the 3rd level contains one or more '*.ro' files it adds each folder to the JMenu tree AND adds a
+	 * new JMenuItem(SceneImportAction(this, roFile)) to the leaf of the tree.
+	 * @param menu the JMenu that is the root of the new menu tree.
+	 */
+	private void buildAvailableScenesTree(JMenu menu) {
+		// scan 'scene' folder for subfolders.  make them submenus.
+		File rootDirectory = new File("scenes");
+
+		if (!rootDirectory.isDirectory()) {
+			return;
+		}
+
+		boolean first=true;
+
+		File[] level1Dirs = rootDirectory.listFiles(File::isDirectory);
+		if (level1Dirs == null) return;
+
+		for (File level1Dir : level1Dirs) {
+			JMenu level1Menu = new JMenu(level1Dir.getName());
+
+			File[] level2Dirs = level1Dir.listFiles(File::isDirectory);
+			if (level2Dirs == null) continue;
+
+			for (File level2Dir : level2Dirs) {
+				JMenu level2Menu = new JMenu(level2Dir.getName());
+
+				File[] level3Dirs = level2Dir.listFiles(File::isDirectory);
+				if (level3Dirs == null) continue;
+
+				for (File level3Dir : level3Dirs) {
+					File[] roFiles = level3Dir.listFiles((dir, name) -> name.toLowerCase().endsWith(".ro"));
+					if (roFiles == null || roFiles.length == 0) continue;
+
+					JMenu level3Menu = new JMenu(level3Dir.getName());
+
+					for (File roFile : roFiles) {
+						level3Menu.add(new JMenuItem(new SceneImportAction(this, roFile)));
+					}
+
+					// we found something, add the parent menu.
+					if(level3Menu.getItemCount()!=0) {
+						level2Menu.add(level3Menu);
+					}
+				}
+
+				// we found something, add the parent menu.
+				if(level2Menu.getItemCount()!=0) {
+					level1Menu.add(level2Menu);
+				}
+			}
+
+			// we found something, add the parent menu.
+			if(level1Menu.getItemCount()!=0) {
+				// first time through, add a separator.
+				if(first) {
+					first = false;
+					menu.add(new JSeparator());
+				}
+				menu.add(level1Menu);
+			}
+		}
 	}
 
 	private JComponent createEditMenu() {
