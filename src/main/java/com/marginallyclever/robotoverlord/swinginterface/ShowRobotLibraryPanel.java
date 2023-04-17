@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface;
 
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.swinginterface.pluginExplorer.GithubFetcher;
 import com.marginallyclever.robotoverlord.swinginterface.pluginExplorer.RobotLibraryPanel;
 
 import javax.swing.*;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ShowRobotLibraryPanel extends AbstractAction {
+    private static List<String> knownRobots = new ArrayList<>();
     RobotOverlord robotOverlord;
 
     public ShowRobotLibraryPanel(RobotOverlord robotOverlord) {
@@ -23,16 +25,10 @@ public class ShowRobotLibraryPanel extends AbstractAction {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
-        List<String> names = List.of(
-            "https://github.com/MarginallyClever/Sixi-",
-            "https://github.com/MarginallyClever/AR4",
-            "https://github.com/MarginallyClever/Mecademic-Meca500",
-            "https://github.com/MarginallyClever/Arctos",
-            "https://github.com/MarginallyClever/K1",
-            "https://github.com/MarginallyClever/Mantis",
-            "https://github.com/MarginallyClever/Thor"
-        );
-        RobotLibraryPanel panel = new RobotLibraryPanel(names);
+        if(knownRobots.isEmpty()) {
+            knownRobots = GithubFetcher.getAllRobotsFile("MarginallyClever/RobotOverlordArms");
+        }
+        RobotLibraryPanel panel = new RobotLibraryPanel(knownRobots);
         JFrame frame = new JFrame("Robot Library");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setContentPane(panel);

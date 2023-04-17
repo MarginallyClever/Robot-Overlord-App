@@ -2,7 +2,6 @@ package com.marginallyclever.robotoverlord.swinginterface.pluginExplorer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,15 +41,9 @@ public class RobotLibraryPanel extends JPanel {
     }
 
     public static void main(String[] args) {
-        RobotLibraryPanel panel = new RobotLibraryPanel(List.of(
-                "https://github.com/MarginallyClever/Sixi-",
-                "https://github.com/MarginallyClever/AR4",
-                "https://github.com/MarginallyClever/Mecademic-Meca500",
-                "https://github.com/MarginallyClever/Arctos",
-                "https://github.com/MarginallyClever/K1",
-                "https://github.com/MarginallyClever/Mantis",
-                "https://github.com/MarginallyClever/Thor"
-        ));
+        List<String> values = GithubFetcher.getAllRobotsFile("MarginallyClever/RobotOverlordArms");
+
+        RobotLibraryPanel panel = new RobotLibraryPanel(values);
         JFrame frame = new JFrame("Robot Library");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setContentPane(panel);
