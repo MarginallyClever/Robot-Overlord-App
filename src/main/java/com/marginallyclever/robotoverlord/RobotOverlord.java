@@ -387,8 +387,8 @@ public class RobotOverlord extends Entity {
 	 * @param menu the JMenu that is the root of the new menu tree.
 	 */
 	private void buildAvailableScenesTree(JMenu menu) {
-		// scan 'scene' folder for subfolders.  make them submenus.
-		File rootDirectory = new File("scenes");
+		// scan 'plugins' folder for subfolders.  make them submenus.
+		File rootDirectory = new File(PathUtils.APP_PLUGINS);
 
 		if (!rootDirectory.isDirectory()) {
 			return;
