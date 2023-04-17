@@ -6,6 +6,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 
+@Deprecated
 public class LogPanel2 extends JPanel {
     private final Path logFilePath;
     private final LogListModel logListModel = new LogListModel();

@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+@Deprecated
 public class LogPanel extends JPanel implements LogListener {
 	private static final int LOG_LENGTH = 5000;
 
