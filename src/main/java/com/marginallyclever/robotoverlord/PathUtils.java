@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 
 /**
- * Utility functions for working with paths.
+ * Utility functions for working with the local file system.
  * @author Dan Royer
  * @since 2.5.0
  */
@@ -28,9 +28,9 @@ public class PathUtils {
         return extension;
     }
 
-    public static String getAppWorkingDirectory() {
-        return System.getProperty("user.home") + File.separator + "RobotOverlord";
-    }
+    public static final String APP_BASE =  System.getProperty("user.home") + File.separator + "RobotOverlord";
+    public static final String APP_CACHE = APP_BASE + File.separator + "Cache";
+    public static final String APP_PLUGINS = APP_BASE + File.separator + "Plugins";
 
     public static String getCurrentWorkingDirectory() {
         return System.getProperty("user.dir");
@@ -40,20 +40,11 @@ public class PathUtils {
         System.setProperty("user.dir", dir);
     }
 
-    public static String getAppCacheDirectory() {
-        return getAppWorkingDirectory() + File.separator + "Cache";
-    }
-
-    public static String getAppPluginsDirectory() {
-        return getAppWorkingDirectory() + File.separator + "Plugins";
-    }
-
     public static void goToAppWorkingDirectory() {
         Log.message("Previous directory: "+getCurrentWorkingDirectory());
         // set the current directory to the user's home directory
-        String dir = getAppWorkingDirectory();
-        setCurrentWorkingDirectory(getAppWorkingDirectory());
-        File f = new File(dir);
+        setCurrentWorkingDirectory(PathUtils.APP_BASE);
+        File f = new File(PathUtils.APP_BASE);
         if(!f.exists()) f.mkdirs();
         Log.message("Current directory: "+getCurrentWorkingDirectory());
     }

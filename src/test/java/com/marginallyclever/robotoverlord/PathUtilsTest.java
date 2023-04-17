@@ -15,7 +15,7 @@ public class PathUtilsTest {
     @Test
     public void testSetWorkingDirectory() {
         String before = PathUtils.getCurrentWorkingDirectory();
-        PathUtils.setCurrentWorkingDirectory(PathUtils.getAppWorkingDirectory());
+        PathUtils.setCurrentWorkingDirectory(PathUtils.APP_BASE);
         String after = PathUtils.getCurrentWorkingDirectory();
         Assertions.assertNotEquals(before, after);
     }

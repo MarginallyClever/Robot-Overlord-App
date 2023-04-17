@@ -39,6 +39,7 @@ public class GithubFetcher {
     private static final Gson gson = new Gson();
     private static final String ROBOT_PROPERTIES_FILE = "robot.properties";
     private static final String ALL_ROBOTS_TXT = "all_robots.txt";
+    public static final String ALL_ROBOTS_PATH = PathUtils.APP_CACHE + "all_robots.txt";
 
     /**
      * Fetches the robot.properties file from the given repository and branch.
@@ -288,12 +289,8 @@ public class GithubFetcher {
         return getAllRobotsFileFromCache();
     }
 
-    public static String getAllRobotsPath() {
-        return PathUtils.getAppCacheDirectory() + File.separator + ALL_ROBOTS_TXT;
-    }
-
     public static void deleteAllRobotsFileFromCache() {
-        File f = new File(getAllRobotsPath());
+        File f = new File(ALL_ROBOTS_PATH);
         Log.message("Deleting robots.txt cache file");
         if(!f.delete()) {
             Log.error(ALL_ROBOTS_TXT + " cache file could not be deleted");
@@ -301,12 +298,12 @@ public class GithubFetcher {
     }
 
     public static boolean doesAllRobotsFileExist() {
-        File f = new File(getAllRobotsPath());
+        File f = new File(ALL_ROBOTS_PATH);
         return f.exists();
     }
 
     public static boolean isAllRobotsFileLessThanOneDayOld() {
-        File f = new File(getAllRobotsPath());
+        File f = new File(ALL_ROBOTS_PATH);
         if(f.exists()) {
             // check if file is older than 1 day
             long currentDate = new Date().getTime();
@@ -321,7 +318,7 @@ public class GithubFetcher {
      */
     private static void writeAllRobotsFileToCache(List<String> values) {
         Log.message("Writing " + ALL_ROBOTS_TXT + " file to cache");
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(getAllRobotsPath()), StandardCharsets.UTF_8)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(ALL_ROBOTS_PATH), StandardCharsets.UTF_8)) {
             for (String value : values) {
                 writer.write(value);
                 writer.newLine();
@@ -340,7 +337,7 @@ public class GithubFetcher {
         Log.message("Fetching " + ALL_ROBOTS_TXT + " file from cache");
         List<String> results = new ArrayList<>();
 
-        try(BufferedReader reader = Files.newBufferedReader(Paths.get(getAllRobotsPath()), StandardCharsets.UTF_8)) {
+        try(BufferedReader reader = Files.newBufferedReader(Paths.get(ALL_ROBOTS_PATH), StandardCharsets.UTF_8)) {
             String line;
             while ((line = reader.readLine()) != null) {
                 results.add(line);
