@@ -1,5 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.pluginExplorer;
 
+import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.PathUtils;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -12,13 +14,14 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
+import java.io.*;
 import java.lang.reflect.Type;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,11 +33,12 @@ import java.util.*;
  * @since 2.5.0
  */
 public class GithubFetcher {
-
+    private static final Logger logger = LoggerFactory.getLogger(GithubFetcher.class);
     private static final String GITHUB_API_BASE_URL = "https://api.github.com/repos";
     private static final OkHttpClient client = new OkHttpClient();
     private static final Gson gson = new Gson();
     private static final String ROBOT_PROPERTIES_FILE = "robot.properties";
+    private static final String ALL_ROBOTS_TXT = "all_robots.txt";
 
     /**
      * Fetches the robot.properties file from the given repository and branch.
@@ -239,5 +243,153 @@ public class GithubFetcher {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Get the contents of the readme file from a github repository.
+     * @param url The URL of the repository.
+     * @param file The name of the file to fetch.
+     * @return The contents of the file.
+     * @throws IOException If the file could not be fetched.
+     */
+    public static String getAPIFileFromRepo(URL url, String file) throws IOException {
+        String repoPath = url.getPath().substring(1);
+        String apiUrl = GITHUB_API_BASE_URL + repoPath + "/" + file;
+
+        Request request = new Request.Builder().url(apiUrl).build();
+        Response response = client.newCall(request).execute();
+
+        if (response.isSuccessful() && response.body() != null) {
+            String responseBody = response.body().string();
+            JSONObject jsonResponse = new JSONObject(responseBody);
+            return decodeBase64(jsonResponse.getString("content"));
+        } else {
+            Log.error("Failed to fetch " + file + " content from " + url+": "+response.code() + " "+response.message());
+            throw new IOException("Failed to fetch README.md content");
+        }
+    }
+
+    /**
+     * Check for the "all_robots.txt" file in the local cache.  if it is older than one day, delete it.
+     * Then, if there is no local copy, fetch it from github.
+     * Then, return the contents of the cache file.
+     * @param repo The name of the repository to fetch from.
+     * @return The contents of the file.
+     */
+    public static List<String> getAllRobotsFile(String repo) {
+        if(doesAllRobotsFileExist()) {
+            if(!isAllRobotsFileLessThanOneDayOld()) {
+                deleteAllRobotsFileFromCache();
+            }
+        }
+        if(!doesAllRobotsFileExist()) {
+            writeAllRobotsFileToCache(getAllRobotsFileFromGithub(repo));
+        }
+        return getAllRobotsFileFromCache();
+    }
+
+    public static String getAllRobotsPath() {
+        return PathUtils.getAppCacheDirectory() + File.separator + ALL_ROBOTS_TXT;
+    }
+
+    public static void deleteAllRobotsFileFromCache() {
+        File f = new File(getAllRobotsPath());
+        Log.message("Deleting robots.txt cache file");
+        if(!f.delete()) {
+            Log.error(ALL_ROBOTS_TXT + " cache file could not be deleted");
+        }
+    }
+
+    public static boolean doesAllRobotsFileExist() {
+        File f = new File(getAllRobotsPath());
+        return f.exists();
+    }
+
+    public static boolean isAllRobotsFileLessThanOneDayOld() {
+        File f = new File(getAllRobotsPath());
+        if(f.exists()) {
+            // check if file is older than 1 day
+            long currentDate = new Date().getTime();
+            return currentDate - f.lastModified() <= 86400000;
+        }
+        return true;
+    }
+
+    /**
+     * Cache the contents of the "all_robots.txt" file.
+     * @param values The contents of the file.
+     */
+    private static void writeAllRobotsFileToCache(List<String> values) {
+        Log.message("Writing " + ALL_ROBOTS_TXT + " file to cache");
+        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(getAllRobotsPath()), StandardCharsets.UTF_8)) {
+            for (String value : values) {
+                writer.write(value);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            Log.error("Error while writing robots.txt file to cache:"+e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Get the contents of the "all_robots.txt" file from the local cache.
+     * @return The contents of the file.
+     */
+    private static List<String> getAllRobotsFileFromCache() {
+        Log.message("Fetching " + ALL_ROBOTS_TXT + " file from cache");
+        List<String> results = new ArrayList<>();
+
+        try(BufferedReader reader = Files.newBufferedReader(Paths.get(getAllRobotsPath()), StandardCharsets.UTF_8)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                results.add(line);
+            }
+        } catch( IOException ex ) {
+            Log.error("Error while reading robots.txt file from cache:"+ex.getMessage());
+            ex.printStackTrace();
+        }
+        return results;
+    }
+
+    /**
+     * Get the contents of the "all_robots.txt" file from github.
+     * @param repo The name of the repository to fetch from.
+     * @return The contents of the file.
+     */
+    private static List<String> getAllRobotsFileFromGithub(String repo) {
+        Log.message("Fetching " + ALL_ROBOTS_TXT + " file from github");
+        List<String> results = new ArrayList<>();
+
+        try {
+            URL url = new URL(GITHUB_API_BASE_URL + "/" + repo + "/contents/"+ALL_ROBOTS_TXT);
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/vnd.github.VERSION.raw");
+
+            if (connection.getResponseCode() != 200) {
+                throw new RuntimeException("Failed: HTTP error code: " + connection.getResponseCode());
+            }
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                results.add(line);
+            }
+
+            reader.close();
+            connection.disconnect();
+        } catch( IOException ex ) {
+            Log.error("Error while reading robots.txt file from github:"+ex.getMessage());
+            ex.printStackTrace();
+        }
+        return results;
+    }
+
+    private static String decodeBase64(String base64String) {
+        String cleanBase64String = base64String.replaceAll("\\s", "");
+        byte[] decodedBytes = Base64.getDecoder().decode(cleanBase64String);
+        return new String(decodedBytes, StandardCharsets.UTF_8);
     }
 }
