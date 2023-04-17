@@ -25,5 +25,4 @@ public class FontTest {
         logger.info("Total fonts: \t" + fonts.length);
         Assertions.assertNotEquals(0,Arrays.stream(fonts).filter(font -> font.canDisplayUpTo(s) < 0).count());
     }
-
 }
