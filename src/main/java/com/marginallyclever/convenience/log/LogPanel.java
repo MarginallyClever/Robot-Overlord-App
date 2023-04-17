@@ -10,13 +10,13 @@ public class LogPanel extends JPanel implements LogListener {
 	// logging
 	private final DefaultListModel<String> listModel = new DefaultListModel<>();
 	private final JList<String> logArea = new JList<>(listModel);
-	private final JScrollPane logPane = new JScrollPane(logArea);
 	private final ConcurrentLinkedQueue<String> inBoundQueue = new ConcurrentLinkedQueue<>();
 	
 	public LogPanel() {
 		Log.addListener(this);
 
 		this.setLayout(new BorderLayout());
+		JScrollPane logPane = new JScrollPane(logArea);
 		this.add(logPane, BorderLayout.CENTER);
 
 		jumpToLogEnd();
