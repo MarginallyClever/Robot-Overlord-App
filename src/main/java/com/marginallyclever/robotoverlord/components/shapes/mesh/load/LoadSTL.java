@@ -133,7 +133,7 @@ public class LoadSTL implements MeshLoader {
 				model.addVertex(x,y,z);
 			} else {
 				//throw new IOException("Unsupported line ("+lineCount+"): "+line);
-				//Log.message("STL format reading unsupported line ("+lineCount+"): "+line);
+				//logger.info("STL format reading unsupported line ("+lineCount+"): "+line);
 				continue;
 			}
 			//++lineCount;

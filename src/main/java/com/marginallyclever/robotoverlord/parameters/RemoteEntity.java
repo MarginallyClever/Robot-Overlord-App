@@ -8,6 +8,8 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
@@ -28,21 +30,22 @@ import java.util.LinkedList;
  *
  */
 public class RemoteEntity extends StringEntity implements SessionLayerListener {
+	private static final Logger logger = LoggerFactory.getLogger(RemoteEntity.class);
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2553138173639792442L;
 	
 	// the firmware uses a specific syntax.  these are elements of that syntax
-	static final String CUE = "> ";
-	static final String NOCHECKSUM = "NOCHECKSUM ";
-	static final String BADCHECKSUM = "BADCHECKSUM ";
-	static final String BADLINENUM = "BADLINENUM ";
-	static final String NOLINENUM = "NOLINENUM ";
-	static final String NEWLINE = "\n";
-	static final String COMMENT_START = ";";
+	private static final String CUE = "> ";
+	private static final String NOCHECKSUM = "NOCHECKSUM ";
+	private static final String BADCHECKSUM = "BADCHECKSUM ";
+	private static final String BADLINENUM = "BADLINENUM ";
+	private static final String NOLINENUM = "NOLINENUM ";
+	private static final String NEWLINE = "\n";
+	private static final String COMMENT_START = ";";
 	
-	public class NumberedCommand {
+	public static class NumberedCommand {
 		// the line number for this command
 		public int n;
 		// the command text
@@ -64,15 +67,15 @@ public class RemoteEntity extends StringEntity implements SessionLayerListener {
 	private transient int nextNumberToSend=0;
 	private transient boolean waitingForCue = false;
 	// data being sent
-	private transient LinkedList<NumberedCommand> commands = new LinkedList<NumberedCommand>();
+	private final transient LinkedList<NumberedCommand> commands = new LinkedList<>();
 	// data received
-	private transient ArrayList<Byte> partialMessage = new ArrayList<Byte>();
+	private final transient ArrayList<Byte> partialMessage = new ArrayList<>();
 
 	
 	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
 		stream.defaultReadObject();
-		commands = new LinkedList<NumberedCommand>();
-		partialMessage = new ArrayList<Byte>();
+		commands.clear();
+		partialMessage.clear();
 	}
 	
 	public RemoteEntity() {
@@ -160,7 +163,7 @@ public class RemoteEntity extends StringEntity implements SessionLayerListener {
 		command += StringHelper.generateChecksum(command) + "\n";
 		
 		// remember the message in case we need to resend it later.
-		commands.add(new NumberedCommand(lastNumberAdded,command));
+		commands.add(new NumberedCommand(lastNumberAdded, command));
 		lastNumberAdded++;
 
 		if(!waitingForCue ) {
@@ -178,40 +181,40 @@ public class RemoteEntity extends StringEntity implements SessionLayerListener {
 			reportDataSent(command);
 			sessionLayer.sendMessage(command);
 		} catch (Exception e) {
-			Log.error(e.getLocalizedMessage());
+			logger.error(e.getMessage());
 		}
 	}
 
 	public void reportDataSent(String msg) {
 		//if(msg.contains("G0")) return;
 		
-		Log.message("RemoteEntity SEND " + msg.trim());
+		logger.info("RemoteEntity SEND " + msg.trim());
 	}
 
 	public void reportDataReceived(String msg) {
 		if(msg.trim().isEmpty()) return;
 		if(msg.contains("D17")) return;
 		
-		Log.message("RemoteEntity RECV " + msg.trim());
+		logger.info("RemoteEntity RECV " + msg.trim());
 	}
 
 	/**
 	 * Java string to int is very picky.  this method is slightly less picky.  Only works with positive whole numbers.
 	 *
-	 * @param src
+	 * @param src string to parse
 	 * @return the portion of the string that is actually a number
 	 */
 	private String getNumberPortion(String src) {
 		src = src.trim();
 		int length = src.length();
-		String result = "";
+		StringBuilder result = new StringBuilder();
 		for (int i = 0; i < length; i++) {
-			Character character = src.charAt(i);
+			char character = src.charAt(i);
 			if (Character.isDigit(character)) {
-				result += character;
+				result.append(character);
 			}
 		}
-		return result;
+		return result.toString();
 	}
 
 	/**
@@ -226,8 +229,8 @@ public class RemoteEntity extends StringEntity implements SessionLayerListener {
 			int err = 0;
 			try {
 				err = Integer.decode(x);
-				Log.error("NOCHECKSUM "+err);
-			} catch (Exception e) {}
+				logger.warn("NOCHECKSUM "+err);
+			} catch (Exception ignored) {}
 
 			return err;
 		}
@@ -237,8 +240,8 @@ public class RemoteEntity extends StringEntity implements SessionLayerListener {
 			int err = 0;
 			try {
 				err = Integer.decode(x);
-				Log.error("BADCHECKSUM "+x);
-			} catch (Exception e) {}
+				logger.warn("BADCHECKSUM "+x);
+			} catch (Exception ignored) {}
 
 			return err;
 		}
@@ -248,13 +251,13 @@ public class RemoteEntity extends StringEntity implements SessionLayerListener {
 			int err = 0;
 			try {
 				err = Integer.decode(x);
-				Log.error("BADLINENUM "+err);
-			} catch (Exception e) {}
+				logger.warn("BADLINENUM "+err);
+			} catch (Exception ignored) {}
 
 			return err;
 		}
 		if (line.lastIndexOf(NOLINENUM) != -1) {
-			Log.error("NOLINENUM");
+			logger.warn("NOLINENUM");
 			return 0;
 		}
 
@@ -287,7 +290,7 @@ public class RemoteEntity extends StringEntity implements SessionLayerListener {
 	}
 
 	private void transportError(SessionLayer arg0, String errorMessage) {
-		Log.error("RemoteEntity error: "+errorMessage);
+		logger.error("RemoteEntity error: "+errorMessage);
 		arg0.closeConnection();
 	}
 	

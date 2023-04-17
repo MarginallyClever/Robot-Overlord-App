@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -23,19 +24,18 @@ import java.util.Set;
  * See org.slf4j.Logger
  */
 public class Log {
+	private static final Logger logger = LoggerFactory.getLogger(Log.class);
 	public static String LOG_FILE_PATH;
 	public static String LOG_FILE_NAME_TXT = "log.txt";
 	public static final String PROGRAM_START_STRING = "PROGRAM START";
 	public static final String PROGRAM_END_STRING = "PROGRAM END";
-	
-	private static final Logger logger = LoggerFactory.getLogger(RobotOverlord.class);
-	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	private static ArrayList<LogListener> listeners = new ArrayList<LogListener>();
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private static final ArrayList<LogListener> listeners = new ArrayList<>();
 
 	public static void addListener(LogListener listener) {
 		listeners.add(listener);
 	}
-	
+
 	public static void removeListener(LogListener listener) {
 		listeners.remove(listener);
 	}
@@ -43,157 +43,99 @@ public class Log {
 	public static String getLogLocation() {
 		return LOG_FILE_PATH+LOG_FILE_NAME_TXT;
 	}
-	
+
 	public static void start() {
-		if(logger!=null) {
-			// already started
-			return;
-		}
-		
 		LOG_FILE_PATH = FileAccess.getUserDirectory();
 		if(!LOG_FILE_PATH.endsWith(File.separator)) {
 			LOG_FILE_PATH+=File.separator;
 		}
-			
-		System.out.println("log dir="+LOG_FILE_PATH);
+
+		System.out.println("log path="+LOG_FILE_PATH);
 
 		boolean hadCrashed = crashReportCheck();
 		deleteOldLog();
 
-		write(PROGRAM_START_STRING);
-		write("------------------------------------------------");
+		logger.info(PROGRAM_START_STRING);
+		logger.info("------------------------------------------------");
 		Properties p = System.getProperties();
 		Set<String> names = p.stringPropertyNames();
 		for(String n : names) {
-			write(n+" = "+p.get(n));
+			logger.info(n+" = "+p.get(n));
 		}
-		write("------------------------------------------------");
+		logger.info("------------------------------------------------");
 		if(hadCrashed) {
-			Log.message("Crash detected on previous run");
+			logger.info("Crash detected on previous run");
 		}
 	}
-	
+
 	public static void end() {
 		logger.info(PROGRAM_END_STRING);
 	}
-	
+
 	private static boolean crashReportCheck() {
 		File oldLogFile = new File(LOG_FILE_PATH+LOG_FILE_NAME_TXT);
 		if( oldLogFile.exists() ) {
 			// read last line of file
-			String ending = tail(oldLogFile);
-			
-			if(!ending.contains(PROGRAM_END_STRING)) {
-				// add a crashed message
-				//sendLog();
-				
-				return true;
-			}
+			String ending = readLastNonEmptyLine(oldLogFile);
+			return !ending.contains(PROGRAM_END_STRING);
 		}
 		return false;
 	}
-	
+
 	/**
 	 * wipe the log file
 	 */
 	public static void deleteOldLog() {
-		Path p = FileSystems.getDefault().getPath("log.txt");
+		Path p = Paths.get(LOG_FILE_PATH+LOG_FILE_NAME_TXT);
 		try {
 			Files.deleteIfExists(p);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-		
+
 		// print starting time
 	}
-	
+
 	/**
-	 * https://stackoverflow.com/a/7322581
-	 * @param file
+	 * read the last non-empty line of a file
+	 * @param file the file to read
 	 * @return the last line in the file
 	 */
-	public static String tail( File file ) {
-	    RandomAccessFile fileHandler = null;
-	    try {
-	        fileHandler = new RandomAccessFile( file, "r" );
-	        long fileLength = fileHandler.length() - 1;
-	        StringBuilder sb = new StringBuilder();
-
-	        for(long filePointer = fileLength; filePointer != -1; filePointer--){
-	            fileHandler.seek( filePointer );
-	            int readByte = fileHandler.readByte();
-
-	            if( readByte == 0xA ) {  // 10, line feed, '\n'
-	                if( filePointer == fileLength ) {
-	                    continue;
-	                }
-	                break;
-
-	            } else if( readByte == 0xD ) {  // 13, carriage-return '\r'
-	                if( filePointer == fileLength - 1 ) {
-	                    continue;
-	                }
-	                break;
-	            }
-
-	            sb.append( ( char ) readByte );
-	        }
-
-	        String lastLine = sb.reverse().toString();
-	        return lastLine;
-	    } catch( java.io.FileNotFoundException e ) {
-	        e.printStackTrace();
-	        return null;
-	    } catch( java.io.IOException e ) {
-	        e.printStackTrace();
-	        return null;
-	    } finally {
-	        if (fileHandler != null )
-	            try {
-	                fileHandler.close();
-	            } catch (IOException e) {
-	                /* ignore */
-	            }
-	    }
-	}
-
-
-	/**
-	 * Appends a message to the log file
-	 * @param msg HTML to put in the log file
-	 */
-	public static void write(String msg) {
-		if(logger==null) start();
-		
-		final String cleanMsg = sdf.format(Calendar.getInstance().getTime())+" "+msg;
-		
-		// TODO why have logger if it's not being used?
-		//logger.info(msg);
-		
-		try (Writer fileWriter = new OutputStreamWriter(new FileOutputStream("log.txt", true), StandardCharsets.UTF_8)) {
-			PrintWriter logToFile = new PrintWriter(fileWriter);
-			logToFile.write(cleanMsg+"\n");
-			logToFile.flush();
+	private static String readLastNonEmptyLine(File file) {
+		String lastLine = null;
+		try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+			long pointer = raf.length() - 1;
+			StringBuilder sb = new StringBuilder();
+			while (pointer >= 0) {
+				raf.seek(pointer);
+				char c = (char) raf.read();
+				if (c == '\n') {
+					if (sb.length() > 0) {
+						lastLine = sb.reverse().toString();
+						if (!lastLine.trim().isEmpty()) {
+							break;
+						}
+						sb.setLength(0);
+					}
+				} else {
+					sb.append(c);
+				}
+				pointer--;
+			}
+			if (lastLine == null && sb.length() > 0) {
+				lastLine = sb.reverse().toString();
+			}
 		} catch (IOException e) {
-			logger.error("{}", e);
+			e.printStackTrace();
 		}
-		
-		SwingUtilities.invokeLater(new Runnable() {
-            @Override
-			public void run() {
-        		for( LogListener listener : listeners ) {
-        			listener.logEvent(cleanMsg);
-        		}
-        		//System.out.println(msg);
-            }
-         });
+		return lastLine;
 	}
 
-
+	@Deprecated
 	public static String secondsToHumanReadable(double totalTime) {
 		return millisecondsToHumanReadable((long)(totalTime*1000));
 	}
-	
+
 	/**
 	 * Turns milliseconds into h:m:s
 	 * @param millis milliseconds
@@ -212,22 +154,5 @@ public class Log {
 		elapsed += s + "s ";
 
 		return elapsed;
-	}
-	
-
-	/**
-	 * Appends a message to the log file.  Color will be red.
-	 * @param message append text as red HTML
-	 */
-	public static void error(String message) {
-		write("ERROR "+message);
-	}
-
-	/**
-	 * Appends a message to the log file.  Color will be green.
-	 * @param message append text as green HTML
-	 */
-	public static void message(String message) {
-		write(message);		
 	}
 }

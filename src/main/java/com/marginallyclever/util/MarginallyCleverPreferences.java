@@ -1,7 +1,10 @@
 package com.marginallyclever.util;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.swinginterface.translator.TranslatorLanguage;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Method;
@@ -19,6 +22,7 @@ import java.util.prefs.Preferences;
  * @since v7.1.4
  */
 public class MarginallyCleverPreferences extends AbstractPreferences implements Ancestryable {
+  private static final Logger logger = LoggerFactory.getLogger(MarginallyCleverPreferences.class);
 
   /**
    *
@@ -54,13 +58,13 @@ public class MarginallyCleverPreferences extends AbstractPreferences implements 
    */
   public MarginallyCleverPreferences(AbstractPreferences parent, String name) {
     super(parent, name);
-    Log.message("Instantiating node "+ name);
+    logger.info("Instantiating node "+ name);
     root = new TreeMap<String, String>();
     children = new TreeMap<String, Preferences>();
     try {
       sync();
     } catch (BackingStoreException e) {
-      Log.error("Unable to sync on creation of node "+name+". "+e);
+      logger.error("Unable to sync on creation of node "+name+". "+e);
     }
   }
 
@@ -70,7 +74,7 @@ public class MarginallyCleverPreferences extends AbstractPreferences implements 
     try {
       flush();
     } catch (BackingStoreException e) {
-    	Log.error("Unable to flush after putting "+key+". "+e);
+    	logger.error("Unable to flush after putting "+key+". "+e);
     }
   }
 
@@ -85,7 +89,7 @@ public class MarginallyCleverPreferences extends AbstractPreferences implements 
     try {
       flush();
     } catch (BackingStoreException e) {
-    	Log.error("Unable to flush after removing "+key+". "+e);
+    	logger.error("Unable to flush after removing "+key+". "+e);
     }
   }
 
@@ -99,18 +103,18 @@ public class MarginallyCleverPreferences extends AbstractPreferences implements 
   @Override
   protected String[] keysSpi() throws BackingStoreException {
     final Set<String> keySet = root.keySet();
-    return keySet.toArray(new String[keySet.size()]);
+    return keySet.toArray(new String[0]);
   }
 
   @NotNull
   @Override
   protected String[] childrenNamesSpi() throws BackingStoreException {
     final Set<String> childrenNames = children.keySet();
-    return childrenNames.toArray(new String[childrenNames.size()]);
+    return childrenNames.toArray(new String[0]);
   }
 
   /**
-   * http://stackoverflow.com/a/24249709
+   * see <a href="http://stackoverflow.com/a/24249709">stackoverflow</a>
    */
   @NotNull
   @Override
@@ -121,7 +125,7 @@ public class MarginallyCleverPreferences extends AbstractPreferences implements 
       try {
         isChildRemoved = getIsRemoved(childPreferenceNode);
       } catch (ReflectiveOperationException e) {
-        Log.error( e.getMessage() );
+        logger.error( e.getMessage() );
       }
     }
     if (childPreferenceNode == null || isChildRemoved) {
@@ -139,7 +143,7 @@ public class MarginallyCleverPreferences extends AbstractPreferences implements 
    * @throws ReflectiveOperationException
    */
   private boolean getIsRemoved(AbstractPreferences abstractPreference) throws ReflectiveOperationException {
-    Log.message( abstractPreference.toString() );
+    logger.info( abstractPreference.toString() );
     final Method declaredMethod = AbstractPreferences.class.getDeclaredMethod("isRemoved");
     declaredMethod.setAccessible(true);
     Object isRemoved = declaredMethod.invoke(abstractPreference, new Object[]{null});

@@ -2,7 +2,10 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.robots.stewartplatform.rotary.RotaryStewartPlatform;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -20,14 +23,10 @@ import java.nio.charset.StandardCharsets;
  *
  */
 public class CheckForUpdateAction extends AbstractAction implements ActionListener {
+	private static final Logger logger = LoggerFactory.getLogger(CheckForUpdateAction.class);
+
 	public static final String UPDATE_URL = "https://github.com/MarginallyClever/Robot-Overlord-App/releases/latest";
 
-	/**
-	 * 
-	 */
-	@Serial
-	private static final long serialVersionUID = 1L;
-	
 	public CheckForUpdateAction() {
 		super(Translator.get("Check for update"));
         putValue(SHORT_DESCRIPTION, Translator.get("Check if you are using the latest version of this app"));
@@ -54,9 +53,9 @@ public class CheckForUpdateAction extends AbstractAction implements ActionListen
 					// parse the last part of the redirect URL, which contains the release tag (which is the VERSION)
 					inputLine = inputLine.substring(inputLine.lastIndexOf("/") + 1);
 
-					Log.message("last release: " + inputLine);
-					Log.message("your VERSION: " + RobotOverlord.VERSION);
-					//Log.message(inputLine.compareTo(VERSION));
+					logger.info("last release: " + inputLine);
+					logger.info("your VERSION: " + RobotOverlord.VERSION);
+					//logger.info(inputLine.compareTo(VERSION));
 
 					if (inputLine.compareTo(RobotOverlord.VERSION) > 0) {
 						JOptionPane.showMessageDialog(null, "A new version of this software is available.  The latest version is "+inputLine+"\n"

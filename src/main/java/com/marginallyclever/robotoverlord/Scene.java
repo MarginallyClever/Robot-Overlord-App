@@ -155,7 +155,7 @@ public class Scene extends Entity {
 			for( AABB AABB1 : listA ) {
 				for( AABB AABB2 : listB ) {
 					if( IntersectionHelper.cuboidCuboid(AABB1, AABB2) ) {
-						Log.message("Collision between "+
+						logger.info("Collision between "+
 							listA.indexOf(AABB1)+
 							" and "+
 							b.getName()+"."+listB.indexOf(AABB2));

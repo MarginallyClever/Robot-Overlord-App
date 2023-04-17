@@ -10,7 +10,10 @@ import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.parameters.MaterialEntity;
 import com.marginallyclever.robotoverlord.parameters.RemoteEntity;
+import com.marginallyclever.robotoverlord.robots.stewartplatform.linear.LinearStewartPlatformCore;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -24,8 +27,8 @@ import java.io.Serial;
  */
 @Deprecated
 public class RotaryStewartPlatform extends PoseEntity {
-	@Serial
-	private static final long serialVersionUID = 1L;
+	private static final Logger logger = LoggerFactory.getLogger(RotaryStewartPlatform.class);
+
 
 	public final String hello = "HELLO WORLD! I AM STEWART PLATFORM V4.2";
 	// machine dimensions
@@ -378,7 +381,7 @@ public class RotaryStewartPlatform extends PoseEntity {
 					+" U0"
 					+" V0"
 					+" W0";
-			Log.message(message);
+			logger.info(message);
 			connection.sendMessage(message);
 			Matrix4d ident = new Matrix4d();
 			ident.setIdentity();
@@ -422,7 +425,7 @@ public class RotaryStewartPlatform extends PoseEntity {
 				+" U"+StringHelper.formatDouble(arms[3].angle*scale)
 				+" V"+StringHelper.formatDouble(arms[4].angle*scale)
 				+" W"+StringHelper.formatDouble(arms[5].angle*scale);
-		Log.message(message);
+		logger.info(message);
 		connection.sendMessage(message);
 	}
 

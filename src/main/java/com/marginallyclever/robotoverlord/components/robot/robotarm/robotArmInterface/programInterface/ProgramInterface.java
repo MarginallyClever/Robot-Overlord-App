@@ -249,7 +249,7 @@ public class ProgramInterface extends JPanel {
 		listView.setSelectedIndex(now + 1);
 
 		ProgramEvent move = listModel.get(now);
-		// Log.message("Step to ("+now+"):"+move.toString());
+		// logger.info("Step to ("+now+"):"+move.toString());
 		int count = (int)myArm.get(Robot.NUM_JOINTS);
 		double [] angles = move.getAngles();
 		for (int i = 0; i < count; ++i) {

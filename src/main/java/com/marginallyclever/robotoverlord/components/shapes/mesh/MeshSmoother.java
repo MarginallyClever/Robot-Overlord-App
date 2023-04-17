@@ -2,6 +2,8 @@ package com.marginallyclever.robotoverlord.components.shapes.mesh;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,7 +12,9 @@ import java.util.ArrayList;
  * Smooth STL models and save them back to disk.  Meant for one time processing files.
  * @author dan royer
  */
-public class MeshSmoother {/*
+public class MeshSmoother {
+	private static final Logger logger = LoggerFactory.getLogger(MeshSmoother.class);
+	/*
 	public static void main(String[] argv) throws IllegalArgumentException, IOException {
 		float vertexEpsilon = 0.1f;
 		float normalEpsilon = 0.25f;
@@ -60,7 +64,7 @@ public class MeshSmoother {/*
 		for(i=0;i<numFaces;++i) {
 			if(skip[i]) continue;
 			
-			Log.message("Smoothing "+i);
+			logger.info("Smoothing "+i);
 			
 
 			// find vertices that are in the same position

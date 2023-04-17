@@ -1,7 +1,10 @@
 package com.marginallyclever.robotoverlord.components.shapes.mesh.load;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.components.robot.robotarm.robotArmInterface.marlinInterface.ChooseConnectionPanel;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -13,6 +16,7 @@ import java.io.BufferedInputStream;
 import java.util.ArrayList;
 
 public class LoadAMF implements MeshLoader {
+	private static final Logger logger = LoggerFactory.getLogger(LoadAMF.class);
 	@Override
 	public String getEnglishName() {
 		return "3D printing file (AMF)";
@@ -39,12 +43,12 @@ public class LoadAMF implements MeshLoader {
 		
     	NodeList coordinateList = doc.getElementsByTagName("coordinates");
 		int numCoordinates = coordinateList.getLength();
-        Log.message(numCoordinates + " coordinates.");
+        logger.info(numCoordinates + " coordinates.");
         for (int a = 0; a < numCoordinates; a++) {
         	Element coordinate = (Element)coordinateList.item(a);
-        	//Log.message("x: "+coordinate.getElementsByTagName("x").item(0).getTextContent());
-        	//Log.message("y: "+coordinate.getElementsByTagName("y").item(0).getTextContent());
-        	//Log.message("z: "+coordinate.getElementsByTagName("z").item(0).getTextContent());
+        	//logger.info("x: "+coordinate.getElementsByTagName("x").item(0).getTextContent());
+        	//logger.info("y: "+coordinate.getElementsByTagName("y").item(0).getTextContent());
+        	//logger.info("z: "+coordinate.getElementsByTagName("z").item(0).getTextContent());
         	float x = Float.parseFloat(coordinate.getElementsByTagName("x").item(0).getTextContent());
         	float y = Float.parseFloat(coordinate.getElementsByTagName("y").item(0).getTextContent());
         	float z = Float.parseFloat(coordinate.getElementsByTagName("z").item(0).getTextContent());
@@ -54,20 +58,20 @@ public class LoadAMF implements MeshLoader {
         }
 
     	NodeList volumeList = doc.getElementsByTagName("volume");
-        Log.message(volumeList.getLength() + " volumes.");
+        logger.info(volumeList.getLength() + " volumes.");
         int numVolumes = volumeList.getLength();
         for (int a = 0; a < numVolumes; a++) {
         	Element volume = (Element)volumeList.item(a);
         	NodeList triangleList = volume.getElementsByTagName("triangle");
 
             int numTriangles = triangleList.getLength();
-            Log.message("\t"+ numTriangles + " triangles.");
+            logger.info("\t"+ numTriangles + " triangles.");
             for (int b = 0; b < numTriangles; b++) {
             	Element triangle = (Element)triangleList.item(b);
             	int v1 = Integer.parseInt(triangle.getElementsByTagName("v1").item(0).getTextContent());
             	int v2 = Integer.parseInt(triangle.getElementsByTagName("v2").item(0).getTextContent());
             	int v3 = Integer.parseInt(triangle.getElementsByTagName("v3").item(0).getTextContent());
-                //Log.message("\t\t"+v1+", "+v2+", "+v3);
+                //logger.info("\t\t"+v1+", "+v2+", "+v3);
             	
             	float x1 = vertexArray.get(v1*3  );
             	float y1 = vertexArray.get(v1*3+1);

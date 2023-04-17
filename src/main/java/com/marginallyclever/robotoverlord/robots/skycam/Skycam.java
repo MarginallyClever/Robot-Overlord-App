@@ -7,7 +7,10 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.StringEntity;
+import com.marginallyclever.robotoverlord.parameters.TextureEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -18,10 +21,7 @@ import java.util.ArrayList;
 
 @Deprecated
 public class Skycam extends PoseEntity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7308619886170592734L;
+	private static final Logger logger = LoggerFactory.getLogger(Skycam.class);
 	
 	// the model used to render & control (the Flyweight)
 	protected transient SkycamModel model;
@@ -99,7 +99,7 @@ public class Skycam extends PoseEntity {
 			}
 			
 			if(doneCount==2) {
-				Log.message("Playback queueing done @ "+StringHelper.formatTime(playTimeTotal));
+				logger.info("Playback queueing done @ "+StringHelper.formatTime(playTimeTotal));
 				// all finished
 				isPlaying=false;
 				playlist.clear();
@@ -142,7 +142,7 @@ public class Skycam extends PoseEntity {
 		view.addButton("Append").addActionEventListener((evt)-> queueDestination((SkycamCommand)cursor) );
 		view.addButton("Time estimate").addActionEventListener((evt)->{
 			double t = getTimeEstimate();
-			Log.message("Time estimate: "+StringHelper.formatTime(t));
+			logger.info("Time estimate: "+StringHelper.formatTime(t));
 		});
 		view.addButton("New").addActionEventListener((evt)->{
 			if(isPlaying) return;
@@ -150,7 +150,7 @@ public class Skycam extends PoseEntity {
 		});
 		view.addFilename(filename,fileFilter);
 		view.addButton("Save").addActionEventListener((evt)->{
-			Log.message("Saving started.");
+			logger.info("Saving started.");
 			try {
 				String f = filename.get();
 				if(!f.endsWith("Skycam")) {
@@ -160,20 +160,20 @@ public class Skycam extends PoseEntity {
 				save(f);
 			} catch (Exception e) {
 				//e.printStackTrace();
-				Log.error("Save failed.");
+				logger.error("Save failed.");
 			}
-			Log.message("Saving finished.");
+			logger.info("Saving finished.");
 		});
 		view.addButton("Load").addActionEventListener((evt)->{
 			if(isPlaying) return;
-			Log.message("Loading started.");
+			logger.info("Loading started.");
 			try {
 				load(filename.get());
 			} catch (Exception e) {
 				//e.printStackTrace();
-				Log.error("Load failed.");
+				logger.error("Load failed.");
 			}
-			Log.message("Loading finished.");
+			logger.info("Loading finished.");
 		});
 		view.addButton("Run").addActionEventListener((evt)-> runProgram() );
 		view.addButton("Stop").addActionEventListener((evt)-> stopProgram() );
@@ -210,7 +210,7 @@ public class Skycam extends PoseEntity {
 	protected void stopProgram() {
 		if(isPlaying) return;
 		isPlaying=false;
-		Log.message("Playback stopped.");
+		logger.info("Playback stopped.");
 	}
 	
 	protected void runProgram() {
@@ -231,7 +231,7 @@ public class Skycam extends PoseEntity {
 			}
 		}
 		isPlaying=true;
-		Log.message("Playback started.");
+		logger.info("Playback started.");
 	}
 	
 	public void save(String name) throws Exception {
@@ -239,7 +239,7 @@ public class Skycam extends PoseEntity {
 		for( Entity c : children) {
 			if( c instanceof SkycamCommand ) ++count;
 		}
-		Log.message("Saving "+count+" elements.");
+		logger.info("Saving "+count+" elements.");
 		if(count>0) {
 			FileOutputStream fout = new FileOutputStream(name);
 			ObjectOutputStream stream = new ObjectOutputStream(fout);
@@ -265,7 +265,7 @@ public class Skycam extends PoseEntity {
 		&& stream.readChar()=='I' 
 		&& stream.readChar()=='2') {
 			int count = stream.readInt();
-			Log.message("Loading "+count+" elements.");
+			logger.info("Loading "+count+" elements.");
 			for(int i=0;i<count;++i) {
 				SkycamCommand c = (SkycamCommand)stream.readObject();
 				addEntity(c);

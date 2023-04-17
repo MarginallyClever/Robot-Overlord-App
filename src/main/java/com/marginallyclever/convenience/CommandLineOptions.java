@@ -1,6 +1,9 @@
 package com.marginallyclever.convenience;
 
+import com.marginallyclever.communications.tcp.TCPTransportLayer;
 import com.marginallyclever.convenience.log.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * store command line options for use in the app
@@ -8,6 +11,8 @@ import com.marginallyclever.convenience.log.Log;
  *
  */
 public class CommandLineOptions {
+	private static final Logger logger = LoggerFactory.getLogger(CommandLineOptions.class);
+
 	protected static String [] argv;
 	
 	static void setFromMain(String [] argv) {
@@ -15,7 +20,7 @@ public class CommandLineOptions {
 
 		for(int i=0;i<argv.length;++i) {
 			String msg = "START OPTION "+argv[i];
-			Log.message(msg);
+			logger.info(msg);
 		}
 	}
 	

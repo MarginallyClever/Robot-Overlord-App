@@ -28,13 +28,13 @@ public class SerialTransportLayer implements TransportLayer {
 
 		if (OS.indexOf("mac") >= 0) {
 			portsDetected = SerialPortList.getPortNames("/dev/");
-			//Log.message("OS X");
+			//logger.info("OS X");
 		} else if (OS.indexOf("win") >= 0) {
 			portsDetected = SerialPortList.getPortNames("COM");
-			//Log.message("Windows");
+			//logger.info("Windows");
 		} else if (OS.indexOf("nix") >= 0 || OS.indexOf("nux") >= 0 || OS.indexOf("aix") > 0) {
 			portsDetected = SerialPortList.getPortNames("/dev/");
-			//Log.message("Linux/Unix");
+			//logger.info("Linux/Unix");
 		} else {
 			Log.error("OS NAME=" + System.getProperty("os.name"));
 		}*/

@@ -139,8 +139,6 @@ public class RobotOverlord extends Entity {
 			throw new RuntimeException("RobotOverlord cannot be run headless yet.");
 		}
 
-		PathUtils.goToAppWorkingDirectory();
-
 		Translator.start();
 		SoundSystem.start();
 		UndoSystem.start();
@@ -164,7 +162,7 @@ public class RobotOverlord extends Entity {
 
 		listenToClipboardChanges();
 
-		Log.message("** READY **");
+		logger.info("** READY **");
     }
 
 	private void listenToClipboardChanges() {
@@ -188,8 +186,10 @@ public class RobotOverlord extends Entity {
 	}
 
 	public static void main(String[] argv) {
-		logFrame = LogPanel.createFrame();
+		PathUtils.goToAppWorkingDirectory();
 		Log.start();
+		logFrame = LogPanel.createFrame();
+
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception ignored) {}
@@ -200,7 +200,7 @@ public class RobotOverlord extends Entity {
 	}
 
 	private JComponent buildEntityManagerPanel() {
-        Log.message("buildEntityManagerPanel()");
+        logger.info("buildEntityManagerPanel()");
 
 		entityTree.addEntityTreePanelListener((e)-> {
 			if (e.eventType == EntityTreePanelEvent.SELECT) {
@@ -240,7 +240,7 @@ public class RobotOverlord extends Entity {
 	}
 
 	private void layoutComponents() {
-        Log.message("build main splitter");
+        logger.info("build main splitter");
 
 		// the right hand stuff
 		rightFrameSplitter.add(buildEntityManagerPanel());
@@ -251,7 +251,7 @@ public class RobotOverlord extends Entity {
         // if the window resizes, give top and bottom halves equal share of the real estate
 		rightFrameSplitter.setResizeWeight(0.25);
 
-        Log.message("Build right side splitter");
+        logger.info("Build right side splitter");
         splitLeftRight.add(renderPanel);
         splitLeftRight.add(rightFrameSplitter);
         // if the window resizes, give left half as much real estate as it can get.
@@ -263,7 +263,7 @@ public class RobotOverlord extends Entity {
 	}
 
 	private void buildMainFrame() {
-		Log.message("buildMainFrame()");
+		logger.info("buildMainFrame()");
 		// start the main application frame - the largest visible rectangle on the screen with the minimize/maximize/close buttons.
         mainFrame = new JFrame( APP_TITLE + " " + VERSION );
 		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -307,7 +307,7 @@ public class RobotOverlord extends Entity {
 	}
 
 	private void setWindowSizeAndPosition() {
-		Log.message("Set window size and position");
+		logger.info("Set window size and position");
 
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		int windowW = prefs.getInt(KEY_WINDOW_WIDTH, dim.width);
@@ -345,7 +345,7 @@ public class RobotOverlord extends Entity {
 	}
 
 	private void buildMainMenu() {
-		Log.message("buildMainMenu()");
+		logger.info("buildMainMenu()");
 
 		mainMenu = new JMenuBar();
 		mainMenu.removeAll();

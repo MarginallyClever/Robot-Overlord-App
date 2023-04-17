@@ -1,13 +1,13 @@
 package com.marginallyclever.util;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.swinginterface.translator.TranslatorLanguage;
 import org.json.JSONObject;
 import org.json.Property;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,10 +24,9 @@ import static com.marginallyclever.util.PreferencesHelper.MakelangeloPreferenceK
  * @since v7.1.4
  */
 public final class PreferencesHelper implements Serializable {
+	private static final Logger logger = LoggerFactory.getLogger(PreferencesHelper.class);
 
-	/**
-	 * 
-	 */
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -80,7 +79,7 @@ public final class PreferencesHelper implements Serializable {
 		try {
 			legacyMakelangeloPreferenceNode.sync();
 		} catch (BackingStoreException e) {
-			Log.error(e.getMessage());
+			logger.error(e.getMessage());
 		}
 		//initialMap.put(MAKELANGELO_ROOT, makelangeloPreferenceNode);
 		initialMap.put(LEGACY_MAKELANGELO_ROOT, legacyMakelangeloPreferenceNode);
@@ -131,7 +130,7 @@ public final class PreferencesHelper implements Serializable {
 	 */
 	public static <P extends Preferences> void logPreferenceNode(P preferenceNode) {
 		try {
-			Log.message("node name:"+preferenceNode);
+			logger.info("node name:"+preferenceNode);
 			logKeyValuesForPreferenceNode(preferenceNode);
 			final String[] childrenPreferenceNodeNames = preferenceNode.childrenNames();
 			for (String childNodeName : childrenPreferenceNodeNames) {
@@ -139,7 +138,7 @@ public final class PreferencesHelper implements Serializable {
 				logPreferenceNode(childNode);
 			}
 		} catch (BackingStoreException e) {
-			Log.error(e.getMessage());
+			logger.error(e.getMessage());
 		}
 	}
 
@@ -152,7 +151,7 @@ public final class PreferencesHelper implements Serializable {
 	public static <P extends Preferences> void logKeyValuesForPreferenceNode(P preferenceNode) throws BackingStoreException {
 		final String[] keys = preferenceNode.keys();
 		for (String key : keys) {
-			Log.message("key:"+key+" value:"+ preferenceNode.get(key, null));
+			logger.info("key:"+key+" value:"+ preferenceNode.get(key, null));
 		}
 	}
 
@@ -175,7 +174,7 @@ public final class PreferencesHelper implements Serializable {
 				copyPreferenceNode(sourcePreferenceNode.node(childName), destinationChildNode);
 			}
 		} catch (BackingStoreException e) {
-			Log.error(e.getMessage());
+			logger.error(e.getMessage());
 		}
 	}
 
@@ -214,7 +213,7 @@ public final class PreferencesHelper implements Serializable {
 		try {
 			preferenceNode.clear();
 		} catch (BackingStoreException e) {
-			Log.error(e.getMessage());
+			logger.error(e.getMessage());
 		}
 	}
 
@@ -232,7 +231,7 @@ public final class PreferencesHelper implements Serializable {
 				childNode.clear();
 			}
 		} catch (BackingStoreException e) {
-			Log.error(e.getMessage());
+			logger.error(e.getMessage());
 		}
 	}
 
@@ -251,7 +250,7 @@ public final class PreferencesHelper implements Serializable {
 		try {
 			PreferencesHelper.clearAll(destinationPreferenceNode);
 		} catch (BackingStoreException e) {
-			Log.error(e.getMessage());
+			logger.error(e.getMessage());
 		}
 		PreferencesHelper.copyPreferenceNode(sourcePreferenceNode, destinationPreferenceNode);
 		final File preferencesFile = MarginallyCleverPreferencesFileFactory.getPropertiesPreferencesFile();
@@ -259,7 +258,7 @@ public final class PreferencesHelper implements Serializable {
 		try (final FileInputStream inStream = new FileInputStream(preferencesFile)) {
 			p.load(inStream);
 		} catch (IOException e) {
-			Log.error(e.getMessage());
+			logger.error(e.getMessage());
 		}
 		logPropertiesNode(p);
 		logAncestryable(destinationPreferenceNode);
@@ -270,7 +269,7 @@ public final class PreferencesHelper implements Serializable {
 	 */
 	public static void logAncestryable(Ancestryable preferenceNode) {
 		final JSONObject object = new JSONObject(preferenceNode.getChildren());
-		Log.message( object.toString());
+		logger.info( object.toString());
 	}
 
 	/**
@@ -279,6 +278,6 @@ public final class PreferencesHelper implements Serializable {
 	public static <P extends Properties> void logPropertiesNode(P properties) {
 		
 		final JSONObject jsonObject = Property.toJSONObject(properties);
-		Log.message( jsonObject.toString());
+		logger.info( jsonObject.toString());
 	}
 }

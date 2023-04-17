@@ -265,7 +265,7 @@ public class GithubFetcher {
             JSONObject jsonResponse = new JSONObject(responseBody);
             return decodeBase64(jsonResponse.getString("content"));
         } else {
-            Log.error("Failed to fetch " + file + " content from " + url+": "+response.code() + " "+response.message());
+            logger.error("Failed to fetch " + file + " content from " + url+": "+response.code() + " "+response.message());
             throw new IOException("Failed to fetch README.md content");
         }
     }
@@ -291,9 +291,9 @@ public class GithubFetcher {
 
     public static void deleteAllRobotsFileFromCache() {
         File f = new File(ALL_ROBOTS_PATH);
-        Log.message("Deleting robots.txt cache file");
+        logger.info("Deleting robots.txt cache file");
         if(!f.delete()) {
-            Log.error(ALL_ROBOTS_TXT + " cache file could not be deleted");
+            logger.error(ALL_ROBOTS_TXT + " cache file could not be deleted");
         }
     }
 
@@ -317,14 +317,14 @@ public class GithubFetcher {
      * @param values The contents of the file.
      */
     private static void writeAllRobotsFileToCache(List<String> values) {
-        Log.message("Writing " + ALL_ROBOTS_TXT + " file to cache");
+        logger.info("Writing " + ALL_ROBOTS_TXT + " file to cache");
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(ALL_ROBOTS_PATH), StandardCharsets.UTF_8)) {
             for (String value : values) {
                 writer.write(value);
                 writer.newLine();
             }
         } catch (IOException e) {
-            Log.error("Error while writing robots.txt file to cache:"+e.getMessage());
+            logger.error("Error while writing robots.txt file to cache:"+e.getMessage());
             e.printStackTrace();
         }
     }
@@ -334,7 +334,7 @@ public class GithubFetcher {
      * @return The contents of the file.
      */
     private static List<String> getAllRobotsFileFromCache() {
-        Log.message("Fetching " + ALL_ROBOTS_TXT + " file from cache");
+        logger.info("Fetching " + ALL_ROBOTS_TXT + " file from cache");
         List<String> results = new ArrayList<>();
 
         try(BufferedReader reader = Files.newBufferedReader(Paths.get(ALL_ROBOTS_PATH), StandardCharsets.UTF_8)) {
@@ -343,7 +343,7 @@ public class GithubFetcher {
                 results.add(line);
             }
         } catch( IOException ex ) {
-            Log.error("Error while reading robots.txt file from cache:"+ex.getMessage());
+            logger.error("Error while reading robots.txt file from cache:"+ex.getMessage());
             ex.printStackTrace();
         }
         return results;
@@ -355,7 +355,7 @@ public class GithubFetcher {
      * @return The contents of the file.
      */
     private static List<String> getAllRobotsFileFromGithub(String repo) {
-        Log.message("Fetching " + ALL_ROBOTS_TXT + " file from github");
+        logger.info("Fetching " + ALL_ROBOTS_TXT + " file from github");
         List<String> results = new ArrayList<>();
 
         try {
@@ -378,7 +378,7 @@ public class GithubFetcher {
             reader.close();
             connection.disconnect();
         } catch( IOException ex ) {
-            Log.error("Error while reading robots.txt file from github:"+ex.getMessage());
+            logger.error("Error while reading robots.txt file from github:"+ex.getMessage());
             ex.printStackTrace();
         }
         return results;

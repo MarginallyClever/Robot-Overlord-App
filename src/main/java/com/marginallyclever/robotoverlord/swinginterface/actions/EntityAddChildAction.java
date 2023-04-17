@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
-import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.EntityFactory;
 import com.marginallyclever.robotoverlord.RobotOverlord;
@@ -9,6 +8,8 @@ import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -21,12 +22,14 @@ import java.util.List;
  *
  */
 public class EntityAddChildAction extends AbstractAction implements EditorAction {
-	protected RobotOverlord ro;
+	private static final Logger logger = LoggerFactory.getLogger(EntityAddChildAction.class);
+
+	protected RobotOverlord robotOverlord;
 	
-	public EntityAddChildAction(RobotOverlord ro) {
+	public EntityAddChildAction(RobotOverlord robotOverlord) {
 		super(Translator.get("EntityAddChildAction.name"));
 		putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityAddChildAction.shortDescription"));
-		this.ro = ro;
+		this.robotOverlord = robotOverlord;
 	}
 	
     /**
@@ -38,7 +41,7 @@ public class EntityAddChildAction extends AbstractAction implements EditorAction
 
 		JComboBox<String> additionComboBox = buildEntityComboBox();
 		int result = JOptionPane.showConfirmDialog(
-				ro.getMainFrame(), 
+				robotOverlord.getMainFrame(),
 				additionComboBox, 
 				(String)this.getValue(AbstractAction.NAME), 
 				JOptionPane.OK_CANCEL_OPTION,
@@ -64,8 +67,8 @@ public class EntityAddChildAction extends AbstractAction implements EditorAction
 			if(newInstance != null) UndoSystem.addEvent(this,new EntityAddEdit(parent,newInstance));
 		} catch (Exception e) {
 			String msg = "Failed to instance "+className+": "+e.getLocalizedMessage();
-			JOptionPane.showMessageDialog(ro.getMainFrame(),msg);
-			Log.error(msg);
+			JOptionPane.showMessageDialog(robotOverlord.getMainFrame(),msg);
+			logger.error(msg);
 		}
 	}
 

@@ -19,21 +19,21 @@ public class JavaCVDemo {
 	
     public static void main(String[] args) throws Exception {
     	Log.start();
-    	Log.message("JavaCVDemo main() start");
+    	logger.info("JavaCVDemo main() start");
 
     	String classifierName = null;
         if (args.length > 0) {
-        	Log.message("classifier given");
+        	logger.info("classifier given");
             classifierName = args[0];
         } else {
-        	Log.message("classifier not given");
+        	logger.info("classifier not given");
             URL url = new URL("https://raw.github.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_alt.xml");
             File file = Loader.cacheResource(url);
             classifierName = file.getAbsolutePath();
-        	Log.message("classifiername="+classifierName);
+        	logger.info("classifiername="+classifierName);
         }
 
-    	Log.message("create classifier");
+    	logger.info("create classifier");
     	
         // We can "cast" Pointer objects by instantiating a new object of the desired class.
         CascadeClassifier classifier = new CascadeClassifier(classifierName);
@@ -42,21 +42,21 @@ public class JavaCVDemo {
         //    System.exit(1);
         //}
 
-    	Log.message("make grabber");
+    	logger.info("make grabber");
     	
         // The available FrameGrabber classes include OpenCVFrameGrabber (opencv_videoio),
         // DC1394FrameGrabber, FlyCapture2FrameGrabber, OpenKinectFrameGrabber, OpenKinect2FrameGrabber,
         // RealSenseFrameGrabber, RealSense2FrameGrabber, PS3EyeFrameGrabber, VideoInputFrameGrabber, and FFmpegFrameGrabber.
         //FrameGrabber grabber = FrameGrabber.createDefault(0);
         FrameGrabber grabber = FFmpegFrameGrabber.createDefault("http://sixi.ddns.net:8081/?action=stream");
-    	Log.message("start grabbing");
+    	logger.info("start grabbing");
     	try {
     		grabber.start();
     	} catch(Exception e) {
     		e.printStackTrace();
     	}
 
-    	Log.message("get converter");
+    	logger.info("get converter");
     	
         // CanvasFrame, FrameGrabber, and FrameRecorder use Frame objects to communicate image data.
         // We need a FrameConverter to interface with other APIs (Android, Java 2D, JavaFX, Tesseract, OpenCV, etc).
@@ -86,7 +86,7 @@ public class JavaCVDemo {
         //recorder.start();
 
 
-    	Log.message("new canvasframe");
+    	logger.info("new canvasframe");
     	
         // CanvasFrame is a JFrame containing a Canvas component, which is hardware accelerated.
         // It can also switch into full-screen mode when called with a screenNumber.
@@ -97,7 +97,7 @@ public class JavaCVDemo {
         Point hatPoints = new Point(3);
         JavaCVDemo demo = new JavaCVDemo ();
 
-    	Log.message("loop start");
+    	logger.info("loop start");
     	
         while (frame.isVisible() && (grabbedImage = converter.convert(grabber.grab())) != null) {
             demo.findAndDrawPoints(grabbedImage);
@@ -107,7 +107,7 @@ public class JavaCVDemo {
             //recorder.record(rotatedFrame);
         }
 
-    	Log.message("loop end");
+    	logger.info("loop end");
     	hatPoints.close();
         classifier.close();
         frame.dispose();
@@ -115,7 +115,7 @@ public class JavaCVDemo {
         //recorder.stop();
         grabber.stop();
         
-    	Log.message("JavaCVDemo main() end");
+    	logger.info("JavaCVDemo main() end");
 	}
 
 	static final int NUM_CORNERS_VER = 6;

@@ -3,6 +3,8 @@ package com.marginallyclever.robotoverlord.components.shapes.mesh.load;
 import com.marginallyclever.convenience.FileAccess;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -12,6 +14,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 public class MeshFactory {
+	private static final Logger logger = LoggerFactory.getLogger(MeshFactory.class);
 	private static final MeshLoader [] loaders = { new LoadSTL(), new LoadOBJ(), new Load3MF(), new LoadAMF(), new LoadPLY() };
 	
 	// the pool of all shapes loaded
@@ -68,7 +71,7 @@ public class MeshFactory {
 	}
 
 	private static void loadMeshWithLoader(String filename, Mesh mesh, MeshLoader loader) {
-		Log.message("Loading "+filename+" with "+loader.getEnglishName());
+		logger.info("Loading "+filename+" with "+loader.getEnglishName());
 
 		mesh.setSourceName(filename);
 		mesh.setDirty(true);
@@ -77,7 +80,7 @@ public class MeshFactory {
 			loader.load(stream,mesh);
 		}
 		catch(Exception e) {
-			Log.error("Failed to load mesh: "+e.getLocalizedMessage());
+			logger.error("Failed to load mesh: "+e.getMessage());
 		}
 
 		mesh.updateCuboid();

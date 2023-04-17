@@ -32,7 +32,7 @@ public class PanelHelper {
 	static public void formatEntityPanels(ArrayList<JPanel> list,JPanel parent) {
 		parent.removeAll();
 		
-		//Log.message("formatEntityPanels "+parent.getName());
+		//logger.info("formatEntityPanels "+parent.getName());
 		
 		// fill in the selectedEntityPanel
 		GridBagConstraints con1 = PanelHelper.getDefaultGridBagConstraints();

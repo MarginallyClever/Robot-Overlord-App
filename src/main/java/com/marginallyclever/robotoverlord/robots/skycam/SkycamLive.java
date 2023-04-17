@@ -84,7 +84,7 @@ public class SkycamLive extends Entity {
 		if (data.startsWith("> ")) {
 			// can only be ready if also done waiting for open connection.
 			readyForCommands = !waitingForOpenConnection;
-			//if(readyForCommands) Log.message("SIXI READY");
+			//if(readyForCommands) logger.info("SIXI READY");
 			data = data.substring(2);
 		}
 
@@ -114,7 +114,7 @@ public class SkycamLive extends Entity {
 
 		if (unhandled) {
 			data = data.replace("\n", "");
-			//Log.message("Unhandled: "+data);
+			//logger.info("Unhandled: "+data);
 		}
 	}
 	
@@ -161,7 +161,7 @@ public class SkycamLive extends Entity {
 		connection.sendMessageGuaranteed(command.poseFKToString());
 		setPoseSent(command.getPosition());
 		readyForCommands = false;
-		//Log.message("Sent "+command.poseFKToString());
+		//logger.info("Sent "+command.poseFKToString());
 		return true;
 	}
 

@@ -4,13 +4,14 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.AABB;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Collidable;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.*;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.filechooser.FileFilter;
 import javax.vecmath.Matrix4d;
@@ -29,10 +30,9 @@ import java.util.ArrayList;
  */
 @Deprecated
 public class ShapeEntity extends PoseEntity implements Collidable {
-	@Serial
-	private static final long serialVersionUID = -6421492357105354857L;
+	private static final Logger logger = LoggerFactory.getLogger(ShapeEntity.class);
 
-	// the shape for this Entity
+	// The mesh attached to this shape
 	protected transient Mesh myMesh;
 
 	protected final StringEntity filename = new StringEntity("File","");
@@ -118,7 +118,7 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 			// only change this after loading has completely succeeded.
 			filename.set(newFilename);
 		} catch (Exception e) {
-			Log.error("Loading shape '"+newFilename+"' failed: "+e.getLocalizedMessage());
+			logger.error("Loading shape '"+newFilename+"' failed: "+e.getMessage());
 		}
 	}
 

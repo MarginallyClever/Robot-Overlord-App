@@ -65,7 +65,7 @@ public class LoadOBJ implements MeshLoader {
 			} else if(line.startsWith("f ")) {
 				// face
 				String[] tokens = line.split("\\s+");
-				//Log.message("face len="+tokens.length);
+				//logger.info("face len="+tokens.length);
 				int index;
 				for(int i=1;i<tokens.length;++i) {
 					String [] subTokens = tokens[i].split("/");

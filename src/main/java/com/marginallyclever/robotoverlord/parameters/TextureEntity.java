@@ -4,19 +4,19 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.FileAccess;
-import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.IOException;
-import java.io.Serial;
 import java.util.*;
 
 // TODO Load textures from a texture pool to eliminate duplicates?  See ShapeEntity for example.
 public class TextureEntity extends StringEntity {
-	@Serial
-	private static final long serialVersionUID = -2104122122058199991L;
+	private static final Logger logger = LoggerFactory.getLogger(TextureEntity.class);
+
 	private static final HashMap<String,Texture> texturePool = new HashMap<>();
 	
 	private transient Texture texture;
@@ -43,7 +43,7 @@ public class TextureEntity extends StringEntity {
 					texture=getTextureFromPool(t);
 				} catch(IOException e) {
 					//e.printStackTrace();
-					Log.error("I can't load "+t);
+					logger.error("I can't load "+t);
 				}
 				textureDirty=false;
 			}

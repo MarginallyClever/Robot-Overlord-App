@@ -4,6 +4,7 @@ import com.marginallyclever.convenience.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
 import java.io.File;
 
 /**
@@ -41,11 +42,16 @@ public class PathUtils {
     }
 
     public static void goToAppWorkingDirectory() {
-        Log.message("Previous directory: "+getCurrentWorkingDirectory());
         // set the current directory to the user's home directory
         setCurrentWorkingDirectory(PathUtils.APP_BASE);
         File f = new File(PathUtils.APP_BASE);
-        if(!f.exists()) f.mkdirs();
-        Log.message("Current directory: "+getCurrentWorkingDirectory());
+        if(!f.exists() && !f.mkdirs()) {
+            JOptionPane.showConfirmDialog(
+                    null,
+                    "Unable to create directory " + PathUtils.APP_BASE,
+                    "Error",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

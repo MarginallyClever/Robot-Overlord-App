@@ -6,6 +6,8 @@ import com.marginallyclever.convenience.log.Log;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
@@ -13,6 +15,7 @@ import javax.vecmath.Vector3d;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MatrixHelperTest {
+    private static final Logger logger = LoggerFactory.getLogger(MatrixHelperTest.class);
 	@Before
 	public void before() {
 		Log.start();
@@ -39,13 +42,13 @@ public class MatrixHelperTest {
             boolean test = b.epsilonEquals(a, 1e-6);
             assertTrue(test);
             if (!test) {
-                Log.message(i + "a=" + a);
-                Log.message(i + "b=" + b);
+                logger.info(i + "a=" + a);
+                logger.info(i + "b=" + b);
                 b.sub(a);
-                Log.message(i + "d=" + b);
+                logger.info(i + "d=" + b);
             }
             assertTrue(test);
         }
-        Log.message("testEulerMatrix() OK");
+        logger.info("testEulerMatrix() OK");
     }
 }

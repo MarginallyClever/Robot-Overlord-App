@@ -7,6 +7,9 @@ import com.marginallyclever.communications.SessionLayer;
 import com.marginallyclever.communications.SessionLayerEvent;
 import com.marginallyclever.communications.TransportLayer;
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.RobotOverlord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,6 +24,7 @@ import java.net.URL;
  * @since 1.6.0 (2020-04-08)
  */
 public final class TCPSession extends SessionLayer implements Runnable {
+	private static final Logger logger = LoggerFactory.getLogger(TCPSession.class);
     private static final String SHELL_TO_SERIAL_COMMAND = " ~/Robot-Overlord-App/arduino/connect.sh";
 	private static final int DEFAULT_TCP_PORT = 22;
     
@@ -79,7 +83,7 @@ public final class TCPSession extends SessionLayer implements Runnable {
 	    session.connect(30000);   // making a connection with timeout.
 
 	    channel = (ChannelExec)session.openChannel("exec");
-	    Log.message("Sending "+SHELL_TO_SERIAL_COMMAND);
+	    logger.info("Sending "+SHELL_TO_SERIAL_COMMAND);
 	    channel.setCommand(SHELL_TO_SERIAL_COMMAND);
 	    channel.connect();
 	    // remember the data streams
@@ -178,11 +182,11 @@ public final class TCPSession extends SessionLayer implements Runnable {
 	}
 
 	public void reportDataSent(String msg) {
-		//Log.message("TCPConnection SEND " + msg.trim());
+		//logger.info("TCPConnection SEND " + msg.trim());
 	}
 
 	public void reportDataReceived(String msg) {
-		//Log.message("TCPConnection RECV " + msg.trim());
+		//logger.info("TCPConnection RECV " + msg.trim());
 	}
 
 	// connect to the last port

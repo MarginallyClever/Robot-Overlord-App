@@ -6,8 +6,11 @@ import com.marginallyclever.convenience.log.Log;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MathHelperTest {
+    private static final Logger logger = LoggerFactory.getLogger(MathHelperTest.class);
 	@Before
 	public void before() {
 		Log.start();
@@ -21,12 +24,12 @@ public class MathHelperTest {
     @Test
     @Deprecated
     public void testWrapDegrees() {
-        Log.message("testWrapDegrees start");
+        logger.info("testWrapDegrees start");
         for (double i = -360 * 2; i <= 360 * 2; i += 10) {
             double v = MathHelper.wrapDegrees(i);
-            Log.message(i + "\t" + v);
+            logger.info(i + "\t" + v);
             //assert(v>=-180 && v<=180);
         }
-        Log.message("testWrapDegrees end");
+        logger.info("testWrapDegrees end");
     }
 }

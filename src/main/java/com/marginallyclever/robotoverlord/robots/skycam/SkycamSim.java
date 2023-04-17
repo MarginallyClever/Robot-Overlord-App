@@ -3,7 +3,10 @@ package com.marginallyclever.robotoverlord.robots.skycam;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.robots.deltarobot3.DeltaRobot3;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Vector3d;
 import java.util.Iterator;
@@ -16,10 +19,8 @@ import java.util.LinkedList;
  */
 @Deprecated
 public class SkycamSim extends Entity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6890055884739855994L;
+	private static final Logger logger = LoggerFactory.getLogger(SkycamSim.class);
+
 
 	protected SkycamModel model;
 	
@@ -100,7 +101,7 @@ public class SkycamSim extends Entity {
 		
 		boolean verbose=false;
 		if(verbose) {
-			Log.message(a+" "+n+" "+d+" -> "+p+" / "+seg.distance + " = "+fraction+": "
+			logger.info(a+" "+n+" "+d+" -> "+p+" / "+seg.distance + " = "+fraction+": "
 					+seg.start+" + "+seg.delta+" "+seg.end_s+" / "+seg.now_s+" / "+seg.start_s+" = ");
 		}
 		
@@ -109,7 +110,7 @@ public class SkycamSim extends Entity {
 		poseNow.scale(fraction);
 		poseNow.add(seg.start);
 		
-		if(verbose) Log.message(poseNow.toString());
+		if(verbose) logger.info(poseNow.toString());
 	}
 	
 	@Override

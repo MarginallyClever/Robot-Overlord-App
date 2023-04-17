@@ -4,10 +4,13 @@ import com.marginallyclever.communications.SessionLayer;
 import com.marginallyclever.communications.SessionLayerEvent;
 import com.marginallyclever.communications.TransportLayer;
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.RobotOverlord;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -16,10 +19,11 @@ import jssc.SerialPortException;
  * @since v7, 4/12/15.
  */
 public final class SerialSession extends SessionLayer implements SerialPortEventListener {
+	private static final Logger logger = LoggerFactory.getLogger(SerialSession.class);
 	private static final int DEFAULT_BAUD_RATE = 250000;
 
 	private SerialPort serialPort;
-	private TransportLayer transportLayer;
+	private final TransportLayer transportLayer;
 	private String connectionName = "";
 	private boolean portOpened = false;
 
@@ -27,6 +31,7 @@ public final class SerialSession extends SessionLayer implements SerialPortEvent
 	private String inputBuffer = "";
 
 	public SerialSession(SerialTransportLayer layer) {
+		super();
 		transportLayer = layer;
 	}
 
@@ -69,8 +74,7 @@ public final class SerialSession extends SessionLayer implements SerialPortEvent
 			portOpened = true;
 		}
 		catch(jssc.SerialPortException e) {
-			// TODO display this more gracefully?
-			Log.error(e.getLocalizedMessage());
+			logger.error(e.getMessage());
 		}
 	}
 
@@ -104,7 +108,7 @@ public final class SerialSession extends SessionLayer implements SerialPortEvent
 			oneLine = inputBuffer.substring(0,x);
 			inputBuffer = inputBuffer.substring(x);
 
-			//Log.message("SerialConnection SEND " + msg.trim());
+			//logger.info("SerialConnection SEND " + msg.trim());
 			
 			notifyListeners(new SessionLayerEvent(this, SessionLayerEvent.DATA_AVAILABLE,oneLine));
 		}
@@ -114,7 +118,7 @@ public final class SerialSession extends SessionLayer implements SerialPortEvent
 	public void sendMessage(String msg) throws Exception {
 		if(!portOpened) return;
 
-		//Log.message("SerialConnection RECV " + msg.trim());
+		//logger.info("SerialConnection RECV " + msg.trim());
 		
 		serialPort.writeBytes(msg.getBytes());
 	}

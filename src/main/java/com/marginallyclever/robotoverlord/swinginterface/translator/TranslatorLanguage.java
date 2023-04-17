@@ -1,6 +1,9 @@
 package com.marginallyclever.robotoverlord.swinginterface.translator;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.swinginterface.pluginExplorer.GithubFetcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -16,9 +19,10 @@ import java.util.Map;
 
 
 public class TranslatorLanguage {
+	private static final Logger logger = LoggerFactory.getLogger(TranslatorLanguage.class);
 	private String name = "";
 	private String author = "";
-	private Map<String, String> strings = new HashMap<String, String>();
+	private final Map<String, String> strings = new HashMap<>();
 
 
 	/**
@@ -35,7 +39,7 @@ public class TranslatorLanguage {
 			//parse using builder to get DOM representation of the XML file
 			dom = db.parse(language_file);
 		} catch (SAXException | IOException e) {
-			Log.error(e.getMessage());
+			logger.error(e.getMessage());
 		}
 		if (dom == null) {
 			return;
@@ -55,7 +59,7 @@ public class TranslatorLanguage {
 			Document dom = db.parse(inputStream);
 			load(dom);
 		} catch (SAXException | IOException e) {
-			Log.error( e.getMessage() );
+			logger.error( e.getMessage() );
 		}
 	}
 
@@ -75,7 +79,7 @@ public class TranslatorLanguage {
 				String value = getTextValue(el, "value");
 
 				// store key/value pairs into a map
-				//Log.message(language_file +"\t"+key+"\t=\t"+value);
+				//logger.info(language_file +"\t"+key+"\t=\t"+value);
 				strings.put(key, value);
 			}
 		}
@@ -86,7 +90,7 @@ public class TranslatorLanguage {
 		try {
 			db = buildDocumentBuilder().newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
-			Log.error( e.getMessage() );
+			logger.error( e.getMessage() );
 		}
 		if(db == null) {
 			return null;
@@ -126,10 +130,11 @@ public class TranslatorLanguage {
 	private String getTextValue(Element ele, String tagName) {
 		String textVal = null;
 		NodeList nl = ele.getElementsByTagName(tagName);
-		if (nl != null && nl.getLength() > 0) {
+		if (nl.getLength() > 0) {
 			Element el = (Element) nl.item(0);
 			textVal = el.getFirstChild().getNodeValue();
 		}
+		assert textVal != null;
 		textVal = textVal.replace("\\n", "\n");
 		return textVal;
 	}

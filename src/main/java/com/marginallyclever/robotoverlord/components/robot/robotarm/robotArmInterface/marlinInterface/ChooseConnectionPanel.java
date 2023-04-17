@@ -4,6 +4,9 @@ import com.marginallyclever.communications.SessionLayer;
 import com.marginallyclever.communications.SessionLayerEvent;
 import com.marginallyclever.communications.SessionLayerManager;
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.components.robot.robotarm.robotArmInterface.ClassExplorer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,12 +15,13 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class ChooseConnectionPanel extends JPanel {
-	private static final long serialVersionUID = 4773092967249064165L;
+	private static final Logger logger = LoggerFactory.getLogger(ChooseConnectionPanel.class);
+
 	public static final int CONNECTION_OPENED = 1;
 	public static final int CONNECTION_CLOSED = 2;
 	
-	private JButton bConnect = new JButton();
-	private JLabel connectionName = new JLabel("Not connected",JLabel.LEADING);
+	private final JButton bConnect = new JButton();
+	private final JLabel connectionName = new JLabel("Not connected",JLabel.LEADING);
 	private SessionLayer mySession;
 	
 	public ChooseConnectionPanel() {
@@ -45,7 +49,7 @@ public class ChooseConnectionPanel extends JPanel {
 	}
 
 	private void onClose() {
-		Log.message("ChooseConnection closed.");
+		logger.info("ChooseConnection closed.");
 		if(mySession!=null) {
 			mySession.closeConnection();
 			mySession=null;
@@ -57,7 +61,7 @@ public class ChooseConnectionPanel extends JPanel {
 	}
 
 	private void onOpen(SessionLayer s) {
-		Log.message("ChooseConnection open to "+s.getName());
+		logger.info("ChooseConnection open to "+s.getName());
 
 		mySession = s;
 		mySession.addListener((e)->{

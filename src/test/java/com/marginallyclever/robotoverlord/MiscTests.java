@@ -7,8 +7,11 @@ import com.marginallyclever.convenience.log.Log;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MiscTests {
+    private static final Logger logger = LoggerFactory.getLogger(MiscTests.class);
     static final double ANGLE_STEP_SIZE = 30.0000;
 
 	@Before
@@ -29,12 +32,12 @@ public class MiscTests {
 
         String a = StringHelper.generateChecksum("G0 X0.000 Y-86.789 Z27.498 U0.000 V-30.692 W0.000");
         String b = StringHelper.generateChecksum("G0 X0.000 Y-86.789 Z27.4U0.000 V-30.692 W0.000");
-        Log.message("a=" + a);
-        Log.message("b=" + b);
+        logger.info("a=" + a);
+        logger.info("b=" + b);
         assert (a.equals("*78"));
-        Log.message("test a passed");
+        logger.info("test a passed");
         assert (b.equals("*111"));
-        Log.message("test b passed");
+        logger.info("test b passed");
     }
 
     /**
@@ -87,10 +90,10 @@ public class MiscTests {
         double e = n[4];
         double f = n[5];
 
-        Log.message("time=" + (end - start) + "ms");
+        logger.info("time=" + (end - start) + "ms");
         //MatrixOperations.printMatrix(m, 1);
         //MatrixOperations.printMatrix(mInv, 1);
-        Log.message("t\tp\tv\ta\t" + a + "\t" + b + "\t" + c + "\t" + d + "\t" + e + "\t" + f);
+        logger.info("t\tp\tv\ta\t" + a + "\t" + b + "\t" + c + "\t" + d + "\t" + e + "\t" + f);
         for (double t = t0; t <= tf; t++) {
             // p0 = a + b*t0 +  c*t0^2 +  d*t0^3 +   e*t0^4 +   f*t0^5
             // v0 =     b    + 2c*t0   + 3d*t0^2 +  4e*t0^3 +  5f*t0^4
@@ -102,7 +105,7 @@ public class MiscTests {
             double pt = a * b * t + c * t2 + d * t3 + e * t4 + f * t5;
             double vt = b + 2 * c * t + 3 * d * t2 + 4 * e * t3 + 5 * f * t4;
             double at = +2 * c + 6 * d * t + 12 * e * t2 + 20 * f * t3;
-            Log.message(t + "\t" + pt + "\t" + vt + "\t" + at);
+            logger.info(t + "\t" + pt + "\t" + vt + "\t" + at);
         }
     }
 
