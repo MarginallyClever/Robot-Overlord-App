@@ -25,7 +25,7 @@ import java.util.Set;
  */
 public class Log {
 	private static final Logger logger = LoggerFactory.getLogger(Log.class);
-	public static String LOG_FILE_PATH;
+	public static String LOG_FILE_PATH = FileAccess.getUserDirectory();
 	public static String LOG_FILE_NAME_TXT = "log.txt";
 	public static final String PROGRAM_START_STRING = "PROGRAM START";
 	public static final String PROGRAM_END_STRING = "PROGRAM END";
@@ -41,19 +41,13 @@ public class Log {
 	}
 
 	public static String getLogLocation() {
-		return LOG_FILE_PATH+LOG_FILE_NAME_TXT;
+		return LOG_FILE_PATH+ File.separator + LOG_FILE_NAME_TXT;
 	}
 
 	public static void start() {
-		LOG_FILE_PATH = FileAccess.getUserDirectory();
-		if(!LOG_FILE_PATH.endsWith(File.separator)) {
-			LOG_FILE_PATH+=File.separator;
-		}
-
 		System.out.println("log path="+LOG_FILE_PATH);
 
 		boolean hadCrashed = crashReportCheck();
-		deleteOldLog();
 
 		logger.info(PROGRAM_START_STRING);
 		logger.info("------------------------------------------------");
@@ -86,14 +80,12 @@ public class Log {
 	 * wipe the log file
 	 */
 	public static void deleteOldLog() {
-		Path p = Paths.get(LOG_FILE_PATH+LOG_FILE_NAME_TXT);
+		Path p = Paths.get(getLogLocation());
 		try {
 			Files.deleteIfExists(p);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-
-		// print starting time
 	}
 
 	/**

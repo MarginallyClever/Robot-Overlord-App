@@ -2,6 +2,8 @@ package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel;
+import com.marginallyclever.convenience.log.LogPanel2;
+import com.marginallyclever.convenience.log.LogPanel3;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
@@ -130,6 +132,23 @@ public class RobotOverlord extends Entity {
 	private EntityRenameAction entityRenameAction;
 	private EntityDeleteAction entityDeleteAction;
 
+
+	public static void main(String[] argv) {
+		Log.start();
+		//logFrame = LogPanel.createFrame();
+		logFrame = LogPanel3.createFrame(Log.getLogLocation());
+		PathUtils.goToAppWorkingDirectory();
+
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch(Exception ignored) {}
+
+		//Schedule a job for the event-dispatching thread:
+		//creating and showing this application's GUI.
+		javax.swing.SwingUtilities.invokeLater(RobotOverlord::new);
+	}
+
+
 	private RobotOverlord() {
 		super("");
 
@@ -183,20 +202,6 @@ public class RobotOverlord extends Entity {
 
 	private void createSimulationPanel() {
 		renderPanel = new OpenGLRenderPanel(this,scene);
-	}
-
-	public static void main(String[] argv) {
-		PathUtils.goToAppWorkingDirectory();
-		Log.start();
-		logFrame = LogPanel.createFrame();
-
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception ignored) {}
-
-		//Schedule a job for the event-dispatching thread:
-		//creating and showing this application's GUI.
-		javax.swing.SwingUtilities.invokeLater(RobotOverlord::new);
 	}
 
 	private JComponent buildEntityManagerPanel() {
@@ -513,6 +518,7 @@ public class RobotOverlord extends Entity {
 			new Thread(() -> {
 				renderPanel.stopAnimationSystem();
 				mainFrame.dispose();
+				Log.end();
 			}).start();
         }
 	}

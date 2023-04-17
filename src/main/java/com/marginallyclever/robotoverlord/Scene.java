@@ -221,7 +221,6 @@ public class Scene extends Entity {
 	 * @return true if unCheckedAssetFilename is in the scene path.
 	 */
 	public boolean isAssetPathInScenePath(String unCheckedAssetFilename) {
-		logger.debug("Checking if asset path is in scene path: "+unCheckedAssetFilename);
 		Path input = Paths.get(unCheckedAssetFilename);
 		Path scene = Paths.get(getScenePath());
 		return input.toAbsolutePath().startsWith(scene.toAbsolutePath());
@@ -237,7 +236,7 @@ public class Scene extends Entity {
 		String message = Translator.get("Scene.AssetPathNotInScenePathWarning");
 		message = message.replace("%1", unCheckedAssetFilename);
 		message = message.replace("%2", getScenePath());
-		logger.error(message);
+		logger.warn("asset "+unCheckedAssetFilename+" not in scene path: "+getScenePath());
 
 		// try to show a pop-up if we have a display
 		if(!GraphicsEnvironment.isHeadless()) {
