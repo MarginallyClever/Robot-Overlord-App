@@ -30,8 +30,7 @@ public class ShowRobotLibraryPanel extends AbstractAction {
         }
         RobotLibraryPanel panel = new RobotLibraryPanel(knownRobots);
         JFrame frame = new JFrame("Robot Library");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setContentPane(panel);
+        frame.setLocationRelativeTo(robotOverlord.getMainFrame());
         frame.setPreferredSize(new Dimension(400,600));
         frame.setSize(400,600);
         frame.pack();
