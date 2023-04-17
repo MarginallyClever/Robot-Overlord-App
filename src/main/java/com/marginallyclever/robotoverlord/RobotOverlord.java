@@ -139,6 +139,8 @@ public class RobotOverlord extends Entity {
 			throw new RuntimeException("RobotOverlord cannot be run headless yet.");
 		}
 
+		PathUtils.goToAppWorkingDirectory();
+
 		Translator.start();
 		SoundSystem.start();
 		UndoSystem.start();
