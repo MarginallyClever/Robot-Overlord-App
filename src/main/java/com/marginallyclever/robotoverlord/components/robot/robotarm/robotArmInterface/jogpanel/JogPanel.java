@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.joginterface;
+package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.jogpanel;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
@@ -9,18 +9,18 @@ import javax.vecmath.Matrix4d;
 import java.awt.*;
 import java.io.Serial;
 
-public class JogInterface extends JPanel {
+public class JogPanel extends JPanel {
 	@Serial
 	private static final long serialVersionUID = 1L;
 	private final Robot myRobot;
 	private final CartesianReportPanel eeReport, tcpReport;
 
-	public JogInterface(Robot robot) {
+	public JogPanel(Robot robot) {
 		super();
 		
 		myRobot = robot;
-		eeReport=new CartesianReportPanel(JogInterface.class.getSimpleName()+".EndEffector");
-		tcpReport=new CartesianReportPanel(JogInterface.class.getSimpleName()+".ToolCenterPoint");
+		eeReport=new CartesianReportPanel(JogPanel.class.getSimpleName()+".EndEffector");
+		tcpReport=new CartesianReportPanel(JogPanel.class.getSimpleName()+".ToolCenterPoint");
 		
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -75,9 +75,9 @@ public class JogInterface extends JPanel {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception ignored) {}
-		JFrame frame = new JFrame(JogInterface.class.getSimpleName());
+		JFrame frame = new JFrame(JogPanel.class.getSimpleName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new JogInterface(new RobotComponent()));
+		frame.add(new JogPanel(new RobotComponent()));
 		frame.pack();
 		frame.setVisible(true);
 	}

@@ -3,8 +3,7 @@ package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarmint
 import com.marginallyclever.communications.presentation.PresentationLayer;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.joginterface.JogInterface;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.presentationlayer.MarlinPresentation;
+import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.jogpanel.JogPanel;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.presentationlayer.PresentationFactory;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.programinterface.ProgramInterface;
@@ -17,7 +16,7 @@ public class RobotArmInterface extends JPanel {
 	@Serial
 	private static final long serialVersionUID = 1L;
 	private final PresentationLayer presentationLayer;
-	private final JogInterface jogInterface;
+	private final JogPanel jogPanel;
 	private final ProgramInterface programInterface;
 
 	private final JButton bHome = new JButton("Home");
@@ -33,12 +32,12 @@ public class RobotArmInterface extends JPanel {
 		super();
 		
 		presentationLayer = PresentationFactory.createPresentation("Marlin",robot);
-		jogInterface = new JogInterface(robot);
+		jogPanel = new JogPanel(robot);
 		programInterface = new ProgramInterface(robot);
 		
 		JTabbedPane pane = new JTabbedPane();
 		pane.addTab("MarlinInterface", presentationLayer.getPanel());
-		pane.addTab("JogInterface", jogInterface);
+		pane.addTab("JogInterface", jogPanel);
 		pane.addTab("ProgramInterface", programInterface);
 
 		this.setLayout(new BorderLayout());
