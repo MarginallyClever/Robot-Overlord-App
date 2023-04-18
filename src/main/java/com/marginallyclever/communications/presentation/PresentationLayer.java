@@ -1,6 +1,6 @@
 package com.marginallyclever.communications.presentation;
 
-import com.marginallyclever.communications.SessionLayer;
+import com.marginallyclever.communications.session.SessionLayer;
 
 /**
  * In the <a href="https://en.wikipedia.org/wiki/OSI_model">, the Presentation layer is responsible for translating

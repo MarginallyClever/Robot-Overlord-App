@@ -1,4 +1,4 @@
-package com.marginallyclever.communications;
+package com.marginallyclever.communications.session;
 
 /**
  * Use this to listen for activity on a NetworkSession.

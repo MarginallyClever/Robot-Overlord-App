@@ -1,5 +1,7 @@
 package com.marginallyclever.communications;
 
+import com.marginallyclever.communications.session.SessionLayer;
+
 /**
  * Lists available connections in a medium (serial, TCP/IP, smoke signals, etc) and opens a connection of that type
  *

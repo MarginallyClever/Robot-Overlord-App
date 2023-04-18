@@ -1,5 +1,7 @@
-package com.marginallyclever.communications;
+package com.marginallyclever.communications.session;
 
+import com.marginallyclever.communications.TransportLayer;
+import com.marginallyclever.communications.TransportLayerPanel;
 import com.marginallyclever.communications.serial.SerialTransportLayer;
 import com.marginallyclever.communications.tcp.TCPTransportLayer;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
@@ -13,8 +15,8 @@ import java.awt.*;
  *
  */
 public class SessionLayerManager {
-	static private TransportLayer serial = new SerialTransportLayer();
-	static private TransportLayer tcp = new TCPTransportLayer();
+	static private final TransportLayer serial = new SerialTransportLayer();
+	static private final TransportLayer tcp = new TCPTransportLayer();
 	static private int selectedLayer=0;
 	
 	/**

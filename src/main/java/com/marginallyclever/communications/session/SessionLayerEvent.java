@@ -1,4 +1,4 @@
-package com.marginallyclever.communications;
+package com.marginallyclever.communications.session;
 
 import java.util.EventObject;
 
