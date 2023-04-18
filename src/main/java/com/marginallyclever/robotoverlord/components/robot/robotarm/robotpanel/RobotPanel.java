@@ -6,21 +6,21 @@ import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.jogpanel.JogPanel;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.presentationlayer.PresentationFactory;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.programpanel.programPanel;
+import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.programpanel.ProgramPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.Serial;
 
 /**
- * Application layer for a robot.  A {@link JogPanel}, a {@link programPanel}, and a {@link PresentationLayer} glued together.
+ * Application layer for a robot.  A {@link JogPanel}, a {@link ProgramPanel}, and a {@link PresentationLayer} glued together.
  * @author Dan Royer
  */
 public class RobotPanel extends JPanel {
 	@Serial
 	private static final long serialVersionUID = 1L;
 	private final JogPanel jogPanel;
-	private final programPanel programPanel;
+	private final ProgramPanel programPanel;
 
 	JComboBox<String> presentationChoices = new JComboBox<>(PresentationFactory.AVAILABLE_PRESENTATIONS);
 	private final JPanel presentationContainer = new JPanel(new BorderLayout());
@@ -42,7 +42,7 @@ public class RobotPanel extends JPanel {
 		this.myRobot = robot;
 
 		jogPanel = new JogPanel(robot);
-		programPanel = new programPanel(robot);
+		programPanel = new ProgramPanel(robot);
 		setupPresentationContainer();
 
 		JTabbedPane pane = new JTabbedPane();
