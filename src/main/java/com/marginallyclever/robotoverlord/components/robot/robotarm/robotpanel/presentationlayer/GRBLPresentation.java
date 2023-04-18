@@ -21,6 +21,12 @@ import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * {@link GRBLPresentation} is a {@link PresentationLayer} for <a href="https://github.com/gnea/grbl">GRBL</a> firmware.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class GRBLPresentation extends JPanel implements PresentationLayer {
     private static final Logger logger = LoggerFactory.getLogger(GRBLPresentation.class);
 

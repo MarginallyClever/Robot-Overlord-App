@@ -22,7 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A {@link TextInterfaceToSessionLayer} that speaks to robots with Marlin firmware.
+ * {@link GRBLPresentation} is a {@link PresentationLayer} for
+ * <a href="https://github.com/MarlinFirmware/Marlin">Marlin</a> firmware.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
  */
 public class MarlinPresentation extends JPanel implements PresentationLayer {
 	private static final Logger logger = LoggerFactory.getLogger(MarlinPresentation.class);

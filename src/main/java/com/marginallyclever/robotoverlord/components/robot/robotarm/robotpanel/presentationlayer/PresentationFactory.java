@@ -6,7 +6,7 @@ public class PresentationFactory {
     public static final String [] AVAILABLE_PRESENTATIONS = {
             "Marlin",
             "GRBL",
-            "CANOpen",
+            //"CANOpen",
     };
 
     public static PresentationLayer createPresentation(String type,Robot robot) {

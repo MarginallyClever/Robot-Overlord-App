@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 /**
  * {@link CANOpenPresentation} is a {@link PresentationLayer} for CANOpen protocol.
  * @author Dan Royer
+ * @since 2.5.0
  */
 public class CANOpenPresentation implements PresentationLayer {
     private Robot myRobot;
