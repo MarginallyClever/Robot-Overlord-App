@@ -1,37 +1,39 @@
 package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.presentationlayer;
 
-import com.marginallyclever.communications.presentation.PresentationLayer;
-import com.marginallyclever.communications.session.SessionLayer;
+import com.marginallyclever.robotoverlord.robots.Robot;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 /**
  * {@link CANOpenPresentation} is a {@link PresentationLayer} for CANOpen protocol.
  * @author Dan Royer
  */
 public class CANOpenPresentation implements PresentationLayer {
-    @Override
-    public void onConnect(SessionLayer sessionLayer) {
+    private Robot myRobot;
 
-    }
-
-    @Override
-    public void onDisconnect(SessionLayer sessionLayer) {
-
-    }
-
-    @Override
-    public void processIncomingMessage(String message) {
-
-    }
-
-    @Override
-    public void processOutgoingMessage(String message) {
-
+    public CANOpenPresentation(Robot robot) {
+        super();
+        myRobot = robot;
     }
 
     @Override
     public javax.swing.JPanel getPanel() {
         return new JPanel();
+    }
+
+    @Override
+    public boolean isIdleCommand(ActionEvent e) {
+        return false;
+    }
+
+    @Override
+    public void sendGoHome() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void closeConnection() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

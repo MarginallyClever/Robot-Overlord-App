@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.presentationlayer;
 
-import com.marginallyclever.communications.presentation.PresentationLayer;
 import com.marginallyclever.robotoverlord.robots.Robot;
 
 public class PresentationFactory {
@@ -12,11 +11,11 @@ public class PresentationFactory {
 
     public static PresentationLayer createPresentation(String type,Robot robot) {
         if (type.equalsIgnoreCase("Marlin")) {
-            return new MarlinPresentation();
+            return new MarlinPresentation(robot);
         } else if (type.equalsIgnoreCase("GRBL")) {
-            return new GRBLPresentation();
+            return new GRBLPresentation(robot);
         } else if( type.equalsIgnoreCase("CANOpen") ) {
-            return new CANOpenPresentation();
+            return new CANOpenPresentation(robot);
         } else {
             // handle invalid or unsupported presentation types
             throw new IllegalArgumentException("Invalid presentation type: " + type);

@@ -2,7 +2,6 @@ package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarmint
 
 import com.marginallyclever.communications.application.ChooseConnectionPanel;
 import com.marginallyclever.communications.application.TextInterfaceToSessionLayer;
-import com.marginallyclever.communications.presentation.PresentationLayer;
 import com.marginallyclever.communications.session.SessionLayer;
 import com.marginallyclever.communications.session.SessionLayerEvent;
 import com.marginallyclever.communications.session.SessionLayerListener;
@@ -339,19 +338,7 @@ public class MarlinPresentation extends JPanel implements PresentationLayer {
 	public void closeConnection() {
 		this.chatInterface.closeConnection();
 	}
-	
-	// OBSERVER PATTERN
-	
-	private final ArrayList<ActionListener> listeners = new ArrayList<>();
 
-	public void addListener(ActionListener listener) {
-		listeners.add(listener);
-	}
-
-	public void removeListener(ActionListener listener) {
-		listeners.remove(listener);
-	}
-	
 	private void notifyListeners(ActionEvent e) {
 		for (ActionListener listener : listeners) listener.actionPerformed(e);
 	}
