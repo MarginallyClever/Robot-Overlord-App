@@ -3,11 +3,13 @@ package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarmint
 import com.marginallyclever.communications.presentation.PresentationLayer;
 import com.marginallyclever.communications.session.SessionLayer;
 
+import javax.swing.*;
+
 /**
- * {@link CANOpen} is a {@link PresentationLayer} for CANOpen protocol.
+ * {@link CANOpenPresentation} is a {@link PresentationLayer} for CANOpen protocol.
  * @author Dan Royer
  */
-public class CANOpen implements PresentationLayer {
+public class CANOpenPresentation implements PresentationLayer {
     @Override
     public void onConnect(SessionLayer sessionLayer) {
 
@@ -26,5 +28,10 @@ public class CANOpen implements PresentationLayer {
     @Override
     public void processOutgoingMessage(String message) {
 
+    }
+
+    @Override
+    public javax.swing.JPanel getPanel() {
+        return new JPanel();
     }
 }
