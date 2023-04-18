@@ -14,10 +14,10 @@ public interface TransportLayer {
    * @param connectionName where to connect
    * @return a connection to the device at address <code>connectionName</code>
    */
-  public SessionLayer openConnection(String connectionName);
+  SessionLayer openConnection(String connectionName);
 
   /**
    * @return a panel with the gui options for this transport layer
    */
-  public TransportLayerPanel getTransportLayerPanel();
+  TransportLayerPanel getTransportLayerPanel();
 }
