@@ -4,15 +4,18 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serial;
 import java.util.ArrayList;
 
+/**
+ * A simple text interface with a send button.  Sends the text to all listeners.
+ * @author Dan Royer
+ */
 public class TextInterfaceToListeners extends JPanel {
-	/**
-	 * 
-	 */
+	@Serial
 	private static final long serialVersionUID = 7996257740483513358L;
-	private JTextField commandLine = new JTextField(60);
-	private JButton send = new JButton("Send");
+	private final JTextField commandLine = new JTextField(60);
+	private final  JButton send = new JButton("Send");
 		
 	public TextInterfaceToListeners() {
 		super();

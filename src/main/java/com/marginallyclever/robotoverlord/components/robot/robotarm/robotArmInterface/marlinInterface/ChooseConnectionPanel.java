@@ -91,7 +91,7 @@ public class ChooseConnectionPanel extends JPanel {
 
 	// OBSERVER PATTERN
 	
-	private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
+	private final ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
 	
 	public void addActionListener(ActionListener a) {
 		listeners.add(a);
@@ -102,9 +102,7 @@ public class ChooseConnectionPanel extends JPanel {
 	}
 	
 	private void notifyListeners(ActionEvent e) {
-		for( ActionListener a : listeners ) {
-			a.actionPerformed(e);
-		}
+		for( ActionListener a : listeners ) a.actionPerformed(e);
 	}
 
 	// TEST 
@@ -113,7 +111,7 @@ public class ChooseConnectionPanel extends JPanel {
 		Log.start();
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception e) {}
+		} catch(Exception ignored) {}
 		JFrame frame = new JFrame(ChooseConnectionPanel.class.getName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new ChooseConnectionPanel());

@@ -45,7 +45,7 @@ public class RobotArmInterface extends JPanel {
 		this.add(progress, BorderLayout.SOUTH);
 
 		marlinInterface.addListener((e) -> {
-			if (e.getActionCommand().contentEquals(MarlinInterface.IDLE)) {
+			if (marlinInterface.isIdleCommand(e)) {
 				// logger.debug("PlotterControls heard idle");
 				if (isRunning) {
 					// logger.debug("PlotterControls is running");
