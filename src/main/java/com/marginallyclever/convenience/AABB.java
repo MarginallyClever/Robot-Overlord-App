@@ -58,9 +58,9 @@ public class AABB implements BoundingVolume, Serializable {
 		p[7].set(boundTop   .x, boundTop   .y, boundTop   .z);
 
 		for (int i = 0; i < p.length; ++i) {
-			// Log.message("\t"+p[i]);
+			// logger.info("\t"+p[i]);
 			pose.transform(p[i]);
-			// Log.message(" >> "+p[i]);
+			// logger.info(" >> "+p[i]);
 		}
 	}
 

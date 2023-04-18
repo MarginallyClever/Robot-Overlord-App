@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.components.robot.robotarm;
 
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotoverlord.components.robot.RobotComponent;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
 
 import javax.vecmath.Matrix4d;
 
@@ -36,11 +36,11 @@ public class GradientDescent {
 		
 		// seems to work better descending from the finger than ascending from the base.
 		for(int i = myRobot.getNumBones()-1; i>=0; --i ) {  // descending mode
-			//Log.message("\tA angles["+i+"]="+angles[i]);
+			//logger.info("\tA angles["+i+"]="+angles[i]);
 			double gradient = partialGradient(target,angles,i,samplingDistance);
-			//Log.message("\tB angles["+i+"]="+angles[i]+"\tlearningRate="+learningRate+"\tgradient="+gradient);
+			//logger.info("\tB angles["+i+"]="+angles[i]+"\tlearningRate="+learningRate+"\tgradient="+gradient);
 			angles[i] -= learningRate * gradient;
-			//Log.message("\tC angles["+i+"]="+angles[i]);
+			//logger.info("\tC angles["+i+"]="+angles[i]);
 			myRobot.setAngles(angles);
 			if(getDistanceToTarget(myRobot,target)<threshold) {
 				return true;
@@ -64,7 +64,7 @@ public class GradientDescent {
 		//double t1 = temp.getBone(i).getTheta();
 		double FxPlusD = getDistanceToTarget(myRobot,target);
 		double gradient = (FxPlusD - Fx) / samplingDistance;
-		//Log.message("\t\tFx="+Fx+"\tt0="+t0+"\tt1="+t1+"\tFxPlusD="+FxPlusD+"\tsamplingDistance="+samplingDistance+"\tgradient="+gradient);
+		//logger.info("\t\tFx="+Fx+"\tt0="+t0+"\tt1="+t1+"\tFxPlusD="+FxPlusD+"\tsamplingDistance="+samplingDistance+"\tgradient="+gradient);
 		
 		// reset the old value
 		angles[i] = oldValue;

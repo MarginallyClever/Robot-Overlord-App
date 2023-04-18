@@ -1,8 +1,8 @@
 # Robot Overlord #
 
-Robot Overlord is 3D control software for robots.  It is intended to be easier than ROS.  It was started by http://www.marginallyclever.com/
+Robot Overlord is 3D control software for robots.  It is intended to be easier than ROS.  It was started by [Marginally Clever Robots, Ltd.](http://www.marginallyclever.com/)
 
-We would love to see your robot run in the app.  Please joint our Discord channel and talk live with a human!  https://discord.gg/Q5TZFmB
+We would love to see your robot run in the app.  Please joint our [Discord channel](https://discord.gg/Q5TZFmB) and talk live with a human!  
 
 Some of the robots it controls are:
 
@@ -20,48 +20,16 @@ Some of the robots it controls are:
 
 # Why
 
-For our philosophy about RO, please see the Wiki: https://github.com/MarginallyClever/Robot-Overlord-App/wiki/Why-Robot-Overlord%3F
+[Our philosophy about Robot Overlord](https://github.com/MarginallyClever/Robot-Overlord-App/wiki/Why-Robot-Overlord%3F).
 
 ## Get Started!
 
 Steps to get started:
 
-1. Install The latest OpenJDK (java software)
-2. Install Eclipse (prorgramming interface)
-3. Install Robot Overlord App
+1. Install The latest Java
+2. Install Robot Overlord App from [the "Releases" section of the Github repository](https://github.com/MarginallyClever/Robot-Overlord-App/releases)
 
 Then you should be able to run the application.
-
-## #Install The latest OpenJDK
-
-Get the Open Java Development Kit (OpenJDK) https://jdk.java.net/ .  The latest version is the "ready to use" edition.
-
-*OSX*: Unarchive the OpenJDK tar, and place the resulting folder (i.e. jdk-12.jdk) into your /Library/Java/JavaVirtualMachines/ folder since this is the standard and expected location of JDK installs. You can also install anywhere you want in reality.
-
-*Windows*: https://stackoverflow.com/a/52531093 _untested_
-
-*Linux*: https://linuxize.com/post/install-java-on-ubuntu-18-04/ _untested_
-
-### Install Eclipse
-
-* Download Eclipse IDE: https://www.eclipse.org/downloads/
-* install the latest.  
-* Choose "Eclipse IDE for Java developers"
-
-### Install Robot Overlord App
-
-* Goto https://github.com/MarginallyClever/Robot-Overlord-App/
-* Fownload this zip file: https://github.com/MarginallyClever/Robot-Overlord-App/archive/refs/heads/master.zip and extract it.  Note the folder for later.
-* Open Eclipse.  If you see the "Welcome!" tab, close it.
-* Go to File > Import > Maven > Existing Maven Projects > Next > (folder from previous step) > Finish
-* Go to Window > Show View > Package Explorer
-* Right click on "Robot Overlord" in Package Explorer view and select > Maven > Update Project
-* select Run > Debug As > Java Application
-* select "Robot Overlord - com.marginallyclever.robotoverlord.RobotOverlord" and click OK.
-* Wait while the progress bar in the bottom right fills up.  This is a one time thing.
-* "Errors exist...Proceed with launch?" Select Proceed.
-
-Application should now launch.
 
 ## Usage
 

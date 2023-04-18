@@ -4,6 +4,8 @@ import com.marginallyclever.communications.SessionLayer;
 import com.marginallyclever.communications.TransportLayer;
 import com.marginallyclever.communications.TransportLayerPanel;
 import com.marginallyclever.convenience.log.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Lists available TCP connections and opens a connection of that type to a robot
@@ -12,6 +14,7 @@ import com.marginallyclever.convenience.log.Log;
  * @since v7.1.0.0
  */
 public class TCPTransportLayer implements TransportLayer {
+	private static final Logger logger = LoggerFactory.getLogger(TCPTransportLayer.class);
 
 	public TCPTransportLayer() {}
 
@@ -22,22 +25,22 @@ public class TCPTransportLayer implements TransportLayer {
 	@Override
 	public SessionLayer openConnection(String connectionName) {
 		/*
-		 * // check it Log.message("Validating "+connectionName); InetAddressValidator
+		 * // check it logger.info("Validating "+connectionName); InetAddressValidator
 		 * validator = new InetAddressValidator();
 		 * if(!validator.isValid(connectionName)) {
 		 * Log.error("Not a valid IP Address."); return null; }
 		 */
 		String[] parts = connectionName.split("@");
 
-		Log.message("Connecting to " + parts[parts.length - 1]);
+		logger.info("Connecting to " + parts[parts.length - 1]);
 		// if(connectionName.equals(recentPort)) return null;
 		TCPSession connection = new TCPSession(this);
 
 		try {
 			connection.openConnection(connectionName);
-			Log.message("Connect OK");
+			logger.info("Connect OK");
 		} catch (Exception e) {
-			Log.message("Connect FAILED");
+			logger.info("Connect FAILED");
 			e.printStackTrace();
 			return null;
 		}

@@ -8,6 +8,10 @@ module com.marginallyclever.robotOverlord {
 	requires com.fasterxml.jackson.databind;
 	requires org.json;
 	requires org.slf4j;
+	requires flexmark;
+	requires okhttp3;
+	requires com.google.gson;
+	requires org.eclipse.jgit;
 	
 	requires vecmath;
 	requires jsch;
@@ -18,4 +22,5 @@ module com.marginallyclever.robotOverlord {
 	requires xml.apis.ext;
 	requires java.datatransfer;
 	requires core;
+	requires flexmark.util.ast;
 }

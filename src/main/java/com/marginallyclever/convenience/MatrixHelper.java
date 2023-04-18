@@ -2,6 +2,8 @@ package com.marginallyclever.convenience;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.log.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -14,7 +16,9 @@ import java.text.MessageFormat;
  * @author aggra
  *
  */
-public class MatrixHelper {	
+public class MatrixHelper {
+	private static final Logger logger = LoggerFactory.getLogger(MatrixHelper.class);
+
 	/**
 	 * See drawMatrix(gl2,p,u,v,w,1)
 	 * @param gl2
@@ -618,11 +622,11 @@ public class MatrixHelper {
 		cols = matrix[0].length;
 
 		switch (id) {
-			case 1 -> Log.message(MessageFormat.format("First matrix[{0}][{1}]:", rows, cols));
-			case 2 -> Log.message(MessageFormat.format("Second matrix[{0}][{1}]:", rows, cols));
-			case 3 -> Log.message(MessageFormat.format("Result[{0}][{1}]:", rows, cols));
-			case 4 -> Log.message(MessageFormat.format("Inverted matrix[{0}][{1}]:", rows, cols));
-			default -> Log.message(MessageFormat.format("Matrix[{0}][{1}]:", rows, cols));
+			case 1 -> logger.info(MessageFormat.format("First matrix[{0}][{1}]:", rows, cols));
+			case 2 -> logger.info(MessageFormat.format("Second matrix[{0}][{1}]:", rows, cols));
+			case 3 -> logger.info(MessageFormat.format("Result[{0}][{1}]:", rows, cols));
+			case 4 -> logger.info(MessageFormat.format("Inverted matrix[{0}][{1}]:", rows, cols));
+			default -> logger.info(MessageFormat.format("Matrix[{0}][{1}]:", rows, cols));
 		}
 
 		StringBuilder message = new StringBuilder();
@@ -643,7 +647,7 @@ public class MatrixHelper {
 			}
 		}
 
-		Log.message(message.toString());
+		logger.info(message.toString());
 	}
 
 	/**

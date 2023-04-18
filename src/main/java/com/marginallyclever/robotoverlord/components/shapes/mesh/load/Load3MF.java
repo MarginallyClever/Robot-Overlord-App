@@ -75,20 +75,20 @@ public class Load3MF implements MeshLoader {
 	}
 
 	private void parseAllObjects(Mesh model,Element modelNode, double scale) throws Exception {
-        //Log.message("finding model/resources/object...");
+        //logger.info("finding model/resources/object...");
         Element resources = (Element)modelNode.getElementsByTagName("resources").item(0);
         NodeList objects = resources.getElementsByTagName("object");
-        //Log.message(objects.getLength() + " elements found.");
+        //logger.info(objects.getLength() + " elements found.");
         for(int i=0;i<objects.getLength();++i) {
         	Element object = (Element)objects.item(i);
         	parseObject(object,scale,model);
         }
-        //Log.message("done.");
+        //logger.info("done.");
 	}
 
 	private void parseObject(Element object,double scale, Mesh model) throws Exception {
     	String objectUUID = object.getAttribute("p:UUID");
-    	//Log.message("parsing object "+objectUUID);
+    	//logger.info("parsing object "+objectUUID);
     	
     	ColorRGB defaultColor = parseObjectColor(object);
     	String objectType = object.getAttribute("type");
@@ -97,7 +97,7 @@ public class Load3MF implements MeshLoader {
     	}
     	
         Element mesh = (Element)object.getElementsByTagName("mesh").item(0);
-    	//Log.message("mesh found.");
+    	//logger.info("mesh found.");
 
         ArrayList<Vector3d> vertexes = collectMeshVertices(mesh,scale);
         
@@ -128,7 +128,7 @@ public class Load3MF implements MeshLoader {
 		
     	Element triangles = (Element)mesh.getElementsByTagName("triangles").item(0);
     	NodeList allTriangles = triangles.getElementsByTagName("triangle");
-    	//Log.message(allTriangles.getLength() + " indexed triangles found.");
+    	//logger.info(allTriangles.getLength() + " indexed triangles found.");
     	for(int t=0;t<allTriangles.getLength();++t) {
     		Element t1 = (Element)allTriangles.item(t);
     		model.addIndex(n+Integer.valueOf(t1.getAttribute("v1")));
@@ -142,7 +142,7 @@ public class Load3MF implements MeshLoader {
 		
     	Element triangles = (Element)mesh.getElementsByTagName("triangles").item(0);
     	NodeList allTriangles = triangles.getElementsByTagName("triangle");
-    	//Log.message(allTriangles.getLength() + " triangles found.");
+    	//logger.info(allTriangles.getLength() + " triangles found.");
     	for(int t=0;t<allTriangles.getLength();++t) {
     		Element t1 = (Element)allTriangles.item(t);
     		int v1 = Integer.valueOf(t1.getAttribute("v1"));
@@ -172,7 +172,7 @@ public class Load3MF implements MeshLoader {
         ArrayList<Vector3d> collectedVertexes = new ArrayList<Vector3d>();
     	Element vertices = (Element)mesh.getElementsByTagName("vertices").item(0);
     	NodeList allVertices = vertices.getElementsByTagName("vertex");
-    	//Log.message(allVertices.getLength() + " vertices found.");
+    	//logger.info(allVertices.getLength() + " vertices found.");
     	for(int v=0;v<allVertices.getLength();++v) {
     		Element v1 = (Element)allVertices.item(v);
     		double x = scale * Double.valueOf(v1.getAttribute("x"));
@@ -200,7 +200,7 @@ public class Load3MF implements MeshLoader {
 	}
 
 	private double getScale(Element modelNode) {
-		//Log.message("searching for scale...");
+		//logger.info("searching for scale...");
         String units = modelNode.getAttribute("units");
         // 3MF format description says "Valid values are micron, millimeter, centimeter, inch, foot, and meter."
         double scale=1;
@@ -213,7 +213,7 @@ public class Load3MF implements MeshLoader {
         case "meter": scale = 1000;  break;
         } 
         scale *= 0.1;
-        //Log.message("scale is now x"+scale);
+        //logger.info("scale is now x"+scale);
 		return scale;
 	}
 

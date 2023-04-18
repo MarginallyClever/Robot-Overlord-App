@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
-import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.ComponentFactory;
 import com.marginallyclever.robotoverlord.Entity;
@@ -10,6 +9,8 @@ import com.marginallyclever.robotoverlord.components.ComponentDependency;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.ComponentAddEdit;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -24,12 +25,14 @@ import java.util.List;
  *
  */
 public class ComponentAddAction extends AbstractAction {
-	protected final RobotOverlord ro;
+	private static final Logger logger = LoggerFactory.getLogger(ComponentAddAction.class);
 
-	public ComponentAddAction(RobotOverlord ro) {
+	protected final RobotOverlord robotOverlord;
+
+	public ComponentAddAction(RobotOverlord robotOverlord) {
 		super(Translator.get("Add Component"));
         putValue(SHORT_DESCRIPTION, Translator.get("Add a component to the world."));
-		this.ro = ro;
+		this.robotOverlord = robotOverlord;
 	}
 	
     /**
@@ -41,7 +44,7 @@ public class ComponentAddAction extends AbstractAction {
 
 		JComboBox<String> additionComboBox = buildComponentComboBox();
 		int result = JOptionPane.showConfirmDialog(
-				ro.getMainFrame(),
+				robotOverlord.getMainFrame(),
 				additionComboBox, 
 				(String)this.getValue(AbstractAction.NAME), 
 				JOptionPane.OK_CANCEL_OPTION,
@@ -50,7 +53,7 @@ public class ComponentAddAction extends AbstractAction {
 			for(Entity parent : list) {
 				createInstanceOf(parent,additionComboBox.getItemAt(additionComboBox.getSelectedIndex()));
 			}
-			ro.updateComponentPanel();
+			robotOverlord.updateComponentPanel();
 		}
     }
 
@@ -66,11 +69,11 @@ public class ComponentAddAction extends AbstractAction {
 			addComponentDependencies(parent,className);
 
 			Component newInstance = ComponentFactory.load(className);
-			if(newInstance != null) UndoSystem.addEvent(this,new ComponentAddEdit(ro,parent,newInstance));
+			if(newInstance != null) UndoSystem.addEvent(this,new ComponentAddEdit(robotOverlord,parent,newInstance));
 		} catch (Exception e) {
 			String msg = "Failed to instance "+className+": "+e.getLocalizedMessage();
-			JOptionPane.showMessageDialog(ro.getMainFrame(),msg);
-			Log.error(msg);
+			JOptionPane.showMessageDialog(robotOverlord.getMainFrame(),msg);
+			logger.error(msg);
 		}
 	}
 
@@ -102,7 +105,7 @@ public class ComponentAddAction extends AbstractAction {
 				if(null==parent.findFirstComponent(c)) {
 					Component newInstance = ComponentFactory.createInstance(c);
 					if(null != newInstance) {
-						UndoSystem.addEvent(this,new ComponentAddEdit(ro,parent,newInstance));
+						UndoSystem.addEvent(this,new ComponentAddEdit(robotOverlord,parent,newInstance));
 					} else throw new Exception("Failed to instance "+c.getCanonicalName());
 				}
 			}

@@ -33,6 +33,8 @@
 package com.marginallyclever.convenience;
 
 import com.marginallyclever.convenience.log.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -44,14 +46,16 @@ import java.awt.*;
  * SpringBox and SpringCompactGrid.
  */
 public class SpringUtilities {
+    private static final Logger logger = LoggerFactory.getLogger(SpringUtilities.class);
+
     /**
      * A debugging utility that prints to stdout the component's
      * minimum, preferred, and maximum sizes.
      */
     public static void printSizes(Component c) {
-        Log.message("minimumSize = " + c.getMinimumSize());
-        Log.message("preferredSize = " + c.getPreferredSize());
-        Log.message("maximumSize = " + c.getMaximumSize());
+        logger.info("minimumSize = " + c.getMinimumSize());
+        logger.info("preferredSize = " + c.getPreferredSize());
+        logger.info("maximumSize = " + c.getMaximumSize());
     }
  
     /**

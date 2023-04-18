@@ -2,6 +2,8 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.undo.CannotRedoException;
@@ -16,6 +18,7 @@ import java.io.Serial;
  * @author Dan Royer
  */
 public class RedoAction extends AbstractAction {
+    private static final Logger logger = LoggerFactory.getLogger(RedoAction.class);
 	/**
 	 * 
 	 */
@@ -37,7 +40,7 @@ public class RedoAction extends AbstractAction {
         try {
             undo.redo();
         } catch (CannotRedoException ex) {
-            Log.message("Unable to redo: " + ex);
+            logger.info("Unable to redo: " + ex);
             ex.printStackTrace();
         }
         updateRedoState();

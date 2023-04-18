@@ -1,6 +1,8 @@
 package com.marginallyclever.convenience.swing;
 
 import com.marginallyclever.convenience.log.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Vector2d;
@@ -14,6 +16,7 @@ import java.util.ArrayList;
  * @author Dan Royer
  */
 public class Dial extends JComponent {
+	private static final Logger logger = LoggerFactory.getLogger(Dial.class);
 	private double value=0;
 	private double change=0;
 
@@ -216,7 +219,7 @@ public class Dial extends JComponent {
         try {
         	UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
-        	Log.error("Look and feel could not be set: "+e.getLocalizedMessage());
+        	logger.error("Look and feel could not be set: "+e.getMessage());
         }
 
 		JFrame frame = new JFrame(Dial.class.getSimpleName());
@@ -227,7 +230,7 @@ public class Dial extends JComponent {
 		Dial dial = new Dial();        
 		p.add(dial);
 		dial.addActionListener((e)->{
-			Log.message(e.getActionCommand()+":"+dial.getChange()+"="+dial.getValue());
+			logger.info(e.getActionCommand()+":"+dial.getChange()+"="+dial.getValue());
 		});
 		
 		p.addComponentListener(new ComponentAdapter() {

@@ -6,13 +6,23 @@
         <!-- encoders are assigned the type
              ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <logger name="java.util.prefs" level="off" />
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+        <file>log.txt</file>
+        <append>true</append>
+    </appender>
 
-    <root level="error">
-        <appender-ref ref="STDOUT" />
+    <!-- <logger name="java.util.prefs" level="off" /> -->
+
+    <logger name="com.marginallyclever" level="debug" />
+
+    <root level="info">
+        <appender-ref ref="FILE" />
     </root>
 </configuration>

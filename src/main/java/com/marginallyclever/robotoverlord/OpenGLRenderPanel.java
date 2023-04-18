@@ -112,9 +112,9 @@ public class OpenGLRenderPanel extends JPanel {
 
     private void createCanvas() {
         try {
-            Log.message("...get default caps");
+            logger.info("...get default caps");
             GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
-            Log.message("...set caps");
+            logger.info("...set caps");
             caps.setBackgroundOpaque(true);
             caps.setDoubleBuffered(true);
             caps.setHardwareAccelerated(true);
@@ -122,10 +122,10 @@ public class OpenGLRenderPanel extends JPanel {
                 caps.setSampleBuffers(true);
                 caps.setNumSamples(FSAA_NUM_SAMPLES);
             }
-            Log.message("...create panel");
+            logger.info("...create panel");
             glCanvas = new GLJPanel(caps);
         } catch(GLException e) {
-            Log.error("Failed the first call to OpenGL.  Are your native drivers missing?");
+            logger.error("Failed the first call to OpenGL.  Are your native drivers missing?");
         }
     }
 
@@ -289,7 +289,7 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     private GL useGLDebugPipeline(GL gl) {
-        Log.message("using GL debug pipeline");
+        logger.info("using GL debug pipeline");
         try {
             return gl.getContext().setGL( GLPipelineFactory.create("com.jogamp.opengl.Debug", null, gl, null) );
         } catch (Exception e) {

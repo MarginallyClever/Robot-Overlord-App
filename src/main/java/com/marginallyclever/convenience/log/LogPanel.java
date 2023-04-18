@@ -4,20 +4,20 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+@Deprecated
 public class LogPanel extends JPanel implements LogListener {
-	private static final long serialVersionUID = -2753297349917155256L;
 	private static final int LOG_LENGTH = 5000;
 
 	// logging
-	private DefaultListModel<String> listModel = new DefaultListModel<String>();
-	private JList<String> logArea = new JList<String>(listModel);
-	private JScrollPane logPane = new JScrollPane(logArea);
-	private ConcurrentLinkedQueue<String> inBoundQueue = new ConcurrentLinkedQueue<String>();
+	private final DefaultListModel<String> listModel = new DefaultListModel<>();
+	private final JList<String> logArea = new JList<>(listModel);
+	private final ConcurrentLinkedQueue<String> inBoundQueue = new ConcurrentLinkedQueue<>();
 	
 	public LogPanel() {
 		Log.addListener(this);
 
 		this.setLayout(new BorderLayout());
+		JScrollPane logPane = new JScrollPane(logArea);
 		this.add(logPane, BorderLayout.CENTER);
 
 		jumpToLogEnd();
@@ -71,13 +71,12 @@ public class LogPanel extends JPanel implements LogListener {
 		if(isLast) jumpToLogEnd();
 	}
 
-	private int trimLogPanel() {
+	private void trimLogPanel() {
 		int removed = 0;
 		while (listModel.size() >= LOG_LENGTH) {
 			listModel.remove(0);
 			removed++;
 		}
-		return removed;
 	}
 
 	public void clearLog() {

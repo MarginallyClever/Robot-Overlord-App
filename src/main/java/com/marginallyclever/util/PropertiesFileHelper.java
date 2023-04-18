@@ -2,6 +2,8 @@ package com.marginallyclever.util;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +14,7 @@ import java.util.Properties;
  * @since 2015-10-05
  */
 public final class PropertiesFileHelper {
+    private static final Logger logger = LoggerFactory.getLogger(PropertiesFileHelper.class);
     private static final String APP_PROPERTIES_FILENAME = "robotoverlord.properties";
 
     /**
@@ -31,10 +34,10 @@ public final class PropertiesFileHelper {
 
             //get the property value and print it out
             versionPropertyValue = prop.getProperty("robotoverlord.version");
-            Log.message("robotoverlord.version=" + versionPropertyValue);
+            logger.info("robotoverlord.version=" + versionPropertyValue);
 
         } catch (IllegalStateException | IOException ex) {
-            Log.error(ex.getMessage());
+            logger.error(ex.getMessage());
             throw ex;
         }
         return versionPropertyValue;

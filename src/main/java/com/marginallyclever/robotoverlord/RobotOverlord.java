@@ -2,6 +2,8 @@ package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel;
+import com.marginallyclever.convenience.log.LogPanel2;
+import com.marginallyclever.convenience.log.LogPanel3;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
@@ -130,6 +132,23 @@ public class RobotOverlord extends Entity {
 	private EntityRenameAction entityRenameAction;
 	private EntityDeleteAction entityDeleteAction;
 
+
+	public static void main(String[] argv) {
+		Log.start();
+		//logFrame = LogPanel.createFrame();
+		logFrame = LogPanel3.createFrame(Log.getLogLocation());
+		PathUtils.goToAppWorkingDirectory();
+
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch(Exception ignored) {}
+
+		//Schedule a job for the event-dispatching thread:
+		//creating and showing this application's GUI.
+		javax.swing.SwingUtilities.invokeLater(RobotOverlord::new);
+	}
+
+
 	private RobotOverlord() {
 		super("");
 
@@ -162,7 +181,7 @@ public class RobotOverlord extends Entity {
 
 		listenToClipboardChanges();
 
-		Log.message("** READY **");
+		logger.info("** READY **");
     }
 
 	private void listenToClipboardChanges() {
@@ -185,20 +204,8 @@ public class RobotOverlord extends Entity {
 		renderPanel = new OpenGLRenderPanel(this,scene);
 	}
 
-	public static void main(String[] argv) {
-		logFrame = LogPanel.createFrame();
-		Log.start();
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception ignored) {}
-
-		//Schedule a job for the event-dispatching thread:
-		//creating and showing this application's GUI.
-		javax.swing.SwingUtilities.invokeLater(RobotOverlord::new);
-	}
-
 	private JComponent buildEntityManagerPanel() {
-        Log.message("buildEntityManagerPanel()");
+        logger.info("buildEntityManagerPanel()");
 
 		entityTree.addEntityTreePanelListener((e)-> {
 			if (e.eventType == EntityTreePanelEvent.SELECT) {
@@ -238,7 +245,7 @@ public class RobotOverlord extends Entity {
 	}
 
 	private void layoutComponents() {
-        Log.message("build main splitter");
+        logger.info("build main splitter");
 
 		// the right hand stuff
 		rightFrameSplitter.add(buildEntityManagerPanel());
@@ -249,7 +256,7 @@ public class RobotOverlord extends Entity {
         // if the window resizes, give top and bottom halves equal share of the real estate
 		rightFrameSplitter.setResizeWeight(0.25);
 
-        Log.message("Build right side splitter");
+        logger.info("Build right side splitter");
         splitLeftRight.add(renderPanel);
         splitLeftRight.add(rightFrameSplitter);
         // if the window resizes, give left half as much real estate as it can get.
@@ -261,7 +268,7 @@ public class RobotOverlord extends Entity {
 	}
 
 	private void buildMainFrame() {
-		Log.message("buildMainFrame()");
+		logger.info("buildMainFrame()");
 		// start the main application frame - the largest visible rectangle on the screen with the minimize/maximize/close buttons.
         mainFrame = new JFrame( APP_TITLE + " " + VERSION );
 		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -305,7 +312,7 @@ public class RobotOverlord extends Entity {
 	}
 
 	private void setWindowSizeAndPosition() {
-		Log.message("Set window size and position");
+		logger.info("Set window size and position");
 
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		int windowW = prefs.getInt(KEY_WINDOW_WIDTH, dim.width);
@@ -343,7 +350,7 @@ public class RobotOverlord extends Entity {
 	}
 
 	private void buildMainMenu() {
-		Log.message("buildMainMenu()");
+		logger.info("buildMainMenu()");
 
 		mainMenu = new JMenuBar();
 		mainMenu.removeAll();
@@ -372,7 +379,75 @@ public class RobotOverlord extends Entity {
 		menu.add(new JMenuItem(new DemoAction(this,new DemoSpidee())));
 		menu.add(new JMenuItem(new DemoAction(this,new DemoDog())));
 		//menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
+		menu.addSeparator();
+		menu.add(new JMenuItem(new ShowRobotLibraryPanel(this)));
+		buildAvailableScenesTree(menu);
 		return menu;
+	}
+
+	/**
+	 * Searches for all files matching <code>scenes/[owner]/[repo]/[tag]/something.ro</code>
+	 * builds <code>[owner]/[repo]/[tag]</code> to the JMenu tree AND adds a
+	 * new SceneImportAction(this, something.ro)) to the leaf of the tree.
+	 * @param menu the JMenu that is the root of the new menu tree.
+	 */
+	private void buildAvailableScenesTree(JMenu menu) {
+		// scan 'plugins' folder for subfolders.  make them submenus.
+		File rootDirectory = new File(PathUtils.APP_PLUGINS);
+
+		if (!rootDirectory.isDirectory()) {
+			return;
+		}
+
+		boolean first=true;
+
+		File[] level1Dirs = rootDirectory.listFiles(File::isDirectory);
+		if (level1Dirs == null) return;
+
+		for (File level1Dir : level1Dirs) {
+			JMenu level1Menu = new JMenu(level1Dir.getName());
+
+			File[] level2Dirs = level1Dir.listFiles(File::isDirectory);
+			if (level2Dirs == null) continue;
+
+			for (File level2Dir : level2Dirs) {
+				JMenu level2Menu = new JMenu(level2Dir.getName());
+
+				File[] level3Dirs = level2Dir.listFiles(File::isDirectory);
+				if (level3Dirs == null) continue;
+
+				for (File level3Dir : level3Dirs) {
+					File[] roFiles = level3Dir.listFiles((dir, name) -> name.toLowerCase().endsWith(".ro"));
+					if (roFiles == null || roFiles.length == 0) continue;
+
+					JMenu level3Menu = new JMenu(level3Dir.getName());
+
+					for (File roFile : roFiles) {
+						level3Menu.add(new JMenuItem(new SceneImportAction(this, roFile)));
+					}
+
+					// we found something, add the parent menu.
+					if(level3Menu.getItemCount()!=0) {
+						level2Menu.add(level3Menu);
+					}
+				}
+
+				// we found something, add the parent menu.
+				if(level2Menu.getItemCount()!=0) {
+					level1Menu.add(level2Menu);
+				}
+			}
+
+			// we found something, add the parent menu.
+			if(level1Menu.getItemCount()!=0) {
+				// first time through, add a separator.
+				if(first) {
+					first = false;
+					menu.add(new JSeparator());
+				}
+				menu.add(level1Menu);
+			}
+		}
 	}
 
 	private JComponent createEditMenu() {
@@ -443,6 +518,7 @@ public class RobotOverlord extends Entity {
 			new Thread(() -> {
 				renderPanel.stopAnimationSystem();
 				mainFrame.dispose();
+				Log.end();
 			}).start();
         }
 	}

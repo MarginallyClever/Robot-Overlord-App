@@ -1,8 +1,11 @@
 package com.marginallyclever.robotoverlord.swinginterface;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.swinginterface.actions.UndoAction;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.util.PreferencesHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -17,12 +20,13 @@ import java.io.FileInputStream;
 import java.util.prefs.Preferences;
 
 public class SoundSystem {
+	private static final Logger logger = LoggerFactory.getLogger(SoundSystem.class);
 	static private Preferences prefs;
 
 
 	@SuppressWarnings("deprecation")
 	static public void start() {
-		Log.message("SoundSystem start");
+		logger.info("SoundSystem start");
 		prefs = PreferencesHelper.getPreferenceNode(PreferencesHelper.MakelangeloPreferenceKey.LEGACY_MAKELANGELO_ROOT);
 	}
 	
@@ -34,7 +38,7 @@ public class SoundSystem {
 			File file = choose.getSelectedFile();
 			return file.getAbsolutePath();
 		} else {
-			//Log.message("File access cancelled by user.");
+			//logger.info("File access cancelled by user.");
 			return "";
 		}
 	}

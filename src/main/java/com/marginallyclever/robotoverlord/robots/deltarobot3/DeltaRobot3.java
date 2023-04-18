@@ -10,6 +10,7 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.components.shapes.mesh.MeshSmoother;
 import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.robots.Robot;
@@ -17,6 +18,8 @@ import com.marginallyclever.robotoverlord.robots.RobotEntity;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotArmInterface.RobotArmInterface;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
@@ -29,8 +32,8 @@ import java.nio.charset.StandardCharsets;
 
 @Deprecated
 public class DeltaRobot3 extends RobotEntity implements Robot {
-	@Serial
-	private static final long serialVersionUID = 5991551452979216237L;
+	private static final Logger logger = LoggerFactory.getLogger(DeltaRobot3.class);
+
 	// machine ID
 	private long robotUID;
 	private final static String hello = "HELLO WORLD! I AM DELTA ROBOT V3-";
@@ -346,7 +349,7 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 			
 			String uidString=line.substring(hello.length()).trim();
 			uidString = uidString.substring(uidString.indexOf('#')+1);
-			Log.message(">>> UID="+uidString);
+			logger.info(">>> UID="+uidString);
 			try {
 				long uid = Long.parseLong(uidString);
 				if(uid==0) {
@@ -362,7 +365,7 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 			setName(ROBOT_NAME+" #"+robotUID);
 		}
 		
-		Log.message("RECV "+line);
+		logger.info("RECV "+line);
 	}
 
 	/**

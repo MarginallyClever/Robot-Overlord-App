@@ -7,8 +7,11 @@ import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ModelSmootherTest {
+    private static final Logger logger = LoggerFactory.getLogger(ModelSmootherTest.class);
 	@Before
 	public void before() {
 		Log.start();
@@ -25,19 +28,19 @@ public class ModelSmootherTest {
         float vertexEpsilon = 0.1f;
         float normalEpsilon = 0.25f;
         String wd = System.getProperty("user.dir");
-        Log.message("Working directory=" + wd);
+        logger.info("Working directory=" + wd);
 
-        Log.message("hand");
+        logger.info("hand");
         MeshSmoother.smoothModel("/robots/AH/WristRot.stl", wd + "/robots/AH/WristRot-smooth.stl", vertexEpsilon, normalEpsilon);
-        Log.message("anchor");
+        logger.info("anchor");
         MeshSmoother.smoothModel("/robots/AH/rotBaseCase.stl", wd + "/robots/AH/rotBaseCase-smooth.stl", vertexEpsilon, normalEpsilon);
-        Log.message("shoulder");
+        logger.info("shoulder");
         MeshSmoother.smoothModel("/robots/AH/Shoulder_r1.stl", wd + "/robots/AH/Shoulder_r1-smooth.stl", vertexEpsilon, normalEpsilon);
-        Log.message("elbow");
+        logger.info("elbow");
         MeshSmoother.smoothModel("/robots/AH/Elbow.stl", wd + "/robots/AH/Elbow-smooth.stl", vertexEpsilon, normalEpsilon);
-        Log.message("forearm");
+        logger.info("forearm");
         MeshSmoother.smoothModel("/robots/AH/Forearm.stl", wd + "/robots/AH/Forearm-smooth.stl", vertexEpsilon, normalEpsilon);
-        Log.message("wrist");
+        logger.info("wrist");
         MeshSmoother.smoothModel("/robots/AH/Wrist_r1.stl", wd + "/robots/AH/Wrist_r1-smooth.stl", vertexEpsilon, normalEpsilon);
     }
 

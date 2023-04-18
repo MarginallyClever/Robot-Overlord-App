@@ -5,8 +5,10 @@ import com.marginallyclever.communications.SessionLayerEvent;
 import com.marginallyclever.communications.SessionLayerListener;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.components.robot.RobotComponent;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,6 +23,8 @@ import java.util.List;
  * A {@link TextInterfaceToSessionLayer} that speaks to robots with Marlin firmware.
  */
 public class MarlinInterface extends JPanel {
+	private static final Logger logger = LoggerFactory.getLogger(MarlinInterface.class);
+
 	@Serial
 	private static final long serialVersionUID = -6388563393882327725L;
 	// number of commands we'll hold on to in case there's a resend.
@@ -90,7 +94,7 @@ public class MarlinInterface extends JPanel {
 	}
 
 	private void onConnect() {
-		Log.message("MarlinInterface connected.");
+		logger.info("MarlinInterface connected.");
 		setupListener();
 		lineNumberToSend=1;
 		lineNumberAdded=0;
@@ -110,7 +114,7 @@ public class MarlinInterface extends JPanel {
 	}
 	
 	private void onClose() {
-		Log.message("MarlinInterface disconnected.");
+		logger.info("MarlinInterface disconnected.");
 		timeoutChecker.stop();
 	}
 	
@@ -129,7 +133,7 @@ public class MarlinInterface extends JPanel {
 			lastReceivedTime = System.currentTimeMillis();
 			String message = ((String)evt.data).trim();
 			if (message.startsWith("X:") && message.contains("Count")) {
-				//Log.message("FOUND " + message);
+				//logger.info("FOUND " + message);
 				onHearM114(message);
 			} else if(message.startsWith(STR_OK)) {
 				onHearOK();
@@ -149,7 +153,7 @@ public class MarlinInterface extends JPanel {
 			}
 			// else line is no longer in the buffer.  should not be possible!
 		} catch(NumberFormatException e) {
-			Log.message("Resend request for '"+message+"' failed: "+e.getMessage());
+			logger.info("Resend request for '"+message+"' failed: "+e.getMessage());
 		}
 	}
 
@@ -182,7 +186,7 @@ public class MarlinInterface extends JPanel {
 		String withLineNumber = "N"+lineNumberAdded+" "+str;
 		String assembled = withLineNumber + generateChecksum(withLineNumber);
 		myHistory.add(new MarlinCommand(lineNumberAdded,assembled));
-		//Log.message("MarlinInterface queued '"+assembled+"'.  busyCount="+busyCount);
+		//logger.info("MarlinInterface queued '"+assembled+"'.  busyCount="+busyCount);
 		if(busyCount>0) sendQueuedCommand();
 	}
 
@@ -197,7 +201,7 @@ public class MarlinInterface extends JPanel {
 			if(mc.lineNumber == lineNumberToSend) {
 				busyCount--;
 				lineNumberToSend++;
-				//Log.message("MarlinInterface sending '"+mc.command+"'.");
+				//logger.info("MarlinInterface sending '"+mc.command+"'.");
 				chatInterface.sendCommand(mc.command);
 				return;
 			}
@@ -205,9 +209,9 @@ public class MarlinInterface extends JPanel {
 		
 		if(smallest>lineNumberToSend) {
 			// history no longer contains the line?!
-			Log.message("MarlinInterface did not find "+lineNumberToSend);
+			logger.info("MarlinInterface did not find "+lineNumberToSend);
 			for( MarlinCommand mc : myHistory ) {
-				Log.message("..."+mc.lineNumber+": "+mc.command);
+				logger.info("..."+mc.lineNumber+": "+mc.command);
 			}
 		}
 	}
@@ -246,12 +250,12 @@ public class MarlinInterface extends JPanel {
 				myArm.set(Robot.JOINT_VALUE,v);
 			}
 		} catch (NumberFormatException e) {
-			Log.error("M114: "+e.getMessage());
+			logger.error("M114: "+e.getMessage());
 		}
 	}
 
 	private void sendGoto() {
-		//Log.message("MarlinInterface.sendGoto()");
+		//logger.info("MarlinInterface.sendGoto()");
 		StringBuilder action = new StringBuilder("G1");
 		int count = (int)myArm.get(Robot.NUM_JOINTS);
 		for (int i = 0; i < count; ++i) {

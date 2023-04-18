@@ -1,8 +1,11 @@
 package com.marginallyclever.robotoverlord.components.robot.robotarm.robotArmInterface;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.ClassEnumerationInfo;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotArmInterface.marlinInterface.TextInterfaceToListeners;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotArmInterface.marlinInterface.TextInterfaceToSessionLayer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -17,9 +20,11 @@ import java.lang.reflect.Parameter;
  */
 @Deprecated
 public class ClassExplorer {
+	private static final Logger logger = LoggerFactory.getLogger(ClassExplorer.class);
+
 	public static void reportOnClass(Object o) {
 		Class<?> c = o.getClass();
-		Log.message("Class: "+c.getName());
+		logger.info("Class: "+c.getName());
 		//reportClassFields(c);
 		//reportClassAnnotations(c);
 		reportClassPublicMethods(c);
@@ -29,7 +34,7 @@ public class ClassExplorer {
 	private static void reportClassFields(Class<?> c) {
 		Field [] fields = c.getFields();
 		for(Field f : fields) {
-			Log.message("  field: "+f.getName());
+			logger.info("  field: "+f.getName());
 		}
 	}
 
@@ -37,7 +42,7 @@ public class ClassExplorer {
 	private static void reportClassAnnotations(Class<?> c) {
 		Annotation [] annotations = c.getAnnotations();
 		for(Annotation a : annotations) {
-			Log.message("  annotation: "+a.toString());
+			logger.info("  annotation: "+a.toString());
 		}
 	}
 
@@ -48,7 +53,7 @@ public class ClassExplorer {
 			reportClassMethod(m);
             int modifiers = m.getModifiers();
             Modifier.isPublic(modifiers);
-            Log.message("    modifiers: "+Modifier.toString(modifiers) + "("+modifiers+")");
+            logger.info("    modifiers: "+Modifier.toString(modifiers) + "("+modifiers+")");
             
 		}
 	}
@@ -63,10 +68,10 @@ public class ClassExplorer {
 	}
 	
 	private static void reportClassMethod(Method m) {
-        Log.message("  method: "+m);
-        //Log.message("    decl class: " + m.getDeclaringClass());
+        logger.info("  method: "+m);
+        //logger.info("    decl class: " + m.getDeclaringClass());
         Class<?> c = m.getReturnType();
-        Log.message("    return type: "+c.getName());
+        logger.info("    return type: "+c.getName());
         Parameter [] parameters = m.getParameters();
         for( Parameter p : parameters ) {
         	reportClassMethodParameter(p);
@@ -74,7 +79,7 @@ public class ClassExplorer {
 	}
 
 	private static void reportClassMethodParameter(Parameter p) {
-		Log.message("    param: "+p);
+		logger.info("    param: "+p);
 	}
 
 	public static void main(String[] args) {

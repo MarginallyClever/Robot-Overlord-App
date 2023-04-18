@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.*;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.*;
-import com.marginallyclever.robotoverlord.components.shapes.material.MaterialComponent;
+import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.ColorEntity;
 import com.marginallyclever.robotoverlord.parameters.StringEntity;
@@ -155,7 +155,7 @@ public class Scene extends Entity {
 			for( AABB AABB1 : listA ) {
 				for( AABB AABB2 : listB ) {
 					if( IntersectionHelper.cuboidCuboid(AABB1, AABB2) ) {
-						Log.message("Collision between "+
+						logger.info("Collision between "+
 							listA.indexOf(AABB1)+
 							" and "+
 							b.getName()+"."+listB.indexOf(AABB2));
@@ -221,7 +221,6 @@ public class Scene extends Entity {
 	 * @return true if unCheckedAssetFilename is in the scene path.
 	 */
 	public boolean isAssetPathInScenePath(String unCheckedAssetFilename) {
-		logger.debug("Checking if asset path is in scene path: "+unCheckedAssetFilename);
 		Path input = Paths.get(unCheckedAssetFilename);
 		Path scene = Paths.get(getScenePath());
 		return input.toAbsolutePath().startsWith(scene.toAbsolutePath());
@@ -237,7 +236,7 @@ public class Scene extends Entity {
 		String message = Translator.get("Scene.AssetPathNotInScenePathWarning");
 		message = message.replace("%1", unCheckedAssetFilename);
 		message = message.replace("%2", getScenePath());
-		logger.error(message);
+		logger.warn("asset "+unCheckedAssetFilename+" not in scene path: "+getScenePath());
 
 		// try to show a pop-up if we have a display
 		if(!GraphicsEnvironment.isHeadless()) {

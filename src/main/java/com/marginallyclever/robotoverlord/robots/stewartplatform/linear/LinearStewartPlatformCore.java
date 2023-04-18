@@ -9,7 +9,10 @@ import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.parameters.MaterialEntity;
 import com.marginallyclever.robotoverlord.parameters.RemoteEntity;
+import com.marginallyclever.robotoverlord.robots.skycam.SkycamSim;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -19,8 +22,7 @@ import java.io.Serial;
 
 @Deprecated
 public class LinearStewartPlatformCore extends PoseEntity {
-	@Serial
-	private static final long serialVersionUID = 1L;
+	private static final Logger logger = LoggerFactory.getLogger(LinearStewartPlatformCore.class);
 	
 	public final DoubleEntity SLIDE_TRAVEL = new DoubleEntity("SLIDE_TRAVEL", 10.0);  // cm
 	public final DoubleEntity ARM_LENGTH = new DoubleEntity("ARM_LENGTH",15.0362);  // cm
@@ -265,7 +267,7 @@ public class LinearStewartPlatformCore extends PoseEntity {
 					+" U0"
 					+" V0"
 					+" W0";
-			Log.message(message);
+			logger.info(message);
 			connection.sendMessage(message);
 			Matrix4d ident = new Matrix4d();
 			ident.setIdentity();
@@ -312,7 +314,7 @@ public class LinearStewartPlatformCore extends PoseEntity {
 				+" U"+StringHelper.formatDouble(arms[3].linearPosition*scale)
 				+" V"+StringHelper.formatDouble(arms[4].linearPosition*scale)
 				+" W"+StringHelper.formatDouble(arms[5].linearPosition*scale);
-		Log.message(message);
+		logger.info(message);
 		connection.sendMessage(message);
 	}
 }

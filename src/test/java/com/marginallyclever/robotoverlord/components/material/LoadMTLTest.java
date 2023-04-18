@@ -1,8 +1,6 @@
 package com.marginallyclever.robotoverlord.components.material;
 
-import com.marginallyclever.robotoverlord.components.shapes.material.LoadMTL;
-import com.marginallyclever.robotoverlord.components.shapes.material.MaterialComponent;
-import com.marginallyclever.robotoverlord.components.shapes.material.MaterialLoader;
+import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +23,6 @@ public class LoadMTLTest {
         Assertions.assertArrayEquals(new double[]{0.002063, 0.00206, 0.0, 1.0}, material.getDiffuseColor());
         Assertions.assertArrayEquals(new double[]{0.002063, 0.00206, 0.0, 1.0}, material.getDiffuseColor());
         Assertions.assertArrayEquals(new double[]{0.5, 0.5, 0.5, 1.0}, material.getSpecularColor());
-        Assertions.assertEquals("sixi.png",material.getTextureFilename());
+        Assertions.assertTrue(material.getTextureFilename().endsWith("sixi.png"));
     }
 }

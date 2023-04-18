@@ -10,6 +10,8 @@ import org.junit.Before;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
@@ -17,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Disabled
 public class JSCHTests {
+    private static final Logger logger = LoggerFactory.getLogger(JSCHTests.class);
     private static final String DEFAULT_BAUD = "57600";
     private static final String DEFAULT_USB_DEVICE = "/dev/ttyACM0";
 
@@ -48,14 +51,14 @@ public class JSCHTests {
 
         InputStream in = channel.getInputStream();
         // TEST 1
-        //while(channel.isConnected()) Log.message((char)in.read());
+        //while(channel.isConnected()) logger.info((char)in.read());
 
         // TEST 2
         StringBuilder input = new StringBuilder();
         while (channel.isConnected()) {
             input.append((char) in.read());
             if (input.toString().endsWith("\n")) {
-                Log.message(input.toString());
+                logger.info(input.toString());
             }
         }
 		/*

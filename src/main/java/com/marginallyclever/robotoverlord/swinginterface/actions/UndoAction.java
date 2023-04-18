@@ -2,6 +2,8 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.undo.CannotUndoException;
@@ -14,10 +16,7 @@ import java.awt.event.KeyEvent;
  * @author Dan Royer
  */
 public class UndoAction extends AbstractAction {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    private static final Logger logger = LoggerFactory.getLogger(UndoAction.class);
 	private final UndoManager undo;
 	private RedoAction redoAction;
 	
@@ -34,7 +33,7 @@ public class UndoAction extends AbstractAction {
         try {
             undo.undo();
         } catch (CannotUndoException ex) {
-            Log.message("Unable to undo: " + ex);
+            logger.info("Unable to undo: " + ex);
             ex.printStackTrace();
         }
         updateUndoState();

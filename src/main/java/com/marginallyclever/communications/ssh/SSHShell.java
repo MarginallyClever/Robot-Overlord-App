@@ -12,12 +12,16 @@ package com.marginallyclever.communications.ssh;
  */
 
 import com.jcraft.jsch.*;
+import com.marginallyclever.communications.serial.SerialSession;
 import com.marginallyclever.convenience.log.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class SSHShell {
+	private static final Logger logger = LoggerFactory.getLogger(SSHShell.class);
 	public static void main(String[] arg) {
 		Log.start();
 		try {
@@ -77,7 +81,7 @@ public class SSHShell {
 			// channel.connect();
 			channel.connect(3 * 1000);
 		} catch (Exception e) {
-			Log.error(e.getLocalizedMessage());
+			logger.error(e.getMessage());
 		}
 	}
 
