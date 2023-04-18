@@ -22,8 +22,8 @@ import java.util.List;
 /**
  * A {@link TextInterfaceToSessionLayer} that speaks to robots with Marlin firmware.
  */
-public class MarlinInterface extends JPanel {
-	private static final Logger logger = LoggerFactory.getLogger(MarlinInterface.class);
+public class MarlinPresentation extends JPanel {
+	private static final Logger logger = LoggerFactory.getLogger(MarlinPresentation.class);
 
 	@Serial
 	private static final long serialVersionUID = -6388563393882327725L;
@@ -59,7 +59,7 @@ public class MarlinInterface extends JPanel {
 	private final Timer timeoutChecker = new Timer(10000,(e)->onTimeoutCheck());
 	private long lastReceivedTime;
 
-	public MarlinInterface(Robot arm) {
+	public MarlinPresentation(Robot arm) {
 		super();
 
 		myArm = arm;
@@ -147,7 +147,7 @@ public class MarlinInterface extends JPanel {
 		String numberPart = message.substring(message.indexOf(STR_RESEND) + STR_RESEND.length());
 		try {
 			int n = Integer.parseInt(numberPart);
-			if(n>lineNumberAdded-MarlinInterface.HISTORY_BUFFER_LIMIT) {
+			if(n>lineNumberAdded- MarlinPresentation.HISTORY_BUFFER_LIMIT) {
 				// no problem.
 				lineNumberToSend=n;
 			}
@@ -169,7 +169,7 @@ public class MarlinInterface extends JPanel {
 	}
 
 	private void fireIdleNotice() {
-		notifyListeners(new ActionEvent(this,ActionEvent.ACTION_PERFORMED,MarlinInterface.IDLE));
+		notifyListeners(new ActionEvent(this,ActionEvent.ACTION_PERFORMED, MarlinPresentation.IDLE));
 	}
 
 	private void clearOldHistory() {
@@ -362,14 +362,14 @@ public class MarlinInterface extends JPanel {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception ignored) {}
 
-		JFrame frame = new JFrame(MarlinInterface.class.getName());
+		JFrame frame = new JFrame(MarlinPresentation.class.getName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new MarlinInterface(new RobotComponent()));
+		frame.add(new MarlinPresentation(new RobotComponent()));
 		frame.pack();
 		frame.setVisible(true);
 	}
 
 	public boolean isIdleCommand(ActionEvent e) {
-		return e.getActionCommand().contentEquals(MarlinInterface.IDLE);
+		return e.getActionCommand().contentEquals(MarlinPresentation.IDLE);
 	}
 }
