@@ -1,9 +1,9 @@
 package com.marginallyclever.communications.session;
 
-import com.marginallyclever.communications.TransportLayer;
-import com.marginallyclever.communications.TransportLayerPanel;
-import com.marginallyclever.communications.serial.SerialTransportLayer;
-import com.marginallyclever.communications.tcp.TCPTransportLayer;
+import com.marginallyclever.communications.transport.TransportLayer;
+import com.marginallyclever.communications.transport.TransportLayerPanel;
+import com.marginallyclever.communications.transport.serial.SerialTransportLayer;
+import com.marginallyclever.communications.transport.tcp.TCPTransportLayer;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;

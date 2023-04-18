@@ -1,7 +1,7 @@
-package com.marginallyclever.communications.serial;
+package com.marginallyclever.communications.transport.serial;
 
 import com.marginallyclever.communications.session.SessionLayer;
-import com.marginallyclever.communications.TransportLayerPanel;
+import com.marginallyclever.communications.transport.TransportLayerPanel;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

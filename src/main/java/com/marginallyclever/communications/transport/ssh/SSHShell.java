@@ -1,4 +1,4 @@
-package com.marginallyclever.communications.ssh;
+package com.marginallyclever.communications.transport.ssh;
 
 /* -*-mode:java; c-basic-offset:2; indent-tabs-mode:nil -*- */
 /**
@@ -12,7 +12,6 @@ package com.marginallyclever.communications.ssh;
  */
 
 import com.jcraft.jsch.*;
-import com.marginallyclever.communications.serial.SerialSession;
 import com.marginallyclever.convenience.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

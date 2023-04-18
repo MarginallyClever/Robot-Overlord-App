@@ -1,4 +1,4 @@
-package com.marginallyclever.communications.tcp;
+package com.marginallyclever.communications.transport.tcp;
 
 import com.jcraft.jsch.UserInfo;
 

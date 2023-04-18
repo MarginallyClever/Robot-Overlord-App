@@ -1,4 +1,4 @@
-package com.marginallyclever.communications;
+package com.marginallyclever.communications.transport;
 
 import com.marginallyclever.communications.session.SessionLayer;
 

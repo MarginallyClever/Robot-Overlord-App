@@ -1,8 +1,8 @@
-package com.marginallyclever.communications.serial;
+package com.marginallyclever.communications.transport.serial;
 
 import com.marginallyclever.communications.session.SessionLayer;
 import com.marginallyclever.communications.session.SessionLayerEvent;
-import com.marginallyclever.communications.TransportLayer;
+import com.marginallyclever.communications.transport.TransportLayer;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;

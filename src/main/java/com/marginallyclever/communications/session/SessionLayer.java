@@ -1,6 +1,6 @@
 package com.marginallyclever.communications.session;
 
-import com.marginallyclever.communications.TransportLayer;
+import com.marginallyclever.communications.transport.TransportLayer;
 
 import javax.swing.*;
 import java.util.ArrayList;
