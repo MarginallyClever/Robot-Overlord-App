@@ -6,21 +6,19 @@ import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ConversationHistoryList extends JPanel {
+	@Serial
 	private static final long serialVersionUID = 6287436679006933618L;
-	private DefaultListModel<ConversationEvent> listModel = new DefaultListModel<ConversationEvent>();
-	private JList<ConversationEvent> listView = new JList<ConversationEvent>(listModel);
-	private ConcurrentLinkedQueue<ConversationEvent> inBoundQueue = new ConcurrentLinkedQueue<ConversationEvent>();
-	private JFileChooser chooser = new JFileChooser();
+	private final DefaultListModel<ConversationEvent> listModel = new DefaultListModel<ConversationEvent>();
+	private final JList<ConversationEvent> listView = new JList<ConversationEvent>(listModel);
+	private final ConcurrentLinkedQueue<ConversationEvent> inBoundQueue = new ConcurrentLinkedQueue<ConversationEvent>();
+	private final JFileChooser chooser = new JFileChooser();
 
-	private JButton bClear = new JButton("Clear");
-	private JButton bSave = new JButton("Save");
+	private final JButton bClear = new JButton("Clear");
+	private final JButton bSave = new JButton("Save");
 
 	
 	public ConversationHistoryList() {

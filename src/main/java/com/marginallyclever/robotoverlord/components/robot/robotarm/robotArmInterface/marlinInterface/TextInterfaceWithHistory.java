@@ -6,14 +6,20 @@ import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.io.Serial;
 
+/**
+ * A chat style interface with a history of commands.  The history is a list of commands sent and received.
+ * @author Dan Royer
+ */
 public class TextInterfaceWithHistory extends JPanel {
 	/**
 	 * 
 	 */
+	@Serial
 	private static final long serialVersionUID = 5542831703742185676L;
-	private TextInterfaceToListeners myInterface = new TextInterfaceToListeners();
-	private ConversationHistoryList myHistory = new ConversationHistoryList();
+	private final TextInterfaceToListeners myInterface = new TextInterfaceToListeners();
+	private final ConversationHistoryList myHistory = new ConversationHistoryList();
 	
 	public TextInterfaceWithHistory() {
 		super();

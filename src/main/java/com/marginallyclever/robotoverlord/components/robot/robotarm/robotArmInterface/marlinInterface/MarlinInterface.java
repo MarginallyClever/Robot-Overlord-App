@@ -18,8 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A text interface to a {@link SessionLayer} that also allows the user to choose the connection.
- * This interface speaks to robots with Marlin firmware.
+ * A {@link TextInterfaceToSessionLayer} that speaks to robots with Marlin firmware.
  */
 public class MarlinInterface extends JPanel {
 	@Serial
@@ -35,7 +34,7 @@ public class MarlinInterface extends JPanel {
 	// Marlin sends this event when the robot is ready to receive more.
 	private static final String STR_OK = "ok";
 	// MarlinInterface sends this as an ActionEvent to let listeners know it can handle more input.
-	public static final String IDLE = "idle";
+	private static final String IDLE = "idle";
 
 	private final Robot myArm;
 	private final TextInterfaceToSessionLayer chatInterface = new TextInterfaceToSessionLayer();
@@ -364,5 +363,9 @@ public class MarlinInterface extends JPanel {
 		frame.add(new MarlinInterface(new RobotComponent()));
 		frame.pack();
 		frame.setVisible(true);
+	}
+
+	public boolean isIdleCommand(ActionEvent e) {
+		return e.getActionCommand().contentEquals(MarlinInterface.IDLE);
 	}
 }
