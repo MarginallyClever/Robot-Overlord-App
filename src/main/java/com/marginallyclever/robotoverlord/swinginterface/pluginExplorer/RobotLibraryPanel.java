@@ -1,5 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.pluginExplorer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
@@ -10,6 +13,7 @@ import java.util.List;
  * @since 2.5.0
  */
 public class RobotLibraryPanel extends JPanel {
+    private static final Logger logger = LoggerFactory.getLogger(RobotLibraryPanel.class);
 
     public RobotLibraryPanel(List<String> repositoryUrls) {
         setLayout(new BorderLayout());
@@ -17,6 +21,7 @@ public class RobotLibraryPanel extends JPanel {
         JPanel repositoriesPanel = new JPanel();
         repositoriesPanel.setLayout(new BoxLayout(repositoriesPanel, BoxLayout.Y_AXIS));
         JScrollPane scrollPane = new JScrollPane(repositoriesPanel);
+        scrollPane.setAlignmentX(LEFT_ALIGNMENT);
 
         int j=0;
         for (int i = 0; i < repositoryUrls.size(); i++) {
@@ -34,6 +39,7 @@ public class RobotLibraryPanel extends JPanel {
             containerPanel.setName("multiVersionPropertiesPanel_" + j);
             ++j;
 
+            logger.info("Adding " + url);
             repositoriesPanel.add(containerPanel);
         }
 

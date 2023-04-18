@@ -86,8 +86,10 @@ public class PropertiesPanel extends JPanel {
             JLabel keyLabel = new JLabel(label);
             JLabel  valueLabel = new JLabel(value);
             add(keyLabel, constraints);
+            constraints.weightx=1;
             constraints.gridx++;
             add(valueLabel, constraints);
+            constraints.weightx=0;
             constraints.gridx--;
         }
     }

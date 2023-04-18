@@ -34,6 +34,8 @@ public class MultiVersionPropertiesPanel extends JPanel {
 
         libraryStatus.setName("libraryStatus");
 
+        propertiesPanel.setLayout(new BoxLayout(propertiesPanel, BoxLayout.Y_AXIS));
+
         tagComboBox = new JComboBox<>(tags.toArray(new String[0]));
         tagComboBox.setName("tagComboBox");
         tagComboBox.addActionListener(e -> {
