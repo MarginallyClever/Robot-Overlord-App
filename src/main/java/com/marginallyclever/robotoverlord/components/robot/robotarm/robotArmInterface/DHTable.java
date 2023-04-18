@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.robot.robotarm.robotArmInterface;
+package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface;
 
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;

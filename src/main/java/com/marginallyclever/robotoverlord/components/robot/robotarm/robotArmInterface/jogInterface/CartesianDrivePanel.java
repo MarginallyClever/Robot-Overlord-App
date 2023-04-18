@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.robot.robotarm.robotArmInterface.jogInterface;
+package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.joginterface;
 
 import com.marginallyclever.convenience.swing.Dial;
 import com.marginallyclever.convenience.MatrixHelper;
