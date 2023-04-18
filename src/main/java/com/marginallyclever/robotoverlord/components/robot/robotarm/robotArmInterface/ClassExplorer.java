@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface;
 
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.marlininterface.TextInterfaceToListeners;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.marlininterface.TextInterfaceToSessionLayer;
+import com.marginallyclever.communications.application.TextInterfaceToListeners;
+import com.marginallyclever.communications.application.TextInterfaceToSessionLayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

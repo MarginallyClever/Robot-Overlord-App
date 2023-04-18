@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.marlininterface;
+package com.marginallyclever.communications.application;
 
 import javax.swing.*;
 import java.awt.*;

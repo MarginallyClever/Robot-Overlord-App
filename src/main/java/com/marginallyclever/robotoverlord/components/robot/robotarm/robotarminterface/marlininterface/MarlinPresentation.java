@@ -1,5 +1,7 @@
 package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.marlininterface;
 
+import com.marginallyclever.communications.application.ChooseConnectionPanel;
+import com.marginallyclever.communications.application.TextInterfaceToSessionLayer;
 import com.marginallyclever.communications.session.SessionLayer;
 import com.marginallyclever.communications.session.SessionLayerEvent;
 import com.marginallyclever.communications.session.SessionLayerListener;
