@@ -1,16 +1,14 @@
 package com.marginallyclever.robotoverlord.robots.deltarobot3;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.communications.SessionLayer;
+import com.marginallyclever.communications.session.SessionLayer;
 import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.components.shapes.mesh.MeshSmoother;
 import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.robots.Robot;

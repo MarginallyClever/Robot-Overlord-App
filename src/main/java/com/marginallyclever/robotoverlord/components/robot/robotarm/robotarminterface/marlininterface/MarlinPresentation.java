@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.marlininterface;
 
-import com.marginallyclever.communications.SessionLayer;
-import com.marginallyclever.communications.SessionLayerEvent;
-import com.marginallyclever.communications.SessionLayerListener;
+import com.marginallyclever.communications.session.SessionLayer;
+import com.marginallyclever.communications.session.SessionLayerEvent;
+import com.marginallyclever.communications.session.SessionLayerListener;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.RobotComponent;

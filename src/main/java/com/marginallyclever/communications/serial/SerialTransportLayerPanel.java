@@ -1,6 +1,6 @@
 package com.marginallyclever.communications.serial;
 
-import com.marginallyclever.communications.SessionLayer;
+import com.marginallyclever.communications.session.SessionLayer;
 import com.marginallyclever.communications.TransportLayerPanel;
 
 import javax.swing.*;

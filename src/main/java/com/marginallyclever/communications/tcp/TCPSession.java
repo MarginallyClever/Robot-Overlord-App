@@ -3,11 +3,9 @@ package com.marginallyclever.communications.tcp;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
-import com.marginallyclever.communications.SessionLayer;
-import com.marginallyclever.communications.SessionLayerEvent;
+import com.marginallyclever.communications.session.SessionLayer;
+import com.marginallyclever.communications.session.SessionLayerEvent;
 import com.marginallyclever.communications.TransportLayer;
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.RobotOverlord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

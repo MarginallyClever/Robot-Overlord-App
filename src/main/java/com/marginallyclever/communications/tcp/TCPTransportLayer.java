@@ -1,9 +1,8 @@
 package com.marginallyclever.communications.tcp;
 
-import com.marginallyclever.communications.SessionLayer;
+import com.marginallyclever.communications.session.SessionLayer;
 import com.marginallyclever.communications.TransportLayer;
 import com.marginallyclever.communications.TransportLayerPanel;
-import com.marginallyclever.convenience.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
