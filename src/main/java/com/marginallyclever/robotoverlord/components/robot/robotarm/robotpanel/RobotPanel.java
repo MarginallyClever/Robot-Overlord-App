@@ -19,9 +19,13 @@ import java.io.Serial;
 public class RobotPanel extends JPanel {
 	@Serial
 	private static final long serialVersionUID = 1L;
-	private final PresentationLayer presentationLayer;
 	private final JogPanel jogPanel;
 	private final programPanel programPanel;
+
+	JComboBox<String> presentationChoices = new JComboBox<>(PresentationFactory.AVAILABLE_PRESENTATIONS);
+	private final JPanel presentationContainer = new JPanel(new BorderLayout());
+	private final JPanel presentationContainerCenter = new JPanel(new BorderLayout());
+	private PresentationLayer presentationLayer;
 
 	private final JButton bHome = new JButton("Home");
 	private final JButton bRewind = new JButton("Rewind");
@@ -31,24 +35,40 @@ public class RobotPanel extends JPanel {
 	private final JProgressBar progress = new JProgressBar(0, 100);
 
 	private boolean isRunning = false;
+	private final Robot myRobot;
 	
 	public RobotPanel(Robot robot) {
 		super();
-		
-		presentationLayer = PresentationFactory.createPresentation("Marlin",robot);
+		this.myRobot = robot;
+
 		jogPanel = new JogPanel(robot);
 		programPanel = new programPanel(robot);
-		
+		setupPresentationContainer();
+
 		JTabbedPane pane = new JTabbedPane();
 		pane.addTab("Jog", jogPanel);
 		pane.addTab("Program", programPanel);
-		pane.addTab("Presentation", presentationLayer.getPanel());
+		pane.addTab("Connect", presentationContainer);
 
 		this.setLayout(new BorderLayout());
 		this.add(pane, BorderLayout.CENTER);
 		this.add(getToolBar(), BorderLayout.NORTH);
 		this.add(progress, BorderLayout.SOUTH);
+	}
 
+	private void setupPresentationContainer() {
+		presentationContainer.add(presentationChoices,BorderLayout.NORTH);
+		presentationContainer.add(presentationContainerCenter,BorderLayout.CENTER);
+
+		presentationChoices.addActionListener(e->changePresentationLayer());
+		changePresentationLayer();
+	}
+
+	private void changePresentationLayer() {
+		if(presentationLayer!=null) {
+			presentationLayer.closeConnection();
+		}
+		presentationLayer = PresentationFactory.createPresentation((String) presentationChoices.getSelectedItem(),myRobot);
 		presentationLayer.addListener((e)-> {
 			if (presentationLayer.isIdleCommand(e)) {
 				// logger.debug("PlotterControls heard idle");
@@ -59,6 +79,11 @@ public class RobotPanel extends JPanel {
 			}
 			updateProgressBar();
 		});
+
+		presentationContainerCenter.removeAll();
+		presentationContainerCenter.add(presentationLayer.getPanel(),BorderLayout.CENTER);
+		presentationContainerCenter.revalidate();
+		presentationContainerCenter.repaint();
 	}
 
 	private JToolBar getToolBar() {
