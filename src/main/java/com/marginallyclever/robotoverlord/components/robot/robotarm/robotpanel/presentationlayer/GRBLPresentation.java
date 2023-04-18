@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.presentationlayer;
+package com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.presentationlayer;
 
 import com.marginallyclever.communications.application.ChooseConnectionPanel;
 import com.marginallyclever.communications.application.TextInterfaceToSessionLayer;

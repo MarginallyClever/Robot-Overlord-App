@@ -13,7 +13,7 @@ import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.robots.RobotEntity;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.RobotArmInterface;
+import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.RobotPanel;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.slf4j.Logger;
@@ -143,7 +143,7 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 			public void run() {
 				JDialog frame = new JDialog(parentFrame,getName());
 				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-				frame.add(new RobotArmInterface(me));
+				frame.add(new RobotPanel(me));
 				frame.pack();
 				frame.setVisible(true);
 			}

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.jogpanel;
+package com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.jogpanel;
 
 import com.marginallyclever.convenience.log.Log;
 

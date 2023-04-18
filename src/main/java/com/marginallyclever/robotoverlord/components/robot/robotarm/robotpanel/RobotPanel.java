@@ -1,18 +1,22 @@
-package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface;
+package com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel;
 
-import com.marginallyclever.communications.presentation.PresentationLayer;
+import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.presentationlayer.PresentationLayer;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.jogpanel.JogPanel;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.presentationlayer.PresentationFactory;
+import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.jogpanel.JogPanel;
+import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.presentationlayer.PresentationFactory;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.programpanel.programPanel;
+import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.programpanel.programPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.Serial;
 
-public class RobotArmInterface extends JPanel {
+/**
+ * Application layer for a robot.  A {@link JogPanel}, a {@link programPanel}, and a {@link PresentationLayer} glued together.
+ * @author Dan Royer
+ */
+public class RobotPanel extends JPanel {
 	@Serial
 	private static final long serialVersionUID = 1L;
 	private final PresentationLayer presentationLayer;
@@ -28,7 +32,7 @@ public class RobotArmInterface extends JPanel {
 
 	private boolean isRunning = false;
 	
-	public RobotArmInterface(Robot robot) {
+	public RobotPanel(Robot robot) {
 		super();
 		
 		presentationLayer = PresentationFactory.createPresentation("Marlin",robot);
@@ -36,16 +40,16 @@ public class RobotArmInterface extends JPanel {
 		programPanel = new programPanel(robot);
 		
 		JTabbedPane pane = new JTabbedPane();
-		pane.addTab("MarlinInterface", presentationLayer.getPanel());
-		pane.addTab("JogInterface", jogPanel);
-		pane.addTab("ProgramInterface", programPanel);
+		pane.addTab("Jog", jogPanel);
+		pane.addTab("Program", programPanel);
+		pane.addTab("Presentation", presentationLayer.getPanel());
 
 		this.setLayout(new BorderLayout());
 		this.add(pane, BorderLayout.CENTER);
 		this.add(getToolBar(), BorderLayout.NORTH);
 		this.add(progress, BorderLayout.SOUTH);
 
-		presentationLayer.addListener((e) -> {
+		presentationLayer.addListener((e)-> {
 			if (presentationLayer.isIdleCommand(e)) {
 				// logger.debug("PlotterControls heard idle");
 				if (isRunning) {
@@ -142,7 +146,7 @@ public class RobotArmInterface extends JPanel {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception ignored) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new RobotArmInterface(new RobotComponent()));
+		frame.add(new RobotPanel(new RobotComponent()));
 		frame.pack();
 		frame.setVisible(true);
 	}

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface;
+package com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel;
 
 import com.marginallyclever.convenience.log.Log;
 import org.apache.batik.ext.swing.GridBagConstants;
