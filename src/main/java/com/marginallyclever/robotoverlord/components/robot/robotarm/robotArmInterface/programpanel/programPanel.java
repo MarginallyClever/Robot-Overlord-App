@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.programinterface;
+package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.programpanel;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
@@ -9,7 +9,7 @@ import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.io.*;
 
-public class ProgramInterface extends JPanel {
+public class programPanel extends JPanel {
 	@Serial
 	private static final long serialVersionUID = 1L;
 	private final DefaultListModel<ProgramEvent> listModel = new DefaultListModel<>();
@@ -28,7 +28,7 @@ public class ProgramInterface extends JPanel {
 	
 	private final Robot myArm;
 		
-	public ProgramInterface(Robot arm) {
+	public programPanel(Robot arm) {
 		super();
 		myArm = arm;
 		createCellRenderingSystem();
@@ -271,7 +271,7 @@ public class ProgramInterface extends JPanel {
 		Log.start();
 		JFrame frame = new JFrame("ProgramInterface");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new ProgramInterface(new RobotComponent()));
+		frame.add(new programPanel(new RobotComponent()));
 		frame.pack();
 		frame.setVisible(true);
 	}

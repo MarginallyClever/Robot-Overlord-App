@@ -6,7 +6,7 @@ import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.jogpanel.JogPanel;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.presentationlayer.PresentationFactory;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.programinterface.ProgramInterface;
+import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.programpanel.programPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +17,7 @@ public class RobotArmInterface extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private final PresentationLayer presentationLayer;
 	private final JogPanel jogPanel;
-	private final ProgramInterface programInterface;
+	private final programPanel programPanel;
 
 	private final JButton bHome = new JButton("Home");
 	private final JButton bRewind = new JButton("Rewind");
@@ -33,12 +33,12 @@ public class RobotArmInterface extends JPanel {
 		
 		presentationLayer = PresentationFactory.createPresentation("Marlin",robot);
 		jogPanel = new JogPanel(robot);
-		programInterface = new ProgramInterface(robot);
+		programPanel = new programPanel(robot);
 		
 		JTabbedPane pane = new JTabbedPane();
 		pane.addTab("MarlinInterface", presentationLayer.getPanel());
 		pane.addTab("JogInterface", jogPanel);
-		pane.addTab("ProgramInterface", programInterface);
+		pane.addTab("ProgramInterface", programPanel);
 
 		this.setLayout(new BorderLayout());
 		this.add(pane, BorderLayout.CENTER);
@@ -79,12 +79,12 @@ public class RobotArmInterface extends JPanel {
 	}
 
 	private void updateProgressBar() {
-		progress.setValue((int) (100.0 * programInterface.getLineNumber() / programInterface.getMoveCount()));
+		progress.setValue((int) (100.0 * programPanel.getLineNumber() / programPanel.getMoveCount()));
 	}
 
 	private void step() {
-		programInterface.step();
-		if (programInterface.getLineNumber() == -1) {
+		programPanel.step();
+		if (programPanel.getLineNumber() == -1) {
 			// done
 			pause();
 		}
@@ -107,13 +107,13 @@ public class RobotArmInterface extends JPanel {
 	}
 
 	private void rewindIfNoProgramLineSelected() {
-		if (programInterface.getLineNumber() == -1) {
-			programInterface.rewind();
+		if (programPanel.getLineNumber() == -1) {
+			programPanel.rewind();
 		}
 	}
 
 	private void rewind() {
-		programInterface.rewind();
+		programPanel.rewind();
 		progress.setValue(0);
 	}
 

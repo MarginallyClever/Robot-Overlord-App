@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.programinterface;
+package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.programpanel;
 
 import javax.swing.*;
 import java.awt.*;
