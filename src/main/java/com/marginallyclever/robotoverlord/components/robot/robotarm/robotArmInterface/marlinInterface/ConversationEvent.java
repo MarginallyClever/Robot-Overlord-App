@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.robot.robotarm.robotArmInterface.marlinInterface;
+package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.marlininterface;
 
 public class ConversationEvent {
 	public String whoSpoke;
