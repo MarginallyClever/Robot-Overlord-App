@@ -2,6 +2,8 @@ package com.marginallyclever.communications.presentation;
 
 import com.marginallyclever.communications.session.SessionLayer;
 
+import javax.swing.*;
+
 /**
  * In the <a href="https://en.wikipedia.org/wiki/OSI_model">, the Presentation layer is responsible for translating
  * data between the application layer and the session.
@@ -18,4 +20,6 @@ public interface PresentationLayer {
     void processIncomingMessage(String message);
 
     void processOutgoingMessage(String message);
+
+    JPanel getPanel();
 }
