@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.marlininterface;
+package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.presentationlayer;
 
 public class MarlinCommand {
 	// for quick retrieval

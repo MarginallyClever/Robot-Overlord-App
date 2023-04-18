@@ -1,7 +1,8 @@
-package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.marlininterface;
+package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.presentationlayer;
 
 import com.marginallyclever.communications.application.ChooseConnectionPanel;
 import com.marginallyclever.communications.application.TextInterfaceToSessionLayer;
+import com.marginallyclever.communications.presentation.PresentationLayer;
 import com.marginallyclever.communications.session.SessionLayer;
 import com.marginallyclever.communications.session.SessionLayerEvent;
 import com.marginallyclever.communications.session.SessionLayerListener;
@@ -24,7 +25,7 @@ import java.util.List;
 /**
  * A {@link TextInterfaceToSessionLayer} that speaks to robots with Marlin firmware.
  */
-public class MarlinPresentation extends JPanel {
+public class MarlinPresentation extends JPanel implements PresentationLayer {
 	private static final Logger logger = LoggerFactory.getLogger(MarlinPresentation.class);
 
 	@Serial
@@ -373,5 +374,10 @@ public class MarlinPresentation extends JPanel {
 
 	public boolean isIdleCommand(ActionEvent e) {
 		return e.getActionCommand().contentEquals(MarlinPresentation.IDLE);
+	}
+
+	@Override
+	public JPanel getPanel() {
+		return this;
 	}
 }

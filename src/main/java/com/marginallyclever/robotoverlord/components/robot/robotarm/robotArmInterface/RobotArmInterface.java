@@ -1,9 +1,11 @@
 package com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface;
 
+import com.marginallyclever.communications.presentation.PresentationLayer;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.joginterface.JogInterface;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.marlininterface.MarlinPresentation;
+import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.presentationlayer.MarlinPresentation;
+import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.presentationlayer.PresentationFactory;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotarminterface.programinterface.ProgramInterface;
 
@@ -14,7 +16,7 @@ import java.io.Serial;
 public class RobotArmInterface extends JPanel {
 	@Serial
 	private static final long serialVersionUID = 1L;
-	private final MarlinPresentation marlinPresentation;
+	private final PresentationLayer presentationLayer;
 	private final JogInterface jogInterface;
 	private final ProgramInterface programInterface;
 
@@ -30,12 +32,12 @@ public class RobotArmInterface extends JPanel {
 	public RobotArmInterface(Robot robot) {
 		super();
 		
-		marlinPresentation = new MarlinPresentation(robot);
+		presentationLayer = PresentationFactory.createPresentation("Marlin",robot);
 		jogInterface = new JogInterface(robot);
 		programInterface = new ProgramInterface(robot);
 		
 		JTabbedPane pane = new JTabbedPane();
-		pane.addTab("MarlinInterface", marlinPresentation);
+		pane.addTab("MarlinInterface", presentationLayer.getPanel());
 		pane.addTab("JogInterface", jogInterface);
 		pane.addTab("ProgramInterface", programInterface);
 
@@ -44,8 +46,8 @@ public class RobotArmInterface extends JPanel {
 		this.add(getToolBar(), BorderLayout.NORTH);
 		this.add(progress, BorderLayout.SOUTH);
 
-		marlinPresentation.addListener((e) -> {
-			if (marlinPresentation.isIdleCommand(e)) {
+		presentationLayer.addListener((e) -> {
+			if (presentationLayer.isIdleCommand(e)) {
 				// logger.debug("PlotterControls heard idle");
 				if (isRunning) {
 					// logger.debug("PlotterControls is running");
@@ -117,7 +119,7 @@ public class RobotArmInterface extends JPanel {
 	}
 
 	private void home() {
-		marlinPresentation.sendGoHome();
+		presentationLayer.sendGoHome();
 	}
 
 	private void updateButtonStatus() {
@@ -129,7 +131,7 @@ public class RobotArmInterface extends JPanel {
 	}
 
 	public void closeConnection() {
-		marlinPresentation.closeConnection();
+		presentationLayer.closeConnection();
 	}
 	
 	// TEST
