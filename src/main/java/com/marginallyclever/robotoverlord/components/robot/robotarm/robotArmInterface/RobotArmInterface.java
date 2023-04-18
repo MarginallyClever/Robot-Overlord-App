@@ -139,7 +139,7 @@ public class RobotArmInterface extends JPanel {
 		JFrame frame = new JFrame("RobotArmInterface");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception e) {}
+		} catch(Exception ignored) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new RobotArmInterface(new RobotComponent()));
 		frame.pack();

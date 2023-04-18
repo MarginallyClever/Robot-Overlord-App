@@ -28,7 +28,7 @@ public abstract class RobotEntity extends PoseEntity {
 	
 	/**
 	 * Processes a single instruction meant for the robot.
-	 * @param line command to send
+	 * @param command command to send
 	 * @return true if the command is sent to the robot.
 	 */
 	public boolean sendCommand(String command) {

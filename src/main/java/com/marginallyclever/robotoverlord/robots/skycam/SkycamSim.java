@@ -74,7 +74,7 @@ public class SkycamSim extends Entity {
 
 	/**
 	 * override this to change behavior of joints over time.
-	 * @param dt
+	 * @param seg the segment to update
 	 */
 	protected void updatePositions(SkycamSimSegment seg) {
 		if(poseNow==null) return;

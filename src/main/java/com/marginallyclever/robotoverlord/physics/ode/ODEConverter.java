@@ -58,15 +58,15 @@ public class ODEConverter {
 	}
 
 	/**
-	 * @param in {@link DVector3C}
-	 * @return equivalent {@link getVector3d}
+	 * @param v {@link DVector3C}
+	 * @return equivalent {@link Vector3d}
 	 */
 	public static Vector3d getVector3d(DVector3C v) {
 		return new Vector3d(v.get0(),v.get1(),v.get2());
 	}
 
 	/**
-	 * @param in {@link Vector3d}
+	 * @param v {@link Vector3d}
 	 * @return equivalent {@link DVector3}
 	 */
 	public static DVector3 getDVector3(Vector3d v) {
@@ -74,7 +74,7 @@ public class ODEConverter {
 	}
 
 	/**
-	 * @param in {@link DQuaternionC}
+	 * @param v {@link DQuaternionC}
 	 * @return equivalent {@link Quat4d}
 	 */
 	public static Quat4d getQuat4d(DQuaternionC q) {
@@ -82,7 +82,7 @@ public class ODEConverter {
 	}
 
 	/**
-	 * @param in {@link Quat4d}
+	 * @param v {@link Quat4d}
 	 * @return equivalent {@link DQuaternion}
 	 */
 	public static DQuaternion getDQuaternion(Quat4d q) {
@@ -91,7 +91,7 @@ public class ODEConverter {
 
 	/**
 	 * Build a {@link Matrix4d} from the orientation and position of a {@link DGeom}
-	 * @param in {@link DGeom}
+	 * @param v {@link DGeom}
 	 * @return equivalent {@link Matrix4d}
 	 */
 	public static Matrix4d getMatrix4d(DGeom geom) {

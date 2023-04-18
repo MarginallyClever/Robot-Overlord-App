@@ -1,8 +1,6 @@
 package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.convenience.log.LogPanel;
-import com.marginallyclever.convenience.log.LogPanel2;
 import com.marginallyclever.convenience.log.LogPanel3;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
@@ -392,7 +390,7 @@ public class RobotOverlord extends Entity {
 	 * @param menu the JMenu that is the root of the new menu tree.
 	 */
 	private void buildAvailableScenesTree(JMenu menu) {
-		// scan 'plugins' folder for subfolders.  make them submenus.
+		// scan 'plugins' folder for sub-folders.  make them submenus.
 		File rootDirectory = new File(PathUtils.APP_PLUGINS);
 
 		if (!rootDirectory.isDirectory()) {
@@ -528,6 +526,7 @@ public class RobotOverlord extends Entity {
 	 * @param name the name to match
 	 * @return the entity.  null if nothing found.
 	 */
+	@Deprecated
 	public Entity findEntityWithName(String name) {
 		ArrayList<Entity> list = new ArrayList<>();
 		list.add(scene);
@@ -538,10 +537,6 @@ public class RobotOverlord extends Entity {
 			list.addAll(obj.getChildren());
 		}
 		return null;
-	}
-
-	public Viewport getViewport() {
-		return renderPanel.getViewport();
 	}
 
 	public CameraComponent getCamera() {
@@ -565,14 +560,14 @@ public class RobotOverlord extends Entity {
 		logger.debug("adding drag + drop support...");
 		new DropTarget(mainFrame,new DropTargetAdapter() {
 			@Override
-			public void drop(DropTargetDropEvent dtde) {
+			public void drop(DropTargetDropEvent event) {
 				try {
-					Transferable tr = dtde.getTransferable();
+					Transferable tr = event.getTransferable();
 					DataFlavor[] flavors = tr.getTransferDataFlavors();
 					for (DataFlavor flavor : flavors) {
 						logger.debug("Possible flavor: {}", flavor.getMimeType());
 						if (flavor.isFlavorJavaFileListType()) {
-							dtde.acceptDrop(DnDConstants.ACTION_COPY);
+							event.acceptDrop(DnDConstants.ACTION_COPY);
 							Object object = tr.getTransferData(flavor);
 							if (object instanceof List<?>) {
 								List<?> list = (List<?>) object;
@@ -581,11 +576,11 @@ public class RobotOverlord extends Entity {
 									if (object instanceof File) {
 										File file = (File) object;
 										if(loadMesh(file.getAbsolutePath())) {
-											dtde.dropComplete(true);
+											event.dropComplete(true);
 											return;
 										}
 										if(importScene(file)) {
-											dtde.dropComplete(true);
+											event.dropComplete(true);
 											return;
 										}
 									}
@@ -593,11 +588,11 @@ public class RobotOverlord extends Entity {
 							}
 						}
 					}
-					logger.debug("Drop failed: {}", dtde);
-					dtde.rejectDrop();
+					logger.debug("Drop failed: {}", event);
+					event.rejectDrop();
 				} catch (Exception e) {
 					logger.error("Drop error", e);
-					dtde.rejectDrop();
+					event.rejectDrop();
 				}
 			}
 		});
@@ -619,7 +614,7 @@ public class RobotOverlord extends Entity {
 			// add shape, which will add pose and material.
 			ShapeComponent shape = new MeshFromFile(absolutePath);
 			entity.addComponent(shape);
-			// move entity to camera orbit point so it's visible.
+			// move entity to camera orbit point so that it is visible.
 			PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
 			pose.setPosition(getCamera().getOrbitPoint());
 

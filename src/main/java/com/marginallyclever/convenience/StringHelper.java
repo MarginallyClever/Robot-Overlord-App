@@ -91,7 +91,7 @@ public class StringHelper {
 
 	/**
 	 * 
-	 * @param value byte array
+	 * @param bytes byte array
 	 * @return double value
 	 */
 	public static double byteArrayToFloat(byte[] bytes) {
