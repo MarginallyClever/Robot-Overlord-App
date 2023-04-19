@@ -5,7 +5,9 @@ import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 import javax.vecmath.Vector3d;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /**
@@ -26,11 +28,11 @@ public class LoadOBJ implements MeshLoader {
 	
 	@Override
 	public void load(BufferedInputStream inputStream, Mesh model) throws Exception {
-		ArrayList<Float> vertexArray = new ArrayList<Float>();
-		ArrayList<Float> normalArray = new ArrayList<Float>();
-		ArrayList<Float> texCoordArray = new ArrayList<Float>();
+		ArrayList<Float> vertexArray = new ArrayList<>();
+		ArrayList<Float> normalArray = new ArrayList<>();
+		ArrayList<Float> texCoordArray = new ArrayList<>();
 
-		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream,"UTF-8"));
+		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 		String line;
 		while( ( line = br.readLine() ) != null ) {
 			line = line.trim();
@@ -74,7 +76,7 @@ public class LoadOBJ implements MeshLoader {
 					
 					try {
 						model.addVertex(
-								vertexArray.get(index*3+0),
+								vertexArray.get(index * 3),
 								vertexArray.get(index*3+1),
 								vertexArray.get(index*3+2));
 					} catch(Exception e) {
@@ -85,7 +87,7 @@ public class LoadOBJ implements MeshLoader {
 						int indexT = Integer.parseInt(subTokens[1])-1;
 						try {
 							model.addTexCoord(
-									texCoordArray.get(indexT*2+0),
+									texCoordArray.get(indexT * 2),
 									texCoordArray.get(indexT*2+1));
 						} catch(Exception e) {
 							e.printStackTrace();
@@ -96,7 +98,7 @@ public class LoadOBJ implements MeshLoader {
 						int indexN = Integer.parseInt(subTokens[2])-1;
 						try {
 							model.addNormal(
-									normalArray.get(indexN*3+0),
+									normalArray.get(indexN * 3),
 									normalArray.get(indexN*3+1),
 									normalArray.get(indexN*3+2));
 						} catch(Exception e) {
@@ -106,5 +108,28 @@ public class LoadOBJ implements MeshLoader {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Does this loader find a material file near the mesh file?
+	 * @param absolutePath path to mesh file
+	 * @return true if a material file is found
+	 */
+	@Override
+	public boolean hasMaterial(String absolutePath) {
+		// replace extension of absolutePath with .mtl
+		absolutePath = getMaterialPath(absolutePath);
+		// check if file exists
+		File test = new File(absolutePath);
+		return test.exists();
+	}
+
+	/**
+	 * Get the path to the material file
+	 * @param absolutePath path to mesh file
+	 * @return path to material file or null.
+	 */
+	public String getMaterialPath(String absolutePath) {
+		return absolutePath.substring(0,absolutePath.lastIndexOf('.'))+".mtl";
 	}
 }
