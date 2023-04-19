@@ -24,10 +24,18 @@ class GCodePathLoader implements TurtlePathLoader {
 
     public void load(BufferedInputStream inputStream, GCodePath model) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        Pattern pattern = Pattern.compile("([GMT])(\\d+)|([XYZUVWF])\\s*(-?\\d+(\\.\\d+)?)|([IiOo])\\s+(.*)");
+        Pattern pattern = Pattern.compile("([GMT])(\\d+)|([XYZUVWFE])(-?\\d*(\\.\\d+)?)");
+
+        model.clear();
+
+        GCodePathElement memory = new GCodePathElement("G0");
 
         String line;
         while ((line = reader.readLine()) != null) {
+            if(line.contains(";")) {
+                // throw away comments
+                line = line.substring(0,line.indexOf(";"));
+            }
             line = line.trim();
             if (line.isEmpty() || line.startsWith(";") || line.startsWith("(") || line.startsWith(")") || line.startsWith("%")) {
                 continue; // Skip comments and empty lines
@@ -40,16 +48,22 @@ class GCodePathLoader implements TurtlePathLoader {
                 String commandValue = matcher.group(2);
                 String axisGroup = matcher.group(3);
                 String axisValue = matcher.group(4);
-                String ioGroup = matcher.group(6);
-                String ioValue = matcher.group(7);
 
                 if (commandGroup != null && commandValue != null) {
-                    element = new GCodePathElement(commandGroup + commandValue);
+                    element = new GCodePathElement(memory);
+                    element.setCommand(commandGroup + commandValue);
+                    element.setExtrusion(null);
                 } else if (axisGroup != null && axisValue != null) {
                     if (element == null) {
                         throw new Exception("Invalid GCode: Axis value without command");
                     }
-                    double value = Double.parseDouble(axisValue);
+                    double value;
+                    try {
+                        value = Double.parseDouble(axisValue);
+                    }
+                    catch(NumberFormatException ex) {
+                        throw ex;
+                    }
                     switch (axisGroup) {
                         case "X" -> element.setX(value);
                         case "Y" -> element.setY(value);
@@ -58,17 +72,14 @@ class GCodePathLoader implements TurtlePathLoader {
                         case "V" -> element.setV(value);
                         case "W" -> element.setW(value);
                         case "F" -> element.setFeedrate(value);
+                        case "E" -> element.setExtrusion(value);
                     }
-                } else if (ioGroup != null && ioValue != null) {
-                    if (element == null) {
-                        throw new Exception("Invalid GCode: I/O operation without command");
-                    }
-                    element.setIoOperation(ioGroup + " " + ioValue);
                 }
             }
 
             if (element != null) {
                 model.addElement(element);
+                memory = element;
             } else {
                 throw new Exception("Invalid GCode: Unrecognized command or format");
             }
