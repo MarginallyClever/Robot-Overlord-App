@@ -3,13 +3,11 @@ package com.marginallyclever.robotoverlord.robots.stewartplatform.linear;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.*;
-import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.parameters.MaterialEntity;
 import com.marginallyclever.robotoverlord.parameters.RemoteEntity;
-import com.marginallyclever.robotoverlord.robots.skycam.SkycamSim;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +16,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
-import java.io.Serial;
 
 @Deprecated
 public class LinearStewartPlatformCore extends PoseEntity {

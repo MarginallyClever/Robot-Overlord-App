@@ -1,12 +1,11 @@
 package com.marginallyclever.robotoverlord.swinginterface.pluginExplorer;
 
-import com.marginallyclever.convenience.log.Log;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.marginallyclever.robotoverlord.PathUtils;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
@@ -20,7 +19,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Type;
-import java.net.*;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;

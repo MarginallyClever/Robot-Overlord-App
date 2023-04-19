@@ -11,6 +11,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.util.*;
 import java.util.prefs.BackingStoreException;

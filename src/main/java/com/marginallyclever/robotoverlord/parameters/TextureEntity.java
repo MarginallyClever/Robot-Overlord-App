@@ -11,7 +11,9 @@ import org.slf4j.LoggerFactory;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 // TODO Load textures from a texture pool to eliminate duplicates?  See ShapeEntity for example.
 public class TextureEntity extends StringEntity {
@@ -88,7 +90,7 @@ public class TextureEntity extends StringEntity {
 		filters.add(new FileNameExtensionFilter("BMP", "bmp"));
 		filters.add(new FileNameExtensionFilter("JPEG", "jpeg","jpg"));
 		filters.add(new FileNameExtensionFilter("TGA", "tga"));
-		
+
 		view.addFilename(this,filters);
 	}
 

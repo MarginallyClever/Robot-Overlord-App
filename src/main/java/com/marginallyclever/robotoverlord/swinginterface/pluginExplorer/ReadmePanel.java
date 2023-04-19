@@ -1,15 +1,14 @@
 package com.marginallyclever.robotoverlord.swinginterface.pluginExplorer;
 
-import javax.swing.*;
-import java.net.URL;
-
-import okhttp3.OkHttpClient;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
+import okhttp3.OkHttpClient;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.net.URL;
 
 /**
  * Displays the README.md file from a GitHub repository.

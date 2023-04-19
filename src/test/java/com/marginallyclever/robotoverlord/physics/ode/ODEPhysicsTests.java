@@ -1,11 +1,11 @@
 package com.marginallyclever.robotoverlord.physics.ode;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import org.junit.jupiter.api.Test;
 import org.ode4j.ode.DPlane;
 import org.ode4j.ode.DSpace;
 import org.ode4j.ode.OdeHelper;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ODEPhysicsTests {
 	@Test

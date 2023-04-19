@@ -3,13 +3,11 @@ package com.marginallyclever.robotoverlord.swinginterface.view;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.UnicodeIcon;
 import com.marginallyclever.robotoverlord.parameters.*;
 import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
 import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentCopyAction;
 import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentDeleteAction;
 import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentPasteAction;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

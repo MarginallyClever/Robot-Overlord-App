@@ -11,7 +11,6 @@ import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
-import javax.swing.undo.UndoManager;
 import javax.vecmath.Vector3d;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;

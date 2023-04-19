@@ -1,18 +1,21 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.*;
+import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.OpenGLHelper;
+import com.marginallyclever.convenience.Plane;
+import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 public class TranslateEntityToolOneAxis implements EditorTool {
     private final double handleLength = 5;

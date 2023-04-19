@@ -1,29 +1,26 @@
 package com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel;
 
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.presentationlayer.PresentationLayer;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.jogpanel.JogPanel;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.presentationlayer.PresentationFactory;
-import com.marginallyclever.robotoverlord.robots.Robot;
+import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.presentationlayer.PresentationLayer;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.programpanel.ProgramPanel;
+import com.marginallyclever.robotoverlord.robots.Robot;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.Serial;
 
 /**
  * Application layer for a robot.  A {@link JogPanel}, a {@link ProgramPanel}, and a {@link PresentationLayer} glued together.
  * @author Dan Royer
  */
 public class RobotPanel extends JPanel {
-	@Serial
-	private static final long serialVersionUID = 1L;
-	private final JogPanel jogPanel;
 	private final ProgramPanel programPanel;
 
-	JComboBox<String> presentationChoices = new JComboBox<>(PresentationFactory.AVAILABLE_PRESENTATIONS);
 	private final JPanel presentationContainer = new JPanel(new BorderLayout());
+	private final JPanel presentationSelection = new JPanel(new BorderLayout());
+	private final JComboBox<String> presentationChoices = new JComboBox<>(PresentationFactory.AVAILABLE_PRESENTATIONS);
 	private final JPanel presentationContainerCenter = new JPanel(new BorderLayout());
 	private PresentationLayer presentationLayer;
 
@@ -41,7 +38,7 @@ public class RobotPanel extends JPanel {
 		super();
 		this.myRobot = robot;
 
-		jogPanel = new JogPanel(robot);
+		JogPanel jogPanel = new JogPanel(robot);
 		programPanel = new ProgramPanel(robot);
 		setupPresentationContainer();
 
@@ -57,7 +54,9 @@ public class RobotPanel extends JPanel {
 	}
 
 	private void setupPresentationContainer() {
-		presentationContainer.add(presentationChoices,BorderLayout.NORTH);
+		presentationSelection.add(new JLabel("Presentation Layer:"),BorderLayout.WEST);
+		presentationSelection.add(presentationChoices,BorderLayout.CENTER);
+		presentationContainer.add(presentationSelection,BorderLayout.NORTH);
 		presentationContainer.add(presentationContainerCenter,BorderLayout.CENTER);
 
 		presentationChoices.addActionListener(e->changePresentationLayer());
@@ -68,7 +67,9 @@ public class RobotPanel extends JPanel {
 		if(presentationLayer!=null) {
 			presentationLayer.closeConnection();
 		}
-		presentationLayer = PresentationFactory.createPresentation((String) presentationChoices.getSelectedItem(),myRobot);
+		String selection = (String) presentationChoices.getSelectedItem();
+		assert selection != null;
+		presentationLayer = PresentationFactory.createPresentation(selection,myRobot);
 		presentationLayer.addListener((e)-> {
 			if (presentationLayer.isIdleCommand(e)) {
 				// logger.debug("PlotterControls heard idle");
