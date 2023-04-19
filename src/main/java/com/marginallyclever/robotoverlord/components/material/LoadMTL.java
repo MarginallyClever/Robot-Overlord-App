@@ -8,9 +8,7 @@ import java.io.InputStreamReader;
 
 /**
  * Loads MTL Material Format files into {@link MaterialComponent}s.  If more than one material is found, all will
- * be loaded, overwriting each other.
- * See <a href="https://www.loc.gov/preservation/digital/formats/fdd/fdd000508.shtml">MTL file format</a> and
- * <a href="http://paulbourke.net/dataformats/mtl/">Paul Bourke</a>.
+ * be loaded, overwriting each other. See also <a href="http://paulbourke.net/dataformats/mtl/">Paul Bourke</a>.
  *
  * @author Dan Royer
  * @since 2.5.0

@@ -20,4 +20,22 @@ public interface MeshLoader {
 	 * @throws Exception if something goes wrong
 	 */
 	void load(BufferedInputStream inputStream, Mesh model) throws Exception;
+
+	/**
+	 * Does this loader find a material file near the mesh file?
+	 * @param absolutePath path to mesh file
+	 * @return true if a material file is found
+	 */
+    default boolean hasMaterial(String absolutePath) {
+		return false;
+	}
+
+	/**
+	 * Get the path to the material file
+	 * @param absolutePath path to mesh file
+	 * @return path to material file or null.
+	 */
+	default String getMaterialPath(String absolutePath) {
+		return null;
+	}
 }

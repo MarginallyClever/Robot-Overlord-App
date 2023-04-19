@@ -22,6 +22,10 @@ public class MaterialComponent extends Component {
     private final BooleanEntity isLit    = new BooleanEntity("Lit",true);
     private final TextureEntity texture  = new TextureEntity();
 
+    public MaterialComponent() {
+        super();
+    }
+
     @Override
     public void getView(ViewPanel view) {
         super.getView(view);
@@ -177,7 +181,7 @@ public class MaterialComponent extends Component {
         TextureEntity te = new TextureEntity();
         te.parseJSON(jo.getJSONObject("texture"));
         String fn = te.get();
-        if(!(new File(fn)).exists()) {
+        if(!fn.isEmpty() && !(new File(fn)).exists()) {
             Scene myScene = getScene();
             if(myScene!=null) {
                 te.set(myScene.addScenePath(fn));

@@ -15,7 +15,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-// TODO Load textures from a texture pool to eliminate duplicates?  See ShapeEntity for example.
+/**
+ * A texture file name.  Loads the texture when needed from a pool to reduce duplication.
+ * @author Dan Royer
+ */
 public class TextureEntity extends StringEntity {
 	private static final Logger logger = LoggerFactory.getLogger(TextureEntity.class);
 

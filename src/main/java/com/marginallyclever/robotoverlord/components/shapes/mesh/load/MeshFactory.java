@@ -12,9 +12,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+/**
+ * {@link MeshFactory} loads a mesh from a file using one of many {@link MeshLoader} classes.  It also keeps a pool of
+ * all shapes loaded so that only one instance of each shape is loaded.
+ *
+ * @author Dan Royer
+ */
 public class MeshFactory {
 	private static final Logger logger = LoggerFactory.getLogger(MeshFactory.class);
-	private static final MeshLoader [] loaders = { new LoadSTL(), new LoadOBJ(), new Load3MF(), new LoadAMF(), new LoadPLY() };
+	private static final MeshLoader [] loaders = {
+			new Load3MF(),
+			new LoadAMF(),
+			new LoadOBJ(),
+			new LoadPLY(),
+			new LoadSTL(),
+	};
 	
 	// the pool of all shapes loaded
 	private static final LinkedList<Mesh> meshPool = new LinkedList<>();
@@ -96,7 +108,6 @@ public class MeshFactory {
 		
 		for( MeshLoader loader : loaders ) {
 			filters.add( new FileNameExtensionFilter(loader.getEnglishName(), loader.getValidExtensions()) );
-		
 		}
 		return filters;
 	}
@@ -106,5 +117,19 @@ public class MeshFactory {
 			if(Arrays.stream(loader.getValidExtensions()).anyMatch(absolutePath::endsWith)) return true;
 		}
 		return false;
+	}
+
+    public static boolean hasMaterial(String absolutePath) {
+		for( MeshLoader loader : loaders ) {
+			if(loader.hasMaterial(absolutePath)) return true;
+		}
+		return false;
+    }
+
+	public static String getMaterialPath(String absolutePath) {
+		for( MeshLoader loader : loaders ) {
+			if(loader.hasMaterial(absolutePath)) return loader.getMaterialPath(absolutePath);
+		}
+		return null;
 	}
 }
