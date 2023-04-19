@@ -1,6 +1,10 @@
 package com.marginallyclever.robotoverlord.components.path;
 import java.util.Iterator;
 
+/**
+ * Walks a {@link GCodePath}, breaking arcs into line segments.
+ * @author Dan Royer
+ */
 public class PathWalker {
     private final Iterator<GCodePathElement> iterator;
     private GCodePathElement currentElement;
@@ -10,6 +14,11 @@ public class PathWalker {
     boolean relativeMoves=false;
     double centerX, centerY, radius;
 
+    /**
+     * Initialize the path walker.
+     * @param gCodePath the path to walk
+     * @param maxStepSize the maximum distance between points in arc segments.
+     */
     public PathWalker(GCodePath gCodePath, double maxStepSize) {
         this.iterator = gCodePath.getElements().iterator();
         this.maxStepSize = maxStepSize;

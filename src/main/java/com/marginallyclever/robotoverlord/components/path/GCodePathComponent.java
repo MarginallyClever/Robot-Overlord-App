@@ -15,7 +15,7 @@ import javax.swing.filechooser.FileFilter;
 import java.util.ArrayList;
 
 /**
- * A {@link RenderComponent} that renders a {@link GCodePath}.
+ * A {@link RenderComponent} that uses a {@link PathWalker} to render a {@link GCodePath}.
  * @author Dan Royer
  * @since 2.5.0
  */

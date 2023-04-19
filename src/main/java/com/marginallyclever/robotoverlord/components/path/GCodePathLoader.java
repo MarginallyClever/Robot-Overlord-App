@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Loads a GCode file into a {@link GCodePath}.
+ * Loads a Prusa Slic3r GCode file into a {@link GCodePath}.
  * @author Dan Royer
  * @since 2.5.0
  */
