@@ -4,8 +4,11 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel3;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
+import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
+import com.marginallyclever.robotoverlord.components.material.MaterialFactory;
+import com.marginallyclever.robotoverlord.components.material.MaterialLoader;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.demos.DemoDog;
 import com.marginallyclever.robotoverlord.demos.DemoSpidee;
@@ -575,7 +578,7 @@ public class RobotOverlord extends Entity {
 									object = list.get(0);
 									if (object instanceof File) {
 										File file = (File) object;
-										if(loadMesh(file.getAbsolutePath())) {
+										if(importMesh(file.getAbsolutePath())) {
 											event.dropComplete(true);
 											return;
 										}
@@ -603,10 +606,10 @@ public class RobotOverlord extends Entity {
 		return action.loadFile(file);
 	}
 
-	private boolean loadMesh(String absolutePath) {
+	private boolean importMesh(String absolutePath) {
 		if(!MeshFactory.canLoad(absolutePath)) return false;
 
-		logger.debug("loadMesh({})",absolutePath);
+		logger.debug("importing mesh "+absolutePath);
         try {
 			// create entity.
 			Entity entity = new Entity();
