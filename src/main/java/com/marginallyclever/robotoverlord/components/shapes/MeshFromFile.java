@@ -41,7 +41,7 @@ public class MeshFromFile extends ShapeComponent {
         if(entity != null && entity.findFirstComponent(MaterialComponent.class)==null) {
             // no material, add one.
             String absolutePath = filename.get();
-            if(MeshFactory.hasMaterial(absolutePath)) {
+            if(!absolutePath.trim().isEmpty() && MeshFactory.hasMaterial(absolutePath)) {
                 logger.debug("MeshFromFile: adding material for "+absolutePath);
                 String materialPath = MeshFactory.getMaterialPath(absolutePath);
                 MaterialComponent material = MaterialFactory.load(materialPath);

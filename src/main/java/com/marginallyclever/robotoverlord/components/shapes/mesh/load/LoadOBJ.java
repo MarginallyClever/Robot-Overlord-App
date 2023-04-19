@@ -130,6 +130,7 @@ public class LoadOBJ implements MeshLoader {
 	 * @return path to material file or null.
 	 */
 	public String getMaterialPath(String absolutePath) {
+		if(absolutePath==null || absolutePath.trim().isEmpty()) return null;
 		return absolutePath.substring(0,absolutePath.lastIndexOf('.'))+".mtl";
 	}
 }

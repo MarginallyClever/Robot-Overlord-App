@@ -29,10 +29,11 @@ public class MaterialFactory {
 	 * @return an instance of Material.  It may contain nothing.
 	 */
 	public static MaterialComponent load(String filename) {
-		if(filename == null || filename.trim().length()==0) return null;
-
 		MaterialComponent material = new MaterialComponent();
-		attemptLoad(filename,material);
+
+		if(filename!=null && !filename.trim().isEmpty()) {
+			attemptLoad(filename, material);
+		}
 
 		return material;
 	}
