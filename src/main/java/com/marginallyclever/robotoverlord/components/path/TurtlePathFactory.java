@@ -75,14 +75,14 @@ public class TurtlePathFactory {
         return false;
     }
 
-    private static void loadTurtlePathWithLoader(String filename, GCodePath mesh, TurtlePathLoader loader) {
+    private static void loadTurtlePathWithLoader(String filename, GCodePath path, TurtlePathLoader loader) {
         logger.info("Loading "+filename+" with "+loader.getEnglishName());
 
-        mesh.setSourceName(filename);
-        mesh.setDirty(true);
+        path.setSourceName(filename);
+        path.setDirty(true);
 
         try(BufferedInputStream stream = FileAccess.open(filename)) {
-            loader.load(stream,mesh);
+            loader.load(stream,path);
         }
         catch(Exception e) {
             logger.error("Failed to load mesh: "+e.getMessage());
