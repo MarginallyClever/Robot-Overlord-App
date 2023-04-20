@@ -15,14 +15,13 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-public class ViewCube extends Entity {
+public class ViewCube {
 	protected ShapeComponent model = new MeshFromFile("/viewCube.obj");
 	protected MaterialComponent mat = new MaterialComponent();
 	protected DoubleEntity cubeSize = new DoubleEntity("size",25);
 	
     public ViewCube() {
-    	super("ViewCube");
-    	addEntity(cubeSize);
+    	super();
 
     	mat.setTextureFilename("/images/viewCube.png");
     	mat.setDiffuseColor(1, 1, 1, 1);
@@ -101,13 +100,5 @@ public class ViewCube extends Entity {
 		gl2.glPopMatrix();
 		
 		gl2.glLineWidth(1);
-	}
-
-	@Override
-	public void getView(ViewPanel view) {
-		view.pushStack("View Cube",true);
-		view.add(cubeSize);
-		view.popStack();
-		super.getView(view);
 	}
 }
