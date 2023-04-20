@@ -30,10 +30,6 @@ import java.util.LinkedList;
  */
 public class RemoteEntity extends StringEntity implements SessionLayerListener {
 	private static final Logger logger = LoggerFactory.getLogger(RemoteEntity.class);
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2553138173639792442L;
 	
 	// the firmware uses a specific syntax.  these are elements of that syntax
 	private static final String CUE = "> ";

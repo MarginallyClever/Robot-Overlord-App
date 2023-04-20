@@ -13,8 +13,6 @@ import java.io.Serial;
  *
  */
 public class IntEntity extends AbstractEntity<Integer> {
-	@Serial
-	private static final long serialVersionUID = -665400072120969645L;
 
 	public IntEntity() {
 		super();

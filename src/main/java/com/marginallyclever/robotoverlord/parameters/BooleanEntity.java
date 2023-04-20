@@ -13,8 +13,6 @@ import java.io.Serial;
  *
  */
 public class BooleanEntity extends AbstractEntity<Boolean> {
-	@Serial
-	private static final long serialVersionUID = 1393466347571351227L;
 
 	public BooleanEntity() {
 		super();

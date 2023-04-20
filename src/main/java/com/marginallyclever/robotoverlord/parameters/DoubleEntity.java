@@ -12,10 +12,6 @@ import org.json.JSONObject;
  *
  */
 public class DoubleEntity extends AbstractEntity<Double> {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3278660733983538798L;
 
 	public DoubleEntity(String s) {
 		super(0.0);

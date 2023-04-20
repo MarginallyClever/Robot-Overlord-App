@@ -14,8 +14,6 @@ import java.io.Serial;
  */
 @Deprecated
 public class MaterialEntity extends Entity {
-	@Serial
-	private static final long serialVersionUID = 6239607540529931426L;
 	private final ColorEntity ambient    = new ColorEntity("Ambient" ,1,1,1,1);
 	private final ColorEntity diffuse    = new ColorEntity("Diffuse" ,1,1,1,1);
 	private final ColorEntity specular   = new ColorEntity("Specular",1,1,1,1);
