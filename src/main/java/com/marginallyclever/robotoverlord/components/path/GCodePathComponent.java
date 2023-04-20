@@ -31,7 +31,7 @@ public class GCodePathComponent extends RenderComponent {
 
         filename.addPropertyChangeListener((e)->{
             String fn = filename.get();
-            gCodePath = TurtlePathFactory.load(fn);
+            gCodePath = PathFactory.load(fn);
         });
     }
 
@@ -94,10 +94,10 @@ public class GCodePathComponent extends RenderComponent {
     @Override
     public void getView(ViewPanel view) {
         super.getView(view);
-        ArrayList<FileFilter> filters = TurtlePathFactory.getAllExtensions();
+        ArrayList<FileFilter> filters = PathFactory.getAllExtensions();
         view.addFilename(filename,filters);
         view.addButton("Reload").addActionEventListener(e -> {
-            TurtlePathFactory.reload(gCodePath);
+            PathFactory.reload(gCodePath);
         });
 
         IntEntity numCommands = new IntEntity("Commands",gCodePath==null ? 0 : gCodePath.getElements().size());

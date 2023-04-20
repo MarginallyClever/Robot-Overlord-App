@@ -12,14 +12,14 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 /**
- * {@link TurtlePathFactory} loads a mesh from a file using one of many {@link TurtlePathLoader} classes.  It also
- * keeps a pool of all paths loaded so that only one instance of each shape is loaded.
+ * {@link PathFactory} loads a {@link GCodePath} from a file using one of many {@link PathLoader} classes.
  *
  * @author Dan Royer
+ * @since 2.5.0
  */
-public class TurtlePathFactory {
-    private static final Logger logger = LoggerFactory.getLogger(TurtlePathFactory.class);
-    private static final TurtlePathLoader [] loaders = {
+public class PathFactory {
+    private static final Logger logger = LoggerFactory.getLogger(PathFactory.class);
+    private static final PathLoader[] loaders = {
             new GCodePathLoader(),
     };
 
@@ -58,7 +58,7 @@ public class TurtlePathFactory {
     }
 
     private static void attemptLoad(String filename, GCodePath mesh) {
-        for( TurtlePathLoader loader : loaders ) {
+        for( PathLoader loader : loaders ) {
             if(isValidExtension(filename,loader)) {
                 loadTurtlePathWithLoader(filename,mesh,loader);
                 return;
@@ -66,7 +66,7 @@ public class TurtlePathFactory {
         }
     }
 
-    private static boolean isValidExtension(String filename, TurtlePathLoader loader) {
+    private static boolean isValidExtension(String filename, PathLoader loader) {
         filename = filename.toLowerCase();
         String [] extensions = loader.getValidExtensions();
         for( String e : extensions ) {
@@ -75,7 +75,7 @@ public class TurtlePathFactory {
         return false;
     }
 
-    private static void loadTurtlePathWithLoader(String filename, GCodePath path, TurtlePathLoader loader) {
+    private static void loadTurtlePathWithLoader(String filename, GCodePath path, PathLoader loader) {
         logger.info("Loading "+filename+" with "+loader.getEnglishName());
 
         path.setSourceName(filename);
@@ -97,14 +97,14 @@ public class TurtlePathFactory {
     public static ArrayList<FileFilter> getAllExtensions() {
         ArrayList<FileFilter> filters = new ArrayList<>();
 
-        for( TurtlePathLoader loader : loaders ) {
+        for( PathLoader loader : loaders ) {
             filters.add( new FileNameExtensionFilter(loader.getEnglishName(), loader.getValidExtensions()) );
         }
         return filters;
     }
 
     public static boolean canLoad(String absolutePath) {
-        for( TurtlePathLoader loader : loaders ) {
+        for( PathLoader loader : loaders ) {
             if(Arrays.stream(loader.getValidExtensions()).anyMatch(absolutePath::endsWith)) return true;
         }
         return false;

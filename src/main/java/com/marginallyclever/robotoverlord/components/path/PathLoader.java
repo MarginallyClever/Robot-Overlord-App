@@ -3,11 +3,12 @@ package com.marginallyclever.robotoverlord.components.path;
 import java.io.BufferedInputStream;
 
 /**
- * {@link TurtlePathLoader} interface for all classes that load a TurtlePath.  Call upon by {@link TurtlePathFactory}
- * @author Dan Royer
+ * {@link PathLoader} interface for all classes that load a {@link GCodePath}.  Call upon by {@link PathFactory}
  *
+ * @author Dan Royer
+ * @since 2.5.0
  */
-public interface TurtlePathLoader {
+public interface PathLoader {
 	String getEnglishName();
 	String[] getValidExtensions();
 

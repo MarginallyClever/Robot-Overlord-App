@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
  * @author Dan Royer
  * @since 2.5.0
  */
-class GCodePathLoader implements TurtlePathLoader {
+class GCodePathLoader implements PathLoader {
     @Override
     public String getEnglishName() {
         return "GCode (gcode,nc,ngc)";
