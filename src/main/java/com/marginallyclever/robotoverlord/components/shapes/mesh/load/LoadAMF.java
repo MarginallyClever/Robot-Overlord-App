@@ -1,7 +1,5 @@
 package com.marginallyclever.robotoverlord.components.shapes.mesh.load;
 
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotArmInterface.marlinInterface.ChooseConnectionPanel;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

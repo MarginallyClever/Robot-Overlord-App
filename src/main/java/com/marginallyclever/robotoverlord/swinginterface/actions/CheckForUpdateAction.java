@@ -1,8 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
-import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.robots.stewartplatform.rotary.RotaryStewartPlatform;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +10,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.Serial;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;

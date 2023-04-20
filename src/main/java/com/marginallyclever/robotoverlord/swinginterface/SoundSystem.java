@@ -1,7 +1,5 @@
 package com.marginallyclever.robotoverlord.swinginterface;
 
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.swinginterface.actions.UndoAction;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.util.PreferencesHelper;
 import org.slf4j.Logger;

@@ -3,8 +3,6 @@ package com.marginallyclever.robotoverlord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
-
 public class ComponentTest {
     public static void saveAndLoad(Component a,Component b) throws Exception {
         b.parseJSON(a.toJSON());

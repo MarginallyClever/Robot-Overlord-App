@@ -1,7 +1,5 @@
 package com.marginallyclever.util;
 
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.swinginterface.translator.TranslatorLanguage;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

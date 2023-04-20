@@ -4,13 +4,11 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.parameters.MaterialEntity;
 import com.marginallyclever.robotoverlord.parameters.RemoteEntity;
-import com.marginallyclever.robotoverlord.robots.stewartplatform.linear.LinearStewartPlatformCore;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
-import java.io.Serial;
 
 /**
  * Generic rotary stewart platform.  6 Rotating biceps move forearms connected to the top plate.

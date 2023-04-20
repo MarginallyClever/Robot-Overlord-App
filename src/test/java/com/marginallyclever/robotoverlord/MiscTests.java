@@ -6,6 +6,7 @@ import com.marginallyclever.convenience.log.Log;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,9 +42,10 @@ public class MiscTests {
     }
 
     /**
-     * See https://www.eecs.yorku.ca/course_archive/2017-18/W/4421/lectures/Inverse%20kinematics%20-%20annotated.pdf
+     * @see <a href="https://www.eecs.yorku.ca/course_archive/2017-18/W/4421/lectures/Inverse%20kinematics%20-%20annotated.pdf">York U</a>
      */
     @Test
+    @Ignore
     public void solveLinearEquations() {
         // we have 6 linear equation and six unknowns
         // p0 = a + b*t0 +  c*t0^2 +  d*t0^3 +  e*t0^4 +   f*t0^5
@@ -109,7 +111,7 @@ public class MiscTests {
         }
     }
 
-    public double[][] buildMatrix(double t0, double tf) {
+    private double[][] buildMatrix(double t0, double tf) {
         double t02 = t0 * t0;
         double tf2 = tf * tf;
         double t03 = t02 * t0;

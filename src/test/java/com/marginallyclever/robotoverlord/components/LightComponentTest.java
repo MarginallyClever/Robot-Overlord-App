@@ -1,10 +1,7 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.jcraft.jsch.IO;
 import com.marginallyclever.robotoverlord.ComponentTest;
 import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
 
 public class LightComponentTest {
     @Test

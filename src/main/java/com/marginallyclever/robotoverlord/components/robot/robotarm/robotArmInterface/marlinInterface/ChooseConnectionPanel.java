@@ -4,7 +4,6 @@ import com.marginallyclever.communications.SessionLayer;
 import com.marginallyclever.communications.SessionLayerEvent;
 import com.marginallyclever.communications.SessionLayerManager;
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotArmInterface.ClassExplorer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

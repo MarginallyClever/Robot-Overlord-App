@@ -5,7 +5,6 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.entities.SkyBoxEntity;

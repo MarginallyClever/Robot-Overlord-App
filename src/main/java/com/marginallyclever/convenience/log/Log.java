@@ -1,20 +1,15 @@
 package com.marginallyclever.convenience.log;
 
 import com.marginallyclever.convenience.FileAccess;
-import com.marginallyclever.robotoverlord.RobotOverlord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Properties;
 import java.util.Set;
 

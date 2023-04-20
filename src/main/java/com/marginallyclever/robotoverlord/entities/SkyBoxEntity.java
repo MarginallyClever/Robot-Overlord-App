@@ -3,7 +3,6 @@ package com.marginallyclever.robotoverlord.entities;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.parameters.TextureEntity;
@@ -11,7 +10,6 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
-import java.io.Serial;
 
 public class SkyBoxEntity extends Entity {
 	private transient final TextureEntity skyboxTextureZPos = new TextureEntity("/skybox/cube-z-pos.png");

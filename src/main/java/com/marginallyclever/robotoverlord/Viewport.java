@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.glu.GLU;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.Ray;
