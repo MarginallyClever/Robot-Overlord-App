@@ -18,7 +18,7 @@ import java.util.prefs.PreferencesFactory;
  */
 public final class MarginallyCleverPreferencesFileFactory<A extends AbstractPreferences> implements PreferencesFactory {
 	private static final Logger logger = LoggerFactory.getLogger(MarginallyCleverPreferencesFileFactory.class);
-	private static final String PREFERENCES_DIRECTORY_PATH = System.getProperty("user.home") + File.separator + "robotOverlord";
+	private static final String PREFERENCES_DIRECTORY_PATH = System.getProperty("user.home") + File.separator + "robotoverlord";
 
 	/**
 	 *

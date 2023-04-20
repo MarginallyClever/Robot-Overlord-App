@@ -3,8 +3,6 @@ package com.marginallyclever.communications.serial;
 import com.marginallyclever.communications.SessionLayer;
 import com.marginallyclever.communications.SessionLayerEvent;
 import com.marginallyclever.communications.TransportLayer;
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.RobotOverlord;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;

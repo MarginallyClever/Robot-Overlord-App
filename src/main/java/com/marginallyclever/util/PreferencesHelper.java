@@ -1,7 +1,5 @@
 package com.marginallyclever.util;
 
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.swinginterface.translator.TranslatorLanguage;
 import org.json.JSONObject;
 import org.json.Property;
 import org.slf4j.Logger;

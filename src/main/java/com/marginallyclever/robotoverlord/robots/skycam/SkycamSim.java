@@ -1,9 +1,7 @@
 package com.marginallyclever.robotoverlord.robots.skycam;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.robots.deltarobot3.DeltaRobot3;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

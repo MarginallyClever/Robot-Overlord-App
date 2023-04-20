@@ -7,7 +7,6 @@ import com.marginallyclever.robotoverlord.swinginterface.pluginExplorer.RobotLib
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ShowRobotLibraryPanel extends AbstractAction {

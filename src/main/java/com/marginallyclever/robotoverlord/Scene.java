@@ -2,7 +2,6 @@ package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.*;
-import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;

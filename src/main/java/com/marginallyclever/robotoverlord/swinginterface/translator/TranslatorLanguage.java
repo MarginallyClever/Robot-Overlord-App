@@ -1,7 +1,5 @@
 package com.marginallyclever.robotoverlord.swinginterface.translator;
 
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.swinginterface.pluginExplorer.GithubFetcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;

@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.swinginterface.pluginExplorer;
 
-import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.PathUtils;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;

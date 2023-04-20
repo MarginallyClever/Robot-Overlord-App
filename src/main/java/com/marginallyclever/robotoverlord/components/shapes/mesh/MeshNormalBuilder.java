@@ -1,7 +1,5 @@
 package com.marginallyclever.robotoverlord.components.shapes.mesh;
 
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.components.shapes.mesh.load.LoadAMF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

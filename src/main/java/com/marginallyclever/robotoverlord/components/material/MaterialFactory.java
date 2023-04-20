@@ -10,7 +10,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.BufferedInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 
 /**
  * {@link MaterialFactory} loads a Material from a file using one of many {@link MaterialLoader} classes.
