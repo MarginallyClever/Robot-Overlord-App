@@ -11,7 +11,7 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-public class SkyBoxEntity extends Entity {
+public class SkyBoxEntity {
 	private transient final TextureEntity skyboxTextureZPos = new TextureEntity("/skybox/cube-z-pos.png");
 	private transient final TextureEntity skyboxTextureXPos = new TextureEntity("/skybox/cube-x-pos.png");
 	private transient final TextureEntity skyboxTextureXNeg = new TextureEntity("/skybox/cube-x-neg.png");
@@ -21,7 +21,6 @@ public class SkyBoxEntity extends Entity {
 
 	public SkyBoxEntity() {
 		super();
-		setName("Skybox");
 		
 		skyboxTextureXPos.setName("XPos");
 		skyboxTextureXNeg.setName("XNeg");
@@ -29,19 +28,6 @@ public class SkyBoxEntity extends Entity {
 		skyboxTextureYNeg.setName("YNeg");
 		skyboxTextureZPos.setName("ZPos");
 		skyboxTextureZNeg.setName("ZNeg");
-	}
-
-	@Override
-	public void getView(ViewPanel view) {
-		view.pushStack("Skybox",true);
-		view.add(skyboxTextureXPos);
-		view.add(skyboxTextureXNeg);
-		view.add(skyboxTextureYPos);
-		view.add(skyboxTextureYNeg);
-		view.add(skyboxTextureZPos);
-		view.add(skyboxTextureZNeg);
-		view.popStack();
-		super.getView(view);
 	}
 
 	public void render(GL2 gl2,CameraComponent camera) {
