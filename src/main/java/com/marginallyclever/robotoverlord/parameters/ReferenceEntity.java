@@ -1,38 +1,36 @@
 package com.marginallyclever.robotoverlord.parameters;
 
 import com.marginallyclever.robotoverlord.AbstractEntity;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serial;
-
 /**
- * A parameter that holds a reference to another entity.  It contains the uniqueID of the entity.
- * It should display the name of the entity, and allow the user to select a new entity.
+ * A {@link StringEntity} that can only be set to the uniqueID of an {@link com.marginallyclever.robotoverlord.Entity}.
  *
  * @author Dan Royer
  * @since 2.5.0
  */
-public class ReferenceEntity extends AbstractEntity<Integer> {
-
+public class ReferenceEntity extends AbstractEntity<String> {
 	public ReferenceEntity() {
-		super();
+		super("","");
 	}
 
-	public ReferenceEntity(String name, int d) {
-		super(d);
-		setName(name);
+	// ambiguous solution is to do both!
+	public ReferenceEntity(String t) {
+		super();
+		setName(t);
+    	this.t = t;
 	}
-	
+
+	public ReferenceEntity(String name, String value) {
+		super();
+		setName(name);
+		t=value;
+	}
+
 	@Override
 	public String toString() {
-		return getName()+"="+t.toString();
-	}
-	
-	@Override
-	public void getView(ViewPanel view) {
-		view.add(this);
+		return getName()+"="+t;
 	}
 
 	@Override
@@ -45,6 +43,6 @@ public class ReferenceEntity extends AbstractEntity<Integer> {
 	@Override
 	public void parseJSON(JSONObject jo) throws JSONException {
 		super.parseJSON(jo);
-		set(jo.getInt("value"));
+		set(jo.getString("value"));
 	}
 }
