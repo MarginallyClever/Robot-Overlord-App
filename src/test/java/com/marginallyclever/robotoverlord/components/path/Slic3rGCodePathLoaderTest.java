@@ -7,10 +7,10 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-class GCodePathLoaderTest {
+class Slic3rGCodePathLoaderTest {
     @Test
     public void testLoadGcode() {
-        GCodePathLoader loader = new GCodePathLoader();
+        Slic3rGCodePathLoader loader = new Slic3rGCodePathLoader();
         GCodePath pathModel = new GCodePath();
 
         InputStream stream;

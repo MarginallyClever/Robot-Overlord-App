@@ -11,15 +11,15 @@ import java.util.regex.Pattern;
  * @author Dan Royer
  * @since 2.5.0
  */
-class GCodePathLoader implements PathLoader {
+class Slic3rGCodePathLoader implements PathLoader {
     @Override
     public String getEnglishName() {
-        return "GCode (gcode,nc,ngc)";
+        return "Slic3r GCode (gcode)";
     }
 
     @Override
     public String[] getValidExtensions() {
-        return new String[] { "gcode", "nc", "ngc" };
+        return new String[] { "gcode" };
     }
 
     public void load(BufferedInputStream inputStream, GCodePath model) throws Exception {

@@ -20,7 +20,7 @@ import java.util.LinkedList;
 public class PathFactory {
     private static final Logger logger = LoggerFactory.getLogger(PathFactory.class);
     private static final PathLoader[] loaders = {
-            new GCodePathLoader(),
+            new Slic3rGCodePathLoader(),
     };
 
     // the pool of all shapes loaded
