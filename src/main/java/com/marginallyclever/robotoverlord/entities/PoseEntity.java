@@ -5,7 +5,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.Removable;
 import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
@@ -27,7 +26,7 @@ import java.beans.PropertyChangeEvent;
  *
  */
 @Deprecated
-public class PoseEntity extends Entity implements Removable {
+public class PoseEntity extends Entity {
 
 	// axis names
 	static public final String [] AXIS_LABELS = new String[] { "X","Y","Z","Xr","Yr","Zr"};
@@ -442,7 +441,4 @@ public class PoseEntity extends Entity implements Removable {
 				+","+ myPose.toString();
 		return s;
 	}
-
-	@Override
-	public void beingRemoved() {}
 }
