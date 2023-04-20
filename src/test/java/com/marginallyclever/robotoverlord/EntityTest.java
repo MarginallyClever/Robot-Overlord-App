@@ -28,8 +28,11 @@ public class EntityTest {
         Assertions.assertEquals(b,a.getParent());
         c.addEntity(a);
         Assertions.assertEquals(c,a.getParent());
+        Assertions.assertEquals(c,a.getParent());
+        Assertions.assertFalse(b.getChildren().contains(a));
         b.removeEntity(a);
         Assertions.assertEquals(c,a.getParent());
-
+        Assertions.assertNull(b.getParent());
+        Assertions.assertEquals(c,a.getParent());
     }
 }

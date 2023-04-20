@@ -8,9 +8,7 @@ import org.json.JSONObject;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Entities are nodes in a tree of data that can find each other and observe/be
@@ -36,6 +34,16 @@ public class Entity implements PropertyChangeListener {
 
 	private boolean isExpanded =false;
 
+	/**
+	 * Track the unique ID of every Entity created.
+	 */
+	private static int uniqueIDCounter=0;
+
+	/**
+	 * The unique ID of this Entity.
+	 */
+	private int uniqueID = uniqueIDCounter++;
+
 	public Entity() {
 		super();
 		this.name = this.getClass().getSimpleName();
@@ -44,6 +52,14 @@ public class Entity implements PropertyChangeListener {
 	public Entity(String name) {
 		super();
 		this.name = name;
+	}
+
+	public int getUniqueID() {
+		return uniqueID;
+	}
+
+	public void setUniqueID(int uniqueID) {
+		this.uniqueID = uniqueID;
 	}
 
 	public void set(Entity b) {
@@ -102,7 +118,8 @@ public class Entity implements PropertyChangeListener {
 		// unique name found.
 		return name;
 	}
-	
+
+	@Deprecated
 	public void addEntity(int index, Entity e) {
 		// check if any child has a matching name
 		e.setName(getUniqueChildName(e));
@@ -117,6 +134,15 @@ public class Entity implements PropertyChangeListener {
 		child.setParent(this);
 	}
 
+	public void removeEntity(Entity e) {
+		if (children.contains(e)) {
+			checkForRemoveFromScene(this,this,e);
+			children.remove(e);
+			if(e.getParent()==this) // is this always true?  then why test it?
+				e.setParent(null);
+		}
+	}
+
 	private void checkForAddToScene(Entity parent,Entity child) {
 		Entity node = parent;
 		while(node!=null) {
@@ -125,15 +151,6 @@ public class Entity implements PropertyChangeListener {
 				return;
 			}
 			node = node.getParent();
-		}
-	}
-
-	public void removeEntity(Entity e) {
-		if (children.contains(e)) {
-			checkForRemoveFromScene(this,this,e);
-			children.remove(e);
-			if(e.getParent()==this) // is this always true?  then why test it?
-				e.setParent(null);
 		}
 	}
 
@@ -275,6 +292,7 @@ public class Entity implements PropertyChangeListener {
 	@Override
 	public String toString() {
 		return "name=" + name + ", " +
+				"uniqueID=" + uniqueID + ", " +
 				"entities=" + Arrays.toString(children.toArray()) + ", " +
 				"components=" + Arrays.toString(components.toArray()) +
 				"expanded=" + isExpanded;
@@ -376,6 +394,7 @@ public class Entity implements PropertyChangeListener {
     public JSONObject toJSON() {
 		JSONObject jo = new JSONObject();
 		jo.put("type",this.getClass().getName());
+		jo.put("uniqueID",this.uniqueID);
 		jo.put("name",this.name);
 		jo.put("expanded",this.isExpanded);
 		if(!children.isEmpty()) jo.put("entities", getEntitiesAsJSON());
@@ -401,6 +420,7 @@ public class Entity implements PropertyChangeListener {
 
 	public void parseJSON(JSONObject jo) throws JSONException {
 		this.name = jo.getString("name");
+		if(jo.has("uniqueID")) this.uniqueID = jo.getInt("uniqueID");
 		if(jo.has("entities")) readEntities(jo.getJSONArray("entities"));
 		if(jo.has("components")) readComponents(jo.getJSONArray("components"));
 		if(jo.has("expanded")) this.isExpanded = jo.getBoolean("expanded");
@@ -452,5 +472,22 @@ public class Entity implements PropertyChangeListener {
 		if(root instanceof RobotOverlord) return root.getScene();
 
 		return null;
+	}
+
+	/**
+	 * This Entity and its children have uniqueIDs that may conflict with other Entities in the Scene.
+	 * This method will resequence all uniqueIDs to be unique within the Scene.
+	 */
+	public void resequenceUniqueIDs() {
+		// collect all entities
+		List<Entity> all = new LinkedList<>();
+		all.add(this);
+		for (Entity entity : all) {
+			all.addAll(entity.getChildren());
+		}
+
+		// check for entities that reference each other
+
+
 	}
 }
