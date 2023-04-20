@@ -7,8 +7,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
-import com.marginallyclever.robotoverlord.entities.SkyBoxEntity;
-import com.marginallyclever.robotoverlord.entities.ViewCube;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
@@ -65,7 +63,7 @@ public class OpenGLRenderPanel extends JPanel {
 
     // elements in view, not really part of the scene
     private transient final ViewCube viewCube = new ViewCube();
-    private transient final SkyBoxEntity sky = new SkyBoxEntity();
+    private transient final SkyBox sky = new SkyBox();
 
     private final List<EditorTool> editorTools = new ArrayList<>();
     private int activeToolIndex = -1;

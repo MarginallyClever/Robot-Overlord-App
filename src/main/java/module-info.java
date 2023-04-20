@@ -1,4 +1,4 @@
-module com.marginallyclever.robotOverlord {
+module com.marginallyclever.robotoverlord {
 	requires transitive java.desktop;
 	requires transitive java.prefs;
 	requires transitive java.logging;
@@ -23,4 +23,8 @@ module com.marginallyclever.robotOverlord {
 	requires java.datatransfer;
 	requires core;
 	requires flexmark.util.ast;
+
+	// AFAIK this is only needed for the test 'GCodePathLoaderTest'.
+	// I don't know why it throws `InaccessibleObjectException` without this.
+	opens com.marginallyclever.robotoverlord.components.path;
 }

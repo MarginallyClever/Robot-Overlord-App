@@ -4,11 +4,8 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel3;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
-import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
-import com.marginallyclever.robotoverlord.components.material.MaterialFactory;
-import com.marginallyclever.robotoverlord.components.material.MaterialLoader;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.demos.DemoDog;
@@ -629,7 +626,7 @@ public class RobotOverlord extends Entity {
 
 			// add entity to scene.
 			UndoSystem.addEvent(this,new EntityAddEdit(getScene(),entity));
-			//robotOverlord.setSelectedEntity(entity);
+			//robotoverlord.setSelectedEntity(entity);
 		} catch(Exception e) {
 			logger.error("Error opening file",e);
 			return false;

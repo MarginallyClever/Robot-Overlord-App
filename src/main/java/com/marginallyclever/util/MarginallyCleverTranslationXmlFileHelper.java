@@ -203,7 +203,7 @@ public final class MarginallyCleverTranslationXmlFileHelper {
 
   /**
    * @return url object representing the language folder in the user's working directory.
-   * See com.marginallyclever.robotOverlord.Translator#WORKING_DIRECTORY
+   * See com.marginallyclever.robotoverlord.Translator#WORKING_DIRECTORY
    */
   private static URL getLanguagesFolderUrlFromUserDirectory() {
     URL languageFolderUsingUserDirectoryUrl = null;

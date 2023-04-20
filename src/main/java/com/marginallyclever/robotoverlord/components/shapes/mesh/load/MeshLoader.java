@@ -5,7 +5,7 @@ import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 import java.io.BufferedInputStream;
 
 /**
- * {@link MeshLoader} interface for all classes that load a mesh.  Call upon by {@link MeshFactory}
+ * {@link MeshLoader} interface for all classes that load a {@link Mesh}.  Call upon by {@link MeshFactory}
  * @author Dan Royer
  *
  */
