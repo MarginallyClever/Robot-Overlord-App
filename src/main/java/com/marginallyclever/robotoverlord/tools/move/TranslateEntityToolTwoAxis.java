@@ -1,7 +1,9 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.*;
+import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.OpenGLHelper;
+import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;

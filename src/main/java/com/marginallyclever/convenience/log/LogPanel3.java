@@ -1,9 +1,9 @@
 package com.marginallyclever.convenience.log;
+
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
+import javax.swing.table.AbstractTableModel;
 import java.awt.*;
-import java.io.*;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 

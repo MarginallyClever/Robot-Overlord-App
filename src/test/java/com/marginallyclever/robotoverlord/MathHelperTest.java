@@ -2,7 +2,6 @@ package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.log.Log;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;

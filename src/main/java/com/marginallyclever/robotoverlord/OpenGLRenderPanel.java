@@ -11,7 +11,9 @@ import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.SelectedItems;
-import com.marginallyclever.robotoverlord.tools.move.*;
+import com.marginallyclever.robotoverlord.tools.move.MoveCameraTool;
+import com.marginallyclever.robotoverlord.tools.move.RotateEntityMultiTool;
+import com.marginallyclever.robotoverlord.tools.move.TranslateEntityMultiTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

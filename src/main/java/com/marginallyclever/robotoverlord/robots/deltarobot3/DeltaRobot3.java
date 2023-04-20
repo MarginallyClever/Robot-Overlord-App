@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.robots.deltarobot3;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.communications.SessionLayer;
+import com.marginallyclever.communications.session.SessionLayer;
 import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.MatrixHelper;
@@ -9,11 +9,11 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.RobotPanel;
 import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.robots.RobotEntity;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotArmInterface.RobotArmInterface;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.slf4j.Logger;
@@ -23,7 +23,10 @@ import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -143,7 +146,7 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 			public void run() {
 				JDialog frame = new JDialog(parentFrame,getName());
 				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-				frame.add(new RobotArmInterface(me));
+				frame.add(new RobotPanel(me));
 				frame.pack();
 				frame.setVisible(true);
 			}

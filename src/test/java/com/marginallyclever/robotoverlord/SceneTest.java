@@ -1,7 +1,9 @@
 package com.marginallyclever.robotoverlord;
 
-import com.marginallyclever.robotoverlord.components.*;
+import com.marginallyclever.robotoverlord.components.CameraComponent;
+import com.marginallyclever.robotoverlord.components.LightComponent;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Box;
 import org.junit.jupiter.api.Test;
 

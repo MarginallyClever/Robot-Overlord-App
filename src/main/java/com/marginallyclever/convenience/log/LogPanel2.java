@@ -2,7 +2,7 @@ package com.marginallyclever.convenience.log;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.*;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 

@@ -11,7 +11,9 @@ import org.slf4j.LoggerFactory;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A texture file name.  Loads the texture when needed from a pool to reduce duplication.
@@ -91,7 +93,7 @@ public class TextureEntity extends StringEntity {
 		filters.add(new FileNameExtensionFilter("BMP", "bmp"));
 		filters.add(new FileNameExtensionFilter("JPEG", "jpeg","jpg"));
 		filters.add(new FileNameExtensionFilter("TGA", "tga"));
-		
+
 		view.addFilename(this,filters);
 	}
 

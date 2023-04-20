@@ -2,13 +2,12 @@ package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.MeshSmoother;
-
-import java.io.IOException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 public class ModelSmootherTest {
     private static final Logger logger = LoggerFactory.getLogger(ModelSmootherTest.class);

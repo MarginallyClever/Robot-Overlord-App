@@ -1,17 +1,14 @@
 package com.marginallyclever.robotoverlord;
 
+import com.marginallyclever.convenience.log.Log;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-
-import com.marginallyclever.convenience.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.util.Arrays;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class FontTest {

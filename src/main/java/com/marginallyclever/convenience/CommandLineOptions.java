@@ -1,7 +1,5 @@
 package com.marginallyclever.convenience;
 
-import com.marginallyclever.communications.tcp.TCPTransportLayer;
-import com.marginallyclever.convenience.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

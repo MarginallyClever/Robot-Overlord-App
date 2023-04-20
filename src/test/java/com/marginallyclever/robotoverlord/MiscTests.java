@@ -3,7 +3,6 @@ package com.marginallyclever.robotoverlord;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.convenience.log.Log;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
