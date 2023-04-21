@@ -28,6 +28,7 @@ import java.util.LinkedList;
  * @since 1.6.0
  *
  */
+@Deprecated
 public class RemoteParameter extends StringParameter implements SessionLayerListener {
 	private static final Logger logger = LoggerFactory.getLogger(RemoteParameter.class);
 	
