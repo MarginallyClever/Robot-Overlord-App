@@ -75,9 +75,5 @@ public class RotaryStewartPlatform2 extends RotaryStewartPlatform {
 	@Override
 	public void getView(ViewPanel view) {
 		super.getView(view);
-
-		baseModel.getMaterial().getView(view);
-		eeModel.getMaterial().getView(view);
-		armModel.getMaterial().getView(view);
 	}
 }

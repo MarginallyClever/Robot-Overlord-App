@@ -3,10 +3,10 @@ package com.marginallyclever.robotoverlord.robots.stewartplatform.linear;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.*;
+import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
-import com.marginallyclever.robotoverlord.parameters.MaterialEntity;
 import com.marginallyclever.robotoverlord.parameters.RemoteEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.slf4j.Logger;
@@ -33,8 +33,6 @@ public class LinearStewartPlatformCore extends PoseEntity {
 	private final BooleanEntity debugEEPoints = new BooleanEntity("debugEEPoints", false);
 	private final BooleanEntity debugSlides = new BooleanEntity("debugSlides", true);
 	private final BooleanEntity debugArms = new BooleanEntity("debugArms", false);
-
-	protected final MaterialEntity me = new MaterialEntity();
 	
 	private final PoseEntity ee = new PoseEntity("ee");
 
@@ -51,6 +49,8 @@ public class LinearStewartPlatformCore extends PoseEntity {
 	private final DoubleEntity velocity = new DoubleEntity("velocity",5);
 	private final DoubleEntity acceleration = new DoubleEntity("acceleration",200);
 
+	protected final MaterialComponent material = new MaterialComponent();
+
 	public LinearStewartPlatformCore() {
 		this("Linear Stewart Platform");
 	}
@@ -62,11 +62,11 @@ public class LinearStewartPlatformCore extends PoseEntity {
 		connection.addPropertyChangeListener(this);
 
 		// apply some default materials.
-		me.setAmbientColor(0, 0, 0, 1);
-		me.setDiffuseColor(1f,1f,1f,1);
-		me.setEmissionColor(0, 0, 0, 1);
-		me.setLit(true);
-		me.setShininess(0);
+		material.setAmbientColor(0, 0, 0, 1);
+		material.setDiffuseColor(1f,1f,1f,1);
+		material.setEmissionColor(0, 0, 0, 1);
+		material.setLit(true);
+		material.setShininess(0);
 
 		calculateEndEffectorPointsOneTime();
 		calculateBasePointsOneTime();
@@ -285,8 +285,6 @@ public class LinearStewartPlatformCore extends PoseEntity {
 		view.addRange(velocity, 20, 1);
 		view.addRange(acceleration, 1000, 0);
 		view.popStack();
-		
-		me.getView(view);
 		
 		super.getView(view);
 	}

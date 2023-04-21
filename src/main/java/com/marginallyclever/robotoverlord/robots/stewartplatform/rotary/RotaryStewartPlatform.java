@@ -4,10 +4,10 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
-import com.marginallyclever.robotoverlord.parameters.MaterialEntity;
 import com.marginallyclever.robotoverlord.parameters.RemoteEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.slf4j.Logger;
@@ -52,12 +52,13 @@ public class RotaryStewartPlatform extends PoseEntity {
 			new RotaryStewartPlatformArm(),
 			new RotaryStewartPlatformArm()
 	};
-	
-	protected final MaterialEntity me = new MaterialEntity();
+
 	private final RemoteEntity connection = new RemoteEntity();
 	private final DoubleEntity velocity = new DoubleEntity("velocity",5);
 	private final DoubleEntity acceleration = new DoubleEntity("acceleration",200);
-	
+
+	protected final MaterialComponent material = new MaterialComponent();
+
 	private final int [] indexes = {0,5,2,1,4,3};
 
 	public RotaryStewartPlatform() {
@@ -71,11 +72,11 @@ public class RotaryStewartPlatform extends PoseEntity {
 		connection.addPropertyChangeListener(this);
 
 		// apply some default materials.
-		me.setAmbientColor(0, 0, 0, 1);
-		me.setDiffuseColor(1,1,1,1);
-		me.setEmissionColor(0, 0, 0, 1);
-		me.setLit(true);
-		me.setShininess(0);
+		material.setAmbientColor(0, 0, 0, 1);
+		material.setDiffuseColor(1,1,1,1);
+		material.setEmissionColor(0, 0, 0, 1);
+		material.setLit(true);
+		material.setShininess(0);
 
 		calculateEndEffectorPointsOneTime();
 		calculateMotorAxlePointsOneTime();
