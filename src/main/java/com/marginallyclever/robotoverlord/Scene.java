@@ -289,4 +289,18 @@ public class Scene extends Entity {
 		return rayHits;
 	}
 
+	/**
+	 * Find an entity by its unique ID.
+	 * @param uuid the unique ID to search for.
+	 * @return the entity with the given unique ID, or null if not found.
+	 */
+    public Entity findEntityByUniqueID(String uuid) {
+		Queue<Entity> toTest = new LinkedList<>(children);
+		while(!toTest.isEmpty()) {
+			Entity child = toTest.remove();
+			if(child.getUniqueID().equals(uuid)) return child;
+			toTest.addAll(child.getChildren());
+		}
+		return null;
+    }
 }
