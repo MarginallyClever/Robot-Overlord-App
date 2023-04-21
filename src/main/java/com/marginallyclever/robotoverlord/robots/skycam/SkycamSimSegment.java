@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.robots.skycam;
 
 import javax.vecmath.Vector3d;
 
+@Deprecated
 public class SkycamSimSegment {
 
 	public Vector3d start;
