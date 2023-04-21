@@ -61,13 +61,19 @@ public class ViewElementReference extends ViewElement implements ActionListener 
 	}
 
 	private void updateFieldText() {
-		String UUID = parameter.get();
-		Entity entity = robotOverlord.getScene().findEntityByUniqueID(UUID);
-		if(entity!=null) {
-			field.setText(entity.getFullPath());
-		} else {
-			field.setText("");
+		String uniqueID = parameter.get();
+		if(uniqueID==null || uniqueID.isEmpty()) {
+			field.setText("<none>");
+			return;
 		}
+
+		Entity entity = robotOverlord.getScene().findEntityByUniqueID(uniqueID);
+		if(entity==null) {
+			field.setText("<missing>");
+			return;
+		}
+
+		field.setText(entity.getFullPath());
 	}
 
 	@Override
