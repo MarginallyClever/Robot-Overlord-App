@@ -1,7 +1,6 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.robotoverlord.components.shapes.mesh;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.components.shapes.mesh.MeshSmoother;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
