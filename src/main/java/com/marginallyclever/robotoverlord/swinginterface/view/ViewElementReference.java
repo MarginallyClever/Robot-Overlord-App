@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
+import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
@@ -8,11 +9,10 @@ import com.marginallyclever.robotoverlord.swinginterface.edits.StringParameterEd
 
 import javax.swing.*;
 import javax.swing.undo.AbstractUndoableEdit;
+import java.util.List;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  * Panel to alter a {@link ReferenceParameter}.
@@ -31,7 +31,6 @@ public class ViewElementReference extends ViewElement implements ActionListener 
 		this.robotOverlord = robotOverlord;
 
 		field.setEditable(false);
-		field.setText(parameter.get());
 		field.setMargin(new Insets(1,0,1,0));
 		
 		JLabel label=new JLabel(parameter.getName(),JLabel.LEADING);
@@ -57,21 +56,26 @@ public class ViewElementReference extends ViewElement implements ActionListener 
 		gbc.weightx=0;
 		this.add(choose,gbc);
 		
-		parameter.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				field.setText(parameter.get());
-			}
-		});
+		parameter.addPropertyChangeListener((e)->updateFieldText());
+		updateFieldText();
+	}
+
+	private void updateFieldText() {
+		String UUID = parameter.get();
+		Entity entity = robotOverlord.getScene().findEntityByUniqueID(UUID);
+		if(entity!=null) {
+			field.setText(entity.getFullPath());
+		} else {
+			field.setText("");
+		}
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		Scene scene = robotOverlord.getScene();
-
-		boolean success = chooser.runDialog();
-		if(success) {
-			String newFilename = chooser.getSelectedEntity.getUUID();
+		List<Entity> chosen = EntityChooser.runDialog(robotOverlord.getMainFrame(),scene,true);
+		if(!chosen.isEmpty()) {
+			String newFilename = chosen.get(0).getUniqueID();
 			AbstractUndoableEdit event = new StringParameterEdit(parameter, newFilename);
 			UndoSystem.addEvent(this,event);
 		}
