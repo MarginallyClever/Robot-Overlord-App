@@ -5,10 +5,6 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 
 public class TabTest extends JTabbedPane {
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
     GridBagConstraints gbc;
     JPanel p;
 
