@@ -15,20 +15,20 @@ import java.beans.PropertyChangeListener;
 
 public class ViewElementComboBox extends ViewElement implements ActionListener, PropertyChangeListener {
 	private final JComboBox<String> field;
-	private final IntParameter e;
+	private final IntParameter parameter;
 	
-	public ViewElementComboBox(IntParameter e, String [] listOptions) {
+	public ViewElementComboBox(IntParameter parameter, String [] listOptions) {
 		super();
-		this.e=e;
+		this.parameter = parameter;
 		
-		e.addPropertyChangeListener(this);
+		parameter.addPropertyChangeListener(this);
 		
 		field = new JComboBox<>(listOptions);
-		field.setSelectedIndex(e.get());
+		field.setSelectedIndex(parameter.get());
 		field.addActionListener(this);
 		field.addFocusListener(this);
 
-		JLabel label=new JLabel(e.getName(),JLabel.LEADING);
+		JLabel label=new JLabel(parameter.getName(),JLabel.LEADING);
 		label.setLabelFor(field);
 
 		this.setLayout(new BorderLayout());
@@ -38,7 +38,7 @@ public class ViewElementComboBox extends ViewElement implements ActionListener, 
 	}
 	
 	public String getValue() {
-		return field.getItemAt(e.get());
+		return field.getItemAt(parameter.get());
 	}
 
 	/**
@@ -47,8 +47,8 @@ public class ViewElementComboBox extends ViewElement implements ActionListener, 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		int newIndex = field.getSelectedIndex();
-		if(newIndex != e.get()) {
-			AbstractUndoableEdit event = new ComboBoxEdit(e, e.getName(), newIndex);
+		if(newIndex != parameter.get()) {
+			AbstractUndoableEdit event = new ComboBoxEdit(parameter, parameter.getName(), newIndex);
 			UndoSystem.addEvent(this,event);
 		}
 	}

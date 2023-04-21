@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.view;
 
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.ColorRGBAEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.ColorParameterEdit;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,24 +15,24 @@ import java.beans.PropertyChangeListener;
  */
 public class ViewElementColor extends ViewElement implements PropertyChangeListener {
 	private final BackgroundPaintedButton chooseButton = new BackgroundPaintedButton("");
-	private final ColorParameter colorEntity;
+	private final ColorParameter parameter;
 	
-	public ViewElementColor(ColorParameter colorEntity) {
+	public ViewElementColor(ColorParameter parameter) {
 		super();
-		this.colorEntity = colorEntity;
+		this.parameter = parameter;
 
-		colorEntity.addPropertyChangeListener(this);
+		parameter.addPropertyChangeListener(this);
 
 		this.setLayout(new BorderLayout());
-		JLabel label = new JLabel(colorEntity.getName(),JLabel.LEADING);
+		JLabel label = new JLabel(parameter.getName(),JLabel.LEADING);
 		this.add(label,BorderLayout.LINE_START);
 		this.add(chooseButton,BorderLayout.LINE_END);
 
 		chooseButton.setBackground(new Color(
-				(int)(255*colorEntity.getR()),
-				(int)(255*colorEntity.getG()),
-				(int)(255*colorEntity.getB()),
-				(int)(255*colorEntity.getA())));
+				(int)(255* parameter.getR()),
+				(int)(255* parameter.getG()),
+				(int)(255* parameter.getB()),
+				(int)(255* parameter.getA())));
 
 		chooseButton.addActionListener(e -> {
 			Color old = chooseButton.getBackground();
@@ -72,7 +72,7 @@ public class ViewElementColor extends ViewElement implements PropertyChangeListe
 				c.getAlpha()/255.0
 		};
 
-		UndoSystem.addEvent(this,new ColorRGBAEdit(colorEntity,newValues));
+		UndoSystem.addEvent(this,new ColorParameterEdit(parameter,newValues));
 	}
 
 	/**
@@ -81,10 +81,10 @@ public class ViewElementColor extends ViewElement implements PropertyChangeListe
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		chooseButton.setBackground(new Color(
-				(int)(255*colorEntity.getR()),
-				(int)(255*colorEntity.getG()),
-				(int)(255*colorEntity.getB()),
-				(int)(255*colorEntity.getA())));
+				(int)(255* parameter.getR()),
+				(int)(255* parameter.getG()),
+				(int)(255* parameter.getB()),
+				(int)(255* parameter.getA())));
 	}
 
 	@Override

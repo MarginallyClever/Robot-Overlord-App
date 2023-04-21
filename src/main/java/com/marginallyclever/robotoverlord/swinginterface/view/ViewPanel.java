@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
 import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.parameters.*;
 import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
@@ -28,7 +27,7 @@ public class ViewPanel extends ViewElement {
 		public GridBagConstraints gbc;
 	}
 	
-	protected final Stack<StackElement> panelStack = new Stack<>();
+	protected final Stack<StackElement> stack = new Stack<>();
 	protected StackElement se;
 	protected final JPanel contentPane = new JPanel();
 
@@ -68,7 +67,7 @@ public class ViewPanel extends ViewElement {
 		se.gbc.gridwidth = GridBagConstraints.REMAINDER;
 		se.gbc.insets.set(1, 1, 1, 1);
 
-		panelStack.push(se);
+		stack.push(se);
 	}
 
 	public void pushStack(String name,boolean expanded) {
@@ -122,7 +121,7 @@ public class ViewPanel extends ViewElement {
 	}
 	
 	public void popStack() {
-		panelStack.pop();
+		stack.pop();
 	}
 	
 	protected void pushViewElement(ViewElement c) {
@@ -135,26 +134,28 @@ public class ViewPanel extends ViewElement {
 	}
 	
 	/**
-	 * Add an view element based on the entity type.
+	 * Add an view element based on the parameter type.
+	 * @param parameter the parameter to add
 	 */
-	public ViewElement add(Entity e) {
-		ViewElement b=null;
+	public ViewElement add(AbstractParameter<?> parameter) {
+		ViewElement element=null;
 		
 		//logger.debug("Add "+e.getClass().toString());
 		
-			 if(e instanceof BooleanParameter) b = new ViewElementBoolean  ((BooleanParameter)e);
-		else if(e instanceof ColorParameter) b = new ViewElementColor    ((ColorParameter)e);
-		else if(e instanceof DoubleParameter) b = new ViewElementDouble   ((DoubleParameter)e);
-		else if(e instanceof IntParameter) b = new ViewElementInt      ((IntParameter)e);
-		else if(e instanceof Vector3DParameter) b = new ViewElementVector3d ((Vector3DParameter)e);
-		else if(e instanceof RemoteParameter) b = new ViewElementRemote   ((RemoteParameter)e);  // must come before StringEntity because RemoteEntity extends StringEntity
-		else if(e instanceof StringParameter) b = new ViewElementString   ((StringParameter)e);
-		if(null==b) {
-			return addStaticText("ViewPanel.add("+e.getClass().toString()+")");
+			 if(parameter instanceof BooleanParameter  ) element = new ViewElementBoolean  ((BooleanParameter)parameter);
+		else if(parameter instanceof ColorParameter    ) element = new ViewElementColor    ((ColorParameter)parameter);
+		else if(parameter instanceof DoubleParameter   ) element = new ViewElementDouble   ((DoubleParameter)parameter);
+		else if(parameter instanceof IntParameter      ) element = new ViewElementInt      ((IntParameter)parameter);
+		else if(parameter instanceof Vector3DParameter ) element = new ViewElementVector3d ((Vector3DParameter)parameter);
+		else if(parameter instanceof ReferenceParameter) element = new ViewElementReference((ReferenceParameter)parameter);
+		else if(parameter instanceof StringParameter   ) element = new ViewElementString   ((StringParameter)parameter);
+
+		if(null==element) {
+			return addStaticText("ViewPanel.add("+parameter.getClass().toString()+")");
 		}
-		// else b not null.
-		pushViewElement(b);
-		return b;
+
+		pushViewElement(element);
+		return element;
 	}
 	
 

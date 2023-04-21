@@ -9,14 +9,13 @@ import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
 
 /**
- * Undoable action to select a ColorRGBA.
- * <p>
- * Some Entities have ColorRGBA (x,y,z) parameters.  This class ensures changing those parameters is undoable.
+ * Some {@link com.marginallyclever.robotoverlord.Component} have {@link ColorParameter}.
+ * This class ensures changing those parameters is undoable.
  *  
  * @author Dan Royer
  *
  */
-public class ColorRGBAEdit extends AbstractUndoableEdit {
+public class ColorParameterEdit extends AbstractUndoableEdit {
 	/**
 	 * 
 	 */
@@ -25,7 +24,7 @@ public class ColorRGBAEdit extends AbstractUndoableEdit {
 	private double [] newValue;
 	private double [] oldValue;
 	
-	public ColorRGBAEdit(ColorParameter entity, double [] newValue) {
+	public ColorParameterEdit(ColorParameter entity, double [] newValue) {
 		super();
 		
 		this.entity = entity;
@@ -54,8 +53,8 @@ public class ColorRGBAEdit extends AbstractUndoableEdit {
 	
 	@Override
 	public boolean addEdit(UndoableEdit anEdit) {
-		if(anEdit instanceof ColorRGBAEdit ) {
-			ColorRGBAEdit APEM = (ColorRGBAEdit)anEdit;
+		if(anEdit instanceof ColorParameterEdit) {
+			ColorParameterEdit APEM = (ColorParameterEdit)anEdit;
 			if(APEM.entity == this.entity) return true;
 		}
 		return super.addEdit(anEdit);

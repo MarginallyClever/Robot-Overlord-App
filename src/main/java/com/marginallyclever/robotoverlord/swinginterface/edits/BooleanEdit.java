@@ -10,7 +10,7 @@ import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
  * @author Dan Royer
  *
  */
-public class BooleanEdit extends AbstractEntityEdit<Boolean> {
+public class BooleanEdit extends AbstractParameterEdit<Boolean> {
 
 	/**
 	 * 

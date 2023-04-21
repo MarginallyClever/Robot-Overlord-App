@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.swinginterface.view;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.DoubleEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.DoubleParameterEdit;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -24,14 +24,14 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ViewElementDouble extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private final JTextField field;
-	private final DoubleParameter e;
+	private final DoubleParameter parameter;
 	private final ReentrantLock lock = new ReentrantLock();
 	
-	public ViewElementDouble(DoubleParameter e) {
+	public ViewElementDouble(DoubleParameter parameter) {
 		super();
-		this.e=e;
+		this.parameter = parameter;
 		
-		e.addPropertyChangeListener(this);
+		parameter.addPropertyChangeListener(this);
 		
 		field = new FocusTextField(8);
 		field.addActionListener(new AbstractAction() {
@@ -56,10 +56,10 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		});
 		field.getDocument().addDocumentListener(this);
 		field.setHorizontalAlignment(SwingConstants.RIGHT);
-		field.setText(StringHelper.formatDouble(e.get()));
+		field.setText(StringHelper.formatDouble(parameter.get()));
 		field.addFocusListener(this);
 
-		JLabel label=new JLabel(e.getName(),JLabel.LEADING);
+		JLabel label=new JLabel(parameter.getName(),JLabel.LEADING);
 		label.setLabelFor(field);
 		
 		//this.setBorder(new LineBorder(Color.RED));
@@ -83,8 +83,8 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		if(lock.isLocked()) return;
 		lock.lock();
 
-		if(newNumber != e.get()) {
-			AbstractUndoableEdit event = new DoubleEdit(e, newNumber);
+		if(newNumber != parameter.get()) {
+			AbstractUndoableEdit event = new DoubleParameterEdit(parameter, newNumber);
 			UndoSystem.addEvent(this,event);
 		}
 		

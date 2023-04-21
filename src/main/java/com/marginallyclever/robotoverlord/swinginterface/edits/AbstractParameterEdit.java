@@ -10,20 +10,17 @@ import javax.swing.undo.UndoableEdit;
 import java.io.Serial;
 
 /**
- * Undoable action to select a boolean.
- * <p>
- * Some Entities have string (text) parameters.  This class ensures changing those parameters is undoable.
+ * Some {@link com.marginallyclever.robotoverlord.Component}s have parameters.  This class ensures changing those parameters is undoable.
  *  
  * @author Dan Royer
- *
  */
-public class AbstractEntityEdit<T> extends AbstractUndoableEdit {
+public class AbstractParameterEdit<T> extends AbstractUndoableEdit {
 	@Serial
 	private static final long serialVersionUID = 1L;
 	private final AbstractParameter<T> entity;
 	private final T oldValue,newValue;
 	
-	public AbstractEntityEdit(AbstractParameter<T> entity, T newValue) {
+	public AbstractParameterEdit(AbstractParameter<T> entity, T newValue) {
 		super();
 		
 		this.entity = entity;
@@ -56,8 +53,8 @@ public class AbstractEntityEdit<T> extends AbstractUndoableEdit {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean addEdit(UndoableEdit anEdit) {
-		if( anEdit instanceof AbstractEntityEdit<?> ) {
-			AbstractEntityEdit<T> b = (AbstractEntityEdit<T>) anEdit;
+		if( anEdit instanceof AbstractParameterEdit<?>) {
+			AbstractParameterEdit<T> b = (AbstractParameterEdit<T>) anEdit;
 			if( b.entity == this.entity) return true;
 		}
 		return super.addEdit(anEdit);

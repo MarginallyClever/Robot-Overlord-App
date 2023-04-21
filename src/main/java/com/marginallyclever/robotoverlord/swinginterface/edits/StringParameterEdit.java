@@ -10,14 +10,14 @@ import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
  * @author Dan Royer
  *
  */
-public class StringEdit extends AbstractEntityEdit<String> {
+public class StringParameterEdit extends AbstractParameterEdit<String> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public StringEdit(AbstractParameter<String> e, String newValue) {
+	public StringParameterEdit(AbstractParameter<String> e, String newValue) {
 		super(e, newValue);
 	}
 }

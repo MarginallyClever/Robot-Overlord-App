@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.view;
 
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.StringEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.StringParameterEdit;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
@@ -26,20 +26,20 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 	private static String lastPath=System.getProperty("user.dir");
 	private final JTextField field = new JTextField(15);
 	private final ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
-	private final StringParameter e;
+	private final StringParameter parameter;
 	
-	public ViewElementFilename(final StringParameter e) {
+	public ViewElementFilename(final StringParameter parameter) {
 		super();
-		this.e=e;
+		this.parameter = parameter;
 		
 		//this.setBorder(BorderFactory.createLineBorder(Color.RED));
 
 		field.setEditable(false);
-		field.setText(e.get());
+		field.setText(parameter.get());
 		field.setMargin(new Insets(1,0,1,0));
 		//pathAndFileName.setBorder(BorderFactory.createLoweredBevelBorder());
 		
-		JLabel label=new JLabel(e.getName(),JLabel.LEADING);
+		JLabel label=new JLabel(parameter.getName(),JLabel.LEADING);
 		label.setLabelFor(field);
 
 		JButton choose = new JButton("...");
@@ -63,10 +63,10 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 		gbc.weightx=0;
 		this.add(choose,gbc);
 		
-		e.addPropertyChangeListener(new PropertyChangeListener() {
+		parameter.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
-				field.setText(e.get());
+				field.setText(parameter.get());
 			}
 		});
 	}
@@ -88,7 +88,7 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 			String newFilename = chooser.getSelectedFile().getAbsolutePath();
 			lastPath = chooser.getSelectedFile().getParent();
 
-			AbstractUndoableEdit event = new StringEdit(e, newFilename);
+			AbstractUndoableEdit event = new StringParameterEdit(parameter, newFilename);
 			UndoSystem.addEvent(this,event);
 		}
 	}
