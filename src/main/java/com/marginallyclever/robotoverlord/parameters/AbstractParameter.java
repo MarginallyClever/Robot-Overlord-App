@@ -9,24 +9,24 @@ import java.beans.PropertyChangeEvent;
  * @author Dan Royer
  * @since 1.6.0
  */
-public class AbstractEntity<T> extends Entity {
+public class AbstractParameter<T> extends Entity {
 	// the data to store
 	protected T t;
 
-	protected AbstractEntity() {
+	protected AbstractParameter() {
 		super();
 	}
 	
-	public AbstractEntity(String name) {
+	public AbstractParameter(String name) {
 		super(name);
 	}
 	
-	public AbstractEntity(String name,T t) {
+	public AbstractParameter(String name, T t) {
 		super(name);
     	this.t = t;
 	}
 	
-	public AbstractEntity(T t) {
+	public AbstractParameter(T t) {
 		super();
     	this.t = t;
 	}
@@ -43,7 +43,7 @@ public class AbstractEntity<T> extends Entity {
     	}
     }
 	
-	public void set(AbstractEntity<T> b) {
+	public void set(AbstractParameter<T> b) {
 		super.setName(b.getName());
 		
 		set(b.get());

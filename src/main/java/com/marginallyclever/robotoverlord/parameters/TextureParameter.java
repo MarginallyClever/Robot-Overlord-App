@@ -19,20 +19,20 @@ import java.util.Map;
  * A texture file name.  Loads the texture when needed from a pool to reduce duplication.
  * @author Dan Royer
  */
-public class TextureEntity extends StringEntity {
-	private static final Logger logger = LoggerFactory.getLogger(TextureEntity.class);
+public class TextureParameter extends StringParameter {
+	private static final Logger logger = LoggerFactory.getLogger(TextureParameter.class);
 
 	private static final HashMap<String,Texture> texturePool = new HashMap<>();
 	
 	private transient Texture texture;
 	private transient boolean textureDirty;
 	
-	public TextureEntity() {
+	public TextureParameter() {
 		super();
 		setName("Texture");
 	}
 	
-	public TextureEntity(String fileName) {
+	public TextureParameter(String fileName) {
 		super(fileName);
 		setName("Texture");
 		textureDirty=true;

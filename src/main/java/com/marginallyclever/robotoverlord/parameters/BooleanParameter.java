@@ -9,14 +9,14 @@ import org.json.JSONObject;
  * @since 1.6.0
  *
  */
-public class BooleanEntity extends AbstractEntity<Boolean> {
+public class BooleanParameter extends AbstractParameter<Boolean> {
 
-	public BooleanEntity() {
+	public BooleanParameter() {
 		super();
 		setName("Boolean");
 	}
 	
-	public BooleanEntity(String name, boolean b) {
+	public BooleanParameter(String name, boolean b) {
 		super();
 		setName(name);
 		set(b);

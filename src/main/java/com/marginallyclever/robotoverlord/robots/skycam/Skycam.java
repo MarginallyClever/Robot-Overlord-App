@@ -5,7 +5,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
-import com.marginallyclever.robotoverlord.parameters.StringEntity;
+import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class Skycam extends PoseEntity {
 	protected transient SkycamCommand cursor;
 	
 	// where to save/load commands
-	protected StringEntity filename = new StringEntity("");
+	protected StringParameter filename = new StringParameter("");
 	ArrayList<SkycamCommand> playlist = new ArrayList<SkycamCommand>();
 	protected boolean isPlaying = false;
 	protected transient int playheadLive;

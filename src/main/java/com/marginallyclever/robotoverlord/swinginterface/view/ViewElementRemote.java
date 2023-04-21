@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import com.marginallyclever.robotoverlord.parameters.RemoteEntity;
+import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
@@ -15,9 +15,9 @@ import java.awt.event.ActionListener;
  */
 public class ViewElementRemote extends ViewElement implements ActionListener {
 	private final JButton field;
-	private final RemoteEntity e;
+	private final RemoteParameter e;
 
-	public ViewElementRemote(RemoteEntity e) {
+	public ViewElementRemote(RemoteParameter e) {
 		super();
 		this.e=e;
 		

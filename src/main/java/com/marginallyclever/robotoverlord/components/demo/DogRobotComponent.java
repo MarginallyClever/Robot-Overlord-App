@@ -10,8 +10,8 @@ import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.components.shapes.Cylinder;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
-import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
-import com.marginallyclever.robotoverlord.parameters.IntEntity;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.vecmath.Matrix4d;
@@ -40,13 +40,13 @@ public class DogRobotComponent extends RenderComponent {
             "Ripple",
             "Wave",
     };
-    private final IntEntity modeSelector = new IntEntity("Mode", 0);
-    private final DoubleEntity standingRadius = new DoubleEntity("Standing radius", 21);
-    private final DoubleEntity standingHeight = new DoubleEntity("Standing height", 5.5);
-    private final DoubleEntity turningStrideLength = new DoubleEntity("Turning stride length", 150);
-    private final DoubleEntity strideLength = new DoubleEntity("Stride length", 15);
-    private final DoubleEntity strideHeight = new DoubleEntity("Stride height", 5);
-    private final DoubleEntity speedScale = new DoubleEntity("Speed scale", 1);
+    private final IntParameter modeSelector = new IntParameter("Mode", 0);
+    private final DoubleParameter standingRadius = new DoubleParameter("Standing radius", 21);
+    private final DoubleParameter standingHeight = new DoubleParameter("Standing height", 5.5);
+    private final DoubleParameter turningStrideLength = new DoubleParameter("Turning stride length", 150);
+    private final DoubleParameter strideLength = new DoubleParameter("Stride length", 15);
+    private final DoubleParameter strideHeight = new DoubleParameter("Stride height", 5);
+    private final DoubleParameter speedScale = new DoubleParameter("Speed scale", 1);
     private final RobotComponent[] legs = new RobotComponent[NUM_LEGS];
     private final Point3d [] lastPOC = new Point3d[NUM_LEGS];
     private final Point3d [] nextPOC = new Point3d[NUM_LEGS];

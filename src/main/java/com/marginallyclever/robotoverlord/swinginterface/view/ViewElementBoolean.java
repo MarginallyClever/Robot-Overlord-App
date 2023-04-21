@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.BooleanEdit;
 
@@ -21,7 +21,7 @@ import java.beans.PropertyChangeListener;
 public class ViewElementBoolean extends ViewElement implements PropertyChangeListener {
 	private final JCheckBox field = new JCheckBox();
 	
-	public ViewElementBoolean(BooleanEntity e) {
+	public ViewElementBoolean(BooleanParameter e) {
 		super();
 		
 		e.addPropertyChangeListener(this);
@@ -51,8 +51,8 @@ public class ViewElementBoolean extends ViewElement implements PropertyChangeLis
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		Object o = evt.getSource();
-		if(o instanceof BooleanEntity) {
-			field.setSelected(((BooleanEntity)o).get());
+		if(o instanceof BooleanParameter) {
+			field.setSelected(((BooleanParameter)o).get());
 		}
 	}
 

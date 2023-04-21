@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.parameters.Vector3dEntity;
+import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.vecmath.Color4f;
@@ -31,8 +31,8 @@ public class SkycamModel extends Entity {
 	public static final double MAX_FEEDRATE = 10;
 	public static final double MAX_ACCELERATION = 10;
 	
-	protected transient Vector3dEntity size = new Vector3dEntity(100,100,100);
-	protected transient Vector3dEntity ee = new Vector3dEntity();
+	protected transient Vector3DParameter size = new Vector3DParameter(100,100,100);
+	protected transient Vector3DParameter ee = new Vector3DParameter();
 	protected Color4f color = new Color4f();
 	
 	public SkycamModel() {

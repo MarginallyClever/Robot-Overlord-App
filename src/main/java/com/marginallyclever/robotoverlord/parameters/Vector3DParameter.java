@@ -11,26 +11,26 @@ import javax.vecmath.Vector3d;
  * @since 1.6.0
  *
  */
-public class Vector3dEntity extends AbstractEntity<Vector3d> {
-	public Vector3dEntity() {
+public class Vector3DParameter extends AbstractParameter<Vector3d> {
+	public Vector3DParameter() {
 		super(new Vector3d());
 	}
 	
-	public Vector3dEntity(String name) {
+	public Vector3DParameter(String name) {
 		super(new Vector3d());
 		setName(name);
 	}
 	
-	public Vector3dEntity(String name,Vector3d b) {
+	public Vector3DParameter(String name, Vector3d b) {
 		super(b);
 		setName(name);
 	}
 	
-	public Vector3dEntity(double x,double y,double z) {
+	public Vector3DParameter(double x, double y, double z) {
 		super(new Vector3d(x,y,z));
 	}
 	
-	public Vector3dEntity(String name,double x,double y,double z) {
+	public Vector3DParameter(String name, double x, double y, double z) {
 		super(new Vector3d(x,y,z));
 		setName(name);
 	}

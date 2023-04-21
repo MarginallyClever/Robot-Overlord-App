@@ -11,7 +11,7 @@ import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.RobotPanel;
 import com.marginallyclever.robotoverlord.entities.ShapeEntity;
-import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.robots.RobotEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
@@ -76,12 +76,12 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 	 */
 	private boolean haveArmsMoved = false;
 
-	private final BooleanEntity draw_finger_star = new BooleanEntity("Show end effector point",true);
-	private final BooleanEntity draw_base_star = new BooleanEntity("show base star",false);
-	private final BooleanEntity draw_shoulder_to_elbow = new BooleanEntity("show shoulder to elbow",false);
-	private final BooleanEntity draw_shoulder_star = new BooleanEntity("show shoulder star",false);
-	private final BooleanEntity draw_elbow_star = new BooleanEntity("show elbow star",false);
-	private final BooleanEntity draw_wrist_star = new BooleanEntity("show wrist star",false);
+	private final BooleanParameter draw_finger_star = new BooleanParameter("Show end effector point",true);
+	private final BooleanParameter draw_base_star = new BooleanParameter("show base star",false);
+	private final BooleanParameter draw_shoulder_to_elbow = new BooleanParameter("show shoulder to elbow",false);
+	private final BooleanParameter draw_shoulder_star = new BooleanParameter("show shoulder star",false);
+	private final BooleanParameter draw_elbow_star = new BooleanParameter("show elbow star",false);
+	private final BooleanParameter draw_wrist_star = new BooleanParameter("show wrist star",false);
 
 	private final Cylinder tube = new Cylinder();  // for drawing forearms
 

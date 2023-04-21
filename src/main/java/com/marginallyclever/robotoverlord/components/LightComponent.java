@@ -3,10 +3,10 @@ package com.marginallyclever.robotoverlord.components;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
-import com.marginallyclever.robotoverlord.parameters.ColorEntity;
-import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
-import com.marginallyclever.robotoverlord.parameters.IntEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
+import com.marginallyclever.robotoverlord.parameters.ColorParameter;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,19 +43,19 @@ public class LightComponent extends Component {
 
     private final float[] position={0,0,1,0};
     private final float[] spotDirection={0,0,1};
-    private final BooleanEntity isDirectional = new BooleanEntity("Spotlight",false);
+    private final BooleanParameter isDirectional = new BooleanParameter("Spotlight",false);
 
-    private final IntEntity preset = new IntEntity("Preset",0);
-    private final ColorEntity diffuse = new ColorEntity("Diffuse" ,1,1,1,1);
-    private final ColorEntity specular= new ColorEntity("Specular",0,0,0,1);
-    private final ColorEntity ambient = new ColorEntity("Ambient" ,0,0,0,1);
+    private final IntParameter preset = new IntParameter("Preset",0);
+    private final ColorParameter diffuse = new ColorParameter("Diffuse" ,1,1,1,1);
+    private final ColorParameter specular= new ColorParameter("Specular",0,0,0,1);
+    private final ColorParameter ambient = new ColorParameter("Ambient" ,0,0,0,1);
 
-    private final DoubleEntity cutoff = new DoubleEntity("Spot cone (0...90)",180);
-    private final DoubleEntity exponent = new DoubleEntity("Spot Exponent",0);
+    private final DoubleParameter cutoff = new DoubleParameter("Spot cone (0...90)",180);
+    private final DoubleParameter exponent = new DoubleParameter("Spot Exponent",0);
 
-    private final DoubleEntity attenuationConstant = new DoubleEntity("Constant attenuation",1.0);
-    private final DoubleEntity attenuationLinear = new DoubleEntity("Linear attenuation",0.014);
-    private final DoubleEntity attenuationQuadratic = new DoubleEntity("Quadratic attenuation",0.0007);
+    private final DoubleParameter attenuationConstant = new DoubleParameter("Constant attenuation",1.0);
+    private final DoubleParameter attenuationLinear = new DoubleParameter("Linear attenuation",0.014);
+    private final DoubleParameter attenuationQuadratic = new DoubleParameter("Quadratic attenuation",0.0007);
 
     public void setupLight(GL2 gl2, int lightIndex) {
         int i = GL2.GL_LIGHT0+lightIndex;

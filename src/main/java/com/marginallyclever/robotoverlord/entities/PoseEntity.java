@@ -6,10 +6,10 @@ import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Scene;
-import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
-import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
-import com.marginallyclever.robotoverlord.parameters.IntEntity;
-import com.marginallyclever.robotoverlord.parameters.Vector3dEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
+import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.PoseMoveEdit;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
@@ -42,16 +42,16 @@ public class PoseEntity extends Entity {
 	protected Matrix4d myPose = new Matrix4d();
 
 	// which axis do we want to move?
-	private final IntEntity axisChoice = new IntEntity("Jog direction",0);
+	private final IntParameter axisChoice = new IntParameter("Jog direction",0);
 	// how fast do we want to move?
-	private final DoubleEntity axisAmount = new DoubleEntity("Jog speed",0);
+	private final DoubleParameter axisAmount = new DoubleParameter("Jog speed",0);
 	
 	// draw collidable Cuboid(s)?
-	public BooleanEntity showBoundingBox = new BooleanEntity("Show Bounding Box",false);
+	public BooleanParameter showBoundingBox = new BooleanParameter("Show Bounding Box",false);
 	// show star at local origin?
-	public BooleanEntity showLocalOrigin = new BooleanEntity("Show Local Origin",false);
+	public BooleanParameter showLocalOrigin = new BooleanParameter("Show Local Origin",false);
 	// show connection to all children?
-	public BooleanEntity showLineage = new BooleanEntity("Show Lineage",false);
+	public BooleanParameter showLineage = new BooleanParameter("Show Lineage",false);
 
 
 	public PoseEntity() {
@@ -423,7 +423,7 @@ public class PoseEntity extends Entity {
 		view.popStack();
 		view.pushStack("PoseEntity",true);
 		Matrix4d poseWorld = getPoseWorld();
-		view.add(new Vector3dEntity("Position",MatrixHelper.getPosition(poseWorld)));
+		view.add(new Vector3DParameter("Position",MatrixHelper.getPosition(poseWorld)));
 		//	poseWorld.getView(view);
 		view.popStack();
 	}

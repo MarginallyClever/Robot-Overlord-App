@@ -5,8 +5,8 @@ import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.RenderComponent;
-import com.marginallyclever.robotoverlord.parameters.IntEntity;
-import com.marginallyclever.robotoverlord.parameters.StringEntity;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
+import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class GCodePathComponent extends RenderComponent {
     private static final Logger logger = LoggerFactory.getLogger(GCodePathComponent.class);
 
-    private final StringEntity filename = new StringEntity("File","");
+    private final StringParameter filename = new StringParameter("File","");
 
     private GCodePath gCodePath;
 
@@ -100,7 +100,7 @@ public class GCodePathComponent extends RenderComponent {
             PathFactory.reload(gCodePath);
         });
 
-        IntEntity numCommands = new IntEntity("Commands",gCodePath==null ? 0 : gCodePath.getElements().size());
+        IntParameter numCommands = new IntParameter("Commands",gCodePath==null ? 0 : gCodePath.getElements().size());
         view.add(numCommands);
     }
 }

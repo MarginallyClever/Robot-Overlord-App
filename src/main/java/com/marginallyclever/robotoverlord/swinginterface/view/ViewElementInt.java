@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import com.marginallyclever.robotoverlord.parameters.IntEntity;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.IntEdit;
 
@@ -23,10 +23,10 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ViewElementInt extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private final JTextField field;
-	private final IntEntity e;
+	private final IntParameter e;
 	private final ReentrantLock lock = new ReentrantLock();
 	
-	public ViewElementInt(IntEntity e) {
+	public ViewElementInt(IntParameter e) {
 		super();
 		this.e=e;
 		

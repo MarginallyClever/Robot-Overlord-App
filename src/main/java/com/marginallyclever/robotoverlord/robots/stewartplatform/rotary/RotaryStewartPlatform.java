@@ -6,9 +6,9 @@ import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
-import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
-import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
-import com.marginallyclever.robotoverlord.parameters.RemoteEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
+import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,18 +29,18 @@ public class RotaryStewartPlatform extends PoseEntity {
 
 	public final String hello = "HELLO WORLD! I AM STEWART PLATFORM V4.2";
 	// machine dimensions
-	public DoubleEntity BASE_X         = new DoubleEntity("BASE_X",8.093f);
-	public DoubleEntity BASE_Y         = new DoubleEntity("BASE_Y",2.150f);
-	public DoubleEntity BASE_Z         = new DoubleEntity("BASE_Z",6.610f);
-	public DoubleEntity EE_X           = new DoubleEntity("EE_X",7.635f);
-	public DoubleEntity EE_Y           = new DoubleEntity("EE_Y",0.553f);
-	public DoubleEntity EE_Z           = new DoubleEntity("EE_Z",-0.870f);
-	public DoubleEntity BICEP_LENGTH   = new DoubleEntity("BICEP_LENGTH",5.000f);
-	public DoubleEntity ARM_LENGTH     = new DoubleEntity("ARM_LENGTH",16.750f);
+	public DoubleParameter BASE_X         = new DoubleParameter("BASE_X",8.093f);
+	public DoubleParameter BASE_Y         = new DoubleParameter("BASE_Y",2.150f);
+	public DoubleParameter BASE_Z         = new DoubleParameter("BASE_Z",6.610f);
+	public DoubleParameter EE_X           = new DoubleParameter("EE_X",7.635f);
+	public DoubleParameter EE_Y           = new DoubleParameter("EE_Y",0.553f);
+	public DoubleParameter EE_Z           = new DoubleParameter("EE_Z",-0.870f);
+	public DoubleParameter BICEP_LENGTH   = new DoubleParameter("BICEP_LENGTH",5.000f);
+	public DoubleParameter ARM_LENGTH     = new DoubleParameter("ARM_LENGTH",16.750f);
 
-	protected BooleanEntity debugElbows = new BooleanEntity("debugElbows",false);
-	protected BooleanEntity debugEEPoints = new BooleanEntity("debugEEPoints",false);
-	protected BooleanEntity debugArms = new BooleanEntity("debugArms",false);
+	protected BooleanParameter debugElbows = new BooleanParameter("debugElbows",false);
+	protected BooleanParameter debugEEPoints = new BooleanParameter("debugEEPoints",false);
+	protected BooleanParameter debugArms = new BooleanParameter("debugArms",false);
 
 	private final PoseEntity ee = new PoseEntity("ee");
 
@@ -53,9 +53,9 @@ public class RotaryStewartPlatform extends PoseEntity {
 			new RotaryStewartPlatformArm()
 	};
 
-	private final RemoteEntity connection = new RemoteEntity();
-	private final DoubleEntity velocity = new DoubleEntity("velocity",5);
-	private final DoubleEntity acceleration = new DoubleEntity("acceleration",200);
+	private final RemoteParameter connection = new RemoteParameter();
+	private final DoubleParameter velocity = new DoubleParameter("velocity",5);
+	private final DoubleParameter acceleration = new DoubleParameter("acceleration",200);
 
 	protected final MaterialComponent material = new MaterialComponent();
 

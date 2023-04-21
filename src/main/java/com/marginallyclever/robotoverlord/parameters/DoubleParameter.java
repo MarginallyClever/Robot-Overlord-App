@@ -10,24 +10,24 @@ import org.json.JSONObject;
  * @since 1.6.0
  *
  */
-public class DoubleEntity extends AbstractEntity<Double> {
+public class DoubleParameter extends AbstractParameter<Double> {
 
-	public DoubleEntity(String s) {
+	public DoubleParameter(String s) {
 		super(0.0);
 		setName(s);
 	}
 	
-	public DoubleEntity(String s,double d) {
+	public DoubleParameter(String s, double d) {
 		super(d);
 		setName(s);
 	}
 
-	public DoubleEntity(String s,float d) {
+	public DoubleParameter(String s, float d) {
 		super((double)d);
 		setName(s);
 	}
 	
-	public DoubleEntity(String s,int d) {
+	public DoubleParameter(String s, int d) {
 		super((double)d);
 		setName(s);
 	}

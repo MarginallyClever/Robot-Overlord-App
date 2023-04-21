@@ -28,8 +28,8 @@ import java.util.LinkedList;
  * @since 1.6.0
  *
  */
-public class RemoteEntity extends StringEntity implements SessionLayerListener {
-	private static final Logger logger = LoggerFactory.getLogger(RemoteEntity.class);
+public class RemoteParameter extends StringParameter implements SessionLayerListener {
+	private static final Logger logger = LoggerFactory.getLogger(RemoteParameter.class);
 	
 	// the firmware uses a specific syntax.  these are elements of that syntax
 	private static final String CUE = "> ";
@@ -73,7 +73,7 @@ public class RemoteEntity extends StringEntity implements SessionLayerListener {
 		partialMessage.clear();
 	}
 	
-	public RemoteEntity() {
+	public RemoteParameter() {
 		super();
 		setName("Connected to");
 		resetCommands();

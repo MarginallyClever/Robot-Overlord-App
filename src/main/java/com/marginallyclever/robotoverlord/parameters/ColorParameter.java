@@ -12,17 +12,17 @@ import java.util.Arrays;
  * @since 1.6.0
  *
  */
-public class ColorEntity extends AbstractEntity<double[]> {
-	public ColorEntity() {
+public class ColorParameter extends AbstractParameter<double[]> {
+	public ColorParameter() {
 		this(0,0,0,0);
 	}
 
-	public ColorEntity(String name,double r,double g,double b,double a) {
+	public ColorParameter(String name, double r, double g, double b, double a) {
 		super(new double[] {r,g,b,a});
 		setName(name);
 	}
 	
-	public ColorEntity(double r,double g,double b,double a) {
+	public ColorParameter(double r, double g, double b, double a) {
 		super(new double[] {r,g,b,a});
 	}
 

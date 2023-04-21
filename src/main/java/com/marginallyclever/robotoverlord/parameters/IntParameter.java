@@ -9,13 +9,13 @@ import org.json.JSONObject;
  * @since 1.6.0
  *
  */
-public class IntEntity extends AbstractEntity<Integer> {
+public class IntParameter extends AbstractParameter<Integer> {
 
-	public IntEntity() {
+	public IntParameter() {
 		super();
 	}
 	
-	public IntEntity(String name,int d) {
+	public IntParameter(String name, int d) {
 		super(d);
 		setName(name);
 	}

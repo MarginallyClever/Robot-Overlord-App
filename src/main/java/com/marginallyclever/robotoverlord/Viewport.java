@@ -6,8 +6,8 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
-import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.vecmath.Matrix4d;
@@ -31,10 +31,10 @@ public class Viewport extends Entity {
  	 */
 	private double cursorX, cursorY;
 
-	private final DoubleEntity nearZ=new DoubleEntity("Near Z",1.0);
-	private final DoubleEntity farZ=new DoubleEntity("Far Z",1000.0);
-	private final DoubleEntity fieldOfView=new DoubleEntity("FOV",60.0);
-	private final BooleanEntity drawOrthographic=new BooleanEntity("Orthographic",false);
+	private final DoubleParameter nearZ=new DoubleParameter("Near Z",1.0);
+	private final DoubleParameter farZ=new DoubleParameter("Far Z",1000.0);
+	private final DoubleParameter fieldOfView=new DoubleParameter("FOV",60.0);
+	private final BooleanParameter drawOrthographic=new BooleanParameter("Orthographic",false);
 	
 	private CameraComponent camera;
 	

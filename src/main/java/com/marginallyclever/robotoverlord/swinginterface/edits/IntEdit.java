@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
-import com.marginallyclever.robotoverlord.parameters.AbstractEntity;
+import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
 
 import java.io.Serial;
 
@@ -16,7 +16,7 @@ public class IntEdit extends AbstractEntityEdit<Integer> {
 	@Serial
 	private static final long serialVersionUID = 1L;
 	
-	public IntEdit(AbstractEntity<Integer> e, Integer newValue) {
+	public IntEdit(AbstractParameter<Integer> e, Integer newValue) {
 		super(e, newValue);
 	}
 }

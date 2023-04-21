@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
-import com.marginallyclever.robotoverlord.parameters.AbstractEntity;
+import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -20,10 +20,10 @@ import java.io.Serial;
 public class AbstractEntityEdit<T> extends AbstractUndoableEdit {
 	@Serial
 	private static final long serialVersionUID = 1L;
-	private final AbstractEntity<T> entity;
+	private final AbstractParameter<T> entity;
 	private final T oldValue,newValue;
 	
-	public AbstractEntityEdit(AbstractEntity<T> entity,T newValue) {
+	public AbstractEntityEdit(AbstractParameter<T> entity, T newValue) {
 		super();
 		
 		this.entity = entity;

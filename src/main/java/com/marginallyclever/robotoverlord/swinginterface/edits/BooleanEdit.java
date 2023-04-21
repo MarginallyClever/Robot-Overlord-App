@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
-import com.marginallyclever.robotoverlord.parameters.AbstractEntity;
+import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
 
 /**
  * Undoable action to select a boolean.
@@ -17,7 +17,7 @@ public class BooleanEdit extends AbstractEntityEdit<Boolean> {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public BooleanEdit(AbstractEntity<Boolean> e, Boolean newValue) {
+	public BooleanEdit(AbstractParameter<Boolean> e, Boolean newValue) {
 		super(e, newValue);
 	}
 }

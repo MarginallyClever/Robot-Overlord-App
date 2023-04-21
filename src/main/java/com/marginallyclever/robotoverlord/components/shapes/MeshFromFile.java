@@ -6,7 +6,7 @@ import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.material.MaterialFactory;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
-import com.marginallyclever.robotoverlord.parameters.StringEntity;
+import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class MeshFromFile extends ShapeComponent {
     private static final Logger logger = LoggerFactory.getLogger(MeshFromFile.class);
 
-    protected final StringEntity filename = new StringEntity("File","");
+    protected final StringParameter filename = new StringParameter("File","");
 
     public MeshFromFile() {
         super();
@@ -84,7 +84,7 @@ public class MeshFromFile extends ShapeComponent {
 
         Scene myScene = getScene();
         if(myScene!=null) {
-            StringEntity newFilename = new StringEntity("File",myScene.removeScenePath(filename.get()));
+            StringParameter newFilename = new StringParameter("File",myScene.removeScenePath(filename.get()));
             jo.put("filename",newFilename.toJSON());
         } else {
             jo.put("filename",filename.toJSON());
@@ -97,7 +97,7 @@ public class MeshFromFile extends ShapeComponent {
     public void parseJSON(JSONObject jo) throws JSONException {
         super.parseJSON(jo);
 
-        StringEntity newFilename = new StringEntity("File","");
+        StringParameter newFilename = new StringParameter("File","");
         newFilename.parseJSON(jo.getJSONObject("filename"));
 
         String fn = newFilename.get();

@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotoverlord.parameters.Vector3dEntity;
+import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.Vector3dEdit;
 
@@ -25,10 +25,10 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ViewElementVector3d extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private final JTextField [] fields = new JTextField[3];
-	private final Vector3dEntity e;
+	private final Vector3DParameter e;
 	private final ReentrantLock lock = new ReentrantLock();
 	
-	public ViewElementVector3d(Vector3dEntity e) {
+	public ViewElementVector3d(Vector3DParameter e) {
 		super();
 		this.e=e;
 
@@ -145,7 +145,7 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 		
 		if(lock.isLocked()) return;
 		lock.lock();
-		Vector3d input = ((Vector3dEntity)o).get();
+		Vector3d input = ((Vector3DParameter)o).get();
 		fields[0].setText(StringHelper.formatDouble(input.x));
 		fields[1].setText(StringHelper.formatDouble(input.y));
 		fields[2].setText(StringHelper.formatDouble(input.z));

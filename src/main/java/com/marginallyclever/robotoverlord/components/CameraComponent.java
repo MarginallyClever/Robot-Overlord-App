@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,9 +15,9 @@ import javax.vecmath.Vector3d;
 
 @ComponentDependency(components={PoseComponent.class})
 public class CameraComponent extends RenderComponent {
-    private final DoubleEntity pan = new DoubleEntity("Pan",0);
-    private final DoubleEntity tilt = new DoubleEntity("Tilt",0);
-    private final DoubleEntity orbitDistance = new DoubleEntity("Orbit distance",0);
+    private final DoubleParameter pan = new DoubleParameter("Pan",0);
+    private final DoubleParameter tilt = new DoubleParameter("Tilt",0);
+    private final DoubleParameter orbitDistance = new DoubleParameter("Orbit distance",0);
     protected boolean isCurrentlyMoving=false;
 
     @Override

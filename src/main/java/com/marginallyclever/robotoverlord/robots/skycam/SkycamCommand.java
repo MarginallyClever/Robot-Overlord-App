@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.robots.skycam;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
-import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.vecmath.Vector3d;
@@ -12,8 +12,8 @@ import java.io.Serializable;
 @Deprecated
 public class SkycamCommand extends PoseEntity implements Cloneable, Serializable {
 
-	protected transient DoubleEntity feedrateSlider = new DoubleEntity("Feedrate",SkycamModel.DEFAULT_FEEDRATE);
-	protected transient DoubleEntity accelerationSlider = new DoubleEntity("Acceleration",SkycamModel.DEFAULT_ACCELERATION);
+	protected transient DoubleParameter feedrateSlider = new DoubleParameter("Feedrate",SkycamModel.DEFAULT_FEEDRATE);
+	protected transient DoubleParameter accelerationSlider = new DoubleParameter("Acceleration",SkycamModel.DEFAULT_ACCELERATION);
 
 	public SkycamCommand() {
 		super("Pose");
@@ -65,9 +65,9 @@ public class SkycamCommand extends PoseEntity implements Cloneable, Serializable
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		SkycamCommand c = (SkycamCommand)super.clone();
-		c.feedrateSlider = new DoubleEntity(feedrateSlider.getName());
+		c.feedrateSlider = new DoubleParameter(feedrateSlider.getName());
 		c.feedrateSlider.set(feedrateSlider.get());
-		c.accelerationSlider = new DoubleEntity(accelerationSlider.getName());
+		c.accelerationSlider = new DoubleParameter(accelerationSlider.getName());
 		c.accelerationSlider.set(accelerationSlider.get());
 		return c;
 	}

@@ -8,19 +8,19 @@ import org.json.JSONObject;
  * @since 1.6.0
  *
  */
-public class StringEntity extends AbstractEntity<String> {
-	public StringEntity() {
+public class StringParameter extends AbstractParameter<String> {
+	public StringParameter() {
 		super("","");
 	}
 	
 	// ambiguous solution is to do both!
-	public StringEntity(String t) {
+	public StringParameter(String t) {
 		super();
 		setName(t);
     	this.t = t;
 	}
 	
-	public StringEntity(String name, String value) {
+	public StringParameter(String name, String value) {
 		super();
 		setName(name);
 		t=value;

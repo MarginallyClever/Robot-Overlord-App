@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import com.marginallyclever.robotoverlord.parameters.IntEntity;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.IntEdit;
 
@@ -19,9 +19,9 @@ import java.beans.PropertyChangeListener;
 public class ViewElementSlider extends ViewElement implements ChangeListener, PropertyChangeListener {
 	private final JSlider field = new JSlider();
 	private final JLabel value;
-	private final IntEntity e;
+	private final IntParameter e;
 	
-	public ViewElementSlider(IntEntity e,int top,int bottom) {
+	public ViewElementSlider(IntParameter e, int top, int bottom) {
 		super();
 		this.e=e;
 

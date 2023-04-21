@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
-import com.marginallyclever.robotoverlord.parameters.AbstractEntity;
+import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
 
 /**
  * Undoable action to select a string.
@@ -17,7 +17,7 @@ public class StringEdit extends AbstractEntityEdit<String> {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public StringEdit(AbstractEntity<String> e, String newValue) {
+	public StringEdit(AbstractParameter<String> e, String newValue) {
 		super(e, newValue);
 	}
 }

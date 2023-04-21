@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import com.marginallyclever.robotoverlord.parameters.StringEntity;
+import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.StringEdit;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
@@ -26,9 +26,9 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 	private static String lastPath=System.getProperty("user.dir");
 	private final JTextField field = new JTextField(15);
 	private final ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
-	private final StringEntity e;
+	private final StringParameter e;
 	
-	public ViewElementFilename(final StringEntity e) {
+	public ViewElementFilename(final StringParameter e) {
 		super();
 		this.e=e;
 		

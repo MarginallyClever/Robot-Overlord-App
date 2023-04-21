@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import com.marginallyclever.robotoverlord.parameters.ColorEntity;
+import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.ColorRGBAEdit;
 
@@ -15,9 +15,9 @@ import java.beans.PropertyChangeListener;
  */
 public class ViewElementColor extends ViewElement implements PropertyChangeListener {
 	private final BackgroundPaintedButton chooseButton = new BackgroundPaintedButton("");
-	private final ColorEntity colorEntity;
+	private final ColorParameter colorEntity;
 	
-	public ViewElementColor(ColorEntity colorEntity) {
+	public ViewElementColor(ColorParameter colorEntity) {
 		super();
 		this.colorEntity = colorEntity;
 

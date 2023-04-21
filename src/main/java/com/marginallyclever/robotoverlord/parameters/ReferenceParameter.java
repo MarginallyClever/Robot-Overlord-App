@@ -4,24 +4,24 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * A {@link StringEntity} that can only be set to the uniqueID of an {@link com.marginallyclever.robotoverlord.Entity}.
+ * A {@link StringParameter} that can only be set to the uniqueID of an {@link com.marginallyclever.robotoverlord.Entity}.
  *
  * @author Dan Royer
  * @since 2.5.0
  */
-public class ReferenceEntity extends AbstractEntity<String> {
-	public ReferenceEntity() {
+public class ReferenceParameter extends AbstractParameter<String> {
+	public ReferenceParameter() {
 		super("","");
 	}
 
 	// ambiguous solution is to do both!
-	public ReferenceEntity(String t) {
+	public ReferenceParameter(String t) {
 		super();
 		setName(t);
     	this.t = t;
 	}
 
-	public ReferenceEntity(String name, String value) {
+	public ReferenceParameter(String name, String value) {
 		super();
 		setName(name);
 		t=value;

@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
-import com.marginallyclever.robotoverlord.parameters.ColorEntity;
+import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -21,11 +21,11 @@ public class ColorRGBAEdit extends AbstractUndoableEdit {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private ColorEntity entity;
+	private ColorParameter entity;
 	private double [] newValue;
 	private double [] oldValue;
 	
-	public ColorRGBAEdit(ColorEntity entity,double [] newValue) {
+	public ColorRGBAEdit(ColorParameter entity, double [] newValue) {
 		super();
 		
 		this.entity = entity;

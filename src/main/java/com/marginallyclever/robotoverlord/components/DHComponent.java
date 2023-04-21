@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,13 +21,13 @@ import java.beans.PropertyChangeListener;
  */
 @ComponentDependency(components={PoseComponent.class})
 public class DHComponent extends RenderComponent implements PropertyChangeListener {
-    private final DoubleEntity myD = new DoubleEntity("D",0.0);
-    private final DoubleEntity myR = new DoubleEntity("R",0.0);
-    private final DoubleEntity alpha = new DoubleEntity("Alpha",0.0);
-    private final DoubleEntity theta = new DoubleEntity("Theta",0.0);
-    private final DoubleEntity thetaMax = new DoubleEntity("Theta max",0.0);
-    private final DoubleEntity thetaMin = new DoubleEntity("Theta min",0.0);
-    private final DoubleEntity thetaHome = new DoubleEntity("Theta home",0.0);
+    private final DoubleParameter myD = new DoubleParameter("D",0.0);
+    private final DoubleParameter myR = new DoubleParameter("R",0.0);
+    private final DoubleParameter alpha = new DoubleParameter("Alpha",0.0);
+    private final DoubleParameter theta = new DoubleParameter("Theta",0.0);
+    private final DoubleParameter thetaMax = new DoubleParameter("Theta max",0.0);
+    private final DoubleParameter thetaMin = new DoubleParameter("Theta min",0.0);
+    private final DoubleParameter thetaHome = new DoubleParameter("Theta home",0.0);
 
     public DHComponent() {
         super();

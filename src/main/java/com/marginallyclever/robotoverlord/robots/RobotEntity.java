@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.robots;
 
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
-import com.marginallyclever.robotoverlord.parameters.RemoteEntity;
+import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 
@@ -18,7 +18,7 @@ public abstract class RobotEntity extends PoseEntity {
 	 */
 	private static final long serialVersionUID = -6326012946042811230L;
 	// comms	
-	protected transient RemoteEntity connection = new RemoteEntity();
+	protected transient RemoteParameter connection = new RemoteParameter();
 	protected transient boolean isReadyToReceive;
 		
 	public RobotEntity() {

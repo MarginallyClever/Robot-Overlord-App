@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.DoubleEdit;
 
@@ -24,10 +24,10 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ViewElementDouble extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private final JTextField field;
-	private final DoubleEntity e;
+	private final DoubleParameter e;
 	private final ReentrantLock lock = new ReentrantLock();
 	
-	public ViewElementDouble(DoubleEntity e) {
+	public ViewElementDouble(DoubleParameter e) {
 		super();
 		this.e=e;
 		

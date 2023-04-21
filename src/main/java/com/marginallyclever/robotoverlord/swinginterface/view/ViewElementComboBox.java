@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import com.marginallyclever.robotoverlord.parameters.IntEntity;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.ComboBoxEdit;
 
@@ -15,9 +15,9 @@ import java.beans.PropertyChangeListener;
 
 public class ViewElementComboBox extends ViewElement implements ActionListener, PropertyChangeListener {
 	private final JComboBox<String> field;
-	private final IntEntity e;
+	private final IntParameter e;
 	
-	public ViewElementComboBox(IntEntity e,String [] listOptions) {
+	public ViewElementComboBox(IntParameter e, String [] listOptions) {
 		super();
 		this.e=e;
 		

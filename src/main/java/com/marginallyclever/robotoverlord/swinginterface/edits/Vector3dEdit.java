@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
-import com.marginallyclever.robotoverlord.parameters.AbstractEntity;
+import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
 
 import javax.vecmath.Vector3d;
 
@@ -18,7 +18,7 @@ public class Vector3dEdit extends AbstractEntityEdit<Vector3d> {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public Vector3dEdit(AbstractEntity<Vector3d> e, Vector3d newValue) {
+	public Vector3dEdit(AbstractParameter<Vector3d> e, Vector3d newValue) {
 		super(e, newValue);
 	}
 }

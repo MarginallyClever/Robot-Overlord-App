@@ -142,13 +142,13 @@ public class ViewPanel extends ViewElement {
 		
 		//logger.debug("Add "+e.getClass().toString());
 		
-			 if(e instanceof BooleanEntity ) b = new ViewElementBoolean  ((BooleanEntity)e);
-		else if(e instanceof ColorEntity   ) b = new ViewElementColor    ((ColorEntity)e);
-		else if(e instanceof DoubleEntity  ) b = new ViewElementDouble   ((DoubleEntity)e);
-		else if(e instanceof IntEntity     ) b = new ViewElementInt      ((IntEntity)e);
-		else if(e instanceof Vector3dEntity) b = new ViewElementVector3d ((Vector3dEntity)e);
-		else if(e instanceof RemoteEntity  ) b = new ViewElementRemote   ((RemoteEntity)e);  // must come before StringEntity because RemoteEntity extends StringEntity
-		else if(e instanceof StringEntity  ) b = new ViewElementString   ((StringEntity)e);
+			 if(e instanceof BooleanParameter) b = new ViewElementBoolean  ((BooleanParameter)e);
+		else if(e instanceof ColorParameter) b = new ViewElementColor    ((ColorParameter)e);
+		else if(e instanceof DoubleParameter) b = new ViewElementDouble   ((DoubleParameter)e);
+		else if(e instanceof IntParameter) b = new ViewElementInt      ((IntParameter)e);
+		else if(e instanceof Vector3DParameter) b = new ViewElementVector3d ((Vector3DParameter)e);
+		else if(e instanceof RemoteParameter) b = new ViewElementRemote   ((RemoteParameter)e);  // must come before StringEntity because RemoteEntity extends StringEntity
+		else if(e instanceof StringParameter) b = new ViewElementString   ((StringParameter)e);
 		if(null==b) {
 			return addStaticText("ViewPanel.add("+e.getClass().toString()+")");
 		}
@@ -165,7 +165,7 @@ public class ViewPanel extends ViewElement {
 		return b;
 	}
 
-	public ViewElement addComboBox(IntEntity e,String [] labels) {
+	public ViewElement addComboBox(IntParameter e, String [] labels) {
 		ViewElement b = new ViewElementComboBox(e,labels);
 		pushViewElement(b);
 		return b;
@@ -179,7 +179,7 @@ public class ViewPanel extends ViewElement {
 	 * @param bottom the minimum value, inclusive
 	 * @return the element
 	 */
-	public ViewElement addRange(IntEntity e, int top, int bottom) {
+	public ViewElement addRange(IntParameter e, int top, int bottom) {
 		ViewElement b = new ViewElementSlider(e,top,bottom);
 		pushViewElement(b);
 		return b;
@@ -192,7 +192,7 @@ public class ViewPanel extends ViewElement {
 	 * @param bottom the minimum value, inclusive
 	 * @return the element
 	 */
-	public ViewElement addRange(DoubleEntity e,int top,int bottom) {
+	public ViewElement addRange(DoubleParameter e, int top, int bottom) {
 		ViewElement b = new ViewElementSliderDouble(e,top,bottom);
 		pushViewElement(b);
 		return b;
@@ -204,7 +204,7 @@ public class ViewPanel extends ViewElement {
 	 * @param filters
 	 * @return the element
 	 */
-	public ViewElement addFilename(StringEntity e, ArrayList<FileFilter> filters) {
+	public ViewElement addFilename(StringParameter e, ArrayList<FileFilter> filters) {
 		ViewElementFilename b = new ViewElementFilename(e);
 		b.addFileFilters(filters);
 		

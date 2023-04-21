@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.DoubleEdit;
 
@@ -19,10 +19,10 @@ import java.beans.PropertyChangeListener;
 public class ViewElementSliderDouble extends ViewElement implements ChangeListener, PropertyChangeListener {
 	private final JSlider field = new JSlider();
 	private final JLabel value;
-	private final DoubleEntity e;
+	private final DoubleParameter e;
 	boolean inUpdate=false;
 	
-	public ViewElementSliderDouble(DoubleEntity e,int top,int bottom) {
+	public ViewElementSliderDouble(DoubleParameter e, int top, int bottom) {
 		super();
 		this.e=e;
 
