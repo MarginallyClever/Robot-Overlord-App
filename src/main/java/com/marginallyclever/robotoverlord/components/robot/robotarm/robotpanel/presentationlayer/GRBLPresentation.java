@@ -34,20 +34,20 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
     private static final long serialVersionUID = -6388563393882327725L;
     // number of commands we'll hold on to in case there's a resend.
     private static final int HISTORY_BUFFER_LIMIT = 250;
-    // Marlin can buffer this many commands from serial, before processing.
+    // can buffer this many commands from serial, before processing.
     private static final int MARLIN_SEND_LIMIT = 20;
     // If nothing is heard for this many ms then send a ping to check if the connection is still live. 
     private static final int TIMEOUT_DELAY = 2000;
-    // Marlin says this when a resend is needed, followed by the last well-received line number.
+    // says this when a resend is needed, followed by the last well-received line number.
     private static final String STR_RESEND = "Resend: ";
-    // Marlin sends this event when the robot is ready to receive more.
+    // sends this event when the robot is ready to receive more.
     private static final String STR_OK = "ok";
-    // MarlinInterface sends this as an ActionEvent to let listeners know it can handle more input.
+    // sends this as an ActionEvent to let listeners know it can handle more input.
     private static final String IDLE = "idle";
 
     private final Robot myArm;
     private final TextInterfaceToSessionLayer chatInterface = new TextInterfaceToSessionLayer();
-    private final List<MarlinCommand> myHistory = new ArrayList<>();
+    private final List<NumberedCommand> myHistory = new ArrayList<>();
 
     private final JButton bESTOP = new JButton("EMERGENCY STOP");
     private final JButton bGetAngles = new JButton("M114");
@@ -99,7 +99,7 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
     }
 
     private void onConnect() {
-        logger.info("MarlinInterface connected.");
+        logger.info("connected.");
         setupListener();
         lineNumberToSend=1;
         lineNumberAdded=0;
@@ -119,7 +119,7 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
     }
 
     private void onClose() {
-        logger.info("MarlinInterface disconnected.");
+        logger.info("disconnected.");
         timeoutChecker.stop();
     }
 
@@ -190,8 +190,8 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
         lineNumberAdded++;
         String withLineNumber = "N"+lineNumberAdded+" "+str;
         String assembled = withLineNumber + generateChecksum(withLineNumber);
-        myHistory.add(new MarlinCommand(lineNumberAdded,assembled));
-        //logger.info("MarlinInterface queued '"+assembled+"'.  busyCount="+busyCount);
+        myHistory.add(new NumberedCommand(lineNumberAdded,assembled));
+        //logger.info("queued '"+assembled+"'.  busyCount="+busyCount);
         if(busyCount>0) sendQueuedCommand();
     }
 
@@ -201,12 +201,12 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
         if(myHistory.size()==0) return;
 
         int smallest = Integer.MAX_VALUE;
-        for( MarlinCommand mc : myHistory ) {
+        for( NumberedCommand mc : myHistory ) {
             if(smallest > mc.lineNumber) smallest = mc.lineNumber;
             if(mc.lineNumber == lineNumberToSend) {
                 busyCount--;
                 lineNumberToSend++;
-                //logger.info("MarlinInterface sending '"+mc.command+"'.");
+                //logger.info("sending '"+mc.command+"'.");
                 chatInterface.sendCommand(mc.command);
                 return;
             }
@@ -214,8 +214,8 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
 
         if(smallest>lineNumberToSend) {
             // history no longer contains the line?!
-            logger.info("MarlinInterface did not find "+lineNumberToSend);
-            for( MarlinCommand mc : myHistory ) {
+            logger.info("did not find "+lineNumberToSend);
+            for( NumberedCommand mc : myHistory ) {
                 logger.info("..."+mc.lineNumber+": "+mc.command);
             }
         }
@@ -260,7 +260,7 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
     }
 
     private void sendGoto() {
-        //logger.info("MarlinInterface.sendGoto()");
+        //logger.info("sendGoto()");
         StringBuilder action = new StringBuilder("G1");
         int count = (int)myArm.get(Robot.NUM_JOINTS);
         for (int i = 0; i < count; ++i) {
