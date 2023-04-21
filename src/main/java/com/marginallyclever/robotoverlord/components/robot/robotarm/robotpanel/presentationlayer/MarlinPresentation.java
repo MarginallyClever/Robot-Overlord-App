@@ -152,10 +152,10 @@ public class MarlinPresentation extends JPanel implements PresentationLayer {
 	private void onHearResend(String message) {
 		String numberPart = message.substring(message.indexOf(STR_RESEND) + STR_RESEND.length());
 		try {
-			int n = Integer.parseInt(numberPart);
-			if(n>lineNumberAdded- MarlinPresentation.HISTORY_BUFFER_LIMIT) {
+			int lineNumber = Integer.parseInt(numberPart);
+			if(lineNumber>lineNumberAdded- MarlinPresentation.HISTORY_BUFFER_LIMIT) {
 				// no problem.
-				lineNumberToSend=n;
+				lineNumberToSend=lineNumber;
 			}
 			// else line is no longer in the buffer.  should not be possible!
 		} catch(NumberFormatException e) {

@@ -39,7 +39,7 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
     // If nothing is heard for this many ms then send a ping to check if the connection is still live. 
     private static final int TIMEOUT_DELAY = 2000;
     // says this when a resend is needed, followed by the last well-received line number.
-    private static final String STR_RESEND = "Resend: ";
+    private static final String STR_ERROR = "error:";
     // sends this event when the robot is ready to receive more.
     private static final String STR_OK = "ok";
     // sends this as an ActionEvent to let listeners know it can handle more input.
@@ -137,28 +137,42 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
         if(evt.flag == SessionLayerEvent.DATA_AVAILABLE) {
             lastReceivedTime = System.currentTimeMillis();
             String message = ((String)evt.data).trim();
-            if (message.startsWith("X:") && message.contains("Count")) {
-                //logger.info("FOUND " + message);
-                onHearM114(message);
+            if (message.startsWith("<") && message.contains("WPos")) {
+                onHearStatus(message);
             } else if(message.startsWith(STR_OK)) {
                 onHearOK();
-            } else if(message.contains(STR_RESEND)) {
-                onHearResend(message);
+            } else if(message.contains(STR_ERROR)) {
+                onHearError(message);
             }
         }
     }
 
-    private void onHearResend(String message) {
-        String numberPart = message.substring(message.indexOf(STR_RESEND) + STR_RESEND.length());
+    /**
+     * Parse and deal with GRBL error codes.
+     * @param message the message to parse
+     */
+    private void onHearError(String message) {
+        String numberPart = message.substring(message.indexOf(STR_ERROR) + STR_ERROR.length());
+        int GRBLErrorCode = 0;
         try {
-            int n = Integer.parseInt(numberPart);
-            if(n>lineNumberAdded- GRBLPresentation.HISTORY_BUFFER_LIMIT) {
-                // no problem.
-                lineNumberToSend=n;
-            }
+            GRBLErrorCode = Integer.parseInt(numberPart);
             // else line is no longer in the buffer.  should not be possible!
         } catch(NumberFormatException e) {
-            logger.info("Resend request for '"+message+"' failed: "+e.getMessage());
+            logger.info("'\"+message+\"' could not be parsed: "+e.getMessage());
+            return;
+        }
+
+        switch (GRBLErrorCode) {
+            case 1 -> logger.info("GRBL error: G-code words consist of a letter and a value. Letter was not found.");
+            case 2 -> logger.info("GRBL error: Numeric value format is not valid or missing an expected value.");
+            case 3 -> logger.info("GRBL error: Grbl '$' system command was not recognized or supported.");
+            case 4 -> logger.info("GRBL error: Negative value received for an expected positive value.");
+            case 5 -> logger.info("GRBL error: Homing cycle failure. Homing is not enabled via settings.");
+            case 6 -> logger.info("GRBL error: Minimum step pulse time must be greater than 3usec.");
+            case 7 -> logger.info("GRBL error: EEPROM read failed. Reset and restored to default values.");
+            case 8 -> logger.info("GRBL error: Grbl '$' command cannot be used unless Grbl is IDLE."
+                                 +" Ensures smooth operation during a job.");
+            case 9 -> logger.info("GRBL error: G-code locked out during alarm or jog state.");
         }
     }
 
@@ -188,10 +202,9 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
         if(str.trim().length()==0) return;
 
         lineNumberAdded++;
-        String withLineNumber = "N"+lineNumberAdded+" "+str;
-        String assembled = withLineNumber + generateChecksum(withLineNumber);
-        myHistory.add(new NumberedCommand(lineNumberAdded,assembled));
-        //logger.info("queued '"+assembled+"'.  busyCount="+busyCount);
+        // Line number and checksum would go here, but as far as I know GRBL does not support it.
+        myHistory.add(new NumberedCommand(lineNumberAdded,str));
+
         if(busyCount>0) sendQueuedCommand();
     }
 
@@ -234,28 +247,32 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
         return busyCount<=0;
     }
 
-    // format is normally X:0.00 Y:270.00 Z:0.00 U:270.00 V:180.00 W:0.00 Count X:0 Y:0 Z:0 U:0 V:0 W:0
-    // trim everything after and including "Count", then read the state data.
-    private void onHearM114(String message) {
+    /**
+     *  <p>Parse the status message.  Format is normally</p>
+     *  <pre>&lt;Idle|WPos:0.000,0.000,0.000|Bf:15,128|FS:0,0&gt;</pre>
+     *  <p>In this message:</p>
+     *  <ul>
+     *  <li>"Idle" is the current state of the machine.</li>
+     *  <li>"WPos:0.000,0.000,0.000" represents the work position in X, Y, and Z coordinates.</li>
+     *  <li>"Bf:15,128" indicates the remaining block buffer and RX serial buffer space.</li>
+     *  <li>"FS:0,0" shows the current feed rate and spindle speed.</li>
+     *  </ul>
+      * @param message the message to parse.
+     */
+    private void onHearStatus(String message) {
         try {
-            message = message.substring(0, message.indexOf("Count"));
-            String[] majorParts = message.split("\b");
+            message = message.substring(0, message.indexOf("WPos:"));
+            String[] majorParts = message.split("|");
+            String[] minorParts = majorParts[0].split(",");
 
             int count = (int)myArm.get(Robot.NUM_JOINTS);
             for (int i = 0; i < count; ++i) {
                 myArm.set(Robot.ACTIVE_JOINT,i);
-                double v = (double)myArm.get(Robot.JOINT_VALUE);
-                for (String s : majorParts) {
-                    String[] minorParts = s.split(":");
-
-                    if (minorParts[0].contentEquals((String)myArm.get(Robot.JOINT_NAME))) {
-                        v = Double.parseDouble(minorParts[1]);
-                    }
-                }
+                double v = Double.parseDouble(minorParts[i]);
                 myArm.set(Robot.JOINT_VALUE,v);
             }
         } catch (NumberFormatException e) {
-            logger.error("M114: "+e.getMessage());
+            logger.error(e.getMessage());
         }
     }
 
@@ -300,7 +317,7 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
     }
 
     private void sendGetPosition() {
-        queueAndSendCommand("M114");
+        queueAndSendCommand("?");
     }
 
     private void updateButtonAccess() {
