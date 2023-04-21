@@ -163,6 +163,7 @@ public class Entity implements PropertyChangeListener {
 	}
 
 	public void setParent(Entity e) {
+		if(parent != null) parent.removeEntity(this);
 		parent = e;
 	}
 
