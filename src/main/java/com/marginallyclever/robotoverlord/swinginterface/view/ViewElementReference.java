@@ -1,5 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
+import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.StringParameterEdit;
@@ -21,10 +23,12 @@ import java.beans.PropertyChangeListener;
 public class ViewElementReference extends ViewElement implements ActionListener {
 	private final JTextField field = new FocusTextField(20);
 	private final ReferenceParameter parameter;
+	private final RobotOverlord robotOverlord;
 
-	public ViewElementReference(final ReferenceParameter parameter) {
+	public ViewElementReference(final ReferenceParameter parameter, RobotOverlord robotOverlord) {
 		super();
 		this.parameter = parameter;
+		this.robotOverlord = robotOverlord;
 
 		field.setEditable(false);
 		field.setText(parameter.get());
@@ -63,6 +67,8 @@ public class ViewElementReference extends ViewElement implements ActionListener 
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
+		Scene scene = robotOverlord.getScene();
+
 		boolean success = chooser.runDialog();
 		if(success) {
 			String newFilename = chooser.getSelectedEntity.getUUID();

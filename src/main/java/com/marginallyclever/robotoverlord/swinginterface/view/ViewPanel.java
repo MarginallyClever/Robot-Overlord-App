@@ -31,11 +31,11 @@ public class ViewPanel extends ViewElement {
 	protected StackElement se;
 	protected final JPanel contentPane = new JPanel();
 
-	private final RobotOverlord ro;
+	private final RobotOverlord robotOverlord;
 
-	public ViewPanel(RobotOverlord ro) {
+	public ViewPanel(RobotOverlord robotOverlord) {
 		super();
-		this.ro=ro;
+		this.robotOverlord = robotOverlord;
 
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
 
@@ -108,7 +108,7 @@ public class ViewPanel extends ViewElement {
 	private void setPopupMenu(Component component,JComponent panel) {
 		JPopupMenu popup = new JPopupMenu();
 
-		ComponentDeleteAction componentDeleteAction = new ComponentDeleteAction(component,ro);
+		ComponentDeleteAction componentDeleteAction = new ComponentDeleteAction(component, robotOverlord);
 		popup.add(componentDeleteAction);
 
 		ComponentCopyAction componentCopyAction = new ComponentCopyAction(component);
@@ -147,7 +147,7 @@ public class ViewPanel extends ViewElement {
 		else if(parameter instanceof DoubleParameter   ) element = new ViewElementDouble   ((DoubleParameter)parameter);
 		else if(parameter instanceof IntParameter      ) element = new ViewElementInt      ((IntParameter)parameter);
 		else if(parameter instanceof Vector3DParameter ) element = new ViewElementVector3d ((Vector3DParameter)parameter);
-		else if(parameter instanceof ReferenceParameter) element = new ViewElementReference((ReferenceParameter)parameter);
+		else if(parameter instanceof ReferenceParameter) element = new ViewElementReference((ReferenceParameter)parameter,robotOverlord);
 		else if(parameter instanceof StringParameter   ) element = new ViewElementString   ((StringParameter)parameter);
 
 		if(null==element) {
