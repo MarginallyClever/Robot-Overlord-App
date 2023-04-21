@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.parameters;
 
-import com.marginallyclever.robotoverlord.AbstractEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;

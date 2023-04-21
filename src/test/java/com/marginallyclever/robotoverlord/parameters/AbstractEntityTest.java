@@ -1,5 +1,6 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.robotoverlord.parameters;
 
+import com.marginallyclever.robotoverlord.parameters.AbstractEntity;
 import org.junit.jupiter.api.Assertions;
 
 public class AbstractEntityTest {

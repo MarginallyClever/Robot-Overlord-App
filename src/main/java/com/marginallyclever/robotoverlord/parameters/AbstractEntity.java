@@ -1,4 +1,6 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.robotoverlord.parameters;
+
+import com.marginallyclever.robotoverlord.Entity;
 
 import java.beans.PropertyChangeEvent;
 

@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.parameters;
 
-import com.marginallyclever.robotoverlord.AbstractEntityTest;
 import org.junit.jupiter.api.Test;
 
 public class TextureEntityTest {

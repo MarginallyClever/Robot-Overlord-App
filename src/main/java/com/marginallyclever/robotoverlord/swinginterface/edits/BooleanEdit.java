@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
-import com.marginallyclever.robotoverlord.AbstractEntity;
+import com.marginallyclever.robotoverlord.parameters.AbstractEntity;
 
 /**
  * Undoable action to select a boolean.

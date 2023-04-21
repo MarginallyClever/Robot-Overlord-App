@@ -3,7 +3,6 @@ package com.marginallyclever.robotoverlord.components;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotoverlord.AbstractEntity;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
@@ -248,15 +247,9 @@ public class CameraComponent extends RenderComponent {
 
         gl2.glPopMatrix();
     }
-    /**
-     * A Component may offer one or more {@link AbstractEntity} visual elements for the User to manipulate.
-     * it does so by Decorating the given {@link ViewPanel} with these elements.
-     *
-     * @param view the ViewPanel to decorate.
-     */
+
     public void getView(ViewPanel view) {
         super.getView(view);
-
         view.add(orbitDistance);
     }
 

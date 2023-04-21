@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.parameters;
 
-import com.marginallyclever.robotoverlord.AbstractEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 

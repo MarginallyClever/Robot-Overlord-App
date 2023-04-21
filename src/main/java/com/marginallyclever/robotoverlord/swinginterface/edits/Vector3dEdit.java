@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
-import com.marginallyclever.robotoverlord.AbstractEntity;
+import com.marginallyclever.robotoverlord.parameters.AbstractEntity;
 
 import javax.vecmath.Vector3d;
 
