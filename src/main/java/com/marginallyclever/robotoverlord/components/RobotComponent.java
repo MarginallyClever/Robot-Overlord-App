@@ -110,7 +110,7 @@ public class RobotComponent extends Component implements Robot {
             case NUM_JOINTS: return getNumBones();
             case ACTIVE_JOINT: return activeJoint;
             case JOINT_NAME: return getBone(activeJoint).getEntity().getName();
-            case JOINT_VALUE: return getBone(activeJoint).getTheta();
+            case JOINT_VALUE: return getActiveJointValue();
             case JOINT_RANGE_MAX: return getBone(activeJoint).getJointMax();
             case JOINT_RANGE_MIN: return getBone(activeJoint).getJointMin();
             case JOINT_HAS_RANGE_LIMITS: return true;
@@ -124,6 +124,11 @@ public class RobotComponent extends Component implements Robot {
             case JOINT_HOME: return getBone(activeJoint).getJointHome();
             default : return null;
         }
+    }
+
+    private Object getActiveJointValue() {
+        DHComponent b = getBone(activeJoint);
+        return b.isRevolute() ? b.getTheta() : b.getD();
     }
 
     private Object getActiveJointPose() {

@@ -305,4 +305,8 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         OpenGLHelper.disableTextureEnd(gl2, tex);
         OpenGLHelper.disableLightingEnd(gl2, lit);
     }
+
+    public boolean isRevolute() {
+        return isRevolute.get();
+    }
 }
