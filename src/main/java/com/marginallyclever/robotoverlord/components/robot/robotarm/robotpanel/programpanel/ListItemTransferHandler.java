@@ -9,7 +9,6 @@ import java.awt.dnd.DragSource;
 import java.io.IOException;
 import java.util.Objects;
 
-@SuppressWarnings("serial")
 class ListItemTransferHandler extends TransferHandler {
   protected final DataFlavor localObjectFlavor;
   protected int[] indices;
