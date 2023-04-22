@@ -299,16 +299,16 @@ public class CrabRobotComponent extends RenderComponent {
         calf.addEntity(foot);
 
         hip.addComponent(dh[0]);
-        dh[0].set(0,2.2,90,0,60,-60);
+        dh[0].set(0,2.2,90,0,60,-60,true);
         if(isRight) createMesh(hip,"/robots/Spidee/shoulder_right.obj",new ColorRGB(0x9999FF));
         else        createMesh(hip,"/robots/Spidee/shoulder_left.obj",new ColorRGB(0x9999FF));
 
         thigh.addComponent(dh[1]);
-        dh[1].set( 0,8.5,0,0,106,-72);
+        dh[1].set( 0,8.5,0,0,106,-72,true);
         createMesh(thigh,"/robots/Spidee/thigh.obj",new ColorRGB(0xFFFFFF));
 
         calf.addComponent(dh[2]);
-        dh[2].set(0,10.5,0,0,15,-160);
+        dh[2].set(0,10.5,0,0,15,-160,true);
         if(isRight) createMesh(calf,"/robots/Spidee/calf_right.obj",new ColorRGB(0xFFFF99));
         else		createMesh(calf,"/robots/Spidee/calf_left.obj",new ColorRGB(0xFFFF99));
 

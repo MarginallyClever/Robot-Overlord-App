@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
@@ -21,13 +22,14 @@ import java.beans.PropertyChangeListener;
  */
 @ComponentDependency(components={PoseComponent.class})
 public class DHComponent extends RenderComponent implements PropertyChangeListener {
+    private final BooleanParameter isRevolute = new BooleanParameter("Revolute",true);
     private final DoubleParameter myD = new DoubleParameter("D",0.0);
     private final DoubleParameter myR = new DoubleParameter("R",0.0);
     private final DoubleParameter alpha = new DoubleParameter("Alpha",0.0);
     private final DoubleParameter theta = new DoubleParameter("Theta",0.0);
-    private final DoubleParameter thetaMax = new DoubleParameter("Theta max",0.0);
-    private final DoubleParameter thetaMin = new DoubleParameter("Theta min",0.0);
-    private final DoubleParameter thetaHome = new DoubleParameter("Theta home",0.0);
+    private final DoubleParameter jointMax = new DoubleParameter("Max",0.0);
+    private final DoubleParameter jointMin = new DoubleParameter("Min",0.0);
+    private final DoubleParameter jointHome = new DoubleParameter("Home",0.0);
 
     public DHComponent() {
         super();
@@ -50,9 +52,10 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         jo.put("R",myR.toJSON());
         jo.put("Alpha", alpha.toJSON());
         jo.put("Theta", theta.toJSON());
-        jo.put("ThetaMax", thetaMax.toJSON());
-        jo.put("ThetaMin", thetaMin.toJSON());
-        jo.put("ThetaHome", thetaHome.toJSON());
+        jo.put("ThetaMax", jointMax.toJSON());
+        jo.put("ThetaMin", jointMin.toJSON());
+        jo.put("ThetaHome", jointHome.toJSON());
+        jo.put("Revolute", isRevolute.toJSON());
         return jo;
     }
 
@@ -63,9 +66,10 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         myR.parseJSON(jo.getJSONObject("R"));
         alpha.parseJSON(jo.getJSONObject("Alpha"));
         theta.parseJSON(jo.getJSONObject("Theta"));
-        if(jo.has("ThetaMax")) thetaMax.parseJSON(jo.getJSONObject("ThetaMax"));
-        if(jo.has("ThetaMin")) thetaMin.parseJSON(jo.getJSONObject("ThetaMin"));
-        if(jo.has("ThetaHome")) thetaHome.parseJSON(jo.getJSONObject("ThetaHome"));
+        if(jo.has("ThetaMax")) jointMax.parseJSON(jo.getJSONObject("ThetaMax"));
+        if(jo.has("ThetaMin")) jointMin.parseJSON(jo.getJSONObject("ThetaMin"));
+        if(jo.has("ThetaHome")) jointHome.parseJSON(jo.getJSONObject("ThetaHome"));
+        if(jo.has("Revolute")) isRevolute.parseJSON(jo.getJSONObject("Revolute"));
         refreshLocalMatrix();
     }
 
@@ -73,13 +77,14 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
     public void getView(ViewPanel view) {
         super.getView(view);
 
+        view.add(isRevolute);
         view.add(myD);
         view.add(myR);
         view.add(alpha);
         view.add(theta);
-        view.add(thetaMax);
-        view.add(thetaMin);
-        view.add(thetaHome);
+        view.add(jointMax);
+        view.add(jointMin);
+        view.add(jointHome);
     }
 
     @Override
@@ -143,17 +148,22 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
                 +",r="+myR.get()
                 +",alpha="+ alpha.get()
                 +",theta="+ theta.get()
-                +",thetaMax="+ thetaMax.get()
-                +",thetaMin="+ thetaMin.get()
-                +",thetaHome="+ thetaHome.get()
+                +",thetaMax="+ jointMax.get()
+                +",thetaMin="+ jointMin.get()
+                +",thetaHome="+ jointHome.get()
+                +",revolute="+ isRevolute.get()
                 +",\n";
     }
 
-    public void setAngleWRTLimits(double t) {
+    public void setJointValueWRTLimits(double t) {
+        if (isRevolute.get()) setRevoluteWRTLimits(t);
+        else setPrismaticWRTLimits(t);
+    }
+
+    private void setRevoluteWRTLimits(double angle) {
         // if max angle and min angle overlap then there is no limit on this joint.
-        double max = thetaMax.get();
-        double min = thetaMin.get();
-        double angle = t;
+        double max = jointMax.get();
+        double min = jointMin.get();
 
         double bMiddle = (max+min)/2.0;
         double bMax = Math.abs(max-bMiddle);
@@ -166,6 +176,14 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         theta.set(angle % 360);
     }
 
+    private void setPrismaticWRTLimits(double d) {
+        // if max angle and min angle overlap then there is no limit on this joint.
+        double max = jointMax.get();
+        double min = jointMin.get();
+
+        myD.set(Math.max(Math.min(d, max), min));
+    }
+
     /**
      * @return the local pose of this entity.
      */
@@ -175,18 +193,33 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         return pose.getLocal();
     }
 
-    public void set(double d, double r, double alpha, double theta, double tMax, double tMin) {
+    /**
+     * Set the joint parameters.
+     * @param d distance from previous joint along Z axis.  This value changes in a prismatic joint.
+     * @param r distance from previous joint along X axis
+     * @param alpha angle from previous joint, rotation around X axis
+     * @param theta angle from previous joint, rotation around Z axis.  This value changes in a revolute joint.
+     * @param jointMax maximum value of moving joint
+     * @param jointMin minimum value of moving joint
+     * @param isRevolute true if joint is revolute, false if joint is prismatic
+     */
+    public void set(double d, double r, double alpha, double theta, double jointMax, double jointMin, boolean isRevolute) {
         this.myD.set(d);
         this.myR.set(r);
         this.alpha.set(alpha);
         this.theta.set(theta);
-        this.thetaMax.set(tMax);
-        this.thetaMin.set(tMin);
+        this.jointMax.set(jointMax);
+        this.jointMin.set(jointMin);
+        this.isRevolute.set(isRevolute);
         refreshLocalMatrix();
     }
 
     public void setD(double d) {
-        myD.set(d);
+        if(!isRevolute.get()) {
+            setPrismaticWRTLimits(d);
+        } else {
+            myD.set(d);
+        }
     }
 
     public double getD() { return myD.get(); }
@@ -206,37 +239,40 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
     public double getAlpha() { return alpha.get(); }
 
     public void setTheta(double angle) {
-        theta.set(angle);
+        if(isRevolute.get()) {
+            setRevoluteWRTLimits(angle);
+        } else {
+            theta.set(angle);
+        }
     }
 
     public double getTheta() {
         return theta.get();
     }
 
-    public void setThetaMax(double v) {
-        thetaMax.set(v);
+    public void setJointMax(double v) {
+        jointMax.set(v);
     }
 
-    public double getThetaMax() {
-        return thetaMax.get();
+    public double getJointMax() {
+        return jointMax.get();
     }
 
-    public void setThetaMin(double v) {
-        thetaMin.set(v);
+    public void setJointMin(double v) {
+        jointMin.set(v);
     }
 
-    public double getThetaMin() {
-        return thetaMin.get();
+    public double getJointMin() {
+        return jointMin.get();
     }
 
-    public double getThetaHome() {
-        return thetaHome.get();
+    public double getJointHome() {
+        return jointHome.get();
     }
 
-    public void setThetaHome(double t) {
-        thetaHome.set(t);
+    public void setJointHome(double t) {
+        jointHome.set(t);
     }
-
 
     @Override
     public void render(GL2 gl2) {

@@ -111,8 +111,8 @@ public class RobotComponent extends Component implements Robot {
             case ACTIVE_JOINT: return activeJoint;
             case JOINT_NAME: return getBone(activeJoint).getEntity().getName();
             case JOINT_VALUE: return getBone(activeJoint).getTheta();
-            case JOINT_RANGE_MAX: return getBone(activeJoint).getThetaMax();
-            case JOINT_RANGE_MIN: return getBone(activeJoint).getThetaMin();
+            case JOINT_RANGE_MAX: return getBone(activeJoint).getJointMax();
+            case JOINT_RANGE_MIN: return getBone(activeJoint).getJointMin();
             case JOINT_HAS_RANGE_LIMITS: return true;
             case JOINT_PRISMATIC: return false;
             case END_EFFECTOR: return getEndEffectorPose();
@@ -121,7 +121,7 @@ public class RobotComponent extends Component implements Robot {
             case TOOL_CENTER_POINT: return getToolCenterPoint();
             case POSE: return getPoseWorld();
             case JOINT_POSE: return getActiveJointPose();
-            case JOINT_HOME: return getBone(activeJoint).getThetaHome();
+            case JOINT_HOME: return getBone(activeJoint).getJointHome();
             default : return null;
         }
     }
@@ -144,7 +144,7 @@ public class RobotComponent extends Component implements Robot {
             case END_EFFECTOR_TARGET_POSITION -> setEndEffectorTargetPosition((Point3d) value);
             case TOOL_CENTER_POINT -> setToolCenterPointOffset((Matrix4d) value);
             case POSE -> setPoseWorld((Matrix4d) value);
-            case JOINT_HOME -> getBone(activeJoint).setThetaHome((double) value);
+            case JOINT_HOME -> getBone(activeJoint).setJointHome((double) value);
             default -> { }
         }
     }
@@ -354,7 +354,7 @@ public class RobotComponent extends Component implements Robot {
      */
     private void updateJointValue(double value) {
         Matrix4d eeOld = getEndEffectorPose();
-        getBone(activeJoint).setAngleWRTLimits(value);
+        getBone(activeJoint).setJointValueWRTLimits(value);
         Matrix4d eeNew = getEndEffectorPose();
 
         notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",eeOld,eeNew));

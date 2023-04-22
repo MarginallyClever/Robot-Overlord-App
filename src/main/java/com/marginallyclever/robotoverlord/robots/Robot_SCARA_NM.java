@@ -15,10 +15,10 @@ public class Robot_SCARA_NM extends Entity {
 	public Robot_SCARA_NM() {
 		super();
 		setName("SCARA NM");
-		live.getBone(0).set(13.784,15,0,0,240,-40);  // "/SCARA_NM/Scara_base.stl"
-		live.getBone(1).set(13.0,0,0,0,120,-120);  // "/SCARA_NM/Scara_arm1.stl"
-		live.getBone(2).set(-8,0,0,0,-10.92600+7.574,-10.92600-0.5);  // "/SCARA_NM/Scara_arm2.stl"
-		live.getBone(3).set(0,0,0,0,180,-180);
-		live.getBone(4).set(0,0,0,0,0,-0);  // "/SCARA_NM/Scara_screw.stl"
+		live.getBone(0).set(13.784,15,0,0,240,-40,true);  // "/SCARA_NM/Scara_base.stl"
+		live.getBone(1).set(13.0,0,0,0,120,-120,true);  // "/SCARA_NM/Scara_arm1.stl"
+		live.getBone(2).set(-8,0,0,0,-10.92600+7.574,-10.92600-0.5,true);  // "/SCARA_NM/Scara_arm2.stl"
+		live.getBone(3).set(0,0,0,0,180,-180,true);
+		live.getBone(4).set(0,0,0,0,0,-0,true);  // "/SCARA_NM/Scara_screw.stl"
 	}
 }

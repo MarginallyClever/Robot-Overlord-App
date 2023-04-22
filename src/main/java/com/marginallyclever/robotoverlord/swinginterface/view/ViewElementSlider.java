@@ -47,6 +47,14 @@ public class ViewElementSlider extends ViewElement implements ChangeListener, Pr
 		this.add(value,BorderLayout.LINE_END);
 	}
 
+	public void setMaximum(int max) {
+		field.setMaximum(max);
+	}
+
+	public void setMinimum(int min) {
+		field.setMinimum(min);
+	}
+
 	/**
 	 * entity changed, poke panel
 	 */

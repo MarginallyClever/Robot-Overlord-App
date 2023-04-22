@@ -331,16 +331,16 @@ public class DogRobotComponent extends RenderComponent {
         calf.addEntity(foot);
 
         hip.addComponent(dh[0]);
-        dh[0].set( 0, 0, 90*(isRight?1:-1), 90, 360, -360);
+        dh[0].set( 0, 0, 90*(isRight?1:-1), 90, 360, -360,true);
         hip.addEntity(createCylinder(5,2,new ColorRGB(0xFFFFFF)));
 
         thigh.addComponent(dh[1]);
-        dh[1].set(-3.5 * s, 11.5, 0, 135*(isRight?-1:1), 360, -360);
+        dh[1].set(-3.5 * s, 11.5, 0, 135*(isRight?-1:1), 360, -360,true);
         thigh.addEntity(createBox(dh[1].getR(),1,new ColorRGB(0xFFFF99)));
 
         calf.addComponent(new ArmEndEffectorComponent());
         calf.addComponent(dh[2]);
-        dh[2].set(0, 13, 0, 90*(isRight?-1:1), 360, -360);
+        dh[2].set(0, 13, 0, 90*(isRight?-1:1), 360, -360,true);
         calf.addEntity(createBox(dh[2].getR(),0.7,new ColorRGB(0xFFFF66)));
 
         foot.addComponent(new ArmEndEffectorComponent());

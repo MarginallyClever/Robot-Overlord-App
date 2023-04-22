@@ -14,10 +14,10 @@ public class DHComponentTest {
         a.setD(1);
         a.setR(2);
         a.setAlpha(3);
-        a.setThetaMin(4);
-        a.setThetaMax(7);
+        a.setJointMin(4);
+        a.setJointMax(7);
         a.setTheta(5);
-        a.setThetaHome(6);
+        a.setJointHome(6);
 
         ComponentTest.saveAndLoad(a,b);
     }

@@ -166,6 +166,12 @@ public class ViewPanel extends ViewElement {
 		return b;
 	}
 
+	/**
+	 * Add a control for an integer that is bound to a combo box
+	 * @param e the Parameter that holds the current value.
+	 * @param labels the labels to use for the combo box
+	 * @return the element
+	 */
 	public ViewElement addComboBox(IntParameter e, String [] labels) {
 		ViewElement b = new ViewElementComboBox(e,labels);
 		pushViewElement(b);
@@ -175,7 +181,7 @@ public class ViewPanel extends ViewElement {
 
 	/**
 	 * Add a control for an integer that is bound between two values
-	 * @param e
+	 * @param e the Parameter that holds the current value.
 	 * @param top the maximum value, inclusive
 	 * @param bottom the minimum value, inclusive
 	 * @return the element
@@ -188,7 +194,7 @@ public class ViewPanel extends ViewElement {
 
 	/**
 	 * Add a control for an double that is bound between two values
-	 * @param e
+	 * @param e the Parameter that holds the current value.
 	 * @param top the maximum value, inclusive
 	 * @param bottom the minimum value, inclusive
 	 * @return the element
@@ -201,7 +207,7 @@ public class ViewPanel extends ViewElement {
 
 	/**
 	 * Add a control for an string that includes a filename selection dialog
-	 * @param e
+	 * @param e the Parameter that holds the current value.
 	 * @param filters
 	 * @return the element
 	 */

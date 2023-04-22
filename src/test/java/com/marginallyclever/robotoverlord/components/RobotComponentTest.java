@@ -28,9 +28,9 @@ public class RobotComponentTest {
             dh.add(dhc);
             e.addComponent(dhc);
         }
-        dh.get(0).set(0,0,90,0,60,-60);
-        dh.get(1).set(0,10,0,45,170,-170);
-        dh.get(2).set(0,10,0,-90,170,-170);
+        dh.get(0).set(0,0,90,0,60,-60,true);
+        dh.get(1).set(0,10,0,45,170,-170,true);
+        dh.get(2).set(0,10,0,-90,170,-170,true);
         joints.get(2).addComponent(new ArmEndEffectorComponent());
         robot.findBones();
         return robot;

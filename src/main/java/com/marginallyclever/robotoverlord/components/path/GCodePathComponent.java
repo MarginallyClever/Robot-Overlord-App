@@ -2,16 +2,22 @@ package com.marginallyclever.robotoverlord.components.path;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.OpenGLHelper;
+import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.RenderComponent;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
+import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
+import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementSlider;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.filechooser.FileFilter;
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Point3d;
 import java.util.ArrayList;
 
 /**
@@ -19,10 +25,15 @@ import java.util.ArrayList;
  * @author Dan Royer
  * @since 2.5.0
  */
-public class GCodePathComponent extends RenderComponent {
+public class GCodePathComponent extends RenderComponent implements WalkablePath<Point3d> {
     private static final Logger logger = LoggerFactory.getLogger(GCodePathComponent.class);
 
     private final StringParameter filename = new StringParameter("File","");
+    private final IntParameter numCommands = new IntParameter("Commands",0);
+    private final DoubleParameter distanceMeasured = new DoubleParameter("Distance",0);
+    private final IntParameter getCommand = new IntParameter("Show",0);
+    private Point3d location;
+    private ViewElementSlider slider;
 
     private GCodePath gCodePath;
 
@@ -32,6 +43,7 @@ public class GCodePathComponent extends RenderComponent {
         filename.addPropertyChangeListener((e)->{
             String fn = filename.get();
             gCodePath = PathFactory.load(fn);
+            updateNumCommands();
         });
     }
 
@@ -89,6 +101,10 @@ public class GCodePathComponent extends RenderComponent {
         }
 
         gl2.glEnd();
+
+        if(location!=null) {
+            PrimitiveSolids.drawStar(gl2,location,3);
+        }
     }
 
     @Override
@@ -98,9 +114,87 @@ public class GCodePathComponent extends RenderComponent {
         view.addFilename(filename,filters);
         view.addButton("Reload").addActionEventListener(e -> {
             PathFactory.reload(gCodePath);
+            updateNumCommands();
         });
+        view.add(numCommands).setReadOnly(true);
+        view.add(distanceMeasured).setReadOnly(true);
+        view.add(getCommand).addPropertyChangeListener((e)->updateLocation());
+    }
 
-        IntParameter numCommands = new IntParameter("Commands",gCodePath==null ? 0 : gCodePath.getElements().size());
-        view.add(numCommands);
+    private void updateNumCommands() {
+        if(gCodePath==null) {
+            numCommands.set(0);
+            location = null;
+        } else {
+            numCommands.set(gCodePath.getElements().size());
+            distanceMeasured.set(calculateDistance());
+            if(slider!=null) slider.setMaximum(numCommands.get());
+            updateLocation();
+        }
+    }
+
+    private void updateLocation() {
+        location = get(getCommand.get());
+    }
+
+    private double calculateDistance() {
+        double sum = 0;
+
+        PathWalker pathWalker = new PathWalker(gCodePath,5);
+        Point3d now = new Point3d();
+        Point3d next = new Point3d();
+        while (pathWalker.hasNext()) {
+            pathWalker.next();
+            next.set(
+                    pathWalker.getCurrentX(),
+                    pathWalker.getCurrentY(),
+                    pathWalker.getCurrentZ()
+            );
+            sum += now.distance(next);
+            now.set(next);
+        }
+        return sum;
+    }
+
+    public double getNumCommands() {
+        return numCommands.get();
+    }
+
+    @Override
+    public double getDistanceMeasured() {
+        return distanceMeasured.get();
+    }
+
+    /**
+     * Get the position at a given distance along the path.
+     * @param d how far to travel along the path, where d is a value between 0 and distanceMeasured.
+     * @return position at distance d or null if d is out of range.
+     */
+    @Override
+    public Point3d get(double d) {
+        double sum = 0;
+        if(gCodePath==null) return null;
+
+        PathWalker pathWalker = new PathWalker(gCodePath,5);
+        Point3d now = new Point3d();
+        Point3d next = new Point3d();
+        while (pathWalker.hasNext()) {
+            pathWalker.next();
+            next.set(
+                    pathWalker.getCurrentX(),
+                    pathWalker.getCurrentY(),
+                    pathWalker.getCurrentZ()
+            );
+            double stepSize = now.distance(next);
+            if(d>=sum && d<sum+stepSize) {
+                double t = (d-sum)/stepSize;
+                Point3d result = new Point3d();
+                result.interpolate(now,next,t);
+                return result;
+            }
+            sum += stepSize;
+            now.set(next);
+        }
+        return null;
     }
 }
