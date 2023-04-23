@@ -6,4 +6,12 @@ package com.marginallyclever.robotoverlord.parameters;
  * @author Dan Royer
  * @since 2.5.0
  */
-public class ReferenceParameter extends AbstractParameter<String> {}
+public class ReferenceParameter extends StringParameter {
+    public ReferenceParameter(String name, String path) {
+        super(name, path);
+    }
+
+    public ReferenceParameter(String name) {
+        this(name, null);
+    }
+}
