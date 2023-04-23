@@ -55,22 +55,20 @@ public class RobotComponent extends Component implements Robot {
         bOpen.addActionEventListener((evt)-> {
             Entity e = getEntity().getRoot();
             final JFrame parentFrame = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
-            final Robot me = this;
+            final RobotComponent me = this;
             final GCodePathComponent gCodePath = getGCodePath();
 
-            new Thread(() -> {
-                try {
-                    JDialog frame = new JDialog(parentFrame, "Control panel");
-                    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    frame.add(new RobotPanel(me,gCodePath));
-                    frame.pack();
-                    frame.setLocationRelativeTo(parentFrame);
-                    frame.setVisible(true);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    JOptionPane.showConfirmDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
-                }
-            }).start();
+            try {
+                JDialog frame = new JDialog(parentFrame, "Control panel");
+                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                frame.add(new RobotPanel(me,gCodePath));
+                frame.pack();
+                frame.setLocationRelativeTo(parentFrame);
+                frame.setVisible(true);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showConfirmDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         ViewElementButton bDHTable = view.addButton("Open DH Table");
@@ -85,6 +83,15 @@ public class RobotComponent extends Component implements Robot {
             frame.pack();
             frame.setLocationRelativeTo(parentFrame);
             frame.setVisible(true);
+        });
+
+        ViewElementButton bHome = view.addButton("Go home");
+        bHome.addActionEventListener((evt)-> {
+            double [] homeValues = new double[getNumBones()];
+            for(int i=0;i<getNumBones();++i) {
+                homeValues[i] = getBone(i).getJointHome();
+            }
+            setAllJointValues(homeValues);
         });
     }
 
