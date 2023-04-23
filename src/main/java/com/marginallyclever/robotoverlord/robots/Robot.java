@@ -26,6 +26,7 @@ public interface Robot {
     int JOINT_POSE = 13;
     int JOINT_HOME = 14;
     int END_EFFECTOR_TARGET_POSITION = 15;
+    int ALL_JOINT_VALUES = 16;
 
     /**
      * @param property can be any one of the following:
@@ -46,6 +47,7 @@ public interface Robot {
      *      <li>{@link #POSE}: returns a {@link Matrix4d}.  Returns the pose of the robot base relative to the world.</li>
      *      <li>{@link #JOINT_POSE}: returns a {@link Matrix4d} relative to the origin of this robot.</li>
      *      <li>{@link #JOINT_HOME}: returns a double representing the degrees or millimeters of the active joint at its home position.</li>
+     *      <li>{@link #ALL_JOINT_VALUES} returns a double array NUM_JOINTS long containing the value of the active component in each joint.</li>
      * </ul>
      * @return the requested property or null.
      */
@@ -65,6 +67,7 @@ public interface Robot {
      *      <li>{@link #TOOL_CENTER_POINT}: a {@link Matrix4d} relative to the origin of this robot.</li>
      *      <li>{@link #POSE}: a {@link Matrix4d}.  Sets the pose of the base of the robot.</li>
      *      <li>{@link #JOINT_POSE}: a {@link Matrix4d} relative to the origin of this robot.</li>
+     *      <li>{@link #ALL_JOINT_VALUES} a double array NUM_JOINTS long containing the value for the active component in each joint.</li>
      * </ul>
      * @return the requested property or null.
      */

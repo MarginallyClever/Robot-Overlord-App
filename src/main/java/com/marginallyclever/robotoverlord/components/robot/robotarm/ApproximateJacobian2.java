@@ -44,9 +44,9 @@ public class ApproximateJacobian2 {
 
 		for (int i = 0; i < DOF; ++i) {
 			// use anglesB to get the hand matrix after a tiny adjustment on one joint.
-			double[] jointAnglesPlusDelta = arm.getAngles();
+			double[] jointAnglesPlusDelta = arm.getAllJointValues();
 			jointAnglesPlusDelta[i] += ANGLE_STEP_SIZE_DEGREES;
-			temp.setAngles(jointAnglesPlusDelta);
+			temp.setAllJointValues(jointAnglesPlusDelta);
 			Matrix4d endEffectorPosePlusDelta = temp.getEndEffectorPose();
 
 			// use the finite difference in the two matrixes
