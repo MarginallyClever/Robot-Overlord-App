@@ -1,4 +1,7 @@
 package com.marginallyclever.robotoverlord.components.path;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
+
+import javax.vecmath.Point3d;
 import java.util.Iterator;
 
 /**
@@ -9,22 +12,25 @@ public class PathWalker {
     private final Iterator<GCodePathElement> iterator;
     private GCodePathElement currentElement;
     private final double maxStepSize;
-    private double currentX, currentY, currentZ;
+    private final Point3d currentPosition = new Point3d();
     private int currentArcSegment, totalArcSegments;
     boolean relativeMoves=false;
     double centerX, centerY, radius;
+    /**
+     * The {@link PoseComponent} which converts local path coordinates to world coordinates.
+     */
+    private final PoseComponent poseComponent;
 
     /**
      * Initialize the path walker.
-     * @param gCodePath the path to walk
+     * @param poseComponent converts local path coordinates to world coordinates.
+     * @param path the path to walk.
      * @param maxStepSize the maximum distance between points in arc segments.
      */
-    public PathWalker(GCodePath gCodePath, double maxStepSize) {
-        this.iterator = gCodePath.getElements().iterator();
+    public PathWalker(PoseComponent poseComponent, GCodePath path,double maxStepSize) {
+        this.poseComponent = poseComponent;
+        this.iterator = path.getElements().iterator();
         this.maxStepSize = maxStepSize;
-        this.currentX = 0;
-        this.currentY = 0;
-        this.currentZ = 0;
         this.currentArcSegment = 0;
         this.totalArcSegments = 0;
     }
@@ -38,8 +44,8 @@ public class PathWalker {
             double angleFraction = (double) currentArcSegment / totalArcSegments;
             double angleDelta = currentElement.isClockwise() ? -angleFraction * 2 * Math.PI : angleFraction * 2 * Math.PI;
 
-            currentX = centerX + radius * Math.cos(angleDelta);
-            currentY = centerY + radius * Math.sin(angleDelta);
+            currentPosition.x = centerX + radius * Math.cos(angleDelta);
+            currentPosition.y = centerY + radius * Math.sin(angleDelta);
             currentArcSegment++;
             return;
         }
@@ -70,30 +76,27 @@ public class PathWalker {
         }
 
         if (relativeMoves) {
-            currentX += currentElement.getX();
-            currentY += currentElement.getY();
-            currentZ += currentElement.getZ();
+            currentPosition.x += currentElement.getX();
+            currentPosition.y += currentElement.getY();
+            currentPosition.z += currentElement.getZ();
         } else {
-            currentX = currentElement.getX();
-            currentY = currentElement.getY();
-            currentZ = currentElement.getZ();
+            currentPosition.x = currentElement.getX();
+            currentPosition.y = currentElement.getY();
+            currentPosition.z = currentElement.getZ();
         }
-    }
-
-    public double getCurrentX() {
-        return currentX;
-    }
-
-    public double getCurrentY() {
-        return currentY;
-    }
-
-    public double getCurrentZ() {
-        return currentZ;
     }
 
     public GCodePathElement getCurrentElement() {
         return currentElement;
+    }
+
+
+    public Point3d getCurrentPosition() {
+        if(poseComponent==null) return new Point3d(currentPosition);
+
+        Point3d result = new Point3d();
+        poseComponent.getWorld().transform(currentPosition,result);
+        return result;
     }
 }
 

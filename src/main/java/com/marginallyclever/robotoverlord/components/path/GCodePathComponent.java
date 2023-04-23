@@ -9,14 +9,12 @@ import com.marginallyclever.robotoverlord.components.RenderComponent;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
-import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementSlider;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.filechooser.FileFilter;
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Point3d;
 import java.util.ArrayList;
 
@@ -32,6 +30,8 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
     private final IntParameter numCommands = new IntParameter("Commands",0);
     private final DoubleParameter distanceMeasured = new DoubleParameter("Distance",0);
     private final IntParameter getCommand = new IntParameter("Show",0);
+
+    private final double maxStepSize = 0.1;
     private Point3d location;
     private ViewElementSlider slider;
 
@@ -62,29 +62,26 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
         boolean tex = OpenGLHelper.disableTextureStart(gl2);
         boolean light = OpenGLHelper.disableLightingStart(gl2);
 
-        PathWalker pathWalker = new PathWalker(gCodePath,5);
-        drawEntirePath(gl2,pathWalker);
+        drawEntirePath(gl2);
 
         OpenGLHelper.disableTextureEnd(gl2,tex);
         OpenGLHelper.disableLightingEnd(gl2,light);
     }
 
-    private void drawEntirePath(GL2 gl2,PathWalker pathWalker) {
+    private void drawEntirePath(GL2 gl2) {
+        PathWalker pathWalker = new PathWalker(null,gCodePath,maxStepSize);
         gl2.glBegin(GL2.GL_LINE_STRIP);
 
         double prevX = 0, prevY = 0, prevZ = 0;
         gl2.glColor4d(0, 0, 1,0.25);
-        gl2.glVertex3d(prevX, prevY, prevZ);
 
         while (pathWalker.hasNext()) {
             pathWalker.next();
-            double currentX = pathWalker.getCurrentX();
-            double currentY = pathWalker.getCurrentY();
-            double currentZ = pathWalker.getCurrentZ();
+            Point3d currentPosition = pathWalker.getCurrentPosition();
             GCodePathElement currentElement = pathWalker.getCurrentElement();
             String command = currentElement.getCommand();
 
-            if (command.startsWith("G0") || command.startsWith("G1")) {
+            if (command.equalsIgnoreCase("G0") || command.equalsIgnoreCase("G1")) {
                 if(currentElement.getExtrusion()==null) {
                     // rapid
                     gl2.glColor4d(0, 0, 1,0.25);
@@ -92,12 +89,12 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
                     // extrusion / milling movement
                     gl2.glColor3d(1, 0, 0);
                 }
-                gl2.glVertex3d(currentX, currentY, currentZ);
-            } else if (command.startsWith("G2") || command.startsWith("G3")) {
+                gl2.glVertex3d(currentPosition.x,currentPosition.y,currentPosition.z);
+            } else if (command.equalsIgnoreCase("G2") || command.equalsIgnoreCase("G3")) {
                 // arc
                 gl2.glColor3d(0, 1, 0);
-                gl2.glVertex3d(currentX, currentY, currentZ);
-            }
+                gl2.glVertex3d(currentPosition.x,currentPosition.y,currentPosition.z);
+            } // else unknown, ignore.
         }
 
         gl2.glEnd();
@@ -140,24 +137,23 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
     private double calculateDistance() {
         double sum = 0;
 
-        PathWalker pathWalker = new PathWalker(gCodePath,5);
+        PoseComponent myPose = this.getEntity().findFirstComponent(PoseComponent.class);
+        PathWalker pathWalker = new PathWalker(myPose,gCodePath,maxStepSize);
         Point3d now = new Point3d();
         Point3d next = new Point3d();
         while (pathWalker.hasNext()) {
             pathWalker.next();
-            next.set(
-                    pathWalker.getCurrentX(),
-                    pathWalker.getCurrentY(),
-                    pathWalker.getCurrentZ()
-            );
+            next.set(pathWalker.getCurrentPosition());
             sum += now.distance(next);
             now.set(next);
         }
         return sum;
     }
 
-    public GCodePath getGCodePath() {
-        return gCodePath;
+    public PathWalker getPathWalker() {
+        if(gCodePath==null) return null;
+        PoseComponent myPose = this.getEntity().findFirstComponent(PoseComponent.class);
+        return new PathWalker(myPose,gCodePath,maxStepSize);
     }
 
     public double getNumCommands() {
@@ -172,32 +168,30 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
     /**
      * Get the position at a given distance along the path.
      * @param d how far to travel along the path, where d is a value between 0 and distanceMeasured.
-     * @return position at distance d or null if d is out of range.
+     * @return position in world at distance d or null if d is out of range.
      */
     @Override
     public Point3d get(double d) {
         double sum = 0;
         if(gCodePath==null) return null;
 
-        PathWalker pathWalker = new PathWalker(gCodePath,5);
+        PoseComponent myPose = this.getEntity().findFirstComponent(PoseComponent.class);
+        PathWalker pathWalker = new PathWalker(null,gCodePath,5);
         Point3d now = new Point3d();
-        Point3d next = new Point3d();
+        Point3d nextPosition;
         while (pathWalker.hasNext()) {
             pathWalker.next();
-            next.set(
-                    pathWalker.getCurrentX(),
-                    pathWalker.getCurrentY(),
-                    pathWalker.getCurrentZ()
-            );
-            double stepSize = now.distance(next);
+            nextPosition = pathWalker.getCurrentPosition();
+            double stepSize = now.distance(nextPosition);
             if(d>=sum && d<sum+stepSize) {
                 double t = (d-sum)/stepSize;
                 Point3d result = new Point3d();
-                result.interpolate(now,next,t);
+                result.interpolate(now,nextPosition,t);
+                myPose.getWorld().transform(result);
                 return result;
             }
             sum += stepSize;
-            now.set(next);
+            now = nextPosition;
         }
         return null;
     }
