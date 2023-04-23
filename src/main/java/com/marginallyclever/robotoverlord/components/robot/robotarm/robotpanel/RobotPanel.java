@@ -34,9 +34,9 @@ public class RobotPanel extends JPanel {
 	private final JProgressBar progress = new JProgressBar(0, 100);
 
 	private boolean isRunning = false;
-	private final Robot myRobot;
+	private final RobotComponent myRobot;
 	
-	public RobotPanel(Robot robot, GCodePathComponent path) {
+	public RobotPanel(RobotComponent robot, GCodePathComponent path) {
 		super();
 		this.myRobot = robot;
 
@@ -178,4 +178,6 @@ public class RobotPanel extends JPanel {
 		frame.pack();
 		frame.setVisible(true);
 	}
+
+
 }
