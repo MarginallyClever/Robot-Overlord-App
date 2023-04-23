@@ -61,6 +61,8 @@ public class EntityChooser extends JDialog {
         add(buttonPanel, BorderLayout.SOUTH);
 
         pack();
+
+        this.setLocationRelativeTo(frame);
     }
 
     private DefaultMutableTreeNode createTreeNode(Entity entity) {
