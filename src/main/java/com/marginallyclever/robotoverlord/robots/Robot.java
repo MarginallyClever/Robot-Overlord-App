@@ -69,7 +69,6 @@ public interface Robot {
      *      <li>{@link #JOINT_POSE}: a {@link Matrix4d} relative to the origin of this robot.</li>
      *      <li>{@link #ALL_JOINT_VALUES} a double array NUM_JOINTS long containing the value for the active component in each joint.</li>
      * </ul>
-     * @return the requested property or null.
      */
     void set(int property, Object value);
 
