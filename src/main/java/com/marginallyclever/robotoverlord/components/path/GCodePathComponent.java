@@ -156,6 +156,10 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
         return sum;
     }
 
+    public GCodePath getGCodePath() {
+        return gCodePath;
+    }
+
     public double getNumCommands() {
         return numCommands.get();
     }
