@@ -274,6 +274,20 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         jointHome.set(t);
     }
 
+    public double getJointValue() {
+        if(isRevolute.get())
+            return getTheta();
+        else
+            return getD();
+    }
+
+    public void setJointValue(double t) {
+        if(isRevolute.get())
+            setTheta(t);
+        else
+            setD(t);
+    }
+
     @Override
     public void render(GL2 gl2) {
         boolean lit = OpenGLHelper.disableLightingStart(gl2);
