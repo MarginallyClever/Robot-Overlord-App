@@ -7,9 +7,6 @@ import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.memento.Memento;
-import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.RobotPanel;
 import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
@@ -19,7 +16,6 @@ import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
@@ -131,26 +127,8 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 	}
 
 	private void onOpenAction() {
-		JFrame parent = null;
-
-		Entity e = this.getRoot();
-		if(e instanceof RobotOverlord) {
-			parent = ((RobotOverlord)e).getMainFrame();
-		}
-
-		final Robot me = this;
-		final JFrame parentFrame = parent;
-
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				JDialog frame = new JDialog(parentFrame,getName());
-				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-				frame.add(new RobotPanel(me));
-				frame.pack();
-				frame.setVisible(true);
-			}
-		}).start();
+		// TODO removed because it's too hard to maintain in a deprecated system.
+		throw new RuntimeException("Not implemented");
 	}
 
 	private void setupBoundingVolumes() {
