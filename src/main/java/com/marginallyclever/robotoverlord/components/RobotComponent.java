@@ -4,21 +4,26 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.components.path.GCodePath;
 import com.marginallyclever.robotoverlord.components.path.GCodePathComponent;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.ApproximateJacobian2;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.DHTable;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.RobotPanel;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
+import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -52,47 +57,53 @@ public class RobotComponent extends Component implements Robot {
         findBones();
 
         ViewElementButton bOpen = view.addButton("Open control panel");
-        bOpen.addActionEventListener((evt)-> {
-            Entity e = getEntity().getRoot();
-            final JFrame parentFrame = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
-            final RobotComponent me = this;
-            final GCodePathComponent gCodePath = getGCodePath();
-
-            try {
-                JDialog frame = new JDialog(parentFrame, "Control panel");
-                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                frame.add(new RobotPanel(me,gCodePath));
-                frame.pack();
-                frame.setLocationRelativeTo(parentFrame);
-                frame.setVisible(true);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                JOptionPane.showConfirmDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
-            }
-        });
+        bOpen.addActionEventListener((evt)-> showControlPanel());
 
         ViewElementButton bDHTable = view.addButton("Open DH Table");
-        bDHTable.addActionEventListener((evt)-> {
-            Entity e = getEntity().getRoot();
-            final JFrame parentFrame = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
-            final RobotComponent me = this;
+        bDHTable.addActionEventListener((evt)-> showDHTable());
 
-            JDialog frame = new JDialog(parentFrame,"DH Table");
+        ViewElementButton bHome = view.addButton("Go home");
+        bHome.addActionEventListener((evt)-> goHome());
+    }
+
+    private void showDHTable() {
+        Entity e = getEntity().getRoot();
+        final JFrame parentFrame = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
+        final RobotComponent me = this;
+
+        JDialog frame = new JDialog(parentFrame,"DH Table");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.add(new DHTable(me));
+        frame.pack();
+        frame.setLocationRelativeTo(parentFrame);
+        frame.setVisible(true);
+    }
+
+    private void showControlPanel() {
+        Entity e = getEntity().getRoot();
+        final JFrame parentFrame = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
+        final RobotComponent me = this;
+        final GCodePathComponent gCodePath = getGCodePath();
+
+        try {
+            JDialog frame = new JDialog(parentFrame, "Control panel");
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            frame.add(new DHTable(me));
+            frame.add(new RobotPanel(me,gCodePath));
             frame.pack();
             frame.setLocationRelativeTo(parentFrame);
             frame.setVisible(true);
-        });
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showConfirmDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
-        ViewElementButton bHome = view.addButton("Go home");
-        bHome.addActionEventListener((evt)-> {
-            double [] homeValues = new double[getNumBones()];
-            for(int i=0;i<getNumBones();++i) {
-                homeValues[i] = getBone(i).getJointHome();
-            }
-            setAllJointValues(homeValues);
-        });
+    public void goHome() {
+        double [] homeValues = new double[getNumBones()];
+        for(int i=0;i<getNumBones();++i) {
+            homeValues[i] = getBone(i).getJointHome();
+        }
+        setAllJointValues(homeValues);
     }
 
     private GCodePathComponent getGCodePath() {
@@ -387,5 +398,21 @@ public class RobotComponent extends Component implements Robot {
             Matrix4d eeNew = getEndEffectorPose();
             notifyPropertyChangeListeners(new PropertyChangeEvent(this, "ee", eeOld, eeNew));
         }
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject jo = super.toJSON();
+
+        jo.put("path",myPath.toJSON());
+
+        return jo;
+    }
+
+    @Override
+    public void parseJSON(JSONObject jo) throws JSONException {
+        super.parseJSON(jo);
+
+        if(jo.has("path")) myPath.parseJSON(jo.getJSONObject("path"));
     }
 }
