@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -231,7 +231,7 @@ public class Entity implements PropertyChangeListener {
 
 	/**
 	 * Explains to View in abstract terms the control interface for this entity.
-	 * Derivatives of View implement concrete versions of that view.
+	 * Derivatives of View implement concrete versions of that componentpanel.
 	 * 
 	 * @param view the panel to decorate
 	 */

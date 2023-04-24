@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
 

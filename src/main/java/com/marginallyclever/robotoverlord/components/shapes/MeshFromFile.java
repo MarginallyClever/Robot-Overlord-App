@@ -7,7 +7,7 @@ import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.material.MaterialFactory;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;

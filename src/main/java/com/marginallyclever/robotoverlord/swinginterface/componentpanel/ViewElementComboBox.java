@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swinginterface.view;
+package com.marginallyclever.robotoverlord.swinginterface.componentpanel;
 
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;

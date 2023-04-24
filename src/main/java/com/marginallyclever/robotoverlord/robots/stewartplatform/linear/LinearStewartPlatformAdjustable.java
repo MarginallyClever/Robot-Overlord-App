@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.robots.stewartplatform.linear;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
 
 @Deprecated
 public class LinearStewartPlatformAdjustable extends LinearStewartPlatformCore {

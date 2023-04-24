@@ -11,8 +11,8 @@ import com.marginallyclever.robotoverlord.entities.ShapeEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.robots.RobotEntity;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewElementButton;
+import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

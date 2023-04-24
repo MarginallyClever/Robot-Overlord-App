@@ -10,7 +10,7 @@ import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.demos.DemoDog;
 import com.marginallyclever.robotoverlord.demos.DemoSpidee;
-import com.marginallyclever.robotoverlord.swinginterface.view.ComponentPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ComponentPanel;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.SoundSystem;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
@@ -122,12 +122,12 @@ public class RobotOverlord extends Entity {
 	private final JSplitPane rightFrameSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
 	/**
-	 * Tree view of all Entities in the scene.
+	 * Tree componentpanel of all Entities in the scene.
 	 */
 	private final EntityTreePanel entityTreePanel = new EntityTreePanel();
 
 	/**
-	 * Collated view of all components in all selected Entities.
+	 * Collated componentpanel of all components in all selected Entities.
 	 */
 	private final ComponentPanel componentPanel = new ComponentPanel(this);
 

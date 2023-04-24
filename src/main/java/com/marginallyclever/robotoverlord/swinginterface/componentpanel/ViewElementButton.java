@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swinginterface.view;
+package com.marginallyclever.robotoverlord.swinginterface.componentpanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 /**
- * an empty element in the view
+ * an empty element in the componentpanel
  * @author Dan Royer
  * @since 1.6.0
  *

@@ -7,7 +7,7 @@ import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
-import com.marginallyclever.robotoverlord.swinginterface.view.ComponentPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ComponentPanel;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;

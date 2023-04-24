@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.components;
 
 import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
 
 import javax.vecmath.Matrix4d;
 

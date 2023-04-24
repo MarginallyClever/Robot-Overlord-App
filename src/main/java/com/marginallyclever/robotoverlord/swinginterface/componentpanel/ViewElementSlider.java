@@ -1,8 +1,8 @@
-package com.marginallyclever.robotoverlord.swinginterface.view;
+package com.marginallyclever.robotoverlord.swinginterface.componentpanel;
 
-import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.DoubleParameterEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.IntParameterEdit;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -16,28 +16,27 @@ import java.beans.PropertyChangeListener;
  * Panel to alter a color parameter (four float values).
  * @author Dan Royer
  */
-public class ViewElementSliderDouble extends ViewElement implements ChangeListener, PropertyChangeListener {
+public class ViewElementSlider extends ViewElement implements ChangeListener, PropertyChangeListener {
 	private final JSlider field = new JSlider();
 	private final JLabel value;
-	private final DoubleParameter parameter;
-	boolean inUpdate=false;
+	private final IntParameter parameter;
 	
-	public ViewElementSliderDouble(DoubleParameter parameter, int top, int bottom) {
+	public ViewElementSlider(IntParameter parameter, int top, int bottom) {
 		super();
 		this.parameter = parameter;
 
 		parameter.addPropertyChangeListener(this);
 
-		field.setMaximum(top*10);
-		field.setMinimum(bottom*10);
+		field.setMaximum(top);
+		field.setMinimum(bottom);
 		field.setMinorTickSpacing(1);
-		field.setValue((int)Math.floor(parameter.get()*10));
+		field.setValue(parameter.get());
 		field.addChangeListener(this);
 		field.addFocusListener(this);
 
 		JLabel label = new JLabel(parameter.getName(),JLabel.LEADING);
-		value = new JLabel(Double.toString(field.getValue()/10.0),JLabel.RIGHT);
-		Dimension dim = new Dimension(35,1);
+		value = new JLabel(Integer.toString(field.getValue()),JLabel.RIGHT);
+		Dimension dim = new Dimension(30,1);
 		value.setMinimumSize(dim);
 		value.setPreferredSize(dim);
 		value.setMaximumSize(dim);
@@ -48,28 +47,30 @@ public class ViewElementSliderDouble extends ViewElement implements ChangeListen
 		this.add(value,BorderLayout.LINE_END);
 	}
 
+	public void setMaximum(int max) {
+		field.setMaximum(max);
+	}
+
+	public void setMinimum(int min) {
+		field.setMinimum(min);
+	}
+
 	/**
 	 * entity changed, poke panel
 	 */
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		inUpdate=true;
-		if(field != null) {
-			field.setValue((int)Math.floor((Double)evt.getNewValue()*10));
-			value.setText(Double.toString(field.getValue()/10.0));
-		}
-		inUpdate=false;
+		field.setValue((Integer)evt.getNewValue());
+		value.setText(Integer.toString(field.getValue()));
 	}
 
 	@Override
 	public void stateChanged(ChangeEvent arg0) {
-		if(inUpdate) return;
-		
-		double oldValue = Math.floor(parameter.get());
-		double newValue = field.getValue()/10.0;
+		int oldValue = parameter.get();
+		int newValue = field.getValue();
 		
 		if(newValue!=oldValue) {
-			AbstractUndoableEdit event = new DoubleParameterEdit(parameter,newValue);
+			AbstractUndoableEdit event = new IntParameterEdit(parameter,newValue);
 			UndoSystem.addEvent(this,event);
 		}
 	}

@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.parameters;
 
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -47,7 +47,7 @@ public class Vector3DParameter extends AbstractParameter<Vector3d> {
 	
 	/**
 	 * Explains to View in abstract terms the control interface for this entity.
-	 * Derivatives of View implement concrete versions of that view. 
+	 * Derivatives of View implement concrete versions of that componentpanel.
 	 * @param view the panel to decorate
 	 */
 	@Override

@@ -13,7 +13,7 @@ import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.PoseMoveEdit;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -418,13 +418,13 @@ public class PoseEntity extends Entity {
 		view.add(showLocalOrigin);
 		view.add(showLineage);
 		
-		//view.addStaticText("Pick name="+getPickName());
-		//	pose.getView(view);
+		//componentpanel.addStaticText("Pick name="+getPickName());
+		//	pose.getView(componentpanel);
 
 		view.startNewSubPanel("PoseEntity",true);
 		Matrix4d poseWorld = getPoseWorld();
 		view.add(new Vector3DParameter("Position",MatrixHelper.getPosition(poseWorld)));
-		//	poseWorld.getView(view);
+		//	poseWorld.getView(componentpanel);
 	}
 	
 	@Override

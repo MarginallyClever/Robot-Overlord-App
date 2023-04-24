@@ -61,7 +61,7 @@ public class OpenGLRenderPanel extends JPanel {
     // click on screen to change which entity is selected
     private final Viewport viewport = new Viewport();
 
-    // elements in view, not really part of the scene
+    // elements in componentpanel, not really part of the scene
     private transient final ViewCube viewCube = new ViewCube();
     private transient final SkyBox sky = new SkyBox();
 

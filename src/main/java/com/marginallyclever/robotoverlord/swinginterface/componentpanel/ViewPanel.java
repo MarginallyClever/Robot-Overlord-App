@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swinginterface.view;
+package com.marginallyclever.robotoverlord.swinginterface.componentpanel;
 
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.RobotOverlord;
@@ -127,7 +127,7 @@ public class ViewPanel extends ViewElement {
 	}
 	
 	/**
-	 * Add an view element based on the parameter type.
+	 * Add an componentpanel element based on the parameter type.
 	 * @param parameter the parameter to add
 	 */
 	public ViewElement add(AbstractParameter<?> parameter) {
