@@ -17,7 +17,7 @@ import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
 import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
-import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanel;
+import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityManagerPanel;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanelEvent;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.util.PropertiesFileHelper;
@@ -126,7 +126,7 @@ public class RobotOverlord extends Entity {
 	/**
 	 * Tree view of all Entities in the scene.
 	 */
-	private final EntityTreePanel entityTree = new EntityTreePanel();
+	private final EntityManagerPanel entityManagerPanel = new EntityManagerPanel();
 
 	/**
 	 * Collated view of all components in all selected Entities.
@@ -174,8 +174,8 @@ public class RobotOverlord extends Entity {
 		layoutComponents();
 		renderPanel.startAnimationSystem();
 
-		entityTree.addEntity(scene);
-		scene.addSceneChangeListener(entityTree);
+		entityManagerPanel.addEntity(scene);
+		scene.addSceneChangeListener(entityManagerPanel);
 
 		addEntity(scene);
 
@@ -211,15 +211,15 @@ public class RobotOverlord extends Entity {
 	private JComponent buildEntityManagerPanel() {
         logger.info("buildEntityManagerPanel()");
 
-		entityTree.addEntityTreePanelListener((e)-> {
+		entityManagerPanel.addEntityTreePanelListener((e)-> {
 			if (e.eventType == EntityTreePanelEvent.SELECT) {
 				UndoSystem.addEvent(this,new SelectEdit(Clipboard.getSelectedEntities(),e.subjects));
 			}
 		});
 
-		entityTree.setPopupMenu(buildEntityTreePopupMenu());
+		entityManagerPanel.setPopupMenu(buildEntityTreePopupMenu());
 
-		return entityTree;
+		return entityManagerPanel;
 	}
 
 	private JPopupMenu buildEntityTreePopupMenu() {
@@ -498,7 +498,7 @@ public class RobotOverlord extends Entity {
 	}
 
     private void updateSelectEntities() {
-		entityTree.setSelection(Clipboard.getSelectedEntities());
+		entityManagerPanel.setSelection(Clipboard.getSelectedEntities());
 		renderPanel.updateSubjects(Clipboard.getSelectedEntities());
 		updateComponentPanel();
 	}

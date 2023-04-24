@@ -24,12 +24,12 @@ import java.util.List;
  * @author Dan Royer
  *
  */
-public class EntityTreePanel extends JPanel implements TreeSelectionListener, SceneChangeListener {
+public class EntityManagerPanel extends JPanel implements TreeSelectionListener, SceneChangeListener {
 	private final JTree myTree = new JTree();
 	private final List<EntityTreePanelListener> listeners = new ArrayList<>();
 	private JPopupMenu popupMenu = null;
 
-	public EntityTreePanel() {
+	public EntityManagerPanel() {
 		super(new BorderLayout());
 
 		JScrollPane scroll = new JScrollPane();

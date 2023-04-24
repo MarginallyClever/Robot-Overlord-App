@@ -17,10 +17,10 @@ public class EntityTreePanelEvent {
 	public static final int UNSELECT=5;
 
 	public int eventType;
-	public EntityTreePanel panel;
+	public EntityManagerPanel panel;
 	public List<Entity> subjects;
 	
-	public EntityTreePanelEvent(int eventType,EntityTreePanel panel,List<Entity> subject) {
+	public EntityTreePanelEvent(int eventType, EntityManagerPanel panel, List<Entity> subject) {
 		this.eventType=eventType;
 		this.panel=panel;
 		this.subjects=subject;
