@@ -133,9 +133,6 @@ public class RobotOverlord extends Entity {
 	 */
 	private final ComponentPanel componentPanel = new ComponentPanel(this);
 
-	private EntityRenameAction entityRenameAction;
-	private EntityDeleteAction entityDeleteAction;
-
 
 	public static void main(String[] argv) {
 		Log.start();
@@ -211,41 +208,7 @@ public class RobotOverlord extends Entity {
 	private JComponent buildEntityManagerPanel() {
         logger.info("buildEntityManagerPanel()");
 
-		entityManagerPanel.addEntityTreePanelListener((e)-> {
-			if (e.eventType == EntityTreePanelEvent.SELECT) {
-				UndoSystem.addEvent(this,new SelectEdit(Clipboard.getSelectedEntities(),e.subjects));
-			}
-		});
-
-		entityManagerPanel.setPopupMenu(buildEntityTreePopupMenu());
-
 		return entityManagerPanel;
-	}
-
-	private JPopupMenu buildEntityTreePopupMenu() {
-		JPopupMenu popupMenu = new JPopupMenu();
-
-		EntityAddChildAction EntityaddChildAction = new EntityAddChildAction(this);
-
-		for( AbstractAction action : actions ) {
-			if(action instanceof EntityCopyAction || action instanceof EntityPasteAction) {
-				popupMenu.add(action);
-			}
-		}
-
-		entityRenameAction = new EntityRenameAction(this);
-		entityRenameAction.setEnabled(false);  // TODO is this needed?
-
-		actions.add(EntityaddChildAction);
-		actions.add(entityRenameAction);
-
-		popupMenu.add(EntityaddChildAction);
-		popupMenu.add(entityRenameAction);
-		popupMenu.add(entityDeleteAction);
-
-		popupMenu.add(new ComponentAddAction(this));
-
-		return popupMenu;
 	}
 
 	private void layoutComponents() {
@@ -359,8 +322,8 @@ public class RobotOverlord extends Entity {
 		mainMenu = new JMenuBar();
 		mainMenu.removeAll();
 		mainMenu.add(createFileMenu());
-		mainMenu.add(createDemoMenu());
 		mainMenu.add(createEditMenu());
+		mainMenu.add(createDemoMenu());
 		mainMenu.add(createHelpMenu());
         mainMenu.updateUI();
 	}
@@ -375,6 +338,13 @@ public class RobotOverlord extends Entity {
 		menu.add(new JSeparator());
 		menu.add(new QuitAction(this));
 
+		return menu;
+	}
+
+	private JComponent createEditMenu() {
+		JMenu menu = new JMenu("Edit");
+		menu.add(new JMenuItem(UndoSystem.getCommandUndo()));
+		menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
 		return menu;
 	}
 
@@ -452,33 +422,6 @@ public class RobotOverlord extends Entity {
 				menu.add(level1Menu);
 			}
 		}
-	}
-
-	private JComponent createEditMenu() {
-		JMenu menu = new JMenu("Edit");
-		menu.add(new JMenuItem(UndoSystem.getCommandUndo()));
-		menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
-		menu.add(new JSeparator());
-
-		EntityCopyAction entityCopyAction = new EntityCopyAction();
-		EntityPasteAction entityPasteAction = new EntityPasteAction(this);
-		entityDeleteAction = new EntityDeleteAction();
-		EntityCutAction entityCutAction = new EntityCutAction(entityDeleteAction, entityCopyAction);
-		EntityRenameAction entityRenameAction = new EntityRenameAction(this);
-
-		menu.add(entityRenameAction);
-		menu.add(entityCopyAction);
-		menu.add(entityPasteAction);
-		menu.add(entityCutAction);
-		menu.add(entityDeleteAction);
-
-		actions.add(entityCopyAction);
-		actions.add(entityPasteAction);
-		actions.add(entityCutAction);
-		actions.add(entityDeleteAction);
-		actions.add(entityRenameAction);
-
-		return menu;
 	}
 
 	private JComponent createHelpMenu() {
@@ -560,6 +503,8 @@ public class RobotOverlord extends Entity {
 				((EditorAction)a).updateEnableStatus();
 			}
 		}
+
+		entityManagerPanel.updateActionEnableStatus();
 	}
 
 	private void setupDropTarget() {

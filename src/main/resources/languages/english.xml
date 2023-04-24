@@ -1297,4 +1297,80 @@ to check yourself.</value>
 		<key>Select</key>
 		<value>Select</value>
 	</string>
+
+	<string>
+		<key>nothing</key>
+		<value>nothing</value>
+	</string>
+
+	<string>
+		<key>EntityAddChildAction.shortDescription</key>
+		<value>Add</value>
+	</string>
+
+	<string>
+		<key>EntityDeleteAction.shortDescription</key>
+		<value>Delete</value>
+	</string>
+
+	<string>
+		<key>EntityDeleteAction.shortDescription</key>
+		<value>Delete</value>
+	</string>
+
+	<string>
+		<key>EntityCopyAction.shortDescription</key>
+		<value>Copy</value>
+	</string>
+
+	<string>
+		<key>EntityCutAction.shortDescription</key>
+		<value>Cut</value>
+	</string>
+
+	<string>
+		<key>EntityPasteAction.shortDescription</key>
+		<value>Paste</value>
+	</string>
+
+	<string>
+		<key>EntityRenameAction.shortDescription</key>
+		<value>Paste</value>
+	</string>
+
+	<string>
+		<key>EntityAddChildAction.name</key>
+		<value>Add</value>
+	</string>
+
+	<string>
+		<key>EntityDeleteAction.name</key>
+		<value>Delete</value>
+	</string>
+
+	<string>
+		<key>EntityDeleteAction.name</key>
+		<value>Delete</value>
+	</string>
+
+	<string>
+		<key>EntityCopyAction.name</key>
+		<value>Copy</value>
+	</string>
+
+	<string>
+		<key>EntityCutAction.name</key>
+		<value>Cut</value>
+	</string>
+
+	<string>
+		<key>EntityPasteAction.name</key>
+		<value>Paste</value>
+	</string>
+
+	<string>
+		<key>EntityRenameAction.name</key>
+		<value>Paste</value>
+	</string>
+
 </language>

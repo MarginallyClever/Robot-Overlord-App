@@ -22,13 +22,13 @@ import java.util.List;
  */
 public class EntityRenameAction extends AbstractAction implements EditorAction {
 	private static final Logger logger = LoggerFactory.getLogger(EntityRenameAction.class);
-	private final RobotOverlord robotOverlord;
+	private final JComponent parentComponent;
 	
-	public EntityRenameAction(RobotOverlord robotOverlord) {
+	public EntityRenameAction(JComponent parentComponent) {
 		super(Translator.get("EntityRenameAction.name"));
 		putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityRenameAction.shortDescription"));
 		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F2,0));
-		this.robotOverlord = robotOverlord;
+		this.parentComponent = parentComponent;
 	}
 
 	@Override
@@ -39,17 +39,17 @@ public class EntityRenameAction extends AbstractAction implements EditorAction {
 			return;
 		}
 		Entity e = entityList.get(0);
-		renameEntity(robotOverlord, e);
+		renameEntity(e);
 	}
 
-	public void renameEntity(RobotOverlord ro, Entity e) {
+	public void renameEntity(Entity e) {
 		String newName = (String)JOptionPane.showInputDialog(
-				ro.getMainFrame(),
+				parentComponent,
 				"New name:",
 				"Rename Entity",
 				JOptionPane.PLAIN_MESSAGE,null,null,e.getName());
 		if( newName!=null && !newName.equals(e.getName()) ) {
-			UndoSystem.addEvent(this,new EntityRenameEdit(ro,e,newName));
+			UndoSystem.addEvent(this,new EntityRenameEdit(e,newName));
 		}
 	}
 

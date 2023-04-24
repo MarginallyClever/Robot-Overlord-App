@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -16,24 +15,15 @@ import java.io.Serial;
  *
  */
 public class EntityRenameEdit extends AbstractUndoableEdit {
-	/**
-	 *
-	 */
-	@Serial
-	private static final long serialVersionUID = 1L;
+	private final Entity entity;
+	private final String oldName;
+	private final String newName;
 	
-	private Entity e;
-	private String oldName ="";
-	private String newName ="";
-	private RobotOverlord ro;
-	
-	public EntityRenameEdit(RobotOverlord ro, Entity e, String newName) {
+	public EntityRenameEdit(Entity entity, String newName) {
 		super();
-		
-		this.ro = ro;
+		this.entity = entity;
 		this.newName = newName;
-		this.oldName = e.getName();
-		this.e=e;
+		this.oldName = entity.getName();
 		doIt();
 	}
 
@@ -49,12 +39,12 @@ public class EntityRenameEdit extends AbstractUndoableEdit {
 	}
 
 	protected void doIt() {
-		e.setName(newName);
+		entity.setName(newName);
 	}
 	
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		e.setName(oldName);
+		entity.setName(oldName);
 	}
 }

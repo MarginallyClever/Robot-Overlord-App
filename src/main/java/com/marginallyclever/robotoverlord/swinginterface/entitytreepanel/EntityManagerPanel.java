@@ -2,6 +2,11 @@ package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.SceneChangeListener;
+import com.marginallyclever.robotoverlord.clipboard.Clipboard;
+import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
+import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.actions.*;
+import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -27,14 +32,12 @@ import java.util.List;
 public class EntityManagerPanel extends JPanel implements TreeSelectionListener, SceneChangeListener {
 	private final JTree myTree = new JTree();
 	private final List<EntityTreePanelListener> listeners = new ArrayList<>();
+	private final List<AbstractAction> actions = new ArrayList<>();
 	private JPopupMenu popupMenu = null;
+
 
 	public EntityManagerPanel() {
 		super(new BorderLayout());
-
-		JScrollPane scroll = new JScrollPane();
-		this.add(scroll,BorderLayout.CENTER);
-		scroll.setViewportView(myTree);
 
 		myTree.setShowsRootHandles(true);
 		myTree.addTreeSelectionListener(this);
@@ -47,6 +50,43 @@ public class EntityManagerPanel extends JPanel implements TreeSelectionListener,
 		myTree.setDragEnabled(true);
 		myTree.setDropMode(DropMode.ON_OR_INSERT);
 		myTree.setTransferHandler(new EntityTreeTransferHandler());
+
+		addEntityTreePanelListener((e)-> {
+			if (e.eventType == EntityTreePanelEvent.SELECT) {
+				UndoSystem.addEvent(this,new SelectEdit(Clipboard.getSelectedEntities(),e.subjects));
+			}
+		});
+
+		JScrollPane scroll = new JScrollPane();
+		scroll.setViewportView(myTree);
+		this.add(scroll,BorderLayout.CENTER);
+		this.add(createMenu(),BorderLayout.NORTH);
+	}
+
+	private JComponent createMenu() {
+		JToolBar menu = new JToolBar();
+
+		EntityAddChildAction entityAddAction = new EntityAddChildAction(this);
+		EntityCopyAction entityCopyAction = new EntityCopyAction();
+		EntityPasteAction entityPasteAction = new EntityPasteAction();
+		EntityDeleteAction entityDeleteAction = new EntityDeleteAction();
+		EntityCutAction entityCutAction = new EntityCutAction(entityDeleteAction, entityCopyAction);
+		EntityRenameAction entityRenameAction = new EntityRenameAction(this);
+
+		menu.add(entityAddAction);
+		menu.add(entityDeleteAction);
+		menu.add(entityCopyAction);
+		menu.add(entityCutAction);
+		menu.add(entityPasteAction);
+		menu.add(entityRenameAction);
+
+		actions.add(entityCopyAction);
+		actions.add(entityPasteAction);
+		actions.add(entityCutAction);
+		actions.add(entityDeleteAction);
+		actions.add(entityRenameAction);
+
+		return menu;
 	}
 
 	/**
@@ -277,6 +317,17 @@ public class EntityManagerPanel extends JPanel implements TreeSelectionListener,
 			parentNode.remove(childNode);
 			((DefaultTreeModel)myTree.getModel()).reload(parentNode);
 			setNodeExpandedState((EntityTreeNode)myTree.getModel().getRoot());
+		}
+	}
+
+	/**
+	 * Tell all Actions to check if they are active.
+	 */
+	public void updateActionEnableStatus() {
+		for(AbstractAction a : actions) {
+			if(a instanceof EditorAction) {
+				((EditorAction)a).updateEnableStatus();
+			}
 		}
 	}
 }

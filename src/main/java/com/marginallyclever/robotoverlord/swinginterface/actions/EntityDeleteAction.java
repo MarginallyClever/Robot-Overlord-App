@@ -17,7 +17,7 @@ import java.awt.event.KeyEvent;
 public class EntityDeleteAction extends AbstractAction implements EditorAction {
 	public EntityDeleteAction() {
 		super(Translator.get("EntityDeleteAction.name"));
-		putValue(Action.SMALL_ICON,new UnicodeIcon("🗑"));
+		putValue(Action.SMALL_ICON,new UnicodeIcon("-"));
 		putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityDeleteAction.shortDescription"));
 		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0) );
 	}

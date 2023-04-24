@@ -18,7 +18,7 @@ import java.awt.event.KeyEvent;
  */
 public class EntityPasteAction extends AbstractAction implements EditorAction {
 
-    public EntityPasteAction(RobotOverlord ro) {
+    public EntityPasteAction() {
         super(Translator.get("EntityPasteAction.name"));
         putValue(Action.SMALL_ICON,new UnicodeIcon("📎"));
         putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityPasteAction.shortDescription"));
