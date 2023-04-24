@@ -17,42 +17,44 @@ import java.util.List;
 public class ComponentPanel extends JPanel {
 	private final RobotOverlord robotOverlord;
 	private final JPanel centerPanel = new JPanel(new BorderLayout());
+	private final JToolBar toolBar = new JToolBar();
 
 	public ComponentPanel(RobotOverlord robotOverlord) {
 		super(new BorderLayout());
 		this.robotOverlord = robotOverlord;
 
-		add(createToolBar(),BorderLayout.NORTH);
+		createToolBar();
+
+		add(toolBar,BorderLayout.NORTH);
 		add(new JScrollPane(centerPanel),BorderLayout.CENTER);
 		refreshContentsFromClipboard();
 	}
 
-	private JComponent createToolBar() {
-		JToolBar bar = new JToolBar();
+	private void createToolBar() {
 		ComponentAddAction add = new ComponentAddAction(this);
-		bar.add(add);
-		return bar;
+		toolBar.add(add);
 	}
 
 	/**
 	 * Collate all the {@link java.awt.Component}s for selected {@link Entity}s.
-	 * @param entityList the list of entities to collate
 	 */
 	public void refreshContentsFromClipboard() {
 		List<Entity> entityList = Clipboard.getSelectedEntities();
 		centerPanel.removeAll();
 
 		int size = entityList.size();
-		if(size>0) {
-			ViewPanel panel = new ViewPanel(robotOverlord);
+		if(size==0) {
+			toolBar.setVisible(false);
+		} else {
+			toolBar.setVisible(true);
 
+			ViewPanel panel = new ViewPanel(robotOverlord);
 			if (size == 1) {
 				buildSingleEntityPanel(panel, entityList.get(0));
-			} else if (size > 0) {
+			} else if(size > 1) {
 				// TODO finish and re-enable this.
 				//buildMultipleEntityPanel(panel,entityList);
 			}
-
 			centerPanel.add(panel.getFinalView(), BorderLayout.PAGE_START);
 		}
 		centerPanel.repaint();
