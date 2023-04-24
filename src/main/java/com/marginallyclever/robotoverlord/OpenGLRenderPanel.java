@@ -67,7 +67,6 @@ public class OpenGLRenderPanel extends JPanel {
 
     private final List<EditorTool> editorTools = new ArrayList<>();
     private int activeToolIndex = -1;
-    private SelectedItems selectedItems;
 
 
     public OpenGLRenderPanel(RobotOverlord robotOverlord,Scene scene) {
@@ -80,25 +79,41 @@ public class OpenGLRenderPanel extends JPanel {
         hideDefaultCursor();
 
         this.setMinimumSize(new Dimension(300, 300));
+        this.add(setupTools(), BorderLayout.NORTH);
         this.add(glCanvas, BorderLayout.CENTER);
 
-        setupTools();
     }
 
-    private void setupTools() {
-        //editorTools.add(new TranslateEntityToolOneAxis());
-        //editorTools.add(new TranslateEntityToolTwoAxis());
-        editorTools.add(new TranslateEntityMultiTool());
+    private JToolBar setupTools() {
+        TranslateEntityMultiTool translateEntityMultiTool = new TranslateEntityMultiTool();
+        editorTools.add(translateEntityMultiTool);
 
-        //editorTools.add(new RotateEntityToolOneAxis());
-        editorTools.add(new RotateEntityMultiTool());
+        RotateEntityMultiTool rotateEntityMultiTool = new RotateEntityMultiTool();
+        editorTools.add(rotateEntityMultiTool);
 
-        //editorTools.add(new ScaleEntityTool());
         editorTools.add(new MoveCameraTool());
 
         for(EditorTool t : editorTools) {
             t.setViewport(viewport);
         }
+
+        // build the bar
+
+        JToolBar bar = new JToolBar();
+        JButton activateTranslateTool = new JButton("Translate");
+        bar.add(activateTranslateTool);
+        activateTranslateTool.addActionListener(e -> setActiveToolIndex(editorTools.indexOf(translateEntityMultiTool)));
+
+        JButton activateRotateTool = new JButton("Rotate");
+        bar.add(activateRotateTool);
+        activateRotateTool.addActionListener(e -> setActiveToolIndex(editorTools.indexOf(rotateEntityMultiTool)));
+
+        return bar;
+    }
+
+    public void setActiveToolIndex(int activeToolIndex) {
+        deactivateAllTools();
+        this.activeToolIndex = activeToolIndex;
     }
 
     private void hideDefaultCursor() {
@@ -106,7 +121,7 @@ public class OpenGLRenderPanel extends JPanel {
                 new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB),
                 new Point(0, 0),
                 "blank cursor");
-        this.setCursor(noCursor);
+        glCanvas.setCursor(noCursor);
     }
 
     private void createCanvas() {
@@ -262,13 +277,6 @@ public class OpenGLRenderPanel extends JPanel {
             public void keyReleased(KeyEvent e) {
                 super.keyReleased(e);
                 for(EditorTool tool : editorTools) tool.handleKeyEvent(e);
-
-                if(e.getKeyCode() == KeyEvent.VK_F1) {
-                    deactivateAllTools();
-                    activeToolIndex = (activeToolIndex + 1) % 3;
-                    if(activeToolIndex==3) activeToolIndex = -1;
-                    if(activeToolIndex>=0) editorTools.get(activeToolIndex).activate(selectedItems);
-                }
             }
         });
     }
@@ -431,7 +439,7 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     public void updateSubjects(List<Entity> list) {
-        selectedItems = new SelectedItems(list);
+        SelectedItems selectedItems = new SelectedItems(list);
         if(activeToolIndex>=0) {
             editorTools.get(activeToolIndex).deactivate();
             editorTools.get(activeToolIndex).activate(selectedItems);

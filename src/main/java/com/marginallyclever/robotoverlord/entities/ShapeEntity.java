@@ -5,6 +5,7 @@ import com.marginallyclever.convenience.AABB;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Collidable;
+import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.*;
@@ -34,20 +35,19 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 	// The mesh attached to this shape
 	protected transient Mesh myMesh;
 
-	protected final StringEntity filename = new StringEntity("File","");
-	
-	protected MaterialEntity material = new MaterialEntity();
-	
-	// shape adjustments
-	protected final DoubleEntity scale = new DoubleEntity("Scale",1.0);
-	protected final Vector3dEntity rotationAdjust = new Vector3dEntity("Rotation");
-	protected final Vector3dEntity originAdjust = new Vector3dEntity("Origin");
+	protected final StringParameter filename = new StringParameter("File","");
 
-	private final IntEntity numTriangles = new IntEntity("Triangles",0);
-	private final BooleanEntity hasNormals = new BooleanEntity("Has normals",false);
-	private final BooleanEntity hasColors = new BooleanEntity("Has colors",false);
-	private final BooleanEntity hasUVs = new BooleanEntity("Has UVs",false);
-	
+	// shape adjustments
+	protected final DoubleParameter scale = new DoubleParameter("Scale",1.0);
+	protected final Vector3DParameter rotationAdjust = new Vector3DParameter("Rotation");
+	protected final Vector3DParameter originAdjust = new Vector3DParameter("Origin");
+
+	private final IntParameter numTriangles = new IntParameter("Triangles",0);
+	private final BooleanParameter hasNormals = new BooleanParameter("Has normals",false);
+	private final BooleanParameter hasColors = new BooleanParameter("Has colors",false);
+	private final BooleanParameter hasUVs = new BooleanParameter("Has UVs",false);
+
+	private final MaterialComponent material = new MaterialComponent();
 	private final AABB AABB = new AABB();
 	
 	public ShapeEntity() {
@@ -85,11 +85,14 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 		
 		filename.set(b.filename.get());
 		myMesh = b.myMesh;
-		material.set(b.material);
 		originAdjust.set(b.originAdjust.get());
 		rotationAdjust.set(b.rotationAdjust.get());
 	}
-    
+
+	public MaterialComponent getMaterial() {
+		return material;
+	}
+
 	/**
 	 * @return full path and file of the model on disk.
 	 */
@@ -205,17 +208,7 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 		// draw children
 		super.render(gl2);
 	}
-	
-	public MaterialEntity getMaterial() {
-		return material;
-	}
 
-	public void setMaterial(MaterialEntity m) {
-		if(m==null) return;  // bounce the null materials outta here!
-		
-		material = m;
-	}
-	
 	public void setModel(Mesh m) {
 		myMesh = m;
 	}
@@ -247,9 +240,7 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 		reloadButton.addActionEventListener((evt)-> reload() );
 		
 		view.popStack();
-		
-		material.getView(view);
-		
+
 		super.getView(view);
 	}
 	

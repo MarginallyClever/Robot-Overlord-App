@@ -3,11 +3,11 @@ package com.marginallyclever.robotoverlord.robots.stewartplatform.linear;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.*;
+import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
-import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
-import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
-import com.marginallyclever.robotoverlord.parameters.MaterialEntity;
-import com.marginallyclever.robotoverlord.parameters.RemoteEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
+import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,20 +21,18 @@ import java.beans.PropertyChangeEvent;
 public class LinearStewartPlatformCore extends PoseEntity {
 	private static final Logger logger = LoggerFactory.getLogger(LinearStewartPlatformCore.class);
 	
-	public final DoubleEntity SLIDE_TRAVEL = new DoubleEntity("SLIDE_TRAVEL", 10.0);  // cm
-	public final DoubleEntity ARM_LENGTH = new DoubleEntity("ARM_LENGTH",15.0362);  // cm
-	public final DoubleEntity BASE_X = new DoubleEntity("BASE_X",6.0968);  // cm
-	public final DoubleEntity BASE_Y = new DoubleEntity("BASE_Y",1.6000);  // cm
-	public final DoubleEntity BASE_Z = new DoubleEntity("BASE_Z",7.8383);  // cm
-	public final DoubleEntity EE_X = new DoubleEntity("EE_X", 3.6742);  // cm
-	public final DoubleEntity EE_Y = new DoubleEntity("EE_Y", 0.7500);  // cm
-	public final DoubleEntity EE_Z = new DoubleEntity("EE_Z",-2.4000);  // cm
+	public final DoubleParameter SLIDE_TRAVEL = new DoubleParameter("SLIDE_TRAVEL", 10.0);  // cm
+	public final DoubleParameter ARM_LENGTH = new DoubleParameter("ARM_LENGTH",15.0362);  // cm
+	public final DoubleParameter BASE_X = new DoubleParameter("BASE_X",6.0968);  // cm
+	public final DoubleParameter BASE_Y = new DoubleParameter("BASE_Y",1.6000);  // cm
+	public final DoubleParameter BASE_Z = new DoubleParameter("BASE_Z",7.8383);  // cm
+	public final DoubleParameter EE_X = new DoubleParameter("EE_X", 3.6742);  // cm
+	public final DoubleParameter EE_Y = new DoubleParameter("EE_Y", 0.7500);  // cm
+	public final DoubleParameter EE_Z = new DoubleParameter("EE_Z",-2.4000);  // cm
 
-	private final BooleanEntity debugEEPoints = new BooleanEntity("debugEEPoints", false);
-	private final BooleanEntity debugSlides = new BooleanEntity("debugSlides", true);
-	private final BooleanEntity debugArms = new BooleanEntity("debugArms", false);
-
-	protected final MaterialEntity me = new MaterialEntity();
+	private final BooleanParameter debugEEPoints = new BooleanParameter("debugEEPoints", false);
+	private final BooleanParameter debugSlides = new BooleanParameter("debugSlides", true);
+	private final BooleanParameter debugArms = new BooleanParameter("debugArms", false);
 	
 	private final PoseEntity ee = new PoseEntity("ee");
 
@@ -47,9 +45,11 @@ public class LinearStewartPlatformCore extends PoseEntity {
 			new LinearStewartPlatformArm()
 	};
 
-	private final RemoteEntity connection = new RemoteEntity();
-	private final DoubleEntity velocity = new DoubleEntity("velocity",5);
-	private final DoubleEntity acceleration = new DoubleEntity("acceleration",200);
+	private final RemoteParameter connection = new RemoteParameter();
+	private final DoubleParameter velocity = new DoubleParameter("velocity",5);
+	private final DoubleParameter acceleration = new DoubleParameter("acceleration",200);
+
+	protected final MaterialComponent material = new MaterialComponent();
 
 	public LinearStewartPlatformCore() {
 		this("Linear Stewart Platform");
@@ -62,11 +62,11 @@ public class LinearStewartPlatformCore extends PoseEntity {
 		connection.addPropertyChangeListener(this);
 
 		// apply some default materials.
-		me.setAmbientColor(0, 0, 0, 1);
-		me.setDiffuseColor(1f,1f,1f,1);
-		me.setEmissionColor(0, 0, 0, 1);
-		me.setLit(true);
-		me.setShininess(0);
+		material.setAmbientColor(0, 0, 0, 1);
+		material.setDiffuseColor(1f,1f,1f,1);
+		material.setEmissionColor(0, 0, 0, 1);
+		material.setLit(true);
+		material.setShininess(0);
 
 		calculateEndEffectorPointsOneTime();
 		calculateBasePointsOneTime();
@@ -285,8 +285,6 @@ public class LinearStewartPlatformCore extends PoseEntity {
 		view.addRange(velocity, 20, 1);
 		view.addRange(acceleration, 1000, 0);
 		view.popStack();
-		
-		me.getView(view);
 		
 		super.getView(view);
 	}

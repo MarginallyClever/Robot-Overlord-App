@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.robots.stewartplatform.rotary;
 
 import javax.vecmath.Point3d;
 
+@Deprecated
 class RotaryStewartPlatformArm {
     // lowest point that the magnetic ball can travel.
     // they can only move up from this point.

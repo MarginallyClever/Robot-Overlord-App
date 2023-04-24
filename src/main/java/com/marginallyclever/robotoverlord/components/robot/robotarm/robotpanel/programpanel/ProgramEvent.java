@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.programpanel;
 
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotoverlord.components.path.GCodePathElement;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -25,7 +26,7 @@ public class ProgramEvent implements Serializable {
 		this(p.angles);
 		this.nickname = p.nickname;
 	}
-	
+
 	public double [] getAngles() {
 		return angles;
 	}
@@ -49,13 +50,15 @@ public class ProgramEvent implements Serializable {
 	}
 	
 	public String getFormattedDisplay() {
-		StringBuilder s = new StringBuilder();
+		StringBuilder stringBuilder = new StringBuilder(NAME+"[");
 		String add="";
 		for (double angle : angles) {
-			s.append(add).append(StringHelper.formatDouble(angle));
+			stringBuilder.append(add).append(StringHelper.formatDouble(angle));
 			add = ", ";
 		}
-		return NAME+"["+s+"]" + (nickname.isBlank()?"":" ")+nickname;
+		stringBuilder.append("]").append(nickname.isBlank() ? "" : " ").append(nickname);
+
+		return stringBuilder.toString();
 	}
 
 	public String getNickname() {

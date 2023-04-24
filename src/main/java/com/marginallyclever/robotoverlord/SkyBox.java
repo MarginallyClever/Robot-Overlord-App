@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.parameters.TextureEntity;
+import com.marginallyclever.robotoverlord.parameters.TextureParameter;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -14,12 +14,12 @@ import javax.vecmath.Vector3d;
  * @author Dan Royer
  */
 public class SkyBox {
-	private transient final TextureEntity textureZPos = new TextureEntity("/skybox/cube-z-pos.png");
-	private transient final TextureEntity textureXPos = new TextureEntity("/skybox/cube-x-pos.png");
-	private transient final TextureEntity textureXNeg = new TextureEntity("/skybox/cube-x-neg.png");
-	private transient final TextureEntity textureYPos = new TextureEntity("/skybox/cube-y-pos.png");
-	private transient final TextureEntity textureYNeg = new TextureEntity("/skybox/cube-y-neg.png");
-	private transient final TextureEntity textureZNeg = new TextureEntity("/skybox/cube-z-neg.png");
+	private transient final TextureParameter textureZPos = new TextureParameter("/skybox/cube-z-pos.png");
+	private transient final TextureParameter textureXPos = new TextureParameter("/skybox/cube-x-pos.png");
+	private transient final TextureParameter textureXNeg = new TextureParameter("/skybox/cube-x-neg.png");
+	private transient final TextureParameter textureYPos = new TextureParameter("/skybox/cube-y-pos.png");
+	private transient final TextureParameter textureYNeg = new TextureParameter("/skybox/cube-y-neg.png");
+	private transient final TextureParameter textureZNeg = new TextureParameter("/skybox/cube-z-neg.png");
 
 	public SkyBox() {
 		super();

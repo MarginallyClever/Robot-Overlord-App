@@ -44,8 +44,6 @@ public class MeshFactory {
 
 		mesh = new Mesh();
 		attemptLoad(filename,mesh);
-		if(mesh.getNumVertices()==0) return null;
-
 		meshPool.add(mesh);
 		return mesh;
 	}
@@ -95,7 +93,6 @@ public class MeshFactory {
 		}
 
 		mesh.updateCuboid();
-		mesh.setDirty(true);
 	}
 
 	public static void reload(Mesh myMesh) {

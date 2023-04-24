@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import com.marginallyclever.robotoverlord.parameters.IntEntity;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.IntEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.IntParameterEdit;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -19,22 +19,22 @@ import java.beans.PropertyChangeListener;
 public class ViewElementSlider extends ViewElement implements ChangeListener, PropertyChangeListener {
 	private final JSlider field = new JSlider();
 	private final JLabel value;
-	private final IntEntity e;
+	private final IntParameter parameter;
 	
-	public ViewElementSlider(IntEntity e,int top,int bottom) {
+	public ViewElementSlider(IntParameter parameter, int top, int bottom) {
 		super();
-		this.e=e;
+		this.parameter = parameter;
 
-		e.addPropertyChangeListener(this);
+		parameter.addPropertyChangeListener(this);
 
 		field.setMaximum(top);
 		field.setMinimum(bottom);
 		field.setMinorTickSpacing(1);
-		field.setValue(e.get());
+		field.setValue(parameter.get());
 		field.addChangeListener(this);
 		field.addFocusListener(this);
 
-		JLabel label = new JLabel(e.getName(),JLabel.LEADING);
+		JLabel label = new JLabel(parameter.getName(),JLabel.LEADING);
 		value = new JLabel(Integer.toString(field.getValue()),JLabel.RIGHT);
 		Dimension dim = new Dimension(30,1);
 		value.setMinimumSize(dim);
@@ -45,6 +45,14 @@ public class ViewElementSlider extends ViewElement implements ChangeListener, Pr
 		this.add(label,BorderLayout.LINE_START);
 		this.add(field,BorderLayout.CENTER);
 		this.add(value,BorderLayout.LINE_END);
+	}
+
+	public void setMaximum(int max) {
+		field.setMaximum(max);
+	}
+
+	public void setMinimum(int min) {
+		field.setMinimum(min);
 	}
 
 	/**
@@ -58,11 +66,11 @@ public class ViewElementSlider extends ViewElement implements ChangeListener, Pr
 
 	@Override
 	public void stateChanged(ChangeEvent arg0) {
-		int oldValue = e.get();
+		int oldValue = parameter.get();
 		int newValue = field.getValue();
 		
 		if(newValue!=oldValue) {
-			AbstractUndoableEdit event = new IntEdit(e,newValue);
+			AbstractUndoableEdit event = new IntParameterEdit(parameter,newValue);
 			UndoSystem.addEvent(this,event);
 		}
 	}

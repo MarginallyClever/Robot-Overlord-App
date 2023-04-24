@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.components;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.parameters.Vector3dEntity;
+import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,9 +24,9 @@ import java.util.Arrays;
 public class PoseComponent extends Component implements PropertyChangeListener {
     // pose relative to my parent (aka local pose).
     private final Matrix4d local = new Matrix4d();
-    private final Vector3dEntity position = new Vector3dEntity("position",new Vector3d());
-    private final Vector3dEntity rotation = new Vector3dEntity("rotation",new Vector3d());
-    private final Vector3dEntity scale = new Vector3dEntity("scale",new Vector3d(1,1,1));
+    private final Vector3DParameter position = new Vector3DParameter("position",new Vector3d());
+    private final Vector3DParameter rotation = new Vector3DParameter("rotation",new Vector3d());
+    private final Vector3DParameter scale = new Vector3DParameter("scale",new Vector3d(1,1,1));
 
     public PoseComponent() {
         super();

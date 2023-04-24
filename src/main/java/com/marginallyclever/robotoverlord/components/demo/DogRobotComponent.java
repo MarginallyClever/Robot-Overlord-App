@@ -10,8 +10,8 @@ import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.components.shapes.Cylinder;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
-import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
-import com.marginallyclever.robotoverlord.parameters.IntEntity;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.vecmath.Matrix4d;
@@ -40,13 +40,13 @@ public class DogRobotComponent extends RenderComponent {
             "Ripple",
             "Wave",
     };
-    private final IntEntity modeSelector = new IntEntity("Mode", 0);
-    private final DoubleEntity standingRadius = new DoubleEntity("Standing radius", 21);
-    private final DoubleEntity standingHeight = new DoubleEntity("Standing height", 5.5);
-    private final DoubleEntity turningStrideLength = new DoubleEntity("Turning stride length", 150);
-    private final DoubleEntity strideLength = new DoubleEntity("Stride length", 15);
-    private final DoubleEntity strideHeight = new DoubleEntity("Stride height", 5);
-    private final DoubleEntity speedScale = new DoubleEntity("Speed scale", 1);
+    private final IntParameter modeSelector = new IntParameter("Mode", 0);
+    private final DoubleParameter standingRadius = new DoubleParameter("Standing radius", 21);
+    private final DoubleParameter standingHeight = new DoubleParameter("Standing height", 5.5);
+    private final DoubleParameter turningStrideLength = new DoubleParameter("Turning stride length", 150);
+    private final DoubleParameter strideLength = new DoubleParameter("Stride length", 15);
+    private final DoubleParameter strideHeight = new DoubleParameter("Stride height", 5);
+    private final DoubleParameter speedScale = new DoubleParameter("Speed scale", 1);
     private final RobotComponent[] legs = new RobotComponent[NUM_LEGS];
     private final Point3d [] lastPOC = new Point3d[NUM_LEGS];
     private final Point3d [] nextPOC = new Point3d[NUM_LEGS];
@@ -331,16 +331,16 @@ public class DogRobotComponent extends RenderComponent {
         calf.addEntity(foot);
 
         hip.addComponent(dh[0]);
-        dh[0].set( 0, 0, 90*(isRight?1:-1), 90, 360, -360);
+        dh[0].set( 0, 0, 90*(isRight?1:-1), 90, 360, -360,true);
         hip.addEntity(createCylinder(5,2,new ColorRGB(0xFFFFFF)));
 
         thigh.addComponent(dh[1]);
-        dh[1].set(-3.5 * s, 11.5, 0, 135*(isRight?-1:1), 360, -360);
+        dh[1].set(-3.5 * s, 11.5, 0, 135*(isRight?-1:1), 360, -360,true);
         thigh.addEntity(createBox(dh[1].getR(),1,new ColorRGB(0xFFFF99)));
 
         calf.addComponent(new ArmEndEffectorComponent());
         calf.addComponent(dh[2]);
-        dh[2].set(0, 13, 0, 90*(isRight?-1:1), 360, -360);
+        dh[2].set(0, 13, 0, 90*(isRight?-1:1), 360, -360,true);
         calf.addEntity(createBox(dh[2].getR(),0.7,new ColorRGB(0xFFFF66)));
 
         foot.addComponent(new ArmEndEffectorComponent());

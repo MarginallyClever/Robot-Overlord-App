@@ -1292,4 +1292,9 @@ to check yourself.</value>
 		<key>ComponentPasteAction.name</key>
 		<value>Paste component</value>
 	</string>
+
+	<string>
+		<key>Select</key>
+		<value>Select</value>
+	</string>
 </language>

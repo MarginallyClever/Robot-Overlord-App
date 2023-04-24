@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import com.marginallyclever.robotoverlord.parameters.StringEntity;
+import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.StringEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.StringParameterEdit;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -20,20 +20,20 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ViewElementString extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private final JTextField field = new FocusTextField(20);
-	private final StringEntity e;
+	private final StringParameter parameter;
 	private final ReentrantLock lock = new ReentrantLock();
 	
-	public ViewElementString(StringEntity e) {
+	public ViewElementString(StringParameter parameter) {
 		super();
-		this.e=e;
+		this.parameter = parameter;
 
-		e.addPropertyChangeListener(this);
+		parameter.addPropertyChangeListener(this);
 
-		field.setText(e.get());
+		field.setText(parameter.get());
 		field.getDocument().addDocumentListener(this);
 		field.addFocusListener(this);
 		
-		JLabel label=new JLabel(e.getName(),JLabel.LEADING);
+		JLabel label=new JLabel(parameter.getName(),JLabel.LEADING);
 		label.setLabelFor(field);
 
 		this.setLayout(new BorderLayout());
@@ -50,8 +50,8 @@ public class ViewElementString extends ViewElement implements DocumentListener, 
 		lock.lock();
 
 		String newValue = field.getText();
-		if( !newValue.equals(e.get()) ) {
-			AbstractUndoableEdit event = new StringEdit(e, newValue);
+		if( !newValue.equals(parameter.get()) ) {
+			AbstractUndoableEdit event = new StringParameterEdit(parameter, newValue);
 			UndoSystem.addEvent(this,event);
 		}
 		lock.unlock();

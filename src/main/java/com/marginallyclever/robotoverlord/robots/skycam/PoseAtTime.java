@@ -5,6 +5,7 @@ package com.marginallyclever.robotoverlord.robots.skycam;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class PoseAtTime<T> {
 	public long t;  // ms
 	public T p;

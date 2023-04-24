@@ -32,7 +32,7 @@ public class GradientDescent {
 	public boolean run(Matrix4d target,double learningRate, double threshold, double samplingDistance) {
 		if(getDistanceToTarget(myRobot,target)<threshold) return true;
 		
-		double [] angles = myRobot.getAngles();
+		double [] angles = myRobot.getAllJointValues();
 		
 		// seems to work better descending from the finger than ascending from the base.
 		for(int i = myRobot.getNumBones()-1; i>=0; --i ) {  // descending mode
@@ -41,7 +41,7 @@ public class GradientDescent {
 			//logger.info("\tB angles["+i+"]="+angles[i]+"\tlearningRate="+learningRate+"\tgradient="+gradient);
 			angles[i] -= learningRate * gradient;
 			//logger.info("\tC angles["+i+"]="+angles[i]);
-			myRobot.setAngles(angles);
+			myRobot.setAllJointValues(angles);
 			if(getDistanceToTarget(myRobot,target)<threshold) {
 				return true;
 			}
@@ -60,7 +60,7 @@ public class GradientDescent {
 		// move F+D, measure again.
 		angles[i] += samplingDistance;
 		//double t0 = temp.getBone(i).getTheta();
-		myRobot.setAngles(angles);
+		myRobot.setAllJointValues(angles);
 		//double t1 = temp.getBone(i).getTheta();
 		double FxPlusD = getDistanceToTarget(myRobot,target);
 		double gradient = (FxPlusD - Fx) / samplingDistance;
@@ -68,7 +68,7 @@ public class GradientDescent {
 		
 		// reset the old value
 		angles[i] = oldValue;
-		myRobot.setAngles(angles);
+		myRobot.setAllJointValues(angles);
 		
 		return gradient;
 	}

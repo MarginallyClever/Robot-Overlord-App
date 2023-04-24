@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
-import com.marginallyclever.robotoverlord.parameters.IntEntity;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -20,11 +20,11 @@ public class ComboBoxEdit extends AbstractUndoableEdit {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private IntEntity e;
+	private IntParameter e;
 	private int oldValue,newValue;
 	private String label;
 	
-	public ComboBoxEdit(IntEntity e,String label,int newValue) {
+	public ComboBoxEdit(IntParameter e, String label, int newValue) {
 		super();
 		
 		this.e = e;

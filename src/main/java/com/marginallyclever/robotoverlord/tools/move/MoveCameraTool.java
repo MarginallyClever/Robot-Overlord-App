@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.tools.move;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
-import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
@@ -25,17 +25,17 @@ public class MoveCameraTool implements EditorTool {
     /**
      * Must be greater than or equal to zero.
      */
-    private final DoubleEntity snapDeadZone = new DoubleEntity("Snap dead zone",100);
+    private final DoubleParameter snapDeadZone = new DoubleParameter("Snap dead zone",100);
 
     /**
      * Must be greater than or equal to zero.
      */
-    private final DoubleEntity snapDegrees = new DoubleEntity("Snap degrees",45);
+    private final DoubleParameter snapDegrees = new DoubleParameter("Snap degrees",45);
 
     /**
      * Must be greater than one.
      */
-    private final DoubleEntity wheelScale = new DoubleEntity("Zoom scale",1.25);
+    private final DoubleParameter wheelScale = new DoubleParameter("Zoom scale",1.25);
 
     private boolean isMoving=false;
     private boolean isControlDown =false;

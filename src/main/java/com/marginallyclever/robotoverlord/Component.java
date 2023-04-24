@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord;
 
-import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
+import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
+import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,7 +15,7 @@ import org.json.JSONObject;
 public class Component {
     private Entity myEntity;
 
-    private final BooleanEntity enabled = new BooleanEntity("Enabled",true);
+    private final BooleanParameter enabled = new BooleanParameter("Enabled",true);
 
     private boolean isExpanded=true;
 
@@ -27,7 +28,7 @@ public class Component {
     }
 
     /**
-     * A Component may offer one or more {@link AbstractEntity} visual elements for the User to manipulate.
+     * A Component may offer one or more {@link AbstractParameter} visual elements for the User to manipulate.
      * it does so by Decorating the given {@link ViewPanel} with these elements.
      *
      * @param view the ViewPanel to decorate.

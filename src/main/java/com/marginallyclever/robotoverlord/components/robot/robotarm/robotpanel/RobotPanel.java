@@ -2,6 +2,8 @@ package com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
+import com.marginallyclever.robotoverlord.components.path.GCodePath;
+import com.marginallyclever.robotoverlord.components.path.GCodePathComponent;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.jogpanel.JogPanel;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.presentationlayer.PresentationFactory;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.presentationlayer.PresentationLayer;
@@ -32,14 +34,14 @@ public class RobotPanel extends JPanel {
 	private final JProgressBar progress = new JProgressBar(0, 100);
 
 	private boolean isRunning = false;
-	private final Robot myRobot;
+	private final RobotComponent myRobot;
 	
-	public RobotPanel(Robot robot) {
+	public RobotPanel(RobotComponent robot, GCodePathComponent path) {
 		super();
 		this.myRobot = robot;
 
 		JogPanel jogPanel = new JogPanel(robot);
-		programPanel = new ProgramPanel(robot);
+		programPanel = new ProgramPanel(robot,path);
 		setupPresentationContainer();
 
 		JTabbedPane pane = new JTabbedPane();
@@ -172,8 +174,10 @@ public class RobotPanel extends JPanel {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception ignored) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new RobotPanel(new RobotComponent()));
+		frame.add(new RobotPanel(new RobotComponent(),null));
 		frame.pack();
 		frame.setVisible(true);
 	}
+
+
 }

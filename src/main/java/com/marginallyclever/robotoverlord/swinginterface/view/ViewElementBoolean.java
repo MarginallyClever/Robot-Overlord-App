@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.BooleanEdit;
 
@@ -21,26 +21,26 @@ import java.beans.PropertyChangeListener;
 public class ViewElementBoolean extends ViewElement implements PropertyChangeListener {
 	private final JCheckBox field = new JCheckBox();
 	
-	public ViewElementBoolean(BooleanEntity e) {
+	public ViewElementBoolean(BooleanParameter parameter) {
 		super();
 		
-		e.addPropertyChangeListener(this);
+		parameter.addPropertyChangeListener(this);
 
-		field.setSelected(e.get());
+		field.setSelected(parameter.get());
 		field.setBorder(new EmptyBorder(0,0,0,0));
 		field.addFocusListener(this);
 		field.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent arg0) {
 				boolean newValue = field.isSelected();
-				if(e.get()!=newValue) {
-					AbstractUndoableEdit event = new BooleanEdit(e, newValue);
+				if(parameter.get()!=newValue) {
+					AbstractUndoableEdit event = new BooleanEdit(parameter, newValue);
 					UndoSystem.addEvent(this, event);
 				}
 			}
 		});
 		
-		JLabel label=new JLabel(e.getName(),SwingConstants.LEFT);
+		JLabel label=new JLabel(parameter.getName(),SwingConstants.LEFT);
 		label.setLabelFor(field);
 		
 		this.setLayout(new BorderLayout());
@@ -51,8 +51,8 @@ public class ViewElementBoolean extends ViewElement implements PropertyChangeLis
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		Object o = evt.getSource();
-		if(o instanceof BooleanEntity) {
-			field.setSelected(((BooleanEntity)o).get());
+		if(o instanceof BooleanParameter) {
+			field.setSelected(((BooleanParameter)o).get());
 		}
 	}
 

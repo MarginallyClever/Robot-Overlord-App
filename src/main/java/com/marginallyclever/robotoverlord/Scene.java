@@ -3,9 +3,9 @@ package com.marginallyclever.robotoverlord;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.*;
 import com.marginallyclever.robotoverlord.components.*;
-import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
-import com.marginallyclever.robotoverlord.parameters.ColorEntity;
-import com.marginallyclever.robotoverlord.parameters.StringEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
+import com.marginallyclever.robotoverlord.parameters.ColorParameter;
+import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.slf4j.Logger;
@@ -30,10 +30,10 @@ import java.util.Queue;
  */
 public class Scene extends Entity {
 	private static final Logger logger = LoggerFactory.getLogger(Scene.class);
-	private final StringEntity scenePath = new StringEntity("Scene Path", "");
+	private final StringParameter scenePath = new StringParameter("Scene Path", "");
 
-	private final ColorEntity ambientLight = new ColorEntity("Ambient light",0.2,0.2,0.2,1);
-	private final BooleanEntity showWorldOrigin = new BooleanEntity("Show world origin",false);
+	private final ColorParameter ambientLight = new ColorParameter("Ambient light",0.2,0.2,0.2,1);
+	private final BooleanParameter showWorldOrigin = new BooleanParameter("Show world origin",false);
 	private final MaterialComponent defaultMaterial = new MaterialComponent();
 
 	private final List<SceneChangeListener> sceneChangeListeners = new ArrayList<>();
@@ -289,4 +289,18 @@ public class Scene extends Entity {
 		return rayHits;
 	}
 
+	/**
+	 * Find an entity by its unique ID.
+	 * @param uuid the unique ID to search for.
+	 * @return the entity with the given unique ID, or null if not found.
+	 */
+    public Entity findEntityByUniqueID(String uuid) {
+		Queue<Entity> toTest = new LinkedList<>(children);
+		while(!toTest.isEmpty()) {
+			Entity child = toTest.remove();
+			if(child.getUniqueID().equals(uuid)) return child;
+			toTest.addAll(child.getChildren());
+		}
+		return null;
+    }
 }

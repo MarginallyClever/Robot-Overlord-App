@@ -4,18 +4,26 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.components.path.GCodePath;
+import com.marginallyclever.robotoverlord.components.path.GCodePathComponent;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.ApproximateJacobian2;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.DHTable;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.RobotPanel;
+import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
+import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,6 +39,7 @@ import java.util.Queue;
 public class RobotComponent extends Component implements Robot {
     private int activeJoint;
     private final List<DHComponent> bones = new ArrayList<>();
+    private final ReferenceParameter myPath = new ReferenceParameter("Path");
 
     @Override
     public void setEntity(Entity entity) {
@@ -43,42 +52,66 @@ public class RobotComponent extends Component implements Robot {
     public void getView(ViewPanel view) {
         super.getView(view);
 
+        view.add(myPath);
+
         findBones();
 
         ViewElementButton bOpen = view.addButton("Open control panel");
-        bOpen.addActionEventListener((evt)-> {
-            Entity e = getEntity().getRoot();
-            final JFrame parentFrame = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
-            final Robot me = this;
-
-            new Thread(() -> {
-                try {
-                    JDialog frame = new JDialog(parentFrame, "Control panel");
-                    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    frame.add(new RobotPanel(me));
-                    frame.pack();
-                    frame.setLocationRelativeTo(parentFrame);
-                    frame.setVisible(true);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    JOptionPane.showConfirmDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
-                }
-            }).start();
-        });
+        bOpen.addActionEventListener((evt)-> showControlPanel());
 
         ViewElementButton bDHTable = view.addButton("Open DH Table");
-        bDHTable.addActionEventListener((evt)-> {
-            Entity e = getEntity().getRoot();
-            final JFrame parentFrame = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
-            final RobotComponent me = this;
+        bDHTable.addActionEventListener((evt)-> showDHTable());
 
-            JDialog frame = new JDialog(parentFrame,"DH Table");
+        ViewElementButton bHome = view.addButton("Go home");
+        bHome.addActionEventListener((evt)-> goHome());
+    }
+
+    private void showDHTable() {
+        Entity e = getEntity().getRoot();
+        final JFrame parentFrame = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
+        final RobotComponent me = this;
+
+        JDialog frame = new JDialog(parentFrame,"DH Table");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.add(new DHTable(me));
+        frame.pack();
+        frame.setLocationRelativeTo(parentFrame);
+        frame.setVisible(true);
+    }
+
+    private void showControlPanel() {
+        Entity e = getEntity().getRoot();
+        final JFrame parentFrame = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
+        final RobotComponent me = this;
+        final GCodePathComponent gCodePath = getGCodePath();
+
+        try {
+            JDialog frame = new JDialog(parentFrame, "Control panel");
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            frame.add(new DHTable(me));
+            frame.add(new RobotPanel(me,gCodePath));
             frame.pack();
             frame.setLocationRelativeTo(parentFrame);
             frame.setVisible(true);
-        });
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showConfirmDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public void goHome() {
+        double [] homeValues = new double[getNumBones()];
+        for(int i=0;i<getNumBones();++i) {
+            homeValues[i] = getBone(i).getJointHome();
+        }
+        setAllJointValues(homeValues);
+    }
+
+    private GCodePathComponent getGCodePath() {
+        String entityUniqueID = myPath.get();
+        if(entityUniqueID==null) return null;
+        Entity entity = getEntity().getScene().findEntityByUniqueID(entityUniqueID);
+        if(entity==null) return null;
+        return entity.findFirstComponent(GCodePathComponent.class);
     }
 
     public int getNumBones() {
@@ -110,9 +143,9 @@ public class RobotComponent extends Component implements Robot {
             case NUM_JOINTS: return getNumBones();
             case ACTIVE_JOINT: return activeJoint;
             case JOINT_NAME: return getBone(activeJoint).getEntity().getName();
-            case JOINT_VALUE: return getBone(activeJoint).getTheta();
-            case JOINT_RANGE_MAX: return getBone(activeJoint).getThetaMax();
-            case JOINT_RANGE_MIN: return getBone(activeJoint).getThetaMin();
+            case JOINT_VALUE: return getActiveJointValue();
+            case JOINT_RANGE_MAX: return getBone(activeJoint).getJointMax();
+            case JOINT_RANGE_MIN: return getBone(activeJoint).getJointMin();
             case JOINT_HAS_RANGE_LIMITS: return true;
             case JOINT_PRISMATIC: return false;
             case END_EFFECTOR: return getEndEffectorPose();
@@ -121,9 +154,15 @@ public class RobotComponent extends Component implements Robot {
             case TOOL_CENTER_POINT: return getToolCenterPoint();
             case POSE: return getPoseWorld();
             case JOINT_POSE: return getActiveJointPose();
-            case JOINT_HOME: return getBone(activeJoint).getThetaHome();
+            case JOINT_HOME: return getBone(activeJoint).getJointHome();
+            case ALL_JOINT_VALUES: return getAllJointValues();
             default : return null;
         }
+    }
+
+    private Object getActiveJointValue() {
+        DHComponent b = getBone(activeJoint);
+        return b.getJointValue();
     }
 
     private Object getActiveJointPose() {
@@ -135,16 +174,25 @@ public class RobotComponent extends Component implements Robot {
         return m;
     }
 
+    public double[] getAllJointValues() {
+        double[] result = new double[getNumBones()];
+        for(int i=0;i<getNumBones();++i) {
+            result[i] = getBone(i).getJointValue();
+        }
+        return result;
+    }
+
     @Override
     public void set(int property, Object value) {
         switch (property) {
             case ACTIVE_JOINT -> activeJoint = Math.max(0, Math.min(getNumBones(), (int) value));
-            case JOINT_VALUE -> updateJointValue((double) value);
+            case JOINT_VALUE -> setActiveJointValue((double) value);
             case END_EFFECTOR_TARGET -> setEndEffectorTargetPose((Matrix4d) value);
             case END_EFFECTOR_TARGET_POSITION -> setEndEffectorTargetPosition((Point3d) value);
             case TOOL_CENTER_POINT -> setToolCenterPointOffset((Matrix4d) value);
             case POSE -> setPoseWorld((Matrix4d) value);
-            case JOINT_HOME -> getBone(activeJoint).setThetaHome((double) value);
+            case JOINT_HOME -> getBone(activeJoint).setJointHome((double) value);
+            case ALL_JOINT_VALUES -> setAllJointValues((double[]) value);
             default -> { }
         }
     }
@@ -249,8 +297,7 @@ public class RobotComponent extends Component implements Robot {
             for (int i = 0; i < cartesianVelocity.length; ++i) {
                 cartesianVelocityUnit[i] = cartesianVelocity[i] / total;
             }
-            //for (int i = 0; i < total; ++i)
-            {
+            for (int i = 0; i < total; ++i) {
                 applySmallCartesianForceToEndEffector(cartesianVelocityUnit);
             }
         }
@@ -265,38 +312,13 @@ public class RobotComponent extends Component implements Robot {
         ApproximateJacobian2 aj = new ApproximateJacobian2(this);
         try {
             double[] jointVelocity = aj.getJointVelocityFromCartesianVelocity(cartesianVelocity);  // uses inverse jacobian
-            double[] angles = this.getAngles();  // # dof long
+            double[] angles = this.getAllJointValues();  // # dof long
             for (int i = 0; i < angles.length; ++i) {
                 angles[i] += jointVelocity[i];
             }
-            this.setAngles(angles);
+            this.setAllJointValues(angles);
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    public double[] getAngles() {
-        double[] angles = new double[getNumBones()];
-        for(int i=0;i<getNumBones();++i) {
-            angles[i] = getBone(i).getTheta();
-        }
-        return angles;
-    }
-
-    public void setAngles(double[] angles) {
-        assert angles.length == getNumBones();
-
-        Matrix4d eeOld = getEndEffectorPose();
-        boolean changed = false;
-        for(int i=0;i<getNumBones();++i) {
-            DHComponent bone = getBone(i);
-            double t = bone.getTheta();
-            bone.setTheta(angles[i]);
-            changed |= (t!=angles[i]);
-        }
-        if(changed) {
-            Matrix4d eeNew = getEndEffectorPose();
-            notifyPropertyChangeListeners(new PropertyChangeEvent(this, "ee", eeOld, eeNew));
         }
     }
 
@@ -352,11 +374,44 @@ public class RobotComponent extends Component implements Robot {
      * Change one joint angle and update the end effector pose.
      * @param value the new angle for the active joint, in degrees.
      */
-    private void updateJointValue(double value) {
+    private void setActiveJointValue(double value) {
         Matrix4d eeOld = getEndEffectorPose();
-        getBone(activeJoint).setAngleWRTLimits(value);
+        getBone(activeJoint).setJointValueWRTLimits(value);
         Matrix4d eeNew = getEndEffectorPose();
 
         notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",eeOld,eeNew));
+    }
+
+    public void setAllJointValues(double[] angles) {
+        assert angles.length == getNumBones();
+
+        Matrix4d eeOld = getEndEffectorPose();
+        boolean changed = false;
+        for(int i=0;i<getNumBones();++i) {
+            DHComponent bone = getBone(i);
+            double t = bone.getJointValue();
+            bone.setJointValueWRTLimits(angles[i]);
+            changed |= (t!=angles[i]);
+        }
+        if(changed) {
+            Matrix4d eeNew = getEndEffectorPose();
+            notifyPropertyChangeListeners(new PropertyChangeEvent(this, "ee", eeOld, eeNew));
+        }
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject jo = super.toJSON();
+
+        jo.put("path",myPath.toJSON());
+
+        return jo;
+    }
+
+    @Override
+    public void parseJSON(JSONObject jo) throws JSONException {
+        super.parseJSON(jo);
+
+        if(jo.has("path")) myPath.parseJSON(jo.getJSONObject("path"));
     }
 }

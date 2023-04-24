@@ -13,11 +13,10 @@ import java.util.ArrayList;
  *
  */
 public class ViewElementButton extends ViewElement {
-	private static final long serialVersionUID = -1717097303844646955L;
 	protected JButton field;
 
 	// who is listening to me?
-	protected ArrayList<ActionListener> actionListeners = new ArrayList<ActionListener>();
+	protected final ArrayList<ActionListener> actionListeners = new ArrayList<>();
 	
 	public void addActionEventListener(ActionListener p) {
 		actionListeners.add(p);

@@ -2,11 +2,11 @@ package com.marginallyclever.robotoverlord.components;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 public abstract class RenderComponent extends Component {
-    protected transient final BooleanEntity isVisible = new BooleanEntity("Visible",true);
+    protected transient final BooleanParameter isVisible = new BooleanParameter("Visible",true);
 
     public RenderComponent() {
         super();

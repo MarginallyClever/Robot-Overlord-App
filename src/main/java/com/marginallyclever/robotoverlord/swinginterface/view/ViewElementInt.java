@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import com.marginallyclever.robotoverlord.parameters.IntEntity;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.IntEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.IntParameterEdit;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -23,14 +23,14 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ViewElementInt extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private final JTextField field;
-	private final IntEntity e;
+	private final IntParameter parameter;
 	private final ReentrantLock lock = new ReentrantLock();
 	
-	public ViewElementInt(IntEntity e) {
+	public ViewElementInt(IntParameter parameter) {
 		super();
-		this.e=e;
+		this.parameter = parameter;
 		
-		e.addPropertyChangeListener(this);
+		parameter.addPropertyChangeListener(this);
 		
 		field = new FocusTextField(8);
 		field.addActionListener(new AbstractAction() {
@@ -55,10 +55,10 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Pro
 		});
 		field.getDocument().addDocumentListener(this);
 		field.setHorizontalAlignment(SwingConstants.RIGHT);
-		field.setText(e.get().toString());
+		field.setText(parameter.get().toString());
 		field.addFocusListener(this);
 
-		JLabel label=new JLabel(e.getName(),JLabel.LEADING);
+		JLabel label=new JLabel(parameter.getName(),JLabel.LEADING);
 		label.setLabelFor(field);
 		
 		//this.setBorder(new LineBorder(Color.RED));
@@ -75,14 +75,14 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Pro
 			field.setForeground(UIManager.getColor("Textfield.foreground"));
 		} catch(NumberFormatException e1) {
 			field.setForeground(Color.RED);
-			newNumber = e.get();
+			newNumber = parameter.get();
 		}
 		
 		if(lock.isLocked()) return;
 		lock.lock();
 
-		if(newNumber != e.get()) {
-			AbstractUndoableEdit event = new IntEdit(e, newNumber);
+		if(newNumber != parameter.get()) {
+			AbstractUndoableEdit event = new IntParameterEdit(parameter, newNumber);
 			UndoSystem.addEvent(this,event);
 		}
 		lock.unlock();

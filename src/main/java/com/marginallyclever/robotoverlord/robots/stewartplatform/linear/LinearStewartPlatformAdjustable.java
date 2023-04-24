@@ -13,7 +13,7 @@ public class LinearStewartPlatformAdjustable extends LinearStewartPlatformCore {
 
     @Override
     public void render(GL2 gl2) {
-        me.render(gl2);
+        material.render(gl2);
         gl2.glPushMatrix();
         MatrixHelper.applyMatrix(gl2,getPose());
 

@@ -1,6 +1,9 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.RobotOverlord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -15,6 +18,7 @@ import java.util.Map;
  *
  */
 public class EntityDeleteEdit extends AbstractUndoableEdit {
+	private static final Logger logger = LoggerFactory.getLogger(EntityDeleteEdit.class);
 	private final Map<Entity,Entity> childParent = new HashMap<>();
 	private final String name;
 
@@ -42,8 +46,8 @@ public class EntityDeleteEdit extends AbstractUndoableEdit {
 	
 	protected void doIt() {
 		for(Entity child : childParent.keySet()) {
-			System.out.println("Removing "+child.getFullPath());
-			child.getParent().removeEntity(child);
+			logger.info("Removing "+child.getFullPath());
+			childParent.get(child).removeEntity(child);
 		}
 	}
 

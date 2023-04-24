@@ -2,15 +2,12 @@ package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
-import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
-import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -18,7 +15,7 @@ import javax.vecmath.Vector3d;
 public class ViewCube {
 	protected ShapeComponent model = new MeshFromFile("/viewCube.obj");
 	protected MaterialComponent mat = new MaterialComponent();
-	protected DoubleEntity cubeSize = new DoubleEntity("size",25);
+	protected DoubleParameter cubeSize = new DoubleParameter("size",25);
 	
     public ViewCube() {
     	super();

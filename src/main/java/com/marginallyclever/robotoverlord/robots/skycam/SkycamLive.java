@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.robots.skycam;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.parameters.RemoteEntity;
+import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 
 import javax.vecmath.Vector3d;
@@ -24,7 +24,7 @@ public class SkycamLive extends Entity {
 	// roughly equivalent to SkycamSim.poseNow
 	protected Vector3d poseReceived;
 	// connection to robot outside this app. 
-	protected RemoteEntity connection = new RemoteEntity();
+	protected RemoteParameter connection = new RemoteParameter();
 
 	protected transient LinkedList<PoseAtTime<Vector3d>> received = new LinkedList<PoseAtTime<Vector3d>>();  
 	public static final int RECEIVED_BUFFER_LEN = 3;

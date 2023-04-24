@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
 import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.parameters.*;
 import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
@@ -28,15 +27,15 @@ public class ViewPanel extends ViewElement {
 		public GridBagConstraints gbc;
 	}
 	
-	protected final Stack<StackElement> panelStack = new Stack<>();
+	protected final Stack<StackElement> stack = new Stack<>();
 	protected StackElement se;
 	protected final JPanel contentPane = new JPanel();
 
-	private final RobotOverlord ro;
+	private final RobotOverlord robotOverlord;
 
-	public ViewPanel(RobotOverlord ro) {
+	public ViewPanel(RobotOverlord robotOverlord) {
 		super();
-		this.ro=ro;
+		this.robotOverlord = robotOverlord;
 
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
 
@@ -68,7 +67,7 @@ public class ViewPanel extends ViewElement {
 		se.gbc.gridwidth = GridBagConstraints.REMAINDER;
 		se.gbc.insets.set(1, 1, 1, 1);
 
-		panelStack.push(se);
+		stack.push(se);
 	}
 
 	public void pushStack(String name,boolean expanded) {
@@ -109,7 +108,7 @@ public class ViewPanel extends ViewElement {
 	private void setPopupMenu(Component component,JComponent panel) {
 		JPopupMenu popup = new JPopupMenu();
 
-		ComponentDeleteAction componentDeleteAction = new ComponentDeleteAction(component,ro);
+		ComponentDeleteAction componentDeleteAction = new ComponentDeleteAction(component, robotOverlord);
 		popup.add(componentDeleteAction);
 
 		ComponentCopyAction componentCopyAction = new ComponentCopyAction(component);
@@ -122,7 +121,7 @@ public class ViewPanel extends ViewElement {
 	}
 	
 	public void popStack() {
-		panelStack.pop();
+		stack.pop();
 	}
 	
 	protected void pushViewElement(ViewElement c) {
@@ -135,26 +134,28 @@ public class ViewPanel extends ViewElement {
 	}
 	
 	/**
-	 * Add an view element based on the entity type.
+	 * Add an view element based on the parameter type.
+	 * @param parameter the parameter to add
 	 */
-	public ViewElement add(Entity e) {
-		ViewElement b=null;
+	public ViewElement add(AbstractParameter<?> parameter) {
+		ViewElement element=null;
 		
 		//logger.debug("Add "+e.getClass().toString());
 		
-			 if(e instanceof BooleanEntity ) b = new ViewElementBoolean  ((BooleanEntity)e);
-		else if(e instanceof ColorEntity   ) b = new ViewElementColor    ((ColorEntity)e);
-		else if(e instanceof DoubleEntity  ) b = new ViewElementDouble   ((DoubleEntity)e);
-		else if(e instanceof IntEntity     ) b = new ViewElementInt      ((IntEntity)e);
-		else if(e instanceof Vector3dEntity) b = new ViewElementVector3d ((Vector3dEntity)e);
-		else if(e instanceof RemoteEntity  ) b = new ViewElementRemote   ((RemoteEntity)e);  // must come before StringEntity because RemoteEntity extends StringEntity
-		else if(e instanceof StringEntity  ) b = new ViewElementString   ((StringEntity)e);
-		if(null==b) {
-			return addStaticText("ViewPanel.add("+e.getClass().toString()+")");
+			 if(parameter instanceof BooleanParameter  ) element = new ViewElementBoolean  ((BooleanParameter)parameter);
+		else if(parameter instanceof ColorParameter    ) element = new ViewElementColor    ((ColorParameter)parameter);
+		else if(parameter instanceof DoubleParameter   ) element = new ViewElementDouble   ((DoubleParameter)parameter);
+		else if(parameter instanceof IntParameter      ) element = new ViewElementInt      ((IntParameter)parameter);
+		else if(parameter instanceof Vector3DParameter ) element = new ViewElementVector3d ((Vector3DParameter)parameter);
+		else if(parameter instanceof ReferenceParameter) element = new ViewElementReference((ReferenceParameter)parameter,robotOverlord);
+		else if(parameter instanceof StringParameter   ) element = new ViewElementString   ((StringParameter)parameter);
+
+		if(null==element) {
+			return addStaticText("ViewPanel.add("+parameter.getClass().toString()+")");
 		}
-		// else b not null.
-		pushViewElement(b);
-		return b;
+
+		pushViewElement(element);
+		return element;
 	}
 	
 
@@ -165,7 +166,13 @@ public class ViewPanel extends ViewElement {
 		return b;
 	}
 
-	public ViewElement addComboBox(IntEntity e,String [] labels) {
+	/**
+	 * Add a control for an integer that is bound to a combo box
+	 * @param e the Parameter that holds the current value.
+	 * @param labels the labels to use for the combo box
+	 * @return the element
+	 */
+	public ViewElement addComboBox(IntParameter e, String [] labels) {
 		ViewElement b = new ViewElementComboBox(e,labels);
 		pushViewElement(b);
 		return b;
@@ -174,12 +181,12 @@ public class ViewPanel extends ViewElement {
 
 	/**
 	 * Add a control for an integer that is bound between two values
-	 * @param e
+	 * @param e the Parameter that holds the current value.
 	 * @param top the maximum value, inclusive
 	 * @param bottom the minimum value, inclusive
 	 * @return the element
 	 */
-	public ViewElement addRange(IntEntity e, int top, int bottom) {
+	public ViewElement addRange(IntParameter e, int top, int bottom) {
 		ViewElement b = new ViewElementSlider(e,top,bottom);
 		pushViewElement(b);
 		return b;
@@ -187,12 +194,12 @@ public class ViewPanel extends ViewElement {
 
 	/**
 	 * Add a control for an double that is bound between two values
-	 * @param e
+	 * @param e the Parameter that holds the current value.
 	 * @param top the maximum value, inclusive
 	 * @param bottom the minimum value, inclusive
 	 * @return the element
 	 */
-	public ViewElement addRange(DoubleEntity e,int top,int bottom) {
+	public ViewElement addRange(DoubleParameter e, int top, int bottom) {
 		ViewElement b = new ViewElementSliderDouble(e,top,bottom);
 		pushViewElement(b);
 		return b;
@@ -200,11 +207,11 @@ public class ViewPanel extends ViewElement {
 
 	/**
 	 * Add a control for an string that includes a filename selection dialog
-	 * @param e
+	 * @param e the Parameter that holds the current value.
 	 * @param filters
 	 * @return the element
 	 */
-	public ViewElement addFilename(StringEntity e, ArrayList<FileFilter> filters) {
+	public ViewElement addFilename(StringParameter e, ArrayList<FileFilter> filters) {
 		ViewElementFilename b = new ViewElementFilename(e);
 		b.addFileFilters(filters);
 		

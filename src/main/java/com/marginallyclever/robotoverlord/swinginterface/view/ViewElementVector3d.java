@@ -1,9 +1,9 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
 import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotoverlord.parameters.Vector3dEntity;
+import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.Vector3dEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.Vector3dParameterEdit;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -25,23 +25,23 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ViewElementVector3d extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private final JTextField [] fields = new JTextField[3];
-	private final Vector3dEntity e;
+	private final Vector3DParameter parameter;
 	private final ReentrantLock lock = new ReentrantLock();
 	
-	public ViewElementVector3d(Vector3dEntity e) {
+	public ViewElementVector3d(Vector3DParameter parameter) {
 		super();
-		this.e=e;
+		this.parameter = parameter;
 
-		e.addPropertyChangeListener(this);
+		parameter.addPropertyChangeListener(this);
 		
 		JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEADING,0,0));
 		
-		fields[0] = addField(e.get().x,p2,"X");
-		fields[1] = addField(e.get().y,p2,"Y");
-		fields[2] = addField(e.get().z,p2,"Z");
+		fields[0] = addField(parameter.get().x,p2,"X");
+		fields[1] = addField(parameter.get().y,p2,"Y");
+		fields[2] = addField(parameter.get().z,p2,"Z");
 
 		this.setLayout(new BorderLayout());
-		this.add(new JLabel(e.getName(),JLabel.LEADING),BorderLayout.LINE_START);
+		this.add(new JLabel(parameter.getName(),JLabel.LEADING),BorderLayout.LINE_START);
 		this.add(p2,BorderLayout.LINE_END);
 	}
 	
@@ -97,7 +97,7 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 		if(lock.isLocked()) return;
 		lock.lock();
 			
-		Vector3d oldValue = e.get(); 
+		Vector3d oldValue = parameter.get();
 		Vector3d newValue = new Vector3d(
 			getField(0,oldValue.x),
 			getField(1,oldValue.y),
@@ -108,7 +108,7 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 		diff.sub(newValue,oldValue);
 		
 		if(diff.lengthSquared()>1e-6) {
-			AbstractUndoableEdit event = new Vector3dEdit(e, newValue);
+			AbstractUndoableEdit event = new Vector3dParameterEdit(parameter, newValue);
 			UndoSystem.addEvent(this, event);
 		}
 		
@@ -117,7 +117,7 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 
 	@Override
 	public void changedUpdate(DocumentEvent arg0) {	
-		Vector3d oldValue = e.get(); 
+		Vector3d oldValue = parameter.get();
 		getField(0,oldValue.x);
 		getField(1,oldValue.y);
 		getField(2,oldValue.z);
@@ -125,7 +125,7 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 	
 	@Override
 	public void insertUpdate(DocumentEvent arg0) {
-		Vector3d oldValue = e.get(); 
+		Vector3d oldValue = parameter.get();
 		getField(0,oldValue.x);
 		getField(1,oldValue.y);
 		getField(2,oldValue.z);
@@ -133,7 +133,7 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 
 	@Override
 	public void removeUpdate(DocumentEvent arg0) {
-		Vector3d oldValue = e.get(); 
+		Vector3d oldValue = parameter.get();
 		getField(0,oldValue.x);
 		getField(1,oldValue.y);
 		getField(2,oldValue.z);
@@ -145,7 +145,7 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 		
 		if(lock.isLocked()) return;
 		lock.lock();
-		Vector3d input = ((Vector3dEntity)o).get();
+		Vector3d input = ((Vector3DParameter)o).get();
 		fields[0].setText(StringHelper.formatDouble(input.x));
 		fields[1].setText(StringHelper.formatDouble(input.y));
 		fields[2].setText(StringHelper.formatDouble(input.z));

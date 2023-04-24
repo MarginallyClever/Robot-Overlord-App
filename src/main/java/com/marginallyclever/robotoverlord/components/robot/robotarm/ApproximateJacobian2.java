@@ -21,7 +21,7 @@ public class ApproximateJacobian2 {
 	 * a 6x6 matrix that will be filled with the jacobian. The first three columns
 	 * are translation component. The last three columns are the rotation component.
 	 */
-	public double[][] jacobian;
+	public final double[][] jacobian;
 
 	/**
 	 * Given the current pose of the robot, find the approximate jacobian.
@@ -44,9 +44,9 @@ public class ApproximateJacobian2 {
 
 		for (int i = 0; i < DOF; ++i) {
 			// use anglesB to get the hand matrix after a tiny adjustment on one joint.
-			double[] jointAnglesPlusDelta = arm.getAngles();
+			double[] jointAnglesPlusDelta = arm.getAllJointValues();
 			jointAnglesPlusDelta[i] += ANGLE_STEP_SIZE_DEGREES;
-			temp.setAngles(jointAnglesPlusDelta);
+			temp.setAllJointValues(jointAnglesPlusDelta);
 			Matrix4d endEffectorPosePlusDelta = temp.getEndEffectorPose();
 
 			// use the finite difference in the two matrixes
@@ -98,11 +98,15 @@ public class ApproximateJacobian2 {
 	// https://stackoverflow.com/a/53028167/1159440
 	private double[][] getInverseJacobian() {
 		int bones = myArm.getNumBones();
-		if (bones < 6)
-			return getInverseJacobianOverdetermined();
-		else
-			/* if(bones>=6) */ return getInverseJacobianUnderdetermined();
-		// else return MatrixHelper.invert(jacobian);
+        if( bones == 3 ) return getInverseJacobianOverdetermined();
+
+		// old method
+		//if (bones < 6) return getInverseJacobianOverdetermined();
+		//else if(bones>=6) return getInverseJacobianUnderdetermined();
+		//else return MatrixHelper.invert(jacobian);
+
+		// new method
+		return getInverseJacobianDampedLeastSquares(0.0001);
 	}
 
 	// J_plus = J.transpose * (J*J.transpose()).inverse() // This is for
@@ -113,6 +117,20 @@ public class ApproximateJacobian2 {
 		double[][] ji = MatrixHelper.invert(mm);
 		return MatrixHelper.multiplyMatrices(jt, ji);
 	}
+
+	private double[][] getInverseJacobianDampedLeastSquares(double lambda) {
+		double[][] jt = MatrixHelper.transpose(jacobian);
+		double[][] jjt = MatrixHelper.multiplyMatrices(jacobian, jt);
+
+		// Add lambda^2 * identity matrix to jjt
+		for (int i = 0; i < jacobian.length; i++) {
+			jjt[i][i] += lambda * lambda;
+		}
+
+		double[][] jjt_inv = MatrixHelper.invert(jjt);
+		return MatrixHelper.multiplyMatrices(jt, jjt_inv);
+	}
+
 
 	// J_plus = (J.transpose()*J).inverse() * J.transpose()
 	private double[][] getInverseJacobianOverdetermined() {

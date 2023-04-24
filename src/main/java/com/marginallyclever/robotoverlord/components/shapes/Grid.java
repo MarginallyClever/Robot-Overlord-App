@@ -5,8 +5,8 @@ import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
-import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
-import com.marginallyclever.robotoverlord.parameters.IntEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,9 +14,9 @@ import org.json.JSONObject;
 import javax.vecmath.Vector3d;
 
 public class Grid extends ShapeComponent {
-    private final BooleanEntity snap = new BooleanEntity("Snap",true);
-    private final IntEntity width = new IntEntity("Width (cm)",100);
-    private final IntEntity length = new IntEntity("Length (cm)",100);
+    private final BooleanParameter snap = new BooleanParameter("Snap",true);
+    private final IntParameter width = new IntParameter("Width (cm)",100);
+    private final IntParameter length = new IntParameter("Length (cm)",100);
 
     public Grid() {
         super();

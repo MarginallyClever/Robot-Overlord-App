@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.components.shapes;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
-import com.marginallyclever.robotoverlord.parameters.IntEntity;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,7 +13,7 @@ import org.json.JSONObject;
  * TODO add texture coordinates
  */
 public class Sphere extends ShapeComponent {
-    private final IntEntity detail = new IntEntity("Detail",32);
+    private final IntParameter detail = new IntParameter("Detail",32);
 
     public Sphere() {
         super();

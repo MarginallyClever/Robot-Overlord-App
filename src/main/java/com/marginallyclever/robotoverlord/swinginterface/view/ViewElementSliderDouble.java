@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.view;
 
-import com.marginallyclever.robotoverlord.parameters.DoubleEntity;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.DoubleEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.DoubleParameterEdit;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -19,23 +19,23 @@ import java.beans.PropertyChangeListener;
 public class ViewElementSliderDouble extends ViewElement implements ChangeListener, PropertyChangeListener {
 	private final JSlider field = new JSlider();
 	private final JLabel value;
-	private final DoubleEntity e;
+	private final DoubleParameter parameter;
 	boolean inUpdate=false;
 	
-	public ViewElementSliderDouble(DoubleEntity e,int top,int bottom) {
+	public ViewElementSliderDouble(DoubleParameter parameter, int top, int bottom) {
 		super();
-		this.e=e;
+		this.parameter = parameter;
 
-		e.addPropertyChangeListener(this);
+		parameter.addPropertyChangeListener(this);
 
 		field.setMaximum(top*10);
 		field.setMinimum(bottom*10);
 		field.setMinorTickSpacing(1);
-		field.setValue((int)Math.floor(e.get()*10));
+		field.setValue((int)Math.floor(parameter.get()*10));
 		field.addChangeListener(this);
 		field.addFocusListener(this);
 
-		JLabel label = new JLabel(e.getName(),JLabel.LEADING);
+		JLabel label = new JLabel(parameter.getName(),JLabel.LEADING);
 		value = new JLabel(Double.toString(field.getValue()/10.0),JLabel.RIGHT);
 		Dimension dim = new Dimension(35,1);
 		value.setMinimumSize(dim);
@@ -65,11 +65,11 @@ public class ViewElementSliderDouble extends ViewElement implements ChangeListen
 	public void stateChanged(ChangeEvent arg0) {
 		if(inUpdate) return;
 		
-		double oldValue = Math.floor(e.get());
+		double oldValue = Math.floor(parameter.get());
 		double newValue = field.getValue()/10.0;
 		
 		if(newValue!=oldValue) {
-			AbstractUndoableEdit event = new DoubleEdit(e,newValue);
+			AbstractUndoableEdit event = new DoubleParameterEdit(parameter,newValue);
 			UndoSystem.addEvent(this,event);
 		}
 	}

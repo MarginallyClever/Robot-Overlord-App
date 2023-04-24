@@ -85,7 +85,7 @@ public class PathFactory {
             loader.load(stream,path);
         }
         catch(Exception e) {
-            logger.error("Failed to load mesh: "+e.getMessage());
+            logger.error("Failed to load path: "+e.getMessage());
         }
     }
 

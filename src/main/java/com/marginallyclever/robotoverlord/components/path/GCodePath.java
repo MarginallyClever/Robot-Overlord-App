@@ -5,7 +5,7 @@ import java.util.List;
 
 public class GCodePath {
     private String sourceName;
-    private LinkedList<GCodePathElement> elements = new LinkedList<>();
+    private final LinkedList<GCodePathElement> elements = new LinkedList<>();
     private boolean dirty = false;
 
     public GCodePath() {}

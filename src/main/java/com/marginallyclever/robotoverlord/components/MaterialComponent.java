@@ -3,10 +3,10 @@ package com.marginallyclever.robotoverlord.components;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Scene;
-import com.marginallyclever.robotoverlord.parameters.BooleanEntity;
-import com.marginallyclever.robotoverlord.parameters.ColorEntity;
-import com.marginallyclever.robotoverlord.parameters.IntEntity;
-import com.marginallyclever.robotoverlord.parameters.TextureEntity;
+import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
+import com.marginallyclever.robotoverlord.parameters.ColorParameter;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
+import com.marginallyclever.robotoverlord.parameters.TextureParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,13 +14,13 @@ import org.json.JSONObject;
 import java.io.File;
 
 public class MaterialComponent extends Component {
-    private final ColorEntity ambient    = new ColorEntity("Ambient" ,1,1,1,1);
-    private final ColorEntity diffuse    = new ColorEntity("Diffuse" ,1,1,1,1);
-    private final ColorEntity specular   = new ColorEntity("Specular",1,1,1,1);
-    private final ColorEntity emission   = new ColorEntity("Emission",0,0,0,1);
-    private final IntEntity shininess    = new IntEntity("Shininess",10);
-    private final BooleanEntity isLit    = new BooleanEntity("Lit",true);
-    private final TextureEntity texture  = new TextureEntity();
+    private final ColorParameter ambient    = new ColorParameter("Ambient" ,1,1,1,1);
+    private final ColorParameter diffuse    = new ColorParameter("Diffuse" ,1,1,1,1);
+    private final ColorParameter specular   = new ColorParameter("Specular",1,1,1,1);
+    private final ColorParameter emission   = new ColorParameter("Emission",0,0,0,1);
+    private final IntParameter shininess    = new IntParameter("Shininess",10);
+    private final BooleanParameter isLit    = new BooleanParameter("Lit",true);
+    private final TextureParameter texture  = new TextureParameter();
 
     public MaterialComponent() {
         super();
@@ -159,7 +159,7 @@ public class MaterialComponent extends Component {
 
         Scene myScene = getScene();
         if(myScene!=null) {
-            TextureEntity te = new TextureEntity(myScene.removeScenePath(texture.get()));
+            TextureParameter te = new TextureParameter(myScene.removeScenePath(texture.get()));
             jo.put("texture",te.toJSON());
         } else {
             jo.put("texture",texture.toJSON());
@@ -178,7 +178,7 @@ public class MaterialComponent extends Component {
         specular.parseJSON(jo.getJSONObject("specular"));
         shininess.parseJSON(jo.getJSONObject("shininess"));
 
-        TextureEntity te = new TextureEntity();
+        TextureParameter te = new TextureParameter();
         te.parseJSON(jo.getJSONObject("texture"));
         String fn = te.get();
         if(!fn.isEmpty() && !(new File(fn)).exists()) {

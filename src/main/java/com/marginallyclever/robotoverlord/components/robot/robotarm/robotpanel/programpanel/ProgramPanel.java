@@ -1,15 +1,26 @@
 package com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.programpanel;
 
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
+import com.marginallyclever.robotoverlord.components.path.GCodePath;
+import com.marginallyclever.robotoverlord.components.path.GCodePathComponent;
+import com.marginallyclever.robotoverlord.components.path.GCodePathElement;
+import com.marginallyclever.robotoverlord.components.path.PathWalker;
 import com.marginallyclever.robotoverlord.robots.Robot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
+import javax.vecmath.Point3d;
 import java.awt.*;
 import java.io.*;
 
 public class ProgramPanel extends JPanel {
+	private static final Logger logger = LoggerFactory.getLogger(ProgramPanel.class);
 	@Serial
 	private static final long serialVersionUID = 1L;
 	private final DefaultListModel<ProgramEvent> listModel = new DefaultListModel<>();
@@ -26,11 +37,14 @@ public class ProgramPanel extends JPanel {
 	private final JButton bStep = new JButton("Step");
 	private final JButton bNickname = new JButton("Nickname");
 	
-	private final Robot myArm;
-		
-	public ProgramPanel(Robot arm) {
+	private final RobotComponent myArm;
+	private final GCodePathComponent path;
+
+	public ProgramPanel(RobotComponent arm, GCodePathComponent path) {
 		super();
-		myArm = arm;
+		this.myArm = arm;
+		this.path = path;
+
 		createCellRenderingSystem();
 		
 		JScrollPane scrollPane = new JScrollPane(listView);
@@ -45,8 +59,43 @@ public class ProgramPanel extends JPanel {
 		this.setLayout(new BorderLayout());
 		this.add(getToolBar(), BorderLayout.PAGE_START);
 		this.add(scrollPane, BorderLayout.CENTER);
+
+		loadGCodePath();
 	}
-	
+
+	private void loadGCodePath() {
+		if(path==null) return;
+		PathWalker walker = path.getPathWalker();
+		if(walker==null) return;
+
+		// make a copy of the arm, so we don't mess up the real one.
+		Entity newCopy = myArm.getEntity().deepCopy();
+		RobotComponent temp = newCopy.findFirstComponent(RobotComponent.class);
+		temp.findBones();
+
+		int i=0;
+		while (walker.hasNext()) {
+			walker.next();
+
+			try {
+				// Convert the Cartesian values to FK joint values using the PathWalker and the Robot interface
+				Point3d endEffectorTargetPosition = walker.getCurrentPosition();
+				temp.set(Robot.END_EFFECTOR_TARGET_POSITION, endEffectorTargetPosition);
+
+				// Get the resulting joint values
+				double[] jointValues = (double[]) temp.get(Robot.ALL_JOINT_VALUES);
+
+				// Create a new ProgramEvent with the FK joint values and add it to the list
+				ProgramEvent event = new ProgramEvent(jointValues);
+				event.setNickname("step "+i);
+				insertWhereAppropriate(event);
+			} catch (Exception e) {
+				logger.error("step "+i+": "+e.getMessage());
+			}
+			++i;
+		}
+	}
+
 	private void createCellRenderingSystem() {
 		listView.setCellRenderer(new ListCellRenderer<>() {
 			private final DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
@@ -271,7 +320,7 @@ public class ProgramPanel extends JPanel {
 		Log.start();
 		JFrame frame = new JFrame("ProgramInterface");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new ProgramPanel(new RobotComponent()));
+		frame.add(new ProgramPanel(new RobotComponent(),null));
 		frame.pack();
 		frame.setVisible(true);
 	}

@@ -92,12 +92,13 @@ public class SceneImportAction extends AbstractAction {
 
     /**
      * Copy the assets from source scene into folder of destination scene.
-     * Ideally when I import projectB into projectA, any asset with filename
-     *     <i>/foo/projectB/xxxx.yyy</i>
-     * should be copied to
-     *     <i>bar/projectA/projectB/xxxx.yyy</i>
+     * When projectA is imported into projectB, any asset with filename <i>projectA/xxxx.yyy</i>
+     * should be copied to <i>projectB/projectA/xxxx.yyy</i>
      * and the asset name in the project should be updated to match.
-      */
+     * @param source the scene to copy from
+     * @param destination the scene to copy to
+     * @throws IOException if the copy fails
+     */
     private void updateSceneAssetPaths(Scene source, Scene destination) throws IOException {
         Path path = Path.of(source.getScenePath());
 

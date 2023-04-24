@@ -25,6 +25,7 @@ class Slic3rGCodePathLoader implements PathLoader {
     public void load(BufferedInputStream inputStream, GCodePath model) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         Pattern pattern = Pattern.compile("([GMT])(\\d+)|([XYZUVWFE])(-?\\d*(\\.\\d+)?)");
+        final double MM_TO_CM = 0.1; // convert mm to cm
 
         model.clear();
 
@@ -57,20 +58,11 @@ class Slic3rGCodePathLoader implements PathLoader {
                     if (element == null) {
                         throw new Exception("Invalid GCode: Axis value without command");
                     }
-                    double value;
-                    try {
-                        value = Double.parseDouble(axisValue);
-                    }
-                    catch(NumberFormatException ex) {
-                        throw ex;
-                    }
+                    double value = Double.parseDouble(axisValue)*MM_TO_CM;
                     switch (axisGroup) {
                         case "X" -> element.setX(value);
                         case "Y" -> element.setY(value);
                         case "Z" -> element.setZ(value);
-                        case "U" -> element.setU(value);
-                        case "V" -> element.setV(value);
-                        case "W" -> element.setW(value);
                         case "F" -> element.setFeedrate(value);
                         case "E" -> element.setExtrusion(value);
                     }
