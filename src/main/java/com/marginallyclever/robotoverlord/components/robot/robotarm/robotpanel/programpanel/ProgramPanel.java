@@ -73,10 +73,11 @@ public class ProgramPanel extends JPanel {
 		RobotComponent temp = newCopy.findFirstComponent(RobotComponent.class);
 		temp.findBones();
 
-		try {
-			while (walker.hasNext()) {
-				walker.next();
+		int i=0;
+		while (walker.hasNext()) {
+			walker.next();
 
+			try {
 				// Convert the Cartesian values to FK joint values using the PathWalker and the Robot interface
 				Point3d endEffectorTargetPosition = walker.getCurrentPosition();
 				temp.set(Robot.END_EFFECTOR_TARGET_POSITION, endEffectorTargetPosition);
@@ -86,9 +87,10 @@ public class ProgramPanel extends JPanel {
 
 				// Create a new ProgramEvent with the FK joint values and add it to the list
 				insertWhereAppropriate(new ProgramEvent(jointValues));
+			} catch (Exception e) {
+				logger.error("step "+i+": "+e.getMessage());
 			}
-		} catch (Exception e) {
-			logger.error(e.getMessage());
+			++i;
 		}
 	}
 
