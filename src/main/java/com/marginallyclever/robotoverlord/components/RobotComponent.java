@@ -297,8 +297,7 @@ public class RobotComponent extends Component implements Robot {
             for (int i = 0; i < cartesianVelocity.length; ++i) {
                 cartesianVelocityUnit[i] = cartesianVelocity[i] / total;
             }
-            //for (int i = 0; i < total; ++i)
-            {
+            for (int i = 0; i < total; ++i) {
                 applySmallCartesianForceToEndEffector(cartesianVelocityUnit);
             }
         }

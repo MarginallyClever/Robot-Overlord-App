@@ -21,7 +21,7 @@ public class ApproximateJacobian2 {
 	 * a 6x6 matrix that will be filled with the jacobian. The first three columns
 	 * are translation component. The last three columns are the rotation component.
 	 */
-	public double[][] jacobian;
+	public final double[][] jacobian;
 
 	/**
 	 * Given the current pose of the robot, find the approximate jacobian.
@@ -98,7 +98,9 @@ public class ApproximateJacobian2 {
 	// https://stackoverflow.com/a/53028167/1159440
 	private double[][] getInverseJacobian() {
 		int bones = myArm.getNumBones();
+        if( bones == 3 ) return getInverseJacobianOverdetermined();
 
+		// old method
 		//if (bones < 6) return getInverseJacobianOverdetermined();
 		//else if(bones>=6) return getInverseJacobianUnderdetermined();
 		//else return MatrixHelper.invert(jacobian);
