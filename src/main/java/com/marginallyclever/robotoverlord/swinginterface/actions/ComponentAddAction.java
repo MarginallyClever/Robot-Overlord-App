@@ -6,7 +6,7 @@ import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.UnicodeIcon;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.ComponentDependency;
-import com.marginallyclever.robotoverlord.swinginterface.ComponentPanel;
+import com.marginallyclever.robotoverlord.swinginterface.view.ComponentPanel;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.ComponentAddEdit;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;

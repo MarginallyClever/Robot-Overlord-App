@@ -7,6 +7,7 @@ import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
+import com.marginallyclever.robotoverlord.swinginterface.view.ComponentPanel;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -168,7 +169,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 	}
 
     /**
-	 * List all objects in scene.  Click an item to load its {@link com.marginallyclever.robotoverlord.swinginterface.ComponentPanel}.
+	 * List all objects in scene.  Click an item to load its {@link ComponentPanel}.
 	 * See <a href="https://docs.oracle.com/javase/7/docs/api/javax/swing/JTree.html">JTree</a>
 	 */
 
