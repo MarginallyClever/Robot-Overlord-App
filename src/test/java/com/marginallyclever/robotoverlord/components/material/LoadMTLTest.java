@@ -7,14 +7,17 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
+import java.io.File;
+import java.net.URL;
+import java.nio.file.Path;
+import java.util.Objects;
 
 public class LoadMTLTest {
     @Test
     public void testLoadMTL() {
         MaterialComponent material = new MaterialComponent();
         MaterialLoader loadMTL = new LoadMTL();
-        try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream("src/test/resources/torso.mtl"))) {
+        try (BufferedInputStream stream = new BufferedInputStream(Objects.requireNonNull(this.getClass().getResourceAsStream("torso.mtl")))) {
             loadMTL.load(stream, material);
         }
         catch (Exception e) {
@@ -31,7 +34,9 @@ public class LoadMTLTest {
     @Test
     public void testLoadOBJWithMTL() {
         Entity entity = new Entity();
-        MeshFromFile mesh = new MeshFromFile("src/test/resources/torso.obj");
+        File resource = new File(Objects.requireNonNull(this.getClass().getResource("torso.obj")).getFile());
+        Assertions.assertNotNull(resource);
+        MeshFromFile mesh = new MeshFromFile(resource.getAbsolutePath());
         entity.addComponent(mesh);
         MaterialComponent material = entity.findFirstComponent(MaterialComponent.class);
         Assertions.assertNotNull(material);
