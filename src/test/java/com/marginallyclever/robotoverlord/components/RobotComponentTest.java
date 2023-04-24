@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.components;
 
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.robots.Robot;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -37,7 +38,7 @@ public class RobotComponentTest {
     }
 
     private void testEndEffectorAtPosition(RobotComponent robot, Point3d expected) {
-        Point3d actual = (Point3d)robot.get(RobotComponent.END_EFFECTOR_TARGET_POSITION);
+        Point3d actual = (Point3d)robot.get(Robot.END_EFFECTOR_TARGET_POSITION);
         Assertions.assertTrue(actual.distance(expected)<0.0001,"expected="+expected+", actual="+actual);
     }
 
@@ -58,8 +59,8 @@ public class RobotComponentTest {
     public void test3AxisArmAtPosition2() {
         RobotComponent robot = build3AxisArm();
         // a few iterations are needed to refine the movement.
-        for(int i=0;i<4;++i) {
-            robot.set(RobotComponent.END_EFFECTOR_TARGET_POSITION, new Point3d(15.14214, 0, 0));
+        for(int i=0;i<12;++i) {
+            robot.set(Robot.END_EFFECTOR_TARGET_POSITION, new Point3d(15.14214, 0, 0));
         }
         testEndEffectorAtPosition(robot,new Point3d(15.14214,0,0));
     }
@@ -87,8 +88,8 @@ public class RobotComponentTest {
         Matrix4d pose = (Matrix4d)robot.get(RobotComponent.POSE);
         robot.set(RobotComponent.POSE,pose);
         // a few iterations are needed to refine the movement.
-        for(int i=0;i<4;++i) {
-            robot.set(RobotComponent.END_EFFECTOR_TARGET_POSITION, new Point3d(15.14214, 0, 0));
+        for(int i=0;i<12;++i) {
+            robot.set(Robot.END_EFFECTOR_TARGET_POSITION, new Point3d(15.14214, 0, 0));
         }
         testEndEffectorAtPosition(robot,new Point3d(15.14214,0,0));
     }
