@@ -252,12 +252,11 @@ public class Viewport extends Entity {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Viewport",true);
+		view.startNewSubPanel("Viewport",true);
 		view.add(drawOrthographic);
 		view.add(farZ);
 		view.add(nearZ);
 		view.add(fieldOfView);
-		view.popStack();
 		super.getView(view);
 	}
 

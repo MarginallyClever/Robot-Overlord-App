@@ -16,9 +16,9 @@ public class EntityCutAction extends AbstractAction implements EditorAction {
         super(Translator.get("EntityCutAction.name"));
         this.removeAction = removeAction;
         this.copyAction = copyAction;
-        putValue(Action.SMALL_ICON,new UnicodeIcon("✂"));
-        putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityCutAction.shortDescription"));
-        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK) );
+        putValue(SMALL_ICON,new UnicodeIcon("✂"));
+        putValue(SHORT_DESCRIPTION, Translator.get("EntityCutAction.shortDescription"));
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK) );
     }
 
     @Override

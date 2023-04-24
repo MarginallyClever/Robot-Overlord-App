@@ -31,9 +31,9 @@ public class SceneLoadAction extends AbstractAction {
         super(Translator.get("SceneLoadAction.name"));
         this.ro=ro;
         fc.setFileFilter(RobotOverlord.FILE_FILTER);
-        putValue(Action.SMALL_ICON,new UnicodeIcon("🗁"));
-        putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneLoadAction.shortDescription"));
-        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK) );
+        putValue(SMALL_ICON,new UnicodeIcon("🗁"));
+        putValue(SHORT_DESCRIPTION, Translator.get("SceneLoadAction.shortDescription"));
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK) );
     }
 
     public static void setLastDirectory(String s) {

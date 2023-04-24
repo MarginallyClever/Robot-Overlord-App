@@ -19,9 +19,9 @@ public class ComponentPasteAction extends AbstractAction implements EditorAction
 
     public ComponentPasteAction() {
         super(Translator.get("ComponentPasteAction.name"));
-        putValue(Action.SMALL_ICON,new UnicodeIcon("📎"));
-        putValue(Action.SHORT_DESCRIPTION, Translator.get("ComponentPasteAction.shortDescription"));
-        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK) );
+        putValue(SMALL_ICON,new UnicodeIcon("📎"));
+        putValue(SHORT_DESCRIPTION, Translator.get("ComponentPasteAction.shortDescription"));
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK) );
     }
 
     @Override

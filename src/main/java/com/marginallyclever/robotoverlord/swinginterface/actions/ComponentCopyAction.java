@@ -20,9 +20,9 @@ public class ComponentCopyAction extends AbstractAction implements EditorAction 
 	public ComponentCopyAction(Component component) {
 		super(Translator.get("ComponentCopyAction.name"));
 		this.component = component;
-		putValue(Action.SMALL_ICON,new UnicodeIcon("📋"));
-		putValue(Action.SHORT_DESCRIPTION, Translator.get("ComponentCopyAction.shortDescription"));
-		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK) );
+		putValue(SMALL_ICON,new UnicodeIcon("📋"));
+		putValue(SHORT_DESCRIPTION, Translator.get("ComponentCopyAction.shortDescription"));
+		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK) );
 	}
 
 	@Override

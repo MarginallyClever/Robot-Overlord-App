@@ -26,9 +26,9 @@ public class SceneClearAction extends AbstractAction {
 	public SceneClearAction(RobotOverlord ro) {
 		super(Translator.get("SceneClearAction.name"));
 		this.ro = ro;
-		putValue(Action.SMALL_ICON,new UnicodeIcon("🌱"));
-		putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneClearAction.shortDescription"));
-		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
+		putValue(SMALL_ICON,new UnicodeIcon("🌱"));
+		putValue(SHORT_DESCRIPTION, Translator.get("SceneClearAction.shortDescription"));
+		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
 	}
 
 	@Override

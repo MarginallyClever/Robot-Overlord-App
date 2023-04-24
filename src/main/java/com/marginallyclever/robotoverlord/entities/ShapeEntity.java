@@ -219,7 +219,7 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("ShapeEntity",true);
+		view.startNewSubPanel("ShapeEntity",true);
 
 		ArrayList<FileFilter> filters = MeshFactory.getAllExtensions();
 		view.addFilename(filename,filters);
@@ -238,8 +238,6 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 
 		ViewElementButton reloadButton = view.addButton("Reload");
 		reloadButton.addActionEventListener((evt)-> reload() );
-		
-		view.popStack();
 
 		super.getView(view);
 	}

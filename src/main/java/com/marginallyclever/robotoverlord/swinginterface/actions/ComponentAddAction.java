@@ -3,9 +3,10 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.ComponentFactory;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.UnicodeIcon;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.ComponentDependency;
+import com.marginallyclever.robotoverlord.swinginterface.ComponentPanel;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.ComponentAddEdit;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
@@ -27,12 +28,13 @@ import java.util.List;
 public class ComponentAddAction extends AbstractAction {
 	private static final Logger logger = LoggerFactory.getLogger(ComponentAddAction.class);
 
-	protected final RobotOverlord robotOverlord;
+	protected final ComponentPanel componentPanel;
 
-	public ComponentAddAction(RobotOverlord robotOverlord) {
-		super(Translator.get("Add Component"));
-        putValue(SHORT_DESCRIPTION, Translator.get("Add a component to the world."));
-		this.robotOverlord = robotOverlord;
+	public ComponentAddAction(ComponentPanel componentPanel) {
+		super(Translator.get("ComponentAddAction.name"));
+		putValue(SMALL_ICON,new UnicodeIcon("+"));
+        putValue(SHORT_DESCRIPTION, Translator.get("ComponentAddAction.shortDescription"));
+		this.componentPanel = componentPanel;
 	}
 	
     /**
@@ -44,7 +46,7 @@ public class ComponentAddAction extends AbstractAction {
 
 		JComboBox<String> additionComboBox = buildComponentComboBox();
 		int result = JOptionPane.showConfirmDialog(
-				robotOverlord.getMainFrame(),
+				componentPanel,
 				additionComboBox, 
 				(String)this.getValue(AbstractAction.NAME), 
 				JOptionPane.OK_CANCEL_OPTION,
@@ -53,7 +55,7 @@ public class ComponentAddAction extends AbstractAction {
 			for(Entity parent : list) {
 				createInstanceOf(parent,additionComboBox.getItemAt(additionComboBox.getSelectedIndex()));
 			}
-			robotOverlord.updateComponentPanel();
+			componentPanel.refreshContentsFromClipboard();
 		}
     }
 
@@ -69,10 +71,10 @@ public class ComponentAddAction extends AbstractAction {
 			addComponentDependencies(parent,className);
 
 			Component newInstance = ComponentFactory.load(className);
-			if(newInstance != null) UndoSystem.addEvent(this,new ComponentAddEdit(robotOverlord,parent,newInstance));
+			if(newInstance != null) UndoSystem.addEvent(this,new ComponentAddEdit(componentPanel,parent,newInstance));
 		} catch (Exception e) {
 			String msg = "Failed to instance "+className+": "+e.getLocalizedMessage();
-			JOptionPane.showMessageDialog(robotOverlord.getMainFrame(),msg);
+			JOptionPane.showMessageDialog(componentPanel,msg);
 			logger.error(msg);
 		}
 	}
@@ -105,7 +107,7 @@ public class ComponentAddAction extends AbstractAction {
 				if(null==parent.findFirstComponent(c)) {
 					Component newInstance = ComponentFactory.createInstance(c);
 					if(null != newInstance) {
-						UndoSystem.addEvent(this,new ComponentAddEdit(robotOverlord,parent,newInstance));
+						UndoSystem.addEvent(this,new ComponentAddEdit(componentPanel,parent,newInstance));
 					} else throw new Exception("Failed to instance "+c.getCanonicalName());
 				}
 			}

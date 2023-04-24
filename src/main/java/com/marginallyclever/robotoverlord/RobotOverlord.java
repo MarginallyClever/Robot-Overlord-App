@@ -16,9 +16,7 @@ import com.marginallyclever.robotoverlord.swinginterface.SoundSystem;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
 import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
-import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
-import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityManagerPanel;
-import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanelEvent;
+import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanel;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.util.PropertiesFileHelper;
 import org.slf4j.Logger;
@@ -126,7 +124,7 @@ public class RobotOverlord extends Entity {
 	/**
 	 * Tree view of all Entities in the scene.
 	 */
-	private final EntityManagerPanel entityManagerPanel = new EntityManagerPanel();
+	private final EntityTreePanel entityTreePanel = new EntityTreePanel();
 
 	/**
 	 * Collated view of all components in all selected Entities.
@@ -171,8 +169,8 @@ public class RobotOverlord extends Entity {
 		layoutComponents();
 		renderPanel.startAnimationSystem();
 
-		entityManagerPanel.addEntity(scene);
-		scene.addSceneChangeListener(entityManagerPanel);
+		entityTreePanel.addEntity(scene);
+		scene.addSceneChangeListener(entityTreePanel);
 
 		addEntity(scene);
 
@@ -208,7 +206,7 @@ public class RobotOverlord extends Entity {
 	private JComponent buildEntityManagerPanel() {
         logger.info("buildEntityManagerPanel()");
 
-		return entityManagerPanel;
+		return entityTreePanel;
 	}
 
 	private void layoutComponents() {
@@ -216,7 +214,7 @@ public class RobotOverlord extends Entity {
 
 		// the right hand stuff
 		rightFrameSplitter.add(buildEntityManagerPanel());
-		rightFrameSplitter.add(new JScrollPane(componentPanel));
+		rightFrameSplitter.add(componentPanel);
 		// make sure the master panel can't be squished.
         Dimension minimumSize = new Dimension(360,300);
         rightFrameSplitter.setMinimumSize(minimumSize);
@@ -441,13 +439,13 @@ public class RobotOverlord extends Entity {
 	}
 
     private void updateSelectEntities() {
-		entityManagerPanel.setSelection(Clipboard.getSelectedEntities());
+		entityTreePanel.setSelection(Clipboard.getSelectedEntities());
 		renderPanel.updateSubjects(Clipboard.getSelectedEntities());
 		updateComponentPanel();
 	}
 
 	public void updateComponentPanel() {
-		componentPanel.refreshContents(Clipboard.getSelectedEntities());
+		componentPanel.refreshContentsFromClipboard();
 	}
 
 	public void confirmClose() {
@@ -504,7 +502,7 @@ public class RobotOverlord extends Entity {
 			}
 		}
 
-		entityManagerPanel.updateActionEnableStatus();
+		entityTreePanel.updateActionEnableStatus();
 	}
 
 	private void setupDropTarget() {

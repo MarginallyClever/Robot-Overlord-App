@@ -20,9 +20,9 @@ public class EntityPasteAction extends AbstractAction implements EditorAction {
 
     public EntityPasteAction() {
         super(Translator.get("EntityPasteAction.name"));
-        putValue(Action.SMALL_ICON,new UnicodeIcon("📎"));
-        putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityPasteAction.shortDescription"));
-        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK) );
+        putValue(SMALL_ICON,new UnicodeIcon("📎"));
+        putValue(SHORT_DESCRIPTION, Translator.get("EntityPasteAction.shortDescription"));
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK) );
     }
 
     @Override

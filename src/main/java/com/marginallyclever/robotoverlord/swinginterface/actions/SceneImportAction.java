@@ -41,13 +41,13 @@ public class SceneImportAction extends AbstractAction {
         super(Translator.get("SceneImportAction.name"));
         this.ro=ro;
         fc.setFileFilter(RobotOverlord.FILE_FILTER);
-        putValue(Action.SMALL_ICON,new UnicodeIcon("🗁"));
-        putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneImportAction.shortDescription"));
+        putValue(SMALL_ICON,new UnicodeIcon("🗁"));
+        putValue(SHORT_DESCRIPTION, Translator.get("SceneImportAction.shortDescription"));
     }
 
     public SceneImportAction(RobotOverlord ro,File preselectedFile) {
         this(ro);
-        putValue(Action.NAME, Translator.get("SceneImportAction.name")+" "+preselectedFile.getName());
+        putValue(NAME, Translator.get("SceneImportAction.name")+" "+preselectedFile.getName());
         this.preselectedFile = preselectedFile;
     }
 

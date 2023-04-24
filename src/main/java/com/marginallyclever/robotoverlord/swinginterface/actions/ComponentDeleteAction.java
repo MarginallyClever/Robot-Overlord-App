@@ -18,8 +18,8 @@ public class ComponentDeleteAction extends AbstractAction {
 		super(Translator.get("ComponentDeleteAction.name"));
 		this.ro = ro;
 		this.component = component;
-		putValue(Action.SHORT_DESCRIPTION, Translator.get("ComponentDeleteAction.shortDescription"));
-		putValue(Action.SMALL_ICON,new UnicodeIcon("🗑"));
+		putValue(SHORT_DESCRIPTION, Translator.get("ComponentDeleteAction.shortDescription"));
+		putValue(SMALL_ICON,new UnicodeIcon("🗑"));
 	}
 	
     /**

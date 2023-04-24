@@ -131,7 +131,7 @@ public class Skycam extends PoseEntity {
 		// supported file formats
 		fileFilter.add(new FileNameExtensionFilter("Skycam", "Skycam"));
 		
-		view.pushStack("robots/Sixi",true);
+		view.startNewSubPanel("robots/Sixi",true);
 		view.addButton("Go Home").addActionEventListener((evt)->{
 			model.goHome();
 			sim.setPoseTo(model.getPosition());
@@ -175,9 +175,7 @@ public class Skycam extends PoseEntity {
 		});
 		view.addButton("Run").addActionEventListener((evt)-> runProgram() );
 		view.addButton("Stop").addActionEventListener((evt)-> stopProgram() );
-		
-		view.popStack();
-		
+
 		sim.getView(view);
 		live.getView(view);
 		

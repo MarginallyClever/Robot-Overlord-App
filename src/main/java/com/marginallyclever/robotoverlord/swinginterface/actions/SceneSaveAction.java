@@ -29,9 +29,9 @@ public class SceneSaveAction extends AbstractAction implements ActionListener {
 		super(Translator.get("SceneSaveAction.name"));
 		this.ro = ro;
 		fc.setFileFilter(RobotOverlord.FILE_FILTER);
-		putValue(Action.SMALL_ICON,new UnicodeIcon("💾"));
-		putValue(Action.SHORT_DESCRIPTION, Translator.get("SceneSaveAction.shortDescription"));
-		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
+		putValue(SMALL_ICON,new UnicodeIcon("💾"));
+		putValue(SHORT_DESCRIPTION, Translator.get("SceneSaveAction.shortDescription"));
+		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
 	}
 
 	public static void setLastDirectory(String s) {

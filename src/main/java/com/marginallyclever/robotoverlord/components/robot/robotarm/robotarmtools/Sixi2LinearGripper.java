@@ -85,11 +85,10 @@ public class Sixi2LinearGripper extends Entity {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Gripper",true);
+		view.startNewSubPanel("Gripper",true);
 		view.addRange(angleNow, 100, 0);
 		view.addRange(angleMax, 180, 0);
 		view.addRange(angleMin, 180, 0);
-		view.popStack();
 		super.getView(view);
 	}
 

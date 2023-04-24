@@ -169,10 +169,9 @@ public class Scene extends Entity {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Sc", true);
+		view.startNewSubPanel("Sc", true);
 		view.add(scenePath).setReadOnly(true);
 		view.add(ambientLight);
-		view.popStack();
 	}
 
 	public void addEntityToParent(Entity parent, Entity entity) {

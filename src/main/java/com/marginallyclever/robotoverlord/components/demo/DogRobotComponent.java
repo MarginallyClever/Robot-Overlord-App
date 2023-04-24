@@ -126,17 +126,16 @@ public class DogRobotComponent extends RenderComponent {
     @Override
     public void getView(ViewPanel view) {
         super.getView(view);
-        view.pushStack("Config",false);
+        view.startNewSubPanel("Config",false);
         view.add(standingRadius);
         view.add(standingHeight);
         view.add(turningStrideLength);
         view.add(strideLength);
         view.add(strideHeight);
-        view.popStack();
-        view.pushStack("Gait",true);
+
+        view.startNewSubPanel("Gait",true);
         view.addComboBox(modeSelector, modeNames);
         view.add(speedScale);
-        view.popStack();
     }
 
     @Override

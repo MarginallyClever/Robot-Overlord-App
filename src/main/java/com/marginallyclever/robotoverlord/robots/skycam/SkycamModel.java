@@ -63,9 +63,8 @@ public class SkycamModel extends Entity {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Model",true);
+		view.startNewSubPanel("Model",true);
 		view.add(size);
-		view.popStack();
 		super.getView(view);
 	}
 	

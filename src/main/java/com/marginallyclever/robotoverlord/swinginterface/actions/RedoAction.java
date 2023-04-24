@@ -49,10 +49,10 @@ public class RedoAction extends AbstractAction {
     public void updateRedoState() {
         if (undo.canRedo()) {
             setEnabled(true);
-            putValue(Action.NAME, undo.getRedoPresentationName());
+            putValue(NAME, undo.getRedoPresentationName());
         } else {
             setEnabled(false);
-            putValue(Action.NAME, "Redo");
+            putValue(NAME, "Redo");
         }
     }
     

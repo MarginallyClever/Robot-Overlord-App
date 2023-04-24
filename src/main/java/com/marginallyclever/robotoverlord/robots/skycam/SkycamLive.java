@@ -49,9 +49,8 @@ public class SkycamLive extends Entity {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Live",true);
+		view.startNewSubPanel("Live",true);
 		view.add(connection);
-		view.popStack();
 		super.getView(view);
 	}
 	

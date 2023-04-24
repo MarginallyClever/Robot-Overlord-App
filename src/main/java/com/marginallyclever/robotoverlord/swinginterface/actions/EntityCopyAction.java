@@ -18,9 +18,9 @@ public class EntityCopyAction extends AbstractAction implements EditorAction {
 
     public EntityCopyAction() {
         super(Translator.get("EntityCopyAction.name"));
-        putValue(Action.SMALL_ICON,new UnicodeIcon("📋"));
-        putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityCopyAction.shortDescription"));
-        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK) );
+        putValue(SMALL_ICON,new UnicodeIcon("📋"));
+        putValue(SHORT_DESCRIPTION, Translator.get("EntityCopyAction.shortDescription"));
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK) );
     }
 
     @Override

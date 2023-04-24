@@ -14,7 +14,6 @@ import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Stack;
 
 /**
  * A factory that builds Swing elements for the entity editor
@@ -22,14 +21,14 @@ import java.util.Stack;
  * @since 1.6.0
  */
 public class ViewPanel extends ViewElement {
-	protected static class StackElement {
+
+	private static class StackElement {
 		public JComponent p;
 		public GridBagConstraints gbc;
 	}
-	
-	protected final Stack<StackElement> stack = new Stack<>();
-	protected StackElement se;
-	protected final JPanel contentPane = new JPanel();
+
+	private StackElement se;
+	private final JPanel contentPane = new JPanel();
 
 	private final RobotOverlord robotOverlord;
 
@@ -66,11 +65,9 @@ public class ViewPanel extends ViewElement {
 		se.gbc.fill = GridBagConstraints.HORIZONTAL;
 		se.gbc.gridwidth = GridBagConstraints.REMAINDER;
 		se.gbc.insets.set(1, 1, 1, 1);
-
-		stack.push(se);
 	}
 
-	public void pushStack(String name,boolean expanded) {
+	public void startNewSubPanel(String name, boolean expanded) {
 		pushStackShared();
 
 		CollapsiblePanel collapsiblePanel = new CollapsiblePanel(name);
@@ -81,7 +78,7 @@ public class ViewPanel extends ViewElement {
 		contentPane.add(collapsiblePanel);
 	}
 
-	public void pushStack(Component component) {
+	public void startNewSubPanel(Component component) {
 		pushStackShared();
 		setPopupMenu(component, se.p);
 
@@ -120,11 +117,7 @@ public class ViewPanel extends ViewElement {
 		panel.setComponentPopupMenu(popup);
 	}
 	
-	public void popStack() {
-		stack.pop();
-	}
-	
-	protected void pushViewElement(ViewElement c) {
+	private void pushViewElement(ViewElement c) {
 		se.gbc.gridy++;
 		se.p.add(c,se.gbc);
 	}

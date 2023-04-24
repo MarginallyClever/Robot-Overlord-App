@@ -110,7 +110,7 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Delta robot",true);
+		view.startNewSubPanel("Delta robot",true);
 		view.addButton("Go home").addActionEventListener((e)->goHome());
 		ViewElementButton bOpen = view.addButton("Open control panel");
 		bOpen.addActionEventListener((evt)-> onOpenAction() );
@@ -122,7 +122,6 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 		view.add(draw_elbow_star);
 		view.add(draw_wrist_star);
 
-		view.popStack();
 		super.getView(view);
 	}
 

@@ -366,7 +366,7 @@ public class RotaryStewartPlatform extends PoseEntity {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Rotary Stewart Platform",true);
+		view.startNewSubPanel("Rotary Stewart Platform",true);
 		view.add(connection);
 		view.addButton("GOTO EE").addActionEventListener((evt)->gotoPose());
 		view.addButton("GOTO ZERO").addActionEventListener((evt)->{
@@ -399,7 +399,7 @@ public class RotaryStewartPlatform extends PoseEntity {
 		});
 		view.addRange(velocity, 20, 1);
 		view.addRange(acceleration, 1000, 0);
-		view.popStack();
+
 		super.getView(view);
 	}
 	

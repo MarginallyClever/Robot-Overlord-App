@@ -26,8 +26,8 @@ public class EntityRenameAction extends AbstractAction implements EditorAction {
 	
 	public EntityRenameAction(JComponent parentComponent) {
 		super(Translator.get("EntityRenameAction.name"));
-		putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityRenameAction.shortDescription"));
-		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F2,0));
+		putValue(SHORT_DESCRIPTION, Translator.get("EntityRenameAction.shortDescription"));
+		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F2,0));
 		this.parentComponent = parentComponent;
 	}
 

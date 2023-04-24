@@ -251,7 +251,7 @@ public class LinearStewartPlatformCore extends PoseEntity {
 	
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Linear Stewart Platform",true);
+		view.startNewSubPanel("Linear Stewart Platform",true);
 		view.add(connection);
 		view.addButton("GOTO EE").addActionEventListener((evt)->gotoPose());
 		view.addButton("GOTO ZERO").addActionEventListener((evt)->{
@@ -284,8 +284,7 @@ public class LinearStewartPlatformCore extends PoseEntity {
 		});
 		view.addRange(velocity, 20, 1);
 		view.addRange(acceleration, 1000, 0);
-		view.popStack();
-		
+
 		super.getView(view);
 	}
 	

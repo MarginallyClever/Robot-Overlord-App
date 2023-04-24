@@ -29,8 +29,8 @@ public class EntityAddChildAction extends AbstractAction implements EditorAction
 	
 	public EntityAddChildAction(JComponent parentComponent) {
 		super(Translator.get("EntityAddChildAction.name"));
-		putValue(Action.SMALL_ICON,new UnicodeIcon("+"));
-		putValue(Action.SHORT_DESCRIPTION, Translator.get("EntityAddChildAction.shortDescription"));
+		putValue(SMALL_ICON,new UnicodeIcon("+"));
+		putValue(SHORT_DESCRIPTION, Translator.get("EntityAddChildAction.shortDescription"));
 		this.parentComponent = parentComponent;
 	}
 	

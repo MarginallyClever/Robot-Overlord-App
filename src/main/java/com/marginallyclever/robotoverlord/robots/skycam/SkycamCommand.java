@@ -29,7 +29,7 @@ public class SkycamCommand extends PoseEntity implements Cloneable, Serializable
 
 	@Override
 	public void getView(ViewPanel view) {
-		view.pushStack("Command",true);
+		view.startNewSubPanel("Command",true);
 		
 		view.addRange(feedrateSlider, (int)SkycamModel.MAX_FEEDRATE, 0);
 		view.addRange(accelerationSlider, (int)SkycamModel.MAX_ACCELERATION, 0);
@@ -46,7 +46,6 @@ public class SkycamCommand extends PoseEntity implements Cloneable, Serializable
 			if(e==null) return;
 			e.goTo(sc);
 		});
-		view.popStack();
 
 		super.getView(view);
 	}

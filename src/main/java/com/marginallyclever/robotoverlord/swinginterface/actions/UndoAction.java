@@ -42,10 +42,10 @@ public class UndoAction extends AbstractAction {
     public void updateUndoState() {
         if (undo.canUndo()) {
             setEnabled(true);
-            putValue(Action.NAME, undo.getUndoPresentationName());
+            putValue(NAME, undo.getUndoPresentationName());
         } else {
             setEnabled(false);
-            putValue(Action.NAME, "Undo");
+            putValue(NAME, "Undo");
         }
     }
     

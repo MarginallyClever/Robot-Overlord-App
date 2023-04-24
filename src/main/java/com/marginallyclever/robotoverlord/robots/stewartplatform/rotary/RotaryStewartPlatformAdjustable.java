@@ -67,7 +67,7 @@ public class RotaryStewartPlatformAdjustable extends RotaryStewartPlatform {
 
 	@Override
     public void getView(ViewPanel view) {
-		view.pushStack("Dimensions",true);
+		view.startNewSubPanel("Dimensions",true);
 		view.add(BASE_X);
 		view.add(BASE_Y);
 		view.add(BASE_Z);
@@ -76,7 +76,6 @@ public class RotaryStewartPlatformAdjustable extends RotaryStewartPlatform {
 		view.add(EE_Z);
 		view.add(BICEP_LENGTH);
 		view.add(ARM_LENGTH);
-		view.popStack();
 
         super.getView(view);
     }
