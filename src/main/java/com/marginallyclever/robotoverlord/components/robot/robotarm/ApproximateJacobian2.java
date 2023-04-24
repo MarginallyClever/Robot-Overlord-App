@@ -98,11 +98,13 @@ public class ApproximateJacobian2 {
 	// https://stackoverflow.com/a/53028167/1159440
 	private double[][] getInverseJacobian() {
 		int bones = myArm.getNumBones();
-		if (bones < 6)
-			return getInverseJacobianOverdetermined();
-		else
-			/* if(bones>=6) */ return getInverseJacobianUnderdetermined();
-		// else return MatrixHelper.invert(jacobian);
+
+		//if (bones < 6) return getInverseJacobianOverdetermined();
+		//else if(bones>=6) return getInverseJacobianUnderdetermined();
+		//else return MatrixHelper.invert(jacobian);
+
+		// new method
+		return getInverseJacobianDampedLeastSquares(0.0001);
 	}
 
 	// J_plus = J.transpose * (J*J.transpose()).inverse() // This is for
@@ -113,6 +115,20 @@ public class ApproximateJacobian2 {
 		double[][] ji = MatrixHelper.invert(mm);
 		return MatrixHelper.multiplyMatrices(jt, ji);
 	}
+
+	private double[][] getInverseJacobianDampedLeastSquares(double lambda) {
+		double[][] jt = MatrixHelper.transpose(jacobian);
+		double[][] jjt = MatrixHelper.multiplyMatrices(jacobian, jt);
+
+		// Add lambda^2 * identity matrix to jjt
+		for (int i = 0; i < jacobian.length; i++) {
+			jjt[i][i] += lambda * lambda;
+		}
+
+		double[][] jjt_inv = MatrixHelper.invert(jjt);
+		return MatrixHelper.multiplyMatrices(jt, jjt_inv);
+	}
+
 
 	// J_plus = (J.transpose()*J).inverse() * J.transpose()
 	private double[][] getInverseJacobianOverdetermined() {
