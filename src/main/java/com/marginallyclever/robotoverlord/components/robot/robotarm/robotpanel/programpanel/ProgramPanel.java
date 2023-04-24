@@ -86,7 +86,9 @@ public class ProgramPanel extends JPanel {
 				double[] jointValues = (double[]) temp.get(Robot.ALL_JOINT_VALUES);
 
 				// Create a new ProgramEvent with the FK joint values and add it to the list
-				insertWhereAppropriate(new ProgramEvent(jointValues));
+				ProgramEvent event = new ProgramEvent(jointValues);
+				event.setNickname("step "+i);
+				insertWhereAppropriate(event);
 			} catch (Exception e) {
 				logger.error("step "+i+": "+e.getMessage());
 			}
