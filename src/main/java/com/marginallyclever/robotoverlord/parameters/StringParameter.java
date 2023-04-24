@@ -41,6 +41,9 @@ public class StringParameter extends AbstractParameter<String> {
 	@Override
 	public void parseJSON(JSONObject jo) throws JSONException {
 		super.parseJSON(jo);
-		set(jo.getString("value"));
+		// if value is null it will not appear in the JSON.
+		if(jo.has("value")) {
+			set(jo.getString("value"));
+		}
 	}
 }
