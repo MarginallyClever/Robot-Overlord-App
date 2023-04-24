@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.RenderComponent;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
@@ -11,11 +12,14 @@ import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewElementSlider;
 import com.marginallyclever.robotoverlord.swinginterface.view.ViewPanel;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.filechooser.FileFilter;
 import javax.vecmath.Point3d;
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -194,5 +198,37 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
             now = nextPosition;
         }
         return null;
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject jo = super.toJSON();
+
+        Scene myScene = getScene();
+        if(myScene!=null) {
+            StringParameter newFilename = new StringParameter("File",myScene.removeScenePath(filename.get()));
+            jo.put("filename",newFilename.toJSON());
+        } else {
+            jo.put("filename",filename.toJSON());
+        }
+
+        return jo;
+    }
+
+    @Override
+    public void parseJSON(JSONObject jo) throws JSONException {
+        super.parseJSON(jo);
+
+        StringParameter newFilename = new StringParameter("File","");
+        newFilename.parseJSON(jo.getJSONObject("filename"));
+
+        String fn = newFilename.get();
+        if(!(new File(fn)).exists()) {
+            Scene myScene = getScene();
+            if(myScene!=null) {
+                newFilename.set(myScene.addScenePath(fn));
+            }
+        }
+        filename.set(newFilename.get());
     }
 }
