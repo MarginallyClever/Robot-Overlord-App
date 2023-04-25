@@ -85,7 +85,6 @@ public class Sixi2LinearGripper extends Entity {
 
 	@Deprecated
 	public void getView(ComponentPanelFactory view) {
-		view.startComponentPanel("Gripper",true);
 		view.addRange(angleNow, 100, 0);
 		view.addRange(angleMax, 180, 0);
 		view.addRange(angleMin, 180, 0);

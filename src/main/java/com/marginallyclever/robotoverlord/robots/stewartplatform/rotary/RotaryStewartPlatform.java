@@ -366,7 +366,6 @@ public class RotaryStewartPlatform extends PoseEntity {
 	
 	@Override
 	public void getView(ComponentPanelFactory view) {
-		view.startComponentPanel("Rotary Stewart Platform",true);
 		view.add(connection);
 		view.addButton("GOTO EE").addActionEventListener((evt)->gotoPose());
 		view.addButton("GOTO ZERO").addActionEventListener((evt)->{

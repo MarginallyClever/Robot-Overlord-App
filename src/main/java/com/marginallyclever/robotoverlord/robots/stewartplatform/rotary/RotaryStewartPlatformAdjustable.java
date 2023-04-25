@@ -67,7 +67,6 @@ public class RotaryStewartPlatformAdjustable extends RotaryStewartPlatform {
 
 	@Override
     public void getView(ComponentPanelFactory view) {
-		view.startComponentPanel("Dimensions",true);
 		view.add(BASE_X);
 		view.add(BASE_Y);
 		view.add(BASE_Z);
