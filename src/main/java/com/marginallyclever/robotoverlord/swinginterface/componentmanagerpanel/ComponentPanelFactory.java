@@ -56,26 +56,15 @@ public class ComponentPanelFactory extends ViewElement {
 		gbc.insets.set(1, 1, 1, 1);
 	}
 
-	public void startComponentPanel(String name, boolean expanded) {
-		startComponentPanelShared();
-
-		CollapsiblePanel collapsiblePanel = new CollapsiblePanel(name);
-		JPanel content = collapsiblePanel.getContentPane();
-		collapsiblePanel.setCollapsed(!expanded);
-		content.setLayout(new BorderLayout());
-		content.add(panelBeingBuilt, BorderLayout.CENTER);
-		contentPane.add(collapsiblePanel);
-	}
-
 	public void startComponentPanel(Component component) {
 		startComponentPanelShared();
-		setPopupMenu(component, panelBeingBuilt);
 
 		CollapsiblePanel collapsiblePanel = new CollapsiblePanel(component.getName());
 		JPanel content = collapsiblePanel.getContentPane();
 		collapsiblePanel.setCollapsed(!component.getExpanded());
 		content.setLayout(new BorderLayout());
 		content.add(panelBeingBuilt, BorderLayout.CENTER);
+		collapsiblePanel.setPreferredSize(new Dimension(100, 100));
 		contentPane.add(collapsiblePanel);
 
 		collapsiblePanel.addCollapeListener(new CollapsiblePanel.CollapseListener() {
@@ -89,21 +78,6 @@ public class ComponentPanelFactory extends ViewElement {
 				component.setExpanded(!collapsiblePanel.isCollapsed());
 			}
 		});
-	}
-
-	private void setPopupMenu(Component component,JComponent panel) {
-		JPopupMenu popup = new JPopupMenu();
-
-		ComponentDeleteAction componentDeleteAction = new ComponentDeleteAction(component, robotOverlord);
-		popup.add(componentDeleteAction);
-
-		ComponentCopyAction componentCopyAction = new ComponentCopyAction(component);
-		popup.add(componentCopyAction);
-
-		ComponentPasteAction componentPasteAction = new ComponentPasteAction();
-		popup.add(componentPasteAction);
-
-		panel.setComponentPopupMenu(popup);
 	}
 	
 	private void pushViewElement(ViewElement c) {

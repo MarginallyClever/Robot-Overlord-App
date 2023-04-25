@@ -1,9 +1,9 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.UnicodeIcon;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
 import com.marginallyclever.robotoverlord.swinginterface.edits.ComponentDeleteEdit;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
@@ -11,15 +11,18 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 public class ComponentDeleteAction extends AbstractAction {
-	private final RobotOverlord ro;
-	private final Component component;
+	private final ComponentManagerPanel componentManagerPanel;
+	private Component component;
 
-	public ComponentDeleteAction(Component component, RobotOverlord ro) {
+	public ComponentDeleteAction(ComponentManagerPanel componentManagerPanel) {
 		super(Translator.get("ComponentDeleteAction.name"));
-		this.ro = ro;
-		this.component = component;
-		putValue(SHORT_DESCRIPTION, Translator.get("ComponentDeleteAction.shortDescription"));
+		this.componentManagerPanel = componentManagerPanel;
 		putValue(SMALL_ICON,new UnicodeIcon("🗑"));
+		putValue(SHORT_DESCRIPTION, Translator.get("ComponentDeleteAction.shortDescription"));
+	}
+
+	public void setComponent(Component component) {
+		this.component = component;
 	}
 	
     /**
@@ -27,6 +30,6 @@ public class ComponentDeleteAction extends AbstractAction {
      */
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		UndoSystem.addEvent(this,new ComponentDeleteEdit(ro,component.getEntity(),component));
+		UndoSystem.addEvent(this,new ComponentDeleteEdit(componentManagerPanel,component.getEntity(),component));
     }
 }

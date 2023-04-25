@@ -15,14 +15,17 @@ import java.awt.event.KeyEvent;
  * Makes a deep copy of the selected {@link com.marginallyclever.robotoverlord.Entity}.
  */
 public class ComponentCopyAction extends AbstractAction implements EditorAction {
-	protected final Component component;
+	private Component component;
 
-	public ComponentCopyAction(Component component) {
+	public ComponentCopyAction() {
 		super(Translator.get("ComponentCopyAction.name"));
-		this.component = component;
 		putValue(SMALL_ICON,new UnicodeIcon("📋"));
 		putValue(SHORT_DESCRIPTION, Translator.get("ComponentCopyAction.shortDescription"));
 		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK) );
+	}
+
+	public void setComponent(Component component) {
+		this.component = component;
 	}
 
 	@Override

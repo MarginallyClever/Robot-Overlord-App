@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.swinginterface.edits;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -17,12 +18,12 @@ import javax.swing.undo.CannotUndoException;
 public class ComponentDeleteEdit extends AbstractUndoableEdit {
 	private final Entity entity;
 	private final Component component;
-	private final RobotOverlord ro;
+	private final ComponentManagerPanel componentManagerPanel;
 
-	public ComponentDeleteEdit(RobotOverlord ro, Entity entity, Component component) {
+	public ComponentDeleteEdit(ComponentManagerPanel componentManagerPanel, Entity entity, Component component) {
 		super();
 
-		this.ro = ro;
+		this.componentManagerPanel = componentManagerPanel;
 		this.entity = entity;
 		this.component = component;
 		
@@ -42,13 +43,13 @@ public class ComponentDeleteEdit extends AbstractUndoableEdit {
 	
 	protected void doIt() {
 		entity.removeComponent(component);
-		ro.updateComponentPanel();
+		componentManagerPanel.refreshContentsFromClipboard();
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
 		entity.addComponent(component);
-		ro.updateComponentPanel();
+		componentManagerPanel.refreshContentsFromClipboard();
 	}
 }
