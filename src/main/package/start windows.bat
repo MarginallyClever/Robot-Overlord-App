@@ -1,64 +1,45 @@
-:: special thanks to http://rgagnon.com/javadetails/java-0642.html
-:: http://stackoverflow.com/questions/638301/discover-from-a-batch-file-where-is-java-installed
-@ECHO off
-cls
-setlocal ENABLEEXTENSIONS
-::
-:: get the current java version
-::
+@echo off
+setlocal enabledelayedexpansion
 
-:CheckOS
-
-IF EXIST "%PROGRAMFILES(X86)%" (GOTO 64bit) ELSE (GOTO 32bit)
-
-:64bit
-@ECHO 64 bit Windows
-FOR /F "skip=2 tokens=2*" %%A IN ('REG QUERY "HKLM\Software\Wow6432Node\JavaSoft\JDK" /v CurrentVersion') DO set CurVer=%%B
-IF DEFINED "%CurVer%" (GOTO 32in64) ELSE (GOTO 64in64)
-
-:32in64
-@ECHO 32 bit Java installed on 64 bit Windows.  Whoops?
-FOR /F "skip=2 tokens=2*" %%A IN ('REG QUERY "HKLM\Software\Wow6432Node\JavaSoft\JDK\%CurVer%" /v JavaHome') DO set JAVA_HOME=%%B
-GOTO endos
-
-:64in64
-@ECHO 64 bit Java installed.
-FOR /F "skip=2 tokens=2*" %%A IN ('REG QUERY "HKLM\Software\JavaSoft\JDK" /v CurrentVersion') DO set CurVer=%%B
-FOR /F "skip=2 tokens=2*" %%A IN ('REG QUERY "HKLM\Software\JavaSoft\JDK\%CurVer%" /v JavaHome') DO set JAVA_HOME=%%B
-GOTO endos
-
-:32bit
-@ECHO 32 bit Windows
-FOR /F "skip=2 tokens=2*" %%A IN ('REG QUERY "HKLM\Software\JavaSoft\JDK" /v CurrentVersion') DO set CurVer=%%B
-FOR /F "skip=2 tokens=2*" %%A IN ('REG QUERY "HKLM\Software\JavaSoft\JDK\%CurVer%" /v JavaHome') DO set JAVA_HOME=%%B
-
-:endos
-IF DEFINED JAVA_HOME (
-  @ECHO The current Java runtime is %CurVer%
-) ELSE (
-  @ECHO Java not found.  Please recheck or reinstall Java and try again.
-  GOTO end
+:: Detect system architecture and set Java executable path
+if "%PROCESSOR_ARCHITECTURE%"=="x86" (
+    set JAVA_EXE=java.exe
+) else (
+    if exist "%ProgramFiles(x86)%\Java\jre*\bin\java.exe" (
+        set JAVA_EXE="%ProgramFiles(x86)%\Java\jre*\bin\java.exe"
+    ) else (
+        set JAVA_EXE=java.exe
+    )
 )
 
-@ECHO finding the latest RobotOverlord JAR...
-FOR %%G in (RobotOverlord*.jar) DO SET RobotOverlord=%%G & GOTO continue
-
-
-IF NOT DEFINED "%RobotOverlord%" (
-  @ECHO File not found.
-  GOTO end
+:: Check if Java is installed
+where %JAVA_EXE% >nul 2>nul
+if errorlevel 1 (
+    echo Java is not installed. Please install Java 15 or later.
+    pause
+    exit /b 1
 )
 
-:continue
-@ECHO Found %RobotOverlord%
+:: Get Java version
+for /f "tokens=3" %%g in ('%JAVA_EXE% -version 2^>^&1 ^| findstr /i "version"') do set JAVA_VERSION=%%g
+echo Java version: %JAVA_VERSION%
 
-:: -Dsun.java2d.dpiaware=false may also help on some monitors
-@ECHO "%JAVA_HOME%\bin\java.exe" -jar "%RobotOverlord%"
-"%JAVA_HOME%\bin\java.exe" -jar "%RobotOverlord%"
-GOTO endQuiet
+:: Check if the Java version is at least 15
+for /f "tokens=1 delims=." %%a in ("%JAVA_VERSION%" ) do set MAJOR_VERSION=%%a
+if %MAJOR_VERSION% lss 15 (
+    echo The installed Java version is too old. Please update to at least Java 15.
+    pause
+    exit /b 1
+)
 
-:end
-@pause
+:: Find and run the JAR file
+set JAR_FILE=
+for %%f in (RobotOverlord*-with-dependencies.jar) do set JAR_FILE=%%f
 
-:endQuiet
-@pause
+if not "%JAR_FILE%"=="" (
+    echo Running JAR file: %JAR_FILE%
+    %JAVA_EXE% -jar %JAR_FILE%
+) else (
+    echo No matching JAR file found.
+)
+pause
