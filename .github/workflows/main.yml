@@ -1,10 +1,10 @@
 name: Java CI with Maven
 
 env:
-  # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases
-  # in your browser and copy the full "upload_url" value including the {?name,label} part
-  UPLOAD_URL: https://uploads.github.com/repos/MarginallyClever/Robot-Overlord-App/releases/54282447/assets{?name,label}
-  RELEASE_ID: 54282447 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+  # find out this value by opening `https://api.github.com/repos/<owner>/<repo>/releases`.  then find the correct release.
+  # in your browser and copy the full "upload_url" value including the {?name,label} part.
+  UPLOAD_URL: https://uploads.github.com/repos/MarginallyClever/Robot-Overlord-App/releases/28206919/assets{?name,label}
+  RELEASE_ID: 28206919 # same as above (id can just be taken out the upload_url, it's used to find old releases)
 
 on:
   push:
