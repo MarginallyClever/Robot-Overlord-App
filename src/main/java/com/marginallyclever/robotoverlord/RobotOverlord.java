@@ -179,6 +179,7 @@ public class RobotOverlord extends Entity {
 		action.addDefaultEntities();
 
 		listenToClipboardChanges();
+		updateActionEnableStatus();
 
 		logger.info("** READY **");
     }

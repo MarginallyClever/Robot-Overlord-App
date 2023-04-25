@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.UnicodeIcon;
+import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
@@ -9,13 +10,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 public class EntityCutAction extends AbstractAction implements EditorAction {
-    private final EntityDeleteAction removeAction;
-    private final EntityCopyAction copyAction;
+    private final EntityDeleteAction entityDeleteAction;
+    private final EntityCopyAction entityCopyAction;
 
-    public EntityCutAction(EntityDeleteAction removeAction, EntityCopyAction copyAction) {
+    public EntityCutAction(EntityDeleteAction entityDeleteAction, EntityCopyAction entityCopyAction) {
         super(Translator.get("EntityCutAction.name"));
-        this.removeAction = removeAction;
-        this.copyAction = copyAction;
+        this.entityDeleteAction = entityDeleteAction;
+        this.entityCopyAction = entityCopyAction;
         putValue(SMALL_ICON,new UnicodeIcon("✂"));
         putValue(SHORT_DESCRIPTION, Translator.get("EntityCutAction.shortDescription"));
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK) );
@@ -23,12 +24,12 @@ public class EntityCutAction extends AbstractAction implements EditorAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        copyAction.actionPerformed(e);
-        removeAction.actionPerformed(e);
+        entityCopyAction.actionPerformed(e);
+        entityDeleteAction.actionPerformed(e);
     }
 
     @Override
     public void updateEnableStatus() {
-        setEnabled(removeAction.isEnabled());
+        setEnabled(!Clipboard.getSelectedEntities().isEmpty());
     }
 }
