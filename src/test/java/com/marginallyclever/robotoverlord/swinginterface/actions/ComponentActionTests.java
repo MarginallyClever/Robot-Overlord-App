@@ -32,7 +32,8 @@ public class ComponentActionTests {
 
         // select the first entity and copy the first component
         Clipboard.setSelectedEntity(entityA);
-        ComponentCopyAction copyAction = new ComponentCopyAction(entityA.getComponent(0));
+        ComponentCopyAction copyAction = new ComponentCopyAction();
+        copyAction.setComponent(entityA.getComponent(0));
         copyAction.actionPerformed(null);
 
         // select the second entity and paste.
