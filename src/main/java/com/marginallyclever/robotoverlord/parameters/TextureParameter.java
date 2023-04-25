@@ -83,19 +83,6 @@ public class TextureParameter extends StringParameter {
 		super.set(s);
 		textureDirty=true;
 	}
-	
-	@Override
-	public void getView(ComponentPanelFactory view) {
-		//TODO Swing elements like FileFilter should not be mentioned outside of the componentpanel.
-		ArrayList<FileFilter> filters = new ArrayList<>();
-		// supported file formats
-		filters.add(new FileNameExtensionFilter("PNG", "png"));
-		filters.add(new FileNameExtensionFilter("BMP", "bmp"));
-		filters.add(new FileNameExtensionFilter("JPEG", "jpeg","jpg"));
-		filters.add(new FileNameExtensionFilter("TGA", "tga"));
-
-		view.addFilename(this,filters);
-	}
 
 	public String getTextureFilename() {
 		for (Map.Entry<String, Texture> entry : texturePool.entrySet()) {

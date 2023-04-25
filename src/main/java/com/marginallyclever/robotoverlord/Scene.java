@@ -166,10 +166,9 @@ public class Scene extends Entity {
 		// no intersection
 		return false;
 	}
-	
-	@Override
+
+	@Deprecated
 	public void getView(ComponentPanelFactory view) {
-		view.startComponentPanel("Sc", true);
 		view.add(scenePath).setReadOnly(true);
 		view.add(ambientLight);
 	}

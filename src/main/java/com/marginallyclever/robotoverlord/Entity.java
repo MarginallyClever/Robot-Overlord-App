@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -227,19 +228,6 @@ public class Entity implements PropertyChangeListener {
 		} while (e != null);
 
 		return sum.toString();
-	}
-
-	/**
-	 * Explains to View in abstract terms the control interface for this entity.
-	 * Derivatives of View implement concrete versions of that componentpanel.
-	 * 
-	 * @param view the panel to decorate
-	 */
-	public void getView(ComponentPanelFactory view) {
-		for(Component component : components) {
-			view.startComponentPanel(component);
-			component.getView(view);
-		}
 	}
 
 	@Override

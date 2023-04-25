@@ -44,17 +44,6 @@ public class Vector3DParameter extends AbstractParameter<Vector3d> {
 		return getName()+"="+t.toString();
 	}
 	
-	
-	/**
-	 * Explains to View in abstract terms the control interface for this entity.
-	 * Derivatives of View implement concrete versions of that componentpanel.
-	 * @param view the panel to decorate
-	 */
-	@Override
-	public void getView(ComponentPanelFactory view) {
-		view.add(this);
-	}
-
 	@Override
 	public JSONObject toJSON() {
 		JSONObject jo = super.toJSON();

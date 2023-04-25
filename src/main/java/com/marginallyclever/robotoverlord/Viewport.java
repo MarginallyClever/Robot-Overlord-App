@@ -250,14 +250,12 @@ public class Viewport extends Entity {
 		return fieldOfView.get();
 	}
 
-	@Override
+	@Deprecated
 	public void getView(ComponentPanelFactory view) {
-		view.startComponentPanel("Viewport",true);
 		view.add(drawOrthographic);
 		view.add(farZ);
 		view.add(nearZ);
 		view.add(fieldOfView);
-		super.getView(view);
 	}
 
 	public double [] getCursor() {

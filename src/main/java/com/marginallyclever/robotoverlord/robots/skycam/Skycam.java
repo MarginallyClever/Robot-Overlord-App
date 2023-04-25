@@ -124,8 +124,8 @@ public class Skycam extends PoseEntity {
 			}
 		}
 	}
-	
-	@Override
+
+	@Deprecated
 	public void getView(ComponentPanelFactory view) {
 		ArrayList<FileFilter> fileFilter = new ArrayList<>();
 		// supported file formats
@@ -176,7 +176,6 @@ public class Skycam extends PoseEntity {
 		view.addButton("Run").addActionEventListener((evt)-> runProgram() );
 		view.addButton("Stop").addActionEventListener((evt)-> stopProgram() );
 
-		sim.getView(view);
 		live.getView(view);
 		
 		model.getView(view);

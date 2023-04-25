@@ -47,11 +47,9 @@ public class SkycamLive extends Entity {
 		waitingForOpenConnection = true;
 	}
 
-	@Override
+	@Deprecated
 	public void getView(ComponentPanelFactory view) {
-		view.startComponentPanel("Live",true);
 		view.add(connection);
-		super.getView(view);
 	}
 	
 	@Override

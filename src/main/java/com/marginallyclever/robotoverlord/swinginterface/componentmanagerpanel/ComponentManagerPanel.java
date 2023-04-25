@@ -65,8 +65,14 @@ public class ComponentManagerPanel extends JPanel {
 		}
 	}
 
-	private void buildSingleEntityPanel(ComponentPanelFactory panel, Entity entity) {
-		if(entity != null) entity.getView(panel);
+	private void buildSingleEntityPanel(ComponentPanelFactory factory, Entity entity) {
+		if(entity == null) return;
+
+		for(int i=0;i<entity.getComponentCount();++i) {
+			Component component = entity.getComponent(i);
+			factory.startComponentPanel(component);
+			component.getView(factory);
+		}
 	}
 
 	private void buildMultipleEntityPanel(ComponentPanelFactory panel, List<Entity> entityList) {

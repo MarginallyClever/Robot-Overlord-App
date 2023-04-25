@@ -35,7 +35,6 @@ public class Component {
      */
     public void getView(ComponentPanelFactory view) {
         view.add(enabled);
-        // TODO enumerate all public AbstractEntity?
     }
 
     public Entity getEntity() {

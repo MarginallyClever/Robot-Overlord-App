@@ -24,11 +24,6 @@ public class IntParameter extends AbstractParameter<Integer> {
 	public String toString() {
 		return getName()+"="+t.toString();
 	}
-	
-	@Override
-	public void getView(ComponentPanelFactory view) {
-		view.add(this);
-	}
 
 	@Override
 	public JSONObject toJSON() {

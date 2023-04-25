@@ -11,7 +11,10 @@ import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.C
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.File;
+import java.util.ArrayList;
 
 public class MaterialComponent extends Component {
     private final ColorParameter ambient    = new ColorParameter("Ambient" ,1,1,1,1);
@@ -35,7 +38,19 @@ public class MaterialComponent extends Component {
         view.add(diffuse );
         view.add(specular);
         view.addRange(shininess, 128, 0);
-        texture.getView(view);
+        getViewOfTexture(view);
+    }
+
+    private void getViewOfTexture(ComponentPanelFactory view) {
+        ArrayList<FileFilter> filters = new ArrayList<>();
+        // supported file formats
+        filters.add(new FileNameExtensionFilter("PNG", "png"));
+        filters.add(new FileNameExtensionFilter("BMP", "bmp"));
+        filters.add(new FileNameExtensionFilter("JPEG", "jpeg","jpg"));
+        filters.add(new FileNameExtensionFilter("TGA", "tga"));
+
+        view.addFilename(texture,filters);
+
         texture.addPropertyChangeListener((e)->{
             Scene myScene = getScene();
             if(myScene!=null) {

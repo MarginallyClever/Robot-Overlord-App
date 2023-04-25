@@ -61,11 +61,9 @@ public class SkycamModel extends Entity {
 		super.render(gl2);
 	}
 
-	@Override
+	@Deprecated
 	public void getView(ComponentPanelFactory view) {
-		view.startComponentPanel("Model",true);
 		view.add(size);
-		super.getView(view);
 	}
 	
 	public SkycamCursor createPose() {

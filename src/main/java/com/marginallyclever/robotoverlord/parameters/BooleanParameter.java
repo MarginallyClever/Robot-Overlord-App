@@ -30,17 +30,6 @@ public class BooleanParameter extends AbstractParameter<Boolean> {
 	public void toggle() {
 		set(!get());
 	}
-	
-	
-	/**
-	 * Explains to View in abstract terms the control interface for this entity.
-	 * Derivatives of View implement concrete versions of that componentpanel.
-	 * @param view the panel to decorate
-	 */
-	@Override
-	public void getView(ComponentPanelFactory view) {
-		view.add(this);
-	}
 
 	@Override
 	public JSONObject toJSON() {

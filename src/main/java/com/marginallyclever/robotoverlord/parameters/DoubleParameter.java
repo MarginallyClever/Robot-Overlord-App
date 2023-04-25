@@ -36,11 +36,6 @@ public class DoubleParameter extends AbstractParameter<Double> {
 	public String toString() {
 		return getName()+"="+StringHelper.formatDouble(t);
 	}
-	
-	@Override
-	public void getView(ComponentPanelFactory view) {
-		view.add(this);
-	}
 
 	@Override
 	public JSONObject toJSON() {

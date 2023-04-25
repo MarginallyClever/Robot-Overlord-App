@@ -126,12 +126,7 @@ public class SkycamSim extends Entity {
 		}		
 		super.render(gl2);
 	}
-	
-	@Override
-	public void getView(ComponentPanelFactory view) {
-		super.getView(view);
-	}
-	
+
 	public Vector3d getPoseTo() {
 		return poseTo;
 	}

@@ -57,17 +57,6 @@ public class ColorParameter extends AbstractParameter<double[]> {
 		return getName()+"="+Arrays.toString(get());
 	}
 	
-	
-	/**
-	 * Explains to View in abstract terms the control interface for this entity.
-	 * Derivatives of View implement concrete versions of that componentpanel.
-	 * @param view the panel to fill.
-	 */
-	@Override
-	public void getView(ComponentPanelFactory view) {
-		view.add(this);
-	}
-
 	@Override
 	public JSONObject toJSON() {
 		JSONObject jo = super.toJSON();

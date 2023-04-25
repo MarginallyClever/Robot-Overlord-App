@@ -403,8 +403,8 @@ public class PoseEntity extends Entity {
 		}
 		showLineage.set(arg0);
 	}
-	
-	@Override
+
+	@Deprecated
 	public void getView(ComponentPanelFactory view) {
 		view.startComponentPanel("Pose",true);
 		
