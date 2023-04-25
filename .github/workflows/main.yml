@@ -1,28 +1,28 @@
 name: Java CI with Maven
 
+env:
+  # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases
+  # in your browser and copy the full "upload_url" value including the {?name,label} part
+  UPLOAD_URL: https://uploads.github.com/repos/MarginallyClever/Robot-Overlord-App/releases/54282447/assets{?name,label}
+  RELEASE_ID: 54282447 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+
 on:
   push:
+    branches:
+      - master
+  pull_request:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v3.3.0
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3.10.0
+    - uses: actions/setup-java@v3.9.0
       with:
-        java-version: 17
-        distribution: microsoft
-
-    # from https://github.com/marketplace/actions/cache
-    - name: Cache Maven packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
+        distribution: 'temurin'
+        java-version: '17'
+        cache: 'maven'
 
     # from https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
     - name: Build and Test with Maven
@@ -32,22 +32,85 @@ jobs:
     - name: Package with Maven
       run: ./mvnw -B clean package -DskipTests
 
-    - name: Prepare package for release
-      if: github.ref == 'refs/heads/master'
-      run: mv ./target/RobotOverlord-*-with-dependencies.jar ./target/to-upload.jar
-
-    # from https://github.com/marketplace/actions/deploy-nightly
-    - name: Deploy Windows release
+    - name: Prepare universal package
+      shell: bash
+      run: |
+        mkdir -p target/universal-package &&
+        cp src/main/package/*.bat src/main/package/start* target/universal-package/ &&
+        cp CONTRIBUTING.md LICENSE README.md target/universal-package/ &&
+        cp target/RobotOverlord-*-with-dependencies.jar target/universal-package/ &&
+        cd target/universal-package/ &&
+        7z a -tzip RobotOverlord.zip . &&
+        mv RobotOverlord.zip ../..
+    - name: Deploy universal release
+      if: github.repository == 'MarginallyClever/Robot-Overlord-App' && github.ref == 'refs/heads/master'
       uses: WebFreak001/deploy-nightly@v2.0.0
-      if: github.ref == 'refs/heads/master'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
       with:
-        # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases
-        # in your browser and copy the full "upload_url" value including the {?name,label} part
-        upload_url: https://uploads.github.com/repos/MarginallyClever/Robot-Overlord-App/releases/28206919/assets{?name,label}
-        release_id: 28206919 # same as above (id can just be taken out the upload_url, it's used to find old releases)
-        asset_path: ./target/to-upload.jar # path to archive to upload
-        asset_name: robot-overlord-nightly-$$.jar # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+        upload_url: ${{ env.UPLOAD_URL }}
+        release_id: ${{ env.RELEASE_ID }}{
+        asset_path: RobotOverlord.zip # path to archive to upload
+        asset_name: RobotOverlord-nightly-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
         asset_content_type: application/zip # required by GitHub API
-        max_releases: 7 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+        max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+
+    - name: Upload artifact for package
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        name: jar
+        retention-days: 1
+        path: |
+          src/main/package/jpackage*
+          src/main/package/logo*
+          LICENSE
+          target/package/*
+  package:
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    steps:
+    - uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - uses: actions/download-artifact@v3.0.2
+      with:
+        name: jar
+
+    - name: Build installation package
+      shell: bash
+      run: |
+        set -x
+        set -o pipefail
+        APP_VERSION=$(ls -1 target/package/RobotOverlord-*-with-dependencies.jar | sed "s/.*RobotOverlord-\([^-]*\)-with-dependencies.jar/\1/") &&
+        sed -i.bak "s/\(--app-version\).*/\1 $APP_VERSION/" src/main/package/jpackage.cfg &&
+        jpackage "@src/main/package/jpackage.cfg" "@src/main/package/jpackage-${{matrix.os}}.cfg" --main-jar "RobotOverlord-$APP_VERSION-with-dependencies.jar" &&
+        ls &&
+        BINARY=$(find . -maxdepth 1 -iname 'robotoverlord*' | grep -E '(msi$|dmg$|deb$)' | sed "s,./,," | head -1) &&
+        BINARY_NIGHTLY=$(echo $BINARY | sed 's/\(.*\)\.\(.*\)/\1-nightly-$$.\2/') &&
+        echo "BINARY=$BINARY" | tee -a $GITHUB_ENV &&
+        echo "BINARY_NIGHTLY=$BINARY_NIGHTLY" | tee -a $GITHUB_ENV
+    - name: Deploy installation release
+      if: github.repository == 'MarginallyClever/Robot-Overlord-App' && github.ref == 'refs/heads/master'
+      uses: WebFreak001/deploy-nightly@v2.0.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+      with:
+        upload_url: ${{ env.UPLOAD_URL }}
+        release_id: ${{ env.RELEASE_ID }}
+        asset_path: ${{ env.BINARY }} # path to archive to upload
+        asset_name: ${{ env.BINARY_NIGHTLY }} # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+        asset_content_type: application/zip # required by GitHub API
+        max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+
+    - name: Upload artifact for testing purpose
+#      if: github.repository == 'MarginallyClever/Robot-Overlord-App' || github.ref != 'refs/heads/master'
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        name: ${{ env.BINARY }}
+        retention-days: 2
+        path: ${{ env.BINARY }}
