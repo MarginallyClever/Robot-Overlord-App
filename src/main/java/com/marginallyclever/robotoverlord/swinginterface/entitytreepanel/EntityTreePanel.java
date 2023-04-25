@@ -10,17 +10,11 @@ import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanel;
 
 import javax.swing.*;
-import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.event.TreeWillExpandListener;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
+import javax.swing.event.*;
+import javax.swing.tree.*;
+import javax.swing.undo.UndoManager;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,26 +25,26 @@ import java.util.List;
  *
  */
 public class EntityTreePanel extends JPanel implements TreeSelectionListener, SceneChangeListener {
-	private final JTree myTree = new JTree();
+	private final JTree tree = new JTree();
+	private final DefaultTreeModel treeModel = new EntityTreeModel(null);
 	private final List<EntityTreePanelListener> listeners = new ArrayList<>();
 	private final List<AbstractAction> actions = new ArrayList<>();
-	private JPopupMenu popupMenu = null;
-
 
 	public EntityTreePanel() {
 		super(new BorderLayout());
 
-		myTree.setShowsRootHandles(true);
-		myTree.addTreeSelectionListener(this);
-		myTree.removeAll();
-		myTree.setModel(new DefaultTreeModel(null));
-		myTree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+		tree.setShowsRootHandles(true);
+		tree.addTreeSelectionListener(this);
+		tree.setCellEditor(new EntityTreeCellEditor(tree,new DefaultTreeCellRenderer()));
+		tree.setEditable(true);
+		tree.setModel(treeModel);
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 		addMouseListener();
 		addExpansionListener();
 
-		myTree.setDragEnabled(true);
-		myTree.setDropMode(DropMode.ON_OR_INSERT);
-		myTree.setTransferHandler(new EntityTreeTransferHandler());
+		tree.setDragEnabled(true);
+		tree.setDropMode(DropMode.ON_OR_INSERT);
+		tree.setTransferHandler(new EntityTreeTransferHandler());
 
 		addEntityTreePanelListener((e)-> {
 			if (e.eventType == EntityTreePanelEvent.SELECT) {
@@ -59,9 +53,74 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 		});
 
 		JScrollPane scroll = new JScrollPane();
-		scroll.setViewportView(myTree);
+		scroll.setViewportView(tree);
 		this.add(scroll,BorderLayout.CENTER);
 		this.add(createMenu(),BorderLayout.NORTH);
+
+		// Set up keyboard shortcuts
+		InputMap inputMap = tree.getInputMap(JComponent.WHEN_FOCUSED);
+		ActionMap actionMap = tree.getActionMap();
+
+		// Ctrl+X
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK), "cut");
+		actionMap.put("cut", TransferHandler.getCutAction());
+
+		// Ctrl+C
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK), "copy");
+		actionMap.put("copy", TransferHandler.getCopyAction());
+
+		// Ctrl+V
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK), "paste");
+		actionMap.put("paste", TransferHandler.getPasteAction());
+
+		treeModel.addTreeModelListener(new TreeModelListener() {
+			@Override
+			public void treeNodesChanged(TreeModelEvent e) {
+				// find the Entity associated with this node and rename the entity.
+				TreeNode node = (TreeNode) e.getTreePath().getLastPathComponent();
+				if (node instanceof EntityTreeNode) {
+					EntityTreeNode etn = (EntityTreeNode) node;
+					etn.getEntity().setName(etn.toString());
+				}
+			}
+
+			@Override
+			public void treeNodesInserted(TreeModelEvent e) {
+				for(Object obj : e.getPath()) {
+					TreeNode parentNode = (TreeNode) obj;
+					if(parentNode instanceof EntityTreeNode) {
+						TreeNode node = (TreeNode) e.getTreePath().getLastPathComponent();
+						if (node instanceof EntityTreeNode) {
+							Entity child = ((EntityTreeNode) node).getEntity();
+							Entity parent = ((EntityTreeNode) parentNode).getEntity();
+							parent.addEntity(child);
+						}
+					}
+				}
+			}
+
+			@Override
+			public void treeNodesRemoved(TreeModelEvent e) {
+				// find the Entity associated with this node, remove it from the scene.
+				TreeNode node = (TreeNode) e.getTreePath().getLastPathComponent();
+				if (node instanceof EntityTreeNode) {
+					EntityTreeNode etn = (EntityTreeNode) node;
+					etn.getEntity().setParent(null);
+				}
+			}
+
+			@Override
+			public void treeStructureChanged(TreeModelEvent e) {
+				Object [] list = e.getPath();
+				if(list.length==1) {
+					if(treeModel.getRoot() != list[0]) {
+						Entity parent = ((EntityTreeNode) list[0]).getEntity();
+						Entity child =  ((EntityTreeNode) e.getTreePath().getLastPathComponent()).getEntity();
+						parent.addEntity(child);
+					}
+				}
+			}
+		});
 	}
 
 	private JComponent createMenu() {
@@ -117,14 +176,14 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 			TreePath[] paths = new TreePath[pathList.size()];
 			pathList.toArray(paths);
 
-			myTree.setSelectionPaths(paths);
+			tree.setSelectionPaths(paths);
 		} else {
-			myTree.clearSelection();
+			tree.clearSelection();
 		}
 	}
 
 	private EntityTreeNode findTreeNode(Entity e) {
-		EntityTreeNode root = ((EntityTreeNode)myTree.getModel().getRoot());
+		EntityTreeNode root = ((EntityTreeNode)treeModel.getRoot());
 		if(root==null) return null;
 
 		List<TreeNode> list = new ArrayList<>();
@@ -158,11 +217,11 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 			if(!n.isLeaf()) {
 				TreePath path = new TreePath(n.getPath());
 				if (e.getExpanded()) {
-					myTree.expandPath(path);
+					tree.expandPath(path);
 					// only expand children if the parent is also expanded.
 					list.addAll(Collections.list(n.children()));
 				} else {
-					myTree.collapsePath(path);
+					tree.collapsePath(path);
 				}
 			}
 		}
@@ -184,8 +243,8 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 			}
 		} else {
 			EntityTreeNode newNode = new EntityTreeNode(me);
-			myTree.setModel(new DefaultTreeModel(newNode));
-			setNodeExpandedState((EntityTreeNode)myTree.getModel().getRoot());
+			treeModel.setRoot(newNode);
+			setNodeExpandedState((EntityTreeNode) treeModel.getRoot());
 		}
 	}
 
@@ -196,7 +255,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 			if(parent!=null) {
 				parent.remove(node);
 			} else {
-				myTree.setModel(new DefaultTreeModel(null));
+				treeModel.setRoot(null);
 			}
 		}
 	}
@@ -204,44 +263,29 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 	private void addMouseListener() {
 		// clicking on empty part of tree unselects the rest.
 		// https://coderanch.com/t/518163/java/Deselect-nodes-JTree-user-clicks
-		myTree.addMouseListener(new MouseAdapter() {
+		tree.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				super.mouseClicked(e);
-				int row = myTree.getRowForLocation(e.getX(), e.getY());
+				int row = tree.getRowForLocation(e.getX(), e.getY());
 				if (row == -1) {
 					// When user clicks on the "empty surface"
-					myTree.clearSelection();
+					tree.clearSelection();
 				} else {
-					myTree.setSelectionRow(row);
-					if(e.getClickCount()==2){
-						// TODO rename in place for convenience
+					tree.setSelectionRow(row);
+					if(e.getClickCount()==2) {
+						TreePath path = tree.getPathForLocation(e.getX(), e.getY());
+						if (path != null) {
+							tree.startEditingAtPath(path);
+						}
 					}
-				}
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-				super.mousePressed(e);
-				maybePopup(e);
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				super.mouseReleased(e);
-				maybePopup(e);
-			}
-
-			private void maybePopup(MouseEvent e) {
-				if (e.isPopupTrigger()) {
-					if (popupMenu != null) popupMenu.show(e.getComponent(), e.getX(), e.getY());
 				}
 			}
 		});
 	}
 
 	private void addExpansionListener() {
-		myTree.addTreeWillExpandListener(new TreeWillExpandListener() {
+		tree.addTreeWillExpandListener(new TreeWillExpandListener() {
 			@Override
 			public void treeWillExpand(TreeExpansionEvent event) {
 				EntityTreeNode node = (EntityTreeNode)event.getPath().getLastPathComponent();
@@ -262,7 +306,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 	@Override
 	public void valueChanged(TreeSelectionEvent arg0) {
 		List<Entity> selected = new ArrayList<>();
-		TreePath[] paths = myTree.getSelectionPaths();
+		TreePath[] paths = tree.getSelectionPaths();
 		if(paths!=null) {
 			for (TreePath p : paths) {
 				EntityTreeNode node = (EntityTreeNode) p.getLastPathComponent();
@@ -287,18 +331,14 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 		}
 	}
 
-	public void setPopupMenu(JPopupMenu abContainer) {
-		popupMenu = abContainer;
-	}
-
 	@Override
 	public void addEntityToParent(Entity parent, Entity child) {
 		EntityTreeNode parentNode = findTreeNode(parent);
 		if(parentNode!=null) {
 			recursivelyAddChildren(parentNode,child);
 
-			((DefaultTreeModel)myTree.getModel()).reload(parentNode);
-			setNodeExpandedState((EntityTreeNode)myTree.getModel().getRoot());
+			treeModel.reload(parentNode);
+			setNodeExpandedState((EntityTreeNode)treeModel.getRoot());
 		}
 	}
 
@@ -316,8 +356,8 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 		EntityTreeNode childNode = findTreeNode(child);
 		if(parentNode!=null && childNode!=null) {
 			parentNode.remove(childNode);
-			((DefaultTreeModel)myTree.getModel()).reload(parentNode);
-			setNodeExpandedState((EntityTreeNode)myTree.getModel().getRoot());
+			treeModel.reload(parentNode);
+			setNodeExpandedState((EntityTreeNode)treeModel.getRoot());
 		}
 	}
 

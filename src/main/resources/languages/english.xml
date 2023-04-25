@@ -1201,7 +1201,7 @@ to check yourself.</value>
 	</string>
 	<string>
 		<key>EntityDeleteAction.name</key>
-		<value>Remove Entity</value>
+		<value>Delete entity</value>
 	</string>
 	<string>
 		<key>EntityCutAction.name</key>
@@ -1371,6 +1371,11 @@ to check yourself.</value>
 	<string>
 		<key>EntityRenameAction.name</key>
 		<value>Paste</value>
+	</string>
+
+	<string>
+		<key>EntityReorganizeEdit.name</key>
+		<value>Reorganize</value>
 	</string>
 
 </language>

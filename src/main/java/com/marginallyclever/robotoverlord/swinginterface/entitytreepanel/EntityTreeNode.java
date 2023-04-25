@@ -10,12 +10,16 @@ import javax.swing.tree.DefaultMutableTreeNode;
  *
  */
 public class EntityTreeNode extends DefaultMutableTreeNode {
-	public EntityTreeNode(Object obj) {
+	public EntityTreeNode(Entity obj) {
 		super(obj);
 	}
 
 	@Override
 	public String toString() {
-		return ((Entity)userObject).getName();
+		return getEntity().getName();
+	}
+
+	public Entity getEntity() {
+		return (Entity)userObject;
 	}
 }

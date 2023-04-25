@@ -130,7 +130,7 @@ class EntityTreeTransferHandler extends TransferHandler {
     }
 
     private EntityTreeNode copyBranch(EntityTreeNode node, HashSet<TreeNode> doneItems, JTree tree) {
-        EntityTreeNode copy = new EntityTreeNode(node.getUserObject());
+        EntityTreeNode copy = new EntityTreeNode(node.getEntity());
         doneItems.add(node);
         for (int i=0; i<node.getChildCount(); i++) {
             copy.add(copyBranch((EntityTreeNode)node.getChildAt(i), doneItems, tree));
