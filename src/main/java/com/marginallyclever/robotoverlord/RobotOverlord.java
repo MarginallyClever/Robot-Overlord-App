@@ -124,12 +124,12 @@ public class RobotOverlord extends Entity {
 	/**
 	 * Tree componentpanel of all Entities in the scene.
 	 */
-	private final EntityTreePanel entityTreePanel = new EntityTreePanel();
+	private final EntityTreePanel entityTreePanel;
 
 	/**
 	 * Collated componentpanel of all components in all selected Entities.
 	 */
-	private final ComponentManagerPanel componentManagerPanel = new ComponentManagerPanel(this);
+	private final ComponentManagerPanel componentManagerPanel;
 
 
 	public static void main(String[] argv) {
@@ -160,6 +160,9 @@ public class RobotOverlord extends Entity {
 		Translator.start();
 		SoundSystem.start();
 		UndoSystem.start();
+
+		entityTreePanel = new EntityTreePanel();
+		componentManagerPanel = new ComponentManagerPanel(this);
 
 		preferencesLoad();
 
@@ -215,7 +218,7 @@ public class RobotOverlord extends Entity {
 
 		// the right hand stuff
 		rightFrameSplitter.add(buildEntityManagerPanel());
-		rightFrameSplitter.add(componentManagerPanel);
+		rightFrameSplitter.add(new JScrollPane(componentManagerPanel));
 		// make sure the master panel can't be squished.
         Dimension minimumSize = new Dimension(360,300);
         rightFrameSplitter.setMinimumSize(minimumSize);

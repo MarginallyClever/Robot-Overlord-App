@@ -4,9 +4,6 @@ import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.parameters.*;
 import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
-import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentCopyAction;
-import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentDeleteAction;
-import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentPasteAction;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -20,34 +17,18 @@ import java.util.ArrayList;
  * @since 1.6.0
  */
 public class ComponentPanelFactory extends ViewElement {
-	public JComponent panelBeingBuilt;
-	public GridBagConstraints gbc;
-	private final JPanel contentPane = new JPanel();
+	private final JPanel innerPanel = new JPanel();
+	private final GridBagConstraints gbc = new GridBagConstraints();
 
 	private final RobotOverlord robotOverlord;
 
-	public ComponentPanelFactory(RobotOverlord robotOverlord) {
+	public ComponentPanelFactory(RobotOverlord robotOverlord,Component component) {
 		super();
 		this.robotOverlord = robotOverlord;
 
-		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
+		innerPanel.setLayout(new GridBagLayout());
+		innerPanel.setBorder(new EmptyBorder(1, 1, 1, 1));
 
-		Insets in = contentPane.getInsets();
-		in.left=3;
-		in.top=3;
-		in.right=3;
-		in.bottom=3;
-	}
-	
-	public ComponentPanelFactory() {
-		this(null);
-	}
-
-	private void startComponentPanelShared() {
-		panelBeingBuilt = new JPanel(new GridBagLayout());
-		panelBeingBuilt.setBorder(new EmptyBorder(1, 1, 1, 1));
-
-		gbc = new GridBagConstraints();
 		gbc.weightx = 1;
 		gbc.gridx = 0;
 		gbc.gridy = 0;
@@ -55,38 +36,14 @@ public class ComponentPanelFactory extends ViewElement {
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.insets.set(1, 1, 1, 1);
 	}
-
-	public void startComponentPanel(Component component) {
-		startComponentPanelShared();
-
-		CollapsiblePanel collapsiblePanel = new CollapsiblePanel(component.getName());
-		JPanel content = collapsiblePanel.getContentPane();
-		collapsiblePanel.setCollapsed(!component.getExpanded());
-		content.setLayout(new BorderLayout());
-		content.add(panelBeingBuilt, BorderLayout.CENTER);
-		collapsiblePanel.setPreferredSize(new Dimension(100, 100));
-		contentPane.add(collapsiblePanel);
-
-		collapsiblePanel.addCollapeListener(new CollapsiblePanel.CollapseListener() {
-			@Override
-			public void collapsed() {
-				component.setExpanded(!collapsiblePanel.isCollapsed());
-			}
-
-			@Override
-			public void expanded() {
-				component.setExpanded(!collapsiblePanel.isCollapsed());
-			}
-		});
-	}
 	
 	private void pushViewElement(ViewElement c) {
 		gbc.gridy++;
-		panelBeingBuilt.add(c,gbc);
+		innerPanel.add(c,gbc);
 	}
 
 	public JComponent getFinalView() {
-		return contentPane;
+		return innerPanel;
 	}
 	
 	/**
