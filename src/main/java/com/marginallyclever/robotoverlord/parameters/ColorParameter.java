@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.parameters;
 
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -64,7 +64,7 @@ public class ColorParameter extends AbstractParameter<double[]> {
 	 * @param view the panel to fill.
 	 */
 	@Override
-	public void getView(ViewPanel view) {
+	public void getView(ComponentPanelFactory view) {
 		view.add(this);
 	}
 

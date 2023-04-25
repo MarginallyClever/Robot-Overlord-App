@@ -11,7 +11,7 @@ import java.awt.*;
 import java.util.List;
 
 /**
- * Collate all the {@link java.awt.Component}s for selected {@link Entity}s.
+ * Collate all the {@link Component}s for selected {@link Entity}s.
  */
 public class ComponentPanel extends JPanel {
 	private final RobotOverlord robotOverlord;
@@ -47,7 +47,7 @@ public class ComponentPanel extends JPanel {
 		} else {
 			toolBar.setVisible(true);
 
-			ViewPanel panel = new ViewPanel(robotOverlord);
+			ComponentPanelFactory panel = new ComponentPanelFactory(robotOverlord);
 			if (size == 1) {
 				buildSingleEntityPanel(panel, entityList.get(0));
 			} else if(size > 1) {
@@ -65,11 +65,11 @@ public class ComponentPanel extends JPanel {
 		}
 	}
 
-	private void buildSingleEntityPanel(ViewPanel panel, Entity entity) {
+	private void buildSingleEntityPanel(ComponentPanelFactory panel, Entity entity) {
 		if(entity != null) entity.getView(panel);
 	}
 
-	private void buildMultipleEntityPanel(ViewPanel panel, List<Entity> entityList) {
+	private void buildMultipleEntityPanel(ComponentPanelFactory panel, List<Entity> entityList) {
 		// compare Entities and keep matching Components.
 		Entity first = entityList.get(0);
 		for(int i=0;i<first.getComponentCount();++i) {

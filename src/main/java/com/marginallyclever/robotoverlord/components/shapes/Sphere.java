@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -91,7 +91,7 @@ public class Sphere extends ShapeComponent {
     public double getDetail() { return detail.get(); }
 
     @Override
-    public void getView(ViewPanel view) {
+    public void getView(ComponentPanelFactory view) {
         super.getView(view);
         view.add(detail);
     }

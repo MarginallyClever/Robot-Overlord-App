@@ -10,7 +10,7 @@ import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.*;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -218,7 +218,7 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 	}
 	
 	@Override
-	public void getView(ViewPanel view) {
+	public void getView(ComponentPanelFactory view) {
 		view.startNewSubPanel("ShapeEntity",true);
 
 		ArrayList<FileFilter> filters = MeshFactory.getAllExtensions();

@@ -20,19 +20,14 @@ import java.util.ArrayList;
  * @author Dan Royer
  * @since 1.6.0
  */
-public class ViewPanel extends ViewElement {
-
-	private static class StackElement {
-		public JComponent p;
-		public GridBagConstraints gbc;
-	}
-
-	private StackElement se;
+public class ComponentPanelFactory extends ViewElement {
+	public JComponent p;
+	public GridBagConstraints gbc;
 	private final JPanel contentPane = new JPanel();
 
 	private final RobotOverlord robotOverlord;
 
-	public ViewPanel(RobotOverlord robotOverlord) {
+	public ComponentPanelFactory(RobotOverlord robotOverlord) {
 		super();
 		this.robotOverlord = robotOverlord;
 
@@ -46,25 +41,24 @@ public class ViewPanel extends ViewElement {
 		in.bottom=3;
 	}
 	
-	public ViewPanel() {
+	public ComponentPanelFactory() {
 		this(null);
 	}
 
 	private void pushStackShared() {
-		se = new StackElement();
-		se.p = new JPanel();
+		p = new JPanel();
 
-		se.p.setLayout(new GridBagLayout());
-		se.p.setBorder(new LineBorder(Color.RED));
-		se.p.setBorder(new EmptyBorder(1, 1, 1, 1));
+		p.setLayout(new GridBagLayout());
+		p.setBorder(new LineBorder(Color.RED));
+		p.setBorder(new EmptyBorder(1, 1, 1, 1));
 
-		se.gbc = new GridBagConstraints();
-		se.gbc.weightx = 1;
-		se.gbc.gridx = 0;
-		se.gbc.gridy = 0;
-		se.gbc.fill = GridBagConstraints.HORIZONTAL;
-		se.gbc.gridwidth = GridBagConstraints.REMAINDER;
-		se.gbc.insets.set(1, 1, 1, 1);
+		gbc = new GridBagConstraints();
+		gbc.weightx = 1;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		gbc.insets.set(1, 1, 1, 1);
 	}
 
 	public void startNewSubPanel(String name, boolean expanded) {
@@ -74,19 +68,19 @@ public class ViewPanel extends ViewElement {
 		JPanel content = collapsiblePanel.getContentPane();
 		collapsiblePanel.setCollapsed(!expanded);
 		content.setLayout(new BorderLayout());
-		content.add(se.p, BorderLayout.CENTER);
+		content.add(p, BorderLayout.CENTER);
 		contentPane.add(collapsiblePanel);
 	}
 
 	public void startNewSubPanel(Component component) {
 		pushStackShared();
-		setPopupMenu(component, se.p);
+		setPopupMenu(component, p);
 
 		CollapsiblePanel collapsiblePanel = new CollapsiblePanel(component.getName());
 		JPanel content = collapsiblePanel.getContentPane();
 		collapsiblePanel.setCollapsed(!component.getExpanded());
 		content.setLayout(new BorderLayout());
-		content.add(se.p, BorderLayout.CENTER);
+		content.add(p, BorderLayout.CENTER);
 		contentPane.add(collapsiblePanel);
 
 		collapsiblePanel.addCollapeListener(new CollapsiblePanel.CollapseListener() {
@@ -118,8 +112,8 @@ public class ViewPanel extends ViewElement {
 	}
 	
 	private void pushViewElement(ViewElement c) {
-		se.gbc.gridy++;
-		se.p.add(c,se.gbc);
+		gbc.gridy++;
+		p.add(c,gbc);
 	}
 
 	public JComponent getFinalView() {

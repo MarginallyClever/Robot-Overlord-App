@@ -6,7 +6,7 @@ import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,7 +126,7 @@ public class Skycam extends PoseEntity {
 	}
 	
 	@Override
-	public void getView(ViewPanel view) {
+	public void getView(ComponentPanelFactory view) {
 		ArrayList<FileFilter> fileFilter = new ArrayList<>();
 		// supported file formats
 		fileFilter.add(new FileNameExtensionFilter("Skycam", "Skycam"));

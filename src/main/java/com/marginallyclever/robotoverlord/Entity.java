@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -235,7 +235,7 @@ public class Entity implements PropertyChangeListener {
 	 * 
 	 * @param view the panel to decorate
 	 */
-	public void getView(ViewPanel view) {
+	public void getView(ComponentPanelFactory view) {
 		for(Component component : components) {
 			view.startNewSubPanel(component);
 			component.getView(view);

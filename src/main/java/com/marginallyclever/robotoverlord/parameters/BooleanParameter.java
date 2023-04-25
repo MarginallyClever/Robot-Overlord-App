@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.parameters;
 
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,7 +38,7 @@ public class BooleanParameter extends AbstractParameter<Boolean> {
 	 * @param view the panel to decorate
 	 */
 	@Override
-	public void getView(ViewPanel view) {
+	public void getView(ComponentPanelFactory view) {
 		view.add(this);
 	}
 

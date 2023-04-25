@@ -8,7 +8,7 @@ import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -250,7 +250,7 @@ public class LinearStewartPlatformCore extends PoseEntity {
 	}
 	
 	@Override
-	public void getView(ViewPanel view) {
+	public void getView(ComponentPanelFactory view) {
 		view.startNewSubPanel("Linear Stewart Platform",true);
 		view.add(connection);
 		view.addButton("GOTO EE").addActionEventListener((evt)->gotoPose());

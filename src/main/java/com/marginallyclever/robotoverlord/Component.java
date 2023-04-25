@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,11 +29,11 @@ public class Component {
 
     /**
      * A Component may offer one or more {@link AbstractParameter} visual elements for the User to manipulate.
-     * it does so by Decorating the given {@link ViewPanel} with these elements.
+     * it does so by Decorating the given {@link ComponentPanelFactory} with these elements.
      *
      * @param view the ViewPanel to decorate.
      */
-    public void getView(ViewPanel view) {
+    public void getView(ComponentPanelFactory view) {
         view.add(enabled);
         // TODO enumerate all public AbstractEntity?
     }

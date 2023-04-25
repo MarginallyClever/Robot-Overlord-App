@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.robots;
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
 
 /**
@@ -81,7 +81,7 @@ public abstract class RobotEntity extends PoseEntity {
 	}
 	
 	@Override
-	public void getView(ViewPanel view) {
+	public void getView(ComponentPanelFactory view) {
 		super.getView(view);
 	}
 }

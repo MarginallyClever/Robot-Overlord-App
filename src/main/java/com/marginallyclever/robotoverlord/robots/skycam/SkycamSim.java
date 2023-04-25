@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.robots.skycam;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,7 +128,7 @@ public class SkycamSim extends Entity {
 	}
 	
 	@Override
-	public void getView(ViewPanel view) {
+	public void getView(ComponentPanelFactory view) {
 		super.getView(view);
 	}
 	

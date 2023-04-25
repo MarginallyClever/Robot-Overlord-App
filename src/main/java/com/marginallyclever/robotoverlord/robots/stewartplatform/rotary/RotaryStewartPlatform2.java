@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.robots.stewartplatform.rotary;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.entities.ShapeEntity;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
 import javax.vecmath.Vector3d;
 import java.io.Serial;
@@ -73,7 +73,7 @@ public class RotaryStewartPlatform2 extends RotaryStewartPlatform {
 	}
 
 	@Override
-	public void getView(ViewPanel view) {
+	public void getView(ComponentPanelFactory view) {
 		super.getView(view);
 	}
 }

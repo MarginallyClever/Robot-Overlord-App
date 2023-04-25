@@ -11,7 +11,7 @@ import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementSlider;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -109,7 +109,7 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
     }
 
     @Override
-    public void getView(ViewPanel view) {
+    public void getView(ComponentPanelFactory view) {
         super.getView(view);
         ArrayList<FileFilter> filters = PathFactory.getAllExtensions();
         view.addFilename(filename,filters);

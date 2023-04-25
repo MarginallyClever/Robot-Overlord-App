@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.components;
 
 import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
 import javax.vecmath.Matrix4d;
 
@@ -11,7 +11,7 @@ import javax.vecmath.Matrix4d;
 @ComponentDependency(components={PoseComponent.class})
 public class OriginAdjustComponent extends Component {
     @Override
-    public void getView(ViewPanel view) {
+    public void getView(ComponentPanelFactory view) {
         super.getView(view);
         view.addButton("Adjust").addActionEventListener( e -> adjust() );
     }

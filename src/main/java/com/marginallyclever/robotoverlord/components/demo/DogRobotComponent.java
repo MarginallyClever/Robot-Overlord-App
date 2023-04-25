@@ -12,7 +12,7 @@ import com.marginallyclever.robotoverlord.components.shapes.Cylinder;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -124,7 +124,7 @@ public class DogRobotComponent extends RenderComponent {
     }
 
     @Override
-    public void getView(ViewPanel view) {
+    public void getView(ComponentPanelFactory view) {
         super.getView(view);
         view.startNewSubPanel("Config",false);
         view.add(standingRadius);

@@ -6,7 +6,7 @@ import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -74,7 +74,7 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
     }
 
     @Override
-    public void getView(ViewPanel view) {
+    public void getView(ComponentPanelFactory view) {
         super.getView(view);
 
         view.add(isRevolute);

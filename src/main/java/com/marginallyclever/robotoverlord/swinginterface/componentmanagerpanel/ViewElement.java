@@ -11,7 +11,7 @@ import java.awt.event.FocusListener;
  * @since 1.6.0
  *
  */
-public abstract class ViewElement extends JComponent implements FocusListener {
+public class ViewElement extends JComponent implements FocusListener {
 	public ViewElement() {
 		super();
 	}

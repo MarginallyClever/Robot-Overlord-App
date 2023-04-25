@@ -7,7 +7,7 @@ import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.material.MaterialFactory;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -69,7 +69,7 @@ public class MeshFromFile extends ShapeComponent {
     }
 
     @Override
-    public void getView(ViewPanel view) {
+    public void getView(ComponentPanelFactory view) {
         super.getView(view);
         ArrayList<FileFilter> filters = MeshFactory.getAllExtensions();
         view.addFilename(filename,filters);

@@ -5,7 +5,7 @@ import com.marginallyclever.convenience.memento.MementoDoubleArray;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
 
 /**
@@ -84,7 +84,7 @@ public class Sixi2LinearGripper extends Entity {
 	}
 
 	@Override
-	public void getView(ViewPanel view) {
+	public void getView(ComponentPanelFactory view) {
 		view.startNewSubPanel("Gripper",true);
 		view.addRange(angleNow, 100, 0);
 		view.addRange(angleMax, 180, 0);
