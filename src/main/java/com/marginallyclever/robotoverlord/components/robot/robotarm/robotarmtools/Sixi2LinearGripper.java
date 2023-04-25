@@ -85,7 +85,7 @@ public class Sixi2LinearGripper extends Entity {
 
 	@Override
 	public void getView(ComponentPanelFactory view) {
-		view.startNewSubPanel("Gripper",true);
+		view.startComponentPanel("Gripper",true);
 		view.addRange(angleNow, 100, 0);
 		view.addRange(angleMax, 180, 0);
 		view.addRange(angleMin, 180, 0);

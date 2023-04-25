@@ -10,7 +10,6 @@ import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentPasteA
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.util.ArrayList;
@@ -21,7 +20,7 @@ import java.util.ArrayList;
  * @since 1.6.0
  */
 public class ComponentPanelFactory extends ViewElement {
-	public JComponent p;
+	public JComponent panelBeingBuilt;
 	public GridBagConstraints gbc;
 	private final JPanel contentPane = new JPanel();
 
@@ -45,12 +44,9 @@ public class ComponentPanelFactory extends ViewElement {
 		this(null);
 	}
 
-	private void pushStackShared() {
-		p = new JPanel();
-
-		p.setLayout(new GridBagLayout());
-		p.setBorder(new LineBorder(Color.RED));
-		p.setBorder(new EmptyBorder(1, 1, 1, 1));
+	private void startComponentPanelShared() {
+		panelBeingBuilt = new JPanel(new GridBagLayout());
+		panelBeingBuilt.setBorder(new EmptyBorder(1, 1, 1, 1));
 
 		gbc = new GridBagConstraints();
 		gbc.weightx = 1;
@@ -61,26 +57,26 @@ public class ComponentPanelFactory extends ViewElement {
 		gbc.insets.set(1, 1, 1, 1);
 	}
 
-	public void startNewSubPanel(String name, boolean expanded) {
-		pushStackShared();
+	public void startComponentPanel(String name, boolean expanded) {
+		startComponentPanelShared();
 
 		CollapsiblePanel collapsiblePanel = new CollapsiblePanel(name);
 		JPanel content = collapsiblePanel.getContentPane();
 		collapsiblePanel.setCollapsed(!expanded);
 		content.setLayout(new BorderLayout());
-		content.add(p, BorderLayout.CENTER);
+		content.add(panelBeingBuilt, BorderLayout.CENTER);
 		contentPane.add(collapsiblePanel);
 	}
 
-	public void startNewSubPanel(Component component) {
-		pushStackShared();
-		setPopupMenu(component, p);
+	public void startComponentPanel(Component component) {
+		startComponentPanelShared();
+		setPopupMenu(component, panelBeingBuilt);
 
 		CollapsiblePanel collapsiblePanel = new CollapsiblePanel(component.getName());
 		JPanel content = collapsiblePanel.getContentPane();
 		collapsiblePanel.setCollapsed(!component.getExpanded());
 		content.setLayout(new BorderLayout());
-		content.add(p, BorderLayout.CENTER);
+		content.add(panelBeingBuilt, BorderLayout.CENTER);
 		contentPane.add(collapsiblePanel);
 
 		collapsiblePanel.addCollapeListener(new CollapsiblePanel.CollapseListener() {
@@ -113,7 +109,7 @@ public class ComponentPanelFactory extends ViewElement {
 	
 	private void pushViewElement(ViewElement c) {
 		gbc.gridy++;
-		p.add(c,gbc);
+		panelBeingBuilt.add(c,gbc);
 	}
 
 	public JComponent getFinalView() {

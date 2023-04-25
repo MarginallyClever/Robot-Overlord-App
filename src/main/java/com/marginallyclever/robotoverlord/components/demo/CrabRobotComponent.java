@@ -95,14 +95,14 @@ public class CrabRobotComponent extends RenderComponent {
     @Override
     public void getView(ComponentPanelFactory view) {
         super.getView(view);
-        view.startNewSubPanel("Config",false);
+        view.startComponentPanel("Config",false);
         view.add(standingRadius);
         view.add(standingHeight);
         view.add(turningStrideLength);
         view.add(strideLength);
         view.add(strideHeight);
 
-        view.startNewSubPanel("Gait",true);
+        view.startComponentPanel("Gait",true);
         view.addComboBox(modeSelector, modeNames);
         view.add(speedScale);
     }

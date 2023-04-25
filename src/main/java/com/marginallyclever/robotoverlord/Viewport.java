@@ -252,7 +252,7 @@ public class Viewport extends Entity {
 
 	@Override
 	public void getView(ComponentPanelFactory view) {
-		view.startNewSubPanel("Viewport",true);
+		view.startComponentPanel("Viewport",true);
 		view.add(drawOrthographic);
 		view.add(farZ);
 		view.add(nearZ);

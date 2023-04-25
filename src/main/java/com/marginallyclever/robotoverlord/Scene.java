@@ -169,7 +169,7 @@ public class Scene extends Entity {
 	
 	@Override
 	public void getView(ComponentPanelFactory view) {
-		view.startNewSubPanel("Sc", true);
+		view.startComponentPanel("Sc", true);
 		view.add(scenePath).setReadOnly(true);
 		view.add(ambientLight);
 	}

@@ -219,7 +219,7 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 	
 	@Override
 	public void getView(ComponentPanelFactory view) {
-		view.startNewSubPanel("ShapeEntity",true);
+		view.startComponentPanel("ShapeEntity",true);
 
 		ArrayList<FileFilter> filters = MeshFactory.getAllExtensions();
 		view.addFilename(filename,filters);

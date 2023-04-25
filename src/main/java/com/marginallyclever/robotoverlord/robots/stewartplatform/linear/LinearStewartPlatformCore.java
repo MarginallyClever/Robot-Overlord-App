@@ -251,7 +251,7 @@ public class LinearStewartPlatformCore extends PoseEntity {
 	
 	@Override
 	public void getView(ComponentPanelFactory view) {
-		view.startNewSubPanel("Linear Stewart Platform",true);
+		view.startComponentPanel("Linear Stewart Platform",true);
 		view.add(connection);
 		view.addButton("GOTO EE").addActionEventListener((evt)->gotoPose());
 		view.addButton("GOTO ZERO").addActionEventListener((evt)->{

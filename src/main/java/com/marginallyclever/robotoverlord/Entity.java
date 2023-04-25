@@ -237,7 +237,7 @@ public class Entity implements PropertyChangeListener {
 	 */
 	public void getView(ComponentPanelFactory view) {
 		for(Component component : components) {
-			view.startNewSubPanel(component);
+			view.startComponentPanel(component);
 			component.getView(view);
 		}
 	}

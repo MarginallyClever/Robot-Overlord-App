@@ -76,7 +76,7 @@ public class ComponentPanel extends JPanel {
 			Component component = first.getComponent(i);
 			if(sameComponentInAllEntities(component,entityList)) {
 				// TODO display values shared across all remaining Components.  At present this shows only the first entity's component.
-				panel.startNewSubPanel(component);
+				panel.startComponentPanel(component);
 				component.getView(panel);
 			}
 		}

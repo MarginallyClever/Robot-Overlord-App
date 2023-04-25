@@ -49,7 +49,7 @@ public class SkycamLive extends Entity {
 
 	@Override
 	public void getView(ComponentPanelFactory view) {
-		view.startNewSubPanel("Live",true);
+		view.startComponentPanel("Live",true);
 		view.add(connection);
 		super.getView(view);
 	}

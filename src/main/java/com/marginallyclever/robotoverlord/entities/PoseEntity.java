@@ -406,7 +406,7 @@ public class PoseEntity extends Entity {
 	
 	@Override
 	public void getView(ComponentPanelFactory view) {
-		view.startNewSubPanel("Pose",true);
+		view.startComponentPanel("Pose",true);
 		
 		view.addComboBox(axisChoice, AXIS_LABELS);
 		view.addRange(axisAmount, 5, -5);
@@ -421,7 +421,7 @@ public class PoseEntity extends Entity {
 		//componentpanel.addStaticText("Pick name="+getPickName());
 		//	pose.getView(componentpanel);
 
-		view.startNewSubPanel("PoseEntity",true);
+		view.startComponentPanel("PoseEntity",true);
 		Matrix4d poseWorld = getPoseWorld();
 		view.add(new Vector3DParameter("Position",MatrixHelper.getPosition(poseWorld)));
 		//	poseWorld.getView(componentpanel);
