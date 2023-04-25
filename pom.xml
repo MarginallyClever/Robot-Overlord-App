@@ -202,7 +202,7 @@
 								<resource>
 									<directory>target</directory>
 									<includes>
-										<include>Makelangelo*-with-dependencies.jar</include>
+										<include>RobotOverlord*-with-dependencies.jar</include>
 									</includes>
 									<filtering>false</filtering>
 								</resource>
