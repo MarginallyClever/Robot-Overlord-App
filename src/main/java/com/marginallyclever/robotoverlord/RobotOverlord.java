@@ -10,7 +10,7 @@ import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.demos.DemoDog;
 import com.marginallyclever.robotoverlord.demos.DemoSpidee;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.SoundSystem;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
@@ -129,7 +129,7 @@ public class RobotOverlord extends Entity {
 	/**
 	 * Collated componentpanel of all components in all selected Entities.
 	 */
-	private final ComponentPanel componentPanel = new ComponentPanel(this);
+	private final ComponentManagerPanel componentManagerPanel = new ComponentManagerPanel(this);
 
 
 	public static void main(String[] argv) {
@@ -215,7 +215,7 @@ public class RobotOverlord extends Entity {
 
 		// the right hand stuff
 		rightFrameSplitter.add(buildEntityManagerPanel());
-		rightFrameSplitter.add(componentPanel);
+		rightFrameSplitter.add(componentManagerPanel);
 		// make sure the master panel can't be squished.
         Dimension minimumSize = new Dimension(360,300);
         rightFrameSplitter.setMinimumSize(minimumSize);
@@ -446,7 +446,7 @@ public class RobotOverlord extends Entity {
 	}
 
 	public void updateComponentPanel() {
-		componentPanel.refreshContentsFromClipboard();
+		componentManagerPanel.refreshContentsFromClipboard();
 	}
 
 	public void confirmClose() {

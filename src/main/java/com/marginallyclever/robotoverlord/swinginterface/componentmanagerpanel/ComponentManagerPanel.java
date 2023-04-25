@@ -13,12 +13,12 @@ import java.util.List;
 /**
  * Collate all the {@link Component}s for selected {@link Entity}s.
  */
-public class ComponentPanel extends JPanel {
+public class ComponentManagerPanel extends JPanel {
 	private final RobotOverlord robotOverlord;
 	private final JPanel centerPanel = new JPanel(new BorderLayout());
 	private final JToolBar toolBar = new JToolBar();
 
-	public ComponentPanel(RobotOverlord robotOverlord) {
+	public ComponentManagerPanel(RobotOverlord robotOverlord) {
 		super(new BorderLayout());
 		this.robotOverlord = robotOverlord;
 
