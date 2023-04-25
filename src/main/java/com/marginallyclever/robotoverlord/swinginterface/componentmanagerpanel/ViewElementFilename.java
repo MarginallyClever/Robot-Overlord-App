@@ -45,7 +45,6 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 		JButton choose = new JButton("...");
 		choose.addActionListener(this);
 		choose.setMargin(new Insets(0, 5, 0, 5));
-		choose.addFocusListener(this);
 		
 		this.setLayout(new GridBagLayout());
 

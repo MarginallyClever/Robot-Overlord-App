@@ -70,7 +70,6 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 		field.setText(StringHelper.formatDouble(value));
 		field.setHorizontalAlignment(JTextField.RIGHT);
 		field.getDocument().addDocumentListener(this);
-		field.addFocusListener(this);
 
 		JLabel label = new JLabel(labelName,JLabel.LEADING);
 		label.setBorder(BorderFactory.createEmptyBorder(0,5,0,5));

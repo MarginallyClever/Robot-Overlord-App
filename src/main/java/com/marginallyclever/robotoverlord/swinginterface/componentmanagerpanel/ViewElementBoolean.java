@@ -28,7 +28,6 @@ public class ViewElementBoolean extends ViewElement implements PropertyChangeLis
 
 		field.setSelected(parameter.get());
 		field.setBorder(new EmptyBorder(0,0,0,0));
-		field.addFocusListener(this);
 		field.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent arg0) {

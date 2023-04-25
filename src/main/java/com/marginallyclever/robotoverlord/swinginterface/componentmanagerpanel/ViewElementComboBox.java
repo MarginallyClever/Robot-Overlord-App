@@ -26,7 +26,6 @@ public class ViewElementComboBox extends ViewElement implements ActionListener, 
 		field = new JComboBox<>(listOptions);
 		field.setSelectedIndex(parameter.get());
 		field.addActionListener(this);
-		field.addFocusListener(this);
 
 		JLabel label=new JLabel(parameter.getName(),JLabel.LEADING);
 		label.setLabelFor(field);

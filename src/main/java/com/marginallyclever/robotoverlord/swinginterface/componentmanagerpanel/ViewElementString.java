@@ -31,7 +31,6 @@ public class ViewElementString extends ViewElement implements DocumentListener, 
 
 		field.setText(parameter.get());
 		field.getDocument().addDocumentListener(this);
-		field.addFocusListener(this);
 		
 		JLabel label=new JLabel(parameter.getName(),JLabel.LEADING);
 		label.setLabelFor(field);

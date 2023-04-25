@@ -56,7 +56,6 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Pro
 		field.getDocument().addDocumentListener(this);
 		field.setHorizontalAlignment(SwingConstants.RIGHT);
 		field.setText(parameter.get().toString());
-		field.addFocusListener(this);
 
 		JLabel label=new JLabel(parameter.getName(),JLabel.LEADING);
 		label.setLabelFor(field);

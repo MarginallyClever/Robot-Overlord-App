@@ -32,7 +32,6 @@ public class ComponentPanelFactory extends ViewElement {
 
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
 
-		contentPane.addFocusListener(this);
 		Insets in = contentPane.getInsets();
 		in.left=3;
 		in.top=3;

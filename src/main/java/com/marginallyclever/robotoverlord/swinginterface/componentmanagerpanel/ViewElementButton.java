@@ -40,7 +40,6 @@ public class ViewElementButton extends ViewElement {
 		field.addActionListener((e)->{
 			fireActionEvent(new ActionEvent(this,e.getID(),e.getActionCommand()));
 		});
-		field.addFocusListener(this);
 		
 		this.setLayout(new BorderLayout());
 		this.add(field,BorderLayout.CENTER);
