@@ -9,21 +9,8 @@ import org.json.JSONObject;
  *
  */
 public class StringParameter extends AbstractParameter<String> {
-	public StringParameter() {
-		super("","");
-	}
-	
-	// ambiguous solution is to do both!
-	public StringParameter(String t) {
-		super();
-		setName(t);
-    	this.t = t;
-	}
-	
 	public StringParameter(String name, String value) {
-		super();
-		setName(name);
-		t=value;
+		super(name,value);
 	}
 
 	@Override

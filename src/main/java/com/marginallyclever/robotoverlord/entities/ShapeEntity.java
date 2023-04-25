@@ -39,8 +39,8 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 
 	// shape adjustments
 	protected final DoubleParameter scale = new DoubleParameter("Scale",1.0);
-	protected final Vector3DParameter rotationAdjust = new Vector3DParameter("Rotation");
-	protected final Vector3DParameter originAdjust = new Vector3DParameter("Origin");
+	protected final Vector3DParameter rotationAdjust = new Vector3DParameter("Rotation",0,0,0);
+	protected final Vector3DParameter originAdjust = new Vector3DParameter("Origin",0,0,0);
 
 	private final IntParameter numTriangles = new IntParameter("Triangles",0);
 	private final BooleanParameter hasNormals = new BooleanParameter("Has normals",false);

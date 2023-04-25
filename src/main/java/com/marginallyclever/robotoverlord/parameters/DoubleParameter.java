@@ -11,27 +11,10 @@ import org.json.JSONObject;
  *
  */
 public class DoubleParameter extends AbstractParameter<Double> {
-
-	public DoubleParameter(String s) {
-		super(0.0);
-		setName(s);
-	}
-	
-	public DoubleParameter(String s, double d) {
-		super(d);
-		setName(s);
+	public DoubleParameter(String name, double value) {
+		super(name, value);
 	}
 
-	public DoubleParameter(String s, float d) {
-		super((double)d);
-		setName(s);
-	}
-	
-	public DoubleParameter(String s, int d) {
-		super((double)d);
-		setName(s);
-	}
-	
 	@Override
 	public String toString() {
 		return getName()+"="+StringHelper.formatDouble(t);

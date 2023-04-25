@@ -12,27 +12,12 @@ import javax.vecmath.Vector3d;
  *
  */
 public class Vector3DParameter extends AbstractParameter<Vector3d> {
-	public Vector3DParameter() {
-		super(new Vector3d());
+	public Vector3DParameter(String name, Vector3d value) {
+		super(name,value);
 	}
-	
-	public Vector3DParameter(String name) {
-		super(new Vector3d());
-		setName(name);
-	}
-	
-	public Vector3DParameter(String name, Vector3d b) {
-		super(b);
-		setName(name);
-	}
-	
-	public Vector3DParameter(double x, double y, double z) {
-		super(new Vector3d(x,y,z));
-	}
-	
+
 	public Vector3DParameter(String name, double x, double y, double z) {
-		super(new Vector3d(x,y,z));
-		setName(name);
+		super(name,new Vector3d(x,y,z));
 	}
 	
 	public void set(double x,double y,double z) {

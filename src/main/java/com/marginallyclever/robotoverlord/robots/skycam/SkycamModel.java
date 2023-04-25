@@ -31,8 +31,8 @@ public class SkycamModel extends Entity {
 	public static final double MAX_FEEDRATE = 10;
 	public static final double MAX_ACCELERATION = 10;
 	
-	protected transient Vector3DParameter size = new Vector3DParameter(100,100,100);
-	protected transient Vector3DParameter ee = new Vector3DParameter();
+	protected transient Vector3DParameter size = new Vector3DParameter("size",100,100,100);
+	protected transient Vector3DParameter ee = new Vector3DParameter("ee",0,0,0);
 	protected Color4f color = new Color4f();
 	
 	public SkycamModel() {

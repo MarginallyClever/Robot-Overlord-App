@@ -10,14 +10,8 @@ import org.json.JSONObject;
  *
  */
 public class IntParameter extends AbstractParameter<Integer> {
-
-	public IntParameter() {
-		super();
-	}
-	
-	public IntParameter(String name, int d) {
-		super(d);
-		setName(name);
+	public IntParameter(String name, int value) {
+		super(name,value);
 	}
 	
 	@Override

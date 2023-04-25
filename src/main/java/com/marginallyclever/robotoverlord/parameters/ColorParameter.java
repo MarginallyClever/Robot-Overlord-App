@@ -13,17 +13,9 @@ import java.util.Arrays;
  *
  */
 public class ColorParameter extends AbstractParameter<double[]> {
-	public ColorParameter() {
-		this(0,0,0,0);
-	}
 
 	public ColorParameter(String name, double r, double g, double b, double a) {
-		super(new double[] {r,g,b,a});
-		setName(name);
-	}
-	
-	public ColorParameter(double r, double g, double b, double a) {
-		super(new double[] {r,g,b,a});
+		super(name,new double[] {r,g,b,a});
 	}
 
 	public void set(double r,double g,double b,double a) {

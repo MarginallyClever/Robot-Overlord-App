@@ -10,16 +10,8 @@ import org.json.JSONObject;
  *
  */
 public class BooleanParameter extends AbstractParameter<Boolean> {
-
-	public BooleanParameter() {
-		super();
-		setName("Boolean");
-	}
-	
-	public BooleanParameter(String name, boolean b) {
-		super();
-		setName(name);
-		set(b);
+	public BooleanParameter(String name, boolean value) {
+		super(name,value);
 	}
 
 	@Override

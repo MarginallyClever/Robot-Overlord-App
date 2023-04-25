@@ -75,8 +75,7 @@ public class RemoteParameter extends StringParameter implements SessionLayerList
 	}
 	
 	public RemoteParameter() {
-		super();
-		setName("Connected to");
+		super("Connected to",null);
 		resetCommands();
 	}
 	

@@ -33,8 +33,8 @@ public class Skycam extends PoseEntity {
 	protected transient SkycamCommand cursor;
 	
 	// where to save/load commands
-	protected StringParameter filename = new StringParameter("");
-	ArrayList<SkycamCommand> playlist = new ArrayList<SkycamCommand>();
+	protected StringParameter filename = new StringParameter("Filename","");
+	ArrayList<SkycamCommand> playlist = new ArrayList<>();
 	protected boolean isPlaying = false;
 	protected transient int playheadLive;
 	protected transient int playheadSim;

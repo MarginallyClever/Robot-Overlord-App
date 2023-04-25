@@ -28,13 +28,11 @@ public class TextureParameter extends StringParameter {
 	private transient boolean textureDirty;
 	
 	public TextureParameter() {
-		super();
-		setName("Texture");
+		super("Texture","");
 	}
 	
 	public TextureParameter(String fileName) {
-		super(fileName);
-		setName("Texture");
+		super("Texture",fileName);
 		textureDirty=true;
 	}
 

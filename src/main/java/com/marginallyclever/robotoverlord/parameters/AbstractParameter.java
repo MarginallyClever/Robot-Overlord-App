@@ -13,21 +13,21 @@ public class AbstractParameter<T> extends Entity {
 	// the data to store
 	protected T t;
 
+	/*
 	protected AbstractParameter() {
 		super();
 	}
-	
-	public AbstractParameter(String name) {
-		super(name);
+
+	public AbstractParameter(String name) {		super(name);	}
+
+	public AbstractParameter(T t) {
+		super();
+		this.t = t;
 	}
+	*/
 	
 	public AbstractParameter(String name, T t) {
 		super(name);
-    	this.t = t;
-	}
-	
-	public AbstractParameter(T t) {
-		super();
     	this.t = t;
 	}
 	

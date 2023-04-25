@@ -62,10 +62,8 @@ public class SkycamCommand extends PoseEntity implements Cloneable, Serializable
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		SkycamCommand c = (SkycamCommand)super.clone();
-		c.feedrateSlider = new DoubleParameter(feedrateSlider.getName());
-		c.feedrateSlider.set(feedrateSlider.get());
-		c.accelerationSlider = new DoubleParameter(accelerationSlider.getName());
-		c.accelerationSlider.set(accelerationSlider.get());
+		c.feedrateSlider = new DoubleParameter(feedrateSlider.getName(),feedrateSlider.get());
+		c.accelerationSlider = new DoubleParameter(accelerationSlider.getName(),accelerationSlider.get());
 		return c;
 	}
 
