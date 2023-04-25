@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.components;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
 
 public abstract class RenderComponent extends Component {
     protected transient final BooleanParameter isVisible = new BooleanParameter("Visible",true);

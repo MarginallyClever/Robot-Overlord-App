@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swinginterface.componentpanel;
+package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;

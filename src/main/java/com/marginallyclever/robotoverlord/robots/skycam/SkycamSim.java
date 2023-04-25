@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.robots.skycam;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

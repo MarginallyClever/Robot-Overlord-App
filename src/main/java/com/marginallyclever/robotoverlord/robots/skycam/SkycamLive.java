@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
 
 import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;

@@ -6,7 +6,7 @@ import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
 

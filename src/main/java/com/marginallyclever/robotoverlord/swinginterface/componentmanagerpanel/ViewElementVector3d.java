@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swinginterface.componentpanel;
+package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;

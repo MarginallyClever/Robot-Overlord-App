@@ -9,8 +9,8 @@ import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.*;
-import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewElementButton;
-import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

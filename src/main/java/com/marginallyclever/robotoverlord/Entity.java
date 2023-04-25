@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.FileAccess;
-import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

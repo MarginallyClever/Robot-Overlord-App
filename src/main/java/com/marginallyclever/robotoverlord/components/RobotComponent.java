@@ -10,8 +10,8 @@ import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.D
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.RobotPanel;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewElementButton;
-import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
 

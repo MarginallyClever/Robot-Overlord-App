@@ -13,7 +13,7 @@ import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.PoseMoveEdit;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;

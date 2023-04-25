@@ -4,7 +4,7 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
 

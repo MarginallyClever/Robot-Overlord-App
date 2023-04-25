@@ -7,7 +7,7 @@ import com.marginallyclever.robotoverlord.RayHit;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;

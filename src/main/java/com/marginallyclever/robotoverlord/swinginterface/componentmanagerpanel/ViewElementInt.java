@@ -1,9 +1,8 @@
-package com.marginallyclever.robotoverlord.swinginterface.componentpanel;
+package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 
-import com.marginallyclever.convenience.StringHelper;
-import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.DoubleParameterEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.IntParameterEdit;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -22,12 +21,12 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Dan Royer
  *
  */
-public class ViewElementDouble extends ViewElement implements DocumentListener, PropertyChangeListener {
+public class ViewElementInt extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private final JTextField field;
-	private final DoubleParameter parameter;
+	private final IntParameter parameter;
 	private final ReentrantLock lock = new ReentrantLock();
 	
-	public ViewElementDouble(DoubleParameter parameter) {
+	public ViewElementInt(IntParameter parameter) {
 		super();
 		this.parameter = parameter;
 		
@@ -56,7 +55,7 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		});
 		field.getDocument().addDocumentListener(this);
 		field.setHorizontalAlignment(SwingConstants.RIGHT);
-		field.setText(StringHelper.formatDouble(parameter.get()));
+		field.setText(parameter.get().toString());
 		field.addFocusListener(this);
 
 		JLabel label=new JLabel(parameter.getName(),JLabel.LEADING);
@@ -69,37 +68,35 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 	}
 	
 	protected void conditionalChange() {
-		double newNumber;
+		int newNumber;
 		
 		try {
-			newNumber = Double.valueOf(field.getText());
+			newNumber = Integer.valueOf(field.getText());
+			field.setForeground(UIManager.getColor("Textfield.foreground"));
 		} catch(NumberFormatException e1) {
 			field.setForeground(Color.RED);
-			return;
+			newNumber = parameter.get();
 		}
-
-		field.setForeground(UIManager.getColor("Textfield.foreground"));
 		
 		if(lock.isLocked()) return;
 		lock.lock();
 
 		if(newNumber != parameter.get()) {
-			AbstractUndoableEdit event = new DoubleParameterEdit(parameter, newNumber);
+			AbstractUndoableEdit event = new IntParameterEdit(parameter, newNumber);
 			UndoSystem.addEvent(this,event);
 		}
-		
 		lock.unlock();
 	}
 	
 	protected void validateField() {
 		try {
-			Double.valueOf(field.getText());
+			Integer.valueOf(field.getText());
 			field.setForeground(UIManager.getColor("Textfield.foreground"));
 		} catch(NumberFormatException e1) {
 			field.setForeground(Color.RED);
 		}
 	}
-
+	
 	/**
 	 * panel changed, poke entity
 	 */
@@ -107,7 +104,7 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 	public void changedUpdate(DocumentEvent arg0) {
 		validateField();
 	}
-	
+
 	@Override
 	public void insertUpdate(DocumentEvent arg0) {
 		validateField();
@@ -124,10 +121,11 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 	}
 
 	@Override
-	public void propertyChange(PropertyChangeEvent evt) {		
+	public void propertyChange(PropertyChangeEvent evt) {
 		if(lock.isLocked()) return;
 		lock.lock();
-		field.setText(StringHelper.formatDouble((Double)evt.getNewValue()));
-		lock.unlock();		
+		Integer i = (Integer)evt.getNewValue();
+		field.setText(i.toString());
+		lock.unlock();
 	}
 }

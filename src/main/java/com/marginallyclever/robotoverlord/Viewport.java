@@ -8,7 +8,7 @@ import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;

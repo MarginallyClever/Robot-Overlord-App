@@ -9,7 +9,7 @@ import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentpanel.ViewPanel;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewPanel;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
