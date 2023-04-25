@@ -1242,7 +1242,7 @@ to check yourself.</value>
 	</string>
 	<string>
 		<key>ComponentDeleteAction.name</key>
-		<value>Delete Component</value>
+		<value>Delete</value>
 	</string>
 
 	<string>
@@ -1286,11 +1286,11 @@ to check yourself.</value>
 
 	<string>
 		<key>ComponentCopyAction.name</key>
-		<value>Copy component</value>
+		<value>Copy</value>
 	</string>
 	<string>
 		<key>ComponentPasteAction.name</key>
-		<value>Paste component</value>
+		<value>Paste</value>
 	</string>
 
 	<string>
