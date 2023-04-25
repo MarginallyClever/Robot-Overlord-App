@@ -61,18 +61,6 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 		InputMap inputMap = tree.getInputMap(JComponent.WHEN_FOCUSED);
 		ActionMap actionMap = tree.getActionMap();
 
-		// Ctrl+X
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK), "cut");
-		actionMap.put("cut", TransferHandler.getCutAction());
-
-		// Ctrl+C
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK), "copy");
-		actionMap.put("copy", TransferHandler.getCopyAction());
-
-		// Ctrl+V
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK), "paste");
-		actionMap.put("paste", TransferHandler.getPasteAction());
-
 		treeModel.addTreeModelListener(new TreeModelListener() {
 			@Override
 			public void treeNodesChanged(TreeModelEvent e) {
