@@ -21,14 +21,7 @@ public class RobotLibraryPanelTest {
     @BeforeEach
     public void setUp() {
         robot = BasicRobot.robotWithNewAwtHierarchy();
-
-        List<String> repositories = Arrays.asList(
-                "https://github.com/MarginallyClever/Sixi-",
-                "https://github.com/marginallyclever/AR4",
-                "https://github.com/marginallyclever/Mecademic-Meca500"
-        );
-
-        RobotLibraryPanel panel = new RobotLibraryPanel(repositories);
+        RobotLibraryPanel panel = new RobotLibraryPanel();
         JFrame frame = new JFrame();
         frame.setContentPane(panel);
         frame.pack();

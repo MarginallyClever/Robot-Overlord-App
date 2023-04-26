@@ -51,7 +51,7 @@ public class GithubFetcher {
      * @throws IOException If the properties file could not be fetched.
      */
     public static Map<String, String> fetchRobotProperties(String repositoryUrl, String version) throws IOException {
-        return fetchRobotPropertiesInternal(repositoryUrl,version);
+        return fetchRobotPropertiesFromGithub(repositoryUrl,version);
     }
 
     /**
@@ -61,7 +61,7 @@ public class GithubFetcher {
      * @throws IOException If the properties file could not be fetched.
      */
     public static Map<String, String> fetchRobotProperties(String repositoryUrl) throws IOException {
-        return fetchRobotPropertiesInternal(repositoryUrl,"main");
+        return fetchRobotPropertiesFromGithub(repositoryUrl,"main");
     }
 
     /**
@@ -71,7 +71,7 @@ public class GithubFetcher {
      * @return A map of the properties.
      * @throws IOException If the properties file could not be fetched.
      */
-    private static Map<String, String> fetchRobotPropertiesInternal(String repositoryUrl, String branch) throws IOException {
+    private static Map<String, String> fetchRobotPropertiesFromGithub(String repositoryUrl, String branch) throws IOException {
         OkHttpClient client = new OkHttpClient();
         String propertiesUrl = repositoryUrl + "/raw/"+branch+"/"+ROBOT_PROPERTIES_FILE;
 
@@ -101,6 +101,26 @@ public class GithubFetcher {
      * @return A list of the tags.
      */
     public static List<String> fetchTags(String githubUrl) {
+        String tagFilePath = getTagFileFromURL(githubUrl);
+        if(doesFileExist(tagFilePath)) {
+            if(isFileMoreThanOneDayOld(tagFilePath)) {
+                deleteFileFromCache(tagFilePath);
+            }
+        }
+        if(!doesFileExist(tagFilePath)) {
+            writeFileToCache(tagFilePath,getTagsFromGithub(githubUrl));
+        }
+        return getFileFromCache(tagFilePath);
+    }
+
+    private static String getTagFileFromURL(String githubUrl) {
+        String[] urlParts = githubUrl.split("/");
+        String owner = urlParts[urlParts.length - 2];
+        String repo = urlParts[urlParts.length - 1];
+        return PathUtils.APP_CACHE + File.separator + owner+"_"+repo+"_tags.txt";
+    }
+
+    private static List<String> getTagsFromGithub(String githubUrl) {
         String[] urlParts = githubUrl.split("/");
         String owner = urlParts[urlParts.length - 2];
         String repo = urlParts[urlParts.length - 1];
@@ -111,8 +131,6 @@ public class GithubFetcher {
                 .url(apiUrl)
                 .header("Accept", "application/vnd.github+json")
                 .build();
-
-        List<Map<String, Object>> tags = null;
 
         List<String> results = new ArrayList<>();
 
@@ -128,7 +146,7 @@ public class GithubFetcher {
 
             String json = response.body().string();
             Type listType = new TypeToken<List<Map<String, Object>>>() {}.getType();
-            tags = gson.fromJson(json, listType);
+            List<Map<String, Object>> tags = gson.fromJson(json, listType);
 
             for (Map<String, Object> tag : tags) {
                 results.add(tag.get("name").toString());
@@ -144,25 +162,25 @@ public class GithubFetcher {
      * @param githubUrl The URL of the repository to fetch from.
      * @return A list of the tags.
      */
-    public static List<String> lookForLocalCopy(String githubUrl) {
+    public static List<String> lookForLocallyInstalledTags(String githubUrl) {
         String[] urlParts = githubUrl.split("/");
         String owner = urlParts[urlParts.length - 2];
         String repo = urlParts[urlParts.length - 1];
 
         File f = new File(getLocalPath(owner, repo));
         if(f.exists()) {
-            return findSubfoldersContainingPropertiesFile(f, ROBOT_PROPERTIES_FILE);
+            return findFoldersContainingPropertiesFile(f);
         }
         return new ArrayList<>();
     }
 
     /**
-     * Fetches the list of locally-installed tags for the given repository.
-     * @param rootFolder The root folder to search.
-     * @param propertiesFileName The name of the properties file to search for.
-     * @return A list of the tags.
+     * Searches for all folders that contain a file named ROBOT_PROPERTIES_FILE.
+     *
+     * @param rootFolder The root folder from which to start the search.
+     * @return the list of folder names that meet the search criteria.
      */
-    private static List<String> findSubfoldersContainingPropertiesFile(File rootFolder, String propertiesFileName) {
+    private static List<String> findFoldersContainingPropertiesFile(File rootFolder) {
         List<String> result = new ArrayList<>();
 
         if (rootFolder != null && rootFolder.isDirectory()) {
@@ -170,7 +188,7 @@ public class GithubFetcher {
                 Files.walk(rootFolder.toPath())
                         .filter(path -> path.toFile().isDirectory())
                         .forEach(path -> {
-                            File propertiesFile = path.resolve(propertiesFileName).toFile();
+                            File propertiesFile = path.resolve(ROBOT_PROPERTIES_FILE).toFile();
                             if (propertiesFile.exists() && propertiesFile.isFile()) {
                                 result.add(path.toString());
                             }
@@ -201,7 +219,7 @@ public class GithubFetcher {
      * @param repoName The name of the repository.
      * @return The local path.
      */
-    public static String getLocalPath(String owner, String repoName) {
+    private static String getLocalPath(String owner, String repoName) {
         Path destinationPath = Paths.get(PathUtils.APP_PLUGINS, owner, repoName);
         return destinationPath.toString();
     }
@@ -276,57 +294,56 @@ public class GithubFetcher {
      * Check for the "all_robots.txt" file in the local cache.  if it is older than one day, delete it.
      * Then, if there is no local copy, fetch it from github.
      * Then, return the contents of the cache file.
-     * @param repo The name of the repository to fetch from.
      * @return The contents of the file.
      */
-    public static List<String> getAllRobotsFile(String repo) {
-        if(doesAllRobotsFileExist()) {
-            if(!isAllRobotsFileLessThanOneDayOld()) {
-                deleteAllRobotsFileFromCache();
+    public static List<String> getAllRobotsFile() {
+        if(doesFileExist(ALL_ROBOTS_PATH)) {
+            if(isFileMoreThanOneDayOld(ALL_ROBOTS_PATH)) {
+                deleteFileFromCache(ALL_ROBOTS_PATH);
             }
         }
-        if(!doesAllRobotsFileExist()) {
-            writeAllRobotsFileToCache(getAllRobotsFileFromGithub(repo));
+        if(!doesFileExist(ALL_ROBOTS_PATH)) {
+            writeFileToCache(ALL_ROBOTS_PATH,getAllRobotsFileFromGithub("MarginallyClever/RobotOverlordArms"));
         }
-        return getAllRobotsFileFromCache();
+        return getFileFromCache(ALL_ROBOTS_PATH);
     }
 
-    public static void deleteAllRobotsFileFromCache() {
-        File f = new File(ALL_ROBOTS_PATH);
-        logger.info("Deleting robots.txt cache file");
+    public static void deleteFileFromCache(String path) {
+        File f = new File(path);
+        logger.info("Deleting cache file "+path);
         if(!f.delete()) {
-            logger.error(ALL_ROBOTS_TXT + " cache file could not be deleted");
+            logger.error("Cache file could not be deleted");
         }
     }
 
-    public static boolean doesAllRobotsFileExist() {
-        File f = new File(ALL_ROBOTS_PATH);
+    public static boolean doesFileExist(String path) {
+        File f = new File(path);
         return f.exists();
     }
 
-    public static boolean isAllRobotsFileLessThanOneDayOld() {
-        File f = new File(ALL_ROBOTS_PATH);
+    private static boolean isFileMoreThanOneDayOld(String path) {
+        File f = new File(path);
         if(f.exists()) {
             // check if file is older than 1 day
             long currentDate = new Date().getTime();
-            return currentDate - f.lastModified() <= 86400000;
+            return currentDate - f.lastModified() > 86400000;
         }
-        return true;
+        return false;
     }
 
     /**
      * Cache the contents of the "all_robots.txt" file.
      * @param values The contents of the file.
      */
-    private static void writeAllRobotsFileToCache(List<String> values) {
-        logger.info("Writing " + ALL_ROBOTS_TXT + " file to cache");
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(ALL_ROBOTS_PATH), StandardCharsets.UTF_8)) {
+    private static void writeFileToCache(String path,List<String> values) {
+        logger.info("Writing cache file "+path);
+        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(path), StandardCharsets.UTF_8)) {
             for (String value : values) {
                 writer.write(value);
                 writer.newLine();
             }
         } catch (IOException e) {
-            logger.error("Error while writing robots.txt file to cache:"+e.getMessage());
+            logger.error("Error while writing cache file: "+e.getMessage());
             e.printStackTrace();
         }
     }
@@ -335,17 +352,17 @@ public class GithubFetcher {
      * Get the contents of the "all_robots.txt" file from the local cache.
      * @return The contents of the file.
      */
-    private static List<String> getAllRobotsFileFromCache() {
-        logger.info("Fetching " + ALL_ROBOTS_TXT + " file from cache");
+    private static List<String> getFileFromCache(String path) {
+        logger.info("Fetching cache file "+path);
         List<String> results = new ArrayList<>();
 
-        try(BufferedReader reader = Files.newBufferedReader(Paths.get(ALL_ROBOTS_PATH), StandardCharsets.UTF_8)) {
+        try(BufferedReader reader = Files.newBufferedReader(Paths.get(path), StandardCharsets.UTF_8)) {
             String line;
             while ((line = reader.readLine()) != null) {
                 results.add(line);
             }
         } catch( IOException ex ) {
-            logger.error("Error while reading robots.txt file from cache:"+ex.getMessage());
+            logger.error("Error while reading cache file: "+ex.getMessage());
             ex.printStackTrace();
         }
         return results;

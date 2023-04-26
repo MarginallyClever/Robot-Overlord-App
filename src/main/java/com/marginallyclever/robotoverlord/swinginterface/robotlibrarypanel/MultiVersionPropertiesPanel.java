@@ -27,7 +27,7 @@ public class MultiVersionPropertiesPanel extends JPanel {
         setLayout(new BorderLayout());
 
         List<String> tags = GithubFetcher.fetchTags(githubRepositoryUrl);
-        if(tags.size()==0) tags = GithubFetcher.lookForLocalCopy(githubRepositoryUrl);
+        if(tags.size()==0) tags = GithubFetcher.lookForLocallyInstalledTags(githubRepositoryUrl);
         numTags = tags.size();
 
         JPanel pageEnd = new JPanel(new BorderLayout());

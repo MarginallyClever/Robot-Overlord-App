@@ -17,8 +17,9 @@ import java.util.List;
 public class RobotLibraryPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(RobotLibraryPanel.class);
 
-    public RobotLibraryPanel(List<String> repositoryUrls) {
-        setLayout(new BorderLayout());
+    public RobotLibraryPanel() {
+        super(new BorderLayout());
+        List<String> repositoryUrls = GithubFetcher.getAllRobotsFile();
 
         JPanel repositoriesPanel = new JPanel();
         repositoriesPanel.setLayout(new BoxLayout(repositoriesPanel, BoxLayout.Y_AXIS));
@@ -26,14 +27,13 @@ public class RobotLibraryPanel extends JPanel {
         scrollPane.setAlignmentX(LEFT_ALIGNMENT);
 
         int j=0;
-        for (int i = 0; i < repositoryUrls.size(); i++) {
-            String url = repositoryUrls.get(i);
+        for (String url : repositoryUrls) {
             MultiVersionPropertiesPanel multiVersionPropertiesPanel = new MultiVersionPropertiesPanel(url);
-            if(multiVersionPropertiesPanel.getNumTags() == 0) continue; // Skip repositories with no tags
+            if (multiVersionPropertiesPanel.getNumTags() == 0) continue; // Skip repositories with no tags
 
             multiVersionPropertiesPanel.addRobotLibraryListener(this::fireRobotAdded);
 
-            if(j>0) repositoriesPanel.add(new JSeparator());
+            if (j > 0) repositoriesPanel.add(new JSeparator());
 
             JPanel containerPanel = new JPanel();
             containerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -50,9 +50,7 @@ public class RobotLibraryPanel extends JPanel {
     }
 
     public static void main(String[] args) {
-        List<String> values = GithubFetcher.getAllRobotsFile("MarginallyClever/RobotOverlordArms");
-
-        RobotLibraryPanel panel = new RobotLibraryPanel(values);
+        RobotLibraryPanel panel = new RobotLibraryPanel();
         JFrame frame = new JFrame("Robot Library");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setContentPane(panel);
