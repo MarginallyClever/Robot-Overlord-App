@@ -31,13 +31,17 @@ public class ComponentManagerPanel extends JPanel {
 		super(new BorderLayout());
 		this.robotOverlord = robotOverlord;
 
-		componentList.setLayout(new BorderLayout());
+		componentList.setLayout(new BoxLayout(componentList,BoxLayout.Y_AXIS));
 		Insets in = componentList.getInsets();
 		in.left=3;
 		in.top=3;
 		in.right=3;
 		in.bottom=3;
-		add(componentList,BorderLayout.PAGE_START);
+
+		add(toolBar,BorderLayout.NORTH);
+		JPanel wrapper = new JPanel(new BorderLayout());
+		wrapper.add(componentList,BorderLayout.PAGE_START);
+		add(wrapper,BorderLayout.CENTER);
 
 		createToolBar();
 
@@ -49,7 +53,6 @@ public class ComponentManagerPanel extends JPanel {
 		toolBar.add(componentDeleteAction);
 		toolBar.add(componentCopyAction);
 		toolBar.add(componentPasteAction);
-		add(toolBar,BorderLayout.NORTH);
 	}
 
 	/**
@@ -57,7 +60,6 @@ public class ComponentManagerPanel extends JPanel {
 	 */
 	public void refreshContentsFromClipboard() {
 		List<Entity> entityList = Clipboard.getSelectedEntities();
-		componentList.removeAll();
 
 		int size = entityList.size();
 		if(size==0) {
@@ -78,6 +80,7 @@ public class ComponentManagerPanel extends JPanel {
 	}
 
 	private void buildSingleEntityPanel(Entity entity) {
+		componentList.removeAll();
 		if(entity == null) return;
 
 		for(int i=0;i<entity.getComponentCount();++i) {
@@ -89,13 +92,10 @@ public class ComponentManagerPanel extends JPanel {
 		// get the view
 		ComponentPanelFactory factory = new ComponentPanelFactory(robotOverlord,component);
 		component.getView(factory);
-		JComponent componentPanel = factory.getFinalView();
+		JComponent finalView = factory.getFinalView();
 
-		// wrap the view in a panel
+		// create the outer CollapsiblePanel
 		CollapsiblePanel outerPanel = new CollapsiblePanel(component.getName());
-
-		JPanel wrapperPanel = new JPanel(new BorderLayout());
-
 		outerPanel.setCollapsed(!component.getExpanded());
 		outerPanel.addCollapeListener(new CollapsiblePanel.CollapseListener() {
 			@Override
@@ -113,29 +113,34 @@ public class ComponentManagerPanel extends JPanel {
 		JPanel controlPanel = new JPanel();
 		controlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
+		// with a delete button
 		JButton deleteButton = new JButton((String)componentDeleteAction.getValue(Action.NAME));
 		deleteButton.addActionListener(e -> {
 			componentDeleteAction.setComponent(component);
 			componentDeleteAction.actionPerformed(null);
 			componentList.remove(outerPanel);
 		});
+		controlPanel.add(deleteButton);
 
+		// and a copy button
 		JButton copyButton = new JButton((String)componentCopyAction.getValue(Action.NAME));
 		copyButton.addActionListener(e -> {
 			componentCopyAction.setComponent(component);
 			componentCopyAction.actionPerformed(null);
 		});
-
-		controlPanel.add(deleteButton);
 		controlPanel.add(copyButton);
 
-		wrapperPanel.add(componentPanel, BorderLayout.CENTER);
+		// connect the view and control panel in a wrapper panel
+		JPanel wrapperPanel = new JPanel(new BorderLayout());
+		wrapperPanel.add(finalView, BorderLayout.CENTER);
 		wrapperPanel.add(controlPanel, BorderLayout.SOUTH);
 
+		// add the wrapper panel to the outer panel
 		JPanel magic = outerPanel.getContentPane();
 		magic.setLayout(new BorderLayout());
 		magic.add(wrapperPanel, BorderLayout.CENTER);
 
+		// add the outer panel to the list
 		componentList.add(outerPanel);
 	}
 
