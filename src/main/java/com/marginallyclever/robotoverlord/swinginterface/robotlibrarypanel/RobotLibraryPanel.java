@@ -1,10 +1,12 @@
 package com.marginallyclever.robotoverlord.swinginterface.robotlibrarypanel;
 
+import com.marginallyclever.robotoverlord.RobotOverlord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,9 +31,10 @@ public class RobotLibraryPanel extends JPanel {
             MultiVersionPropertiesPanel multiVersionPropertiesPanel = new MultiVersionPropertiesPanel(url);
             if(multiVersionPropertiesPanel.getNumTags() == 0) continue; // Skip repositories with no tags
 
-            if(j>0) {
-                repositoriesPanel.add(new JSeparator());
-            }
+            multiVersionPropertiesPanel.addRobotLibraryListener(this::fireRobotAdded);
+
+            if(j>0) repositoriesPanel.add(new JSeparator());
+
             JPanel containerPanel = new JPanel();
             containerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
             containerPanel.setLayout(new BorderLayout());
@@ -58,5 +61,17 @@ public class RobotLibraryPanel extends JPanel {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+    }
+
+    List<RobotLibraryListener> listeners = new ArrayList<>();
+
+    public void addRobotLibraryListener(RobotLibraryListener listener) {
+        listeners.add(listener);
+    }
+
+    private void fireRobotAdded() {
+        for(RobotLibraryListener listener : listeners) {
+            listener.onRobotAdded();
+        }
     }
 }

@@ -17,6 +17,7 @@ import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
 import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanel;
+import com.marginallyclever.robotoverlord.swinginterface.robotlibrarypanel.RobotLibraryListener;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.util.PropertiesFileHelper;
 import org.slf4j.Logger;
@@ -48,7 +49,7 @@ import java.util.prefs.Preferences;
  *
  * @author Dan Royer
  */
-public class RobotOverlord extends Entity {
+public class RobotOverlord extends Entity implements RobotLibraryListener {
 	private static final Logger logger = LoggerFactory.getLogger(RobotOverlord.class);
 
 	public static final String APP_TITLE = "Robot Overlord";
@@ -232,8 +233,6 @@ public class RobotOverlord extends Entity {
         splitLeftRight.setResizeWeight(1);
 
         mainFrame.add(splitLeftRight);
-        
-        mainFrame.setJMenuBar(mainMenu);
 	}
 
 	private void buildMainFrame() {
@@ -328,6 +327,13 @@ public class RobotOverlord extends Entity {
 		mainMenu.add(createDemoMenu());
 		mainMenu.add(createHelpMenu());
         mainMenu.updateUI();
+
+		mainFrame.setJMenuBar(mainMenu);
+	}
+
+	@Override
+	public void onRobotAdded() {
+		buildMainMenu();
 	}
 
 	private JComponent createFileMenu() {

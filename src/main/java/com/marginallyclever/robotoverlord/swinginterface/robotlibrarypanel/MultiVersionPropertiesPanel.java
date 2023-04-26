@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -90,6 +91,7 @@ public class MultiVersionPropertiesPanel extends JPanel {
     private void installRobotLibrary(String githubRepositoryUrl, String tag) {
         GithubFetcher.installRepository(githubRepositoryUrl, tag);
         updateLibraryStatusPanel(githubRepositoryUrl, tag);
+        fireRobotAdded();
     }
 
     /**
@@ -122,6 +124,18 @@ public class MultiVersionPropertiesPanel extends JPanel {
      */
     public int getNumTags() {
         return numTags;
+    }
+
+    List<RobotLibraryListener> listeners = new ArrayList<>();
+
+    public void addRobotLibraryListener(RobotLibraryListener listener) {
+        listeners.add(listener);
+    }
+
+    private void fireRobotAdded() {
+        for(RobotLibraryListener listener : listeners) {
+            listener.onRobotAdded();
+        }
     }
 
     /**

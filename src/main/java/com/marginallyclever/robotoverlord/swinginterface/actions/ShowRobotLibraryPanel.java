@@ -26,6 +26,7 @@ public class ShowRobotLibraryPanel extends AbstractAction {
         List<String> knownRobots = GithubFetcher.getAllRobotsFile("MarginallyClever/RobotOverlordArms");
 
         RobotLibraryPanel panel = new RobotLibraryPanel(knownRobots);
+        panel.addRobotLibraryListener(robotOverlord);
         JFrame frame = new JFrame("Robot Library");
         frame.setContentPane(panel);
         frame.setPreferredSize(new Dimension(450,600));
