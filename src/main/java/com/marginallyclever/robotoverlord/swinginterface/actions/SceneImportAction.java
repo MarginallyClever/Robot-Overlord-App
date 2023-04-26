@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.Scene;
-import com.marginallyclever.robotoverlord.UnicodeIcon;
+import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
