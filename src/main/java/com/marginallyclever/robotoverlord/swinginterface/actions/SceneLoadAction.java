@@ -20,16 +20,16 @@ import java.util.List;
 
 public class SceneLoadAction extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(SceneLoadAction.class);
-    private final RobotOverlord ro;
+    private final RobotOverlord robotOverlord;
 
     /**
      * The file chooser remembers the last path.
      */
     private static final JFileChooser fc = new JFileChooser();
 
-    public SceneLoadAction(RobotOverlord ro) {
+    public SceneLoadAction(RobotOverlord robotOverlord) {
         super(Translator.get("SceneLoadAction.name"));
-        this.ro=ro;
+        this.robotOverlord = robotOverlord;
         fc.setFileFilter(RobotOverlord.FILE_FILTER);
         putValue(SMALL_ICON,new UnicodeIcon("🗁"));
         putValue(SHORT_DESCRIPTION, Translator.get("SceneLoadAction.shortDescription"));
@@ -46,33 +46,55 @@ public class SceneLoadAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent evt) {
-        if (fc.showOpenDialog(ro.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
-            try {
-                Scene source = loadScene(fc.getSelectedFile());
-
-                SceneClearAction clear = new SceneClearAction(ro);
-                clear.clearScene();
-
-                Scene destination = ro.getScene();
-                destination.setScenePath(source.getScenePath());
-                // when entities are added to destination they will automatically be removed from source.
-                // to prevent concurrent modification exception we have to have a copy of the list.
-                List<Entity> entities = new LinkedList<>(source.getChildren());
-                // now do the move safely.
-                for(Entity e : entities) {
-                    destination.addEntity(e);
-                }
-
-                UndoSystem.reset();
-            } catch(Exception e1) {
-                logger.error(e1.getMessage());
-                JOptionPane.showMessageDialog(ro.getMainFrame(),e1.getLocalizedMessage());
-                e1.printStackTrace();
-            }
+        if (fc.showOpenDialog(robotOverlord.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
+            loadIntoScene(fc.getSelectedFile());
         }
     }
 
-    public Scene loadScene(File file) throws IOException {
+    /**
+     * Load the file into the current Scene.
+     * @param filename the file to load
+     */
+    public void loadIntoScene(String filename) {
+        loadIntoScene(new File(filename));
+    }
+
+    /**
+     * Load the file into the current Scene.
+     * @param file the file to load
+     */
+    public void loadIntoScene(File file) {
+        try {
+            Scene source = loadNewScene(file);
+
+            SceneClearAction clear = new SceneClearAction(robotOverlord);
+            clear.clearScene();
+
+            Scene destination = robotOverlord.getScene();
+            destination.setScenePath(source.getScenePath());
+            // when entities are added to destination they will automatically be removed from source.
+            // to prevent concurrent modification exception we have to have a copy of the list.
+            List<Entity> entities = new LinkedList<>(source.getChildren());
+            // now do the move safely.
+            for(Entity e : entities) {
+                destination.addEntity(e);
+            }
+
+            UndoSystem.reset();
+        } catch(Exception e1) {
+            logger.error(e1.getMessage());
+            JOptionPane.showMessageDialog(robotOverlord.getMainFrame(),e1.getLocalizedMessage());
+            e1.printStackTrace();
+        }
+    }
+
+    /**
+     * Attempt to load the file into a new Scene.
+     * @param file the file to load
+     * @return the new Scene
+     * @throws IOException if the file cannot be read
+     */
+    public Scene loadNewScene(File file) throws IOException {
         StringBuilder responseStrBuilder = new StringBuilder();
         try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
             String inputStr;
@@ -89,7 +111,7 @@ public class SceneLoadAction extends AbstractAction {
             nextScene.parseJSON(new JSONObject(responseStrBuilder.toString()));
         } catch(Exception e1) {
             logger.error(e1.getMessage());
-            JOptionPane.showMessageDialog(ro.getMainFrame(),e1.getLocalizedMessage());
+            JOptionPane.showMessageDialog(robotOverlord.getMainFrame(),e1.getLocalizedMessage());
             e1.printStackTrace();
         }
 

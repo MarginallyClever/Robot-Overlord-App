@@ -11,7 +11,6 @@ import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactor
 import com.marginallyclever.robotoverlord.demos.DemoDog;
 import com.marginallyclever.robotoverlord.demos.DemoSpidee;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
-import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.SoundSystem;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
@@ -32,10 +31,7 @@ import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDropEvent;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -87,12 +83,6 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 	private final Scene scene = new Scene(System.getProperty("user.dir"));
 
 	/**
-	 * The list of actions registered in the editor.  This list is used for calls to
-	 * {@link #updateActionEnableStatus()}.
-	 */
-	private final ArrayList<AbstractAction> actions = new ArrayList<>();
-
-	/**
 	 * The main frame of the GUI
 	 */
 	private JFrame mainFrame;
@@ -131,6 +121,8 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 	 * Collated componentpanel of all components in all selected Entities.
 	 */
 	private final ComponentManagerPanel componentManagerPanel;
+
+	private final RecentFiles recentFiles = new RecentFiles();
 
 
 	public static void main(String[] argv) {
@@ -215,9 +207,7 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 	}
 
 	private void layoutComponents() {
-        logger.info("build main splitter");
-
-		// the right hand stuff
+		// the right hand top/bottom split
 		rightFrameSplitter.add(buildEntityManagerPanel());
 		rightFrameSplitter.add(new JScrollPane(componentManagerPanel));
 		// make sure the master panel can't be squished.
@@ -226,7 +216,7 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
         // if the window resizes, give top and bottom halves equal share of the real estate
 		rightFrameSplitter.setResizeWeight(0.25);
 
-        logger.info("Build right side splitter");
+		// left/right split
         splitLeftRight.add(renderPanel);
         splitLeftRight.add(rightFrameSplitter);
         // if the window resizes, give left half as much real estate as it can get.
@@ -251,18 +241,6 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 			public void windowClosing(WindowEvent e) {
 				confirmClose();
 				super.windowClosing(e);
-			}
-
-			// switch back to this window
-			@Override
-            public void windowActivated(WindowEvent e) {
-				super.windowActivated(e);
-			}
-
-			// switch away to another window
-			@Override
-            public void windowDeactivated(WindowEvent e) {
-				super.windowDeactivated(e);
 			}
 		});
 
@@ -329,6 +307,7 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
         mainMenu.updateUI();
 
 		mainFrame.setJMenuBar(mainMenu);
+		mainFrame.revalidate();
 	}
 
 	@Override
@@ -341,11 +320,35 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 
 		menu.add(new SceneClearAction(this));
 		menu.add(new SceneLoadAction(this));
+		if(recentFiles.size()>0) menu.add(createRecentFilesMenu());
 		menu.add(new SceneImportAction(this));
 		menu.add(new SceneSaveAction(this));
 		menu.add(new JSeparator());
 		menu.add(new QuitAction(this));
 
+		return menu;
+	}
+
+	private JMenu createRecentFilesMenu() {
+		JMenu menu = new JMenu("Recent Files");
+		for(String filename : recentFiles.getFilenames()) {
+			AbstractAction loader = new AbstractAction(filename) {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					SceneLoadAction sceneLoadAction = new SceneLoadAction(RobotOverlord.this);
+					File f = new File(filename);
+					if(f.exists()) {
+						sceneLoadAction.loadIntoScene(filename);
+						recentFiles.add(filename);
+					} else {
+						recentFiles.remove(filename);
+					}
+					buildMainMenu();
+				}
+			};
+			loader.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_1+menu.getItemCount(), InputEvent.CTRL_DOWN_MASK));
+			menu.add(loader);
+		}
 		return menu;
 	}
 
@@ -505,12 +508,6 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 	 */
 	private void updateActionEnableStatus() {
 		updateSelectEntities();
-
-		for(AbstractAction a : actions) {
-			if(a instanceof EditorAction) {
-				((EditorAction)a).updateEnableStatus();
-			}
-		}
 
 		entityTreePanel.updateActionEnableStatus();
 	}

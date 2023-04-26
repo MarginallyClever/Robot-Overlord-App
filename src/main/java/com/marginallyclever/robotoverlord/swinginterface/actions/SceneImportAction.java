@@ -75,7 +75,7 @@ public class SceneImportAction extends AbstractAction {
 
         try {
             SceneLoadAction loader = new SceneLoadAction(ro);
-            Scene source = loader.loadScene(file);
+            Scene source = loader.loadNewScene(file);
             Scene destination = ro.getScene();
 
             updateSceneAssetPaths(source,destination);

@@ -1,60 +1,76 @@
 package com.marginallyclever.robotoverlord;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 public class RecentFiles {
-	protected String[] recentFiles = {"","","","","","","","","",""};
-	protected Preferences prefs = Preferences.userRoot().node("Evil Overlord");
+	private static final Logger logger = LoggerFactory.getLogger(RecentFiles.class);
+	public static final int MAX_FILES=10;
+	private final List<String> filenames = new ArrayList<>();
+	private final Preferences prefs;
 	
-	public RecentFiles() {}
-	
-	/**
-	 * changes the order of the recent files list in the File submenu, saves the updated prefs, and refreshes the menus.
-	 * @param filename the file to push to the top of the list.
-	 */
-	public void update(String filename) {
-		int cnt = recentFiles.length;
-		String [] newFiles = new String[cnt];
-		
-		newFiles[0]=filename;
-		
-		int i,j=1;
-		for(i=0;i<cnt;++i) {
-			if(!filename.equals(recentFiles[i]) && recentFiles[i] != "") {
-				newFiles[j++] = recentFiles[i];
-				if(j == cnt ) break;
-			}
-		}
+	public RecentFiles() {
+		Preferences root = Preferences.userRoot().node("Evil Overlord");
+		prefs = root.node("Recent files");
 
-		recentFiles=newFiles;
-
-		// update prefs
-		for(i=0;i<cnt;++i) {
-			if( recentFiles[i]==null ) recentFiles[i] = "";
-			if( !recentFiles[i].isEmpty() ) {
-				prefs.put("recent-files-"+i, recentFiles[i]);
-			}
+		// load recent files from prefs
+		for(int i=0;i<MAX_FILES;++i) {
+			String fn = prefs.get(String.valueOf(i),null);
+			if(fn==null) break;
+			filenames.add(fn);
 		}
 	}
 
-	// A file failed to load.  Remove it from recent files, refresh the menu bar.
-	public void remove(String filename) {
-		int i;
-		for(i=0;i<recentFiles.length-1;++i) {
-			if(recentFiles[i]==filename) {
-				break;
-			}
-		}
-		for(;i<recentFiles.length-1;++i) {
-			recentFiles[i]=recentFiles[i+1];
-		}
-		recentFiles[recentFiles.length-1]="";
+	public List<String> getFilenames() {
+		return filenames;
+	}
 
-		// update prefs
-		for(i=0;i<recentFiles.length;++i) {
-			if(!recentFiles[i].isEmpty()) {
-				prefs.put("recent-files-"+i, recentFiles[i]);
+	public int size() {
+		return filenames.size();
+	}
+
+	public void add(String filename) {
+		// if it's already in the list, remove it.
+		if(filenames.contains(filename)) {
+			remove(filename);
+		}
+
+		// put it at the top of the list.
+		filenames.add(0,filename);
+
+		// trim the list to MAX_FILES
+		while(filenames.size()>MAX_FILES) {
+			filenames.remove(filenames.size()-1);
+		}
+
+		save();
+	}
+
+	public void remove(String filename) {
+		filenames.remove(filename);
+		save();
+	}
+
+	/**
+	 * Save the recent files list to {@link Preferences}.
+	 */
+	public void save() {
+		try {
+			prefs.clear();
+			int i = 0;
+			for (String fn : filenames) {
+				if (fn == null) continue;
+				if (fn.trim().isEmpty()) continue;
+				prefs.put(String.valueOf(i), fn);
+				i++;
 			}
+			prefs.flush();
+		} catch (Exception e) {
+			logger.warn("Failed to save.", e);
 		}
 	}
 }
