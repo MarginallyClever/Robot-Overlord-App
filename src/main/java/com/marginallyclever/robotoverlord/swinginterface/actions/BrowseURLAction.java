@@ -21,7 +21,8 @@ public class BrowseURLAction extends AbstractAction {
     private final String address;
 
     public BrowseURLAction(String address) {
-        super(Translator.get("BrowseURl.name"));
+        super(Translator.get("BrowseURLAction.name"));
+        putValue(SHORT_DESCRIPTION, Translator.get("BrowseURLAction.shortDescription"));
         this.address = address;
     }
 
@@ -33,7 +34,7 @@ public class BrowseURLAction extends AbstractAction {
             }
         } catch (IOException ex) {
             logger.warn("Could not open browser.", ex);
-            JOptionPane.showMessageDialog((Component)e.getSource(), "Could not open "+address, "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog((Component)e.getSource(), Translator.get("BrowseURLAction.fail",new String[]{address}), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

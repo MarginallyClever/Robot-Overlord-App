@@ -54,7 +54,7 @@ public class EditorUtils {
             Matrix4d before = selectedItems.getWorldPoseAtStart(entity);
             Matrix4d after = selectedItems.getWorldPoseNow(entity);
             entity.findFirstComponent(PoseComponent.class).setWorld(before);
-            UndoSystem.addEvent(src, new PoseMoveEdit(entity, before, after, Translator.get("MoveTool.editName")));
+            UndoSystem.addEvent(src, new PoseMoveEdit(entity, before, after));
         }
     }
 }

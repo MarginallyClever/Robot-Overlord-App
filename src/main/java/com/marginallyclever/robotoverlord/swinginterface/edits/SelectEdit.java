@@ -38,11 +38,11 @@ public class SelectEdit extends AbstractUndoableEdit {
 		if(next.size()==1) {
 			name = next.get(0).getName();
 		} else if(next.size()>1) {
-			name = Translator.get("multiple");
+			name = Translator.get("Select.many",String.valueOf(next.size()));
 		} else {
-			name = Translator.get("nothing");
+			name = Translator.get("Select.nothing");
 		}
-		return Translator.get("Select ") + name;
+		return Translator.get("Select.one",name);
 	}
 
 	@Override

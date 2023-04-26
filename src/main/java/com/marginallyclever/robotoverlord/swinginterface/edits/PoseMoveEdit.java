@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -27,8 +28,6 @@ public class PoseMoveEdit extends AbstractUndoableEdit {
 	private final Matrix4d next;
 	private final Matrix4d prev;
 
-	private final String name;
-
 	/**
 	 * 
 	 * @param entity who
@@ -36,13 +35,12 @@ public class PoseMoveEdit extends AbstractUndoableEdit {
 	 * @param newPivot pivot point after move
 	 * @param name name of the edit
 	 */
-	public PoseMoveEdit(Entity entity, Matrix4d oldPivot, Matrix4d newPivot,String name) {
+	public PoseMoveEdit(Entity entity, Matrix4d oldPivot, Matrix4d newPivot) {
 		super();
 
 		this.entities.add(entity);
 		this.prev = oldPivot;
 		this.next = newPivot;
-		this.name = name;
 
 		doIt(prev,next);
 	}
@@ -61,14 +59,17 @@ public class PoseMoveEdit extends AbstractUndoableEdit {
 		this.entities.addAll(entities);
 		this.prev = oldPivot;
 		this.next = newPivot;
-		this.name = name;
 
 		doIt(prev,next);
 	}
 
 	@Override
 	public String getPresentationName() {
-		return name;
+		if(entities.size()==1) {
+			return Translator.get("PoseMoveEdit.one", entities.get(0).getName());
+		} else {
+			return Translator.get("PoseMoveEdit.many", String.valueOf(entities.size()));
+		}
 	}
 
 	private void doIt(Matrix4d before, Matrix4d after) {

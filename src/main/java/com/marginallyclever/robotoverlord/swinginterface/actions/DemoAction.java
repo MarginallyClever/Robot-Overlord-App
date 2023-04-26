@@ -19,7 +19,7 @@ public class DemoAction extends AbstractAction implements ActionListener {
 	
 	public DemoAction(RobotOverlord ro,Demo demo) {
 		super(demo.getName());
-        putValue(SHORT_DESCRIPTION, Translator.get("Open a demo."));
+        putValue(SHORT_DESCRIPTION, Translator.get("DemoAction.shortDescription"));
 		this.ro = ro;
 		this.demo = demo;
 	}

@@ -17,8 +17,8 @@ public class ForumsAction extends AbstractAction implements ActionListener {
 	private final String FORUM_URL = "https://discord.gg/p2NRZFxXbh";
 	
 	public ForumsAction() {
-		super(Translator.get("Online help"));
-        putValue(SHORT_DESCRIPTION, Translator.get("Go to the forums"));
+		super(Translator.get("ForumsAction.name"));
+        putValue(SHORT_DESCRIPTION, Translator.get("ForumsAction.shortDescription"));
 	}
 
 	@Override

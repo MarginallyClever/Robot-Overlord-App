@@ -16,8 +16,8 @@ public class QuitAction extends AbstractAction implements ActionListener {
 	protected RobotOverlord ro;
 	
 	public QuitAction(RobotOverlord ro) {
-		super(Translator.get("Quit"));
-        putValue(SHORT_DESCRIPTION, Translator.get("Gracefully terminate this app"));
+		super(Translator.get("QuitAction.name"));
+        putValue(SHORT_DESCRIPTION, Translator.get("QuitAction.shortDescription"));
         
         // on Windows
         //putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK) );

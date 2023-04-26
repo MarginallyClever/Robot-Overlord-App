@@ -32,7 +32,7 @@ public class AbstractParameterEdit<T> extends AbstractUndoableEdit {
 	
 	@Override
 	public String getPresentationName() {
-		return Translator.get("Change ")+entity.getName();
+		return Translator.get("AbstractParameterEdit.name",entity.getName());
 	}
 
 	@Override

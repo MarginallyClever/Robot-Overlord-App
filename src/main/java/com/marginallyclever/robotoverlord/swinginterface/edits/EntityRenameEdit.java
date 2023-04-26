@@ -29,7 +29,7 @@ public class EntityRenameEdit extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		return Translator.get("Rename ")+oldName;
+		return Translator.get("ComponentRenameEdit.name",oldName);
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.p
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.presentationlayer.PresentationLayer;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.programpanel.ProgramPanel;
 import com.marginallyclever.robotoverlord.robots.Robot;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,11 +27,11 @@ public class RobotPanel extends JPanel {
 	private final JPanel presentationContainerCenter = new JPanel(new BorderLayout());
 	private PresentationLayer presentationLayer;
 
-	private final JButton bHome = new JButton("Home");
-	private final JButton bRewind = new JButton("Rewind");
-	private final JButton bStart = new JButton("Play");
-	private final JButton bStep = new JButton("Step");
-	private final JButton bPause = new JButton("Pause");
+	private final JButton bHome = new JButton(Translator.get("RobotPanel.Home"));
+	private final JButton bRewind = new JButton(Translator.get("RobotPanel.Rewind"));
+	private final JButton bStart = new JButton(Translator.get("RobotPanel.Play"));
+	private final JButton bStep = new JButton(Translator.get("RobotPanel.Step"));
+	private final JButton bPause = new JButton(Translator.get("RobotPanel.Pause"));
 	private final JProgressBar progress = new JProgressBar(0, 100);
 
 	private boolean isRunning = false;
@@ -45,9 +46,9 @@ public class RobotPanel extends JPanel {
 		setupPresentationContainer();
 
 		JTabbedPane pane = new JTabbedPane();
-		pane.addTab("Jog", jogPanel);
-		pane.addTab("Program", programPanel);
-		pane.addTab("Connect", presentationContainer);
+		pane.addTab(Translator.get("RobotPanel.Jog"), jogPanel);
+		pane.addTab(Translator.get("RobotPanel.Program"), programPanel);
+		pane.addTab(Translator.get("RobotPanel.Connect"), presentationContainer);
 
 		this.setLayout(new BorderLayout());
 		this.add(pane, BorderLayout.CENTER);

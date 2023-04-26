@@ -316,7 +316,7 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 	}
 
 	private JComponent createFileMenu() {
-		JMenu menu = new JMenu(APP_TITLE);
+		JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.File"));
 
 		menu.add(new SceneClearAction(this));
 		menu.add(new SceneLoadAction(this));
@@ -330,7 +330,7 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 	}
 
 	private JMenu createRecentFilesMenu() {
-		JMenu menu = new JMenu("Recent Files");
+		JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.RecentFiles"));
 		for(String filename : recentFiles.getFilenames()) {
 			AbstractAction loader = new AbstractAction(filename) {
 				@Override
@@ -353,14 +353,14 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 	}
 
 	private JComponent createEditMenu() {
-		JMenu menu = new JMenu("Edit");
+		JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.Edit"));
 		menu.add(new JMenuItem(UndoSystem.getCommandUndo()));
 		menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
 		return menu;
 	}
 
 	private JComponent createDemoMenu() {
-		JMenu menu = new JMenu("Demos");
+		JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.Demos"));
 		menu.add(new JMenuItem(new DemoAction(this,new DemoSpidee())));
 		menu.add(new JMenuItem(new DemoAction(this,new DemoDog())));
 		//menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
@@ -436,11 +436,10 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 	}
 
 	private JComponent createHelpMenu() {
-		JMenu menu = new JMenu("Help");
-		JMenuItem buttonViewLog = new JMenuItem("Show Log");
+		JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.Help"));
+		JMenuItem buttonViewLog = new JMenuItem(Translator.get("RobotOverlord.Menu.ShowLog"));
 		buttonViewLog.addActionListener((e) -> showLogDialog() );
 		menu.add(buttonViewLog);
-		menu.add(new JMenuItem(new AboutControlsAction()));
 		menu.add(new JMenuItem(new ForumsAction()));
 		menu.add(new JMenuItem(new CheckForUpdateAction()));
 		menu.add(new JMenuItem(new AboutAction()));

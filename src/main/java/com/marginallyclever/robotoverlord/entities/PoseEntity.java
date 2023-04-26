@@ -361,8 +361,7 @@ public class PoseEntity extends Entity {
 		Matrix4d before = getPoseWorld();
 		Matrix4d after = findMajorAxisTarget(before);
 		if(after!=null) {
-			UndoSystem.addEvent(this,new PoseMoveEdit(this,before,after, Translator.get("PoseEntity.snapZ")));
-
+			UndoSystem.addEvent(this,new PoseMoveEdit(this,before,after));
 		}
 	}
 	
@@ -370,7 +369,7 @@ public class PoseEntity extends Entity {
 		Matrix4d before = getPoseWorld();
 		Matrix4d after = findMinorAxisTarget(before);
 		if(after!=null) {
-			UndoSystem.addEvent(this,new PoseMoveEdit(this,before,after, Translator.get("PoseEntity.snapX")));
+			UndoSystem.addEvent(this,new PoseMoveEdit(this,before,after));
 		}
 	}
 

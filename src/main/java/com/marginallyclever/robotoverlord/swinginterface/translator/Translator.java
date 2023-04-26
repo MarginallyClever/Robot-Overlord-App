@@ -28,6 +28,8 @@ import java.util.stream.Stream;
 public final class Translator {
 	private static final Logger logger = LoggerFactory.getLogger(Translator.class);
 
+	public static final String MISSING = "Missing:";
+
 	/**
 	 * Working directory. This represents the directory where the java executable launched the jar from.
 	 */
@@ -263,9 +265,26 @@ public final class Translator {
 			value = languages.get(currentLanguage).get(key);
 		} catch (Exception e) {
 			logger.error("Translated string missing: "+key,e);
-			//e.printStackTrace();
+			return MISSING+key;
 		}
 		return value;
+	}
+
+	/**
+	 * Translates a string and fills in some details.  String contains the special character sequence "%N", where N is the n-th parameter passed to get()
+	 * A %1 is replaced with the first parameter, %2 with the second, and so on.  There is no escape character.
+	 * @param key name of key to find in translation list
+	 * @param params array of strings to fill in the %N values
+	 * @return the translated value for key, or "missing:key".
+	 */
+	public static String get(String key,String ... params) {
+		String modified = get(key);
+		int n=1;
+		for(String p : params) {
+			modified = modified.replaceAll("%"+n, p);
+			++n;
+		}
+		return modified;
 	}
 
 	/**

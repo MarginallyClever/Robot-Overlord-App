@@ -32,7 +32,7 @@ public class ComponentDeleteEdit extends AbstractUndoableEdit {
 
 	@Override
 	public String getPresentationName() {
-		return Translator.get("Delete ")+entity.getName();
+		return Translator.get("ComponentDeleteEdit.name",entity.getName());
 	}
 
 	@Override

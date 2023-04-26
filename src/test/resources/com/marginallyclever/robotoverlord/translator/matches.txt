@@ -1,0 +1,8 @@
+.addTab(Translator.get("RobotPanel.Jog"), jogInterface);
+JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane.addTab(Translator.get("RobotPanel.Connect"), marlinInterface);
+		tabbedPane.addTab(Translator.get("unknownKey"), programInterface);
+
+		CollapsiblePanel collapsiblePanel = new CollapsiblePanel(parentWindow, Translator.get("RobotPanel.Program"), DIMENSION_COLLAPSIBLE_HEIGHT);
+		collapsiblePanel.add(tabbedPane);
+//		st = Translator.get("unknownKeyInAComment") + " - ";

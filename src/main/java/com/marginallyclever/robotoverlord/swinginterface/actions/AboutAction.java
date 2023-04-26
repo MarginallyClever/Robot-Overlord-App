@@ -21,8 +21,8 @@ public class AboutAction extends AbstractAction implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
 	public AboutAction() {
-		super(Translator.get("About"));
-        putValue(SHORT_DESCRIPTION, Translator.get("About this program"));
+		super(Translator.get("AboutAction.name"));
+        putValue(SHORT_DESCRIPTION, Translator.get("AboutAction.shortDescription"));
 	}
 
 	@Override

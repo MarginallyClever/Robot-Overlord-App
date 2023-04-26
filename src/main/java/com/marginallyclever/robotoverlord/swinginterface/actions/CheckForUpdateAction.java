@@ -25,8 +25,8 @@ public class CheckForUpdateAction extends AbstractAction implements ActionListen
 	public static final String UPDATE_URL = "https://github.com/MarginallyClever/Robot-Overlord-App/releases/latest";
 
 	public CheckForUpdateAction() {
-		super(Translator.get("Check for update"));
-        putValue(SHORT_DESCRIPTION, Translator.get("Check if you are using the latest version of this app"));
+		super(Translator.get("CheckForUpdateAction.name"));
+        putValue(SHORT_DESCRIPTION, Translator.get("CheckForUpdateAction.shortDescription"));
 	}
 
 	@Override

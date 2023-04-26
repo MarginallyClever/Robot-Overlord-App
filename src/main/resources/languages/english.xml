@@ -455,16 +455,6 @@
 		<hint>manual driving dialog</hint>
 	</string>
 	<string>
-		<key>Left</key>
-		<value>Left</value>
-		<hint>manual driving dialog</hint>
-	</string>
-	<string>
-		<key>Right</key>
-		<value>Right</value>
-		<hint>manual driving dialog</hint>
-	</string>
-	<string>
 		<key>PenUp</key>
 		<value>Pen up</value>
 		<hint>manual driving dialog</hint>
@@ -560,14 +550,12 @@ to check yourself.</value>
 		<hint>menu or dialog title</hint>
 	</string>
 	<string>
-		<key>MenuAbout</key>
-		<value>About</value>
-		<hint>menu or dialog title</hint>
+		<key>QuitAction.name</key>
+		<value>Quit</value>
 	</string>
 	<string>
-		<key>MenuQuit</key>
-		<value>Quit</value>
-		<hint>menu or dialog title</hint>
+		<key>QuitAction.shortDescription</key>
+		<value>Gracefully terminate this app</value>
 	</string>
 
 	<string>
@@ -753,12 +741,6 @@ to check yourself.</value>
 		<hint>Adjust pen tool</hint>
 	</string>
 
-
-	<string>
-		<key>spraypaintToolTest</key>
-		<value>Spraypaint</value>
-		<hint>Spraypaint tool</hint>
-	</string>
 	<string>
 		<key>spraypaintToolDiameter</key>
 		<value>Dot size</value>
@@ -1027,23 +1009,6 @@ to check yourself.</value>
 		<hint>open machine settings dialog</hint>
 	</string>
 	<string>
-		<key>MenuResetMachinePreferences</key>
-		<value>Reset Preferences</value>
-		<hint>Preferences menu</hint>
-	</string>
-	<string>
-		<key>MenuLog</key>
-		<value>Log</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	
-	<string>
-		<key>PaperSize</key>
-		<value>Paper Size</value>
-		<hint>machine size control panel</hint>
-	</string>
-	
-	<string>
 		<key>ServoLengthNeeded</key>
 		<value>Servo wire length:</value>
 		<hint>settings > machine > measurement calculations</hint>
@@ -1121,12 +1086,12 @@ to check yourself.</value>
 	</string>
 
 	<string>
-		<key>Add Component</key>
+		<key>ComponentAddAction.name</key>
 		<value>Add Component</value>
 	</string>
 	<string>
-		<key>Remove Component</key>
-		<value>Remove Component</value>
+		<key>ComponentAddAction.shortDescription</key>
+		<value>Add a Component to an Entity</value>
 	</string>
 	
 	<string>
@@ -1170,7 +1135,7 @@ to check yourself.</value>
 		<hint>Main Menu/Help</hint>
 	</string>
 	<string>
-		<key>About</key>
+		<key>AboutAction.name</key>
 		<value>About</value>
 		<hint>Main Menu/Help</hint>
 	</string>
@@ -1212,12 +1177,24 @@ to check yourself.</value>
 		<value>New Scene</value>
 	</string>
 	<string>
+		<key>SceneClearAction.shortDescription</key>
+		<value>Clear everything and restart</value>
+	</string>
+	<string>
 		<key>SceneLoadAction.name</key>
 		<value>Load...</value>
 	</string>
 	<string>
+		<key>SceneLoadAction.shortDescription</key>
+		<value>Load a scene</value>
+	</string>
+	<string>
 		<key>SceneSaveAction.name</key>
 		<value>Save As...</value>
+	</string>
+	<string>
+		<key>SceneSaveAction.shortDescription</key>
+		<value>Save this scene</value>
 	</string>
 	<string>
 		<key>SceneImportAction.name</key>
@@ -1243,6 +1220,14 @@ to check yourself.</value>
 	<string>
 		<key>ComponentDeleteAction.name</key>
 		<value>Delete</value>
+	</string>
+	<string>
+		<key>ComponentDeleteAction.shortDescription</key>
+		<value>Delete a Component from an Entity</value>
+	</string>
+	<string>
+		<key>DemoAction.shortDescription</key>
+		<value>Opens a procedurally built demo</value>
 	</string>
 
 	<string>
@@ -1289,8 +1274,16 @@ to check yourself.</value>
 		<value>Copy</value>
 	</string>
 	<string>
+		<key>ComponentCopyAction.shortDescription</key>
+		<value>Copy a Component</value>
+	</string>
+	<string>
 		<key>ComponentPasteAction.name</key>
 		<value>Paste</value>
+	</string>
+	<string>
+		<key>ComponentPasteAction.shortDescription</key>
+		<value>Paste a Component to an Entity</value>
 	</string>
 
 	<string>
@@ -1299,18 +1292,32 @@ to check yourself.</value>
 	</string>
 
 	<string>
-		<key>nothing</key>
-		<value>nothing</value>
+		<key>Select.one</key>
+		<value>Select %1</value>
+	</string>
+
+	<string>
+		<key>Select.nothing</key>
+		<value>Select nothing</value>
+	</string>
+
+	<string>
+		<key>Select.many</key>
+		<value>%1 items</value>
+	</string>
+
+	<string>
+		<key>PoseMoveEdit.one</key>
+		<value>Move %1</value>
+	</string>
+	<string>
+		<key>PoseMoveEdit.many</key>
+		<value>Move %1 items</value>
 	</string>
 
 	<string>
 		<key>EntityAddChildAction.shortDescription</key>
 		<value>Add</value>
-	</string>
-
-	<string>
-		<key>EntityDeleteAction.shortDescription</key>
-		<value>Delete</value>
 	</string>
 
 	<string>
@@ -1339,43 +1346,113 @@ to check yourself.</value>
 	</string>
 
 	<string>
-		<key>EntityAddChildAction.name</key>
-		<value>Add</value>
-	</string>
-
-	<string>
-		<key>EntityDeleteAction.name</key>
-		<value>Delete</value>
-	</string>
-
-	<string>
-		<key>EntityDeleteAction.name</key>
-		<value>Delete</value>
-	</string>
-
-	<string>
-		<key>EntityCopyAction.name</key>
-		<value>Copy</value>
-	</string>
-
-	<string>
-		<key>EntityCutAction.name</key>
-		<value>Cut</value>
-	</string>
-
-	<string>
-		<key>EntityPasteAction.name</key>
-		<value>Paste</value>
-	</string>
-
-	<string>
-		<key>EntityRenameAction.name</key>
-		<value>Paste</value>
-	</string>
-
-	<string>
 		<key>EntityReorganizeEdit.name</key>
 		<value>Reorganize</value>
 	</string>
 
+	<string>
+		<key>RobotOverlord.Menu.File</key>
+		<value>File</value>
+	</string>
+
+	<string>
+		<key>RobotOverlord.Menu.RecentFiles</key>
+		<value>Recent Files</value>
+	</string>
+	<string>
+		<key>RobotOverlord.Menu.Edit</key>
+		<value>Edit</value>
+	</string>
+	<string>
+		<key>RobotOverlord.Menu.Demos</key>
+		<value>Demos</value>
+	</string>
+	<string>
+		<key>RobotOverlord.Menu.Help</key>
+		<value>Help</value>
+	</string>
+	<string>
+		<key>RobotOverlord.Menu.ShowLog</key>
+		<value>Show log</value>
+	</string>
+
+	<string>
+		<key>RobotPanel.Home</key>
+		<value>Home</value>
+	</string>
+	<string>
+		<key>RobotPanel.Rewind</key>
+		<value>Rewind</value>
+	</string>
+	<string>
+		<key>RobotPanel.Play</key>
+		<value>Play</value>
+	</string>
+	<string>
+		<key>RobotPanel.Step</key>
+		<value>Step</value>
+	</string>
+	<string>
+		<key>RobotPanel.Pause</key>
+		<value>Pause</value>
+	</string>
+	<string>
+		<key>RobotPanel.Jog</key>
+		<value>Jog</value>
+	</string>
+	<string>
+		<key>RobotPanel.Program</key>
+		<value>Program</value>
+	</string>
+	<string>
+		<key>RobotPanel.Connect</key>
+		<value>Connect</value>
+	</string>
+	<string>
+		<key>AboutAction.shortDescription</key>
+		<value>About this program</value>
+	</string>
+
+	<string>
+		<key>BrowseURLAction.name</key>
+		<value>Browse URL</value>
+	</string>
+	<string>
+		<key>BrowseURLAction.shortDescription</key>
+		<value>Open a URL in your default browser</value>
+	</string>
+	<string>
+		<key>BrowseURLAction.fail</key>
+		<value>Could not open %1</value>
+	</string>
+
+	<string>
+		<key>CheckForUpdateAction.name</key>
+		<value>Check for update</value>
+	</string>
+	<string>
+		<key>CheckForUpdateAction.shortDescription</key>
+		<value>Check if you are using the latest version of this app</value>
+	</string>
+
+	<string>
+		<key>ForumsAction.name</key>
+		<value>Online help</value>
+	</string>
+	<string>
+		<key>ForumsAction.shortDescription</key>
+		<value>Go to the forums</value>
+	</string>
+	<string>
+		<key>AbstractParameterEdit.name</key>
+		<value>Change %1</value>
+	</string>
+	<string>
+		<key>ComponentDeleteEdit.name</key>
+		<value>Delete %1</value>
+	</string>
+	<string>
+		<key>ComponentRenameEdit.name</key>
+		<value>Rename %1</value>
+	</string>
 </language>
