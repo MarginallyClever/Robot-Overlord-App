@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.ComponentFactory;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.UnicodeIcon;
+import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.ComponentDependency;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
