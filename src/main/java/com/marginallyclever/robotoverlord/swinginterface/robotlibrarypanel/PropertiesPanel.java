@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swinginterface.pluginExplorer;
+package com.marginallyclever.robotoverlord.swinginterface.robotlibrarypanel;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

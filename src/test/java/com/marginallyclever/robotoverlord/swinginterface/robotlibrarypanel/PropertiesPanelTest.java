@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swinginterface.pluginExplorer;
+package com.marginallyclever.robotoverlord.swinginterface.robotlibrarypanel;
 
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 

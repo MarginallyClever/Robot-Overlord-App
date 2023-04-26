@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swinginterface.pluginExplorer;
+package com.marginallyclever.robotoverlord.swinginterface.robotlibrarypanel;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

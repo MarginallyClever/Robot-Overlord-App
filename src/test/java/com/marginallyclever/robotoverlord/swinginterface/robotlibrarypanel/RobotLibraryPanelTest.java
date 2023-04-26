@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swinginterface.pluginExplorer;
+package com.marginallyclever.robotoverlord.swinginterface.robotlibrarypanel;
 
 import org.assertj.swing.core.BasicRobot;
 import org.assertj.swing.core.Robot;

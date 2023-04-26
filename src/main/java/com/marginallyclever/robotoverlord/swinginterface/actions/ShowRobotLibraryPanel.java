@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.swinginterface.pluginExplorer.GithubFetcher;
-import com.marginallyclever.robotoverlord.swinginterface.pluginExplorer.RobotLibraryPanel;
+import com.marginallyclever.robotoverlord.swinginterface.robotlibrarypanel.GithubFetcher;
+import com.marginallyclever.robotoverlord.swinginterface.robotlibrarypanel.RobotLibraryPanel;
 
 import javax.swing.*;
 import java.awt.*;
