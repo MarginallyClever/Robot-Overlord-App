@@ -35,7 +35,7 @@ public class AboutAction extends AbstractAction implements ActionListener {
 						+"<h4>Created by</h4>"
 						+"<p>Dan Royer (dan@marginallyclever.com).</p>"
 						+"<h4>Testers</h4>"
-						+"<p>ArcRobotics</p>"
+						+"<p>Omar al rafei (Arc robotics)</p>"
 						+"<h4>More info</h4>"
 						+"<p>To get the latest version please visit<br><a href='"+RobotOverlord.APP_URL+"'>"+RobotOverlord.APP_URL+"</a></p><br>"
 						+"<p>This program is open source and free.  If this was helpful<br> to you, please buy me a thank you beer through Paypal.</p>"
