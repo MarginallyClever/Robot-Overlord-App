@@ -8,5 +8,6 @@ import java.io.Serializable;
  * @author Dan Royer
  *
  */
+@Deprecated
 public abstract interface Memento extends Serializable {
 }

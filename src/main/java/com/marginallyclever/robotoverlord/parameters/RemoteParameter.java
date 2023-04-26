@@ -102,7 +102,7 @@ public class RemoteParameter extends StringParameter implements SessionLayerList
 	}
 	
 	public void openConnection() {
-		Entity e = getRoot();
+		Entity e = null;//getRoot();
 		Component parent = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
 		
 		sessionLayer = SessionLayerManager.requestNewSession(parent);
@@ -112,7 +112,6 @@ public class RemoteParameter extends StringParameter implements SessionLayerList
 		}
 	}
 
-	@Override
 	public void update(double dt) {
 		if(sessionLayer ==null) return;
 		

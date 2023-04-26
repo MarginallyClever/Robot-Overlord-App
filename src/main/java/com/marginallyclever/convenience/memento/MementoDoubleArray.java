@@ -4,6 +4,7 @@ package com.marginallyclever.convenience.memento;
  * 
  * @author Dan Royer
  */
+@Deprecated
 public class MementoDoubleArray implements Memento, Cloneable {
 	/**
 	 * 

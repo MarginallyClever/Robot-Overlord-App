@@ -14,22 +14,15 @@ import javax.vecmath.Vector3d;
  * @author Dan Royer
  */
 public class SkyBox {
-	private transient final TextureParameter textureZPos = new TextureParameter("/skybox/cube-z-pos.png");
-	private transient final TextureParameter textureXPos = new TextureParameter("/skybox/cube-x-pos.png");
-	private transient final TextureParameter textureXNeg = new TextureParameter("/skybox/cube-x-neg.png");
-	private transient final TextureParameter textureYPos = new TextureParameter("/skybox/cube-y-pos.png");
-	private transient final TextureParameter textureYNeg = new TextureParameter("/skybox/cube-y-neg.png");
-	private transient final TextureParameter textureZNeg = new TextureParameter("/skybox/cube-z-neg.png");
+	private transient final TextureParameter textureXPos = new TextureParameter("XPos","/skybox/cube-x-pos.png");
+	private transient final TextureParameter textureXNeg = new TextureParameter("XNeg","/skybox/cube-x-neg.png");
+	private transient final TextureParameter textureYPos = new TextureParameter("YPos","/skybox/cube-y-pos.png");
+	private transient final TextureParameter textureYNeg = new TextureParameter("YNeg","/skybox/cube-y-neg.png");
+	private transient final TextureParameter textureZPos = new TextureParameter("ZPos","/skybox/cube-z-pos.png");
+	private transient final TextureParameter textureZNeg = new TextureParameter("ZNeg","/skybox/cube-z-neg.png");
 
 	public SkyBox() {
 		super();
-		
-		textureXPos.setName("XPos");
-		textureXNeg.setName("XNeg");
-		textureYPos.setName("YPos");
-		textureYNeg.setName("YNeg");
-		textureZPos.setName("ZPos");
-		textureZNeg.setName("ZNeg");
 	}
 
 	public void render(GL2 gl2,CameraComponent camera) {

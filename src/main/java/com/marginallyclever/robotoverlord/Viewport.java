@@ -41,11 +41,6 @@ public class Viewport extends Entity {
 	
 	public Viewport() {
 		super();
-
-		addEntity(drawOrthographic);
-		addEntity(farZ);
-		addEntity(nearZ);
-		addEntity(fieldOfView);
 	}
 	
 	public void renderPerspective(GL2 gl2) {

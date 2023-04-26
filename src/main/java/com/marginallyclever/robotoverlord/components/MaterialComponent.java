@@ -23,7 +23,7 @@ public class MaterialComponent extends Component {
     private final ColorParameter emission   = new ColorParameter("Emission",0,0,0,1);
     private final IntParameter shininess    = new IntParameter("Shininess",10);
     private final BooleanParameter isLit    = new BooleanParameter("Lit",true);
-    private final TextureParameter texture  = new TextureParameter();
+    private final TextureParameter texture  = new TextureParameter("Texture",null);
 
     public MaterialComponent() {
         super();
@@ -174,7 +174,7 @@ public class MaterialComponent extends Component {
 
         Scene myScene = getScene();
         if(myScene!=null) {
-            TextureParameter te = new TextureParameter(myScene.removeScenePath(texture.get()));
+            TextureParameter te = new TextureParameter(texture.getName(),myScene.removeScenePath(texture.get()));
             jo.put("texture",te.toJSON());
         } else {
             jo.put("texture",texture.toJSON());
@@ -193,15 +193,15 @@ public class MaterialComponent extends Component {
         specular.parseJSON(jo.getJSONObject("specular"));
         shininess.parseJSON(jo.getJSONObject("shininess"));
 
-        TextureParameter te = new TextureParameter();
+        TextureParameter te = new TextureParameter(null,null);
         te.parseJSON(jo.getJSONObject("texture"));
         String fn = te.get();
-        if(!fn.isEmpty() && !(new File(fn)).exists()) {
+        if(fn!=null && !fn.isEmpty() && !(new File(fn)).exists()) {
             Scene myScene = getScene();
             if(myScene!=null) {
                 te.set(myScene.addScenePath(fn));
             }
         }
-        texture.set(te.get());
+        texture.set(fn);
     }
 }

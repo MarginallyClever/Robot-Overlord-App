@@ -26,17 +26,12 @@ public class TextureParameter extends StringParameter {
 	
 	private transient Texture texture;
 	private transient boolean textureDirty;
-	
-	public TextureParameter() {
-		super("Texture","");
-	}
-	
-	public TextureParameter(String fileName) {
-		super("Texture",fileName);
+
+	public TextureParameter(String name,String fileName) {
+		super(name,fileName);
 		textureDirty=true;
 	}
 
-	@Override
 	public void render(GL2 gl2) {
 		if(textureDirty) {
 			// texture has changed, load the new texture.

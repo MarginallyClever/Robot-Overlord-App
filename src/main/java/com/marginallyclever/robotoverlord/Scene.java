@@ -250,6 +250,8 @@ public class Scene extends Entity {
 	 * @return the relative path to the asset, or absolute if the asset is not within the scene path.
 	 */
 	public String removeScenePath(String unCheckedAssetFilename) {
+		if(unCheckedAssetFilename==null) return null;
+
 		String scenePathValue = getScenePath();
 		if(unCheckedAssetFilename.startsWith(scenePathValue)) {
 			return unCheckedAssetFilename.substring(scenePathValue.length());
