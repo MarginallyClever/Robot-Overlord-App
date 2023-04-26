@@ -136,7 +136,7 @@ public class RobotOverlord extends Entity {
 		Log.start();
 		//logFrame = LogPanel.createFrame();
 		logFrame = LogPanel3.createFrame(Log.getLogLocation());
-		PathUtils.goToAppWorkingDirectory();
+		PathUtils.start();
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

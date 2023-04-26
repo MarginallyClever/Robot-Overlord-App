@@ -40,10 +40,20 @@ public class PathUtils {
         System.setProperty("user.dir", dir);
     }
 
+    public static void start() {
+        createDirectoryIfNotExists(PathUtils.APP_BASE);
+        createDirectoryIfNotExists(PathUtils.APP_CACHE);
+        createDirectoryIfNotExists(PathUtils.APP_PLUGINS);
+        goToAppWorkingDirectory();
+    }
+
     public static void goToAppWorkingDirectory() {
         // set the current directory to the user's home directory
         setCurrentWorkingDirectory(PathUtils.APP_BASE);
-        File f = new File(PathUtils.APP_BASE);
+    }
+
+    public static void createDirectoryIfNotExists(String path) {
+        File f = new File(path);
         if(!f.exists() && !f.mkdirs()) {
             JOptionPane.showConfirmDialog(
                     null,
