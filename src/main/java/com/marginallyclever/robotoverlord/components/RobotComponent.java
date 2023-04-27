@@ -53,18 +53,17 @@ public class RobotComponent extends Component implements Robot {
         findBones();
 
         ViewElementButton bOpen = view.addButton("Open control panel");
-        bOpen.addActionEventListener((evt)-> showControlPanel());
+        bOpen.addActionEventListener((evt)-> showControlPanel(bOpen));
 
         ViewElementButton bDHTable = view.addButton("Open DH Table");
-        bDHTable.addActionEventListener((evt)-> showDHTable());
+        bDHTable.addActionEventListener((evt)-> showDHTable(bDHTable));
 
         ViewElementButton bHome = view.addButton("Go home");
         bHome.addActionEventListener((evt)-> goHome());
     }
 
-    private void showDHTable() {
-        Entity e = getEntity().getRoot();
-        final JFrame parentFrame = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
+    private void showDHTable(JComponent parent) {
+        JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(parent);
         final RobotComponent me = this;
 
         JDialog frame = new JDialog(parentFrame,"DH Table");
@@ -75,9 +74,8 @@ public class RobotComponent extends Component implements Robot {
         frame.setVisible(true);
     }
 
-    private void showControlPanel() {
-        Entity e = getEntity().getRoot();
-        final JFrame parentFrame = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
+    private void showControlPanel(JComponent parent) {
+        JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(parent);
         final RobotComponent me = this;
         final GCodePathComponent gCodePath = getGCodePath();
 

@@ -40,7 +40,6 @@ public class OpenGLRenderPanel extends JPanel {
     private static final int VERTICAL_SYNC_ON = 1;  // 1 on, 0 off
     private static final int DEFAULT_FRAMES_PER_SECOND = 30;
 
-    private final RobotOverlord robotOverlord;
     private final Scene scene;
 
     // OpenGL debugging
@@ -49,6 +48,9 @@ public class OpenGLRenderPanel extends JPanel {
 
     // should I check the state of the OpenGL stack size?  true=every frame, false=never
     private final boolean checkStackSize = false;
+
+    // used to check the stack size.
+    private final IntBuffer stackDepth = IntBuffer.allocate(1);
 
     // the render canvas
     private GLJPanel glCanvas;
@@ -65,14 +67,18 @@ public class OpenGLRenderPanel extends JPanel {
     // click on screen to change which entity is selected
     private final Viewport viewport = new Viewport();
 
-    // elements in componentpanel, not really part of the scene
+    /**
+     * Displayed in a 2D overlay, helps the user orient themselves in 3D space.
+     */
     private transient final ViewCube viewCube = new ViewCube();
+
+    /**
+     * The "very far away" background to the scene.
+     */
     private transient final SkyBox sky = new SkyBox();
 
     private final List<EditorTool> editorTools = new ArrayList<>();
     private int activeToolIndex = -1;
-
-    private final IntBuffer stackDepth = IntBuffer.allocate(1);
 
     private final BooleanParameter showWorldOrigin = new BooleanParameter("Show world origin",false);
 
@@ -91,19 +97,19 @@ public class OpenGLRenderPanel extends JPanel {
     private final List<MatrixMaterialRender> alpha = new ArrayList<>();
     private final List<MatrixMaterialRender> noMaterial = new ArrayList<>();
 
-    public OpenGLRenderPanel(RobotOverlord robotOverlord,Scene scene) {
+    public OpenGLRenderPanel(Scene scene) {
         super(new BorderLayout());
-        this.robotOverlord = robotOverlord;
         this.scene = scene;
 
         createCanvas();
         addCanvasListeners();
         hideDefaultCursor();
 
-        this.setMinimumSize(new Dimension(300, 300));
-        this.add(setupTools(), BorderLayout.NORTH);
-        this.add(glCanvas, BorderLayout.CENTER);
+        setMinimumSize(new Dimension(300, 300));
+        add(setupTools(), BorderLayout.NORTH);
+        add(glCanvas, BorderLayout.CENTER);
 
+        startAnimationSystem();
     }
 
     private JToolBar setupTools() {
@@ -357,7 +363,7 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     private CameraComponent getCamera() {
-        return robotOverlord.findFirstComponentRecursive(CameraComponent.class);
+        return scene.getCamera();
     }
 
     private void checkRenderStep(GL2 gl2) {

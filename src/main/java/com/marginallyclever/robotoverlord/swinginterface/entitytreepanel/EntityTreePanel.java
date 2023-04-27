@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.SceneChangeListener;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
@@ -29,7 +30,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 	private final List<EntityTreePanelListener> listeners = new ArrayList<>();
 	private final List<AbstractAction> actions = new ArrayList<>();
 
-	public EntityTreePanel() {
+	public EntityTreePanel(Scene scene) {
 		super(new BorderLayout());
 
 		tree.setShowsRootHandles(true);
@@ -38,12 +39,12 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 		tree.setEditable(true);
 		tree.setModel(treeModel);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
-		addMouseListener();
-		addExpansionListener();
-
 		tree.setDragEnabled(true);
 		tree.setDropMode(DropMode.ON_OR_INSERT);
 		tree.setTransferHandler(new EntityTreeTransferHandler());
+
+		addMouseListener();
+		addExpansionListener();
 
 		addEntityTreePanelListener((e)-> {
 			if (e.eventType == EntityTreePanelEvent.SELECT) {
@@ -56,10 +57,13 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 		this.add(scroll,BorderLayout.CENTER);
 		this.add(createMenu(),BorderLayout.NORTH);
 
-		// Set up keyboard shortcuts
-		InputMap inputMap = tree.getInputMap(JComponent.WHEN_FOCUSED);
-		ActionMap actionMap = tree.getActionMap();
+		addTreeModelListener();
 
+		addEntity(scene);
+		scene.addSceneChangeListener(this);
+	}
+
+	private void addTreeModelListener() {
 		treeModel.addTreeModelListener(new TreeModelListener() {
 			@Override
 			public void treeNodesChanged(TreeModelEvent e) {

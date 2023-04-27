@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
 import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentAddAction;
@@ -19,7 +20,7 @@ import java.util.List;
  */
 public class ComponentManagerPanel extends JPanel {
 
-	private final RobotOverlord robotOverlord;
+	private final Scene scene;
 	private final JPanel componentList = new JPanel();
 	private final JToolBar toolBar = new JToolBar();
 	private final ComponentDeleteAction componentDeleteAction = new ComponentDeleteAction(this);
@@ -27,9 +28,9 @@ public class ComponentManagerPanel extends JPanel {
 	private final ComponentPasteAction componentPasteAction = new ComponentPasteAction();
 
 
-	public ComponentManagerPanel(RobotOverlord robotOverlord) {
+	public ComponentManagerPanel(Scene scene) {
 		super(new BorderLayout());
-		this.robotOverlord = robotOverlord;
+		this.scene = scene;
 
 		componentList.setLayout(new BoxLayout(componentList,BoxLayout.Y_AXIS));
 		Insets in = componentList.getInsets();
@@ -90,7 +91,7 @@ public class ComponentManagerPanel extends JPanel {
 
 	private void addSingleComponent(Entity entity,Component component) {
 		// get the view
-		ComponentPanelFactory factory = new ComponentPanelFactory(robotOverlord,component);
+		ComponentPanelFactory factory = new ComponentPanelFactory(scene,component);
 		component.getView(factory);
 		JComponent finalView = factory.getFinalView();
 
@@ -154,7 +155,7 @@ public class ComponentManagerPanel extends JPanel {
 		for(int i=0;i<first.getComponentCount();++i) {
 			Component component = first.getComponent(i);
 			if(sameComponentInAllEntities(component,entityList)) {
-				ComponentPanelFactory factory = new ComponentPanelFactory(robotOverlord,component);
+				ComponentPanelFactory factory = new ComponentPanelFactory(scene,component);
 				component.getView(factory);
 				JComponent componentPanel = factory.getFinalView();
 				componentList.add(componentPanel);

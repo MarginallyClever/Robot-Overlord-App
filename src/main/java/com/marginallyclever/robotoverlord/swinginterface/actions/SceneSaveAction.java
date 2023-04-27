@@ -1,16 +1,21 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Save the world state to a file.  This action is not an undoable action.
@@ -18,16 +23,17 @@ import java.io.FileWriter;
  *
  */
 public class SceneSaveAction extends AbstractAction implements ActionListener {
-	private final RobotOverlord ro;
+	private static final Logger logger = LoggerFactory.getLogger(SceneSaveAction.class);
+	private final Scene scene;
 
 	/**
 	 * The file chooser remembers the last path.
 	 */
 	private static final JFileChooser fc = new JFileChooser();
 	
-	public SceneSaveAction(RobotOverlord ro) {
+	public SceneSaveAction(Scene scene) {
 		super(Translator.get("SceneSaveAction.name"));
-		this.ro = ro;
+		this.scene = scene;
 		fc.setFileFilter(RobotOverlord.FILE_FILTER);
 		putValue(SMALL_ICON,new UnicodeIcon("💾"));
 		putValue(SHORT_DESCRIPTION, Translator.get("SceneSaveAction.shortDescription"));
@@ -44,9 +50,18 @@ public class SceneSaveAction extends AbstractAction implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (fc.showSaveDialog(ro.getMainFrame()) == JFileChooser.APPROVE_OPTION) {
+		Component source = (Component) e.getSource();
+		JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
+
+		if (fc.showSaveDialog(parentFrame) == JFileChooser.APPROVE_OPTION) {
 			String name = addExtensionIfNeeded(fc.getSelectedFile().getAbsolutePath());
-			saveModelToFile(name);
+			try {
+				saveModelToFile(name);
+			} catch(Exception ex) {
+				logger.error("Error saving file: ",ex);
+				JOptionPane.showMessageDialog(parentFrame,ex.getLocalizedMessage());
+				ex.printStackTrace();
+			}
 		}
 	}
 
@@ -67,12 +82,10 @@ public class SceneSaveAction extends AbstractAction implements ActionListener {
 		return filename + "." + extensions[0];
 	}
 
-	private void saveModelToFile(String absolutePath) {
+	private void saveModelToFile(String absolutePath) throws IOException {
+		// try-with-resources will close the file for us.
 		try(BufferedWriter w = new BufferedWriter(new FileWriter(absolutePath))) {
-			w.write(ro.getScene().toJSON().toString());
-		} catch(Exception e) {
-			JOptionPane.showMessageDialog(ro.getMainFrame(),e.getLocalizedMessage());
-			e.printStackTrace();
+			w.write(scene.toJSON().toString());
 		}
 	}
 }

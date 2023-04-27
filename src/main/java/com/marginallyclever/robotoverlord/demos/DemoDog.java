@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.demos;
 
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
@@ -21,11 +21,9 @@ public class DemoDog implements Demo {
 	}
 
 	@Override
-	public void execute(RobotOverlord ro) {
-		Entity sc = ro.getScene();
-
+	public void execute(Scene scene) {
 		// adjust default camera
-		CameraComponent camera = ro.getCamera();
+		CameraComponent camera = scene.getCamera();
 		PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
 		pose.setPosition(new Vector3d(40/4f,-91/4f,106/4f));
 		camera.lookAt(new Vector3d(0,0,0));
@@ -35,7 +33,7 @@ public class DemoDog implements Demo {
 		Entity gridEntity = new Entity("Grid");
 		Grid grid = new Grid();
 		gridEntity.addComponent(grid);
-		sc.addEntity(gridEntity);
+		scene.addEntity(gridEntity);
 		grid.setWidth(100);
 		grid.setLength(100);
 		MaterialComponent mat = gridEntity.findFirstComponent(MaterialComponent.class);
@@ -44,7 +42,7 @@ public class DemoDog implements Demo {
 
 		// add dog
 		Entity dog = new Entity("SpotMicro");
-		sc.addEntity(dog);
+		scene.addEntity(dog);
 		dog.addComponent(new DogRobotComponent());
 	}
 }

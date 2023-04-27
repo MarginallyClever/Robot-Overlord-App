@@ -187,4 +187,8 @@ public class Scene extends Entity {
 		}
 		return null;
     }
+
+	public CameraComponent getCamera() {
+		return findFirstComponentRecursive(CameraComponent.class);
+	}
 }

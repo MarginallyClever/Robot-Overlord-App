@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.parameters.*;
 import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
 
@@ -20,11 +21,11 @@ public class ComponentPanelFactory extends ViewElement {
 	private final JPanel innerPanel = new JPanel();
 	private final GridBagConstraints gbc = new GridBagConstraints();
 
-	private final RobotOverlord robotOverlord;
+	private final Scene scene;
 
-	public ComponentPanelFactory(RobotOverlord robotOverlord,Component component) {
+	public ComponentPanelFactory(Scene scene,Component component) {
 		super();
-		this.robotOverlord = robotOverlord;
+		this.scene = scene;
 
 		innerPanel.setLayout(new GridBagLayout());
 		innerPanel.setBorder(new EmptyBorder(1, 1, 1, 1));
@@ -60,7 +61,7 @@ public class ComponentPanelFactory extends ViewElement {
 		else if(parameter instanceof DoubleParameter   ) element = new ViewElementDouble   ((DoubleParameter)parameter);
 		else if(parameter instanceof IntParameter      ) element = new ViewElementInt      ((IntParameter)parameter);
 		else if(parameter instanceof Vector3DParameter ) element = new ViewElementVector3d ((Vector3DParameter)parameter);
-		else if(parameter instanceof ReferenceParameter) element = new ViewElementReference((ReferenceParameter)parameter,robotOverlord);
+		else if(parameter instanceof ReferenceParameter) element = new ViewElementReference((ReferenceParameter)parameter,scene);
 		else if(parameter instanceof StringParameter   ) element = new ViewElementString   ((StringParameter)parameter);
 
 		if(null==element) {

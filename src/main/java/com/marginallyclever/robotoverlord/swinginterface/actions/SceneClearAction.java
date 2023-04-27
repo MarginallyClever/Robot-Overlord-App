@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
@@ -12,6 +11,7 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
 import javax.vecmath.Vector3d;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
@@ -21,11 +21,11 @@ import java.awt.event.KeyEvent;
  *
  */
 public class SceneClearAction extends AbstractAction {
-	private final RobotOverlord ro;
+	private final Scene scene;
 
-	public SceneClearAction(RobotOverlord ro) {
+	public SceneClearAction(Scene scene) {
 		super(Translator.get("SceneClearAction.name"));
-		this.ro = ro;
+		this.scene = scene;
 		putValue(SMALL_ICON,new UnicodeIcon("🌱"));
 		putValue(SHORT_DESCRIPTION, Translator.get("SceneClearAction.shortDescription"));
 		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
@@ -33,8 +33,11 @@ public class SceneClearAction extends AbstractAction {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		Component source = (Component) e.getSource();
+		JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
+
         int result = JOptionPane.showConfirmDialog(
-                ro.getMainFrame(),
+                parentFrame,
                 Translator.get("Are you sure?"),
                 (String)this.getValue(AbstractAction.NAME),
                 JOptionPane.YES_NO_OPTION);
@@ -46,12 +49,10 @@ public class SceneClearAction extends AbstractAction {
 	}
 
 	public void clearScene() {
-		Scene scene = ro.getScene();
 		scene.removeAllEntities();
 	}
 
 	public void addDefaultEntities() {
-		Scene scene = ro.getScene();
 		PoseComponent pose = new PoseComponent();
 		CameraComponent camera = new CameraComponent();
 		scene.addComponent(new PoseComponent());

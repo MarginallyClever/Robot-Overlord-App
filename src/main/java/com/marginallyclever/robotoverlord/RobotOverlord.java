@@ -3,7 +3,6 @@ package com.marginallyclever.robotoverlord;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel3;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
-import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
@@ -45,7 +44,7 @@ import java.util.prefs.Preferences;
  *
  * @author Dan Royer
  */
-public class RobotOverlord extends Entity implements RobotLibraryListener {
+public class RobotOverlord implements RobotLibraryListener {
 	private static final Logger logger = LoggerFactory.getLogger(RobotOverlord.class);
 
 	public static final String APP_TITLE = "Robot Overlord";
@@ -95,12 +94,12 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 	/**
 	 * The panel that contains the OpenGL canvas.
 	 */
-	private OpenGLRenderPanel renderPanel;
+	private final OpenGLRenderPanel renderPanel;
 
 	/**
 	 * The menu bar of the main frame.
 	 */
-    private JMenuBar mainMenu;
+    private final JMenuBar mainMenu = new JMenuBar();
 
 	/**
 	 * The left contains the renderPanel.  The right contains the rightFrameSplitter.
@@ -142,9 +141,7 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 
 
 	private RobotOverlord() {
-		super("");
-
-		this.addComponent(new PoseComponent());
+		super();
 
 		if(GraphicsEnvironment.isHeadless()) {
 			throw new RuntimeException("RobotOverlord cannot be run headless yet.");
@@ -153,24 +150,16 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 		Translator.start();
 		SoundSystem.start();
 		UndoSystem.start();
-
-		entityTreePanel = new EntityTreePanel();
-		componentManagerPanel = new ComponentManagerPanel(this);
-
 		preferencesLoad();
 
 		buildMainFrame();
-		buildMainMenu();
-		createSimulationPanel();
+		entityTreePanel = new EntityTreePanel(scene);
+		componentManagerPanel = new ComponentManagerPanel(scene);
+		renderPanel = new OpenGLRenderPanel(scene);
 		layoutComponents();
-		renderPanel.startAnimationSystem();
+		refreshMainMenu();
 
-		entityTreePanel.addEntity(scene);
-		scene.addSceneChangeListener(entityTreePanel);
-
-		addEntity(scene);
-
-		SceneClearAction action = new SceneClearAction(this);
+		SceneClearAction action = new SceneClearAction(scene);
 		action.clearScene();
 		action.addDefaultEntities();
 
@@ -194,10 +183,6 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_IMPORT, SceneImportAction.getLastDirectory());
 		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_LOAD, SceneLoadAction.getLastDirectory());
 		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_SAVE, SceneSaveAction.getLastDirectory());
-	}
-
-	private void createSimulationPanel() {
-		renderPanel = new OpenGLRenderPanel(this,scene);
 	}
 
 	private JComponent buildEntityManagerPanel() {
@@ -233,6 +218,7 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
         mainFrame.setLayout(new java.awt.BorderLayout());
         mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
         mainFrame.setVisible(true);
+		mainFrame.setJMenuBar(mainMenu);
 		setWindowSizeAndPosition();
 		setupDropTarget();
         mainFrame.addWindowListener(new WindowAdapter() {
@@ -291,38 +277,29 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 		return mainFrame;
 	}
 
-	public Scene getScene() {
-		return scene;
-	}
-
-	private void buildMainMenu() {
-		logger.info("buildMainMenu()");
-
-		mainMenu = new JMenuBar();
+	private void refreshMainMenu() {
 		mainMenu.removeAll();
 		mainMenu.add(createFileMenu());
 		mainMenu.add(createEditMenu());
 		mainMenu.add(createDemoMenu());
 		mainMenu.add(createHelpMenu());
-        mainMenu.updateUI();
-
-		mainFrame.setJMenuBar(mainMenu);
+        //mainMenu.updateUI();
 		mainFrame.revalidate();
 	}
 
 	@Override
 	public void onRobotAdded() {
-		buildMainMenu();
+		refreshMainMenu();
 	}
 
 	private JComponent createFileMenu() {
 		JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.File"));
 
-		menu.add(new SceneClearAction(this));
-		menu.add(new SceneLoadAction(this));
+		menu.add(new SceneClearAction(scene));
+		menu.add(new SceneLoadAction(scene));
 		if(recentFiles.size()>0) menu.add(createRecentFilesMenu());
-		menu.add(new SceneImportAction(this));
-		menu.add(new SceneSaveAction(this));
+		menu.add(new SceneImportAction(scene));
+		menu.add(new SceneSaveAction(scene));
 		menu.add(new JSeparator());
 		menu.add(new QuitAction(this));
 
@@ -335,15 +312,15 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 			AbstractAction loader = new AbstractAction(filename) {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					SceneLoadAction sceneLoadAction = new SceneLoadAction(RobotOverlord.this);
+					SceneLoadAction sceneLoadAction = new SceneLoadAction(scene);
 					File f = new File(filename);
 					if(f.exists()) {
-						sceneLoadAction.loadIntoScene(filename);
+						sceneLoadAction.loadIntoScene(filename,mainFrame);
 						recentFiles.add(filename);
 					} else {
 						recentFiles.remove(filename);
 					}
-					buildMainMenu();
+					refreshMainMenu();
 				}
 			};
 			loader.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_1+menu.getItemCount(), InputEvent.CTRL_DOWN_MASK));
@@ -361,8 +338,8 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 
 	private JComponent createDemoMenu() {
 		JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.Demos"));
-		menu.add(new JMenuItem(new DemoAction(this,new DemoSpidee())));
-		menu.add(new JMenuItem(new DemoAction(this,new DemoDog())));
+		menu.add(new JMenuItem(new DemoAction(scene,new DemoSpidee())));
+		menu.add(new JMenuItem(new DemoAction(scene,new DemoDog())));
 		//menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
 		menu.addSeparator();
 		menu.add(new JMenuItem(new ShowRobotLibraryPanel(this)));
@@ -408,7 +385,7 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 					JMenu level3Menu = new JMenu(level3Dir.getName());
 
 					for (File roFile : roFiles) {
-						level3Menu.add(new JMenuItem(new SceneImportAction(this, roFile)));
+						level3Menu.add(new JMenuItem(new SceneImportAction(scene, roFile)));
 					}
 
 					// we found something, add the parent menu.
@@ -498,10 +475,6 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 		return null;
 	}
 
-	public CameraComponent getCamera() {
-		return findFirstComponentRecursive(CameraComponent.class);
-	}
-
 	/**
 	 * Tell all Actions to check if they are active.
 	 */
@@ -554,8 +527,8 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 	}
 
 	private boolean importScene(File file) {
-		SceneImportAction action = new SceneImportAction(this);
-		return action.loadFile(file);
+		SceneImportAction action = new SceneImportAction(scene);
+		return action.loadFile(file,mainFrame);
 	}
 
 	private boolean importMesh(String absolutePath) {
@@ -571,11 +544,10 @@ public class RobotOverlord extends Entity implements RobotLibraryListener {
 			entity.addComponent(shape);
 			// move entity to camera orbit point so that it is visible.
 			PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
-			pose.setPosition(getCamera().getOrbitPoint());
+			pose.setPosition(scene.getCamera().getOrbitPoint());
 
 			// add entity to scene.
-			UndoSystem.addEvent(this,new EntityAddEdit(getScene(),entity));
-			//robotoverlord.setSelectedEntity(entity);
+			UndoSystem.addEvent(this,new EntityAddEdit(scene,entity));
 		} catch(Exception e) {
 			logger.error("Error opening file",e);
 			return false;

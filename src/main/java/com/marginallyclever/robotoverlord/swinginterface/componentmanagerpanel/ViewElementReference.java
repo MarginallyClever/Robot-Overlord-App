@@ -23,12 +23,12 @@ import java.awt.event.ActionListener;
 public class ViewElementReference extends ViewElement implements ActionListener {
 	private final JTextField field = new FocusTextField(20);
 	private final ReferenceParameter parameter;
-	private final RobotOverlord robotOverlord;
+	private final Scene scene;
 
-	public ViewElementReference(final ReferenceParameter parameter, RobotOverlord robotOverlord) {
+	public ViewElementReference(final ReferenceParameter parameter, Scene scene) {
 		super();
 		this.parameter = parameter;
-		this.robotOverlord = robotOverlord;
+		this.scene = scene;
 
 		field.setEditable(false);
 		field.setMargin(new Insets(1,0,1,0));
@@ -66,7 +66,7 @@ public class ViewElementReference extends ViewElement implements ActionListener 
 			return;
 		}
 
-		Entity entity = robotOverlord.getScene().findEntityByUniqueID(uniqueID);
+		Entity entity = scene.findEntityByUniqueID(uniqueID);
 		if(entity==null) {
 			field.setText("<missing>");
 			return;
@@ -76,9 +76,10 @@ public class ViewElementReference extends ViewElement implements ActionListener 
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		Scene scene = robotOverlord.getScene();
-		List<Entity> chosen = EntityChooser.runDialog(robotOverlord.getMainFrame(),scene,true);
+	public void actionPerformed(ActionEvent e) {
+		Component source = (Component) e.getSource();
+		JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
+		List<Entity> chosen = EntityChooser.runDialog(parentFrame,scene,true);
 		if(!chosen.isEmpty()) {
 			String newFilename = chosen.get(0).getUniqueID();
 			AbstractUndoableEdit event = new StringParameterEdit(parameter, newFilename);

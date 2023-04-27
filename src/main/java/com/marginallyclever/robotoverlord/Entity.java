@@ -445,10 +445,11 @@ public class Entity implements PropertyChangeListener {
 	}
 
 	public Scene getScene() {
-		Entity root = getRoot();
-
-		if(root instanceof Scene) return (Scene)root;
-		if(root instanceof RobotOverlord) return root.getScene();
+		Entity entity = this;
+		do {
+			if(entity instanceof Scene) return (Scene)entity;
+			entity = entity.getParent();
+		} while(entity!=null);
 
 		return null;
 	}
