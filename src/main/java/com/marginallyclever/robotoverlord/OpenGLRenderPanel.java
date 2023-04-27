@@ -4,9 +4,12 @@ import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
-import com.marginallyclever.robotoverlord.components.CameraComponent;
+import com.marginallyclever.robotoverlord.components.*;
+import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
+import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
@@ -18,12 +21,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -68,6 +73,12 @@ public class OpenGLRenderPanel extends JPanel {
     private final List<EditorTool> editorTools = new ArrayList<>();
     private int activeToolIndex = -1;
 
+    private final IntBuffer stackDepth = IntBuffer.allocate(1);
+
+    private final BooleanParameter showWorldOrigin = new BooleanParameter("Show world origin",false);
+
+    private final ColorParameter ambientLight = new ColorParameter("Ambient light",0.2,0.2,0.2,1);
+    private final MaterialComponent defaultMaterial = new MaterialComponent();
 
     public OpenGLRenderPanel(RobotOverlord robotOverlord,Scene scene) {
         super(new BorderLayout());
@@ -207,8 +218,7 @@ public class OpenGLRenderPanel extends JPanel {
 
                 GL2 gl2 = drawable.getGL().getGL2();
 
-                if(checkStackSize) checkRenderStep(gl2);
-                else renderStep(gl2);
+                checkRenderStep(gl2);
             }
         });
 
@@ -319,14 +329,17 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     private void checkRenderStep(GL2 gl2) {
-        IntBuffer stackDepth = IntBuffer.allocate(1);
-        gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,stackDepth);
-        logger.debug("stack depth start = "+stackDepth.get(0));
+        if(checkStackSize) {
+            gl2.glGetIntegerv(GL2.GL_MODELVIEW_STACK_DEPTH, stackDepth);
+            logger.debug("stack depth start = " + stackDepth.get(0));
+        }
 
         renderStep(gl2);
 
-        gl2.glGetIntegerv (GL2.GL_MODELVIEW_STACK_DEPTH,stackDepth);
-        logger.debug("stack depth end = "+stackDepth.get(0));
+        if(checkStackSize) {
+            gl2.glGetIntegerv(GL2.GL_MODELVIEW_STACK_DEPTH, stackDepth);
+            logger.debug("stack depth end = " + stackDepth.get(0));
+        }
     }
 
     private void renderStep(GL2 gl2) {
@@ -342,7 +355,12 @@ public class OpenGLRenderPanel extends JPanel {
         viewport.renderChosenProjection(gl2);
 
         sky.render(gl2,camera);
-        scene.render(gl2);
+
+        renderLights(gl2);
+        renderAllEntities(gl2);
+        // PASS 2: everything transparent?
+        //renderAllBoundingBoxes(gl2);
+        if(showWorldOrigin.get()) PrimitiveSolids.drawStar(gl2,10);
 
         //viewport.showPickingTest(gl2);
 
@@ -354,6 +372,119 @@ public class OpenGLRenderPanel extends JPanel {
         // 2D overlays
         viewCube.render(gl2,viewport);
         drawCursor(gl2);
+    }
+
+    private static class EntityMaterialShape {
+        public Entity entity;
+        public Matrix4d matrix = new Matrix4d();
+        public RenderComponent renderComponent;
+        public MaterialComponent materialComponent;
+    }
+
+    /**
+     * Recursively render all entities.
+     * @param gl2 the OpenGL context
+     */
+    private void renderAllEntities(GL2 gl2) {
+        List<EntityMaterialShape> opaque = new ArrayList<>();
+        List<EntityMaterialShape> alpha = new ArrayList<>();
+        List<EntityMaterialShape> noMaterial = new ArrayList<>();
+
+        // collect all entities with a RenderComponent
+        Queue<Entity> toRender = new LinkedList<>(scene.getChildren());
+        while(!toRender.isEmpty()) {
+            Entity entity = toRender.remove();
+            toRender.addAll(entity.getChildren());
+
+            RenderComponent renderComponent = entity.findFirstComponent(RenderComponent.class);
+            if(renderComponent!=null) {
+                EntityMaterialShape ems = new EntityMaterialShape();
+                ems.entity = entity;
+                ems.renderComponent = entity.findFirstComponent(RenderComponent.class);
+                ems.materialComponent = entity.findFirstComponent(MaterialComponent.class);
+                PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
+                if(pose!=null) ems.matrix.set(pose.getWorld());
+                if(ems.materialComponent==null) noMaterial.add(ems);
+                else if(ems.materialComponent.isAlpha()) alpha.add(ems);
+                else opaque.add(ems);
+            }
+        }
+
+        Vector3d cameraPoint = new Vector3d();
+        Entity cameraEntity = getCamera().getEntity();
+        cameraEntity.findFirstComponent(PoseComponent.class).getWorld().get(cameraPoint);
+
+        // render opaque objects
+        defaultMaterial.render(gl2);
+        renderEMSList(gl2,opaque);
+
+        // sort alpha objects back to front
+        Vector3d p1 = new Vector3d();
+        Vector3d p2 = new Vector3d();
+        alpha.sort((o1, o2) -> {
+            o1.matrix.get(p1);
+            o2.matrix.get(p2);
+            p1.sub(cameraPoint);
+            p2.sub(cameraPoint);
+            double d1 = p1.lengthSquared();
+            double d2 = p2.lengthSquared();
+            return (int)Math.signum(d2-d1);
+        });
+        // render alpha objects
+        renderEMSList(gl2,alpha);
+
+        // render objects with no material last
+        defaultMaterial.render(gl2);
+        renderEMSList(gl2,noMaterial);
+    }
+
+    private void renderEMSList(GL2 gl2,List<EntityMaterialShape> list) {
+        for(EntityMaterialShape ems : list) {
+            gl2.glPushMatrix();
+            if(ems.matrix!=null) {
+                MatrixHelper.applyMatrix(gl2,ems.matrix);
+            }
+            if(ems.materialComponent!=null && ems.materialComponent.getEnabled()) {
+                ems.materialComponent.render(gl2);
+            }
+            if(ems.renderComponent!=null && ems.renderComponent.getVisible()) {
+                ems.renderComponent.render(gl2);
+            }
+            gl2.glPopMatrix();
+        }
+    }
+
+    private void renderLights(GL2 gl2) {
+        // global ambient light
+        gl2.glLightModelfv( GL2.GL_LIGHT_MODEL_AMBIENT, ambientLight.getFloatArray(),0);
+
+        int maxLights = getMaxLights(gl2);
+        turnOffAllLights(gl2,maxLights);
+
+        Queue<Entity> found = new LinkedList<>(scene.getChildren());
+        int i=0;
+        while(!found.isEmpty()) {
+            Entity obj = found.remove();
+            found.addAll(obj.children);
+
+            LightComponent light = obj.findFirstComponent(LightComponent.class);
+            if(light!=null && light.getEnabled()) {
+                light.setupLight(gl2,i++);
+                if(i==maxLights) return;
+            }
+        }
+    }
+
+    public int getMaxLights(GL2 gl2) {
+        IntBuffer intBuffer = IntBuffer.allocate(1);
+        gl2.glGetIntegerv(GL2.GL_MAX_LIGHTS, intBuffer);
+        return intBuffer.get();
+    }
+
+    private void turnOffAllLights(GL2 gl2,int maxLights) {
+        for(int i=0;i<maxLights;++i) {
+            gl2.glDisable(GL2.GL_LIGHT0+i);
+        }
     }
 
     private void drawCursor(GL2 gl2) {

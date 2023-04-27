@@ -23,18 +23,15 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * {@link Scene} is a container for all the {@link Entity} in a project.  It also contains the absolute path on disk
- * for the root of the Scene.  All assets are relative to this path.
+ * <p>{@link Scene} is a container for all the {@link Entity} in a project.  It is like an Entity Manager.</p>
+ * <p>It also contains the absolute path on disk for the root of the Scene.  All assets are relative to this path.</p>
+ *
  * @author Dan Royer
  * @since 1.6.0
  */
 public class Scene extends Entity {
 	private static final Logger logger = LoggerFactory.getLogger(Scene.class);
 	private final StringParameter scenePath = new StringParameter("Scene Path", "");
-
-	private final ColorParameter ambientLight = new ColorParameter("Ambient light",0.2,0.2,0.2,1);
-	private final BooleanParameter showWorldOrigin = new BooleanParameter("Show world origin",false);
-	private final MaterialComponent defaultMaterial = new MaterialComponent();
 
 	private final List<SceneChangeListener> sceneChangeListeners = new ArrayList<>();
 	
@@ -49,87 +46,6 @@ public class Scene extends Entity {
 	public Scene(String absolutePath) {
 		super();
 		setScenePath(absolutePath);
-	}
-
-	@Override
-	public void render(GL2 gl2) {
-		if(showWorldOrigin.get()) renderWorldOrigin(gl2);
-
-		renderLights(gl2);
-		renderAllEntities(gl2);
-		// PASS 2: everything transparent?
-		//renderAllBoundingBoxes(gl2);
-	}
-
-	private void renderWorldOrigin(GL2 gl2) {
-		PrimitiveSolids.drawStar(gl2,10);
-	}
-
-	/**
-	 * Recursively render all entities.
-	 * @param gl2 the OpenGL context
-	 */
-	private void renderAllEntities(GL2 gl2) {
-		defaultMaterial.render(gl2);
-		Queue<Entity> toRender = new LinkedList<>(children);
-		while(!toRender.isEmpty()) {
-			Entity child = toRender.remove();
-			renderEntity(gl2, child);
-			toRender.addAll(child.getChildren());
-		}
-	}
-
-	/**
-	 * Does not render children.
-	 * @param gl2 the OpenGL context
-	 * @param entity the entity to render
-	 */
-	private void renderEntity(GL2 gl2, Entity entity) {
-		gl2.glPushMatrix();
-
-		PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
-		if(pose!=null) MatrixHelper.applyMatrix(gl2, pose.getWorld());
-
-		renderOneEntityWithMaterial(gl2, entity);
-
-		gl2.glPopMatrix();
-	}
-
-	private void renderOneEntityWithMaterial(GL2 gl2, Entity obj) {
-		MaterialComponent mat = obj.findFirstComponent(MaterialComponent.class);
-		if(mat==null) mat = obj.findFirstComponentInParents(MaterialComponent.class);
-		if(mat!=null && mat.getEnabled()) mat.render(gl2);
-
-		List<RenderComponent> renderComponents = obj.findAllComponents(RenderComponent.class);
-		for(RenderComponent renderComponent : renderComponents) {
-			if(renderComponent.getVisible()) renderComponent.render(gl2);
-		}
-	}
-
-	private void renderLights(GL2 gl2) {
-		// global ambient light
-		gl2.glLightModelfv( GL2.GL_LIGHT_MODEL_AMBIENT, ambientLight.getFloatArray(),0);
-
-		int maxLights = getMaxLights(gl2);
-		turnOffAllLights(gl2,maxLights);
-
-		Queue<Entity> found = new LinkedList<>(children);
-		int i=0;
-		while(!found.isEmpty()) {
-			Entity obj = found.remove();
-			LightComponent light = obj.findFirstComponent(LightComponent.class);
-			if(light!=null && light.getEnabled()) {
-				light.setupLight(gl2,i++);
-				if(i==maxLights) return;
-			}
-			found.addAll(obj.children);
-		}
-	}
-
-	private void turnOffAllLights(GL2 gl2,int maxLights) {
-		for(int i=0;i<maxLights;++i) {
-			gl2.glDisable(GL2.GL_LIGHT0+i);
-		}
 	}
 
 	/**
@@ -165,12 +81,6 @@ public class Scene extends Entity {
 
 		// no intersection
 		return false;
-	}
-
-	@Deprecated
-	public void getView(ComponentPanelFactory view) {
-		view.add(scenePath).setReadOnly(true);
-		view.add(ambientLight);
 	}
 
 	public void addEntityToParent(Entity parent, Entity entity) {
@@ -261,12 +171,6 @@ public class Scene extends Entity {
 
 	public String addScenePath(String fn) {
 		return getScenePath() + fn;
-	}
-
-	public int getMaxLights(GL2 gl2) {
-		IntBuffer intBuffer = IntBuffer.allocate(1);
-		gl2.glGetIntegerv(GL2.GL_MAX_LIGHTS, intBuffer);
-		return intBuffer.get();
 	}
 
 	/**

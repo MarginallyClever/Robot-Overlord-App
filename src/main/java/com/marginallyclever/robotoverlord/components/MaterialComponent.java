@@ -204,4 +204,12 @@ public class MaterialComponent extends Component {
         }
         texture.set(fn);
     }
+
+    /**
+     * Returns true if the diffuse color has an alpha value different from 1.0
+     * @return true if the diffuse color has an alpha value different from 1.0
+     */
+    public boolean isAlpha() {
+        return diffuse.getA()!=1.0;
+    }
 }
