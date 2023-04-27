@@ -174,26 +174,6 @@ public class Scene extends Entity {
 	}
 
 	/**
-	 * test ray intersection with all entities in the scene.
-	 * @param ray the ray to test.
-	 */
-	public List<RayHit> findRayIntersections(Ray ray) {
-		List<RayHit> rayHits = new ArrayList<>();
-
-		Queue<Entity> toTest = new LinkedList<>(children);
-		while(!toTest.isEmpty()) {
-			Entity child = toTest.remove();
-			toTest.addAll(child.getChildren());
-			List<ShapeComponent> shapes = child.findAllComponents(ShapeComponent.class);
-			for(ShapeComponent shape : shapes) {
-				RayHit hit = shape.intersect(ray);
-				if(hit!=null) rayHits.add(hit);
-			}
-		}
-		return rayHits;
-	}
-
-	/**
 	 * Find an entity by its unique ID.
 	 * @param uuid the unique ID to search for.
 	 * @return the entity with the given unique ID, or null if not found.

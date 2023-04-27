@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.awt.event.*;
@@ -79,6 +78,18 @@ public class OpenGLRenderPanel extends JPanel {
 
     private final ColorParameter ambientLight = new ColorParameter("Ambient light",0.2,0.2,0.2,1);
     private final MaterialComponent defaultMaterial = new MaterialComponent();
+
+    /**
+     * Used to sort items at render time. Opaque items are rendered first, then alpha items.
+     */
+    private static class MatrixMaterialRender {
+        public Matrix4d matrix = new Matrix4d();
+        public RenderComponent renderComponent;
+        public MaterialComponent materialComponent;
+    }
+    private final List<MatrixMaterialRender> opaque = new ArrayList<>();
+    private final List<MatrixMaterialRender> alpha = new ArrayList<>();
+    private final List<MatrixMaterialRender> noMaterial = new ArrayList<>();
 
     public OpenGLRenderPanel(RobotOverlord robotOverlord,Scene scene) {
         super(new BorderLayout());
@@ -324,6 +335,27 @@ public class OpenGLRenderPanel extends JPanel {
         UndoSystem.addEvent(this,new SelectEdit(Clipboard.getSelectedEntities(),list));
     }
 
+    /**
+     * test ray intersection with all entities in the scene.
+     * @param ray the ray to test.
+     */
+    public List<RayHit> findRayIntersections(Ray ray) {
+        List<RayHit> rayHits = new ArrayList<>();
+
+        Queue<Entity> toTest = new LinkedList<>(scene.getChildren());
+        while(!toTest.isEmpty()) {
+            Entity entity = toTest.remove();
+            toTest.addAll(entity.getChildren());
+
+            List<ShapeComponent> shapes = entity.findAllComponents(ShapeComponent.class);
+            for(ShapeComponent shape : shapes) {
+                RayHit hit = shape.intersect(ray);
+                if(hit!=null) rayHits.add(hit);
+            }
+        }
+        return rayHits;
+    }
+
     private CameraComponent getCamera() {
         return robotOverlord.findFirstComponentRecursive(CameraComponent.class);
     }
@@ -374,21 +406,18 @@ public class OpenGLRenderPanel extends JPanel {
         drawCursor(gl2);
     }
 
-    private static class EntityMaterialShape {
-        public Entity entity;
-        public Matrix4d matrix = new Matrix4d();
-        public RenderComponent renderComponent;
-        public MaterialComponent materialComponent;
-    }
-
     /**
-     * Recursively render all entities.
+     * Render all Entities in the scene.  Search all entities for a {@link RenderComponent}.
+     * Sort them into three lists: those with no material, those with opaque material, and those with transparent
+     * material.  Further sort the alpha list by distance from the camera.  Then render the opaque, render the alpha,
+     * and render the no-material.
+     *
      * @param gl2 the OpenGL context
      */
     private void renderAllEntities(GL2 gl2) {
-        List<EntityMaterialShape> opaque = new ArrayList<>();
-        List<EntityMaterialShape> alpha = new ArrayList<>();
-        List<EntityMaterialShape> noMaterial = new ArrayList<>();
+        opaque.clear();
+        alpha.clear();
+        noMaterial.clear();
 
         // collect all entities with a RenderComponent
         Queue<Entity> toRender = new LinkedList<>(scene.getChildren());
@@ -398,27 +427,27 @@ public class OpenGLRenderPanel extends JPanel {
 
             RenderComponent renderComponent = entity.findFirstComponent(RenderComponent.class);
             if(renderComponent!=null) {
-                EntityMaterialShape ems = new EntityMaterialShape();
-                ems.entity = entity;
-                ems.renderComponent = entity.findFirstComponent(RenderComponent.class);
-                ems.materialComponent = entity.findFirstComponent(MaterialComponent.class);
+                MatrixMaterialRender mmr = new MatrixMaterialRender();
+                mmr.renderComponent = entity.findFirstComponent(RenderComponent.class);
+                mmr.materialComponent = entity.findFirstComponent(MaterialComponent.class);
                 PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
-                if(pose!=null) ems.matrix.set(pose.getWorld());
-                if(ems.materialComponent==null) noMaterial.add(ems);
-                else if(ems.materialComponent.isAlpha()) alpha.add(ems);
-                else opaque.add(ems);
+                if(pose!=null) mmr.matrix.set(pose.getWorld());
+
+                if(mmr.materialComponent==null) noMaterial.add(mmr);
+                else if(mmr.materialComponent.isAlpha()) alpha.add(mmr);
+                else opaque.add(mmr);
             }
         }
 
+        // render opaque objects
+        defaultMaterial.render(gl2);
+        renderMMRList(gl2,opaque);
+
+        // sort alpha objects back to front
         Vector3d cameraPoint = new Vector3d();
         Entity cameraEntity = getCamera().getEntity();
         cameraEntity.findFirstComponent(PoseComponent.class).getWorld().get(cameraPoint);
 
-        // render opaque objects
-        defaultMaterial.render(gl2);
-        renderEMSList(gl2,opaque);
-
-        // sort alpha objects back to front
         Vector3d p1 = new Vector3d();
         Vector3d p2 = new Vector3d();
         alpha.sort((o1, o2) -> {
@@ -431,15 +460,15 @@ public class OpenGLRenderPanel extends JPanel {
             return (int)Math.signum(d2-d1);
         });
         // render alpha objects
-        renderEMSList(gl2,alpha);
+        renderMMRList(gl2,alpha);
 
         // render objects with no material last
         defaultMaterial.render(gl2);
-        renderEMSList(gl2,noMaterial);
+        renderMMRList(gl2,noMaterial);
     }
 
-    private void renderEMSList(GL2 gl2,List<EntityMaterialShape> list) {
-        for(EntityMaterialShape ems : list) {
+    private void renderMMRList(GL2 gl2, List<MatrixMaterialRender> list) {
+        for(MatrixMaterialRender ems : list) {
             gl2.glPushMatrix();
             if(ems.matrix!=null) {
                 MatrixHelper.applyMatrix(gl2,ems.matrix);
@@ -561,7 +590,7 @@ public class OpenGLRenderPanel extends JPanel {
         Ray ray = viewport.getRayThroughCursor();
 
         // traverse the scene Entities and find the ShapeComponent that collides with the ray.
-        List<RayHit> rayHits = scene.findRayIntersections(ray);
+        List<RayHit> rayHits = findRayIntersections(ray);
         if(rayHits.size()==0) return null;
 
         rayHits.sort(Comparator.comparingDouble(o -> o.distance));
