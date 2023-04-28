@@ -394,7 +394,7 @@ public class Entity implements PropertyChangeListener {
 	private void readEntities(JSONArray jo) throws JSONException {
 		for (Object o : jo) {
 			JSONObject jo2 = (JSONObject) o;
-			Entity entity = EntityFactory.load(jo2.getString("type"));
+			Entity entity = new Entity();
 			this.addEntity(entity);
 			entity.parseJSON(jo2);
 		}
