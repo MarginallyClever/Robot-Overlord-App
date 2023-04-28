@@ -201,10 +201,9 @@ public class TranslateEntityToolOneAxis implements EditorTool {
         gl2.glEnd();
 
         gl2.glTranslated(handleLength, 0, 0);
-        
+
         gl2.glScaled(gripRadius, gripRadius, gripRadius);
         handleSphere.render(gl2);
-        //PrimitiveSolids.drawSphere(gl2, gripRadius);
 
         gl2.glPopMatrix();
 
