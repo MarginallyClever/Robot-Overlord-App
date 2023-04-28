@@ -5,6 +5,7 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
@@ -14,7 +15,6 @@ import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
-import com.marginallyclever.robotoverlord.tools.SelectedItems;
 import com.marginallyclever.robotoverlord.tools.move.MoveCameraTool;
 import com.marginallyclever.robotoverlord.tools.move.RotateEntityMultiTool;
 import com.marginallyclever.robotoverlord.tools.move.TranslateEntityMultiTool;
@@ -368,16 +368,26 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     private void checkRenderStep(GL2 gl2) {
+        int before;
         if(checkStackSize) {
             gl2.glGetIntegerv(GL2.GL_MODELVIEW_STACK_DEPTH, stackDepth);
-            logger.debug("stack depth start = " + stackDepth.get(0));
+            before = stackDepth.get(0);
         }
 
-        renderStep(gl2);
+        try {
+            renderStep(gl2);
+        } catch(Exception e) {
+            logger.error("GL error",e);
+            e.printStackTrace();
+        }
 
         if(checkStackSize) {
             gl2.glGetIntegerv(GL2.GL_MODELVIEW_STACK_DEPTH, stackDepth);
-            logger.debug("stack depth end = " + stackDepth.get(0));
+            int after = stackDepth.get(0);
+            if(before != after) {
+                System.err.println("stack depth " + before + " vs " + after);
+                logger.warn("stack depth " + before + " vs " + after);
+            }
         }
     }
 
@@ -396,9 +406,9 @@ public class OpenGLRenderPanel extends JPanel {
         sky.render(gl2,camera);
 
         renderLights(gl2);
+
         renderAllEntities(gl2);
-        // PASS 2: everything transparent?
-        //renderAllBoundingBoxes(gl2);
+        
         if(showWorldOrigin.get()) PrimitiveSolids.drawStar(gl2,10);
 
         //viewport.showPickingTest(gl2);
@@ -609,10 +619,9 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     public void updateSubjects(List<Entity> list) {
-        SelectedItems selectedItems = new SelectedItems(list);
         if(activeToolIndex>=0) {
             editorTools.get(activeToolIndex).deactivate();
-            editorTools.get(activeToolIndex).activate(selectedItems);
+            editorTools.get(activeToolIndex).activate(list);
         }
     }
 
