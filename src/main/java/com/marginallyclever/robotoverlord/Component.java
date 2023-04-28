@@ -15,7 +15,7 @@ import org.json.JSONObject;
 public class Component {
     private Entity myEntity;
 
-    private final BooleanParameter enabled = new BooleanParameter("Enabled",true);
+    public final BooleanParameter enabled = new BooleanParameter("Enabled",true);
 
     private boolean isExpanded=true;
 
@@ -25,16 +25,6 @@ public class Component {
 
     public String getName() {
         return this.getClass().getSimpleName();
-    }
-
-    /**
-     * A Component may offer one or more {@link AbstractParameter} visual elements for the User to manipulate.
-     * it does so by Decorating the given {@link ComponentPanelFactory} with these elements.
-     *
-     * @param view the ViewPanel to decorate.
-     */
-    public void getView(ComponentPanelFactory view) {
-        view.add(enabled);
     }
 
     public Entity getEntity() {
@@ -79,10 +69,5 @@ public class Component {
 
     public void setExpanded(boolean arg0) {
         isExpanded = arg0;
-    }
-
-    public Scene getScene() {
-        if(myEntity==null) return null;
-        return myEntity.getScene();
     }
 }

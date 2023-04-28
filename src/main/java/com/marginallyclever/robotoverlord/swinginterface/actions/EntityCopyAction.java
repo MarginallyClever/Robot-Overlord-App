@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
@@ -15,9 +16,11 @@ import java.util.List;
  * Makes a deep copy of the selected {@link com.marginallyclever.robotoverlord.Entity}.
  */
 public class EntityCopyAction extends AbstractAction implements EditorAction {
+    private final Scene scene;
 
-    public EntityCopyAction() {
+    public EntityCopyAction(Scene scene) {
         super(Translator.get("EntityCopyAction.name"));
+        this.scene = scene;
         putValue(SMALL_ICON,new UnicodeIcon("📋"));
         putValue(SHORT_DESCRIPTION, Translator.get("EntityCopyAction.shortDescription"));
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK) );
@@ -30,7 +33,7 @@ public class EntityCopyAction extends AbstractAction implements EditorAction {
         for(Entity entity : list) {
             Entity e = new Entity();
             e.parseJSON(entity.toJSON());
-            container.addEntity(e);
+            scene.addEntityToParent(e,container);
         }
         Clipboard.setCopiedEntities(container);
     }

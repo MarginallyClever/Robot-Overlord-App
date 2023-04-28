@@ -270,18 +270,7 @@ public class PoseEntity extends Entity {
 			setPose(m);
 		}
 	}
-	
-	public Scene getWorld() {
-		Entity p = parent;
-		while (p != null) {
-			if (p instanceof Scene) {
-				return (Scene) p;
-			}
-			p=p.getParent();
-		}
-		return null;
-	}
-	
+
 	/**
 	 * Build a matrix as close to *from* as possible, with the Z axis parallel to the nearest world axis.
 	 * @param from the matrix we are comparing to the world.

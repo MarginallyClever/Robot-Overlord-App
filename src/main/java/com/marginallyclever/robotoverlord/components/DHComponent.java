@@ -22,14 +22,14 @@ import java.beans.PropertyChangeListener;
  */
 @ComponentDependency(components={PoseComponent.class})
 public class DHComponent extends RenderComponent implements PropertyChangeListener {
-    private final BooleanParameter isRevolute = new BooleanParameter("Revolute",true);
-    private final DoubleParameter myD = new DoubleParameter("D",0.0);
-    private final DoubleParameter myR = new DoubleParameter("R",0.0);
-    private final DoubleParameter alpha = new DoubleParameter("Alpha",0.0);
-    private final DoubleParameter theta = new DoubleParameter("Theta",0.0);
-    private final DoubleParameter jointMax = new DoubleParameter("Max",0.0);
-    private final DoubleParameter jointMin = new DoubleParameter("Min",0.0);
-    private final DoubleParameter jointHome = new DoubleParameter("Home",0.0);
+    public final BooleanParameter isRevolute = new BooleanParameter("Revolute",true);
+    public final DoubleParameter myD = new DoubleParameter("D",0.0);
+    public final DoubleParameter myR = new DoubleParameter("R",0.0);
+    public final DoubleParameter alpha = new DoubleParameter("Alpha",0.0);
+    public final DoubleParameter theta = new DoubleParameter("Theta",0.0);
+    public final DoubleParameter jointMax = new DoubleParameter("Max",0.0);
+    public final DoubleParameter jointMin = new DoubleParameter("Min",0.0);
+    public final DoubleParameter jointHome = new DoubleParameter("Home",0.0);
 
     public DHComponent() {
         super();
@@ -74,20 +74,6 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
     }
 
     @Override
-    public void getView(ComponentPanelFactory view) {
-        super.getView(view);
-
-        view.add(isRevolute);
-        view.add(myD);
-        view.add(myR);
-        view.add(alpha);
-        view.add(theta);
-        view.add(jointMax);
-        view.add(jointMin);
-        view.add(jointHome);
-    }
-
-    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         refreshLocalMatrix();
     }
@@ -95,15 +81,6 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
     private void refreshLocalMatrix() {
         setLocalMatrix(getLocalMatrix());
         //updateChildAdjustmentNode();
-    }
-
-    private void updateChildAdjustmentNode() {
-        getEntity().getChildren().forEach((e)->{
-            OriginAdjustComponent adj = e.findFirstComponent(OriginAdjustComponent.class);
-            if(adj!=null) {
-                adj.adjust();
-            }
-        });
     }
 
     private void setLocalMatrix(Matrix4d localMatrix) {

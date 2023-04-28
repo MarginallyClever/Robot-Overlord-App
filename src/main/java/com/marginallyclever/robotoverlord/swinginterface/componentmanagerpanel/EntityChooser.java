@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.Scene;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -94,7 +95,8 @@ public class EntityChooser extends JDialog {
     }
 
     public static void main(String[] args) {
-        Entity rootEntity = createSampleEntityHierarchy();
+        Scene scene = createSampleEntityHierarchy();
+        Entity rootEntity = scene.getRoot();
         EntityChooser entityChooser = new EntityChooser(null, rootEntity, false);
         entityChooser.setVisible(true);
         System.out.println("Selected entities: " + entityChooser.getSelectedEntities());
@@ -107,16 +109,17 @@ public class EntityChooser extends JDialog {
         return entityChooser.getSelectedEntities();
     }
 
-    private static Entity createSampleEntityHierarchy() {
+    private static Scene createSampleEntityHierarchy() {
+        Scene scene = new Scene();
         Entity rootEntity = new Entity();
         Entity child1 = new Entity();
         Entity child2 = new Entity();
         Entity grandchild1 = new Entity();
         Entity grandchild2 = new Entity();
-        rootEntity.addEntity(child1);
-        rootEntity.addEntity(child2);
-        child1.addEntity(grandchild1);
-        child1.addEntity(grandchild2);
-        return rootEntity;
+        scene.addEntityToParent(child1,rootEntity);
+        scene.addEntityToParent(child2,rootEntity);
+        scene.addEntityToParent(grandchild1,child1);
+        scene.addEntityToParent(grandchild2,child1);
+        return scene;
     }
 }

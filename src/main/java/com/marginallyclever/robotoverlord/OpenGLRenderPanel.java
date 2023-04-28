@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
+
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.Ray;
@@ -348,7 +349,7 @@ public class OpenGLRenderPanel extends JPanel {
     public List<RayHit> findRayIntersections(Ray ray) {
         List<RayHit> rayHits = new ArrayList<>();
 
-        Queue<Entity> toTest = new LinkedList<>(scene.getChildren());
+        Queue<Entity> toTest = new LinkedList<>(scene.getEntities());
         while(!toTest.isEmpty()) {
             Entity entity = toTest.remove();
             toTest.addAll(entity.getChildren());
@@ -426,7 +427,7 @@ public class OpenGLRenderPanel extends JPanel {
         noMaterial.clear();
 
         // collect all entities with a RenderComponent
-        Queue<Entity> toRender = new LinkedList<>(scene.getChildren());
+        Queue<Entity> toRender = new LinkedList<>(scene.getEntities());
         while(!toRender.isEmpty()) {
             Entity entity = toRender.remove();
             toRender.addAll(entity.getChildren());
@@ -496,7 +497,7 @@ public class OpenGLRenderPanel extends JPanel {
         int maxLights = getMaxLights(gl2);
         turnOffAllLights(gl2,maxLights);
 
-        Queue<Entity> found = new LinkedList<>(scene.getChildren());
+        Queue<Entity> found = new LinkedList<>(scene.getEntities());
         int i=0;
         while(!found.isEmpty()) {
             Entity obj = found.remove();
@@ -566,7 +567,10 @@ public class OpenGLRenderPanel extends JPanel {
         frameDelay+=dt;
         if(frameDelay>frameLength) {
             frameDelay-=frameLength;
-            scene.update(frameLength);
+
+            for(Entity entity : scene.getEntities()) {
+                entity.update(frameLength);
+            }
         }
     }
 

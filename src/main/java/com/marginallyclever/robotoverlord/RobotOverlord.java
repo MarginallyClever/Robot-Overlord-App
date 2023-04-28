@@ -17,6 +17,7 @@ import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanel;
 import com.marginallyclever.robotoverlord.swinginterface.robotlibrarypanel.RobotLibraryListener;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import com.marginallyclever.robotoverlord.systems.*;
 import com.marginallyclever.util.PropertiesFileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,6 +124,8 @@ public class RobotOverlord implements RobotLibraryListener {
 
 	private final RecentFiles recentFiles = new RecentFiles();
 
+	private final List<ROSystem> systems = new ArrayList<>();
+
 
 	public static void main(String[] argv) {
 		Log.start();
@@ -152,9 +155,11 @@ public class RobotOverlord implements RobotLibraryListener {
 		UndoSystem.start();
 		preferencesLoad();
 
+		buildSystems();
+
 		buildMainFrame();
 		entityTreePanel = new EntityTreePanel(scene);
-		componentManagerPanel = new ComponentManagerPanel(scene);
+		componentManagerPanel = new ComponentManagerPanel(scene,systems);
 		renderPanel = new OpenGLRenderPanel(scene);
 		layoutComponents();
 		refreshMainMenu();
@@ -168,6 +173,15 @@ public class RobotOverlord implements RobotLibraryListener {
 
 		logger.info("** READY **");
     }
+
+	private void buildSystems() {
+		systems.add(new PhysicsSystem());
+		systems.add(new RenderSystem());
+		systems.add(new CameraSystem());
+		systems.add(new OriginAdjustSystem());
+		//systems.add(new SoundSystem());
+		systems.add(new RobotROSystem(scene));
+	}
 
 	private void listenToClipboardChanges() {
 		Clipboard.addListener(this::updateActionEnableStatus);
@@ -458,24 +472,6 @@ public class RobotOverlord implements RobotLibraryListener {
 	}
 
 	/**
-	 * Deep search for a child with this name.
-	 * @param name the name to match
-	 * @return the entity.  null if nothing found.
-	 */
-	@Deprecated
-	public Entity findEntityWithName(String name) {
-		ArrayList<Entity> list = new ArrayList<>();
-		list.add(scene);
-		while( !list.isEmpty() ) {
-			Entity obj = list.remove(0);
-			String objectName = obj.getName();
-			if(name.equals(objectName)) return obj;
-			list.addAll(obj.getChildren());
-		}
-		return null;
-	}
-
-	/**
 	 * Tell all Actions to check if they are active.
 	 */
 	private void updateActionEnableStatus() {
@@ -547,7 +543,7 @@ public class RobotOverlord implements RobotLibraryListener {
 			pose.setPosition(scene.getCamera().getOrbitPoint());
 
 			// add entity to scene.
-			UndoSystem.addEvent(this,new EntityAddEdit(scene,entity));
+			UndoSystem.addEvent(this,new EntityAddEdit(scene,scene.getRoot(),entity));
 		} catch(Exception e) {
 			logger.error("Error opening file",e);
 			return false;

@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
@@ -15,8 +16,11 @@ import java.awt.event.KeyEvent;
  * @author Dan Royer
  */
 public class EntityDeleteAction extends AbstractAction implements EditorAction {
-	public EntityDeleteAction() {
+	private final Scene scene;
+
+	public EntityDeleteAction(Scene scene) {
 		super(Translator.get("EntityDeleteAction.name"));
+		this.scene = scene;
 		putValue(SMALL_ICON,new UnicodeIcon("-"));
 		putValue(SHORT_DESCRIPTION, Translator.get("EntityDeleteAction.shortDescription"));
 		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0) );
@@ -24,7 +28,7 @@ public class EntityDeleteAction extends AbstractAction implements EditorAction {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		UndoSystem.addEvent(this,new EntityDeleteEdit((String)this.getValue(Action.NAME), Clipboard.getSelectedEntities()));
+		UndoSystem.addEvent(this,new EntityDeleteEdit((String)this.getValue(Action.NAME), scene, Clipboard.getSelectedEntities()));
 	}
 
 	@Override

@@ -10,27 +10,29 @@ import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentAddAct
 import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentCopyAction;
 import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentDeleteAction;
 import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentPasteAction;
+import com.marginallyclever.robotoverlord.systems.ROSystem;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Collate all the {@link Component}s for selected {@link Entity}s.
  */
 public class ComponentManagerPanel extends JPanel {
-
 	private final Scene scene;
 	private final JPanel componentList = new JPanel();
 	private final JToolBar toolBar = new JToolBar();
 	private final ComponentDeleteAction componentDeleteAction = new ComponentDeleteAction(this);
 	private final ComponentCopyAction componentCopyAction = new ComponentCopyAction();
 	private final ComponentPasteAction componentPasteAction = new ComponentPasteAction();
+	private final List<ROSystem> systems = new ArrayList<>();
 
-
-	public ComponentManagerPanel(Scene scene) {
+	public ComponentManagerPanel(Scene scene,List<ROSystem> systems) {
 		super(new BorderLayout());
 		this.scene = scene;
+		this.systems.addAll(systems);
 
 		componentList.setLayout(new BoxLayout(componentList,BoxLayout.Y_AXIS));
 		Insets in = componentList.getInsets();
@@ -85,16 +87,20 @@ public class ComponentManagerPanel extends JPanel {
 		if(entity == null) return;
 
 		for(int i=0;i<entity.getComponentCount();++i) {
-			addSingleComponent(entity,entity.getComponent(i));
+			addSingleComponent(entity.getComponent(i));
 		}
 	}
 
-	private void addSingleComponent(Entity entity,Component component) {
+	private void addSingleComponent(Component component) {
 		// get the view
-		ComponentPanelFactory factory = new ComponentPanelFactory(scene,component);
-		component.getView(factory);
-		JComponent finalView = factory.getFinalView();
+		ComponentPanelFactory factory = new ComponentPanelFactory(scene, component,systems);
+		//component.getView(factory);
+		//JComponent finalView = wrapViewWithCommonComponentControls(factory.getFinalView(),component);
+		JComponent outerPanel = wrapViewWithCommonComponentControls(factory.buildSwingView(),component);
+		componentList.add(outerPanel);
+	}
 
+	private JComponent wrapViewWithCommonComponentControls(JComponent finalView,Component component) {
 		// create the outer CollapsiblePanel
 		CollapsiblePanel outerPanel = new CollapsiblePanel(component.getName());
 		outerPanel.setCollapsed(!component.getExpanded());
@@ -140,9 +146,7 @@ public class ComponentManagerPanel extends JPanel {
 		JPanel magic = outerPanel.getContentPane();
 		magic.setLayout(new BorderLayout());
 		magic.add(wrapperPanel, BorderLayout.CENTER);
-
-		// add the outer panel to the list
-		componentList.add(outerPanel);
+		return outerPanel;
 	}
 
 	/**
@@ -150,17 +154,7 @@ public class ComponentManagerPanel extends JPanel {
 	 * Display values shared across those Components.
 	 */
 	private void buildMultipleEntityPanel(List<Entity> entityList) {
-		// compare Entities and keep matching Components.
-		Entity first = entityList.get(0);
-		for(int i=0;i<first.getComponentCount();++i) {
-			Component component = first.getComponent(i);
-			if(sameComponentInAllEntities(component,entityList)) {
-				ComponentPanelFactory factory = new ComponentPanelFactory(scene,component);
-				component.getView(factory);
-				JComponent componentPanel = factory.getFinalView();
-				componentList.add(componentPanel);
-			}
-		}
+		throw new RuntimeException("Not implemented yet.");
 	}
 
 	private boolean sameComponentInAllEntities(Component component, List<Entity> entityList) {

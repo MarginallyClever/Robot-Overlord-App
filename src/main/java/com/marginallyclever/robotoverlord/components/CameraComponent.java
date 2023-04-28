@@ -15,9 +15,9 @@ import javax.vecmath.Vector3d;
 
 @ComponentDependency(components={PoseComponent.class})
 public class CameraComponent extends RenderComponent {
-    private final DoubleParameter pan = new DoubleParameter("Pan",0);
-    private final DoubleParameter tilt = new DoubleParameter("Tilt",0);
-    private final DoubleParameter orbitDistance = new DoubleParameter("Orbit distance",0);
+    public final DoubleParameter pan = new DoubleParameter("Pan",0);
+    public final DoubleParameter tilt = new DoubleParameter("Tilt",0);
+    public final DoubleParameter orbitDistance = new DoubleParameter("Orbit distance",0);
     protected boolean isCurrentlyMoving=false;
 
     @Override
@@ -246,11 +246,6 @@ public class CameraComponent extends RenderComponent {
         PrimitiveSolids.drawStar(gl2,25);
 
         gl2.glPopMatrix();
-    }
-
-    public void getView(ComponentPanelFactory view) {
-        super.getView(view);
-        view.add(orbitDistance);
     }
 
     public void setCurrentlyMoving(boolean state) {

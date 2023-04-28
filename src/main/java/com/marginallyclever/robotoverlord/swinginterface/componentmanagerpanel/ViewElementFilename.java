@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.StringParameterEdit;
@@ -25,12 +26,14 @@ import java.util.Iterator;
 public class ViewElementFilename extends ViewElement implements ActionListener {
 	private static String lastPath=System.getProperty("user.dir");
 	private final JTextField field = new JTextField(15);
-	private final ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
+	private final ArrayList<FileFilter> filters = new ArrayList<>();
 	private final StringParameter parameter;
+	private final Scene scene;
 	
-	public ViewElementFilename(final StringParameter parameter) {
+	public ViewElementFilename(StringParameter parameter,Scene scene) {
 		super();
 		this.parameter = parameter;
+		this.scene = scene;
 		
 		//this.setBorder(BorderFactory.createLineBorder(Color.RED));
 
@@ -76,9 +79,8 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 		if(filters.size()==0) return;  // @TODO: fail!
 		if(filters.size()==1) chooser.setFileFilter(filters.get(0));
 		else {
-			Iterator<FileFilter> i = filters.iterator();
-			while(i.hasNext()) {
-				chooser.addChoosableFileFilter(i.next());
+			for (FileFilter filter : filters) {
+				chooser.addChoosableFileFilter(filter);
 			}
 		}
 		if(lastPath!=null) chooser.setCurrentDirectory(new File(lastPath));
@@ -86,8 +88,9 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 		if(returnVal == JFileChooser.APPROVE_OPTION) {
 			String newFilename = chooser.getSelectedFile().getAbsolutePath();
 			lastPath = chooser.getSelectedFile().getParent();
+			String lastScenePath = scene.checkForScenePath(newFilename);
 
-			AbstractUndoableEdit event = new StringParameterEdit(parameter, newFilename);
+			AbstractUndoableEdit event = new StringParameterEdit(parameter, lastScenePath);
 			UndoSystem.addEvent(this,event);
 		}
 	}

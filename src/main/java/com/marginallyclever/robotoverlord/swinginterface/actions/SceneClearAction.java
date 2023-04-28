@@ -49,24 +49,23 @@ public class SceneClearAction extends AbstractAction {
 	}
 
 	public void clearScene() {
-		scene.removeAllEntities();
+		scene.getEntities().clear();
 	}
 
 	public void addDefaultEntities() {
 		PoseComponent pose = new PoseComponent();
 		CameraComponent camera = new CameraComponent();
-		scene.addComponent(new PoseComponent());
 		Entity mainCamera = new Entity("Main Camera");
 		mainCamera.addComponent(pose);
 		mainCamera.addComponent(camera);
-		scene.addEntity(mainCamera);
+		scene.addEntityToParent(mainCamera,scene.getRoot());
 		pose.setPosition(new Vector3d(0,-10,-5));
 		camera.lookAt(new Vector3d(0,0,0));
 
 		Entity light0 = new Entity("Light");
 		light0.addComponent(pose = new PoseComponent());
 		light0.addComponent(new LightComponent());
-		mainCamera.addEntity(light0);
+		scene.addEntityToParent(light0,mainCamera);
 		pose.setPosition(new Vector3d(0,0,50));
 	}
 }

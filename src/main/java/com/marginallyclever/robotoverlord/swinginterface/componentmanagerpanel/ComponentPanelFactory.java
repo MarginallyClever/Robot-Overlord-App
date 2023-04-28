@@ -1,31 +1,37 @@
 package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 
 import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.parameters.*;
-import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
+import com.marginallyclever.robotoverlord.systems.ROSystem;
 
+import java.util.List;
+import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
-import java.awt.*;
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 /**
  * A factory that builds Swing elements for the entity editor
  * @author Dan Royer
  * @since 1.6.0
  */
-public class ComponentPanelFactory extends ViewElement {
+public class ComponentPanelFactory {
 	private final JPanel innerPanel = new JPanel();
 	private final GridBagConstraints gbc = new GridBagConstraints();
 
+	private final List<ROSystem> systems = new ArrayList<>();
 	private final Scene scene;
+	private final Component component;
 
-	public ComponentPanelFactory(Scene scene,Component component) {
+	public ComponentPanelFactory(Scene scene,Component component,List<ROSystem> systems) {
 		super();
 		this.scene = scene;
+		this.component = component;
+		this.systems.addAll(systems);
 
 		innerPanel.setLayout(new GridBagLayout());
 		innerPanel.setBorder(new EmptyBorder(1, 1, 1, 1));
@@ -121,14 +127,13 @@ public class ComponentPanelFactory extends ViewElement {
 
 	/**
 	 * Add a control for an string that includes a filename selection dialog
-	 * @param e the Parameter that holds the current value.
+	 * @param parameter the Parameter that holds the current value.
 	 * @param filters
 	 * @return the element
 	 */
-	public ViewElement addFilename(StringParameter e, ArrayList<FileFilter> filters) {
-		ViewElementFilename b = new ViewElementFilename(e);
+	public ViewElement addFilename(StringParameter parameter, ArrayList<FileFilter> filters) {
+		ViewElementFilename b = new ViewElementFilename(parameter,scene);
 		b.addFileFilters(filters);
-		
 		pushViewElement(b);
 		return b;
 	}
@@ -137,5 +142,17 @@ public class ComponentPanelFactory extends ViewElement {
 		ViewElementButton b = new ViewElementButton(string);
 		pushViewElement(b);
 		return b;
+	}
+
+	public JComponent buildSwingView() {
+		// add control common to all components
+		add(component.enabled);
+
+		// custom panel views based on component type
+		for(ROSystem sys : systems) {
+			sys.decorate(this,component);
+		}
+
+		return innerPanel;
 	}
 }

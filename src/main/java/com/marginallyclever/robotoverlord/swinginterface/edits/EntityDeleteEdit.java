@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.Scene;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,12 +20,14 @@ import java.util.Map;
  */
 public class EntityDeleteEdit extends AbstractUndoableEdit {
 	private static final Logger logger = LoggerFactory.getLogger(EntityDeleteEdit.class);
+	private final Scene scene;
 	private final Map<Entity,Entity> childParent = new HashMap<>();
 	private final String name;
 
-	public EntityDeleteEdit(String name, List<Entity> entityList) {
+	public EntityDeleteEdit(String name, Scene scene, List<Entity> entityList) {
 		super();
 		this.name = name;
+		this.scene = scene;
 
 		for(Entity child : entityList) {
 			childParent.put(child,child.getParent());
@@ -47,7 +50,8 @@ public class EntityDeleteEdit extends AbstractUndoableEdit {
 	protected void doIt() {
 		for(Entity child : childParent.keySet()) {
 			logger.info("Removing "+child.getFullPath());
-			childParent.get(child).removeEntity(child);
+			Entity parent = childParent.get(child);
+			scene.removeEntityFromParent(child,parent);
 		}
 	}
 
@@ -55,7 +59,8 @@ public class EntityDeleteEdit extends AbstractUndoableEdit {
 	public void undo() throws CannotUndoException {
 		super.undo();
 		for(Entity child : childParent.keySet()) {
-			childParent.get(child).addEntity(child);
+			Entity parent = childParent.get(child);
+			scene.addEntityToParent(child,parent);
 		}
 	}
 }

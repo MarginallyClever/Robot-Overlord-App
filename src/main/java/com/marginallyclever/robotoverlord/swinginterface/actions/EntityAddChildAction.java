@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.EntityFactory;
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,14 +25,13 @@ import java.util.List;
  */
 public class EntityAddChildAction extends AbstractAction implements EditorAction {
 	private static final Logger logger = LoggerFactory.getLogger(EntityAddChildAction.class);
-
-	protected JComponent parentComponent;
+	private final Scene scene;
 	
-	public EntityAddChildAction(JComponent parentComponent) {
+	public EntityAddChildAction(Scene scene) {
 		super(Translator.get("EntityAddChildAction.name"));
+		this.scene = scene;
 		putValue(SMALL_ICON,new UnicodeIcon("+"));
 		putValue(SHORT_DESCRIPTION, Translator.get("EntityAddChildAction.shortDescription"));
-		this.parentComponent = parentComponent;
 	}
 	
     /**
@@ -38,11 +39,14 @@ public class EntityAddChildAction extends AbstractAction implements EditorAction
      */
 	@Override
 	public void actionPerformed(ActionEvent event) {
+		Component source = (Component) event.getSource();
+		JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
+
 		List<Entity> list = Clipboard.getSelectedEntities();
 
 		JComboBox<String> additionComboBox = buildEntityComboBox();
 		int result = JOptionPane.showConfirmDialog(
-				parentComponent,
+				parentFrame,
 				additionComboBox, 
 				(String)this.getValue(AbstractAction.NAME), 
 				JOptionPane.OK_CANCEL_OPTION,
@@ -50,7 +54,7 @@ public class EntityAddChildAction extends AbstractAction implements EditorAction
 		if (result == JOptionPane.OK_OPTION) {
 			String name = additionComboBox.getItemAt(additionComboBox.getSelectedIndex());
 			for(Entity parent : list) {
-				createInstanceOf(parent,name);
+				createInstanceOf(parent,name,parentFrame);
 			}
 		}
     }
@@ -62,13 +66,13 @@ public class EntityAddChildAction extends AbstractAction implements EditorAction
 		return box;
 	}
 
-	private void createInstanceOf(Entity parent,String className) {
+	private void createInstanceOf(Entity parent,String className,JFrame parentFrame) {
 		try {
 			Entity newInstance = EntityFactory.load(className);
-			if(newInstance != null) UndoSystem.addEvent(this,new EntityAddEdit(parent,newInstance));
+			if(newInstance != null) UndoSystem.addEvent(this,new EntityAddEdit(scene,parent,newInstance));
 		} catch (Exception e) {
 			String msg = "Failed to instance "+className+": "+e.getLocalizedMessage();
-			JOptionPane.showMessageDialog(parentComponent,msg);
+			JOptionPane.showMessageDialog(parentFrame,msg);
 			logger.error(msg);
 		}
 	}

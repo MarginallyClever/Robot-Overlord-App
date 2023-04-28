@@ -29,9 +29,11 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 	private final DefaultTreeModel treeModel = new EntityTreeModel(null);
 	private final List<EntityTreePanelListener> listeners = new ArrayList<>();
 	private final List<AbstractAction> actions = new ArrayList<>();
+	private final Scene scene;
 
 	public EntityTreePanel(Scene scene) {
 		super(new BorderLayout());
+		this.scene = scene;
 
 		tree.setShowsRootHandles(true);
 		tree.addTreeSelectionListener(this);
@@ -41,7 +43,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 		tree.setDragEnabled(true);
 		tree.setDropMode(DropMode.ON_OR_INSERT);
-		tree.setTransferHandler(new EntityTreeTransferHandler());
+		tree.setTransferHandler(new EntityTreeTransferHandler(scene));
 
 		addMouseListener();
 		addExpansionListener();
@@ -59,7 +61,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 
 		addTreeModelListener();
 
-		addEntity(scene);
+		addEntity(scene.getRoot());
 		scene.addSceneChangeListener(this);
 	}
 
@@ -83,8 +85,8 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 						TreeNode node = (TreeNode) e.getTreePath().getLastPathComponent();
 						if (node instanceof EntityTreeNode) {
 							Entity child = ((EntityTreeNode) node).getEntity();
-							Entity parent = ((EntityTreeNode) parentNode).getEntity();
-							parent.addEntity(child);
+							Entity parent = child.getParent();
+							scene.addEntityToParent(child,parent);
 						}
 					}
 				}
@@ -95,8 +97,9 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 				// find the Entity associated with this node, remove it from the scene.
 				TreeNode node = (TreeNode) e.getTreePath().getLastPathComponent();
 				if (node instanceof EntityTreeNode) {
-					EntityTreeNode etn = (EntityTreeNode) node;
-					etn.getEntity().setParent(null);
+					Entity child = ((EntityTreeNode) node).getEntity();
+					Entity parent = child.getParent();
+					scene.removeEntityFromParent(child,parent);
 				}
 			}
 
@@ -107,7 +110,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 					if(treeModel.getRoot() != list[0]) {
 						Entity parent = ((EntityTreeNode) list[0]).getEntity();
 						Entity child =  ((EntityTreeNode) e.getTreePath().getLastPathComponent()).getEntity();
-						parent.addEntity(child);
+						scene.addEntityToParent(child,parent);
 					}
 				}
 			}
@@ -117,12 +120,12 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 	private JComponent createMenu() {
 		JToolBar menu = new JToolBar();
 
-		EntityAddChildAction entityAddAction = new EntityAddChildAction(this);
-		EntityCopyAction entityCopyAction = new EntityCopyAction();
-		EntityPasteAction entityPasteAction = new EntityPasteAction();
-		EntityDeleteAction entityDeleteAction = new EntityDeleteAction();
+		EntityAddChildAction entityAddAction = new EntityAddChildAction(scene);
+		EntityCopyAction entityCopyAction = new EntityCopyAction(scene);
+		EntityPasteAction entityPasteAction = new EntityPasteAction(scene);
+		EntityDeleteAction entityDeleteAction = new EntityDeleteAction(scene);
 		EntityCutAction entityCutAction = new EntityCutAction(entityDeleteAction, entityCopyAction);
-		EntityRenameAction entityRenameAction = new EntityRenameAction(this);
+		EntityRenameAction entityRenameAction = new EntityRenameAction();
 
 		menu.add(entityAddAction);
 		menu.add(entityDeleteAction);

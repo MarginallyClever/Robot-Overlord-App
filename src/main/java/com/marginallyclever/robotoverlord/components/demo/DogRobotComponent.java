@@ -1,18 +1,13 @@
 package com.marginallyclever.robotoverlord.components.demo;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.*;
-import com.marginallyclever.robotoverlord.components.shapes.Box;
-import com.marginallyclever.robotoverlord.components.shapes.Cylinder;
-import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -27,12 +22,12 @@ public class DogRobotComponent extends RenderComponent {
     public static final double VISUAL_BODY_WIDTH = 12;
     public static final double VISUAL_BODY_LENGTH = 8;
     public static final double VISUAL_BODY_HEIGHT = 30;
-    private static final int NUM_LEGS = 4;
-    static final String HIP = "Hip";
-    static final String THIGH = "Thigh";
-    static final String CALF = "Calf";
-    static final String FOOT = "Foot";
-    private final String[] modeNames = {
+    public static final int NUM_LEGS = 4;
+    public static final String HIP = "Hip";
+    public static final String THIGH = "Thigh";
+    public static final String CALF = "Calf";
+    public static final String FOOT = "Foot";
+    public static final String[] MODE_NAMES = {
             "Calibrate",
             "Sit down",
             "Stand up",
@@ -40,13 +35,13 @@ public class DogRobotComponent extends RenderComponent {
             "Ripple",
             "Wave",
     };
-    private final IntParameter modeSelector = new IntParameter("Mode", 0);
-    private final DoubleParameter standingRadius = new DoubleParameter("Standing radius", 21);
-    private final DoubleParameter standingHeight = new DoubleParameter("Standing height", 5.5);
-    private final DoubleParameter turningStrideLength = new DoubleParameter("Turning stride length", 150);
-    private final DoubleParameter strideLength = new DoubleParameter("Stride length", 15);
-    private final DoubleParameter strideHeight = new DoubleParameter("Stride height", 5);
-    private final DoubleParameter speedScale = new DoubleParameter("Speed scale", 1);
+    public final IntParameter modeSelector = new IntParameter("Mode", 0);
+    public final DoubleParameter standingRadius = new DoubleParameter("Standing radius", 21);
+    public final DoubleParameter standingHeight = new DoubleParameter("Standing height", 5.5);
+    public final DoubleParameter turningStrideLength = new DoubleParameter("Turning stride length", 150);
+    public final DoubleParameter strideLength = new DoubleParameter("Stride length", 15);
+    public final DoubleParameter strideHeight = new DoubleParameter("Stride height", 5);
+    public final DoubleParameter speedScale = new DoubleParameter("Speed scale", 1);
     private final RobotComponent[] legs = new RobotComponent[NUM_LEGS];
     private final Point3d [] lastPOC = new Point3d[NUM_LEGS];
     private final Point3d [] nextPOC = new Point3d[NUM_LEGS];
@@ -62,6 +57,10 @@ public class DogRobotComponent extends RenderComponent {
             nextPOC[i] = new Point3d();
             targets[i] = new Point3d();
         }
+    }
+
+    public void setLeg(int i, RobotComponent leg) {
+        legs[i] = leg;
     }
 
     @Override
@@ -85,55 +84,6 @@ public class DogRobotComponent extends RenderComponent {
     private void drawMarker(GL2 gl2, Tuple3d v, int color) {
         if(color==0) PrimitiveSolids.drawStar(gl2,v,5);
         else PrimitiveSolids.drawSphere(gl2,v,1);
-    }
-
-    @Override
-    public void setEntity(Entity entity) {
-        super.setEntity(entity);
-        if(entity==null) return;
-
-        Entity myEntity = getEntity();
-        myEntity.addComponent(new PoseComponent());
-        PoseComponent myPose = myEntity.findFirstComponent(PoseComponent.class);
-        myPose.setPosition(new Vector3d(0,0,5.4));
-        myPose.setRotation(new Vector3d(90,0,0));
-
-        Entity mesh = createMesh("/robots/SpotMicro/torso.obj",new ColorRGB(0xffffff));
-        myEntity.addEntity(mesh);
-        PoseComponent meshPose = mesh.findFirstComponent(PoseComponent.class);
-        meshPose.setRotation(new Vector3d(90,180,180));
-        meshPose.setPosition(new Vector3d(-0.7,4.1,7));
-
-
-        // head
-        // 0   2
-        // 1   1
-        double w = KINEMATIC_BODY_WIDTH/2;
-        double h = KINEMATIC_BODY_HEIGHT/2;
-        int i=0;
-        legs[i] = createLimb("RF",i, true, -w, h, 1);  i++;
-        legs[i] = createLimb("RB",i, true, -w,-h, 1);  i++;
-        legs[i] = createLimb("LF",i,false,  w, h, 1);  i++;
-        legs[i] = createLimb("LB",i,false,  w,-h, 1);  i++;
-
-        i=0;
-        for(RobotComponent leg : legs) {
-            myEntity.addEntity(leg.getEntity());
-            setInitialPointOfContact(leg.getEntity(),i++);
-        }
-    }
-
-    @Override
-    public void getView(ComponentPanelFactory view) {
-        super.getView(view);
-        view.add(standingRadius);
-        view.add(standingHeight);
-        view.add(turningStrideLength);
-        view.add(strideLength);
-        view.add(strideHeight);
-
-        view.addComboBox(modeSelector, modeNames);
-        view.add(speedScale);
     }
 
     @Override
@@ -306,85 +256,7 @@ public class DogRobotComponent extends RenderComponent {
         setLegTargetPosition(index,mid);
     }
 
-    private RobotComponent createLimb(String name,int index,boolean isRight, double r, double d, double s) {
-        DHComponent[] dh = new DHComponent[4];
-        for(int i=0;i<dh.length;++i) {
-            dh[i] = new DHComponent();
-            dh[i].setVisible(true);
-        }
-        Entity limb = createPoseEntity(name);
-        PoseComponent limbPose = limb.findFirstComponent(PoseComponent.class);
-        limbPose.setPosition(new Vector3d(r,0,d));
-
-        limb.addEntity(createCylinder(4,2.1,new ColorRGB(0x9999FF)));
-
-        Entity hip = createPoseEntity(HIP);
-        limb.addEntity(hip);
-        Entity thigh = createPoseEntity(THIGH);
-        hip.addEntity(thigh);
-        Entity calf = createPoseEntity(CALF);
-        thigh.addEntity(calf);
-        Entity foot = createPoseEntity(FOOT);
-        calf.addEntity(foot);
-
-        hip.addComponent(dh[0]);
-        dh[0].set( 0, 0, 90*(isRight?1:-1), 90, 360, -360,true);
-        hip.addEntity(createCylinder(5,2,new ColorRGB(0xFFFFFF)));
-
-        thigh.addComponent(dh[1]);
-        dh[1].set(-3.5 * s, 11.5, 0, 135*(isRight?-1:1), 360, -360,true);
-        thigh.addEntity(createBox(dh[1].getR(),1,new ColorRGB(0xFFFF99)));
-
-        calf.addComponent(new ArmEndEffectorComponent());
-        calf.addComponent(dh[2]);
-        dh[2].set(0, 13, 0, 90*(isRight?-1:1), 360, -360,true);
-        calf.addEntity(createBox(dh[2].getR(),0.7,new ColorRGB(0xFFFF66)));
-
-        foot.addComponent(new ArmEndEffectorComponent());
-
-        // Done at the end so RobotComponent can find all bones DHComponents.
-        RobotComponent robot = new RobotComponent();
-        limb.addComponent(robot);
-
-        setInitialPointOfContact(limb,index);
-
-        return robot;
-    }
-
-    private Entity createBox(double r, double v,ColorRGB color) {
-        Entity result = new Entity("Mesh");
-
-        PoseComponent pose = new PoseComponent();
-        result.addComponent(pose);
-        pose.setPosition(new Vector3d(-r/2,0,0));
-        pose.setScale(new Vector3d(r,v*2,v*2));
-
-        MaterialComponent material = new MaterialComponent();
-        result.addComponent(material);
-        material.setDiffuseColor(color.red/255.0f, color.green/255.0f, color.blue/255.0f,1.0);
-
-        result.addComponent(new Box());
-
-        return result;
-    }
-
-    private Entity createCylinder(double r,double v,ColorRGB color) {
-        Entity result = new Entity("Mesh");
-
-        PoseComponent pose = new PoseComponent();
-        result.addComponent(pose);
-        pose.setScale(new Vector3d(v*2,v*2,r));
-
-        MaterialComponent material = new MaterialComponent();
-        result.addComponent(material);
-        material.setDiffuseColor(color.red/255.0f, color.green/255.0f, color.blue/255.0f,1.0);
-
-        result.addComponent(new Cylinder());
-
-        return result;
-    }
-
-    private void setInitialPointOfContact(Entity limb,int index) {
+    public void setInitialPointOfContact(Entity limb,int index) {
         Entity foot = limb.findByPath(HIP);
         PoseComponent footPose = foot.findFirstComponent(PoseComponent.class);
 
@@ -392,25 +264,5 @@ public class DogRobotComponent extends RenderComponent {
         toe.z=0;
         nextPOC[index].set(toe);
         lastPOC[index].set(toe);
-    }
-
-    private Entity createPoseEntity(String name) {
-        Entity result = new Entity(name);
-        result.addComponent(new PoseComponent());
-        return result;
-    }
-
-    private Entity createMesh(String filename, ColorRGB color) {
-        Entity mesh = createPoseEntity("Mesh");
-
-        MaterialComponent mc = new MaterialComponent();
-        mc.setDiffuseColor(color.red/255.0,color.green/255.0,color.blue/255.0,1);
-        mesh.addComponent(mc);
-
-        MeshFromFile mff = new MeshFromFile();
-        mff.setFilename(filename);
-        mesh.addComponent(mff);
-
-        return mesh;
     }
 }

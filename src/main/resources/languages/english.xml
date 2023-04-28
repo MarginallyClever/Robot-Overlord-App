@@ -1455,4 +1455,13 @@ to check yourself.</value>
 		<key>ComponentRenameEdit.name</key>
 		<value>Rename %1</value>
 	</string>
+
+	<string>
+		<key>RobotROSystem.controlPanel</key>
+		<value>Control panel</value>
+	</string>
+	<string>
+		<key>RobotROSystem.DHTable</key>
+		<value>DH Table</value>
+	</string>
 </language>

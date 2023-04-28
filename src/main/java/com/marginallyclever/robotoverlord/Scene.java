@@ -8,6 +8,9 @@ import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,14 +32,18 @@ import java.util.Queue;
  * @author Dan Royer
  * @since 1.6.0
  */
-public class Scene extends Entity {
+public class Scene {
 	private static final Logger logger = LoggerFactory.getLogger(Scene.class);
 	private final StringParameter scenePath = new StringParameter("Scene Path", "");
+	private final List<Entity> entities = new ArrayList<>();
 
 	private final List<SceneChangeListener> sceneChangeListeners = new ArrayList<>();
 	
 	public Scene() {
 		super();
+		Entity root = new Entity("Scene");
+		root.addComponent(new PoseComponent());
+		entities.add(root);
 	}
 
 	/**
@@ -44,7 +51,7 @@ public class Scene extends Entity {
 	 * @param absolutePath the absolute path to the root of the project.
 	 */
 	public Scene(String absolutePath) {
-		super();
+		this();
 		setScenePath(absolutePath);
 	}
 
@@ -54,7 +61,7 @@ public class Scene extends Entity {
 	 */
 	public boolean collisionTest(ArrayList<AABB> listA) {
 		// check all children
-		for( Entity b : children) {
+		for( Entity b : entities) {
 			if( !(b instanceof Collidable) ) continue;
 			
 			ArrayList<AABB> listB = ((Collidable)b).getCuboidList();
@@ -83,15 +90,17 @@ public class Scene extends Entity {
 		return false;
 	}
 
-	public void addEntityToParent(Entity parent, Entity entity) {
+	public void addEntityToParent(Entity child,Entity parent) {
+		parent.addEntity(child);
 		for(SceneChangeListener listener : sceneChangeListeners) {
-			listener.addEntityToParent(parent,entity);
+			listener.addEntityToParent(parent,child);
 		}
 	}
 
-	public void removeEntityFromParent(Entity parent, Entity entity) {
+	public void removeEntityFromParent(Entity child,Entity parent) {
+		parent.removeEntity(child);
 		for(SceneChangeListener listener : sceneChangeListeners) {
-			listener.removeEntityFromParent(parent,entity);
+			listener.removeEntityFromParent(parent,child);
 		}
 	}
 
@@ -154,6 +163,18 @@ public class Scene extends Entity {
 		}
 	}
 
+	public String checkForScenePath(String fn) {
+		if (!isAssetPathInScenePath(fn)) {
+			String fn2 = addScenePath(fn);
+			if ((new File(fn2)).exists()) {
+				return fn2;
+			}
+		} else {
+			warnIfAssetPathIsNotInScenePath(fn);
+		}
+		return fn;
+	}
+
 	/**
 	 * Returns the relative path to the asset, or absolute if the asset is not within the scene path.
 	 * @param unCheckedAssetFilename a file that may or may not be within the scene path.
@@ -179,16 +200,67 @@ public class Scene extends Entity {
 	 * @return the entity with the given unique ID, or null if not found.
 	 */
     public Entity findEntityByUniqueID(String uuid) {
-		Queue<Entity> toTest = new LinkedList<>(children);
+		Queue<Entity> toTest = new LinkedList<>(entities);
 		while(!toTest.isEmpty()) {
-			Entity child = toTest.remove();
-			if(child.getUniqueID().equals(uuid)) return child;
-			toTest.addAll(child.getChildren());
+			Entity entity = toTest.remove();
+
+			if(entity.getUniqueID().equals(uuid)) return entity;
+
+			toTest.addAll(entity.getChildren());
 		}
 		return null;
     }
 
 	public CameraComponent getCamera() {
-		return findFirstComponentRecursive(CameraComponent.class);
+		Queue<Entity> toTest = new LinkedList<>(entities);
+		while(!toTest.isEmpty()) {
+			Entity entity = toTest.remove();
+
+			CameraComponent camera = entity.findFirstComponentRecursive(CameraComponent.class);
+			if(camera!=null) return camera;
+
+			toTest.addAll(entity.getChildren());
+		}
+		return null;
+	}
+
+	/**
+	 * Deep search for a child with this name.
+	 * @param name the name to match
+	 * @return the entity.  null if nothing found.
+	 */
+	@Deprecated
+	public Entity findEntityWithName(String name) {
+		List<Entity> list = new ArrayList<>(entities);
+		while( !list.isEmpty() ) {
+			Entity entity = list.remove(0);
+			String objectName = entity.getName();
+
+			if(name.equals(objectName)) return entity;
+
+			list.addAll(entity.getChildren());
+		}
+		return null;
+	}
+
+	public List<Entity> getEntities() {
+		return entities;
+	}
+
+	public Entity getRoot() {
+		return entities.get(0);
+	}
+
+	public JSONObject toJSON() {
+		JSONObject jo = new JSONObject();
+		jo.put("scene", entities.get(0).toJSON());
+		return jo;
+	}
+
+	public void parseJSON(JSONObject jo) throws JSONException {
+		entities.clear();
+		entities.add(new Entity());
+		if(jo.has("scene")) jo = jo.getJSONObject("scene");
+		entities.get(0).parseJSON(jo);
 	}
 }

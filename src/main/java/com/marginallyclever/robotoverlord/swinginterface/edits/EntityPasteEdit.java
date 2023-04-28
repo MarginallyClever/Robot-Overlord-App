@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import org.json.JSONObject;
 
@@ -12,15 +13,17 @@ import java.util.List;
 
 public class EntityPasteEdit extends AbstractUndoableEdit {
     private final String name;
+    private final Scene scene;
     private final Entity copiedEntities;
     private final List<Entity> parents;
     private final List<Entity> copies = new LinkedList<>();
 
-    public EntityPasteEdit(String name, Entity copiedEntities, List<Entity> parents) {
+    public EntityPasteEdit(String name, Scene scene, Entity copiedEntities, List<Entity> parents) {
         super();
         this.name = name;
         this.copiedEntities = copiedEntities;
         this.parents = parents;
+        this.scene = scene;
         doIt();
     }
 
@@ -36,7 +39,7 @@ public class EntityPasteEdit extends AbstractUndoableEdit {
             JSONObject serialized = e.toJSON();
             for(Entity parent : parents) {
                 Entity copy = new Entity();
-                parent.addEntity(copy);
+                scene.addEntityToParent(copy, parent);
                 copy.parseJSON(serialized);
                 copies.add(copy);
             }
@@ -49,7 +52,7 @@ public class EntityPasteEdit extends AbstractUndoableEdit {
         super.undo();
         for(Entity parent : parents) {
             for(Entity copy : copies) {
-                parent.removeEntity(copy);
+                scene.removeEntityFromParent(copy, parent);
             }
         }
         Clipboard.setSelectedEntity(null);

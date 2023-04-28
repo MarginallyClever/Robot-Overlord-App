@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
@@ -22,29 +23,27 @@ import java.util.List;
  */
 public class EntityRenameAction extends AbstractAction implements EditorAction {
 	private static final Logger logger = LoggerFactory.getLogger(EntityRenameAction.class);
-	private final JComponent parentComponent;
 	
-	public EntityRenameAction(JComponent parentComponent) {
+	public EntityRenameAction() {
 		super(Translator.get("EntityRenameAction.name"));
 		putValue(SHORT_DESCRIPTION, Translator.get("EntityRenameAction.shortDescription"));
 		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F2,0));
-		this.parentComponent = parentComponent;
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
+		Component source = (Component) event.getSource();
+		JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
+
 		List<Entity> entityList = Clipboard.getSelectedEntities();
 		if (entityList.size() != 1) {
 			logger.error("Rename more than one entity at the same time?!");
 			return;
 		}
 		Entity e = entityList.get(0);
-		renameEntity(e);
-	}
 
-	public void renameEntity(Entity e) {
 		String newName = (String)JOptionPane.showInputDialog(
-				parentComponent,
+				parentFrame,
 				"New name:",
 				"Rename Entity",
 				JOptionPane.PLAIN_MESSAGE,null,null,e.getName());

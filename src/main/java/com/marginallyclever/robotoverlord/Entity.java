@@ -118,37 +118,29 @@ public class Entity implements PropertyChangeListener {
 		children.add(index,e);
 		e.setParent(this);
 	}
-	
+
+	/**
+	 * Use {@link Scene#addEntityToParent(Entity, Entity)} instead.
+	 * @param child the child to add
+	 */
+	@Deprecated
 	public void addEntity(Entity child) {
 		//System.out.println("add "+child.getFullPath()+" to "+this.getFullPath());
-		checkForAddToScene(this,child);
 		children.add(child);
 		child.setParent(this);
 	}
 
-	public void removeEntity(Entity e) {
-		if (children.contains(e)) {
-			checkForRemoveFromScene(this,this,e);
-			children.remove(e);
-			if(e.getParent()==this) // is this always true?  then why test it?
-				e.setParent(null);
+	/**
+	 * Use {@link Scene#removeEntityFromParent(Entity, Entity)} instead.
+	 * @param child the child to remove
+	 */
+	@Deprecated
+	public void removeEntity(Entity child) {
+		if (children.contains(child)) {
+			children.remove(child);
+			if(child.getParent()==this) // is this always true?  then why test it?
+				child.setParent(null);
 		}
-	}
-
-	private void checkForAddToScene(Entity parent,Entity child) {
-		Entity node = parent;
-		while(node!=null) {
-			if (node instanceof Scene) {
-				((Scene) node).addEntityToParent(parent, child);
-				return;
-			}
-			node = node.getParent();
-		}
-	}
-
-	private void checkForRemoveFromScene(Entity node,Entity parent,Entity child) {
-		Scene scene = getScene();
-		if(scene != null) scene.removeEntityFromParent(parent, child);
 	}
 
 	public ArrayList<Entity> getChildren() {
@@ -264,10 +256,6 @@ public class Entity implements PropertyChangeListener {
 		}
 	}
 
-	public void removeAllEntities() {
-		while(!children.isEmpty()) removeEntity(children.get(0));
-	}
-	
 	@Override
 	public String toString() {
 		return "name=" + name + ", " +
@@ -442,15 +430,5 @@ public class Entity implements PropertyChangeListener {
 
 	public void setExpanded(boolean arg0) {
 		isExpanded = arg0;
-	}
-
-	public Scene getScene() {
-		Entity entity = this;
-		do {
-			if(entity instanceof Scene) return (Scene)entity;
-			entity = entity.getParent();
-		} while(entity!=null);
-
-		return null;
 	}
 }
