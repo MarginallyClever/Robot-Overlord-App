@@ -9,13 +9,13 @@ import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
-import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 public class TranslateEntityToolOneAxis implements EditorTool {
     private final double handleLength = 5;
@@ -56,8 +56,8 @@ public class TranslateEntityToolOneAxis implements EditorTool {
     private boolean hovering = false;
 
     @Override
-    public void activate(SelectedItems selectedItems) {
-        this.selectedItems = selectedItems;
+    public void activate(List<Entity> list) {
+        this.selectedItems = new SelectedItems(list);
         if(selectedItems.isEmpty()) return;
 
         setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));

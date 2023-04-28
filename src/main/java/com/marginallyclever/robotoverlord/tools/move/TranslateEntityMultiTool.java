@@ -2,10 +2,10 @@ package com.marginallyclever.robotoverlord.tools.move;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
-import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -44,12 +44,12 @@ public class TranslateEntityMultiTool implements EditorTool {
      * @param selectedItems The selected items to be manipulated by the tool.
      */
     @Override
-    public void activate(SelectedItems selectedItems) {
-        this.selectedItems = selectedItems;
+    public void activate(List<Entity> list) {
+        this.selectedItems = new SelectedItems(list);
 
-        for (EditorTool t : tools) t.activate(selectedItems);
+        for(EditorTool t : tools) t.activate(list);
 
-        if (selectedItems == null || selectedItems.isEmpty()) return;
+        if(selectedItems.isEmpty()) return;
 
         setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
     }

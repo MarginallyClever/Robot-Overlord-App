@@ -1,11 +1,13 @@
 package com.marginallyclever.robotoverlord.tools;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Viewport;
 
 import javax.vecmath.Point3d;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 /**
  * Interface for tools that can be used to visually edit the scene.
@@ -18,9 +20,9 @@ public interface EditorTool {
      * This method is called when the tool is activated. It receives the SelectedItems object containing the selected
      * entities and their initial world poses.
      *
-     * @param selectedItems The selected items to be manipulated by the tool.
+     * @param list The selected items to be manipulated by the tool.
      */
-    void activate(SelectedItems selectedItems);
+    void activate(List<Entity> list);
 
     /**
      * This method is called when the tool is deactivated. It allows the tool to perform any necessary cleanup

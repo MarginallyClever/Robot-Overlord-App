@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.tools;
+package com.marginallyclever.robotoverlord.tools.move;
 
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Entity;
