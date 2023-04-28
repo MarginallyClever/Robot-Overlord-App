@@ -240,6 +240,10 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 			treeModel.setRoot(newNode);
 			setNodeExpandedState((EntityTreeNode) treeModel.getRoot());
 		}
+
+		for(Entity child : me.getChildren()) {
+			addEntity(child);
+		}
 	}
 
 	public void removeEntity(Entity entity) {

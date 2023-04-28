@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * <p>{@link EntityManager} is a container for all the {@link Entity} in a project.  It is like an Entity Manager.</p>
- * <p>It also contains the absolute path on disk for the root of the Scene.  All assets are relative to this path.</p>
+ * {@link EntityManager} is a container for all the {@link Entity} in a project.
+ * It also contains the absolute path on disk for the root of the Scene.  All assets are relative to this path.
  *
  * @author Dan Royer
  * @since 1.6.0
@@ -30,19 +30,20 @@ public class EntityManager {
 	private static final Logger logger = LoggerFactory.getLogger(EntityManager.class);
 	private final StringParameter scenePath = new StringParameter("Scene Path", "");
 	private final List<Entity> entities = new ArrayList<>();
-
+	private final Entity rootEntity = new Entity("Scene");
 	private final List<SceneChangeListener> sceneChangeListeners = new ArrayList<>();
 	
 	public EntityManager() {
 		super();
-		clear();
+		rootEntity.addComponent(new PoseComponent());
+		entities.add(rootEntity);
 	}
 
 	public void clear() {
-		entities.clear();
-		Entity root = new Entity("Scene");
-		root.addComponent(new PoseComponent());
-		entities.add(root);
+		List<Entity> children = rootEntity.getChildren();
+		for( Entity child : children ) {
+			removeEntityFromParent(child,rootEntity);
+		}
 	}
 
 	/**
