@@ -85,7 +85,6 @@ public class Sphere extends ShapeComponent {
 
     public void setDetail(int v) {
         detail.set(Math.max(1,v));
-        updateModel();
     }
 
     public double getDetail() { return detail.get(); }
