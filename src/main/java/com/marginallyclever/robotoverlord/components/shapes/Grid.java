@@ -13,6 +13,12 @@ import org.json.JSONObject;
 
 import javax.vecmath.Vector3d;
 
+/**
+ * Procedurally draws a grid on a plane.  If the material for this Grid has lighting turned off then the
+ * grid will be transparent at the edges.
+ *
+ * @author Dan Royer
+ */
 public class Grid extends ShapeComponent {
     public final BooleanParameter snap = new BooleanParameter("Snap",true);
     public final IntParameter width = new IntParameter("Width (cm)",100);
