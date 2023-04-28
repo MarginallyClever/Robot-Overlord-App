@@ -85,7 +85,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
      * This method is called when the tool is activated. It receives the SelectedItems object containing the selected
      * entities and their initial world poses.
      *
-     * @param selectedItems The selected items to be manipulated by the tool.
+     * @param list The selected items to be manipulated by the tool.
      */
     @Override
     public void activate(List<Entity> list) {
