@@ -350,11 +350,11 @@ public class RotateEntityToolOneAxis implements EditorTool {
         }
 
         gl2.glEnd();
+        gl2.glPopMatrix();
 
         gl2.glPushMatrix();
         MatrixHelper.applyMatrix(gl2, pivotMatrix);
         drawLine(gl2,new Vector3d(1,0,0),ringRadius);
-        gl2.glEnd();
 
         gl2.glPopMatrix();
     }
