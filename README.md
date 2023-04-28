@@ -35,7 +35,7 @@ Then you should be able to run the application.
 
 Camera movement: middle mouse button.  Click and drag to move forward and back.  shift+drag to orbit.  roll the middle mouse to change the orbit distance.  
 
-Double click any entity in the scene to select it, or use the entity panel in the top right.
+Double click any entity in the entityManager to select it, or use the entity panel in the top right.
 
 For robot arms, select an arm and then open the control panel.
 

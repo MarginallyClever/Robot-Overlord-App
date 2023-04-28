@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -16,11 +17,13 @@ import java.util.Map;
  *
  */
 public class EntityReorganizeEdit extends AbstractUndoableEdit {
+	private final EntityManager entityManager;
 	private final Map<Entity,Entity> childParent = new HashMap<>();
 	private final Entity newParent;
 
-	public EntityReorganizeEdit(List<Entity> children, Entity newParent) {
+	public EntityReorganizeEdit(EntityManager entityManager, List<Entity> children, Entity newParent) {
 		super();
+		this.entityManager = entityManager;
 		this.newParent = newParent;
 
 		for(Entity child : children) {
@@ -30,8 +33,9 @@ public class EntityReorganizeEdit extends AbstractUndoableEdit {
 		doIt();
 	}
 
-	public EntityReorganizeEdit(Entity child, Entity newParent) {
+	public EntityReorganizeEdit(EntityManager entityManager, Entity child, Entity newParent) {
 		super();
+		this.entityManager = entityManager;
 		this.newParent = newParent;
 
 		childParent.put(child,child.getParent());
@@ -59,10 +63,10 @@ public class EntityReorganizeEdit extends AbstractUndoableEdit {
 	}
 	
 	protected void doIt() {
-		System.out.println("Reorganizing "+getFancyName());
 		for(Entity child : childParent.keySet()) {
-			child.getParent().removeEntity(child);
-			newParent.addEntity(child);
+			Entity oldParent = childParent.get(child);
+			entityManager.removeEntityFromParent(child,oldParent);
+			entityManager.addEntityToParent(child,newParent);
 		}
 	}
 
@@ -70,8 +74,9 @@ public class EntityReorganizeEdit extends AbstractUndoableEdit {
 	public void undo() throws CannotUndoException {
 		super.undo();
 		for(Entity child : childParent.keySet()) {
-			newParent.removeEntity(child);
-			childParent.get(child).addEntity(child);
+			Entity oldParent = childParent.get(child);
+			entityManager.removeEntityFromParent(child,newParent);
+			entityManager.addEntityToParent(child,oldParent);
 		}
 	}
 }

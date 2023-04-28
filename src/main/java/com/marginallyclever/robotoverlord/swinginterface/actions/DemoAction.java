@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
-import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.demos.Demo;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
@@ -14,21 +14,21 @@ import java.awt.event.ActionListener;
  *
  */
 public class DemoAction extends AbstractAction implements ActionListener {
-	private final RobotOverlord ro;
+	private final EntityManager entityManager;
 	private final Demo demo;
 	
-	public DemoAction(RobotOverlord ro,Demo demo) {
+	public DemoAction(EntityManager entityManager, Demo demo) {
 		super(demo.getName());
         putValue(SHORT_DESCRIPTION, Translator.get("DemoAction.shortDescription"));
-		this.ro = ro;
+		this.entityManager = entityManager;
 		this.demo = demo;
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		SceneClearAction action = new SceneClearAction(ro);
+		SceneClearAction action = new SceneClearAction(entityManager);
 		action.clearScene();
 		action.addDefaultEntities();
-		demo.execute(ro);
+		demo.execute(entityManager);
 	}
 }

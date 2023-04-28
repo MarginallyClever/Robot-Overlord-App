@@ -1,8 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.StringParameterEdit;
@@ -23,12 +22,12 @@ import java.awt.event.ActionListener;
 public class ViewElementReference extends ViewElement implements ActionListener {
 	private final JTextField field = new FocusTextField(20);
 	private final ReferenceParameter parameter;
-	private final RobotOverlord robotOverlord;
+	private final EntityManager entityManager;
 
-	public ViewElementReference(final ReferenceParameter parameter, RobotOverlord robotOverlord) {
+	public ViewElementReference(final ReferenceParameter parameter, EntityManager entityManager) {
 		super();
 		this.parameter = parameter;
-		this.robotOverlord = robotOverlord;
+		this.entityManager = entityManager;
 
 		field.setEditable(false);
 		field.setMargin(new Insets(1,0,1,0));
@@ -66,7 +65,7 @@ public class ViewElementReference extends ViewElement implements ActionListener 
 			return;
 		}
 
-		Entity entity = robotOverlord.getScene().findEntityByUniqueID(uniqueID);
+		Entity entity = entityManager.findEntityByUniqueID(uniqueID);
 		if(entity==null) {
 			field.setText("<missing>");
 			return;
@@ -76,14 +75,13 @@ public class ViewElementReference extends ViewElement implements ActionListener 
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		Scene scene = robotOverlord.getScene();
-		List<Entity> chosen = EntityChooser.runDialog(robotOverlord.getMainFrame(),scene,true);
-		if(!chosen.isEmpty()) {
-			String newFilename = chosen.get(0).getUniqueID();
-			AbstractUndoableEdit event = new StringParameterEdit(parameter, newFilename);
-			UndoSystem.addEvent(this,event);
-		}
+	public void actionPerformed(ActionEvent e) {
+		Component source = (Component) e.getSource();
+		JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
+		List<Entity> chosen = EntityChooser.runDialog(parentFrame, entityManager.getRoot(),true);
+		String newFilename = chosen.isEmpty() ? null : chosen.get(0).getUniqueID();
+		AbstractUndoableEdit event = new StringParameterEdit(parameter, newFilename);
+		UndoSystem.addEvent(this,event);
 	}
 
 	@Override

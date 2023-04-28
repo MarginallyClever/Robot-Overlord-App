@@ -2,61 +2,24 @@ package com.marginallyclever.robotoverlord.components;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.TextureParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import java.io.File;
-import java.util.ArrayList;
-
 public class MaterialComponent extends Component {
-    private final ColorParameter ambient    = new ColorParameter("Ambient" ,1,1,1,1);
-    private final ColorParameter diffuse    = new ColorParameter("Diffuse" ,1,1,1,1);
-    private final ColorParameter specular   = new ColorParameter("Specular",1,1,1,1);
-    private final ColorParameter emission   = new ColorParameter("Emission",0,0,0,1);
-    private final IntParameter shininess    = new IntParameter("Shininess",10);
-    private final BooleanParameter isLit    = new BooleanParameter("Lit",true);
-    private final TextureParameter texture  = new TextureParameter("Texture",null);
+    public final ColorParameter ambient    = new ColorParameter("Ambient" ,1,1,1,1);
+    public final ColorParameter diffuse    = new ColorParameter("Diffuse" ,1,1,1,1);
+    public final ColorParameter specular   = new ColorParameter("Specular",1,1,1,1);
+    public final ColorParameter emission   = new ColorParameter("Emission",0,0,0,1);
+    public final IntParameter shininess    = new IntParameter("Shininess",10);
+    public final BooleanParameter isLit    = new BooleanParameter("Lit",true);
+    public final TextureParameter texture  = new TextureParameter("Texture",null);
 
     public MaterialComponent() {
         super();
-    }
-
-    @Override
-    public void getView(ComponentPanelFactory view) {
-        super.getView(view);
-        view.add(isLit  );
-        view.add(emission);
-        view.add(ambient );
-        view.add(diffuse );
-        view.add(specular);
-        view.addRange(shininess, 128, 0);
-        getViewOfTexture(view);
-    }
-
-    private void getViewOfTexture(ComponentPanelFactory view) {
-        ArrayList<FileFilter> filters = new ArrayList<>();
-        // supported file formats
-        filters.add(new FileNameExtensionFilter("PNG", "png"));
-        filters.add(new FileNameExtensionFilter("BMP", "bmp"));
-        filters.add(new FileNameExtensionFilter("JPEG", "jpeg","jpg"));
-        filters.add(new FileNameExtensionFilter("TGA", "tga"));
-
-        view.addFilename(texture,filters);
-
-        texture.addPropertyChangeListener((e)->{
-            Scene myScene = getScene();
-            if(myScene!=null) {
-                myScene.warnIfAssetPathIsNotInScenePath(texture.getTextureFilename());
-            }
-        });
     }
 
     public void render(GL2 gl2) {
@@ -171,15 +134,7 @@ public class MaterialComponent extends Component {
         jo.put("diffuse",diffuse.toJSON());
         jo.put("specular",specular.toJSON());
         jo.put("shininess",shininess.toJSON());
-
-        Scene myScene = getScene();
-        if(myScene!=null) {
-            TextureParameter te = new TextureParameter(texture.getName(),myScene.removeScenePath(texture.get()));
-            jo.put("texture",te.toJSON());
-        } else {
-            jo.put("texture",texture.toJSON());
-        }
-
+        jo.put("texture",texture.toJSON());
         return jo;
     }
 
@@ -192,17 +147,7 @@ public class MaterialComponent extends Component {
         diffuse.parseJSON(jo.getJSONObject("diffuse"));
         specular.parseJSON(jo.getJSONObject("specular"));
         shininess.parseJSON(jo.getJSONObject("shininess"));
-
-        TextureParameter te = new TextureParameter(null,null);
-        te.parseJSON(jo.getJSONObject("texture"));
-        String fn = te.get();
-        if(fn!=null && !fn.isEmpty() && !(new File(fn)).exists()) {
-            Scene myScene = getScene();
-            if(myScene!=null) {
-                te.set(myScene.addScenePath(fn));
-            }
-        }
-        texture.set(fn);
+        texture.parseJSON(jo.getJSONObject("texture"));
     }
 
     /**

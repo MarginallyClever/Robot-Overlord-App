@@ -73,16 +73,10 @@ public class TextureParameter extends StringParameter {
 	
 	@Override
 	public void set(String s) {
+		if(s != null && s.equals(t)) return;
+		if(s==null && t==null) return;
+
 		super.set(s);
 		textureDirty=true;
-	}
-
-	public String getTextureFilename() {
-		for (Map.Entry<String, Texture> entry : texturePool.entrySet()) {
-			if (entry.getValue().equals(texture)) {
-				return entry.getKey();
-			}
-		}
-		throw new RuntimeException("Texture not found in pool.");
 	}
 }

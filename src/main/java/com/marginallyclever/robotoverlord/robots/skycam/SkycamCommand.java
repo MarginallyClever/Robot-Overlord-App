@@ -27,7 +27,7 @@ public class SkycamCommand extends PoseEntity implements Cloneable, Serializable
 		accelerationSlider.set(acceleration);
 	}
 
-	@Override
+	@Deprecated
 	public void getView(ComponentPanelFactory view) {
 		view.addRange(feedrateSlider, (int)SkycamModel.MAX_FEEDRATE, 0);
 		view.addRange(accelerationSlider, (int)SkycamModel.MAX_ACCELERATION, 0);

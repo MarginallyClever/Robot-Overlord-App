@@ -23,6 +23,9 @@ public class ShowRobotLibraryPanel extends AbstractAction {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
+        Component source = (Component) e.getSource();
+        JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
+
         RobotLibraryPanel panel = new RobotLibraryPanel();
         panel.addRobotLibraryListener(robotOverlord);
         JFrame frame = new JFrame("Robot Library");
@@ -30,7 +33,7 @@ public class ShowRobotLibraryPanel extends AbstractAction {
         frame.setPreferredSize(new Dimension(450,600));
         frame.setSize(450,600);
         frame.pack();
-        frame.setLocationRelativeTo(robotOverlord.getMainFrame());
+        frame.setLocationRelativeTo(parentFrame);
         frame.setVisible(true);
     }
 }

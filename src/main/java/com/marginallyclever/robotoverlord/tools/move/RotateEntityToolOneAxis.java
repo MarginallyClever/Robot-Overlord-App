@@ -7,8 +7,8 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
-import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -16,6 +16,7 @@ import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 public class RotateEntityToolOneAxis implements EditorTool {
     /**
@@ -79,20 +80,18 @@ public class RotateEntityToolOneAxis implements EditorTool {
      * which axis of rotation will be used?  0,1,2 = x,y,z
      */
     private int rotation=2;
-
     private boolean hovering = false;
-
-    private double angleAtStartOfDrag;
+    private final Box handleBox = new Box();
 
     /**
      * This method is called when the tool is activated. It receives the SelectedItems object containing the selected
      * entities and their initial world poses.
      *
-     * @param selectedItems The selected items to be manipulated by the tool.
+     * @param list The selected items to be manipulated by the tool.
      */
     @Override
-    public void activate(SelectedItems selectedItems) {
-        this.selectedItems = selectedItems;
+    public void activate(List<Entity> list) {
+        this.selectedItems = new SelectedItems(list);
         if (selectedItems.isEmpty()) return;
 
         setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
@@ -140,7 +139,6 @@ public class RotateEntityToolOneAxis implements EditorTool {
             dragging = true;
             hovering = true;
             startPoint = EditorUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,event.getX(), event.getY());
-            angleAtStartOfDrag = getAngleBetweenPoints(startPoint);
             if(selectedItems!=null) selectedItems.savePose();
         }
     }
@@ -257,6 +255,8 @@ public class RotateEntityToolOneAxis implements EditorTool {
 
     @Override
     public void mouseReleased(MouseEvent event) {
+        if(!dragging) return;
+
         dragging = false;
         if(selectedItems!=null) {
             EditorUtils.updateUndoState(this,selectedItems);
@@ -354,11 +354,11 @@ public class RotateEntityToolOneAxis implements EditorTool {
         }
 
         gl2.glEnd();
+        gl2.glPopMatrix();
 
         gl2.glPushMatrix();
         MatrixHelper.applyMatrix(gl2, pivotMatrix);
         drawLine(gl2,new Vector3d(1,0,0),ringRadius);
-        gl2.glEnd();
 
         gl2.glPopMatrix();
     }
@@ -375,10 +375,18 @@ public class RotateEntityToolOneAxis implements EditorTool {
 
         PrimitiveSolids.drawCircleXY(gl2, ringRadius, ringResolution);
 
-        gl2.glTranslated(handleLength,handleOffsetY,-gripRadius*0.5);
-        PrimitiveSolids.drawBox(gl2, gripRadius, gripRadius, gripRadius);
+        gl2.glTranslated(handleLength,handleOffsetY,0);
+        double v = gripRadius;
+        gl2.glPushMatrix();
+        gl2.glScaled(v, v, v);
+        handleBox.render(gl2);
+        gl2.glPopMatrix();
+
         gl2.glTranslated(0,-2*handleOffsetY,0);
-        PrimitiveSolids.drawBox(gl2, gripRadius, gripRadius, gripRadius);
+        gl2.glPushMatrix();
+        gl2.glScaled(v, v, v);
+        handleBox.render(gl2);
+        gl2.glPopMatrix();
 
         gl2.glPopMatrix();
     }

@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.components;
 
 import com.marginallyclever.robotoverlord.ComponentTest;
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.EntityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -39,7 +40,8 @@ public class PoseComponentTest {
     public void testNestedPosePosition() {
         Entity root = new Entity();
         Entity e0 = new Entity();
-        root.addEntity(e0);
+        EntityManager entityManager = new EntityManager();
+        entityManager.addEntityToParent(e0,root);
 
         PoseComponent p0 = new PoseComponent();
         root.addComponent(p0);
@@ -55,9 +57,10 @@ public class PoseComponentTest {
 
     @Test
     public void testNestedPoseRotation() {
+        EntityManager entityManager = new EntityManager();
         Entity root = new Entity();
         Entity e0 = new Entity();
-        root.addEntity(e0);
+        entityManager.addEntityToParent(e0,root);
 
         PoseComponent p0 = new PoseComponent();
         root.addComponent(p0);

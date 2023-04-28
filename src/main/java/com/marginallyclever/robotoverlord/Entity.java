@@ -1,8 +1,6 @@
 package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -118,37 +116,29 @@ public class Entity implements PropertyChangeListener {
 		children.add(index,e);
 		e.setParent(this);
 	}
-	
+
+	/**
+	 * Use {@link EntityManager#addEntityToParent(Entity, Entity)} instead.
+	 * @param child the child to add
+	 */
+	@Deprecated
 	public void addEntity(Entity child) {
 		//System.out.println("add "+child.getFullPath()+" to "+this.getFullPath());
-		checkForAddToScene(this,child);
 		children.add(child);
 		child.setParent(this);
 	}
 
-	public void removeEntity(Entity e) {
-		if (children.contains(e)) {
-			checkForRemoveFromScene(this,this,e);
-			children.remove(e);
-			if(e.getParent()==this) // is this always true?  then why test it?
-				e.setParent(null);
+	/**
+	 * Use {@link EntityManager#removeEntityFromParent(Entity, Entity)} instead.
+	 * @param child the child to remove
+	 */
+	@Deprecated
+	public void removeEntity(Entity child) {
+		if (children.contains(child)) {
+			children.remove(child);
+			if(child.getParent()==this) // is this always true?  then why test it?
+				child.setParent(null);
 		}
-	}
-
-	private void checkForAddToScene(Entity parent,Entity child) {
-		Entity node = parent;
-		while(node!=null) {
-			if (node instanceof Scene) {
-				((Scene) node).addEntityToParent(parent, child);
-				return;
-			}
-			node = node.getParent();
-		}
-	}
-
-	private void checkForRemoveFromScene(Entity node,Entity parent,Entity child) {
-		Scene scene = getScene();
-		if(scene != null) scene.removeEntityFromParent(parent, child);
 	}
 
 	public ArrayList<Entity> getChildren() {
@@ -264,10 +254,6 @@ public class Entity implements PropertyChangeListener {
 		}
 	}
 
-	public void removeAllEntities() {
-		while(!children.isEmpty()) removeEntity(children.get(0));
-	}
-	
 	@Override
 	public String toString() {
 		return "name=" + name + ", " +
@@ -408,7 +394,7 @@ public class Entity implements PropertyChangeListener {
 	private void readEntities(JSONArray jo) throws JSONException {
 		for (Object o : jo) {
 			JSONObject jo2 = (JSONObject) o;
-			Entity entity = EntityFactory.load(jo2.getString("type"));
+			Entity entity = new Entity();
 			this.addEntity(entity);
 			entity.parseJSON(jo2);
 		}
@@ -442,14 +428,5 @@ public class Entity implements PropertyChangeListener {
 
 	public void setExpanded(boolean arg0) {
 		isExpanded = arg0;
-	}
-
-	public Scene getScene() {
-		Entity root = getRoot();
-
-		if(root instanceof Scene) return (Scene)root;
-		if(root instanceof RobotOverlord) return root.getScene();
-
-		return null;
 	}
 }

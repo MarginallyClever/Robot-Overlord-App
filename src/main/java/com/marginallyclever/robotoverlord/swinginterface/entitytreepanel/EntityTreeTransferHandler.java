@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.EntityReorganizeEdit;
 import org.jetbrains.annotations.Nullable;
@@ -46,9 +47,12 @@ class EntityTreeTransferHandler extends TransferHandler {
 
     private DataFlavor nodesFlavor;
     private final DataFlavor[] flavors = new DataFlavor[1];
-    private DefaultMutableTreeNode[] nodesToRemove;
 
-    public EntityTreeTransferHandler() {
+    private final EntityManager entityManager;
+
+    public EntityTreeTransferHandler(EntityManager entityManager) {
+        this.entityManager = entityManager;
+
         try {
             String mimeType = DataFlavor.javaJVMLocalObjectMimeType +
                     ";class=\"" +
@@ -125,7 +129,7 @@ class EntityTreeTransferHandler extends TransferHandler {
             doneItems.add(next);
         }
         DefaultMutableTreeNode[] nodes = copies.toArray(new DefaultMutableTreeNode[0]);
-        nodesToRemove = toRemove.toArray(new DefaultMutableTreeNode[0]);
+
         return new NodesTransferable(nodes);
     }
 
@@ -180,7 +184,7 @@ class EntityTreeTransferHandler extends TransferHandler {
                 continue;
             }
 
-            UndoSystem.addEvent(this, new EntityReorganizeEdit(entity, parentEntity));
+            UndoSystem.addEvent(this, new EntityReorganizeEdit(entityManager,entity, parentEntity));
         }
         return true;
     }

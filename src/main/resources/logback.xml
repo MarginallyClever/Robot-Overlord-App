@@ -11,11 +11,11 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>log.txt</file>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n</pattern>
         </encoder>
-        <file>log.txt</file>
-        <append>true</append>
+        <append>false</append>
     </appender>
 
     <!-- <logger name="java.util.prefs" level="off" /> -->

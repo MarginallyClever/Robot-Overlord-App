@@ -18,6 +18,7 @@ public class MeshFromFileTest {
         Assertions.assertNotNull(resource);
         String path = resource.getAbsolutePath();
         a.setFilename(path);
+        a.load();
         Assertions.assertNotNull(a.getModel());
         Assertions.assertNotEquals(0,a.getModel().getNumVertices());
         ComponentTest.saveAndLoad(a,b);

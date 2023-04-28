@@ -18,10 +18,10 @@ public abstract class ShapeComponent extends RenderComponent {
     // a mesh from the pool of meshes
     protected transient Mesh myMesh;
 
-    private transient final IntParameter numTriangles = new IntParameter("Triangles",0);
-    private transient final BooleanParameter hasNormals = new BooleanParameter("Has normals",false);
-    private transient final BooleanParameter hasColors = new BooleanParameter("Has colors",false);
-    private transient final BooleanParameter hasUVs = new BooleanParameter("Has UVs",false);
+    public transient final IntParameter numTriangles = new IntParameter("Triangles",0);
+    public transient final BooleanParameter hasNormals = new BooleanParameter("Has normals",false);
+    public transient final BooleanParameter hasColors = new BooleanParameter("Has colors",false);
+    public transient final BooleanParameter hasUVs = new BooleanParameter("Has UVs",false);
 
     protected ShapeComponent() {
         super();
@@ -58,15 +58,6 @@ public abstract class ShapeComponent extends RenderComponent {
     public void render(GL2 gl2) {
         if( !getEnabled() || !getVisible() || myMesh==null ) return;
         myMesh.render(gl2);
-    }
-
-    @Override
-    public void getView(ComponentPanelFactory view) {
-        super.getView(view);
-        view.add(numTriangles);
-        view.add(hasNormals);
-        view.add(hasColors);
-        view.add(hasUVs);
     }
 
     public RayHit intersect(Ray ray) {

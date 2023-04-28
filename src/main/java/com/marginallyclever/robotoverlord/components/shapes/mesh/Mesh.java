@@ -28,6 +28,7 @@ public class Mesh {
 	
 	public final transient List<Float> colorArray = new ArrayList<>();
 	private transient boolean hasColors;
+	private transient boolean isTransparent;
 
 	public final transient List<Float> textureArray = new ArrayList<>();
 	private transient boolean hasUVs;
@@ -52,7 +53,6 @@ public class Mesh {
 		
 		fileName=null;
 		isLoaded=false;
-		VBO = null;
 		hasNormals=false;
 		hasColors=false;
 		hasUVs=false;
@@ -89,6 +89,10 @@ public class Mesh {
 	
 	public void setLoaded(boolean loaded) {
 		isLoaded=loaded;
+	}
+
+	public boolean isTransparent() {
+		return isTransparent;
 	}
 
 	public void unload(GL2 gl2) {
@@ -245,7 +249,6 @@ public class Mesh {
 		if(hasNormals) gl2.glDisableClientState(GL2.GL_NORMAL_ARRAY);
 		if(hasColors) gl2.glDisableClientState(GL2.GL_COLOR_ARRAY);
 		if(hasUVs) gl2.glDisableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
-		if(hasIndexes) gl2.glDisableClientState(GL2.GL_ELEMENT_ARRAY_BUFFER);
 	}
 	
 	public void drawNormals(GL2 gl2) {
@@ -289,6 +292,7 @@ public class Mesh {
 		colorArray.add(g);
 		colorArray.add(b);
 		colorArray.add(a);
+		if(a!=1) isTransparent=true;
 		hasColors=true;
 	}
 	
@@ -349,6 +353,13 @@ public class Mesh {
 		return new Vector3d(x,y,z);
 	}
 
+	public Vector3d getNormal(int t) {
+		t*=3;
+		double x = normalArray.get(t++);
+		double y = normalArray.get(t++);
+		double z = normalArray.get(t++);
+		return new Vector3d(x,y,z);
+	}
 
 	public boolean isDirty() {
 		return isDirty;

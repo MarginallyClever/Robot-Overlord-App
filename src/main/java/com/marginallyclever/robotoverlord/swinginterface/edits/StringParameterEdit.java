@@ -2,6 +2,9 @@ package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
 
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+
 /**
  * Undoable action to select a string.
  * <p>
@@ -11,13 +14,7 @@ import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
  *
  */
 public class StringParameterEdit extends AbstractParameterEdit<String> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	public StringParameterEdit(AbstractParameter<String> e, String newValue) {
-		super(e, newValue);
+	public StringParameterEdit(AbstractParameter<String> parameter, String newValue) {
+		super(parameter, newValue);
 	}
 }

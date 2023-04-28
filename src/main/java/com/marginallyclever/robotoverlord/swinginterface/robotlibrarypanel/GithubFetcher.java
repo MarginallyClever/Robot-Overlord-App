@@ -137,7 +137,7 @@ public class GithubFetcher {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 if(response.code()==403) {
-                    System.out.println("Github API rate limit exceeded.  Try again later.");
+                    System.err.println("Github API rate limit exceeded.  Try again later.");
                     return results;
                 } else {
                     throw new IOException("Unexpected code " + response);

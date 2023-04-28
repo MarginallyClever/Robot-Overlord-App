@@ -1,17 +1,18 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
-import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
 import javax.swing.*;
 import javax.vecmath.Point3d;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.util.List;
 
 /**
  * Moves the active camera around the scene based on mouse and keyboard input.
@@ -44,7 +45,7 @@ public class MoveCameraTool implements EditorTool {
 
 
     @Override
-    public void activate(SelectedItems selectedItems) {}
+    public void activate(List<Entity> list) {}
 
     @Override
     public void deactivate() {}

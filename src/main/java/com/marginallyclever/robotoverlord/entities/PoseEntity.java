@@ -5,14 +5,12 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.PoseMoveEdit;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
 import javax.vecmath.Matrix3d;
@@ -270,18 +268,7 @@ public class PoseEntity extends Entity {
 			setPose(m);
 		}
 	}
-	
-	public Scene getWorld() {
-		Entity p = parent;
-		while (p != null) {
-			if (p instanceof Scene) {
-				return (Scene) p;
-			}
-			p=p.getParent();
-		}
-		return null;
-	}
-	
+
 	/**
 	 * Build a matrix as close to *from* as possible, with the Z axis parallel to the nearest world axis.
 	 * @param from the matrix we are comparing to the world.

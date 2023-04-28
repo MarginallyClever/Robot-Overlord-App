@@ -1,14 +1,15 @@
 package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 
 import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.*;
-import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
+import com.marginallyclever.robotoverlord.systems.ROSystem;
 
+import java.util.List;
+import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
-import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -16,15 +17,19 @@ import java.util.ArrayList;
  * @author Dan Royer
  * @since 1.6.0
  */
-public class ComponentPanelFactory extends ViewElement {
+public class ComponentPanelFactory {
 	private final JPanel innerPanel = new JPanel();
 	private final GridBagConstraints gbc = new GridBagConstraints();
 
-	private final RobotOverlord robotOverlord;
+	private final List<ROSystem> systems = new ArrayList<>();
+	private final EntityManager entityManager;
+	private final Component component;
 
-	public ComponentPanelFactory(RobotOverlord robotOverlord,Component component) {
+	public ComponentPanelFactory(EntityManager entityManager, Component component, List<ROSystem> systems) {
 		super();
-		this.robotOverlord = robotOverlord;
+		this.entityManager = entityManager;
+		this.component = component;
+		this.systems.addAll(systems);
 
 		innerPanel.setLayout(new GridBagLayout());
 		innerPanel.setBorder(new EmptyBorder(1, 1, 1, 1));
@@ -60,7 +65,7 @@ public class ComponentPanelFactory extends ViewElement {
 		else if(parameter instanceof DoubleParameter   ) element = new ViewElementDouble   ((DoubleParameter)parameter);
 		else if(parameter instanceof IntParameter      ) element = new ViewElementInt      ((IntParameter)parameter);
 		else if(parameter instanceof Vector3DParameter ) element = new ViewElementVector3d ((Vector3DParameter)parameter);
-		else if(parameter instanceof ReferenceParameter) element = new ViewElementReference((ReferenceParameter)parameter,robotOverlord);
+		else if(parameter instanceof ReferenceParameter) element = new ViewElementReference((ReferenceParameter)parameter, entityManager);
 		else if(parameter instanceof StringParameter   ) element = new ViewElementString   ((StringParameter)parameter);
 
 		if(null==element) {
@@ -120,14 +125,13 @@ public class ComponentPanelFactory extends ViewElement {
 
 	/**
 	 * Add a control for an string that includes a filename selection dialog
-	 * @param e the Parameter that holds the current value.
+	 * @param parameter the Parameter that holds the current value.
 	 * @param filters
 	 * @return the element
 	 */
-	public ViewElement addFilename(StringParameter e, ArrayList<FileFilter> filters) {
-		ViewElementFilename b = new ViewElementFilename(e);
+	public ViewElement addFilename(StringParameter parameter, ArrayList<FileFilter> filters) {
+		ViewElementFilename b = new ViewElementFilename(parameter, entityManager);
 		b.addFileFilters(filters);
-		
 		pushViewElement(b);
 		return b;
 	}
@@ -136,5 +140,17 @@ public class ComponentPanelFactory extends ViewElement {
 		ViewElementButton b = new ViewElementButton(string);
 		pushViewElement(b);
 		return b;
+	}
+
+	public JComponent buildSwingView() {
+		// add control common to all components
+		add(component.enabled);
+
+		// custom panel views based on component type
+		for(ROSystem sys : systems) {
+			sys.decorate(this,component);
+		}
+
+		return innerPanel;
 	}
 }

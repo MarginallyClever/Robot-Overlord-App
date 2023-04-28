@@ -24,9 +24,9 @@ import java.util.Arrays;
 public class PoseComponent extends Component implements PropertyChangeListener {
     // pose relative to my parent (aka local pose).
     private final Matrix4d local = new Matrix4d();
-    private final Vector3DParameter position = new Vector3DParameter("position",new Vector3d());
-    private final Vector3DParameter rotation = new Vector3DParameter("rotation",new Vector3d());
-    private final Vector3DParameter scale = new Vector3DParameter("scale",new Vector3d(1,1,1));
+    public final Vector3DParameter position = new Vector3DParameter("position",new Vector3d());
+    public final Vector3DParameter rotation = new Vector3DParameter("rotation",new Vector3d());
+    public final Vector3DParameter scale = new Vector3DParameter("scale",new Vector3d(1,1,1));
 
     public PoseComponent() {
         super();
@@ -120,22 +120,14 @@ public class PoseComponent extends Component implements PropertyChangeListener {
     public Matrix4d getWorld() {
         Matrix4d result = new Matrix4d(local);
 
-        Entity entity = getEntity();
-        if(entity!=null) {
-            PoseComponent parent = getEntity().findFirstComponentInParents(PoseComponent.class);
-            if(parent!=null) {
-                result.mul(parent.getWorld(),result);
-            }
-        }
+        Entity child = getEntity();
+        if(child==null) return result;
+        PoseComponent parentPose = child.findFirstComponentInParents(PoseComponent.class);
+        if(parentPose==null) return result;
+
+        result.mul(parentPose.getWorld(), local);
 
         return result;
-    }
-
-    @Override
-    public void getView(ComponentPanelFactory view) {
-        view.add(position);
-        view.add(rotation);
-        view.add(scale);
     }
 
     @Override

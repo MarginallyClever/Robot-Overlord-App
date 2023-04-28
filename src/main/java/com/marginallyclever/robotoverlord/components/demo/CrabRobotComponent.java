@@ -1,15 +1,12 @@
 package com.marginallyclever.robotoverlord.components.demo;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.*;
-import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -17,12 +14,12 @@ import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 
 public class CrabRobotComponent extends RenderComponent {
-    private static final int NUM_LEGS = 6;
-    static final String HIP = "Hip";
-    static final String THIGH = "Thigh";
-    static final String CALF = "Calf";
-    static final String FOOT = "Foot";
-    private final String[] modeNames = {
+    public static final int NUM_LEGS = 6;
+    public static final String HIP = "Hip";
+    public static final String THIGH = "Thigh";
+    public static final String CALF = "Calf";
+    public static final String FOOT = "Foot";
+    public static final String[] MODE_NAMES = {
             "Calibrate",
             "Sit down",
             "Stand up",
@@ -31,13 +28,13 @@ public class CrabRobotComponent extends RenderComponent {
             "Wave",
             "Tripod",
     };
-    private final IntParameter modeSelector = new IntParameter("Mode", 0);
-    private final DoubleParameter standingRadius = new DoubleParameter("Standing radius", 21);
-    private final DoubleParameter standingHeight = new DoubleParameter("Standing height", 5.5);
-    private final DoubleParameter turningStrideLength = new DoubleParameter("Turning stride length", 150);
-    private final DoubleParameter strideLength = new DoubleParameter("Stride length", 15);
-    private final DoubleParameter strideHeight = new DoubleParameter("Stride height", 5);
-    private final DoubleParameter speedScale = new DoubleParameter("Speed scale", 1);
+    public final IntParameter modeSelector = new IntParameter("Mode", 0);
+    public final DoubleParameter standingRadius = new DoubleParameter("Standing radius", 21);
+    public final DoubleParameter standingHeight = new DoubleParameter("Standing height", 5.5);
+    public final DoubleParameter turningStrideLength = new DoubleParameter("Turning stride length", 150);
+    public final DoubleParameter strideLength = new DoubleParameter("Stride length", 15);
+    public final DoubleParameter strideHeight = new DoubleParameter("Stride height", 5);
+    public final DoubleParameter speedScale = new DoubleParameter("Speed scale", 1);
     private final RobotComponent [] legs = new RobotComponent[NUM_LEGS];
     private final Point3d [] lastPOC = new Point3d[NUM_LEGS];
     private final Point3d [] nextPOC = new Point3d[NUM_LEGS];
@@ -47,6 +44,10 @@ public class CrabRobotComponent extends RenderComponent {
 
     public CrabRobotComponent() {
         super();
+    }
+
+    public void setLeg(int index,RobotComponent leg) {
+        legs[index] = leg;
     }
 
     @Override
@@ -66,43 +67,6 @@ public class CrabRobotComponent extends RenderComponent {
     private void drawMarker(GL2 gl2, Tuple3d v, int color) {
         if(color==0) PrimitiveSolids.drawStar(gl2,v,5);
         else PrimitiveSolids.drawSphere(gl2,v,1);
-    }
-
-    @Override
-    public void setEntity(Entity entity) {
-        super.setEntity(entity);
-        if(entity==null) return;
-
-        getEntity().addComponent(new PoseComponent());
-
-        createMesh(getEntity(),"/robots/Spidee/body.stl",new ColorRGB(0x3333FF));
-
-        // 0   5
-        // 1 x 4
-        // 2   3
-        legs[0] = createLimb("LF",0,false,  135);
-        legs[1] = createLimb("LM",1,false,  180);
-        legs[2] = createLimb("LB",2,false, -135);
-        legs[3] = createLimb("RB",3,true,   -45);
-        legs[4] = createLimb("RM",4,true,     0);
-        legs[5] = createLimb("RF",5,true,    45);
-
-        for(RobotComponent leg : legs) {
-            getEntity().addEntity(leg.getEntity());
-        }
-    }
-
-    @Override
-    public void getView(ComponentPanelFactory view) {
-        super.getView(view);
-        view.add(standingRadius);
-        view.add(standingHeight);
-        view.add(turningStrideLength);
-        view.add(strideLength);
-        view.add(strideHeight);
-
-        view.addComboBox(modeSelector, modeNames);
-        view.add(speedScale);
     }
 
     @Override
@@ -278,55 +242,7 @@ public class CrabRobotComponent extends RenderComponent {
         setLegTargetPosition(index,mid);
     }
 
-    private RobotComponent createLimb(String name,int index,boolean isRight, float degrees) {
-        DHComponent[] dh = new DHComponent[3];
-        for(int i=0;i<dh.length;++i) {
-            dh[i] = new DHComponent();
-            dh[i].setVisible(false);
-        }
-        Entity limb = createPoseEntity(name);
-
-        Entity hip = createPoseEntity(HIP);
-        limb.addEntity(hip);
-        Entity thigh = createPoseEntity(THIGH);
-        hip.addEntity(thigh);
-        Entity calf = createPoseEntity(CALF);
-        thigh.addEntity(calf);
-        Entity foot = createPoseEntity(FOOT);
-        calf.addEntity(foot);
-
-        hip.addComponent(dh[0]);
-        dh[0].set(0,2.2,90,0,60,-60,true);
-        if(isRight) createMesh(hip,"/robots/Spidee/shoulder_right.obj",new ColorRGB(0x9999FF));
-        else        createMesh(hip,"/robots/Spidee/shoulder_left.obj",new ColorRGB(0x9999FF));
-
-        thigh.addComponent(dh[1]);
-        dh[1].set( 0,8.5,0,0,106,-72,true);
-        createMesh(thigh,"/robots/Spidee/thigh.obj",new ColorRGB(0xFFFFFF));
-
-        calf.addComponent(dh[2]);
-        dh[2].set(0,10.5,0,0,15,-160,true);
-        if(isRight) createMesh(calf,"/robots/Spidee/calf_right.obj",new ColorRGB(0xFFFF99));
-        else		createMesh(calf,"/robots/Spidee/calf_left.obj",new ColorRGB(0xFFFF99));
-
-        foot.addComponent(new ArmEndEffectorComponent());
-
-        // position limb
-        PoseComponent pose = limb.findFirstComponent(PoseComponent.class);
-        double r = Math.toRadians(degrees);
-        pose.setPosition(new Vector3d(Math.cos(r)*10,Math.sin(r)*10,2.6));
-        pose.setRotation(new Vector3d(0,0,degrees));
-
-        // Done at the end so RobotComponent can find all bones DHComponents.
-        RobotComponent robot = new RobotComponent();
-        limb.addComponent(robot);
-
-        setInitialPointOfContact(limb,index);
-
-        return robot;
-    }
-
-    private void setInitialPointOfContact(Entity limb,int index) {
+    public void setInitialPointOfContact(Entity limb,int index) {
         Entity foot = limb.findByPath(HIP+"/"+THIGH+"/"+CALF+"/"+FOOT);
         PoseComponent footPose = foot.findFirstComponent(PoseComponent.class);
         Vector3d toe = new Vector3d();
@@ -343,29 +259,5 @@ public class CrabRobotComponent extends RenderComponent {
         nextPOC[index] = new Point3d(toe);
         lastPOC[index] = new Point3d(toe);
         targets[index] = new Point3d();
-    }
-
-    private Entity createPoseEntity(String name) {
-        Entity result = new Entity(name);
-        result.addComponent(new PoseComponent());
-        return result;
-    }
-
-    private void createMesh(Entity parent, String filename, ColorRGB color) {
-        Entity mesh = createPoseEntity("Mesh");
-        parent.addEntity(mesh);
-
-        MaterialComponent mc = new MaterialComponent();
-        mc.setDiffuseColor(color.red/255.0,color.green/255.0,color.blue/255.0,1);
-        mesh.addComponent(mc);
-
-        MeshFromFile mff = new MeshFromFile();
-        mff.setFilename(filename);
-        mesh.addComponent(mff);
-
-        OriginAdjustComponent oac = new OriginAdjustComponent();
-        mesh.addComponent(oac);
-        oac.adjust();
-        mesh.removeComponent(oac);
     }
 }

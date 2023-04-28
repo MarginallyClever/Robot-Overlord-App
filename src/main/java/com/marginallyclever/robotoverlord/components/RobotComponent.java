@@ -3,19 +3,12 @@ package com.marginallyclever.robotoverlord.components;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.components.path.GCodePathComponent;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.ApproximateJacobian2;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.DHTable;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.RobotPanel;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import java.beans.PropertyChangeEvent;
@@ -35,7 +28,7 @@ import java.util.Queue;
 public class RobotComponent extends Component implements Robot {
     private int activeJoint;
     private final List<DHComponent> bones = new ArrayList<>();
-    private final ReferenceParameter myPath = new ReferenceParameter("Path");
+    public final ReferenceParameter gcodePath = new ReferenceParameter("Path");
 
     @Override
     public void setEntity(Entity entity) {
@@ -44,70 +37,12 @@ public class RobotComponent extends Component implements Robot {
         findBones();
     }
 
-    @Override
-    public void getView(ComponentPanelFactory view) {
-        super.getView(view);
-
-        view.add(myPath);
-
-        findBones();
-
-        ViewElementButton bOpen = view.addButton("Open control panel");
-        bOpen.addActionEventListener((evt)-> showControlPanel());
-
-        ViewElementButton bDHTable = view.addButton("Open DH Table");
-        bDHTable.addActionEventListener((evt)-> showDHTable());
-
-        ViewElementButton bHome = view.addButton("Go home");
-        bHome.addActionEventListener((evt)-> goHome());
-    }
-
-    private void showDHTable() {
-        Entity e = getEntity().getRoot();
-        final JFrame parentFrame = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
-        final RobotComponent me = this;
-
-        JDialog frame = new JDialog(parentFrame,"DH Table");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.add(new DHTable(me));
-        frame.pack();
-        frame.setLocationRelativeTo(parentFrame);
-        frame.setVisible(true);
-    }
-
-    private void showControlPanel() {
-        Entity e = getEntity().getRoot();
-        final JFrame parentFrame = (e instanceof RobotOverlord) ? ((RobotOverlord)e).getMainFrame() : null;
-        final RobotComponent me = this;
-        final GCodePathComponent gCodePath = getGCodePath();
-
-        try {
-            JDialog frame = new JDialog(parentFrame, "Control panel");
-            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            frame.add(new RobotPanel(me,gCodePath));
-            frame.pack();
-            frame.setLocationRelativeTo(parentFrame);
-            frame.setVisible(true);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showConfirmDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
     public void goHome() {
         double [] homeValues = new double[getNumBones()];
         for(int i=0;i<getNumBones();++i) {
             homeValues[i] = getBone(i).getJointHome();
         }
         setAllJointValues(homeValues);
-    }
-
-    private GCodePathComponent getGCodePath() {
-        String entityUniqueID = myPath.get();
-        if(entityUniqueID==null) return null;
-        Entity entity = getEntity().getScene().findEntityByUniqueID(entityUniqueID);
-        if(entity==null) return null;
-        return entity.findFirstComponent(GCodePathComponent.class);
     }
 
     public int getNumBones() {
@@ -399,7 +334,7 @@ public class RobotComponent extends Component implements Robot {
     public JSONObject toJSON() {
         JSONObject jo = super.toJSON();
 
-        jo.put("path",myPath.toJSON());
+        jo.put("path", gcodePath.toJSON());
 
         return jo;
     }
@@ -408,6 +343,10 @@ public class RobotComponent extends Component implements Robot {
     public void parseJSON(JSONObject jo) throws JSONException {
         super.parseJSON(jo);
 
-        if(jo.has("path")) myPath.parseJSON(jo.getJSONObject("path"));
+        if(jo.has("path")) gcodePath.parseJSON(jo.getJSONObject("path"));
+    }
+
+    public String getGCodePathEntityUUID() {
+        return gcodePath.get();
     }
 }

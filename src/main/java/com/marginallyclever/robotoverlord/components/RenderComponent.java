@@ -6,7 +6,7 @@ import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
 public abstract class RenderComponent extends Component {
-    protected transient final BooleanParameter isVisible = new BooleanParameter("Visible",true);
+    public transient final BooleanParameter isVisible = new BooleanParameter("Visible",true);
 
     public RenderComponent() {
         super();
@@ -21,10 +21,4 @@ public abstract class RenderComponent extends Component {
     }
 
     public abstract void render(GL2 gl2);
-
-    @Override
-    public void getView(ComponentPanelFactory view) {
-        super.getView(view);
-        view.add(isVisible);
-    }
 }

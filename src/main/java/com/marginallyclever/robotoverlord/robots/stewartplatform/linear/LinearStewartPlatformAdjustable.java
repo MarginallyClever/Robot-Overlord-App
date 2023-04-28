@@ -55,7 +55,7 @@ public class LinearStewartPlatformAdjustable extends LinearStewartPlatformCore {
         super.update(dt);
     }
 
-    @Override
+    @Deprecated
     public void getView(ComponentPanelFactory view) {
         view.add(BASE_X);
         view.add(BASE_Y);

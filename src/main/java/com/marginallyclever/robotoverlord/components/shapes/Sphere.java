@@ -13,7 +13,7 @@ import org.json.JSONObject;
  * TODO add texture coordinates
  */
 public class Sphere extends ShapeComponent {
-    private final IntParameter detail = new IntParameter("Detail",32);
+    public final IntParameter detail = new IntParameter("Detail",32);
 
     public Sphere() {
         super();
@@ -85,16 +85,9 @@ public class Sphere extends ShapeComponent {
 
     public void setDetail(int v) {
         detail.set(Math.max(1,v));
-        updateModel();
     }
 
     public double getDetail() { return detail.get(); }
-
-    @Override
-    public void getView(ComponentPanelFactory view) {
-        super.getView(view);
-        view.add(detail);
-    }
 
     @Override
     public JSONObject toJSON() {

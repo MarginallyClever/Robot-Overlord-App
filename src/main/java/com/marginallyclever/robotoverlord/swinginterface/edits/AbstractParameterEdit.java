@@ -15,36 +15,34 @@ import java.io.Serial;
  * @author Dan Royer
  */
 public class AbstractParameterEdit<T> extends AbstractUndoableEdit {
-	@Serial
-	private static final long serialVersionUID = 1L;
-	private final AbstractParameter<T> entity;
-	private final T oldValue,newValue;
+	private final AbstractParameter<T> parameter;
+	private final T oldValue, newValue;
 	
-	public AbstractParameterEdit(AbstractParameter<T> entity, T newValue) {
+	public AbstractParameterEdit(AbstractParameter<T> parameter, T newValue) {
 		super();
 		
-		this.entity = entity;
+		this.parameter = parameter;
 		this.newValue = newValue;
-		this.oldValue = entity.get();
+		this.oldValue = parameter.get();
 
-		entity.set(newValue);
+		parameter.set(newValue);
 	}
 	
 	@Override
 	public String getPresentationName() {
-		return Translator.get("AbstractParameterEdit.name",entity.getName());
+		return Translator.get("AbstractParameterEdit.name", parameter.getName());
 	}
 
 	@Override
 	public void redo() throws CannotRedoException {
 		super.redo();
-		entity.set(newValue);
+		parameter.set(newValue);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		entity.set(oldValue);
+		parameter.set(oldValue);
 	}
 	
 	/**
@@ -55,7 +53,7 @@ public class AbstractParameterEdit<T> extends AbstractUndoableEdit {
 	public boolean addEdit(UndoableEdit anEdit) {
 		if( anEdit instanceof AbstractParameterEdit<?>) {
 			AbstractParameterEdit<T> b = (AbstractParameterEdit<T>) anEdit;
-			if( b.entity == this.entity) return true;
+			if( b.parameter == this.parameter) return true;
 		}
 		return super.addEdit(anEdit);
 	}

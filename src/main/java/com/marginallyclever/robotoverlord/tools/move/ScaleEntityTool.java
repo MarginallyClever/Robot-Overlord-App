@@ -1,13 +1,14 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
-import com.marginallyclever.robotoverlord.tools.SelectedItems;
 
 import javax.vecmath.Point3d;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 public class ScaleEntityTool implements EditorTool {
     /**
@@ -17,9 +18,7 @@ public class ScaleEntityTool implements EditorTool {
      * @param selectedItems The selected items to be manipulated by the tool.
      */
     @Override
-    public void activate(SelectedItems selectedItems) {
-
-    }
+    public void activate(List<Entity> list) {}
 
     /**
      * This method is called when the tool is deactivated. It allows the tool to perform any necessary cleanup

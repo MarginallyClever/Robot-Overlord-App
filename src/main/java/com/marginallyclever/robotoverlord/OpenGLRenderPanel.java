@@ -3,7 +3,9 @@ package com.marginallyclever.robotoverlord;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
+
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
@@ -13,7 +15,6 @@ import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
-import com.marginallyclever.robotoverlord.tools.SelectedItems;
 import com.marginallyclever.robotoverlord.tools.move.MoveCameraTool;
 import com.marginallyclever.robotoverlord.tools.move.RotateEntityMultiTool;
 import com.marginallyclever.robotoverlord.tools.move.TranslateEntityMultiTool;
@@ -40,8 +41,7 @@ public class OpenGLRenderPanel extends JPanel {
     private static final int VERTICAL_SYNC_ON = 1;  // 1 on, 0 off
     private static final int DEFAULT_FRAMES_PER_SECOND = 30;
 
-    private final RobotOverlord robotOverlord;
-    private final Scene scene;
+    private final EntityManager entityManager;
 
     // OpenGL debugging
     private final boolean glDebug=false;
@@ -49,6 +49,9 @@ public class OpenGLRenderPanel extends JPanel {
 
     // should I check the state of the OpenGL stack size?  true=every frame, false=never
     private final boolean checkStackSize = false;
+
+    // used to check the stack size.
+    private final IntBuffer stackDepth = IntBuffer.allocate(1);
 
     // the render canvas
     private GLJPanel glCanvas;
@@ -65,14 +68,18 @@ public class OpenGLRenderPanel extends JPanel {
     // click on screen to change which entity is selected
     private final Viewport viewport = new Viewport();
 
-    // elements in componentpanel, not really part of the scene
+    /**
+     * Displayed in a 2D overlay, helps the user orient themselves in 3D space.
+     */
     private transient final ViewCube viewCube = new ViewCube();
+
+    /**
+     * The "very far away" background to the scene.
+     */
     private transient final SkyBox sky = new SkyBox();
 
     private final List<EditorTool> editorTools = new ArrayList<>();
     private int activeToolIndex = -1;
-
-    private final IntBuffer stackDepth = IntBuffer.allocate(1);
 
     private final BooleanParameter showWorldOrigin = new BooleanParameter("Show world origin",false);
 
@@ -91,19 +98,19 @@ public class OpenGLRenderPanel extends JPanel {
     private final List<MatrixMaterialRender> alpha = new ArrayList<>();
     private final List<MatrixMaterialRender> noMaterial = new ArrayList<>();
 
-    public OpenGLRenderPanel(RobotOverlord robotOverlord,Scene scene) {
+    public OpenGLRenderPanel(EntityManager entityManager) {
         super(new BorderLayout());
-        this.robotOverlord = robotOverlord;
-        this.scene = scene;
+        this.entityManager = entityManager;
 
         createCanvas();
         addCanvasListeners();
         hideDefaultCursor();
 
-        this.setMinimumSize(new Dimension(300, 300));
-        this.add(setupTools(), BorderLayout.NORTH);
-        this.add(glCanvas, BorderLayout.CENTER);
+        setMinimumSize(new Dimension(300, 300));
+        add(setupTools(), BorderLayout.NORTH);
+        add(glCanvas, BorderLayout.CENTER);
 
+        startAnimationSystem();
     }
 
     private JToolBar setupTools() {
@@ -342,7 +349,7 @@ public class OpenGLRenderPanel extends JPanel {
     public List<RayHit> findRayIntersections(Ray ray) {
         List<RayHit> rayHits = new ArrayList<>();
 
-        Queue<Entity> toTest = new LinkedList<>(scene.getChildren());
+        Queue<Entity> toTest = new LinkedList<>(entityManager.getEntities());
         while(!toTest.isEmpty()) {
             Entity entity = toTest.remove();
             toTest.addAll(entity.getChildren());
@@ -357,20 +364,30 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     private CameraComponent getCamera() {
-        return robotOverlord.findFirstComponentRecursive(CameraComponent.class);
+        return entityManager.getCamera();
     }
 
     private void checkRenderStep(GL2 gl2) {
+        int before;
         if(checkStackSize) {
             gl2.glGetIntegerv(GL2.GL_MODELVIEW_STACK_DEPTH, stackDepth);
-            logger.debug("stack depth start = " + stackDepth.get(0));
+            before = stackDepth.get(0);
         }
 
-        renderStep(gl2);
+        try {
+            renderStep(gl2);
+        } catch(Exception e) {
+            logger.error("GL error",e);
+            e.printStackTrace();
+        }
 
         if(checkStackSize) {
             gl2.glGetIntegerv(GL2.GL_MODELVIEW_STACK_DEPTH, stackDepth);
-            logger.debug("stack depth end = " + stackDepth.get(0));
+            int after = stackDepth.get(0);
+            if(before != after) {
+                System.err.println("stack depth " + before + " vs " + after);
+                logger.warn("stack depth " + before + " vs " + after);
+            }
         }
     }
 
@@ -389,9 +406,9 @@ public class OpenGLRenderPanel extends JPanel {
         sky.render(gl2,camera);
 
         renderLights(gl2);
+
         renderAllEntities(gl2);
-        // PASS 2: everything transparent?
-        //renderAllBoundingBoxes(gl2);
+        
         if(showWorldOrigin.get()) PrimitiveSolids.drawStar(gl2,10);
 
         //viewport.showPickingTest(gl2);
@@ -420,7 +437,7 @@ public class OpenGLRenderPanel extends JPanel {
         noMaterial.clear();
 
         // collect all entities with a RenderComponent
-        Queue<Entity> toRender = new LinkedList<>(scene.getChildren());
+        Queue<Entity> toRender = new LinkedList<>(entityManager.getEntities());
         while(!toRender.isEmpty()) {
             Entity entity = toRender.remove();
             toRender.addAll(entity.getChildren());
@@ -490,7 +507,7 @@ public class OpenGLRenderPanel extends JPanel {
         int maxLights = getMaxLights(gl2);
         turnOffAllLights(gl2,maxLights);
 
-        Queue<Entity> found = new LinkedList<>(scene.getChildren());
+        Queue<Entity> found = new LinkedList<>(entityManager.getEntities());
         int i=0;
         while(!found.isEmpty()) {
             Entity obj = found.remove();
@@ -560,7 +577,10 @@ public class OpenGLRenderPanel extends JPanel {
         frameDelay+=dt;
         if(frameDelay>frameLength) {
             frameDelay-=frameLength;
-            scene.update(frameLength);
+
+            for(Entity entity : entityManager.getEntities()) {
+                entity.update(frameLength);
+            }
         }
     }
 
@@ -599,10 +619,9 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     public void updateSubjects(List<Entity> list) {
-        SelectedItems selectedItems = new SelectedItems(list);
         if(activeToolIndex>=0) {
             editorTools.get(activeToolIndex).deactivate();
-            editorTools.get(activeToolIndex).activate(selectedItems);
+            editorTools.get(activeToolIndex).activate(list);
         }
     }
 

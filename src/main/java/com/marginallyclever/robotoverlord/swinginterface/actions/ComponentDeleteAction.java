@@ -30,6 +30,8 @@ public class ComponentDeleteAction extends AbstractAction {
      */
 	@Override
 	public void actionPerformed(ActionEvent event) {
+		if(component==null) return;
+
 		UndoSystem.addEvent(this,new ComponentDeleteEdit(componentManagerPanel,component.getEntity(),component));
     }
 }

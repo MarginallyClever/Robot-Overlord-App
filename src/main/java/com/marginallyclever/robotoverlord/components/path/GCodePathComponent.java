@@ -4,23 +4,18 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.RenderComponent;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementSlider;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.filechooser.FileFilter;
 import javax.vecmath.Point3d;
-import java.io.File;
-import java.util.ArrayList;
 
 /**
  * A {@link RenderComponent} that uses a {@link PathWalker} to render a {@link GCodePath}.
@@ -30,10 +25,10 @@ import java.util.ArrayList;
 public class GCodePathComponent extends RenderComponent implements WalkablePath<Point3d> {
     private static final Logger logger = LoggerFactory.getLogger(GCodePathComponent.class);
 
-    private final StringParameter filename = new StringParameter("File","");
-    private final IntParameter numCommands = new IntParameter("Commands",0);
-    private final DoubleParameter distanceMeasured = new DoubleParameter("Distance",0);
-    private final IntParameter getCommand = new IntParameter("Show",0);
+    public final StringParameter filename = new StringParameter("File","");
+    public final IntParameter numCommands = new IntParameter("Commands",0);
+    public final DoubleParameter distanceMeasured = new DoubleParameter("Distance",0);
+    public final IntParameter getCommand = new IntParameter("Show",0);
 
     private final double maxStepSize = 0.1;
     private Point3d location;
@@ -43,12 +38,7 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
 
     public GCodePathComponent() {
         super();
-
-        filename.addPropertyChangeListener((e)->{
-            String fn = filename.get();
-            gCodePath = PathFactory.load(fn);
-            updateNumCommands();
-        });
+        filename.addPropertyChangeListener(e->load(filename.get()));
     }
 
     @Override
@@ -108,33 +98,7 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
         }
     }
 
-    @Override
-    public void getView(ComponentPanelFactory view) {
-        super.getView(view);
-        ArrayList<FileFilter> filters = PathFactory.getAllExtensions();
-        view.addFilename(filename,filters);
-        view.addButton("Reload").addActionEventListener(e -> {
-            PathFactory.reload(gCodePath);
-            updateNumCommands();
-        });
-        view.add(numCommands).setReadOnly(true);
-        view.add(distanceMeasured).setReadOnly(true);
-        view.add(getCommand).addPropertyChangeListener((e)->updateLocation());
-    }
-
-    private void updateNumCommands() {
-        if(gCodePath==null) {
-            numCommands.set(0);
-            location = null;
-        } else {
-            numCommands.set(gCodePath.getElements().size());
-            distanceMeasured.set(calculateDistance());
-            if(slider!=null) slider.setMaximum(numCommands.get());
-            updateLocation();
-        }
-    }
-
-    private void updateLocation() {
+    public void updateLocation() {
         location = get(getCommand.get());
     }
 
@@ -203,32 +167,34 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
     @Override
     public JSONObject toJSON() {
         JSONObject jo = super.toJSON();
-
-        Scene myScene = getScene();
-        if(myScene!=null) {
-            StringParameter newFilename = new StringParameter("File",myScene.removeScenePath(filename.get()));
-            jo.put("filename",newFilename.toJSON());
-        } else {
-            jo.put("filename",filename.toJSON());
-        }
-
+        jo.put("filename",filename.toJSON());
         return jo;
     }
 
     @Override
     public void parseJSON(JSONObject jo) throws JSONException {
         super.parseJSON(jo);
+        filename.parseJSON(jo.getJSONObject("filename"));
+    }
 
-        StringParameter newFilename = new StringParameter("File","");
-        newFilename.parseJSON(jo.getJSONObject("filename"));
+    public void load(String filename) {
+        gCodePath = PathFactory.load(filename);
+        updateNumCommands();
+    }
 
-        String fn = newFilename.get();
-        if(!(new File(fn)).exists()) {
-            Scene myScene = getScene();
-            if(myScene!=null) {
-                newFilename.set(myScene.addScenePath(fn));
-            }
+    private void updateNumCommands() {
+        if(gCodePath==null) {
+            numCommands.set(0);
+            location = null;
+        } else {
+            numCommands.set(gCodePath.getElements().size());
+            distanceMeasured.set(calculateDistance());
+            if(slider!=null) slider.setMaximum(numCommands.get());
+            updateLocation();
         }
-        filename.set(newFilename.get());
+    }
+
+    public void reload() {
+        PathFactory.reload(gCodePath);
     }
 }

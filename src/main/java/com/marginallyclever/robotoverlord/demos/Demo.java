@@ -1,9 +1,9 @@
 package com.marginallyclever.robotoverlord.demos;
 
-import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.EntityManager;
 
 public interface Demo {
-	void execute(RobotOverlord ro);
+	void execute(EntityManager entityManager);
 
 	String getName();
 }

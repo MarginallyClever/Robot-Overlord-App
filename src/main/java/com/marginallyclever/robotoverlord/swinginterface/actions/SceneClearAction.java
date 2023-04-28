@@ -1,8 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.LightComponent;
@@ -12,6 +11,7 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
 import javax.vecmath.Vector3d;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
@@ -21,11 +21,11 @@ import java.awt.event.KeyEvent;
  *
  */
 public class SceneClearAction extends AbstractAction {
-	private final RobotOverlord ro;
+	private final EntityManager entityManager;
 
-	public SceneClearAction(RobotOverlord ro) {
+	public SceneClearAction(EntityManager entityManager) {
 		super(Translator.get("SceneClearAction.name"));
-		this.ro = ro;
+		this.entityManager = entityManager;
 		putValue(SMALL_ICON,new UnicodeIcon("🌱"));
 		putValue(SHORT_DESCRIPTION, Translator.get("SceneClearAction.shortDescription"));
 		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK) );
@@ -33,8 +33,11 @@ public class SceneClearAction extends AbstractAction {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		Component source = (Component) e.getSource();
+		JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
+
         int result = JOptionPane.showConfirmDialog(
-                ro.getMainFrame(),
+                parentFrame,
                 Translator.get("Are you sure?"),
                 (String)this.getValue(AbstractAction.NAME),
                 JOptionPane.YES_NO_OPTION);
@@ -46,26 +49,23 @@ public class SceneClearAction extends AbstractAction {
 	}
 
 	public void clearScene() {
-		Scene scene = ro.getScene();
-		scene.removeAllEntities();
+		entityManager.clear();
 	}
 
 	public void addDefaultEntities() {
-		Scene scene = ro.getScene();
 		PoseComponent pose = new PoseComponent();
 		CameraComponent camera = new CameraComponent();
-		scene.addComponent(new PoseComponent());
 		Entity mainCamera = new Entity("Main Camera");
 		mainCamera.addComponent(pose);
 		mainCamera.addComponent(camera);
-		scene.addEntity(mainCamera);
+		entityManager.addEntityToParent(mainCamera, entityManager.getRoot());
 		pose.setPosition(new Vector3d(0,-10,-5));
 		camera.lookAt(new Vector3d(0,0,0));
 
 		Entity light0 = new Entity("Light");
 		light0.addComponent(pose = new PoseComponent());
 		light0.addComponent(new LightComponent());
-		mainCamera.addEntity(light0);
+		entityManager.addEntityToParent(light0,mainCamera);
 		pose.setPosition(new Vector3d(0,0,50));
 	}
 }
