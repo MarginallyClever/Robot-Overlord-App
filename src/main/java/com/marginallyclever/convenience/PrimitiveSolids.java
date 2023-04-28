@@ -51,9 +51,9 @@ public class PrimitiveSolids {
 	 * draw a sphere with a given radius.
 	 * TODO expose quality parameters?
 	 * TODO generate a sphere once as a shape, return that.
-	 * See https://www.gamedev.net/forums/topic/537269-procedural-sphere-creation/4469427/
-	 * @param gl2
-	 * @param radius
+	 * See <a href="https://www.gamedev.net/forums/topic/537269-procedural-sphere-creation/4469427/">Gamedev.net</a>
+	 * @param gl2 OpenGL context
+	 * @param radius radius of the sphere
 	 */
 	static public void drawSphere(GL2 gl2,double radius) {
 		int width = 32;
@@ -68,7 +68,7 @@ public class PrimitiveSolids {
 		FloatBuffer vertices = FloatBuffer.allocate(nvec * 3);
 		IntBuffer indexes = IntBuffer.allocate(ntri * 3);
 
-		float [] dat = vertices.array();
+		float [] ver = vertices.array();
 		int   [] idx = indexes.array();
 		
 		for( t=0, j=1; j<height-1; j++ ) {
@@ -76,17 +76,17 @@ public class PrimitiveSolids {
 				theta = (double)(j)/(double)(height-1) * Math.PI;
 				phi   = (double)(i)/(double)(width-1 ) * Math.PI*2;
 
-				dat[t++] = (float)( Math.sin(theta) * Math.cos(phi));
-				dat[t++] = (float)( Math.cos(theta));
-				dat[t++] = (float)(-Math.sin(theta) * Math.sin(phi));
+				ver[t++] = (float)( Math.sin(theta) * Math.cos(phi));
+				ver[t++] = (float)( Math.cos(theta));
+				ver[t++] = (float)(-Math.sin(theta) * Math.sin(phi));
 			}
 		}
-		dat[t++]= 0;
-		dat[t++]= 1;
-		dat[t++]= 0;
-		dat[t++]= 0;
-		dat[t++]=-1;
-		dat[t++]= 0;
+		ver[t++]= 0;
+		ver[t++]= 1;
+		ver[t++]= 0;
+		ver[t++]= 0;
+		ver[t++]=-1;
+		ver[t++]= 0;
 		
 		for( t=0, j=0; j<height-3; j++ ) {
 			for(      i=0; i<width-1; i++ )  {
@@ -107,15 +107,15 @@ public class PrimitiveSolids {
 			idx[t++] = (height-3)*width + i;
 		}
 
-		int NUM_BUFFERS=1;
-		int[] VBO = new int[NUM_BUFFERS];
+		final int BYTES_PER_FLOAT=(Float.SIZE/8);  // bits per float / bits per byte = bytes per float
+		final int NUM_BUFFERS=1;
+		final int[] VBO = new int[NUM_BUFFERS];
+
 		gl2.glGenBuffers(NUM_BUFFERS, VBO, 0);
 		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[0]);
 	    // Write out vertex buffer to the currently bound VBO.
-		int s=(Float.SIZE/8);  // bits per float / bits per byte = bytes per float
-	    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, dat.length*s, vertices, GL2.GL_STATIC_DRAW);
-	    
-	    
+	    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, (long) ver.length * BYTES_PER_FLOAT, vertices, GL2.GL_STATIC_DRAW);
+
 		gl2.glEnableClientState(GL2.GL_VERTEX_ARRAY);
 		gl2.glVertexPointer(3,GL2.GL_FLOAT,0,0);
 		
@@ -123,10 +123,10 @@ public class PrimitiveSolids {
 		gl2.glNormalPointer(GL2.GL_FLOAT,0,0);
 
 		gl2.glPushMatrix();
-		gl2.glScaled(radius,radius,radius);
-		gl2.glDrawElements(GL2.GL_TRIANGLES, ntri*3, GL2.GL_UNSIGNED_INT, indexes );
+		gl2.glScaled(radius, radius, radius);
+		gl2.glDrawElements(GL2.GL_TRIANGLES, ntri * 3, GL2.GL_UNSIGNED_INT, indexes);
 		gl2.glPopMatrix();
-		
+
 		gl2.glDisableClientState(GL2.GL_NORMAL_ARRAY);
 		gl2.glDisableClientState(GL2.GL_VERTEX_ARRAY);
 		
@@ -199,10 +199,10 @@ public class PrimitiveSolids {
 	
 	/**
 	 * draw box based on depth,width, and height with the origin in the bottom center.
-	 * @param gl2
-	 * @param depth
-	 * @param width
-	 * @param height
+	 * @param gl2 render context
+	 * @param depth y axis
+	 * @param width x axis
+	 * @param height z axis
 	 */
 	static public void drawBox(GL2 gl2,double depth,double width,double height) {
 		width/=2;
@@ -257,7 +257,7 @@ public class PrimitiveSolids {
 
 	/**
 	 * draw box based on two corners
-	 * @param gl2
+	 * @param gl2 render context
 	 * @param bottom minimum bounds
 	 * @param top maximum bounds
 	 */
@@ -301,7 +301,7 @@ public class PrimitiveSolids {
 
 	/**
 	 * draw box based on two corners
-	 * @param gl2
+	 * @param gl2 render context
 	 * @param bottom minimum bounds
 	 * @param top maximum bounds
 	 */
@@ -377,7 +377,7 @@ public class PrimitiveSolids {
 		Matrix4d m = OpenGLHelper.getModelviewMatrix(gl2);
 		Vector3d up = MatrixHelper.getYAxis(m);
 		Vector3d left = MatrixHelper.getXAxis(m);
-		//Vector3d forward = MatrixHelper.getZAxis(m);
+
 		up.scale(h);
 		left.scale(w);
 		Vector3d a0 = new Vector3d();
@@ -390,13 +390,9 @@ public class PrimitiveSolids {
 		a3.set(p);		a3.sub(up);		a3.sub(left);
 
 		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-		//gl2.glColor3d(0, 0, 1);
 		gl2.glTexCoord2d(0, 1);		gl2.glVertex3d(a3.x,a3.y,a3.z);
-		//gl2.glColor3d(0, 1, 0);
 		gl2.glTexCoord2d(1, 1);		gl2.glVertex3d(a2.x,a2.y,a2.z);
-		//gl2.glColor3d(1, 0, 0);
 		gl2.glTexCoord2d(1, 0);		gl2.glVertex3d(a1.x,a1.y,a1.z);
-		//gl2.glColor3d(1, 1, 1);
 		gl2.glTexCoord2d(0, 0);		gl2.glVertex3d(a0.x,a0.y,a0.z);
 		gl2.glEnd();
 	}
