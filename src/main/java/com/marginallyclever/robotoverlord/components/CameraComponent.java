@@ -114,6 +114,13 @@ public class CameraComponent extends RenderComponent {
         setPosition(p);
     }
 
+    private void moveInternal(Vector3d p,Vector3d direction,double scale) {
+        double d = orbitDistance.get();
+        direction.scale(scale*d*0.001);
+        p.add(direction);
+        setPosition(p);
+    }
+
     /**
      * Translate relative to camera's current orientation
      * @param dy distance to travel.  Positive is up.
@@ -122,10 +129,7 @@ public class CameraComponent extends RenderComponent {
         PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
         Vector3d vy = MatrixHelper.getYAxis(pose.getWorld());
         Vector3d p = pose.getPosition();
-        double zSq = Math.sqrt(orbitDistance.get())*0.01;
-        vy.scale(zSq* dy);
-        p.add(vy);
-        setPosition(p);
+        moveInternal(p,vy,dy);
     }
 
     /**
@@ -136,23 +140,18 @@ public class CameraComponent extends RenderComponent {
         PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
         Vector3d vx = MatrixHelper.getXAxis(pose.getWorld());
         Vector3d p = pose.getPosition();
-        double zSq = Math.sqrt(orbitDistance.get())*0.01;
-        vx.scale(zSq*-dx);
-        p.add(vx);
-        setPosition(p);
+        moveInternal(p,vx,-dx);
     }
 
     /**
      * Translate relative to camera's current orientation
-     * @param dy distance to travel.  Positive is forward.
+     * @param dz distance to travel.  Positive is forward.
      */
-    public void dollyCamera(double dy) {
+    public void dollyCamera(double dz) {
         PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
-        Vector3d zAxis = MatrixHelper.getZAxis(pose.getWorld());
-        zAxis.scale(dy);
         Vector3d p = pose.getPosition();
-        p.add(zAxis);
-        setPosition(p);
+        Vector3d vz = MatrixHelper.getZAxis(pose.getWorld());
+        moveInternal(p,vz,dz);
     }
 
     protected Matrix3d buildPanTiltMatrix(double panDeg,double tiltDeg) {
