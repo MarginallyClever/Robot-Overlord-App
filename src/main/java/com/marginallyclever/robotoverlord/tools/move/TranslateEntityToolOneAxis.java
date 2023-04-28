@@ -127,6 +127,8 @@ public class TranslateEntityToolOneAxis implements EditorTool {
     }
 
     public void mouseReleased(MouseEvent event) {
+        if(!dragging) return;
+
         dragging = false;
         if(selectedItems!=null) {
             EditorUtils.updateUndoState(this,selectedItems);
