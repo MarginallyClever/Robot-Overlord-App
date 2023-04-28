@@ -33,8 +33,8 @@ public class RenderSystem implements ROSystem {
         if(component instanceof MeshFromFile) decorateMeshFromFile(view, component);
         if(component instanceof Sphere) decorateSphere(view,component);
         if(component instanceof Grid) decorateGrid(view,component);
-        if (component instanceof LightComponent) decorateLight(view,component);
-        if (component instanceof MaterialComponent) decorateMaterial(view,component);
+        if(component instanceof LightComponent) decorateLight(view,component);
+        if(component instanceof MaterialComponent) decorateMaterial(view,component);
     }
 
     private void decorateRender(ComponentPanelFactory view, Component component) {
