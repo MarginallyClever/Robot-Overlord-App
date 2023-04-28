@@ -28,6 +28,7 @@ public class Mesh {
 	
 	public final transient List<Float> colorArray = new ArrayList<>();
 	private transient boolean hasColors;
+	private transient boolean isTransparent;
 
 	public final transient List<Float> textureArray = new ArrayList<>();
 	private transient boolean hasUVs;
@@ -88,6 +89,10 @@ public class Mesh {
 	
 	public void setLoaded(boolean loaded) {
 		isLoaded=loaded;
+	}
+
+	public boolean isTransparent() {
+		return isTransparent;
 	}
 
 	public void unload(GL2 gl2) {
@@ -287,6 +292,7 @@ public class Mesh {
 		colorArray.add(g);
 		colorArray.add(b);
 		colorArray.add(a);
+		if(a!=1) isTransparent=true;
 		hasColors=true;
 	}
 	
@@ -347,6 +353,13 @@ public class Mesh {
 		return new Vector3d(x,y,z);
 	}
 
+	public Vector3d getNormal(int t) {
+		t*=3;
+		double x = normalArray.get(t++);
+		double y = normalArray.get(t++);
+		double z = normalArray.get(t++);
+		return new Vector3d(x,y,z);
+	}
 
 	public boolean isDirty() {
 		return isDirty;
