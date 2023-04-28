@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -17,13 +17,13 @@ import java.io.Serial;
 public class EntityAddEdit extends AbstractUndoableEdit {
 	@Serial
 	private static final long serialVersionUID = 1L;
-	private final Scene scene;
+	private final EntityManager entityManager;
 	private final Entity child;
 	private final Entity parent;
 	
-	public EntityAddEdit(Scene scene,Entity parent, Entity child) {
+	public EntityAddEdit(EntityManager entityManager, Entity parent, Entity child) {
 		super();
-		this.scene = scene;
+		this.entityManager = entityManager;
 		this.child = child;
 		this.parent = parent;
 		
@@ -42,12 +42,12 @@ public class EntityAddEdit extends AbstractUndoableEdit {
 	}
 	
 	protected void doIt() {
-		scene.addEntityToParent(child,parent);
+		entityManager.addEntityToParent(child,parent);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		scene.removeEntityFromParent(child,parent);
+		entityManager.removeEntityFromParent(child,parent);
 	}
 }

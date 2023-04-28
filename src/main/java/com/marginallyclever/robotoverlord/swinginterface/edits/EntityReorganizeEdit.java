@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -17,13 +17,13 @@ import java.util.Map;
  *
  */
 public class EntityReorganizeEdit extends AbstractUndoableEdit {
-	private final Scene scene;
+	private final EntityManager entityManager;
 	private final Map<Entity,Entity> childParent = new HashMap<>();
 	private final Entity newParent;
 
-	public EntityReorganizeEdit(Scene scene, List<Entity> children, Entity newParent) {
+	public EntityReorganizeEdit(EntityManager entityManager, List<Entity> children, Entity newParent) {
 		super();
-		this.scene = scene;
+		this.entityManager = entityManager;
 		this.newParent = newParent;
 
 		for(Entity child : children) {
@@ -33,9 +33,9 @@ public class EntityReorganizeEdit extends AbstractUndoableEdit {
 		doIt();
 	}
 
-	public EntityReorganizeEdit(Scene scene, Entity child, Entity newParent) {
+	public EntityReorganizeEdit(EntityManager entityManager, Entity child, Entity newParent) {
 		super();
-		this.scene = scene;
+		this.entityManager = entityManager;
 		this.newParent = newParent;
 
 		childParent.put(child,child.getParent());
@@ -66,8 +66,8 @@ public class EntityReorganizeEdit extends AbstractUndoableEdit {
 		System.out.println("Reorganizing "+getFancyName());
 		for(Entity child : childParent.keySet()) {
 			Entity oldParent = childParent.get(child);
-			scene.removeEntityFromParent(child,oldParent);
-			scene.addEntityToParent(child,newParent);
+			entityManager.removeEntityFromParent(child,oldParent);
+			entityManager.addEntityToParent(child,newParent);
 		}
 	}
 
@@ -76,8 +76,8 @@ public class EntityReorganizeEdit extends AbstractUndoableEdit {
 		super.undo();
 		for(Entity child : childParent.keySet()) {
 			Entity oldParent = childParent.get(child);
-			scene.removeEntityFromParent(child,newParent);
-			scene.addEntityToParent(child,oldParent);
+			entityManager.removeEntityFromParent(child,newParent);
+			entityManager.addEntityToParent(child,oldParent);
 		}
 	}
 }

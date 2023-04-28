@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.components;
 
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ import java.util.List;
 
 public class RobotComponentTest {
     private RobotComponent build3AxisArm() {
-        Scene scene = new Scene();
+        EntityManager entityManager = new EntityManager();
         Entity base = new Entity("Base");
         RobotComponent robot = new RobotComponent();
         base.addComponent(robot);
@@ -25,7 +25,7 @@ public class RobotComponentTest {
         for(int i=0;i<3;++i) {
             Entity e = new Entity("J"+i);
             joints.add(e);
-            scene.addEntityToParent(e,prev);
+            entityManager.addEntityToParent(e,prev);
             prev = e;
             DHComponent dhc = new DHComponent();
             dh.add(dhc);

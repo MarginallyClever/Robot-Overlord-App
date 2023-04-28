@@ -1,8 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 
 import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.*;
 import com.marginallyclever.robotoverlord.systems.ROSystem;
 
@@ -12,7 +11,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 /**
  * A factory that builds Swing elements for the entity editor
@@ -24,12 +22,12 @@ public class ComponentPanelFactory {
 	private final GridBagConstraints gbc = new GridBagConstraints();
 
 	private final List<ROSystem> systems = new ArrayList<>();
-	private final Scene scene;
+	private final EntityManager entityManager;
 	private final Component component;
 
-	public ComponentPanelFactory(Scene scene,Component component,List<ROSystem> systems) {
+	public ComponentPanelFactory(EntityManager entityManager, Component component, List<ROSystem> systems) {
 		super();
-		this.scene = scene;
+		this.entityManager = entityManager;
 		this.component = component;
 		this.systems.addAll(systems);
 
@@ -67,7 +65,7 @@ public class ComponentPanelFactory {
 		else if(parameter instanceof DoubleParameter   ) element = new ViewElementDouble   ((DoubleParameter)parameter);
 		else if(parameter instanceof IntParameter      ) element = new ViewElementInt      ((IntParameter)parameter);
 		else if(parameter instanceof Vector3DParameter ) element = new ViewElementVector3d ((Vector3DParameter)parameter);
-		else if(parameter instanceof ReferenceParameter) element = new ViewElementReference((ReferenceParameter)parameter,scene);
+		else if(parameter instanceof ReferenceParameter) element = new ViewElementReference((ReferenceParameter)parameter, entityManager);
 		else if(parameter instanceof StringParameter   ) element = new ViewElementString   ((StringParameter)parameter);
 
 		if(null==element) {
@@ -132,7 +130,7 @@ public class ComponentPanelFactory {
 	 * @return the element
 	 */
 	public ViewElement addFilename(StringParameter parameter, ArrayList<FileFilter> filters) {
-		ViewElementFilename b = new ViewElementFilename(parameter,scene);
+		ViewElementFilename b = new ViewElementFilename(parameter, entityManager);
 		b.addFileFilters(filters);
 		pushViewElement(b);
 		return b;

@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 
-import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.StringParameterEdit;
@@ -16,7 +16,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  * Panel to alter a file parameter.
@@ -28,12 +27,12 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 	private final JTextField field = new JTextField(15);
 	private final ArrayList<FileFilter> filters = new ArrayList<>();
 	private final StringParameter parameter;
-	private final Scene scene;
+	private final EntityManager entityManager;
 	
-	public ViewElementFilename(StringParameter parameter,Scene scene) {
+	public ViewElementFilename(StringParameter parameter, EntityManager entityManager) {
 		super();
 		this.parameter = parameter;
-		this.scene = scene;
+		this.entityManager = entityManager;
 		
 		//this.setBorder(BorderFactory.createLineBorder(Color.RED));
 
@@ -88,7 +87,7 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 		if(returnVal == JFileChooser.APPROVE_OPTION) {
 			String newFilename = chooser.getSelectedFile().getAbsolutePath();
 			lastPath = chooser.getSelectedFile().getParent();
-			String lastScenePath = scene.checkForScenePath(newFilename);
+			String lastScenePath = entityManager.checkForScenePath(newFilename);
 
 			AbstractUndoableEdit event = new StringParameterEdit(parameter, lastScenePath);
 			UndoSystem.addEvent(this,event);

@@ -1,14 +1,9 @@
 package com.marginallyclever.robotoverlord;
 
-import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.*;
 import com.marginallyclever.robotoverlord.components.*;
-import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
-import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -17,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.nio.IntBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -26,21 +20,26 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * <p>{@link Scene} is a container for all the {@link Entity} in a project.  It is like an Entity Manager.</p>
+ * <p>{@link EntityManager} is a container for all the {@link Entity} in a project.  It is like an Entity Manager.</p>
  * <p>It also contains the absolute path on disk for the root of the Scene.  All assets are relative to this path.</p>
  *
  * @author Dan Royer
  * @since 1.6.0
  */
-public class Scene {
-	private static final Logger logger = LoggerFactory.getLogger(Scene.class);
+public class EntityManager {
+	private static final Logger logger = LoggerFactory.getLogger(EntityManager.class);
 	private final StringParameter scenePath = new StringParameter("Scene Path", "");
 	private final List<Entity> entities = new ArrayList<>();
 
 	private final List<SceneChangeListener> sceneChangeListeners = new ArrayList<>();
 	
-	public Scene() {
+	public EntityManager() {
 		super();
+		clear();
+	}
+
+	public void clear() {
+		entities.clear();
 		Entity root = new Entity("Scene");
 		root.addComponent(new PoseComponent());
 		entities.add(root);
@@ -50,7 +49,7 @@ public class Scene {
 	 * Initialize the scene with a path to the root of the project.
 	 * @param absolutePath the absolute path to the root of the project.
 	 */
-	public Scene(String absolutePath) {
+	public EntityManager(String absolutePath) {
 		this();
 		setScenePath(absolutePath);
 	}

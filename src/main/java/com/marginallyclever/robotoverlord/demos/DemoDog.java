@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.demos;
 
 import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.demo.DogRobotComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Box;
@@ -23,9 +23,9 @@ public class DemoDog implements Demo {
 	}
 
 	@Override
-	public void execute(Scene scene) {
+	public void execute(EntityManager entityManager) {
 		// adjust default camera
-		CameraComponent camera = scene.getCamera();
+		CameraComponent camera = entityManager.getCamera();
 		PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
 		pose.setPosition(new Vector3d(40/4f,-91/4f,106/4f));
 		camera.lookAt(new Vector3d(0,0,0));
@@ -35,7 +35,7 @@ public class DemoDog implements Demo {
 		Entity gridEntity = new Entity("Grid");
 		Grid grid = new Grid();
 		gridEntity.addComponent(grid);
-		scene.addEntityToParent(gridEntity,scene.getRoot());
+		entityManager.addEntityToParent(gridEntity, entityManager.getRoot());
 		grid.setWidth(100);
 		grid.setLength(100);
 		MaterialComponent mat = gridEntity.findFirstComponent(MaterialComponent.class);
@@ -44,11 +44,11 @@ public class DemoDog implements Demo {
 
 		// add dog
 		Entity dog = new Entity("SpotMicro");
-		createDog(dog,scene);
-		scene.addEntityToParent(dog,scene.getRoot());
+		createDog(dog, entityManager);
+		entityManager.addEntityToParent(dog, entityManager.getRoot());
 	}
 
-	public void createDog(Entity myEntity,Scene scene) {
+	public void createDog(Entity myEntity, EntityManager entityManager) {
 		DogRobotComponent dog = new DogRobotComponent();
 		myEntity.addComponent(dog);
 
@@ -58,7 +58,7 @@ public class DemoDog implements Demo {
 		myPose.setRotation(new Vector3d(90,0,0));
 
 		Entity mesh = createMesh("/robots/SpotMicro/torso.obj",new ColorRGB(0xffffff));
-		scene.addEntityToParent(mesh,myEntity);
+		entityManager.addEntityToParent(mesh,myEntity);
 		PoseComponent meshPose = mesh.findFirstComponent(PoseComponent.class);
 		meshPose.setRotation(new Vector3d(90,180,180));
 		meshPose.setPosition(new Vector3d(-0.7,4.1,7));
@@ -71,20 +71,20 @@ public class DemoDog implements Demo {
 		double h = DogRobotComponent.KINEMATIC_BODY_HEIGHT/2;
 		int i=0;
 		RobotComponent[] legs = new RobotComponent[4];
-		legs[i] = createLimb(scene,dog,"RF",i, true, -w, h, 1);  i++;
-		legs[i] = createLimb(scene,dog,"RB",i, true, -w,-h, 1);  i++;
-		legs[i] = createLimb(scene,dog,"LF",i,false,  w, h, 1);  i++;
-		legs[i] = createLimb(scene,dog,"LB",i,false,  w,-h, 1);  i++;
+		legs[i] = createLimb(entityManager,dog,"RF",i, true, -w, h, 1);  i++;
+		legs[i] = createLimb(entityManager,dog,"RB",i, true, -w,-h, 1);  i++;
+		legs[i] = createLimb(entityManager,dog,"LF",i,false,  w, h, 1);  i++;
+		legs[i] = createLimb(entityManager,dog,"LB",i,false,  w,-h, 1);  i++;
 
 		i=0;
 		for(RobotComponent leg : legs) {
 			dog.setLeg(i,leg);
-			scene.addEntityToParent(leg.getEntity(),myEntity);
+			entityManager.addEntityToParent(leg.getEntity(),myEntity);
 			dog.setInitialPointOfContact(leg.getEntity(),i++);
 		}
 	}
 
-	private RobotComponent createLimb(Scene scene,DogRobotComponent dog,String name, int index, boolean isRight, double r, double d, double s) {
+	private RobotComponent createLimb(EntityManager entityManager, DogRobotComponent dog, String name, int index, boolean isRight, double r, double d, double s) {
 		DHComponent[] dh = new DHComponent[4];
 		for(int i=0;i<dh.length;++i) {
 			dh[i] = new DHComponent();
@@ -94,29 +94,29 @@ public class DemoDog implements Demo {
 		PoseComponent limbPose = limb.findFirstComponent(PoseComponent.class);
 		limbPose.setPosition(new Vector3d(r,0,d));
 
-		scene.addEntityToParent(createCylinder(4,2.1,new ColorRGB(0x9999FF)),limb);
+		entityManager.addEntityToParent(createCylinder(4,2.1,new ColorRGB(0x9999FF)),limb);
 
 		Entity hip = createPoseEntity(DogRobotComponent.HIP);
-		scene.addEntityToParent(hip,limb);
+		entityManager.addEntityToParent(hip,limb);
 		Entity thigh = createPoseEntity(DogRobotComponent.THIGH);
-		scene.addEntityToParent(thigh,hip);
+		entityManager.addEntityToParent(thigh,hip);
 		Entity calf = createPoseEntity(DogRobotComponent.CALF);
-		scene.addEntityToParent(calf,thigh);
+		entityManager.addEntityToParent(calf,thigh);
 		Entity foot = createPoseEntity(DogRobotComponent.FOOT);
-		scene.addEntityToParent(foot,calf);
+		entityManager.addEntityToParent(foot,calf);
 
 		hip.addComponent(dh[0]);
 		dh[0].set( 0, 0, 90*(isRight?1:-1), 90, 360, -360,true);
-		scene.addEntityToParent(createCylinder(5,2,new ColorRGB(0xFFFFFF)),hip);
+		entityManager.addEntityToParent(createCylinder(5,2,new ColorRGB(0xFFFFFF)),hip);
 
 		thigh.addComponent(dh[1]);
 		dh[1].set(-3.5 * s, 11.5, 0, 135*(isRight?-1:1), 360, -360,true);
-		scene.addEntityToParent(createBox(dh[1].getR(),1,new ColorRGB(0xFFFF99)),thigh);
+		entityManager.addEntityToParent(createBox(dh[1].getR(),1,new ColorRGB(0xFFFF99)),thigh);
 
 		calf.addComponent(new ArmEndEffectorComponent());
 		calf.addComponent(dh[2]);
 		dh[2].set(0, 13, 0, 90*(isRight?-1:1), 360, -360,true);
-		scene.addEntityToParent(createBox(dh[2].getR(),0.7,new ColorRGB(0xFFFF66)),calf);
+		entityManager.addEntityToParent(createBox(dh[2].getR(),0.7,new ColorRGB(0xFFFF66)),calf);
 
 		foot.addComponent(new ArmEndEffectorComponent());
 

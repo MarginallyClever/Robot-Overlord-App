@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
@@ -21,16 +21,16 @@ import java.util.List;
 
 public class SceneLoadAction extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(SceneLoadAction.class);
-    private final Scene scene;
+    private final EntityManager entityManager;
 
     /**
      * The file chooser remembers the last path.
      */
     private static final JFileChooser fc = new JFileChooser();
 
-    public SceneLoadAction(Scene scene) {
+    public SceneLoadAction(EntityManager entityManager) {
         super(Translator.get("SceneLoadAction.name"));
-        this.scene = scene;
+        this.entityManager = entityManager;
         fc.setFileFilter(RobotOverlord.FILE_FILTER);
         putValue(SMALL_ICON,new UnicodeIcon("🗁"));
         putValue(SHORT_DESCRIPTION, Translator.get("SceneLoadAction.shortDescription"));
@@ -69,18 +69,18 @@ public class SceneLoadAction extends AbstractAction {
      */
     public void loadIntoScene(File file,JFrame parentFrame) {
         try {
-            Scene source = loadNewScene(file,parentFrame);
+            EntityManager source = loadNewScene(file,parentFrame);
 
-            SceneClearAction clear = new SceneClearAction(scene);
+            SceneClearAction clear = new SceneClearAction(entityManager);
             clear.clearScene();
 
-            scene.setScenePath(source.getScenePath());
+            entityManager.setScenePath(source.getScenePath());
             // when entities are added to destination they will automatically be removed from source.
             // to prevent concurrent modification exception we have to have a copy of the list.
             List<Entity> entities = new LinkedList<>(source.getEntities());
             // now do the move safely.
             for(Entity e : entities) {
-                scene.addEntityToParent(e,scene.getRoot());
+                entityManager.addEntityToParent(e, entityManager.getRoot());
             }
 
             UndoSystem.reset();
@@ -97,7 +97,7 @@ public class SceneLoadAction extends AbstractAction {
      * @return the new Scene
      * @throws IOException if the file cannot be read
      */
-    public Scene loadNewScene(File file,JFrame parentFrame) throws IOException {
+    public EntityManager loadNewScene(File file, JFrame parentFrame) throws IOException {
         StringBuilder responseStrBuilder = new StringBuilder();
         try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
             String inputStr;
@@ -109,16 +109,16 @@ public class SceneLoadAction extends AbstractAction {
         logger.debug("Loading scene from {}", file.getAbsolutePath());
 
         String pathName = (Paths.get(file.getAbsolutePath())).getParent().toString();
-        Scene nextScene = new Scene(pathName);
+        EntityManager nextEntityManager = new EntityManager(pathName);
         try {
-            nextScene.parseJSON(new JSONObject(responseStrBuilder.toString()));
+            nextEntityManager.parseJSON(new JSONObject(responseStrBuilder.toString()));
         } catch(Exception e1) {
             logger.error(e1.getMessage());
             JOptionPane.showMessageDialog(parentFrame,e1.getLocalizedMessage());
             e1.printStackTrace();
         }
 
-        return nextScene;
+        return nextEntityManager;
     }
 
 }

@@ -41,7 +41,7 @@ public class OpenGLRenderPanel extends JPanel {
     private static final int VERTICAL_SYNC_ON = 1;  // 1 on, 0 off
     private static final int DEFAULT_FRAMES_PER_SECOND = 30;
 
-    private final Scene scene;
+    private final EntityManager entityManager;
 
     // OpenGL debugging
     private final boolean glDebug=false;
@@ -98,9 +98,9 @@ public class OpenGLRenderPanel extends JPanel {
     private final List<MatrixMaterialRender> alpha = new ArrayList<>();
     private final List<MatrixMaterialRender> noMaterial = new ArrayList<>();
 
-    public OpenGLRenderPanel(Scene scene) {
+    public OpenGLRenderPanel(EntityManager entityManager) {
         super(new BorderLayout());
-        this.scene = scene;
+        this.entityManager = entityManager;
 
         createCanvas();
         addCanvasListeners();
@@ -349,7 +349,7 @@ public class OpenGLRenderPanel extends JPanel {
     public List<RayHit> findRayIntersections(Ray ray) {
         List<RayHit> rayHits = new ArrayList<>();
 
-        Queue<Entity> toTest = new LinkedList<>(scene.getEntities());
+        Queue<Entity> toTest = new LinkedList<>(entityManager.getEntities());
         while(!toTest.isEmpty()) {
             Entity entity = toTest.remove();
             toTest.addAll(entity.getChildren());
@@ -364,7 +364,7 @@ public class OpenGLRenderPanel extends JPanel {
     }
 
     private CameraComponent getCamera() {
-        return scene.getCamera();
+        return entityManager.getCamera();
     }
 
     private void checkRenderStep(GL2 gl2) {
@@ -427,7 +427,7 @@ public class OpenGLRenderPanel extends JPanel {
         noMaterial.clear();
 
         // collect all entities with a RenderComponent
-        Queue<Entity> toRender = new LinkedList<>(scene.getEntities());
+        Queue<Entity> toRender = new LinkedList<>(entityManager.getEntities());
         while(!toRender.isEmpty()) {
             Entity entity = toRender.remove();
             toRender.addAll(entity.getChildren());
@@ -497,7 +497,7 @@ public class OpenGLRenderPanel extends JPanel {
         int maxLights = getMaxLights(gl2);
         turnOffAllLights(gl2,maxLights);
 
-        Queue<Entity> found = new LinkedList<>(scene.getEntities());
+        Queue<Entity> found = new LinkedList<>(entityManager.getEntities());
         int i=0;
         while(!found.isEmpty()) {
             Entity obj = found.remove();
@@ -568,7 +568,7 @@ public class OpenGLRenderPanel extends JPanel {
         if(frameDelay>frameLength) {
             frameDelay-=frameLength;
 
-            for(Entity entity : scene.getEntities()) {
+            for(Entity entity : entityManager.getEntities()) {
                 entity.update(frameLength);
             }
         }

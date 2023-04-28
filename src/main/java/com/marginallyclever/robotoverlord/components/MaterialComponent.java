@@ -2,19 +2,12 @@ package com.marginallyclever.robotoverlord.components;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.TextureParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import java.io.File;
-import java.util.ArrayList;
 
 public class MaterialComponent extends Component {
     public final ColorParameter ambient    = new ColorParameter("Ambient" ,1,1,1,1);

@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import org.slf4j.Logger;
@@ -24,16 +24,16 @@ import java.io.IOException;
  */
 public class SceneSaveAction extends AbstractAction implements ActionListener {
 	private static final Logger logger = LoggerFactory.getLogger(SceneSaveAction.class);
-	private final Scene scene;
+	private final EntityManager entityManager;
 
 	/**
 	 * The file chooser remembers the last path.
 	 */
 	private static final JFileChooser fc = new JFileChooser();
 	
-	public SceneSaveAction(Scene scene) {
+	public SceneSaveAction(EntityManager entityManager) {
 		super(Translator.get("SceneSaveAction.name"));
-		this.scene = scene;
+		this.entityManager = entityManager;
 		fc.setFileFilter(RobotOverlord.FILE_FILTER);
 		putValue(SMALL_ICON,new UnicodeIcon("💾"));
 		putValue(SHORT_DESCRIPTION, Translator.get("SceneSaveAction.shortDescription"));
@@ -85,7 +85,7 @@ public class SceneSaveAction extends AbstractAction implements ActionListener {
 	private void saveModelToFile(String absolutePath) throws IOException {
 		// try-with-resources will close the file for us.
 		try(BufferedWriter w = new BufferedWriter(new FileWriter(absolutePath))) {
-			w.write(scene.toJSON().toString());
+			w.write(entityManager.toJSON().toString());
 		}
 	}
 }

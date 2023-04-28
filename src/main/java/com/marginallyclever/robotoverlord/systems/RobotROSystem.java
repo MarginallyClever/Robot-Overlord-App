@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.systems;
 
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.components.DHComponent;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
@@ -12,16 +12,15 @@ import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.D
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.RobotPanel;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementReference;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
 
 public class RobotROSystem implements ROSystem {
-    private final Scene scene;
+    private final EntityManager entityManager;
 
-    public RobotROSystem(Scene scene) {
-        this.scene = scene;
+    public RobotROSystem(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     @Override
@@ -91,7 +90,7 @@ public class RobotROSystem implements ROSystem {
     private GCodePathComponent getGCodePath(RobotComponent robotComponent) {
         String entityUniqueID = robotComponent.getGCodePathEntityUUID();
         if(entityUniqueID==null) return null;
-        Entity entity = scene.findEntityByUniqueID(entityUniqueID);
+        Entity entity = entityManager.findEntityByUniqueID(entityUniqueID);
         if(entity==null) return null;
         return entity.findFirstComponent(GCodePathComponent.class);
     }

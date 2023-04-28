@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.Scene;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
@@ -30,7 +30,7 @@ import java.util.List;
 public class SceneImportAction extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(SceneImportAction.class);
 
-    private final Scene scene;
+    private final EntityManager entityManager;
     /**
      * The file chooser remembers the last path.
      */
@@ -38,16 +38,16 @@ public class SceneImportAction extends AbstractAction {
 
     private File preselectedFile = null;
 
-    public SceneImportAction(Scene scene) {
+    public SceneImportAction(EntityManager entityManager) {
         super(Translator.get("SceneImportAction.name"));
-        this.scene = scene;
+        this.entityManager = entityManager;
         fc.setFileFilter(RobotOverlord.FILE_FILTER);
         putValue(SMALL_ICON,new UnicodeIcon("🗁"));
         putValue(SHORT_DESCRIPTION, Translator.get("SceneImportAction.shortDescription"));
     }
 
-    public SceneImportAction(Scene scene,File preselectedFile) {
-        this(scene);
+    public SceneImportAction(EntityManager entityManager, File preselectedFile) {
+        this(entityManager);
         putValue(NAME, Translator.get("SceneImportAction.name")+" "+preselectedFile.getName());
         this.preselectedFile = preselectedFile;
     }
@@ -79,10 +79,10 @@ public class SceneImportAction extends AbstractAction {
         if(!fc.getFileFilter().accept(file)) return false;
 
         try {
-            SceneLoadAction loader = new SceneLoadAction(scene);
-            Scene source = loader.loadNewScene(file,parentFrame);
+            SceneLoadAction loader = new SceneLoadAction(entityManager);
+            EntityManager source = loader.loadNewScene(file,parentFrame);
 
-            updateSceneAssetPaths(source,scene);
+            updateSceneAssetPaths(source, entityManager);
 
             UndoSystem.reset();
         } catch(Exception e1) {
@@ -103,7 +103,7 @@ public class SceneImportAction extends AbstractAction {
      * @param destination the scene to copy to
      * @throws IOException if the copy fails
      */
-    private void updateSceneAssetPaths(Scene source, Scene destination) throws IOException {
+    private void updateSceneAssetPaths(EntityManager source, EntityManager destination) throws IOException {
         Path path = Path.of(source.getScenePath());
 
         Path lastPath = path.subpath(path.getNameCount()-1,path.getNameCount());
@@ -150,7 +150,7 @@ public class SceneImportAction extends AbstractAction {
      * @param source
      * @param destinationPath
      */
-    private void recursivelyUpdatePaths(Scene source, String destinationPath) {
+    private void recursivelyUpdatePaths(EntityManager source, String destinationPath) {
         LinkedList<Entity> list = new LinkedList<>(source.getEntities());
         String originalPath = source.getScenePath();
         source.setScenePath(destinationPath);

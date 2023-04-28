@@ -1,8 +1,6 @@
 package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -120,7 +118,7 @@ public class Entity implements PropertyChangeListener {
 	}
 
 	/**
-	 * Use {@link Scene#addEntityToParent(Entity, Entity)} instead.
+	 * Use {@link EntityManager#addEntityToParent(Entity, Entity)} instead.
 	 * @param child the child to add
 	 */
 	@Deprecated
@@ -131,7 +129,7 @@ public class Entity implements PropertyChangeListener {
 	}
 
 	/**
-	 * Use {@link Scene#removeEntityFromParent(Entity, Entity)} instead.
+	 * Use {@link EntityManager#removeEntityFromParent(Entity, Entity)} instead.
 	 * @param child the child to remove
 	 */
 	@Deprecated

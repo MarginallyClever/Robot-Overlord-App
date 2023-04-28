@@ -2,8 +2,7 @@ package com.marginallyclever.robotoverlord.demos;
 
 import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Grid;
@@ -25,10 +24,10 @@ public class DemoSpidee implements Demo {
 	}
 
 	@Override
-	public void execute(Scene scene) {
+	public void execute(EntityManager entityManager) {
 
 		// adjust default camera
-		CameraComponent camera = scene.getCamera();
+		CameraComponent camera = entityManager.getCamera();
 		PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
 		pose.setPosition(new Vector3d(40/4f,-91/4f,106/4f));
 		camera.lookAt(new Vector3d(0,0,0));
@@ -38,7 +37,7 @@ public class DemoSpidee implements Demo {
 		Entity gridEntity = new Entity("Grid");
 		Grid grid = new Grid();
 		gridEntity.addComponent(grid);
-		scene.addEntityToParent(gridEntity,scene.getRoot());
+		entityManager.addEntityToParent(gridEntity, entityManager.getRoot());
 		grid.setWidth(100);
 		grid.setLength(100);
 		MaterialComponent mat = gridEntity.findFirstComponent(MaterialComponent.class);
@@ -47,37 +46,37 @@ public class DemoSpidee implements Demo {
 
 		// add spidee
 		Entity spidee = new Entity("Spidee-1");
-		createCrab(spidee,scene);
-		scene.addEntityToParent(spidee,scene.getRoot());
+		createCrab(spidee, entityManager);
+		entityManager.addEntityToParent(spidee, entityManager.getRoot());
 	}
 
-	public void createCrab(Entity entity,Scene scene) {
+	public void createCrab(Entity entity, EntityManager entityManager) {
 		CrabRobotComponent crab = new CrabRobotComponent();
 		entity.addComponent(crab);
 		entity.addComponent(new PoseComponent());
 
-		scene.addEntityToParent(createMesh("/robots/Spidee/body.stl",new ColorRGB(0x3333FF)),entity);
+		entityManager.addEntityToParent(createMesh("/robots/Spidee/body.stl",new ColorRGB(0x3333FF)),entity);
 
 
 		// 0   5
 		// 1 x 4
 		// 2   3
 		RobotComponent[] legs = new RobotComponent[6];
-		legs[0] = createLimb(scene,crab,"LF",0,false,  135);
-		legs[1] = createLimb(scene,crab,"LM",1,false,  180);
-		legs[2] = createLimb(scene,crab,"LB",2,false, -135);
-		legs[3] = createLimb(scene,crab,"RB",3,true,   -45);
-		legs[4] = createLimb(scene,crab,"RM",4,true,     0);
-		legs[5] = createLimb(scene,crab,"RF",5,true,    45);
+		legs[0] = createLimb(entityManager,crab,"LF",0,false,  135);
+		legs[1] = createLimb(entityManager,crab,"LM",1,false,  180);
+		legs[2] = createLimb(entityManager,crab,"LB",2,false, -135);
+		legs[3] = createLimb(entityManager,crab,"RB",3,true,   -45);
+		legs[4] = createLimb(entityManager,crab,"RM",4,true,     0);
+		legs[5] = createLimb(entityManager,crab,"RF",5,true,    45);
 
 		int i=0;
 		for(RobotComponent leg : legs) {
 			crab.setLeg(i++,leg);
-			scene.addEntityToParent(leg.getEntity(),entity);
+			entityManager.addEntityToParent(leg.getEntity(),entity);
 		}
 	}
 
-	private RobotComponent createLimb(Scene scene,CrabRobotComponent crab,String name,int index,boolean isRight, float degrees) {
+	private RobotComponent createLimb(EntityManager entityManager, CrabRobotComponent crab, String name, int index, boolean isRight, float degrees) {
 		DHComponent[] dh = new DHComponent[3];
 		for(int i=0;i<dh.length;++i) {
 			dh[i] = new DHComponent();
@@ -86,27 +85,27 @@ public class DemoSpidee implements Demo {
 		Entity limb = createPoseEntity(name);
 
 		Entity hip = createPoseEntity(CrabRobotComponent.HIP);
-		scene.addEntityToParent(hip,limb);
+		entityManager.addEntityToParent(hip,limb);
 		Entity thigh = createPoseEntity(CrabRobotComponent.THIGH);
-		scene.addEntityToParent(thigh,hip);
+		entityManager.addEntityToParent(thigh,hip);
 		Entity calf = createPoseEntity(CrabRobotComponent.CALF);
-		scene.addEntityToParent(calf,thigh);
+		entityManager.addEntityToParent(calf,thigh);
 		Entity foot = createPoseEntity(CrabRobotComponent.FOOT);
-		scene.addEntityToParent(foot,calf);
+		entityManager.addEntityToParent(foot,calf);
 
 		hip.addComponent(dh[0]);
 		dh[0].set(0,2.2,90,0,60,-60,true);
-		if(isRight) scene.addEntityToParent(createMesh("/robots/Spidee/shoulder_right.obj",new ColorRGB(0x9999FF)),hip);
-		else        scene.addEntityToParent(createMesh("/robots/Spidee/shoulder_left.obj",new ColorRGB(0x9999FF)),hip);
+		if(isRight) entityManager.addEntityToParent(createMesh("/robots/Spidee/shoulder_right.obj",new ColorRGB(0x9999FF)),hip);
+		else        entityManager.addEntityToParent(createMesh("/robots/Spidee/shoulder_left.obj",new ColorRGB(0x9999FF)),hip);
 
 		thigh.addComponent(dh[1]);
 		dh[1].set( 0,8.5,0,0,106,-72,true);
-		scene.addEntityToParent(createMesh("/robots/Spidee/thigh.obj",new ColorRGB(0xFFFFFF)),thigh);
+		entityManager.addEntityToParent(createMesh("/robots/Spidee/thigh.obj",new ColorRGB(0xFFFFFF)),thigh);
 
 		calf.addComponent(dh[2]);
 		dh[2].set(0,10.5,0,0,15,-160,true);
-		if(isRight) scene.addEntityToParent(createMesh("/robots/Spidee/calf_right.obj",new ColorRGB(0xFFFF99)),calf);
-		else		scene.addEntityToParent(createMesh("/robots/Spidee/calf_left.obj",new ColorRGB(0xFFFF99)),calf);
+		if(isRight) entityManager.addEntityToParent(createMesh("/robots/Spidee/calf_right.obj",new ColorRGB(0xFFFF99)),calf);
+		else		entityManager.addEntityToParent(createMesh("/robots/Spidee/calf_left.obj",new ColorRGB(0xFFFF99)),calf);
 
 		foot.addComponent(new ArmEndEffectorComponent());
 

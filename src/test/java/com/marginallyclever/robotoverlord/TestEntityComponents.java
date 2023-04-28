@@ -50,12 +50,12 @@ public class TestEntityComponents {
 
     @Test
     public void searchNestedEntitiesForComponent() {
-        Scene scene = new Scene();
+        EntityManager entityManager = new EntityManager();
         Entity e0 = new Entity();
         Entity e1 = new Entity();
         Entity e2 = new Entity();
-        scene.addEntityToParent(e1,e0);
-        scene.addEntityToParent(e2,e1);
+        entityManager.addEntityToParent(e1,e0);
+        entityManager.addEntityToParent(e2,e1);
         e1.addComponent(new PoseComponent());
         e2.addComponent(new CameraComponent());
         e0.addComponent(new CameraComponent());

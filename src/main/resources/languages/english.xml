@@ -1186,7 +1186,7 @@ to check yourself.</value>
 	</string>
 	<string>
 		<key>SceneLoadAction.shortDescription</key>
-		<value>Load a scene</value>
+		<value>Load a entityManager</value>
 	</string>
 	<string>
 		<key>SceneSaveAction.name</key>
@@ -1194,7 +1194,7 @@ to check yourself.</value>
 	</string>
 	<string>
 		<key>SceneSaveAction.shortDescription</key>
-		<value>Save this scene</value>
+		<value>Save this entityManager</value>
 	</string>
 	<string>
 		<key>SceneImportAction.name</key>
@@ -1202,7 +1202,7 @@ to check yourself.</value>
 	</string>
 	<string>
 		<key>SceneImportAction.shortDescription</key>
-		<value>Copy a scene into the current scene.</value>
+		<value>Copy a entityManager into the current entityManager.</value>
 	</string>
 
 	<string>
@@ -1252,7 +1252,7 @@ to check yourself.</value>
 
 	<string>
 		<key>Scene.AssetPathNotInScenePathWarning</key>
-		<value>Asset \n%1\nis not in scene path\n%2\nConsider moving your asset into the scene path for easier sharing with others.</value>
+		<value>Asset \n%1\nis not in entityManager path\n%2\nConsider moving your asset into the entityManager path for easier sharing with others.</value>
 	</string>
 
 	<string>

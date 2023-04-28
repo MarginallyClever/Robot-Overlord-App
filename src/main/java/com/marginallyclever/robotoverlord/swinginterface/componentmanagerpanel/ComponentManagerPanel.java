@@ -2,8 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
 import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentAddAction;
@@ -21,7 +20,7 @@ import java.util.List;
  * Collate all the {@link Component}s for selected {@link Entity}s.
  */
 public class ComponentManagerPanel extends JPanel {
-	private final Scene scene;
+	private final EntityManager entityManager;
 	private final JPanel componentList = new JPanel();
 	private final JToolBar toolBar = new JToolBar();
 	private final ComponentDeleteAction componentDeleteAction = new ComponentDeleteAction(this);
@@ -29,9 +28,9 @@ public class ComponentManagerPanel extends JPanel {
 	private final ComponentPasteAction componentPasteAction = new ComponentPasteAction();
 	private final List<ROSystem> systems = new ArrayList<>();
 
-	public ComponentManagerPanel(Scene scene,List<ROSystem> systems) {
+	public ComponentManagerPanel(EntityManager entityManager, List<ROSystem> systems) {
 		super(new BorderLayout());
-		this.scene = scene;
+		this.entityManager = entityManager;
 		this.systems.addAll(systems);
 
 		componentList.setLayout(new BoxLayout(componentList,BoxLayout.Y_AXIS));
@@ -93,7 +92,7 @@ public class ComponentManagerPanel extends JPanel {
 
 	private void addSingleComponent(Component component) {
 		// get the view
-		ComponentPanelFactory factory = new ComponentPanelFactory(scene, component,systems);
+		ComponentPanelFactory factory = new ComponentPanelFactory(entityManager, component,systems);
 		//component.getView(factory);
 		//JComponent finalView = wrapViewWithCommonComponentControls(factory.getFinalView(),component);
 		JComponent outerPanel = wrapViewWithCommonComponentControls(factory.buildSwingView(),component);

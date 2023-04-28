@@ -10,18 +10,18 @@ import org.junit.jupiter.api.Test;
 
 import javax.vecmath.Vector3d;
 
-public class SceneTest {
-    private Scene createABasicProcedurallyBuiltScene() {
+public class EntityManagerTest {
+    private EntityManager createABasicProcedurallyBuiltScene() {
         PoseComponent pose;
 
-        Scene scene = new Scene();
+        EntityManager entityManager = new EntityManager();
         Entity mainCamera = new Entity("Main Camera");
-        scene.addEntityToParent(mainCamera,scene.getRoot());
+        entityManager.addEntityToParent(mainCamera, entityManager.getRoot());
         mainCamera.addComponent(new PoseComponent());
         mainCamera.addComponent(new CameraComponent());
 
         Entity light0 = new Entity("light 0");
-        scene.addEntityToParent(light0,scene.getRoot());
+        entityManager.addEntityToParent(light0, entityManager.getRoot());
         light0.addComponent(new PoseComponent());
         light0.addComponent(new LightComponent());
 
@@ -30,36 +30,36 @@ public class SceneTest {
         Box box = new Box();
         boxEntity.addComponent(box);
         boxEntity.addComponent(new MaterialComponent());
-        scene.addEntityToParent(boxEntity,scene.getRoot());
+        entityManager.addEntityToParent(boxEntity, entityManager.getRoot());
         pose.setPosition(new Vector3d(-10,0,0));
 
-        return scene;
+        return entityManager;
     }
 
-    private static void saveAndLoad(Scene a,Scene b) throws Exception {
+    private static void saveAndLoad(EntityManager a, EntityManager b) throws Exception {
         b.parseJSON(a.toJSON());
         Assertions.assertEquals(a.toJSON().toString(),b.toJSON().toString());
     }
 
     @Test
     public void saveAndLoadTests() throws Exception {
-        saveAndLoad(new Scene(),new Scene());
-        saveAndLoad(createABasicProcedurallyBuiltScene(),new Scene());
+        saveAndLoad(new EntityManager(),new EntityManager());
+        saveAndLoad(createABasicProcedurallyBuiltScene(),new EntityManager());
     }
 
     @Test
     public void moveEntity() {
-        Scene scene = new Scene();
+        EntityManager entityManager = new EntityManager();
         Entity a = new Entity();
         Entity b = new Entity();
         Entity c = new Entity();
-        scene.addEntityToParent(a,b);
+        entityManager.addEntityToParent(a,b);
         Assertions.assertEquals(b,a.getParent());
-        scene.addEntityToParent(a,c);
+        entityManager.addEntityToParent(a,c);
         Assertions.assertEquals(c,a.getParent());
         Assertions.assertEquals(c,a.getParent());
         Assertions.assertFalse(b.getChildren().contains(a));
-        scene.removeEntityFromParent(a,b);
+        entityManager.removeEntityFromParent(a,b);
         Assertions.assertEquals(c,a.getParent());
         Assertions.assertNull(b.getParent());
         Assertions.assertEquals(c,a.getParent());

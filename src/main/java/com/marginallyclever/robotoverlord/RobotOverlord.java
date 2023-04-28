@@ -80,7 +80,7 @@ public class RobotOverlord implements RobotLibraryListener {
 	/**
 	 * The scene being edited and all the entities therein.
 	 */
-	private final Scene scene = new Scene(System.getProperty("user.dir"));
+	private final EntityManager entityManager = new EntityManager(System.getProperty("user.dir"));
 
 	/**
 	 * The main frame of the GUI
@@ -158,17 +158,18 @@ public class RobotOverlord implements RobotLibraryListener {
 		buildSystems();
 
 		buildMainFrame();
-		entityTreePanel = new EntityTreePanel(scene);
-		componentManagerPanel = new ComponentManagerPanel(scene,systems);
-		renderPanel = new OpenGLRenderPanel(scene);
+		entityTreePanel = new EntityTreePanel(entityManager);
+		componentManagerPanel = new ComponentManagerPanel(entityManager,systems);
+		renderPanel = new OpenGLRenderPanel(entityManager);
 		layoutComponents();
 		refreshMainMenu();
 
-		SceneClearAction action = new SceneClearAction(scene);
+		listenToClipboardChanges();
+
+		SceneClearAction action = new SceneClearAction(entityManager);
 		action.clearScene();
 		action.addDefaultEntities();
 
-		listenToClipboardChanges();
 		updateActionEnableStatus();
 
 		logger.info("** READY **");
@@ -180,7 +181,7 @@ public class RobotOverlord implements RobotLibraryListener {
 		systems.add(new CameraSystem());
 		systems.add(new OriginAdjustSystem());
 		//systems.add(new SoundSystem());
-		systems.add(new RobotROSystem(scene));
+		systems.add(new RobotROSystem(entityManager));
 	}
 
 	private void listenToClipboardChanges() {
@@ -309,11 +310,11 @@ public class RobotOverlord implements RobotLibraryListener {
 	private JComponent createFileMenu() {
 		JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.File"));
 
-		menu.add(new SceneClearAction(scene));
-		menu.add(new SceneLoadAction(scene));
+		menu.add(new SceneClearAction(entityManager));
+		menu.add(new SceneLoadAction(entityManager));
 		if(recentFiles.size()>0) menu.add(createRecentFilesMenu());
-		menu.add(new SceneImportAction(scene));
-		menu.add(new SceneSaveAction(scene));
+		menu.add(new SceneImportAction(entityManager));
+		menu.add(new SceneSaveAction(entityManager));
 		menu.add(new JSeparator());
 		menu.add(new QuitAction(this));
 
@@ -326,7 +327,7 @@ public class RobotOverlord implements RobotLibraryListener {
 			AbstractAction loader = new AbstractAction(filename) {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					SceneLoadAction sceneLoadAction = new SceneLoadAction(scene);
+					SceneLoadAction sceneLoadAction = new SceneLoadAction(entityManager);
 					File f = new File(filename);
 					if(f.exists()) {
 						sceneLoadAction.loadIntoScene(filename,mainFrame);
@@ -352,8 +353,8 @@ public class RobotOverlord implements RobotLibraryListener {
 
 	private JComponent createDemoMenu() {
 		JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.Demos"));
-		menu.add(new JMenuItem(new DemoAction(scene,new DemoSpidee())));
-		menu.add(new JMenuItem(new DemoAction(scene,new DemoDog())));
+		menu.add(new JMenuItem(new DemoAction(entityManager,new DemoSpidee())));
+		menu.add(new JMenuItem(new DemoAction(entityManager,new DemoDog())));
 		//menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
 		menu.addSeparator();
 		menu.add(new JMenuItem(new ShowRobotLibraryPanel(this)));
@@ -399,7 +400,7 @@ public class RobotOverlord implements RobotLibraryListener {
 					JMenu level3Menu = new JMenu(level3Dir.getName());
 
 					for (File roFile : roFiles) {
-						level3Menu.add(new JMenuItem(new SceneImportAction(scene, roFile)));
+						level3Menu.add(new JMenuItem(new SceneImportAction(entityManager, roFile)));
 					}
 
 					// we found something, add the parent menu.
@@ -523,7 +524,7 @@ public class RobotOverlord implements RobotLibraryListener {
 	}
 
 	private boolean importScene(File file) {
-		SceneImportAction action = new SceneImportAction(scene);
+		SceneImportAction action = new SceneImportAction(entityManager);
 		return action.loadFile(file,mainFrame);
 	}
 
@@ -540,10 +541,10 @@ public class RobotOverlord implements RobotLibraryListener {
 			entity.addComponent(shape);
 			// move entity to camera orbit point so that it is visible.
 			PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
-			pose.setPosition(scene.getCamera().getOrbitPoint());
+			pose.setPosition(entityManager.getCamera().getOrbitPoint());
 
 			// add entity to scene.
-			UndoSystem.addEvent(this,new EntityAddEdit(scene,scene.getRoot(),entity));
+			UndoSystem.addEvent(this,new EntityAddEdit(entityManager, entityManager.getRoot(),entity));
 		} catch(Exception e) {
 			logger.error("Error opening file",e);
 			return false;

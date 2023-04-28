@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.EntityFactory;
-import com.marginallyclever.robotoverlord.Scene;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
@@ -25,11 +25,11 @@ import java.util.List;
  */
 public class EntityAddChildAction extends AbstractAction implements EditorAction {
 	private static final Logger logger = LoggerFactory.getLogger(EntityAddChildAction.class);
-	private final Scene scene;
+	private final EntityManager entityManager;
 	
-	public EntityAddChildAction(Scene scene) {
+	public EntityAddChildAction(EntityManager entityManager) {
 		super(Translator.get("EntityAddChildAction.name"));
-		this.scene = scene;
+		this.entityManager = entityManager;
 		putValue(SMALL_ICON,new UnicodeIcon("+"));
 		putValue(SHORT_DESCRIPTION, Translator.get("EntityAddChildAction.shortDescription"));
 	}
@@ -69,7 +69,7 @@ public class EntityAddChildAction extends AbstractAction implements EditorAction
 	private void createInstanceOf(Entity parent,String className,JFrame parentFrame) {
 		try {
 			Entity newInstance = EntityFactory.load(className);
-			if(newInstance != null) UndoSystem.addEvent(this,new EntityAddEdit(scene,parent,newInstance));
+			if(newInstance != null) UndoSystem.addEvent(this,new EntityAddEdit(entityManager,parent,newInstance));
 		} catch (Exception e) {
 			String msg = "Failed to instance "+className+": "+e.getLocalizedMessage();
 			JOptionPane.showMessageDialog(parentFrame,msg);
