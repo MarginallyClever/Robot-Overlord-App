@@ -52,7 +52,6 @@ public class Mesh {
 		
 		fileName=null;
 		isLoaded=false;
-		VBO = null;
 		hasNormals=false;
 		hasColors=false;
 		hasUVs=false;
@@ -245,7 +244,6 @@ public class Mesh {
 		if(hasNormals) gl2.glDisableClientState(GL2.GL_NORMAL_ARRAY);
 		if(hasColors) gl2.glDisableClientState(GL2.GL_COLOR_ARRAY);
 		if(hasUVs) gl2.glDisableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
-		if(hasIndexes) gl2.glDisableClientState(GL2.GL_ELEMENT_ARRAY_BUFFER);
 	}
 	
 	public void drawNormals(GL2 gl2) {
