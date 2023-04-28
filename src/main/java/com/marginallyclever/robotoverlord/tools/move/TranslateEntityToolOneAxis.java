@@ -8,6 +8,7 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.shapes.Sphere;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 
 import javax.vecmath.Matrix4d;
@@ -54,6 +55,8 @@ public class TranslateEntityToolOneAxis implements EditorTool {
     private Matrix4d pivotMatrix;
 
     private boolean hovering = false;
+
+    private Sphere handleSphere = new Sphere();
 
     @Override
     public void activate(List<Entity> list) {
@@ -198,7 +201,10 @@ public class TranslateEntityToolOneAxis implements EditorTool {
         gl2.glEnd();
 
         gl2.glTranslated(handleLength, 0, 0);
-        PrimitiveSolids.drawSphere(gl2, gripRadius);
+        
+        gl2.glScaled(gripRadius, gripRadius, gripRadius);
+        handleSphere.render(gl2);
+        //PrimitiveSolids.drawSphere(gl2, gripRadius);
 
         gl2.glPopMatrix();
 
