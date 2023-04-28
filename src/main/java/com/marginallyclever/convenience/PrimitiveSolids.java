@@ -56,8 +56,8 @@ public class PrimitiveSolids {
 	 * @param radius radius of the sphere
 	 */
 	static public void drawSphere(GL2 gl2,double radius) {
-		int width = 32;
 		int height = 16;
+		int width = height*2;
 		
 		double theta, phi;
 		int i, j, t;
