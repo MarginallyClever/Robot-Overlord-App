@@ -7,6 +7,7 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 
 import javax.vecmath.Matrix4d;
@@ -80,6 +81,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
      */
     private int rotation=2;
     private boolean hovering = false;
+    private final Box handleBox = new Box();
 
     /**
      * This method is called when the tool is activated. It receives the SelectedItems object containing the selected
@@ -253,6 +255,8 @@ public class RotateEntityToolOneAxis implements EditorTool {
 
     @Override
     public void mouseReleased(MouseEvent event) {
+        if(!dragging) return;
+
         dragging = false;
         if(selectedItems!=null) {
             EditorUtils.updateUndoState(this,selectedItems);
@@ -371,10 +375,18 @@ public class RotateEntityToolOneAxis implements EditorTool {
 
         PrimitiveSolids.drawCircleXY(gl2, ringRadius, ringResolution);
 
-        gl2.glTranslated(handleLength,handleOffsetY,-gripRadius*0.5);
-        PrimitiveSolids.drawBox(gl2, gripRadius, gripRadius, gripRadius);
+        gl2.glTranslated(handleLength,handleOffsetY,0);
+        double v = gripRadius;
+        gl2.glPushMatrix();
+        gl2.glScaled(v, v, v);
+        handleBox.render(gl2);
+        gl2.glPopMatrix();
+
         gl2.glTranslated(0,-2*handleOffsetY,0);
-        PrimitiveSolids.drawBox(gl2, gripRadius, gripRadius, gripRadius);
+        gl2.glPushMatrix();
+        gl2.glScaled(v, v, v);
+        handleBox.render(gl2);
+        gl2.glPopMatrix();
 
         gl2.glPopMatrix();
     }
