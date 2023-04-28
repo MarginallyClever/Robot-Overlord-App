@@ -190,7 +190,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, Sc
 					return node;
 				}
 			} else {
-				System.out.println("findTreeNode problem @ "+treeNode);
+				System.err.println("findTreeNode problem @ "+treeNode);
 			}
 			list.addAll(Collections.list(treeNode.children()));
 		}

@@ -63,7 +63,6 @@ public class EntityReorganizeEdit extends AbstractUndoableEdit {
 	}
 	
 	protected void doIt() {
-		System.out.println("Reorganizing "+getFancyName());
 		for(Entity child : childParent.keySet()) {
 			Entity oldParent = childParent.get(child);
 			entityManager.removeEntityFromParent(child,oldParent);

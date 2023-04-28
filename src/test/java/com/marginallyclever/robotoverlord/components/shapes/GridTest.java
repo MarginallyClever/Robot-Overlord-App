@@ -9,6 +9,5 @@ public class GridTest {
         Grid a = new Grid();
         Grid b = new Grid();
         ComponentTest.saveAndLoad(a,b);
-        System.out.println(a);
     }
 }
