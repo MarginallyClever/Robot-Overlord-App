@@ -56,7 +56,7 @@ public class RotateEntityMultiTool implements EditorTool {
         Matrix4d rot = new Matrix4d();
 
         Matrix4d pivotZ = new Matrix4d(pivot);
-        rot.rotZ(Math.toRadians(190));        pivotZ.mul(rot);
+        rot.rotZ(Math.toRadians(180));        pivotZ.mul(rot);
         toolZ.setPivotMatrix(pivotZ);
 
         Matrix4d pivotX = new Matrix4d(pivot);
