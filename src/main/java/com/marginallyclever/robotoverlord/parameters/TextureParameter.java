@@ -11,8 +11,10 @@ import org.slf4j.LoggerFactory;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,6 +24,14 @@ import java.util.Map;
 public class TextureParameter extends StringParameter {
 	private static final Logger logger = LoggerFactory.getLogger(TextureParameter.class);
 
+	// supported file formats
+	private static final List<FileFilter> filters = List.of(
+		new FileNameExtensionFilter("PNG", "png"),
+		new FileNameExtensionFilter("BMP", "bmp"),
+		new FileNameExtensionFilter("JPEG", "jpeg","jpg"),
+		new FileNameExtensionFilter("TGA", "tga")
+	);
+
 	private static final HashMap<String,Texture> texturePool = new HashMap<>();
 	
 	private transient Texture texture;
@@ -30,6 +40,10 @@ public class TextureParameter extends StringParameter {
 	public TextureParameter(String name,String fileName) {
 		super(name,fileName);
 		textureDirty=true;
+	}
+
+	public static List<FileFilter> getFilters() {
+		return filters;
 	}
 
 	public void render(GL2 gl2) {
