@@ -141,7 +141,7 @@ public class Entity implements PropertyChangeListener {
 		}
 	}
 
-	public ArrayList<Entity> getChildren() {
+	public List<Entity> getChildren() {
 		return children;
 	}
 

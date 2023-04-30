@@ -11,6 +11,7 @@ import java.io.BufferedInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * {@link MeshFactory} loads a mesh from a file using one of many {@link MeshLoader} classes.  It also keeps a pool of
@@ -100,7 +101,7 @@ public class MeshFactory {
 		attemptLoad(myMesh.getSourceName(),myMesh);
 	}
 
-	public static ArrayList<FileFilter> getAllExtensions() {
+	public static List<FileFilter> getAllExtensions() {
 		ArrayList<FileFilter> filters = new ArrayList<>();
 		
 		for( MeshLoader loader : loaders ) {

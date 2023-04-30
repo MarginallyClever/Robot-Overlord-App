@@ -6,6 +6,8 @@ import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.StringParameterEdit;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
+import java.util.List;
+import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.undo.AbstractUndoableEdit;
@@ -15,7 +17,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.ArrayList;
 
 /**
  * Panel to alter a file parameter.
@@ -107,7 +108,7 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 	 * Plural form of {@link #addFileFilter}.
 	 * @param arg0 {@link ArrayList} of {@link FileFilter}.
 	 */
-	public void addFileFilters(ArrayList<FileFilter> arg0) {
+	public void addFileFilters(List<FileFilter> arg0) {
 		filters.addAll(arg0);
 	}
 

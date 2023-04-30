@@ -129,7 +129,7 @@ public class ComponentPanelFactory {
 	 * @param filters
 	 * @return the element
 	 */
-	public ViewElement addFilename(StringParameter parameter, ArrayList<FileFilter> filters) {
+	public ViewElement addFilename(StringParameter parameter, List<FileFilter> filters) {
 		ViewElementFilename b = new ViewElementFilename(parameter, entityManager);
 		b.addFileFilters(filters);
 		pushViewElement(b);
