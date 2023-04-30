@@ -8,13 +8,14 @@ import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
 import com.marginallyclever.robotoverlord.components.demo.DogRobotComponent;
 import com.marginallyclever.robotoverlord.components.path.GCodePathComponent;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.DHTable;
+import com.marginallyclever.robotoverlord.components.robot.robotarm.makerobotarmpanel.EditArm6;
 import com.marginallyclever.robotoverlord.components.robot.robotarm.robotpanel.RobotPanel;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class RobotROSystem implements ROSystem {
     private final EntityManager entityManager;
@@ -50,34 +51,28 @@ public class RobotROSystem implements ROSystem {
 
         robotComponent.findBones();
 
+        ViewElementButton bMake = view.addButton("Edit Arm 6");
+        bMake.addActionEventListener((evt)-> makeRobotArm6(bMake,robotComponent));
+
         ViewElementButton bOpen = view.addButton(Translator.get("RobotROSystem.controlPanel"));
         bOpen.addActionEventListener((evt)-> showControlPanel(bOpen,robotComponent));
-
-        ViewElementButton bDHTable = view.addButton(Translator.get("RobotROSystem.DHTable"));
-        bDHTable.addActionEventListener((evt)-> showDHTable(bDHTable,robotComponent));
 
         ViewElementButton bHome = view.addButton("Go home");
         bHome.addActionEventListener((evt)-> robotComponent.goHome());
     }
 
-    private void showDHTable(JComponent parent,RobotComponent robotComponent) {
-        JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(parent);
-
-        JDialog frame = new JDialog(parentFrame, Translator.get("RobotROSystem.DHTable"));
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.add(new DHTable(robotComponent));
-        frame.pack();
-        frame.setLocationRelativeTo(parentFrame);
-        frame.setVisible(true);
+    private void makeRobotArm6(JComponent parent, RobotComponent robotComponent) {
+        makePanel(new EditArm6(robotComponent.getEntity(), entityManager), parent,"Make Arm 6");
     }
 
-    private void showControlPanel(JComponent parent,RobotComponent robotComponent) {
+    private void makePanel(JPanel panel, JComponent parent,String title) {
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(parent);
 
         try {
-            JDialog frame = new JDialog(parentFrame, Translator.get("RobotROSystem.controlPanel"));
+            JDialog frame = new JDialog(parentFrame, title);
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            frame.add(new RobotPanel(robotComponent,getGCodePath(robotComponent)));
+            frame.setPreferredSize(new Dimension(700,300));
+            frame.add(panel);
             frame.pack();
             frame.setLocationRelativeTo(parentFrame);
             frame.setVisible(true);
@@ -85,6 +80,10 @@ public class RobotROSystem implements ROSystem {
             ex.printStackTrace();
             JOptionPane.showConfirmDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void showControlPanel(JComponent parent,RobotComponent robotComponent) {
+        makePanel(new RobotPanel(robotComponent,getGCodePath(robotComponent)), parent,Translator.get("RobotROSystem.controlPanel"));
     }
 
     private GCodePathComponent getGCodePath(RobotComponent robotComponent) {
