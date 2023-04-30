@@ -10,7 +10,6 @@ import java.awt.*;
 
 public class DHTable extends JPanel {
     private final JTable table = new JTable();
-    private final DefaultTableModel dtm;
 
     public DHTable(RobotComponent robot) {
         super();
@@ -18,17 +17,17 @@ public class DHTable extends JPanel {
         DefaultTableCellRenderer renderRight = new DefaultTableCellRenderer();
         renderRight.setHorizontalAlignment(SwingConstants.RIGHT);
 
-        dtm = new DefaultTableModel((int)robot.get(Robot.NUM_JOINTS),5);
-        dtm.setColumnIdentifiers(new String[]{"#","D","R","α (alpha)","Θ (theta)"});
+        DefaultTableModel dtm = new DefaultTableModel((int) robot.get(Robot.NUM_JOINTS), 5);
+        dtm.setColumnIdentifiers(new String[]{"#","D","R","α (alpha)","Θ (theta)","Max","Min","Home"});
         table.setModel(dtm);
         table.setDefaultRenderer(Object.class,renderRight);
-
         table.getTableHeader().setDefaultRenderer(renderRight);
+        table.setPreferredScrollableViewportSize(table.getPreferredSize());
+        table.setFillsViewportHeight(false);
 
         this.setLayout(new BorderLayout());
         this.add(new JScrollPane(table),BorderLayout.CENTER);
-        table.setPreferredScrollableViewportSize(table.getPreferredSize());
-        table.setFillsViewportHeight(false);
+
 
         updateReport(robot);
     }
@@ -42,6 +41,9 @@ public class DHTable extends JPanel {
             table.setValueAt(String.format("%.3f", robot.getBone(i).getR()), i, 2);
             table.setValueAt(String.format("%.3f", robot.getBone(i).getAlpha()), i, 3);
             table.setValueAt(String.format("%.3f", robot.getBone(i).getTheta()), i, 4);
+            table.setValueAt(String.format("%.3f", robot.getBone(i).getJointMax()), i, 5);
+            table.setValueAt(String.format("%.3f", robot.getBone(i).getJointMin()), i, 6);
+            table.setValueAt(String.format("%.3f", robot.getBone(i).getJointHome()), i, 7);
         }
     }
 }
