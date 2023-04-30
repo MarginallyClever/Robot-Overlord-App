@@ -40,7 +40,7 @@ public class EntityManager {
 	}
 
 	public void clear() {
-		List<Entity> children = rootEntity.getChildren();
+		List<Entity> children = new ArrayList<>(rootEntity.getChildren());
 		for( Entity child : children ) {
 			removeEntityFromParent(child,rootEntity);
 		}
