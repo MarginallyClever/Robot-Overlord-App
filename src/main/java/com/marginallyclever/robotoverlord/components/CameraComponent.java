@@ -60,27 +60,69 @@ public class CameraComponent extends RenderComponent {
         tilt.set(arg0);
     }
 
-    public void lookAt(Vector3d target) {
+    public Vector3d getOrbitPoint() {
         PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
-
-        Vector3d forward = new Vector3d(target);
-        forward.sub(pose.getPosition());
-        double xy = Math.sqrt(forward.x*forward.x + forward.y*forward.y);
-        setPan(Math.toDegrees(Math.atan2(forward.x,forward.y)));
-        setTilt(Math.toDegrees(Math.atan2(xy,forward.z))-90);
-        Vector3d dp = new Vector3d();
-        dp.sub(target,pose.getPosition());
-        this.orbitDistance.set(dp.length());
-
-        pose.setLocalMatrix3(buildPanTiltMatrix(pan.get(),tilt.get()));
+        Vector3d p = pose.getPosition();
+        // z axis points away from the direction the camera is facing.
+        Vector3d zAxis = MatrixHelper.getZAxis(pose.getWorld());
+        zAxis.scale(-orbitDistance.get());
+        p.add(zAxis);
+        return p;
     }
 
     /**
-     * Move the camera according to user input.
+     * Set the pan and tilt values such that the camera is looking at the target.
+     * Set the orbit distance to the distance between the camera and the target.
+     * @param target the point to look at.
      */
-    @Override
-    public void update(double dt) {
-        super.update(dt);
+    public void lookAt(Vector3d target) {
+        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        Matrix3d viewMatrix = MatrixHelper.lookAt(target,pose.getPosition());
+
+        Vector3d zAxis = new Vector3d();
+        zAxis.sub(target,pose.getPosition());
+        double distance = zAxis.length();
+
+        pose.setLocalMatrix3(viewMatrix);
+        setPanTiltFromMatrix(viewMatrix);
+        this.orbitDistance.set(distance);
+    }
+
+    protected void setPanTiltFromMatrix(Matrix3d matrix) {
+        matrix.transpose(); // Transpose the matrix back to its original form
+
+        double pan, tilt;
+
+        // Calculate tilt angle
+        tilt = Math.asin(matrix.m02); // Assuming the matrix is in column-major order
+
+        // Calculate pan angle
+        double cosTilt = Math.cos(tilt);
+
+        if (Math.abs(cosTilt) > 1e-6) {
+            pan = Math.atan2(-matrix.m01 / cosTilt, matrix.m00 / cosTilt);
+        } else {
+            // If cos(tilt) is close to zero, we have a gimbal lock situation.
+            // In this case, we can't calculate the pan angle uniquely, so we set it to zero.
+            pan = 0;
+        }
+
+        // Convert angles from radians to degrees
+        setPan(Math.toDegrees(pan));
+        setTilt(Math.toDegrees(tilt));
+    }
+
+    protected Matrix3d buildPanTiltMatrix(double panDeg,double tiltDeg) {
+        Matrix3d a = new Matrix3d();
+        a.rotZ(Math.toRadians(panDeg));
+
+        Matrix3d b = new Matrix3d();
+        b.rotX(Math.toRadians(-tiltDeg));
+
+        Matrix3d c = new Matrix3d();
+        c.mul(b,a);
+        c.transpose();
+        return c;
     }
 
     /**
@@ -154,18 +196,6 @@ public class CameraComponent extends RenderComponent {
         moveInternal(p,vz,dz);
     }
 
-    protected Matrix3d buildPanTiltMatrix(double panDeg,double tiltDeg) {
-        Matrix3d a = new Matrix3d();
-        Matrix3d b = new Matrix3d();
-        Matrix3d c = new Matrix3d();
-        a.rotZ(Math.toRadians(panDeg));
-        b.rotX(Math.toRadians(-tiltDeg));
-        c.mul(b,a);
-        c.transpose();
-
-        return c;
-    }
-
     /**
      * Dolly the camera forward/back relative to the orbit point.
      * @param scale how much to dolly
@@ -189,18 +219,6 @@ public class CameraComponent extends RenderComponent {
         prevOrbit.sub(newOrbit);
         p.add(prevOrbit);
         setPosition(p);
-
-        // adjust dolly after getting the orbit point.
-    }
-
-    public Vector3d getOrbitPoint() {
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
-        Vector3d p = pose.getPosition();
-        // z axis points behind the camera.
-        Vector3d zAxis = MatrixHelper.getZAxis(pose.getWorld());
-        zAxis.scale(-orbitDistance.get());
-        p.add(zAxis);
-        return p;
     }
 
     @Override

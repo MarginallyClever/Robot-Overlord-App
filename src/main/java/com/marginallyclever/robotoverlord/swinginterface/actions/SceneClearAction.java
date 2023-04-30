@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.EntityManager;
+import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.LightComponent;
@@ -53,13 +54,13 @@ public class SceneClearAction extends AbstractAction {
 	}
 
 	public void addDefaultEntities() {
-		PoseComponent pose = new PoseComponent();
-		CameraComponent camera = new CameraComponent();
 		Entity mainCamera = new Entity("Main Camera");
-		mainCamera.addComponent(pose);
+		CameraComponent camera = new CameraComponent();
 		mainCamera.addComponent(camera);
+		PoseComponent pose = mainCamera.findFirstComponent(PoseComponent.class);
+
 		entityManager.addEntityToParent(mainCamera, entityManager.getRoot());
-		pose.setPosition(new Vector3d(0,-10,-5));
+		pose.setPosition(new Vector3d(25,20,15));
 		camera.lookAt(new Vector3d(0,0,0));
 
 		Entity light0 = new Entity("Light");
@@ -67,5 +68,9 @@ public class SceneClearAction extends AbstractAction {
 		light0.addComponent(new LightComponent());
 		entityManager.addEntityToParent(light0,mainCamera);
 		pose.setPosition(new Vector3d(0,0,50));
+
+		Entity box = new Entity("box");
+		box.addComponent(new Box());
+		entityManager.addEntityToParent(box, entityManager.getRoot());
 	}
 }
