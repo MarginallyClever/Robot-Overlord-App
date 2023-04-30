@@ -659,7 +659,7 @@ public class MatrixHelper {
 	 * @param to what I'm looking at
 	 * @return
 	 */
-	static public Matrix4d lookAt(final Vector3d from, final Vector3d to) {
+	static public Matrix3d lookAt(final Vector3d from, final Vector3d to) {
 		Vector3d forward = new Vector3d();
 		Vector3d left = new Vector3d();
 		Vector3d up = new Vector3d(0,0,1);
@@ -671,13 +671,10 @@ public class MatrixHelper {
 		up.cross(forward, left);
 		up.normalize();
 
-		Matrix4d lookAt = new Matrix4d(
-				left.x,up.x,forward.x,0,
-				left.y,up.y,forward.y,0,
-				left.z,up.z,forward.z,0,
-				0,0,0,1);
-		
-		return lookAt;
+		return new Matrix3d(
+				left.x,up.x,forward.x,
+				left.y,up.y,forward.y,
+				left.z,up.z,forward.z);
 	}
 
 	/**
