@@ -89,30 +89,19 @@ public class CameraComponent extends RenderComponent {
     }
 
     protected void setPanTiltFromMatrix(Matrix3d matrix) {
-        matrix.transpose(); // Transpose the matrix back to its original form
-
-        double pan, tilt;
-
-        // Calculate tilt angle
-        tilt = Math.asin(matrix.m02); // Assuming the matrix is in column-major order
-
-        // Calculate pan angle
-        double cosTilt = Math.cos(tilt);
-
-        if (Math.abs(cosTilt) > 1e-6) {
-            pan = Math.atan2(-matrix.m01 / cosTilt, matrix.m00 / cosTilt);
-        } else {
-            // If cos(tilt) is close to zero, we have a gimbal lock situation.
-            // In this case, we can't calculate the pan angle uniquely, so we set it to zero.
-            pan = 0;
-        }
-
-        // Convert angles from radians to degrees
-        setPan(Math.toDegrees(pan));
-        setTilt(Math.toDegrees(tilt));
+        double [] v =  getPanTiltFromMatrix(matrix);
+        setPan(v[0]);
+        setTilt(v[1]);
     }
 
-    protected Matrix3d buildPanTiltMatrix(double panDeg,double tiltDeg) {
+    public double[] getPanTiltFromMatrix(Matrix3d matrix) {
+        Vector3d v = MatrixHelper.matrixToEuler(matrix);
+        double pan = Math.toDegrees(-v.z);
+        double tilt = Math.toDegrees(v.x);
+        return new double[]{ pan, tilt };
+    }
+
+    public Matrix3d buildPanTiltMatrix(double panDeg,double tiltDeg) {
         Matrix3d a = new Matrix3d();
         a.rotZ(Math.toRadians(panDeg));
 
@@ -132,10 +121,10 @@ public class CameraComponent extends RenderComponent {
      * @param dy tilt amount
      */
     public void orbitCamera(double dx, double dy) {
+        Vector3d p = getOrbitPoint();
         double distance = orbitDistance.get();
+
         PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
-        Vector3d oldZ = MatrixHelper.getZAxis(pose.getWorld());
-        oldZ.scale(distance);
 
         // orbit around the focal point
         setPan(getPan()+dx);
@@ -150,8 +139,6 @@ public class CameraComponent extends RenderComponent {
         newZ.scale(distance);
 
         // adjust position according to zoom (aka orbit) distance.
-        Vector3d p = pose.getPosition();
-        p.sub(oldZ);
         p.add(newZ);
         setPosition(p);
     }

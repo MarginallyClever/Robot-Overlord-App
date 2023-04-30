@@ -6,6 +6,7 @@ import com.marginallyclever.robotoverlord.Entity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
@@ -40,8 +41,17 @@ public class CameraComponentTest {
         CameraComponent a = new CameraComponent();
         a.setPan(30);
         a.setTilt(40);
-        Assertions.assertEquals(30,a.getPan(),0.0001);
-        Assertions.assertEquals(40,a.getTilt(),0.0001);
+        Assertions.assertEquals(30, a.getPan(), 0.0001);
+        Assertions.assertEquals(40, a.getTilt(), 0.0001);
+    }
+
+    @Test
+    public void testToFromPanTilt() {
+        CameraComponent a = new CameraComponent();
+        Matrix3d m = a.buildPanTiltMatrix(30,40);
+        double [] v = a.getPanTiltFromMatrix(m);
+        Assertions.assertEquals(30,v[0],0.0001);
+        Assertions.assertEquals(40,v[1],0.0001);
     }
 
     @Test
