@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.*;
-import com.marginallyclever.robotoverlord.systems.ROSystem;
+import com.marginallyclever.robotoverlord.systems.EntitySystem;
 
 import java.util.List;
 import java.awt.*;
@@ -21,11 +21,11 @@ public class ComponentPanelFactory {
 	private final JPanel innerPanel = new JPanel();
 	private final GridBagConstraints gbc = new GridBagConstraints();
 
-	private final List<ROSystem> systems = new ArrayList<>();
+	private final List<EntitySystem> systems = new ArrayList<>();
 	private final EntityManager entityManager;
 	private final Component component;
 
-	public ComponentPanelFactory(EntityManager entityManager, Component component, List<ROSystem> systems) {
+	public ComponentPanelFactory(EntityManager entityManager, Component component, List<EntitySystem> systems) {
 		super();
 		this.entityManager = entityManager;
 		this.component = component;
@@ -147,7 +147,7 @@ public class ComponentPanelFactory {
 		add(component.enabled);
 
 		// custom panel views based on component type
-		for(ROSystem sys : systems) {
+		for(EntitySystem sys : systems) {
 			sys.decorate(this,component);
 		}
 

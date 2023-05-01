@@ -4,7 +4,7 @@ import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
-public class CameraSystem implements ROSystem {
+public class CameraSystem implements EntitySystem {
     @Override
     public void decorate(ComponentPanelFactory view, Component component) {
         if (component instanceof CameraComponent) decorateCamera(view,component);
@@ -16,4 +16,10 @@ public class CameraSystem implements ROSystem {
         view.add(camera.pan).setReadOnly(true);
         view.add(camera.tilt).setReadOnly(true);
     }
+
+    /**
+     * Update the system over time.
+     * @param dt the time step in seconds.
+     */
+    public void update(double dt) {}
 }

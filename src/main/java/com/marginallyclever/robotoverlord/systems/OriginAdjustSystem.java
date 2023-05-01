@@ -10,7 +10,7 @@ import javax.vecmath.Matrix4d;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OriginAdjustSystem implements ROSystem {
+public class OriginAdjustSystem implements EntitySystem {
     /**
      * Get the Swing view of this component.
      *
@@ -21,6 +21,12 @@ public class OriginAdjustSystem implements ROSystem {
     public void decorate(ComponentPanelFactory view, Component component) {
         if(component instanceof OriginAdjustComponent) decorateOriginAdjust(view, component);
     }
+
+    /**
+     * Update the system over time.
+     * @param dt the time step in seconds.
+     */
+    public void update(double dt) {}
 
     private void decorateOriginAdjust(ComponentPanelFactory view, Component component) {
         OriginAdjustComponent adj = (OriginAdjustComponent)component;

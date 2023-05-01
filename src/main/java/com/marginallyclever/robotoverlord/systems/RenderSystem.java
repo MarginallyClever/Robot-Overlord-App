@@ -17,7 +17,7 @@ import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.C
 import javax.swing.filechooser.FileFilter;
 import java.util.ArrayList;
 
-public class RenderSystem implements ROSystem {
+public class RenderSystem implements EntitySystem {
     /**
      * Get the Swing view of this component.
      *
@@ -108,4 +108,10 @@ public class RenderSystem implements ROSystem {
 
         view.addFilename(material.texture, TextureParameter.getFilters());
     }
+
+    /**
+     * Update the system over time.
+     * @param dt the time step in seconds.
+     */
+    public void update(double dt) {}
 }

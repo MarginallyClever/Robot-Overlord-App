@@ -124,7 +124,7 @@ public class RobotOverlord implements RobotLibraryListener {
 
 	private final RecentFiles recentFiles = new RecentFiles();
 
-	private final List<ROSystem> systems = new ArrayList<>();
+	private final List<EntitySystem> systems = new ArrayList<>();
 
 
 	public static void main(String[] argv) {
@@ -181,7 +181,7 @@ public class RobotOverlord implements RobotLibraryListener {
 		systems.add(new CameraSystem());
 		systems.add(new OriginAdjustSystem());
 		//systems.add(new SoundSystem());
-		systems.add(new RobotROSystem(entityManager));
+		systems.add(new RobotSystem(entityManager));
 	}
 
 	private void listenToClipboardChanges() {

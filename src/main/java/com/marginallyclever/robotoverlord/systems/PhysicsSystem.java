@@ -4,7 +4,7 @@ import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
-public class PhysicsSystem implements ROSystem {
+public class PhysicsSystem implements EntitySystem {
     /**
      * Get the Swing view of this component.
      *
@@ -22,4 +22,10 @@ public class PhysicsSystem implements ROSystem {
         view.add(pose.rotation);
         view.add(pose.scale);
     }
+
+    /**
+     * Update the system over time.
+     * @param dt the time step in seconds.
+     */
+    public void update(double dt) {}
 }

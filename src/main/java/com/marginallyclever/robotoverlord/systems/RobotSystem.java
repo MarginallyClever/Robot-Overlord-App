@@ -17,10 +17,10 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import javax.swing.*;
 import java.awt.*;
 
-public class RobotROSystem implements ROSystem {
+public class RobotSystem implements EntitySystem {
     private final EntityManager entityManager;
 
-    public RobotROSystem(EntityManager entityManager) {
+    public RobotSystem(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
@@ -28,7 +28,6 @@ public class RobotROSystem implements ROSystem {
     public void decorate(ComponentPanelFactory view, Component component) {
         if( component instanceof RobotComponent ) decorateRobot(view,component);
         if( component instanceof DHComponent ) decorateDH(view,component);
-        if( component instanceof DogRobotComponent ) decorateDog(view,component);
         if( component instanceof CrabRobotComponent ) decorateCrab(view,component);
     }
 
@@ -94,18 +93,6 @@ public class RobotROSystem implements ROSystem {
         return entity.getComponent(GCodePathComponent.class);
     }
 
-    public void decorateDog(ComponentPanelFactory view,Component component) {
-        DogRobotComponent dog = (DogRobotComponent)component;
-        view.add(dog.standingRadius);
-        view.add(dog.standingHeight);
-        view.add(dog.turningStrideLength);
-        view.add(dog.strideLength);
-        view.add(dog.strideHeight);
-
-        view.addComboBox(dog.modeSelector, DogRobotComponent.MODE_NAMES);
-        view.add(dog.speedScale);
-    }
-
     public void decorateCrab(ComponentPanelFactory view,Component component) {
         CrabRobotComponent crab = (CrabRobotComponent)component;
         view.add(crab.standingRadius);
@@ -114,7 +101,13 @@ public class RobotROSystem implements ROSystem {
         view.add(crab.strideLength);
         view.add(crab.strideHeight);
 
-        view.addComboBox(crab.modeSelector, crab.MODE_NAMES);
+        view.addComboBox(crab.modeSelector, CrabRobotComponent.MODE_NAMES);
         view.add(crab.speedScale);
     }
+
+    /**
+     * Update the system over time.
+     * @param dt the time step in seconds.
+     */
+    public void update(double dt) {}
 }

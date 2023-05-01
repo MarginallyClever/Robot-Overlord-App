@@ -9,7 +9,7 @@ import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentAddAct
 import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentCopyAction;
 import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentDeleteAction;
 import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentPasteAction;
-import com.marginallyclever.robotoverlord.systems.ROSystem;
+import com.marginallyclever.robotoverlord.systems.EntitySystem;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,9 +26,9 @@ public class ComponentManagerPanel extends JPanel {
 	private final ComponentDeleteAction componentDeleteAction = new ComponentDeleteAction(this);
 	private final ComponentCopyAction componentCopyAction = new ComponentCopyAction();
 	private final ComponentPasteAction componentPasteAction = new ComponentPasteAction();
-	private final List<ROSystem> systems = new ArrayList<>();
+	private final List<EntitySystem> systems = new ArrayList<>();
 
-	public ComponentManagerPanel(EntityManager entityManager, List<ROSystem> systems) {
+	public ComponentManagerPanel(EntityManager entityManager, List<EntitySystem> systems) {
 		super(new BorderLayout());
 		this.entityManager = entityManager;
 		this.systems.addAll(systems);
