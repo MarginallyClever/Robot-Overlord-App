@@ -40,11 +40,6 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
     }
 
     @Override
-    public void update(double dt) {
-        super.update(dt);
-    }
-
-    @Override
     public JSONObject toJSON() {
         JSONObject jo = super.toJSON();
         jo.put("D",myD.toJSON());
