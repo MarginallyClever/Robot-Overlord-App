@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.shapes.mesh;
+package com.marginallyclever.robotoverlord.systems.render.mesh;
 
 import com.marginallyclever.convenience.log.Log;
 import org.junit.After;

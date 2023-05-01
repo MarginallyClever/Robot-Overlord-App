@@ -6,21 +6,19 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Collidable;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
-import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
-import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.*;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.filechooser.FileFilter;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A {@link Mesh} is a collection of points, triangles, normals, and possibly color and possibly texture coordinates.
@@ -84,7 +82,7 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 	}
 
 	/**
-	 * @return full path and file of the model on disk.
+	 * @return full gcodepath and file of the model on disk.
 	 */
 	public String getModelFilename() {
 		return filename.get();

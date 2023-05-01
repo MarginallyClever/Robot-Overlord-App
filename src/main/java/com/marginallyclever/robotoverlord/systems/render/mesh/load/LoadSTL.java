@@ -1,6 +1,6 @@
-package com.marginallyclever.robotoverlord.components.shapes.mesh.load;
+package com.marginallyclever.robotoverlord.systems.render.mesh.load;
 
-import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
 import javax.vecmath.Vector3d;
 import java.io.BufferedInputStream;
@@ -30,7 +30,7 @@ public class LoadSTL implements MeshLoader {
 	
 	// see http://www.java-gaming.org/index.php?;topic=18710.0
 	@Override
-	public void load(BufferedInputStream inputStream,Mesh model) throws Exception {
+	public void load(BufferedInputStream inputStream, Mesh model) throws Exception {
 		if(!inputStream.markSupported()) {
 			throw new IOException("BufferedInputStream mark unsupported");
 		}

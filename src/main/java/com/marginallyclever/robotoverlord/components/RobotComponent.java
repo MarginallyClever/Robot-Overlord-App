@@ -334,7 +334,7 @@ public class RobotComponent extends Component implements Robot {
     public JSONObject toJSON() {
         JSONObject jo = super.toJSON();
 
-        jo.put("path", gcodePath.toJSON());
+        jo.put("gcodepath", gcodePath.toJSON());
 
         return jo;
     }
@@ -343,7 +343,7 @@ public class RobotComponent extends Component implements Robot {
     public void parseJSON(JSONObject jo) throws JSONException {
         super.parseJSON(jo);
 
-        if(jo.has("path")) gcodePath.parseJSON(jo.getJSONObject("path"));
+        if(jo.has("gcodepath")) gcodePath.parseJSON(jo.getJSONObject("gcodepath"));
     }
 
     public String getGCodePathEntityUUID() {

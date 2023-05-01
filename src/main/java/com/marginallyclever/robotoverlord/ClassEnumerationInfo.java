@@ -22,7 +22,7 @@ public class ClassEnumerationInfo {
 	    String rn = cn.replace('.', '/') + ".class";
 	    //logger.info("rn "+rn);
 	    String path = getClass().getClassLoader().getResource(rn).getPath();
-	    //logger.info("path "+path);
+	    //logger.info("gcodepath "+gcodepath);
 	    int ix = path.indexOf("!");
 	    if(ix >= 0) {
 	        path = path.substring(0, ix);
@@ -48,7 +48,7 @@ public class ClassEnumerationInfo {
      }
 	
 	// Load a class from a Jar file.
-	// @param absPathToJarFile c:\some\path\myfile.jar
+	// @param absPathToJarFile c:\some\gcodepath\myfile.jar
 	// @param className like com.mypackage.myclass
 	protected void LoadClasses(String absPathToJarFile,String className) throws Exception {
 		File file  = new File(absPathToJarFile);

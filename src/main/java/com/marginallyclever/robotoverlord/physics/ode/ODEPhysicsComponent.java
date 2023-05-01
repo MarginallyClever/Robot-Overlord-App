@@ -44,7 +44,7 @@ public class ODEPhysicsComponent extends Component {
 		if(geom instanceof DBox) drawBox(gl2);
 		else if(geom instanceof DSphere) drawSphere(gl2);
 		else if(geom instanceof DPlane) drawPlane(gl2);
-		else logger.error("render() unknown type "+geom.getClass().getName());
+		else logger.error("systems() unknown type "+geom.getClass().getName());
 		gl2.glPopMatrix();
 	}
 

@@ -21,7 +21,7 @@ import java.util.Queue;
 
 /**
  * {@link EntityManager} is a container for all the {@link Entity} in a project.
- * It also contains the absolute path on disk for the root of the Scene.  All assets are relative to this path.
+ * It also contains the absolute gcodepath on disk for the root of the Scene.  All assets are relative to this gcodepath.
  *
  * @author Dan Royer
  * @since 1.6.0
@@ -47,8 +47,8 @@ public class EntityManager {
 	}
 
 	/**
-	 * Initialize the scene with a path to the root of the project.
-	 * @param absolutePath the absolute path to the root of the project.
+	 * Initialize the scene with a gcodepath to the root of the project.
+	 * @param absolutePath the absolute gcodepath to the root of the project.
 	 */
 	public EntityManager(String absolutePath) {
 		this();
@@ -113,16 +113,16 @@ public class EntityManager {
 	}
 
 	/**
-	 * Set the scene path.  This is the path to the directory containing the scene file.
-	 * @param absolutePath the absolute path to the scene directory.
+	 * Set the scene gcodepath.  This is the gcodepath to the directory containing the scene file.
+	 * @param absolutePath the absolute gcodepath to the scene directory.
 	 */
 	public void setScenePath(String absolutePath) {
 		File file = new File(absolutePath);
 		if(!file.exists()) throw new RuntimeException("File does not exist: "+absolutePath);
 		if(!file.isDirectory()) throw new RuntimeException("Not a directory: "+absolutePath);
-		//if(!entities.isEmpty()) throw new RuntimeException("Cannot change the scene path when entities are present.");
+		//if(!entities.isEmpty()) throw new RuntimeException("Cannot change the scene gcodepath when entities are present.");
 
-		logger.debug("Setting scene path to "+absolutePath);
+		logger.debug("Setting scene gcodepath to "+absolutePath);
 		scenePath.set(absolutePath);
 	}
 
@@ -131,9 +131,9 @@ public class EntityManager {
 	}
 
 	/**
-	 * Returns true if unCheckedAssetFilename is in the scene path.
-	 * @param unCheckedAssetFilename a file that may or may not be within the scene path.
-	 * @return true if unCheckedAssetFilename is in the scene path.
+	 * Returns true if unCheckedAssetFilename is in the scene gcodepath.
+	 * @param unCheckedAssetFilename a file that may or may not be within the scene gcodepath.
+	 * @return true if unCheckedAssetFilename is in the scene gcodepath.
 	 */
 	public boolean isAssetPathInScenePath(String unCheckedAssetFilename) {
 		Path input = Paths.get(unCheckedAssetFilename);
@@ -142,8 +142,8 @@ public class EntityManager {
 	}
 
 	/**
-	 * Displays a warning to the user if the asset is not within the scene path.
-	 * @param unCheckedAssetFilename a file that may or may not be within the scene path.
+	 * Displays a warning to the user if the asset is not within the scene gcodepath.
+	 * @param unCheckedAssetFilename a file that may or may not be within the scene gcodepath.
 	 */
 	public void warnIfAssetPathIsNotInScenePath(String unCheckedAssetFilename) {
 		if(isAssetPathInScenePath(unCheckedAssetFilename)) return;
@@ -151,7 +151,7 @@ public class EntityManager {
 		String message = Translator.get("Scene.AssetPathNotInScenePathWarning");
 		message = message.replace("%1", unCheckedAssetFilename);
 		message = message.replace("%2", getScenePath());
-		logger.warn("asset "+unCheckedAssetFilename+" not in scene path: "+getScenePath());
+		logger.warn("asset "+unCheckedAssetFilename+" not in scene gcodepath: "+getScenePath());
 
 		// try to show a pop-up if we have a display
 		if(!GraphicsEnvironment.isHeadless()) {
@@ -176,9 +176,9 @@ public class EntityManager {
 	}
 
 	/**
-	 * Returns the relative path to the asset, or absolute if the asset is not within the scene path.
-	 * @param unCheckedAssetFilename a file that may or may not be within the scene path.
-	 * @return the relative path to the asset, or absolute if the asset is not within the scene path.
+	 * Returns the relative gcodepath to the asset, or absolute if the asset is not within the scene gcodepath.
+	 * @param unCheckedAssetFilename a file that may or may not be within the scene gcodepath.
+	 * @return the relative gcodepath to the asset, or absolute if the asset is not within the scene gcodepath.
 	 */
 	public String removeScenePath(String unCheckedAssetFilename) {
 		if(unCheckedAssetFilename==null) return null;

@@ -23,7 +23,7 @@ public class PathFactory {
             new Slic3rGCodePathLoader(),
     };
 
-    // the pool of all shapes loaded
+    // the pool of all mesh loaded
     private static final LinkedList<GCodePath> pathPool = new LinkedList<>();
 
     /**
@@ -85,7 +85,7 @@ public class PathFactory {
             loader.load(stream,path);
         }
         catch(Exception e) {
-            logger.error("Failed to load path: "+e.getMessage());
+            logger.error("Failed to load gcodepath: "+e.getMessage());
         }
     }
 

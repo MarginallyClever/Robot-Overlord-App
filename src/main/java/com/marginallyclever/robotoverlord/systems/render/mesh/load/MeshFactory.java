@@ -1,7 +1,7 @@
-package com.marginallyclever.robotoverlord.components.shapes.mesh.load;
+package com.marginallyclever.robotoverlord.systems.render.mesh.load;
 
 import com.marginallyclever.convenience.FileAccess;
-import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * {@link MeshFactory} loads a mesh from a file using one of many {@link MeshLoader} classes.  It also keeps a pool of
- * all shapes loaded so that only one instance of each shape is loaded.
+ * all mesh loaded so that only one instance of each shape is loaded.
  *
  * @author Dan Royer
  */
@@ -29,7 +29,7 @@ public class MeshFactory {
 			new LoadSTL(),
 	};
 	
-	// the pool of all shapes loaded
+	// the pool of all mesh loaded
 	private static final LinkedList<Mesh> meshPool = new LinkedList<>();
 	
 	/**

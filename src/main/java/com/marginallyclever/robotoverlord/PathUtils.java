@@ -15,9 +15,9 @@ public class PathUtils {
     private static final Logger logger = LoggerFactory.getLogger(PathUtils.class);
 
     /**
-     * Get the file extension from a path.
-     * @param path The path to get the extension from.
-     * @return The extension of the path.
+     * Get the file extension from a gcodepath.
+     * @param path The gcodepath to get the extension from.
+     * @return The extension of the gcodepath.
      */
     public static String getExtension(String path) {
         String extension = "";

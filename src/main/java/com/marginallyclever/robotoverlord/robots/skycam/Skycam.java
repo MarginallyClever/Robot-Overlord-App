@@ -21,7 +21,7 @@ import java.util.ArrayList;
 public class Skycam extends PoseEntity {
 	private static final Logger logger = LoggerFactory.getLogger(Skycam.class);
 	
-	// the model used to render & control (the Flyweight)
+	// the model used to systems & control (the Flyweight)
 	protected transient SkycamModel model;
 	// the live robot in the real world.  Controls comms with the machine.
 	protected transient SkycamLive live;

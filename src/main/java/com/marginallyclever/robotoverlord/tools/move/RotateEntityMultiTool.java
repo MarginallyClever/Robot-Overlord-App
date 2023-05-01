@@ -169,7 +169,7 @@ public class RotateEntityMultiTool implements EditorTool {
     /**
      * Renders any tool-specific visuals to the 3D scene.
      *
-     * @param gl2 The OpenGL context to render to.
+     * @param gl2 The OpenGL context to systems to.
      */
     @Override
     public void render(GL2 gl2) {

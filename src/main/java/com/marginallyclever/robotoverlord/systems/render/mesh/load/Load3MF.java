@@ -1,8 +1,8 @@
-package com.marginallyclever.robotoverlord.components.shapes.mesh.load;
+package com.marginallyclever.robotoverlord.systems.render.mesh.load;
 
 import com.marginallyclever.convenience.ColorRGB;
-import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
-import com.marginallyclever.robotoverlord.components.shapes.mesh.MeshNormalBuilder;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.robotoverlord.systems.render.mesh.MeshNormalBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -39,7 +39,7 @@ public class Load3MF implements MeshLoader {
 	}
 
 	@Override
-	public void load(BufferedInputStream inputStream,Mesh model) throws Exception {
+	public void load(BufferedInputStream inputStream, Mesh model) throws Exception {
 		BufferedInputStream stream2 = openZipAndFind3DFile(inputStream);
 		Element modelNode = buildTreeAndReturnRootNode(stream2);
         double scale = getScale(modelNode);

@@ -1,6 +1,6 @@
-package com.marginallyclever.robotoverlord.components.shapes.mesh;
+package com.marginallyclever.robotoverlord.systems.render.mesh;
 
-import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
+import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

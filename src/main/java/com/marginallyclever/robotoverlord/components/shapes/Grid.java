@@ -51,7 +51,7 @@ public class Grid extends ShapeComponent {
 
     /**
      * Draw a grid of lines in the current color
-     * @param gl2 the render context
+     * @param gl2 the systems context
      * @param gridWidth the dimensions of the grid
      * @param gridLength the dimensions of the grid
      * @param gridSpace the distance between lines on the grid.

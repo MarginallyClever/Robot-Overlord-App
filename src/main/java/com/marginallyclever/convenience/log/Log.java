@@ -42,7 +42,7 @@ public class Log {
 	}
 
 	public static void start() {
-		System.out.println("log path="+LOG_FILE_PATH);
+		System.out.println("log gcodepath="+LOG_FILE_PATH);
 
 		boolean hadCrashed = crashReportCheck();
 

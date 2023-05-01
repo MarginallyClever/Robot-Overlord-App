@@ -202,11 +202,11 @@ public class GithubFetcher {
     }
 
     /**
-     * Gets the local path for the given repository.
+     * Gets the local gcodepath for the given repository.
      * @param owner The owner of the repository.
      * @param repoName The name of the repository.
      * @param tag The tag of the repository.
-     * @return The local path.
+     * @return The local gcodepath.
      */
     public static String getLocalPath(String owner, String repoName, String tag) {
         Path destinationPath = Paths.get(PathUtils.APP_PLUGINS, owner, repoName, tag);
@@ -214,10 +214,10 @@ public class GithubFetcher {
     }
 
     /**
-     * Gets the local path for the given repository.
+     * Gets the local gcodepath for the given repository.
      * @param owner The owner of the repository.
      * @param repoName The name of the repository.
-     * @return The local path.
+     * @return The local gcodepath.
      */
     private static String getLocalPath(String owner, String repoName) {
         Path destinationPath = Paths.get(PathUtils.APP_PLUGINS, owner, repoName);

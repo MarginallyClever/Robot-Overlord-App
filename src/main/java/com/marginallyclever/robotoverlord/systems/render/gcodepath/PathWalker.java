@@ -17,14 +17,14 @@ public class PathWalker {
     boolean relativeMoves=false;
     double centerX, centerY, radius;
     /**
-     * The {@link PoseComponent} which converts local path coordinates to world coordinates.
+     * The {@link PoseComponent} which converts local gcodepath coordinates to world coordinates.
      */
     private final PoseComponent poseComponent;
 
     /**
-     * Initialize the path walker.
-     * @param poseComponent converts local path coordinates to world coordinates.
-     * @param path the path to walk.
+     * Initialize the gcodepath walker.
+     * @param poseComponent converts local gcodepath coordinates to world coordinates.
+     * @param path the gcodepath to walk.
      * @param maxStepSize the maximum distance between points in arc segments.
      */
     public PathWalker(PoseComponent poseComponent, GCodePath path,double maxStepSize) {

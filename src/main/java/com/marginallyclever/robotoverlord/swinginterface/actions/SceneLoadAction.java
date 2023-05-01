@@ -24,7 +24,7 @@ public class SceneLoadAction extends AbstractAction {
     private final EntityManager entityManager;
 
     /**
-     * The file chooser remembers the last path.
+     * The file chooser remembers the last gcodepath.
      */
     private static final JFileChooser fc = new JFileChooser();
 

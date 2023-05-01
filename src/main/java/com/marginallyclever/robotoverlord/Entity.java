@@ -82,7 +82,7 @@ public class Entity implements PropertyChangeListener {
 
 	/**
 	 * Render this Entity to the display
-	 * @param gl2 the render context
+	 * @param gl2 the systems context
 	 */
 	public void render(GL2 gl2) {}
 
@@ -167,7 +167,7 @@ public class Entity implements PropertyChangeListener {
 	}
 
 	/**
-	 * Search the entity tree based on an absolute or relative Unix-style path.
+	 * Search the entity tree based on an absolute or relative Unix-style gcodepath.
 	 * 
 	 * @param path the search query
 	 * @return the requested entity or null.
@@ -175,7 +175,7 @@ public class Entity implements PropertyChangeListener {
 	public Entity findByPath(String path) {
 		String[] pathComponents = path.split(PATH_SEPARATOR);
 
-		// if absolute path, start with root node.
+		// if absolute gcodepath, start with root node.
 		int i = 0;
 		Entity e;
 		if (path.startsWith(PATH_SEPARATOR)) {

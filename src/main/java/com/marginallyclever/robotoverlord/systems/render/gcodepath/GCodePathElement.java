@@ -25,12 +25,12 @@ public class GCodePathElement {
     private double u, v, w;
 
     /**
-     * The feedrate to use for this path element.  If null, use the default feedrate.
+     * The feedrate to use for this gcodepath element.  If null, use the default feedrate.
      */
     private Double feedrate;
 
     /**
-     * The tool to use for this path element.  If null, use the default tool.
+     * The tool to use for this gcodepath element.  If null, use the default tool.
      */
     private Integer toolChange;
 

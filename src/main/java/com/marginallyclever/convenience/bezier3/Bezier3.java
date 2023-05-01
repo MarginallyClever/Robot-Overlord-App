@@ -18,9 +18,9 @@ public class Bezier3 {
 	}
 	
 	/**
-	 * interpolate along the path.  This code is slow, intuitive, and it works.
+	 * interpolate along the gcodepath.  This code is slow, intuitive, and it works.
 	 * @param i 0...1 inclusive
-	 * @return the interpolated {@link Vector3d} along the path.
+	 * @return the interpolated {@link Vector3d} along the gcodepath.
 	 */
 	public Vector3d interpolate(double i) {
 		Vector3d pa = interpolate(p0,p1,i);

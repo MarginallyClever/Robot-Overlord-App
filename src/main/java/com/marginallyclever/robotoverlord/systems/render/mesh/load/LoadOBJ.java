@@ -1,6 +1,6 @@
-package com.marginallyclever.robotoverlord.components.shapes.mesh.load;
+package com.marginallyclever.robotoverlord.systems.render.mesh.load;
 
-import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
 import javax.vecmath.Vector3d;
 import java.io.BufferedInputStream;
@@ -112,7 +112,7 @@ public class LoadOBJ implements MeshLoader {
 
 	/**
 	 * Does this loader find a material file near the mesh file?
-	 * @param absolutePath path to mesh file
+	 * @param absolutePath gcodepath to mesh file
 	 * @return true if a material file is found
 	 */
 	@Override
@@ -125,9 +125,9 @@ public class LoadOBJ implements MeshLoader {
 	}
 
 	/**
-	 * Get the path to the material file
-	 * @param absolutePath path to mesh file
-	 * @return path to material file or null.
+	 * Get the gcodepath to the material file
+	 * @param absolutePath gcodepath to mesh file
+	 * @return gcodepath to material file or null.
 	 */
 	public String getMaterialPath(String absolutePath) {
 		if(absolutePath==null || absolutePath.trim().isEmpty()) return null;

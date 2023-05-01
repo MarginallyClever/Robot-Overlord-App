@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.shapes.mesh;
+package com.marginallyclever.robotoverlord.systems.render.mesh;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

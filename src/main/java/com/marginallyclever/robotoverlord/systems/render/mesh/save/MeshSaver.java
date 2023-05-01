@@ -1,6 +1,6 @@
-package com.marginallyclever.robotoverlord.components.shapes.mesh.save;
+package com.marginallyclever.robotoverlord.systems.render.mesh.save;
 
-import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
 import java.io.OutputStream;
 

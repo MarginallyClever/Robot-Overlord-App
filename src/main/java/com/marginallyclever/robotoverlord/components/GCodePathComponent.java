@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import javax.vecmath.Point3d;
 
 /**
- * A {@link RenderComponent} that uses a {@link PathWalker} to render a {@link GCodePath}.
+ * A {@link RenderComponent} that uses a {@link PathWalker} to systems a {@link GCodePath}.
  * @author Dan Royer
  * @since 2.5.0
  */
@@ -133,8 +133,8 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
     }
 
     /**
-     * Get the position at a given distance along the path.
-     * @param d how far to travel along the path, where d is a value between 0 and distanceMeasured.
+     * Get the position at a given distance along the gcodepath.
+     * @param d how far to travel along the gcodepath, where d is a value between 0 and distanceMeasured.
      * @return position in world at distance d or null if d is out of range.
      */
     @Override

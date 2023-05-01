@@ -291,7 +291,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
     /**
      * Renders any tool-specific visuals to the 3D scene.
      *
-     * @param gl2 The OpenGL render context.
+     * @param gl2 The OpenGL systems context.
      */
     @Override
     public void render(GL2 gl2) {

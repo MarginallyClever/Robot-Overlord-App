@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.material;
+package com.marginallyclever.robotoverlord.systems.render.material;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;

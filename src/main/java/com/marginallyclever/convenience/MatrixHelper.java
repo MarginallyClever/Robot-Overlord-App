@@ -95,7 +95,7 @@ public class MatrixHelper {
 	
 	/**
 	 * Draw the three vectors of a matrix at a point
-	 * @param gl2 render context
+	 * @param gl2 systems context
 	 * @param p position at which to draw
 	 * @param u in yellow (1,1,0)
 	 * @param v in teal (0,1,1)
@@ -128,7 +128,7 @@ public class MatrixHelper {
 	/**
 	 * Same as drawMatrix, but with alternate colors
 	 * Draw the three vectors of a matrix at a point
-	 * @param gl2 render context
+	 * @param gl2 systems context
 	 * @param p position at which to draw
 	 * @param u in red
 	 * @param v in green

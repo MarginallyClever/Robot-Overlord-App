@@ -1,7 +1,7 @@
-package com.marginallyclever.robotoverlord.components.shapes.mesh.load;
+package com.marginallyclever.robotoverlord.systems.render.mesh.load;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -20,7 +20,7 @@ public class LoadPLY implements MeshLoader {
 	}
 
 	@Override
-	public void load(BufferedInputStream inputStream,Mesh model) throws Exception {
+	public void load(BufferedInputStream inputStream, Mesh model) throws Exception {
 		model.renderStyle = GL2.GL_POINTS;
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream,"UTF-8"));

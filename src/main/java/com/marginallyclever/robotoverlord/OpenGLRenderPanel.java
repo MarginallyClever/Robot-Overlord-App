@@ -53,7 +53,7 @@ public class OpenGLRenderPanel extends JPanel {
     // used to check the stack size.
     private final IntBuffer stackDepth = IntBuffer.allocate(1);
 
-    // the render canvas
+    // the systems canvas
     private GLJPanel glCanvas;
 
     // mouse steering controls
@@ -87,7 +87,7 @@ public class OpenGLRenderPanel extends JPanel {
     private final MaterialComponent defaultMaterial = new MaterialComponent();
 
     /**
-     * Used to sort items at render time. Opaque items are rendered first, then alpha items.
+     * Used to sort items at systems time. Opaque items are rendered first, then alpha items.
      */
     private static class MatrixMaterialRender {
         public Matrix4d matrix = new Matrix4d();
@@ -426,8 +426,8 @@ public class OpenGLRenderPanel extends JPanel {
     /**
      * Render all Entities in the scene.  Search all entities for a {@link RenderComponent}.
      * Sort them into three lists: those with no material, those with opaque material, and those with transparent
-     * material.  Further sort the alpha list by distance from the camera.  Then render the opaque, render the alpha,
-     * and render the no-material.
+     * material.  Further sort the alpha list by distance from the camera.  Then systems the opaque, systems the alpha,
+     * and systems the no-material.
      *
      * @param gl2 the OpenGL context
      */
@@ -456,7 +456,7 @@ public class OpenGLRenderPanel extends JPanel {
             }
         }
 
-        // render opaque objects
+        // systems opaque objects
         defaultMaterial.render(gl2);
         renderMMRList(gl2,opaque);
 
@@ -476,10 +476,10 @@ public class OpenGLRenderPanel extends JPanel {
             double d2 = p2.lengthSquared();
             return (int)Math.signum(d2-d1);
         });
-        // render alpha objects
+        // systems alpha objects
         renderMMRList(gl2,alpha);
 
-        // render objects with no material last
+        // systems objects with no material last
         defaultMaterial.render(gl2);
         renderMMRList(gl2,noMaterial);
     }

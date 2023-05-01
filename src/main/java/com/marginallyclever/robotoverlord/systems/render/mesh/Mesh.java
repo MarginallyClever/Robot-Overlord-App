@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.shapes.mesh;
+package com.marginallyclever.robotoverlord.systems.render.mesh;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.AABB;
@@ -64,7 +64,7 @@ public class Mesh {
 	
 	/**
 	 * Remove all vertexes, normals, colors, texture coordinates, etc.
-	 * on the next call to render() the mesh will be rebuilt to nothing.
+	 * on the next call to systems() the mesh will be rebuilt to nothing.
 	 */
 	public void clear() {
 		vertexArray.clear();

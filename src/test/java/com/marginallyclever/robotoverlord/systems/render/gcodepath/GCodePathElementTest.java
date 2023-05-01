@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components.path;
+package com.marginallyclever.robotoverlord.systems.render.gcodepath;
 
 import com.marginallyclever.robotoverlord.systems.render.gcodepath.GCodePathElement;
 import org.junit.jupiter.api.Assertions;
