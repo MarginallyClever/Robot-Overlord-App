@@ -96,10 +96,12 @@ public class OpenGLRenderPanel extends JPanel {
     private final List<MatrixMaterialRender> opaque = new ArrayList<>();
     private final List<MatrixMaterialRender> alpha = new ArrayList<>();
     private final List<MatrixMaterialRender> noMaterial = new ArrayList<>();
+    private final UpdateCallback updateCallback;
 
-    public OpenGLRenderPanel(EntityManager entityManager) {
+    public OpenGLRenderPanel(EntityManager entityManager,UpdateCallback updateCallback) {
         super(new BorderLayout());
         this.entityManager = entityManager;
+        this.updateCallback = updateCallback;
 
         createCanvas();
         addCanvasListeners();
@@ -231,6 +233,7 @@ public class OpenGLRenderPanel extends JPanel {
                 long nowTime = System.currentTimeMillis();
                 long dt = nowTime - lastTime;
                 lastTime = nowTime;
+
                 updateStep(dt*0.001);  // to seconds
 
                 GL2 gl2 = drawable.getGL().getGL2();
@@ -575,14 +578,12 @@ public class OpenGLRenderPanel extends JPanel {
         if(frameDelay>frameLength) {
             frameDelay-=frameLength;
 
-            for(Entity entity : entityManager.getEntities()) {
-                entity.update(frameLength);
-            }
+            updateCallback.update(dt);
         }
     }
 
     public void startAnimationSystem() {
-        logger.debug("setup the animation system");
+        logger.debug("start the animation system");
         frameDelay=0;
         frameLength=1.0f/(float)DEFAULT_FRAMES_PER_SECOND;
         animator.add(glCanvas);
