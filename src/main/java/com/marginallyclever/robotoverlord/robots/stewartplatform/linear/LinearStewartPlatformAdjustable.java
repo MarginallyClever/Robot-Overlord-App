@@ -3,20 +3,23 @@ package com.marginallyclever.robotoverlord.robots.stewartplatform.linear;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
 @Deprecated
 public class LinearStewartPlatformAdjustable extends LinearStewartPlatformCore {
     public LinearStewartPlatformAdjustable() {
-        super("Linear Stewart Platform Adjustable");
+        super();
     }
 
     @Override
     public void render(GL2 gl2) {
-        material.render(gl2);
-        gl2.glPushMatrix();
-        MatrixHelper.applyMatrix(gl2,getPose());
+        PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
 
+        gl2.glPushMatrix();
+        MatrixHelper.applyMatrix(gl2,myPose.getLocal());
+
+        material.render(gl2);
         renderBase(gl2);
         renderTopPlate(gl2);
         drawDebugArms(gl2);

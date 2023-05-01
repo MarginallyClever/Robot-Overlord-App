@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.robots.stewartplatform.rotary;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
@@ -19,7 +20,7 @@ public class RotaryStewartPlatform2 extends RotaryStewartPlatform {
 	private final MeshFromFile armModel;
 
 	public RotaryStewartPlatform2() {
-		super("Rotary Stewart Platform 2");
+		super();
 		
 		// load models and fix scale/orientation.
 		baseModel = new MeshFromFile("/com/marginallyclever/robotoverlord/robots/stewartplatform/rotary/base.stl");
@@ -37,8 +38,10 @@ public class RotaryStewartPlatform2 extends RotaryStewartPlatform {
 
 	@Override
 	public void render(GL2 gl2) {
+		PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
+
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, myPose);
+			MatrixHelper.applyMatrix(gl2, myPose.getLocal());
 
 			baseModel.render(gl2);
 			
