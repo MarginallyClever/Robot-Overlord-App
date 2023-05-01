@@ -100,9 +100,9 @@ public class DeltaRobot3 extends PoseEntity implements Robot {
 
 		tube.setRadius(0.15f);
 
-		modelTop = new MeshFromFile("/robots/DeltaRobot3/top.obj");
-		modelArm = new MeshFromFile("/robots/DeltaRobot3/arm.obj");
-		modelBase = new MeshFromFile("/robots/DeltaRobot3/base.obj");
+		modelTop = new MeshFromFile("/com/marginallyclever/robotoverlord/robots/deltarobot3/top.obj");
+		modelArm = new MeshFromFile("/com/marginallyclever/robotoverlord/robots/deltarobot3/arm.obj");
+		modelBase = new MeshFromFile("/com/marginallyclever/robotoverlord/robots/deltarobot3/base.obj");
 
 		//modelBase.getMaterial().setDiffuseColor(1,0.8f,0.6f,1);
 		//modelArm.getMaterial().setDiffuseColor(1.0f, 249.0f/255.0f, 242.0f/255.0f,1);

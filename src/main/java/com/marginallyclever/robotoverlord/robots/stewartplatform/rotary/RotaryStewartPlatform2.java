@@ -22,12 +22,12 @@ public class RotaryStewartPlatform2 extends RotaryStewartPlatform {
 		super("Rotary Stewart Platform 2");
 		
 		// load models and fix scale/orientation.
-		baseModel = new MeshFromFile("/robots/rotaryStewartPlatform/base.stl");
+		baseModel = new MeshFromFile("/com/marginallyclever/robotoverlord/robots/stewartplatform/rotary/base.stl");
 		//baseModel.setShapeScale(0.1);
-		eeModel = new MeshFromFile("/robots/rotaryStewartPlatform/endEffector.stl");
+		eeModel = new MeshFromFile("/com/marginallyclever/robotoverlord/robots/stewartplatform/rotary/endEffector.stl");
 		//eeModel.setShapeScale(0.1);
 		//eeModel.setShapeRotation(new Vector3d(0,0,-30));
-		armModel = new MeshFromFile( "/robots/rotaryStewartPlatform/arm.stl");
+		armModel = new MeshFromFile("/com/marginallyclever/robotoverlord/robots/stewartplatform/rotary/arm.stl");
 		//armModel.setShapeScale(0.1);
 
 		//eeModel.setShapeRotation(180,0,30);

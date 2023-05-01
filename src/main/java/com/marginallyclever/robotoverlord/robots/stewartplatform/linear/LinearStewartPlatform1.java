@@ -21,12 +21,12 @@ public class LinearStewartPlatform1 extends LinearStewartPlatformCore {
         super("Linear Stewart Platform 1");
 
         // load models and fix scale/orientation.
-        baseModel = new MeshFromFile("/robots/linearStewartPlatform/base.stl");
+        baseModel = new MeshFromFile("/com/marginallyclever/robotoverlord/robots/stewartplatform/linear/base.stl");
         //baseModel.setShapeScale(0.1);
-        eeModel = new MeshFromFile("/robots/linearStewartPlatform/endEffector.stl");
+        eeModel = new MeshFromFile("/com/marginallyclever/robotoverlord/robots/stewartplatform/linear/endEffector.stl");
         //eeModel.setShapeScale(0.1);
         //eeModel.setShapeRotation(new Vector3d(0,0,-30));
-        armModel = new MeshFromFile("/robots/linearStewartPlatform/arm.stl");
+        armModel = new MeshFromFile("/com/marginallyclever/robotoverlord/robots/stewartplatform/linear/arm.stl");
         //armModel.setShapeScale(0.1);
     }
 
