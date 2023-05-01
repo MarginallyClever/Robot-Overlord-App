@@ -67,25 +67,6 @@ public class Entity implements PropertyChangeListener {
 		// notifyObservers(name);
 	}
 
-	/**
-	 * @param dt seconds since last update.
-	 */
-	public void update(double dt) {
-		for(Component c : components) {
-			if(c.getEnabled()) c.update(dt);
-		}
-
-		for(Entity e : children) {
-			e.update(dt);
-		}
-	}
-
-	/**
-	 * Render this Entity to the display
-	 * @param gl2 the systems context
-	 */
-	public void render(GL2 gl2) {}
-
 	public String getUniqueChildName(Entity e) {
 		String rootName = e.getName(); 
 		// strip digits from end of name.

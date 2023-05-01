@@ -6,11 +6,7 @@ import org.ode4j.ode.DGeom.DNearCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ODEPhysicsEngine extends Entity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public class ODEPhysicsEngine {
 	private static final Logger logger = LoggerFactory.getLogger(ODEPhysicsEngine.class);
 	
 	private static DWorld world;
@@ -19,7 +15,7 @@ public class ODEPhysicsEngine extends Entity {
 	private DNearCallback callback;
 	
 	public ODEPhysicsEngine() {
-		super(ODEPhysicsEngine.class.getSimpleName());
+		super();
 		logger.debug("start ODEPhysicsEngine");
 		
 		if(OdeHelper.initODE2(0)==0) {
@@ -54,11 +50,8 @@ public class ODEPhysicsEngine extends Entity {
 	public DBox createBox(double x, double y, double z) {
 		return OdeHelper.createBox(space,x,y,z);
 	}
-	
-	@Override
+
 	public void update(double dt) {
-		super.update(dt);
-		
 		if(callback!=null) space.collide(null,callback);
 		world.step(dt);
 
