@@ -42,6 +42,7 @@ public class OriginAdjustSystem implements EntitySystem {
         parentMat.invert();
         myPose.setLocalMatrix4(parentMat);
     }
+
     public static void adjustEntireTree(Entity root) {
         List<Entity> toProcess = new ArrayList<>();
         toProcess.add(root);
