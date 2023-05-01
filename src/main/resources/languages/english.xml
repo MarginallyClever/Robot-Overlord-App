@@ -1198,7 +1198,11 @@ to check yourself.</value>
 	</string>
 	<string>
 		<key>SceneImportAction.name</key>
-		<value>Import</value>
+		<value>Import %1</value>
+	</string>
+	<string>
+		<key>SceneImportAction.namePreselected</key>
+		<value>%1</value>
 	</string>
 	<string>
 		<key>SceneImportAction.shortDescription</key>

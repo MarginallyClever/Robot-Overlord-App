@@ -48,7 +48,7 @@ public class SceneImportAction extends AbstractAction {
 
     public SceneImportAction(EntityManager entityManager, File preselectedFile) {
         this(entityManager);
-        putValue(NAME, Translator.get("SceneImportAction.name")+" "+preselectedFile.getName());
+        putValue(NAME, Translator.get("SceneImportAction.namePreselected",preselectedFile.getName()));
         this.preselectedFile = preselectedFile;
     }
 
