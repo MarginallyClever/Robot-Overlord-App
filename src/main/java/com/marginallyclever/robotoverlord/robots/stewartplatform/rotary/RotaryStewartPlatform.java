@@ -4,12 +4,16 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.RenderComponent;
 import com.marginallyclever.robotoverlord.robots.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
+import org.ode4j.ode.internal.Matrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +27,7 @@ import java.beans.PropertyChangeEvent;
  * @since 2015?
  */
 @Deprecated
-public class RotaryStewartPlatform extends PoseEntity {
+public class RotaryStewartPlatform extends RenderComponent {
 	private static final Logger logger = LoggerFactory.getLogger(RotaryStewartPlatform.class);
 
 
@@ -42,8 +46,6 @@ public class RotaryStewartPlatform extends PoseEntity {
 	protected BooleanParameter debugEEPoints = new BooleanParameter("debugEEPoints",false);
 	protected BooleanParameter debugArms = new BooleanParameter("debugArms",false);
 
-	private final PoseEntity ee = new PoseEntity("ee");
-
 	protected final RotaryStewartPlatformArm [] arms = {
 			new RotaryStewartPlatformArm(),
 			new RotaryStewartPlatformArm(),
@@ -60,16 +62,13 @@ public class RotaryStewartPlatform extends PoseEntity {
 	protected final MaterialComponent material = new MaterialComponent();
 
 	private final int [] indexes = {0,5,2,1,4,3};
+	private Entity ee;
+	private PoseComponent eePose;
 
 	public RotaryStewartPlatform() {
-		this("Rotary Stewart Platform");
-	}
+		super();
 
-	public RotaryStewartPlatform(String name) {
-		super(name);
-		addEntity(ee);
-
-		connection.addPropertyChangeListener(this);
+		//connection.addPropertyChangeListener(this);
 
 		// apply some default materials.
 		material.setAmbientColor(0, 0, 0, 1);
@@ -80,8 +79,22 @@ public class RotaryStewartPlatform extends PoseEntity {
 
 		calculateEndEffectorPointsOneTime();
 		calculateMotorAxlePointsOneTime();
-		
-		ee.setPosition(new Vector3d(0,0,BASE_Z.get()+Math.abs(EE_Z.get())+ARM_LENGTH.get()));
+	}
+
+	@Override
+	public void setEntity(Entity entity) {
+		super.setEntity(entity);
+		if(entity == null) return;
+
+		Entity maybe = entity.findByPath("./ee");
+		if(maybe!=null) ee = maybe;
+		else {
+			ee = new Entity("ee");
+			// EntityManager.addEntityToParent(ee,entity);
+		}
+		ee.addComponent(new PoseComponent());
+		eePose = ee.getComponent(PoseComponent.class);
+		eePose.setPosition(new Vector3d(0,0,BASE_Z.get()+Math.abs(EE_Z.get())+ARM_LENGTH.get()));
 	}
 
 	/**
@@ -156,7 +169,7 @@ public class RotaryStewartPlatform extends PoseEntity {
 		connection.update(dt);
 		super.update(dt);
 
-		Matrix4d eeMatrix = ee.getPose();
+		Matrix4d eeMatrix = getEndEffectorPose();
 
 		// use calculated end effector points to find same points after EE moves.
 		for (RotaryStewartPlatformArm arm : arms) {
@@ -240,14 +253,14 @@ public class RotaryStewartPlatform extends PoseEntity {
 
 	@Override
 	public void render(GL2 gl2) {
-		super.render(gl2);
+		PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
 
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, myPose);
+			MatrixHelper.applyMatrix(gl2, myPose.getLocal());
 
 			// draw the end effector
 			gl2.glPushMatrix();
-			MatrixHelper.drawMatrix(gl2, ee.getPose(),5);
+			MatrixHelper.drawMatrix(gl2, getEndEffectorPose(),5);
 			gl2.glPopMatrix();
 
 			drawBiceps(gl2);
@@ -351,7 +364,7 @@ public class RotaryStewartPlatform extends PoseEntity {
 	}
 
 	protected void drawDebugEEPoints(GL2 gl2) {
-		Vector3d eeCenter = ee.getPosition();
+		Vector3d eeCenter = MatrixHelper.getPosition(getEndEffectorPose());
 		gl2.glColor3d(1, 0, 0);
 		gl2.glBegin(GL2.GL_LINES);
 		for (RotaryStewartPlatformArm arm : arms) {
@@ -382,8 +395,8 @@ public class RotaryStewartPlatform extends PoseEntity {
 			connection.sendMessage(message);
 			Matrix4d ident = new Matrix4d();
 			ident.setIdentity();
-			ee.setPose(ident);
-			ee.setPosition(new Vector3d(0,0,BASE_Z.get()+Math.abs(EE_Z.get())+ARM_LENGTH.get()));
+			ident.setTranslation(new Vector3d(0,0,BASE_Z.get()+Math.abs(EE_Z.get())+ARM_LENGTH.get()));
+			eePose.setLocalMatrix4(ident);
 		});
 		view.addButton("Factory Reset").addActionEventListener((evt)->{
 			for(int i=0;i<6;++i) {
@@ -399,16 +412,7 @@ public class RotaryStewartPlatform extends PoseEntity {
 		view.addRange(velocity, 20, 1);
 		view.addRange(acceleration, 1000, 0);
 	}
-	
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		super.propertyChange(evt);
-		Object o = evt.getSource();
-		if(o == connection) {
-			//readConnectionData((String)evt.getNewValue());
-		}
-	}
-	
+
 	private void gotoPose() {
 		float scale=-10;
 		String message = "G0"
@@ -425,6 +429,6 @@ public class RotaryStewartPlatform extends PoseEntity {
 	}
 
 	public Matrix4d getEndEffectorPose() {
-		return ee.getPose();
+		return eePose.getLocal();
 	}
 }

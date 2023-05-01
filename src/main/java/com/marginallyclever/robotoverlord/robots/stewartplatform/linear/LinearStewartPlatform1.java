@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.robots.stewartplatform.linear;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 
 import javax.vecmath.Matrix4d;
@@ -10,15 +11,12 @@ import java.io.Serial;
 
 @Deprecated
 public class LinearStewartPlatform1 extends LinearStewartPlatformCore {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
     private final MeshFromFile baseModel;
     private final MeshFromFile eeModel;
     private final MeshFromFile armModel;
 
     public LinearStewartPlatform1() {
-        super("Linear Stewart Platform 1");
+        super();
 
         // load models and fix scale/orientation.
         baseModel = new MeshFromFile("/com/marginallyclever/robotoverlord/robots/stewartplatform/linear/base.stl");
@@ -34,9 +32,11 @@ public class LinearStewartPlatform1 extends LinearStewartPlatformCore {
     public void render(GL2 gl2) {
         super.render(gl2);
 
+        PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
+
         gl2.glPushMatrix();
             // draw the base
-            MatrixHelper.applyMatrix(gl2, myPose);
+            MatrixHelper.applyMatrix(gl2, myPose.getLocal());
             baseModel.render(gl2);
 
             // draw the end effector

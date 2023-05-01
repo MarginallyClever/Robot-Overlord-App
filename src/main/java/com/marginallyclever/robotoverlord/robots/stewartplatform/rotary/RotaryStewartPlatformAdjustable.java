@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.robots.stewartplatform.rotary;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
 /**
@@ -12,13 +13,8 @@ import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.C
  */
 @Deprecated
 public class RotaryStewartPlatformAdjustable extends RotaryStewartPlatform {
-
-	public RotaryStewartPlatformAdjustable(String name) {
-		super(name);
-	}
-
 	public RotaryStewartPlatformAdjustable() {
-		this("Rotary Stewart Platform Adjustable");
+		super();
 	}
 
 	@Override
@@ -31,10 +27,12 @@ public class RotaryStewartPlatformAdjustable extends RotaryStewartPlatform {
 
 	@Override
 	public void render(GL2 gl2) {
-		material.render(gl2);
-		gl2.glPushMatrix();
-		MatrixHelper.applyMatrix(gl2,getPose());
+		PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
 
+		gl2.glPushMatrix();
+		MatrixHelper.applyMatrix(gl2, myPose.getLocal());
+
+		material.render(gl2);
 		renderBase(gl2);
 		renderTopPlate(gl2);
 		gl2.glPopMatrix();

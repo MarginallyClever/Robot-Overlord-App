@@ -3,7 +3,10 @@ package com.marginallyclever.robotoverlord.robots.stewartplatform.linear;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.*;
+import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.RenderComponent;
 import com.marginallyclever.robotoverlord.robots.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
@@ -18,7 +21,7 @@ import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
 
 @Deprecated
-public class LinearStewartPlatformCore extends PoseEntity {
+public class LinearStewartPlatformCore extends RenderComponent {
 	private static final Logger logger = LoggerFactory.getLogger(LinearStewartPlatformCore.class);
 	
 	public final DoubleParameter SLIDE_TRAVEL = new DoubleParameter("SLIDE_TRAVEL", 10.0);  // cm
@@ -34,7 +37,8 @@ public class LinearStewartPlatformCore extends PoseEntity {
 	private final BooleanParameter debugSlides = new BooleanParameter("debugSlides", true);
 	private final BooleanParameter debugArms = new BooleanParameter("debugArms", false);
 	
-	private final PoseEntity ee = new PoseEntity("ee");
+	private Entity ee = new Entity("ee");
+	private PoseComponent eePose;
 
 	protected LinearStewartPlatformArm[] arms = {
 			new LinearStewartPlatformArm(),
@@ -52,14 +56,9 @@ public class LinearStewartPlatformCore extends PoseEntity {
 	protected final MaterialComponent material = new MaterialComponent();
 
 	public LinearStewartPlatformCore() {
-		this("Linear Stewart Platform");
-	}
+		super();
 
-	public LinearStewartPlatformCore(String name) {
-		super(name);
-		addEntity(ee);
-
-		connection.addPropertyChangeListener(this);
+		//connection.addPropertyChangeListener(this);
 
 		// apply some default materials.
 		material.setAmbientColor(0, 0, 0, 1);
@@ -70,8 +69,22 @@ public class LinearStewartPlatformCore extends PoseEntity {
 
 		calculateEndEffectorPointsOneTime();
 		calculateBasePointsOneTime();
-		
-		ee.setPosition(new Vector3d(0,0,BASE_Z.get()+Math.abs(EE_Z.get())+ARM_LENGTH.get()));
+	}
+
+	@Override
+	public void setEntity(Entity entity) {
+		super.setEntity(entity);
+		if(entity == null) return;
+
+		Entity maybe = entity.findByPath("./ee");
+		if(maybe!=null) ee = maybe;
+		else {
+			ee = new Entity("ee");
+			// EntityManager.addEntityToParent(ee,entity);
+		}
+		ee.addComponent(new PoseComponent());
+		eePose = ee.getComponent(PoseComponent.class);
+		eePose.setPosition(new Vector3d(0,0,BASE_Z.get()+Math.abs(EE_Z.get())+ARM_LENGTH.get()));
 	}
 
 	/**
@@ -147,7 +160,7 @@ public class LinearStewartPlatformCore extends PoseEntity {
 		connection.update(dt);
 		super.update(dt);
 
-		Matrix4d eeMatrix = ee.getPose();
+		Matrix4d eeMatrix = eePose.getLocal();
 
 		// use calculated end effector points to find same points after EE moves.
 		for (LinearStewartPlatformArm linearStewartPlatformArm : arms) {
@@ -169,10 +182,10 @@ public class LinearStewartPlatformCore extends PoseEntity {
 	
 	@Override
 	public void render(GL2 gl2) {
-		super.render(gl2);
+		PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
 
 		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, myPose);
+			MatrixHelper.applyMatrix(gl2, myPose.getLocal());
 			drawBase(gl2);
 			drawTopPlate(gl2);
 			if(debugEEPoints.get()) drawDebugEEPoints(gl2);
@@ -185,16 +198,16 @@ public class LinearStewartPlatformCore extends PoseEntity {
 	}
 
 	private void drawTopPlate(GL2 gl2) {
-		MatrixHelper.drawMatrix(gl2, ee.getPose(),5);
+		MatrixHelper.drawMatrix(gl2, getEndEffectorPose(),5);
 	}
 
 	public Matrix4d getEndEffectorPose() {
-		return ee.getPose();
+		return eePose.getLocal();
 	}
 
 	private void drawDebugEEPoints(GL2 gl2) {
 		boolean wasLit = OpenGLHelper.disableLightingStart(gl2);
-		Vector3d eeCenter = ee.getPosition();
+		Vector3d eeCenter = MatrixHelper.getPosition(eePose.getLocal());
 		gl2.glColor3d(1, 0, 0);
 		gl2.glBegin(GL2.GL_LINES);
 		for (LinearStewartPlatformArm arm : arms) {
@@ -267,8 +280,8 @@ public class LinearStewartPlatformCore extends PoseEntity {
 			connection.sendMessage(message);
 			Matrix4d ident = new Matrix4d();
 			ident.setIdentity();
-			ee.setPose(ident);
-			ee.setPosition(new Vector3d(0,0,BASE_Z.get()+Math.abs(EE_Z.get())+ARM_LENGTH.get()));
+			ident.setTranslation(new Vector3d(0,0,BASE_Z.get()+Math.abs(EE_Z.get())+ARM_LENGTH.get()));
+			eePose.setLocalMatrix4(ident);
 		});
 		view.addButton("Factory Reset").addActionEventListener((evt)->{
 			for(int i=0;i<6;++i) {
@@ -284,16 +297,7 @@ public class LinearStewartPlatformCore extends PoseEntity {
 		view.addRange(velocity, 20, 1);
 		view.addRange(acceleration, 1000, 0);
 	}
-	
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		super.propertyChange(evt);
-		Object o = evt.getSource();
-		if(o == connection) {
-			//readConnectionData((String)evt.getNewValue());
-		}
-	}
-	
+
 	private void gotoPose() {
 		float scale=-10;
 		String message = "G0"
