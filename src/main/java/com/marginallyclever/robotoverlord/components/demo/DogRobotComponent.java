@@ -14,6 +14,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 
+@ComponentDependency(components = {PoseComponent.class})
 public class DogRobotComponent extends RenderComponent {
     public static final double KINEMATIC_BODY_WIDTH = 8;
     public static final double KINEMATIC_BODY_LENGTH = 8;
