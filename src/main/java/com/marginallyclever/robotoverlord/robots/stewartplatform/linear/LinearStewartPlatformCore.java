@@ -249,7 +249,7 @@ public class LinearStewartPlatformCore extends PoseEntity {
 		gl2.glEnd();
 	}
 	
-	@Override
+	@Deprecated
 	public void getView(ComponentPanelFactory view) {
 		view.add(connection);
 		view.addButton("GOTO EE").addActionEventListener((evt)->gotoPose());
@@ -283,8 +283,6 @@ public class LinearStewartPlatformCore extends PoseEntity {
 		});
 		view.addRange(velocity, 20, 1);
 		view.addRange(acceleration, 1000, 0);
-
-		super.getView(view);
 	}
 	
 	@Override

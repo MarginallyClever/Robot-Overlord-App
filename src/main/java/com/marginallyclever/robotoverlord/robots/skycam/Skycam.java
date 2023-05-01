@@ -178,8 +178,6 @@ public class Skycam extends PoseEntity {
 		live.getView(view);
 		
 		model.getView(view);
-		
-		super.getView(view);
 	}
 
 	/**

@@ -44,8 +44,6 @@ public class SkycamCommand extends PoseEntity implements Cloneable, Serializable
 			if(e==null) return;
 			e.goTo(sc);
 		});
-
-		super.getView(view);
 	}
 	
 	protected Skycam findParentSkycam() {
