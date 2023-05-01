@@ -47,7 +47,7 @@ public class DogRobotComponent extends RenderComponent {
     private final Point3d [] nextPOC = new Point3d[NUM_LEGS];
     private final Point3d [] targets = new Point3d[NUM_LEGS];
 
-    double gaitCycleTime = 0;
+    private double gaitCycleTime = 0;
 
     public DogRobotComponent() {
         super();
@@ -86,7 +86,6 @@ public class DogRobotComponent extends RenderComponent {
         else PrimitiveSolids.drawSphere(gl2,v,1);
     }
 
-    @Override
     public void update(double dt) {
         gaitCycleTime += dt;
 

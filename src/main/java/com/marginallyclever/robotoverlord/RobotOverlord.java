@@ -18,6 +18,9 @@ import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityT
 import com.marginallyclever.robotoverlord.swinginterface.robotlibrarypanel.RobotLibraryListener;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.systems.*;
+import com.marginallyclever.robotoverlord.systems.robot.CrabRobotSystem;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.ArmRobotSystem;
+import com.marginallyclever.robotoverlord.systems.robot.DogRobotSystem;
 import com.marginallyclever.util.PropertiesFileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +48,7 @@ import java.util.prefs.Preferences;
  *
  * @author Dan Royer
  */
-public class RobotOverlord implements RobotLibraryListener {
+public class RobotOverlord {
 	private static final Logger logger = LoggerFactory.getLogger(RobotOverlord.class);
 
 	public static final String APP_TITLE = "Robot Overlord";
@@ -126,6 +129,8 @@ public class RobotOverlord implements RobotLibraryListener {
 
 	private final List<EntitySystem> systems = new ArrayList<>();
 
+	private double frameDelay;
+	private double frameLength;
 
 	public static void main(String[] argv) {
 		Log.start();
@@ -160,7 +165,8 @@ public class RobotOverlord implements RobotLibraryListener {
 		buildMainFrame();
 		entityTreePanel = new EntityTreePanel(entityManager);
 		componentManagerPanel = new ComponentManagerPanel(entityManager,systems);
-		renderPanel = new OpenGLRenderPanel(entityManager);
+		renderPanel = new OpenGLRenderPanel(entityManager, this::update);
+
 		layoutComponents();
 		refreshMainMenu();
 
@@ -175,13 +181,29 @@ public class RobotOverlord implements RobotLibraryListener {
 		logger.info("** READY **");
     }
 
+	private void update(double dt) {
+		frameDelay+=dt;
+		if(frameDelay>frameLength) {
+			frameDelay-=frameLength;
+
+			for(EntitySystem system : systems) system.update(frameLength);
+		}
+	}
+
 	private void buildSystems() {
-		systems.add(new PhysicsSystem());
-		systems.add(new RenderSystem());
-		systems.add(new CameraSystem());
-		systems.add(new OriginAdjustSystem());
-		//systems.add(new SoundSystem());
-		systems.add(new RobotSystem(entityManager));
+		addSystem(new PhysicsSystem());
+		addSystem(new RenderSystem());
+		addSystem(new CameraSystem());
+		addSystem(new OriginAdjustSystem());
+		//addSystem(new SoundSystem());
+		addSystem(new ArmRobotSystem(entityManager));
+		addSystem(new DogRobotSystem(entityManager));
+		addSystem(new CrabRobotSystem(entityManager));
+	}
+
+	private void addSystem(EntitySystem system) {
+		systems.add(system);
+		//system.addListener(this);
 	}
 
 	private void listenToClipboardChanges() {
@@ -302,11 +324,6 @@ public class RobotOverlord implements RobotLibraryListener {
 		mainFrame.revalidate();
 	}
 
-	@Override
-	public void onRobotAdded() {
-		refreshMainMenu();
-	}
-
 	private JComponent createFileMenu() {
 		JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.File"));
 
@@ -357,7 +374,7 @@ public class RobotOverlord implements RobotLibraryListener {
 		menu.add(new JMenuItem(new DemoAction(entityManager,new DemoDog())));
 		//menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
 		menu.addSeparator();
-		menu.add(new JMenuItem(new ShowRobotLibraryPanel(this)));
+		menu.add(new JMenuItem(new ShowRobotLibraryPanel(this::refreshMainMenu)));
 		buildAvailableScenesTree(menu);
 		return menu;
 	}

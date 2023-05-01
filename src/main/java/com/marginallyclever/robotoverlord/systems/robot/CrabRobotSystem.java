@@ -2,20 +2,21 @@ package com.marginallyclever.robotoverlord.systems.robot;
 
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.EntityManager;
+import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
 import com.marginallyclever.robotoverlord.components.demo.DogRobotComponent;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 
 /**
- * A system to manage robot dogs.
+ * A system to manage robot crabs.
  *
  * @author Dan Royer
  * @since 2.5.7
  */
-public class DogRobotSystem implements EntitySystem {
+public class CrabRobotSystem implements EntitySystem {
     private final EntityManager entityManager;
 
-    public DogRobotSystem(EntityManager entityManager) {
+    public CrabRobotSystem(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
@@ -27,19 +28,19 @@ public class DogRobotSystem implements EntitySystem {
      */
     @Override
     public void decorate(ComponentPanelFactory view, Component component) {
-        if( component instanceof DogRobotComponent) decorateDog(view,component);
+        if( component instanceof CrabRobotComponent) decorateCrab(view,component);
     }
 
-    public void decorateDog(ComponentPanelFactory view,Component component) {
-        DogRobotComponent dog = (DogRobotComponent)component;
-        view.add(dog.standingRadius);
-        view.add(dog.standingHeight);
-        view.add(dog.turningStrideLength);
-        view.add(dog.strideLength);
-        view.add(dog.strideHeight);
+    public void decorateCrab(ComponentPanelFactory view,Component component) {
+        CrabRobotComponent crab = (CrabRobotComponent)component;
+        view.add(crab.standingRadius);
+        view.add(crab.standingHeight);
+        view.add(crab.turningStrideLength);
+        view.add(crab.strideLength);
+        view.add(crab.strideHeight);
 
-        view.addComboBox(dog.modeSelector, DogRobotComponent.MODE_NAMES);
-        view.add(dog.speedScale);
+        view.addComboBox(crab.modeSelector, CrabRobotComponent.MODE_NAMES);
+        view.add(crab.speedScale);
     }
 
     /**

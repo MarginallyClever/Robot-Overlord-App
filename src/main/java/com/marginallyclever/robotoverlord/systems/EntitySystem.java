@@ -4,8 +4,10 @@ import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
 /**
- * {@link EntitySystem} are Systems in an Entity-Component-System pattern.
- * They are equivalent to Controllers in a Model-View-Controller pattern.
+ * {@link EntitySystem} are Systems in an <a href="https://en.wikipedia.org/wiki/Entity_component_system">
+ *     Entity-Component-System</a> pattern.
+ * They are equivalent to Controllers in a <a href="https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller">
+ *     Model-View-Controller</a> pattern.
  * They are responsible for the logic of one or more {@link Component}s.
  *
  * @author Dan Royer
