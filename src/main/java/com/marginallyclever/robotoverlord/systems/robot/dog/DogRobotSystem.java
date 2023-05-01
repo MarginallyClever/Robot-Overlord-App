@@ -1,10 +1,15 @@
-package com.marginallyclever.robotoverlord.systems.robot;
+package com.marginallyclever.robotoverlord.systems.robot.dog;
 
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.components.demo.DogRobotComponent;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
+import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.EditArm6Panel;
+
+import javax.swing.*;
 
 /**
  * A system to manage robot dogs.
@@ -32,6 +37,10 @@ public class DogRobotSystem implements EntitySystem {
 
     public void decorateDog(ComponentPanelFactory view,Component component) {
         DogRobotComponent dog = (DogRobotComponent)component;
+
+        ViewElementButton bMake = view.addButton("Edit Dog");
+        bMake.addActionEventListener((evt)-> makeDog(bMake,dog,"Edit Dog"));
+
         view.add(dog.standingRadius);
         view.add(dog.standingHeight);
         view.add(dog.turningStrideLength);
@@ -40,6 +49,10 @@ public class DogRobotSystem implements EntitySystem {
 
         view.addComboBox(dog.modeSelector, DogRobotComponent.MODE_NAMES);
         view.add(dog.speedScale);
+    }
+
+    private void makeDog(JComponent parent, DogRobotComponent dog,String title) {
+        EntitySystemUtils.makePanel(new EditDogPanel(dog.getEntity(), entityManager), parent,title);
     }
 
     /**
