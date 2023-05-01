@@ -5,7 +5,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,7 +23,7 @@ public class CameraComponent extends RenderComponent {
     public void setEntity(Entity entity) {
         super.setEntity(entity);
         if(entity!=null) {
-            PoseComponent p = entity.findFirstComponent(PoseComponent.class);
+            PoseComponent p = entity.getComponent(PoseComponent.class);
             if(p==null) entity.addComponent(new PoseComponent());
         }
     }
@@ -38,7 +37,7 @@ public class CameraComponent extends RenderComponent {
     }
 
     private void setPosition(Vector3d target) {
-        PoseComponent p = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent p = getEntity().getComponent(PoseComponent.class);
         p.setPosition(target);
     }
 
@@ -61,7 +60,7 @@ public class CameraComponent extends RenderComponent {
     }
 
     public Vector3d getOrbitPoint() {
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         Vector3d p = pose.getPosition();
         // z axis points away from the direction the camera is facing.
         Vector3d zAxis = MatrixHelper.getZAxis(pose.getWorld());
@@ -76,7 +75,7 @@ public class CameraComponent extends RenderComponent {
      * @param target the point to look at.
      */
     public void lookAt(Vector3d target) {
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         Matrix3d viewMatrix = MatrixHelper.lookAt(target,pose.getPosition());
 
         Vector3d zAxis = new Vector3d();
@@ -124,7 +123,7 @@ public class CameraComponent extends RenderComponent {
         Vector3d p = getOrbitPoint();
         double distance = orbitDistance.get();
 
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
 
         // orbit around the focal point
         setPan(getPan()+dx);
@@ -155,7 +154,7 @@ public class CameraComponent extends RenderComponent {
      * @param dy distance to travel.  Positive is up.
      */
     public void pedestalCamera(double dy) {
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         Vector3d vy = MatrixHelper.getYAxis(pose.getWorld());
         Vector3d p = pose.getPosition();
         moveInternal(p,vy,dy);
@@ -166,7 +165,7 @@ public class CameraComponent extends RenderComponent {
      * @param dx distance to travel.  Positive is right.
      */
     public void truckCamera(double dx) {
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         Vector3d vx = MatrixHelper.getXAxis(pose.getWorld());
         Vector3d p = pose.getPosition();
         moveInternal(p,vx,-dx);
@@ -177,7 +176,7 @@ public class CameraComponent extends RenderComponent {
      * @param dz distance to travel.  Positive is forward.
      */
     public void dollyCamera(double dz) {
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         Vector3d p = pose.getPosition();
         Vector3d vz = MatrixHelper.getZAxis(pose.getWorld());
         moveInternal(p,vz,dz);
@@ -198,7 +197,7 @@ public class CameraComponent extends RenderComponent {
         if(oldScale==newScale) return;
 
         // apply change
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         Vector3d p = pose.getPosition();
         Vector3d prevOrbit = getOrbitPoint();
         orbitDistance.set(newScale);
@@ -236,7 +235,7 @@ public class CameraComponent extends RenderComponent {
         gl2.glPushMatrix();
 
         // reset matrix to camera inverse * orbit point
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         Matrix4d inverseCamera = pose.getWorld();
         inverseCamera.invert();
 

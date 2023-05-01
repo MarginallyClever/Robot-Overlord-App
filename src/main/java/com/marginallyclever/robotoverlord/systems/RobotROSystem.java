@@ -91,7 +91,7 @@ public class RobotROSystem implements ROSystem {
         if(entityUniqueID==null) return null;
         Entity entity = entityManager.findEntityByUniqueID(entityUniqueID);
         if(entity==null) return null;
-        return entity.findFirstComponent(GCodePathComponent.class);
+        return entity.getComponent(GCodePathComponent.class);
     }
 
     public void decorateDog(ComponentPanelFactory view,Component component) {

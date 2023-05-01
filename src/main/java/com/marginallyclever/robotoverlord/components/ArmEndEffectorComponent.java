@@ -14,13 +14,13 @@ public class ArmEndEffectorComponent extends Component {
     }
 
     public Matrix4d getToolCenterPoint() {
-        PoseComponent p = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent p = getEntity().getComponent(PoseComponent.class);
         if(p==null) return null;
         return p.getWorld();
     }
 
     public void setToolCenterPoint(Matrix4d mat) {
-        PoseComponent p = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent p = getEntity().getComponent(PoseComponent.class);
         if(p==null) return;
         p.setWorld(mat);
     }

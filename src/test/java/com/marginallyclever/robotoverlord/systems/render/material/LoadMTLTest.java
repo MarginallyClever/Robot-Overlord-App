@@ -3,8 +3,6 @@ package com.marginallyclever.robotoverlord.systems.render.material;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
-import com.marginallyclever.robotoverlord.systems.render.material.LoadMTL;
-import com.marginallyclever.robotoverlord.systems.render.material.MaterialLoader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +36,7 @@ public class LoadMTLTest {
         Assertions.assertNotNull(resource);
         MeshFromFile mesh = new MeshFromFile(resource.getAbsolutePath());
         entity.addComponent(mesh);
-        MaterialComponent material = entity.findFirstComponent(MaterialComponent.class);
+        MaterialComponent material = entity.getComponent(MaterialComponent.class);
         Assertions.assertNotNull(material);
         Assertions.assertArrayEquals(new double[]{0.002063,0.002060,0.000000, 1.0}, material.getDiffuseColor());
     }

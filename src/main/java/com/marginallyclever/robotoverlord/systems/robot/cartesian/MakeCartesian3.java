@@ -46,7 +46,7 @@ public class MakeCartesian3 extends JPanel {
         List<Entity> children = entity.getChildren();
         if(children.size()==0) return true;
         Entity firstChild = children.get(0);
-        MeshFromFile mesh = firstChild.findFirstComponent(MeshFromFile.class);
+        MeshFromFile mesh = firstChild.getComponent(MeshFromFile.class);
         return mesh == null;
     }
 
@@ -54,7 +54,7 @@ public class MakeCartesian3 extends JPanel {
         List<Entity> children = entity.getChildren();
         if(children.size()<2) return false;
         Entity secondChild = children.get(1);
-        DHComponent dh = secondChild.findFirstComponent(DHComponent.class);
+        DHComponent dh = secondChild.getComponent(DHComponent.class);
         return dh!=null;
     }
 
@@ -89,7 +89,7 @@ public class MakeCartesian3 extends JPanel {
             }
 
             // set the joint to be linear
-            DHComponent dh = jointEntity.findFirstComponent(DHComponent.class);
+            DHComponent dh = jointEntity.getComponent(DHComponent.class);
             dh.setRevolute(false);
 
             // Keep going
@@ -98,7 +98,7 @@ public class MakeCartesian3 extends JPanel {
         }
 
         // Add EndEffectorComponent to the last joint entity
-        if(joints[NUM_JOINTS-1].findFirstComponent(ArmEndEffectorComponent.class)==null) {
+        if(joints[NUM_JOINTS-1].getComponent(ArmEndEffectorComponent.class)==null) {
             joints[NUM_JOINTS-1].addComponent(new ArmEndEffectorComponent());
         }
     }
@@ -118,7 +118,7 @@ public class MakeCartesian3 extends JPanel {
             for (int j = 0; j < COLS; j++) {
                 if (j < COLS - 1) {
                     final int paramIndex = j;
-                    DHComponent dhComponent = joints[i].findFirstComponent(DHComponent.class);
+                    DHComponent dhComponent = joints[i].getComponent(DHComponent.class);
 
                     JTextField dhInput = new JTextField(7);
 
@@ -149,7 +149,7 @@ public class MakeCartesian3 extends JPanel {
                     });
                     dhTable.add(dhInput);
                 } else {
-                    MeshFromFile meshFromFile = joints[i].getChildren().get(0).findFirstComponent(MeshFromFile.class);
+                    MeshFromFile meshFromFile = joints[i].getChildren().get(0).getComponent(MeshFromFile.class);
                     StringParameter filenameParameter = meshFromFile.filename;
                     ViewElementFilename viewElementFilename = new ViewElementFilename(filenameParameter,entityManager);
                     viewElementFilename.addFileFilters(MeshFactory.getAllExtensions());
@@ -166,7 +166,7 @@ public class MakeCartesian3 extends JPanel {
         generalPanel.setLayout(new BoxLayout(generalPanel, BoxLayout.Y_AXIS));
 
         // texture
-        MaterialComponent material = rootEntity.getChildren().get(0).findFirstComponent(MaterialComponent.class);
+        MaterialComponent material = rootEntity.getChildren().get(0).getComponent(MaterialComponent.class);
         StringParameter textureParameter = material.texture;
         ViewElementFilename textureFilename = new ViewElementFilename(textureParameter, entityManager);
         textureFilename.addFileFilters(MeshFactory.getAllExtensions());
@@ -178,13 +178,13 @@ public class MakeCartesian3 extends JPanel {
             // set texture of all meshes
             for (Entity joint : joints) {
                 Entity meshEntity = joint.getChildren().get(0);
-                MaterialComponent meshMaterial = meshEntity.findFirstComponent(MaterialComponent.class);
+                MaterialComponent meshMaterial = meshEntity.getComponent(MaterialComponent.class);
                 meshMaterial.texture.set(filename);
             }
         });
 
         // base mesh
-        MeshFromFile meshFromFile = rootEntity.getChildren().get(0).findFirstComponent(MeshFromFile.class);
+        MeshFromFile meshFromFile = rootEntity.getChildren().get(0).getComponent(MeshFromFile.class);
         StringParameter filenameParameter = meshFromFile.filename;
         ViewElementFilename meshFilename = new ViewElementFilename(filenameParameter, entityManager);
         meshFilename.addFileFilters(MeshFactory.getAllExtensions());
@@ -198,7 +198,7 @@ public class MakeCartesian3 extends JPanel {
         generalPanel.add(showDH);
         showDH.addActionListener(e -> {
             for (int i = 0; i < NUM_JOINTS; i++) {
-                joints[i].findFirstComponent(DHComponent.class).setVisible(showDH.isSelected());
+                joints[i].getComponent(DHComponent.class).setVisible(showDH.isSelected());
             }
         });
 

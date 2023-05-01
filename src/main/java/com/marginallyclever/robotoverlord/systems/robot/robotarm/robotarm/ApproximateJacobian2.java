@@ -32,7 +32,7 @@ public class ApproximateJacobian2 {
 
 		Matrix4d endEffectorPose = arm.getEndEffectorPose();
 		Entity newCopy = arm.getEntity().deepCopy();
-		RobotComponent temp = newCopy.findFirstComponent(RobotComponent.class);
+		RobotComponent temp = newCopy.getComponent(RobotComponent.class);
 		temp.findBones();
 
 		int DOF = arm.getNumBones();

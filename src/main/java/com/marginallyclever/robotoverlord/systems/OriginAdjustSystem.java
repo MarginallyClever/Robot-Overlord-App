@@ -28,7 +28,7 @@ public class OriginAdjustSystem implements ROSystem {
     }
 
     public static void adjustOne(Entity entity) {
-        PoseComponent myPose = entity.findFirstComponent(PoseComponent.class);
+        PoseComponent myPose = entity.getComponent(PoseComponent.class);
         PoseComponent parentPose = entity.findFirstComponentInParents(PoseComponent.class);
         if(myPose==null || parentPose==null) return;
         Matrix4d parentMat = parentPose.getWorld();
@@ -43,7 +43,7 @@ public class OriginAdjustSystem implements ROSystem {
             Entity entity = toProcess.remove(0);
             toProcess.addAll(entity.getChildren());
 
-            OriginAdjustComponent adj = entity.findFirstComponent(OriginAdjustComponent.class);
+            OriginAdjustComponent adj = entity.getComponent(OriginAdjustComponent.class);
             if(adj!=null) adjustOne(entity);
         }
     }

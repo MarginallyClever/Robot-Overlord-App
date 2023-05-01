@@ -28,7 +28,7 @@ public class MeshFromFile extends ShapeComponent {
 
     @Override
     public void setEntity(Entity entity) {
-        if(entity != null && entity.findFirstComponent(MaterialComponent.class)==null) {
+        if(entity != null && entity.getComponent(MaterialComponent.class)==null) {
             // no material, add one.
             String absolutePath = filename.get();
             if(!absolutePath.trim().isEmpty() && MeshFactory.hasMaterial(absolutePath)) {

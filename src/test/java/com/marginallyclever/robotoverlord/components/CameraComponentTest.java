@@ -59,11 +59,11 @@ public class CameraComponentTest {
         Entity mainCamera = new Entity("Main Camera");
         CameraComponent camera = new CameraComponent();
         mainCamera.addComponent(camera);
-        PoseComponent pose = mainCamera.findFirstComponent(PoseComponent.class);
+        PoseComponent pose = mainCamera.getComponent(PoseComponent.class);
         pose.setPosition(new Vector3d(-40,-40,30));
         camera.lookAt(new Vector3d(0,0,0));
 
-        Matrix4d cameraPose = mainCamera.findFirstComponent(PoseComponent.class).getWorld();
+        Matrix4d cameraPose = mainCamera.getComponent(PoseComponent.class).getWorld();
         Vector3d zAxis = MatrixHelper.getZAxis(cameraPose);
         Assertions.assertEquals(zAxis.x,-0.6246,0.01);
         Assertions.assertEquals(zAxis.y,-0.6246,0.01);

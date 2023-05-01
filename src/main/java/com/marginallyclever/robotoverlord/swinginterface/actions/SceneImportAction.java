@@ -158,7 +158,7 @@ public class SceneImportAction extends AbstractAction {
         while(!list.isEmpty()) {
             Entity e = list.removeFirst();
 
-            MaterialComponent material = e.findFirstComponent(MaterialComponent.class);
+            MaterialComponent material = e.getComponent(MaterialComponent.class);
             if(material!=null) {
                 String oldPath = material.getTextureFilename();
                 String newPath = oldPath;
@@ -168,7 +168,7 @@ public class SceneImportAction extends AbstractAction {
                 material.setTextureFilename(newPath);
             }
 
-            MeshFromFile mesh = e.findFirstComponent(MeshFromFile.class);
+            MeshFromFile mesh = e.getComponent(MeshFromFile.class);
             if(mesh!=null) {
                 String oldPath = mesh.getFilename();
                 String newPath = oldPath;

@@ -57,7 +57,7 @@ public class SceneClearAction extends AbstractAction {
 		Entity mainCamera = new Entity("Main Camera");
 		CameraComponent camera = new CameraComponent();
 		mainCamera.addComponent(camera);
-		PoseComponent pose = mainCamera.findFirstComponent(PoseComponent.class);
+		PoseComponent pose = mainCamera.getComponent(PoseComponent.class);
 
 		entityManager.addEntityToParent(mainCamera, entityManager.getRoot());
 		pose.setPosition(new Vector3d(25,20,15));

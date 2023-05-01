@@ -66,7 +66,7 @@ public class ProgramPanel extends JPanel {
 
 		// make a copy of the arm, so we don't mess up the real one.
 		Entity newCopy = myArm.getEntity().deepCopy();
-		RobotComponent temp = newCopy.findFirstComponent(RobotComponent.class);
+		RobotComponent temp = newCopy.getComponent(RobotComponent.class);
 		temp.findBones();
 
 		int i=0;

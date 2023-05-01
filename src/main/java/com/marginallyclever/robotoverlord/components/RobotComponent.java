@@ -61,7 +61,7 @@ public class RobotComponent extends Component implements Robot {
         queue.add(getEntity());
         while(!queue.isEmpty()) {
             Entity e = queue.poll();
-            DHComponent c = e.findFirstComponent(DHComponent.class);
+            DHComponent c = e.getComponent(DHComponent.class);
             if(c!=null) bones.add(c);
             queue.addAll(e.getChildren());
         }
@@ -162,7 +162,7 @@ public class RobotComponent extends Component implements Robot {
         ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
         if(ee==null) return null;
 
-        PoseComponent pose = ee.getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = ee.getEntity().getComponent(PoseComponent.class);
         if(pose==null) return null;
         Matrix4d m = pose.getWorld();
         return inBaseFrameOfReference(m);
@@ -259,7 +259,7 @@ public class RobotComponent extends Component implements Robot {
     public Matrix4d getEndEffectorPose() {
         ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
         if(ee==null) return null;
-        PoseComponent endEffectorPose = ee.getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent endEffectorPose = ee.getEntity().getComponent(PoseComponent.class);
         if(endEffectorPose==null) return null;
         Matrix4d m = endEffectorPose.getWorld();
         return inBaseFrameOfReference(m);
@@ -269,7 +269,7 @@ public class RobotComponent extends Component implements Robot {
      * @return The pose of the robot's base relative to the world.
      */
     private Matrix4d getPoseWorld() {
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         if(pose==null) return null;
         return pose.getWorld();
     }
@@ -278,7 +278,7 @@ public class RobotComponent extends Component implements Robot {
      * @param m The pose of the robot's base relative to the world.
      */
     private void setPoseWorld(Matrix4d m) {
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         if(pose==null) return;
         pose.setWorld(m);
     }

@@ -205,7 +205,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
             translation.add(pivotTranslation);
             pose.setTranslation(translation);
 
-            PoseComponent pc = entity.findFirstComponent(PoseComponent.class);
+            PoseComponent pc = entity.getComponent(PoseComponent.class);
             pc.setWorld(pose);
         }
     }

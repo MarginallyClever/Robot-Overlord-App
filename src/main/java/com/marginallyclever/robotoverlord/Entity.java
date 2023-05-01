@@ -285,15 +285,6 @@ public class Entity implements PropertyChangeListener {
 		return components.get(i);
 	}
 
-	public Component findComponentByName(String name) {
-		for(Component c : components) {
-			if(name.equals(c.getClass().getSimpleName())) {
-				return c;
-			}
-		}
-		return null;
-	}
-
 	public void removeComponent(Component c) {
 		components.remove(c);
 	}
@@ -302,39 +293,26 @@ public class Entity implements PropertyChangeListener {
 	 * @return the first instance of class T found in component list.
 	 * @param <T> the type to find and return.  Must be derived from Component.
 	 */
-	public <T> T findFirstComponent(Class<T> clazz) {
+	public <T extends Component> T getComponent(Class<T> clazz) {
 		for(Component c : components) {
 			if(clazz.isInstance(c)) {
-				return (T)c;
+				return clazz.cast(c);
 			}
 		}
 		return null;
 	}
 
 	/**
-	 * @return all instances of class T found attached to this Entity.
-	 * @param <T> the type to find and return.  Must be derived from Component.
-	 */
-	public <T> List<T> findAllComponents(Class<T> clazz) {
-		List<T> list = new ArrayList<>();
-		for(Component c : components) {
-			if(clazz.isInstance(c)) {
-				list.add((T)c);
-			}
-		}
-		return list;
-	}
-
-	/**
 	 * Search this Entity and all child Entities until a {@link Component} match is found.
 	 */
-	public <T> T findFirstComponentRecursive(Class<T> clazz) {
-		T found = findFirstComponent(clazz);
-		if(found!=null) return found;
-
-		for(Entity e : children) {
-			found = e.findFirstComponentRecursive(clazz);
+	public <T extends Component> T findFirstComponentRecursive(Class<T> clazz) {
+		List<Entity> toSearch = new LinkedList<>();
+		toSearch.add(this);
+		while(!toSearch.isEmpty()) {
+			Entity e = toSearch.remove(0);
+			T found = e.getComponent(clazz);
 			if(found!=null) return found;
+			toSearch.addAll(e.getChildren());
 		}
 
 		return null;
@@ -346,10 +324,10 @@ public class Entity implements PropertyChangeListener {
 	 * @return the instance found or null
 	 * @param <T> the class of the Component to find
 	 */
-	public <T> T findFirstComponentInParents(Class<T> clazz) {
+	public <T extends Component> T findFirstComponentInParents(Class<T> clazz) {
 		Entity p = parent;
 		while(p!=null) {
-			T found = p.findFirstComponent(clazz);
+			T found = p.getComponent(clazz);
 			if (found != null) return found;
 			p = p.getParent();
 		}
@@ -410,7 +388,7 @@ public class Entity implements PropertyChangeListener {
 			if(!containsAnInstanceOfTheSameClass(component)) {
 				this.addComponent(component);
 			} else {
-				component = findFirstComponent(component.getClass());
+				component = getComponent(component.getClass());
 			}
 			component.parseJSON(jo2);
 		}

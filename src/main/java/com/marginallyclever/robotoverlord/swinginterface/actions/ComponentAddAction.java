@@ -104,7 +104,7 @@ public class ComponentAddAction extends AbstractAction {
 		for (ComponentDependency a : annotations) {
 			Class<? extends Component> [] components = a.components();
 			for(Class<? extends Component> c : components) {
-				if(null==parent.findFirstComponent(c)) {
+				if(null==parent.getComponent(c)) {
 					Component newInstance = ComponentFactory.createInstance(c);
 					if(null != newInstance) {
 						UndoSystem.addEvent(this,new ComponentAddEdit(componentManagerPanel,parent,newInstance));

@@ -82,7 +82,7 @@ public class Viewport extends Entity {
 		gl2.glLoadIdentity();
 
 		if(camera !=null) {
-			PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
+			PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
 			Matrix4d inverseCamera = pose.getWorld();
 			inverseCamera.invert();
 			MatrixHelper.applyMatrix(gl2, inverseCamera);
@@ -119,7 +119,7 @@ public class Viewport extends Entity {
 					y*canvasHeight/10,
 					0);
 			direction = new Vector3d(0,0,-1);
-			PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
+			PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
 			Matrix4d m2 = pose.getWorld();
 			m2.transform(direction);
 			m2.transform(origin);
@@ -130,7 +130,7 @@ public class Viewport extends Entity {
 			direction = new Vector3d((cn[0])*t*getAspectRatio(),(cn[1])*t,-1);
 			
 			// adjust the ray by the camera world pose.
-			PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
+			PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
 			Matrix4d m2 = pose.getWorld();
 			m2.transform(direction);
 			origin = new Point3d(pose.getPosition());

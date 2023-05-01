@@ -77,7 +77,7 @@ public class CrabRobotComponent extends RenderComponent {
     }
 
     private void setPointOfContact(Entity poc,Vector3d point) {
-        PoseComponent pose = poc.findFirstComponent(PoseComponent.class);
+        PoseComponent pose = poc.getComponent(PoseComponent.class);
         Matrix4d m = pose.getLocal();
         m.setTranslation(point);
         pose.setLocalMatrix4(m);
@@ -202,7 +202,7 @@ public class CrabRobotComponent extends RenderComponent {
     private void setLegTargetPosition(int index,Point3d point) {
         RobotComponent robotLeg = legs[index];
         if(robotLeg==null) return;
-        PoseComponent legBasePose = robotLeg.getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent legBasePose = robotLeg.getEntity().getComponent(PoseComponent.class);
         if(legBasePose==null) return;
 
         // the leg is a robot arm.  the base of the arm is the crab's shoulder.
@@ -244,11 +244,11 @@ public class CrabRobotComponent extends RenderComponent {
 
     public void setInitialPointOfContact(Entity limb,int index) {
         Entity foot = limb.findByPath(HIP+"/"+THIGH+"/"+CALF+"/"+FOOT);
-        PoseComponent footPose = foot.findFirstComponent(PoseComponent.class);
+        PoseComponent footPose = foot.getComponent(PoseComponent.class);
         Vector3d toe = new Vector3d();
         footPose.getWorld().get(toe);
 
-        PoseComponent bodyPose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent bodyPose = getEntity().getComponent(PoseComponent.class);
         Vector3d body = new Vector3d();
         bodyPose.getWorld().get(body);
 

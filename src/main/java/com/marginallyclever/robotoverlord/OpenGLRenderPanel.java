@@ -5,7 +5,6 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
@@ -354,11 +353,9 @@ public class OpenGLRenderPanel extends JPanel {
             Entity entity = toTest.remove();
             toTest.addAll(entity.getChildren());
 
-            List<ShapeComponent> shapes = entity.findAllComponents(ShapeComponent.class);
-            for(ShapeComponent shape : shapes) {
-                RayHit hit = shape.intersect(ray);
-                if(hit!=null) rayHits.add(hit);
-            }
+            ShapeComponent shape = entity.getComponent(ShapeComponent.class);
+            RayHit hit = shape.intersect(ray);
+            if(hit!=null) rayHits.add(hit);
         }
         return rayHits;
     }
@@ -442,12 +439,12 @@ public class OpenGLRenderPanel extends JPanel {
             Entity entity = toRender.remove();
             toRender.addAll(entity.getChildren());
 
-            RenderComponent renderComponent = entity.findFirstComponent(RenderComponent.class);
+            RenderComponent renderComponent = entity.getComponent(RenderComponent.class);
             if(renderComponent!=null) {
                 MatrixMaterialRender mmr = new MatrixMaterialRender();
-                mmr.renderComponent = entity.findFirstComponent(RenderComponent.class);
-                mmr.materialComponent = entity.findFirstComponent(MaterialComponent.class);
-                PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
+                mmr.renderComponent = entity.getComponent(RenderComponent.class);
+                mmr.materialComponent = entity.getComponent(MaterialComponent.class);
+                PoseComponent pose = entity.getComponent(PoseComponent.class);
                 if(pose!=null) mmr.matrix.set(pose.getWorld());
 
                 if(mmr.materialComponent==null) noMaterial.add(mmr);
@@ -463,7 +460,7 @@ public class OpenGLRenderPanel extends JPanel {
         // sort alpha objects back to front
         Vector3d cameraPoint = new Vector3d();
         Entity cameraEntity = getCamera().getEntity();
-        cameraEntity.findFirstComponent(PoseComponent.class).getWorld().get(cameraPoint);
+        cameraEntity.getComponent(PoseComponent.class).getWorld().get(cameraPoint);
 
         Vector3d p1 = new Vector3d();
         Vector3d p2 = new Vector3d();
@@ -513,7 +510,7 @@ public class OpenGLRenderPanel extends JPanel {
             Entity obj = found.remove();
             found.addAll(obj.children);
 
-            LightComponent light = obj.findFirstComponent(LightComponent.class);
+            LightComponent light = obj.getComponent(LightComponent.class);
             if(light!=null && light.getEnabled()) {
                 light.setupLight(gl2,i++);
                 if(i==maxLights) return;

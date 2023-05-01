@@ -66,7 +66,7 @@ public abstract class ShapeComponent extends RenderComponent {
 
         Entity e = getEntity();
         if(e==null) return null;
-        PoseComponent pose = e.findFirstComponent(PoseComponent.class);
+        PoseComponent pose = e.getComponent(PoseComponent.class);
         if(pose==null) return null;
 
         Ray localRay = transformRayToLocalSpace(pose, ray);

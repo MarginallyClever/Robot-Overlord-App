@@ -39,7 +39,7 @@ public class SelectedItems {
     }
 
     private void setEntityWorldPose(Entity entity) {
-        PoseComponent poseComponent = entity.findFirstComponent(PoseComponent.class);
+        PoseComponent poseComponent = entity.getComponent(PoseComponent.class);
         if (poseComponent != null) {
             entityWorldPoses.put(entity, poseComponent.getWorld());
         }
@@ -59,7 +59,7 @@ public class SelectedItems {
     }
 
     public Matrix4d getWorldPoseNow(Entity entity) {
-        PoseComponent poseComponent = entity.findFirstComponent(PoseComponent.class);
+        PoseComponent poseComponent = entity.getComponent(PoseComponent.class);
         if (poseComponent != null) {
             return poseComponent.getWorld();
         }

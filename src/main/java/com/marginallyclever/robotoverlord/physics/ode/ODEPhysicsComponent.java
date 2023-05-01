@@ -31,7 +31,7 @@ public class ODEPhysicsComponent extends Component {
 	
 	@Override
 	public void update(double dt) {
-		if(myPose==null) myPose = getEntity().findFirstComponent(PoseComponent.class);
+		if(myPose==null) myPose = getEntity().getComponent(PoseComponent.class);
 		if(myPose!=null) {
 			if(!(geom instanceof DPlane)) {
 				myPose.setWorld(ODEConverter.getMatrix4d(geom));

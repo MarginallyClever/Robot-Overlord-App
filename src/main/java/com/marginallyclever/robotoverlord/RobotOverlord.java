@@ -540,7 +540,7 @@ public class RobotOverlord implements RobotLibraryListener {
 			ShapeComponent shape = new MeshFromFile(absolutePath);
 			entity.addComponent(shape);
 			// move entity to camera orbit point so that it is visible.
-			PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
+			PoseComponent pose = entity.getComponent(PoseComponent.class);
 			pose.setPosition(entityManager.getCamera().getOrbitPoint());
 
 			// add entity to scene.

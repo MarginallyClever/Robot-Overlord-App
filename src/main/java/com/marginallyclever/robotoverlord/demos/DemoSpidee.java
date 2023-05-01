@@ -28,7 +28,7 @@ public class DemoSpidee implements Demo {
 
 		// adjust default camera
 		CameraComponent camera = entityManager.getCamera();
-		PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
+		PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
 		pose.setPosition(new Vector3d(40/4f,-91/4f,106/4f));
 		camera.lookAt(new Vector3d(0,0,0));
 		camera.setOrbitDistance(50);
@@ -40,7 +40,7 @@ public class DemoSpidee implements Demo {
 		entityManager.addEntityToParent(gridEntity, entityManager.getRoot());
 		grid.setWidth(100);
 		grid.setLength(100);
-		MaterialComponent mat = gridEntity.findFirstComponent(MaterialComponent.class);
+		MaterialComponent mat = gridEntity.getComponent(MaterialComponent.class);
 		mat.setDiffuseColor(0,0,0,0);
 		mat.setLit(false);
 
@@ -110,7 +110,7 @@ public class DemoSpidee implements Demo {
 		foot.addComponent(new ArmEndEffectorComponent());
 
 		// position limb
-		PoseComponent pose = limb.findFirstComponent(PoseComponent.class);
+		PoseComponent pose = limb.getComponent(PoseComponent.class);
 		double r = Math.toRadians(degrees);
 		pose.setPosition(new Vector3d(Math.cos(r)*10,Math.sin(r)*10,2.6));
 		pose.setRotation(new Vector3d(0,0,degrees));

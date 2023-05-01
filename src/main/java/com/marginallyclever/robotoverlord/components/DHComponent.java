@@ -6,7 +6,6 @@ import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -87,7 +86,7 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         Entity entity = getEntity();
         if(entity==null) return;
 
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         if(pose==null) {
             pose = new PoseComponent();
             getEntity().addComponent(pose);
@@ -165,7 +164,7 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
      * @return the local pose of this entity.
      */
     public Matrix4d getLocal() {
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         if(pose==null) return null;
         return pose.getLocal();
     }

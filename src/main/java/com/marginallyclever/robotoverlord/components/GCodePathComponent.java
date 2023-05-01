@@ -104,7 +104,7 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
     private double calculateDistance() {
         double sum = 0;
 
-        PoseComponent myPose = this.getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent myPose = this.getEntity().getComponent(PoseComponent.class);
         PathWalker pathWalker = new PathWalker(myPose,gCodePath,maxStepSize);
         Point3d now = new Point3d();
         Point3d next = new Point3d();
@@ -119,7 +119,7 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
 
     public PathWalker getPathWalker() {
         if(gCodePath==null) return null;
-        PoseComponent myPose = this.getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent myPose = this.getEntity().getComponent(PoseComponent.class);
         return new PathWalker(myPose,gCodePath,maxStepSize);
     }
 
@@ -142,7 +142,7 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
         double sum = 0;
         if(gCodePath==null) return null;
 
-        PoseComponent myPose = this.getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent myPose = this.getEntity().getComponent(PoseComponent.class);
         PathWalker pathWalker = new PathWalker(null,gCodePath,5);
         Point3d now = new Point3d();
         Point3d nextPosition;

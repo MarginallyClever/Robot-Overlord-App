@@ -4,7 +4,6 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.Plane;
-import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
@@ -125,7 +124,7 @@ public class TranslateEntityToolOneAxis implements EditorTool {
             pose.m03 += translation.x;
             pose.m13 += translation.y;
             pose.m23 += translation.z;
-            entity.findFirstComponent(PoseComponent.class).setWorld(pose);
+            entity.getComponent(PoseComponent.class).setWorld(pose);
         }
     }
 

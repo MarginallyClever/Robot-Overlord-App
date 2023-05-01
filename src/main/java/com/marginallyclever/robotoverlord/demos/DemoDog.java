@@ -26,7 +26,7 @@ public class DemoDog implements Demo {
 	public void execute(EntityManager entityManager) {
 		// adjust default camera
 		CameraComponent camera = entityManager.getCamera();
-		PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
+		PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
 		pose.setPosition(new Vector3d(40/4f,-91/4f,106/4f));
 		camera.lookAt(new Vector3d(0,0,0));
 		camera.setOrbitDistance(50);
@@ -38,7 +38,7 @@ public class DemoDog implements Demo {
 		entityManager.addEntityToParent(gridEntity, entityManager.getRoot());
 		grid.setWidth(100);
 		grid.setLength(100);
-		MaterialComponent mat = gridEntity.findFirstComponent(MaterialComponent.class);
+		MaterialComponent mat = gridEntity.getComponent(MaterialComponent.class);
 		mat.setDiffuseColor(0,0,0,0);
 		mat.setLit(false);
 
@@ -53,13 +53,13 @@ public class DemoDog implements Demo {
 		myEntity.addComponent(dog);
 
 		myEntity.addComponent(new PoseComponent());
-		PoseComponent myPose = myEntity.findFirstComponent(PoseComponent.class);
+		PoseComponent myPose = myEntity.getComponent(PoseComponent.class);
 		myPose.setPosition(new Vector3d(0,0,5.4));
 		myPose.setRotation(new Vector3d(90,0,0));
 
 		Entity mesh = createMesh("/robots/SpotMicro/torso.obj",new ColorRGB(0xffffff));
 		entityManager.addEntityToParent(mesh,myEntity);
-		PoseComponent meshPose = mesh.findFirstComponent(PoseComponent.class);
+		PoseComponent meshPose = mesh.getComponent(PoseComponent.class);
 		meshPose.setRotation(new Vector3d(90,180,180));
 		meshPose.setPosition(new Vector3d(-0.7,4.1,7));
 
@@ -91,7 +91,7 @@ public class DemoDog implements Demo {
 			dh[i].setVisible(true);
 		}
 		Entity limb = createPoseEntity(name);
-		PoseComponent limbPose = limb.findFirstComponent(PoseComponent.class);
+		PoseComponent limbPose = limb.getComponent(PoseComponent.class);
 		limbPose.setPosition(new Vector3d(r,0,d));
 
 		entityManager.addEntityToParent(createCylinder(4,2.1,new ColorRGB(0x9999FF)),limb);

@@ -121,7 +121,7 @@ public class RotateEntityMultiTool implements EditorTool {
         EditorTool nearestTool = null;
         double nearestDistance = Double.MAX_VALUE;
 
-        PoseComponent cameraPose = viewport.getCamera().getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent cameraPose = viewport.getCamera().getEntity().getComponent(PoseComponent.class);
         Point3d cameraPosition = new Point3d(MatrixHelper.getPosition(cameraPose.getWorld()));
         for(EditorTool t : tools) {
             if(t.isInUse()) {
