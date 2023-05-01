@@ -2,7 +2,6 @@ package com.marginallyclever.robotoverlord.robots.deltarobot3;
 
 import javax.vecmath.Vector3d;
 
-@Deprecated
 public class DeltaRobot3Arm {
 	private final Vector3d ortho = new Vector3d();
 	public final Vector3d shoulder = new Vector3d();
