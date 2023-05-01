@@ -38,9 +38,6 @@ public class DogRobotSystem implements EntitySystem {
     public void decorateDog(ComponentPanelFactory view,Component component) {
         DogRobotComponent dog = (DogRobotComponent)component;
 
-        ViewElementButton bMake = view.addButton("Edit Dog");
-        bMake.addActionEventListener((evt)-> makeDog(bMake,dog,"Edit Dog"));
-
         view.add(dog.standingRadius);
         view.add(dog.standingHeight);
         view.add(dog.turningStrideLength);
@@ -49,6 +46,9 @@ public class DogRobotSystem implements EntitySystem {
 
         view.addComboBox(dog.modeSelector, DogRobotComponent.MODE_NAMES);
         view.add(dog.speedScale);
+
+        ViewElementButton bMake = view.addButton("Edit Dog");
+        bMake.addActionEventListener((evt)-> makeDog(bMake,dog,"Edit Dog"));
     }
 
     private void makeDog(JComponent parent, DogRobotComponent dog,String title) {

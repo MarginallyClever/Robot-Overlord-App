@@ -7,7 +7,6 @@ import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
-import com.marginallyclever.robotoverlord.demos.DemoSpidee;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
 import com.marginallyclever.robotoverlord.swinginterface.SoundSystem;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
@@ -16,7 +15,7 @@ import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanel;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.systems.*;
-import com.marginallyclever.robotoverlord.systems.robot.CrabRobotSystem;
+import com.marginallyclever.robotoverlord.systems.robot.crab.CrabRobotSystem;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.ArmRobotSystem;
 import com.marginallyclever.robotoverlord.systems.robot.dog.DogRobotSystem;
 import com.marginallyclever.util.PropertiesFileHelper;
@@ -128,7 +127,6 @@ public class RobotOverlord {
 	private final List<EntitySystem> systems = new ArrayList<>();
 
 	private double frameDelay;
-	private double frameLength;
 
 	public static void main(String[] argv) {
 		Log.start();
@@ -180,12 +178,7 @@ public class RobotOverlord {
     }
 
 	private void update(double dt) {
-		frameDelay+=dt;
-		if(frameDelay>frameLength) {
-			frameDelay-=frameLength;
-
-			for(EntitySystem system : systems) system.update(frameLength);
-		}
+		for(EntitySystem system : systems) system.update(dt);
 	}
 
 	private void buildSystems() {
@@ -368,7 +361,6 @@ public class RobotOverlord {
 
 	private JComponent createDemoMenu() {
 		JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.Demos"));
-		menu.add(new JMenuItem(new DemoAction(entityManager,new DemoSpidee())));
 		//menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
 		menu.addSeparator();
 		menu.add(new JMenuItem(new ShowRobotLibraryPanel(this::refreshMainMenu)));

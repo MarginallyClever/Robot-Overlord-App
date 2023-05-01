@@ -114,8 +114,7 @@ public class LoadSTL implements MeshLoader {
 				x=Float.parseFloat(c[0]);
 				y=Float.parseFloat(c[1]);
 				z=Float.parseFloat(c[2]);
-				Vector3d v = new Vector3d(x,y,z);
-				len = (float)v.length();
+				len = (float)Math.sqrt(x*x+y*y+z*z);
 				x/=len;
 				y/=len;
 				z/=len;

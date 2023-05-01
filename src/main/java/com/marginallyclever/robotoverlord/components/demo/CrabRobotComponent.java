@@ -13,6 +13,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 
+@ComponentDependency(components = {PoseComponent.class})
 public class CrabRobotComponent extends RenderComponent {
     public static final int NUM_LEGS = 6;
     public static final String HIP = "Hip";
@@ -44,6 +45,11 @@ public class CrabRobotComponent extends RenderComponent {
 
     public CrabRobotComponent() {
         super();
+        for(int i=0;i<NUM_LEGS;++i) {
+            lastPOC[i] = new Point3d();
+            nextPOC[i] = new Point3d();
+            targets[i] = new Point3d();
+        }
     }
 
     public void setLeg(int index,RobotComponent leg) {
@@ -256,8 +262,7 @@ public class CrabRobotComponent extends RenderComponent {
         toe.normalize();
         toe.scaleAdd(standingRadius.get(),body);
         toe.z=0;
-        nextPOC[index] = new Point3d(toe);
-        lastPOC[index] = new Point3d(toe);
-        targets[index] = new Point3d();
+        nextPOC[index].set(toe);
+        lastPOC[index].set(toe);
     }
 }

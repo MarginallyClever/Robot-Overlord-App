@@ -1,11 +1,16 @@
-package com.marginallyclever.robotoverlord.systems.robot;
+package com.marginallyclever.robotoverlord.systems.robot.crab;
 
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
 import com.marginallyclever.robotoverlord.components.demo.DogRobotComponent;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
+import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
+import com.marginallyclever.robotoverlord.systems.robot.dog.EditDogPanel;
+
+import javax.swing.*;
 
 /**
  * A system to manage robot crabs.
@@ -41,6 +46,13 @@ public class CrabRobotSystem implements EntitySystem {
 
         view.addComboBox(crab.modeSelector, CrabRobotComponent.MODE_NAMES);
         view.add(crab.speedScale);
+
+        ViewElementButton bMake = view.addButton("Edit Crab");
+        bMake.addActionEventListener((evt)-> makeCrab(bMake,crab,"Edit Crab"));
+    }
+
+    private void makeCrab(JComponent parent, CrabRobotComponent crab, String title) {
+        EntitySystemUtils.makePanel(new EditCrabPanel(crab.getEntity(), entityManager), parent,title);
     }
 
     /**
