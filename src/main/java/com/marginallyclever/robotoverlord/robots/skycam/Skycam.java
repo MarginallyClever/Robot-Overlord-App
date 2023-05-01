@@ -12,14 +12,7 @@ import javax.vecmath.Vector3d;
 
 public class Skycam extends RenderComponent {
 	private static final Logger logger = LoggerFactory.getLogger(Skycam.class);
-	
-	// the model used to systems & control (the Flyweight)
 	private final transient SkycamModel model = new SkycamModel();
-	// the live robot in the real world.  Controls comms with the machine.
-	private final transient SkycamLive live = new SkycamLive(model);
-	// a simulation of the motors which should match the ideal physical behavior.
-	private final transient SkycamSim sim = new SkycamSim(model);
-	private Entity ee;
 	private PoseComponent eePose;
 	
 	public Skycam() {
@@ -32,6 +25,7 @@ public class Skycam extends RenderComponent {
 		if(entity == null) return;
 
 		Entity maybe = entity.findByPath("./ee");
+		Entity ee;
 		if(maybe!=null) ee = maybe;
 		else {
 			ee = new Entity("ee");
@@ -48,28 +42,12 @@ public class Skycam extends RenderComponent {
 
 		gl2.glPushMatrix();
 		MatrixHelper.applyMatrix(gl2, myPose.getLocal());
-		
-		// live machine reports
-		live.render(gl2);
+
 		// user controlled version
 		model.setPosition(eePose.getLocal());
 		model.setDiffuseColor(1,1,1,1);
 		model.render(gl2);
-		// simulation claims
-		sim.render(gl2);
 
 		gl2.glPopMatrix();
-	}
-	
-	@Override
-	public void update(double dt) {
-		live.update(dt);
-		sim.update(dt);
-		
-		super.update(dt);
-	}
-
-	public SkycamModel getModel() {
-		return model;
 	}
 }

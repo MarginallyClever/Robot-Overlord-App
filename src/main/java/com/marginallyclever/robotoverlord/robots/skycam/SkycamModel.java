@@ -13,24 +13,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 @Deprecated
-public class SkycamModel extends Entity {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2970092713744170430L;
-
-	public static final int DEFAULT_FEEDRATE = 1;
-	public static final int DEFAULT_ACCELERATION = 1;
-	public static final int MAX_SEGMENTS = 16;
-
-	public static final double MIN_SEGMENT_TIME = 0.025;  // seconds
-	public static final double MAX_JOINT_FEEDRATE = 20;
-
-	public static final double[] MAX_JERK = {1,1,1,1};
-
-	public static final double MAX_FEEDRATE = 10;
-	public static final double MAX_ACCELERATION = 10;
-	
+public class SkycamModel {
 	protected transient Vector3DParameter size = new Vector3DParameter("size",100,100,100);
 	protected transient Vector3DParameter ee = new Vector3DParameter("ee",0,0,0);
 	protected Color4f color = new Color4f();
@@ -56,13 +39,6 @@ public class SkycamModel extends Entity {
 		gl2.glEnd();
 		
 		gl2.glPopMatrix();
-		
-		super.render(gl2);
-	}
-
-	@Deprecated
-	public void getView(ComponentPanelFactory view) {
-		view.add(size);
 	}
 
 	public Vector3d getPosition() {
