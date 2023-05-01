@@ -37,14 +37,14 @@ public class ArmRobotSystem implements EntitySystem {
 
     private void decorateDH(ComponentPanelFactory view, Component component) {
         DHComponent dh = (DHComponent)component;
-        view.add(dh.isRevolute);
-        view.add(dh.myD);
-        view.add(dh.myR);
-        view.add(dh.alpha);
-        view.add(dh.theta);
-        view.add(dh.jointMax);
-        view.add(dh.jointMin);
-        view.add(dh.jointHome);
+        view.add(dh.isRevolute).setReadOnly(true);
+        view.add(dh.myD).setReadOnly(true);
+        view.add(dh.myR).setReadOnly(true);
+        view.add(dh.alpha).setReadOnly(true);
+        view.add(dh.theta).setReadOnly(true);
+        view.add(dh.jointMax).setReadOnly(true);
+        view.add(dh.jointMin).setReadOnly(true);
+        view.add(dh.jointHome).setReadOnly(true);
     }
 
     private void decorateRobot(ComponentPanelFactory view, Component component) {

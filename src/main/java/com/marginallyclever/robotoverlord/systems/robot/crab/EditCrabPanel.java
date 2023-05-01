@@ -55,8 +55,8 @@ public class EditCrabPanel extends JPanel {
 
     private void createComponents() {
         PoseComponent myPose = rootEntity.getComponent(PoseComponent.class);
-        myPose.setPosition(new Vector3d(0, 0, 5.4));
-        myPose.setRotation(new Vector3d(90, 0, 0));
+        //myPose.setPosition(new Vector3d(0, 0, 5.4));
+        //myPose.setRotation(new Vector3d(90, 0, 0));
 
         // torso
         if (firstChildHasNoMesh(rootEntity)) {
@@ -64,8 +64,6 @@ public class EditCrabPanel extends JPanel {
             Entity mesh = createMesh("/robots/Spidee/body.stl", new ColorRGB(0x3333FF));
             entityManager.addEntityToParent(mesh, rootEntity);
             PoseComponent meshPose = mesh.getComponent(PoseComponent.class);
-            meshPose.setRotation(new Vector3d(90, 180, 180));
-            meshPose.setPosition(new Vector3d(-0.7, 4.1, 7));
         }
 
         if (rootEntity.getChildren().size() != 7) {
@@ -111,22 +109,22 @@ public class EditCrabPanel extends JPanel {
 
         Entity hip = new Entity(CrabRobotComponent.HIP);
         entityManager.addEntityToParent(hip,limb);
-        dh[0].set(0,2.2,90,0,60,-60,true);
         if(isRight) entityManager.addEntityToParent(createMesh("/robots/Spidee/shoulder_right.obj",new ColorRGB(0x9999FF)),hip);
         else        entityManager.addEntityToParent(createMesh("/robots/Spidee/shoulder_left.obj",new ColorRGB(0x9999FF)),hip);
+        dh[0].set(0,2.2,90,0,60,-60,true);
         hip.addComponent(dh[0]);
 
         Entity thigh = new Entity(CrabRobotComponent.THIGH);
         entityManager.addEntityToParent(thigh,hip);
-        dh[1].set( 0,8.5,0,0,106,-72,true);
         entityManager.addEntityToParent(createMesh("/robots/Spidee/thigh.obj",new ColorRGB(0xFFFFFF)),thigh);
+        dh[1].set( 0,8.5,0,0,106,-72,true);
         thigh.addComponent(dh[1]);
 
         Entity calf = new Entity(CrabRobotComponent.CALF);
         entityManager.addEntityToParent(calf,thigh);
-        dh[2].set(0,10.5,0,0,15,-160,true);
         if(isRight) entityManager.addEntityToParent(createMesh("/robots/Spidee/calf_right.obj",new ColorRGB(0xFFFF99)),calf);
         else		entityManager.addEntityToParent(createMesh("/robots/Spidee/calf_left.obj",new ColorRGB(0xFFFF99)),calf);
+        dh[2].set(0,10.5,0,0,15,-160,true);
         calf.addComponent(dh[2]);
 
         Entity foot = new Entity(CrabRobotComponent.FOOT);
@@ -156,8 +154,7 @@ public class EditCrabPanel extends JPanel {
         MaterialComponent mc = mesh.getComponent(MaterialComponent.class);
         mc.setDiffuseColor(color.red/255.0,color.green/255.0,color.blue/255.0,1);
 
-        OriginAdjustSystem oas = new OriginAdjustSystem();
-        oas.adjustOne(mesh);
+        OriginAdjustSystem.adjustOne(mesh);
 
         return mesh;
     }
