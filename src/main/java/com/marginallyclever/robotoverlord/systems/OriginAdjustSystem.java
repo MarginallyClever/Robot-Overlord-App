@@ -24,10 +24,10 @@ public class OriginAdjustSystem implements ROSystem {
 
     private void decorateOriginAdjust(ComponentPanelFactory view, Component component) {
         OriginAdjustComponent adj = (OriginAdjustComponent)component;
-        view.addButton("Adjust me").addActionEventListener( e -> adjustOne(component.getEntity()) );
+        view.addButton("Adjust me").addActionEventListener( e -> OriginAdjustSystem.adjustOne(component.getEntity()) );
     }
 
-    public void adjustOne(Entity entity) {
+    public static void adjustOne(Entity entity) {
         PoseComponent myPose = entity.findFirstComponent(PoseComponent.class);
         PoseComponent parentPose = entity.findFirstComponentInParents(PoseComponent.class);
         if(myPose==null || parentPose==null) return;
@@ -36,7 +36,7 @@ public class OriginAdjustSystem implements ROSystem {
         parentMat.invert();
         myPose.setLocalMatrix4(parentMat);
     }
-    public void adjustEntireTree(Entity root) {
+    public static void adjustEntireTree(Entity root) {
         List<Entity> toProcess = new ArrayList<>();
         toProcess.add(root);
         while(!toProcess.isEmpty()) {

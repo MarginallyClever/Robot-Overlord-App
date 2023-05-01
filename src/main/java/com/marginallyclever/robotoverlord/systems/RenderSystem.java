@@ -11,12 +11,14 @@ import com.marginallyclever.robotoverlord.components.shapes.Grid;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.components.shapes.Sphere;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
+import com.marginallyclever.robotoverlord.parameters.TextureParameter;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementFilename;
 
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.util.ArrayList;
+import java.util.List;
 
 public class RenderSystem implements ROSystem {
     /**
@@ -62,8 +64,7 @@ public class RenderSystem implements ROSystem {
 
     private void decorateMeshFromFile(ComponentPanelFactory view, Component component) {
         MeshFromFile meshComponent = (MeshFromFile) component;
-        ArrayList<FileFilter> filters = MeshFactory.getAllExtensions();
-        view.addFilename(meshComponent.filename,filters);
+        view.addFilename(meshComponent.filename,MeshFactory.getAllExtensions());
         view.addButton("Reload").addActionEventListener(e -> meshComponent.reload());
     }
 
@@ -108,13 +109,6 @@ public class RenderSystem implements ROSystem {
         view.add(material.specular);
         view.addRange(material.shininess, 128, 0);
 
-        ArrayList<FileFilter> filters = new ArrayList<>();
-        // supported file formats
-        filters.add(new FileNameExtensionFilter("PNG", "png"));
-        filters.add(new FileNameExtensionFilter("BMP", "bmp"));
-        filters.add(new FileNameExtensionFilter("JPEG", "jpeg","jpg"));
-        filters.add(new FileNameExtensionFilter("TGA", "tga"));
-
-        view.addFilename(material.texture,filters);
+        view.addFilename(material.texture, TextureParameter.getFilters());
     }
 }

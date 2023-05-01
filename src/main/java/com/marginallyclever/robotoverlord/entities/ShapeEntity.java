@@ -20,6 +20,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A {@link Mesh} is a collection of points, triangles, normals, and possibly color and possibly texture coordinates.
@@ -206,10 +207,9 @@ public class ShapeEntity extends PoseEntity implements Collidable {
 		return myMesh;
 	}
 	
-	@Override
+	@Deprecated
 	public void getView(ComponentPanelFactory view) {
-		ArrayList<FileFilter> filters = MeshFactory.getAllExtensions();
-		view.addFilename(filename,filters);
+		view.addFilename(filename,MeshFactory.getAllExtensions());
 		
 		view.add(rotationAdjust);
 		view.add(originAdjust);
