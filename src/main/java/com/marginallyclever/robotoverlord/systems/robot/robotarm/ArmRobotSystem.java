@@ -7,6 +7,7 @@ import com.marginallyclever.robotoverlord.components.DHComponent;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.GCodePathComponent;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
+import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.RobotPanel;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
@@ -54,7 +55,7 @@ public class ArmRobotSystem implements EntitySystem {
         robotComponent.findBones();
 
         ViewElementButton bMake = view.addButton("Edit Arm 6");
-        bMake.addActionEventListener((evt)-> makeRobotArm6(bMake,robotComponent));
+        bMake.addActionEventListener((evt)-> makeRobotArm6(bMake,robotComponent,"Edit Arm 6"));
 
         ViewElementButton bOpen = view.addButton(Translator.get("RobotROSystem.controlPanel"));
         bOpen.addActionEventListener((evt)-> showControlPanel(bOpen,robotComponent));
@@ -63,29 +64,12 @@ public class ArmRobotSystem implements EntitySystem {
         bHome.addActionEventListener((evt)-> robotComponent.goHome());
     }
 
-    private void makeRobotArm6(JComponent parent, RobotComponent robotComponent) {
-        makePanel(new EditArm6Panel(robotComponent.getEntity(), entityManager), parent,"Make Arm 6");
-    }
-
-    private void makePanel(JPanel panel, JComponent parent,String title) {
-        JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(parent);
-
-        try {
-            JDialog frame = new JDialog(parentFrame, title);
-            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            frame.setPreferredSize(new Dimension(700,300));
-            frame.add(panel);
-            frame.pack();
-            frame.setLocationRelativeTo(parentFrame);
-            frame.setVisible(true);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showConfirmDialog(parentFrame, ex.getMessage(), "Error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
-        }
+    private void makeRobotArm6(JComponent parent, RobotComponent robotComponent,String title) {
+        EntitySystemUtils.makePanel(new EditArm6Panel(robotComponent.getEntity(), entityManager), parent,title);
     }
 
     private void showControlPanel(JComponent parent,RobotComponent robotComponent) {
-        makePanel(new RobotPanel(robotComponent,getGCodePath(robotComponent)), parent,Translator.get("RobotROSystem.controlPanel"));
+        EntitySystemUtils.makePanel(new RobotPanel(robotComponent,getGCodePath(robotComponent)), parent,Translator.get("RobotROSystem.controlPanel"));
     }
 
     private GCodePathComponent getGCodePath(RobotComponent robotComponent) {
