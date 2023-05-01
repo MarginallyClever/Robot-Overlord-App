@@ -2,10 +2,9 @@ package com.marginallyclever.robotoverlord.robots.stewartplatform.rotary;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotoverlord.robots.ShapeEntity;
+import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
-import javax.vecmath.Vector3d;
 import java.io.Serial;
 
 @Deprecated
@@ -15,25 +14,25 @@ public class RotaryStewartPlatform2 extends RotaryStewartPlatform {
 
 	public final String hello = "HELLO WORLD! I AM STEWART PLATFORM V4.2";
 	// machine dimensions
-	private final ShapeEntity baseModel;
-	private final ShapeEntity eeModel;
-	private final ShapeEntity armModel;
+	private final MeshFromFile baseModel;
+	private final MeshFromFile eeModel;
+	private final MeshFromFile armModel;
 
 	public RotaryStewartPlatform2() {
 		super("Rotary Stewart Platform 2");
 		
 		// load models and fix scale/orientation.
-		baseModel = new ShapeEntity("Base", "/robots/rotaryStewartPlatform/base.stl");
-		baseModel.setShapeScale(0.1);
-		eeModel = new ShapeEntity("ee", "/robots/rotaryStewartPlatform/endEffector.stl");
-		eeModel.setShapeScale(0.1);
-		eeModel.setShapeRotation(new Vector3d(0,0,-30));
-		armModel = new ShapeEntity("arm", "/robots/rotaryStewartPlatform/arm.stl");
-		armModel.setShapeScale(0.1);
+		baseModel = new MeshFromFile("/robots/rotaryStewartPlatform/base.stl");
+		//baseModel.setShapeScale(0.1);
+		eeModel = new MeshFromFile("/robots/rotaryStewartPlatform/endEffector.stl");
+		//eeModel.setShapeScale(0.1);
+		//eeModel.setShapeRotation(new Vector3d(0,0,-30));
+		armModel = new MeshFromFile( "/robots/rotaryStewartPlatform/arm.stl");
+		//armModel.setShapeScale(0.1);
 
-		eeModel.setShapeRotation(180,0,30);
-		baseModel.setShapeRotation(0,90,90);
-		baseModel.setShapeOrigin(0,0,BASE_Z.get() + 0.6);
+		//eeModel.setShapeRotation(180,0,30);
+		//baseModel.setShapeRotation(0,90,90);
+		//baseModel.setShapeOrigin(0,0,BASE_Z.get() + 0.6);
 	}
 
 	@Override

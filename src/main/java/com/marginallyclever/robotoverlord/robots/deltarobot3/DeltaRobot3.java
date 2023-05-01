@@ -7,9 +7,9 @@ import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.memento.Memento;
+import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
 import com.marginallyclever.robotoverlord.robots.PoseEntity;
-import com.marginallyclever.robotoverlord.robots.ShapeEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
@@ -54,13 +54,10 @@ public class DeltaRobot3 extends PoseEntity implements Robot {
 	// angle of rotation
 	public final DeltaRobot3Arm [] arms = new DeltaRobot3Arm[NUM_ARMS];
 
-	// bounding volumes for collision testing
-	private Cylinder [] volumes;
-
 	// models for 3d rendering
-	private final transient ShapeEntity modelTop;
-	private final transient ShapeEntity modelArm;
-	private final transient ShapeEntity modelBase;
+	private final transient MeshFromFile modelTop;
+	private final transient MeshFromFile modelArm;
+	private final transient MeshFromFile modelBase;
 	
 	// motion state testing
 	final DeltaRobot3Memento motionNow = new DeltaRobot3Memento();
@@ -103,13 +100,13 @@ public class DeltaRobot3 extends PoseEntity implements Robot {
 
 		tube.setRadius(0.15f);
 
-		modelTop = new ShapeEntity("top", "/robots/DeltaRobot3/top.obj");
-		modelArm = new ShapeEntity("arm", "/robots/DeltaRobot3/arm.obj");
-		modelBase = new ShapeEntity("base", "/robots/DeltaRobot3/base.obj");
+		modelTop = new MeshFromFile("/robots/DeltaRobot3/top.obj");
+		modelArm = new MeshFromFile("/robots/DeltaRobot3/arm.obj");
+		modelBase = new MeshFromFile("/robots/DeltaRobot3/base.obj");
 
-		modelBase.getMaterial().setDiffuseColor(1,0.8f,0.6f,1);
-		modelArm.getMaterial().setDiffuseColor(1.0f, 249.0f/255.0f, 242.0f/255.0f,1);
-		modelTop.getMaterial().setDiffuseColor(1.0f, 249.0f/255.0f, 242.0f/255.0f,1);
+		//modelBase.getMaterial().setDiffuseColor(1,0.8f,0.6f,1);
+		//modelArm.getMaterial().setDiffuseColor(1.0f, 249.0f/255.0f, 242.0f/255.0f,1);
+		//modelTop.getMaterial().setDiffuseColor(1.0f, 249.0f/255.0f, 242.0f/255.0f,1);
 	}
 
 	@Override
@@ -135,8 +132,9 @@ public class DeltaRobot3 extends PoseEntity implements Robot {
 
 	private void setupBoundingVolumes() {
 		// set up bounding volumes
-		volumes = new Cylinder[NUM_ARMS];
-		for(int i=0;i<volumes.length;++i) {
+		// bounding volumes for collision testing
+		Cylinder[] volumes = new Cylinder[NUM_ARMS];
+		for(int i = 0; i< volumes.length; ++i) {
 			volumes[i] = new Cylinder();
 		}
 		volumes[0].setRadius(3.2f);
