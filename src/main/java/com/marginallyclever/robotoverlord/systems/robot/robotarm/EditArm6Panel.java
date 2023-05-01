@@ -37,7 +37,7 @@ public class EditArm6Panel extends JPanel {
         this.add(dhTable,BorderLayout.CENTER);
         this.entityManager = entityManager;
         this.rootEntity = rootEntity;
-        createArmComponents();
+        createComponents();
         setupPanel();
     }
 
@@ -57,7 +57,7 @@ public class EditArm6Panel extends JPanel {
         return dh!=null;
     }
 
-    private void createArmComponents() {
+    private void createComponents() {
         if(firstChildHasNoMesh(rootEntity)) {
             // Add Entity with MeshFromFile for the base of the arm
             Entity baseMeshEntity = new Entity();
