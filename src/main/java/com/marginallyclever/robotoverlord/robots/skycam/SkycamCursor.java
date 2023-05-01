@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.robots.skycam;
 
-import com.marginallyclever.robotoverlord.entities.PoseEntity;
+import com.marginallyclever.robotoverlord.robots.PoseEntity;
 
 @Deprecated
 public class SkycamCursor extends PoseEntity {

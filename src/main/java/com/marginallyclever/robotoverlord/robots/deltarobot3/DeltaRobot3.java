@@ -7,10 +7,11 @@ import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.memento.Memento;
-import com.marginallyclever.robotoverlord.entities.ShapeEntity;
+import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
+import com.marginallyclever.robotoverlord.robots.PoseEntity;
+import com.marginallyclever.robotoverlord.robots.ShapeEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.robots.RobotEntity;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 
 @Deprecated
-public class DeltaRobot3 extends RobotEntity implements Robot {
+public class DeltaRobot3 extends PoseEntity implements Robot {
 	private static final Logger logger = LoggerFactory.getLogger(DeltaRobot3.class);
 
 	// machine ID
@@ -80,6 +81,9 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 	private final BooleanParameter draw_wrist_star = new BooleanParameter("show wrist star",false);
 
 	private final Cylinder tube = new Cylinder();  // for drawing forearms
+	// comms
+	protected transient RemoteParameter connection = new RemoteParameter();
+	protected transient boolean isReadyToReceive;
 
 	/**
 	 * Used by {@link Robot} interface.
@@ -180,6 +184,36 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 				          +" Y"+motionNow.fingerPosition.y
 				          +" Z"+motionNow.fingerPosition.z
 				          );
+	}
+
+	/**
+	 * Processes a single instruction meant for the robot.
+	 * @param command command to send
+	 * @return true if the command is sent to the robot.
+	 */
+	public boolean sendCommand(String command) {
+		if(connection==null) return false;
+
+		// contains a comment?  if so remove it
+		int index=command.indexOf('(');
+		if(index!=-1) {
+			//String comment=line.substring(index+1,line.lastIndexOf(')'));
+			//Log("* "+comment+NL);
+			command=command.substring(0,index).trim();
+			if(command.length()==0) {
+				// entire line was a comment.
+				return false;  // still ready to send
+			}
+		}
+
+		if(!command.endsWith("\n")) {
+			command+="\n";
+		}
+
+		// send relevant part of line to the robot
+		connection.sendMessage(command);
+
+		return true;
 	}
 
 	@Override
@@ -314,6 +348,24 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 		haveArmsMoved=true;
 		finalizeMove();
 		isHomed =true;
+	}
+
+	public boolean isReadyToReceive() {
+		return isReadyToReceive;
+	}
+
+	@Override
+	public void update(double dt) {
+		super.update(dt);
+		connection.update(dt);
+		if (connection.isConnectionOpen()) {
+			// set the lock
+
+			// de-queue and process all messages
+			//if(data.startsWith(">")) isReadyToReceive=true;
+
+			// release the lock
+		}
 	}
 
 	// override this method to check that the software is connected to the right type of robot.
@@ -498,7 +550,6 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 		return true;
 	}
 
-	@Override
 	public Memento createKeyframe() {
 		return new DeltaRobot3Memento();
 	}

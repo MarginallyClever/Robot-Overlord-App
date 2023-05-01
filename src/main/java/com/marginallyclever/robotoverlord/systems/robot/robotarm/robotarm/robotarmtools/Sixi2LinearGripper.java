@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm.robotarm.robot
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.convenience.memento.MementoDoubleArray;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.entities.PoseEntity;
+import com.marginallyclever.robotoverlord.robots.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 

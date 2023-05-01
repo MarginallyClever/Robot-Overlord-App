@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm.robotarm.robot
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.DHComponent;
-import com.marginallyclever.robotoverlord.entities.PoseEntity;
+import com.marginallyclever.robotoverlord.robots.PoseEntity;
 
 
 /**

@@ -1,7 +1,5 @@
 package com.marginallyclever.robotoverlord.parameters;
 
-import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.entities.PoseEntity;
 import org.json.JSONObject;
 
 import java.beans.PropertyChangeEvent;

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.entities;
+package com.marginallyclever.robotoverlord.robots;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.AABB;

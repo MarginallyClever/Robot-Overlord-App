@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.robots.stewartplatform.rotary;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotoverlord.entities.ShapeEntity;
+import com.marginallyclever.robotoverlord.robots.ShapeEntity;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
 import javax.vecmath.Vector3d;
