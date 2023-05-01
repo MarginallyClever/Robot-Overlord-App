@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.physics.ode;
+package com.marginallyclever.robotoverlord.systems.physics.ode;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;

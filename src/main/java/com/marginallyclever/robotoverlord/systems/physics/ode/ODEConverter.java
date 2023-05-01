@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.physics.ode;
+package com.marginallyclever.robotoverlord.systems.physics.ode;
 
 import org.ode4j.math.*;
 import org.ode4j.ode.DGeom;
