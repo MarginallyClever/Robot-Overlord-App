@@ -11,6 +11,8 @@ import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementFilename;
+import com.marginallyclever.robotoverlord.systems.OriginAdjustSystem;
+import com.marginallyclever.robotoverlord.systems.RobotROSystem;
 
 import java.util.List;
 import javax.swing.*;
@@ -173,6 +175,7 @@ public class EditArm6 extends JPanel {
                             case 5 -> dhComponent.setJointMin(value);
                             case 6 -> dhComponent.setJointHome(value);
                         }
+                        updatePoses();
                     });
                     gridContainer.add(dhInput);
                 } else {
@@ -184,6 +187,13 @@ public class EditArm6 extends JPanel {
                     gridContainer.add(viewElementFilename);
                 }
             }
+        }
+    }
+
+    private void updatePoses() {
+        OriginAdjustSystem.adjustOne(armEntity.getChildren().get(0));
+        for(Entity entity : joints) {
+            OriginAdjustSystem.adjustOne(entity.getChildren().get(0));
         }
     }
 
