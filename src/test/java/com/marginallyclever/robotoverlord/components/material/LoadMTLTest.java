@@ -3,13 +3,13 @@ package com.marginallyclever.robotoverlord.components.material;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
+import com.marginallyclever.robotoverlord.systems.render.material.LoadMTL;
+import com.marginallyclever.robotoverlord.systems.render.material.MaterialLoader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.net.URL;
-import java.nio.file.Path;
 import java.util.Objects;
 
 public class LoadMTLTest {

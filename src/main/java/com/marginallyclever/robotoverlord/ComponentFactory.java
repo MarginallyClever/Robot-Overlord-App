@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
 
-import com.marginallyclever.robotoverlord.components.path.GCodePathComponent;
+import com.marginallyclever.robotoverlord.components.GCodePathComponent;
 
 import com.marginallyclever.robotoverlord.components.shapes.*;
 import org.slf4j.Logger;

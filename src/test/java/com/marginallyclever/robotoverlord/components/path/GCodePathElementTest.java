@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.components.path;
 
+import com.marginallyclever.robotoverlord.systems.render.gcodepath.GCodePathElement;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
