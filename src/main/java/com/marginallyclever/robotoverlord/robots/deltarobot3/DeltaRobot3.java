@@ -38,6 +38,7 @@ import java.util.List;
  * @author Dan Royer
  * @since before 2.0.0
  */
+@Deprecated
 @ComponentDependency(components = {PoseComponent.class, MaterialComponent.class})
 public class DeltaRobot3 extends RenderComponent implements Robot {
 	private static final Logger logger = LoggerFactory.getLogger(DeltaRobot3.class);

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
+@Deprecated
 public class Skycam extends RenderComponent {
 	private static final Logger logger = LoggerFactory.getLogger(Skycam.class);
 	protected transient Vector3DParameter size = new Vector3DParameter("size",100,100,100);
