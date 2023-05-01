@@ -257,10 +257,10 @@ public class DogRobotComponent extends RenderComponent {
     }
 
     public void setInitialPointOfContact(Entity limb,int index) {
-        Entity foot = limb.findByPath(HIP);
-        PoseComponent footPose = foot.getComponent(PoseComponent.class);
+        Entity hip = limb.findByPath(HIP);
+        PoseComponent hipPose = hip.getComponent(PoseComponent.class);
 
-        Vector3d toe = MatrixHelper.getPosition(footPose.getWorld());
+        Vector3d toe = MatrixHelper.getPosition(hipPose.getWorld());
         toe.z=0;
         nextPOC[index].set(toe);
         lastPOC[index].set(toe);

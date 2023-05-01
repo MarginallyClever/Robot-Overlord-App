@@ -5,6 +5,7 @@ import com.marginallyclever.robotoverlord.Entity;
 
 import javax.vecmath.Matrix4d;
 
+@ComponentDependency(components = {PoseComponent.class})
 public class ArmEndEffectorComponent extends Component {
 
     @Override

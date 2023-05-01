@@ -25,6 +25,7 @@ public class EditDogPanel extends JPanel {
     private final EntityManager entityManager;
     private final Entity rootEntity;
     private final DogRobotComponent dog;
+    private final RobotComponent[] legs = new RobotComponent[4];
 
     public EditDogPanel(Entity rootEntity, EntityManager entityManager) {
         super(new BorderLayout());
@@ -68,6 +69,11 @@ public class EditDogPanel extends JPanel {
 
         if (rootEntity.getChildren().size() != 5) {
             buildLegs();
+        } else {
+            legs[0] = rootEntity.getChildren().get(1).getComponent(RobotComponent.class);
+            legs[1] = rootEntity.getChildren().get(2).getComponent(RobotComponent.class);
+            legs[2] = rootEntity.getChildren().get(3).getComponent(RobotComponent.class);
+            legs[3] = rootEntity.getChildren().get(4).getComponent(RobotComponent.class);
         }
     }
 
@@ -78,7 +84,6 @@ public class EditDogPanel extends JPanel {
         double w = DogRobotComponent.KINEMATIC_BODY_WIDTH/2;
         double h = DogRobotComponent.KINEMATIC_BODY_HEIGHT/2;
         int i=0;
-        RobotComponent[] legs = new RobotComponent[4];
         legs[i] = createLimb(entityManager,dog,"RF",i, true, -w, h, 1);  i++;
         legs[i] = createLimb(entityManager,dog,"RB",i, true, -w,-h, 1);  i++;
         legs[i] = createLimb(entityManager,dog,"LF",i,false,  w, h, 1);  i++;
@@ -99,6 +104,7 @@ public class EditDogPanel extends JPanel {
             dh[i].setVisible(true);
         }
         Entity limb = createPoseEntity(name);
+        limb.addComponent(new PoseComponent());
         PoseComponent limbPose = limb.getComponent(PoseComponent.class);
         limbPose.setPosition(new Vector3d(r,0,d));
 
@@ -106,26 +112,24 @@ public class EditDogPanel extends JPanel {
 
         Entity hip = createPoseEntity(DogRobotComponent.HIP);
         entityManager.addEntityToParent(hip,limb);
-        Entity thigh = createPoseEntity(DogRobotComponent.THIGH);
-        entityManager.addEntityToParent(thigh,hip);
-        Entity calf = createPoseEntity(DogRobotComponent.CALF);
-        entityManager.addEntityToParent(calf,thigh);
-        Entity foot = createPoseEntity(DogRobotComponent.FOOT);
-        entityManager.addEntityToParent(foot,calf);
-
-        hip.addComponent(dh[0]);
         dh[0].set( 0, 0, 90*(isRight?1:-1), 90, 360, -360,true);
         entityManager.addEntityToParent(createCylinder(5,2,new ColorRGB(0xFFFFFF)),hip);
+        hip.addComponent(dh[0]);
 
-        thigh.addComponent(dh[1]);
+        Entity thigh = createPoseEntity(DogRobotComponent.THIGH);
+        entityManager.addEntityToParent(thigh,hip);
         dh[1].set(-3.5 * s, 11.5, 0, 135*(isRight?-1:1), 360, -360,true);
         entityManager.addEntityToParent(createBox(dh[1].getR(),1,new ColorRGB(0xFFFF99)),thigh);
+        thigh.addComponent(dh[1]);
 
-        calf.addComponent(new ArmEndEffectorComponent());
-        calf.addComponent(dh[2]);
+        Entity calf = createPoseEntity(DogRobotComponent.CALF);
+        entityManager.addEntityToParent(calf,thigh);
         dh[2].set(0, 13, 0, 90*(isRight?-1:1), 360, -360,true);
         entityManager.addEntityToParent(createBox(dh[2].getR(),0.7,new ColorRGB(0xFFFF66)),calf);
+        calf.addComponent(dh[2]);
 
+        Entity foot = createPoseEntity(DogRobotComponent.FOOT);
+        entityManager.addEntityToParent(foot,calf);
         foot.addComponent(new ArmEndEffectorComponent());
 
         // Done at the end so RobotComponent can find all bones DHComponents.
@@ -186,7 +190,6 @@ public class EditDogPanel extends JPanel {
 
     private Entity createPoseEntity(String name) {
         Entity result = new Entity(name);
-        result.addComponent(new PoseComponent());
         return result;
     }
 

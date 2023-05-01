@@ -1,6 +1,9 @@
 package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotoverlord.components.ComponentDependency;
+import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.edits.ComponentAddEdit;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -252,6 +255,7 @@ public class Entity implements PropertyChangeListener {
 		if(containsAnInstanceOfTheSameClass(c)) return;
 		components.add(c);
 		c.setEntity(this);
+		addComponentDependencies(c.getClass());
 	}
 
 	public boolean containsAnInstanceOfTheSameClass(Component c0) {
@@ -387,5 +391,21 @@ public class Entity implements PropertyChangeListener {
 
 	public void setExpanded(boolean arg0) {
 		isExpanded = arg0;
+	}
+
+	private void addComponentDependencies(Class<?> myClass) {
+		ComponentDependency[] annotations = myClass.getAnnotationsByType(ComponentDependency.class);
+		for (ComponentDependency a : annotations) {
+			Class<? extends Component> [] components = a.components();
+			for(Class<? extends Component> c : components) {
+				if(null==getComponent(c)) {
+					addComponent(ComponentFactory.createInstance(c));
+				}
+			}
+		}
+	}
+
+	public Collection<? extends Component> getComponents() {
+		return components;
 	}
 }

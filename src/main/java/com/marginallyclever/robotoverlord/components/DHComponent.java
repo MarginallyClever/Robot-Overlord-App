@@ -30,6 +30,12 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
     public final DoubleParameter jointMin = new DoubleParameter("Min",0.0);
     public final DoubleParameter jointHome = new DoubleParameter("Home",0.0);
 
+    @Override
+    public void setEntity(Entity entity) {
+        super.setEntity(entity);
+        refreshLocalMatrix();
+    }
+
     public DHComponent() {
         super();
         myD.addPropertyChangeListener(this);

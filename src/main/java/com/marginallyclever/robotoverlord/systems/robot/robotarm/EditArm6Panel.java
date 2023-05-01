@@ -3,10 +3,7 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.EntityManager;
-import com.marginallyclever.robotoverlord.components.ArmEndEffectorComponent;
-import com.marginallyclever.robotoverlord.components.DHComponent;
-import com.marginallyclever.robotoverlord.components.MaterialComponent;
-import com.marginallyclever.robotoverlord.components.OriginAdjustComponent;
+import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
@@ -41,11 +38,11 @@ public class EditArm6Panel extends JPanel {
         setupPanel();
     }
 
-    private boolean firstChildHasNoMesh(Entity entity) {
+    private boolean firstChildHasNoShape(Entity entity) {
         List<Entity> children = entity.getChildren();
         if(children.size()==0) return true;
         Entity firstChild = children.get(0);
-        MeshFromFile mesh = firstChild.getComponent(MeshFromFile.class);
+        ShapeComponent mesh = firstChild.getComponent(ShapeComponent.class);
         return mesh == null;
     }
 
@@ -58,7 +55,7 @@ public class EditArm6Panel extends JPanel {
     }
 
     private void createComponents() {
-        if(firstChildHasNoMesh(rootEntity)) {
+        if(firstChildHasNoShape(rootEntity)) {
             // Add Entity with MeshFromFile for the base of the arm
             Entity baseMeshEntity = new Entity();
             entityManager.addEntityToParent(baseMeshEntity, rootEntity);
@@ -79,7 +76,7 @@ public class EditArm6Panel extends JPanel {
                 entityManager.addEntityToParent(jointEntity, parent);
             }
 
-            if(firstChildHasNoMesh(jointEntity)) {
+            if(firstChildHasNoShape(jointEntity)) {
                 // Add mesh
                 Entity meshEntity = new Entity();
                 entityManager.addEntityToParent(meshEntity, jointEntity);
@@ -144,12 +141,17 @@ public class EditArm6Panel extends JPanel {
                     });
                     dhTable.add(dhInput);
                 } else {
-                    MeshFromFile meshFromFile = joints[i].getChildren().get(0).getComponent(MeshFromFile.class);
-                    StringParameter filenameParameter = meshFromFile.filename;
-                    ViewElementFilename viewElementFilename = new ViewElementFilename(filenameParameter,entityManager);
-                    viewElementFilename.addFileFilters(MeshFactory.getAllExtensions());
-
-                    dhTable.add(viewElementFilename);
+                    Entity firstChild = rootEntity.getChildren().get(0);
+                    if(firstChild.getComponent(MeshFromFile.class)!=null) {
+                        MeshFromFile meshFromFile = joints[i].getChildren().get(0).getComponent(MeshFromFile.class);
+                        StringParameter filenameParameter = meshFromFile.filename;
+                        ViewElementFilename viewElementFilename = new ViewElementFilename(filenameParameter, entityManager);
+                        viewElementFilename.addFileFilters(MeshFactory.getAllExtensions());
+                        dhTable.add(viewElementFilename);
+                    } else {
+                        // is a ShapeComponent
+                        dhTable.add(new JLabel("Joint model is Shape"));
+                    }
                 }
             }
         }
@@ -179,13 +181,19 @@ public class EditArm6Panel extends JPanel {
         });
 
         // base mesh
-        MeshFromFile meshFromFile = rootEntity.getChildren().get(0).getComponent(MeshFromFile.class);
-        StringParameter filenameParameter = meshFromFile.filename;
-        ViewElementFilename meshFilename = new ViewElementFilename(filenameParameter, entityManager);
-        meshFilename.addFileFilters(MeshFactory.getAllExtensions());
-        meshFilename.setAlignmentX(Component.LEFT_ALIGNMENT);
-        meshFilename.setMaximumSize(meshFilename.getPreferredSize());
-        generalPanel.add(meshFilename);
+        Entity firstChild = rootEntity.getChildren().get(0);
+        if(firstChild.getComponent(MeshFromFile.class)!=null) {
+            MeshFromFile meshFromFile = rootEntity.getChildren().get(0).getComponent(MeshFromFile.class);
+            StringParameter filenameParameter = meshFromFile.filename;
+            ViewElementFilename baseMeshFilename = new ViewElementFilename(filenameParameter, entityManager);
+            baseMeshFilename.addFileFilters(MeshFactory.getAllExtensions());
+            baseMeshFilename.setAlignmentX(Component.LEFT_ALIGNMENT);
+            baseMeshFilename.setMaximumSize(baseMeshFilename.getPreferredSize());
+            generalPanel.add(baseMeshFilename);
+        } else {
+            // probably a ShapeComponent
+            generalPanel.add(new JLabel("Base is Shape"));
+        }
 
         // show DH
         JCheckBox showDH = new JCheckBox("Show DH");

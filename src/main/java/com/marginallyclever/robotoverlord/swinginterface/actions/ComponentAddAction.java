@@ -68,49 +68,12 @@ public class ComponentAddAction extends AbstractAction {
 
 	private void createInstanceOf(Entity parent,String className) {
 		try {
-			addComponentDependencies(parent,className);
-
 			Component newInstance = ComponentFactory.load(className);
 			if(newInstance != null) UndoSystem.addEvent(this,new ComponentAddEdit(componentManagerPanel,parent,newInstance));
 		} catch (Exception e) {
 			String msg = "Failed to instance "+className+": "+e.getLocalizedMessage();
 			JOptionPane.showMessageDialog(componentManagerPanel,msg);
 			logger.error(msg);
-		}
-	}
-
-	private void addComponentDependencies(Entity parent, String className) throws Exception {
-		Class<?> myClass = ComponentFactory.getClassFromName(className);
-		if (myClass == null) {
-			throw new Exception("no class found.");
-		}
-
-		recursivelyAddComponentDependencies(parent, myClass);
-	}
-
-	private void recursivelyAddComponentDependencies(Entity parent, Class<?> myClass) throws Exception {
-		LinkedList<Class<?>> dependencies = new LinkedList<>();
-		while (myClass != null) {
-			dependencies.push(myClass);
-			myClass = myClass.getSuperclass();
-		}
-		for(Class<?> c : dependencies) {
-			addComponentDependencies(parent, c);
-		}
-	}
-
-	private void addComponentDependencies(Entity parent, Class<?> myClass) throws Exception {
-		ComponentDependency [] annotations = myClass.getAnnotationsByType(ComponentDependency.class);
-		for (ComponentDependency a : annotations) {
-			Class<? extends Component> [] components = a.components();
-			for(Class<? extends Component> c : components) {
-				if(null==parent.getComponent(c)) {
-					Component newInstance = ComponentFactory.createInstance(c);
-					if(null != newInstance) {
-						UndoSystem.addEvent(this,new ComponentAddEdit(componentManagerPanel,parent,newInstance));
-					} else throw new Exception("Failed to instance "+c.getCanonicalName());
-				}
-			}
 		}
 	}
 }
