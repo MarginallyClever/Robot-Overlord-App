@@ -2,7 +2,6 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm.robotarm.robot
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.DHComponent;
-import com.marginallyclever.robotoverlord.robots.PoseEntity;
 
 
 /**
@@ -24,7 +23,7 @@ public class DHTool_Gripper extends Entity {
 	protected double startT,endT;
 
 	protected transient boolean wasGripping;
-	protected transient PoseEntity subjectBeingHeld;
+	protected transient Entity subjectBeingHeld;
 	
 	public DHTool_Gripper() {
 		super();/*

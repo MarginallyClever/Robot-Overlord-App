@@ -8,18 +8,15 @@ import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.RenderComponent;
-import com.marginallyclever.robotoverlord.robots.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
-import org.ode4j.ode.internal.Matrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
-import java.beans.PropertyChangeEvent;
 
 /**
  * Generic rotary stewart platform.  6 Rotating biceps move forearms connected to the top plate.

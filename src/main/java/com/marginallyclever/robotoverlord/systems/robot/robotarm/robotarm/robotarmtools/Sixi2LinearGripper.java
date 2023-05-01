@@ -3,7 +3,6 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm.robotarm.robot
 import com.marginallyclever.convenience.memento.Memento;
 import com.marginallyclever.convenience.memento.MementoDoubleArray;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.robots.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
@@ -14,7 +13,7 @@ import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.C
 @Deprecated
 public class Sixi2LinearGripper extends Entity {
 	// A PhysicalObject, if any, being held by the tool.  Assumes only one object can be held.\
-	private transient PoseEntity subjectBeingHeld;
+	private transient Entity subjectBeingHeld;
 	
 	public IntParameter angleMax = new IntParameter("Max open",135);
 	public IntParameter angleMin = new IntParameter("Min closed",100);

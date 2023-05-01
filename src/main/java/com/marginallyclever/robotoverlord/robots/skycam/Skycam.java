@@ -2,22 +2,13 @@ package com.marginallyclever.robotoverlord.robots.skycam;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.RenderComponent;
-import com.marginallyclever.robotoverlord.robots.PoseEntity;
-import com.marginallyclever.robotoverlord.parameters.StringParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Vector3d;
-import java.beans.PropertyChangeEvent;
-import java.io.*;
-import java.util.ArrayList;
 
 public class Skycam extends RenderComponent {
 	private static final Logger logger = LoggerFactory.getLogger(Skycam.class);

@@ -7,7 +7,6 @@ import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.RenderComponent;
-import com.marginallyclever.robotoverlord.robots.PoseEntity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
@@ -18,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
-import java.beans.PropertyChangeEvent;
 
 @Deprecated
 public class LinearStewartPlatformCore extends RenderComponent {
