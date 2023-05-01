@@ -5,6 +5,7 @@ import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
 
 import com.marginallyclever.robotoverlord.components.GCodePathComponent;
 
+import com.marginallyclever.robotoverlord.components.demo.DogRobotComponent;
 import com.marginallyclever.robotoverlord.components.shapes.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ public class ComponentFactory {
 			ArmEndEffectorComponent.class,
 
 			CrabRobotComponent.class,
+			DogRobotComponent.class,
 
 			GCodePathComponent.class,
 	};
