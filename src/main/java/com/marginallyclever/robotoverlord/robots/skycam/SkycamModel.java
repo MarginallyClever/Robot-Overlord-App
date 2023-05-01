@@ -39,7 +39,6 @@ public class SkycamModel extends Entity {
 		super();
 	}
 
-	@Override
 	public void render(GL2 gl2) {
 		gl2.glColor4d(color.x,color.y,color.z,color.w);
 		
@@ -64,10 +63,6 @@ public class SkycamModel extends Entity {
 	@Deprecated
 	public void getView(ComponentPanelFactory view) {
 		view.add(size);
-	}
-	
-	public SkycamCursor createPose() {
-		return new SkycamCursor();
 	}
 
 	public Vector3d getPosition() {

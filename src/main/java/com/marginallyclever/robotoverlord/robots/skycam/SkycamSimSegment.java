@@ -4,7 +4,6 @@ import javax.vecmath.Vector3d;
 
 @Deprecated
 public class SkycamSimSegment {
-
 	public Vector3d start;
 	public Vector3d end;
 	public Vector3d delta;
@@ -17,20 +16,14 @@ public class SkycamSimSegment {
 	public double distance;
 	public double nominalSpeed;  // top speed in this segment
 	public double entrySpeed;  // per second
-	public double exitSpeed;  // per second
 	public double acceleration;  // per second per second
-	
-	public double entrySpeedMax;
-	public double accelerateUntilD;  // distance
-	public double decelerateAfterD;  // distance
 
 	public double accelerateUntilT;  // seconds
 	public double decelerateAfterT;  // seconds
 	
 	// when optimizing, should we recheck the entry + exit v of this segment?
 	public boolean recalculate;
-	// is this segment 100% full speed, end to end?
-	public boolean nominalLength;
+
 	// is the robot moving through this segment right now?
 	public boolean busy;
 	
