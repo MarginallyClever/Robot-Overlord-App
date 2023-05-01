@@ -7,7 +7,6 @@ import com.marginallyclever.robotoverlord.components.DHComponent;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.GCodePathComponent;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
-import com.marginallyclever.robotoverlord.systems.robot.robotarm.makerobotarmpanel.EditArm6;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.RobotPanel;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
@@ -65,7 +64,7 @@ public class ArmRobotSystem implements EntitySystem {
     }
 
     private void makeRobotArm6(JComponent parent, RobotComponent robotComponent) {
-        makePanel(new EditArm6(robotComponent.getEntity(), entityManager), parent,"Make Arm 6");
+        makePanel(new EditArm6Panel(robotComponent.getEntity(), entityManager), parent,"Make Arm 6");
     }
 
     private void makePanel(JPanel panel, JComponent parent,String title) {

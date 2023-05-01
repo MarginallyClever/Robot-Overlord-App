@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.systems.robot.robotarm.makerobotarmpanel;
+package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.Entity;
@@ -23,7 +23,7 @@ import java.awt.*;
  * @author Dan Royer
  * @since 2.5.7
  */
-public class EditArm6 extends JPanel {
+public class EditArm6Panel extends JPanel {
     private static final int NUM_JOINTS = 6;
     private static final String[] labels = {"Joint", "D", "R", "Alpha", "Theta", "Max", "Min", "Home", "Mesh"};
     public static final int COLS = labels.length-1;
@@ -32,7 +32,7 @@ public class EditArm6 extends JPanel {
     private final Entity[] joints = new Entity[NUM_JOINTS];
     private final JPanel dhTable = new JPanel(new GridLayout(NUM_JOINTS+1, labels.length,2,2));
 
-    public EditArm6(Entity rootEntity, EntityManager entityManager) {
+    public EditArm6Panel(Entity rootEntity, EntityManager entityManager) {
         super(new BorderLayout());
         this.add(dhTable,BorderLayout.CENTER);
         this.entityManager = entityManager;
