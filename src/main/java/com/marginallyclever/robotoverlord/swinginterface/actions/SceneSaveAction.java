@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
+import com.marginallyclever.robotoverlord.PathUtils;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
@@ -54,7 +55,9 @@ public class SceneSaveAction extends AbstractAction implements ActionListener {
 		JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
 
 		if (fc.showSaveDialog(parentFrame) == JFileChooser.APPROVE_OPTION) {
-			String name = addExtensionIfNeeded(fc.getSelectedFile().getAbsolutePath());
+			String name = PathUtils.addExtensionIfNeeded(
+					fc.getSelectedFile().getAbsolutePath(),
+					RobotOverlord.FILE_FILTER.getExtensions());
 			try {
 				saveSceneToFile(name);
 			} catch(Exception ex) {
@@ -63,23 +66,6 @@ public class SceneSaveAction extends AbstractAction implements ActionListener {
 				ex.printStackTrace();
 			}
 		}
-	}
-
-	public String addExtensionIfNeeded(String filename) {
-		int last = filename.lastIndexOf(".");
-		String[] extensions = RobotOverlord.FILE_FILTER.getExtensions();
-		if(last == -1) {
-			// no extension at all
-			return filename + "." + extensions[0];
-		}
-
-		String end = filename.substring(last+1).toLowerCase();
-		for(String ext : extensions) {
-			// has valid extension
-			if(end.equals(ext.toLowerCase())) return filename;
-		}
-		// no matching extension
-		return filename + "." + extensions[0];
 	}
 
 	private void saveSceneToFile(String absolutePath) throws IOException {

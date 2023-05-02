@@ -28,6 +28,25 @@ public class PathUtils {
         return extension;
     }
 
+    /**
+     * Check filename for a valid extension.  If it doesn't have one, add the first extension in the list.
+     * @param filename The filename to check.
+     * @param extensions A list of valid extensions.
+     * @return The filename with a valid extension.
+     */
+    public static String addExtensionIfNeeded(String filename, String[] extensions) {
+        int last = filename.lastIndexOf(".");
+        if(last != -1) {
+            String end = filename.substring(last + 1).toLowerCase();
+            for (String ext : extensions) {
+                // has valid extension
+                if (end.equals(ext.toLowerCase())) return filename;
+            }
+        }
+        // no matching extension
+        return filename + "." + extensions[0];
+    }
+
     public static final String APP_BASE =  System.getProperty("user.home") + File.separator + "RobotOverlord";
     public static final String APP_CACHE = APP_BASE + File.separator + "Cache";
     public static final String APP_PLUGINS = APP_BASE + File.separator + "Plugins";
