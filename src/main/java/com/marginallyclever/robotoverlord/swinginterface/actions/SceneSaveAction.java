@@ -56,7 +56,7 @@ public class SceneSaveAction extends AbstractAction implements ActionListener {
 		if (fc.showSaveDialog(parentFrame) == JFileChooser.APPROVE_OPTION) {
 			String name = addExtensionIfNeeded(fc.getSelectedFile().getAbsolutePath());
 			try {
-				saveModelToFile(name);
+				saveSceneToFile(name);
 			} catch(Exception ex) {
 				logger.error("Error saving file: ",ex);
 				JOptionPane.showMessageDialog(parentFrame,ex.getLocalizedMessage());
@@ -82,7 +82,7 @@ public class SceneSaveAction extends AbstractAction implements ActionListener {
 		return filename + "." + extensions[0];
 	}
 
-	private void saveModelToFile(String absolutePath) throws IOException {
+	private void saveSceneToFile(String absolutePath) throws IOException {
 		// try-with-resources will close the file for us.
 		try(BufferedWriter w = new BufferedWriter(new FileWriter(absolutePath))) {
 			w.write(entityManager.toJSON().toString());
