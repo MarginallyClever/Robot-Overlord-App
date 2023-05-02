@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.systems.robot.crab;
 
 import com.marginallyclever.robotoverlord.Component;
+import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
 import com.marginallyclever.robotoverlord.components.demo.DogRobotComponent;
@@ -11,6 +12,8 @@ import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
 import com.marginallyclever.robotoverlord.systems.robot.dog.EditDogPanel;
 
 import javax.swing.*;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A system to manage robot crabs.
@@ -62,6 +65,12 @@ public class CrabRobotSystem implements EntitySystem {
      */
     @Override
     public void update(double dt) {
-
+        List<Entity> list = new LinkedList<>(entityManager.getEntities());
+        while(!list.isEmpty()) {
+            Entity e = list.remove(0);
+            CrabRobotComponent crab = e.getComponent(CrabRobotComponent.class);
+            if( crab!=null ) crab.update(dt);
+            list.addAll(e.getChildren());
+        }
     }
 }
