@@ -122,7 +122,7 @@ public class EntityManager {
 		if(!file.isDirectory()) throw new RuntimeException("Not a directory: "+absolutePath);
 		//if(!entities.isEmpty()) throw new RuntimeException("Cannot change the scene gcodepath when entities are present.");
 
-		logger.debug("Setting scene gcodepath to "+absolutePath);
+		logger.debug("Setting scene path to "+absolutePath);
 		scenePath.set(absolutePath);
 	}
 
