@@ -521,10 +521,9 @@ public class DeltaRobot3 extends RenderComponent implements Robot {
 		// angle are good?
 		if(!checkAngleLimits()) return false;
 		// seems doable
-		if(!updateIK()) return false;
+		return updateIK();
 
 		// OK
-		return true;
 	}
 
 	private boolean checkAngleLimits() {

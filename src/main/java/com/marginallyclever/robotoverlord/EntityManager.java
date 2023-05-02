@@ -31,7 +31,7 @@ public class EntityManager {
 	private final StringParameter scenePath = new StringParameter("Scene Path", "");
 	private final List<Entity> entities = new ArrayList<>();
 	private final Entity rootEntity = new Entity("Scene");
-	private final List<SceneChangeListener> sceneChangeListeners = new ArrayList<>();
+	private final List<EntityManagerListener> entityManagerListeners = new ArrayList<>();
 	
 	public EntityManager() {
 		super();
@@ -92,24 +92,24 @@ public class EntityManager {
 
 	public void addEntityToParent(Entity child,Entity parent) {
 		parent.addEntity(child);
-		for(SceneChangeListener listener : sceneChangeListeners) {
+		for(EntityManagerListener listener : entityManagerListeners) {
 			listener.addEntityToParent(parent,child);
 		}
 	}
 
 	public void removeEntityFromParent(Entity child,Entity parent) {
 		parent.removeEntity(child);
-		for(SceneChangeListener listener : sceneChangeListeners) {
+		for(EntityManagerListener listener : entityManagerListeners) {
 			listener.removeEntityFromParent(parent,child);
 		}
 	}
 
-	public void addSceneChangeListener(SceneChangeListener listener) {
-		sceneChangeListeners.add(listener);
+	public void addSceneChangeListener(EntityManagerListener listener) {
+		entityManagerListeners.add(listener);
 	}
 
-	public void removeSceneChangeListener(SceneChangeListener listener) {
-		sceneChangeListeners.remove(listener);
+	public void removeSceneChangeListener(EntityManagerListener listener) {
+		entityManagerListeners.remove(listener);
 	}
 
 	/**

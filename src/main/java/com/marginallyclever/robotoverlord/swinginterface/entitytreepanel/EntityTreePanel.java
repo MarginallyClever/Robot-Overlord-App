@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.EntityManager;
-import com.marginallyclever.robotoverlord.SceneChangeListener;
+import com.marginallyclever.robotoverlord.EntityManagerListener;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
@@ -24,7 +24,7 @@ import java.util.List;
  * @author Dan Royer
  *
  */
-public class EntityTreePanel extends JPanel implements TreeSelectionListener, SceneChangeListener {
+public class EntityTreePanel extends JPanel implements TreeSelectionListener, EntityManagerListener {
 	private final JTree tree = new JTree();
 	private final DefaultTreeModel treeModel = new EntityTreeModel(null);
 	private final List<EntityTreePanelListener> listeners = new ArrayList<>();
