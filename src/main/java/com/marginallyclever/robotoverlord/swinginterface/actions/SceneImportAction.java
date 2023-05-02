@@ -95,10 +95,11 @@ public class SceneImportAction extends AbstractAction {
     }
 
     /**
-     * Copy the assets from source scene into folder of destination scene.
-     * When projectA is imported into projectB, any asset with filename <i>projectA/xxxx.yyy</i>
-     * should be copied to <i>projectB/projectA/xxxx.yyy</i>
-     * and the asset name in the project should be updated to match.
+     * <p>Move assets from source to destination.  When projectA is imported into projectB, any
+     * asset with filename <i>projectA/xxxx.yyy</i> should be copied to <i>projectB/projectA/xxxx.yyy</i> and the
+     * asset filename in the destination project should be updated to match.</p>
+     * <p>When complete the source scene will only contain the root entity.</p>
+     *
      * @param source the scene to copy from
      * @param destination the scene to copy to
      * @throws IOException if the copy fails
@@ -133,11 +134,10 @@ public class SceneImportAction extends AbstractAction {
         }
 
         recursivelyUpdatePaths(source,destinationPath);
-        source.setScenePath(destination.getScenePath());
 
         // when entities are added to destination they will automatically be removed from source.
         // to prevent concurrent modification exception we have to have a copy of the list.
-        List<Entity> entities = new LinkedList<>(source.getEntities());
+        List<Entity> entities = new LinkedList<>(source.getRoot().getChildren());
         // now do the move safely.
         for(Entity e : entities) {
             destination.addEntityToParent(e,destination.getRoot());
@@ -153,7 +153,6 @@ public class SceneImportAction extends AbstractAction {
     private void recursivelyUpdatePaths(EntityManager source, String destinationPath) {
         LinkedList<Entity> list = new LinkedList<>(source.getEntities());
         String originalPath = source.getScenePath();
-        source.setScenePath(destinationPath);
 
         while(!list.isEmpty()) {
             Entity e = list.removeFirst();

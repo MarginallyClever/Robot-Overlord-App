@@ -77,7 +77,7 @@ public class SceneLoadAction extends AbstractAction {
             entityManager.setScenePath(source.getScenePath());
             // when entities are added to destination they will automatically be removed from source.
             // to prevent concurrent modification exception we have to have a copy of the list.
-            List<Entity> entities = new LinkedList<>(source.getEntities());
+            List<Entity> entities = new LinkedList<>(source.getRoot().getChildren());
             // now do the move safely.
             for(Entity e : entities) {
                 entityManager.addEntityToParent(e, entityManager.getRoot());
