@@ -83,24 +83,6 @@ public class CrabRobotComponent extends RenderComponent {
         this.gaitCycleTime = gaitCycleTime;
     }
 
-    public void setInitialPointOfContact(Entity limb,int index) {
-        Entity foot = limb.findByPath(HIP+"/"+THIGH+"/"+CALF+"/"+FOOT);
-        PoseComponent footPose = foot.getComponent(PoseComponent.class);
-        Vector3d toe = new Vector3d();
-        footPose.getWorld().get(toe);
-
-        PoseComponent bodyPose = getEntity().getComponent(PoseComponent.class);
-        Vector3d body = new Vector3d();
-        bodyPose.getWorld().get(body);
-
-        toe.sub(body);
-        toe.normalize();
-        toe.scaleAdd(standingRadius.get(),body);
-        toe.z=0;
-        nextPOC[index].set(toe);
-        lastPOC[index].set(toe);
-    }
-
     public RobotComponent [] getLegs() {
         return legs;
     }
@@ -109,11 +91,23 @@ public class CrabRobotComponent extends RenderComponent {
         return lastPOC[index];
     }
 
-    public void setTarget(int index, Point3d point2) {
-        targets[index].set(point2);
+    public void setLastPOC(int index, Vector3d toe) {
+        lastPOC[index].set(toe);
     }
 
     public Point3d getNextPOC(int index) {
         return nextPOC[index];
+    }
+
+    public void setNextPOC(int index, Vector3d toe) {
+        nextPOC[index].set(toe);
+    }
+
+    public void setTarget(int index, Point3d point2) {
+        targets[index].set(point2);
+    }
+
+    public Point3d getTarget(int index) {
+        return targets[index];
     }
 }

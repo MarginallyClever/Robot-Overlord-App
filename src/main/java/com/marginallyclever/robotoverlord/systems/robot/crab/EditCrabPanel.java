@@ -25,13 +25,15 @@ import java.util.List;
 public class EditCrabPanel extends JPanel {
     private final EntityManager entityManager;
     private final Entity rootEntity;
+    private final CrabRobotSystem system;
     private final CrabRobotComponent crab;
     private final RobotComponent[] legs = new RobotComponent[6];
 
-    public EditCrabPanel(Entity rootEntity, EntityManager entityManager) {
+    public EditCrabPanel(Entity rootEntity, EntityManager entityManager,CrabRobotSystem system) {
         super(new BorderLayout());
         this.entityManager = entityManager;
         this.rootEntity = rootEntity;
+        this.system = system;
         this.crab = rootEntity.getComponent(CrabRobotComponent.class);
         createComponents();
         setupPanel();
@@ -93,7 +95,7 @@ public class EditCrabPanel extends JPanel {
         for(RobotComponent leg : legs) {
             crab.setLeg(i,leg);
             entityManager.addEntityToParent(leg.getEntity(),rootEntity);
-            crab.setInitialPointOfContact(leg.getEntity(),i);
+            system.setInitialPointOfContact(crab,leg.getEntity(),i);
             i++;
         }
     }
@@ -148,7 +150,7 @@ public class EditCrabPanel extends JPanel {
         RobotComponent robot = new RobotComponent();
         limb.addComponent(robot);
 
-        crab.setInitialPointOfContact(limb,index);
+        system.setInitialPointOfContact(crab,limb,index);
 
         return robot;
     }

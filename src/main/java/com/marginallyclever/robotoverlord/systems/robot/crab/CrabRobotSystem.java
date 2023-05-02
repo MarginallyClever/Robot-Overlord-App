@@ -61,7 +61,7 @@ public class CrabRobotSystem implements EntitySystem {
     }
 
     private void makeCrab(JComponent parent, CrabRobotComponent crab, String title) {
-        EntitySystemUtils.makePanel(new EditCrabPanel(crab.getEntity(), entityManager), parent,title);
+        EntitySystemUtils.makePanel(new EditCrabPanel(crab.getEntity(), entityManager,this), parent,title);
     }
 
     /**
@@ -254,5 +254,23 @@ public class CrabRobotSystem implements EntitySystem {
 
         // tell the leg where to go.
         setLegTargetPosition(crab,index,mid);
+    }
+
+    public void setInitialPointOfContact(CrabRobotComponent crab,Entity limb,int index) {
+        Entity foot = limb.findByPath(CrabRobotComponent.HIP+"/"+CrabRobotComponent.THIGH+"/"+CrabRobotComponent.CALF+"/"+CrabRobotComponent.FOOT);
+        PoseComponent footPose = foot.getComponent(PoseComponent.class);
+        Vector3d toe = new Vector3d();
+        footPose.getWorld().get(toe);
+
+        PoseComponent bodyPose = crab.getEntity().getComponent(PoseComponent.class);
+        Vector3d body = new Vector3d();
+        bodyPose.getWorld().get(body);
+
+        toe.sub(body);
+        toe.normalize();
+        toe.scaleAdd(crab.standingRadius.get(),body);
+        toe.z=0;
+        crab.setNextPOC(index,toe);
+        crab.setLastPOC(index,toe);
     }
 }

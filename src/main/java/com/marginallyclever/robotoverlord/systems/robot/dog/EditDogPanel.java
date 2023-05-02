@@ -23,13 +23,15 @@ import java.util.List;
 public class EditDogPanel extends JPanel {
     private final EntityManager entityManager;
     private final Entity rootEntity;
+    private final DogRobotSystem system;
     private final DogRobotComponent dog;
     private final RobotComponent[] legs = new RobotComponent[4];
 
-    public EditDogPanel(Entity rootEntity, EntityManager entityManager) {
+    public EditDogPanel(Entity rootEntity, EntityManager entityManager,DogRobotSystem system) {
         super(new BorderLayout());
         this.entityManager = entityManager;
         this.rootEntity = rootEntity;
+        this.system = system;
         this.dog = rootEntity.getComponent(DogRobotComponent.class);
         createComponents();
         setupPanel();
@@ -92,7 +94,7 @@ public class EditDogPanel extends JPanel {
         for(RobotComponent leg : legs) {
             dog.setLeg(i,leg);
             entityManager.addEntityToParent(leg.getEntity(),rootEntity);
-            dog.setInitialPointOfContact(leg.getEntity(),i);
+            system.setInitialPointOfContact(dog,leg.getEntity(),i);
             i++;
         }
     }
@@ -136,7 +138,7 @@ public class EditDogPanel extends JPanel {
         RobotComponent robot = new RobotComponent();
         limb.addComponent(robot);
 
-        dog.setInitialPointOfContact(limb,index);
+        system.setInitialPointOfContact(dog,limb,index);
 
         return robot;
     }

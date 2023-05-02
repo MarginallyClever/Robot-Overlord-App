@@ -62,7 +62,7 @@ public class DogRobotSystem implements EntitySystem {
     }
 
     private void makeDog(JComponent parent, DogRobotComponent dog,String title) {
-        EntitySystemUtils.makePanel(new EditDogPanel(dog.getEntity(), entityManager), parent,title);
+        EntitySystemUtils.makePanel(new EditDogPanel(dog.getEntity(), entityManager,this), parent,title);
     }
 
     /**
