@@ -13,9 +13,6 @@ import java.io.Serial;
  *
  */
 public class IntParameterEdit extends AbstractParameterEdit<Integer> {
-	@Serial
-	private static final long serialVersionUID = 1L;
-	
 	public IntParameterEdit(AbstractParameter<Integer> e, Integer newValue) {
 		super(e, newValue);
 	}

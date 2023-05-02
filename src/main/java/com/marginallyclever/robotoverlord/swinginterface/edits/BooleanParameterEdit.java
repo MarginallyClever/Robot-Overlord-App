@@ -10,14 +10,8 @@ import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
  * @author Dan Royer
  *
  */
-public class BooleanEdit extends AbstractParameterEdit<Boolean> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	public BooleanEdit(AbstractParameter<Boolean> e, Boolean newValue) {
+public class BooleanParameterEdit extends AbstractParameterEdit<Boolean> {
+	public BooleanParameterEdit(AbstractParameter<Boolean> e, Boolean newValue) {
 		super(e, newValue);
 	}
 }

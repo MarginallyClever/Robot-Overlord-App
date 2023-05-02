@@ -13,9 +13,6 @@ import java.io.Serial;
  *
  */
 public class DoubleParameterEdit extends AbstractParameterEdit<Double> {
-	@Serial
-	private static final long serialVersionUID = 1L;
-
 	public DoubleParameterEdit(AbstractParameter<Double> e, Double newValue) {
 		super(e, newValue);
 	}
