@@ -6,13 +6,13 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.util.PropertiesFileHelper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
@@ -171,5 +171,46 @@ public class Project {
                 }
             }
         }
+    }
+
+    public void clear() {
+        getEntityManager().clear();
+        setPath("");
+    }
+
+    /**
+     * Attempt to load the file into a new Scene.
+     * @param file the file to load
+     * @throws IOException if the file cannot be read
+     */
+    public void load(File file) throws IOException {
+        logger.debug("Loading from {}", file.getAbsolutePath());
+
+        setPath(file.getAbsolutePath());
+
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+            StringBuilder responseStrBuilder = new StringBuilder();
+            String inputStr;
+            while ((inputStr = reader.readLine()) != null) {
+                responseStrBuilder.append(inputStr);
+            }
+
+            String pathName = (Paths.get(file.getAbsolutePath())).getParent().toString();
+            entityManager.clear();
+            entityManager.parseJSON(new JSONObject(responseStrBuilder.toString()));
+        }
+    }
+
+    public void save(String absolutePath) throws IOException {
+        // try-with-resources will close the file for us.
+        try(BufferedWriter w = new BufferedWriter(new FileWriter(absolutePath))) {
+            w.write(entityManager.toJSON().toString());
+        }
+    }
+
+    public void addProject(Project source) throws IOException {
+        this.copyDiskAssetsToScenePath(source, getPath());
+        this.updateAllComponentWithDiskAsset(source, getPath());
+        this.entityManager.addScene(source.entityManager);
     }
 }
