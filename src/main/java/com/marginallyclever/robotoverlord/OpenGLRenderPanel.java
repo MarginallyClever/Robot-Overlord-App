@@ -144,7 +144,12 @@ public class OpenGLRenderPanel extends JPanel {
 
     public void setActiveToolIndex(int activeToolIndex) {
         deactivateAllTools();
-        this.activeToolIndex = activeToolIndex;
+        if(this.activeToolIndex == activeToolIndex) {
+            // toggle off?
+            this.activeToolIndex = -1;
+        } else {
+            this.activeToolIndex = activeToolIndex;
+        }
         Clipboard.setSelectedEntities(Clipboard.getSelectedEntities());
     }
 
