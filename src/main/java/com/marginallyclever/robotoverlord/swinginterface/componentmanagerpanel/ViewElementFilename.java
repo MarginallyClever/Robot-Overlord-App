@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 
+import com.marginallyclever.robotoverlord.PathUtils;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.StringParameterEdit;
@@ -23,7 +24,7 @@ import java.io.File;
  *
  */
 public class ViewElementFilename extends ViewElement implements ActionListener {
-	private static final JFileChooser chooser = new JFileChooser(System.getProperty("user.dir"));
+	private static final JFileChooser chooser = new JFileChooser(PathUtils.SCENE_PATH);
 	private final JTextField field = new JTextField(15);
 	private final ArrayList<FileFilter> filters = new ArrayList<>();
 	private final StringParameter parameter;
@@ -35,7 +36,7 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 		chooser.setFileView(new FileView() {
 			@Override
 			public Boolean isTraversable(File f) {
-				return f.getAbsolutePath().toLowerCase().startsWith("");
+				return f.getAbsolutePath().startsWith(PathUtils.SCENE_PATH);
 			}
 		});
 
