@@ -14,6 +14,10 @@ import java.io.File;
 public class PathUtils {
     private static final Logger logger = LoggerFactory.getLogger(PathUtils.class);
 
+    public static final String APP_BASE =  System.getProperty("user.home") + File.separator + "RobotOverlord";
+    public static final String APP_CACHE = APP_BASE + File.separator + "Cache";
+    public static final String APP_PLUGINS = APP_BASE + File.separator + "Plugins";
+
     /**
      * Get the file extension from a path.
      * @param path The path to get the extension from.
@@ -46,10 +50,6 @@ public class PathUtils {
         // no matching extension
         return filename + "." + extensions[0];
     }
-
-    public static final String APP_BASE =  System.getProperty("user.home") + File.separator + "RobotOverlord";
-    public static final String APP_CACHE = APP_BASE + File.separator + "Cache";
-    public static final String APP_PLUGINS = APP_BASE + File.separator + "Plugins";
 
     public static String getCurrentWorkingDirectory() {
         return System.getProperty("user.dir");
