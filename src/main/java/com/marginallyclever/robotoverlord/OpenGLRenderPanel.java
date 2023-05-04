@@ -20,6 +20,7 @@ import com.marginallyclever.robotoverlord.tools.move.TranslateEntityMultiTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -144,6 +145,7 @@ public class OpenGLRenderPanel extends JPanel {
     public void setActiveToolIndex(int activeToolIndex) {
         deactivateAllTools();
         this.activeToolIndex = activeToolIndex;
+        Clipboard.setSelectedEntities(Clipboard.getSelectedEntities());
     }
 
     private void hideDefaultCursor() {
