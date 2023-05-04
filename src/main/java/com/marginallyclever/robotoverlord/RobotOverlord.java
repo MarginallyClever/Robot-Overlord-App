@@ -80,7 +80,9 @@ public class RobotOverlord {
 	/**
 	 * The scene being edited and all the entities therein.
 	 */
-	private final EntityManager entityManager = new EntityManager(System.getProperty("user.dir"));
+	private final EntityManager entityManager = new EntityManager();
+
+	private final Project project = new Project(System.getProperty("user.dir")+File.separator+"scene");
 
 	/**
 	 * The main frame of the GUI
@@ -144,7 +146,7 @@ public class RobotOverlord {
 	}
 
 
-	private RobotOverlord() {
+	public RobotOverlord() {
 		super();
 
 		if(GraphicsEnvironment.isHeadless()) {
@@ -168,7 +170,7 @@ public class RobotOverlord {
 
 		listenToClipboardChanges();
 
-		SceneClearAction action = new SceneClearAction(entityManager);
+		ProjectClearAction action = new ProjectClearAction(project);
 		action.clearScene();
 		action.addDefaultEntities();
 
@@ -202,15 +204,15 @@ public class RobotOverlord {
 	}
 
 	private void preferencesLoad() {
-		SceneImportAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_IMPORT, System.getProperty("user.dir")));
-		SceneLoadAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_LOAD, System.getProperty("user.dir")));
-		SceneSaveAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_SAVE, System.getProperty("user.dir")));
+		ProjectImportAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_IMPORT, System.getProperty("user.dir")));
+		ProjectLoadAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_LOAD, System.getProperty("user.dir")));
+		ProjectSaveAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_SAVE, System.getProperty("user.dir")));
 	}
 
 	private void preferencesSave() {
-		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_IMPORT, SceneImportAction.getLastDirectory());
-		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_LOAD, SceneLoadAction.getLastDirectory());
-		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_SAVE, SceneSaveAction.getLastDirectory());
+		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_IMPORT, ProjectImportAction.getLastDirectory());
+		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_LOAD, ProjectLoadAction.getLastDirectory());
+		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_SAVE, ProjectSaveAction.getLastDirectory());
 	}
 
 	private JComponent buildEntityManagerPanel() {
@@ -318,11 +320,11 @@ public class RobotOverlord {
 	private JComponent createFileMenu() {
 		JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.File"));
 
-		menu.add(new SceneClearAction(entityManager));
-		menu.add(new SceneLoadAction(entityManager));
+		menu.add(new ProjectClearAction(project));
+		menu.add(new ProjectLoadAction(project));
 		if(recentFiles.size()>0) menu.add(createRecentFilesMenu());
-		menu.add(new SceneImportAction(entityManager));
-		menu.add(new SceneSaveAction(entityManager));
+		menu.add(new ProjectImportAction(project));
+		menu.add(new ProjectSaveAction(project));
 		menu.add(new JSeparator());
 		menu.add(new QuitAction(this));
 
@@ -335,10 +337,10 @@ public class RobotOverlord {
 			AbstractAction loader = new AbstractAction(filename) {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					SceneLoadAction sceneLoadAction = new SceneLoadAction(entityManager);
-					File f = new File(filename);
-					if(f.exists()) {
-						sceneLoadAction.loadIntoScene(filename,mainFrame);
+					ProjectLoadAction projectLoadAction = new ProjectLoadAction(project);
+					File file = new File(filename);
+					if(file.exists()) {
+						projectLoadAction.loadIntoScene(file,mainFrame);
 						recentFiles.add(filename);
 					} else {
 						recentFiles.remove(filename);
@@ -406,7 +408,7 @@ public class RobotOverlord {
 					JMenu level3Menu = new JMenu(level3Dir.getName());
 
 					for (File roFile : roFiles) {
-						level3Menu.add(new JMenuItem(new SceneImportAction(entityManager, roFile)));
+						level3Menu.add(new JMenuItem(new ProjectImportAction(project, roFile)));
 					}
 
 					// we found something, add the parent menu.
@@ -530,7 +532,7 @@ public class RobotOverlord {
 	}
 
 	private boolean importScene(File file) {
-		SceneImportAction action = new SceneImportAction(entityManager);
+		ProjectImportAction action = new ProjectImportAction(project);
 		return action.loadFile(file,mainFrame);
 	}
 
