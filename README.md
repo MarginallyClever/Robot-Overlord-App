@@ -1,4 +1,4 @@
-![Preview image](https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/Screenshot 2023-05-04 154621.png?raw=true)
+![Preview image](https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/Screenshot%202023-05-04%20154621.png?raw=true)
 
 # Robot Overlord #
 
