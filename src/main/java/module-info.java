@@ -26,5 +26,6 @@ module com.marginallyclever.robotoverlord {
 
 	// AFAIK this is only needed for the test 'GCodePathLoaderTest'.
 	// I don't know why it throws `InaccessibleObjectException` without this.
-	opens com.marginallyclever.robotoverlord.components.path;
+    opens com.marginallyclever.robotoverlord.systems.render.gcodepath;
+	opens com.marginallyclever.robotoverlord.components;
 }

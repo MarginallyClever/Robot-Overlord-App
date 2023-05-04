@@ -43,6 +43,7 @@ public class Component {
         return enabled.get();
     }
 
+    @Deprecated
     public void update(double dt) {}
 
     public JSONObject toJSON() {

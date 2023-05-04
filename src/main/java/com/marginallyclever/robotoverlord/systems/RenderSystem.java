@@ -5,22 +5,19 @@ import com.marginallyclever.robotoverlord.components.LightComponent;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.RenderComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
-import com.marginallyclever.robotoverlord.components.path.GCodePathComponent;
-import com.marginallyclever.robotoverlord.components.path.PathFactory;
+import com.marginallyclever.robotoverlord.components.GCodePathComponent;
+import com.marginallyclever.robotoverlord.systems.render.gcodepath.PathFactory;
 import com.marginallyclever.robotoverlord.components.shapes.Grid;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.components.shapes.Sphere;
-import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
+import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.TextureParameter;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementFilename;
 
 import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.util.ArrayList;
-import java.util.List;
 
-public class RenderSystem implements ROSystem {
+public class RenderSystem implements EntitySystem {
     /**
      * Get the Swing view of this component.
      *
@@ -111,4 +108,10 @@ public class RenderSystem implements ROSystem {
 
         view.addFilename(material.texture, TextureParameter.getFilters());
     }
+
+    /**
+     * Update the system over time.
+     * @param dt the time step in seconds.
+     */
+    public void update(double dt) {}
 }

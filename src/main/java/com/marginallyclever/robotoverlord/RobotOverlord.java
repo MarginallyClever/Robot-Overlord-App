@@ -6,18 +6,18 @@ import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
-import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
-import com.marginallyclever.robotoverlord.demos.DemoDog;
-import com.marginallyclever.robotoverlord.demos.DemoSpidee;
+import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
 import com.marginallyclever.robotoverlord.swinginterface.SoundSystem;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
 import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanel;
-import com.marginallyclever.robotoverlord.swinginterface.robotlibrarypanel.RobotLibraryListener;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.systems.*;
+import com.marginallyclever.robotoverlord.systems.robot.crab.CrabRobotSystem;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.ArmRobotSystem;
+import com.marginallyclever.robotoverlord.systems.robot.dog.DogRobotSystem;
 import com.marginallyclever.util.PropertiesFileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,7 @@ import java.util.prefs.Preferences;
  *
  * @author Dan Royer
  */
-public class RobotOverlord implements RobotLibraryListener {
+public class RobotOverlord {
 	private static final Logger logger = LoggerFactory.getLogger(RobotOverlord.class);
 
 	public static final String APP_TITLE = "Robot Overlord";
@@ -77,10 +77,7 @@ public class RobotOverlord implements RobotLibraryListener {
 	private final Preferences prefs = Preferences.userRoot().node("Evil Overlord");
     //private RecentFiles recentFiles = new RecentFiles();
 
-	/**
-	 * The scene being edited and all the entities therein.
-	 */
-	private final EntityManager entityManager = new EntityManager(System.getProperty("user.dir"));
+	private final Project project = new Project();
 
 	/**
 	 * The main frame of the GUI
@@ -124,8 +121,9 @@ public class RobotOverlord implements RobotLibraryListener {
 
 	private final RecentFiles recentFiles = new RecentFiles();
 
-	private final List<ROSystem> systems = new ArrayList<>();
+	private final List<EntitySystem> systems = new ArrayList<>();
 
+	private double frameDelay;
 
 	public static void main(String[] argv) {
 		Log.start();
@@ -143,7 +141,7 @@ public class RobotOverlord implements RobotLibraryListener {
 	}
 
 
-	private RobotOverlord() {
+	public RobotOverlord() {
 		super();
 
 		if(GraphicsEnvironment.isHeadless()) {
@@ -158,15 +156,16 @@ public class RobotOverlord implements RobotLibraryListener {
 		buildSystems();
 
 		buildMainFrame();
-		entityTreePanel = new EntityTreePanel(entityManager);
-		componentManagerPanel = new ComponentManagerPanel(entityManager,systems);
-		renderPanel = new OpenGLRenderPanel(entityManager);
+		entityTreePanel = new EntityTreePanel(project.getEntityManager());
+		componentManagerPanel = new ComponentManagerPanel(project.getEntityManager(),systems);
+		renderPanel = new OpenGLRenderPanel(project.getEntityManager(), this::update);
+
 		layoutComponents();
 		refreshMainMenu();
 
 		listenToClipboardChanges();
 
-		SceneClearAction action = new SceneClearAction(entityManager);
+		ProjectClearAction action = new ProjectClearAction(project);
 		action.clearScene();
 		action.addDefaultEntities();
 
@@ -175,13 +174,24 @@ public class RobotOverlord implements RobotLibraryListener {
 		logger.info("** READY **");
     }
 
+	private void update(double dt) {
+		for(EntitySystem system : systems) system.update(dt);
+	}
+
 	private void buildSystems() {
-		systems.add(new PhysicsSystem());
-		systems.add(new RenderSystem());
-		systems.add(new CameraSystem());
-		systems.add(new OriginAdjustSystem());
-		//systems.add(new SoundSystem());
-		systems.add(new RobotROSystem(entityManager));
+		addSystem(new PhysicsSystem());
+		addSystem(new RenderSystem());
+		addSystem(new CameraSystem());
+		addSystem(new OriginAdjustSystem());
+		//addSystem(new SoundSystem());
+		addSystem(new ArmRobotSystem(project.getEntityManager()));
+		addSystem(new DogRobotSystem(project.getEntityManager()));
+		addSystem(new CrabRobotSystem(project.getEntityManager()));
+	}
+
+	private void addSystem(EntitySystem system) {
+		systems.add(system);
+		//system.addListener(this);
 	}
 
 	private void listenToClipboardChanges() {
@@ -189,15 +199,15 @@ public class RobotOverlord implements RobotLibraryListener {
 	}
 
 	private void preferencesLoad() {
-		SceneImportAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_IMPORT, System.getProperty("user.dir")));
-		SceneLoadAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_LOAD, System.getProperty("user.dir")));
-		SceneSaveAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_SAVE, System.getProperty("user.dir")));
+		ProjectImportAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_IMPORT, System.getProperty("user.dir")));
+		ProjectLoadAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_LOAD, System.getProperty("user.dir")));
+		ProjectSaveAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_SAVE, System.getProperty("user.dir")));
 	}
 
 	private void preferencesSave() {
-		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_IMPORT, SceneImportAction.getLastDirectory());
-		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_LOAD, SceneLoadAction.getLastDirectory());
-		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_SAVE, SceneSaveAction.getLastDirectory());
+		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_IMPORT, ProjectImportAction.getLastDirectory());
+		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_LOAD, ProjectLoadAction.getLastDirectory());
+		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_SAVE, ProjectSaveAction.getLastDirectory());
 	}
 
 	private JComponent buildEntityManagerPanel() {
@@ -302,19 +312,14 @@ public class RobotOverlord implements RobotLibraryListener {
 		mainFrame.revalidate();
 	}
 
-	@Override
-	public void onRobotAdded() {
-		refreshMainMenu();
-	}
-
 	private JComponent createFileMenu() {
 		JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.File"));
 
-		menu.add(new SceneClearAction(entityManager));
-		menu.add(new SceneLoadAction(entityManager));
+		menu.add(new ProjectClearAction(project));
+		menu.add(new ProjectLoadAction(project));
 		if(recentFiles.size()>0) menu.add(createRecentFilesMenu());
-		menu.add(new SceneImportAction(entityManager));
-		menu.add(new SceneSaveAction(entityManager));
+		menu.add(new ProjectImportAction(project));
+		menu.add(new ProjectSaveAction(project));
 		menu.add(new JSeparator());
 		menu.add(new QuitAction(this));
 
@@ -327,10 +332,10 @@ public class RobotOverlord implements RobotLibraryListener {
 			AbstractAction loader = new AbstractAction(filename) {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					SceneLoadAction sceneLoadAction = new SceneLoadAction(entityManager);
-					File f = new File(filename);
-					if(f.exists()) {
-						sceneLoadAction.loadIntoScene(filename,mainFrame);
+					ProjectLoadAction projectLoadAction = new ProjectLoadAction(project);
+					File file = new File(filename);
+					if(file.exists()) {
+						projectLoadAction.loadIntoScene(file,mainFrame);
 						recentFiles.add(filename);
 					} else {
 						recentFiles.remove(filename);
@@ -353,11 +358,9 @@ public class RobotOverlord implements RobotLibraryListener {
 
 	private JComponent createDemoMenu() {
 		JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.Demos"));
-		menu.add(new JMenuItem(new DemoAction(entityManager,new DemoSpidee())));
-		menu.add(new JMenuItem(new DemoAction(entityManager,new DemoDog())));
 		//menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
 		menu.addSeparator();
-		menu.add(new JMenuItem(new ShowRobotLibraryPanel(this)));
+		menu.add(new JMenuItem(new ShowRobotLibraryPanel(this::refreshMainMenu)));
 		buildAvailableScenesTree(menu);
 		return menu;
 	}
@@ -400,7 +403,7 @@ public class RobotOverlord implements RobotLibraryListener {
 					JMenu level3Menu = new JMenu(level3Dir.getName());
 
 					for (File roFile : roFiles) {
-						level3Menu.add(new JMenuItem(new SceneImportAction(entityManager, roFile)));
+						level3Menu.add(new JMenuItem(new ProjectImportAction(project, roFile)));
 					}
 
 					// we found something, add the parent menu.
@@ -524,7 +527,7 @@ public class RobotOverlord implements RobotLibraryListener {
 	}
 
 	private boolean importScene(File file) {
-		SceneImportAction action = new SceneImportAction(entityManager);
+		ProjectImportAction action = new ProjectImportAction(project);
 		return action.loadFile(file,mainFrame);
 	}
 
@@ -540,11 +543,11 @@ public class RobotOverlord implements RobotLibraryListener {
 			ShapeComponent shape = new MeshFromFile(absolutePath);
 			entity.addComponent(shape);
 			// move entity to camera orbit point so that it is visible.
-			PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
-			pose.setPosition(entityManager.getCamera().getOrbitPoint());
+			PoseComponent pose = entity.getComponent(PoseComponent.class);
+			pose.setPosition(project.getEntityManager().getCamera().getOrbitPoint());
 
 			// add entity to scene.
-			UndoSystem.addEvent(this,new EntityAddEdit(entityManager, entityManager.getRoot(),entity));
+			UndoSystem.addEvent(this,new EntityAddEdit(project.getEntityManager(), project.getEntityManager().getRoot(),entity));
 		} catch(Exception e) {
 			logger.error("Error opening file",e);
 			return false;

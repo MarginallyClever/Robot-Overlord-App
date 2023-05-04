@@ -26,7 +26,7 @@ public class SkyBox {
 	}
 
 	public void render(GL2 gl2,CameraComponent camera) {
-		PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
+		PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
 
 		gl2.glDisable(GL2.GL_LIGHTING);
 		gl2.glDisable(GL2.GL_COLOR_MATERIAL);

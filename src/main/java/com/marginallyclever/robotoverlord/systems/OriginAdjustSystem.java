@@ -10,7 +10,7 @@ import javax.vecmath.Matrix4d;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OriginAdjustSystem implements ROSystem {
+public class OriginAdjustSystem implements EntitySystem {
     /**
      * Get the Swing view of this component.
      *
@@ -22,13 +22,19 @@ public class OriginAdjustSystem implements ROSystem {
         if(component instanceof OriginAdjustComponent) decorateOriginAdjust(view, component);
     }
 
+    /**
+     * Update the system over time.
+     * @param dt the time step in seconds.
+     */
+    public void update(double dt) {}
+
     private void decorateOriginAdjust(ComponentPanelFactory view, Component component) {
         OriginAdjustComponent adj = (OriginAdjustComponent)component;
         view.addButton("Adjust me").addActionEventListener( e -> OriginAdjustSystem.adjustOne(component.getEntity()) );
     }
 
     public static void adjustOne(Entity entity) {
-        PoseComponent myPose = entity.findFirstComponent(PoseComponent.class);
+        PoseComponent myPose = entity.getComponent(PoseComponent.class);
         PoseComponent parentPose = entity.findFirstComponentInParents(PoseComponent.class);
         if(myPose==null || parentPose==null) return;
         Matrix4d parentMat = parentPose.getWorld();
@@ -36,6 +42,7 @@ public class OriginAdjustSystem implements ROSystem {
         parentMat.invert();
         myPose.setLocalMatrix4(parentMat);
     }
+
     public static void adjustEntireTree(Entity root) {
         List<Entity> toProcess = new ArrayList<>();
         toProcess.add(root);
@@ -43,7 +50,7 @@ public class OriginAdjustSystem implements ROSystem {
             Entity entity = toProcess.remove(0);
             toProcess.addAll(entity.getChildren());
 
-            OriginAdjustComponent adj = entity.findFirstComponent(OriginAdjustComponent.class);
+            OriginAdjustComponent adj = entity.getComponent(OriginAdjustComponent.class);
             if(adj!=null) adjustOne(entity);
         }
     }

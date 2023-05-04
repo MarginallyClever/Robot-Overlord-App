@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.components;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.components.robot.robotarm.ApproximateJacobian2;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.ApproximateJacobian2;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import org.json.JSONException;
@@ -61,7 +61,7 @@ public class RobotComponent extends Component implements Robot {
         queue.add(getEntity());
         while(!queue.isEmpty()) {
             Entity e = queue.poll();
-            DHComponent c = e.findFirstComponent(DHComponent.class);
+            DHComponent c = e.getComponent(DHComponent.class);
             if(c!=null) bones.add(c);
             queue.addAll(e.getChildren());
         }
@@ -162,7 +162,7 @@ public class RobotComponent extends Component implements Robot {
         ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
         if(ee==null) return null;
 
-        PoseComponent pose = ee.getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = ee.getEntity().getComponent(PoseComponent.class);
         if(pose==null) return null;
         Matrix4d m = pose.getWorld();
         return inBaseFrameOfReference(m);
@@ -259,7 +259,7 @@ public class RobotComponent extends Component implements Robot {
     public Matrix4d getEndEffectorPose() {
         ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
         if(ee==null) return null;
-        PoseComponent endEffectorPose = ee.getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent endEffectorPose = ee.getEntity().getComponent(PoseComponent.class);
         if(endEffectorPose==null) return null;
         Matrix4d m = endEffectorPose.getWorld();
         return inBaseFrameOfReference(m);
@@ -269,7 +269,7 @@ public class RobotComponent extends Component implements Robot {
      * @return The pose of the robot's base relative to the world.
      */
     private Matrix4d getPoseWorld() {
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         if(pose==null) return null;
         return pose.getWorld();
     }
@@ -278,7 +278,7 @@ public class RobotComponent extends Component implements Robot {
      * @param m The pose of the robot's base relative to the world.
      */
     private void setPoseWorld(Matrix4d m) {
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         if(pose==null) return;
         pose.setWorld(m);
     }
@@ -334,7 +334,7 @@ public class RobotComponent extends Component implements Robot {
     public JSONObject toJSON() {
         JSONObject jo = super.toJSON();
 
-        jo.put("path", gcodePath.toJSON());
+        jo.put("gcodepath", gcodePath.toJSON());
 
         return jo;
     }
@@ -343,7 +343,7 @@ public class RobotComponent extends Component implements Robot {
     public void parseJSON(JSONObject jo) throws JSONException {
         super.parseJSON(jo);
 
-        if(jo.has("path")) gcodePath.parseJSON(jo.getJSONObject("path"));
+        if(jo.has("gcodepath")) gcodePath.parseJSON(jo.getJSONObject("gcodepath"));
     }
 
     public String getGCodePathEntityUUID() {

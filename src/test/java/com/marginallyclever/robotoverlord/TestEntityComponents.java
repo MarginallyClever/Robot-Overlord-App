@@ -33,7 +33,7 @@ public class TestEntityComponents {
 
         e.addComponent(c1);
         Assertions.assertEquals(1, e.getComponentCount());
-        Assertions.assertEquals(c0,e.findFirstComponent(Component.class));
+        Assertions.assertEquals(c0,e.getComponent(Component.class));
 
         e.addComponent(new PoseComponent());
         Assertions.assertEquals(2, e.getComponentCount());
@@ -43,9 +43,9 @@ public class TestEntityComponents {
     @Test
     public void getComponentWithGenerics() {
         Entity e = new Entity();
-        Assertions.assertNull(e.findFirstComponent(PoseComponent.class));
+        Assertions.assertNull(e.getComponent(PoseComponent.class));
         e.addComponent(new PoseComponent());
-        Assertions.assertNotNull(e.findFirstComponent(PoseComponent.class));
+        Assertions.assertNotNull(e.getComponent(PoseComponent.class));
     }
 
     @Test
@@ -59,8 +59,8 @@ public class TestEntityComponents {
         e1.addComponent(new PoseComponent());
         e2.addComponent(new CameraComponent());
         e0.addComponent(new CameraComponent());
-        Assertions.assertEquals(e0.findFirstComponent(CameraComponent.class),e0.findFirstComponentRecursive(CameraComponent.class));
-        Assertions.assertNotEquals(e2.findFirstComponent(CameraComponent.class),e0.findFirstComponentRecursive(CameraComponent.class));
+        Assertions.assertEquals(e0.getComponent(CameraComponent.class),e0.findFirstComponentRecursive(CameraComponent.class));
+        Assertions.assertNotEquals(e2.getComponent(CameraComponent.class),e0.findFirstComponentRecursive(CameraComponent.class));
         Assertions.assertNotNull(e0.findFirstComponentRecursive(PoseComponent.class));
         Assertions.assertNotNull(e1.findFirstComponentInParents(CameraComponent.class));
     }

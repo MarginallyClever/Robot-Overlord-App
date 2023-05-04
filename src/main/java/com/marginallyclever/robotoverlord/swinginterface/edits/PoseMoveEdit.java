@@ -78,7 +78,7 @@ public class PoseMoveEdit extends AbstractUndoableEdit {
 		diff.mul(after,diff);
 
 		for(Entity e : entities) {
-			PoseComponent pose = e.findFirstComponent(PoseComponent.class);
+			PoseComponent pose = e.getComponent(PoseComponent.class);
 			if(pose!=null) {
 				Matrix4d m = pose.getWorld();
 				m.mul(diff,m);

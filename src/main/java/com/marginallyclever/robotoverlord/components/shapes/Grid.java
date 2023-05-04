@@ -7,7 +7,6 @@ import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -35,7 +34,7 @@ public class Grid extends ShapeComponent {
     }
 
     private void drawGridWithSnap(GL2 gl2, int gridWidth, int gridLength, int gridSpace) {
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         if(pose==null) return;
 
         gl2.glPushMatrix();
@@ -51,7 +50,7 @@ public class Grid extends ShapeComponent {
 
     /**
      * Draw a grid of lines in the current color
-     * @param gl2 the render context
+     * @param gl2 the systems context
      * @param gridWidth the dimensions of the grid
      * @param gridLength the dimensions of the grid
      * @param gridSpace the distance between lines on the grid.
@@ -59,7 +58,7 @@ public class Grid extends ShapeComponent {
     private void drawGrid(GL2 gl2,int gridWidth,int gridLength,int gridSpace) {
         // get diffuse material color.  use black if nothing is found.
         double r=0,g=0,b=0;
-        MaterialComponent mat = getEntity().findFirstComponent(MaterialComponent.class);
+        MaterialComponent mat = getEntity().getComponent(MaterialComponent.class);
         if(mat!=null) {
             double[] c = mat.getDiffuseColor();
             r=c[0];

@@ -58,7 +58,7 @@ public class LightComponent extends Component {
 
         gl2.glEnable(i);
 
-        Matrix4d poseWorld = getEntity().findFirstComponent(PoseComponent.class).getWorld();
+        Matrix4d poseWorld = getEntity().getComponent(PoseComponent.class).getWorld();
         position[0]=(float)poseWorld.m03;
         position[1]=(float)poseWorld.m13;
         position[2]=(float)poseWorld.m23;

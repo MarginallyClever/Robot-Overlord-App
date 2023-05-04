@@ -16,13 +16,9 @@ import javax.swing.undo.UndoableEdit;
  *
  */
 public class ColorParameterEdit extends AbstractUndoableEdit {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private ColorParameter entity;
-	private double [] newValue;
-	private double [] oldValue;
+	private final ColorParameter entity;
+	private final double [] newValue;
+	private final double [] oldValue;
 	
 	public ColorParameterEdit(ColorParameter entity, double [] newValue) {
 		super();

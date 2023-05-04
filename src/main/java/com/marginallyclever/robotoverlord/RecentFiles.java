@@ -7,6 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
+/**
+ * Save and load a list of recently opened files to/from Preferences
+ *
+ * @author Dan Royer
+ * @since 2.5
+ */
 public class RecentFiles {
 	private static final Logger logger = LoggerFactory.getLogger(RecentFiles.class);
 	public static final int MAX_FILES=10;

@@ -1,20 +1,18 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.swinginterface.robotlibrarypanel.GithubFetcher;
+import com.marginallyclever.robotoverlord.swinginterface.robotlibrarypanel.RobotLibraryListener;
 import com.marginallyclever.robotoverlord.swinginterface.robotlibrarypanel.RobotLibraryPanel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.List;
 
 public class ShowRobotLibraryPanel extends AbstractAction {
-    RobotOverlord robotOverlord;
+    private final RobotLibraryListener robotLibraryListener;
 
-    public ShowRobotLibraryPanel(RobotOverlord robotOverlord) {
+    public ShowRobotLibraryPanel(RobotLibraryListener robotLibraryListener) {
         super("Get more robots...");
-        this.robotOverlord = robotOverlord;
+        this.robotLibraryListener = robotLibraryListener;
     }
     /**
      * Invoked when an action occurs.
@@ -27,7 +25,7 @@ public class ShowRobotLibraryPanel extends AbstractAction {
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
 
         RobotLibraryPanel panel = new RobotLibraryPanel();
-        panel.addRobotLibraryListener(robotOverlord);
+        panel.addRobotLibraryListener(robotLibraryListener);
         JFrame frame = new JFrame("Robot Library");
         frame.setContentPane(panel);
         frame.setPreferredSize(new Dimension(450,600));

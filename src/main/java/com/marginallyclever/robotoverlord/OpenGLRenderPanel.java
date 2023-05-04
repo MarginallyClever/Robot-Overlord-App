@@ -5,7 +5,6 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
@@ -21,6 +20,7 @@ import com.marginallyclever.robotoverlord.tools.move.TranslateEntityMultiTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -53,7 +53,7 @@ public class OpenGLRenderPanel extends JPanel {
     // used to check the stack size.
     private final IntBuffer stackDepth = IntBuffer.allocate(1);
 
-    // the render canvas
+    // the systems canvas
     private GLJPanel glCanvas;
 
     // mouse steering controls
@@ -87,7 +87,7 @@ public class OpenGLRenderPanel extends JPanel {
     private final MaterialComponent defaultMaterial = new MaterialComponent();
 
     /**
-     * Used to sort items at render time. Opaque items are rendered first, then alpha items.
+     * Used to sort items at systems time. Opaque items are rendered first, then alpha items.
      */
     private static class MatrixMaterialRender {
         public Matrix4d matrix = new Matrix4d();
@@ -97,10 +97,12 @@ public class OpenGLRenderPanel extends JPanel {
     private final List<MatrixMaterialRender> opaque = new ArrayList<>();
     private final List<MatrixMaterialRender> alpha = new ArrayList<>();
     private final List<MatrixMaterialRender> noMaterial = new ArrayList<>();
+    private final UpdateCallback updateCallback;
 
-    public OpenGLRenderPanel(EntityManager entityManager) {
+    public OpenGLRenderPanel(EntityManager entityManager,UpdateCallback updateCallback) {
         super(new BorderLayout());
         this.entityManager = entityManager;
+        this.updateCallback = updateCallback;
 
         createCanvas();
         addCanvasListeners();
@@ -142,7 +144,13 @@ public class OpenGLRenderPanel extends JPanel {
 
     public void setActiveToolIndex(int activeToolIndex) {
         deactivateAllTools();
-        this.activeToolIndex = activeToolIndex;
+        if(this.activeToolIndex == activeToolIndex) {
+            // toggle off?
+            this.activeToolIndex = -1;
+        } else {
+            this.activeToolIndex = activeToolIndex;
+        }
+        Clipboard.setSelectedEntities(Clipboard.getSelectedEntities());
     }
 
     private void hideDefaultCursor() {
@@ -232,6 +240,7 @@ public class OpenGLRenderPanel extends JPanel {
                 long nowTime = System.currentTimeMillis();
                 long dt = nowTime - lastTime;
                 lastTime = nowTime;
+
                 updateStep(dt*0.001);  // to seconds
 
                 GL2 gl2 = drawable.getGL().getGL2();
@@ -354,11 +363,9 @@ public class OpenGLRenderPanel extends JPanel {
             Entity entity = toTest.remove();
             toTest.addAll(entity.getChildren());
 
-            List<ShapeComponent> shapes = entity.findAllComponents(ShapeComponent.class);
-            for(ShapeComponent shape : shapes) {
-                RayHit hit = shape.intersect(ray);
-                if(hit!=null) rayHits.add(hit);
-            }
+            ShapeComponent shape = entity.getComponent(ShapeComponent.class);
+            RayHit hit = shape.intersect(ray);
+            if(hit!=null) rayHits.add(hit);
         }
         return rayHits;
     }
@@ -426,8 +433,8 @@ public class OpenGLRenderPanel extends JPanel {
     /**
      * Render all Entities in the scene.  Search all entities for a {@link RenderComponent}.
      * Sort them into three lists: those with no material, those with opaque material, and those with transparent
-     * material.  Further sort the alpha list by distance from the camera.  Then render the opaque, render the alpha,
-     * and render the no-material.
+     * material.  Further sort the alpha list by distance from the camera.  Then systems the opaque, systems the alpha,
+     * and systems the no-material.
      *
      * @param gl2 the OpenGL context
      */
@@ -442,12 +449,12 @@ public class OpenGLRenderPanel extends JPanel {
             Entity entity = toRender.remove();
             toRender.addAll(entity.getChildren());
 
-            RenderComponent renderComponent = entity.findFirstComponent(RenderComponent.class);
+            RenderComponent renderComponent = entity.getComponent(RenderComponent.class);
             if(renderComponent!=null) {
                 MatrixMaterialRender mmr = new MatrixMaterialRender();
-                mmr.renderComponent = entity.findFirstComponent(RenderComponent.class);
-                mmr.materialComponent = entity.findFirstComponent(MaterialComponent.class);
-                PoseComponent pose = entity.findFirstComponent(PoseComponent.class);
+                mmr.renderComponent = entity.getComponent(RenderComponent.class);
+                mmr.materialComponent = entity.getComponent(MaterialComponent.class);
+                PoseComponent pose = entity.getComponent(PoseComponent.class);
                 if(pose!=null) mmr.matrix.set(pose.getWorld());
 
                 if(mmr.materialComponent==null) noMaterial.add(mmr);
@@ -456,14 +463,14 @@ public class OpenGLRenderPanel extends JPanel {
             }
         }
 
-        // render opaque objects
+        // systems opaque objects
         defaultMaterial.render(gl2);
         renderMMRList(gl2,opaque);
 
         // sort alpha objects back to front
         Vector3d cameraPoint = new Vector3d();
         Entity cameraEntity = getCamera().getEntity();
-        cameraEntity.findFirstComponent(PoseComponent.class).getWorld().get(cameraPoint);
+        cameraEntity.getComponent(PoseComponent.class).getWorld().get(cameraPoint);
 
         Vector3d p1 = new Vector3d();
         Vector3d p2 = new Vector3d();
@@ -476,10 +483,10 @@ public class OpenGLRenderPanel extends JPanel {
             double d2 = p2.lengthSquared();
             return (int)Math.signum(d2-d1);
         });
-        // render alpha objects
+        // systems alpha objects
         renderMMRList(gl2,alpha);
 
-        // render objects with no material last
+        // systems objects with no material last
         defaultMaterial.render(gl2);
         renderMMRList(gl2,noMaterial);
     }
@@ -513,7 +520,7 @@ public class OpenGLRenderPanel extends JPanel {
             Entity obj = found.remove();
             found.addAll(obj.children);
 
-            LightComponent light = obj.findFirstComponent(LightComponent.class);
+            LightComponent light = obj.getComponent(LightComponent.class);
             if(light!=null && light.getEnabled()) {
                 light.setupLight(gl2,i++);
                 if(i==maxLights) return;
@@ -578,14 +585,12 @@ public class OpenGLRenderPanel extends JPanel {
         if(frameDelay>frameLength) {
             frameDelay-=frameLength;
 
-            for(Entity entity : entityManager.getEntities()) {
-                entity.update(frameLength);
-            }
+            updateCallback.update(dt);
         }
     }
 
     public void startAnimationSystem() {
-        logger.debug("setup the animation system");
+        logger.debug("start the animation system");
         frameDelay=0;
         frameLength=1.0f/(float)DEFAULT_FRAMES_PER_SECOND;
         animator.add(glCanvas);

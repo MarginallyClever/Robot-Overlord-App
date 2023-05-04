@@ -152,6 +152,7 @@ public class GithubFetcher {
                 results.add(tag.get("name").toString());
             }
         } catch (IOException e) {
+            logger.error("Failed to fetch tags from GitHub", e);
             e.printStackTrace();
         }
         return results;
@@ -194,6 +195,7 @@ public class GithubFetcher {
                             }
                         });
             } catch (IOException e) {
+                logger.error("Failed to search for robot.properties files", e);
                 e.printStackTrace();
             }
         }

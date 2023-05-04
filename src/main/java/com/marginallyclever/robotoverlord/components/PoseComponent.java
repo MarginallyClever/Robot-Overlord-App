@@ -37,11 +37,6 @@ public class PoseComponent extends Component implements PropertyChangeListener {
     }
 
     @Override
-    public void update(double dt) {
-        super.update(dt);
-    }
-
-    @Override
     public JSONObject toJSON() {
         JSONObject jo = super.toJSON();
         jo.put("position",position.toJSON());

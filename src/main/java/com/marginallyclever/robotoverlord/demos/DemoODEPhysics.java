@@ -6,8 +6,8 @@ import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.LightComponent;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.physics.ode.ODEPhysicsComponent;
-import com.marginallyclever.robotoverlord.physics.ode.ODEPhysicsEngine;
+import com.marginallyclever.robotoverlord.systems.physics.ode.ODEPhysicsComponent;
+import com.marginallyclever.robotoverlord.systems.physics.ode.ODEPhysicsEngine;
 import org.ode4j.math.DMatrix3;
 import org.ode4j.math.DQuaternion;
 import org.ode4j.math.DVector3C;
@@ -51,7 +51,7 @@ public class DemoODEPhysics implements Demo {
 	public void execute(EntityManager entityManager) {
 		// adjust default camera
 		CameraComponent camera = entityManager.getCamera();
-		PoseComponent pose = camera.getEntity().findFirstComponent(PoseComponent.class);
+		PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
 		pose.setPosition(new Vector3d(40/4f,-91/4f,106/4f));
 		camera.lookAt(new Vector3d(0,0,0));
 		camera.setOrbitDistance(20);

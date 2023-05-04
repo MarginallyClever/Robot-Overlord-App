@@ -1,17 +1,21 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
+import com.marginallyclever.robotoverlord.ComponentWithDiskAsset;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
-import com.marginallyclever.robotoverlord.components.material.MaterialFactory;
-import com.marginallyclever.robotoverlord.components.shapes.mesh.load.MeshFactory;
+import com.marginallyclever.robotoverlord.systems.render.material.MaterialFactory;
+import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MeshFromFile extends ShapeComponent {
+import java.util.ArrayList;
+import java.util.List;
+
+public class MeshFromFile extends ShapeComponent implements ComponentWithDiskAsset {
     private static final Logger logger = LoggerFactory.getLogger(MeshFromFile.class);
 
     public final StringParameter filename = new StringParameter("File","");
@@ -28,7 +32,7 @@ public class MeshFromFile extends ShapeComponent {
 
     @Override
     public void setEntity(Entity entity) {
-        if(entity != null && entity.findFirstComponent(MaterialComponent.class)==null) {
+        if(entity != null && entity.getComponent(MaterialComponent.class)==null) {
             // no material, add one.
             String absolutePath = filename.get();
             if(!absolutePath.trim().isEmpty() && MeshFactory.hasMaterial(absolutePath)) {
@@ -78,5 +82,28 @@ public class MeshFromFile extends ShapeComponent {
 
     public void load() {
         setModel(MeshFactory.load(filename.get()));
+    }
+
+    /**
+     * adjust the path of the disk assets in the component.
+     *
+     * @param originalPath the original path to the asset
+     * @param newPath      the new path to the asset
+     */
+    @Override
+    public void adjustPath(String originalPath, String newPath) {
+        String oldPath = this.getFilename();
+        String adjustedPath = oldPath;
+        if(oldPath.startsWith(originalPath)) {
+            adjustedPath = newPath + oldPath.substring(originalPath.length());
+        }
+        this.setFilename(adjustedPath);
+    }
+
+    @Override
+    public List<String> getAssetPaths() {
+        List<String> list = new ArrayList<>();
+        list.add(getFilename());
+        return list;
     }
 }

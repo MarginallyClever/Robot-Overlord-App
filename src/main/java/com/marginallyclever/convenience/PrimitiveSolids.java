@@ -135,7 +135,7 @@ public class PrimitiveSolids {
 
 	/**
 	 * Draw a cylinder with a base at the origin
-	 * @param gl2 render context
+	 * @param gl2 systems context
 	 * @param height height of the cylinder
 	 * @param radius radius in the XY plane
 	 */
@@ -153,7 +153,7 @@ public class PrimitiveSolids {
 
 	/**
 	 * Draw a cylinder with a base in the center of the cylinder
-	 * @param gl2 render context
+	 * @param gl2 systems context
 	 * @param height height of the cylinder
 	 * @param radius radius in the XY plane
 	 */
@@ -199,7 +199,7 @@ public class PrimitiveSolids {
 	
 	/**
 	 * draw box based on depth,width, and height with the origin in the bottom center.
-	 * @param gl2 render context
+	 * @param gl2 systems context
 	 * @param depth y axis
 	 * @param width x axis
 	 * @param height z axis
@@ -257,7 +257,7 @@ public class PrimitiveSolids {
 
 	/**
 	 * draw box based on two corners
-	 * @param gl2 render context
+	 * @param gl2 systems context
 	 * @param bottom minimum bounds
 	 * @param top maximum bounds
 	 */
@@ -301,7 +301,7 @@ public class PrimitiveSolids {
 
 	/**
 	 * draw box based on two corners
-	 * @param gl2 render context
+	 * @param gl2 systems context
 	 * @param bottom minimum bounds
 	 * @param top maximum bounds
 	 */
@@ -368,7 +368,7 @@ public class PrimitiveSolids {
 	}
 	
 	/** draw square billboard facing the camera.
-	 * @param gl2 render context
+	 * @param gl2 systems context
 	 * @param p center of billboard
 	 * @param w width of square
 	 * @param h height of square

@@ -1198,7 +1198,7 @@ to check yourself.</value>
 	</string>
 	<string>
 		<key>SceneImportAction.name</key>
-		<value>Import %1</value>
+		<value>Import...</value>
 	</string>
 	<string>
 		<key>SceneImportAction.namePreselected</key>
@@ -1248,6 +1248,17 @@ to check yourself.</value>
 		<key>RobotOverlord.quitTitle</key>
 		<value>Are you sure you want to quit?</value>
 	</string>
+
+	<string>
+		<key>Warning</key>
+		<value>Warning</value>
+	</string>
+
+	<string>
+		<key>ProjectSaveAction.doesNotContainAllAssets</key>
+		<value>Project folder does not contain all assets.</value>
+	</string>
+
 
 	<string>
 		<key>Scene.AssetPathNotInScenePathWarningTitle</key>

@@ -13,11 +13,6 @@ import javax.vecmath.Vector3d;
  *
  */
 public class Vector3dParameterEdit extends AbstractParameterEdit<Vector3d> {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public Vector3dParameterEdit(AbstractParameter<Vector3d> e, Vector3d newValue) {
 		super(e, newValue);
 	}

@@ -2,7 +2,8 @@ package com.marginallyclever.robotoverlord.robots.stewartplatform.linear;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotoverlord.entities.ShapeEntity;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -10,33 +11,32 @@ import java.io.Serial;
 
 @Deprecated
 public class LinearStewartPlatform1 extends LinearStewartPlatformCore {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private final ShapeEntity baseModel;
-    private final ShapeEntity eeModel;
-    private final ShapeEntity armModel;
+    private final MeshFromFile baseModel;
+    private final MeshFromFile eeModel;
+    private final MeshFromFile armModel;
 
     public LinearStewartPlatform1() {
-        super("Linear Stewart Platform 1");
+        super();
 
         // load models and fix scale/orientation.
-        baseModel = new ShapeEntity("Base", "/robots/linearStewartPlatform/base.stl");
-        baseModel.setShapeScale(0.1);
-        eeModel = new ShapeEntity("ee", "/robots/linearStewartPlatform/endEffector.stl");
-        eeModel.setShapeScale(0.1);
-        eeModel.setShapeRotation(new Vector3d(0,0,-30));
-        armModel = new ShapeEntity("arm", "/robots/linearStewartPlatform/arm.stl");
-        armModel.setShapeScale(0.1);
+        baseModel = new MeshFromFile("/com/marginallyclever/robotoverlord/robots/stewartplatform/linear/base.stl");
+        //baseModel.setShapeScale(0.1);
+        eeModel = new MeshFromFile("/com/marginallyclever/robotoverlord/robots/stewartplatform/linear/endEffector.stl");
+        //eeModel.setShapeScale(0.1);
+        //eeModel.setShapeRotation(new Vector3d(0,0,-30));
+        armModel = new MeshFromFile("/com/marginallyclever/robotoverlord/robots/stewartplatform/linear/arm.stl");
+        //armModel.setShapeScale(0.1);
     }
 
     @Override
     public void render(GL2 gl2) {
         super.render(gl2);
 
+        PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
+
         gl2.glPushMatrix();
             // draw the base
-            MatrixHelper.applyMatrix(gl2, myPose);
+            MatrixHelper.applyMatrix(gl2, myPose.getLocal());
             baseModel.render(gl2);
 
             // draw the end effector

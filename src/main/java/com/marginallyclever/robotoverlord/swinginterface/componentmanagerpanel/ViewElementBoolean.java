@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.BooleanEdit;
+import com.marginallyclever.robotoverlord.swinginterface.edits.BooleanParameterEdit;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -33,7 +33,7 @@ public class ViewElementBoolean extends ViewElement implements PropertyChangeLis
 			public void itemStateChanged(ItemEvent arg0) {
 				boolean newValue = field.isSelected();
 				if(parameter.get()!=newValue) {
-					AbstractUndoableEdit event = new BooleanEdit(parameter, newValue);
+					AbstractUndoableEdit event = new BooleanParameterEdit(parameter, newValue);
 					UndoSystem.addEvent(this, event);
 				}
 			}

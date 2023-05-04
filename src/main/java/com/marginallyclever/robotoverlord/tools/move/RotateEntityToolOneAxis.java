@@ -205,7 +205,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
             translation.add(pivotTranslation);
             pose.setTranslation(translation);
 
-            PoseComponent pc = entity.findFirstComponent(PoseComponent.class);
+            PoseComponent pc = entity.getComponent(PoseComponent.class);
             pc.setWorld(pose);
         }
     }
@@ -291,7 +291,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
     /**
      * Renders any tool-specific visuals to the 3D scene.
      *
-     * @param gl2 The OpenGL render context.
+     * @param gl2 The OpenGL systems context.
      */
     @Override
     public void render(GL2 gl2) {

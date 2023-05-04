@@ -16,13 +16,9 @@ import javax.swing.undo.CannotUndoException;
  *
  */
 public class ComboBoxEdit extends AbstractUndoableEdit {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private IntParameter e;
-	private int oldValue,newValue;
-	private String label;
+	private final IntParameter e;
+	private final int oldValue,newValue;
+	private final String label;
 	
 	public ComboBoxEdit(IntParameter e, String label, int newValue) {
 		super();

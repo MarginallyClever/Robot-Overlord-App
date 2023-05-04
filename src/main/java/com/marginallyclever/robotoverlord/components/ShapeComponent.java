@@ -4,10 +4,9 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RayHit;
-import com.marginallyclever.robotoverlord.components.shapes.mesh.Mesh;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -67,7 +66,7 @@ public abstract class ShapeComponent extends RenderComponent {
 
         Entity e = getEntity();
         if(e==null) return null;
-        PoseComponent pose = e.findFirstComponent(PoseComponent.class);
+        PoseComponent pose = e.getComponent(PoseComponent.class);
         if(pose==null) return null;
 
         Ray localRay = transformRayToLocalSpace(pose, ray);

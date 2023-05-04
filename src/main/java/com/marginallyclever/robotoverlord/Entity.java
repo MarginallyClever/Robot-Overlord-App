@@ -1,6 +1,9 @@
 package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotoverlord.components.ComponentDependency;
+import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.edits.ComponentAddEdit;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -66,25 +69,6 @@ public class Entity implements PropertyChangeListener {
 		this.name = name;
 		// notifyObservers(name);
 	}
-
-	/**
-	 * @param dt seconds since last update.
-	 */
-	public void update(double dt) {
-		for(Component c : components) {
-			if(c.getEnabled()) c.update(dt);
-		}
-
-		for(Entity e : children) {
-			e.update(dt);
-		}
-	}
-
-	/**
-	 * Render this Entity to the display
-	 * @param gl2 the render context
-	 */
-	public void render(GL2 gl2) {}
 
 	public String getUniqueChildName(Entity e) {
 		String rootName = e.getName(); 
@@ -271,6 +255,7 @@ public class Entity implements PropertyChangeListener {
 		if(containsAnInstanceOfTheSameClass(c)) return;
 		components.add(c);
 		c.setEntity(this);
+		addComponentDependencies(c.getClass());
 	}
 
 	public boolean containsAnInstanceOfTheSameClass(Component c0) {
@@ -285,15 +270,6 @@ public class Entity implements PropertyChangeListener {
 		return components.get(i);
 	}
 
-	public Component findComponentByName(String name) {
-		for(Component c : components) {
-			if(name.equals(c.getClass().getSimpleName())) {
-				return c;
-			}
-		}
-		return null;
-	}
-
 	public void removeComponent(Component c) {
 		components.remove(c);
 	}
@@ -302,39 +278,26 @@ public class Entity implements PropertyChangeListener {
 	 * @return the first instance of class T found in component list.
 	 * @param <T> the type to find and return.  Must be derived from Component.
 	 */
-	public <T> T findFirstComponent(Class<T> clazz) {
+	public <T extends Component> T getComponent(Class<T> clazz) {
 		for(Component c : components) {
 			if(clazz.isInstance(c)) {
-				return (T)c;
+				return clazz.cast(c);
 			}
 		}
 		return null;
 	}
 
 	/**
-	 * @return all instances of class T found attached to this Entity.
-	 * @param <T> the type to find and return.  Must be derived from Component.
-	 */
-	public <T> List<T> findAllComponents(Class<T> clazz) {
-		List<T> list = new ArrayList<>();
-		for(Component c : components) {
-			if(clazz.isInstance(c)) {
-				list.add((T)c);
-			}
-		}
-		return list;
-	}
-
-	/**
 	 * Search this Entity and all child Entities until a {@link Component} match is found.
 	 */
-	public <T> T findFirstComponentRecursive(Class<T> clazz) {
-		T found = findFirstComponent(clazz);
-		if(found!=null) return found;
-
-		for(Entity e : children) {
-			found = e.findFirstComponentRecursive(clazz);
+	public <T extends Component> T findFirstComponentRecursive(Class<T> clazz) {
+		List<Entity> toSearch = new LinkedList<>();
+		toSearch.add(this);
+		while(!toSearch.isEmpty()) {
+			Entity e = toSearch.remove(0);
+			T found = e.getComponent(clazz);
 			if(found!=null) return found;
+			toSearch.addAll(e.getChildren());
 		}
 
 		return null;
@@ -346,10 +309,10 @@ public class Entity implements PropertyChangeListener {
 	 * @return the instance found or null
 	 * @param <T> the class of the Component to find
 	 */
-	public <T> T findFirstComponentInParents(Class<T> clazz) {
+	public <T extends Component> T findFirstComponentInParents(Class<T> clazz) {
 		Entity p = parent;
 		while(p!=null) {
-			T found = p.findFirstComponent(clazz);
+			T found = p.getComponent(clazz);
 			if (found != null) return found;
 			p = p.getParent();
 		}
@@ -410,7 +373,7 @@ public class Entity implements PropertyChangeListener {
 			if(!containsAnInstanceOfTheSameClass(component)) {
 				this.addComponent(component);
 			} else {
-				component = findFirstComponent(component.getClass());
+				component = getComponent(component.getClass());
 			}
 			component.parseJSON(jo2);
 		}
@@ -428,5 +391,24 @@ public class Entity implements PropertyChangeListener {
 
 	public void setExpanded(boolean arg0) {
 		isExpanded = arg0;
+	}
+
+	private void addComponentDependencies(Class<?> myClass) {
+		while(myClass!=null) {
+			ComponentDependency[] annotations = myClass.getAnnotationsByType(ComponentDependency.class);
+			for (ComponentDependency a : annotations) {
+				Class<? extends Component> [] components = a.components();
+				for(Class<? extends Component> c : components) {
+					if(null==getComponent(c)) {
+						addComponent(ComponentFactory.createInstance(c));
+					}
+				}
+			}
+			myClass = myClass.getSuperclass();
+		}
+	}
+
+	public Collection<? extends Component> getComponents() {
+		return components;
 	}
 }

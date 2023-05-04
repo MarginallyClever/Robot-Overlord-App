@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 
-import com.marginallyclever.robotoverlord.EntityManager;
+import com.marginallyclever.robotoverlord.PathUtils;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.StringParameterEdit;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.filechooser.FileView;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,17 +24,22 @@ import java.io.File;
  *
  */
 public class ViewElementFilename extends ViewElement implements ActionListener {
-	private static String lastPath=System.getProperty("user.dir");
+	private static final JFileChooser chooser = new JFileChooser(PathUtils.SCENE_PATH);
 	private final JTextField field = new JTextField(15);
 	private final ArrayList<FileFilter> filters = new ArrayList<>();
 	private final StringParameter parameter;
-	private final EntityManager entityManager;
 	
-	public ViewElementFilename(StringParameter parameter, EntityManager entityManager) {
+	public ViewElementFilename(StringParameter parameter) {
 		super();
 		this.parameter = parameter;
-		this.entityManager = entityManager;
-		
+
+		chooser.setFileView(new FileView() {
+			@Override
+			public Boolean isTraversable(File f) {
+				return f.getAbsolutePath().startsWith(PathUtils.SCENE_PATH);
+			}
+		});
+
 		//this.setBorder(BorderFactory.createLineBorder(Color.RED));
 
 		field.setEditable(false);
@@ -75,7 +80,6 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		JFileChooser chooser = new JFileChooser();
 		if(filters.size()==0) return;  // @TODO: fail!
 		if(filters.size()==1) chooser.setFileFilter(filters.get(0));
 		else {
@@ -83,16 +87,14 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 				chooser.addChoosableFileFilter(filter);
 			}
 		}
-		if(lastPath!=null) chooser.setCurrentDirectory(new File(lastPath));
 		int returnVal = chooser.showDialog(SwingUtilities.getWindowAncestor(this), Translator.get("Select"));
 		if(returnVal == JFileChooser.APPROVE_OPTION) {
-			String newFilename = chooser.getSelectedFile().getAbsolutePath();
-			lastPath = chooser.getSelectedFile().getParent();
-			String lastScenePath = entityManager.checkForScenePath(newFilename);
-
-			AbstractUndoableEdit event = new StringParameterEdit(parameter, lastScenePath);
-			UndoSystem.addEvent(this,event);
+			UndoSystem.addEvent(this,new StringParameterEdit(parameter, chooser.getSelectedFile().getAbsolutePath()));
 		}
+	}
+
+	public static void setLastPath(String lastPath) {
+		if(lastPath!=null) chooser.setCurrentDirectory(new File(lastPath));
 	}
 
 	public void setFileFilter(FileFilter arg0) {

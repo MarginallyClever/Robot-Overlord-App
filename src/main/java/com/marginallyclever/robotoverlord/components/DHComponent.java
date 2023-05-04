@@ -6,7 +6,6 @@ import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,6 +30,12 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
     public final DoubleParameter jointMin = new DoubleParameter("Min",0.0);
     public final DoubleParameter jointHome = new DoubleParameter("Home",0.0);
 
+    @Override
+    public void setEntity(Entity entity) {
+        super.setEntity(entity);
+        refreshLocalMatrix();
+    }
+
     public DHComponent() {
         super();
         myD.addPropertyChangeListener(this);
@@ -38,11 +43,6 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         alpha.addPropertyChangeListener(this);
         theta.addPropertyChangeListener(this);
         setVisible(false);
-    }
-
-    @Override
-    public void update(double dt) {
-        super.update(dt);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         Entity entity = getEntity();
         if(entity==null) return;
 
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         if(pose==null) {
             pose = new PoseComponent();
             getEntity().addComponent(pose);
@@ -165,7 +165,7 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
      * @return the local pose of this entity.
      */
     public Matrix4d getLocal() {
-        PoseComponent pose = getEntity().findFirstComponent(PoseComponent.class);
+        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         if(pose==null) return null;
         return pose.getLocal();
     }
@@ -297,6 +297,9 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         OpenGLHelper.disableLightingEnd(gl2, lit);
     }
 
+    public void setRevolute(boolean b) {
+        isRevolute.set(b);
+    }
     public boolean isRevolute() {
         return isRevolute.get();
     }

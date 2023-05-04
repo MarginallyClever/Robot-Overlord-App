@@ -9,6 +9,8 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import java.io.Serial;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An undoable action to add a {@link com.marginallyclever.robotoverlord.Component} to an {@link Entity}.
@@ -21,6 +23,7 @@ public class ComponentAddEdit extends AbstractUndoableEdit {
 
 	private final Entity entity;
 	private final Component component;
+	private final List<Component> existingDependencies = new ArrayList<>();
 	private final ComponentManagerPanel componentManagerPanel;
 
 	public ComponentAddEdit(ComponentManagerPanel componentManagerPanel, Entity entity, Component component) {
@@ -29,6 +32,8 @@ public class ComponentAddEdit extends AbstractUndoableEdit {
 		this.componentManagerPanel = componentManagerPanel;
 		this.entity = entity;
 		this.component = component;
+		// record existing dependencies so we can remove new ones later.
+		existingDependencies.addAll(entity.getComponents());
 		
 		doIt();
 	}
@@ -41,7 +46,7 @@ public class ComponentAddEdit extends AbstractUndoableEdit {
 	@Override
 	public void redo() throws CannotRedoException {
 		super.redo();
-		doIt();	
+		doIt();
 	}
 	
 	protected void doIt() {
@@ -51,6 +56,11 @@ public class ComponentAddEdit extends AbstractUndoableEdit {
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
+		// remove dependencies created by this component
+		List<Component> difference = new ArrayList<>(entity.getComponents());
+		difference.removeAll(existingDependencies);
+		for(Component c : difference) entity.removeComponent(c);
+		// remove the component
 		entity.removeComponent(component);
 		componentManagerPanel.refreshContentsFromClipboard();
 	}

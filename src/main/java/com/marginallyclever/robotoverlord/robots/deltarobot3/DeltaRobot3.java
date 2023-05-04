@@ -6,11 +6,13 @@ import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.convenience.memento.Memento;
-import com.marginallyclever.robotoverlord.entities.ShapeEntity;
-import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
+import com.marginallyclever.robotoverlord.components.ComponentDependency;
+import com.marginallyclever.robotoverlord.components.MaterialComponent;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.RenderComponent;
+import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
+import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.robots.RobotEntity;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.slf4j.Logger;
@@ -19,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,9 +29,18 @@ import java.io.ObjectInputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * A 3-arm delta robot.  Each arm is of the rotary style.
+ *
+ * @author Dan Royer
+ * @since before 2.0.0
+ */
 @Deprecated
-public class DeltaRobot3 extends RobotEntity implements Robot {
+@ComponentDependency(components = {PoseComponent.class, MaterialComponent.class})
+public class DeltaRobot3 extends RenderComponent implements Robot {
 	private static final Logger logger = LoggerFactory.getLogger(DeltaRobot3.class);
 
 	// machine ID
@@ -53,17 +65,14 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 	// angle of rotation
 	public final DeltaRobot3Arm [] arms = new DeltaRobot3Arm[NUM_ARMS];
 
-	// bounding volumes for collision testing
-	private Cylinder [] volumes;
-
 	// models for 3d rendering
-	private final transient ShapeEntity modelTop;
-	private final transient ShapeEntity modelArm;
-	private final transient ShapeEntity modelBase;
+	private final transient MeshFromFile modelTop;
+	private final transient MeshFromFile modelArm;
+	private final transient MeshFromFile modelBase;
 	
 	// motion state testing
-	final DeltaRobot3Memento motionNow = new DeltaRobot3Memento();
-	final DeltaRobot3Memento motionFuture = new DeltaRobot3Memento();
+	final Vector3d motionNow = new Vector3d();
+	final Vector3d motionFuture = new Vector3d();
 
 	/**
 	 * When a valid move is made in the simulation, set this flag to true.
@@ -71,15 +80,10 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 	 * This way the robot communication is not flooded with identical moves.
 	 */
 	private boolean haveArmsMoved = false;
-
-	private final BooleanParameter draw_finger_star = new BooleanParameter("Show end effector point",true);
-	private final BooleanParameter draw_base_star = new BooleanParameter("show base star",false);
-	private final BooleanParameter draw_shoulder_to_elbow = new BooleanParameter("show shoulder to elbow",false);
-	private final BooleanParameter draw_shoulder_star = new BooleanParameter("show shoulder star",false);
-	private final BooleanParameter draw_elbow_star = new BooleanParameter("show elbow star",false);
-	private final BooleanParameter draw_wrist_star = new BooleanParameter("show wrist star",false);
-
 	private final Cylinder tube = new Cylinder();  // for drawing forearms
+
+	protected transient RemoteParameter connection = new RemoteParameter();
+	protected transient boolean isReadyToReceive;
 
 	/**
 	 * Used by {@link Robot} interface.
@@ -88,7 +92,6 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 
 	public DeltaRobot3() {
 		super();
-		setName(ROBOT_NAME);
 
 		for(int i=0;i<NUM_ARMS;++i) {
 			arms[i] = new DeltaRobot3Arm(getNormalOfArmPlane(i));
@@ -99,29 +102,20 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 
 		tube.setRadius(0.15f);
 
-		modelTop = new ShapeEntity("top", "/robots/DeltaRobot3/top.obj");
-		modelArm = new ShapeEntity("arm", "/robots/DeltaRobot3/arm.obj");
-		modelBase = new ShapeEntity("base", "/robots/DeltaRobot3/base.obj");
+		modelTop = new MeshFromFile("/com/marginallyclever/robotoverlord/robots/deltarobot3/top.obj");
+		modelArm = new MeshFromFile("/com/marginallyclever/robotoverlord/robots/deltarobot3/arm.obj");
+		modelBase = new MeshFromFile("/com/marginallyclever/robotoverlord/robots/deltarobot3/base.obj");
 
-		modelBase.getMaterial().setDiffuseColor(1,0.8f,0.6f,1);
-		modelArm.getMaterial().setDiffuseColor(1.0f, 249.0f/255.0f, 242.0f/255.0f,1);
-		modelTop.getMaterial().setDiffuseColor(1.0f, 249.0f/255.0f, 242.0f/255.0f,1);
+		//modelBase.getMaterial().setDiffuseColor(1,0.8f,0.6f,1);
+		//modelArm.getMaterial().setDiffuseColor(1.0f, 249.0f/255.0f, 242.0f/255.0f,1);
+		//modelTop.getMaterial().setDiffuseColor(1.0f, 249.0f/255.0f, 242.0f/255.0f,1);
 	}
 
-	@Override
+	@Deprecated
 	public void getView(ComponentPanelFactory view) {
 		view.addButton("Go home").addActionEventListener((e)->goHome());
 		ViewElementButton bOpen = view.addButton("Open control panel");
 		bOpen.addActionEventListener((evt)-> onOpenAction() );
-
-		view.add(draw_finger_star);
-		view.add(draw_base_star);
-		view.add(draw_shoulder_to_elbow);
-		view.add(draw_shoulder_star);
-		view.add(draw_elbow_star);
-		view.add(draw_wrist_star);
-
-		super.getView(view);
 	}
 
 	private void onOpenAction() {
@@ -131,8 +125,9 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 
 	private void setupBoundingVolumes() {
 		// set up bounding volumes
-		volumes = new Cylinder[NUM_ARMS];
-		for(int i=0;i<volumes.length;++i) {
+		// bounding volumes for collision testing
+		Cylinder[] volumes = new Cylinder[NUM_ARMS];
+		for(int i = 0; i< volumes.length; ++i) {
 			volumes[i] = new Cylinder();
 		}
 		volumes[0].setRadius(3.2f);
@@ -157,7 +152,7 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 		aa=arms[0].elbow.x-arms[0].wrist.x;
 		cc=bb;
 		bb=Math.sqrt((cc*cc)-(aa*aa));
-		motionNow.fingerPosition.set(0,0,BASE_TO_SHOULDER_Z-bb-WRIST_TO_FINGER_Z);
+		motionNow.set(0,0,BASE_TO_SHOULDER_Z-bb-WRIST_TO_FINGER_Z);
 		moveIfAble();
 	}
 
@@ -176,18 +171,46 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 		if(!haveArmsMoved) return;		
 
 		haveArmsMoved=false;
-		this.sendCommand("G0 X"+motionNow.fingerPosition.x
-				          +" Y"+motionNow.fingerPosition.y
-				          +" Z"+motionNow.fingerPosition.z
+		this.sendCommand("G0 X"+motionNow.x
+				          +" Y"+motionNow.y
+				          +" Z"+motionNow.z
 				          );
+	}
+
+	/**
+	 * Processes a single instruction meant for the robot.
+	 * @param command command to send
+	 * @return true if the command is sent to the robot.
+	 */
+	public boolean sendCommand(String command) {
+		if(connection==null) return false;
+
+		// contains a comment?  if so remove it
+		int index=command.indexOf('(');
+		if(index!=-1) {
+			//String comment=line.substring(index+1,line.lastIndexOf(')'));
+			//Log("* "+comment+NL);
+			command=command.substring(0,index).trim();
+			if(command.length()==0) {
+				// entire line was a comment.
+				return false;  // still ready to send
+			}
+		}
+
+		if(!command.endsWith("\n")) {
+			command+="\n";
+		}
+
+		// send relevant part of line to the robot
+		connection.sendMessage(command);
+
+		return true;
 	}
 
 	@Override
 	public void render(GL2 gl2) {
-		super.render(gl2);
-
 		gl2.glPushMatrix();
-		MatrixHelper.applyMatrix(gl2, this.getPose());
+
 		gl2.glTranslated(0,0,2);
 		
 		drawModel(gl2);
@@ -214,7 +237,7 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 		}
 		//top
 		gl2.glPushMatrix();
-		gl2.glTranslated(motionNow.fingerPosition.x,motionNow.fingerPosition.y,motionNow.fingerPosition.z);
+		gl2.glTranslated(motionNow.x,motionNow.y,motionNow.z);
 		modelTop.render(gl2);
 		gl2.glPopMatrix();
 	}
@@ -227,35 +250,29 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 
 		for(DeltaRobot3Arm arm : arms) {
 			gl2.glColor3f(1,1,1);
-			if(draw_shoulder_star.get()) PrimitiveSolids.drawStar(gl2, arm.shoulder,5);
-			if(draw_elbow_star.get()) PrimitiveSolids.drawStar(gl2, arm.elbow,3);
-			if(draw_wrist_star.get()) PrimitiveSolids.drawStar(gl2, arm.wrist,1);
+			PrimitiveSolids.drawStar(gl2, arm.shoulder,5);
+			PrimitiveSolids.drawStar(gl2, arm.elbow,3);
+			PrimitiveSolids.drawStar(gl2, arm.wrist,1);
 
-			if(draw_shoulder_to_elbow.get()) {
-				gl2.glBegin(GL2.GL_LINES);
-				gl2.glColor3f(0,1,0);
-				gl2.glVertex3d(arm.elbow.x,arm.elbow.y,arm.elbow.z);
-				gl2.glColor3f(0,0,1);
-				gl2.glVertex3d(arm.shoulder.x,arm.shoulder.y,arm.shoulder.z);
-				gl2.glEnd();
-			}
+			gl2.glBegin(GL2.GL_LINES);
+			gl2.glColor3f(0,1,0);
+			gl2.glVertex3d(arm.elbow.x,arm.elbow.y,arm.elbow.z);
+			gl2.glColor3f(0,0,1);
+			gl2.glVertex3d(arm.shoulder.x,arm.shoulder.y,arm.shoulder.z);
+			gl2.glEnd();
 		}
 		gl2.glPopMatrix();
 
-		if(draw_finger_star.get()) {
-			// draw finger center (end effector)
-			gl2.glPushMatrix();
-			gl2.glTranslated(
-					motionNow.fingerPosition.x,
-					motionNow.fingerPosition.y,
-					motionNow.fingerPosition.z);
-			PrimitiveSolids.drawStar(gl2, 5);
-			gl2.glPopMatrix();
-		}
+		// draw finger center (end effector)
+		gl2.glPushMatrix();
+		gl2.glTranslated(
+				motionNow.x,
+				motionNow.y,
+				motionNow.z);
+		PrimitiveSolids.drawStar(gl2, 5);
+		gl2.glPopMatrix();
 
-		if(draw_base_star.get()) {
-			PrimitiveSolids.drawStar(gl2, 2);
-		}
+		PrimitiveSolids.drawStar(gl2, 2);
 
 		gl2.glEnable(GL2.GL_LIGHTING);
 		gl2.glEnable(GL2.GL_TEXTURE);
@@ -309,11 +326,29 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 	private void goHome() {
 		boolean isHomed = false;
 		this.sendCommand("G28");
-		motionNow.fingerPosition.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
+		motionNow.set(HOME_X,HOME_Y,HOME_Z);  // HOME_* should match values in robot firmware.
 		updateIK();
 		haveArmsMoved=true;
 		finalizeMove();
 		isHomed =true;
+	}
+
+	public boolean isReadyToReceive() {
+		return isReadyToReceive;
+	}
+
+	@Override
+	public void update(double dt) {
+		super.update(dt);
+		connection.update(dt);
+		if (connection.isConnectionOpen()) {
+			// set the lock
+
+			// de-queue and process all messages
+			//if(data.startsWith(">")) isReadyToReceive=true;
+
+			// release the lock
+		}
 	}
 
 	// override this method to check that the software is connected to the right type of robot.
@@ -338,8 +373,6 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 			catch(Exception e) {
 				e.printStackTrace();
 			}
-
-			setName(ROBOT_NAME+" #"+robotUID);
 		}
 		
 		logger.info("RECV "+line);
@@ -408,7 +441,7 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 		// see https://stackoverflow.com/questions/11719168/how-do-i-find-the-sphere-center-from-3-points-and-radius
 
 		Vector3d t = IntersectionHelper.centerOfCircumscribedSphere(p[0],p[1],p[2],DeltaRobot3.FOREARM_LENGTH);
-		motionNow.fingerPosition.set(t);
+		motionNow.set(t);
 	}
 
 
@@ -443,9 +476,9 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 		return true;
 	}
 
-	private void updateIKWrists(DeltaRobot3Memento keyframe) {
+	private void updateIKWrists(Vector3d keyframe) {
 		for(int i=0;i<NUM_ARMS;++i) {
-			arms[i].updateWrist(keyframe.fingerPosition);
+			arms[i].updateWrist(keyframe);
 		}
 	}
 
@@ -488,19 +521,13 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 		// angle are good?
 		if(!checkAngleLimits()) return false;
 		// seems doable
-		if(!updateIK()) return false;
+		return updateIK();
 
 		// OK
-		return true;
 	}
 
 	private boolean checkAngleLimits() {
 		return true;
-	}
-
-	@Override
-	public Memento createKeyframe() {
-		return new DeltaRobot3Memento();
 	}
 
 	@Override
@@ -516,12 +543,20 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 			case JOINT_HAS_RANGE_LIMITS: return true;
 			case JOINT_PRISMATIC: return false;
 			case END_EFFECTOR: return getEndEffector();
-			case END_EFFECTOR_TARGET: return vector2Matrix(motionFuture.fingerPosition);
+			case END_EFFECTOR_TARGET: return vector2Matrix(motionFuture);
 			case TOOL_CENTER_POINT: return MatrixHelper.createIdentityMatrix4();
 			case POSE: return getPoseWorld();
 			case JOINT_POSE: return vector2Matrix(arms[activeJoint].shoulder);
 			default :  return null;
 		}
+	}
+
+	private Matrix4d getPoseWorld() {
+		return getEntity().getComponent(PoseComponent.class).getWorld();
+	}
+
+	private void setPoseWorld(Matrix4d m) {
+		getEntity().getComponent(PoseComponent.class).setWorld(m);
 	}
 
 	@Override
@@ -536,7 +571,7 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 				Matrix4d m = (Matrix4d)value;
 				Vector3d t = new Vector3d();
 				m.get(t);
-				motionNow.fingerPosition.set(t);
+				motionNow.set(t);
 				moveIfAble();
 			}  break;
 			case TOOL_CENTER_POINT: break;
@@ -546,7 +581,7 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 	}
 
 	private Matrix4d getEndEffector() {
-		return vector2Matrix(motionNow.fingerPosition);
+		return vector2Matrix(motionNow);
 	}
 
 	private Matrix4d vector2Matrix(Vector3d v) {
@@ -554,5 +589,23 @@ public class DeltaRobot3 extends RobotEntity implements Robot {
 		m.setIdentity();
 		m.setTranslation(v);
 		return m;
+	}
+
+	private final List<PropertyChangeListener> listeners = new ArrayList<>();
+
+	@Override
+	public void addPropertyChangeListener(PropertyChangeListener p) {
+		listeners.add(p);
+	}
+
+	@Override
+	public void removePropertyChangeListener(PropertyChangeListener p) {
+		listeners.remove(p);
+	}
+
+	private void notifyPropertyChangeListeners(PropertyChangeEvent ee) {
+		for(PropertyChangeListener p : listeners) {
+			p.propertyChange(ee);
+		}
 	}
 }

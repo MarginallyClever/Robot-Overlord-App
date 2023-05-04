@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.components;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.Component;
+import com.marginallyclever.robotoverlord.ComponentWithDiskAsset;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
@@ -9,7 +10,10 @@ import com.marginallyclever.robotoverlord.parameters.TextureParameter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MaterialComponent extends Component {
+import java.util.List;
+import java.util.ArrayList;
+
+public class MaterialComponent extends Component implements ComponentWithDiskAsset {
     public final ColorParameter ambient    = new ColorParameter("Ambient" ,1,1,1,1);
     public final ColorParameter diffuse    = new ColorParameter("Diffuse" ,1,1,1,1);
     public final ColorParameter specular   = new ColorParameter("Specular",1,1,1,1);
@@ -156,5 +160,28 @@ public class MaterialComponent extends Component {
      */
     public boolean isAlpha() {
         return diffuse.getA()!=1.0;
+    }
+
+    /**
+     * adjust the path of the disk assets in the component.
+     *
+     * @param originalPath the original path to the asset
+     * @param newPath      the new path to the asset
+     */
+    @Override
+    public void adjustPath(String originalPath, String newPath) {
+        String oldPath = this.getTextureFilename();
+        String adjustedPath = oldPath;
+        if(oldPath.startsWith(originalPath)) {
+            adjustedPath = newPath + oldPath.substring(originalPath.length());
+        }
+        this.setTextureFilename(adjustedPath);
+    }
+
+    @Override
+    public List<String> getAssetPaths() {
+        List<String> list = new ArrayList<>();
+        list.add(getTextureFilename());
+        return list;
     }
 }

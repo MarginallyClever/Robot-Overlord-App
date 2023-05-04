@@ -120,7 +120,7 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
             pose.m03 += translation.x;
             pose.m13 += translation.y;
             pose.m23 += translation.z;
-            entity.findFirstComponent(PoseComponent.class).setWorld(pose);
+            entity.getComponent(PoseComponent.class).setWorld(pose);
         }
     }
 

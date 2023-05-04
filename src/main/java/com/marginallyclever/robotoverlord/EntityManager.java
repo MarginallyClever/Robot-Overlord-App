@@ -2,8 +2,11 @@ package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.convenience.*;
 import com.marginallyclever.robotoverlord.components.*;
+import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -12,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -28,10 +32,9 @@ import java.util.Queue;
  */
 public class EntityManager {
 	private static final Logger logger = LoggerFactory.getLogger(EntityManager.class);
-	private final StringParameter scenePath = new StringParameter("Scene Path", "");
 	private final List<Entity> entities = new ArrayList<>();
 	private final Entity rootEntity = new Entity("Scene");
-	private final List<SceneChangeListener> sceneChangeListeners = new ArrayList<>();
+	private final List<EntityManagerListener> entityManagerListeners = new ArrayList<>();
 	
 	public EntityManager() {
 		super();
@@ -47,18 +50,11 @@ public class EntityManager {
 	}
 
 	/**
-	 * Initialize the scene with a path to the root of the project.
-	 * @param absolutePath the absolute path to the root of the project.
-	 */
-	public EntityManager(String absolutePath) {
-		this();
-		setScenePath(absolutePath);
-	}
-
-	/**
 	 * @param listA all the cuboids being tested against the world.
 	 * @return true if any cuboid in {@code listA} intersects any {@link AABB} in the world.
 	 */
+	@Deprecated
+	// TODO does not belong here!
 	public boolean collisionTest(ArrayList<AABB> listA) {
 		// check all children
 		for( Entity b : entities) {
@@ -92,106 +88,24 @@ public class EntityManager {
 
 	public void addEntityToParent(Entity child,Entity parent) {
 		parent.addEntity(child);
-		for(SceneChangeListener listener : sceneChangeListeners) {
+		for(EntityManagerListener listener : entityManagerListeners) {
 			listener.addEntityToParent(parent,child);
 		}
 	}
 
 	public void removeEntityFromParent(Entity child,Entity parent) {
 		parent.removeEntity(child);
-		for(SceneChangeListener listener : sceneChangeListeners) {
+		for(EntityManagerListener listener : entityManagerListeners) {
 			listener.removeEntityFromParent(parent,child);
 		}
 	}
 
-	public void addSceneChangeListener(SceneChangeListener listener) {
-		sceneChangeListeners.add(listener);
+	public void addSceneChangeListener(EntityManagerListener listener) {
+		entityManagerListeners.add(listener);
 	}
 
-	public void removeSceneChangeListener(SceneChangeListener listener) {
-		sceneChangeListeners.remove(listener);
-	}
-
-	/**
-	 * Set the scene path.  This is the path to the directory containing the scene file.
-	 * @param absolutePath the absolute path to the scene directory.
-	 */
-	public void setScenePath(String absolutePath) {
-		File file = new File(absolutePath);
-		if(!file.exists()) throw new RuntimeException("File does not exist: "+absolutePath);
-		if(!file.isDirectory()) throw new RuntimeException("Not a directory: "+absolutePath);
-		//if(!entities.isEmpty()) throw new RuntimeException("Cannot change the scene path when entities are present.");
-
-		logger.debug("Setting scene path to "+absolutePath);
-		scenePath.set(absolutePath);
-	}
-
-	public String getScenePath() {
-		return scenePath.get();
-	}
-
-	/**
-	 * Returns true if unCheckedAssetFilename is in the scene path.
-	 * @param unCheckedAssetFilename a file that may or may not be within the scene path.
-	 * @return true if unCheckedAssetFilename is in the scene path.
-	 */
-	public boolean isAssetPathInScenePath(String unCheckedAssetFilename) {
-		Path input = Paths.get(unCheckedAssetFilename);
-		Path scene = Paths.get(getScenePath());
-		return input.toAbsolutePath().startsWith(scene.toAbsolutePath());
-	}
-
-	/**
-	 * Displays a warning to the user if the asset is not within the scene path.
-	 * @param unCheckedAssetFilename a file that may or may not be within the scene path.
-	 */
-	public void warnIfAssetPathIsNotInScenePath(String unCheckedAssetFilename) {
-		if(isAssetPathInScenePath(unCheckedAssetFilename)) return;
-
-		String message = Translator.get("Scene.AssetPathNotInScenePathWarning");
-		message = message.replace("%1", unCheckedAssetFilename);
-		message = message.replace("%2", getScenePath());
-		logger.warn("asset "+unCheckedAssetFilename+" not in scene path: "+getScenePath());
-
-		// try to show a pop-up if we have a display
-		if(!GraphicsEnvironment.isHeadless()) {
-			JOptionPane.showMessageDialog(
-				null,
-				message,
-				Translator.get("Scene.AssetPathNotInScenePathWarningTitle"),
-				JOptionPane.WARNING_MESSAGE);
-		}
-	}
-
-	public String checkForScenePath(String fn) {
-		if (!isAssetPathInScenePath(fn)) {
-			String fn2 = addScenePath(fn);
-			if ((new File(fn2)).exists()) {
-				return fn2;
-			}
-		} else {
-			warnIfAssetPathIsNotInScenePath(fn);
-		}
-		return fn;
-	}
-
-	/**
-	 * Returns the relative path to the asset, or absolute if the asset is not within the scene path.
-	 * @param unCheckedAssetFilename a file that may or may not be within the scene path.
-	 * @return the relative path to the asset, or absolute if the asset is not within the scene path.
-	 */
-	public String removeScenePath(String unCheckedAssetFilename) {
-		if(unCheckedAssetFilename==null) return null;
-
-		String scenePathValue = getScenePath();
-		if(unCheckedAssetFilename.startsWith(scenePathValue)) {
-			return unCheckedAssetFilename.substring(scenePathValue.length());
-		}
-		return unCheckedAssetFilename;
-	}
-
-	public String addScenePath(String fn) {
-		return getScenePath() + fn;
+	public void removeSceneChangeListener(EntityManagerListener listener) {
+		entityManagerListeners.remove(listener);
 	}
 
 	/**
@@ -262,5 +176,23 @@ public class EntityManager {
 		entities.add(new Entity());
 		if(jo.has("scene")) jo = jo.getJSONObject("scene");
 		entities.get(0).parseJSON(jo);
+	}
+
+	/**
+	 * <p>Move assets from source to here.  When projectA is imported into projectB, any
+	 * asset with filename <i>projectA/xxxx.yyy</i> should be copied to <i>projectB/projectA/xxxx.yyy</i> and the
+	 * asset filename in the destination project should be updated to match.</p>
+	 * <p>When complete the source scene will only contain the root entity.</p>
+	 *
+	 * @param source the scene to copy from
+	 */
+	public void addScene(EntityManager source) {
+		// when entities are added to destination they will automatically be removed from source.
+		// to prevent concurrent modification exception we have to have a copy of the list.
+		List<Entity> entities = new LinkedList<>(source.getRoot().getChildren());
+		// now do the move safely.
+		for(Entity e : entities) {
+			this.addEntityToParent(e,this.getRoot());
+		}
 	}
 }
