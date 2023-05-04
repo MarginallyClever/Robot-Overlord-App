@@ -50,7 +50,7 @@ jobs:
       with:
         upload_url: ${{ env.UPLOAD_URL }}
         release_id: ${{ env.RELEASE_ID }}{
-        asset_path: RobotOverlord.zip # gcodepath to archive to upload
+        asset_path: RobotOverlord.zip # path to archive to upload
         asset_name: RobotOverlord-nightly-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
         asset_content_type: application/zip # required by GitHub API
         max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
@@ -102,7 +102,7 @@ jobs:
       with:
         upload_url: ${{ env.UPLOAD_URL }}
         release_id: ${{ env.RELEASE_ID }}
-        asset_path: ${{ env.BINARY }} # gcodepath to archive to upload
+        asset_path: ${{ env.BINARY }} # path to archive to upload
         asset_name: ${{ env.BINARY_NIGHTLY }} # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
         asset_content_type: application/zip # required by GitHub API
         max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted

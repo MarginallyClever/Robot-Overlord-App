@@ -28,7 +28,7 @@ public class SceneSaveAction extends AbstractAction implements ActionListener {
 	private final EntityManager entityManager;
 
 	/**
-	 * The file chooser remembers the last gcodepath.
+	 * The file chooser remembers the last path.
 	 */
 	private static final JFileChooser fc = new JFileChooser();
 	

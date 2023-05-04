@@ -234,12 +234,12 @@ public final class Translator {
 	}
 
 	/**
-	 * @return the gcodepath to the working directory
+	 * @return the path to the working directory
 	 * @throws URISyntaxException
 	 * @throws IOException
 	 */
 	private static Path getLanguagesPath() throws URISyntaxException, IOException {
-		logger.debug("Looking for languages gcodepath '"+ LANGUAGES_DIRECTORY +"'.");
+		logger.debug("Looking for languages path '"+ LANGUAGES_DIRECTORY +"'.");
 		URL a = Translator.class.getClassLoader().getResource(LANGUAGES_DIRECTORY);
 		assert a != null;
 		URI uri = a.toURI();

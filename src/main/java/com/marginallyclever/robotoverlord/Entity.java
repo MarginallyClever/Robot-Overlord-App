@@ -151,7 +151,7 @@ public class Entity implements PropertyChangeListener {
 	}
 
 	/**
-	 * Search the entity tree based on an absolute or relative Unix-style gcodepath.
+	 * Search the entity tree based on an absolute or relative Unix-style path.
 	 * 
 	 * @param path the search query
 	 * @return the requested entity or null.
@@ -159,7 +159,7 @@ public class Entity implements PropertyChangeListener {
 	public Entity findByPath(String path) {
 		String[] pathComponents = path.split(PATH_SEPARATOR);
 
-		// if absolute gcodepath, start with root node.
+		// if absolute path, start with root node.
 		int i = 0;
 		Entity e;
 		if (path.startsWith(PATH_SEPARATOR)) {

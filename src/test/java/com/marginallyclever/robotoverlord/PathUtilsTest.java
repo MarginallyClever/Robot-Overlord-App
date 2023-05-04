@@ -38,14 +38,14 @@ public class PathUtilsTest {
         System.out.println("  file.isDirectory = "+file.isDirectory());
 
         Path path = Path.of(address);
-        System.out.println("  gcodepath.toString = "+path.toString());
-        System.out.println("  gcodepath.filename = "+path.getFileName());
-        System.out.println("  gcodepath.parent = "+path.getParent());
-        System.out.println("  gcodepath.root = "+path.getRoot());
-        System.out.println("  gcodepath.nameCount = "+path.getNameCount());
-        System.out.println("  gcodepath.isAbsolute = "+(path.isAbsolute()?"true":"false"));
-        System.out.println("  gcodepath.toAbsolutePath = "+path.toAbsolutePath());
-        System.out.println("  gcodepath.toRealPath = "+path.toRealPath());
-        System.out.println("  gcodepath.toRealPath(nofollow) = "+path.toRealPath(LinkOption.NOFOLLOW_LINKS));
+        System.out.println("  path.toString = "+path.toString());
+        System.out.println("  path.filename = "+path.getFileName());
+        System.out.println("  path.parent = "+path.getParent());
+        System.out.println("  path.root = "+path.getRoot());
+        System.out.println("  path.nameCount = "+path.getNameCount());
+        System.out.println("  path.isAbsolute = "+(path.isAbsolute()?"true":"false"));
+        System.out.println("  path.toAbsolutePath = "+path.toAbsolutePath());
+        System.out.println("  path.toRealPath = "+path.toRealPath());
+        System.out.println("  path.toRealPath(nofollow) = "+path.toRealPath(LinkOption.NOFOLLOW_LINKS));
     }
 }

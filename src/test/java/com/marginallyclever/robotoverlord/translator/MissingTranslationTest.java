@@ -102,8 +102,8 @@ public class MissingTranslationTest {
 
 
     /**
-     * List all files and sub files in this gcodepath. Using
-     * <code>Files.walk(gcodepath)</code> (so this take care of recursive gcodepath
+     * List all files and sub files in this path. Using
+     * <code>Files.walk(path)</code> (so this take care of recursive path
      * exploration ) And applying filter ( RegularFile and ReadableFile ) and
      * filtering FileName ...
      *

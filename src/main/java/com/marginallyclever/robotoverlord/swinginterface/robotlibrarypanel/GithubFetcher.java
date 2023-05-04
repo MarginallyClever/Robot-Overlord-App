@@ -152,6 +152,7 @@ public class GithubFetcher {
                 results.add(tag.get("name").toString());
             }
         } catch (IOException e) {
+            logger.error("Failed to fetch tags from GitHub", e);
             e.printStackTrace();
         }
         return results;
@@ -194,6 +195,7 @@ public class GithubFetcher {
                             }
                         });
             } catch (IOException e) {
+                logger.error("Failed to search for robot.properties files", e);
                 e.printStackTrace();
             }
         }
@@ -202,11 +204,11 @@ public class GithubFetcher {
     }
 
     /**
-     * Gets the local gcodepath for the given repository.
+     * Gets the local path for the given repository.
      * @param owner The owner of the repository.
      * @param repoName The name of the repository.
      * @param tag The tag of the repository.
-     * @return The local gcodepath.
+     * @return The local path.
      */
     public static String getLocalPath(String owner, String repoName, String tag) {
         Path destinationPath = Paths.get(PathUtils.APP_PLUGINS, owner, repoName, tag);
@@ -214,10 +216,10 @@ public class GithubFetcher {
     }
 
     /**
-     * Gets the local gcodepath for the given repository.
+     * Gets the local path for the given repository.
      * @param owner The owner of the repository.
      * @param repoName The name of the repository.
-     * @return The local gcodepath.
+     * @return The local path.
      */
     private static String getLocalPath(String owner, String repoName) {
         Path destinationPath = Paths.get(PathUtils.APP_PLUGINS, owner, repoName);

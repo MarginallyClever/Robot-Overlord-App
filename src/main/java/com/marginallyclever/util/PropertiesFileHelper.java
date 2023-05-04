@@ -28,7 +28,7 @@ public final class PropertiesFileHelper {
                 throw new IllegalStateException("Sorry, unable to find " + APP_PROPERTIES_FILENAME);
             }
             Properties prop = new Properties();
-            //load a properties file from class gcodepath, inside static method
+            //load a properties file from class path, inside static method
             prop.load(input);
 
             //get the property value and print it out

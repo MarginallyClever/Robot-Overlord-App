@@ -33,25 +33,25 @@ public final class PreferencesHelper implements Serializable {
 	private static final Map<MakelangeloPreferenceKey, ? extends Preferences> CLASS_TO_PREFERENCE_NODE_MAP;
 
 	/**
-	 * Future Makelagelo root preference node gcodepath name.
+	 * Future Makelagelo root preference node path name.
 	 */
 	@SuppressWarnings("unused")
 	private static final String MAKELANGELO_ROOT_PATH_NAME = PreferencesHelper.class.getPackage().getName();
 
 	/**
-	 * Legacy preference node gcodepath.
+	 * Legacy preference node path.
 	 */
 	@Deprecated
 	private static final String LEGACY_MAKELANGELO_ROOT_PATH_NAME = "DrawBot";
 
 	/**
-	 * Graphics preference node gcodepath, used to store things such as {@code "Draw all while running"} used when OpenGL
+	 * Graphics preference node path, used to store things such as {@code "Draw all while running"} used when OpenGL
 	 * renders the application.
 	 */
 	private static final String GRAPHICS_PATH_NAME = "Graphics";
 
 	/**
-	 * Machine preference node gcodepath, used to store things such as paper height and width, invert left and right motors,
+	 * Machine preference node path, used to store things such as paper height and width, invert left and right motors,
 	 * etc.
 	 * See com.marginallyclever.makelangeloRobot.settings.MakelangeloRobotSettings
 	 */

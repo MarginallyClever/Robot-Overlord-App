@@ -23,7 +23,7 @@ public interface MeshLoader {
 
 	/**
 	 * Does this loader find a material file near the mesh file?
-	 * @param absolutePath gcodepath to mesh file
+	 * @param absolutePath path to mesh file
 	 * @return true if a material file is found
 	 */
     default boolean hasMaterial(String absolutePath) {
@@ -31,9 +31,9 @@ public interface MeshLoader {
 	}
 
 	/**
-	 * Get the gcodepath to the material file
-	 * @param absolutePath gcodepath to mesh file
-	 * @return gcodepath to material file or null.
+	 * Get the path to the material file
+	 * @param absolutePath path to mesh file
+	 * @return path to material file or null.
 	 */
 	default String getMaterialPath(String absolutePath) {
 		return null;

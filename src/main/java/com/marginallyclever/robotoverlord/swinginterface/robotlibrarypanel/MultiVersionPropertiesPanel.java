@@ -58,7 +58,7 @@ public class MultiVersionPropertiesPanel extends JPanel {
     }
 
     /**
-     * Display either the install button or the gcodepath to the library.
+     * Display either the install button or the path to the library.
      * @param githubRepositoryUrl The URL of the repository.
      * @param tag The tag to install.
      */
@@ -77,7 +77,7 @@ public class MultiVersionPropertiesPanel extends JPanel {
                 installButton.addActionListener(e -> installRobotLibrary(githubRepositoryUrl, tag));
                 libraryStatus.add(installButton, BorderLayout.CENTER);
             } else {
-                // installed - display the gcodepath to the library.
+                // installed - display the path to the library.
                 libraryStatus.add(new JLabel(libraryPath), BorderLayout.CENTER);
             }
         } catch (URISyntaxException e) {
