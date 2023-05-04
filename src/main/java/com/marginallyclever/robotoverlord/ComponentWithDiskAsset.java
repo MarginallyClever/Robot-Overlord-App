@@ -1,5 +1,8 @@
 package com.marginallyclever.robotoverlord;
 
+import java.util.List;
+import java.awt.*;
+
 /**
  * This interface is used to mark components that have an asset on disk such as a mesh or a texture.
  *
@@ -13,4 +16,6 @@ public interface ComponentWithDiskAsset {
      * @param newPath the new path to the asset
      */
     void adjustPath(String originalPath, String newPath);
+
+    List<String> getAssetPaths();
 }

@@ -12,6 +12,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MeshFromFile extends ShapeComponent implements ComponentWithDiskAsset {
     private static final Logger logger = LoggerFactory.getLogger(MeshFromFile.class);
 
@@ -95,5 +98,12 @@ public class MeshFromFile extends ShapeComponent implements ComponentWithDiskAss
             adjustedPath = newPath + oldPath.substring(originalPath.length());
         }
         this.setFilename(adjustedPath);
+    }
+
+    @Override
+    public List<String> getAssetPaths() {
+        List<String> list = new ArrayList<>();
+        list.add(getFilename());
+        return list;
     }
 }

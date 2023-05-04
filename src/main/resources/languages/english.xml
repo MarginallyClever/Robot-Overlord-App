@@ -1250,6 +1250,17 @@ to check yourself.</value>
 	</string>
 
 	<string>
+		<key>Warning</key>
+		<value>Warning</value>
+	</string>
+
+	<string>
+		<key>ProjectSaveAction.doesNotContainAllAssets</key>
+		<value>Project folder does not contain all assets.</value>
+	</string>
+
+
+	<string>
 		<key>Scene.AssetPathNotInScenePathWarningTitle</key>
 		<value>Asset path warning</value>
 	</string>

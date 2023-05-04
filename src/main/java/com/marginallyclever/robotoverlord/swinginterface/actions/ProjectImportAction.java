@@ -68,13 +68,13 @@ public class ProjectImportAction extends AbstractAction {
         if(!fc.getFileFilter().accept(file)) return false;
 
         try {
-            Project source = new Project();
+            Project source = new Project("");
             source.load(file);
-            Path path = Path.of(source.getPath());
-            Path lastPath = path.subpath(path.getNameCount()-1,path.getNameCount());
-            String destinationPath = project.getPath() + File.separator + lastPath;
+            Path path = Path.of(file.getAbsolutePath());
+            String destinationPath = path.getFileName().toString();
+            destinationPath = destinationPath.substring(0,destinationPath.lastIndexOf("."));
 
-            project.addProject(source);
+            project.addProject(source,destinationPath);
             UndoSystem.reset();
         } catch(Exception e1) {
             logger.error("Failed to import. ",e1);

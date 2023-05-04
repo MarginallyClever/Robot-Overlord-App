@@ -26,15 +26,9 @@ public class ProjectTest {
 
     @AfterEach
     public void tearDown() {
-        deleteDirectory(tempDirectory.toFile());
+        PathUtils.deleteDirectory(tempDirectory.toFile());
     }
 
-    @Test
-    public void createEmptyProject() {
-        Project p = new Project();
-        assert(p.getPath()==null);
-        assert(p.getEntityManager()!=null);
-    }
 
     @Test
     public void setPath() {
@@ -52,9 +46,11 @@ public class ProjectTest {
 
 
     @Test
-    public void testCopyAssetsAndUpdateComponentPaths() throws IOException {/*
+    public void testCopyAssetsAndUpdateComponentPaths() throws IOException {
         Project project = new Project();
+        project.setPath(projectPath.toString());
 
+/*
         // Create sample assets and component
         Files.write(assetsPath.resolve("asset1.txt"), "Asset 1 content".getBytes());
         Files.write(assetsPath.resolve("asset2.txt"), "Asset 2 content".getBytes());
@@ -72,14 +68,4 @@ public class ProjectTest {
         // Check if component asset path has been updated to use a relative path
         Assertions.assertEquals("assets/asset1.txt", component.getAssetPath());*/
     }
-
-    private static void deleteDirectory(File directory) {
-        if (directory.isDirectory()) {
-            for (File file : directory.listFiles()) {
-                deleteDirectory(file);
-            }
-        }
-        directory.delete();
-    }
-
 }

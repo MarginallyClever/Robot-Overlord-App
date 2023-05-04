@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileView;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,7 +31,14 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 	public ViewElementFilename(StringParameter parameter) {
 		super();
 		this.parameter = parameter;
-		
+
+		chooser.setFileView(new FileView() {
+			@Override
+			public Boolean isTraversable(File f) {
+				return f.getAbsolutePath().toLowerCase().startsWith("");
+			}
+		});
+
 		//this.setBorder(BorderFactory.createLineBorder(Color.RED));
 
 		field.setEditable(false);

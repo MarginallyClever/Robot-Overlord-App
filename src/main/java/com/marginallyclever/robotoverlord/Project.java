@@ -10,12 +10,14 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.LinkedList;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedList;
 
 /**
  * A {@link Project} is a collection of Entities that have Components that is stored somewhere on disk.
@@ -36,11 +38,12 @@ public class Project {
 
     public Project() {
         entityManager = new EntityManager();
+        setDefaultPath();
     }
 
     public Project(String path) {
         this();
-        this.path = path;
+        setPath(path);
     }
 
     public EntityManager getEntityManager() {
@@ -57,10 +60,8 @@ public class Project {
      */
     public void setPath(String absolutePath) {
         File file = new File(absolutePath);
-        if(!file.exists()) throw new RuntimeException("File does not exist: "+absolutePath);
-        if(!file.isDirectory()) throw new RuntimeException("Not a directory: "+absolutePath);
-        //if(!entities.isEmpty()) throw new RuntimeException("Cannot change the scene path when entities are present.");
-
+        if(!file.exists()) logger.warn("does not exist: "+absolutePath);
+        if(!file.isDirectory()) logger.warn("Not a directory: "+absolutePath);
         logger.debug("Setting path to "+absolutePath);
         this.path = absolutePath;
     }
@@ -83,9 +84,7 @@ public class Project {
     public void warnIfAssetPathIsNotInScenePath(String unCheckedAssetFilename) {
         if(isAssetPathInScenePath(unCheckedAssetFilename)) return;
 
-        String message = Translator.get("Scene.AssetPathNotInScenePathWarning");
-        message = message.replace("%1", unCheckedAssetFilename);
-        message = message.replace("%2", getPath());
+        String message = Translator.get("Scene.AssetPathNotInScenePathWarning",unCheckedAssetFilename,getPath());
         logger.warn("asset "+unCheckedAssetFilename+" not in scene path: "+getPath());
 
         // try to show a pop-up if we have a display
@@ -153,21 +152,19 @@ public class Project {
     /**
      * Update the paths of each asset in the scene.  At this time there are two ({@link MaterialComponent} and
      * {@link MeshFromFile}).  Instead of a lot of work I'm going to just find and update these two classes.
-     * @param source the scene to update
      * @param newPath the new path to use
      */
-    public void updateAllComponentWithDiskAsset(Project source, String newPath) {
-        String originalPath = source.getPath();
-        if(originalPath.equals(newPath)) return;
+    public void updateAllComponentWithDiskAsset(String newPath) {
+        if(path.equals(newPath)) return;
 
-        LinkedList<Entity> list = new LinkedList<>(source.getEntityManager().getEntities());
+        LinkedList<Entity> list = new LinkedList<>(getEntityManager().getEntities());
         while(!list.isEmpty()) {
             Entity e = list.removeFirst();
             list.addAll(e.getChildren());
 
             for(com.marginallyclever.robotoverlord.Component component : e.getComponents()) {
                 if(component instanceof ComponentWithDiskAsset) {
-                    ((ComponentWithDiskAsset)component).adjustPath(originalPath,newPath);
+                    ((ComponentWithDiskAsset)component).adjustPath(path,newPath);
                 }
             }
         }
@@ -175,7 +172,13 @@ public class Project {
 
     public void clear() {
         getEntityManager().clear();
-        setPath("");
+        setDefaultPath();
+        PathUtils.deleteDirectory(new File(getPath()));
+        PathUtils.createDirectoryIfNotExists(getPath());
+    }
+
+    private void setDefaultPath() {
+        setPath(PathUtils.SCENE_PATH);
     }
 
     /**
@@ -184,9 +187,8 @@ public class Project {
      * @throws IOException if the file cannot be read
      */
     public void load(File file) throws IOException {
-        logger.debug("Loading from {}", file.getAbsolutePath());
-
-        setPath(file.getAbsolutePath());
+        String newPath = file.getAbsolutePath();
+        logger.debug("Loading from {}", newPath);
 
         try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
             StringBuilder responseStrBuilder = new StringBuilder();
@@ -195,22 +197,72 @@ public class Project {
                 responseStrBuilder.append(inputStr);
             }
 
-            String pathName = (Paths.get(file.getAbsolutePath())).getParent().toString();
             entityManager.clear();
             entityManager.parseJSON(new JSONObject(responseStrBuilder.toString()));
         }
+        Path path = Paths.get(newPath);
+        String onlyPath = path.getParent().toString();
+        updateAllComponentWithDiskAsset(onlyPath);
+        setPath(onlyPath);
     }
 
     public void save(String absolutePath) throws IOException {
+        updateAllComponentWithDiskAsset("");
+
         // try-with-resources will close the file for us.
         try(BufferedWriter w = new BufferedWriter(new FileWriter(absolutePath))) {
             w.write(entityManager.toJSON().toString());
         }
     }
 
-    public void addProject(Project source) throws IOException {
-        this.copyDiskAssetsToScenePath(source, getPath());
-        this.updateAllComponentWithDiskAsset(source, getPath());
-        this.entityManager.addScene(source.entityManager);
+    /**
+     * Bring Entities and assets of another project into this project.
+     * @param from the project to fold into this project
+     * @throws IOException if the asset files cannot be copied
+     */
+    public void addProject(Project from) throws IOException {
+        this.copyDiskAssetsToScenePath(from, getPath());
+        from.updateAllComponentWithDiskAsset(getPath());
+        this.entityManager.addScene(from.entityManager);
+    }
+
+    /**
+     * Bring Entities and assets of another project into this project.
+     * @param from the project to fold into this project
+     * @param subPath the subdirectory to copy the assets into
+     * @throws IOException if the asset files cannot be copied
+     */
+    public void addProject(Project from,String subPath) throws IOException {
+        String outputPath = getPath()+File.separator+subPath;
+        this.copyDiskAssetsToScenePath(from, outputPath);
+        from.updateAllComponentWithDiskAsset(outputPath);
+        this.entityManager.addScene(from.entityManager);
+    }
+
+    public List<String> getAllAssets() {
+        List<String> result = new LinkedList<>();
+        List<Entity> entityList = new LinkedList<>(entityManager.getEntities());
+        while(!entityList.isEmpty()) {
+            Entity e = entityList.remove(0);
+            entityList.addAll(e.getChildren());
+            for(Component component : e.getComponents()) {
+                if (component instanceof ComponentWithDiskAsset) {
+                    ComponentWithDiskAsset componentWithDiskAsset = (ComponentWithDiskAsset) component;
+                    result.addAll( componentWithDiskAsset.getAssetPaths() );
+                }
+            }
+        }
+        return result;
+    }
+
+    public List<String> getAllAssetsNotInProject() {
+        List<String> result = getAllAssets();
+        List<String> filtered = new ArrayList<>();
+        for(String path : result) {
+            if (!new File(path).exists()) {
+                filtered.add(path);
+            }
+        }
+        return filtered;
     }
 }

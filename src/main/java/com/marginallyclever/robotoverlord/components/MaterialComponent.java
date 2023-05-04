@@ -10,6 +10,9 @@ import com.marginallyclever.robotoverlord.parameters.TextureParameter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
+import java.util.ArrayList;
+
 public class MaterialComponent extends Component implements ComponentWithDiskAsset {
     public final ColorParameter ambient    = new ColorParameter("Ambient" ,1,1,1,1);
     public final ColorParameter diffuse    = new ColorParameter("Diffuse" ,1,1,1,1);
@@ -173,5 +176,12 @@ public class MaterialComponent extends Component implements ComponentWithDiskAss
             adjustedPath = newPath + oldPath.substring(originalPath.length());
         }
         this.setTextureFilename(adjustedPath);
+    }
+
+    @Override
+    public List<String> getAssetPaths() {
+        List<String> list = new ArrayList<>();
+        list.add(getTextureFilename());
+        return list;
     }
 }

@@ -77,12 +77,7 @@ public class RobotOverlord {
 	private final Preferences prefs = Preferences.userRoot().node("Evil Overlord");
     //private RecentFiles recentFiles = new RecentFiles();
 
-	/**
-	 * The scene being edited and all the entities therein.
-	 */
-	private final EntityManager entityManager = new EntityManager();
-
-	private final Project project = new Project(System.getProperty("user.dir")+File.separator+"scene");
+	private final Project project = new Project();
 
 	/**
 	 * The main frame of the GUI
@@ -161,9 +156,9 @@ public class RobotOverlord {
 		buildSystems();
 
 		buildMainFrame();
-		entityTreePanel = new EntityTreePanel(entityManager);
-		componentManagerPanel = new ComponentManagerPanel(entityManager,systems);
-		renderPanel = new OpenGLRenderPanel(entityManager, this::update);
+		entityTreePanel = new EntityTreePanel(project.getEntityManager());
+		componentManagerPanel = new ComponentManagerPanel(project.getEntityManager(),systems);
+		renderPanel = new OpenGLRenderPanel(project.getEntityManager(), this::update);
 
 		layoutComponents();
 		refreshMainMenu();
@@ -189,9 +184,9 @@ public class RobotOverlord {
 		addSystem(new CameraSystem());
 		addSystem(new OriginAdjustSystem());
 		//addSystem(new SoundSystem());
-		addSystem(new ArmRobotSystem(entityManager));
-		addSystem(new DogRobotSystem(entityManager));
-		addSystem(new CrabRobotSystem(entityManager));
+		addSystem(new ArmRobotSystem(project.getEntityManager()));
+		addSystem(new DogRobotSystem(project.getEntityManager()));
+		addSystem(new CrabRobotSystem(project.getEntityManager()));
 	}
 
 	private void addSystem(EntitySystem system) {
@@ -549,10 +544,10 @@ public class RobotOverlord {
 			entity.addComponent(shape);
 			// move entity to camera orbit point so that it is visible.
 			PoseComponent pose = entity.getComponent(PoseComponent.class);
-			pose.setPosition(entityManager.getCamera().getOrbitPoint());
+			pose.setPosition(project.getEntityManager().getCamera().getOrbitPoint());
 
 			// add entity to scene.
-			UndoSystem.addEvent(this,new EntityAddEdit(entityManager, entityManager.getRoot(),entity));
+			UndoSystem.addEvent(this,new EntityAddEdit(project.getEntityManager(), project.getEntityManager().getRoot(),entity));
 		} catch(Exception e) {
 			logger.error("Error opening file",e);
 			return false;

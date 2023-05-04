@@ -17,6 +17,7 @@ public class PathUtils {
     public static final String APP_BASE =  System.getProperty("user.home") + File.separator + "RobotOverlord";
     public static final String APP_CACHE = APP_BASE + File.separator + "Cache";
     public static final String APP_PLUGINS = APP_BASE + File.separator + "Plugins";
+    public static final String SCENE_PATH = APP_BASE + File.separator + "Scene";
 
     /**
      * Get the file extension from a path.
@@ -63,6 +64,7 @@ public class PathUtils {
         createDirectoryIfNotExists(PathUtils.APP_BASE);
         createDirectoryIfNotExists(PathUtils.APP_CACHE);
         createDirectoryIfNotExists(PathUtils.APP_PLUGINS);
+        createDirectoryIfNotExists(PathUtils.SCENE_PATH);
         goToAppWorkingDirectory();
     }
 
@@ -81,5 +83,14 @@ public class PathUtils {
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    public static void deleteDirectory(File directory) {
+        if (directory.isDirectory()) {
+            for (File file : directory.listFiles()) {
+                deleteDirectory(file);
+            }
+        }
+        directory.delete();
     }
 }
