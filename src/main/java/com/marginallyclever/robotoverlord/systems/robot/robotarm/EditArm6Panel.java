@@ -145,7 +145,7 @@ public class EditArm6Panel extends JPanel {
                     if(firstChild.getComponent(MeshFromFile.class)!=null) {
                         MeshFromFile meshFromFile = joints[i].getChildren().get(0).getComponent(MeshFromFile.class);
                         StringParameter filenameParameter = meshFromFile.filename;
-                        ViewElementFilename viewElementFilename = new ViewElementFilename(filenameParameter, entityManager);
+                        ViewElementFilename viewElementFilename = new ViewElementFilename(filenameParameter);
                         viewElementFilename.addFileFilters(MeshFactory.getAllExtensions());
                         dhTable.add(viewElementFilename);
                     } else {
@@ -165,7 +165,7 @@ public class EditArm6Panel extends JPanel {
         // texture
         MaterialComponent material = rootEntity.getChildren().get(0).getComponent(MaterialComponent.class);
         StringParameter textureParameter = material.texture;
-        ViewElementFilename textureFilename = new ViewElementFilename(textureParameter, entityManager);
+        ViewElementFilename textureFilename = new ViewElementFilename(textureParameter);
         textureFilename.addFileFilters(MeshFactory.getAllExtensions());
         textureFilename.setAlignmentX(Component.LEFT_ALIGNMENT);
         textureFilename.setMaximumSize(textureFilename.getPreferredSize());
@@ -185,7 +185,7 @@ public class EditArm6Panel extends JPanel {
         if(firstChild.getComponent(MeshFromFile.class)!=null) {
             MeshFromFile meshFromFile = rootEntity.getChildren().get(0).getComponent(MeshFromFile.class);
             StringParameter filenameParameter = meshFromFile.filename;
-            ViewElementFilename baseMeshFilename = new ViewElementFilename(filenameParameter, entityManager);
+            ViewElementFilename baseMeshFilename = new ViewElementFilename(filenameParameter);
             baseMeshFilename.addFileFilters(MeshFactory.getAllExtensions());
             baseMeshFilename.setAlignmentX(Component.LEFT_ALIGNMENT);
             baseMeshFilename.setMaximumSize(baseMeshFilename.getPreferredSize());

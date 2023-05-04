@@ -151,7 +151,7 @@ public class MakeCartesian3 extends JPanel {
                 } else {
                     MeshFromFile meshFromFile = joints[i].getChildren().get(0).getComponent(MeshFromFile.class);
                     StringParameter filenameParameter = meshFromFile.filename;
-                    ViewElementFilename viewElementFilename = new ViewElementFilename(filenameParameter,entityManager);
+                    ViewElementFilename viewElementFilename = new ViewElementFilename(filenameParameter);
                     viewElementFilename.addFileFilters(MeshFactory.getAllExtensions());
 
                     dhTable.add(viewElementFilename);
@@ -168,7 +168,7 @@ public class MakeCartesian3 extends JPanel {
         // texture
         MaterialComponent material = rootEntity.getChildren().get(0).getComponent(MaterialComponent.class);
         StringParameter textureParameter = material.texture;
-        ViewElementFilename textureFilename = new ViewElementFilename(textureParameter, entityManager);
+        ViewElementFilename textureFilename = new ViewElementFilename(textureParameter);
         textureFilename.addFileFilters(MeshFactory.getAllExtensions());
         textureFilename.setAlignmentX(Component.LEFT_ALIGNMENT);
         textureFilename.setMaximumSize(textureFilename.getPreferredSize());
@@ -186,7 +186,7 @@ public class MakeCartesian3 extends JPanel {
         // base mesh
         MeshFromFile meshFromFile = rootEntity.getChildren().get(0).getComponent(MeshFromFile.class);
         StringParameter filenameParameter = meshFromFile.filename;
-        ViewElementFilename meshFilename = new ViewElementFilename(filenameParameter, entityManager);
+        ViewElementFilename meshFilename = new ViewElementFilename(filenameParameter);
         meshFilename.addFileFilters(MeshFactory.getAllExtensions());
         meshFilename.setAlignmentX(Component.LEFT_ALIGNMENT);
         meshFilename.setMaximumSize(meshFilename.getPreferredSize());
