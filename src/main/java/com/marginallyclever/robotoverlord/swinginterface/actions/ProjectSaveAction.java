@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.PathUtils;
+import com.marginallyclever.robotoverlord.Project;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
@@ -23,18 +24,18 @@ import java.io.IOException;
  * @author Admin
  *
  */
-public class SceneSaveAction extends AbstractAction implements ActionListener {
-	private static final Logger logger = LoggerFactory.getLogger(SceneSaveAction.class);
-	private final EntityManager entityManager;
+public class ProjectSaveAction extends AbstractAction implements ActionListener {
+	private static final Logger logger = LoggerFactory.getLogger(ProjectSaveAction.class);
+	private final Project project;
 
 	/**
 	 * The file chooser remembers the last path.
 	 */
 	private static final JFileChooser fc = new JFileChooser();
 	
-	public SceneSaveAction(EntityManager entityManager) {
+	public ProjectSaveAction(Project project) {
 		super(Translator.get("SceneSaveAction.name"));
-		this.entityManager = entityManager;
+		this.project = project;
 		fc.setFileFilter(RobotOverlord.FILE_FILTER);
 		putValue(SMALL_ICON,new UnicodeIcon("💾"));
 		putValue(SHORT_DESCRIPTION, Translator.get("SceneSaveAction.shortDescription"));
@@ -59,19 +60,12 @@ public class SceneSaveAction extends AbstractAction implements ActionListener {
 					fc.getSelectedFile().getAbsolutePath(),
 					RobotOverlord.FILE_FILTER.getExtensions());
 			try {
-				saveSceneToFile(name);
+				project.save(name);
 			} catch(Exception ex) {
 				logger.error("Error saving file: ",ex);
 				JOptionPane.showMessageDialog(parentFrame,ex.getLocalizedMessage());
 				ex.printStackTrace();
 			}
-		}
-	}
-
-	private void saveSceneToFile(String absolutePath) throws IOException {
-		// try-with-resources will close the file for us.
-		try(BufferedWriter w = new BufferedWriter(new FileWriter(absolutePath))) {
-			w.write(entityManager.toJSON().toString());
 		}
 	}
 }
