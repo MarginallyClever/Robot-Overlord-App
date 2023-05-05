@@ -13,7 +13,7 @@ import java.awt.*;
  * @author Dan Royer
  * @since 1.7.1
  */
-public class SerialTransportLayerPanel extends JPanel implements TransportLayerPanel {
+public class SerialTransportLayerPanel extends TransportLayerPanel {
 	private final SerialTransportLayer layer;
 	private final JComboBox<String> connectionPort;
 	private final JComboBox<String> connectionBaud;

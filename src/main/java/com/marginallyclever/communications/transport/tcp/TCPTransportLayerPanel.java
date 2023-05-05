@@ -12,7 +12,7 @@ import java.awt.*;
  * @author Dan Royer
  * 
  */
-public class TCPTransportLayerPanel extends JPanel implements TransportLayerPanel {
+public class TCPTransportLayerPanel extends TransportLayerPanel {
 	private final TCPTransportLayer layer;
 	private final JTextField connectionField;
 	private final JTextField portField;

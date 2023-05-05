@@ -11,6 +11,6 @@ import java.io.Serial;
  * @author Dan Royer
  * @since 1.7.1
  */
-public interface TransportLayerPanel {
-	SessionLayer openConnection();
+public abstract class TransportLayerPanel extends JComponent {
+	abstract public SessionLayer openConnection();
 }
