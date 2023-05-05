@@ -9,9 +9,13 @@ import java.awt.*;
 import java.io.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * a list of all the events that have happened in a conversation.
+ *
+ * @author Dan Royer
+ * @since 1.7.1
+ */
 public class ConversationHistoryList extends JPanel {
-	@Serial
-	private static final long serialVersionUID = 6287436679006933618L;
 	private final DefaultListModel<ConversationEvent> listModel = new DefaultListModel<ConversationEvent>();
 	private final JList<ConversationEvent> listView = new JList<ConversationEvent>(listModel);
 	private final ConcurrentLinkedQueue<ConversationEvent> inBoundQueue = new ConcurrentLinkedQueue<ConversationEvent>();

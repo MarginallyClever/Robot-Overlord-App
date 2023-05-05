@@ -12,6 +12,12 @@ import org.json.JSONObject;
 
 import javax.vecmath.Matrix4d;
 
+/**
+ * A light {@link Component}.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 @ComponentDependency(components={PoseComponent.class})
 public class LightComponent extends Component {
 

@@ -17,7 +17,12 @@ import java.awt.event.ActionListener;
 public class DemoAction extends AbstractAction implements ActionListener {
 	private final Project project;
 	private final Demo demo;
-	
+
+	/**
+	 *
+	 * @param project Project to load the demo into.
+	 * @param demo Demo to load.
+	 */
 	public DemoAction(Project project, Demo demo) {
 		super(demo.getName());
         putValue(SHORT_DESCRIPTION, Translator.get("DemoAction.shortDescription"));
@@ -25,6 +30,10 @@ public class DemoAction extends AbstractAction implements ActionListener {
 		this.demo = demo;
 	}
 
+	/**
+	 * Load the demo into the project.
+	 * @param e the event to be processed
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		ProjectClearAction action = new ProjectClearAction(project);

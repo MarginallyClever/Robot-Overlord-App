@@ -74,7 +74,7 @@ public class ODEConverter {
 	}
 
 	/**
-	 * @param v {@link DQuaternionC}
+	 * @param q {@link DQuaternionC}
 	 * @return equivalent {@link Quat4d}
 	 */
 	public static Quat4d getQuat4d(DQuaternionC q) {
@@ -82,7 +82,7 @@ public class ODEConverter {
 	}
 
 	/**
-	 * @param v {@link Quat4d}
+	 * @param q {@link Quat4d}
 	 * @return equivalent {@link DQuaternion}
 	 */
 	public static DQuaternion getDQuaternion(Quat4d q) {
@@ -91,7 +91,7 @@ public class ODEConverter {
 
 	/**
 	 * Build a {@link Matrix4d} from the orientation and position of a {@link DGeom}
-	 * @param v {@link DGeom}
+	 * @param geom {@link DGeom}
 	 * @return equivalent {@link Matrix4d}
 	 */
 	public static Matrix4d getMatrix4d(DGeom geom) {

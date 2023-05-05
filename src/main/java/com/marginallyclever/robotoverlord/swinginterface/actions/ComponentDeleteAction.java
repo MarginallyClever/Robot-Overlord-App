@@ -10,6 +10,12 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
+/**
+ * Delete a {@link Component} from an {@link com.marginallyclever.robotoverlord.Entity}.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class ComponentDeleteAction extends AbstractAction {
 	private final ComponentManagerPanel componentManagerPanel;
 	private Component component;

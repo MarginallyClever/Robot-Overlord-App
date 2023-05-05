@@ -4,6 +4,12 @@ import com.marginallyclever.robotoverlord.components.MaterialComponent;
 
 import java.io.BufferedInputStream;
 
+/**
+ * A material loader is a class that can load data from a file into a {@link MaterialComponent}.
+ *
+ * @author Dan Royer
+ * @since 2.5.6
+ */
 public interface MaterialLoader {
     String getEnglishName();
     String[] getValidExtensions();

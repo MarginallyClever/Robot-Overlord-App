@@ -7,14 +7,16 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-public class SerialTransportLayerPanel extends TransportLayerPanel {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5048852192781164326L;
-	private SerialTransportLayer layer;
-	private JComboBox<String> connectionPort;
-	private JComboBox<String> connectionBaud;
+/**
+ * A panel for configuring a serial transport layer.
+ *
+ * @author Dan Royer
+ * @since 1.7.1
+ */
+public class SerialTransportLayerPanel extends JPanel implements TransportLayerPanel {
+	private final SerialTransportLayer layer;
+	private final JComboBox<String> connectionPort;
+	private final JComboBox<String> connectionBaud;
 	
 	private static String lastConnectionPort="COM4";
 	private static int lastConnectionBaud=250000;

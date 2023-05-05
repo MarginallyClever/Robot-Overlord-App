@@ -268,8 +268,8 @@ public class IntersectionHelper {
 	
 	/**
 	 * find distance to box, if hit.
-	 * https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
-	 * @param ray start & direction
+	 * See <a href="https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection">scratchapixel</a>
+	 * @param ray start and direction
 	 * @param boxMin lower bounds
 	 * @param boxMax upper bounds
 	 * @return &gt;=0 for hit, negative numbers for hits behind camera and no hit.
@@ -396,7 +396,7 @@ public class IntersectionHelper {
 	 * viewed from the outside. If the triangle is defined in clockwise order, the direction of one of the cross
 	 * products needs to be reversed to get the correct intersection result.
 	 * See also <a href="https://en.wikipedia.org/wiki/Incircle_and_excircles_of_a_triangle">Wikipedia</a>.
-	 * @param ray origin & direction
+	 * @param ray origin and direction
 	 * @param v0 point 1
 	 * @param v1 point 2
 	 * @param v2 point 3
@@ -447,7 +447,7 @@ public class IntersectionHelper {
 
 	/**
 	 * Returns the distance to the plane, or Double.MAX_VALUE if there is no intersection.
-	 * @param ray origin & direction
+	 * @param ray origin and direction
 	 * @param translationPlane plane
 	 * @return the distance to the plane, or Double.MAX_VALUE if there is no intersection.
 	 */

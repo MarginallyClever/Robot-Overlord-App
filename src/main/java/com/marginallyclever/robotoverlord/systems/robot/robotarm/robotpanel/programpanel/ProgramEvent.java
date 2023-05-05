@@ -6,13 +6,13 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
 
+/**
+ * A program event is a single point in time in a program.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class ProgramEvent implements Serializable {
-	/**
-	 * 
-	 */
-	@Serial
-	private static final long serialVersionUID = 1L;
-
 	public static final String NAME = "ProgramEvent:";
 	private final double [] angles;
 	private String nickname="";

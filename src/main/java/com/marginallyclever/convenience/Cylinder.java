@@ -4,7 +4,12 @@ import com.jogamp.opengl.GL2;
 
 import javax.vecmath.Vector3d;
 
-
+/**
+ * A cylinder with a radius and two end points.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class Cylinder implements BoundingVolume {
 	private Vector3d p1 = new Vector3d(0,0,0);
 	private Vector3d p2 = new Vector3d(0,0,0);

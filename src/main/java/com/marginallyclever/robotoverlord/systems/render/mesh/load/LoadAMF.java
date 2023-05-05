@@ -13,6 +13,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.BufferedInputStream;
 import java.util.ArrayList;
 
+/**
+ * Load a 3D printing file (AMF).
+ * See <a href="https://en.wikipedia.org/wiki/Additive_manufacturing_file_format">Wikipedia</a>.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class LoadAMF implements MeshLoader {
 	private static final Logger logger = LoggerFactory.getLogger(LoadAMF.class);
 	@Override

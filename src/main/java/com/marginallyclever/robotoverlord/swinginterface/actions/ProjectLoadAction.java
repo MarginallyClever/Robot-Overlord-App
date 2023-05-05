@@ -14,6 +14,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.*;
 
+/**
+ * Load a scene from a file.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class ProjectLoadAction extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(ProjectLoadAction.class);
     private final Project project;
@@ -27,7 +33,7 @@ public class ProjectLoadAction extends AbstractAction {
         super(Translator.get("SceneLoadAction.name"));
         this.project = project;
         fc.setFileFilter(RobotOverlord.FILE_FILTER);
-        putValue(SMALL_ICON,new UnicodeIcon("🗁"));
+        putValue(SMALL_ICON,new UnicodeIcon("\u1F5C1"));  // file icon
         putValue(SHORT_DESCRIPTION, Translator.get("SceneLoadAction.shortDescription"));
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK) );
     }

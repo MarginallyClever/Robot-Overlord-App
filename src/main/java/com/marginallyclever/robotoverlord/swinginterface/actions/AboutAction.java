@@ -14,17 +14,15 @@ import java.io.Serial;
  *
  */
 public class AboutAction extends AbstractAction implements ActionListener {
-	/**
-	 *
-	 */
-	@Serial
-	private static final long serialVersionUID = 1L;
-
 	public AboutAction() {
 		super(Translator.get("AboutAction.name"));
         putValue(SHORT_DESCRIPTION, Translator.get("AboutAction.shortDescription"));
 	}
 
+	/**
+	 * Shows the dialog box.
+	 * @param e the event to be processed
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		JOptionPane.showMessageDialog(
@@ -42,6 +40,10 @@ public class AboutAction extends AbstractAction implements ActionListener {
 						+"</body></html>");
 	}
 
+	/**
+	 *
+	 * @param args ignored
+	 */
 	public static void main(String[] args) {
 		new AboutAction().actionPerformed(null);
 	}

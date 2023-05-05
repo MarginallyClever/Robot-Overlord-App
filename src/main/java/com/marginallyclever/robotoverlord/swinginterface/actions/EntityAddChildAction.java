@@ -23,7 +23,11 @@ import java.util.List;
 public class EntityAddChildAction extends AbstractAction implements EditorAction {
 	private static final Logger logger = LoggerFactory.getLogger(EntityAddChildAction.class);
 	private final EntityManager entityManager;
-	
+
+	/**
+	 *
+	 * @param entityManager the EntityManager to add the new Entity to.
+	 */
 	public EntityAddChildAction(EntityManager entityManager) {
 		super(Translator.get("EntityAddChildAction.name"));
 		this.entityManager = entityManager;

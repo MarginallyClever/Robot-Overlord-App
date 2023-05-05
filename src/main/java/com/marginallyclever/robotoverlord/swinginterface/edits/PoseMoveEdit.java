@@ -33,7 +33,6 @@ public class PoseMoveEdit extends AbstractUndoableEdit {
 	 * @param entity who
 	 * @param oldPivot pivot point before move
 	 * @param newPivot pivot point after move
-	 * @param name name of the edit
 	 */
 	public PoseMoveEdit(Entity entity, Matrix4d oldPivot, Matrix4d newPivot) {
 		super();

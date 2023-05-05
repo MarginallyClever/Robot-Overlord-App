@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.robots.stewartplatform.linear;
 
-
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.*;
 import com.marginallyclever.robotoverlord.Entity;
@@ -18,6 +17,12 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
+/**
+ * A linear stewart platform with 6 legs.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 @Deprecated
 public class LinearStewartPlatformCore extends RenderComponent {
 	private static final Logger logger = LoggerFactory.getLogger(LinearStewartPlatformCore.class);
@@ -86,13 +91,14 @@ public class LinearStewartPlatformCore extends RenderComponent {
 	}
 
 	/**
-	 * Calculate end effector points - the center of each magnetic ball at the end effector
-	 * end effector points are ordered counter clockwise, looking down on the machine.
-	 *       1
+	 * Calculate end effector points - the center of each magnetic ball at the end effector.
+	 * end effector points are ordered counter-clockwise, looking down on the machine.
+	 * <pre>
+	 *      1
 	 *  2       0 <-- first
 	 *      x     <-- center
 	 *  3       5 <-- last
-	 *       4
+	 *      4</pre>
 	 */
 	protected void calculateEndEffectorPointsOneTime() {
 		Vector3d vx = new Vector3d();
@@ -121,12 +127,13 @@ public class LinearStewartPlatformCore extends RenderComponent {
 
 	/**
 	 * Calculate base of linear slides.
-	 * linear slides are ordered counter clockwise, looking down on the machine.
+	 * linear slides are ordered counter-clockwise, looking down on the machine.
+	 * <pre>
 	 *     1
-	 *  2       0 <-- first
-	 *      x     <-- center
-	 *  3       5 <-- last
-	 *     4
+	 *  2     0 <-- first
+	 *     x    <-- center
+	 *  3     5 <-- last
+	 *     4</pre>
 	 */
 	protected void calculateBasePointsOneTime() {
 		Vector3d vx = new Vector3d();

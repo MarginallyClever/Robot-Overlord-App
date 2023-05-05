@@ -5,12 +5,12 @@ import com.marginallyclever.communications.session.SessionLayer;
 import javax.swing.*;
 import java.io.Serial;
 
-public abstract class TransportLayerPanel extends JPanel {
-	/**
-	 * 
-	 */
-	@Serial
-	private static final long serialVersionUID = 8909954928628121764L;
-
-	abstract public SessionLayer openConnection();
+/**
+ * A TransportLayerPanel is a GUI component that allows the user to configure a {@link TransportLayer}.
+ *
+ * @author Dan Royer
+ * @since 1.7.1
+ */
+public interface TransportLayerPanel {
+	SessionLayer openConnection();
 }

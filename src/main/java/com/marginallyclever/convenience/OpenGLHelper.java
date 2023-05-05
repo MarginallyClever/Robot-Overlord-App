@@ -7,6 +7,12 @@ import javax.vecmath.Vector3d;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+/**
+ * A collection of static methods to help with OpenGL.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class OpenGLHelper {
 	static public int drawAtopEverythingStart(GL2 gl2) {
 		IntBuffer depthFunc = IntBuffer.allocate(1);

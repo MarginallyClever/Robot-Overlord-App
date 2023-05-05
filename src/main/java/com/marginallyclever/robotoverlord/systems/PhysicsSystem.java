@@ -4,6 +4,12 @@ import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
+/**
+ * Decorates {@link PoseComponent} with a position, rotation, and scale.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class PhysicsSystem implements EntitySystem {
     /**
      * Get the Swing view of this component.

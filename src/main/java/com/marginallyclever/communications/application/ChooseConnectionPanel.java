@@ -13,6 +13,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+/**
+ * A panel that allows the user to open and close a connection to a {@link SessionLayer}.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class ChooseConnectionPanel extends JPanel {
 	private static final Logger logger = LoggerFactory.getLogger(ChooseConnectionPanel.class);
 

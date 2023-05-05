@@ -20,12 +20,20 @@ public class BrowseURLAction extends AbstractAction {
 
     private final String address;
 
+    /**
+     *
+     * @param address URL to open
+     */
     public BrowseURLAction(String address) {
         super(Translator.get("BrowseURLAction.name"));
         putValue(SHORT_DESCRIPTION, Translator.get("BrowseURLAction.shortDescription"));
         this.address = address;
     }
 
+    /**
+     * Open the URL in the default browser.
+     * @param e the event to be processed
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         try {

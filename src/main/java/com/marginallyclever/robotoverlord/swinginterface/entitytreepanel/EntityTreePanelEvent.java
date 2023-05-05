@@ -4,6 +4,12 @@ import com.marginallyclever.robotoverlord.Entity;
 
 import java.util.List;
 
+/**
+ * An event that is sent when something in the EntityTreePanel changes.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class EntityTreePanelEvent {
 	// something in the panel was added.
 	public static final int ADD=1;

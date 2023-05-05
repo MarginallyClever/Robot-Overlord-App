@@ -1,5 +1,8 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm.tools;
 
+/**
+ * A chuck gripper for the Sixi2 robot arm.
+ */
 @Deprecated
 public class Sixi2ChuckGripper extends Sixi2LinearGripper {
 	/**

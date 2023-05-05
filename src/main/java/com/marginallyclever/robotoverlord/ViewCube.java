@@ -12,6 +12,12 @@ import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+/**
+ * A cube that shows the user where the camera is looking.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class ViewCube {
 	protected ShapeComponent model = new MeshFromFile("/viewCube.obj");
 	protected MaterialComponent mat = new MaterialComponent();

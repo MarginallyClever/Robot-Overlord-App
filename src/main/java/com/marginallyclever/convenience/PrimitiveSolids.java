@@ -9,7 +9,12 @@ import javax.vecmath.Vector3d;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-
+/**
+ * Static methods to help with rendering some simple shapes in OpenGL.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class PrimitiveSolids {
 	static public void drawCircleYZ(GL2 gl2,double radius,int steps) {
 		double stepSize = Math.PI*2 / (double)(steps+1);

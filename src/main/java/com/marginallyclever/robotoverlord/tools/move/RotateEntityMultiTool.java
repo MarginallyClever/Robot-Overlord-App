@@ -14,6 +14,12 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A tool to rotate entities in the editor.  It is a combination of three {@link RotateEntityToolOneAxis} tools.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class RotateEntityMultiTool implements EditorTool {
     private Viewport viewport;
     private final RotateEntityToolOneAxis toolX = new RotateEntityToolOneAxis();
@@ -39,7 +45,7 @@ public class RotateEntityMultiTool implements EditorTool {
      * This method is called when the tool is activated. It receives the SelectedItems object containing the selected
      * entities and their initial world poses.
      *
-     * @param selectedItems The selected items to be manipulated by the tool.
+     * @param list The selected items to be manipulated by the tool.
      */
     @Override
     public void activate(List<Entity> list) {

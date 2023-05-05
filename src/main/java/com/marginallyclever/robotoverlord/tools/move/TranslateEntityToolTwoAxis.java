@@ -16,6 +16,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+/**
+ * A tool to translate entities in the editor.  It translates in a given plane.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class TranslateEntityToolTwoAxis implements EditorTool {
     private final double padSize = 1;
 

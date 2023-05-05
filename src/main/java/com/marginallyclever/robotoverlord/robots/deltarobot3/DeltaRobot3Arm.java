@@ -2,6 +2,12 @@ package com.marginallyclever.robotoverlord.robots.deltarobot3;
 
 import javax.vecmath.Vector3d;
 
+/**
+ * One limb of a rotary-style Delta robot.
+ *
+ * @author Dan Royer
+ * @since 1.7.1
+ */
 public class DeltaRobot3Arm {
 	private final Vector3d ortho = new Vector3d();
 	public final Vector3d shoulder = new Vector3d();

@@ -2,6 +2,13 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.pre
 
 import com.marginallyclever.robotoverlord.robots.Robot;
 
+/**
+ * A Presentation Layer in the OSI model is responsible for presenting data to the user.
+ * This factory creates a Presentation Layer for a specific robot.
+ *
+ * @author Dan Royer
+ * @since 2.5.6
+ */
 public class PresentationFactory {
     public static final String [] AVAILABLE_PRESENTATIONS = {
             "Marlin",

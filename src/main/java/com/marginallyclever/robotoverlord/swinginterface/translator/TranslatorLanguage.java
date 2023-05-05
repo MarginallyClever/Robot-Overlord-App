@@ -15,7 +15,12 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ * A collection of strings for a single translation of the application.
+ *
+ * @author Dan Royer
+ * @since 1.0.0
+ */
 public class TranslatorLanguage {
 	private static final Logger logger = LoggerFactory.getLogger(TranslatorLanguage.class);
 	private String name = "";

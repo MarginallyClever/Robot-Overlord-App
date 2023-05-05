@@ -15,6 +15,12 @@ import org.slf4j.LoggerFactory;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+/**
+ * A component that holds a reference to an ODE geometry.
+ *
+ * @author Dan Royer
+ * @since 2.0?
+ */
 public class ODEPhysicsComponent extends Component {
 	private static final Logger logger = LoggerFactory.getLogger(ODEPhysicsComponent.class);
 	private DGeom geom;

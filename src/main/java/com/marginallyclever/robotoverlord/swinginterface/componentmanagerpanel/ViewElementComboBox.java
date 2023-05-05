@@ -13,6 +13,12 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+/**
+ * A view element that displays a combo box.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class ViewElementComboBox extends ViewElement implements ActionListener, PropertyChangeListener {
 	private final JComboBox<String> field;
 	private final IntParameter parameter;

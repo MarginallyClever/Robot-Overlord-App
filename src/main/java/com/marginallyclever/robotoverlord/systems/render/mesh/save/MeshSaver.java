@@ -4,10 +4,15 @@ import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
 import java.io.OutputStream;
 
-
-public abstract interface MeshSaver {
-	public String getEnglishName();
-	public String getValidExtensions();
+/**
+ * A MeshSaver is a script that saves a mesh to a file.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
+public interface MeshSaver {
+	String getEnglishName();
+	String getValidExtensions();
 
 	/**
 	 * save data from model to outputStream 
@@ -15,5 +20,5 @@ public abstract interface MeshSaver {
 	 * @param model
 	 * @throws Exception
 	 */
-	public void save(OutputStream outputStream, Mesh model) throws Exception;
+	void save(OutputStream outputStream, Mesh model) throws Exception;
 }

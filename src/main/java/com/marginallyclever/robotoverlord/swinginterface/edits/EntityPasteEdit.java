@@ -11,6 +11,12 @@ import javax.swing.undo.CannotUndoException;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Paste the selected entity into the scene.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class EntityPasteEdit extends AbstractUndoableEdit {
     private final String name;
     private final EntityManager entityManager;

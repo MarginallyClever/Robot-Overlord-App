@@ -2,11 +2,13 @@ package com.marginallyclever.communications.session;
 
 import java.util.EventObject;
 
+/**
+ * Event object for {@link SessionLayer}.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class SessionLayerEvent extends EventObject {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1727188492088759549L;
 	// connection has closed
 	public static final int CONNECTION_CLOSED=1;
 	// a transport error.  error message is (String)data.

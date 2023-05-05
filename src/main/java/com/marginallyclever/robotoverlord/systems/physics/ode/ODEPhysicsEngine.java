@@ -6,6 +6,12 @@ import org.ode4j.ode.DGeom.DNearCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A physics engine that uses ODE.
+ *
+ * @author Dan Royer
+ * @since 2.0?
+ */
 public class ODEPhysicsEngine {
 	private static final Logger logger = LoggerFactory.getLogger(ODEPhysicsEngine.class);
 	

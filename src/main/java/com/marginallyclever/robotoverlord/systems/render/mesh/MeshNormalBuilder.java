@@ -5,6 +5,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Vector3d;
 
+/**
+ * A tool to build normals for a mesh.
+ *
+ * @author Dan Royer
+ * @since 1.7.1
+ */
 public class MeshNormalBuilder {
 	private static final Logger logger = LoggerFactory.getLogger(MeshNormalBuilder.class);
 

@@ -5,6 +5,12 @@ import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
+/**
+ * A RenderComponent is a component that draws something into the 3D scene.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public abstract class RenderComponent extends Component {
     public transient final BooleanParameter isVisible = new BooleanParameter("Visible",true);
 

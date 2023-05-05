@@ -4,6 +4,12 @@ import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
+/**
+ * A system that can be used to decorate a {@link Component} panel for cameras.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class CameraSystem implements EntitySystem {
     @Override
     public void decorate(ComponentPanelFactory view, Component component) {

@@ -14,6 +14,12 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 
+/**
+ * a robot with 4 legs.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 @ComponentDependency(components = {PoseComponent.class})
 public class DogRobotComponent extends RenderComponent {
     public static final double KINEMATIC_BODY_WIDTH = 8;

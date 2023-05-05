@@ -56,6 +56,9 @@ public class CollapsiblePanel extends JPanel {
 	@Serial
     private static final long serialVersionUID = 1L;
 
+    /**
+     * listener interface.
+     */
     public interface CollapseListener extends java.util.EventListener {
         void collapsed();
         void expanded();
@@ -132,7 +135,7 @@ public class CollapsiblePanel extends JPanel {
     }
 
     public boolean removeCollapeListener(CollapseListener collapeListener) {
-            return this.collapseListeners.remove(collapeListener);
+        return this.collapseListeners.remove(collapeListener);
     }
 
     /**
@@ -176,7 +179,7 @@ public class CollapsiblePanel extends JPanel {
             arrow.setIcon(iconArrow[COLLAPSED]);
             border = new CollapsableTitledBorder(collapsedBorderLine, titleComponent);
             for(CollapseListener collapeListener : collapseListeners) {
-              collapeListener.collapsed();
+                collapeListener.collapsed();
             }
         } else {
             //expand the panel, add content and set border to titled border
@@ -185,7 +188,7 @@ public class CollapsiblePanel extends JPanel {
             border = new CollapsableTitledBorder(expandedBorderLine, titleComponent);
 
             for(CollapseListener collapeListener : collapseListeners) {
-              collapeListener.expanded();
+                collapeListener.expanded();
             }
         }
         setBorder(border);

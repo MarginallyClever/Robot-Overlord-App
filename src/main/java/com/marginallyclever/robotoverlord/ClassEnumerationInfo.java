@@ -11,7 +11,12 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-// stuff for trying to find and load plugins, part of future expansion
+/**
+ * Stuff for trying to find and load plugins, part of future expansion
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class ClassEnumerationInfo {
 	private static final Logger logger = LoggerFactory.getLogger(ClassEnumerationInfo.class);
 

@@ -149,7 +149,6 @@ public class RobotOverlord {
 		}
 
 		Translator.start();
-		SoundSystem.start();
 		UndoSystem.start();
 		preferencesLoad();
 

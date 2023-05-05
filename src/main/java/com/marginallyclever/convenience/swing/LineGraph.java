@@ -6,9 +6,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
+/**
+ * A simple line graph.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class LineGraph extends JPanel {
-	private static final long serialVersionUID = 1L;
-	private ArrayList<Double> fx;
+	private final ArrayList<Double> fx;
 	private Double yMin, yMax;
 	private Color lineColor = Color.BLUE;
 	

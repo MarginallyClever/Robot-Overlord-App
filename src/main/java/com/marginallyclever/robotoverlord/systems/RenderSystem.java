@@ -17,6 +17,12 @@ import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.C
 import javax.swing.filechooser.FileFilter;
 import java.util.ArrayList;
 
+/**
+ * A system that decorates and manages various {@link RenderComponent}s.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class RenderSystem implements EntitySystem {
     /**
      * Get the Swing view of this component.

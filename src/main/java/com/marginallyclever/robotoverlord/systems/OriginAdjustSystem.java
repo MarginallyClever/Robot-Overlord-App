@@ -10,6 +10,18 @@ import javax.vecmath.Matrix4d;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>This system adds a button to the component manager panel that allows the user to adjust the origin of a
+ * {@link Component}.  The model is assumed to have an origin at the center of the universe.  Given an entity
+ * heirarchy</p>
+ *
+ * <pre>Entity A > Entity Mesh > ShapeComponent</pre>
+ *
+ * <p>This system will adjust the Mesh's {@link PoseComponent} to compensate for Entity A's {@link PoseComponent}.</p>
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class OriginAdjustSystem implements EntitySystem {
     /**
      * Get the Swing view of this component.

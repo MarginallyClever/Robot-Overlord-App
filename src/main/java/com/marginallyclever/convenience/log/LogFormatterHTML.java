@@ -7,6 +7,13 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
+/**
+ * A formatter for use with java.util.logging that outputs HTML.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
+@Deprecated
 public class LogFormatterHTML extends Formatter {
 	@Override
     // this method is called for every log records

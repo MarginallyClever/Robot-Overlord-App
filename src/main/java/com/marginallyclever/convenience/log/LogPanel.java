@@ -4,6 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * A panel that displays the contents of a log file in a JList.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 @Deprecated
 public class LogPanel extends JPanel implements LogListener {
 	private static final int LOG_LENGTH = 5000;

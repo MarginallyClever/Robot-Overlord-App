@@ -9,6 +9,12 @@ import javax.vecmath.Matrix4d;
 import java.awt.*;
 import java.io.Serial;
 
+/**
+ * A panel that allows the user to jog the robot.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class JogPanel extends JPanel {
 	@Serial
 	private static final long serialVersionUID = 1L;

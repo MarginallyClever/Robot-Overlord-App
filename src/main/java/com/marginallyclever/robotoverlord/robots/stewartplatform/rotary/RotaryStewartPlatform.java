@@ -96,12 +96,13 @@ public class RotaryStewartPlatform extends RenderComponent {
 
 	/**
 	 * calculate the center of each ball joint on the top plate, relative to the end effector.
-	 * The points are ordered counter clockwise, looking down on the machine.
-	 *       1
+	 * The points are ordered counter-clockwise, looking down on the machine.
+	 * <pre>
+	 *      1
 	 *  2       0 <-- first
 	 *      x     <-- center
 	 *  3       5 <-- last
-	 *       4
+	 *      4</pre>
 	 */
 	protected void calculateEndEffectorPointsOneTime() {
 		Vector3d vx = new Vector3d();
@@ -130,11 +131,12 @@ public class RotaryStewartPlatform extends RenderComponent {
 	/**
 	 * Calculate base of linear slides.
 	 * linear slides are ordered counter-clockwise, looking down on the machine.
+	 * <pre>
 	 *     1
- 	 *  2       0 <-- first
-	 *      x     <-- center
-	 *  3       5 <-- last
-	 *     4
+ 	 *  2     0 <-- first
+	 *     x    <-- center
+	 *  3     5 <-- last
+	 *     4</pre>
 	 */
 	protected void calculateMotorAxlePointsOneTime() {
 		Vector3d vx = new Vector3d();

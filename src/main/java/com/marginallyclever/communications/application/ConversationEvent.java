@@ -1,5 +1,8 @@
 package com.marginallyclever.communications.application;
 
+/**
+ *
+ */
 public class ConversationEvent {
 	public String whoSpoke;
 	public String whatWasSaid;

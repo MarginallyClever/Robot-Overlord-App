@@ -4,6 +4,9 @@ import com.jcraft.jsch.UserInfo;
 
 import javax.swing.*;
 
+/**
+ * Authentication info for SSH.
+ */
 public class SSHUserInfo implements UserInfo {
 	@Override
 	public String getPassphrase() {

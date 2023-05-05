@@ -14,6 +14,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
+/**
+ * A factory for creating {@link Component} objects.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class ComponentFactory {
 	private static final Logger logger = LoggerFactory.getLogger(ComponentFactory.class);
 	private static final Class<?> [] available = {

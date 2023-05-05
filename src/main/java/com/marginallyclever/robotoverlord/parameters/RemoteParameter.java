@@ -40,7 +40,10 @@ public class RemoteParameter extends StringParameter implements SessionLayerList
 	private static final String NOLINENUM = "NOLINENUM ";
 	private static final String NEWLINE = "\n";
 	private static final String COMMENT_START = ";";
-	
+
+	/**
+	 * A command with a line number.
+	 */
 	public static class NumberedCommand {
 		// the line number for this command
 		public int n;

@@ -13,6 +13,12 @@ import org.json.JSONObject;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ * A material is a collection of parameters that describe how a surface should be rendered.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class MaterialComponent extends Component implements ComponentWithDiskAsset {
     public final ColorParameter ambient    = new ColorParameter("Ambient" ,1,1,1,1);
     public final ColorParameter diffuse    = new ColorParameter("Diffuse" ,1,1,1,1);

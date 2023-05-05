@@ -6,8 +6,8 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 /**
- * In the <a href="https://en.wikipedia.org/wiki/OSI_model">, the Presentation layer is responsible for translating
- * data between the application layer and the session.
+ * In the <a href="https://en.wikipedia.org/wiki/OSI_model">OSI model</a>, the Presentation layer is responsible for
+ * translating data between the application layer and the session.
  *
  * @author Dan Royer
  * @since 2.5.0

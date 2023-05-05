@@ -7,7 +7,13 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-// see https://en.wikipedia.org/wiki/Wavefront_.obj_file
+/**
+ * Load a mesh from a PLY file.
+ * see <a href="https://en.wikipedia.org/wiki/PLY_(file_format)">Wikipedia</a>
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class LoadPLY implements MeshLoader {
 	@Override
 	public String getEnglishName() {

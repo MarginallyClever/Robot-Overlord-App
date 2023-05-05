@@ -8,6 +8,12 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+/**
+ * A collection of static methods to help with strings.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class StringHelper {
 	static public String shortenNumber(String s) {
 		if(!s.contains(".")) return s;

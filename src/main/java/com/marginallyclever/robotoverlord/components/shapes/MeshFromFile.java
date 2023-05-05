@@ -15,6 +15,12 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A mesh loaded from a file.
+ *
+ * @author Dan Royer
+ * @since 1.0.0
+ */
 public class MeshFromFile extends ShapeComponent implements ComponentWithDiskAsset {
     private static final Logger logger = LoggerFactory.getLogger(MeshFromFile.class);
 

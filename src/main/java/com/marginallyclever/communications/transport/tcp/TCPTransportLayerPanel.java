@@ -12,16 +12,12 @@ import java.awt.*;
  * @author Dan Royer
  * 
  */
-public class TCPTransportLayerPanel extends TransportLayerPanel {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5157947915933861665L;
-	private TCPTransportLayer layer;
-	private JTextField connectionField;
-	private JTextField portField;
-	private JTextField userField;
-	private JPasswordField passwordField;
+public class TCPTransportLayerPanel extends JPanel implements TransportLayerPanel {
+	private final TCPTransportLayer layer;
+	private final JTextField connectionField;
+	private final JTextField portField;
+	private final JTextField userField;
+	private final JPasswordField passwordField;
 	private static String userName = "pi";
 	private static String portNumber = "22";
 	private static String connectionName = "raspberrypi";

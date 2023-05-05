@@ -3,6 +3,12 @@ package com.marginallyclever.robotoverlord.systems;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * A collection of static methods for working with {@link EntitySystem}s.
+ *
+ * @author Dan Royer
+ * @since 2.5.6
+ */
 public class EntitySystemUtils {
     public static void makePanel(JPanel panel, JComponent parent, String title) {
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(parent);

@@ -6,6 +6,12 @@ import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
+/**
+ * A linear stewart platform is a 6DOF robot that can move in X, Y, Z, and rotate around X, Y, Z.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 @Deprecated
 public class LinearStewartPlatformAdjustable extends LinearStewartPlatformCore {
     public LinearStewartPlatformAdjustable() {

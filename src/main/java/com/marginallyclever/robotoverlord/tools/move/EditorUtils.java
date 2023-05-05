@@ -13,6 +13,12 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import java.util.List;
 
+/**
+ * Convenience methods for the rotate and translate tools.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class EditorUtils {
     /**
      * Returns the last selected item's world pose, or null if no items are selected.

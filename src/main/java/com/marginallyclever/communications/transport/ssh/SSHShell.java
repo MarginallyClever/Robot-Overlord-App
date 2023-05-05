@@ -1,16 +1,5 @@
 package com.marginallyclever.communications.transport.ssh;
 
-/* -*-mode:java; c-basic-offset:2; indent-tabs-mode:nil -*- */
-/**
- * This program enables you to connect to sshd server and get the shell prompt.
- *   $ CLASSPATH=.:../build javac Shell.java 
- *   $ CLASSPATH=.:../build java Shell
- * You will be asked username, hostname and passwd. 
- * If everything works fine, you will get the shell prompt. Output may
- * be ugly because of lacks of terminal-emulation, but you can issue commands.
- *
- */
-
 import com.jcraft.jsch.*;
 import com.marginallyclever.convenience.log.Log;
 import org.slf4j.Logger;
@@ -19,6 +8,17 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
 
+/* -*-mode:java; c-basic-offset:2; indent-tabs-mode:nil -*- */
+
+/**
+ * This program enables you to connect to sshd server and get the shell prompt.
+ *   $ CLASSPATH=.:../build javac Shell.java
+ *   $ CLASSPATH=.:../build java Shell
+ * You will be asked username, hostname and passwd.
+ * If everything works fine, you will get the shell prompt. Output may
+ * be ugly because of lacks of terminal-emulation, but you can issue commands.
+ *
+ */
 public class SSHShell {
 	private static final Logger logger = LoggerFactory.getLogger(SSHShell.class);
 	public static void main(String[] arg) {
@@ -84,6 +84,9 @@ public class SSHShell {
 		}
 	}
 
+	/**
+	 * user info for authentication.
+	 */
 	public static class MyUserInfo implements UserInfo, UIKeyboardInteractive {
 		@Override
 		public String getPassword() {

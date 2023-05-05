@@ -6,8 +6,10 @@ import javax.vecmath.Vector3d;
 
 /**
  * 3D Bezier curve implementation
- * @See <a href='https://en.wikipedia.org/wiki/B%C3%A9zier_curve'>Wikipedia</a>
+ * See <a href="https://en.wikipedia.org/wiki/B%C3%A9zier_curve">Wikipedia</a>
+ *
  * @author Dan Royer
+ * @since 2.5.0
  */
 public class Bezier3ControlPoint {
 	public Bezier3 position = new Bezier3();

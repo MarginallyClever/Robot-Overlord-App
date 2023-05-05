@@ -6,6 +6,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 
+/**
+ * A panel that displays the contents of a log file in a {@link JList}.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 @Deprecated
 public class LogPanel2 extends JPanel {
     private final Path logFilePath;

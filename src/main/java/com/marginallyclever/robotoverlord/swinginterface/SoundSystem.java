@@ -17,18 +17,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.prefs.Preferences;
 
+/**
+ * SoundSystem is a singleton that plays sounds.
+ */
 public class SoundSystem {
 	private static final Logger logger = LoggerFactory.getLogger(SoundSystem.class);
-	static private Preferences prefs;
+	private static final Preferences prefs = PreferencesHelper.getPreferenceNode(PreferencesHelper.MakelangeloPreferenceKey.LEGACY_MAKELANGELO_ROOT);
 
-
-	@SuppressWarnings("deprecation")
-	static public void start() {
-		logger.info("SoundSystem start");
-		prefs = PreferencesHelper.getPreferenceNode(PreferencesHelper.MakelangeloPreferenceKey.LEGACY_MAKELANGELO_ROOT);
-	}
-	
-	
 	static private String selectFile(Frame owner) {
 		JFileChooser choose = new JFileChooser();
 		int returnVal = choose.showOpenDialog(owner);

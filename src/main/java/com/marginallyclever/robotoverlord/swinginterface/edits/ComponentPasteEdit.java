@@ -12,6 +12,12 @@ import javax.swing.undo.CannotUndoException;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Paste a component into a list of entities.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class ComponentPasteEdit extends AbstractUndoableEdit {
     private final String name;
     private final Component copiedComponent;

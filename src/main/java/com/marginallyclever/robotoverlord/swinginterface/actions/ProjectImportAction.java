@@ -32,7 +32,7 @@ public class ProjectImportAction extends AbstractAction {
         super(Translator.get("SceneImportAction.name"));
         this.project = project;
         fc.setFileFilter(RobotOverlord.FILE_FILTER);
-        putValue(SMALL_ICON,new UnicodeIcon("🗁"));
+        putValue(SMALL_ICON,new UnicodeIcon("\u1F5C1"));  // file icon
         putValue(SHORT_DESCRIPTION, Translator.get("SceneImportAction.shortDescription"));
     }
 

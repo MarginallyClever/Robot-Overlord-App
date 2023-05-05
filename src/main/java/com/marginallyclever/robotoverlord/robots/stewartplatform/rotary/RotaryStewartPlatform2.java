@@ -8,6 +8,12 @@ import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.C
 
 import java.io.Serial;
 
+/**
+ * a rotary stewart platform is a 6DOF robot that can move in X, Y, Z, and rotate around X, Y, Z.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 @Deprecated
 public class RotaryStewartPlatform2 extends RotaryStewartPlatform {
 	@Serial

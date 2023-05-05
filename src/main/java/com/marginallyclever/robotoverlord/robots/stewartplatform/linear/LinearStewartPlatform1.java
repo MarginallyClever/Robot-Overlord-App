@@ -9,6 +9,12 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.io.Serial;
 
+/**
+ * A linear stewart platform with 6 legs.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 @Deprecated
 public class LinearStewartPlatform1 extends LinearStewartPlatformCore {
     private final MeshFromFile baseModel;

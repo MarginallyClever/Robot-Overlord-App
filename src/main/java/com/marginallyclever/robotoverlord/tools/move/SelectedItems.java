@@ -10,6 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A list of entities selected in the editor.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class SelectedItems {
     /**
      * The list of entities selected in the editor.

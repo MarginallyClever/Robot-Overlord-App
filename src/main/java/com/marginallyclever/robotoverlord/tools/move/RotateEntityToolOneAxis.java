@@ -18,6 +18,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+/**
+ * A tool to rotate entities in the editor.
+ *
+ * @author Dan Royer
+ * @since 2.5.0
+ */
 public class RotateEntityToolOneAxis implements EditorTool {
     /**
      * visual "tick" marks for snapping.

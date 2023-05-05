@@ -56,9 +56,9 @@ public class TapeDeckPanel extends JPanel {
 		c.fill=GridBagConstants.HORIZONTAL;
 		add(progressBar,c);
 		
-		bRewind.setText("⏮");
-		bPlay.setText("▶");
-		bStop.setText("⏹");
+		bRewind.setText("\u23EE");
+		bPlay.setText("\u25B6");
+		bStop.setText("\u23F9");
 
 		final Object parent = this;
 		bRewind.addActionListener((e)->notifyListeners(new ActionEvent(parent,ACTION_REWIND,"rewind")));
