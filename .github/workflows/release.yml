@@ -1,0 +1,72 @@
+name: Release Build
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  build_universal_package:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3.3.0
+
+    - uses: actions/setup-java@v3.9.0
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        cache: 'maven'
+
+    # from https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+    - name: Package with Maven
+      run: ./mvnw -B clean package -DskipTests
+
+    - name: Prepare universal package
+      shell: bash
+      run: |
+        mkdir -p target/universal-package &&
+        cp src/main/package/*.bat src/main/package/start* target/universal-package/ &&
+        cp CONTRIBUTING.md LICENSE README.md target/universal-package/ &&
+        cp target/RobotOverlord-*-with-dependencies.jar target/universal-package/ &&
+        cd target/universal-package/ &&
+        7z a -tzip RobotOverlord.zip . &&
+        mv RobotOverlord.zip ../..
+
+  package:
+    needs: build_universal_package
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    steps:
+    - uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - uses: actions/download-artifact@v3.0.2
+      with:
+        name: jar
+
+    - name: Build installation package
+      shell: bash
+      run: |
+        set -x
+        set -o pipefail
+        APP_VERSION=$(ls -1 target/package/RobotOverlord-*-with-dependencies.jar | sed "s/.*RobotOverlord-\([^-]*\)-with-dependencies.jar/\1/") &&
+        sed -i.bak "s/\(--app-version\).*/\1 $APP_VERSION/" src/main/package/jpackage.cfg &&
+        jpackage "@src/main/package/jpackage.cfg" "@src/main/package/jpackage-${{matrix.os}}.cfg" --main-jar "RobotOverlord-$APP_VERSION-with-dependencies.jar" &&
+        ls &&
+        BINARY=$(find . -maxdepth 1 -iname 'robotoverlord*' | grep -E '(msi$|dmg$|deb$)' | sed "s,./,," | head -1) &&
+        echo "BINARY=$BINARY" | tee -a $GITHUB_ENV &&
+
+    - name: Deploy installation release
+      if: github.repository == 'MarginallyClever/Robot-Overlord-App' && github.ref == 'refs/heads/master'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ${{ env.BINARY }} # path to archive to upload
+        asset_name: ${{ env.BINARY }} # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+        asset_content_type: application/zip # required by GitHub API
