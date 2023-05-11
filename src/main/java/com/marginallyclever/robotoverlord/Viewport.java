@@ -63,7 +63,7 @@ public class Viewport extends Entity {
         double h = canvasHeight/2.0;
 		gl2.glOrtho(-w/zoom, w/zoom, -h/zoom, h/zoom, nearZ.get(), farZ.get());
 	}
-	
+
 	public void renderOrthographic(GL2 gl2) {
         renderOrthographic(gl2,camera.getOrbitDistance()/100.0);
 	}
