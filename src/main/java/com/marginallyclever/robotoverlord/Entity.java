@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.components.ComponentDependency;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.ComponentAddEdit;
 import org.json.JSONArray;
@@ -34,7 +35,7 @@ public class Entity implements PropertyChangeListener {
 	// who is listening to me?
 	protected ArrayList<PropertyChangeListener> propertyChangeListeners = new ArrayList<>();
 
-	private boolean isExpanded =false;
+	private boolean isExpanded = false;
 
 	/**
 	 * The unique ID of this Entity.
@@ -44,6 +45,7 @@ public class Entity implements PropertyChangeListener {
 	public Entity() {
 		super();
 		this.name = this.getClass().getSimpleName();
+		addComponent(new PoseComponent());
 	}
 
 	public Entity(String name) {
