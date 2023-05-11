@@ -20,13 +20,15 @@ import com.marginallyclever.robotoverlord.tools.move.TranslateEntityMultiTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sound.sampled.Clip;
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.*;
 import java.util.List;
@@ -99,6 +101,10 @@ public class OpenGLRenderPanel extends JPanel {
     private final List<MatrixMaterialRender> noMaterial = new ArrayList<>();
     private final UpdateCallback updateCallback;
 
+    private ShaderProgram shaderProgramOutline;
+    private final List<Entity> collectedEntities = new ArrayList<>();
+
+
     public OpenGLRenderPanel(EntityManager entityManager,UpdateCallback updateCallback) {
         super(new BorderLayout());
         this.entityManager = entityManager;
@@ -169,10 +175,14 @@ public class OpenGLRenderPanel extends JPanel {
             caps.setBackgroundOpaque(true);
             caps.setDoubleBuffered(true);
             caps.setHardwareAccelerated(true);
+            caps.setStencilBits(8);
             if(FSAA_NUM_SAMPLES>1) {
                 caps.setSampleBuffers(true);
                 caps.setNumSamples(FSAA_NUM_SAMPLES);
             }
+            StringBuilder sb = new StringBuilder();
+            caps.toString(sb);
+            logger.info(sb.toString());
             logger.info("...create panel");
             glCanvas = new GLJPanel(caps);
         } catch(GLException e) {
@@ -212,11 +222,9 @@ public class OpenGLRenderPanel extends JPanel {
                 gl2.glDepthFunc(GL2.GL_LESS);
                 gl2.glEnable(GL2.GL_DEPTH_TEST);
                 gl2.glDepthMask(true);
+                gl2.glEnable(GL2.GL_CULL_FACE);
 
-                // Scale normals using the scale of the transform matrix so that lighting is sane.
-                // This is more efficient than gl2.glEnable(GL2.GL_NORMALIZE);
-                //gl2.glEnable(GL2.GL_RESCALE_NORMAL);
-                gl2.glEnable(GL2.GL_NORMALIZE);
+                gl2.glEnable(GL.GL_STENCIL_TEST);
 
                 // default blending option for transparent materials
                 gl2.glEnable(GL2.GL_BLEND);
@@ -224,6 +232,7 @@ public class OpenGLRenderPanel extends JPanel {
 
                 // set the color to use when wiping the draw buffer
                 gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
+                createFragmentShader(gl2);
             }
 
             @Override
@@ -233,7 +242,9 @@ public class OpenGLRenderPanel extends JPanel {
             }
 
             @Override
-            public void dispose( GLAutoDrawable drawable ) {}
+            public void dispose( GLAutoDrawable drawable ) {
+                shaderProgramOutline.delete(drawable.getGL().getGL2());
+            }
 
             @Override
             public void display( GLAutoDrawable drawable ) {
@@ -318,6 +329,25 @@ public class OpenGLRenderPanel extends JPanel {
         });
     }
 
+    private String [] readResource(String resourceName) {
+        ArrayList<String> lines = new ArrayList<>();
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream(resourceName)))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                lines.add(line+"\n");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lines.toArray(new String[0]);
+    }
+
+    private void createFragmentShader(GL2 gl2) {
+        shaderProgramOutline = new ShaderProgram(gl2,
+                readResource("outline_vertex_330.glsl"),
+                readResource("outline_fragment_330.glsl"));
+    }
+
     private void deactivateAllTools() {
         for(EditorTool tool : editorTools) tool.deactivate();
     }
@@ -364,6 +394,7 @@ public class OpenGLRenderPanel extends JPanel {
             toTest.addAll(entity.getChildren());
 
             ShapeComponent shape = entity.getComponent(ShapeComponent.class);
+            if(shape==null) continue;
             RayHit hit = shape.intersect(ray);
             if(hit!=null) rayHits.add(hit);
         }
@@ -405,7 +436,10 @@ public class OpenGLRenderPanel extends JPanel {
             // TODO display a "no active camera found" message?
             return;
         }
-        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
+        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_STENCIL_BUFFER_BIT);
+
+        collectSelectedEntitiesAndTheirChildren();
+        prepareToOutlineSelectedEntities(gl2);
 
         viewport.setCamera(camera);
         viewport.renderChosenProjection(gl2);
@@ -414,13 +448,15 @@ public class OpenGLRenderPanel extends JPanel {
 
         renderLights(gl2);
 
-        renderAllEntities(gl2);
+        renderAllEntities(gl2,entityManager.getEntities());
         
         if(showWorldOrigin.get()) PrimitiveSolids.drawStar(gl2,10);
 
+        outlineCollectedEntities(gl2);
+
         //viewport.showPickingTest(gl2);
 
-        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
+        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_STENCIL_BUFFER_BIT);
 
         // 3D overlays
         for(EditorTool tool : editorTools) tool.render(gl2);
@@ -428,6 +464,61 @@ public class OpenGLRenderPanel extends JPanel {
         // 2D overlays
         viewCube.render(gl2,viewport);
         drawCursor(gl2);
+    }
+
+    private void prepareToOutlineSelectedEntities(GL2 gl2) {
+        gl2.glStencilFunc(GL.GL_ALWAYS,1,0xff);
+        // if we pass the depth test, keep the old value in the stencil buffer.
+        // if we pass the stencil test, keep the old value in the stencil buffer.
+        // if we pass BOTH then replace the stencil buffer value with the reference value (1).
+        gl2.glStencilOp(GL.GL_KEEP,GL.GL_KEEP,GL.GL_REPLACE);
+        // by default write nothing to the stencil buffer.
+        gl2.glStencilMask(0x00);
+    }
+
+    // get the selected entities and all their children.
+    private void collectSelectedEntitiesAndTheirChildren() {
+        List<Entity> toScan = new ArrayList<>(Clipboard.getSelectedEntities());
+        collectedEntities.clear();
+        while(!toScan.isEmpty()) {
+            Entity entity = toScan.remove(0);
+            toScan.addAll(entity.getChildren());
+            collectedEntities.add(entity);
+        }
+    }
+
+    private void outlineCollectedEntities(GL2 gl2) {
+        if(shaderProgramOutline==null) return;
+
+        // update the depth buffer so the outline will appear around the collected entities.
+        // without this any part of a collected entity behind another entity will be completely filled with the outline color.
+        gl2.glClear(GL.GL_DEPTH_BUFFER_BIT);/*
+        gl2.glColorMask(false,false,false,false);
+        renderAllEntities(gl2,collectedEntities);
+        gl2.glColorMask(true,true,true,true);
+
+        // next draw, only draw where the stencil buffer is not 1
+        gl2.glStencilFunc(GL.GL_NOTEQUAL,1,0xff);
+        gl2.glStencilOp(GL.GL_KEEP,GL.GL_KEEP,GL.GL_KEEP);
+        // and do not update the stencil buffer.
+        gl2.glStencilMask(0x00);*/
+
+        // run the shader and draw the shapes.  must be in use before calls to glUniform*.
+        shaderProgramOutline.use(gl2);
+
+        // tell the shader some important information
+        gl2.glUniform4f(shaderProgramOutline.getUniformLocation(gl2,"outlineColor"),0.0f, 1.0f, 0.0f, 0.5f);
+        gl2.glUniform1f(shaderProgramOutline.getUniformLocation(gl2,"outlineSize"),1.5f);
+
+        FloatBuffer projectionMatrixBuffer = FloatBuffer.allocate(16);
+        gl2.glGetFloatv(GL2.GL_PROJECTION_MATRIX,projectionMatrixBuffer);
+        gl2.glUniformMatrix4fv(shaderProgramOutline.getUniformLocation(gl2,"projectionMatrix"),  1, false, projectionMatrixBuffer);
+
+        renderAllEntities(gl2,collectedEntities);
+
+        // clean up
+        gl2.glUseProgram(0);
+        gl2.glStencilMask(0xFF);
     }
 
     /**
@@ -438,13 +529,13 @@ public class OpenGLRenderPanel extends JPanel {
      *
      * @param gl2 the OpenGL context
      */
-    private void renderAllEntities(GL2 gl2) {
+    private void renderAllEntities(GL2 gl2,List<Entity> list) {
         opaque.clear();
         alpha.clear();
         noMaterial.clear();
 
         // collect all entities with a RenderComponent
-        Queue<Entity> toRender = new LinkedList<>(entityManager.getEntities());
+        Queue<Entity> toRender = new LinkedList<>(list);
         while(!toRender.isEmpty()) {
             Entity entity = toRender.remove();
             toRender.addAll(entity.getChildren());
@@ -455,7 +546,9 @@ public class OpenGLRenderPanel extends JPanel {
                 mmr.renderComponent = entity.getComponent(RenderComponent.class);
                 mmr.materialComponent = entity.getComponent(MaterialComponent.class);
                 PoseComponent pose = entity.getComponent(PoseComponent.class);
-                if(pose!=null) mmr.matrix.set(pose.getWorld());
+                if(pose!=null) {
+                    mmr.matrix.set(pose.getWorld());
+                }
 
                 if(mmr.materialComponent==null) noMaterial.add(mmr);
                 else if(mmr.materialComponent.isAlpha()) alpha.add(mmr);
@@ -463,7 +556,7 @@ public class OpenGLRenderPanel extends JPanel {
             }
         }
 
-        // systems opaque objects
+        // opaque objects
         defaultMaterial.render(gl2);
         renderMMRList(gl2,opaque);
 
@@ -483,20 +576,34 @@ public class OpenGLRenderPanel extends JPanel {
             double d2 = p2.lengthSquared();
             return (int)Math.signum(d2-d1);
         });
-        // systems alpha objects
+        // alpha objects
         renderMMRList(gl2,alpha);
 
-        // systems objects with no material last
+        // objects with no material last
         defaultMaterial.render(gl2);
         renderMMRList(gl2,noMaterial);
     }
 
     private void renderMMRList(GL2 gl2, List<MatrixMaterialRender> list) {
+        FloatBuffer modelViewMatrixBuffer = FloatBuffer.allocate(16);
+
         for(MatrixMaterialRender ems : list) {
             gl2.glPushMatrix();
             if(ems.matrix!=null) {
+                // set the matrix
                 MatrixHelper.applyMatrix(gl2,ems.matrix);
+                // tell the outline shader about our modelViewMatrix.
+                gl2.glGetFloatv(GL2.GL_MODELVIEW_MATRIX, modelViewMatrixBuffer);
+                gl2.glUniformMatrix4fv(shaderProgramOutline.getUniformLocation(gl2,"modelViewMatrix"),  1, false, modelViewMatrixBuffer);
             }
+
+            if(collectedEntities.contains(ems.renderComponent.getEntity())) {
+                // if this mesh is one of the selected entities, then also render it to the stencil buffer for the outline shader.
+                gl2.glStencilMask(0xFF);
+            } else {
+                gl2.glStencilMask(0x00);
+            }
+
             if(ems.materialComponent!=null && ems.materialComponent.getEnabled()) {
                 ems.materialComponent.render(gl2);
             }
