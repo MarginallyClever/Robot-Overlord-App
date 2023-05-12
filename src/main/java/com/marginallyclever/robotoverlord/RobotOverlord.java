@@ -225,7 +225,7 @@ public class RobotOverlord {
 		rightFrameSplitter.setResizeWeight(0.25);
 
 		// left/right split
-        splitLeftRight.add(renderPanel);
+        splitLeftRight.add(renderPanel.getPanel());
         splitLeftRight.add(rightFrameSplitter);
         // if the window resizes, give left half as much real estate as it can get.
         splitLeftRight.setResizeWeight(1);

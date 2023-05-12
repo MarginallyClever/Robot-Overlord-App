@@ -36,7 +36,7 @@ import java.util.*;
  * Encapsulates the OpenGL rendering.
  * @author Dan Royer
  */
-public class OpenGLRenderPanel extends JPanel {
+public class OpenGLRenderPanel {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLRenderPanel.class);
     private static final int FSAA_NUM_SAMPLES = 4;  // 1,2,4,8
     private static final int VERTICAL_SYNC_ON = 1;  // 1 on, 0 off
@@ -54,6 +54,7 @@ public class OpenGLRenderPanel extends JPanel {
     // used to check the stack size.
     private final IntBuffer stackDepth = IntBuffer.allocate(1);
 
+    private JPanel panel;
     // the systems canvas
     private GLJPanel glCanvas;
 
@@ -107,7 +108,10 @@ public class OpenGLRenderPanel extends JPanel {
 
 
     public OpenGLRenderPanel(EntityManager entityManager, UpdateCallback updateCallback) {
-        super(new BorderLayout());
+        super();
+
+        panel = new JPanel(new BorderLayout());
+
         this.entityManager = entityManager;
         this.updateCallback = updateCallback;
 
@@ -115,11 +119,15 @@ public class OpenGLRenderPanel extends JPanel {
         addCanvasListeners();
         hideDefaultCursor();
 
-        setMinimumSize(new Dimension(300, 300));
-        add(setupTools(), BorderLayout.NORTH);
-        add(glCanvas, BorderLayout.CENTER);
+        panel.setMinimumSize(new Dimension(300, 300));
+        panel.add(setupTools(), BorderLayout.NORTH);
+        panel.add(glCanvas, BorderLayout.CENTER);
 
         startAnimationSystem();
+    }
+
+    public JPanel getPanel() {
+        return panel;
     }
 
     private JToolBar setupTools() {
