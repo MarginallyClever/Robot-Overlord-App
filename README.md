@@ -1,3 +1,5 @@
+![workflow](https://github.com/MarginallyClever/Robot-Overlord-App/actions/workflows/main.yml/badge.svg)
+
 ![Preview image](https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/Screenshot%202023-05-04%20154621.png?raw=true)
 
 # Robot Overlord #
