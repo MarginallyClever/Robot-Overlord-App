@@ -32,6 +32,7 @@ public class ViewCube {
     	mat.setLit(false);
     }
 
+	@Deprecated
 	public void render(GL2 gl2,Viewport viewport) {
 		startProjection(gl2,viewport);
 		
