@@ -10,10 +10,7 @@ import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
-import javax.vecmath.Tuple3d;
-import javax.vecmath.Vector3d;
+import javax.vecmath.*;
 
 /**
  * Wrapper for all projection matrix stuff at the start of the systems pipeline.
@@ -42,14 +39,14 @@ public class Viewport extends Entity {
 	public Viewport() {
 		super();
 	}
-	
+
+	@Deprecated
 	public void renderPerspective(GL2 gl2) {
 		double zNear = nearZ.get();
 		double zFar = farZ.get();
-		double fH = Math.tan( Math.toRadians(fieldOfView.get()/2) ) * zNear;
+		double fH = Math.tan(Math.toRadians(fieldOfView.get() / 2)) * zNear;
 		double aspect = (double)canvasWidth / (double)canvasHeight;
 		double fW = fH * aspect;
-	
 		gl2.glFrustum(-fW,fW,-fH,fH,zNear,zFar);
 	}
 
@@ -58,18 +55,21 @@ public class Viewport extends Entity {
 	 * @param gl2 the OpenGL context
 	 * @param zoom the zoom factor
 	 */
+	@Deprecated
 	public void renderOrthographic(GL2 gl2, double zoom) {
-        double w = canvasWidth/2.0;
-        double h = canvasHeight/2.0;
-		gl2.glOrtho(-w/zoom, w/zoom, -h/zoom, h/zoom, nearZ.get(), farZ.get());
+		double w = canvasWidth / 2.0;
+		double h = canvasHeight / 2.0;
+		gl2.glOrtho(-w / zoom, w / zoom, -h / zoom, h / zoom, nearZ.get(), farZ.get());
 	}
 
+	@Deprecated
 	public void renderOrthographic(GL2 gl2) {
-        renderOrthographic(gl2,camera.getOrbitDistance()/100.0);
+		renderOrthographic(gl2,camera.getOrbitDistance()/100.0);
 	}
-	
+
+	@Deprecated
 	public void renderChosenProjection(GL2 gl2) {
-    	gl2.glMatrixMode(GL2.GL_PROJECTION);
+		gl2.glMatrixMode(GL2.GL_PROJECTION);
 		gl2.glLoadIdentity();
 
 		if(drawOrthographic.get()) {
@@ -80,13 +80,61 @@ public class Viewport extends Entity {
 
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
-
 		if(camera !=null) {
 			PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
 			Matrix4d inverseCamera = pose.getWorld();
 			inverseCamera.invert();
 			MatrixHelper.applyMatrix(gl2, inverseCamera);
 		}
+	}
+
+	public Matrix4d getPerspectiveFrustum() {
+		double nearVal = nearZ.get();
+		double farVal = farZ.get();
+		double fovY = fieldOfView.get();
+		double aspect = (double)canvasWidth / (double)canvasHeight;
+
+		return MatrixHelper.perspectiveMatrix4d(fovY,aspect,nearVal,farVal);
+	}
+
+	/**
+	 * Render the scene in orthographic projection.
+	 * @param zoom the zoom factor
+	 */
+	public Matrix4d getOrthographic(double zoom) {
+		double w = canvasWidth;///2.0f;
+		double h = canvasHeight;///2.0f;
+
+		double left = -w/zoom;
+		double right = w/zoom;
+		double bottom = -h/zoom;
+		double top = h/zoom;
+		double nearVal = nearZ.get();
+		double farVal = farZ.get();
+
+		return MatrixHelper.orthographicMatrix4d(left,right,bottom,top,nearVal,farVal);
+	}
+
+	public Matrix4d getOrthographic() {
+		return getOrthographic(camera.getOrbitDistance()/2.0f);
+	}
+	
+	public Matrix4d getProjectionMatrix() {
+		if (drawOrthographic.get()) {
+			return getOrthographic();
+		} else {
+			return getPerspectiveFrustum();
+		}
+	}
+
+	public Matrix4d getViewMatrix() {
+		if(camera !=null) {
+			PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
+			Matrix4d inverseCamera = pose.getWorld();
+			//inverseCamera.invert();
+			return inverseCamera;
+		}
+		return MatrixHelper.createIdentityMatrix4();
 	}
 
 	/**
@@ -139,6 +187,7 @@ public class Viewport extends Entity {
 		return new Ray(origin,direction);
 	}
 
+	@Deprecated
 	public void showPickingTest(GL2 gl2) {
 		renderChosenProjection(gl2);
 		gl2.glPushMatrix();
