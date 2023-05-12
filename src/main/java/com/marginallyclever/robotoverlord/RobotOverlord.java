@@ -6,6 +6,9 @@ import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
+import com.marginallyclever.robotoverlord.renderpanel.OpenGLRenderPanel;
+import com.marginallyclever.robotoverlord.renderpanel.OpenGLRenderPanelBasic;
+import com.marginallyclever.robotoverlord.renderpanel.RenderPanel;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
@@ -91,7 +94,7 @@ public class RobotOverlord {
 	/**
 	 * The panel that contains the OpenGL canvas.
 	 */
-	private final OpenGLRenderPanel renderPanel;
+	private final RenderPanel renderPanel;
 
 	/**
 	 * The menu bar of the main frame.
@@ -156,7 +159,8 @@ public class RobotOverlord {
 		buildMainFrame();
 		entityTreePanel = new EntityTreePanel(project.getEntityManager());
 		componentManagerPanel = new ComponentManagerPanel(project.getEntityManager(),systems);
-		renderPanel = new OpenGLRenderPanel(project.getEntityManager(), this::update);
+		//renderPanel = new OpenGLRenderPanel(project.getEntityManager(), this::update);
+		renderPanel = new OpenGLRenderPanelBasic(project.getEntityManager(), this::update);
 
 		layoutComponents();
 		refreshMainMenu();
