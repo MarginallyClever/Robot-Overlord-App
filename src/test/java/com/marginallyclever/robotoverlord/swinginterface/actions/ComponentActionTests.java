@@ -49,7 +49,7 @@ public class ComponentActionTests {
         // test undo
         Assertions.assertTrue(UndoSystem.getCommandUndo().isEnabled());
         UndoSystem.getCommandUndo().actionPerformed(null);
-        Assertions.assertEquals(0,entityB.getComponentCount());
+        Assertions.assertEquals(1,entityB.getComponentCount());
 
         // test redo
         Assertions.assertTrue(UndoSystem.getCommandRedo().isEnabled());

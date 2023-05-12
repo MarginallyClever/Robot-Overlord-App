@@ -9,15 +9,15 @@ public class TestEntityComponents {
     @Test
     public void addAndRemoveOneComponent() {
         Entity e = new Entity();
-        Assertions.assertEquals(0,e.getComponentCount());
-
-        Component c = new Component();
-        e.addComponent(c);
         Assertions.assertEquals(1,e.getComponentCount());
+
+        CameraComponent c = new CameraComponent();
+        e.addComponent(c);
+        Assertions.assertEquals(2,e.getComponentCount());
         Assertions.assertEquals(e,c.getEntity());
 
         e.removeComponent(c);
-        Assertions.assertEquals(0,e.getComponentCount());
+        Assertions.assertEquals(1,e.getComponentCount());
     }
 
     /**
@@ -26,14 +26,14 @@ public class TestEntityComponents {
     @Test
     public void addOnlyUniqueComponentSubclassesToEntities() {
         Entity e = new Entity();
-        Component c0 = new Component();
-        Component c1 = new Component();
+        CameraComponent c0 = new CameraComponent();
+        CameraComponent c1 = new CameraComponent();
         e.addComponent(c0);
         Assertions.assertTrue(e.containsAnInstanceOfTheSameClass(c1));
 
         e.addComponent(c1);
-        Assertions.assertEquals(1, e.getComponentCount());
-        Assertions.assertEquals(c0,e.getComponent(Component.class));
+        Assertions.assertEquals(2, e.getComponentCount());
+        Assertions.assertEquals(c0,e.getComponent(CameraComponent.class));
 
         e.addComponent(new PoseComponent());
         Assertions.assertEquals(2, e.getComponentCount());
@@ -43,9 +43,10 @@ public class TestEntityComponents {
     @Test
     public void getComponentWithGenerics() {
         Entity e = new Entity();
+        Component c = e.getComponent(PoseComponent.class);
+        Assertions.assertNotNull(c);
+        e.removeComponent(c);
         Assertions.assertNull(e.getComponent(PoseComponent.class));
-        e.addComponent(new PoseComponent());
-        Assertions.assertNotNull(e.getComponent(PoseComponent.class));
     }
 
     @Test

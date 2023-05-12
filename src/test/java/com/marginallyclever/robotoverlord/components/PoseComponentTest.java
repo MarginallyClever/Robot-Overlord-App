@@ -43,10 +43,8 @@ public class PoseComponentTest {
         EntityManager entityManager = new EntityManager();
         entityManager.addEntityToParent(e0,root);
 
-        PoseComponent p0 = new PoseComponent();
-        root.addComponent(p0);
-        PoseComponent p1 = new PoseComponent();
-        e0.addComponent(p1);
+        PoseComponent p0 = root.getComponent(PoseComponent.class);
+        PoseComponent p1 = e0.getComponent(PoseComponent.class);
 
         p0.setPosition(new Vector3d(1, 0, 0));
         p1.setPosition(new Vector3d(2, 0, 0));
@@ -62,10 +60,8 @@ public class PoseComponentTest {
         Entity e0 = new Entity();
         entityManager.addEntityToParent(e0,root);
 
-        PoseComponent p0 = new PoseComponent();
-        root.addComponent(p0);
-        PoseComponent p1 = new PoseComponent();
-        e0.addComponent(p1);
+        PoseComponent p0 = root.getComponent(PoseComponent.class);
+        PoseComponent p1 = e0.getComponent(PoseComponent.class);
 
         Matrix3d a1 = new Matrix3d();
         Matrix3d b1 = new Matrix3d();
