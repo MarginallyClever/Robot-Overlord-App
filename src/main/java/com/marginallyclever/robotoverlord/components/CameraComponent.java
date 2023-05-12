@@ -47,6 +47,11 @@ public class CameraComponent extends RenderComponent {
         p.setPosition(target);
     }
 
+    public Vector3d getPosition() {
+        PoseComponent p = getEntity().getComponent(PoseComponent.class);
+        return p.getPosition();
+    }
+
     public double getPan() {
         return pan.get();
     }
@@ -203,8 +208,7 @@ public class CameraComponent extends RenderComponent {
         if(oldScale==newScale) return;
 
         // apply change
-        PoseComponent pose = getEntity().getComponent(PoseComponent.class);
-        Vector3d p = pose.getPosition();
+        Vector3d p = getPosition();
         Vector3d prevOrbit = getOrbitPoint();
         orbitDistance.set(newScale);
         Vector3d newOrbit = getOrbitPoint();
