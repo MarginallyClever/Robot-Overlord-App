@@ -8,7 +8,6 @@ import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
-import com.marginallyclever.robotoverlord.swinginterface.SoundSystem;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
 import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
