@@ -1,3 +1,5 @@
+// fragment shader
+// ignore all data, just output red
 #version 330 core
 
 in vec3 FragPos;
