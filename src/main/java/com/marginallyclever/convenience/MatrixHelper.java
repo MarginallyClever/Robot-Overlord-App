@@ -1020,43 +1020,26 @@ public class MatrixHelper {
 	}
 
 	public static Matrix4d orthographicMatrix4d(double left, double right, double bottom, double top, double near, double far) {
-		Matrix4d ortho = new Matrix4d();
-		ortho.setIdentity();
-
-		ortho.m00 = 2.0 / (right - left);
-		ortho.m11 = 2.0 / (top - bottom);
-		ortho.m22 = -2.0 / (far - near);
-
-		ortho.m03 = -(right + left) / (right - left);
-		ortho.m13 = -(top + bottom) / (top - bottom);
-		ortho.m23 = -(far + near) / (far - near);
-
-		return ortho;
+		org.joml.Matrix4d ortho = new org.joml.Matrix4d();
+		ortho.ortho(left, right, bottom, top, near, far);
+		double [] list = new double[16];
+		ortho.get(list);
+		return new Matrix4d(list);
 	}
 
 	public static Matrix4d perspectiveMatrix4d(double fovY, double aspect, double near, double far) {
-		double halfFOVy = Math.toRadians(fovY) / 2.0;
-
-		double top = near * Math.tan(halfFOVy);
-		double bottom = -top;
-		double right = top * aspect;
-		double left = -right;
-
-		return createFrustum(left, right, bottom, top, near, far);
+		org.joml.Matrix4d perspective = new org.joml.Matrix4d();
+		perspective.perspective(fovY, aspect, near, far);
+		double [] list = new double[16];
+		perspective.get(list);
+		return new Matrix4d(list);
 	}
 
 	public static Matrix4d createFrustum(double left, double right, double bottom, double top, double near, double far) {
-		Matrix4d perspective = new Matrix4d();
-
-		perspective.m00 = 2 * near / (right-left);
-		perspective.m11 = 2 * near / (top-bottom);
-		perspective.m22 = -(far + near) / (far - near);
-
-		perspective.m23 = -1;
-		perspective.m03 = -near * (left+right) / (right-left);
-		perspective.m13 = -near * (bottom+top) / (top-bottom);
-
-		return perspective;
+		org.joml.Matrix4d frustum = new org.joml.Matrix4d();
+		frustum.frustum(left,right,bottom,top, near, far);
+		double [] list = new double[16];
+		frustum.get(list);
+		return new Matrix4d(list);
 	}
-
 }
