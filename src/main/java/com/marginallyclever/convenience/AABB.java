@@ -107,7 +107,8 @@ public class AABB implements BoundingVolume, Serializable {
 	public Matrix4d getPose() {
 		return new Matrix4d(pose);
 	}
-	
+
+	@Deprecated
 	public void render(GL2 gl2) {
 		gl2.glPushMatrix();
 			MatrixHelper.applyMatrix(gl2, pose);
