@@ -2,7 +2,6 @@ package com.marginallyclever.robotoverlord.systems.render.mesh.load;
 
 import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
-import com.marginallyclever.robotoverlord.systems.render.mesh.MeshNormalBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -46,7 +45,6 @@ public class Load3MF implements MeshLoader {
 
         parseMaterials(modelNode);
         parseAllObjects(model,modelNode,scale);
-        MeshNormalBuilder.buildNormals(model);
 	}
     
 	private void parseMaterials(Element modelNode) {

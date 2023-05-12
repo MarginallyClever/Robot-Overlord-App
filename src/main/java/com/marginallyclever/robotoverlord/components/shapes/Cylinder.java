@@ -22,7 +22,7 @@ public class Cylinder extends ShapeComponent {
 
     private void updateModel() {
         myMesh.clear();
-        myMesh.renderStyle = GL2.GL_TRIANGLES;
+        myMesh.setRenderStyle(GL2.GL_TRIANGLES);
 
         addFace(1);
         addFace(-1);

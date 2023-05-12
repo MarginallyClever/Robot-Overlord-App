@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.systems.render.mesh.save;
 
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
+import javax.vecmath.Vector3d;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -35,7 +36,7 @@ public class SaveSTL implements MeshSaver {
 	    info[5]='R';
 	    outputStream.write(info);
 
-	    int numTriangles = model.vertexArray.size()/3;
+	    int numTriangles = model.getNumTriangles();
 		ByteBuffer dataBuffer = ByteBuffer.allocate(4);
 	    dataBuffer.order(ByteOrder.LITTLE_ENDIAN);
 	    dataBuffer.putInt(numTriangles);
@@ -43,36 +44,21 @@ public class SaveSTL implements MeshSaver {
 
 	    dataBuffer = ByteBuffer.allocate(74);
 	    dataBuffer.order(ByteOrder.LITTLE_ENDIAN);
-	    
-	    Iterator<Float> vi = model.vertexArray.iterator();
-	    Iterator<Float> ni = model.normalArray.iterator();
-	    
-	    int i;
-	    for(i=0;i<numTriangles;++i) {
+
+	    for(int i=0;i<numTriangles;++i) {
 	    	dataBuffer.rewind();
-	    	dataBuffer.putFloat(ni.next().floatValue());
-	    	dataBuffer.putFloat(ni.next().floatValue());
-	    	dataBuffer.putFloat(ni.next().floatValue());
-
-	    	dataBuffer.putFloat(ni.next().floatValue());
-	    	dataBuffer.putFloat(ni.next().floatValue());
-	    	dataBuffer.putFloat(ni.next().floatValue());
-
-	    	dataBuffer.putFloat(ni.next().floatValue());
-	    	dataBuffer.putFloat(ni.next().floatValue());
-	    	dataBuffer.putFloat(ni.next().floatValue());
-
-	    	dataBuffer.putFloat(vi.next().floatValue());
-	    	dataBuffer.putFloat(vi.next().floatValue());
-	    	dataBuffer.putFloat(vi.next().floatValue());
-
-	    	dataBuffer.putFloat(vi.next().floatValue());
-	    	dataBuffer.putFloat(vi.next().floatValue());
-	    	dataBuffer.putFloat(vi.next().floatValue());
-
-	    	dataBuffer.putFloat(vi.next().floatValue());
-	    	dataBuffer.putFloat(vi.next().floatValue());
-	    	dataBuffer.putFloat(vi.next().floatValue());
+			for(int j=0;j<3;++j) {
+				Vector3d n = model.getNormal(i*3+j);
+				dataBuffer.putFloat((float)n.x);
+				dataBuffer.putFloat((float)n.y);
+				dataBuffer.putFloat((float)n.z);
+			}
+			for(int j=0;j<3;++j) {
+				Vector3d v = model.getVertex(i*3+j);
+				dataBuffer.putFloat((float)v.x);
+				dataBuffer.putFloat((float)v.y);
+				dataBuffer.putFloat((float)v.z);
+			}
 	    	
 	    	dataBuffer.put((byte)0);
 	    	dataBuffer.put((byte)0);

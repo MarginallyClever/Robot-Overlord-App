@@ -26,7 +26,7 @@ public class Decal extends ShapeComponent {
 	 */
 	protected void updateModel() {
 		myMesh.clear();
-		myMesh.renderStyle=GL2.GL_TRIANGLES;
+		myMesh.setRenderStyle(GL2.GL_TRIANGLES);
 		//model.renderStyle=GL2.GL_LINES;  // set to see the wireframe
 		
 		float w = 0.5f;
@@ -99,7 +99,7 @@ public class Decal extends ShapeComponent {
 				pG.set(MathHelper.interpolate(pA, pC, (double)(y+1)/(double)yParts));
 				pH.set(MathHelper.interpolate(pB, pD, (double)(y+1)/(double)yParts));
 
-				if(myMesh.renderStyle == GL2.GL_TRIANGLES) {
+				if(myMesh.getRenderStyle() == GL2.GL_TRIANGLES) {
 					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
 					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
 					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
@@ -115,7 +115,7 @@ public class Decal extends ShapeComponent {
 					myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
 					myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
 					myMesh.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
-				} else if(myMesh.renderStyle == GL2.GL_LINES) {
+				} else if(myMesh.getRenderStyle() == GL2.GL_LINES) {
 					myMesh.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
 					myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
 

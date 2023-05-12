@@ -20,45 +20,32 @@ import java.util.List;
  */
 public class Mesh {
 	public final static int NUM_BUFFERS=5;  // verts, normals, colors, textureCoordinates,index
-	
+
 	public final transient List<Float> vertexArray = new ArrayList<>();
-
 	public final transient List<Float> normalArray = new ArrayList<>();
-	private transient boolean hasNormals;
-	
 	public final transient List<Float> colorArray = new ArrayList<>();
-	private transient boolean hasColors;
-	private transient boolean isTransparent;
-
 	public final transient List<Float> textureArray = new ArrayList<>();
-	private transient boolean hasUVs;
-
 	public final transient List<Integer> indexArray = new ArrayList<>();
-	private transient boolean hasIndexes;
 
-	// the mesh can only be optimized after OpenGL is ready, during rendering.
-	// Loading may happen early.  This one-time flag remembers it needs to be done.
-	private transient boolean isDirty;
+	private transient boolean hasNormals = false;
+	private transient boolean hasColors = false;
+	private transient boolean isTransparent = false;
+	private transient boolean hasTextures = false;
+	private transient boolean hasIndexes = false;
+	private transient boolean isDirty = false;
+	private transient boolean isLoaded = false;
 
-	private transient boolean isLoaded;
+	private transient int[] VAO;
 	private transient int[] VBO;
-	public int renderStyle; 
-	private String fileName;
-	
+
+	public int renderStyle = GL2.GL_TRIANGLES;
+	private String fileName = null;
+
 	// bounding limits
 	protected final AABB AABB = new AABB();
 
 	public Mesh() {
 		super();
-		
-		fileName=null;
-		isLoaded=false;
-		hasNormals=false;
-		hasColors=false;
-		hasUVs=false;
-		hasIndexes=false;
-		renderStyle = GL2.GL_TRIANGLES;
-		isDirty=false;
 		AABB.setShape(this);
 	}
 	
@@ -102,14 +89,22 @@ public class Mesh {
 	}
 	
 	private void createBuffers(GL2 gl2) {
+		VAO = new int[1];
+		gl2.glGenVertexArrays(NUM_BUFFERS, VAO, 0);
+
 		VBO = new int[NUM_BUFFERS];
 		gl2.glGenBuffers(NUM_BUFFERS, VBO, 0);
 	}
 
 	private void destroyBuffers(GL2 gl2) {
-		if(VBO == null) return;
-		gl2.glDeleteBuffers(NUM_BUFFERS, VBO,0);
-		VBO=null;
+		if(VBO != null) {
+			gl2.glDeleteBuffers(NUM_BUFFERS, VBO, 0);
+			VBO = null;
+		}
+		if(VAO != null) {
+			gl2.glDeleteVertexArrays(NUM_BUFFERS, VAO, 0);
+			VAO = null;
+		}
 	}
 	
 	/**
@@ -118,44 +113,38 @@ public class Mesh {
 	 * @param gl2 the OpenGL context
 	 */
 	private void updateBuffers(GL2 gl2) {
-		int numVertexes = vertexArray.size()/3;
+		int numVertexes = getNumVertices();
 		Iterator<Float> fi;
-		int j=0;
 
-		FloatBuffer vertices = FloatBuffer.allocate(vertexArray.size());
-		fi = vertexArray.iterator();
-		while(fi.hasNext()) {
-			vertices.put(j++, fi.next());
-			vertices.put(j++, fi.next());
-			vertices.put(j++, fi.next());
-		}
+		gl2.glBindVertexArray(VAO[0]);
 
 		final int BYTES_PER_FLOAT=(Float.SIZE/8);  // bits per float / bits per byte = bytes per float
 		int totalBufferSize = numVertexes*3*BYTES_PER_FLOAT;
 		int vboIndex=0;
-		
-		// bind a buffer
+
+		// vertexes
+		FloatBuffer vertices = FloatBuffer.allocate(vertexArray.size());
+		fi = vertexArray.iterator();
+		while(fi.hasNext()) vertices.put(fi.next());
 		vertices.rewind();
 		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
-	    // Write out vertex buffer to the currently bound VBO.
 	    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize, vertices, GL2.GL_STATIC_DRAW);
-	    vboIndex++;
+		gl2.glEnableVertexAttribArray(vboIndex);
+		gl2.glVertexAttribPointer(vboIndex, 3, GL2.GL_FLOAT, false, 0, 0);
+		vboIndex++;
 	    
 		if(hasNormals) {
-			j=0;
 		    // repeat for normals
 			FloatBuffer normals = FloatBuffer.allocate(normalArray.size());
 			fi = normalArray.iterator();
-			while(fi.hasNext()) {
-				normals.put(fi.next());
-				normals.put(fi.next());
-				normals.put(fi.next());
-			}
+			while(fi.hasNext()) normals.put(fi.next());
 			
 			normals.rewind();
 			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
 		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize, normals, GL2.GL_STATIC_DRAW);
-		    vboIndex++;
+			gl2.glEnableVertexAttribArray(vboIndex);
+			gl2.glVertexAttribPointer(vboIndex, 3, GL2.GL_FLOAT, false, 0, 0);
+			vboIndex++;
 		}
 
 		if(hasColors) {
@@ -165,25 +154,26 @@ public class Mesh {
 			while(fi.hasNext()) {
 				colors.put(fi.next());
 			}
-			
 			colors.rewind();
 			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
 		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize, colors, GL2.GL_STATIC_DRAW);
-		    vboIndex++;
+			gl2.glEnableVertexAttribArray(vboIndex);
+			gl2.glVertexAttribPointer(vboIndex, 4, GL2.GL_FLOAT, false, 0, 0);
 		}
 		
-		if(hasUVs) {
+		if(hasTextures) {
 		    // repeat for textures
 			FloatBuffer texCoords = FloatBuffer.allocate(textureArray.size());
 			fi = textureArray.iterator();
 			while(fi.hasNext()) {
 				texCoords.put(fi.next());
 			}
-			
 		    texCoords.rewind();
 			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
 		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, (long) numVertexes *2*BYTES_PER_FLOAT, texCoords, GL2.GL_STATIC_DRAW);
-		    vboIndex++;
+			gl2.glEnableVertexAttribArray(vboIndex);
+			gl2.glVertexAttribPointer(vboIndex, 2, GL2.GL_FLOAT, false, 0, 0);
+			vboIndex++;
 		}
 		
 		if(hasIndexes) {
@@ -195,8 +185,10 @@ public class Mesh {
 			indexes.rewind();
 			gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, VBO[vboIndex]);
 			gl2.glBufferData(GL2.GL_ELEMENT_ARRAY_BUFFER, (long) indexArray.size() *BYTES_PER_INT, indexes, GL2.GL_STATIC_DRAW);
-		    vboIndex++;
+			vboIndex++;
 		}
+
+		gl2.glBindVertexArray(0);
 	}
 	
 	public void render(GL2 gl2) {
@@ -209,46 +201,16 @@ public class Mesh {
 			updateBuffers(gl2);
 			isDirty=false;
 		}
-		if(VBO==null) return;
-		
-		int vboIndex=0;
-		gl2.glEnableClientState(GL2.GL_VERTEX_ARRAY);
-		// Bind the vertex buffer to work with
-		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex++]);
-		gl2.glVertexPointer(3, GL2.GL_FLOAT, 0, 0);
-	    
-		if(hasNormals) {
-			gl2.glEnableClientState(GL2.GL_NORMAL_ARRAY);
-			// Bind the normal buffer to work with
-			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex++]);
-			gl2.glNormalPointer(GL2.GL_FLOAT, 0, 0);
-		}
-		if(hasColors) {
-			gl2.glEnableClientState(GL2.GL_COLOR_ARRAY);
-			// Bind the color buffer to work with
-			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex++]);
-			gl2.glColorPointer(4,GL2.GL_FLOAT, 0, 0);
-		}
-		if(hasUVs) {
-			gl2.glEnableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
-			// Bind the texture buffer to work with
-			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex++]);
-			gl2.glTexCoordPointer(2, GL2.GL_FLOAT, 0, 0);
-		}
-		
-		if(hasIndexes) {
-			gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, VBO[vboIndex++]);
+
+		gl2.glBindVertexArray(VAO[0]);
+
+		if (hasIndexes) {
 			gl2.glDrawElements(renderStyle, indexArray.size(), GL2.GL_UNSIGNED_INT, 0);
 		} else {
-			int count=vertexArray.size();
-			if(renderStyle!=GL2.GL_POINTS) count/=3;
-			gl2.glDrawArrays(renderStyle, 0, count);
+			gl2.glDrawArrays(renderStyle, 0, getNumTriangles());
 		}
-		
-		gl2.glDisableClientState(GL2.GL_VERTEX_ARRAY);
-		if(hasNormals) gl2.glDisableClientState(GL2.GL_NORMAL_ARRAY);
-		if(hasColors) gl2.glDisableClientState(GL2.GL_COLOR_ARRAY);
-		if(hasUVs) gl2.glDisableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
+
+		gl2.glBindVertexArray(0); // Unbind the VAO
 	}
 	
 	public void drawNormals(GL2 gl2) {
@@ -299,7 +261,7 @@ public class Mesh {
 	public void addTexCoord(float x,float y) {
 		textureArray.add(x);
 		textureArray.add(y);
-		hasUVs=true;
+		hasTextures =true;
 	}
 	
 	public void addIndex(int n) {
@@ -338,7 +300,7 @@ public class Mesh {
 	}
 	
 	public int getNumTriangles() {
-		return vertexArray.size()/3;
+		return vertexArray.size()/9;
 	}
 
 	public int getNumVertices() {
@@ -377,8 +339,8 @@ public class Mesh {
 		return hasColors;
 	}
 
-	public boolean getHasUVs() {
-		return hasUVs;
+	public boolean getHasTextures() {
+		return hasTextures;
 	}
 
 	public boolean getHasIndexes() {
@@ -391,6 +353,14 @@ public class Mesh {
 		} else {
 			return intersectWithoutIndexes(ray);
 		}
+	}
+
+	public void setRenderStyle(int style) {
+		renderStyle = style;
+	}
+
+	public int getRenderStyle() {
+		return renderStyle;
 	}
 
 	private double intersectWithIndexes(Ray ray) {

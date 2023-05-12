@@ -2,7 +2,6 @@ package com.marginallyclever.robotoverlord.systems.render.mesh.load;
 
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
-import javax.vecmath.Vector3d;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
