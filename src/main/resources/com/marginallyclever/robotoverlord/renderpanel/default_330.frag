@@ -3,7 +3,7 @@
 in vec3 FragPos;
 in vec3 Normal;
 
-out vec4 FragColor;
+out vec4 finalColor;
 
 uniform vec3 lightPos; // Light position in world space
 uniform vec3 cameraPos;  // Camera position in world space
@@ -30,5 +30,5 @@ void main() {
     vec3 specular = specularStrength * spec * lightColor;
 
     vec3 result = (ambient + diffuse + specular) * objectColor;
-    FragColor = vec4(result, 1.0);
+    finalColor = vec4(result, 1.0);
 }

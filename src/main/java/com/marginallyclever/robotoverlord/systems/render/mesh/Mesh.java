@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.systems.render.mesh;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.AABB;
 import com.marginallyclever.convenience.IntersectionHelper;
@@ -19,7 +20,9 @@ import java.util.List;
  * @author Dan Royer
  */
 public class Mesh {
-	public final static int NUM_BUFFERS=5;  // verts, normals, colors, textureCoordinates,index
+	public static final int NUM_BUFFERS=5;  // verts, normals, colors, textureCoordinates, index
+	public static final int BYTES_PER_INT = Integer.SIZE/8;
+	public static final int BYTES_PER_FLOAT = Float.SIZE/8;
 
 	public final transient List<Float> vertexArray = new ArrayList<>();
 	public final transient List<Float> normalArray = new ArrayList<>();
@@ -114,63 +117,55 @@ public class Mesh {
 	 */
 	private void updateBuffers(GL2 gl2) {
 		int numVertexes = getNumVertices();
-		Iterator<Float> fi;
 
 		gl2.glBindVertexArray(VAO[0]);
 
-		final int BYTES_PER_FLOAT=(Float.SIZE/8);  // bits per float / bits per byte = bytes per float
-		int totalBufferSize = numVertexes*3*BYTES_PER_FLOAT;
 		int vboIndex=0;
 
 		// vertexes
 		FloatBuffer vertices = FloatBuffer.allocate(vertexArray.size());
-		fi = vertexArray.iterator();
-		while(fi.hasNext()) vertices.put(fi.next());
+		for( Float f : vertexArray ) vertices.put(f);
 		vertices.rewind();
-		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
-	    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize, vertices, GL2.GL_STATIC_DRAW);
+
 		gl2.glEnableVertexAttribArray(vboIndex);
+		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
 		gl2.glVertexAttribPointer(vboIndex, 3, GL2.GL_FLOAT, false, 0, 0);
+		gl2.glBufferData(GL2.GL_ARRAY_BUFFER, numVertexes*3*BYTES_PER_FLOAT, vertices, GL2.GL_STATIC_DRAW);
 		vboIndex++;
 	    
 		if(hasNormals) {
 		    // repeat for normals
 			FloatBuffer normals = FloatBuffer.allocate(normalArray.size());
-			fi = normalArray.iterator();
-			while(fi.hasNext()) normals.put(fi.next());
-			
+			for( Float f : normalArray ) normals.put(f);
 			normals.rewind();
-			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
-		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize, normals, GL2.GL_STATIC_DRAW);
+
 			gl2.glEnableVertexAttribArray(vboIndex);
+			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
 			gl2.glVertexAttribPointer(vboIndex, 3, GL2.GL_FLOAT, false, 0, 0);
+		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, numVertexes*3*BYTES_PER_FLOAT, normals, GL2.GL_STATIC_DRAW);
 			vboIndex++;
 		}
 
 		if(hasColors) {
 		    // repeat for colors
 			FloatBuffer colors = FloatBuffer.allocate(colorArray.size());
-			fi = colorArray.iterator();
-			while(fi.hasNext()) {
-				colors.put(fi.next());
-			}
+			for( Float f : colorArray ) colors.put(f);
 			colors.rewind();
-			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
-		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, totalBufferSize, colors, GL2.GL_STATIC_DRAW);
+
 			gl2.glEnableVertexAttribArray(vboIndex);
+			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
 			gl2.glVertexAttribPointer(vboIndex, 4, GL2.GL_FLOAT, false, 0, 0);
+		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, numVertexes*4*BYTES_PER_FLOAT, colors, GL2.GL_STATIC_DRAW);
 		}
 		
 		if(hasTextures) {
 		    // repeat for textures
 			FloatBuffer texCoords = FloatBuffer.allocate(textureArray.size());
-			fi = textureArray.iterator();
-			while(fi.hasNext()) {
-				texCoords.put(fi.next());
-			}
+			for( Float f : textureArray ) texCoords.put(f);
 		    texCoords.rewind();
+
 			gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[vboIndex]);
-		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, (long) numVertexes *2*BYTES_PER_FLOAT, texCoords, GL2.GL_STATIC_DRAW);
+		    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, numVertexes*2*BYTES_PER_FLOAT, texCoords, GL2.GL_STATIC_DRAW);
 			gl2.glEnableVertexAttribArray(vboIndex);
 			gl2.glVertexAttribPointer(vboIndex, 2, GL2.GL_FLOAT, false, 0, 0);
 			vboIndex++;
@@ -178,17 +173,15 @@ public class Mesh {
 		
 		if(hasIndexes) {
 			IntBuffer indexes = IntBuffer.allocate(indexArray.size());
-			for (Integer integer : indexArray) {
-				indexes.put(integer);
-			}
-			final int BYTES_PER_INT = Integer.SIZE/8;
+			for (Integer integer : indexArray) indexes.put(integer);
+
 			indexes.rewind();
 			gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, VBO[vboIndex]);
 			gl2.glBufferData(GL2.GL_ELEMENT_ARRAY_BUFFER, (long) indexArray.size() *BYTES_PER_INT, indexes, GL2.GL_STATIC_DRAW);
 			vboIndex++;
 		}
 
-		gl2.glBindVertexArray(0);
+		//gl2.glBindVertexArray(0);
 	}
 	
 	public void render(GL2 gl2) {
@@ -204,10 +197,38 @@ public class Mesh {
 
 		gl2.glBindVertexArray(VAO[0]);
 
+		int vboIndex=0;
+
+		gl2.glEnableVertexAttribArray(0);
+		gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[vboIndex++]);
+		gl2.glVertexAttribPointer(0,3,GL2.GL_FLOAT,false,0,0);
+
+		if(hasNormals) {
+			gl2.glEnableVertexAttribArray(1);
+			gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[vboIndex++]);
+			gl2.glVertexAttribPointer(1, 3, GL2.GL_FLOAT, false, 0, 0);
+		}
+
+		if(hasColors) {
+			gl2.glEnableVertexAttribArray(2);
+			gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[vboIndex++]);
+			gl2.glVertexAttribPointer(2, 4, GL2.GL_FLOAT, false, 0, 0);
+		}
+
+		if(hasTextures) {
+			gl2.glEnableVertexAttribArray(3);
+			gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[vboIndex++]);
+			gl2.glVertexAttribPointer(3, 2, GL2.GL_FLOAT, false, 0, 0);
+		}
+
 		if (hasIndexes) {
 			gl2.glDrawElements(renderStyle, indexArray.size(), GL2.GL_UNSIGNED_INT, 0);
 		} else {
-			gl2.glDrawArrays(renderStyle, 0, getNumTriangles());
+			gl2.glDrawArrays(renderStyle, 0, getNumVertices());
+		}
+
+		for(int i=0;i<vboIndex;++i) {
+			gl2.glDisableVertexAttribArray(i);
 		}
 
 		gl2.glBindVertexArray(0); // Unbind the VAO

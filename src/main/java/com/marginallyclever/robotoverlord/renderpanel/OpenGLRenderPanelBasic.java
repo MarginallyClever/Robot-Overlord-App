@@ -133,8 +133,8 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
                 //testRaw(gl2);
                 //testRawWithShader(gl2);
                 //testRawWithShaderAndSetup(gl2);
-                testRawWithShaderAndSetupVAO(gl2);
-                //testShaderAndMesh(gl2);
+                //testRawWithShaderAndSetupVAO(gl2);
+                testShaderAndMesh(gl2);
             }
         });
     }
@@ -190,7 +190,7 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
         rawCleanupVBO(gl2,vertexBuffer);
     }
 
-    private void rawRender(GL2 gl2,int[] vertexBuffer) {/*
+    private void rawRender(GL2 gl2,int[] vertexBuffer) {
         int posAttribLocation = gl2.glGetAttribLocation(shaderDefault.getProgramId(), "aPosition");
         int colorAttribLocation = gl2.glGetAttribLocation(shaderDefault.getProgramId(), "aColor");
 
@@ -206,7 +206,7 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
         gl2.glDrawArrays(GL2.GL_TRIANGLES, 0, 3);
 
         gl2.glDisableVertexAttribArray(posAttribLocation);
-        gl2.glDisableVertexAttribArray(colorAttribLocation);*/
+        gl2.glDisableVertexAttribArray(colorAttribLocation);
     }
 
     private int[] rawSetupVAO(GL2 gl2) {
@@ -278,6 +278,9 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
         mesh.addVertex(-1.0f, -1.0f, 0.0f);
         mesh.addVertex(1.0f, -1.0f, 0.0f);
         mesh.addVertex(0.0f,  1.0f, 0.0f);
+        mesh.addColor(1,0,0,1);
+        mesh.addColor(0,1,0,1);
+        mesh.addColor(0,0,1,1);
         mesh.addNormal(0,0,1);
         mesh.addNormal(0,0,1);
         mesh.addNormal(0,0,1);
