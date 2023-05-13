@@ -1,8 +1,8 @@
 #version 330 core
 
-out vec4 fragmentColor;
-out vec3 normalVector;
-out vec3 fragmentPosition;
+in vec4 fragmentColor;
+in vec3 normalVector;
+in vec3 fragmentPosition;
 
 out vec4 finalColor;
 
