@@ -23,11 +23,11 @@ public class OpenGLTestOrthographic implements RenderPanel {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLTestOrthographic.class);
     private static final int BYTES_PER_FLOAT=(Float.SIZE/8);
     private final JPanel panel = new JPanel(new BorderLayout());
-    private final GLJPanel glCanvas;
+    protected final GLJPanel glCanvas;
     private ShaderProgram shaderDefault;
     private ShaderProgram shaderTransform;
     private final Mesh testTriangle = createTestTriangle();
-    private final Viewport viewport = new Viewport();
+    protected final Viewport viewport = new Viewport();
     private int[] myVertexBuffer;
     private int[] myArrayBuffer;
     private final FPSAnimator animator = new FPSAnimator(30);
@@ -269,31 +269,34 @@ public class OpenGLTestOrthographic implements RenderPanel {
         ShaderProgram program = shaderTransform;
         program.use(gl2);
 
-        Matrix4d ident = MatrixHelper.createIdentityMatrix4();
+        setProjectionMatrix(gl2, program);
+        setViewMatrix(gl2, program);
 
-        double w = (double)glCanvas.getSurfaceWidth()/2.0;
-        double h = (double)glCanvas.getSurfaceHeight()/2.0;
-
+        // set model matrix
+        // slowly rotate the matrix over time.
         time = (double)System.currentTimeMillis() * 0.001;
 
-        Matrix4d orthoMatrix = MatrixHelper.orthographicMatrix4d(-w,w,-h,h,-1,1);
-
-        Matrix4d viewMatrix = MatrixHelper.createIdentityMatrix4();
-        //viewMatrix.set(MatrixHelper.lookAt(new Vector3d(0,0,-5),new Vector3d(0,0,0)));
-        viewMatrix.setTranslation(new Vector3d(0,0,-5));
-        viewMatrix.invert();
-
-        // slowly rotate the matrix over time.
         Matrix4d modelMatrix = new Matrix4d();
         modelMatrix.rotZ(time * 0.25 * Math.PI);
-        modelMatrix.setTranslation(new Vector3d(0,0,3));
+        modelMatrix.setTranslation(new Vector3d(0,0,0));
         modelMatrix.transpose();
-
-        program.setMatrix4d(gl2,"projectionMatrix",orthoMatrix);
-        program.setMatrix4d(gl2,"viewMatrix",viewMatrix);
         program.setMatrix4d(gl2,"modelMatrix",modelMatrix);
 
         testTriangle.render(gl2);
+    }
+
+    private void setViewMatrix(GL2 gl2, ShaderProgram program) {
+        Matrix4d viewMatrix = MatrixHelper.createIdentityMatrix4();
+        viewMatrix.setTranslation(new Vector3d(0,0,-15));
+        viewMatrix.transpose();
+        program.setMatrix4d(gl2,"viewMatrix",viewMatrix);
+    }
+
+    protected void setProjectionMatrix(GL2 gl2, ShaderProgram program) {
+        double w = (double)glCanvas.getSurfaceWidth()/2.0;
+        double h = (double)glCanvas.getSurfaceHeight()/2.0;
+        Matrix4d orthoMatrix = MatrixHelper.orthographicMatrix4d(-w,w,-h,h,-1,1);
+        program.setMatrix4d(gl2,"projectionMatrix",orthoMatrix);
     }
 
     private Mesh createTestTriangle() {
