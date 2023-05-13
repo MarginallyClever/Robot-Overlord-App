@@ -16,12 +16,11 @@ import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OpenGLRenderPanelBasic implements RenderPanel {
-    private static final Logger logger = LoggerFactory.getLogger(OpenGLRenderPanelBasic.class);
+public class OpenGLTestPerspective implements RenderPanel {
+    private static final Logger logger = LoggerFactory.getLogger(OpenGLTestPerspective.class);
     private static final int BYTES_PER_FLOAT=(Float.SIZE/8);
     private final JPanel panel = new JPanel(new BorderLayout());
     private final GLJPanel glCanvas;
@@ -29,12 +28,10 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
     private ShaderProgram shaderTransform;
     private final Mesh testTriangle = createTestTriangle();
     private final Viewport viewport = new Viewport();
-    private int[] myVertexBuffer;
-    private int[] myArrayBuffer;
     private final FPSAnimator animator = new FPSAnimator(30);
     private static double time = 0;
 
-    public OpenGLRenderPanelBasic(EntityManager entityManager, UpdateCallback updateCallback) {
+    public OpenGLTestPerspective(EntityManager entityManager, UpdateCallback updateCallback) {
         super();
         logger.info("creating OpenGLRenderPanelBasic");
         glCanvas = createCanvas();
@@ -92,18 +89,7 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
                 gl2.glEnable(GL2.GL_LINE_SMOOTH);
                 gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
                 gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
-                // TODO add a settings toggle for this option, it really slows down older machines.
-                gl2.glEnable(GL2.GL_MULTISAMPLE);
-/*
-                // depth testing and culling options
-                gl2.glDepthFunc(GL2.GL_LESS);
-                gl2.glEnable(GL2.GL_DEPTH_TEST);
-                gl2.glDepthMask(true);
 
-                gl2.glEnable(GL2.GL_CULL_FACE);
-
-                gl2.glEnable(GL.GL_STENCIL_TEST);
-*/
                 // default blending option for transparent materials
                 gl2.glEnable(GL2.GL_BLEND);
                 gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
@@ -112,9 +98,6 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
                 gl2.glClearColor(0.85f,0.85f,0.85f,0.0f);
 
                 createShaderPrograms(gl2);
-
-                myArrayBuffer = rawSetupVAO(gl2);
-                myVertexBuffer = rawSetupVBO(gl2);
             }
 
             @Override
@@ -126,8 +109,6 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
             @Override
             public void dispose( GLAutoDrawable drawable ) {
                 GL2 gl2 = drawable.getGL().getGL2();
-                rawCleanupVBO(gl2, myVertexBuffer);
-                rawCleanupVAO(gl2, myArrayBuffer);
                 shaderDefault.delete(gl2);
                 shaderTransform.delete(gl2);
             }
@@ -137,123 +118,9 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
                 GL2 gl2 = drawable.getGL().getGL2();
                 gl2.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
 
-                //testRaw(gl2);
-                //testRawWithShader(gl2);
-                //testRawWithShaderAndSetup(gl2);
-                //testRawWithShaderAndSetupVAO(gl2);
                 testShaderAndMesh(gl2);
             }
         });
-    }
-
-    private void testRawWithShaderAndSetupVAO(GL2 gl2) {
-        shaderDefault.use(gl2);
-
-        gl2.glEnableVertexAttribArray(0);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, myVertexBuffer[0]);
-        gl2.glVertexAttribPointer(0,3,GL2.GL_FLOAT,false,0,0);
-
-        gl2.glEnableVertexAttribArray(1);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, myVertexBuffer[1]);
-        gl2.glVertexAttribPointer(1,4,GL2.GL_FLOAT,false,0,0);
-
-        // Draw the triangle !
-        gl2.glDrawArrays(GL2.GL_TRIANGLES, 0, 3);
-
-        gl2.glDisableVertexAttribArray(0);
-        gl2.glDisableVertexAttribArray(1);
-
-        gl2.glUseProgram(0);
-    }
-
-    private void testRawWithShaderAndSetup(GL2 gl2) {
-        shaderDefault.use(gl2);
-        rawRender(gl2, myVertexBuffer);
-        gl2.glUseProgram(0);
-    }
-
-    private void testRawWithShader(GL2 gl2) {
-        int[] vertexBuffer = rawSetupVBO(gl2);
-
-        shaderDefault.use(gl2);
-        rawRender(gl2,vertexBuffer);
-        gl2.glUseProgram(0);
-
-        rawCleanupVBO(gl2, vertexBuffer);
-    }
-
-    private void testRaw(GL2 gl2) {
-        int[] vertexBuffer = rawSetupVBO(gl2);
-        rawRender(gl2,vertexBuffer);
-        rawCleanupVBO(gl2,vertexBuffer);
-    }
-
-    private void rawRender(GL2 gl2,int[] vertexBuffer) {
-        gl2.glEnableVertexAttribArray(0);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[0]);
-        gl2.glVertexAttribPointer(0,3,GL2.GL_FLOAT,false,0,0);
-
-        gl2.glEnableVertexAttribArray(1);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[1]);
-        gl2.glVertexAttribPointer(1,4,GL2.GL_FLOAT,false,0,0);
-
-        // Draw the triangle !
-        gl2.glDrawArrays(GL2.GL_TRIANGLES, 0, 3);
-
-        gl2.glDisableVertexAttribArray(0);
-        gl2.glDisableVertexAttribArray(1);
-    }
-
-    private int[] rawSetupVAO(GL2 gl2) {
-        int [] arrayBuffer = new int[1];
-        gl2.glGenVertexArrays(1, arrayBuffer,0);
-        gl2.glBindVertexArray(arrayBuffer[0]);
-        return arrayBuffer;
-    }
-
-    private void rawCleanupVAO(GL2 gl2, int[] arrayBuffer) {
-        gl2.glDeleteVertexArrays(arrayBuffer.length,arrayBuffer,0);
-    }
-
-    private int[] rawSetupVBO(GL2 gl2) {
-        int [] vertexBuffer = new int[2];
-        gl2.glGenBuffers(vertexBuffer.length, vertexBuffer,0);
-
-        gl2.glEnableVertexAttribArray(0);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[0]);
-        gl2.glVertexAttribPointer(0,3,GL2.GL_FLOAT,false,0,0);
-        gl2.glBufferData(GL.GL_ARRAY_BUFFER, 3*3*BYTES_PER_FLOAT, createVertexData(), GL.GL_STATIC_DRAW);
-
-        gl2.glEnableVertexAttribArray(1);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[1]);
-        gl2.glVertexAttribPointer(1,4,GL2.GL_FLOAT,false,0,0);
-        gl2.glBufferData(GL.GL_ARRAY_BUFFER, 3*4*BYTES_PER_FLOAT, createColorData(), GL.GL_STATIC_DRAW);
-
-        return vertexBuffer;
-    }
-
-    private void rawCleanupVBO(GL2 gl2, int[] vertexBuffer) {
-        gl2.glDeleteBuffers(vertexBuffer.length,vertexBuffer,0);
-    }
-
-    private FloatBuffer createVertexData() {
-        FloatBuffer vertexData = FloatBuffer.wrap(new float[]{
-                -1f,-1f,0f,
-                1f,-1f,0f,
-                0f, 1f,0f,
-        });
-        vertexData.rewind();
-        return vertexData;
-    }
-
-    private FloatBuffer createColorData() {
-        FloatBuffer colorData = FloatBuffer.wrap(new float[]{
-                1,0,0,1,
-                0,1,0,1,
-                0,0,1,1,
-        });
-        colorData.rewind();
-        return colorData;
     }
 
     private void createShaderPrograms(GL2 gl2) {
@@ -279,9 +146,9 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
 
         Matrix4d orthoMatrix = MatrixHelper.orthographicMatrix4d(-w,w,-h,h,-1,1);
         Matrix4d projectionMatrix = MatrixHelper.perspectiveMatrix4d(
-                60, w/h, 0.1f, 100.0f);
+                45, w/h, 1f, 1000.0f);
 
-        //compareMatrices(gl2);
+        compareMatrices(gl2);
 
         Matrix4d viewMatrix = MatrixHelper.createIdentityMatrix4();
         //viewMatrix.set(MatrixHelper.lookAt(new Vector3d(0,0,-5),new Vector3d(0,0,0)));
@@ -292,6 +159,7 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
         Matrix4d modelMatrix = new Matrix4d();
         modelMatrix.rotZ(time * 0.25 * Math.PI);
         modelMatrix.setTranslation(new Vector3d(0,0,3));
+        modelMatrix.transpose();
 
         program.setMatrix4d(gl2,"projectionMatrix",orthoMatrix);
         program.setMatrix4d(gl2,"viewMatrix",viewMatrix);
@@ -307,13 +175,24 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
         viewport.setCamera(camera);
         camera.setOrbitDistance(5);
         viewport.renderChosenProjection(gl2);
+
         double [] oldProjectionMatrix = new double[16];
         gl2.glGetDoublev(GL2.GL_PROJECTION_MATRIX,oldProjectionMatrix,0);
-        double [] oldModelviewMatrix = new double[16];
-        gl2.glGetDoublev(GL2.GL_MODELVIEW_MATRIX,oldModelviewMatrix,0);
+        double [] oldViewMatrix = new double[16];
+        gl2.glGetDoublev(GL2.GL_MODELVIEW_MATRIX,oldViewMatrix,0);
 
-        double w = (double)glCanvas.getSurfaceWidth();
-        double h = (double)glCanvas.getSurfaceHeight();
+        gl2.glLoadIdentity();
+        Matrix4d modelMatrix = new Matrix4d();
+        modelMatrix.rotZ(time * 0.25 * Math.PI);
+        modelMatrix.setTranslation(new Vector3d(0,0,3));
+        MatrixHelper.applyMatrix(gl2,modelMatrix);
+        modelMatrix.transpose();
+
+        double [] oldModelMatrix = new double[16];
+        gl2.glGetDoublev(GL2.GL_MODELVIEW_MATRIX,oldModelMatrix,0);
+
+        double w = glCanvas.getSurfaceWidth();
+        double h = glCanvas.getSurfaceHeight();
 
         Matrix4d projectionMatrix = MatrixHelper.perspectiveMatrix4d(
                 60, w/h, 0.1f, 100.0f);
@@ -366,10 +245,10 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
 
     public static void main(String[] args) {
         // make a frame
-        JFrame frame = new JFrame("Test");
+        JFrame frame = new JFrame( OpenGLTestPerspective.class.getSimpleName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
-        OpenGLRenderPanelBasic opengl = new OpenGLRenderPanelBasic(null,null);
+        OpenGLTestPerspective opengl = new OpenGLTestPerspective(null,null);
         frame.setContentPane(opengl.getPanel());
         frame.setPreferredSize(new Dimension(600,600));
         frame.setSize(600,600);
