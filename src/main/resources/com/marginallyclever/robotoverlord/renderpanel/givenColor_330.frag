@@ -3,6 +3,8 @@
 #version 330 core
 
 in vec4 fragmentColor;
+in vec3 normalVector;
+in vec3 fragmentPosition;
 
 out vec4 finalColor;
 

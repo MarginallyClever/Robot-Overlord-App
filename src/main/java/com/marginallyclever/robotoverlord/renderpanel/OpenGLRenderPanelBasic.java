@@ -3,12 +3,16 @@ package com.marginallyclever.robotoverlord.renderpanel;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.*;
+import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -22,11 +26,13 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
     private final JPanel panel = new JPanel(new BorderLayout());
     private final GLJPanel glCanvas;
     private ShaderProgram shaderDefault;
+    private ShaderProgram shaderTransform;
     private final Mesh testTriangle = createTestTriangle();
     private final Viewport viewport = new Viewport();
     private int[] myVertexBuffer;
     private int[] myArrayBuffer;
-    private final FPSAnimator animator = new FPSAnimator(15);
+    private final FPSAnimator animator = new FPSAnimator(30);
+    private static double time = 0;
 
     public OpenGLRenderPanelBasic(EntityManager entityManager, UpdateCallback updateCallback) {
         super();
@@ -105,7 +111,7 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
                 // set the color to use when wiping the draw buffer
                 gl2.glClearColor(0.85f,0.85f,0.85f,0.0f);
 
-                createFragmentShader(gl2);
+                createShaderPrograms(gl2);
 
                 myArrayBuffer = rawSetupVAO(gl2);
                 myVertexBuffer = rawSetupVBO(gl2);
@@ -123,6 +129,7 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
                 rawCleanupVBO(gl2, myVertexBuffer);
                 rawCleanupVAO(gl2, myArrayBuffer);
                 shaderDefault.delete(gl2);
+                shaderTransform.delete(gl2);
             }
 
             @Override
@@ -139,31 +146,22 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
         });
     }
 
-    private void createFragmentShader(GL2 gl2) {
-        shaderDefault = new ShaderProgram(gl2,
-                readResource("notransform_330.vert"),
-                readResource("givenColor_330.frag"));
-    }
-
     private void testRawWithShaderAndSetupVAO(GL2 gl2) {
         shaderDefault.use(gl2);
 
-        int posAttribLocation = gl2.glGetAttribLocation(shaderDefault.getProgramId(), "aPosition");
-        int colorAttribLocation = gl2.glGetAttribLocation(shaderDefault.getProgramId(), "aColor");
-
-        gl2.glEnableVertexAttribArray(posAttribLocation);
+        gl2.glEnableVertexAttribArray(0);
         gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, myVertexBuffer[0]);
-        gl2.glVertexAttribPointer(posAttribLocation,3,GL2.GL_FLOAT,false,0,0);
+        gl2.glVertexAttribPointer(0,3,GL2.GL_FLOAT,false,0,0);
 
-        gl2.glEnableVertexAttribArray(colorAttribLocation);
+        gl2.glEnableVertexAttribArray(1);
         gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, myVertexBuffer[1]);
-        gl2.glVertexAttribPointer(colorAttribLocation,4,GL2.GL_FLOAT,false,0,0);
+        gl2.glVertexAttribPointer(1,4,GL2.GL_FLOAT,false,0,0);
 
         // Draw the triangle !
         gl2.glDrawArrays(GL2.GL_TRIANGLES, 0, 3);
 
-        gl2.glDisableVertexAttribArray(posAttribLocation);
-        gl2.glDisableVertexAttribArray(colorAttribLocation);
+        gl2.glDisableVertexAttribArray(0);
+        gl2.glDisableVertexAttribArray(1);
 
         gl2.glUseProgram(0);
     }
@@ -191,22 +189,19 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
     }
 
     private void rawRender(GL2 gl2,int[] vertexBuffer) {
-        int posAttribLocation = gl2.glGetAttribLocation(shaderDefault.getProgramId(), "aPosition");
-        int colorAttribLocation = gl2.glGetAttribLocation(shaderDefault.getProgramId(), "aColor");
-
-        gl2.glEnableVertexAttribArray(posAttribLocation);
+        gl2.glEnableVertexAttribArray(0);
         gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[0]);
-        gl2.glVertexAttribPointer(posAttribLocation,3,GL2.GL_FLOAT,false,0,0);
+        gl2.glVertexAttribPointer(0,3,GL2.GL_FLOAT,false,0,0);
 
-        gl2.glEnableVertexAttribArray(colorAttribLocation);
+        gl2.glEnableVertexAttribArray(1);
         gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[1]);
-        gl2.glVertexAttribPointer(colorAttribLocation,4,GL2.GL_FLOAT,false,0,0);
+        gl2.glVertexAttribPointer(1,4,GL2.GL_FLOAT,false,0,0);
 
         // Draw the triangle !
         gl2.glDrawArrays(GL2.GL_TRIANGLES, 0, 3);
 
-        gl2.glDisableVertexAttribArray(posAttribLocation);
-        gl2.glDisableVertexAttribArray(colorAttribLocation);
+        gl2.glDisableVertexAttribArray(0);
+        gl2.glDisableVertexAttribArray(1);
     }
 
     private int[] rawSetupVAO(GL2 gl2) {
@@ -224,17 +219,14 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
         int [] vertexBuffer = new int[2];
         gl2.glGenBuffers(vertexBuffer.length, vertexBuffer,0);
 
-        int posAttribLocation = gl2.glGetAttribLocation(shaderDefault.getProgramId(), "aPosition");
-        int colorAttribLocation = gl2.glGetAttribLocation(shaderDefault.getProgramId(), "aColor");
-
-        gl2.glEnableVertexAttribArray(posAttribLocation);
+        gl2.glEnableVertexAttribArray(0);
         gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[0]);
-        gl2.glVertexAttribPointer(posAttribLocation,3,GL2.GL_FLOAT,false,0,0);
+        gl2.glVertexAttribPointer(0,3,GL2.GL_FLOAT,false,0,0);
         gl2.glBufferData(GL.GL_ARRAY_BUFFER, 3*3*BYTES_PER_FLOAT, createVertexData(), GL.GL_STATIC_DRAW);
 
-        gl2.glEnableVertexAttribArray(colorAttribLocation);
+        gl2.glEnableVertexAttribArray(1);
         gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[1]);
-        gl2.glVertexAttribPointer(colorAttribLocation,4,GL2.GL_FLOAT,false,0,0);
+        gl2.glVertexAttribPointer(1,4,GL2.GL_FLOAT,false,0,0);
         gl2.glBufferData(GL.GL_ARRAY_BUFFER, 3*4*BYTES_PER_FLOAT, createColorData(), GL.GL_STATIC_DRAW);
 
         return vertexBuffer;
@@ -264,20 +256,69 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
         return colorData;
     }
 
+    private void createShaderPrograms(GL2 gl2) {
+        shaderDefault = new ShaderProgram(gl2,
+                readResource("notransform_330.vert"),
+                readResource("givenColor_330.frag"));
+        shaderTransform = new ShaderProgram(gl2,
+                readResource("default_330.vert"),
+                readResource("givenColor_330.frag"));
+    }
+
     private void testShaderAndMesh(GL2 gl2) {
-        shaderDefault.use(gl2);
-        //shaderDefault.setMatrix4d(gl2,"projectionMatrix",MatrixHelper.orthographicMatrix4d(0,glCanvas.getSurfaceWidth(),0,glCanvas.getSurfaceHeight(),-1,1));
-        //shaderDefault.setMatrix4d(gl2,"viewMatrix",viewport.getViewMatrix());
-        //shaderDefault.setMatrix4d(gl2,"modelMatrix", MatrixHelper.createIdentityMatrix4());
+        //ShaderProgram program = shaderDefault;
+        ShaderProgram program = shaderTransform;
+        program.use(gl2);
+
+        Matrix4d ident = MatrixHelper.createIdentityMatrix4();
+
+        double w = (double)glCanvas.getSurfaceWidth()/2.0;
+        double h = (double)glCanvas.getSurfaceHeight()/2.0;
+
+        time = (double)System.currentTimeMillis() * 0.001;
+
+        Matrix4d orthoMatrix = MatrixHelper.orthographicMatrix4d(-w,w,-h,h,-1,1);
+        Matrix4d projectionMatrix = MatrixHelper.perspectiveMatrix4d(
+                60, w/h, 0.1f, 100.0f);
+/*
+        Entity cameraEntity = new Entity("Camera");
+        CameraComponent camera = new CameraComponent();
+        cameraEntity.addComponent(camera);
+        viewport.setCamera(camera);
+        camera.setOrbitDistance(5);
+        viewport.renderChosenProjection(gl2);
+        double [] p = new double[16];
+        gl2.glGetDoublev(GL2.GL_PROJECTION_MATRIX,p,0);
+        double [] mv = new double[16];
+        gl2.glGetDoublev(GL2.GL_MODELVIEW_MATRIX,mv,0);
+
+        gl2.glMatrixMode(GL2.GL_PROJECTION);
+        gl2.glLoadIdentity();
+        gl2.glMatrixMode(GL2.GL_MODELVIEW_MATRIX);
+        gl2.glLoadIdentity();*/
+
+        Matrix4d viewMatrix = MatrixHelper.createIdentityMatrix4();
+        //viewMatrix.set(MatrixHelper.lookAt(new Vector3d(0,0,-5),new Vector3d(0,0,0)));
+        viewMatrix.setTranslation(new Vector3d(0,0,-5));
+        viewMatrix.invert();
+
+        // slowly rotate the matrix over time.
+        Matrix4d modelMatrix = new Matrix4d();
+        modelMatrix.rotZ(time * 0.25 * Math.PI);
+        modelMatrix.setTranslation(new Vector3d(0,0,3));
+
+        program.setMatrix4d(gl2,"projectionMatrix",orthoMatrix);
+        program.setMatrix4d(gl2,"viewMatrix",viewMatrix);
+        program.setMatrix4d(gl2,"modelMatrix",modelMatrix);
 
         testTriangle.render(gl2);
     }
 
     private Mesh createTestTriangle() {
         Mesh mesh = new Mesh();
-        mesh.addVertex(-1.0f, -1.0f, 0.0f);
-        mesh.addVertex(1.0f, -1.0f, 0.0f);
-        mesh.addVertex(0.0f,  1.0f, 0.0f);
+        mesh.addVertex(-10.0f, -10.0f, 0.0f);
+        mesh.addVertex(10.0f, -10.0f, 0.0f);
+        mesh.addVertex(0.0f,  10.0f, 0.0f);
         mesh.addColor(1,0,0,1);
         mesh.addColor(0,1,0,1);
         mesh.addColor(0,0,1,1);
@@ -306,5 +347,18 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
     @Override
     public void updateSubjects(List<Entity> list) {
 
+    }
+
+    public static void main(String[] args) {
+        // make a frame
+        JFrame frame = new JFrame("Test");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+        OpenGLRenderPanelBasic opengl = new OpenGLRenderPanelBasic(null,null);
+        frame.setContentPane(opengl.getPanel());
+        frame.setPreferredSize(new Dimension(600,600));
+        frame.setSize(600,600);
+        frame.pack();
+        frame.setVisible(true);
     }
 }

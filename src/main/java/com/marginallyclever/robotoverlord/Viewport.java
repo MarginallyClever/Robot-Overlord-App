@@ -131,7 +131,7 @@ public class Viewport extends Entity {
 		if(camera !=null) {
 			PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
 			Matrix4d inverseCamera = pose.getWorld();
-			//inverseCamera.invert();
+			inverseCamera.invert();
 			return inverseCamera;
 		}
 		return MatrixHelper.createIdentityMatrix4();
