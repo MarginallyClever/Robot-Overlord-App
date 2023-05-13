@@ -101,7 +101,7 @@ public class Viewport extends Entity {
 	 * Render the scene in orthographic projection.
 	 * @param zoom the zoom factor
 	 */
-	public Matrix4d getOrthographic(double zoom) {
+	public Matrix4d getOrthographicMatrix(double zoom) {
 		double w = canvasWidth;///2.0f;
 		double h = canvasHeight;///2.0f;
 
@@ -115,13 +115,13 @@ public class Viewport extends Entity {
 		return MatrixHelper.orthographicMatrix4d(left,right,bottom,top,nearVal,farVal);
 	}
 
-	public Matrix4d getOrthographic() {
-		return getOrthographic(camera.getOrbitDistance()/2.0f);
+	public Matrix4d getOrthographicMatrix() {
+		return getOrthographicMatrix(camera.getOrbitDistance()/2.0f);
 	}
 	
-	public Matrix4d getProjectionMatrix() {
+	public Matrix4d getChosenProjectionMatrix() {
 		if (drawOrthographic.get()) {
-			return getOrthographic();
+			return getOrthographicMatrix();
 		} else {
 			return getPerspectiveFrustum();
 		}
