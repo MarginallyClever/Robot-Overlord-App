@@ -158,7 +158,7 @@ public class OpenGLTestPerspective implements RenderPanel {
         // slowly rotate the matrix over time.
         Matrix4d modelMatrix = new Matrix4d();
         modelMatrix.rotZ(time * 0.25 * Math.PI);
-        modelMatrix.setTranslation(new Vector3d(0,0,-3));
+        modelMatrix.setTranslation(new Vector3d(0,0,0));
         modelMatrix.transpose();
 
         program.setMatrix4d(gl2,"projectionMatrix",orthoMatrix);
