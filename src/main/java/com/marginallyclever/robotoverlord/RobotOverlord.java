@@ -6,6 +6,7 @@ import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
+import com.marginallyclever.robotoverlord.renderpanel.OpenGLTestOrthographic;
 import com.marginallyclever.robotoverlord.renderpanel.OpenGLTestPerspective;
 import com.marginallyclever.robotoverlord.renderpanel.RenderPanel;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
@@ -159,6 +160,7 @@ public class RobotOverlord {
 		entityTreePanel = new EntityTreePanel(project.getEntityManager());
 		componentManagerPanel = new ComponentManagerPanel(project.getEntityManager(),systems);
 		//renderPanel = new OpenGLRenderPanel(project.getEntityManager(), this::update);
+		//renderPanel = new OpenGLTestOrthographic(project.getEntityManager(), this::update);
 		renderPanel = new OpenGLTestPerspective(project.getEntityManager(), this::update);
 
 		layoutComponents();
