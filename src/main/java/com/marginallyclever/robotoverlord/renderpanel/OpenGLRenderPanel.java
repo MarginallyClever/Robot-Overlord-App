@@ -1,10 +1,11 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.robotoverlord.renderpanel;
 
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.robotoverlord.*;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
@@ -36,7 +37,7 @@ import java.util.*;
  * Encapsulates the OpenGL rendering.
  * @author Dan Royer
  */
-public class OpenGLRenderPanel extends JPanel {
+public class OpenGLRenderPanel implements RenderPanel {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLRenderPanel.class);
     private static final int FSAA_NUM_SAMPLES = 4;  // 1,2,4,8
     private static final int VERTICAL_SYNC_ON = 1;  // 1 on, 0 off
@@ -53,6 +54,8 @@ public class OpenGLRenderPanel extends JPanel {
 
     // used to check the stack size.
     private final IntBuffer stackDepth = IntBuffer.allocate(1);
+
+    private final JPanel panel = new JPanel(new BorderLayout());
 
     // the systems canvas
     private GLJPanel glCanvas;
@@ -107,7 +110,9 @@ public class OpenGLRenderPanel extends JPanel {
 
 
     public OpenGLRenderPanel(EntityManager entityManager, UpdateCallback updateCallback) {
-        super(new BorderLayout());
+        super();
+        logger.info("creating OpenGLRenderPanel");
+
         this.entityManager = entityManager;
         this.updateCallback = updateCallback;
 
@@ -115,11 +120,16 @@ public class OpenGLRenderPanel extends JPanel {
         addCanvasListeners();
         hideDefaultCursor();
 
-        setMinimumSize(new Dimension(300, 300));
-        add(setupTools(), BorderLayout.NORTH);
-        add(glCanvas, BorderLayout.CENTER);
+        panel.setMinimumSize(new Dimension(300, 300));
+        panel.add(setupTools(), BorderLayout.NORTH);
+        panel.add(glCanvas, BorderLayout.CENTER);
 
         startAnimationSystem();
+    }
+
+    @Override
+    public JPanel getPanel() {
+        return panel;
     }
 
     private JToolBar setupTools() {
@@ -172,7 +182,6 @@ public class OpenGLRenderPanel extends JPanel {
         try {
             logger.info("...get default caps");
             GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
-            logger.info("...set caps");
             caps.setBackgroundOpaque(true);
             caps.setDoubleBuffered(true);
             caps.setHardwareAccelerated(true);
@@ -183,11 +192,11 @@ public class OpenGLRenderPanel extends JPanel {
             }
             StringBuilder sb = new StringBuilder();
             caps.toString(sb);
-            logger.info(sb.toString());
-            logger.info("...create panel");
+            logger.info("...set caps to "+sb.toString());
+            logger.info("...create canvas");
             glCanvas = new GLJPanel(caps);
         } catch(GLException e) {
-            logger.error("Failed the first call to OpenGL.  Are your native drivers missing?");
+            logger.error("Failed to get/set Capabilities.  Are your native drivers missing?");
         }
     }
 
@@ -233,9 +242,8 @@ public class OpenGLRenderPanel extends JPanel {
 
                 // set the color to use when wiping the draw buffer
                 gl2.glClearColor(0.85f,0.85f,0.85f,0.0f);
-                createFragmentShader(gl2);
 
-                setupTestTriangle();
+                createFragmentShader(gl2);
             }
 
             @Override
@@ -350,11 +358,11 @@ public class OpenGLRenderPanel extends JPanel {
 
     private void createFragmentShader(GL2 gl2) {
         shaderDefault = new ShaderProgram(gl2,
-            readResource("default_vertex_330.glsl"),
-            readResource("red_fragment_330.glsl"));
+            readResource("default_330.vert"),
+            readResource("red_330.frag"));
         shaderOutline = new ShaderProgram(gl2,
-            readResource("outline_vertex_330.glsl"),
-            readResource("outline_fragment_330.glsl"));
+            readResource("outline_330.vert"),
+            readResource("outline_330.frag"));
     }
 
     private void deactivateAllTools() {
@@ -448,19 +456,6 @@ public class OpenGLRenderPanel extends JPanel {
         //drawOverlays(gl2);
     }
 
-    private void setupTestTriangle() {
-        Mesh mesh = new Mesh();
-        mesh.addVertex(0.0f, 0.5f, 0.0f);  // top vertex
-        mesh.addVertex(-0.5f,-0.5f, 0.0f);  // bottom left vertex
-        mesh.addVertex(0.5f,-0.5f, 0.0f);  // bottom right vertex
-        mesh.addNormal(0,0,1);
-        mesh.addNormal(0,0,1);
-        mesh.addNormal(0,0,1);
-        Entity e = new Entity("triangle");
-        e.addComponent(new ShapeComponent(mesh));
-        entityManager.addEntityToParent(e,entityManager.getRoot());
-    }
-
     private void draw3DScene(GL2 gl2) {
         CameraComponent camera = getCamera();
         if (camera == null) {
@@ -473,8 +468,8 @@ public class OpenGLRenderPanel extends JPanel {
         //prepareToOutlineSelectedEntities(gl2);
 
         PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
-        //pose.setWorld(MatrixHelper.createIdentityMatrix4());
-        //pose.setPosition(new Vector3d(0,0,-3));
+        pose.setWorld(MatrixHelper.createIdentityMatrix4());
+        pose.setPosition(new Vector3d(0,0,-3));
 
         viewport.setCamera(camera);
         //viewport.renderChosenProjection(gl2);
@@ -504,7 +499,7 @@ public class OpenGLRenderPanel extends JPanel {
         }
 
         shaderDefault.use(gl2);
-        Matrix4d projectionMatrix = viewport.getOrthographic();
+        Matrix4d projectionMatrix = viewport.getProjectionMatrix();
         shaderDefault.setMatrix4d(gl2,"projectionMatrix",projectionMatrix);
         Matrix4d viewMatrix = viewport.getViewMatrix();
         shaderDefault.setMatrix4d(gl2,"viewMatrix",viewMatrix);
@@ -686,7 +681,7 @@ public class OpenGLRenderPanel extends JPanel {
         int i=0;
         while(!found.isEmpty()) {
             Entity obj = found.remove();
-            found.addAll(obj.children);
+            found.addAll(obj.getChildren());
 
             LightComponent light = obj.getComponent(LightComponent.class);
             if(light!=null && light.getEnabled()) {
@@ -758,6 +753,7 @@ public class OpenGLRenderPanel extends JPanel {
         }
     }
 
+    @Override
     public void startAnimationSystem() {
         logger.debug("start the animation system");
         frameDelay=0;
@@ -769,6 +765,7 @@ public class OpenGLRenderPanel extends JPanel {
         animator.start();
     }
 
+    @Override
     public void stopAnimationSystem() {
         animator.stop();
     }
@@ -792,6 +789,7 @@ public class OpenGLRenderPanel extends JPanel {
         return rayHits.get(0).target.getEntity();
     }
 
+    @Override
     public void updateSubjects(List<Entity> list) {
         if(activeToolIndex>=0) {
             editorTools.get(activeToolIndex).deactivate();

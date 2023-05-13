@@ -1,9 +1,10 @@
 #version 330 core
 
-in vec3 FragPos;
-in vec3 Normal;
+out vec4 fragmentColor;
+out vec3 normalVector;
+out vec3 fragmentPosition;
 
-out vec4 FragColor;
+out vec4 finalColor;
 
 uniform vec3 lightPos; // Light position in world space
 uniform vec3 cameraPos;  // Camera position in world space
@@ -11,8 +12,8 @@ uniform vec3 objectColor;
 uniform vec3 lightColor;
 
 void main() {
-    vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(lightPos - FragPos);
+    vec3 norm = normalize(normalVector);
+    vec3 lightDir = normalize(lightPos - fragmentPosition);
 
     // Ambient
     float ambientStrength = 0.1;
@@ -24,11 +25,11 @@ void main() {
 
     // Specular
     float specularStrength = 0.5;
-    vec3 viewDir = normalize(cameraPos - FragPos);
+    vec3 viewDir = normalize(cameraPos - fragmentPosition);
     vec3 reflectDir = reflect(-lightDir, norm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = specularStrength * spec * lightColor;
 
     vec3 result = (ambient + diffuse + specular) * objectColor;
-    FragColor = vec4(result, 1.0);
+    finalColor = vec4(result, 1.0);
 }

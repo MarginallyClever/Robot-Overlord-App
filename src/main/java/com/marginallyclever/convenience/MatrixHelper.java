@@ -265,26 +265,12 @@ public class MatrixHelper {
 	@Deprecated
 	// cumulative multiplication of matrixes
 	static public void applyMatrix(GL2 gl2,Matrix4d pose) {
-		double[] mat = {
-			pose.m00,pose.m10,pose.m20,pose.m30,
-			pose.m01,pose.m11,pose.m21,pose.m31,
-			pose.m02,pose.m12,pose.m22,pose.m32,
-			pose.m03,pose.m13,pose.m23,pose.m33
-		};
-		
-		gl2.glMultMatrixd(mat, 0);	
+		gl2.glMultMatrixd(matrix4dToArray(pose), 0);
 	}
 
 	@Deprecated
 	static public void setMatrix(GL2 gl2,Matrix4d pose) {
-		double[] mat = {
-			pose.m00,pose.m10,pose.m20,pose.m30,
-			pose.m01,pose.m11,pose.m21,pose.m31,
-			pose.m02,pose.m12,pose.m22,pose.m32,
-			pose.m03,pose.m13,pose.m23,pose.m33
-		};
-		
-		gl2.glLoadMatrixd(mat, 0);	
+		gl2.glLoadMatrixd(matrix4dToArray(pose), 0);
 	}
 
 	/**
@@ -732,9 +718,11 @@ public class MatrixHelper {
 	}
 
 	static public Matrix4d createIdentityMatrix4() {
-		Matrix4d m = new Matrix4d();
-		m.setIdentity();
-		return m;
+		return new Matrix4d(
+				1,0,0,0,
+				0,1,0,0,
+				0,0,1,0,
+				0,0,0,1);
 	}
 	
 	// see https://en.wikipedia.org/wiki/Rotation_matrix#Rotation_matrix_from_axis_angle
@@ -878,61 +866,49 @@ public class MatrixHelper {
 		return m;
 	}
 
-	public static double [] matrixToArrayD(Matrix3d m) {
-		double [] list = new double[9];
-
-		list[0]=m.m00;
-		list[1]=m.m01;
-		list[2]=m.m02;
-
-		list[3]=m.m10;
-		list[4]=m.m11;
-		list[5]=m.m12;
-
-		list[6]=m.m20;
-		list[7]=m.m21;
-		list[8]=m.m22;
-
-		return list;
+	/**
+	 * Convert a {@link Matrix3d} to an array of doubles.  Matrix4d and OpenGL are column-major.
+	 * @param m the matrix to convert
+	 * @return a double array of length 9
+	 */
+	public static double [] matrix3dToArray(Matrix3d m) {
+		return new double[] {
+			m.m00,
+			m.m10,
+			m.m20,
+			m.m01,
+			m.m11,
+			m.m21,
+			m.m02,
+			m.m12,
+			m.m22
+		};
 	}
 
-	public static float [] matrixToArrayF(Matrix3d m) {
-		float [] list = new float[9];
-
-		list[0] = (float)m.m00;
-		list[1] = (float)m.m01;
-		list[2] = (float)m.m02;
-		list[3] = (float)m.m10;
-		list[4] = (float)m.m11;
-		list[5] = (float)m.m12;
-		list[6] = (float)m.m20;
-		list[7] = (float)m.m21;
-		list[8] = (float)m.m22;
-
-		return list;
-	}
-
-	public static double [] matrixToArrayD(Matrix4d m) {
-		double [] list = new double[16];
-
-		list[ 0]=m.m00;
-		list[ 1]=m.m01;
-		list[ 2]=m.m02;
-		list[ 3]=m.m03;
-		list[ 4]=m.m10;
-		list[ 5]=m.m11;
-		list[ 6]=m.m12;
-		list[ 7]=m.m13;
-		list[ 8]=m.m20;
-		list[ 9]=m.m21;
-		list[10]=m.m22;
-		list[11]=m.m23;
-		list[12]=m.m30;
-		list[13]=m.m31;
-		list[14]=m.m32;
-		list[15]=m.m33;
-
-		return list;
+	/**
+	 * Convert a {@link javax.vecmath.Matrix4d} to an array of doubles.  Matrix4d and OpenGL are column-major.
+	 * @param m the matrix to convert
+	 * @return a double array of length 16
+	 */
+	public static double [] matrix4dToArray(Matrix4d m) {
+		return new double[] {
+			m.m00,
+			m.m10,
+			m.m20,
+			m.m30,
+			m.m01,
+			m.m11,
+			m.m21,
+			m.m31,
+			m.m02,
+			m.m12,
+			m.m22,
+			m.m32,
+			m.m03,
+			m.m13,
+			m.m23,
+			m.m33,
+		};
 	}
 
 	public static FloatBuffer matrixToFloatBuffer(Matrix4d m) {
@@ -1020,43 +996,24 @@ public class MatrixHelper {
 	}
 
 	public static Matrix4d orthographicMatrix4d(double left, double right, double bottom, double top, double near, double far) {
-		Matrix4d ortho = new Matrix4d();
-		ortho.setIdentity();
-
-		ortho.m00 = 2.0 / (right - left);
-		ortho.m11 = 2.0 / (top - bottom);
-		ortho.m22 = -2.0 / (far - near);
-
-		ortho.m03 = -(right + left) / (right - left);
-		ortho.m13 = -(top + bottom) / (top - bottom);
-		ortho.m23 = -(far + near) / (far - near);
-
-		return ortho;
+		double [] list = new double[16];
+		org.joml.Matrix4d ortho = new org.joml.Matrix4d();
+		ortho.setOrtho(left, right, bottom, top, near, far).get(list);
+		return new Matrix4d(list);
 	}
 
 	public static Matrix4d perspectiveMatrix4d(double fovY, double aspect, double near, double far) {
-		double halfFOVy = Math.toRadians(fovY) / 2.0;
-
-		double top = near * Math.tan(halfFOVy);
-		double bottom = -top;
-		double right = top * aspect;
-		double left = -right;
-
-		return createFrustum(left, right, bottom, top, near, far);
+		double [] list = new double[16];
+		org.joml.Matrix4d perspective = new org.joml.Matrix4d();
+		perspective.setPerspective(Math.toRadians(fovY), aspect, near, far).get(list);
+		return new Matrix4d(list);
 	}
 
 	public static Matrix4d createFrustum(double left, double right, double bottom, double top, double near, double far) {
-		Matrix4d perspective = new Matrix4d();
-
-		perspective.m00 = 2 * near / (right-left);
-		perspective.m11 = 2 * near / (top-bottom);
-		perspective.m22 = -(far + near) / (far - near);
-
-		perspective.m23 = -1;
-		perspective.m03 = -near * (left+right) / (right-left);
-		perspective.m13 = -near * (bottom+top) / (top-bottom);
-
-		return perspective;
+		org.joml.Matrix4d frustum = new org.joml.Matrix4d();
+		frustum.frustum(left,right,bottom,top, near, far);
+		double [] list = new double[16];
+		frustum.get(list);
+		return new Matrix4d(list);
 	}
-
 }

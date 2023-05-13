@@ -6,9 +6,12 @@ import com.marginallyclever.convenience.log.Log;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.FloatBuffer;
 
 public class MiscTests {
     private static final Logger logger = LoggerFactory.getLogger(MiscTests.class);
@@ -168,4 +171,27 @@ public class MiscTests {
         return matrix;
     }
 
+    @Test
+    public void testFloatBufferAdd() {
+        FloatBuffer a = FloatBuffer.allocate(3*3);
+        a.put(-1.0f);
+        a.put(-1.0f);
+        a.put(0.0f);
+        a.put(1.0f);
+        a.put(-1.0f);
+        a.put(0.0f);
+        a.put(0.0f);
+        a.put(1.0f);
+        a.put(0.0f);
+        a.rewind();
+
+        FloatBuffer b = FloatBuffer.wrap(new float[]{
+                -1f,-1f,0f,
+                1f,-1f,0f,
+                0f,1f,0f,
+        });
+        b.rewind();
+
+        Assertions.assertTrue(a.equals(b));
+    }
 }

@@ -155,7 +155,7 @@ public class PoseComponent extends Component implements PropertyChangeListener {
 
     @Override
     public String toString() {
-        return super.toString()+",local="+ Arrays.toString(MatrixHelper.matrixToArrayD(local))+",\n";
+        return super.toString()+",local="+ Arrays.toString(MatrixHelper.matrix4dToArray(local))+",\n";
     }
 
     /**

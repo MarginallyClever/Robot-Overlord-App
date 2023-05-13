@@ -47,8 +47,7 @@ public class ViewCube {
     
     private void startProjection(GL2 gl2,Viewport viewport) {
     	gl2.glMatrixMode(GL2.GL_PROJECTION);
-		gl2.glPushMatrix();
-		MatrixHelper.setMatrix(gl2, MatrixHelper.createIdentityMatrix4());
+		gl2.glLoadIdentity();
 		viewport.renderPerspective(gl2);
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
     }
