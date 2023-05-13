@@ -280,22 +280,8 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
         Matrix4d orthoMatrix = MatrixHelper.orthographicMatrix4d(-w,w,-h,h,-1,1);
         Matrix4d projectionMatrix = MatrixHelper.perspectiveMatrix4d(
                 60, w/h, 0.1f, 100.0f);
-/*
-        Entity cameraEntity = new Entity("Camera");
-        CameraComponent camera = new CameraComponent();
-        cameraEntity.addComponent(camera);
-        viewport.setCamera(camera);
-        camera.setOrbitDistance(5);
-        viewport.renderChosenProjection(gl2);
-        double [] p = new double[16];
-        gl2.glGetDoublev(GL2.GL_PROJECTION_MATRIX,p,0);
-        double [] mv = new double[16];
-        gl2.glGetDoublev(GL2.GL_MODELVIEW_MATRIX,mv,0);
 
-        gl2.glMatrixMode(GL2.GL_PROJECTION);
-        gl2.glLoadIdentity();
-        gl2.glMatrixMode(GL2.GL_MODELVIEW_MATRIX);
-        gl2.glLoadIdentity();*/
+        //compareMatrices(gl2);
 
         Matrix4d viewMatrix = MatrixHelper.createIdentityMatrix4();
         //viewMatrix.set(MatrixHelper.lookAt(new Vector3d(0,0,-5),new Vector3d(0,0,0)));
@@ -312,6 +298,35 @@ public class OpenGLRenderPanelBasic implements RenderPanel {
         program.setMatrix4d(gl2,"modelMatrix",modelMatrix);
 
         testTriangle.render(gl2);
+    }
+
+    private void compareMatrices(GL2 gl2) {
+        Entity cameraEntity = new Entity("Camera");
+        CameraComponent camera = new CameraComponent();
+        cameraEntity.addComponent(camera);
+        viewport.setCamera(camera);
+        camera.setOrbitDistance(5);
+        viewport.renderChosenProjection(gl2);
+        double [] oldProjectionMatrix = new double[16];
+        gl2.glGetDoublev(GL2.GL_PROJECTION_MATRIX,oldProjectionMatrix,0);
+        double [] oldModelviewMatrix = new double[16];
+        gl2.glGetDoublev(GL2.GL_MODELVIEW_MATRIX,oldModelviewMatrix,0);
+
+        double w = (double)glCanvas.getSurfaceWidth();
+        double h = (double)glCanvas.getSurfaceHeight();
+
+        Matrix4d projectionMatrix = MatrixHelper.perspectiveMatrix4d(
+                60, w/h, 0.1f, 100.0f);
+
+        Matrix4d viewMatrix = MatrixHelper.createIdentityMatrix4();
+        viewMatrix.setTranslation(new Vector3d(0,0,-5));
+        viewMatrix.invert();
+
+        // good place to put a breakpoint.
+        gl2.glMatrixMode(GL2.GL_PROJECTION);
+        gl2.glLoadIdentity();
+        gl2.glMatrixMode(GL2.GL_MODELVIEW_MATRIX);
+        gl2.glLoadIdentity();
     }
 
     private Mesh createTestTriangle() {
