@@ -5,6 +5,7 @@ import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
+import com.marginallyclever.robotoverlord.parameters.TextureParameter;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementFilename;
@@ -163,8 +164,13 @@ public class EditArm6Panel extends JPanel {
         generalPanel.setLayout(new BoxLayout(generalPanel, BoxLayout.Y_AXIS));
 
         // texture
+        StringParameter textureParameter;
         MaterialComponent material = rootEntity.getChildren().get(0).getComponent(MaterialComponent.class);
-        StringParameter textureParameter = material.texture;
+        if(material!=null) {
+            textureParameter = material.texture;
+        } else {
+            textureParameter = new TextureParameter("texture", "");
+        }
         ViewElementFilename textureFilename = new ViewElementFilename(textureParameter);
         textureFilename.addFileFilters(MeshFactory.getAllExtensions());
         textureFilename.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -176,7 +182,7 @@ public class EditArm6Panel extends JPanel {
             for (Entity joint : joints) {
                 Entity meshEntity = joint.getChildren().get(0);
                 MaterialComponent meshMaterial = meshEntity.getComponent(MaterialComponent.class);
-                meshMaterial.texture.set(filename);
+                if(meshMaterial!=null) meshMaterial.texture.set(filename);
             }
         });
 
