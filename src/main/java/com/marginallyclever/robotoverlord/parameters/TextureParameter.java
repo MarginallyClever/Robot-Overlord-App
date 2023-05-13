@@ -93,4 +93,8 @@ public class TextureParameter extends StringParameter {
 		super.set(s);
 		textureDirty=true;
 	}
+
+	public Texture getTexture() {
+		return texture;
+	}
 }

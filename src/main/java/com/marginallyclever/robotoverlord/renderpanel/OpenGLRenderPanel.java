@@ -12,7 +12,6 @@ import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.move.MoveCameraTool;
 import com.marginallyclever.robotoverlord.tools.move.RotateEntityMultiTool;
@@ -359,7 +358,7 @@ public class OpenGLRenderPanel implements RenderPanel {
     private void createFragmentShader(GL2 gl2) {
         shaderDefault = new ShaderProgram(gl2,
             readResource("default_330.vert"),
-            readResource("red_330.frag"));
+            readResource("default_330.frag"));
         shaderOutline = new ShaderProgram(gl2,
             readResource("outline_330.vert"),
             readResource("outline_330.frag"));
@@ -448,7 +447,7 @@ public class OpenGLRenderPanel implements RenderPanel {
 
     private void renderStep(GL2 gl2) {
         // clear green color, the depth bit, and the stencil buffer.
-        gl2.glClearColor(0, 1, 1, 1);
+        gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
         gl2.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_STENCIL_BUFFER_BIT);
 
         draw3DScene(gl2);
@@ -459,21 +458,17 @@ public class OpenGLRenderPanel implements RenderPanel {
     private void draw3DScene(GL2 gl2) {
         CameraComponent camera = getCamera();
         if (camera == null) {
-            gl2.glClearColor(1, 1, 0, 1);
+            gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
             gl2.glClear(GL2.GL_COLOR_BUFFER_BIT);
             // TODO display a "no active camera found" message?
             return;
         }
-        //collectSelectedEntitiesAndTheirChildren();  // TODO only when selection changes?
-        //prepareToOutlineSelectedEntities(gl2);
-
-        PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
-        pose.setWorld(MatrixHelper.createIdentityMatrix4());
-        pose.setPosition(new Vector3d(0,0,-3));
+        collectSelectedEntitiesAndTheirChildren();  // TODO only when selection changes?
+        prepareToOutlineSelectedEntities(gl2);
 
         viewport.setCamera(camera);
         //viewport.renderChosenProjection(gl2);
-        //renderLights(gl2);
+        renderLights(gl2);
 
         useShaderDefault(gl2);
 
@@ -481,7 +476,7 @@ public class OpenGLRenderPanel implements RenderPanel {
         renderAllEntities(gl2, entityManager.getEntities(),shaderDefault);
         //if (showWorldOrigin.get()) PrimitiveSolids.drawStar(gl2, 10);
 
-        //outlineCollectedEntities(gl2);
+        outlineCollectedEntities(gl2);
     }
 
     private void useShaderDefault(GL2 gl2) {
@@ -499,14 +494,29 @@ public class OpenGLRenderPanel implements RenderPanel {
         }
 
         shaderDefault.use(gl2);
-        Matrix4d projectionMatrix = viewport.getProjectionMatrix();
-        shaderDefault.setMatrix4d(gl2,"projectionMatrix",projectionMatrix);
-        Matrix4d viewMatrix = viewport.getViewMatrix();
-        shaderDefault.setMatrix4d(gl2,"viewMatrix",viewMatrix);
+        setProjectionMatrix(gl2,shaderDefault);
+        setViewMatrix(gl2,shaderDefault);
+
         shaderDefault.setVector3d(gl2,"lightPos",lightPos);  // Light position in world space
         shaderDefault.setVector3d(gl2,"cameraPos",cameraPos);  // Camera position in world space
         shaderDefault.setVector3d(gl2,"lightColor",lightColor);  // Light color
-        shaderDefault.setVector3d(gl2,"objectColor",new Vector3d(1,1,1));  // Object color
+        shaderDefault.set4f(gl2,"objectColor",1,1,1,1);
+    }
+
+    private void setProjectionMatrix(GL2 gl2, ShaderProgram program) {
+        Matrix4d projectionMatrix = viewport.getChosenProjectionMatrix();
+        program.setMatrix4d(gl2,"projectionMatrix",projectionMatrix);
+    }
+
+    private void setOrthograpicMatrix(GL2 gl2, ShaderProgram program) {
+        Matrix4d projectionMatrix = viewport.getOrthographicMatrix();
+        program.setMatrix4d(gl2,"projectionMatrix",projectionMatrix);
+    }
+
+    private void setViewMatrix(GL2 gl2,ShaderProgram program) {
+        Matrix4d viewMatrix = viewport.getViewMatrix();
+        viewMatrix.transpose();
+        program.setMatrix4d(gl2,"viewMatrix",viewMatrix);
     }
 
     private void drawOverlays(GL2 gl2) {
@@ -518,8 +528,8 @@ public class OpenGLRenderPanel implements RenderPanel {
         for(EditorTool tool : editorTools) tool.render(gl2);
 
         // 2D overlays
-        // viewCube.render(gl2,viewport);
-        drawCursor(gl2);
+        //viewCube.render(gl2,viewport);
+        //drawCursor(gl2);
     }
 
     private void checkGLError(GL2 gl2) {
@@ -578,8 +588,8 @@ public class OpenGLRenderPanel implements RenderPanel {
         // must be in use before calls to glUniform*.
         shaderOutline.use(gl2);
         // tell the shader some important information
-        shaderOutline.setMatrix4d(gl2,"projectionMatrix", viewport.getProjectionMatrix());
-        shaderOutline.setMatrix4d(gl2,"viewMatrix",viewport.getViewMatrix());
+        setProjectionMatrix(gl2,shaderOutline);
+        setViewMatrix(gl2,shaderOutline);
         shaderOutline.set4f(gl2,"outlineColor",0.0f, 1.0f, 0.0f, 0.5f);
         shaderOutline.set1f(gl2,"outlineSize",0.25f);
     }
@@ -647,8 +657,10 @@ public class OpenGLRenderPanel implements RenderPanel {
     private void renderMMRList(GL2 gl2, List<MatrixMaterialRender> list,ShaderProgram shaderProgram) {
         for(MatrixMaterialRender mmr : list) {
             if(mmr.matrix!=null) {
+                Matrix4d m = mmr.matrix;
+                m.transpose();
                 // tell the shaders about our modelMatrix.
-                shaderProgram.setMatrix4d(gl2,"modelMatrix",mmr.matrix);
+                shaderProgram.setMatrix4d(gl2,"modelMatrix",m);
             }
 
             if(collectedEntities.contains(mmr.renderComponent.getEntity())) {
@@ -659,7 +671,17 @@ public class OpenGLRenderPanel implements RenderPanel {
             }
 
             if(mmr.materialComponent!=null && mmr.materialComponent.getEnabled()) {
-                mmr.materialComponent.render(gl2);
+                MaterialComponent material = mmr.materialComponent;
+                material.render(gl2);
+
+                //material.texture.getTexture();
+                double[] diffuseColor = material.getDiffuseColor();
+                shaderDefault.set4f(gl2,
+                        "objectColor",
+                        (float)diffuseColor[0],
+                        (float)diffuseColor[1],
+                        (float)diffuseColor[2],
+                        (float)diffuseColor[3]);
             }
             if(mmr.renderComponent!=null && mmr.renderComponent.getVisible()) {
                 gl2.glPushMatrix();
@@ -671,7 +693,7 @@ public class OpenGLRenderPanel implements RenderPanel {
 
     private void renderLights(GL2 gl2) {
         // global ambient light
-        gl2.glLightModelfv( GL2.GL_LIGHT_MODEL_AMBIENT, ambientLight.getFloatArray(),0);
+        //gl2.glLightModelfv( GL2.GL_LIGHT_MODEL_AMBIENT, ambientLight.getFloatArray(),0);
 
         int maxLights = getMaxLights(gl2);
         turnOffAllLights(gl2,maxLights);
@@ -709,8 +731,9 @@ public class OpenGLRenderPanel implements RenderPanel {
 /*
         gl2.glMatrixMode(GL2.GL_PROJECTION);
         gl2.glPushMatrix();
-        MatrixHelper.setMatrix(gl2, MatrixHelper.createIdentityMatrix4());
-        viewport.renderOrthographic(gl2,1);
+
+        gl2.glLoadIdentity();
+        setOrthograpicMatrix(gl2,shaderDefault);
         gl2.glMatrixMode(GL2.GL_MODELVIEW);
 
         double [] cursor = viewport.getCursorAsNormalized();
@@ -741,7 +764,8 @@ public class OpenGLRenderPanel implements RenderPanel {
 
         gl2.glMatrixMode(GL2.GL_PROJECTION);
         gl2.glPopMatrix();
-        gl2.glMatrixMode(GL2.GL_MODELVIEW);*/
+        gl2.glMatrixMode(GL2.GL_MODELVIEW);
+        */
     }
 
     private void updateStep(double dt) {

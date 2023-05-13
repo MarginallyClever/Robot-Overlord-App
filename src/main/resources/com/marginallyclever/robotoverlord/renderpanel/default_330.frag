@@ -3,13 +3,15 @@
 in vec4 fragmentColor;
 in vec3 normalVector;
 in vec3 fragmentPosition;
+in vec2 textureCoord;
 
 out vec4 finalColor;
 
 uniform vec3 lightPos; // Light position in world space
 uniform vec3 cameraPos;  // Camera position in world space
-uniform vec3 objectColor;
+uniform vec4 objectColor;
 uniform vec3 lightColor;
+uniform sampler2D diffuseTexture;
 
 void main() {
     vec3 norm = normalize(normalVector);
@@ -23,6 +25,8 @@ void main() {
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = diff * lightColor;
 
+    vec4 diffuseColor = objectColor * texture(diffuseTexture, textureCoord);
+
     // Specular
     float specularStrength = 0.5;
     vec3 viewDir = normalize(cameraPos - fragmentPosition);
@@ -30,6 +34,6 @@ void main() {
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = specularStrength * spec * lightColor;
 
-    vec3 result = (ambient + diffuse + specular) * objectColor;
-    finalColor = vec4(result, 1.0);
+    vec3 result = (ambient + diffuse + specular) * vec3(diffuseColor);
+    finalColor = vec4(result, diffuseColor.a);
 }
