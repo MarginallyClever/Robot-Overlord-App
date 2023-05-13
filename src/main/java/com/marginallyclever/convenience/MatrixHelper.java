@@ -1020,18 +1020,16 @@ public class MatrixHelper {
 	}
 
 	public static Matrix4d orthographicMatrix4d(double left, double right, double bottom, double top, double near, double far) {
-		org.joml.Matrix4d ortho = new org.joml.Matrix4d();
-		ortho.ortho(left, right, bottom, top, near, far);
 		double [] list = new double[16];
-		ortho.get(list);
+		org.joml.Matrix4d ortho = new org.joml.Matrix4d();
+		ortho.setOrtho(left, right, bottom, top, near, far).get(list);
 		return new Matrix4d(list);
 	}
 
 	public static Matrix4d perspectiveMatrix4d(double fovY, double aspect, double near, double far) {
-		org.joml.Matrix4d perspective = new org.joml.Matrix4d();
-		perspective.perspective(fovY, aspect, near, far);
 		double [] list = new double[16];
-		perspective.get(list);
+		org.joml.Matrix4d perspective = new org.joml.Matrix4d();
+		perspective.setPerspective(Math.toRadians(fovY), aspect, near, far).get(list);
 		return new Matrix4d(list);
 	}
 
