@@ -12,6 +12,8 @@ uniform vec3 cameraPos;  // Camera position in world space
 uniform vec4 objectColor;
 uniform vec3 lightColor;
 uniform sampler2D diffuseTexture;
+uniform bool useTexture;
+uniform bool useVertexColor;  // per-vertex color
 
 void main() {
     vec3 norm = normalize(normalVector);
@@ -25,7 +27,9 @@ void main() {
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = diff * lightColor;
 
-    vec4 diffuseColor = objectColor * texture(diffuseTexture, textureCoord);
+    vec4 diffuseColor = objectColor;
+    if(useVertexColor) diffuseColor *= fragmentColor;
+    if(useTexture) diffuseColor *= texture(diffuseTexture, textureCoord);
 
     // Specular
     float specularStrength = 0.5;

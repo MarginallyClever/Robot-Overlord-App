@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
-import java.nio.FloatBuffer;
 
 /**
  * A wrapper for vertex and fragment shader pairs that provides a simple interface for setting uniforms.
@@ -126,5 +125,9 @@ public class ShaderProgram {
 
     public void setMatrix4d(GL2 gl2, String name, Matrix4d matrix4d) {
         gl2.glUniformMatrix4fv(getUniformLocation(gl2, name), 1, false, MatrixHelper.matrixToFloatBuffer(matrix4d));
+    }
+
+    public void set1i(GL2 gl2, String name, int b) {
+        gl2.glUniform1i(getUniformLocation(gl2, name), b );
     }
 }

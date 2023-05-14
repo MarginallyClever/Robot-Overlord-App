@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.renderpanel;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
+import com.jogamp.opengl.util.texture.Texture;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.Ray;
@@ -665,6 +666,8 @@ public class OpenGLRenderPanel implements RenderPanel {
 
     private void renderMMRList(GL2 gl2, List<MatrixMaterialRender> list,ShaderProgram shaderProgram) {
         for(MatrixMaterialRender mmr : list) {
+            if(mmr.renderComponent==null || !mmr.renderComponent.getVisible()) continue;
+
             if(mmr.matrix!=null) {
                 Matrix4d m = mmr.matrix;
                 m.transpose();
@@ -679,11 +682,19 @@ public class OpenGLRenderPanel implements RenderPanel {
                 gl2.glStencilMask(0x00);
             }
 
+            boolean useVertexColor=true;
+            boolean useTexture=true;
             if(mmr.materialComponent!=null && mmr.materialComponent.getEnabled()) {
                 MaterialComponent material = mmr.materialComponent;
                 material.render(gl2);
 
-                //material.texture.getTexture();
+                Texture texture = material.texture.getTexture();
+                if(texture!=null) {
+                    texture.bind(gl2);
+                } else {
+                    useTexture = false;
+                }
+
                 double[] diffuseColor = material.getDiffuseColor();
                 shaderDefault.set4f(gl2,
                         "objectColor",
@@ -692,11 +703,19 @@ public class OpenGLRenderPanel implements RenderPanel {
                         (float)diffuseColor[2],
                         (float)diffuseColor[3]);
             }
-            if(mmr.renderComponent!=null && mmr.renderComponent.getVisible()) {
-                gl2.glPushMatrix();
-                mmr.renderComponent.render(gl2);
-                gl2.glPopMatrix();
+
+            if(mmr.renderComponent instanceof ShapeComponent) {
+                ShapeComponent shape = (ShapeComponent)mmr.renderComponent;
+                useVertexColor &= shape.getModel().getHasColors();
+                useTexture &= shape.getModel().getHasTextures();
             }
+
+            shaderProgram.set1i(gl2,"useVertexColor",useVertexColor?1:0);
+            shaderProgram.set1i(gl2,"useTexture",useTexture?1:0);
+
+            gl2.glPushMatrix();
+            mmr.renderComponent.render(gl2);
+            gl2.glPopMatrix();
         }
     }
 

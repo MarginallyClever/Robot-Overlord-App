@@ -100,22 +100,24 @@ public class Decal extends ShapeComponent {
 				pH.set(MathHelper.interpolate(pB, pD, (double)(y+1)/(double)yParts));
 
 				if(myMesh.getRenderStyle() == GL2.GL_TRIANGLES) {
-					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
+					for(int j=0;j<6;++j) {
+						myMesh.addNormal((float) n.x, (float) n.y, (float) n.z);
+						myMesh.addColor(1,1,1,1);
+					}
 					
 					myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
 					myMesh.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
 					myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
-
-					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-					myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
 					
 					myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
 					myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
 					myMesh.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
 				} else if(myMesh.getRenderStyle() == GL2.GL_LINES) {
+					for(int j=0;j<8;++j) {
+						myMesh.addNormal((float) n.x, (float) n.y, (float) n.z);
+						myMesh.addColor(1,1,1,1);
+					}
+
 					myMesh.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
 					myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
 

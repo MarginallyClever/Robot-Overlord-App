@@ -130,6 +130,7 @@ public class Box extends ShapeComponent {
                 if(myMesh.getRenderStyle() == GL2.GL_TRIANGLES) {
                     for(int i=0;i<6;++i) {
                         myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
+                        myMesh.addColor(1,1,1,1);
                     }
                     myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
                     myMesh.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
@@ -139,6 +140,10 @@ public class Box extends ShapeComponent {
                     myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
                     myMesh.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
                 } else if(myMesh.getRenderStyle() == GL2.GL_LINES) {
+                    for(int i=0;i<8;++i) {
+                        myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
+                        myMesh.addColor(1,1,1,1);
+                    }
                     myMesh.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
                     myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
 
