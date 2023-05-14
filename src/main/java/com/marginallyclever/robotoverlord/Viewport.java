@@ -56,14 +56,14 @@ public class Viewport extends Entity {
 	 * @param zoom the zoom factor
 	 */
 	@Deprecated
-	private void renderOrthographic(GL2 gl2, double zoom) {
+	public void renderOrthographic(GL2 gl2, double zoom) {
 		double w = canvasWidth / 2.0;
 		double h = canvasHeight / 2.0;
 		gl2.glOrtho(-w / zoom, w / zoom, -h / zoom, h / zoom, nearZ.get(), farZ.get());
 	}
 
 	@Deprecated
-	private void renderOrthographic(GL2 gl2) {
+	public void renderOrthographic(GL2 gl2) {
 		renderOrthographic(gl2,camera.getOrbitDistance()/100.0);
 	}
 
@@ -102,8 +102,8 @@ public class Viewport extends Entity {
 	 * @param zoom the zoom factor
 	 */
 	public Matrix4d getOrthographicMatrix(double zoom) {
-		double w = canvasWidth;///2.0f;
-		double h = canvasHeight;///2.0f;
+		double w = canvasWidth/2.0f;
+		double h = canvasHeight/2.0f;
 
 		double left = -w/zoom;
 		double right = w/zoom;
@@ -112,11 +112,11 @@ public class Viewport extends Entity {
 		double nearVal = nearZ.get();
 		double farVal = farZ.get();
 
-		return MatrixHelper.orthographicMatrix4d(left,right,bottom,top,nearVal,farVal);
+		return MatrixHelper.orthographicMatrix4d(left,right,bottom,top,-1,1);
 	}
 
 	public Matrix4d getOrthographicMatrix() {
-		return getOrthographicMatrix(camera.getOrbitDistance()/2.0f);
+		return getOrthographicMatrix(1.0);
 	}
 	
 	public Matrix4d getChosenProjectionMatrix() {

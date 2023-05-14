@@ -4,6 +4,7 @@ import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.*;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
@@ -104,6 +105,7 @@ public class OpenGLRenderPanel implements RenderPanel {
 
     private ShaderProgram shaderDefault;
     private ShaderProgram shaderOutline;
+    private ShaderProgram shaderHUD;
     private final List<Entity> collectedEntities = new ArrayList<>();
     private final List<LightComponent> lights = new ArrayList<>();
 
@@ -242,7 +244,7 @@ public class OpenGLRenderPanel implements RenderPanel {
                 // set the color to use when wiping the draw buffer
                 gl2.glClearColor(0.85f,0.85f,0.85f,0.0f);
 
-                createFragmentShader(gl2);
+                createShaderPrograms(gl2);
             }
 
             @Override
@@ -256,6 +258,7 @@ public class OpenGLRenderPanel implements RenderPanel {
                 GL2 gl2 = drawable.getGL().getGL2();
                 shaderDefault.delete(gl2);
                 shaderOutline.delete(gl2);
+                shaderHUD.delete(gl2);
             }
 
             @Override
@@ -355,13 +358,16 @@ public class OpenGLRenderPanel implements RenderPanel {
         return lines.toArray(new String[0]);
     }
 
-    private void createFragmentShader(GL2 gl2) {
+    private void createShaderPrograms(GL2 gl2) {
         shaderDefault = new ShaderProgram(gl2,
             readResource("default_330.vert"),
             readResource("default_330.frag"));
         shaderOutline = new ShaderProgram(gl2,
             readResource("outline_330.vert"),
             readResource("outline_330.frag"));
+        shaderHUD = new ShaderProgram(gl2,
+            readResource("notransform_330.vert"),
+            readResource("givenColor_330.frag"));
     }
 
     private void deactivateAllTools() {
@@ -452,7 +458,7 @@ public class OpenGLRenderPanel implements RenderPanel {
 
         draw3DScene(gl2);
         //viewport.showPickingTest(gl2);
-        //drawOverlays(gl2);
+        drawOverlays(gl2);
     }
 
     private void draw3DScene(GL2 gl2) {
@@ -522,14 +528,17 @@ public class OpenGLRenderPanel implements RenderPanel {
     private void drawOverlays(GL2 gl2) {
         // overlays
         gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_STENCIL_BUFFER_BIT);
-        shaderDefault.use(gl2);
+        gl2.glUseProgram(0);
+        viewport.renderChosenProjection(gl2);
 
         // 3D overlays
         for(EditorTool tool : editorTools) tool.render(gl2);
 
         // 2D overlays
         //viewCube.render(gl2,viewport);
-        //drawCursor(gl2);
+        drawCursor(gl2);
+
+        shaderDefault.use(gl2);
     }
 
     private void checkGLError(GL2 gl2) {
@@ -728,24 +737,33 @@ public class OpenGLRenderPanel implements RenderPanel {
 
     private void drawCursor(GL2 gl2) {
         if(!isMouseIn) return;
+
+        final double v = 10;
+        double w = viewport.getCanvasWidth();
+        double h = viewport.getCanvasHeight();
 /*
+        shaderHUD.use(gl2);
+        setOrthograpicMatrix(gl2,shaderHUD);
+        shaderHUD.setMatrix4d(gl2,"viewMatrix",MatrixHelper.createIdentityMatrix4());
+        shaderHUD.setMatrix4d(gl2,"modelMatrix",MatrixHelper.createIdentityMatrix4());
+*/
         gl2.glMatrixMode(GL2.GL_PROJECTION);
         gl2.glPushMatrix();
-
-        gl2.glLoadIdentity();
-        setOrthograpicMatrix(gl2,shaderDefault);
+        MatrixHelper.setMatrix(gl2, MatrixHelper.createIdentityMatrix4());
+        viewport.renderOrthographic(gl2,1);
         gl2.glMatrixMode(GL2.GL_MODELVIEW);
 
+       // int was = OpenGLHelper.drawAtopEverythingStart(gl2);
+
         double [] cursor = viewport.getCursorAsNormalized();
-        cursor[0] *= viewport.getCanvasWidth() / 2d;
-        cursor[1] *= viewport.getCanvasHeight() / 2d;
+        cursor[0] *= w / 2d;
+        cursor[1] *= h / 2d;
 
         gl2.glPushMatrix();
         MatrixHelper.setMatrix(gl2, MatrixHelper.createIdentityMatrix4());
         gl2.glTranslated(cursor[0],cursor[1],-1);
         gl2.glBegin(GL2.GL_LINES);
         gl2.glColor4d(1,1,1,1);
-        double v = 10;
         gl2.glVertex2d(0,-v);
         gl2.glVertex2d(0, v);
         gl2.glVertex2d(-v,0);
@@ -762,10 +780,10 @@ public class OpenGLRenderPanel implements RenderPanel {
         gl2.glEnd();
         gl2.glPopMatrix();
 
+        //OpenGLHelper.drawAtopEverythingEnd(gl2,was);
         gl2.glMatrixMode(GL2.GL_PROJECTION);
         gl2.glPopMatrix();
         gl2.glMatrixMode(GL2.GL_MODELVIEW);
-        */
     }
 
     private void updateStep(double dt) {
