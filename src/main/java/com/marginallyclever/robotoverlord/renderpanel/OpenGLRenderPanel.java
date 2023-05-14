@@ -741,6 +741,9 @@ public class OpenGLRenderPanel implements RenderPanel {
         final double v = 10;
         double w = viewport.getCanvasWidth();
         double h = viewport.getCanvasHeight();
+
+        OpenGLHelper.disableTextureStart(gl2);
+        OpenGLHelper.disableLightingStart(gl2);
 /*
         shaderHUD.use(gl2);
         setOrthograpicMatrix(gl2,shaderHUD);
@@ -749,11 +752,11 @@ public class OpenGLRenderPanel implements RenderPanel {
 */
         gl2.glMatrixMode(GL2.GL_PROJECTION);
         gl2.glPushMatrix();
-        MatrixHelper.setMatrix(gl2, MatrixHelper.createIdentityMatrix4());
+        gl2.glLoadIdentity();
         viewport.renderOrthographic(gl2,1);
         gl2.glMatrixMode(GL2.GL_MODELVIEW);
 
-       // int was = OpenGLHelper.drawAtopEverythingStart(gl2);
+        int was = OpenGLHelper.drawAtopEverythingStart(gl2);
 
         double [] cursor = viewport.getCursorAsNormalized();
         cursor[0] *= w / 2d;
@@ -763,24 +766,28 @@ public class OpenGLRenderPanel implements RenderPanel {
         MatrixHelper.setMatrix(gl2, MatrixHelper.createIdentityMatrix4());
         gl2.glTranslated(cursor[0],cursor[1],-1);
         gl2.glBegin(GL2.GL_LINES);
-        gl2.glColor4d(1,1,1,1);
-        gl2.glVertex2d(0,-v);
-        gl2.glVertex2d(0, v);
-        gl2.glVertex2d(-v,0);
-        gl2.glVertex2d( v,0);
+
         gl2.glColor3d(0,0,0);
         gl2.glVertex2d(1,-v);
         gl2.glVertex2d(1, v);
         gl2.glVertex2d(-v,1);
         gl2.glVertex2d( v,1);
+
         gl2.glVertex2d(-1,-v);
         gl2.glVertex2d(-1, v);
         gl2.glVertex2d(-v,-1);
         gl2.glVertex2d( v,-1);
+
+        gl2.glColor4d(1,1,1,1);
+        gl2.glVertex2d(0,-v);
+        gl2.glVertex2d(0, v);
+        gl2.glVertex2d(-v,0);
+        gl2.glVertex2d( v,0);
         gl2.glEnd();
         gl2.glPopMatrix();
 
-        //OpenGLHelper.drawAtopEverythingEnd(gl2,was);
+        OpenGLHelper.drawAtopEverythingEnd(gl2,was);
+
         gl2.glMatrixMode(GL2.GL_PROJECTION);
         gl2.glPopMatrix();
         gl2.glMatrixMode(GL2.GL_MODELVIEW);
