@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.demos;
 
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.EntityManager;
+import com.marginallyclever.robotoverlord.entityManager.EntityManager;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.LightComponent;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;

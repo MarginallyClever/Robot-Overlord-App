@@ -1,6 +1,8 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.robotoverlord.entityManager;
 
 import com.marginallyclever.convenience.*;
+import com.marginallyclever.robotoverlord.Collidable;
+import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.*;
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.EntityManager;
+import com.marginallyclever.robotoverlord.entityManager.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

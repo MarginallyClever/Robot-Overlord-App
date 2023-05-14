@@ -1,10 +1,8 @@
 package com.marginallyclever.robotoverlord;
 
-import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.components.ComponentDependency;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.ComponentAddEdit;
+import com.marginallyclever.robotoverlord.entityManager.EntityManager;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

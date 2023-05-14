@@ -2,12 +2,9 @@ package com.marginallyclever.robotoverlord.systems.robot.crab;
 
 import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.EntityManager;
+import com.marginallyclever.robotoverlord.entityManager.EntityManager;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
-import com.marginallyclever.robotoverlord.components.demo.DogRobotComponent;
-import com.marginallyclever.robotoverlord.components.shapes.Box;
-import com.marginallyclever.robotoverlord.components.shapes.Cylinder;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.systems.OriginAdjustSystem;
 

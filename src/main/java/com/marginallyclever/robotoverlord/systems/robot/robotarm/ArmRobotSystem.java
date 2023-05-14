@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.EntityManager;
+import com.marginallyclever.robotoverlord.entityManager.EntityManager;
 import com.marginallyclever.robotoverlord.components.DHComponent;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.GCodePathComponent;
@@ -14,7 +14,6 @@ import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.V
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
-import java.awt.*;
 
 /**
  * A system to manage robot arms.

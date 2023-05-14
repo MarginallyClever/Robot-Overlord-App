@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
-import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.Project;
 import com.marginallyclever.robotoverlord.demos.Demo;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;

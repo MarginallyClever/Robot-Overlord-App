@@ -1,23 +1,15 @@
 package com.marginallyclever.robotoverlord.renderpanel;
 
 import com.jogamp.opengl.*;
-import com.jogamp.opengl.awt.GLJPanel;
-import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.*;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.marginallyclever.robotoverlord.entityManager.EntityManager;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 public class OpenGLTestPerspective extends OpenGLTestOrthographic {
     public OpenGLTestPerspective(EntityManager entityManager, UpdateCallback updateCallback) {

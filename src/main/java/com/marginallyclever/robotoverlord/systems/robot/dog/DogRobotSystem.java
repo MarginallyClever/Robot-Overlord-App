@@ -4,7 +4,7 @@ import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.EntityManager;
+import com.marginallyclever.robotoverlord.entityManager.EntityManager;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.demo.DogRobotComponent;
@@ -12,7 +12,6 @@ import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.C
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
-import com.marginallyclever.robotoverlord.systems.robot.robotarm.EditArm6Panel;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;

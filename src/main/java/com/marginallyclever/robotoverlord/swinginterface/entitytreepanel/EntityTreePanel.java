@@ -1,9 +1,9 @@
 package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.EntityManager;
-import com.marginallyclever.robotoverlord.EntityManagerEvent;
-import com.marginallyclever.robotoverlord.EntityManagerListener;
+import com.marginallyclever.robotoverlord.entityManager.EntityManager;
+import com.marginallyclever.robotoverlord.entityManager.EntityManagerEvent;
+import com.marginallyclever.robotoverlord.entityManager.EntityManagerListener;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;

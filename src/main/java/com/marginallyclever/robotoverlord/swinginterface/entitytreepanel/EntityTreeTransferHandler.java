@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.EntityManager;
+import com.marginallyclever.robotoverlord.entityManager.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.EntityReorganizeEdit;
 import org.jetbrains.annotations.Nullable;
