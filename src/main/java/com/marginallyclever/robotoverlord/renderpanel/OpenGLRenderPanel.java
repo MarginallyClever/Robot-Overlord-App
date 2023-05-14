@@ -682,19 +682,16 @@ public class OpenGLRenderPanel implements RenderPanel {
                 gl2.glStencilMask(0x00);
             }
 
+            Texture texture = null;
             boolean useVertexColor=true;
             boolean useTexture=true;
             if(mmr.materialComponent!=null && mmr.materialComponent.getEnabled()) {
                 MaterialComponent material = mmr.materialComponent;
                 material.render(gl2);
-
-                Texture texture = material.texture.getTexture();
-                if(texture!=null) {
-                    texture.bind(gl2);
-                } else {
-                    useTexture = false;
-                }
-
+                // if we have a texture assigned, then we might still enable textures.
+                texture = material.texture.getTexture();
+                if(texture==null) useTexture = false;
+                // assign the object's overall color.
                 double[] diffuseColor = material.getDiffuseColor();
                 shaderDefault.set4f(gl2,
                         "objectColor",
@@ -705,13 +702,17 @@ public class OpenGLRenderPanel implements RenderPanel {
             }
 
             if(mmr.renderComponent instanceof ShapeComponent) {
+                // if this component is a shape
                 ShapeComponent shape = (ShapeComponent)mmr.renderComponent;
+                // and it has vertex colors, enable them.
                 useVertexColor &= shape.getModel().getHasColors();
+                // and it has texture coordinates, continue to allow textures.
                 useTexture &= shape.getModel().getHasTextures();
             }
 
             shaderProgram.set1i(gl2,"useVertexColor",useVertexColor?1:0);
             shaderProgram.set1i(gl2,"useTexture",useTexture?1:0);
+            if(useTexture && texture!=null) texture.bind(gl2);
 
             gl2.glPushMatrix();
             mmr.renderComponent.render(gl2);
