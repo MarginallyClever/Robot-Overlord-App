@@ -480,7 +480,9 @@ public class OpenGLRenderPanel implements RenderPanel {
 
         useShaderDefault(gl2);
 
-        //skyBox.render(gl2, camera);
+
+        skyBox.render(gl2, camera,shaderDefault);
+
         renderAllEntities(gl2, entityManager.getEntities(),shaderDefault);
         //if (showWorldOrigin.get()) PrimitiveSolids.drawStar(gl2, 10);
 
@@ -537,7 +539,7 @@ public class OpenGLRenderPanel implements RenderPanel {
         for(EditorTool tool : editorTools) tool.render(gl2);
 
         // 2D overlays
-        //viewCube.render(gl2,viewport);
+        viewCube.render(gl2,viewport,shaderDefault);
         drawCursor(gl2);
 
         shaderDefault.use(gl2);
@@ -686,9 +688,12 @@ public class OpenGLRenderPanel implements RenderPanel {
             Texture texture = null;
             boolean useVertexColor=true;
             boolean useTexture=true;
+            boolean useLighting=true;
             if(mmr.materialComponent!=null && mmr.materialComponent.getEnabled()) {
                 MaterialComponent material = mmr.materialComponent;
                 material.render(gl2);
+                // flat light?
+                useLighting &= material.isLit();
                 // if we have a texture assigned, then we might still enable textures.
                 texture = material.texture.getTexture();
                 if(texture==null) useTexture = false;
@@ -712,6 +717,7 @@ public class OpenGLRenderPanel implements RenderPanel {
             }
 
             shaderProgram.set1i(gl2,"useVertexColor",useVertexColor?1:0);
+            shaderProgram.set1i(gl2,"useLighting",useLighting?1:0);
             shaderProgram.set1i(gl2,"useTexture",useTexture?1:0);
             if(useTexture && texture!=null) texture.bind(gl2);
 

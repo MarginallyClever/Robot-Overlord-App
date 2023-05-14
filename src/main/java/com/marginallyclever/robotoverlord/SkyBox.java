@@ -25,70 +25,66 @@ public class SkyBox {
 		super();
 	}
 
-	public void render(GL2 gl2,CameraComponent camera) {
-		PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
+	public void render(GL2 gl2,CameraComponent camera,ShaderProgram program) {
+		PoseComponent cameraPose = camera.getEntity().getComponent(PoseComponent.class);
 
-		gl2.glDisable(GL2.GL_LIGHTING);
-		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
-		gl2.glEnable(GL2.GL_TEXTURE_2D);
-		gl2.glPushMatrix();
-			Matrix4d m = pose.getWorld();
-			m.setTranslation(new Vector3d(0,0,0));
-			gl2.glLoadIdentity();
-			m.invert();
-			MatrixHelper.applyMatrix(gl2, m);
-		
-			gl2.glColor3f(1, 1, 1);
+		program.set1i(gl2,"useTexture",1);
+		program.set1i(gl2,"useLighting",0);
+		program.set1i(gl2,"useVertexColor",0);
 
-			textureXPos.render(gl2);
-			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, 10, 10);
-				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, 10, -10);
-				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(10, -10, -10);
-				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, -10, 10);
-			gl2.glEnd();
+		Matrix4d m = cameraPose.getWorld();
+		m.transpose();
+		program.setMatrix4d(gl2,"modelMatrix",m);
 
-			textureXNeg.render(gl2);
-			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, -10, 10);
-				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, -10, -10);
-				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(-10, 10, -10);
-				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, 10, 10);
-			gl2.glEnd();
+		gl2.glColor3f(1, 1, 1);
 
-			textureYPos.render(gl2);
-			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, 10, 10);
-				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, 10, -10);
-				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(10, 10, -10);
-				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, 10, 10);
-			gl2.glEnd();
+		textureXPos.render(gl2);
+		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+			gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, 10, 10);
+			gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, 10, -10);
+			gl2.glTexCoord2d(1,0);  gl2.glVertex3d(10, -10, -10);
+			gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, -10, 10);
+		gl2.glEnd();
 
-			textureYNeg.render(gl2);
-			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, -10, 10);
-				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, -10, -10);
-				gl2.glTexCoord2d(1,0);  gl2.glVertex3d(-10, -10, -10);
-				gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, -10, 10);
-			gl2.glEnd();
+		textureXNeg.render(gl2);
+		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+			gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, -10, 10);
+			gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, -10, -10);
+			gl2.glTexCoord2d(1,0);  gl2.glVertex3d(-10, 10, -10);
+			gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, 10, 10);
+		gl2.glEnd();
 
-			textureZPos.render(gl2);
-			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, 10, 10);
-				gl2.glTexCoord2d(1,0);  gl2.glVertex3d( 10, 10, 10);
-				gl2.glTexCoord2d(1,1);  gl2.glVertex3d( 10,-10, 10);
-				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10,-10, 10);
-			gl2.glEnd();
+		textureYPos.render(gl2);
+		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+			gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, 10, 10);
+			gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, 10, -10);
+			gl2.glTexCoord2d(1,0);  gl2.glVertex3d(10, 10, -10);
+			gl2.glTexCoord2d(1,1);  gl2.glVertex3d(10, 10, 10);
+		gl2.glEnd();
 
-			textureZNeg.render(gl2);
-			gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-				gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10,-10, -10);
-				gl2.glTexCoord2d(1,0);  gl2.glVertex3d( 10,-10, -10);
-				gl2.glTexCoord2d(1,1);  gl2.glVertex3d( 10, 10, -10);
-				gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, 10, -10);
-			gl2.glEnd();
-			
-		gl2.glPopMatrix();
+		textureYNeg.render(gl2);
+		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+			gl2.glTexCoord2d(0,1);  gl2.glVertex3d(10, -10, 10);
+			gl2.glTexCoord2d(0,0);  gl2.glVertex3d(10, -10, -10);
+			gl2.glTexCoord2d(1,0);  gl2.glVertex3d(-10, -10, -10);
+			gl2.glTexCoord2d(1,1);  gl2.glVertex3d(-10, -10, 10);
+		gl2.glEnd();
+
+		textureZPos.render(gl2);
+		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+			gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10, 10, 10);
+			gl2.glTexCoord2d(1,0);  gl2.glVertex3d( 10, 10, 10);
+			gl2.glTexCoord2d(1,1);  gl2.glVertex3d( 10,-10, 10);
+			gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10,-10, 10);
+		gl2.glEnd();
+
+		textureZNeg.render(gl2);
+		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+			gl2.glTexCoord2d(0,0);  gl2.glVertex3d(-10,-10, -10);
+			gl2.glTexCoord2d(1,0);  gl2.glVertex3d( 10,-10, -10);
+			gl2.glTexCoord2d(1,1);  gl2.glVertex3d( 10, 10, -10);
+			gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, 10, -10);
+		gl2.glEnd();
 
 		// Clear the depth buffer
         gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);

@@ -13,31 +13,38 @@ uniform vec4 objectColor;
 uniform vec3 lightColor;
 uniform sampler2D diffuseTexture;
 uniform bool useTexture;
+uniform bool useLighting;
 uniform bool useVertexColor;  // per-vertex color
 
 void main() {
-    vec3 norm = normalize(normalVector);
-    vec3 lightDir = normalize(lightPos - fragmentPosition);
-
-    // Ambient
-    float ambientStrength = 0.1;
-    vec3 ambient = ambientStrength * lightColor;
-
-    // Diffuse
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * lightColor;
-
     vec4 diffuseColor = objectColor;
     if(useVertexColor) diffuseColor *= fragmentColor;
     if(useTexture) diffuseColor *= texture(diffuseTexture, textureCoord);
 
-    // Specular
-    float specularStrength = 0.5;
-    vec3 viewDir = normalize(cameraPos - fragmentPosition);
-    vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = specularStrength * spec * lightColor;
+    vec3 result = vec3(diffuseColor);
 
-    vec3 result = (ambient + diffuse + specular) * vec3(diffuseColor);
+    if(useLighting) {
+        vec3 norm = normalize(normalVector);
+        vec3 lightDir = normalize(lightPos - fragmentPosition);
+
+        // Ambient
+        float ambientStrength = 0.1;
+        vec3 ambientLight = ambientStrength * lightColor;
+
+        // Diffuse
+        float diff = max(dot(norm, lightDir), 0.0);
+        vec3 diffuseLight = diff * lightColor;
+
+        // Specular
+        float specularStrength = 0.5;
+        vec3 viewDir = normalize(cameraPos - fragmentPosition);
+        vec3 reflectDir = reflect(-lightDir, norm);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+        vec3 specularLight = specularStrength * spec * lightColor;
+
+        // put it all together.
+        result *= ambientLight + diffuseLight + specularLight;
+    }
+
     finalColor = vec4(result, diffuseColor.a);
 }

@@ -20,25 +20,19 @@ import javax.vecmath.Vector3d;
  */
 public class ViewCube {
 	protected ShapeComponent model = new MeshFromFile("/viewCube.obj");
-	protected MaterialComponent mat = new MaterialComponent();
 	protected DoubleParameter cubeSize = new DoubleParameter("size",25);
 	
     public ViewCube() {
     	super();
-
-    	mat.setTextureFilename("/images/viewCube.png");
-    	mat.setDiffuseColor(1, 1, 1, 1);
-    	mat.setAmbientColor(1, 1, 1, 1);
-    	mat.setLit(false);
     }
 
 	@Deprecated
-	public void render(GL2 gl2,Viewport viewport) {
+	public void render(GL2 gl2,Viewport viewport,ShaderProgram program) {
 		startProjection(gl2,viewport);
 		
 		gl2.glPushMatrix();
 			positionCubeModel(gl2,viewport);
-			renderCubeModel(gl2);
+			renderCubeModel(gl2,program);
 			renderMajorAxies(gl2);
 		gl2.glPopMatrix();
 
@@ -67,7 +61,7 @@ public class ViewCube {
 
         double w2 = distance * fov * ar -c;
         double h2 = distance * fov      -c;
-		MatrixHelper.setMatrix(gl2, MatrixHelper.createIdentityMatrix4());
+		gl2.glLoadIdentity();
 		gl2.glTranslated(w2,h2,-distance);
 		MatrixHelper.applyMatrix(gl2, getInverseCameraMatrix(viewport.getCamera()));
 	}
@@ -79,11 +73,13 @@ public class ViewCube {
 		return m;
 	}
 
-	private void renderCubeModel(GL2 gl2) {
+	private void renderCubeModel(GL2 gl2,ShaderProgram program) {
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
 		gl2.glEnable(GL2.GL_CULL_FACE);
 		gl2.glBlendFunc(GL2.GL_SRC_ALPHA,GL2.GL_ONE_MINUS_SRC_ALPHA);
-		mat.render(gl2);
+		program.set1i(gl2,"useTexture",1);
+		program.set1i(gl2,"useLighting",0);
+		program.set1i(gl2,"useVertexColor",1);
 		model.render(gl2);
 	}
 
