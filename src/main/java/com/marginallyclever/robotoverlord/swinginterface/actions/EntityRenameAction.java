@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.EntityManager;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
@@ -23,9 +24,11 @@ import java.util.List;
  */
 public class EntityRenameAction extends AbstractAction implements EditorAction {
 	private static final Logger logger = LoggerFactory.getLogger(EntityRenameAction.class);
-	
-	public EntityRenameAction() {
+	private final EntityManager entityManager;
+
+	public EntityRenameAction(EntityManager entityManager) {
 		super(Translator.get("EntityRenameAction.name"));
+		this.entityManager = entityManager;
 		putValue(SHORT_DESCRIPTION, Translator.get("EntityRenameAction.shortDescription"));
 		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F2,0));
 	}
@@ -48,7 +51,7 @@ public class EntityRenameAction extends AbstractAction implements EditorAction {
 				"Rename Entity",
 				JOptionPane.PLAIN_MESSAGE,null,null,e.getName());
 		if( newName!=null && !newName.equals(e.getName()) ) {
-			UndoSystem.addEvent(this,new EntityRenameEdit(e,newName));
+			UndoSystem.addEvent(this,new EntityRenameEdit(e,newName,entityManager));
 		}
 	}
 

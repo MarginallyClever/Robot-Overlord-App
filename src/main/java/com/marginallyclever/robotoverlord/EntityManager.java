@@ -2,22 +2,11 @@ package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.convenience.*;
 import com.marginallyclever.robotoverlord.components.*;
-import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
-import com.marginallyclever.robotoverlord.parameters.StringParameter;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -88,23 +77,25 @@ public class EntityManager {
 
 	public void addEntityToParent(Entity child,Entity parent) {
 		parent.addEntity(child);
-		for(EntityManagerListener listener : entityManagerListeners) {
-			listener.addEntityToParent(parent,child);
-		}
+		fireEntityManagerEvent(new EntityManagerEvent(EntityManagerEvent.ENTITY_ADDED, child, parent));
 	}
 
 	public void removeEntityFromParent(Entity child,Entity parent) {
 		parent.removeEntity(child);
+		fireEntityManagerEvent(new EntityManagerEvent(EntityManagerEvent.ENTITY_REMOVED, child, parent));
+	}
+
+	public void fireEntityManagerEvent(EntityManagerEvent event) {
 		for(EntityManagerListener listener : entityManagerListeners) {
-			listener.removeEntityFromParent(parent,child);
+			listener.entityManagerEvent(event);
 		}
 	}
 
-	public void addSceneChangeListener(EntityManagerListener listener) {
+	public void addListener(EntityManagerListener listener) {
 		entityManagerListeners.add(listener);
 	}
 
-	public void removeSceneChangeListener(EntityManagerListener listener) {
+	public void removeListener(EntityManagerListener listener) {
 		entityManagerListeners.remove(listener);
 	}
 

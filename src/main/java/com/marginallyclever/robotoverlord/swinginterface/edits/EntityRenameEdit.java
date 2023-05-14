@@ -1,6 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.EntityManager;
+import com.marginallyclever.robotoverlord.EntityManagerEvent;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -18,9 +20,11 @@ public class EntityRenameEdit extends AbstractUndoableEdit {
 	private final Entity entity;
 	private final String oldName;
 	private final String newName;
+	private final EntityManager entityManager;
 	
-	public EntityRenameEdit(Entity entity, String newName) {
+	public EntityRenameEdit(Entity entity, String newName, EntityManager entityManager) {
 		super();
+		this.entityManager = entityManager;
 		this.entity = entity;
 		this.newName = newName;
 		this.oldName = entity.getName();
@@ -40,6 +44,7 @@ public class EntityRenameEdit extends AbstractUndoableEdit {
 
 	protected void doIt() {
 		entity.setName(newName);
+		entityManager.fireEntityManagerEvent(new EntityManagerEvent(EntityManagerEvent.ENTITY_RENAMED,null,entity));
 	}
 	
 	@Override
