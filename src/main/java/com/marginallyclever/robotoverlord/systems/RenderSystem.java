@@ -35,6 +35,7 @@ public class RenderSystem implements EntitySystem {
         if(component instanceof Grid) decorateGrid(view,component);
         if(component instanceof LightComponent) decorateLight(view,component);
         if(component instanceof MaterialComponent) decorateMaterial(view,component);
+        if(component instanceof LinearPatternComponent) decorateLinearPattern(view,component);
 
         if(component instanceof PathComponent) decoratePath(view, component);
         else if(component instanceof ShapeComponent) decorateShape(view, component);
@@ -68,6 +69,13 @@ public class RenderSystem implements EntitySystem {
         ArrayList<FileFilter> filters = PathFactory.getAllExtensions();
         view.add(pathComponent.moveSpeed);
         view.addComboBox(pathComponent.moveType, PathComponent.MOVE_TYPE_NAMES);
+    }
+
+    public void decorateLinearPattern(ComponentPanelFactory view,Component component) {
+        LinearPatternComponent patternComponent = (LinearPatternComponent) component;
+        view.addComboBox(patternComponent.spacingType, LinearPatternComponent.SPACING_TYPE_NAMES);
+        view.add(patternComponent.measure);
+        view.add(patternComponent.quantity);
     }
 
     private void decorateMeshFromFile(ComponentPanelFactory view, Component component) {
