@@ -37,15 +37,6 @@ public class ShapeComponent extends RenderComponent {
         setModel(mesh);
     }
 
-    @Override
-    public void setEntity(Entity entity) {
-        super.setEntity(entity);
-        if(entity!=null) {
-            entity.addComponent(new PoseComponent());
-            entity.addComponent(new MaterialComponent());
-        }
-    }
-
     public void setModel(Mesh m) {
         myMesh = m;
         if(m==null) {
