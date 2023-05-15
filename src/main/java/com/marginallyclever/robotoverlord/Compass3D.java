@@ -35,6 +35,8 @@ public class Compass3D {
 	@Deprecated
 	public void render(GL2 gl2,Viewport viewport,ShaderProgram program) {
 		program.use(gl2);
+		program.set4f(gl2,"objectColor",1,1,1,1);
+		program.set1f(gl2,"useVertexColor",0);
 		boolean lit = OpenGLHelper.disableLightingStart(gl2);
 		startProjection(gl2,viewport,program);
 		positionCubeModel(gl2,viewport,program);
