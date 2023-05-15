@@ -163,16 +163,17 @@ public class PoseComponent extends Component implements PropertyChangeListener {
      * relative to that PoseComponent.  Make the adjustment if necessary.
      * @param worldMatrix the matrix to set.
      */
-    public void setWorld(Matrix4d worldMatrix) {
+    public void setWorld(final Matrix4d worldMatrix) {
+        Matrix4d modified = new Matrix4d(worldMatrix);
         Entity entity = getEntity();
         if(entity!=null) {
             PoseComponent parentPose = getEntity().findFirstComponentInParents(PoseComponent.class);
             if (parentPose != null) {
                 Matrix4d inverseParentPose = parentPose.getWorld();
                 inverseParentPose.invert();
-                worldMatrix.mul(inverseParentPose, worldMatrix);
+                modified.mul(inverseParentPose, worldMatrix);
             }
         }
-        setLocalMatrix4(worldMatrix);
+        setLocalMatrix4(modified);
     }
 }
