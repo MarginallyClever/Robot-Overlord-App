@@ -12,6 +12,7 @@ uniform vec3 cameraPos;  // Camera position in world space
 uniform vec4 objectColor;
 uniform vec3 lightColor;
 uniform sampler2D diffuseTexture;
+
 uniform bool useTexture;
 uniform bool useLighting;
 uniform bool useVertexColor;  // per-vertex color
@@ -46,5 +47,6 @@ void main() {
         result *= ambientLight + diffuseLight + specularLight;
     }
 
+    //finalColor = vec4(textureCoord.x,textureCoord.y,0,1);  // for testing texture coordinates
     finalColor = vec4(result, diffuseColor.a);
 }
