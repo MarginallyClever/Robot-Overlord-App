@@ -1,11 +1,7 @@
 package com.marginallyclever.robotoverlord.systems;
 
 import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.components.LightComponent;
-import com.marginallyclever.robotoverlord.components.MaterialComponent;
-import com.marginallyclever.robotoverlord.components.RenderComponent;
-import com.marginallyclever.robotoverlord.components.ShapeComponent;
-import com.marginallyclever.robotoverlord.components.GCodePathComponent;
+import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.systems.render.gcodepath.PathFactory;
 import com.marginallyclever.robotoverlord.components.shapes.Grid;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
@@ -33,13 +29,15 @@ public class RenderSystem implements EntitySystem {
     @Override
     public void decorate(ComponentPanelFactory view, Component component) {
         if(component instanceof RenderComponent) decorateRender(view, component);
-        if(component instanceof ShapeComponent) decorateShape(view, component);
         if(component instanceof GCodePathComponent) decorateGCodePath(view, component);
         if(component instanceof MeshFromFile) decorateMeshFromFile(view, component);
         if(component instanceof Sphere) decorateSphere(view,component);
         if(component instanceof Grid) decorateGrid(view,component);
         if(component instanceof LightComponent) decorateLight(view,component);
         if(component instanceof MaterialComponent) decorateMaterial(view,component);
+
+        if(component instanceof PathComponent) decoratePath(view, component);
+        else if(component instanceof ShapeComponent) decorateShape(view, component);
     }
 
     private void decorateRender(ComponentPanelFactory view, Component component) {
@@ -49,7 +47,7 @@ public class RenderSystem implements EntitySystem {
 
     private void decorateShape(ComponentPanelFactory view, Component component) {
         ShapeComponent shapeComponent = (ShapeComponent) component;
-        view.add(shapeComponent.numTriangles).setReadOnly(true);
+        view.add(shapeComponent.numVertices).setReadOnly(true);
         view.add(shapeComponent.hasNormals).setReadOnly(true);
         view.add(shapeComponent.hasColors).setReadOnly(true);
         view.add(shapeComponent.hasUVs).setReadOnly(true);
@@ -63,6 +61,13 @@ public class RenderSystem implements EntitySystem {
         view.add(pathComponent.numCommands).setReadOnly(true);
         view.add(pathComponent.distanceMeasured).setReadOnly(true);
         view.add(pathComponent.getCommand).addPropertyChangeListener((e)->pathComponent.updateLocation());
+    }
+
+    public void decoratePath(ComponentPanelFactory view,Component component) {
+        PathComponent pathComponent = (PathComponent) component;
+        ArrayList<FileFilter> filters = PathFactory.getAllExtensions();
+        view.add(pathComponent.moveSpeed);
+        view.addComboBox(pathComponent.moveType, PathComponent.MOVE_TYPE_NAMES);
     }
 
     private void decorateMeshFromFile(ComponentPanelFactory view, Component component) {

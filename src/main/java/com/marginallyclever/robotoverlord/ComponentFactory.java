@@ -46,6 +46,7 @@ public class ComponentFactory {
 			DogRobotComponent.class,
 
 			GCodePathComponent.class,
+			PathComponent.class,
 	};
 	
 	public static ArrayList<String> getAllComponentNames() {
