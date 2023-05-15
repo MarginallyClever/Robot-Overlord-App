@@ -2,9 +2,12 @@ package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.parameters.TextureParameter;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -27,14 +30,25 @@ public class SkyBox {
 
 	public void render(GL2 gl2,CameraComponent camera,ShaderProgram program) {
 		PoseComponent cameraPose = camera.getEntity().getComponent(PoseComponent.class);
-
+/*
 		program.set1i(gl2,"useTexture",1);
 		program.set1i(gl2,"useLighting",0);
 		program.set1i(gl2,"useVertexColor",0);
 
+		Matrix4d m1 = cameraPose.getWorld();
+		m1.transpose();
+		program.setMatrix4d(gl2,"modelMatrix",m1);
+*/
+		gl2.glUseProgram(0);
+		boolean lit = OpenGLHelper.disableLightingStart(gl2);
+
+		gl2.glPushMatrix();
 		Matrix4d m = cameraPose.getWorld();
-		m.transpose();
-		program.setMatrix4d(gl2,"modelMatrix",m);
+		m.setTranslation(new Vector3d(0,0,0));
+		gl2.glLoadIdentity();
+		m.invert();
+		MatrixHelper.applyMatrix(gl2, m);
+
 
 		gl2.glColor3f(1, 1, 1);
 
@@ -86,7 +100,11 @@ public class SkyBox {
 			gl2.glTexCoord2d(0,1);  gl2.glVertex3d(-10, 10, -10);
 		gl2.glEnd();
 
+		gl2.glPopMatrix();
 		// Clear the depth buffer
         gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT);
+
+		program.use(gl2);
+		OpenGLHelper.disableLightingEnd(gl2,lit);
 	}
 }

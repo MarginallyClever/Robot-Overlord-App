@@ -6,6 +6,7 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.texture.Texture;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
+import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.*;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
@@ -224,7 +225,9 @@ public class OpenGLRenderPanel implements RenderPanel {
                 gl2.glEnable(GL2.GL_MULTISAMPLE);
 
                 // Don't draw triangles facing away from camera
-                //gl2.glCullFace(GL2.GL_BACK);
+                gl2.glCullFace(GL2.GL_BACK);
+
+                gl2.glActiveTexture(GL2.GL_TEXTURE0);
 
                 int [] buf = new int[1];
                 int [] sbuf = new int[1];
@@ -475,16 +478,15 @@ public class OpenGLRenderPanel implements RenderPanel {
         prepareToOutlineSelectedEntities(gl2);
 
         viewport.setCamera(camera);
-        //viewport.renderChosenProjection(gl2);
+        viewport.renderChosenProjection(gl2);
         renderLights(gl2);
 
         useShaderDefault(gl2);
 
-
         skyBox.render(gl2, camera,shaderDefault);
 
         renderAllEntities(gl2, entityManager.getEntities(),shaderDefault);
-        //if (showWorldOrigin.get()) PrimitiveSolids.drawStar(gl2, 10);
+        if (showWorldOrigin.get()) PrimitiveSolids.drawStar(gl2, 10);
 
         outlineCollectedEntities(gl2);
     }
@@ -511,6 +513,7 @@ public class OpenGLRenderPanel implements RenderPanel {
         shaderDefault.setVector3d(gl2,"cameraPos",cameraPos);  // Camera position in world space
         shaderDefault.setVector3d(gl2,"lightColor",lightColor);  // Light color
         shaderDefault.set4f(gl2,"objectColor",1,1,1,1);
+        shaderDefault.set1f(gl2,"diffuseTexture",0);
     }
 
     private void setProjectionMatrix(GL2 gl2, ShaderProgram program) {
@@ -714,12 +717,21 @@ public class OpenGLRenderPanel implements RenderPanel {
                 useVertexColor &= shape.getModel().getHasColors();
                 // and it has texture coordinates, continue to allow textures.
                 useTexture &= shape.getModel().getHasTextures();
+            } else {
+                useVertexColor=false;
+                useTexture=false;
             }
 
             shaderProgram.set1i(gl2,"useVertexColor",useVertexColor?1:0);
             shaderProgram.set1i(gl2,"useLighting",useLighting?1:0);
             shaderProgram.set1i(gl2,"useTexture",useTexture?1:0);
-            if(useTexture && texture!=null) texture.bind(gl2);
+
+            if(useTexture && texture!=null) {
+                gl2.glEnable(GL.GL_TEXTURE_2D);
+                texture.bind(gl2);
+                mmr.materialComponent.render(gl2);
+                shaderProgram.set1f(gl2,"diffuseTexture",0);
+            }
 
             gl2.glPushMatrix();
             mmr.renderComponent.render(gl2);
@@ -769,8 +781,9 @@ public class OpenGLRenderPanel implements RenderPanel {
         double w = viewport.getCanvasWidth();
         double h = viewport.getCanvasHeight();
 
-        OpenGLHelper.disableTextureStart(gl2);
-        OpenGLHelper.disableLightingStart(gl2);
+        boolean tex = OpenGLHelper.disableTextureStart(gl2);
+        boolean lit = OpenGLHelper.disableLightingStart(gl2);
+        int top = OpenGLHelper.drawAtopEverythingStart(gl2);
 /*
         shaderHUD.use(gl2);
         setOrthograpicMatrix(gl2,shaderHUD);
@@ -783,7 +796,6 @@ public class OpenGLRenderPanel implements RenderPanel {
         viewport.renderOrthographic(gl2,1);
         gl2.glMatrixMode(GL2.GL_MODELVIEW);
 
-        int was = OpenGLHelper.drawAtopEverythingStart(gl2);
 
         double [] cursor = viewport.getCursorAsNormalized();
         cursor[0] *= w / 2d;
@@ -813,7 +825,9 @@ public class OpenGLRenderPanel implements RenderPanel {
         gl2.glEnd();
         gl2.glPopMatrix();
 
-        OpenGLHelper.drawAtopEverythingEnd(gl2,was);
+        OpenGLHelper.drawAtopEverythingEnd(gl2,top);
+        OpenGLHelper.disableLightingEnd(gl2,lit);
+        OpenGLHelper.disableTextureEnd(gl2,tex);
 
         gl2.glMatrixMode(GL2.GL_PROJECTION);
         gl2.glPopMatrix();

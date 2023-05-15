@@ -1,7 +1,9 @@
 package com.marginallyclever.robotoverlord;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
@@ -20,39 +22,32 @@ import javax.vecmath.Vector3d;
  */
 public class ViewCube {
 	protected ShapeComponent model = new MeshFromFile("/viewCube.obj");
+	protected MaterialComponent mat = new MaterialComponent();
 	protected DoubleParameter cubeSize = new DoubleParameter("size",25);
 	
     public ViewCube() {
     	super();
+		mat.setTextureFilename("/images/viewCube.png");
+		mat.setDiffuseColor(1, 1, 1, 1);
+		mat.setAmbientColor(1, 1, 1, 1);
+		mat.setLit(false);
     }
 
 	@Deprecated
 	public void render(GL2 gl2,Viewport viewport,ShaderProgram program) {
-		startProjection(gl2,viewport);
-		
-		gl2.glPushMatrix();
-			positionCubeModel(gl2,viewport);
-			renderCubeModel(gl2,program);
-			renderMajorAxies(gl2);
-		gl2.glPopMatrix();
+		program.use(gl2);
+		program.setMatrix4d(gl2,"projectionMatrix",viewport.getPerspectiveFrustum());
+		boolean lit = OpenGLHelper.disableLightingStart(gl2);
 
-		endProjection(gl2);
+		positionCubeModel(gl2,viewport,program);
+		renderCubeModel(gl2,program);
+		renderMajorAxies(gl2,program);
+
+		OpenGLHelper.disableLightingEnd(gl2,lit);
+		gl2.glUseProgram(0);
 	}
-    
-    private void startProjection(GL2 gl2,Viewport viewport) {
-    	gl2.glMatrixMode(GL2.GL_PROJECTION);
-		gl2.glLoadIdentity();
-		viewport.renderPerspective(gl2);
-		gl2.glMatrixMode(GL2.GL_MODELVIEW);
-    }
-    
-    private void endProjection(GL2 gl2) {
-    	gl2.glMatrixMode(GL2.GL_PROJECTION);
-		gl2.glPopMatrix();
-		gl2.glMatrixMode(GL2.GL_MODELVIEW);
-    }
 	
-	private void positionCubeModel(GL2 gl2, Viewport viewport) {
+	private void positionCubeModel(GL2 gl2, Viewport viewport,ShaderProgram program) {
 		cubeSize.set(25d);
 		double distance = cubeSize.get();
 		double c = 0.25;
@@ -61,9 +56,18 @@ public class ViewCube {
 
         double w2 = distance * fov * ar -c;
         double h2 = distance * fov      -c;
-		gl2.glLoadIdentity();
-		gl2.glTranslated(w2,h2,-distance);
-		MatrixHelper.applyMatrix(gl2, getInverseCameraMatrix(viewport.getCamera()));
+		Matrix4d viewMatrix = new Matrix4d();
+		viewMatrix.setIdentity();
+		viewMatrix.setTranslation(new Vector3d(w2,h2,-distance));
+		viewMatrix.transpose();
+		program.setMatrix4d(gl2,"viewMatrix",viewMatrix);
+
+		Matrix4d inverseCamera = getInverseCameraMatrix(viewport.getCamera());
+		inverseCamera.transpose();
+		// tell the shaders about our modelMatrix.
+		program.setMatrix4d(gl2,"modelMatrix",inverseCamera);
+		program.set1f(gl2,"useLighting",0);
+		program.set1f(gl2,"useTexture",1);
 	}
 
 	private Matrix4d getInverseCameraMatrix(CameraComponent camera) {
@@ -77,14 +81,14 @@ public class ViewCube {
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
 		gl2.glEnable(GL2.GL_CULL_FACE);
 		gl2.glBlendFunc(GL2.GL_SRC_ALPHA,GL2.GL_ONE_MINUS_SRC_ALPHA);
-		program.set1i(gl2,"useTexture",1);
-		program.set1i(gl2,"useLighting",0);
-		program.set1i(gl2,"useVertexColor",1);
+		gl2.glEnable(GL2.GL_COLOR_MATERIAL);
+		mat.render(gl2);
+		gl2.glColor4d(1,1,1,1);
 		model.render(gl2);
 	}
 
-	private void renderMajorAxies(GL2 gl2) {
-		gl2.glDisable(GL2.GL_LIGHTING);
+	private void renderMajorAxies(GL2 gl2,ShaderProgram program) {
+		boolean tex = OpenGLHelper.disableTextureStart(gl2);
 		gl2.glDisable(GL2.GL_COLOR_MATERIAL);
 		gl2.glDisable(GL2.GL_TEXTURE_2D);
 		gl2.glLineWidth(4);
@@ -99,5 +103,6 @@ public class ViewCube {
 		gl2.glPopMatrix();
 		
 		gl2.glLineWidth(1);
+		OpenGLHelper.disableTextureEnd(gl2,tex);
 	}
 }
