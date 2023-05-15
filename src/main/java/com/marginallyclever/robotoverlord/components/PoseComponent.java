@@ -4,7 +4,6 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -156,7 +155,7 @@ public class PoseComponent extends Component implements PropertyChangeListener {
 
     @Override
     public String toString() {
-        return super.toString()+",local="+ Arrays.toString(MatrixHelper.matrixToArray(local))+",\n";
+        return super.toString()+",local="+ Arrays.toString(MatrixHelper.matrix4dToArray(local))+",\n";
     }
 
     /**

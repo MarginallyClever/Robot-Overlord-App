@@ -1,8 +1,9 @@
 package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.EntityManager;
-import com.marginallyclever.robotoverlord.EntityManagerListener;
+import com.marginallyclever.robotoverlord.entityManager.EntityManager;
+import com.marginallyclever.robotoverlord.entityManager.EntityManagerEvent;
+import com.marginallyclever.robotoverlord.entityManager.EntityManagerListener;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
@@ -27,6 +28,7 @@ import java.util.List;
 public class EntityTreePanel extends JPanel implements TreeSelectionListener, EntityManagerListener {
 	private final JTree tree = new JTree();
 	private final DefaultTreeModel treeModel = new EntityTreeModel(null);
+	private final DefaultTreeCellRenderer treeCellRenderer = new FullNameTreeCellRenderer();
 	private final List<EntityTreePanelListener> listeners = new ArrayList<>();
 	private final List<AbstractAction> actions = new ArrayList<>();
 	private final EntityManager entityManager;
@@ -37,7 +39,8 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 
 		tree.setShowsRootHandles(true);
 		tree.addTreeSelectionListener(this);
-		tree.setCellEditor(new EntityTreeCellEditor(tree,new DefaultTreeCellRenderer()));
+		tree.setCellRenderer(treeCellRenderer);
+		tree.setCellEditor(new EntityTreeCellEditor(tree,treeCellRenderer));
 		tree.setEditable(true);
 		tree.setModel(treeModel);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
@@ -62,7 +65,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 		addTreeModelListener();
 
 		addEntity(entityManager.getRoot());
-		entityManager.addSceneChangeListener(this);
+		entityManager.addListener(this);
 	}
 
 	private void addTreeModelListener() {
@@ -125,7 +128,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 		EntityPasteAction entityPasteAction = new EntityPasteAction(entityManager);
 		EntityDeleteAction entityDeleteAction = new EntityDeleteAction(entityManager);
 		EntityCutAction entityCutAction = new EntityCutAction(entityDeleteAction, entityCopyAction);
-		EntityRenameAction entityRenameAction = new EntityRenameAction();
+		EntityRenameAction entityRenameAction = new EntityRenameAction(entityManager);
 
 		menu.add(entityAddAction);
 		menu.add(entityDeleteAction);
@@ -329,17 +332,6 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 		}
 	}
 
-	@Override
-	public void addEntityToParent(Entity parent, Entity child) {
-		EntityTreeNode parentNode = findTreeNode(parent);
-		if(parentNode!=null) {
-			recursivelyAddChildren(parentNode,child);
-
-			treeModel.reload(parentNode);
-			setNodeExpandedState((EntityTreeNode)treeModel.getRoot());
-		}
-	}
-
 	private void recursivelyAddChildren(EntityTreeNode parentNode, Entity child) {
 		EntityTreeNode newNode = new EntityTreeNode(child);
 		parentNode.add(newNode);
@@ -349,7 +341,27 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 	}
 
 	@Override
-	public void removeEntityFromParent(Entity parent, Entity child) {
+	public void entityManagerEvent(EntityManagerEvent event) {
+		if(event.type == EntityManagerEvent.ENTITY_ADDED) {
+			addEntityToParent(event.child,event.parent);
+		} else if(event.type == EntityManagerEvent.ENTITY_REMOVED) {
+			removeEntityFromParent(event.child,event.parent);
+		} else if(event.type == EntityManagerEvent.ENTITY_RENAMED) {
+			EntityTreeNode node = findTreeNode(event.child);
+			treeModel.reload(node);
+		}
+	}
+
+	private void addEntityToParent(Entity parent, Entity child) {
+		EntityTreeNode parentNode = findTreeNode(parent);
+		if(parentNode!=null) {
+			recursivelyAddChildren(parentNode,child);
+			treeModel.reload(parentNode);
+			setNodeExpandedState((EntityTreeNode)treeModel.getRoot());
+		}
+	}
+
+	private void removeEntityFromParent(Entity parent, Entity child) {
 		EntityTreeNode parentNode = findTreeNode(parent);
 		EntityTreeNode childNode = findTreeNode(child);
 		if(parentNode!=null && childNode!=null) {

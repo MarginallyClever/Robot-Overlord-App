@@ -101,6 +101,6 @@ public class OpenGLHelper {
 	}
 	
 	public static void disableTextureEnd(GL2 gl2,boolean oldState) {
-		if(oldState) gl2.glDisable(GL2.GL_TEXTURE_2D);
+		if(oldState) gl2.glEnable(GL2.GL_TEXTURE_2D);
 	}
 }

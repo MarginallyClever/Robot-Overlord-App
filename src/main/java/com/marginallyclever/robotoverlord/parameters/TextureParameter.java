@@ -47,25 +47,30 @@ public class TextureParameter extends StringParameter {
 	}
 
 	public void render(GL2 gl2) {
-		if(textureDirty) {
-			// texture has changed, load the new texture.
-			if(t == null || t.length()==0) texture = null;
-			else {
-				try {
-					texture=getTextureFromPool(t);
-				} catch(IOException e) {
-					//e.printStackTrace();
-					logger.error("I can't load "+t);
-				}
-				textureDirty=false;
-			}
-		}
+		if(textureDirty) loadNewTexture();
+
 	    if(texture==null) {
 			gl2.glDisable(GL2.GL_TEXTURE_2D);
 	    } else {
 			gl2.glEnable(GL2.GL_TEXTURE_2D);
 	    	texture.bind(gl2);
 	    }
+	}
+
+	private void loadNewTexture() {
+		if(t == null || t.length()==0) {
+			texture = null;
+			textureDirty=false;
+			return;
+		}
+
+		try {
+			texture = getTextureFromPool(t);
+		} catch(IOException e) {
+			//e.printStackTrace();
+			logger.error("I can't load "+t);
+		}
+		textureDirty=false;
 	}
 
 	private static Texture getTextureFromPool(String filename) throws IOException {
@@ -92,5 +97,9 @@ public class TextureParameter extends StringParameter {
 
 		super.set(s);
 		textureDirty=true;
+	}
+
+	public Texture getTexture() {
+		return texture;
 	}
 }

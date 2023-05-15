@@ -7,6 +7,7 @@ import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,33 +20,42 @@ import javax.vecmath.Vector3d;
  * @author Dan Royer
  */
 public class Grid extends ShapeComponent {
-    public final BooleanParameter snap = new BooleanParameter("Snap",true);
+    public final BooleanParameter snap = new BooleanParameter("Snap",false);
     public final IntParameter width = new IntParameter("Width (cm)",100);
     public final IntParameter length = new IntParameter("Length (cm)",100);
 
     public Grid() {
         super();
+        myMesh = new Mesh();
+        setModel(myMesh);
+        myMesh.setRenderStyle(GL2.GL_LINES);
+
+        //width.addPropertyChangeListener(e->updateMesh());
+        //length.addPropertyChangeListener(e->updateMesh());
+    }
+
+    private void updateMesh() {
+        myMesh.clear();
+        if(snap.get()) drawGridWithSnap(width.get(), length.get(), 5);
+        else drawGrid(width.get(), length.get(), 5,0,0);
+        setModel(myMesh);
     }
 
     @Override
     public void render(GL2 gl2) {
-        if(snap.get()) drawGridWithSnap(gl2, width.get(), length.get(), 5);
-        else drawGrid(gl2, width.get(), length.get(), 5);
+        updateMesh();
+        super.render(gl2);
     }
 
-    private void drawGridWithSnap(GL2 gl2, int gridWidth, int gridLength, int gridSpace) {
+    private void drawGridWithSnap(int gridWidth, int gridLength, int gridSpace) {
         PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         if(pose==null) return;
 
-        gl2.glPushMatrix();
-            Vector3d p = pose.getPosition();
-            double dx = p.x % gridSpace;
-            double dy = p.y % gridSpace;
-            gl2.glTranslated(-dx,-dy,0);
+        Vector3d p = pose.getPosition();
+        float dx = (float)p.x % gridSpace;
+        float dy = (float)p.y % gridSpace;
 
-            drawGrid(gl2,gridWidth,gridLength,gridSpace);
-
-        gl2.glPopMatrix();
+        drawGrid(gridWidth,gridLength,gridSpace,dx,dy);
     }
 
     /**
@@ -55,56 +65,68 @@ public class Grid extends ShapeComponent {
      * @param gridLength the dimensions of the grid
      * @param gridSpace the distance between lines on the grid.
      */
-    private void drawGrid(GL2 gl2,int gridWidth,int gridLength,int gridSpace) {
+    private void drawGrid(int gridWidth,int gridLength,int gridSpace,float dx,float dy) {
+        myMesh.clear();
+
         // get diffuse material color.  use black if nothing is found.
-        double r=0,g=0,b=0;
+        float r=0,g=0,b=0;
         MaterialComponent mat = getEntity().getComponent(MaterialComponent.class);
         if(mat!=null) {
             double[] c = mat.getDiffuseColor();
-            r=c[0];
-            g=c[1];
-            b=c[2];
+            r = (float)c[0];
+            g = (float)c[1];
+            b = (float)c[2];
         }
 
-        gl2.glNormal3d(0,0,1);
+        float halfWidth = gridWidth/2f;
+        float halfHeight = gridLength/2f;
 
-        double halfWidth = gridWidth/2.0;
-        double halfHeight = gridLength/2.0;
-
-        double startx = -halfWidth;
-        double starty = -halfHeight;
-        double rx = startx % gridSpace;
-        double ry = starty % gridSpace;
+        float startx = -halfWidth;
+        float starty = -halfHeight;
+        float rx = startx % gridSpace;
+        float ry = starty % gridSpace;
         startx -= rx;
         starty -= ry;
-        double endx = startx + gridWidth;
-        double endy = starty + gridLength;
+        float endx = startx + gridWidth;
+        float endy = starty + gridLength;
 
-        boolean wasTex = OpenGLHelper.disableTextureStart(gl2);
+        for(float i=startx;i<=endx;i+=gridSpace) {
+            float v = 1.0f - Math.abs(i) / halfWidth;
+            myMesh.addNormal(0,0,1);
+            myMesh.addNormal(0,0,1);
+            myMesh.addNormal(0,0,1);
+            myMesh.addNormal(0,0,1);
 
-        boolean isBlend = gl2.glIsEnabled(GL2.GL_BLEND);
-        gl2.glEnable(GL2.GL_BLEND);
-        gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+            myMesh.addColor(r, g, b, 0);
+            myMesh.addColor(r, g, b, v);
+            myMesh.addColor(r, g, b, v);
+            myMesh.addColor(r, g, b, 0);
 
-        gl2.glBegin(GL2.GL_LINES);
-        for(double i=startx;i<=endx;i+=gridSpace) {
-            double v = 1.0 - Math.abs(i - 0) / halfWidth;
-            gl2.glColor4d(r, g, b, 0);			gl2.glVertex2d(i,starty);
-            gl2.glColor4d(r, g, b, v);      			gl2.glVertex2d(i,0);
-                                                        gl2.glVertex2d(i,0);
-            gl2.glColor4d(r, g, b, 0);			gl2.glVertex2d(i,endy  );
+            myMesh.addVertex(dx+i, dy+starty,0);
+            myMesh.addVertex(dx+i, dy+0  ,0);
+            myMesh.addVertex(dx+i, dy+0  ,0);
+            myMesh.addVertex(dx+i, dy+endy  ,0);
         }
-        for(double i=starty;i<=endy;i+=gridSpace) {
-            double v = 1.0 - Math.abs(i - 0) / halfHeight;
-            gl2.glColor4d(r, g, b, 0);			gl2.glVertex2d(startx,i);
-            gl2.glColor4d(r, g, b, v);			        gl2.glVertex2d(0  ,i);
-                                                        gl2.glVertex2d(0  ,i);
-            gl2.glColor4d(r, g, b, 0);			gl2.glVertex2d(endx  ,i);
-        }
-        gl2.glEnd();
 
-        if(!isBlend) gl2.glDisable(GL2.GL_BLEND);
-        OpenGLHelper.disableTextureEnd(gl2,wasTex);
+        for(float i=starty;i<=endy;i+=gridSpace) {
+            float v = 1.0f - Math.abs(i) / halfHeight;
+            myMesh.addNormal(0,0,1);
+            myMesh.addNormal(0,0,1);
+            myMesh.addNormal(0,0,1);
+            myMesh.addNormal(0,0,1);
+
+            myMesh.addColor(r, g, b, 0);
+            myMesh.addColor(r, g, b, v);
+            myMesh.addColor(r, g, b, v);
+            myMesh.addColor(r, g, b, 0);
+
+            myMesh.addVertex(dx+startx, dy+i,0);
+            myMesh.addVertex(dx+0     , dy+i,0);
+            myMesh.addVertex(dx+0     , dy+i,0);
+            myMesh.addVertex(dx+endx  , dy+i,0);
+        }
+
+        setModel(myMesh);
     }
 
     @Override

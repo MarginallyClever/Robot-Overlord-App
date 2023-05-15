@@ -4,9 +4,9 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.RayHit;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -19,7 +19,7 @@ import javax.vecmath.Vector3d;
  * @since 2.5.0
  */
 @ComponentDependency(components={PoseComponent.class, MaterialComponent.class})
-public abstract class ShapeComponent extends RenderComponent {
+public class ShapeComponent extends RenderComponent {
     // a mesh from the pool of meshes
     protected transient Mesh myMesh;
 
@@ -28,8 +28,13 @@ public abstract class ShapeComponent extends RenderComponent {
     public transient final BooleanParameter hasColors = new BooleanParameter("Has colors",false);
     public transient final BooleanParameter hasUVs = new BooleanParameter("Has UVs",false);
 
-    protected ShapeComponent() {
+    public ShapeComponent() {
         super();
+    }
+
+    public ShapeComponent(Mesh mesh) {
+        super();
+        setModel(mesh);
     }
 
     @Override
@@ -52,7 +57,7 @@ public abstract class ShapeComponent extends RenderComponent {
             numTriangles.set(myMesh.getNumTriangles());
             hasNormals.set(myMesh.getHasNormals());
             hasColors.set(myMesh.getHasColors());
-            hasUVs.set(myMesh.getHasUVs());
+            hasUVs.set(myMesh.getHasTextures());
         }
     }
 

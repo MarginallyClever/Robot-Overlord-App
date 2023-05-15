@@ -12,6 +12,7 @@ module com.marginallyclever.robotoverlord {
 	requires okhttp3;
 	requires com.google.gson;
 	requires org.eclipse.jgit;
+	requires org.joml;
 	
 	requires vecmath;
 	requires jsch;

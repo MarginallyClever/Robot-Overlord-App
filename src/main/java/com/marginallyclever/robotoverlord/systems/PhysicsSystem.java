@@ -26,7 +26,7 @@ public class PhysicsSystem implements EntitySystem {
         PoseComponent pose = (PoseComponent)component;
         view.add(pose.position);
         view.add(pose.rotation);
-        view.add(pose.scale);
+        //view.add(pose.scale);
     }
 
     /**

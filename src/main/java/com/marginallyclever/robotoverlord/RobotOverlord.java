@@ -6,9 +6,10 @@ import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
+import com.marginallyclever.robotoverlord.renderpanel.OpenGLRenderPanel;
+import com.marginallyclever.robotoverlord.renderpanel.RenderPanel;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
-import com.marginallyclever.robotoverlord.swinginterface.SoundSystem;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
 import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
@@ -92,7 +93,7 @@ public class RobotOverlord {
 	/**
 	 * The panel that contains the OpenGL canvas.
 	 */
-	private final OpenGLRenderPanel renderPanel;
+	private final RenderPanel renderPanel;
 
 	/**
 	 * The menu bar of the main frame.
@@ -158,6 +159,8 @@ public class RobotOverlord {
 		entityTreePanel = new EntityTreePanel(project.getEntityManager());
 		componentManagerPanel = new ComponentManagerPanel(project.getEntityManager(),systems);
 		renderPanel = new OpenGLRenderPanel(project.getEntityManager(), this::update);
+		//renderPanel = new OpenGLTestOrthographic(project.getEntityManager(), this::update);
+		//renderPanel = new OpenGLTestPerspective(project.getEntityManager(), this::update);
 
 		layoutComponents();
 		refreshMainMenu();
@@ -226,7 +229,7 @@ public class RobotOverlord {
 		rightFrameSplitter.setResizeWeight(0.25);
 
 		// left/right split
-        splitLeftRight.add(renderPanel);
+        splitLeftRight.add(renderPanel.getPanel());
         splitLeftRight.add(rightFrameSplitter);
         // if the window resizes, give left half as much real estate as it can get.
         splitLeftRight.setResizeWeight(1);

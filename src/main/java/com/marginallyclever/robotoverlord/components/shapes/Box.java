@@ -23,7 +23,7 @@ public class Box extends ShapeComponent {
     // Procedurally generate a list of triangles that form a box, subdivided by some amount.
     private void updateModel() {
         myMesh.clear();
-        myMesh.renderStyle= GL2.GL_TRIANGLES;
+        myMesh.setRenderStyle(GL2.GL_TRIANGLES);
         //shape.renderStyle=GL2.GL_LINES;  // set to see the wireframe
 
         float w = 0.5f;
@@ -116,20 +116,27 @@ public class Box extends ShapeComponent {
         Vector3d pH=new Vector3d();
 
         for(int x=0;x<xParts;x++) {
-            pA.set(MathHelper.interpolate(p0, p1, (double)(x  )/(double)xParts));
-            pB.set(MathHelper.interpolate(p0, p1, (double)(x+1)/(double)xParts));
-            pC.set(MathHelper.interpolate(p3, p2, (double)(x  )/(double)xParts));
-            pD.set(MathHelper.interpolate(p3, p2, (double)(x+1)/(double)xParts));
+            float x0 = (float)x/(float)xParts;
+            float x1 = (float)(x+1)/(float)xParts;
+
+            pA.set(MathHelper.interpolate(p0, p1, x0));
+            pB.set(MathHelper.interpolate(p0, p1, x1));
+            pC.set(MathHelper.interpolate(p3, p2, x0));
+            pD.set(MathHelper.interpolate(p3, p2, x1));
 
             for(int y=0;y<yParts;y++) {
-                pE.set(MathHelper.interpolate(pA, pC, (double)(y  )/(double)yParts));
-                pF.set(MathHelper.interpolate(pB, pD, (double)(y  )/(double)yParts));
-                pG.set(MathHelper.interpolate(pA, pC, (double)(y+1)/(double)yParts));
-                pH.set(MathHelper.interpolate(pB, pD, (double)(y+1)/(double)yParts));
+                float y0 = (float)y/(float)yParts;
+                float y1 = (float)(y+1)/(float)yParts;
 
-                if(myMesh.renderStyle == GL2.GL_TRIANGLES) {
+                pE.set(MathHelper.interpolate(pA, pC, y0));
+                pF.set(MathHelper.interpolate(pB, pD, y0));
+                pG.set(MathHelper.interpolate(pA, pC, y1));
+                pH.set(MathHelper.interpolate(pB, pD, y1));
+
+                if(myMesh.getRenderStyle() == GL2.GL_TRIANGLES) {
                     for(int i=0;i<6;++i) {
                         myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
+                        myMesh.addColor(1,1,1,1);
                     }
                     myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
                     myMesh.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
@@ -138,7 +145,19 @@ public class Box extends ShapeComponent {
                     myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
                     myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
                     myMesh.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
-                } else if(myMesh.renderStyle == GL2.GL_LINES) {
+
+                    myMesh.addTexCoord(0,0);
+                    myMesh.addTexCoord(1,0);
+                    myMesh.addTexCoord(1,1);
+
+                    myMesh.addTexCoord(0,0);
+                    myMesh.addTexCoord(1,1);
+                    myMesh.addTexCoord(0,1);
+                } else if(myMesh.getRenderStyle() == GL2.GL_LINES) {
+                    for(int i=0;i<8;++i) {
+                        myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
+                        myMesh.addColor(1,1,1,1);
+                    }
                     myMesh.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
                     myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
 
@@ -150,6 +169,18 @@ public class Box extends ShapeComponent {
 
                     myMesh.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
                     myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
+
+                    myMesh.addTexCoord(x1,y0);//f
+                    myMesh.addTexCoord(x1,y1);//h
+
+                    myMesh.addTexCoord(x1,y1);//h
+                    myMesh.addTexCoord(x0,y0);//e
+
+                    myMesh.addTexCoord(x1,y1);//h
+                    myMesh.addTexCoord(x1,y1);//g
+
+                    myMesh.addTexCoord(x1,y1);//g
+                    myMesh.addTexCoord(x0,y0);//e
                 }
             }
         }
