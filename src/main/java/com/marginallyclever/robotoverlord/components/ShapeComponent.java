@@ -23,7 +23,7 @@ public class ShapeComponent extends RenderComponent {
     // a mesh from the pool of meshes
     protected transient Mesh myMesh;
 
-    public transient final IntParameter numTriangles = new IntParameter("Triangles",0);
+    public transient final IntParameter numVertices = new IntParameter("Vertices",0);
     public transient final BooleanParameter hasNormals = new BooleanParameter("Has normals",false);
     public transient final BooleanParameter hasColors = new BooleanParameter("Has colors",false);
     public transient final BooleanParameter hasUVs = new BooleanParameter("Has UVs",false);
@@ -40,12 +40,12 @@ public class ShapeComponent extends RenderComponent {
     public void setModel(Mesh m) {
         myMesh = m;
         if(m==null) {
-            numTriangles.set(0);
+            numVertices.set(0);
             hasNormals.set(false);
             hasColors.set(false);
             hasUVs.set(false);
         } else {
-            numTriangles.set(myMesh.getNumTriangles());
+            numVertices.set(myMesh.getNumVertices());
             hasNormals.set(myMesh.getHasNormals());
             hasColors.set(myMesh.getHasColors());
             hasUVs.set(myMesh.getHasTextures());
