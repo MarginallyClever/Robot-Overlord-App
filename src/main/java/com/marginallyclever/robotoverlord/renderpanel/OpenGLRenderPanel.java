@@ -16,6 +16,7 @@ import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.move.MoveCameraTool;
 import com.marginallyclever.robotoverlord.tools.move.RotateEntityMultiTool;
@@ -78,7 +79,7 @@ public class OpenGLRenderPanel implements RenderPanel {
     /**
      * Displayed in a 2D overlay, helps the user orient themselves in 3D space.
      */
-    private transient final ViewCube viewCube = new ViewCube();
+    private transient final Compass3D compass3d = new Compass3D();
 
     /**
      * The "very far away" background to the scene.
@@ -349,7 +350,6 @@ public class OpenGLRenderPanel implements RenderPanel {
         });
     }
 
-
     private String [] readResource(String resourceName) {
         ArrayList<String> lines = new ArrayList<>();
         try(BufferedReader reader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream(resourceName)))) {
@@ -542,7 +542,7 @@ public class OpenGLRenderPanel implements RenderPanel {
         for(EditorTool tool : editorTools) tool.render(gl2);
 
         // 2D overlays
-        viewCube.render(gl2,viewport,shaderDefault);
+        compass3d.render(gl2,viewport,shaderDefault);
         drawCursor(gl2);
 
         shaderDefault.use(gl2);
@@ -713,13 +713,16 @@ public class OpenGLRenderPanel implements RenderPanel {
             if(mmr.renderComponent instanceof ShapeComponent) {
                 // if this component is a shape
                 ShapeComponent shape = (ShapeComponent)mmr.renderComponent;
+                Mesh mesh = shape.getModel();
                 // and it has vertex colors, enable them.
-                useVertexColor &= shape.getModel().getHasColors();
+                useVertexColor &= mesh.getHasColors();
                 // and it has texture coordinates, continue to allow textures.
-                useTexture &= shape.getModel().getHasTextures();
+                useTexture &= mesh.getHasTextures();
+                useLighting &= mesh.getHasNormals();
             } else {
                 useVertexColor=false;
                 useTexture=false;
+                useLighting=false;
             }
 
             shaderProgram.set1i(gl2,"useVertexColor",useVertexColor?1:0);

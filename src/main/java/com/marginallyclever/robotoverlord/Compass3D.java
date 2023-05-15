@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord;
 
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
@@ -15,17 +14,17 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 /**
- * A cube that shows the user where the camera is looking.
+ * A 3D compass that shows the orientation of the camera.
  *
  * @author Dan Royer
  * @since 2.5.0
  */
-public class ViewCube {
+public class Compass3D {
 	protected ShapeComponent model = new MeshFromFile("/viewCube.obj");
 	protected MaterialComponent mat = new MaterialComponent();
 	protected DoubleParameter cubeSize = new DoubleParameter("size",25);
 	
-    public ViewCube() {
+    public Compass3D() {
     	super();
 		mat.setTextureFilename("/images/viewCube.png");
 		mat.setDiffuseColor(1, 1, 1, 1);
