@@ -1,18 +1,24 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.entityManager.EntityManager;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.TextureParameter;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementSlider;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementFilename;
 import com.marginallyclever.robotoverlord.systems.OriginAdjustSystem;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 
 /**
@@ -21,42 +27,67 @@ import java.awt.*;
  * @author Dan Royer
  * @since 2.5.7
  */
-public class EditArm6Panel extends JPanel {
-    private static final int NUM_JOINTS = 6;
+public class EditArmPanel extends JPanel {
+    public static final int MAX_JOINTS = 6;
+    private int numJoints = 1;
     private static final String[] labels = {"Joint", "D", "R", "Alpha", "Theta", "Max", "Min", "Home", "Mesh"};
     public static final int COLS = labels.length-1;
     private final EntityManager entityManager;
     private final Entity rootEntity;
-    private final Entity[] joints = new Entity[NUM_JOINTS];
-    private final JPanel dhTable = new JPanel(new GridLayout(NUM_JOINTS+1, labels.length,2,2));
+    private final List<Entity> joints = new ArrayList<>();
+    private JPanel dhTable = new JPanel(new GridLayout(numJoints +1, labels.length,2,2));
+    private JPanel centerContainer = new JPanel(new BorderLayout());
+    private final JCheckBox adjustOrigins = new JCheckBox("All meshes have origin at root of robot");
 
-    public EditArm6Panel(Entity rootEntity, EntityManager entityManager) {
+    public EditArmPanel(Entity rootEntity, EntityManager entityManager) {
         super(new BorderLayout());
-        this.add(dhTable,BorderLayout.CENTER);
+        setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        add(centerContainer,BorderLayout.CENTER);
         this.entityManager = entityManager;
         this.rootEntity = rootEntity;
+        countJoints();
         createComponents();
         setupPanel();
     }
 
-    private boolean firstChildHasNoShape(Entity entity) {
-        List<Entity> children = entity.getChildren();
-        if(children.size()==0) return true;
-        Entity firstChild = children.get(0);
-        ShapeComponent mesh = firstChild.getComponent(ShapeComponent.class);
-        return mesh == null;
+    private void countJoints() {
+        boolean found;
+        numJoints = 0;
+        Entity current = rootEntity;
+        do {
+            found = false;
+            DHComponent dh = findChildDHComponent(current);
+            if(dh!=null) {
+                found = true;
+                numJoints++;
+                current = dh.getEntity();
+            }
+        } while(found);
     }
 
-    private boolean secondChildHasDHComponent(Entity entity) {
+    private boolean noChildHasAShape(Entity entity) {
         List<Entity> children = entity.getChildren();
-        if(children.size()<2) return false;
-        Entity secondChild = children.get(1);
-        DHComponent dh = secondChild.getComponent(DHComponent.class);
-        return dh!=null;
+        if(children.size()==0) return true;
+        for( Entity child : children) {
+            ShapeComponent mesh = child.getComponent(ShapeComponent.class);
+            if(mesh!=null) return false;
+        }
+        return true;
+    }
+
+    private DHComponent findChildDHComponent(Entity entity) {
+        List<Entity> children = entity.getChildren();
+        for( Entity child : children) {
+            DHComponent dh = child.getComponent(DHComponent.class);
+            if(dh!=null) return dh;
+        }
+        return null;
     }
 
     private void createComponents() {
-        if(firstChildHasNoShape(rootEntity)) {
+        joints.clear();
+
+        if(noChildHasAShape(rootEntity)) {
             // Add Entity with MeshFromFile for the base of the arm
             Entity baseMeshEntity = new Entity();
             entityManager.addEntityToParent(baseMeshEntity, rootEntity);
@@ -65,11 +96,12 @@ public class EditArm6Panel extends JPanel {
         }
 
         Entity parent = rootEntity;
-        for (int i = 0; i < NUM_JOINTS; i++) {
+        for (int i = 0; i < numJoints; i++) {
             Entity jointEntity;
 
-            if(secondChildHasDHComponent(parent)) {
-                jointEntity = parent.getChildren().get(1);
+            DHComponent dh = findChildDHComponent(parent);
+            if(dh!=null) {
+                jointEntity = dh.getEntity();
             } else {
                 // Add child
                 jointEntity = new Entity("J" + i);
@@ -77,7 +109,7 @@ public class EditArm6Panel extends JPanel {
                 entityManager.addEntityToParent(jointEntity, parent);
             }
 
-            if(firstChildHasNoShape(jointEntity)) {
+            if(noChildHasAShape(jointEntity)) {
                 // Add mesh
                 Entity meshEntity = new Entity();
                 entityManager.addEntityToParent(meshEntity, jointEntity);
@@ -86,13 +118,14 @@ public class EditArm6Panel extends JPanel {
             }
 
             // Keep going
-            joints[i] = jointEntity;
+            joints.add(jointEntity);
             parent = jointEntity;
         }
 
         // Add EndEffectorComponent to the last joint entity
-        if(joints[NUM_JOINTS-1].getComponent(ArmEndEffectorComponent.class)==null) {
-            joints[NUM_JOINTS-1].addComponent(new ArmEndEffectorComponent());
+        Entity lastJoint = joints.get(numJoints-1);
+        if(lastJoint.getComponent(ArmEndEffectorComponent.class)==null) {
+            lastJoint.addComponent(new ArmEndEffectorComponent());
         }
     }
 
@@ -102,16 +135,21 @@ public class EditArm6Panel extends JPanel {
     }
 
     private void setupDHTable() {
+        centerContainer.removeAll();
+        dhTable = new JPanel(new GridLayout(numJoints +1, labels.length,2,2));
+        dhTable.setBorder(BorderFactory.createTitledBorder("DH Parameters"));
+        centerContainer.add(dhTable,BorderLayout.CENTER);
+
         for (String label : labels) {
             dhTable.add(new JLabel(label));
         }
 
-        for (int i = 0; i < NUM_JOINTS; i++) {
+        for (int i = 0; i < numJoints; i++) {
             dhTable.add(new JLabel(String.valueOf(i)));
             for (int j = 0; j < COLS; j++) {
                 if (j < COLS - 1) {
                     final int paramIndex = j;
-                    DHComponent dhComponent = joints[i].getComponent(DHComponent.class);
+                    DHComponent dhComponent = joints.get(i).getComponent(DHComponent.class);
 
                     JTextField dhInput = new JTextField(7);
 
@@ -126,25 +164,50 @@ public class EditArm6Panel extends JPanel {
                         default -> Double.NaN;
                     };
                     dhInput.setText(StringHelper.formatDouble(v));
-                    dhInput.addActionListener(e -> {
-                        double value = Double.parseDouble(dhInput.getText());
-
-                        switch (paramIndex) {
-                            case 0 -> dhComponent.setD(value);
-                            case 1 -> dhComponent.setR(value);
-                            case 2 -> dhComponent.setAlpha(value);
-                            case 3 -> dhComponent.setTheta(value);
-                            case 4 -> dhComponent.setJointMax(value);
-                            case 5 -> dhComponent.setJointMin(value);
-                            case 6 -> dhComponent.setJointHome(value);
+                    dhInput.getDocument().addDocumentListener(new DocumentListener() {
+                        @Override
+                        public void insertUpdate(DocumentEvent e) {
+                            onChange(e);
                         }
-                        updatePoses();
+
+                        @Override
+                        public void removeUpdate(DocumentEvent e) {
+                            onChange(e);
+                        }
+
+                        @Override
+                        public void changedUpdate(DocumentEvent e) {
+                            onChange(e);
+                        }
+
+                        private void onChange(DocumentEvent e) {
+                            String text = dhInput.getText();
+                            double value;
+
+                            try {
+                                value = (text == null) ? 0 : Double.parseDouble(text);
+                            } catch (NumberFormatException ex) {
+                                value = 0;
+                            }
+
+                            switch (paramIndex) {
+                                case 0 -> dhComponent.setD(value);
+                                case 1 -> dhComponent.setR(value);
+                                case 2 -> dhComponent.setAlpha(value);
+                                case 3 -> dhComponent.setTheta(value);
+                                case 4 -> dhComponent.setJointMax(value);
+                                case 5 -> dhComponent.setJointMin(value);
+                                case 6 -> dhComponent.setJointHome(value);
+                            }
+                            updatePoses();
+                        }
                     });
+
                     dhTable.add(dhInput);
                 } else {
                     Entity firstChild = rootEntity.getChildren().get(0);
                     if(firstChild.getComponent(MeshFromFile.class)!=null) {
-                        MeshFromFile meshFromFile = joints[i].getChildren().get(0).getComponent(MeshFromFile.class);
+                        MeshFromFile meshFromFile = joints.get(i).getChildren().get(0).getComponent(MeshFromFile.class);
                         StringParameter filenameParameter = meshFromFile.filename;
                         ViewElementFilename viewElementFilename = new ViewElementFilename(filenameParameter);
                         viewElementFilename.addFileFilters(MeshFactory.getAllExtensions());
@@ -158,10 +221,24 @@ public class EditArm6Panel extends JPanel {
         }
     }
 
-    // general settings
     private void setupGeneralSettings() {
         JPanel generalPanel = new JPanel();
+        generalPanel.setBorder(BorderFactory.createTitledBorder("General"));
         generalPanel.setLayout(new BoxLayout(generalPanel, BoxLayout.Y_AXIS));
+
+        // num joints
+        IntParameter numJointsParameter = new IntParameter("# Joints", numJoints);
+        ViewElementSlider numJointSlider = new ViewElementSlider(numJointsParameter,MAX_JOINTS,1);
+        generalPanel.add(numJointSlider);
+        numJointsParameter.addPropertyChangeListener(e->{
+            int value = numJointsParameter.get();
+            if(value!=numJoints) {
+                numJoints = value;
+                createComponents();
+                setupDHTable();
+            }
+        });
+        numJointSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // texture
         StringParameter textureParameter;
@@ -206,18 +283,38 @@ public class EditArm6Panel extends JPanel {
         showDH.setSelected(false);
         generalPanel.add(showDH);
         showDH.addActionListener(e -> {
-            for (int i = 0; i < NUM_JOINTS; i++) {
-                joints[i].getComponent(DHComponent.class).setVisible(showDH.isSelected());
+            for (int i = 0; i < numJoints; i++) {
+                joints.get(i).getComponent(DHComponent.class).setVisible(showDH.isSelected());
             }
+        });
+
+        // adjust origins
+        adjustOrigins.setSelected(false);
+        generalPanel.add(adjustOrigins);
+        adjustOrigins.addActionListener(e -> {
+            updatePoses();
         });
 
         this.add(generalPanel, BorderLayout.NORTH);
     }
 
     private void updatePoses() {
-        OriginAdjustSystem.adjustOne(rootEntity.getChildren().get(0));
+        adjustChildWithOriginAdjuster(rootEntity);
         for(Entity entity : joints) {
-            OriginAdjustSystem.adjustOne(entity.getChildren().get(0));
+            adjustChildWithOriginAdjuster(entity);
+        }
+    }
+
+    private void adjustChildWithOriginAdjuster(Entity entity) {
+        for(Entity child : entity.getChildren()) {
+            if(child.getComponent(OriginAdjustComponent.class)!=null) {
+                if(adjustOrigins.isSelected()) {
+                    OriginAdjustSystem.adjustOne(child);
+                } else {
+                    PoseComponent pose = child.getComponent(PoseComponent.class);
+                    pose.setLocalMatrix4(MatrixHelper.createIdentityMatrix4());
+                }
+            }
         }
     }
 }

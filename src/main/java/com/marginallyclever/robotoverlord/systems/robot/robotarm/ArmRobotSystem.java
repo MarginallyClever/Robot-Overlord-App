@@ -53,8 +53,8 @@ public class ArmRobotSystem implements EntitySystem {
 
         robotComponent.findBones();
 
-        ViewElementButton bMake = view.addButton("Edit Arm 6");
-        bMake.addActionEventListener((evt)-> makeRobotArm6(bMake,robotComponent,"Edit Arm 6"));
+        ViewElementButton bMake = view.addButton("Edit Arm");
+        bMake.addActionEventListener((evt)-> makeRobotArm6(bMake,robotComponent,"Edit Arm"));
 
         ViewElementButton bOpen = view.addButton(Translator.get("RobotROSystem.controlPanel"));
         bOpen.addActionEventListener((evt)-> showControlPanel(bOpen,robotComponent));
@@ -64,7 +64,7 @@ public class ArmRobotSystem implements EntitySystem {
     }
 
     private void makeRobotArm6(JComponent parent, RobotComponent robotComponent,String title) {
-        EntitySystemUtils.makePanel(new EditArm6Panel(robotComponent.getEntity(), entityManager), parent,title);
+        EntitySystemUtils.makePanel(new EditArmPanel(robotComponent.getEntity(), entityManager), parent,title);
     }
 
     private void showControlPanel(JComponent parent,RobotComponent robotComponent) {
