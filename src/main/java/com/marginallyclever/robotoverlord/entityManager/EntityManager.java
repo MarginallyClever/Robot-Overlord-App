@@ -107,6 +107,8 @@ public class EntityManager {
 	 * @return the entity with the given unique ID, or null if not found.
 	 */
     public Entity findEntityByUniqueID(String uuid) {
+		if(uuid==null) return null;
+
 		Queue<Entity> toTest = new LinkedList<>(entities);
 		while(!toTest.isEmpty()) {
 			Entity entity = toTest.remove();
