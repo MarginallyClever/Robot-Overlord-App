@@ -710,16 +710,21 @@ public class OpenGLRenderPanel implements RenderPanel {
                         (float)diffuseColor[3]);
             }
 
+            boolean hasMesh = false;
             if(mmr.renderComponent instanceof ShapeComponent) {
                 // if this component is a shape
                 ShapeComponent shape = (ShapeComponent)mmr.renderComponent;
                 Mesh mesh = shape.getModel();
-                // and it has vertex colors, enable them.
-                useVertexColor &= mesh.getHasColors();
-                // and it has texture coordinates, continue to allow textures.
-                useTexture &= mesh.getHasTextures();
-                useLighting &= mesh.getHasNormals();
-            } else {
+                if(mesh != null) {
+                    hasMesh = true;
+                    // and it has vertex colors, enable them.
+                    useVertexColor &= mesh.getHasColors();
+                    // and it has texture coordinates, continue to allow textures.
+                    useTexture &= mesh.getHasTextures();
+                    useLighting &= mesh.getHasNormals();
+                }
+            }
+            if(!hasMesh) {
                 useVertexColor=false;
                 useTexture=false;
                 useLighting=false;
