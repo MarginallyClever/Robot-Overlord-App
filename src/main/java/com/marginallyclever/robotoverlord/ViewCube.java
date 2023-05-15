@@ -36,15 +36,30 @@ public class ViewCube {
 	@Deprecated
 	public void render(GL2 gl2,Viewport viewport,ShaderProgram program) {
 		program.use(gl2);
-		program.setMatrix4d(gl2,"projectionMatrix",viewport.getPerspectiveFrustum());
 		boolean lit = OpenGLHelper.disableLightingStart(gl2);
-
+		startProjection(gl2,viewport,program);
 		positionCubeModel(gl2,viewport,program);
 		renderCubeModel(gl2,program);
+		gl2.glUseProgram(0);
 		renderMajorAxies(gl2,program);
+		endProjection(gl2);
 
 		OpenGLHelper.disableLightingEnd(gl2,lit);
-		gl2.glUseProgram(0);
+	}
+
+	private void startProjection(GL2 gl2,Viewport viewport,ShaderProgram program) {
+		program.setMatrix4d(gl2,"projectionMatrix",viewport.getPerspectiveFrustum());
+		gl2.glMatrixMode(GL2.GL_PROJECTION);
+		gl2.glPushMatrix();
+		gl2.glLoadIdentity();
+		viewport.renderPerspective(gl2);
+		gl2.glMatrixMode(GL2.GL_MODELVIEW);
+	}
+
+	private void endProjection(GL2 gl2) {
+		gl2.glMatrixMode(GL2.GL_PROJECTION);
+		gl2.glPopMatrix();
+		gl2.glMatrixMode(GL2.GL_MODELVIEW);
 	}
 	
 	private void positionCubeModel(GL2 gl2, Viewport viewport,ShaderProgram program) {
@@ -56,6 +71,12 @@ public class ViewCube {
 
         double w2 = distance * fov * ar -c;
         double h2 = distance * fov      -c;
+		// ff pipeline
+		gl2.glLoadIdentity();
+		gl2.glTranslated(w2,h2,-distance);
+		MatrixHelper.applyMatrix(gl2, getInverseCameraMatrix(viewport.getCamera()));
+
+		// programmable pipeline
 		Matrix4d viewMatrix = new Matrix4d();
 		viewMatrix.setIdentity();
 		viewMatrix.setTranslation(new Vector3d(w2,h2,-distance));
