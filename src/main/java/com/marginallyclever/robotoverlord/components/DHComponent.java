@@ -26,8 +26,8 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
     public final DoubleParameter myR = new DoubleParameter("R",0.0);
     public final DoubleParameter alpha = new DoubleParameter("Alpha",0.0);
     public final DoubleParameter theta = new DoubleParameter("Theta",0.0);
-    public final DoubleParameter jointMax = new DoubleParameter("Max",0.0);
-    public final DoubleParameter jointMin = new DoubleParameter("Min",0.0);
+    public final DoubleParameter jointMax = new DoubleParameter("Max",180.0);
+    public final DoubleParameter jointMin = new DoubleParameter("Min",-180.0);
     public final DoubleParameter jointHome = new DoubleParameter("Home",0.0);
 
     @Override
