@@ -311,7 +311,7 @@ public class PrimitiveSolids {
 	 * @param top maximum bounds
 	 */
 	static public void drawBoxWireframe(GL2 gl2,Tuple3d bottom,Tuple3d top) {
-		gl2.glDisable(GL2.GL_TEXTURE_2D);
+		boolean tex = OpenGLHelper.disableTextureStart(gl2);
 		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
 		
 		double x0=bottom.x;
@@ -329,6 +329,7 @@ public class PrimitiveSolids {
 		gl2.glBegin(GL2.GL_LINE_LOOP);	gl2.glNormal3f(-1, 0, 0);	gl2.glVertex3d(x0,y0,z1);	gl2.glVertex3d(x0,y1,z1);	gl2.glVertex3d(x0,y1,z0);	gl2.glVertex3d(x0,y0,z0);	gl2.glEnd();
 
 		OpenGLHelper.disableLightingEnd(gl2,lightWasOn);
+		OpenGLHelper.disableTextureEnd(gl2,tex);
 	}
 	
 	static public void drawStar(GL2 gl2,double size) {
@@ -345,7 +346,7 @@ public class PrimitiveSolids {
 		gl2.glGetDoublev(GL2.GL_CURRENT_COLOR, params, 0);
 		
 		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
-		//int depth = OpenGLHelper.drawAtopEverythingStart(gl2);
+		int depth = OpenGLHelper.drawAtopEverythingStart(gl2);
 
 		size/=2.0f;
 		
@@ -358,7 +359,7 @@ public class PrimitiveSolids {
 		gl2.glEnd();
 		gl2.glPopMatrix();
 
-		//OpenGLHelper.drawAtopEverythingEnd(gl2,depth);
+		OpenGLHelper.drawAtopEverythingEnd(gl2,depth);
 		OpenGLHelper.disableLightingEnd(gl2,lightWasOn);
 		
 		// restore color

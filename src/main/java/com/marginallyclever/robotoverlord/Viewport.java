@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
@@ -224,9 +225,9 @@ public class Viewport extends Entity {
         bl2.add(bl.getOrigin());
         br2.add(br.getOrigin());
         r2.add(r.getOrigin());
-        
-        gl2.glDisable(GL2.GL_TEXTURE_2D);
-		gl2.glDisable(GL2.GL_LIGHTING);
+
+		boolean tex = OpenGLHelper.disableTextureStart(gl2);
+		boolean light = OpenGLHelper.disableLightingStart(gl2);
 		
         gl2.glColor3d(1, 0, 0);
 		gl2.glBegin(GL2.GL_LINES);
@@ -254,6 +255,9 @@ public class Viewport extends Entity {
 		
 		PrimitiveSolids.drawStar(gl2,r2,5);
 		gl2.glPopMatrix();
+
+		OpenGLHelper.disableLightingEnd(gl2,light);
+		OpenGLHelper.disableTextureEnd(gl2,tex);
 	}
 
 	private void drawPoint(GL2 gl2, Tuple3d vector) {
