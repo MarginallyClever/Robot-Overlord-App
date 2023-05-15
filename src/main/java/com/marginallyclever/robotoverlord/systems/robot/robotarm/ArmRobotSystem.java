@@ -72,9 +72,7 @@ public class ArmRobotSystem implements EntitySystem {
     }
 
     private GCodePathComponent getGCodePath(RobotComponent robotComponent) {
-        String entityUniqueID = robotComponent.getGCodePathEntityUUID();
-        if(entityUniqueID==null) return null;
-        Entity entity = entityManager.findEntityByUniqueID(entityUniqueID);
+        Entity entity = entityManager.findEntityByUniqueID(robotComponent.getGCodePathEntityUUID());
         if(entity==null) return null;
         return entity.getComponent(GCodePathComponent.class);
     }
