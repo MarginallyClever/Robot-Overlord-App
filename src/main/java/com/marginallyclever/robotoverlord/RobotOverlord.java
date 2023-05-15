@@ -51,7 +51,6 @@ public class RobotOverlord {
 
 	public static final String APP_TITLE = "Robot Overlord";
 	public static final String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
-
 	private static final String KEY_WINDOW_WIDTH = "windowWidth";
 	private static final String KEY_WINDOW_HEIGHT = "windowHeight";
 	private static final String KEY_WINDOW_X = "windowX";
@@ -123,8 +122,6 @@ public class RobotOverlord {
 	private final RecentFiles recentFiles = new RecentFiles();
 
 	private final List<EntitySystem> systems = new ArrayList<>();
-
-	private double frameDelay;
 
 	public static void main(String[] argv) {
 		Log.start();
@@ -241,10 +238,8 @@ public class RobotOverlord {
 		logger.info("buildMainFrame()");
 		// start the main application frame - the largest visible rectangle on the screen with the minimize/maximize/close buttons.
         mainFrame = new JFrame( APP_TITLE + " " + VERSION );
-		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        mainFrame.setLayout(new java.awt.BorderLayout());
-        mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-        mainFrame.setVisible(true);
+		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainFrame.setLocationRelativeTo(null);
 		mainFrame.setJMenuBar(mainMenu);
 		setWindowSizeAndPosition();
 		setupDropTarget();
@@ -268,20 +263,22 @@ public class RobotOverlord {
 				saveWindowSizeAndPosition();
 			}
 		});
+		mainFrame.setVisible(true);
 	}
 
 	private void setWindowSizeAndPosition() {
 		logger.info("Set window size and position");
 
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		int windowW = prefs.getInt(KEY_WINDOW_WIDTH, dim.width);
-		int windowH = prefs.getInt(KEY_WINDOW_HEIGHT, dim.height);
-		int windowX = prefs.getInt(KEY_WINDOW_X, (dim.width - windowW)/2);
-		int windowY = prefs.getInt(KEY_WINDOW_Y, (dim.height - windowH)/2);
-		mainFrame.setBounds(windowX, windowY,windowW, windowH);
 		boolean isFullscreen = prefs.getBoolean("isFullscreen",false);
 		if(isFullscreen) {
 			mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+		} else {
+			int windowW = prefs.getInt(KEY_WINDOW_WIDTH, dim.width);
+			int windowH = prefs.getInt(KEY_WINDOW_HEIGHT, dim.height);
+			int windowX = prefs.getInt(KEY_WINDOW_X, (dim.width - windowW)/2);
+			int windowY = prefs.getInt(KEY_WINDOW_Y, (dim.height - windowH)/2);
+			mainFrame.setBounds(windowX, windowY,windowW, windowH);
 		}
 	}
 
@@ -464,8 +461,6 @@ public class RobotOverlord {
 				Translator.get("RobotOverlord.quitTitle"),
 				JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
-			mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
 			preferencesSave();
 
 			// Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
