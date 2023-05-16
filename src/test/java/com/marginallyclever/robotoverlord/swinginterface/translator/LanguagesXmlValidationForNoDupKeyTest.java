@@ -26,7 +26,7 @@ public class LanguagesXmlValidationForNoDupKeyTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(LanguagesXmlValidationForNoDupKeyTest.class);
 
-	public final static String resourceStringForXmlShemaFile = "/com/marginallyclever/robotoverlord/translator/language_no_dup_key.xsd";
+	public final static String resourceStringForXmlShemaFile = "/com/marginallyclever/robotoverlord/swinginterface/translator/language_no_dup_key.xsd";
 
 	@Test
 	public void validateLaguagesXmlFiles() throws IOException {
@@ -73,7 +73,7 @@ public class LanguagesXmlValidationForNoDupKeyTest {
 		URL schemaFile = LanguagesXmlValidationForNoDupKeyTest.class.getResource(resourceStringForXmlShemaFile);
 		assertNotNull(schemaFile, "The test need a redable schema xsd file (" + resourceStringForXmlShemaFile + ") to validate the language files");
 
-		String myTestFileWithWithDupKeyInRessources = "/com/marginallyclever/robotoverlord/translator/english_with_dup_key.xml";
+		String myTestFileWithWithDupKeyInRessources = "/com/marginallyclever/robotoverlord/swinginterface/translator/english_with_dup_key.xml";
 		URL resource = LanguagesXmlValidationForNoDupKeyTest.class.getResource(myTestFileWithWithDupKeyInRessources);
 		assertNotNull(resource, "The test need a redable xml file (" + myTestFileWithWithDupKeyInRessources + ") to test itself");
 
@@ -89,7 +89,7 @@ public class LanguagesXmlValidationForNoDupKeyTest {
 		URL schemaFile = LanguagesXmlValidationForNoDupKeyTest.class.getResource(resourceStringForXmlShemaFile);
 		assertNotNull(schemaFile, "The test need a redable schema xsd file (" + resourceStringForXmlShemaFile + ") to validate the language files");
 
-		String myTestFileWithNoDupKeyInRessources = "/com/marginallyclever/robotoverlord/translator/english_with_no_dup_key.xml";
+		String myTestFileWithNoDupKeyInRessources = "/com/marginallyclever/robotoverlord/swinginterface/translator/english_with_no_dup_key.xml";
 		URL resource = LanguagesXmlValidationForNoDupKeyTest.class.getResource(myTestFileWithNoDupKeyInRessources);
 		assertNotNull(resource, "The test need a redable xml file (" + myTestFileWithNoDupKeyInRessources + ") to test itself");
 
