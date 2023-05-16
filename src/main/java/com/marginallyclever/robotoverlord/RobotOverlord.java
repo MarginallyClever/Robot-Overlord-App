@@ -156,9 +156,12 @@ public class RobotOverlord {
 		buildMainFrame();
 		entityTreePanel = new EntityTreePanel(project.getEntityManager());
 		componentManagerPanel = new ComponentManagerPanel(project.getEntityManager(),systems);
-		renderPanel = new OpenGLRenderPanel(project.getEntityManager(), this::update);
-		//renderPanel = new OpenGLTestOrthographic(project.getEntityManager(), this::update);
-		//renderPanel = new OpenGLTestPerspective(project.getEntityManager(), this::update);
+		renderPanel = new OpenGLRenderPanel(project.getEntityManager());
+		//renderPanel = new OpenGLTestOrthographic(project.getEntityManager());
+		//renderPanel = new OpenGLTestPerspective(project.getEntityManager());
+		renderPanel.setUpdateCallback((dt)->{
+			for(EntitySystem system : systems) system.update(dt);
+		});
 
 		layoutComponents();
 		refreshMainMenu();
@@ -173,10 +176,6 @@ public class RobotOverlord {
 
 		logger.info("** READY **");
     }
-
-	private void update(double dt) {
-		for(EntitySystem system : systems) system.update(dt);
-	}
 
 	private void buildSystems() {
 		addSystem(new PhysicsSystem());

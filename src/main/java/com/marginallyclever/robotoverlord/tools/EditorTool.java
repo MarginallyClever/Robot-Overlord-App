@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.tools;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.entity.Entity;
-import com.marginallyclever.robotoverlord.Viewport;
+import com.marginallyclever.robotoverlord.systems.render.Viewport;
 
 import javax.vecmath.Point3d;
 import java.awt.event.KeyEvent;

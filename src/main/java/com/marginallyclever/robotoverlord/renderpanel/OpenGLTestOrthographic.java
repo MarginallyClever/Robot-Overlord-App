@@ -7,6 +7,8 @@ import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.*;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
+import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
+import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +37,7 @@ public class OpenGLTestOrthographic implements RenderPanel {
     private final FPSAnimator animator = new FPSAnimator(30);
     private static double time = 0;
 
-    public OpenGLTestOrthographic(EntityManager entityManager, UpdateCallback updateCallback) {
+    public OpenGLTestOrthographic(EntityManager entityManager) {
         super();
         logger.info("creating OpenGLRenderPanelBasic");
         glCanvas = createCanvas();
@@ -334,12 +336,15 @@ public class OpenGLTestOrthographic implements RenderPanel {
     @Override
     public void updateSubjects(List<Entity> list) {}
 
+    @Override
+    public void setUpdateCallback(UpdateCallback updateCallback) {}
+
     public static void main(String[] args) {
         // make a frame
         JFrame frame = new JFrame( OpenGLTestOrthographic.class.getSimpleName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
-        OpenGLTestOrthographic opengl = new OpenGLTestOrthographic(null,null);
+        OpenGLTestOrthographic opengl = new OpenGLTestOrthographic(null);
         frame.setContentPane(opengl.getPanel());
         frame.setPreferredSize(new Dimension(600,600));
         frame.setSize(600,600);

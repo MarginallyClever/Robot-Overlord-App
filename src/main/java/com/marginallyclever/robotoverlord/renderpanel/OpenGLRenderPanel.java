@@ -17,6 +17,10 @@ import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
+import com.marginallyclever.robotoverlord.systems.render.Compass3D;
+import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
+import com.marginallyclever.robotoverlord.systems.render.SkyBox;
+import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.move.MoveCameraTool;
@@ -106,7 +110,7 @@ public class OpenGLRenderPanel implements RenderPanel {
     private final List<MatrixMaterialRender> opaque = new ArrayList<>();
     private final List<MatrixMaterialRender> alpha = new ArrayList<>();
     private final List<MatrixMaterialRender> noMaterial = new ArrayList<>();
-    private final UpdateCallback updateCallback;
+    private UpdateCallback updateCallback;
 
     private ShaderProgram shaderDefault;
     private ShaderProgram shaderOutline;
@@ -115,12 +119,11 @@ public class OpenGLRenderPanel implements RenderPanel {
     private final List<LightComponent> lights = new ArrayList<>();
 
 
-    public OpenGLRenderPanel(EntityManager entityManager, UpdateCallback updateCallback) {
+    public OpenGLRenderPanel(EntityManager entityManager) {
         super();
         logger.info("creating OpenGLRenderPanel");
 
         this.entityManager = entityManager;
-        this.updateCallback = updateCallback;
 
         createCanvas();
         addCanvasListeners();
@@ -131,6 +134,11 @@ public class OpenGLRenderPanel implements RenderPanel {
         panel.add(glCanvas, BorderLayout.CENTER);
 
         startAnimationSystem();
+    }
+
+    @Override
+    public void setUpdateCallback(UpdateCallback updateCallback) {
+        this.updateCallback = updateCallback;
     }
 
     @Override

@@ -4,7 +4,7 @@ import com.marginallyclever.convenience.IntersectionHelper;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.entity.Entity;
-import com.marginallyclever.robotoverlord.Viewport;
+import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.PoseMoveEdit;

@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.renderpanel;
 
+import com.marginallyclever.robotoverlord.UpdateCallback;
 import com.marginallyclever.robotoverlord.entity.Entity;
 
 import javax.swing.*;
@@ -13,4 +14,6 @@ public interface RenderPanel {
     void stopAnimationSystem();
 
     void updateSubjects(List<Entity> list);
+
+    void setUpdateCallback(UpdateCallback updateCallback);
 }

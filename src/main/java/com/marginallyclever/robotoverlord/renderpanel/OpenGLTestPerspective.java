@@ -6,6 +6,7 @@ import com.marginallyclever.robotoverlord.*;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
+import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
@@ -13,8 +14,8 @@ import javax.vecmath.Vector3d;
 import java.awt.*;
 
 public class OpenGLTestPerspective extends OpenGLTestOrthographic {
-    public OpenGLTestPerspective(EntityManager entityManager, UpdateCallback updateCallback) {
-        super(entityManager, updateCallback);
+    public OpenGLTestPerspective(EntityManager entityManager) {
+        super(entityManager);
     }
 
     @Override
@@ -76,7 +77,7 @@ public class OpenGLTestPerspective extends OpenGLTestOrthographic {
         JFrame frame = new JFrame( OpenGLTestPerspective.class.getSimpleName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
-        OpenGLTestPerspective opengl = new OpenGLTestPerspective(null,null);
+        OpenGLTestPerspective opengl = new OpenGLTestPerspective(null);
         frame.setContentPane(opengl.getPanel());
         frame.setPreferredSize(new Dimension(600,600));
         frame.setSize(600,600);
