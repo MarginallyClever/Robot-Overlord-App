@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.robotoverlord.experiments;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
