@@ -5,6 +5,8 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -94,5 +96,20 @@ public class PathComponent extends ShapeComponent {
             if(waypoint!=null) waypoints.add(waypoint.getLocal());
         }
         return waypoints;
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject jo = super.toJSON();
+        jo.put("moveType",moveType.toJSON());
+        jo.put("moveSpeed",moveSpeed.toJSON());
+        return jo;
+    }
+
+    @Override
+    public void parseJSON(JSONObject jo) throws JSONException {
+        super.parseJSON(jo);
+        moveType.parseJSON(jo.getJSONObject("moveType"));
+        moveSpeed.parseJSON(jo.getJSONObject("moveSpeed"));
     }
 }
