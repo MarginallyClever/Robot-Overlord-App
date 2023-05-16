@@ -152,6 +152,16 @@ public class Entity implements PropertyChangeListener {
 	}
 
 	/**
+	 * @return the next sibling or null if none.
+	 */
+	public Entity getNextSibling() {
+		if(parent==null) return null;  // no parent, no siblings.
+		int i=parent.children.indexOf(this);
+		if(i==parent.children.size()-1) return null;  // no next sibling
+		return parent.children.get(i+1);
+	}
+
+	/**
 	 * Search the entity tree based on an absolute or relative Unix-style path.
 	 * 
 	 * @param path the search query
