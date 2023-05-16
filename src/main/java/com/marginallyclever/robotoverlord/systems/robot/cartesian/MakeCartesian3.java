@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.systems.robot.cartesian;
 
 import com.marginallyclever.convenience.StringHelper;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.entityManager.EntityManager;
+import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.components.ArmEndEffectorComponent;
 import com.marginallyclever.robotoverlord.components.DHComponent;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;

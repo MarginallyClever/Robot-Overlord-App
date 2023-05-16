@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.clipboard;
 
-import com.marginallyclever.robotoverlord.Component;
+import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.Entity;
 
 import java.util.ArrayList;

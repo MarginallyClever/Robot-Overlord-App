@@ -1,8 +1,10 @@
 package com.marginallyclever.robotoverlord;
 
+import com.marginallyclever.robotoverlord.components.Component;
+import com.marginallyclever.robotoverlord.components.ComponentWithDiskAsset;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
-import com.marginallyclever.robotoverlord.entityManager.EntityManager;
+import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -162,7 +164,7 @@ public class Project {
             Entity e = list.removeFirst();
             list.addAll(e.getChildren());
 
-            for(com.marginallyclever.robotoverlord.Component component : e.getComponents()) {
+            for(com.marginallyclever.robotoverlord.components.Component component : e.getComponents()) {
                 if(component instanceof ComponentWithDiskAsset) {
                     ((ComponentWithDiskAsset)component).adjustPath(path,newPath);
                 }

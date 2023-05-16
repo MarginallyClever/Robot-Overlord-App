@@ -5,7 +5,7 @@ import com.marginallyclever.robotoverlord.components.LightComponent;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Box;
-import com.marginallyclever.robotoverlord.entityManager.EntityManager;
+import com.marginallyclever.robotoverlord.entity.EntityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

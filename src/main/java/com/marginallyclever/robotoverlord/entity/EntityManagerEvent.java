@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.entityManager;
+package com.marginallyclever.robotoverlord.entity;
 
 import com.marginallyclever.robotoverlord.Entity;
 

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.robotoverlord.components;
 
 import java.util.List;
 import java.awt.*;

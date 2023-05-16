@@ -1,13 +1,12 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
-import com.marginallyclever.robotoverlord.Component;
+import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.ProgramComponent;
-import com.marginallyclever.robotoverlord.entityManager.EntityManager;
+import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.components.DHComponent;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.GCodePathComponent;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementBoolean;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.RobotPanel;

@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 
-import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.entityManager.EntityManager;
+import com.marginallyclever.robotoverlord.components.Component;
+import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.*;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 

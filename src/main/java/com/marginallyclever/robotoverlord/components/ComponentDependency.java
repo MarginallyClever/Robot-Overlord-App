@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.entityManager.EntityManager;
+import com.marginallyclever.robotoverlord.entity.EntityManager;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

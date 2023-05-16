@@ -13,7 +13,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 /**
- * A camera {@link com.marginallyclever.robotoverlord.Component}.
+ * A camera {@link Component}.
  *
  * @author Dan Royer
  * @since 2.5.0

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.entityManager;
+package com.marginallyclever.robotoverlord.entity;
 
 /**
  * An interface for listening to changes in the {@link EntityManager}.

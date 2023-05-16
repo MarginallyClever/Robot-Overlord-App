@@ -1,5 +1,7 @@
 package com.marginallyclever.robotoverlord;
 
+import com.marginallyclever.robotoverlord.components.Component;
+import com.marginallyclever.robotoverlord.components.ComponentFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;

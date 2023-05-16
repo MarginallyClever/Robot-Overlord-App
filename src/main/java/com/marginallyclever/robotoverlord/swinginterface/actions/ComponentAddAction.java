@@ -1,11 +1,10 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
-import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.ComponentFactory;
+import com.marginallyclever.robotoverlord.components.Component;
+import com.marginallyclever.robotoverlord.components.ComponentFactory;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
-import com.marginallyclever.robotoverlord.components.ComponentDependency;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.ComponentAddEdit;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**

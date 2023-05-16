@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord.components;
 
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
 import org.json.JSONException;

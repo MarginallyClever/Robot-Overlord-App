@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.systems;
 
-import com.marginallyclever.robotoverlord.Component;
+import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.systems.render.gcodepath.PathFactory;
 import com.marginallyclever.robotoverlord.components.shapes.Grid;

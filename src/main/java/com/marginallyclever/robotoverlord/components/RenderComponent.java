@@ -1,9 +1,7 @@
 package com.marginallyclever.robotoverlord.components;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 
 /**
  * A RenderComponent is a component that draws something into the 3D scene.

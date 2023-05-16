@@ -1,8 +1,7 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.robotoverlord.components;
 
-import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
+import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 

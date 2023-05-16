@@ -1,10 +1,11 @@
 package com.marginallyclever.robotoverlord;
 
+import com.marginallyclever.robotoverlord.components.Component;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ComponentTest {
-    public static void saveAndLoad(Component a,Component b) throws Exception {
+    public static void saveAndLoad(Component a, Component b) throws Exception {
         b.parseJSON(a.toJSON());
         Assertions.assertEquals(a.toString(),b.toString());
     }

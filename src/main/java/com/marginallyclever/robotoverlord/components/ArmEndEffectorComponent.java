@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
 
 import javax.vecmath.Matrix4d;

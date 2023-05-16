@@ -1,9 +1,6 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
-
-import java.lang.invoke.StringConcatException;
 
 /**
  * <p>A {@link ProgramEventComponent} is a component that can be used to trigger events in a robot program.

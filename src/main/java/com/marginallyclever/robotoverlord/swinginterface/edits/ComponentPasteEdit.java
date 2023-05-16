@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
-import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.ComponentFactory;
+import com.marginallyclever.robotoverlord.components.Component;
+import com.marginallyclever.robotoverlord.components.ComponentFactory;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import org.json.JSONObject;

@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.systems.robot.dog;
 
 import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.entityManager.EntityManager;
+import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.demo.DogRobotComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Box;

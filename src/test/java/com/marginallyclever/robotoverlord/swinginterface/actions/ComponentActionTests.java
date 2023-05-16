@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.actions;
 
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
+import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
@@ -18,7 +19,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless environment")
 public class ComponentActionTests {
     /**
-     * Test copying a {@link com.marginallyclever.robotoverlord.Component} from one {@link Entity} and pasting to another.
+     * Test copying a {@link Component} from one {@link Entity} and pasting to another.
      */
     @Test
     public void testComponentCopyAction() {

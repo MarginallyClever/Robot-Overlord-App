@@ -4,7 +4,7 @@ import com.jogamp.opengl.*;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.*;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
-import com.marginallyclever.robotoverlord.entityManager.EntityManager;
+import com.marginallyclever.robotoverlord.entity.EntityManager;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;

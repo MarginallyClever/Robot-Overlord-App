@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.systems;
 
-import com.marginallyclever.robotoverlord.Component;
+import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.Entity;
 import com.marginallyclever.robotoverlord.components.OriginAdjustComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;

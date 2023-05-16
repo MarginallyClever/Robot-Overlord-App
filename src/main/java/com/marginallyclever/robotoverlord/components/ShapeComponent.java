@@ -13,7 +13,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 /**
- * A shape {@link com.marginallyclever.robotoverlord.Component} which can be rendered.
+ * A shape {@link Component} which can be rendered.
  *
  * @author Dan Royer
  * @since 2.5.0
