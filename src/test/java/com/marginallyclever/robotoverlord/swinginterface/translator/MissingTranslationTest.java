@@ -1,6 +1,5 @@
-package com.marginallyclever.robotoverlord.translator;
+package com.marginallyclever.robotoverlord.swinginterface.translator;
 
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;

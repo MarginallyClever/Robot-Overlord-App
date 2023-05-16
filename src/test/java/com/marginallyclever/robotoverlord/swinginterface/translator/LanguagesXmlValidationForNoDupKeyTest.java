@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.translator;
+package com.marginallyclever.robotoverlord.swinginterface.translator;
 
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -19,7 +19,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.marginallyclever.robotoverlord.translator.MissingTranslationTest.listFiles;
+import static com.marginallyclever.robotoverlord.swinginterface.translator.MissingTranslationTest.listFiles;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LanguagesXmlValidationForNoDupKeyTest {
