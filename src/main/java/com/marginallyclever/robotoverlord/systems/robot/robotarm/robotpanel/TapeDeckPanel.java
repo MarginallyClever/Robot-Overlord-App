@@ -32,7 +32,7 @@ public class TapeDeckPanel extends JPanel {
 	private final JButton bRewind = new JButton();
 	private final JProgressBar progressBar = new JProgressBar(0,100);
 
-	private final ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
+	private final ArrayList<ActionListener> listeners = new ArrayList<>();
 
 	public TapeDeckPanel() {
 		super();
@@ -71,7 +71,7 @@ public class TapeDeckPanel extends JPanel {
 		JFrame frame = new JFrame("TextInterfaceToNetworkSession");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception e) {}
+		} catch(Exception ignored) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new TapeDeckPanel());
 		frame.pack();
