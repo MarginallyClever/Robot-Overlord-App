@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * @author Dan Royer
  * @since 2.5.0
  */
-public class ComponentFactory {
+public abstract class ComponentFactory {
 	private static final Logger logger = LoggerFactory.getLogger(ComponentFactory.class);
 	private static final Class<?> [] available = {
 			PoseComponent.class,
@@ -44,6 +44,7 @@ public class ComponentFactory {
 
 			GCodePathComponent.class,
 			PathComponent.class,
+			ProgramComponent.class,
 	};
 	
 	public static ArrayList<String> getAllComponentNames() {
