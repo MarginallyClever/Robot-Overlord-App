@@ -41,7 +41,7 @@ public interface Robot {
      *      <li>{@link #JOINT_HAS_RANGE_LIMITS}: returns true if there are limits.</li>
      *      <li>{@link #JOINT_PRISMATIC}: returns true if the active joint is prismatic (linear mm) and false if it is angular (rotation degrees).</li>
      *      <li>{@link #END_EFFECTOR}: returns a {@link Matrix4d} of the end effector post relative to the origin of this robot.</li>
-     *      <li>{@link #END_EFFECTOR_TARGET}: returns a {@link Matrix4d} of the end effector target post relative to the origin of this robot.</li>
+     *      <li>{@link #END_EFFECTOR_TARGET}: returns a {@link Matrix4d} of the end effector target pose relative to the origin of this robot.</li>
      *      <li>{@link #END_EFFECTOR_TARGET_POSITION}: returns a {@link Point3d} of the end effector position relative to the origin of this robot.</li>
      *      <li>{@link #TOOL_CENTER_POINT}: returns a {@link Matrix4d} relative to the origin of this robot.</li>
      *      <li>{@link #POSE}: returns a {@link Matrix4d}.  Returns the pose of the robot base relative to the world.</li>
