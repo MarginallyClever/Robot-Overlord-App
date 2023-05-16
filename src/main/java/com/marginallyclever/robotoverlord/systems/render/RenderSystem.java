@@ -38,7 +38,7 @@ public class RenderSystem implements EntitySystem {
         if(component instanceof MaterialComponent) decorateMaterial(view,component);
         if(component instanceof LinearPatternComponent) decorateLinearPattern(view,component);
 
-        if(component instanceof PathComponent) decoratePath(view, component);
+        if(component instanceof ProgramPathComponent) decoratePath(view, component);
         else if(component instanceof ShapeComponent) decorateShape(view, component);
     }
 
@@ -66,10 +66,10 @@ public class RenderSystem implements EntitySystem {
     }
 
     public void decoratePath(ComponentPanelFactory view,Component component) {
-        PathComponent pathComponent = (PathComponent) component;
+        ProgramPathComponent programPathComponent = (ProgramPathComponent) component;
         ArrayList<FileFilter> filters = PathFactory.getAllExtensions();
-        view.add(pathComponent.moveSpeed);
-        view.addComboBox(pathComponent.moveType, PathComponent.MOVE_TYPE_NAMES);
+        view.add(programPathComponent.moveSpeed);
+        view.addComboBox(programPathComponent.moveType, ProgramPathComponent.MOVE_TYPE_NAMES);
     }
 
     public void decorateLinearPattern(ComponentPanelFactory view,Component component) {

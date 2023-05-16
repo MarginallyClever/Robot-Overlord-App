@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * PathComponent may contain an orderd list of children with {@link PoseComponent}.
  */
-public class PathComponent extends ShapeComponent {
+public class ProgramPathComponent extends ShapeComponent {
     public static final String[] MOVE_TYPE_NAMES = {"Rapid","Linear"};  // ,"Bezier"
     public static final int MOVE_RAPID = 0;
     public static final int MOVE_LINEAR = 1;
@@ -25,7 +25,7 @@ public class PathComponent extends ShapeComponent {
     public IntParameter moveType = new IntParameter("Move Type",MOVE_RAPID);
     public DoubleParameter moveSpeed = new DoubleParameter("Move Speed",1.0);
 
-    public PathComponent() {
+    public ProgramPathComponent() {
         super();
         myMesh = new Mesh();
     }

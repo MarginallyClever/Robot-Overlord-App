@@ -7,29 +7,48 @@ import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.beans.PropertyChangeListener;
+import java.util.Stack;
+
 /**
  * The ProgramComponent holds run-time information about the program being executed by a robot.
  * The ProgramExecutorSystem will use this information to execute the program.
  * When placed in the same {@link Entity} as a {@link RobotComponent}, this
- * {@link Component} will allow a ProgramExecutor a robot to a execute {@link PathComponent}s
+ * {@link Component} will allow a ProgramExecutor a robot to a execute {@link ProgramPathComponent}s
  * and {@link ProgramEventComponent}s.
  *
  * @since 2.6.0
  * @author Dan Royer
  */
 public class ProgramComponent extends Component {
-    public static final String[] MODE_NAMES = { "Step", "Run to End", "Cycle" };
+    public static final String[] MODE_NAMES = { "Step", "Run to End", "Loop" };
     public static int RUN_STEP = 0;
     public static int RUN_TO_END = 1;
-    public static int RUN_CYCLE = 2;
+    public static int RUN_LOOP = 2;
 
     public ReferenceParameter programEntity = new ReferenceParameter("Program",null);
     public ReferenceParameter stepEntity = new ReferenceParameter("Step",null);
-    public BooleanParameter isRunning = new BooleanParameter("Running",false);
+    private BooleanParameter isRunning = new BooleanParameter("Running",false);
     public IntParameter mode = new IntParameter("mode",RUN_STEP);
+
+    private Stack<Object> stack = new Stack<>();
 
     public ProgramComponent() {
         super();
+    }
+
+    public boolean getRunning() {
+        return isRunning.get();
+    }
+
+    public void setRunning(boolean arg0) {
+        isRunning.set(arg0);
+    }
+
+    public void reset() {
+        isRunning.set(false);
+        stepEntity.set((String)null);
+        stack.clear();
     }
 
     @Override
@@ -49,5 +68,9 @@ public class ProgramComponent extends Component {
         stepEntity.parseJSON(jo.getJSONObject("stepEntity"));
         isRunning.parseJSON(jo.getJSONObject("isRunning"));
         mode.parseJSON(jo.getJSONObject("mode"));
+    }
+
+    public void addRunningPropertyChangeListener(PropertyChangeListener arg0) {
+        isRunning.addPropertyChangeListener(arg0);
     }
 }

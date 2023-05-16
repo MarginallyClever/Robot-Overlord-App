@@ -43,7 +43,7 @@ public abstract class ComponentFactory {
 			DogRobotComponent.class,
 
 			GCodePathComponent.class,
-			PathComponent.class,
+			ProgramPathComponent.class,
 			ProgramComponent.class,
 	};
 	
