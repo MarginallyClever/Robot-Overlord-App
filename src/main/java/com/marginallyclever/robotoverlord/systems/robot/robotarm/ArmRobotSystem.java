@@ -2,10 +2,12 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
 import com.marginallyclever.robotoverlord.Component;
 import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.components.ProgramComponent;
 import com.marginallyclever.robotoverlord.entityManager.EntityManager;
 import com.marginallyclever.robotoverlord.components.DHComponent;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.GCodePathComponent;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementBoolean;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.RobotPanel;
@@ -32,6 +34,23 @@ public class ArmRobotSystem implements EntitySystem {
     public void decorate(ComponentPanelFactory view, Component component) {
         if( component instanceof RobotComponent ) decorateRobot(view,component);
         if( component instanceof DHComponent ) decorateDH(view,component);
+        if( component instanceof ProgramComponent) decorateProgram(view,component);
+    }
+
+    private void decorateProgram(ComponentPanelFactory view, Component component) {
+        final ProgramComponent program = (ProgramComponent)component;
+        view.add(program.programEntity).addPropertyChangeListener((evt) -> {
+            program.isRunning.set(false);
+            program.stepEntity.set((String)null);
+        });
+        view.add(program.stepEntity).setReadOnly(true);
+
+        ViewElementButton bRun = view.addButton(program.isRunning.get()?"Pause":"Play");
+        bRun.addActionEventListener((evt) -> {
+            program.isRunning.set(!program.isRunning.get());
+            bRun.setText(program.isRunning.get()?"Pause":"Play");
+        });
+        view.add(program.isStepMode);
     }
 
     private void decorateDH(ComponentPanelFactory view, Component component) {
@@ -56,8 +75,11 @@ public class ArmRobotSystem implements EntitySystem {
         ViewElementButton bMake = view.addButton("Edit Arm");
         bMake.addActionEventListener((evt)-> makeRobotArm6(bMake,robotComponent,"Edit Arm"));
 
-        ViewElementButton bOpen = view.addButton(Translator.get("RobotROSystem.controlPanel"));
-        bOpen.addActionEventListener((evt)-> showControlPanel(bOpen,robotComponent));
+        ViewElementButton bOpenJog = view.addButton(Translator.get("RobotROSystem.controlPanel"));
+        bOpenJog.addActionEventListener((evt)-> showControlPanel(bOpenJog,robotComponent));
+
+        ViewElementButton bOpenProgram = view.addButton(Translator.get("RobotROSystem.controlPanel"));
+        bOpenProgram.addActionEventListener((evt)-> showControlPanel(bOpenProgram,robotComponent));
 
         ViewElementButton bHome = view.addButton("Go home");
         bHome.addActionEventListener((evt)-> robotComponent.goHome());
