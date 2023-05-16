@@ -1,6 +1,7 @@
-package com.marginallyclever.robotoverlord.components;
+package com.marginallyclever.robotoverlord.components.program;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
@@ -17,7 +18,7 @@ import java.util.List;
 /**
  * PathComponent may contain an orderd list of children with {@link PoseComponent}.
  */
-public class ProgramPathComponent extends ShapeComponent {
+public class ProgramPathComponent extends ProgramStepComponent {
     public static final String[] MOVE_TYPE_NAMES = {"Rapid","Linear"};  // ,"Bezier"
     public static final int MOVE_RAPID = 0;
     public static final int MOVE_LINEAR = 1;

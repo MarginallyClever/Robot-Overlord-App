@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
 import com.marginallyclever.robotoverlord.components.*;
+import com.marginallyclever.robotoverlord.components.program.*;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.robots.Robot;
@@ -64,15 +65,20 @@ public class ProgramExecutorSystem  implements EntitySystem {
         Entity programRoot = entityManager.findEntityByUniqueID(program.programEntity.get());
         if(programRoot==null) return;
 
-        Entity programStep = getProgramStep(program,programRoot);
-        if(programStep==null) return;
+        Entity programStep = getCurrentProgramStep(program,programRoot);
+        if(programStep==null) {
+            // program is empty.
+            program.setRunning(false);
+            return;
+        }
         // TODO check if programStep is a child of programRoot?
 
+        if(!program.inStep) beginStep(program,programStep);
         int mode = program.mode.get();
 
         boolean done = executeStep(robot,program,programStep,dt);
         if(done) {
-            endStep(programStep);
+            endStep(program,programStep);
 
             Entity nextStep = getNextStep(programStep,programRoot);
             if(nextStep==null) {
@@ -82,11 +88,10 @@ public class ProgramExecutorSystem  implements EntitySystem {
                     nextStep = programRoot.getChildren().get(0);
                 } else if(mode == ProgramComponent.RUN_TO_END) {
                     program.setRunning(false);
-                    return;
                 }
             }
-            program.stepEntity.set(nextStep.getUniqueID());
-            beginStep(nextStep);
+
+            program.stepEntity.set(nextStep==null ? null : nextStep.getUniqueID());
         }
 
         if( mode == ProgramComponent.RUN_STEP ) {
@@ -101,27 +106,16 @@ public class ProgramExecutorSystem  implements EntitySystem {
      * @param programRoot the root of the program tree.
      * @return the current step in the program or null.
      */
-    private Entity getProgramStep(ProgramComponent program,Entity programRoot) {
+    private Entity getCurrentProgramStep(ProgramComponent program, Entity programRoot) {
         // find step to run.  if no step, assume program start.
         Entity programStep = entityManager.findEntityByUniqueID(program.stepEntity.get());
-        if(programStep==null) {
-            List<Entity> children = programRoot.getChildren();
-            if(children.isEmpty()) {
-                // program is empty.
-                program.setRunning(false);
-                return null;
-            }
-            // get first child.
-            programStep = programRoot.getChildren().get(0);
-            beginStep(programStep);
-        }
-        return programStep;
-    }
+        if(programStep!=null) return programStep;
 
-    private void beginStep(Entity programStep) {
-    }
+        List<Entity> children = programRoot.getChildren();
+        if(children.isEmpty()) return null;
 
-    private void endStep(Entity programStep) {
+        // get first child.
+        return programRoot.getChildren().get(0);
     }
 
     /**
@@ -159,6 +153,18 @@ public class ProgramExecutorSystem  implements EntitySystem {
         }
     }
 
+    private void beginStep(ProgramComponent program,Entity programStep) {
+        program.inStep = true;
+        ProgramStepComponent step = programStep.getComponent(ProgramStepComponent.class);
+        program.pushStack(programStep);
+    }
+
+    private void endStep(ProgramComponent program,Entity programStep) {
+        program.inStep = false;
+        ProgramStepComponent step = programStep.getComponent(ProgramStepComponent.class);
+        program.popStack();
+    }
+
     /**
      * Execute the current step in the program.
      * @param robot the robot to move.
@@ -168,12 +174,15 @@ public class ProgramExecutorSystem  implements EntitySystem {
      * @return true if the step is finished.
      */
     private boolean executeStep(RobotComponent robot, ProgramComponent program, Entity programStep, double dt) {
-        ProgramEventComponent event = programStep.getComponent(ProgramEventComponent.class);
-        if(event!=null) return executeEvent(robot,program,programStep,event,dt);
-
-        ProgramPathComponent path = programStep.getComponent(ProgramPathComponent.class);
-        if(path!=null) return executePath(robot, program, path, dt);
-
+        ProgramStepComponent step = programStep.getComponent(ProgramStepComponent.class);
+        if(step instanceof ProgramEventComponent) {
+            ProgramEventComponent event = (ProgramEventComponent) step;
+            return executeEvent(robot,program,programStep,event,dt);
+        }
+        if(step instanceof ProgramPathComponent) {
+            ProgramPathComponent path = (ProgramPathComponent) step;
+            return executePath(robot, program, path, dt);
+        }
         // TODO handle unrecognized component type.
         return true;
     }

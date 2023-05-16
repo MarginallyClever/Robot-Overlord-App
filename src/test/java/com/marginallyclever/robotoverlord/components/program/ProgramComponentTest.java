@@ -1,5 +1,7 @@
-package com.marginallyclever.robotoverlord.components;
+package com.marginallyclever.robotoverlord.components.program;
 
+import com.marginallyclever.robotoverlord.components.ComponentTest;
+import com.marginallyclever.robotoverlord.components.program.ProgramComponent;
 import org.junit.jupiter.api.Test;
 
 public class ProgramComponentTest {

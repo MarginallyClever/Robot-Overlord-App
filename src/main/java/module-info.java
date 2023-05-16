@@ -29,4 +29,5 @@ module com.marginallyclever.robotoverlord {
 	// I don't know why it throws `InaccessibleObjectException` without this.
     opens com.marginallyclever.robotoverlord.systems.render.gcodepath;
 	opens com.marginallyclever.robotoverlord.components;
+    opens com.marginallyclever.robotoverlord.components.program;
 }

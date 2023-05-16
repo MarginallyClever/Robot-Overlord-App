@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.systems.render;
 
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.*;
+import com.marginallyclever.robotoverlord.components.program.ProgramPathComponent;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.render.gcodepath.PathFactory;
 import com.marginallyclever.robotoverlord.components.shapes.Grid;

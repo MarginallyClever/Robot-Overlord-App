@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.components;
+package com.marginallyclever.robotoverlord.components.program;
 
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 
@@ -16,7 +16,7 @@ import com.marginallyclever.robotoverlord.parameters.StringParameter;
  * @author Dan Royer
  * @since 2.6.0
  */
-public class ProgramEventComponent extends Component {
+public class ProgramEventComponent extends ProgramStepComponent {
     public static final int HOME = 0;
     public static final int DWELL = 1;
     public static final int WAIT_PIN = 2;

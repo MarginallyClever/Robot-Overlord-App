@@ -1,5 +1,7 @@
-package com.marginallyclever.robotoverlord.components;
+package com.marginallyclever.robotoverlord.components.program;
 
+import com.marginallyclever.robotoverlord.components.Component;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
@@ -31,7 +33,8 @@ public class ProgramComponent extends Component {
     private BooleanParameter isRunning = new BooleanParameter("Running",false);
     public IntParameter mode = new IntParameter("mode",RUN_STEP);
 
-    private Stack<Object> stack = new Stack<>();
+    public boolean inStep = false;
+    private final Stack<Object> stack = new Stack<>();
 
     public ProgramComponent() {
         super();
@@ -72,5 +75,17 @@ public class ProgramComponent extends Component {
 
     public void addRunningPropertyChangeListener(PropertyChangeListener arg0) {
         isRunning.addPropertyChangeListener(arg0);
+    }
+
+    public void popStack() {
+        stack.pop();
+    }
+
+    public void pushStack(Entity programStep) {
+
+    }
+
+    public Entity peekStack() {
+        return (Entity)stack.peek();
     }
 }
