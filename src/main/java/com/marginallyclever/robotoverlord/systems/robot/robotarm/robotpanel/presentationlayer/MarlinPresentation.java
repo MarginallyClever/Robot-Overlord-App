@@ -28,7 +28,7 @@ import java.util.List;
  * @author Dan Royer
  * @since 2.5.0
  */
-public class MarlinPresentation extends JPanel implements PresentationLayer {
+public class MarlinPresentation implements PresentationLayer {
 	private static final Logger logger = LoggerFactory.getLogger(MarlinPresentation.class);
 
 	@Serial
@@ -46,6 +46,7 @@ public class MarlinPresentation extends JPanel implements PresentationLayer {
 	// sends this as an ActionEvent to let listeners know it can handle more input.
 	private static final String IDLE = "idle";
 
+	private final JPanel panel = new JPanel(new BorderLayout());
 	private final Robot myArm;
 	private final TextInterfaceToSessionLayer chatInterface = new TextInterfaceToSessionLayer();
 	private final List<NumberedCommand> myHistory = new ArrayList<>();
@@ -70,9 +71,9 @@ public class MarlinPresentation extends JPanel implements PresentationLayer {
 
 		myArm = arm;
 
-		this.setLayout(new BorderLayout());
-		this.add(getToolBar(), BorderLayout.PAGE_START);
-		this.add(chatInterface, BorderLayout.CENTER);
+		panel.setLayout(new BorderLayout());
+		panel.add(getToolBar(), BorderLayout.PAGE_START);
+		panel.add(chatInterface, BorderLayout.CENTER);
 
 		arm.addPropertyChangeListener(this::onRobotEvent);
 
@@ -275,7 +276,7 @@ public class MarlinPresentation extends JPanel implements PresentationLayer {
 		JToolBar bar = new JToolBar();
 		bar.setRollover(true);
 
-		bESTOP.setFont(getFont().deriveFont(Font.BOLD));
+		bESTOP.setFont(panel.getFont().deriveFont(Font.BOLD));
 		bESTOP.setForeground(Color.RED);
 
 		bESTOP.addActionListener((e) -> sendESTOP() );
@@ -347,6 +348,15 @@ public class MarlinPresentation extends JPanel implements PresentationLayer {
 		for (ActionListener listener : listeners) listener.actionPerformed(e);
 	}
 
+	public boolean isIdleCommand(ActionEvent e) {
+		return e.getActionCommand().contentEquals(MarlinPresentation.IDLE);
+	}
+
+	@Override
+	public JPanel getPanel() {
+		return panel;
+	}
+
 	// TEST
 
 	public static void main(String[] args) {
@@ -358,17 +368,9 @@ public class MarlinPresentation extends JPanel implements PresentationLayer {
 
 		JFrame frame = new JFrame(MarlinPresentation.class.getName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new MarlinPresentation(new RobotComponent()));
+		MarlinPresentation presentation = new MarlinPresentation(new RobotComponent());
+		frame.add(presentation.getPanel());
 		frame.pack();
 		frame.setVisible(true);
-	}
-
-	public boolean isIdleCommand(ActionEvent e) {
-		return e.getActionCommand().contentEquals(MarlinPresentation.IDLE);
-	}
-
-	@Override
-	public JPanel getPanel() {
-		return this;
 	}
 }
