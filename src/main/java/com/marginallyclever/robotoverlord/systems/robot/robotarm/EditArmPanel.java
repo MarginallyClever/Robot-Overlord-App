@@ -14,6 +14,7 @@ import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementFilename;
 import com.marginallyclever.robotoverlord.systems.OriginAdjustSystem;
 
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;

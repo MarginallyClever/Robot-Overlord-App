@@ -1,14 +1,26 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.robotoverlord.entity;
 
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.entity.Entity;
-import com.marginallyclever.robotoverlord.entity.EntityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestEntityComponents {
+public class EntityTest {
+    private static void saveAndLoad(Entity a, Entity b) throws Exception {
+        b.parseJSON(a.toJSON());
+        Assertions.assertEquals(a.toString(),b.toString());
+    }
+
+    @Test
+    public void saveAndLoad() throws Exception {
+        Entity a = new Entity();
+        Entity b = new Entity();
+        EntityTest.saveAndLoad(a,b);
+
+        a.setExpanded(!a.getExpanded());
+        EntityTest.saveAndLoad(a,b);
+    }
     @Test
     public void addAndRemoveOneComponent() {
         Entity e = new Entity();
@@ -68,9 +80,4 @@ public class TestEntityComponents {
         Assertions.assertNotNull(e0.findFirstComponentRecursive(PoseComponent.class));
         Assertions.assertNotNull(e1.findFirstComponentInParents(CameraComponent.class));
     }
-/*
-    @Test
-    public void getMatchingComponentsFromManyEntities() {
-        throw new UnsupportedOperationException("TODO");
-    }*/
 }

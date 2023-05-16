@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.marginallyclever.robotoverlord.ComponentTest;
 import org.junit.jupiter.api.Test;
 
 public class LightComponentTest {

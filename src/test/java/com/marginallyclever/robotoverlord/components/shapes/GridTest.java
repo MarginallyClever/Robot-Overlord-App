@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
-import com.marginallyclever.robotoverlord.ComponentTest;
+import com.marginallyclever.robotoverlord.components.ComponentTest;
 import org.junit.jupiter.api.Test;
 
 public class GridTest {

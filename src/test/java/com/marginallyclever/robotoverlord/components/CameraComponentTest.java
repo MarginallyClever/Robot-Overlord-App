@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord.components;
 
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotoverlord.ComponentTest;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
