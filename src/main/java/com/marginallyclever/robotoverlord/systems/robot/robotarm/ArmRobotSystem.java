@@ -33,7 +33,7 @@ public class ArmRobotSystem implements EntitySystem {
     public void decorate(ComponentPanelFactory view, Component component) {
         if( component instanceof RobotComponent ) decorateRobot(view,component);
         if( component instanceof DHComponent ) decorateDH(view,component);
-        if( component instanceof ProgramComponent) decorateProgram(view,component);
+        if( component instanceof ProgramComponent ) decorateProgram(view,component);
     }
 
     private void decorateProgram(ComponentPanelFactory view, Component component) {
@@ -45,11 +45,13 @@ public class ArmRobotSystem implements EntitySystem {
         view.add(program.stepEntity).setReadOnly(true);
 
         ViewElementButton bRun = view.addButton(program.isRunning.get()?"Pause":"Play");
-        bRun.addActionEventListener((evt) -> {
-            program.isRunning.set(!program.isRunning.get());
+        program.isRunning.addPropertyChangeListener((evt) -> {
             bRun.setText(program.isRunning.get()?"Pause":"Play");
         });
-        view.add(program.isStepMode);
+        bRun.addActionEventListener((evt) -> {
+            program.isRunning.set(!program.isRunning.get());
+        });
+        view.addComboBox(program.mode, ProgramComponent.MODE_NAMES);
     }
 
     private void decorateDH(ComponentPanelFactory view, Component component) {
