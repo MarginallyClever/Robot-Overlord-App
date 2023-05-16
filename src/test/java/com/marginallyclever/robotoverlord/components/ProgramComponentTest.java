@@ -9,12 +9,12 @@ public class ProgramComponentTest {
         ProgramComponent b = new ProgramComponent();
         ComponentTest.saveAndLoad(a,b);
 
-        a.isRunning.set(true);
+        a.setRunning(true);
         a.mode.set(ProgramComponent.RUN_TO_END);
         ComponentTest.saveAndLoad(a,b);
 
-        a.isRunning.set(false);
-        a.mode.set(ProgramComponent.RUN_CYCLE);
+        a.setRunning(false);
+        a.mode.set(ProgramComponent.RUN_LOOP);
         ComponentTest.saveAndLoad(a,b);
     }
 }
