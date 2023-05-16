@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
 import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 
 import javax.vecmath.Matrix3d;

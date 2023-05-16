@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.systems.robot.crab;
 
 import com.marginallyclever.convenience.MathHelper;
 import com.marginallyclever.robotoverlord.components.Component;
-import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.RobotComponent;

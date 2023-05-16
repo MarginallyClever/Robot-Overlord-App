@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm.tools;
 
 import com.marginallyclever.convenience.memento.MementoOriginator;
-import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.entity.Entity;
 
 /**
  * DHTool has a DHLink equivalence.

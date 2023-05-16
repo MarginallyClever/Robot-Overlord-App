@@ -1,10 +1,9 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.robotoverlord.entity;
 
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.ComponentDependency;
 import com.marginallyclever.robotoverlord.components.ComponentFactory;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.entity.EntityManager;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

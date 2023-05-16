@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.tools;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.Viewport;
 
 import javax.vecmath.Point3d;

@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
-import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
@@ -13,7 +13,7 @@ import java.awt.event.KeyEvent;
 import java.util.List;
 
 /**
- * Makes a deep copy of the selected {@link com.marginallyclever.robotoverlord.Entity}.
+ * Makes a deep copy of the selected {@link Entity}.
  */
 public class EntityCopyAction extends AbstractAction implements EditorAction {
     private final EntityManager entityManager;

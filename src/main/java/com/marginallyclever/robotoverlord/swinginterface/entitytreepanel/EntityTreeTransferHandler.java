@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
-import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.EntityReorganizeEdit;

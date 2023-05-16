@@ -1,7 +1,9 @@
 package com.marginallyclever.robotoverlord.parameters;
 
+import com.marginallyclever.robotoverlord.entity.Entity;
+
 /**
- * A {@link StringParameter} that can only be set to the uniqueID of an {@link com.marginallyclever.robotoverlord.Entity}.
+ * A {@link StringParameter} that can only be set to the uniqueID of an {@link Entity}.
  *
  * @author Dan Royer
  * @since 2.5.0

@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
 import com.marginallyclever.robotoverlord.components.ComponentWithDiskAsset;
-import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.systems.render.material.MaterialFactory;

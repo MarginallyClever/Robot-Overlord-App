@@ -1,7 +1,5 @@
 package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
-import com.marginallyclever.robotoverlord.Entity;
-
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;

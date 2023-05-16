@@ -1,10 +1,11 @@
 package com.marginallyclever.robotoverlord;
 
+import com.marginallyclever.robotoverlord.entity.Entity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class EntityTest {
-    private static void saveAndLoad(Entity a,Entity b) throws Exception {
+    private static void saveAndLoad(Entity a, Entity b) throws Exception {
         b.parseJSON(a.toJSON());
         Assertions.assertEquals(a.toString(),b.toString());
     }

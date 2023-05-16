@@ -1,7 +1,5 @@
 package com.marginallyclever.robotoverlord.entity;
 
-import com.marginallyclever.robotoverlord.Entity;
-
 /**
  * An interface for listening to changes in the {@link EntityManager}.
  */

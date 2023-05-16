@@ -1,12 +1,13 @@
 package com.marginallyclever.robotoverlord.components;
 
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 
 /**
  * The ProgramComponent holds run-time information about the program being executed by a robot.
  * The ProgramExecutorSystem will use this information to execute the program.
- * When placed in the same {@link com.marginallyclever.robotoverlord.Entity} as a {@link RobotComponent}, this
+ * When placed in the same {@link Entity} as a {@link RobotComponent}, this
  * {@link Component} will allow a ProgramExecutor a robot to a execute {@link PathComponent}s
  * and {@link ProgramEventComponent}s.
  *

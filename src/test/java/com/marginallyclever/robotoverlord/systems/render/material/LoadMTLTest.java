@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.systems.render.material;
 
-import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import org.junit.jupiter.api.Assertions;
