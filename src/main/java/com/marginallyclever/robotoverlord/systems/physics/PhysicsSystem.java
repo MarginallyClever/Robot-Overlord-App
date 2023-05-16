@@ -1,8 +1,9 @@
-package com.marginallyclever.robotoverlord.systems;
+package com.marginallyclever.robotoverlord.systems.physics;
 
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
+import com.marginallyclever.robotoverlord.systems.EntitySystem;
 
 /**
  * Decorates {@link PoseComponent} with a position, rotation, and scale.
