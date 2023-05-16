@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.renderpanel;
 
-import com.marginallyclever.robotoverlord.UpdateCallback;
 import com.marginallyclever.robotoverlord.entity.Entity;
 
 import javax.swing.*;

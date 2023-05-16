@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.robotoverlord.renderpanel;
 
 /**
  * Used to notify the listeners that it's time to update.
