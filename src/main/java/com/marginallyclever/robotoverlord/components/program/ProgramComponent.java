@@ -32,8 +32,6 @@ public class ProgramComponent extends Component {
     public ReferenceParameter stepEntity = new ReferenceParameter("Step",null);
     private BooleanParameter isRunning = new BooleanParameter("Running",false);
     public IntParameter mode = new IntParameter("mode",RUN_STEP);
-
-    public boolean inStep = false;
     private final Stack<Object> stack = new Stack<>();
 
     public ProgramComponent() {
@@ -81,11 +79,15 @@ public class ProgramComponent extends Component {
         stack.pop();
     }
 
-    public void pushStack(Entity programStep) {
-
+    public void pushStack(Object obj) {
+        stack.push(obj);
     }
 
-    public Entity peekStack() {
-        return (Entity)stack.peek();
+    public Object peekStack() {
+        return stack.peek();
+    }
+
+    public int getStackDepth() {
+        return stack.size();
     }
 }
