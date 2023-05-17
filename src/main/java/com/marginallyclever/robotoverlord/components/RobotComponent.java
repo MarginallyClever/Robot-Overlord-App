@@ -5,8 +5,11 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.ApproximateJacobian2;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.programpanel.ProgramPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -26,6 +29,7 @@ import java.util.Queue;
  */
 @ComponentDependency(components = {PoseComponent.class})
 public class RobotComponent extends Component implements Robot {
+    private static final Logger logger = LoggerFactory.getLogger(RobotComponent.class);
     private int activeJoint;
     private final List<DHComponent> bones = new ArrayList<>();
     public final ReferenceParameter gcodePath = new ReferenceParameter("Path");
@@ -34,6 +38,14 @@ public class RobotComponent extends Component implements Robot {
     public void setEntity(Entity entity) {
         super.setEntity(entity);
         findBones();
+    }
+
+    public void goHome() {
+        double [] homeValues = new double[getNumBones()];
+        for(int i=0;i<getNumBones();++i) {
+            homeValues[i] = getBone(i).getJointHome();
+        }
+        setAllJointValues(homeValues);
     }
 
     public int getNumBones() {
@@ -79,7 +91,10 @@ public class RobotComponent extends Component implements Robot {
             case JOINT_POSE: return getActiveJointPose();
             case JOINT_HOME: return getBone(activeJoint).getJointHome();
             case ALL_JOINT_VALUES: return getAllJointValues();
-            default : return null;
+            default : {
+                logger.warn("invalid get() property {}", property);
+                return null;
+            }
         }
     }
 
@@ -116,7 +131,9 @@ public class RobotComponent extends Component implements Robot {
             case POSE -> setPoseWorld((Matrix4d) value);
             case JOINT_HOME -> getBone(activeJoint).setJointHome((double) value);
             case ALL_JOINT_VALUES -> setAllJointValues((double[]) value);
-            default -> { }
+            default -> {
+                logger.warn("invalid set() property {}", property);
+            }
         }
     }
 

@@ -58,7 +58,7 @@ public class ArmRobotSystem implements EntitySystem {
         bOpenJog.addActionEventListener((evt)-> showControlPanel(bOpenJog,robotComponent));
 
         ViewElementButton bHome = view.addButton("Go home");
-        bHome.addActionEventListener((evt)-> goHome(robotComponent));
+        bHome.addActionEventListener((evt)-> robotComponent.goHome());
     }
 
     private void makeRobotArm6(JComponent parent, RobotComponent robotComponent,String title) {
@@ -73,16 +73,6 @@ public class ArmRobotSystem implements EntitySystem {
         Entity entity = entityManager.findEntityByUniqueID(robotComponent.getGCodePathEntityUUID());
         if(entity==null) return null;
         return entity.getComponent(GCodePathComponent.class);
-    }
-
-    private void goHome(RobotComponent robotComponent) {
-        int numBones = robotComponent.getNumBones();
-        if(numBones==0) return;
-        double [] homeValues = new double[numBones];
-        for(int i=0;i<numBones;++i) {
-            homeValues[i] = robotComponent.getBone(i).getJointHome();
-        }
-        setAllJointValues(homeValues);
     }
 
     /**
