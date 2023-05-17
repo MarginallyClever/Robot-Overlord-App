@@ -162,6 +162,16 @@ public class Entity implements PropertyChangeListener {
 	}
 
 	/**
+	 * @return the previous sibling or null if none.
+	 */
+	public Entity getPreviousSibling() {
+		if(parent==null) return null;  // no parent, no siblings.
+		int i=parent.children.indexOf(this);
+		if(i==0) return null;  // no previous sibling
+		return parent.children.get(i-1);
+	}
+
+	/**
 	 * Search the entity tree based on an absolute or relative Unix-style path.
 	 * 
 	 * @param path the search query
@@ -390,10 +400,28 @@ public class Entity implements PropertyChangeListener {
 		}
 	}
 
+	/**
+	 * Create a new instance of this entity without smashing the uniqueID.
+	 * @return the new entity tree.
+	 */
 	public Entity deepCopy() {
 		Entity e = new Entity();
 		e.parseJSON(this.toJSON());
+		e.recursivelyAssignNewUniqueIDs();
 		return e;
+	}
+
+	/**
+	 * This entity and all its children will be assigned new uniqueIDs.
+	 */
+	private void recursivelyAssignNewUniqueIDs() {
+		List<Entity> list = new LinkedList<>();
+		list.add(this);
+		while(!list.isEmpty()) {
+			Entity e = list.remove(0);
+			list.addAll(e.getChildren());
+			e.uniqueID = UUID.randomUUID().toString();
+		}
 	}
 
 	public boolean getExpanded() {

@@ -80,4 +80,33 @@ public class EntityTest {
         Assertions.assertNotNull(e0.findFirstComponentRecursive(PoseComponent.class));
         Assertions.assertNotNull(e1.findFirstComponentInParents(CameraComponent.class));
     }
+
+
+    @Test
+    public void deepCopy() {
+        Entity a = new Entity("a");
+        Entity b = a.deepCopy();
+        Assertions.assertNotEquals(a.getUniqueID(),b.getUniqueID());
+        Assertions.assertEquals(a.getName(),b.getName());
+    }
+
+    @Test
+    public void previousAndNext() {
+        EntityManager entityManager = new EntityManager();
+        Entity a = new Entity("a");
+        Entity b = new Entity("b");
+        Entity c = new Entity("c");
+        Entity d = new Entity("d");
+        entityManager.addEntityToParent(b,a);
+        entityManager.addEntityToParent(c,a);
+        entityManager.addEntityToParent(d,a);
+
+        Assertions.assertEquals(c,b.getNextSibling());
+        Assertions.assertEquals(d,c.getNextSibling());
+        Assertions.assertNull(d.getNextSibling());
+
+        Assertions.assertEquals(c,d.getPreviousSibling());
+        Assertions.assertEquals(b,c.getPreviousSibling());
+        Assertions.assertNull(b.getPreviousSibling());
+    }
 }
