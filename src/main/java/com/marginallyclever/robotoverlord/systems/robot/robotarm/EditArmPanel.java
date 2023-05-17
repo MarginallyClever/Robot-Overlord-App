@@ -91,6 +91,7 @@ public class EditArmPanel extends JPanel {
             rootEntity.addComponent(new MeshFromFile());
         }
 
+        // recursively add the joints
         Entity parent = rootEntity;
         for (int i = 0; i < numJoints; i++) {
             Entity jointEntity;
@@ -123,6 +124,22 @@ public class EditArmPanel extends JPanel {
         if(lastJoint.getComponent(ArmEndEffectorComponent.class)==null) {
             lastJoint.addComponent(new ArmEndEffectorComponent());
         }
+
+        // Add end effector target entity to the root entity
+        Entity target = findChildCalled("target");
+        if(target==null) {
+            target = new Entity("target");
+            entityManager.addEntityToParent(target, rootEntity);
+        }
+    }
+
+    private Entity findChildCalled(String name) {
+        for( Entity child : rootEntity.getChildren()) {
+            if(child.getName().equals(name)) {
+                return child;
+            }
+        }
+        return null;
     }
 
     private void setupPanel() {
