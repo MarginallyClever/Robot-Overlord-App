@@ -175,6 +175,8 @@ public class MaterialComponent extends Component implements ComponentWithDiskAss
     @Override
     public void adjustPath(String originalPath, String newPath) {
         String oldPath = this.getTextureFilename();
+        if(oldPath==null || oldPath.trim().isEmpty()) return;
+
         String adjustedPath = oldPath;
         if(oldPath.startsWith(originalPath)) {
             adjustedPath = newPath + oldPath.substring(originalPath.length());
@@ -185,7 +187,8 @@ public class MaterialComponent extends Component implements ComponentWithDiskAss
     @Override
     public List<String> getAssetPaths() {
         List<String> list = new ArrayList<>();
-        list.add(getTextureFilename());
+        String path = getTextureFilename();
+        if(path!=null && !path.trim().isEmpty()) list.add(path);
         return list;
     }
 }

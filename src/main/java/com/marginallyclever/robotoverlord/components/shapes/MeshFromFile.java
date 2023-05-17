@@ -99,6 +99,7 @@ public class MeshFromFile extends ShapeComponent implements ComponentWithDiskAss
     @Override
     public void adjustPath(String originalPath, String newPath) {
         String oldPath = this.getFilename();
+        if(oldPath==null || oldPath.trim().isEmpty()) return;
         String adjustedPath = oldPath;
         if(oldPath.startsWith(originalPath)) {
             adjustedPath = newPath + oldPath.substring(originalPath.length());
@@ -109,7 +110,8 @@ public class MeshFromFile extends ShapeComponent implements ComponentWithDiskAss
     @Override
     public List<String> getAssetPaths() {
         List<String> list = new ArrayList<>();
-        list.add(getFilename());
+        String absolutePath = getFilename();
+        if(absolutePath!=null && !absolutePath.trim().isEmpty()) list.add(getFilename());
         return list;
     }
 }
