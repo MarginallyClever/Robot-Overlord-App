@@ -31,8 +31,7 @@ public class EntityCopyAction extends AbstractAction implements EditorAction {
         List<Entity> list = Clipboard.getSelectedEntities();
         Entity container = new Entity();
         for(Entity entity : list) {
-            Entity e = new Entity();
-            e.parseJSON(entity.toJSON());
+            Entity e = entity.deepCopy();
             entityManager.addEntityToParent(e,container);
         }
         Clipboard.setCopiedEntities(container);
