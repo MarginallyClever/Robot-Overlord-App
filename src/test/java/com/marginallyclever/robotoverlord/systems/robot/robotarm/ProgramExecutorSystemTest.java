@@ -4,6 +4,7 @@ import com.marginallyclever.robotoverlord.components.program.ProgramComponent;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ProgramExecutorSystemTest {
@@ -32,17 +33,20 @@ public class ProgramExecutorSystemTest {
         // run the program
         ProgramExecutorSystem executor = new ProgramExecutorSystem(entityManager);
         Entity programStep = programRoot.getChildren().get(0);
-        for(int i=0;i<100;++i) {
+        int i;
+        for(i=0;i<100;++i) {
             System.out.print("Step "+i);
             if(programStep!=null) {
                 System.out.println(" "+programStep.getName());
             } else {
                 System.out.println(" null");
             }
-            Entity nextStep = executor.getNextStep(programStep,programRoot);
+            Entity nextStep = executor.getNextStep(robot,program,programStep,programRoot);
             if(nextStep==null) break;
             programStep = nextStep;
         }
+        Assertions.assertEquals(42,i);
+        Assertions.assertEquals(0,program.getStackDepth());
     }
 
     private void addChildrenToNode(EntityManager manager,Entity node,int count) {

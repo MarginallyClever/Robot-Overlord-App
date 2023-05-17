@@ -8,11 +8,15 @@ import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.vecmath.Matrix4d;
 import java.util.LinkedList;
 import java.util.List;
 
 public class ProgramExecutorSystem  implements EntitySystem {
+    private static final Logger logger = LoggerFactory.getLogger(ProgramExecutorSystem.class);
     private final EntityManager entityManager;
 
     public ProgramExecutorSystem(EntityManager entityManager) {
@@ -48,9 +52,9 @@ public class ProgramExecutorSystem  implements EntitySystem {
         List<Entity> list = new LinkedList<>(entityManager.getEntities());
         while(!list.isEmpty()) {
             Entity e = list.remove(0);
+            list.addAll(e.getChildren());
             ProgramComponent found = e.getComponent(ProgramComponent.class);
             if( found!=null ) updateProgram(found,dt);
-            list.addAll(e.getChildren());
         }
     }
 
@@ -65,22 +69,24 @@ public class ProgramExecutorSystem  implements EntitySystem {
         Entity programRoot = entityManager.findEntityByUniqueID(program.programEntity.get());
         if(programRoot==null) return;
 
-        Entity programStep = getCurrentProgramStep(program,programRoot);
-        if(programStep==null) {
+        Entity programStep = getCurrentProgramStep(program);
+        if(programStep == null) {
+            programStep = getFirstProgramStep(programRoot);
+            if(programStep != null) {
+                pushStack(robot, program, programStep);
+            }
+        }
+        if(programStep == null) {
             // program is empty.
             program.setRunning(false);
             return;
         }
         // TODO check if programStep is a child of programRoot?
-
-        if(!program.inStep) beginStep(program,programStep);
         int mode = program.mode.get();
 
         boolean done = executeStep(robot,program,programStep,dt);
         if(done) {
-            endStep(program,programStep);
-
-            Entity nextStep = getNextStep(programStep,programRoot);
+            Entity nextStep = getNextStep(robot,program,programStep,programRoot);
             if(nextStep==null) {
                 // no more steps to run.
                 if (mode == ProgramComponent.RUN_LOOP) {
@@ -103,18 +109,16 @@ public class ProgramExecutorSystem  implements EntitySystem {
     /**
      * Get the current step in the program.
      * @param program the program to run.
-     * @param programRoot the root of the program tree.
      * @return the current step in the program or null.
      */
-    private Entity getCurrentProgramStep(ProgramComponent program, Entity programRoot) {
+    private Entity getCurrentProgramStep(ProgramComponent program) {
         // find step to run.  if no step, assume program start.
-        Entity programStep = entityManager.findEntityByUniqueID(program.stepEntity.get());
-        if(programStep!=null) return programStep;
+        return entityManager.findEntityByUniqueID(program.stepEntity.get());
+    }
 
+    private Entity getFirstProgramStep(Entity programRoot) {
         List<Entity> children = programRoot.getChildren();
         if(children.isEmpty()) return null;
-
-        // get first child.
         return programRoot.getChildren().get(0);
     }
 
@@ -124,19 +128,25 @@ public class ProgramExecutorSystem  implements EntitySystem {
      * @param programRoot the root of the program tree
      * @return the next step in the program or null.
      */
-    public Entity getNextStep(Entity programStep, Entity programRoot) {
+    public Entity getNextStep(RobotComponent robot,ProgramComponent program,Entity programStep, Entity programRoot) {
+        Entity nextStep=null;
         // we've just executed programStep, now what?
         if(!programStep.getChildren().isEmpty()) {
-            // push the stack.
-            return programStep.getChildren().get(0);
+            // go to first child
+            nextStep = programStep.getChildren().get(0);
         }
-
-        // no children, go to next sibling
-        Entity nextStep = programStep.getNextSibling();
-        if (nextStep != null) return nextStep;
+        if(nextStep==null) {
+            // no children, go to next sibling
+            nextStep = programStep.getNextSibling();
+        }
+        if (nextStep != null) {
+            pushStack(robot,program,nextStep);
+            return nextStep;
+        }
 
         // no next sibling, pop the stack
         while(true) {
+            popStack(program,programStep);
             Entity parent = programStep.getParent();
 
             if( parent==null ) return null;
@@ -153,16 +163,14 @@ public class ProgramExecutorSystem  implements EntitySystem {
         }
     }
 
-    private void beginStep(ProgramComponent program,Entity programStep) {
-        program.inStep = true;
+    private void pushStack(RobotComponent robot, ProgramComponent program, Entity programStep) {
         ProgramStepComponent step = programStep.getComponent(ProgramStepComponent.class);
-        program.pushStack(programStep);
+        if(step!=null) program.pushStack(step);
     }
 
-    private void endStep(ProgramComponent program,Entity programStep) {
-        program.inStep = false;
+    private void popStack(ProgramComponent program, Entity programStep) {
         ProgramStepComponent step = programStep.getComponent(ProgramStepComponent.class);
-        program.popStack();
+        if(step!=null) program.popStack();
     }
 
     /**
@@ -175,19 +183,21 @@ public class ProgramExecutorSystem  implements EntitySystem {
      */
     private boolean executeStep(RobotComponent robot, ProgramComponent program, Entity programStep, double dt) {
         ProgramStepComponent step = programStep.getComponent(ProgramStepComponent.class);
-        if(step instanceof ProgramEventComponent) {
-            ProgramEventComponent event = (ProgramEventComponent) step;
-            return executeEvent(robot,program,programStep,event,dt);
+        Object stackTop = program.peekStack();
+
+        if(stackTop instanceof ProgramEventComponent) {
+            ProgramEventComponent event = (ProgramEventComponent) stackTop;
+            return executeEvent(robot, program, event, programStep, dt);
         }
-        if(step instanceof ProgramPathComponent) {
-            ProgramPathComponent path = (ProgramPathComponent) step;
-            return executePath(robot, program, path, dt);
+        if(stackTop instanceof ProgramPathComponent) {
+            ProgramPathComponent path = (ProgramPathComponent) stackTop;
+            return executePath(robot, program, path, programStep, dt);
         }
         // TODO handle unrecognized component type.
         return true;
     }
 
-    private boolean executeEvent(RobotComponent robot, ProgramComponent program, Entity programStep, ProgramEventComponent event, double dt) {
+    private boolean executeEvent(RobotComponent robot, ProgramComponent program, ProgramEventComponent event, Entity programStep, double dt) {
         // assume instant finish
         return true;
     }
@@ -200,15 +210,21 @@ public class ProgramExecutorSystem  implements EntitySystem {
      * @param dt the time step in seconds.
      * @return true if the path is finished.
      */
-    private boolean executePath(RobotComponent robot, ProgramComponent program, ProgramPathComponent path, double dt) {
-        PoseComponent pathPose = path.getEntity().getComponent(PoseComponent.class);
+    private boolean executePath(RobotComponent robot, ProgramComponent program, ProgramPathComponent path, Entity programStep, double dt) {
+        PoseComponent pathPose = programStep.getComponent(PoseComponent.class);
+
+        Matrix4d robotPose = robot.getEntity().getComponent(PoseComponent.class).getWorld();
+        robotPose.invert();
+        Matrix4d pathPoseWorld = pathPose.getWorld();
+        Matrix4d adj = new Matrix4d();
+        adj.mul(pathPoseWorld,robotPose);
 
         if (path.moveType.get() == ProgramPathComponent.MOVE_LINEAR) {
             // linear
-            robot.set(Robot.END_EFFECTOR_TARGET, pathPose.getWorld());
+            robot.set(Robot.END_EFFECTOR_TARGET, adj);
         } else {
             // rapid
-            robot.set(Robot.END_EFFECTOR_TARGET, pathPose.getWorld());
+            robot.set(Robot.END_EFFECTOR_TARGET, adj);
         }
 
         // assume instant finish
