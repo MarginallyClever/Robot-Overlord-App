@@ -24,6 +24,7 @@ import java.util.Queue;
  * @author Dan Royer
  * @since 2022-09-14
  */
+@ComponentDependency(components = {PoseComponent.class})
 public class RobotComponent extends Component implements Robot {
     private int activeJoint;
     private final List<DHComponent> bones = new ArrayList<>();
@@ -32,16 +33,7 @@ public class RobotComponent extends Component implements Robot {
     @Override
     public void setEntity(Entity entity) {
         super.setEntity(entity);
-        entity.addComponent(new PoseComponent());
         findBones();
-    }
-
-    public void goHome() {
-        double [] homeValues = new double[getNumBones()];
-        for(int i=0;i<getNumBones();++i) {
-            homeValues[i] = getBone(i).getJointHome();
-        }
-        setAllJointValues(homeValues);
     }
 
     public int getNumBones() {
@@ -59,10 +51,11 @@ public class RobotComponent extends Component implements Robot {
         Queue<Entity> queue = new LinkedList<>();
         queue.add(getEntity());
         while(!queue.isEmpty()) {
-            Entity e = queue.poll();
-            DHComponent c = e.getComponent(DHComponent.class);
+            Entity entity = queue.poll();
+            queue.addAll(entity.getChildren());
+
+            DHComponent c = entity.getComponent(DHComponent.class);
             if(c!=null) bones.add(c);
-            queue.addAll(e.getChildren());
         }
     }
 
