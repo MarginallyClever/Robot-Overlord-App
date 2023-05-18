@@ -1,9 +1,6 @@
 package com.marginallyclever.robotoverlord.entity;
 
-import com.marginallyclever.robotoverlord.components.CameraComponent;
-import com.marginallyclever.robotoverlord.components.LightComponent;
-import com.marginallyclever.robotoverlord.components.MaterialComponent;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
@@ -65,5 +62,36 @@ public class EntityManagerTest {
         Assertions.assertEquals(c,a.getParent());
         Assertions.assertNull(b.getParent());
         Assertions.assertEquals(c,a.getParent());
+    }
+
+    @Test
+    public void deepCopyWithReference() {
+        EntityManager entityManager = new EntityManager();
+        // add node a
+        Entity a = new Entity("a");
+        entityManager.addEntityToParent(a,entityManager.getRoot());
+        // add node b that contains some reference to a
+        Entity b = new Entity("b");
+        RobotComponent robot = new RobotComponent();
+        b.addComponent(robot);
+        entityManager.addEntityToParent(b,entityManager.getRoot());
+        robot.gcodePath.set(a.getUniqueID());
+
+        // copy just b, expect the reference to a to be unchanged.
+        Entity c = b.deepCopy();
+        String cPath = c.getComponent(RobotComponent.class).gcodePath.get();
+        String bPath = b.getComponent(RobotComponent.class).gcodePath.get();
+        Assertions.assertEquals(cPath, bPath);
+        Assertions.assertEquals(cPath,a.getUniqueID());
+
+        // now copy both a and b, expect the reference to a to be changed.
+        Entity d = entityManager.getRoot().deepCopy();
+
+        Entity aOfd = d.getChildren().get(0);  // a of d
+        Entity bOfd = d.getChildren().get(1);  // b of d
+        cPath = bOfd.getComponent(RobotComponent.class).gcodePath.get();
+        Assertions.assertNotEquals(cPath, bPath);
+        Assertions.assertNotEquals(cPath,a.getUniqueID());
+        Assertions.assertEquals(cPath,aOfd.getUniqueID());
     }
 }

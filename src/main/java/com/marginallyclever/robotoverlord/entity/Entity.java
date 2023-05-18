@@ -1,9 +1,6 @@
 package com.marginallyclever.robotoverlord.entity;
 
-import com.marginallyclever.robotoverlord.components.Component;
-import com.marginallyclever.robotoverlord.components.ComponentDependency;
-import com.marginallyclever.robotoverlord.components.ComponentFactory;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -415,13 +412,40 @@ public class Entity implements PropertyChangeListener {
 	 * This entity and all its children will be assigned new uniqueIDs.
 	 */
 	private void recursivelyAssignNewUniqueIDs() {
-		List<Entity> list = new LinkedList<>();
-		list.add(this);
-		while(!list.isEmpty()) {
-			Entity e = list.remove(0);
-			list.addAll(e.getChildren());
+		// list self and all children
+		List<Entity> list = getEntireTree();
+
+		// update all uniqueIDs
+		Map<String,String> oldToNew = new HashMap<>();
+		for(Entity e : list) {
+			String oldID = e.uniqueID;
 			e.uniqueID = UUID.randomUUID().toString();
+			oldToNew.put(oldID,e.uniqueID);
 		}
+
+		// get all references
+		for(Entity e : list) {
+			List<Component> components = e.getComponents();
+			for(Component c : components) {
+				if(c instanceof ComponentWithReferences) {
+					ComponentWithReferences cwr = (ComponentWithReferences)c;
+					cwr.updateReferences(oldToNew);
+				}
+			}
+		}
+	}
+
+	// list self and all children
+	public List<Entity> getEntireTree() {
+		List<Entity> list = new ArrayList<>();
+		List<Entity> toAdd = new LinkedList<>();
+		toAdd.add(this);
+		while(!toAdd.isEmpty()) {
+			Entity e = toAdd.remove(0);
+			list.add(e);
+			toAdd.addAll(e.getChildren());
+		}
+		return list;
 	}
 
 	public boolean getExpanded() {
@@ -447,7 +471,16 @@ public class Entity implements PropertyChangeListener {
 		}
 	}
 
-	public Collection<? extends Component> getComponents() {
+	public Entity findChildNamed(String name) {
+		for( Entity child : children) {
+			if(child.getName().equals(name)) {
+				return child;
+			}
+		}
+		return null;
+	}
+
+	public List<Component> getComponents() {
 		return components;
 	}
 }
