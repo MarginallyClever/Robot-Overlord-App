@@ -39,6 +39,7 @@ public class EditArmPanel extends JPanel {
     private JPanel dhTable = new JPanel(new GridLayout(numJoints +1, labels.length,2,2));
     private JPanel centerContainer = new JPanel(new BorderLayout());
     private final JCheckBox adjustOrigins = new JCheckBox("All meshes have origin at root of robot");
+    private final RobotComponent robotComponent;
 
     public EditArmPanel(Entity rootEntity, EntityManager entityManager) {
         super(new BorderLayout());
@@ -47,6 +48,7 @@ public class EditArmPanel extends JPanel {
         add(centerContainer,BorderLayout.CENTER);
         this.entityManager = entityManager;
         this.rootEntity = rootEntity;
+        this.robotComponent = rootEntity.getComponent(RobotComponent.class);
         countJoints();
         createComponents();
         setupPanel();
@@ -126,20 +128,11 @@ public class EditArmPanel extends JPanel {
         }
 
         // Add end effector target entity to the root entity
-        Entity target = findChildCalled("target");
+        Entity target = robotComponent.getChildTarget();
         if(target==null) {
-            target = new Entity("target");
+            target = new Entity(RobotComponent.TARGET_NAME);
             entityManager.addEntityToParent(target, rootEntity);
         }
-    }
-
-    private Entity findChildCalled(String name) {
-        for( Entity child : rootEntity.getChildren()) {
-            if(child.getName().equals(name)) {
-                return child;
-            }
-        }
-        return null;
     }
 
     private void setupPanel() {

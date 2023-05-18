@@ -1,11 +1,14 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
+import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.Component;
+import com.marginallyclever.robotoverlord.components.program.ProgramComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.components.DHComponent;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.GCodePathComponent;
+import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.RobotPanel;
@@ -14,6 +17,9 @@ import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.V
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
+import javax.vecmath.Matrix4d;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A system to manage robot arms.
@@ -79,5 +85,21 @@ public class ArmRobotSystem implements EntitySystem {
      * Update the system over time.
      * @param dt the time step in seconds.
      */
-    public void update(double dt) {}
+    public void update(double dt) {
+        List<Entity> list = new LinkedList<>(entityManager.getEntities());
+        while (!list.isEmpty()) {
+            Entity e = list.remove(0);
+            list.addAll(e.getChildren());
+
+            RobotComponent found = e.getComponent(RobotComponent.class);
+            if (found != null) updateRobotComponent(found, dt);
+        }
+    }
+
+    private void updateRobotComponent(RobotComponent robotComponent, double dt) {
+        Matrix4d startPose = (Matrix4d)robotComponent.get(Robot.END_EFFECTOR);
+        Matrix4d targetPose = (Matrix4d)robotComponent.get(Robot.END_EFFECTOR_TARGET);
+        double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrices(startPose, targetPose);
+        robotComponent.applyCartesianForceToEndEffector(cartesianVelocity);
+    }
 }

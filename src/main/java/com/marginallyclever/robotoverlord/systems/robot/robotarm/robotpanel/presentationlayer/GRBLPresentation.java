@@ -343,11 +343,15 @@ public class GRBLPresentation implements PresentationLayer {
 
     public void sendGoHome() {
         int count = (int)myArm.get(Robot.NUM_JOINTS);
+        if(count==0) return;
+
+        double [] list = new double[count];
         for (int i = 0; i < count; ++i) {
             myArm.set(Robot.ACTIVE_JOINT, i);
-            double angle = (double)myArm.get(Robot.JOINT_HOME);
-            myArm.set(Robot.JOINT_VALUE,angle);
+            list[i] = (double)myArm.get(Robot.JOINT_HOME);
         }
+        myArm.set(Robot.ALL_JOINT_VALUES,list);
+        myArm.set(Robot.END_EFFECTOR_TARGET,myArm.get(Robot.END_EFFECTOR));
     }
 
     public void setNetworkSession(SessionLayer session) {

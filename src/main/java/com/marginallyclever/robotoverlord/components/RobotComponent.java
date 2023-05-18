@@ -5,7 +5,6 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.ApproximateJacobian2;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.programpanel.ProgramPanel;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -15,10 +14,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * RobotComponent is attached to the root of a robotic arm.
@@ -28,8 +24,10 @@ import java.util.Queue;
  * @since 2022-09-14
  */
 @ComponentDependency(components = {PoseComponent.class})
-public class RobotComponent extends Component implements Robot {
+public class RobotComponent extends Component implements Robot, ComponentWithReferences {
     private static final Logger logger = LoggerFactory.getLogger(RobotComponent.class);
+    public static final String TARGET_NAME = "target";
+
     private int activeJoint;
     private final List<DHComponent> bones = new ArrayList<>();
     public final ReferenceParameter gcodePath = new ReferenceParameter("Path");
@@ -46,6 +44,7 @@ public class RobotComponent extends Component implements Robot {
             homeValues[i] = getBone(i).getJointHome();
         }
         setAllJointValues(homeValues);
+        set(Robot.END_EFFECTOR_TARGET,get(Robot.END_EFFECTOR));
     }
 
     public int getNumBones() {
@@ -168,13 +167,14 @@ public class RobotComponent extends Component implements Robot {
      * @return the end effector's target pose relative to the robot's base.
      */
     private Matrix4d getEndEffectorTargetPose() {
-        ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
-        if(ee==null) return null;
-
-        PoseComponent pose = ee.getEntity().getComponent(PoseComponent.class);
-        if(pose==null) return null;
-        Matrix4d m = pose.getWorld();
+        Entity target = getChildTarget();
+        if(target==null) return getEndEffectorPose();
+        Matrix4d m = target.getComponent(PoseComponent.class).getWorld();
         return inBaseFrameOfReference(m);
+    }
+
+    public Entity getChildTarget() {
+        return getEntity().findChildNamed(TARGET_NAME);
     }
 
     /**
@@ -188,13 +188,14 @@ public class RobotComponent extends Component implements Robot {
 
     /**
      * Sets the end effector target pose and immediately attempts to move the robot to that pose.
-     * @param targetPose the target pose relative to the robot's base.
+     * @param newPose the target pose relative to the robot's base.
      * @throws RuntimeException if the robot cannot be moved to the target pose.
      */
-    private void setEndEffectorTargetPose(Matrix4d targetPose) {
-        Matrix4d startPose = this.getEndEffectorPose();
-        double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrices(startPose, targetPose);
-        applyCartesianForceToEndEffector(cartesianVelocity);
+    private void setEndEffectorTargetPose(Matrix4d newPose) {
+        Entity target = getChildTarget();
+        PoseComponent targetPose = target.getComponent(PoseComponent.class);
+        newPose.mul(getPoseWorld(),newPose);
+        targetPose.setWorld(newPose);
     }
 
     /**
@@ -203,13 +204,11 @@ public class RobotComponent extends Component implements Robot {
      * @param targetPosition the target position relative to the robot's base.
      */
     private void setEndEffectorTargetPosition(Point3d targetPosition) {
-        Matrix4d startPose = this.getEndEffectorPose();
-        double[] cartesianVelocity = new double[]{
-                targetPosition.x - startPose.m03,
-                targetPosition.y - startPose.m13,
-                targetPosition.z - startPose.m23,
-                0, 0, 0};
-        applyCartesianForceToEndEffector(cartesianVelocity);
+        Matrix4d m = getEndEffectorTargetPose();
+        m.m03 = targetPosition.x;
+        m.m13 = targetPosition.y;
+        m.m23 = targetPosition.z;
+        setEndEffectorTargetPose(m);
     }
 
     private double sumCartesianVelocityComponents(double [] cartesianVelocity) {
@@ -225,8 +224,9 @@ public class RobotComponent extends Component implements Robot {
      * @param cartesianVelocity three linear forces (mm) and three angular forces (degrees).
      * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
      */
-    private void applyCartesianForceToEndEffector(double[] cartesianVelocity) {
+    public void applyCartesianForceToEndEffector(double[] cartesianVelocity) {
         double sum = sumCartesianVelocityComponents(cartesianVelocity);
+        if(sum<0.0001) return;
         if(sum <= 1) {
             applySmallCartesianForceToEndEffector(cartesianVelocity);
         } else {
@@ -265,7 +265,7 @@ public class RobotComponent extends Component implements Robot {
     /**
      * @return The pose of the end effector relative to the robot's base.
      */
-    public Matrix4d getEndEffectorPose() {
+    private Matrix4d getEndEffectorPose() {
         ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
         if(ee==null) return null;
         PoseComponent endEffectorPose = ee.getEntity().getComponent(PoseComponent.class);
@@ -279,7 +279,7 @@ public class RobotComponent extends Component implements Robot {
      */
     private Matrix4d getPoseWorld() {
         PoseComponent pose = getEntity().getComponent(PoseComponent.class);
-        if(pose==null) return null;
+        if(pose==null) return MatrixHelper.createIdentityMatrix4();
         return pose.getWorld();
     }
 
@@ -357,5 +357,11 @@ public class RobotComponent extends Component implements Robot {
 
     public String getGCodePathEntityUUID() {
         return gcodePath.get();
+    }
+
+
+    @Override
+    public void updateReferences(Map<String, String> oldToNewIDMap) {
+        gcodePath.updateReferences(oldToNewIDMap);
     }
 }
