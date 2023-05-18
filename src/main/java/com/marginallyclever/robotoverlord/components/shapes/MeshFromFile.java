@@ -1,9 +1,10 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
-import com.marginallyclever.robotoverlord.components.ComponentWithDiskAsset;
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
+import com.marginallyclever.robotoverlord.parameters.FilenameParameter;
 import com.marginallyclever.robotoverlord.systems.render.material.MaterialFactory;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
@@ -21,10 +22,10 @@ import java.util.List;
  * @author Dan Royer
  * @since 1.0.0
  */
-public class MeshFromFile extends ShapeComponent implements ComponentWithDiskAsset {
+public class MeshFromFile extends ShapeComponent {
     private static final Logger logger = LoggerFactory.getLogger(MeshFromFile.class);
 
-    public final StringParameter filename = new StringParameter("File","");
+    public final FilenameParameter filename = new FilenameParameter("File","");
 
     public MeshFromFile() {
         super();
@@ -55,16 +56,16 @@ public class MeshFromFile extends ShapeComponent implements ComponentWithDiskAss
     }
 
     @Override
-    public JSONObject toJSON() {
-        JSONObject jo = super.toJSON();
-        jo.put("filename",filename.toJSON());
+    public JSONObject toJSON(SerializationContext context) {
+        JSONObject jo = super.toJSON(context);
+        jo.put("filename",filename.toJSON(context));
         return jo;
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws JSONException {
-        super.parseJSON(jo);
-        filename.parseJSON(jo.getJSONObject("filename"));
+    public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
+        super.parseJSON(jo,context);
+        filename.parseJSON(jo.getJSONObject("filename"),context);
         load();
     }
 
@@ -88,29 +89,5 @@ public class MeshFromFile extends ShapeComponent implements ComponentWithDiskAss
 
     public void load() {
         setModel(MeshFactory.load(filename.get()));
-    }
-
-    /**
-     * adjust the path of the disk assets in the component.
-     *
-     * @param originalPath the original path to the asset
-     * @param newPath      the new path to the asset
-     */
-    @Override
-    public void adjustPath(String originalPath, String newPath) {
-        String oldPath = this.getFilename();
-        if(oldPath==null || oldPath.trim().isEmpty()) return;
-
-        if(oldPath.startsWith(originalPath)) {
-            this.setFilename(newPath + oldPath.substring(originalPath.length()));
-        }
-    }
-
-    @Override
-    public List<String> getAssetPaths() {
-        List<String> list = new ArrayList<>();
-        String absolutePath = getFilename();
-        if(absolutePath!=null && !absolutePath.trim().isEmpty()) list.add(getFilename());
-        return list;
     }
 }

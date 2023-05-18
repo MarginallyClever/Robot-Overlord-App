@@ -99,6 +99,7 @@ public class ArmRobotSystem implements EntitySystem {
     private void updateRobotComponent(RobotComponent robotComponent, double dt) {
         Matrix4d startPose = (Matrix4d)robotComponent.get(Robot.END_EFFECTOR);
         Matrix4d targetPose = (Matrix4d)robotComponent.get(Robot.END_EFFECTOR_TARGET);
+
         double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrices(startPose, targetPose);
         robotComponent.applyCartesianForceToEndEffector(cartesianVelocity);
     }

@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.components.program;
 
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.ComponentWithReferences;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
@@ -55,22 +56,22 @@ public class ProgramComponent extends Component implements ComponentWithReferenc
     }
 
     @Override
-    public JSONObject toJSON() {
-        JSONObject jo = super.toJSON();
-        jo.put("programEntity",programEntity.toJSON());
-        jo.put("stepEntity",stepEntity.toJSON());
-        jo.put("isRunning",isRunning.toJSON());
-        jo.put("mode",mode.toJSON());
+    public JSONObject toJSON(SerializationContext context) {
+        JSONObject jo = super.toJSON(context);
+        jo.put("programEntity",programEntity.toJSON(context));
+        jo.put("stepEntity",stepEntity.toJSON(context));
+        jo.put("isRunning",isRunning.toJSON(context));
+        jo.put("mode",mode.toJSON(context));
         return jo;
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws JSONException {
-        super.parseJSON(jo);
-        programEntity.parseJSON(jo.getJSONObject("programEntity"));
-        stepEntity.parseJSON(jo.getJSONObject("stepEntity"));
-        isRunning.parseJSON(jo.getJSONObject("isRunning"));
-        mode.parseJSON(jo.getJSONObject("mode"));
+    public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
+        super.parseJSON(jo,context);
+        programEntity.parseJSON(jo.getJSONObject("programEntity"),context);
+        stepEntity.parseJSON(jo.getJSONObject("stepEntity"),context);
+        isRunning.parseJSON(jo.getJSONObject("isRunning"),context);
+        mode.parseJSON(jo.getJSONObject("mode"),context);
     }
 
     public void addRunningPropertyChangeListener(PropertyChangeListener arg0) {

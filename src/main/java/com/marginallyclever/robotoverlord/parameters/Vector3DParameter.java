@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.parameters;
 
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,8 +31,8 @@ public class Vector3DParameter extends AbstractParameter<Vector3d> {
 	}
 	
 	@Override
-	public JSONObject toJSON() {
-		JSONObject jo = super.toJSON();
+	public JSONObject toJSON(SerializationContext context) {
+		JSONObject jo = super.toJSON(context);
 		Vector3d v = get();
 		jo.put("x", v.x);
 		jo.put("y", v.y);
@@ -40,8 +41,8 @@ public class Vector3DParameter extends AbstractParameter<Vector3d> {
 	}
 
 	@Override
-	public void parseJSON(JSONObject jo) throws JSONException {
-		super.parseJSON(jo);
+	public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
+		super.parseJSON(jo,context);
 		Vector3d v = get();
 		v.x = jo.getDouble("x");
 		v.y = jo.getDouble("y");

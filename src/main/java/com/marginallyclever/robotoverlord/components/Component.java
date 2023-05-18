@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.components;
 
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import org.json.JSONException;
@@ -45,7 +46,7 @@ public class Component {
     @Deprecated
     public void update(double dt) {}
 
-    public JSONObject toJSON() {
+    public JSONObject toJSON(SerializationContext context) {
         JSONObject jo = new JSONObject();
         jo.put("type",this.getClass().getName());
         jo.put("enabled",enabled.get());
@@ -53,7 +54,7 @@ public class Component {
         return jo;
     }
 
-    public void parseJSON(JSONObject jo) throws JSONException {
+    public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
         enabled.set(jo.getBoolean("enabled"));
         if(jo.has("expanded")) isExpanded = jo.getBoolean("expanded");
     }

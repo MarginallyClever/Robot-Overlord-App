@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.components.program;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
@@ -100,17 +101,17 @@ public class ProgramPathComponent extends ProgramStepComponent {
     }
 
     @Override
-    public JSONObject toJSON() {
-        JSONObject jo = super.toJSON();
-        jo.put("moveType",moveType.toJSON());
-        jo.put("moveSpeed",moveSpeed.toJSON());
+    public JSONObject toJSON(SerializationContext context) {
+        JSONObject jo = super.toJSON(context);
+        jo.put("moveType",moveType.toJSON(context));
+        jo.put("moveSpeed",moveSpeed.toJSON(context));
         return jo;
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws JSONException {
-        super.parseJSON(jo);
-        moveType.parseJSON(jo.getJSONObject("moveType"));
-        moveSpeed.parseJSON(jo.getJSONObject("moveSpeed"));
+    public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
+        super.parseJSON(jo,context);
+        moveType.parseJSON(jo.getJSONObject("moveType"),context);
+        moveSpeed.parseJSON(jo.getJSONObject("moveSpeed"),context);
     }
 }

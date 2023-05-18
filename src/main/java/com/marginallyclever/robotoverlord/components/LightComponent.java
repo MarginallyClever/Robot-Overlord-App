@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.components;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.ColorRGB;
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
@@ -187,33 +188,33 @@ public class LightComponent extends Component {
     }
 
     @Override
-    public JSONObject toJSON() {
-        JSONObject jo = super.toJSON();
-        jo.put("diffuse",diffuse.toJSON());
-        jo.put("ambient",ambient.toJSON());
-        jo.put("specular",specular.toJSON());
-        jo.put("attenuationConstant",attenuationConstant.toJSON());
-        jo.put("attenuationLinear",attenuationLinear.toJSON());
-        jo.put("attenuationQuadratic",attenuationQuadratic.toJSON());
-        jo.put("isDirectional",isDirectional.toJSON());
-        jo.put("cutoff",cutoff.toJSON());
-        jo.put("exponent",exponent.toJSON());
-        jo.put("preset",preset.toJSON());
+    public JSONObject toJSON(SerializationContext context) {
+        JSONObject jo = super.toJSON(context);
+        jo.put("diffuse",diffuse.toJSON(context));
+        jo.put("ambient",ambient.toJSON(context));
+        jo.put("specular",specular.toJSON(context));
+        jo.put("attenuationConstant",attenuationConstant.toJSON(context));
+        jo.put("attenuationLinear",attenuationLinear.toJSON(context));
+        jo.put("attenuationQuadratic",attenuationQuadratic.toJSON(context));
+        jo.put("isDirectional",isDirectional.toJSON(context));
+        jo.put("cutoff",cutoff.toJSON(context));
+        jo.put("exponent",exponent.toJSON(context));
+        jo.put("preset",preset.toJSON(context));
         return jo;
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws JSONException {
-        super.parseJSON(jo);
-        diffuse.parseJSON(jo.getJSONObject("diffuse"));
-        ambient.parseJSON(jo.getJSONObject("ambient"));
-        specular.parseJSON(jo.getJSONObject("specular"));
-        attenuationConstant.parseJSON(jo.getJSONObject("attenuationConstant"));
-        attenuationLinear.parseJSON(jo.getJSONObject("attenuationLinear"));
-        attenuationQuadratic.parseJSON(jo.getJSONObject("attenuationQuadratic"));
-        isDirectional.parseJSON(jo.getJSONObject("isDirectional"));
-        cutoff.parseJSON(jo.getJSONObject("cutoff"));
-        exponent.parseJSON(jo.getJSONObject("exponent"));
-        preset.parseJSON(jo.getJSONObject("preset"));
+    public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
+        super.parseJSON(jo,context);
+        diffuse.parseJSON(jo.getJSONObject("diffuse"),context);
+        ambient.parseJSON(jo.getJSONObject("ambient"),context);
+        specular.parseJSON(jo.getJSONObject("specular"),context);
+        attenuationConstant.parseJSON(jo.getJSONObject("attenuationConstant"),context);
+        attenuationLinear.parseJSON(jo.getJSONObject("attenuationLinear"),context);
+        attenuationQuadratic.parseJSON(jo.getJSONObject("attenuationQuadratic"),context);
+        isDirectional.parseJSON(jo.getJSONObject("isDirectional"),context);
+        cutoff.parseJSON(jo.getJSONObject("cutoff"),context);
+        exponent.parseJSON(jo.getJSONObject("exponent"),context);
+        preset.parseJSON(jo.getJSONObject("preset"),context);
     }
 }

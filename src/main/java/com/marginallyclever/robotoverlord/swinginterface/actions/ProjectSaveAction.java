@@ -56,10 +56,6 @@ public class ProjectSaveAction extends AbstractAction implements ActionListener 
 			String name = PathUtils.addExtensionIfNeeded(
 					fc.getSelectedFile().getAbsolutePath(),
 					RobotOverlord.FILE_FILTER.getExtensions());
-
-			if(!assetsOutOfProjectApproved(parentFrame)) return;
-
-
 			try {
 				project.save(name);
 			} catch(Exception ex) {
@@ -68,24 +64,5 @@ public class ProjectSaveAction extends AbstractAction implements ActionListener 
 				ex.printStackTrace();
 			}
 		}
-	}
-
-	private boolean assetsOutOfProjectApproved(JFrame parentFrame) {
-		List<String> list = project.getAllAssetsNotInProject();
-		if(!list.isEmpty()) {
-			logger.warn("Project does not contain all assets");
-
-			JPanel container = new JPanel(new BorderLayout());
-			container.add(new JLabel(Translator.get("ProjectSaveAction.doesNotContainAllAssets")),BorderLayout.NORTH);
-			JList<String> listBox = new JList<>(list.toArray(new String[0]));
-			container.add(new JScrollPane(listBox),BorderLayout.CENTER);
-			int result = JOptionPane.showConfirmDialog(parentFrame,container,Translator.get("Warning"),JOptionPane.OK_CANCEL_OPTION);
-			if(result == JOptionPane.CANCEL_OPTION) {
-				logger.warn("Save cancelled by user.");
-				return false;
-			}
-			logger.warn("Save approved by user.");
-		}
-		return true;
 	}
 }

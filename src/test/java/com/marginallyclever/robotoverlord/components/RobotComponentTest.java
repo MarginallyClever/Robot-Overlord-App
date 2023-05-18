@@ -19,6 +19,10 @@ public class RobotComponentTest {
         Entity base = new Entity("Base");
         RobotComponent robot = new RobotComponent();
         base.addComponent(robot);
+        // add target
+        Entity target = new Entity(RobotComponent.TARGET_NAME);
+        entityManager.addEntityToParent(target, base);
+        // position arm
         List<Entity> joints = new ArrayList<>();
         List<DHComponent> dh = new ArrayList<>();
         Entity prev = base;
@@ -36,6 +40,8 @@ public class RobotComponentTest {
         dh.get(2).set(0,10,0,-90,170,-170,true);
         joints.get(2).addComponent(new ArmEndEffectorComponent());
         robot.findBones();
+        robot.set(Robot.END_EFFECTOR_TARGET,robot.get(Robot.END_EFFECTOR));
+
         return robot;
     }
 

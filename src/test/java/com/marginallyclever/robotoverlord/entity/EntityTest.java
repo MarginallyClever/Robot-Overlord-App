@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.entity;
 
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
@@ -9,7 +10,8 @@ import org.junit.jupiter.api.Test;
 
 public class EntityTest {
     private static void saveAndLoad(Entity a, Entity b) throws Exception {
-        b.parseJSON(a.toJSON());
+        SerializationContext context = new SerializationContext("");
+        b.parseJSON(a.toJSON(context),context);
         Assertions.assertEquals(a.toString(),b.toString());
     }
 

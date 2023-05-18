@@ -1,11 +1,13 @@
 package com.marginallyclever.robotoverlord.components;
 
+import com.marginallyclever.robotoverlord.SerializationContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ComponentTest {
     public static void saveAndLoad(Component a, Component b) throws Exception {
-        b.parseJSON(a.toJSON());
+        SerializationContext context = new SerializationContext("");
+        b.parseJSON(a.toJSON(context),context);
         Assertions.assertEquals(a.toString(),b.toString());
     }
 

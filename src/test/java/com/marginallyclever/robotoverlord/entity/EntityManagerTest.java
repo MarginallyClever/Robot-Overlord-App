@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.entity;
 
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.entity.Entity;
@@ -36,8 +37,9 @@ public class EntityManagerTest {
     }
 
     private static void saveAndLoad(EntityManager a, EntityManager b) throws Exception {
-        b.parseJSON(a.toJSON());
-        Assertions.assertEquals(a.toJSON().toString(),b.toJSON().toString());
+        SerializationContext context = new SerializationContext("");
+        b.parseJSON(a.toJSON(context),context);
+        Assertions.assertEquals(a.toJSON(context).toString(),b.toJSON(context).toString());
     }
 
     @Test

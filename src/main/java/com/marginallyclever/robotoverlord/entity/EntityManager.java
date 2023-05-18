@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.entity;
 
 import com.marginallyclever.convenience.*;
 import com.marginallyclever.robotoverlord.Collidable;
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.*;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -159,17 +160,17 @@ public class EntityManager {
 		return entities.get(0);
 	}
 
-	public JSONObject toJSON() {
+	public JSONObject toJSON(SerializationContext context) {
 		JSONObject jo = new JSONObject();
-		jo.put("scene", entities.get(0).toJSON());
+		jo.put("scene", entities.get(0).toJSON(context));
 		return jo;
 	}
 
-	public void parseJSON(JSONObject jo) throws JSONException {
+	public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
 		entities.clear();
 		entities.add(new Entity());
 		if(jo.has("scene")) jo = jo.getJSONObject("scene");
-		entities.get(0).parseJSON(jo);
+		entities.get(0).parseJSON(jo,context);
 	}
 
 	/**

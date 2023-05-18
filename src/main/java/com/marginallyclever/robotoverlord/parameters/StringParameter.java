@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.parameters;
 
+import com.marginallyclever.robotoverlord.SerializationContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,15 +20,15 @@ public class StringParameter extends AbstractParameter<String> {
 	}
 
 	@Override
-	public JSONObject toJSON() {
-		JSONObject jo = super.toJSON();
+	public JSONObject toJSON(SerializationContext context) {
+		JSONObject jo = super.toJSON(context);
 		jo.put("value",get());
 		return jo;
 	}
 
 	@Override
-	public void parseJSON(JSONObject jo) throws JSONException {
-		super.parseJSON(jo);
+	public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
+		super.parseJSON(jo,context);
 		// if value is null it will not appear in the JSON.
 		if(jo.has("value")) {
 			set(jo.getString("value"));

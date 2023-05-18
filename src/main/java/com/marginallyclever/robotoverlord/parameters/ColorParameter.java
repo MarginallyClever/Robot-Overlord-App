@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.parameters;
 
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,8 +51,8 @@ public class ColorParameter extends AbstractParameter<double[]> {
 	}
 	
 	@Override
-	public JSONObject toJSON() {
-		JSONObject jo = super.toJSON();
+	public JSONObject toJSON(SerializationContext context) {
+		JSONObject jo = super.toJSON(context);
 		double[] rgba = get();
 		jo.put("r", rgba[0]);
 		jo.put("g", rgba[1]);
@@ -61,8 +62,8 @@ public class ColorParameter extends AbstractParameter<double[]> {
 	}
 
 	@Override
-	public void parseJSON(JSONObject jo) throws JSONException {
-		super.parseJSON(jo);
+	public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
+		super.parseJSON(jo,context);
 		double[] rgba = get();
 		rgba[0] = jo.getDouble("r");
 		rgba[1] = jo.getDouble("g");

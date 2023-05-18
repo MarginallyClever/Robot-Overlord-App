@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
@@ -89,15 +90,15 @@ public class Sphere extends ShapeComponent {
     public double getDetail() { return detail.get(); }
 
     @Override
-    public JSONObject toJSON() {
-        JSONObject jo = super.toJSON();
-        jo.put("detail",detail.toJSON());
+    public JSONObject toJSON(SerializationContext context) {
+        JSONObject jo = super.toJSON(context);
+        jo.put("detail",detail.toJSON(context));
         return jo;
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws JSONException {
-        super.parseJSON(jo);
-        detail.parseJSON(jo.getJSONObject("detail"));
+    public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
+        super.parseJSON(jo,context);
+        detail.parseJSON(jo.getJSONObject("detail"),context);
     }
 }

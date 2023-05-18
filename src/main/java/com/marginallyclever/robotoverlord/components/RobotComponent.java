@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.components;
 
 import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.ApproximateJacobian2;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
@@ -340,19 +341,19 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
     }
 
     @Override
-    public JSONObject toJSON() {
-        JSONObject jo = super.toJSON();
+    public JSONObject toJSON(SerializationContext context) {
+        JSONObject jo = super.toJSON(context);
 
-        jo.put("gcodepath", gcodePath.toJSON());
+        jo.put("gcodepath", gcodePath.toJSON(context));
 
         return jo;
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws JSONException {
-        super.parseJSON(jo);
+    public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
+        super.parseJSON(jo,context);
 
-        if(jo.has("gcodepath")) gcodePath.parseJSON(jo.getJSONObject("gcodepath"));
+        if(jo.has("gcodepath")) gcodePath.parseJSON(jo.getJSONObject("gcodepath"),context);
     }
 
     public String getGCodePathEntityUUID() {

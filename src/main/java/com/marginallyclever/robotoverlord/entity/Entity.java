@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.entity;
 
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.*;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,7 +46,7 @@ public class Entity implements PropertyChangeListener {
 	}
 
 	public Entity(String name) {
-		super();
+		this();
 		this.name = name;
 	}
 
@@ -337,51 +338,51 @@ public class Entity implements PropertyChangeListener {
 		return null;
 	}
 
-    public JSONObject toJSON() {
+    public JSONObject toJSON(SerializationContext context) {
 		JSONObject jo = new JSONObject();
 		jo.put("type",this.getClass().getName());
 		jo.put("uniqueID",this.uniqueID);
 		jo.put("name",this.name);
 		jo.put("expanded",this.isExpanded);
-		if(!children.isEmpty()) jo.put("entities", getEntitiesAsJSON());
-		if(!components.isEmpty()) jo.put("components",getComponentsAsJSON());
+		if(!children.isEmpty()) jo.put("entities", getEntitiesAsJSON(context));
+		if(!components.isEmpty()) jo.put("components",getComponentsAsJSON(context));
 		return jo;
 	}
 
-	private JSONArray getEntitiesAsJSON() {
+	private JSONArray getEntitiesAsJSON(SerializationContext context) {
 		JSONArray jo = new JSONArray();
 		for(Entity c : children) {
-			jo.put(c.toJSON());
+			jo.put(c.toJSON(context));
 		}
 		return jo;
 	}
 
-	private JSONArray getComponentsAsJSON() {
+	private JSONArray getComponentsAsJSON(SerializationContext context) {
 		JSONArray jo = new JSONArray();
 		for(Component c : components) {
-			jo.put(c.toJSON());
+			jo.put(c.toJSON(context));
 		}
 		return jo;
 	}
 
-	public void parseJSON(JSONObject jo) throws JSONException {
+	public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
 		this.name = jo.getString("name");
 		if(jo.has("uniqueID")) this.uniqueID = jo.getString("uniqueID");
-		if(jo.has("entities")) readEntities(jo.getJSONArray("entities"));
-		if(jo.has("components")) readComponents(jo.getJSONArray("components"));
+		if(jo.has("entities")) readEntities(jo.getJSONArray("entities"),context);
+		if(jo.has("components")) readComponents(jo.getJSONArray("components"),context);
 		if(jo.has("expanded")) this.isExpanded = jo.getBoolean("expanded");
 	}
 
-	private void readEntities(JSONArray jo) throws JSONException {
+	private void readEntities(JSONArray jo,SerializationContext context) throws JSONException {
 		for (Object o : jo) {
 			JSONObject jo2 = (JSONObject) o;
 			Entity entity = new Entity();
 			this.addEntity(entity);
-			entity.parseJSON(jo2);
+			entity.parseJSON(jo2,context);
 		}
 	}
 
-	private void readComponents(JSONArray jo) throws JSONException {
+	private void readComponents(JSONArray jo,SerializationContext context) throws JSONException {
 		for (Object o : jo) {
 			JSONObject jo2 = (JSONObject) o;
 			Component component = ComponentFactory.load(jo2.getString("type"));
@@ -393,7 +394,7 @@ public class Entity implements PropertyChangeListener {
 			} else {
 				component = getComponent(component.getClass());
 			}
-			component.parseJSON(jo2);
+			component.parseJSON(jo2,context);
 		}
 	}
 
@@ -402,8 +403,10 @@ public class Entity implements PropertyChangeListener {
 	 * @return the new entity tree.
 	 */
 	public Entity deepCopy() {
+		SerializationContext context = new SerializationContext("");
+
 		Entity e = new Entity();
-		e.parseJSON(this.toJSON());
+		e.parseJSON(this.toJSON(context),context);
 		e.recursivelyAssignNewUniqueIDs();
 		return e;
 	}
@@ -423,13 +426,12 @@ public class Entity implements PropertyChangeListener {
 			oldToNew.put(oldID,e.uniqueID);
 		}
 
-		// get all references
+		// update all references
 		for(Entity e : list) {
 			List<Component> components = e.getComponents();
-			for(Component c : components) {
-				if(c instanceof ComponentWithReferences) {
-					ComponentWithReferences cwr = (ComponentWithReferences)c;
-					cwr.updateReferences(oldToNew);
+			for(Component component : components) {
+				if(component instanceof ComponentWithReferences) {
+					((ComponentWithReferences)component).updateReferences(oldToNew);
 				}
 			}
 		}
@@ -471,6 +473,11 @@ public class Entity implements PropertyChangeListener {
 		}
 	}
 
+	/**
+	 * Search the children of this entity for a child with the given name.
+	 * @param name the name of the child to find
+	 * @return the child or null if not found
+	 */
 	public Entity findChildNamed(String name) {
 		for( Entity child : children) {
 			if(child.getName().equals(name)) {

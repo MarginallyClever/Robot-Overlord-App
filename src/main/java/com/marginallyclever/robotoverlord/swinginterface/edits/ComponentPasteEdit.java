@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.ComponentFactory;
 import com.marginallyclever.robotoverlord.entity.Entity;
@@ -39,8 +40,9 @@ public class ComponentPasteEdit extends AbstractUndoableEdit {
 
     private void doIt() {
         copies.clear();
+        SerializationContext context = new SerializationContext("");
 
-        JSONObject serialized = copiedComponent.toJSON();
+        JSONObject serialized = copiedComponent.toJSON(context);
         for(Entity parent : parents) {
             if(parent.containsAnInstanceOfTheSameClass(copiedComponent)) {
                 // TODO add a warning to the user
@@ -48,7 +50,7 @@ public class ComponentPasteEdit extends AbstractUndoableEdit {
             }
             Component copy = ComponentFactory.load(copiedComponent.getClass().getName());
             parent.addComponent(copy);
-            copy.parseJSON(serialized);
+            copy.parseJSON(serialized,context);
             copies.add(copy);
         }
     }

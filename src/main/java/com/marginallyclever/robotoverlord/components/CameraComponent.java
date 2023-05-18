@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.components;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import org.json.JSONException;
@@ -218,20 +219,20 @@ public class CameraComponent extends RenderComponent {
     }
 
     @Override
-    public JSONObject toJSON() {
-        JSONObject jo = super.toJSON();
-        jo.put("pan",pan.toJSON());
-        jo.put("tilt",tilt.toJSON());
-        jo.put("zoom", orbitDistance.toJSON());
+    public JSONObject toJSON(SerializationContext context) {
+        JSONObject jo = super.toJSON(context);
+        jo.put("pan",pan.toJSON(context));
+        jo.put("tilt",tilt.toJSON(context));
+        jo.put("zoom", orbitDistance.toJSON(context));
         return jo;
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws JSONException {
-        super.parseJSON(jo);
-        pan.parseJSON(jo.getJSONObject("pan"));
-        tilt.parseJSON(jo.getJSONObject("tilt"));
-        orbitDistance.parseJSON(jo.getJSONObject("zoom"));
+    public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
+        super.parseJSON(jo,context);
+        pan.parseJSON(jo.getJSONObject("pan"),context);
+        tilt.parseJSON(jo.getJSONObject("tilt"),context);
+        orbitDistance.parseJSON(jo.getJSONObject("zoom"),context);
     }
 
     @Override

@@ -217,7 +217,7 @@ public class ProgramExecutorSystem  implements EntitySystem {
         robotPose.invert();
         Matrix4d pathPoseWorld = pathPose.getWorld();
         Matrix4d adj = new Matrix4d();
-        adj.mul(pathPoseWorld,robotPose);
+        adj.mul(robotPose,pathPoseWorld);
 
         if (path.moveType.get() == ProgramPathComponent.MOVE_LINEAR) {
             // linear

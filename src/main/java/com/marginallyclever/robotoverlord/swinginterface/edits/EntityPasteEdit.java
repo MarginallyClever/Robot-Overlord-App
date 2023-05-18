@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
@@ -39,14 +40,15 @@ public class EntityPasteEdit extends AbstractUndoableEdit {
     }
 
     private void doIt() {
+        SerializationContext context = new SerializationContext("");
         copies.clear();
         List<Entity> from = copiedEntities.getChildren();
         for(Entity e : from) {
-            JSONObject serialized = e.toJSON();
+            JSONObject serialized = e.toJSON(context);
             for(Entity parent : parents) {
                 Entity copy = new Entity();
                 entityManager.addEntityToParent(copy, parent);
-                copy.parseJSON(serialized);
+                copy.parseJSON(serialized,context);
                 copies.add(copy);
             }
         }

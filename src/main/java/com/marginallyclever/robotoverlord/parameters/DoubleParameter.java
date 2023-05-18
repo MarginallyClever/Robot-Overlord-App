@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.parameters;
 
 import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,15 +22,15 @@ public class DoubleParameter extends AbstractParameter<Double> {
 	}
 
 	@Override
-	public JSONObject toJSON() {
-		JSONObject jo = super.toJSON();
+	public JSONObject toJSON(SerializationContext context) {
+		JSONObject jo = super.toJSON(context);
 		jo.put("value",get());
 		return jo;
 	}
 
 	@Override
-	public void parseJSON(JSONObject jo) throws JSONException {
-		super.parseJSON(jo);
+	public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
+		super.parseJSON(jo,context);
 		set(jo.getDouble("value"));
 	}
 }

@@ -62,14 +62,14 @@ public class ProjectLoadAction extends AbstractAction {
      */
     public void loadIntoScene(File file,JFrame parentFrame) {
         try {
-            Project source = new Project();
-            source.load(file);
+            Project projectToAdd = new Project();
+            projectToAdd.load(file);
 
             ProjectClearAction clear = new ProjectClearAction(project);
             clear.clearScene();
 
-            project.setPath(source.getPath());
-            project.addProject(source);
+            project.setPath(projectToAdd.getPath());
+            project.addProject(projectToAdd);
 
             UndoSystem.reset();
         } catch(Exception e1) {

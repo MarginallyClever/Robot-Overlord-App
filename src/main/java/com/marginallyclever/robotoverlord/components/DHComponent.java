@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.components;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.OpenGLHelper;
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
@@ -46,30 +47,30 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
     }
 
     @Override
-    public JSONObject toJSON() {
-        JSONObject jo = super.toJSON();
-        jo.put("D",myD.toJSON());
-        jo.put("R",myR.toJSON());
-        jo.put("Alpha", alpha.toJSON());
-        jo.put("Theta", theta.toJSON());
-        jo.put("ThetaMax", jointMax.toJSON());
-        jo.put("ThetaMin", jointMin.toJSON());
-        jo.put("ThetaHome", jointHome.toJSON());
-        jo.put("Revolute", isRevolute.toJSON());
+    public JSONObject toJSON(SerializationContext context) {
+        JSONObject jo = super.toJSON(context);
+        jo.put("D",myD.toJSON(context));
+        jo.put("R",myR.toJSON(context));
+        jo.put("Alpha", alpha.toJSON(context));
+        jo.put("Theta", theta.toJSON(context));
+        jo.put("ThetaMax", jointMax.toJSON(context));
+        jo.put("ThetaMin", jointMin.toJSON(context));
+        jo.put("ThetaHome", jointHome.toJSON(context));
+        jo.put("Revolute", isRevolute.toJSON(context));
         return jo;
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws JSONException {
-        super.parseJSON(jo);
-        myD.parseJSON(jo.getJSONObject("D"));
-        myR.parseJSON(jo.getJSONObject("R"));
-        alpha.parseJSON(jo.getJSONObject("Alpha"));
-        theta.parseJSON(jo.getJSONObject("Theta"));
-        if(jo.has("ThetaMax")) jointMax.parseJSON(jo.getJSONObject("ThetaMax"));
-        if(jo.has("ThetaMin")) jointMin.parseJSON(jo.getJSONObject("ThetaMin"));
-        if(jo.has("ThetaHome")) jointHome.parseJSON(jo.getJSONObject("ThetaHome"));
-        if(jo.has("Revolute")) isRevolute.parseJSON(jo.getJSONObject("Revolute"));
+    public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
+        super.parseJSON(jo,context);
+        myD.parseJSON(jo.getJSONObject("D"),context);
+        myR.parseJSON(jo.getJSONObject("R"),context);
+        alpha.parseJSON(jo.getJSONObject("Alpha"),context);
+        theta.parseJSON(jo.getJSONObject("Theta"),context);
+        if(jo.has("ThetaMax")) jointMax.parseJSON(jo.getJSONObject("ThetaMax"),context);
+        if(jo.has("ThetaMin")) jointMin.parseJSON(jo.getJSONObject("ThetaMin"),context);
+        if(jo.has("ThetaHome")) jointHome.parseJSON(jo.getJSONObject("ThetaHome"),context);
+        if(jo.has("Revolute")) isRevolute.parseJSON(jo.getJSONObject("Revolute"),context);
         refreshLocalMatrix();
     }
 
