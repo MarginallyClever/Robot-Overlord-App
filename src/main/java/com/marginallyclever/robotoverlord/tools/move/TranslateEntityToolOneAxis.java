@@ -85,8 +85,6 @@ public class TranslateEntityToolOneAxis implements EditorTool {
 
     @Override
     public void handleMouseEvent(MouseEvent event) {
-        if(selectedItems!=null) setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
-
         if (event.getID() == MouseEvent.MOUSE_MOVED) {
             mouseMoved(event);
         } else if (event.getID() == MouseEvent.MOUSE_PRESSED) {
@@ -181,6 +179,8 @@ public class TranslateEntityToolOneAxis implements EditorTool {
     @Override
     public void update(double deltaTime) {
         // Update the tool's state, if necessary
+        if(selectedItems!=null) setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+
     }
 
     @Override

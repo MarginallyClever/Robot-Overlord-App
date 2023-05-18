@@ -121,8 +121,6 @@ public class RotateEntityToolOneAxis implements EditorTool {
 
     @Override
     public void handleMouseEvent(MouseEvent event) {
-        if(selectedItems!=null) setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
-
         if( event.getID() == MouseEvent.MOUSE_MOVED ) {
             mouseMoved(event);
         } else if (event.getID() == MouseEvent.MOUSE_PRESSED) {
@@ -292,7 +290,9 @@ public class RotateEntityToolOneAxis implements EditorTool {
      * @param deltaTime Time elapsed since the last update.
      */
     @Override
-    public void update(double deltaTime) {}
+    public void update(double deltaTime) {
+        if(selectedItems!=null) setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+    }
 
     /**
      * Renders any tool-specific visuals to the 3D scene.

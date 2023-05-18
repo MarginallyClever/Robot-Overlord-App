@@ -856,6 +856,8 @@ public class OpenGLRenderPanel implements RenderPanel {
         if(frameDelay>frameLength) {
             frameDelay-=frameLength;
 
+            for(EditorTool tool : editorTools) tool.update(dt);
+
             updateCallback.update(dt);
         }
     }

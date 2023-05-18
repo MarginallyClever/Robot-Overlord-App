@@ -169,7 +169,11 @@ public class RotateEntityMultiTool implements EditorTool {
      */
     @Override
     public void update(double deltaTime) {
+        if (selectedItems == null || selectedItems.isEmpty()) return;
+
         for(EditorTool t : tools) t.update(deltaTime);
+
+        setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
     }
 
     /**
