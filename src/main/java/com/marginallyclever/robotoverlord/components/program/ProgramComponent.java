@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.components.program;
 
 import com.marginallyclever.robotoverlord.components.Component;
+import com.marginallyclever.robotoverlord.components.ComponentWithReferences;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
@@ -10,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.beans.PropertyChangeListener;
+import java.util.Map;
 import java.util.Stack;
 
 /**
@@ -22,7 +24,7 @@ import java.util.Stack;
  * @since 2.6.0
  * @author Dan Royer
  */
-public class ProgramComponent extends Component {
+public class ProgramComponent extends Component implements ComponentWithReferences {
     public static final String[] MODE_NAMES = { "Step", "Run to End", "Loop" };
     public static int RUN_STEP = 0;
     public static int RUN_TO_END = 1;
@@ -89,5 +91,11 @@ public class ProgramComponent extends Component {
 
     public int getStackDepth() {
         return stack.size();
+    }
+
+    @Override
+    public void updateReferences(Map<String, String> oldToNewIDMap) {
+        programEntity.updateReferences(oldToNewIDMap);
+        stepEntity.updateReferences(oldToNewIDMap);
     }
 }
