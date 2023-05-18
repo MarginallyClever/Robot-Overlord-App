@@ -100,11 +100,10 @@ public class MeshFromFile extends ShapeComponent implements ComponentWithDiskAss
     public void adjustPath(String originalPath, String newPath) {
         String oldPath = this.getFilename();
         if(oldPath==null || oldPath.trim().isEmpty()) return;
-        String adjustedPath = oldPath;
+
         if(oldPath.startsWith(originalPath)) {
-            adjustedPath = newPath + oldPath.substring(originalPath.length());
+            this.setFilename(newPath + oldPath.substring(originalPath.length()));
         }
-        this.setFilename(adjustedPath);
     }
 
     @Override

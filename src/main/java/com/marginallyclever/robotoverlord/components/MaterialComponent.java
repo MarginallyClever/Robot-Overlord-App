@@ -177,11 +177,9 @@ public class MaterialComponent extends Component implements ComponentWithDiskAss
         String oldPath = this.getTextureFilename();
         if(oldPath==null || oldPath.trim().isEmpty()) return;
 
-        String adjustedPath = oldPath;
         if(oldPath.startsWith(originalPath)) {
-            adjustedPath = newPath + oldPath.substring(originalPath.length());
+            this.setTextureFilename(newPath + oldPath.substring(originalPath.length()));
         }
-        this.setTextureFilename(adjustedPath);
     }
 
     @Override
