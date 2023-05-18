@@ -37,10 +37,10 @@ public class Project {
     /**
      * The collection of Entities in this Project.
      */
-    private final EntityManager entityManager;
+    private final EntityManager entityManager = new EntityManager();
 
     public Project() {
-        entityManager = new EntityManager();
+        super();
         setDefaultPath();
     }
 
@@ -160,12 +160,13 @@ public class Project {
     public void updateAllComponentWithDiskAsset(String newPath) {
         if(path.equals(newPath)) return;
 
-        LinkedList<Entity> list = new LinkedList<>(getEntityManager().getEntities());
+        LinkedList<Entity> list = new LinkedList<>();
+        list.add(entityManager.getRoot());
         while(!list.isEmpty()) {
             Entity e = list.removeFirst();
             list.addAll(e.getChildren());
 
-            for(com.marginallyclever.robotoverlord.components.Component component : e.getComponents()) {
+            for(Component component : e.getComponents()) {
                 if(component instanceof ComponentWithDiskAsset) {
                     ((ComponentWithDiskAsset)component).adjustPath(path,newPath);
                 }
