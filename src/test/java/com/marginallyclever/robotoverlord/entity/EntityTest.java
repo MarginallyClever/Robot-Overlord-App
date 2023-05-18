@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.entity;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -80,7 +81,6 @@ public class EntityTest {
         Assertions.assertNotNull(e0.findFirstComponentRecursive(PoseComponent.class));
         Assertions.assertNotNull(e1.findFirstComponentInParents(CameraComponent.class));
     }
-
 
     @Test
     public void deepCopy() {

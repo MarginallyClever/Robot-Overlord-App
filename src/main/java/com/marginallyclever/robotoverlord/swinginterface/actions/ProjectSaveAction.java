@@ -59,6 +59,7 @@ public class ProjectSaveAction extends AbstractAction implements ActionListener 
 
 			if(!assetsOutOfProjectApproved(parentFrame)) return;
 
+
 			try {
 				project.save(name);
 			} catch(Exception ex) {

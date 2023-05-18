@@ -44,7 +44,6 @@ public class ProjectTest {
         assert(p.getEntityManager()!=null);
     }
 
-
     @Test
     public void testCopyAssetsAndUpdateComponentPaths() throws IOException {
         Project project = new Project();
