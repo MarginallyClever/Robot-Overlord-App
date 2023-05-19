@@ -1,6 +1,6 @@
 package com.marginallyclever.convenience.log;
 
-import com.marginallyclever.convenience.FileAccess;
+import com.marginallyclever.convenience.FileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +22,7 @@ import java.util.Set;
  */
 public class Log {
 	private static final Logger logger = LoggerFactory.getLogger(Log.class);
-	public static String LOG_FILE_PATH = FileAccess.getUserDirectory();
+	public static String LOG_FILE_PATH = FileHelper.getUserDirectory();
 	public static String LOG_FILE_NAME_TXT = "log.txt";
 	public static final String PROGRAM_START_STRING = "PROGRAM START";
 	public static final String PROGRAM_END_STRING = "PROGRAM END";

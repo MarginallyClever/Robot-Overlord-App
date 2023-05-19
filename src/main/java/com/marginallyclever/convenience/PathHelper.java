@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.convenience;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +11,8 @@ import java.io.File;
  * @author Dan Royer
  * @since 2.5.0
  */
-public class PathUtils {
-    private static final Logger logger = LoggerFactory.getLogger(PathUtils.class);
+public class PathHelper {
+    private static final Logger logger = LoggerFactory.getLogger(PathHelper.class);
 
     public static final String APP_BASE =  System.getProperty("user.home") + File.separator + "RobotOverlord";
     public static final String APP_CACHE = APP_BASE + File.separator + "Cache";
@@ -61,16 +61,16 @@ public class PathUtils {
     }
 
     public static void start() {
-        createDirectoryIfNotExists(PathUtils.APP_BASE);
-        createDirectoryIfNotExists(PathUtils.APP_CACHE);
-        createDirectoryIfNotExists(PathUtils.APP_PLUGINS);
-        createDirectoryIfNotExists(PathUtils.SCENE_PATH);
+        createDirectoryIfNotExists(PathHelper.APP_BASE);
+        createDirectoryIfNotExists(PathHelper.APP_CACHE);
+        createDirectoryIfNotExists(PathHelper.APP_PLUGINS);
+        createDirectoryIfNotExists(PathHelper.SCENE_PATH);
         goToAppWorkingDirectory();
     }
 
     public static void goToAppWorkingDirectory() {
         // set the current directory to the user's home directory
-        setCurrentWorkingDirectory(PathUtils.APP_BASE);
+        setCurrentWorkingDirectory(PathHelper.APP_BASE);
     }
 
     public static void createDirectoryIfNotExists(String path) {
@@ -78,13 +78,17 @@ public class PathUtils {
         if(!f.exists() && !f.mkdirs()) {
             JOptionPane.showConfirmDialog(
                     null,
-                    "Unable to create directory " + PathUtils.APP_BASE,
+                    "Unable to create directory " + PathHelper.APP_BASE,
                     "Error",
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    /**
+     * Dangerous - recursively deletes directory and all contents!
+     * @param directory The directory to delete.
+     */
     public static void deleteDirectory(File directory) {
         if (directory.isDirectory()) {
             for (File file : directory.listFiles()) {

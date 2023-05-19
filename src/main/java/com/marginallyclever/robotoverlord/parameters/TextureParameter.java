@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.parameters;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
-import com.marginallyclever.convenience.FileAccess;
+import com.marginallyclever.convenience.FileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +63,7 @@ public class TextureParameter extends FilenameParameter {
 		texture = texturePool.get(t);
 		if(texture==null) {
 			try {
-				texture = TextureIO.newTexture(FileAccess.open(t), false, t.substring(t.lastIndexOf('.')+1));
+				texture = TextureIO.newTexture(FileHelper.open(t), false, t.substring(t.lastIndexOf('.')+1));
 				texturePool.put(t, texture);
 			} catch (IOException e) {
 				//e.printStackTrace();

@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
-import com.marginallyclever.robotoverlord.PathUtils;
+import com.marginallyclever.convenience.PathHelper;
 import com.marginallyclever.robotoverlord.Project;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
@@ -8,7 +8,6 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -53,7 +52,7 @@ public class ProjectSaveAction extends AbstractAction implements ActionListener 
 		JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
 
 		if (fc.showSaveDialog(parentFrame) == JFileChooser.APPROVE_OPTION) {
-			String name = PathUtils.addExtensionIfNeeded(
+			String name = PathHelper.addExtensionIfNeeded(
 					fc.getSelectedFile().getAbsolutePath(),
 					RobotOverlord.FILE_FILTER.getExtensions());
 			try {

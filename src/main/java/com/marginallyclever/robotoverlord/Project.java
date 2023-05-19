@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord;
 
+import com.marginallyclever.convenience.PathHelper;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import org.apache.commons.io.FileUtils;
@@ -147,12 +148,12 @@ public class Project {
     public void clear() {
         getEntityManager().clear();
         setDefaultPath();
-        PathUtils.deleteDirectory(new File(getPath()));
-        PathUtils.createDirectoryIfNotExists(getPath());
+        PathHelper.deleteDirectory(new File(getPath()));
+        PathHelper.createDirectoryIfNotExists(getPath());
     }
 
     private void setDefaultPath() {
-        setPath(PathUtils.SCENE_PATH);
+        setPath(PathHelper.SCENE_PATH);
     }
 
     /**

@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * @since 2021-02-24
  *
  */
-public abstract interface Collidable {
+public interface Collidable {
 	/**
 	 * @return a list of {@link AABB} relative to the world.
 	 */

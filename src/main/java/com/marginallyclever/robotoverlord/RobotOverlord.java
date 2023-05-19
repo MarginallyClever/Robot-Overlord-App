@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord;
 
+import com.marginallyclever.convenience.PathHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel3;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
@@ -131,7 +132,7 @@ public class RobotOverlord {
 		Log.start();
 		//logFrame = LogPanel.createFrame();
 		logFrame = LogPanel3.createFrame(Log.getLogLocation());
-		PathUtils.start();
+		PathHelper.start();
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -376,7 +377,7 @@ public class RobotOverlord {
 	 */
 	private void buildAvailableScenesTree(JMenu menu) {
 		// scan 'plugins' folder for sub-folders.  make them submenus.
-		File rootDirectory = new File(PathUtils.APP_PLUGINS);
+		File rootDirectory = new File(PathHelper.APP_PLUGINS);
 
 		if (!rootDirectory.isDirectory()) {
 			return;

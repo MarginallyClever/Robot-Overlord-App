@@ -1,6 +1,5 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.convenience;
 
-import com.marginallyclever.convenience.MatrixHelper;
 import com.marginallyclever.convenience.log.Log;
 import org.junit.After;
 import org.junit.Before;

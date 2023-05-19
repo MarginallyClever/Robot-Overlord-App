@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.systems.render.mesh.load;
 
-import com.marginallyclever.convenience.FileAccess;
+import com.marginallyclever.convenience.FileHelper;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +86,7 @@ public class MeshFactory {
 		mesh.setSourceName(filename);
 		mesh.setDirty(true);
 
-		try(BufferedInputStream stream = FileAccess.open(filename)) {
+		try(BufferedInputStream stream = FileHelper.open(filename)) {
 			loader.load(stream,mesh);
 		}
 		catch(Exception e) {

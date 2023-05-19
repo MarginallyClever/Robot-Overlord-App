@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.misc;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
