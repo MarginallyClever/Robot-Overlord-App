@@ -7,10 +7,13 @@ import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -21,7 +24,7 @@ import java.beans.PropertyChangeListener;
  * @since 2022-08-04
  */
 @ComponentDependency(components={PoseComponent.class})
-public class DHComponent extends RenderComponent implements PropertyChangeListener {
+public class DHComponent extends ShapeComponent implements PropertyChangeListener {
     public final BooleanParameter isRevolute = new BooleanParameter("Revolute",true);
     public final DoubleParameter myD = new DoubleParameter("D",0.0);
     public final DoubleParameter myR = new DoubleParameter("R",0.0);
@@ -35,6 +38,7 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
     public void setEntity(Entity entity) {
         super.setEntity(entity);
         refreshLocalMatrix();
+        myMesh = new Mesh();
     }
 
     public DHComponent() {
@@ -272,26 +276,27 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         boolean tex = OpenGLHelper.disableTextureStart(gl2);
         int onTop = OpenGLHelper.drawAtopEverythingStart(gl2);
 
-        gl2.glPushMatrix();
-            Matrix4d m = getLocal();
-            m.invert();
-            MatrixHelper.applyMatrix(gl2,m);
+        Matrix4d m = getLocal();
+        //m.invert();
+        m.transpose();
 
-            double rt = Math.toRadians(theta.get());
-            double ct = Math.cos(rt);
-            double st = Math.sin(rt);
-            double r = myR.get();
+        float rt = (float)Math.toRadians(theta.get());
+        float ct = (float)Math.cos(rt);
+        float st = (float)Math.sin(rt);
+        float r = myR.get().floatValue();
 
-            gl2.glBegin(GL2.GL_LINES);
-                gl2.glColor3d(0, 0, 1);
-                gl2.glVertex3d(0, 0, 0);
-                gl2.glVertex3d(0, 0, myD.get());
+        Point3d d = new Point3d(-r*ct, -r*st,0);
+        Point3d dr = new Point3d(-r*ct, -r*st,-myD.get().floatValue());
+        m.transform(d);
+        m.transform(dr);
 
-                gl2.glColor3d(1, 0, 0);
-                gl2.glVertex3d(0, 0, myD.get());
-                gl2.glVertex3d(r*ct, r*st, myD.get());
-            gl2.glEnd();
-        gl2.glPopMatrix();
+        myMesh.clear();
+        myMesh.setRenderStyle(GL2.GL_LINES);
+        myMesh.addColor(0,0,1,1);            myMesh.addVertex(0,0,0);
+        myMesh.addColor(0,0,1,1);            myMesh.addVertex((float)d.x,(float)d.y,(float)d.z);
+        myMesh.addColor(1,0,0,1);            myMesh.addVertex((float)d.x,(float)d.y,(float)d.z);
+        myMesh.addColor(1,0,0,1);            myMesh.addVertex((float)dr.x,(float)dr.y,(float)dr.z);
+        myMesh.render(gl2);
 
         OpenGLHelper.drawAtopEverythingEnd(gl2, onTop);
         OpenGLHelper.disableTextureEnd(gl2, tex);
