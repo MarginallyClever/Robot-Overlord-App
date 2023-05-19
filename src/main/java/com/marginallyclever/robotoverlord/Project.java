@@ -164,6 +164,9 @@ public class Project {
         String newPath = file.getAbsolutePath();
         logger.debug("Loading from {}", newPath);
 
+        Path path = Paths.get(newPath);
+        String onlyPath = path.getParent().toString();
+
         try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
             StringBuilder responseStrBuilder = new StringBuilder();
             String inputStr;
@@ -172,11 +175,9 @@ public class Project {
             }
 
             entityManager.clear();
-            SerializationContext context = new SerializationContext(newPath);
+            SerializationContext context = new SerializationContext(onlyPath);
             loadFromStringWithContext(responseStrBuilder.toString(),context);
         }
-        Path path = Paths.get(newPath);
-        String onlyPath = path.getParent().toString();
         setPath(onlyPath);
     }
 
