@@ -1,6 +1,5 @@
-package com.marginallyclever.convenience;
+package com.marginallyclever.convenience.swing;
 
-import com.marginallyclever.convenience.swing.Dial;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
