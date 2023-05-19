@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
-import com.marginallyclever.convenience.IntersectionHelper;
+import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.entity.Entity;

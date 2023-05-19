@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.systems.render;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

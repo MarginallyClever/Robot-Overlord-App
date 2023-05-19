@@ -1,4 +1,4 @@
-package com.marginallyclever.convenience;
+package com.marginallyclever.convenience.helpers;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Quat4d;

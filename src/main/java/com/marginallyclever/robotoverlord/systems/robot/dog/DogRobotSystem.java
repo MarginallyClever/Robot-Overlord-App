@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.systems.robot.dog;
 
-import com.marginallyclever.convenience.MathHelper;
-import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.helpers.MathHelper;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;

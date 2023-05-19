@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.systems.render.material;
 
-import com.marginallyclever.convenience.FileHelper;
+import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

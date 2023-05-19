@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.robotlibrarypanel;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.marginallyclever.convenience.PathHelper;
+import com.marginallyclever.convenience.helpers.PathHelper;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;

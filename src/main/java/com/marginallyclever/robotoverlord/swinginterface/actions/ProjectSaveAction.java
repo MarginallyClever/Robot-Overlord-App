@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
-import com.marginallyclever.convenience.PathHelper;
+import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.robotoverlord.Project;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;

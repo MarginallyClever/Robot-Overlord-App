@@ -1,5 +1,9 @@
-package com.marginallyclever.convenience;
+package com.marginallyclever.convenience.helpers;
 
+import com.marginallyclever.convenience.AABB;
+import com.marginallyclever.convenience.Cylinder;
+import com.marginallyclever.convenience.Plane;
+import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
 import javax.vecmath.Matrix4d;
@@ -19,7 +23,7 @@ public class IntersectionHelper {
 	 * @param cB cylinder B
 	 * @return true if intersect
 	 */
-	static public boolean cylinderCylinder(Cylinder cA,Cylinder cB) {
+	static public boolean cylinderCylinder(Cylinder cA, Cylinder cB) {
 	    Vector3d   u = new Vector3d(cA.GetP2());  u.sub(cA.GetP1());
 	    Vector3d   v = new Vector3d(cB.GetP2());  v.sub(cB.GetP1());
 	    Vector3d   w = new Vector3d(cA.GetP1());  w.sub(cB.GetP1());
@@ -137,10 +141,10 @@ public class IntersectionHelper {
 	 */
 	static public boolean cuboidCuboid(AABB a, AABB b) {
 		// infinitely small cuboids will incorrectly report hitting everything.
-		if(a.boundTop.epsilonEquals(a.boundBottom, 1e-6)) {
+		if(a.getBoundsTop().epsilonEquals(a.getBoundsBottom(), 1e-6)) {
 			return false;
 		}
-		if(b.boundTop.epsilonEquals(b.boundBottom, 1e-6)) {
+		if(b.getBoundsTop().epsilonEquals(b.getBoundsBottom(), 1e-6)) {
 			return false;
 		}
 
@@ -153,9 +157,10 @@ public class IntersectionHelper {
 	static protected boolean cuboidCuboidInternal(AABB a, AABB b) {
 		// get the normals for A
 		Vector3d[] n = new Vector3d[3];
-		n[0] = new Vector3d(a.pose.m00, a.pose.m10, a.pose.m20);
-		n[1] = new Vector3d(a.pose.m01, a.pose.m11, a.pose.m21);
-		n[2] = new Vector3d(a.pose.m02, a.pose.m12, a.pose.m22);
+		Matrix4d pose = a.getPose();
+		n[0] = new Vector3d(pose.m00, pose.m10, pose.m20);
+		n[1] = new Vector3d(pose.m01, pose.m11, pose.m21);
+		n[2] = new Vector3d(pose.m02, pose.m12, pose.m22);
 		// logger.info("aMatrix="+a.poseWorld);
 		
 		a.updatePoints();

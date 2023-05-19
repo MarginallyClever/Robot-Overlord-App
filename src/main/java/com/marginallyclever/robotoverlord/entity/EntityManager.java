@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.entity;
 
 import com.marginallyclever.convenience.*;
+import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.robotoverlord.Collidable;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.*;

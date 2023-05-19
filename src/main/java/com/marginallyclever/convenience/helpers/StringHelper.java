@@ -1,4 +1,4 @@
-package com.marginallyclever.convenience;
+package com.marginallyclever.convenience.helpers;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;

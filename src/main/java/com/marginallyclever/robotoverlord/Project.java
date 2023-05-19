@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord;
 
-import com.marginallyclever.convenience.PathHelper;
+import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import org.apache.commons.io.FileUtils;

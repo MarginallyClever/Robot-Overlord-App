@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.systems.robot.crab;
 
-import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;

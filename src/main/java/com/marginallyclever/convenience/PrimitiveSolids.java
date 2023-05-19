@@ -1,6 +1,8 @@
 package com.marginallyclever.convenience;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.helpers.OpenGLHelper;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;

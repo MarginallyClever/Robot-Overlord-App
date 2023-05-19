@@ -1,6 +1,6 @@
 package com.marginallyclever.convenience;
 
-import com.marginallyclever.convenience.PathHelper;
+import com.marginallyclever.convenience.helpers.PathHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

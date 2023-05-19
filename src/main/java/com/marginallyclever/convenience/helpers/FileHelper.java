@@ -1,9 +1,8 @@
-package com.marginallyclever.convenience;
+package com.marginallyclever.convenience.helpers;
 
 import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 /**
  * Methods to make loading files from disk or jar resource easier.

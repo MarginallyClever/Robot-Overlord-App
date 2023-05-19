@@ -1,5 +1,6 @@
 package com.marginallyclever.convenience;
 
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.log.Log;
 import org.junit.After;
 import org.junit.Before;

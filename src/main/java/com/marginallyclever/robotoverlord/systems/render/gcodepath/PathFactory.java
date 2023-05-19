@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.systems.render.gcodepath;
 
-import com.marginallyclever.convenience.FileHelper;
+import com.marginallyclever.convenience.helpers.FileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

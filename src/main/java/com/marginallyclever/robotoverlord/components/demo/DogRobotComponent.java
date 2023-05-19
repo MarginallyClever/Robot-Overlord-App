@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.components.demo;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;

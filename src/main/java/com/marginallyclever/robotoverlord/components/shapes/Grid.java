@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.OpenGLHelper;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;

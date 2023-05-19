@@ -1,7 +1,7 @@
 package com.marginallyclever.misc;
 
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.convenience.log.Log;
 import org.junit.After;
 import org.junit.Before;

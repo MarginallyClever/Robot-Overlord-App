@@ -2,6 +2,10 @@ package com.marginallyclever.robotoverlord.robots.stewartplatform.linear;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.*;
+import com.marginallyclever.convenience.helpers.IntersectionHelper;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.helpers.OpenGLHelper;
+import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
@@ -273,7 +277,7 @@ public class LinearStewartPlatformCore extends RenderComponent {
 		view.addButton("GOTO EE").addActionEventListener((evt)->gotoPose());
 		view.addButton("GOTO ZERO").addActionEventListener((evt)->{
 			String message = "G0"
-					+" F"+StringHelper.formatDouble(velocity.get())
+					+" F"+ StringHelper.formatDouble(velocity.get())
 					+" A"+StringHelper.formatDouble(acceleration.get())
 					+" X0"
 					+" Y0"

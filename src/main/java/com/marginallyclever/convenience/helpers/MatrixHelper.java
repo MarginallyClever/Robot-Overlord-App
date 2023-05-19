@@ -1,6 +1,7 @@
-package com.marginallyclever.convenience;
+package com.marginallyclever.convenience.helpers;
 
 import com.jogamp.opengl.GL2;
+import com.marginallyclever.convenience.Plane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

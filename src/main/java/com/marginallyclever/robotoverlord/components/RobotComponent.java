@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.ApproximateJacobian2;

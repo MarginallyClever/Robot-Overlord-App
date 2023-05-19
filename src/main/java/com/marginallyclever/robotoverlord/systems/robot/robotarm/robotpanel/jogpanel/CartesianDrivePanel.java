@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.jogpanel;
 
-import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.swing.Dial;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
