@@ -29,7 +29,9 @@ public class FilenameParameter extends StringParameter {
         // if value is null it will not appear in the JSON.
         if(jo.has("value")) {
             String filename = jo.getString("value");
-            if(jo.has("absolute") && !jo.getBoolean("absolute")) {
+            if(filename==null || filename.trim().isEmpty()) return;
+
+            if(!jo.has("absolute") || !jo.getBoolean("absolute")) {
                 filename = context.getProjectAbsPath() + filename;
             }
             set(filename);
