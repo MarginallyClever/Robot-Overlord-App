@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.programpanel;
+package com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.programpanel;
 
 import com.marginallyclever.convenience.helpers.StringHelper;
 

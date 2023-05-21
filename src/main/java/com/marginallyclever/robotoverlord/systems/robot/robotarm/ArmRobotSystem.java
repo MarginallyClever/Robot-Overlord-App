@@ -10,7 +10,7 @@ import com.marginallyclever.robotoverlord.components.GCodePathComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
-import com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.RobotPanel;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.ControlArmPanel;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
@@ -73,7 +73,7 @@ public class ArmRobotSystem implements EntitySystem {
 
     private void showControlPanel(JComponent parent,RobotComponent robotComponent) {
         try {
-            EntitySystemUtils.makePanel(new RobotPanel(robotComponent, getGCodePath(robotComponent)), parent, Translator.get("RobotROSystem.controlPanel"));
+            EntitySystemUtils.makePanel(new ControlArmPanel(robotComponent, getGCodePath(robotComponent)), parent, Translator.get("RobotROSystem.controlPanel"));
         } catch (Exception e) {
             e.printStackTrace();
             // display error message in a dialog
