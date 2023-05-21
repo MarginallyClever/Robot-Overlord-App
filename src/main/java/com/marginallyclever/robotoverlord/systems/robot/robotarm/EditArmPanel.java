@@ -213,16 +213,22 @@ public class EditArmPanel extends JPanel {
 
                     dhTable.add(dhInput);
                 } else {
-                    Entity firstChild = rootEntity.getChildren().get(0);
-                    if(firstChild.getComponent(MeshFromFile.class)!=null) {
-                        MeshFromFile meshFromFile = joints.get(i).getChildren().get(0).getComponent(MeshFromFile.class);
-                        StringParameter filenameParameter = meshFromFile.filename;
-                        ViewElementFilename viewElementFilename = new ViewElementFilename(filenameParameter);
-                        viewElementFilename.addFileFilters(MeshFactory.getAllExtensions());
-                        dhTable.add(viewElementFilename);
+                    // last column mesh selection
+
+                    ShapeComponent shape = findChildShapeComponent(joints.get(i));
+                    if(shape!=null) {
+                        if (shape instanceof MeshFromFile) {
+                            MeshFromFile meshFromFile = (MeshFromFile) shape;
+                            StringParameter filenameParameter = meshFromFile.filename;
+                            ViewElementFilename viewElementFilename = new ViewElementFilename(filenameParameter);
+                            viewElementFilename.addFileFilters(MeshFactory.getAllExtensions());
+                            dhTable.add(viewElementFilename);
+                        } else {
+                            // is a ShapeComponent
+                            dhTable.add(new JLabel("Joint model is Shape"));
+                        }
                     } else {
-                        // is a ShapeComponent
-                        dhTable.add(new JLabel("Joint model is Shape"));
+                        dhTable.add(new JLabel("Joint model is missing"));
                     }
                 }
             }
