@@ -67,6 +67,8 @@ public class EditArmPanel extends JPanel {
                 current = dh.getEntity();
             }
         } while(found);
+
+        numJoints = Math.max(1,numJoints);
     }
 
     private ShapeComponent findChildShapeComponent(Entity entity) {
@@ -276,7 +278,7 @@ public class EditArmPanel extends JPanel {
             if(!(shape instanceof MeshFromFile)) shape=null;
         }
         if(shape!=null) {
-            MeshFromFile meshFromFile = rootEntity.getChildren().get(0).getComponent(MeshFromFile.class);
+            MeshFromFile meshFromFile = (MeshFromFile)shape;
             StringParameter filenameParameter = meshFromFile.filename;
             ViewElementFilename baseMeshFilename = new ViewElementFilename(filenameParameter);
             baseMeshFilename.addFileFilters(MeshFactory.getAllExtensions());
