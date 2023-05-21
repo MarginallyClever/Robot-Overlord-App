@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.presentationlayer;
+package com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.presentationlayer;
 
 import com.marginallyclever.robotoverlord.robots.Robot;
 

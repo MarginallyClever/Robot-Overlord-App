@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.presentationlayer;
+package com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.presentationlayer;
 
 /**
  * A command with a line number and checksum.  Used by {@link PresentationLayer} to send commands to the robot

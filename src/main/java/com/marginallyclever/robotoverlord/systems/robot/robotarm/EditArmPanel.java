@@ -9,6 +9,7 @@ import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.TextureParameter;
+import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementSlider;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
@@ -21,6 +22,7 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.vecmath.Matrix4d;
 import java.awt.*;
 
 /**
@@ -139,6 +141,11 @@ public class EditArmPanel extends JPanel {
         if(target==null) {
             target = new Entity(RobotComponent.TARGET_NAME);
             entityManager.addEntityToParent(target, rootEntity);
+            PoseComponent targetPose = target.getComponent(PoseComponent.class);
+            Matrix4d endEffector = (Matrix4d)robotComponent.get(Robot.END_EFFECTOR);
+            Matrix4d root = (Matrix4d)robotComponent.get(Robot.POSE);
+            endEffector.mul(root,endEffector);
+            targetPose.setWorld(endEffector);
         }
     }
 

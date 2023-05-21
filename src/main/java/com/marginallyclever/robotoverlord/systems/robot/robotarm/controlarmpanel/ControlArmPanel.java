@@ -1,12 +1,12 @@
-package com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel;
+package com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel;
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.GCodePathComponent;
-import com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.jogpanel.JogPanel;
-import com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.presentationlayer.PresentationFactory;
-import com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.presentationlayer.PresentationLayer;
-import com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.programpanel.ProgramPanel;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.jogpanel.JogPanel;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.presentationlayer.PresentationFactory;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.presentationlayer.PresentationLayer;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.programpanel.ProgramPanel;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
@@ -16,7 +16,7 @@ import java.awt.*;
  * Application layer for a robot.  A {@link JogPanel}, a {@link ProgramPanel}, and a {@link PresentationLayer} glued together.
  * @author Dan Royer
  */
-public class RobotPanel extends JPanel {
+public class ControlArmPanel extends JPanel {
 	private final ProgramPanel programPanel;
 
 	private final JPanel presentationContainer = new JPanel(new BorderLayout());
@@ -35,7 +35,7 @@ public class RobotPanel extends JPanel {
 	private boolean isRunning = false;
 	private final RobotComponent myRobot;
 	
-	public RobotPanel(RobotComponent robot, GCodePathComponent path) {
+	public ControlArmPanel(RobotComponent robot, GCodePathComponent path) {
 		super();
 		this.myRobot = robot;
 
@@ -173,7 +173,7 @@ public class RobotPanel extends JPanel {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception ignored) {}
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new RobotPanel(new RobotComponent(),null));
+		frame.add(new ControlArmPanel(new RobotComponent(),null));
 		frame.pack();
 		frame.setVisible(true);
 	}
