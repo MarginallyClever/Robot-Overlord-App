@@ -72,7 +72,17 @@ public class ArmRobotSystem implements EntitySystem {
     }
 
     private void showControlPanel(JComponent parent,RobotComponent robotComponent) {
-        EntitySystemUtils.makePanel(new RobotPanel(robotComponent,getGCodePath(robotComponent)), parent,Translator.get("RobotROSystem.controlPanel"));
+        try {
+            EntitySystemUtils.makePanel(new RobotPanel(robotComponent, getGCodePath(robotComponent)), parent, Translator.get("RobotROSystem.controlPanel"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            // display error message in a dialog
+            JOptionPane.showMessageDialog(
+                    SwingUtilities.getWindowAncestor(parent),
+                    "Failed to open window.  Is robot initialized?",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private GCodePathComponent getGCodePath(RobotComponent robotComponent) {

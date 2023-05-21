@@ -34,7 +34,7 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
     private final List<DHComponent> bones = new ArrayList<>();
     public final ReferenceParameter gcodePath = new ReferenceParameter("Path");
 
-    public DoubleParameter desiredLinearVelocity = new DoubleParameter("Desired Linear Velocity (cm/s)",0.1);
+    public DoubleParameter desiredLinearVelocity = new DoubleParameter("Desired Linear Velocity (cm/s)",1);
 
     @Override
     public void setEntity(Entity entity) {
