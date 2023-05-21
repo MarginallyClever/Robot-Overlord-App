@@ -148,7 +148,7 @@ public class Project {
     public void clear() {
         getEntityManager().clear();
         setDefaultPath();
-        PathHelper.deleteDirectory(new File(getPath()));
+        //PathHelper.deleteDirectory(new File(getPath()));
         PathHelper.createDirectoryIfNotExists(getPath());
     }
 

@@ -36,6 +36,7 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 		chooser.setFileView(new FileView() {
 			@Override
 			public Boolean isTraversable(File f) {
+				if(!f.isDirectory()) return false;
 				return f.getAbsolutePath().startsWith(PathHelper.SCENE_PATH);
 			}
 		});
@@ -87,10 +88,17 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 				chooser.addChoosableFileFilter(filter);
 			}
 		}
-		int returnVal = chooser.showDialog(SwingUtilities.getWindowAncestor(this), Translator.get("Select"));
-		if(returnVal == JFileChooser.APPROVE_OPTION) {
-			UndoSystem.addEvent(this,new StringParameterEdit(parameter, chooser.getSelectedFile().getAbsolutePath()));
-		}
+
+		ViewElementFilename chooserParent = this;
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				int returnVal = chooser.showDialog(SwingUtilities.getWindowAncestor(chooserParent), Translator.get("Select"));
+				if(returnVal == JFileChooser.APPROVE_OPTION) {
+					UndoSystem.addEvent(this,new StringParameterEdit(parameter, chooser.getSelectedFile().getAbsolutePath()));
+				}
+			}
+		});
 	}
 
 	public static void setLastPath(String lastPath) {
