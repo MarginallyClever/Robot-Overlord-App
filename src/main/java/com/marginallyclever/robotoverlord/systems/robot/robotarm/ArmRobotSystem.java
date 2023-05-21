@@ -54,6 +54,7 @@ public class ArmRobotSystem implements EntitySystem {
     private void decorateRobot(ComponentPanelFactory view, Component component) {
         RobotComponent robotComponent = (RobotComponent)component;
 
+        view.add(robotComponent.desiredLinearVelocity);
         view.add(robotComponent.gcodePath);
 
         ViewElementButton bMake = view.addButton("Edit Arm");
@@ -98,8 +99,35 @@ public class ArmRobotSystem implements EntitySystem {
     private void updateRobotComponent(RobotComponent robotComponent, double dt) {
         Matrix4d startPose = (Matrix4d)robotComponent.get(Robot.END_EFFECTOR);
         Matrix4d targetPose = (Matrix4d)robotComponent.get(Robot.END_EFFECTOR_TARGET);
-
         double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrices(startPose, targetPose);
+
+        // adjust for desired linear speed
+        double linearVelocity = (double)robotComponent.get(Robot.DESIRED_LINEAR_VELOCITY);
+        capVectorToMagnitude(cartesianVelocity,linearVelocity*dt);
+
+        // push the robot
         robotComponent.applyCartesianForceToEndEffector(cartesianVelocity);
+    }
+
+    /**
+     * Make sure the given vector's length does not exceed maxLen.  It can be less than the given magnitude.
+     * Store the results in the original array.
+     * @param vector the vector to cap
+     * @param maxLen the max length of the vector.
+     */
+    public static void capVectorToMagnitude(double[] vector, double maxLen) {
+        // get the length of the vector
+        double len = 0;
+        for (double v : vector) {
+            len += v * v;
+        }
+        len = Math.sqrt(len);
+        if(len < maxLen) return;  // already smaller, nothing to do.
+
+        // scale the vector down
+        double scale = maxLen / len;
+        for(int i=0;i<vector.length;i++) {
+            vector[i] *= scale;
+        }
     }
 }

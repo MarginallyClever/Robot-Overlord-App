@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.components;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.ApproximateJacobian2;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
@@ -32,6 +33,8 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
     private int activeJoint;
     private final List<DHComponent> bones = new ArrayList<>();
     public final ReferenceParameter gcodePath = new ReferenceParameter("Path");
+
+    public DoubleParameter desiredLinearVelocity = new DoubleParameter("Desired Linear Velocity (cm/s)",0.1);
 
     @Override
     public void setEntity(Entity entity) {
@@ -91,6 +94,7 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
             case JOINT_POSE: return getActiveJointPose();
             case JOINT_HOME: return getBone(activeJoint).getJointHome();
             case ALL_JOINT_VALUES: return getAllJointValues();
+            case DESIRED_LINEAR_VELOCITY: return desiredLinearVelocity.get();
             default : {
                 logger.warn("invalid get() property {}", property);
                 return null;
@@ -131,6 +135,7 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
             case POSE -> setPoseWorld((Matrix4d) value);
             case JOINT_HOME -> getBone(activeJoint).setJointHome((double) value);
             case ALL_JOINT_VALUES -> setAllJointValues((double[]) value);
+            case DESIRED_LINEAR_VELOCITY -> desiredLinearVelocity.set((double) value);
             default -> {
                 logger.warn("invalid set() property {}", property);
             }

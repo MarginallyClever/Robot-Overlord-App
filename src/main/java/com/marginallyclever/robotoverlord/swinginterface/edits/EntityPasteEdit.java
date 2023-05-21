@@ -46,9 +46,8 @@ public class EntityPasteEdit extends AbstractUndoableEdit {
         for(Entity e : from) {
             JSONObject serialized = e.toJSON(context);
             for(Entity parent : parents) {
-                Entity copy = new Entity();
+                Entity copy = e.deepCopy();
                 entityManager.addEntityToParent(copy, parent);
-                copy.parseJSON(serialized,context);
                 copies.add(copy);
             }
         }
