@@ -110,6 +110,7 @@ public class OpenGLRenderPanel implements RenderPanel {
     private final List<MatrixMaterialRender> opaque = new ArrayList<>();
     private final List<MatrixMaterialRender> alpha = new ArrayList<>();
     private final List<MatrixMaterialRender> noMaterial = new ArrayList<>();
+    private final List<MatrixMaterialRender> onTop = new ArrayList<>();
     private UpdateCallback updateCallback;
 
     private ShaderProgram shaderDefault;
@@ -630,6 +631,7 @@ public class OpenGLRenderPanel implements RenderPanel {
         opaque.clear();
         alpha.clear();
         noMaterial.clear();
+        onTop.clear();
 
         // collect all entities with a RenderComponent
         Queue<Entity> toRender = new LinkedList<>(list);
@@ -646,6 +648,7 @@ public class OpenGLRenderPanel implements RenderPanel {
                 if(pose!=null) mmr.matrix.set(pose.getWorld());
 
                 if(mmr.materialComponent==null) noMaterial.add(mmr);
+                else if(mmr.materialComponent.drawOnTop.get()) onTop.add(mmr);
                 else if(mmr.materialComponent.isAlpha()) alpha.add(mmr);
                 else opaque.add(mmr);
             }
@@ -671,12 +674,19 @@ public class OpenGLRenderPanel implements RenderPanel {
             double d2 = p2.lengthSquared();
             return (int)Math.signum(d2-d1);
         });
+
         // alpha objects
         renderMMRList(gl2,alpha,shaderProgram);
 
-        // objects with no material last
+        // objects with no material
         defaultMaterial.render(gl2);
         renderMMRList(gl2,noMaterial,shaderProgram);
+
+        // onTop
+        gl2.glDisable(GL2.GL_DEPTH_TEST);
+        defaultMaterial.render(gl2);
+        renderMMRList(gl2,onTop,shaderProgram);
+        gl2.glEnable(GL2.GL_DEPTH_TEST);
     }
 
     private void renderMMRList(GL2 gl2, List<MatrixMaterialRender> list,ShaderProgram shaderProgram) {

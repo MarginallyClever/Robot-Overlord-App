@@ -26,6 +26,7 @@ public class MaterialComponent extends Component {
     public final IntParameter shininess    = new IntParameter("Shininess",10);
     public final BooleanParameter isLit    = new BooleanParameter("Lit",true);
     public final TextureParameter texture  = new TextureParameter("Texture",null);
+    public final BooleanParameter drawOnTop = new BooleanParameter("Draw on top",false);
 
     public MaterialComponent() {
         super();
@@ -144,6 +145,7 @@ public class MaterialComponent extends Component {
         jo.put("specular",specular.toJSON(context));
         jo.put("shininess",shininess.toJSON(context));
         jo.put("texture",texture.toJSON(context));
+        jo.put("drawOnTop",drawOnTop.toJSON(context));
         return jo;
     }
 
@@ -157,6 +159,7 @@ public class MaterialComponent extends Component {
         specular.parseJSON(jo.getJSONObject("specular"),context);
         shininess.parseJSON(jo.getJSONObject("shininess"),context);
         texture.parseJSON(jo.getJSONObject("texture"),context);
+        if(jo.has("drawOnTop")) drawOnTop.parseJSON(jo.getJSONObject("drawOnTop"),context);
     }
 
     /**
