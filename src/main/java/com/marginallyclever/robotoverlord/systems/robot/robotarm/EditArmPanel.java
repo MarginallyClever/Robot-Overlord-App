@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
+import com.marginallyclever.robotoverlord.components.shapes.Grid;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.components.*;
@@ -31,19 +32,23 @@ import java.awt.*;
 public class EditArmPanel extends JPanel {
     public static final int MAX_JOINTS = 6;
     private int numJoints = 1;
-    private static final String[] labels = {"Joint", "D", "R", "Alpha", "Theta", "Max", "Min", "Home", "Mesh"};
+    private static final String [] labels = {"Joint", "D", "R", "Alpha", "Theta", "Max", "Min", "Home", "Mesh"};
+    private static final int [] widths = {30,30,30,30,30,30,30,30,25};
     public static final int COLS = labels.length-1;
     private final EntityManager entityManager;
     private final Entity rootEntity;
     private final List<Entity> joints = new ArrayList<>();
-    private JPanel dhTable = new JPanel(new GridLayout(numJoints +1, labels.length,2,2));
-    private JPanel centerContainer = new JPanel(new BorderLayout());
+    private final JPanel dhTable = new JPanel(new GridBagLayout());
+    private final JPanel centerContainer = new JPanel(new BorderLayout());
     private final JCheckBox adjustOrigins = new JCheckBox("All meshes have origin at root of robot");
     private final RobotComponent robotComponent;
 
     public EditArmPanel(Entity rootEntity, EntityManager entityManager) {
         super(new BorderLayout());
-        setPreferredSize(new Dimension(500,300));
+
+        Dimension d = new Dimension(700,320);
+        setMinimumSize(d);
+        setPreferredSize(d);
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         add(centerContainer,BorderLayout.CENTER);
         this.entityManager = entityManager;
@@ -143,23 +148,44 @@ public class EditArmPanel extends JPanel {
     }
 
     private void setupDHTable() {
-        centerContainer.removeAll();
-        dhTable = new JPanel(new GridLayout(numJoints +1, labels.length,2,2));
-        dhTable.setBorder(BorderFactory.createTitledBorder("DH Parameters"));
-        centerContainer.add(dhTable,BorderLayout.CENTER);
 
-        for (String label : labels) {
-            dhTable.add(new JLabel(label));
+        centerContainer.removeAll();
+        dhTable.removeAll();
+        dhTable.setBorder(BorderFactory.createTitledBorder("DH Parameters"));
+        centerContainer.add(dhTable,BorderLayout.NORTH);
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(1,1,1,1);
+        c.fill = GridBagConstraints.HORIZONTAL;
+
+        for(int i=0;i<labels.length;++i) {
+            c.gridx=i;
+            c.gridy=0;
+            JLabel label = new JLabel(labels[i]);
+            int height = label.getPreferredSize().height;
+            Dimension d = new Dimension(widths[i],height);
+            label.setMinimumSize(d);
+            label.setPreferredSize(d);
+            if(i<labels.length-1) label.setHorizontalAlignment(SwingConstants.RIGHT);
+            dhTable.add(label,c);
         }
 
         for (int i = 0; i < numJoints; i++) {
-            dhTable.add(new JLabel(String.valueOf(i)));
+            c.gridy=i+1;
+            c.gridx=0;
+            c.ipadx=0;
+            c.weightx=0;
+            JLabel label = new JLabel(String.valueOf(i));
+            label.setHorizontalAlignment(SwingConstants.RIGHT);
+            dhTable.add(label,c);
             for (int j = 0; j < COLS; j++) {
+                c.gridx=1+j;
                 if (j < COLS - 1) {
                     final int paramIndex = j;
                     DHComponent dhComponent = joints.get(i).getComponent(DHComponent.class);
 
                     JTextField dhInput = new JTextField(7);
+                    dhInput.setHorizontalAlignment(SwingConstants.RIGHT);
 
                     double v = switch (paramIndex) {
                         case 0 -> dhComponent.getD();
@@ -211,10 +237,10 @@ public class EditArmPanel extends JPanel {
                         }
                     });
 
-                    dhTable.add(dhInput);
+                    dhTable.add(dhInput,c);
                 } else {
+                    c.weightx=1;
                     // last column mesh selection
-
                     ShapeComponent shape = findChildShapeComponent(joints.get(i));
                     if(shape!=null) {
                         if (shape instanceof MeshFromFile) {
@@ -222,13 +248,13 @@ public class EditArmPanel extends JPanel {
                             StringParameter filenameParameter = meshFromFile.filename;
                             ViewElementFilename viewElementFilename = new ViewElementFilename(filenameParameter);
                             viewElementFilename.addFileFilters(MeshFactory.getAllExtensions());
-                            dhTable.add(viewElementFilename);
+                            dhTable.add(viewElementFilename,c);
                         } else {
                             // is a ShapeComponent
-                            dhTable.add(new JLabel("Joint model is Shape"));
+                            dhTable.add(new JLabel("Joint model is Shape"),c);
                         }
                     } else {
-                        dhTable.add(new JLabel("Joint model is missing"));
+                        dhTable.add(new JLabel("Joint model is missing"),c);
                     }
                 }
             }
@@ -236,37 +262,56 @@ public class EditArmPanel extends JPanel {
     }
 
     private void setupGeneralSettings() {
-        JPanel generalPanel = new JPanel();
+        JPanel generalPanel = new JPanel(new GridBagLayout());
         generalPanel.setBorder(BorderFactory.createTitledBorder("General"));
-        generalPanel.setLayout(new BoxLayout(generalPanel, BoxLayout.Y_AXIS));
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridy=0;
+        c.gridx=0;
 
+        final EditArmPanel editArmPanel = this;
         // num joints
-        IntParameter numJointsParameter = new IntParameter("# Joints", numJoints);
-        ViewElementSlider numJointSlider = new ViewElementSlider(numJointsParameter,MAX_JOINTS,1);
-        generalPanel.add(numJointSlider);
-        numJointsParameter.addPropertyChangeListener(e->{
-            int value = numJointsParameter.get();
+        c.weightx=0.1;
+        generalPanel.add(new JLabel("# Joints"),c);
+        JSlider slider = new JSlider(1,MAX_JOINTS,numJoints);
+        c.gridx=1;
+        c.weightx=0.9;
+        generalPanel.add(slider,c);
+        slider.setPaintLabels(true);
+        slider.setMajorTickSpacing(1);
+
+        slider.setAlignmentX(Component.LEFT_ALIGNMENT);
+        slider.addChangeListener(e->{
+            int value = slider.getValue();
             if(value!=numJoints) {
                 numJoints = value;
                 createComponents();
                 setupDHTable();
+                SwingUtilities.getWindowAncestor(this).pack();
+                editArmPanel.revalidate();
             }
         });
-        numJointSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         // texture
+        c.gridy++;
+        c.weightx=0.1;
+        c.gridx=0;
+        generalPanel.add(new JLabel("Texture"),c);
+
         StringParameter textureParameter;
         MaterialComponent material = rootEntity.getChildren().get(0).getComponent(MaterialComponent.class);
         if(material!=null) {
             textureParameter = material.texture;
         } else {
-            textureParameter = new TextureParameter("texture", "");
+            textureParameter = new TextureParameter("", "");
         }
         ViewElementFilename textureFilename = new ViewElementFilename(textureParameter);
         textureFilename.addFileFilters(MeshFactory.getAllExtensions());
         textureFilename.setAlignmentX(Component.LEFT_ALIGNMENT);
         textureFilename.setMaximumSize(textureFilename.getPreferredSize());
-        generalPanel.add(textureFilename);
+        c.weightx = 0.9;
+        c.gridx=1;
+        generalPanel.add(textureFilename,c);
         textureParameter.addPropertyChangeListener(evt -> {
             String filename = textureParameter.get();
             // set texture of all meshes
@@ -290,22 +335,35 @@ public class EditArmPanel extends JPanel {
             baseMeshFilename.addFileFilters(MeshFactory.getAllExtensions());
             baseMeshFilename.setAlignmentX(Component.LEFT_ALIGNMENT);
             baseMeshFilename.setMaximumSize(baseMeshFilename.getPreferredSize());
-            generalPanel.add(baseMeshFilename);
+
+            c.gridy++;
+            c.weightx=0.1;
+            c.gridx=0;
+            generalPanel.add(new JLabel("Mesh"),c);
+            c.weightx = 0.9;
+            c.gridx=1;
+            generalPanel.add(baseMeshFilename,c);
         }
 
         // show DH
         JCheckBox showDH = new JCheckBox("Show DH");
         showDH.setSelected(false);
-        generalPanel.add(showDH);
         showDH.addActionListener(e -> {
             for (int i = 0; i < numJoints; i++) {
                 joints.get(i).getComponent(DHComponent.class).setVisible(showDH.isSelected());
             }
         });
 
+        c.gridy++;
+        c.weightx=1;
+        c.gridx=0;
+        c.gridwidth=2;
+        generalPanel.add(showDH,c);
+        c.gridy++;
+
         // adjust origins
         adjustOrigins.setSelected(false);
-        generalPanel.add(adjustOrigins);
+        generalPanel.add(adjustOrigins,c);
         adjustOrigins.addActionListener(e -> {
             updatePoses();
         });
@@ -331,5 +389,25 @@ public class EditArmPanel extends JPanel {
                 }
             }
         }
+    }
+
+    // test display
+    public static void main(String[] args) {
+        EntityManager entityManager = new EntityManager();
+        entityManager.getRoot().addComponent(new RobotComponent());
+
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch(Exception ignored) {}
+
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame(EditArmPanel.class.getSimpleName());
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(800,600);
+            frame.setLocationRelativeTo(null);
+            frame.add(new EditArmPanel(entityManager.getRoot(),entityManager));
+            frame.pack();
+            frame.setVisible(true);
+        });
     }
 }
