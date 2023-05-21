@@ -1,8 +1,7 @@
 package com.marginallyclever.robotoverlord.components;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.ComponentWithDiskAsset;
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
@@ -19,7 +18,7 @@ import java.util.ArrayList;
  * @author Dan Royer
  * @since 2.5.0
  */
-public class MaterialComponent extends Component implements ComponentWithDiskAsset {
+public class MaterialComponent extends Component {
     public final ColorParameter ambient    = new ColorParameter("Ambient" ,1,1,1,1);
     public final ColorParameter diffuse    = new ColorParameter("Diffuse" ,1,1,1,1);
     public final ColorParameter specular   = new ColorParameter("Specular",1,1,1,1);
@@ -27,6 +26,7 @@ public class MaterialComponent extends Component implements ComponentWithDiskAss
     public final IntParameter shininess    = new IntParameter("Shininess",10);
     public final BooleanParameter isLit    = new BooleanParameter("Lit",true);
     public final TextureParameter texture  = new TextureParameter("Texture",null);
+    public final BooleanParameter drawOnTop = new BooleanParameter("Draw on top",false);
 
     public MaterialComponent() {
         super();
@@ -136,28 +136,30 @@ public class MaterialComponent extends Component implements ComponentWithDiskAss
     }
 
     @Override
-    public JSONObject toJSON() {
-        JSONObject jo = super.toJSON();
-        jo.put("isLit",isLit.toJSON());
-        jo.put("emission",emission.toJSON());
-        jo.put("ambient",ambient.toJSON());
-        jo.put("diffuse",diffuse.toJSON());
-        jo.put("specular",specular.toJSON());
-        jo.put("shininess",shininess.toJSON());
-        jo.put("texture",texture.toJSON());
+    public JSONObject toJSON(SerializationContext context) {
+        JSONObject jo = super.toJSON(context);
+        jo.put("isLit",isLit.toJSON(context));
+        jo.put("emission",emission.toJSON(context));
+        jo.put("ambient",ambient.toJSON(context));
+        jo.put("diffuse",diffuse.toJSON(context));
+        jo.put("specular",specular.toJSON(context));
+        jo.put("shininess",shininess.toJSON(context));
+        jo.put("texture",texture.toJSON(context));
+        jo.put("drawOnTop",drawOnTop.toJSON(context));
         return jo;
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws JSONException {
-        super.parseJSON(jo);
-        isLit.parseJSON(jo.getJSONObject("isLit"));
-        emission.parseJSON(jo.getJSONObject("emission"));
-        ambient.parseJSON(jo.getJSONObject("ambient"));
-        diffuse.parseJSON(jo.getJSONObject("diffuse"));
-        specular.parseJSON(jo.getJSONObject("specular"));
-        shininess.parseJSON(jo.getJSONObject("shininess"));
-        texture.parseJSON(jo.getJSONObject("texture"));
+    public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
+        super.parseJSON(jo,context);
+        isLit.parseJSON(jo.getJSONObject("isLit"),context);
+        emission.parseJSON(jo.getJSONObject("emission"),context);
+        ambient.parseJSON(jo.getJSONObject("ambient"),context);
+        diffuse.parseJSON(jo.getJSONObject("diffuse"),context);
+        specular.parseJSON(jo.getJSONObject("specular"),context);
+        shininess.parseJSON(jo.getJSONObject("shininess"),context);
+        texture.parseJSON(jo.getJSONObject("texture"),context);
+        if(jo.has("drawOnTop")) drawOnTop.parseJSON(jo.getJSONObject("drawOnTop"),context);
     }
 
     /**
@@ -166,28 +168,5 @@ public class MaterialComponent extends Component implements ComponentWithDiskAss
      */
     public boolean isAlpha() {
         return diffuse.getA()!=1.0;
-    }
-
-    /**
-     * adjust the path of the disk assets in the component.
-     *
-     * @param originalPath the original path to the asset
-     * @param newPath      the new path to the asset
-     */
-    @Override
-    public void adjustPath(String originalPath, String newPath) {
-        String oldPath = this.getTextureFilename();
-        String adjustedPath = oldPath;
-        if(oldPath.startsWith(originalPath)) {
-            adjustedPath = newPath + oldPath.substring(originalPath.length());
-        }
-        this.setTextureFilename(adjustedPath);
-    }
-
-    @Override
-    public List<String> getAssetPaths() {
-        List<String> list = new ArrayList<>();
-        list.add(getTextureFilename());
-        return list;
     }
 }

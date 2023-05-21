@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
-import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.entity.Entity;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -20,11 +20,12 @@ public class FullNameTreeCellRenderer extends DefaultTreeCellRenderer {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
             Object userObject = node.getUserObject();
             if (userObject instanceof Entity) {
-                String fullName =  ((Entity)userObject).getName();
+                Entity entity = ((Entity)userObject);
+                String fullName = entity.getName();
 
-                component.setText(fullName);
+                setText(fullName);
                 // Set the full name as the tooltip
-                component.setToolTipText(fullName);
+                setToolTipText(entity.getUniqueID());
 
                 // Calculate the preferred width based on the length of the full name
                 FontMetrics fontMetrics = component.getFontMetrics(component.getFont());
@@ -32,8 +33,8 @@ public class FullNameTreeCellRenderer extends DefaultTreeCellRenderer {
 
                 // Set the preferred size of the component
                 Dimension preferredSize = new Dimension(preferredWidth, component.getPreferredSize().height);
-                component.setPreferredSize(preferredSize);
-                component.setMinimumSize(preferredSize);
+                setPreferredSize(preferredSize);
+                setMinimumSize(preferredSize);
             }
         }
 

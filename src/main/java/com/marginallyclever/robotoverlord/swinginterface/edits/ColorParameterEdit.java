@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
+import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
@@ -9,7 +10,7 @@ import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
 
 /**
- * Some {@link com.marginallyclever.robotoverlord.Component} have {@link ColorParameter}.
+ * Some {@link Component} have {@link ColorParameter}.
  * This class ensures changing those parameters is undoable.
  *  
  * @author Dan Royer

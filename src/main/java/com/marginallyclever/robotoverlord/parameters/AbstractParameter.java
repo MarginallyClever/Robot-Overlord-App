@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.parameters;
 
+import com.marginallyclever.robotoverlord.SerializationContext;
 import org.json.JSONObject;
 
 import java.beans.PropertyChangeEvent;
@@ -52,13 +53,13 @@ public abstract class AbstractParameter<T> {
 		propertyChangeListeners.add(arg0);
 	}
 
-	public JSONObject toJSON() {
+	public JSONObject toJSON(SerializationContext context) {
 		JSONObject jo = new JSONObject();
 		jo.put("name",getName());
 		return jo;
 	}
 
-	public void parseJSON(JSONObject jo) {
+	public void parseJSON(JSONObject jo,SerializationContext context) {
 		name = jo.getString("name");
 	}
 }

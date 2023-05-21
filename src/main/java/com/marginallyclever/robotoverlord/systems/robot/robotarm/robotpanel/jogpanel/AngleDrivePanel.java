@@ -81,6 +81,7 @@ public class AngleDrivePanel extends JPanel {
 				double angle = (double)robot.get(Robot.JOINT_VALUE);
 				angle += getMovementStepSize();
 				robot.set(Robot.JOINT_VALUE,angle);
+				robot.set(Robot.END_EFFECTOR_TARGET,robot.get(Robot.END_EFFECTOR));
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
-import com.marginallyclever.robotoverlord.Component;
+import com.marginallyclever.robotoverlord.components.Component;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
@@ -11,7 +12,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 /**
- * Delete a {@link Component} from an {@link com.marginallyclever.robotoverlord.Entity}.
+ * Delete a {@link Component} from an {@link Entity}.
  *
  * @author Dan Royer
  * @since 2.5.0

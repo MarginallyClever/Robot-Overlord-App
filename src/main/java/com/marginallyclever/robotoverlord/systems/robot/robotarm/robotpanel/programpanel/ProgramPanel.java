@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.programpanel;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.GCodePathComponent;
 import com.marginallyclever.robotoverlord.systems.render.gcodepath.PathWalker;
@@ -20,12 +20,9 @@ import java.io.*;
  */
 public class ProgramPanel extends JPanel {
 	private static final Logger logger = LoggerFactory.getLogger(ProgramPanel.class);
-	@Serial
-	private static final long serialVersionUID = 1L;
 	private final DefaultListModel<ProgramEvent> listModel = new DefaultListModel<>();
 	private final JList<ProgramEvent> listView = new JList<>(listModel);
 	private final JFileChooser chooser = new JFileChooser();
-
 	private final JButton bNew = new JButton("New");
 	private final JButton bSave = new JButton("Save");
 	private final JButton bLoad = new JButton("Load");

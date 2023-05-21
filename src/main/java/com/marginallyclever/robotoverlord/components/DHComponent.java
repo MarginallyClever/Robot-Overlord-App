@@ -1,15 +1,17 @@
 package com.marginallyclever.robotoverlord.components;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.OpenGLHelper;
-import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.convenience.helpers.OpenGLHelper;
+import com.marginallyclever.robotoverlord.SerializationContext;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -20,20 +22,21 @@ import java.beans.PropertyChangeListener;
  * @since 2022-08-04
  */
 @ComponentDependency(components={PoseComponent.class})
-public class DHComponent extends RenderComponent implements PropertyChangeListener {
+public class DHComponent extends ShapeComponent implements PropertyChangeListener {
     public final BooleanParameter isRevolute = new BooleanParameter("Revolute",true);
     public final DoubleParameter myD = new DoubleParameter("D",0.0);
     public final DoubleParameter myR = new DoubleParameter("R",0.0);
     public final DoubleParameter alpha = new DoubleParameter("Alpha",0.0);
     public final DoubleParameter theta = new DoubleParameter("Theta",0.0);
-    public final DoubleParameter jointMax = new DoubleParameter("Max",0.0);
-    public final DoubleParameter jointMin = new DoubleParameter("Min",0.0);
+    public final DoubleParameter jointMax = new DoubleParameter("Max",180.0);
+    public final DoubleParameter jointMin = new DoubleParameter("Min",-180.0);
     public final DoubleParameter jointHome = new DoubleParameter("Home",0.0);
 
     @Override
     public void setEntity(Entity entity) {
         super.setEntity(entity);
         refreshLocalMatrix();
+        myMesh = new Mesh();
     }
 
     public DHComponent() {
@@ -46,30 +49,30 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
     }
 
     @Override
-    public JSONObject toJSON() {
-        JSONObject jo = super.toJSON();
-        jo.put("D",myD.toJSON());
-        jo.put("R",myR.toJSON());
-        jo.put("Alpha", alpha.toJSON());
-        jo.put("Theta", theta.toJSON());
-        jo.put("ThetaMax", jointMax.toJSON());
-        jo.put("ThetaMin", jointMin.toJSON());
-        jo.put("ThetaHome", jointHome.toJSON());
-        jo.put("Revolute", isRevolute.toJSON());
+    public JSONObject toJSON(SerializationContext context) {
+        JSONObject jo = super.toJSON(context);
+        jo.put("D",myD.toJSON(context));
+        jo.put("R",myR.toJSON(context));
+        jo.put("Alpha", alpha.toJSON(context));
+        jo.put("Theta", theta.toJSON(context));
+        jo.put("ThetaMax", jointMax.toJSON(context));
+        jo.put("ThetaMin", jointMin.toJSON(context));
+        jo.put("ThetaHome", jointHome.toJSON(context));
+        jo.put("Revolute", isRevolute.toJSON(context));
         return jo;
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws JSONException {
-        super.parseJSON(jo);
-        myD.parseJSON(jo.getJSONObject("D"));
-        myR.parseJSON(jo.getJSONObject("R"));
-        alpha.parseJSON(jo.getJSONObject("Alpha"));
-        theta.parseJSON(jo.getJSONObject("Theta"));
-        if(jo.has("ThetaMax")) jointMax.parseJSON(jo.getJSONObject("ThetaMax"));
-        if(jo.has("ThetaMin")) jointMin.parseJSON(jo.getJSONObject("ThetaMin"));
-        if(jo.has("ThetaHome")) jointHome.parseJSON(jo.getJSONObject("ThetaHome"));
-        if(jo.has("Revolute")) isRevolute.parseJSON(jo.getJSONObject("Revolute"));
+    public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
+        super.parseJSON(jo,context);
+        myD.parseJSON(jo.getJSONObject("D"),context);
+        myR.parseJSON(jo.getJSONObject("R"),context);
+        alpha.parseJSON(jo.getJSONObject("Alpha"),context);
+        theta.parseJSON(jo.getJSONObject("Theta"),context);
+        if(jo.has("ThetaMax")) jointMax.parseJSON(jo.getJSONObject("ThetaMax"),context);
+        if(jo.has("ThetaMin")) jointMin.parseJSON(jo.getJSONObject("ThetaMin"),context);
+        if(jo.has("ThetaHome")) jointHome.parseJSON(jo.getJSONObject("ThetaHome"),context);
+        if(jo.has("Revolute")) isRevolute.parseJSON(jo.getJSONObject("Revolute"),context);
         refreshLocalMatrix();
     }
 
@@ -271,26 +274,27 @@ public class DHComponent extends RenderComponent implements PropertyChangeListen
         boolean tex = OpenGLHelper.disableTextureStart(gl2);
         int onTop = OpenGLHelper.drawAtopEverythingStart(gl2);
 
-        gl2.glPushMatrix();
-            Matrix4d m = getLocal();
-            m.invert();
-            MatrixHelper.applyMatrix(gl2,m);
+        Matrix4d m = getLocal();
+        //m.invert();
+        m.transpose();
 
-            double rt = Math.toRadians(theta.get());
-            double ct = Math.cos(rt);
-            double st = Math.sin(rt);
-            double r = myR.get();
+        float rt = (float)Math.toRadians(theta.get());
+        float ct = (float)Math.cos(rt);
+        float st = (float)Math.sin(rt);
+        float r = myR.get().floatValue();
 
-            gl2.glBegin(GL2.GL_LINES);
-                gl2.glColor3d(0, 0, 1);
-                gl2.glVertex3d(0, 0, 0);
-                gl2.glVertex3d(0, 0, myD.get());
+        Point3d d = new Point3d(-r*ct, -r*st,0);
+        Point3d dr = new Point3d(-r*ct, -r*st,-myD.get().floatValue());
+        m.transform(d);
+        m.transform(dr);
 
-                gl2.glColor3d(1, 0, 0);
-                gl2.glVertex3d(0, 0, myD.get());
-                gl2.glVertex3d(r*ct, r*st, myD.get());
-            gl2.glEnd();
-        gl2.glPopMatrix();
+        myMesh.clear();
+        myMesh.setRenderStyle(GL2.GL_LINES);
+        myMesh.addColor(0,0,1,1);            myMesh.addVertex(0,0,0);
+        myMesh.addColor(0,0,1,1);            myMesh.addVertex((float)d.x,(float)d.y,(float)d.z);
+        myMesh.addColor(1,0,0,1);            myMesh.addVertex((float)d.x,(float)d.y,(float)d.z);
+        myMesh.addColor(1,0,0,1);            myMesh.addVertex((float)dr.x,(float)dr.y,(float)dr.z);
+        myMesh.render(gl2);
 
         OpenGLHelper.drawAtopEverythingEnd(gl2, onTop);
         OpenGLHelper.disableTextureEnd(gl2, tex);

@@ -1,8 +1,7 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm.robotpanel.programpanel;
 
-import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.convenience.helpers.StringHelper;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
 

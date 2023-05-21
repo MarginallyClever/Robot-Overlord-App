@@ -4,18 +4,23 @@ import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.texture.Texture;
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.OpenGLHelper;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.*;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.*;
-import com.marginallyclever.robotoverlord.entityManager.EntityManager;
+import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
+import com.marginallyclever.robotoverlord.systems.render.Compass3D;
+import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
+import com.marginallyclever.robotoverlord.systems.render.SkyBox;
+import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.move.MoveCameraTool;
@@ -105,7 +110,8 @@ public class OpenGLRenderPanel implements RenderPanel {
     private final List<MatrixMaterialRender> opaque = new ArrayList<>();
     private final List<MatrixMaterialRender> alpha = new ArrayList<>();
     private final List<MatrixMaterialRender> noMaterial = new ArrayList<>();
-    private final UpdateCallback updateCallback;
+    private final List<MatrixMaterialRender> onTop = new ArrayList<>();
+    private UpdateCallback updateCallback;
 
     private ShaderProgram shaderDefault;
     private ShaderProgram shaderOutline;
@@ -114,12 +120,11 @@ public class OpenGLRenderPanel implements RenderPanel {
     private final List<LightComponent> lights = new ArrayList<>();
 
 
-    public OpenGLRenderPanel(EntityManager entityManager, UpdateCallback updateCallback) {
+    public OpenGLRenderPanel(EntityManager entityManager) {
         super();
         logger.info("creating OpenGLRenderPanel");
 
         this.entityManager = entityManager;
-        this.updateCallback = updateCallback;
 
         createCanvas();
         addCanvasListeners();
@@ -130,6 +135,11 @@ public class OpenGLRenderPanel implements RenderPanel {
         panel.add(glCanvas, BorderLayout.CENTER);
 
         startAnimationSystem();
+    }
+
+    @Override
+    public void setUpdateCallback(UpdateCallback updateCallback) {
+        this.updateCallback = updateCallback;
     }
 
     @Override
@@ -621,6 +631,7 @@ public class OpenGLRenderPanel implements RenderPanel {
         opaque.clear();
         alpha.clear();
         noMaterial.clear();
+        onTop.clear();
 
         // collect all entities with a RenderComponent
         Queue<Entity> toRender = new LinkedList<>(list);
@@ -637,6 +648,7 @@ public class OpenGLRenderPanel implements RenderPanel {
                 if(pose!=null) mmr.matrix.set(pose.getWorld());
 
                 if(mmr.materialComponent==null) noMaterial.add(mmr);
+                else if(mmr.materialComponent.drawOnTop.get()) onTop.add(mmr);
                 else if(mmr.materialComponent.isAlpha()) alpha.add(mmr);
                 else opaque.add(mmr);
             }
@@ -662,12 +674,19 @@ public class OpenGLRenderPanel implements RenderPanel {
             double d2 = p2.lengthSquared();
             return (int)Math.signum(d2-d1);
         });
+
         // alpha objects
         renderMMRList(gl2,alpha,shaderProgram);
 
-        // objects with no material last
+        // objects with no material
         defaultMaterial.render(gl2);
         renderMMRList(gl2,noMaterial,shaderProgram);
+
+        // onTop
+        gl2.glDisable(GL2.GL_DEPTH_TEST);
+        defaultMaterial.render(gl2);
+        renderMMRList(gl2,onTop,shaderProgram);
+        gl2.glEnable(GL2.GL_DEPTH_TEST);
     }
 
     private void renderMMRList(GL2 gl2, List<MatrixMaterialRender> list,ShaderProgram shaderProgram) {
@@ -710,16 +729,21 @@ public class OpenGLRenderPanel implements RenderPanel {
                         (float)diffuseColor[3]);
             }
 
+            boolean hasMesh = false;
             if(mmr.renderComponent instanceof ShapeComponent) {
                 // if this component is a shape
                 ShapeComponent shape = (ShapeComponent)mmr.renderComponent;
                 Mesh mesh = shape.getModel();
-                // and it has vertex colors, enable them.
-                useVertexColor &= mesh.getHasColors();
-                // and it has texture coordinates, continue to allow textures.
-                useTexture &= mesh.getHasTextures();
-                useLighting &= mesh.getHasNormals();
-            } else {
+                if(mesh != null) {
+                    hasMesh = true;
+                    // and it has vertex colors, enable them.
+                    useVertexColor &= mesh.getHasColors();
+                    // and it has texture coordinates, continue to allow textures.
+                    useTexture &= mesh.getHasTextures();
+                    useLighting &= mesh.getHasNormals();
+                }
+            }
+            if(!hasMesh) {
                 useVertexColor=false;
                 useTexture=false;
                 useLighting=false;
@@ -841,6 +865,8 @@ public class OpenGLRenderPanel implements RenderPanel {
         frameDelay+=dt;
         if(frameDelay>frameLength) {
             frameDelay-=frameLength;
+
+            for(EditorTool tool : editorTools) tool.update(dt);
 
             updateCallback.update(dt);
         }

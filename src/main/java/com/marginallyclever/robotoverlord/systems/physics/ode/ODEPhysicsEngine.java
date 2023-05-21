@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.systems.physics.ode;
 
-import com.marginallyclever.robotoverlord.Entity;
 import org.ode4j.ode.*;
 import org.ode4j.ode.DGeom.DNearCallback;
 import org.slf4j.Logger;

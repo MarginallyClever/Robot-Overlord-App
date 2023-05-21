@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
-import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.entityManager.EntityManager;
-import com.marginallyclever.robotoverlord.entityManager.EntityManagerEvent;
+import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.entity.EntityManager;
+import com.marginallyclever.robotoverlord.entity.EntityManagerEvent;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.undo.AbstractUndoableEdit;

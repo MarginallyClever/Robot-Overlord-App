@@ -1,8 +1,7 @@
 package com.marginallyclever.robotoverlord;
 
-import com.marginallyclever.robotoverlord.components.MaterialComponent;
-import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
-import com.marginallyclever.robotoverlord.entityManager.EntityManager;
+import com.marginallyclever.convenience.helpers.PathHelper;
+import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -10,9 +9,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.LinkedList;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -34,10 +30,10 @@ public class Project {
     /**
      * The collection of Entities in this Project.
      */
-    private final EntityManager entityManager;
+    private final EntityManager entityManager = new EntityManager();
 
     public Project() {
-        entityManager = new EntityManager();
+        super();
         setDefaultPath();
     }
 
@@ -149,36 +145,15 @@ public class Project {
                 dotFileFilter);
     }
 
-    /**
-     * Update the paths of each asset in the scene.  At this time there are two ({@link MaterialComponent} and
-     * {@link MeshFromFile}).  Instead of a lot of work I'm going to just find and update these two classes.
-     * @param newPath the new path to use
-     */
-    public void updateAllComponentWithDiskAsset(String newPath) {
-        if(path.equals(newPath)) return;
-
-        LinkedList<Entity> list = new LinkedList<>(getEntityManager().getEntities());
-        while(!list.isEmpty()) {
-            Entity e = list.removeFirst();
-            list.addAll(e.getChildren());
-
-            for(com.marginallyclever.robotoverlord.Component component : e.getComponents()) {
-                if(component instanceof ComponentWithDiskAsset) {
-                    ((ComponentWithDiskAsset)component).adjustPath(path,newPath);
-                }
-            }
-        }
-    }
-
     public void clear() {
         getEntityManager().clear();
         setDefaultPath();
-        PathUtils.deleteDirectory(new File(getPath()));
-        PathUtils.createDirectoryIfNotExists(getPath());
+        PathHelper.deleteDirectory(new File(getPath()));
+        PathHelper.createDirectoryIfNotExists(getPath());
     }
 
     private void setDefaultPath() {
-        setPath(PathUtils.SCENE_PATH);
+        setPath(PathHelper.SCENE_PATH);
     }
 
     /**
@@ -190,6 +165,9 @@ public class Project {
         String newPath = file.getAbsolutePath();
         logger.debug("Loading from {}", newPath);
 
+        Path path = Paths.get(newPath);
+        String onlyPath = path.getParent().toString();
+
         try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
             StringBuilder responseStrBuilder = new StringBuilder();
             String inputStr;
@@ -198,21 +176,27 @@ public class Project {
             }
 
             entityManager.clear();
-            entityManager.parseJSON(new JSONObject(responseStrBuilder.toString()));
+            SerializationContext context = new SerializationContext(onlyPath);
+            loadFromStringWithContext(responseStrBuilder.toString(),context);
         }
-        Path path = Paths.get(newPath);
-        String onlyPath = path.getParent().toString();
-        updateAllComponentWithDiskAsset(onlyPath);
         setPath(onlyPath);
     }
 
     public void save(String absolutePath) throws IOException {
-        updateAllComponentWithDiskAsset("");
+        SerializationContext context = new SerializationContext(absolutePath);
 
         // try-with-resources will close the file for us.
         try(BufferedWriter w = new BufferedWriter(new FileWriter(absolutePath))) {
-            w.write(entityManager.toJSON().toString());
+            w.write(saveToStringWithContext(context));
         }
+    }
+
+    private void loadFromStringWithContext(String string,SerializationContext context) {
+        entityManager.parseJSON(new JSONObject(string),context);
+    }
+
+    private String saveToStringWithContext(SerializationContext context) {
+        return entityManager.toJSON(context).toString();
     }
 
     /**
@@ -221,9 +205,7 @@ public class Project {
      * @throws IOException if the asset files cannot be copied
      */
     public void addProject(Project from) throws IOException {
-        this.copyDiskAssetsToScenePath(from, getPath());
-        from.updateAllComponentWithDiskAsset(getPath());
-        this.entityManager.addScene(from.entityManager);
+        addProjectCommon(from,getPath());
     }
 
     /**
@@ -234,35 +216,20 @@ public class Project {
      */
     public void addProject(Project from,String subPath) throws IOException {
         String outputPath = getPath()+File.separator+subPath;
-        this.copyDiskAssetsToScenePath(from, outputPath);
-        from.updateAllComponentWithDiskAsset(outputPath);
-        this.entityManager.addScene(from.entityManager);
+        addProjectCommon(from,outputPath);
     }
 
-    public List<String> getAllAssets() {
-        List<String> result = new LinkedList<>();
-        List<Entity> entityList = new LinkedList<>(entityManager.getEntities());
-        while(!entityList.isEmpty()) {
-            Entity e = entityList.remove(0);
-            entityList.addAll(e.getChildren());
-            for(Component component : e.getComponents()) {
-                if (component instanceof ComponentWithDiskAsset) {
-                    ComponentWithDiskAsset componentWithDiskAsset = (ComponentWithDiskAsset) component;
-                    result.addAll( componentWithDiskAsset.getAssetPaths() );
-                }
-            }
-        }
-        return result;
-    }
-
-    public List<String> getAllAssetsNotInProject() {
-        List<String> result = getAllAssets();
-        List<String> filtered = new ArrayList<>();
-        for(String path : result) {
-            if (!new File(path).exists()) {
-                filtered.add(path);
-            }
-        }
-        return filtered;
+    /**
+     * Bring Entities and assets of another project into this project.
+     * @param from the project to fold into this project
+     * @param path the path to copy the assets into
+     * @throws IOException if the asset files cannot be copied
+     */
+    private void addProjectCommon(Project from,String path) throws IOException {
+        this.copyDiskAssetsToScenePath(from, path);
+        String str = from.saveToStringWithContext(new SerializationContext(from.getPath()));
+        Project adjusted = new Project();
+        adjusted.loadFromStringWithContext(str,new SerializationContext(path));
+        this.entityManager.addScene(adjusted.entityManager);
     }
 }

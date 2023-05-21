@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
+import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
@@ -7,10 +8,9 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
-import java.io.Serial;
 
 /**
- * Some {@link com.marginallyclever.robotoverlord.Component}s have parameters.  This class ensures changing those parameters is undoable.
+ * Some {@link Component}s have parameters.  This class ensures changing those parameters is undoable.
  *  
  * @author Dan Royer
  */

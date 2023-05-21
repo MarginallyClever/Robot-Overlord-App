@@ -5,7 +5,7 @@ import com.marginallyclever.communications.application.TextInterfaceToSessionLay
 import com.marginallyclever.communications.session.SessionLayer;
 import com.marginallyclever.communications.session.SessionLayerEvent;
 import com.marginallyclever.communications.session.SessionLayerListener;
-import com.marginallyclever.convenience.StringHelper;
+import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;
@@ -17,7 +17,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,11 +26,9 @@ import java.util.List;
  * @author Dan Royer
  * @since 2.5.0
  */
-public class GRBLPresentation extends JPanel implements PresentationLayer {
+public class GRBLPresentation implements PresentationLayer {
     private static final Logger logger = LoggerFactory.getLogger(GRBLPresentation.class);
 
-    @Serial
-    private static final long serialVersionUID = -6388563393882327725L;
     // number of commands we'll hold on to in case there's a resend.
     private static final int HISTORY_BUFFER_LIMIT = 250;
     // can buffer this many commands from serial, before processing.
@@ -45,6 +42,7 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
     // sends this as an ActionEvent to let listeners know it can handle more input.
     private static final String IDLE = "idle";
 
+    private final JPanel panel = new JPanel(new BorderLayout());
     private final Robot myArm;
     private final TextInterfaceToSessionLayer chatInterface = new TextInterfaceToSessionLayer();
     private final List<NumberedCommand> myHistory = new ArrayList<>();
@@ -69,9 +67,9 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
 
         myArm = arm;
 
-        this.setLayout(new BorderLayout());
-        this.add(getToolBar(), BorderLayout.PAGE_START);
-        this.add(chatInterface, BorderLayout.CENTER);
+        panel.setLayout(new BorderLayout());
+        panel.add(getToolBar(), BorderLayout.PAGE_START);
+        panel.add(chatInterface, BorderLayout.CENTER);
 
         arm.addPropertyChangeListener(this::onRobotEvent);
 
@@ -291,7 +289,7 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
         JToolBar bar = new JToolBar();
         bar.setRollover(true);
 
-        bESTOP.setFont(getFont().deriveFont(Font.BOLD));
+        bESTOP.setFont(panel.getFont().deriveFont(Font.BOLD));
         bESTOP.setForeground(Color.RED);
 
         bESTOP.addActionListener((e) -> sendESTOP() );
@@ -344,11 +342,15 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
 
     public void sendGoHome() {
         int count = (int)myArm.get(Robot.NUM_JOINTS);
+        if(count==0) return;
+
+        double [] list = new double[count];
         for (int i = 0; i < count; ++i) {
             myArm.set(Robot.ACTIVE_JOINT, i);
-            double angle = (double)myArm.get(Robot.JOINT_HOME);
-            myArm.set(Robot.JOINT_VALUE,angle);
+            list[i] = (double)myArm.get(Robot.JOINT_HOME);
         }
+        myArm.set(Robot.ALL_JOINT_VALUES,list);
+        myArm.set(Robot.END_EFFECTOR_TARGET,myArm.get(Robot.END_EFFECTOR));
     }
 
     public void setNetworkSession(SessionLayer session) {
@@ -363,6 +365,15 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
         for (ActionListener listener : listeners) listener.actionPerformed(e);
     }
 
+    public boolean isIdleCommand(ActionEvent e) {
+        return e.getActionCommand().contentEquals(GRBLPresentation.IDLE);
+    }
+
+    @Override
+    public JPanel getPanel() {
+        return panel;
+    }
+
     // TEST
 
     public static void main(String[] args) {
@@ -374,17 +385,9 @@ public class GRBLPresentation extends JPanel implements PresentationLayer {
 
         JFrame frame = new JFrame(GRBLPresentation.class.getName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(new GRBLPresentation(new RobotComponent()));
+        GRBLPresentation presentation = new GRBLPresentation(new RobotComponent());
+        frame.add(presentation.getPanel());
         frame.pack();
         frame.setVisible(true);
-    }
-
-    public boolean isIdleCommand(ActionEvent e) {
-        return e.getActionCommand().contentEquals(GRBLPresentation.IDLE);
-    }
-
-    @Override
-    public JPanel getPanel() {
-        return this;
     }
 }

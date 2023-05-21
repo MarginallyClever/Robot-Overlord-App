@@ -1,13 +1,17 @@
 package com.marginallyclever.robotoverlord;
 
+import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel3;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.renderpanel.OpenGLRenderPanel;
 import com.marginallyclever.robotoverlord.renderpanel.RenderPanel;
+import com.marginallyclever.robotoverlord.systems.physics.PhysicsSystem;
+import com.marginallyclever.robotoverlord.systems.render.RenderSystem;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
@@ -19,6 +23,7 @@ import com.marginallyclever.robotoverlord.systems.*;
 import com.marginallyclever.robotoverlord.systems.robot.crab.CrabRobotSystem;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.ArmRobotSystem;
 import com.marginallyclever.robotoverlord.systems.robot.dog.DogRobotSystem;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.ProgramExecutorSystem;
 import com.marginallyclever.util.PropertiesFileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +56,6 @@ public class RobotOverlord {
 
 	public static final String APP_TITLE = "Robot Overlord";
 	public static final String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
-
 	private static final String KEY_WINDOW_WIDTH = "windowWidth";
 	private static final String KEY_WINDOW_HEIGHT = "windowHeight";
 	private static final String KEY_WINDOW_X = "windowX";
@@ -124,13 +128,11 @@ public class RobotOverlord {
 
 	private final List<EntitySystem> systems = new ArrayList<>();
 
-	private double frameDelay;
-
 	public static void main(String[] argv) {
 		Log.start();
 		//logFrame = LogPanel.createFrame();
 		logFrame = LogPanel3.createFrame(Log.getLogLocation());
-		PathUtils.start();
+		PathHelper.start();
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -158,9 +160,12 @@ public class RobotOverlord {
 		buildMainFrame();
 		entityTreePanel = new EntityTreePanel(project.getEntityManager());
 		componentManagerPanel = new ComponentManagerPanel(project.getEntityManager(),systems);
-		renderPanel = new OpenGLRenderPanel(project.getEntityManager(), this::update);
-		//renderPanel = new OpenGLTestOrthographic(project.getEntityManager(), this::update);
-		//renderPanel = new OpenGLTestPerspective(project.getEntityManager(), this::update);
+		renderPanel = new OpenGLRenderPanel(project.getEntityManager());
+		//renderPanel = new OpenGLTestOrthographic(project.getEntityManager());
+		//renderPanel = new OpenGLTestPerspective(project.getEntityManager());
+		renderPanel.setUpdateCallback((dt)->{
+			for(EntitySystem system : systems) system.update(dt);
+		});
 
 		layoutComponents();
 		refreshMainMenu();
@@ -176,10 +181,6 @@ public class RobotOverlord {
 		logger.info("** READY **");
     }
 
-	private void update(double dt) {
-		for(EntitySystem system : systems) system.update(dt);
-	}
-
 	private void buildSystems() {
 		addSystem(new PhysicsSystem());
 		addSystem(new RenderSystem());
@@ -189,6 +190,7 @@ public class RobotOverlord {
 		addSystem(new ArmRobotSystem(project.getEntityManager()));
 		addSystem(new DogRobotSystem(project.getEntityManager()));
 		addSystem(new CrabRobotSystem(project.getEntityManager()));
+		addSystem(new ProgramExecutorSystem(project.getEntityManager()));
 	}
 
 	private void addSystem(EntitySystem system) {
@@ -241,10 +243,8 @@ public class RobotOverlord {
 		logger.info("buildMainFrame()");
 		// start the main application frame - the largest visible rectangle on the screen with the minimize/maximize/close buttons.
         mainFrame = new JFrame( APP_TITLE + " " + VERSION );
-		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        mainFrame.setLayout(new java.awt.BorderLayout());
-        mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-        mainFrame.setVisible(true);
+		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainFrame.setLocationRelativeTo(null);
 		mainFrame.setJMenuBar(mainMenu);
 		setWindowSizeAndPosition();
 		setupDropTarget();
@@ -268,20 +268,22 @@ public class RobotOverlord {
 				saveWindowSizeAndPosition();
 			}
 		});
+		mainFrame.setVisible(true);
 	}
 
 	private void setWindowSizeAndPosition() {
 		logger.info("Set window size and position");
 
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		int windowW = prefs.getInt(KEY_WINDOW_WIDTH, dim.width);
-		int windowH = prefs.getInt(KEY_WINDOW_HEIGHT, dim.height);
-		int windowX = prefs.getInt(KEY_WINDOW_X, (dim.width - windowW)/2);
-		int windowY = prefs.getInt(KEY_WINDOW_Y, (dim.height - windowH)/2);
-		mainFrame.setBounds(windowX, windowY,windowW, windowH);
 		boolean isFullscreen = prefs.getBoolean("isFullscreen",false);
 		if(isFullscreen) {
 			mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+		} else {
+			int windowW = prefs.getInt(KEY_WINDOW_WIDTH, dim.width);
+			int windowH = prefs.getInt(KEY_WINDOW_HEIGHT, dim.height);
+			int windowX = prefs.getInt(KEY_WINDOW_X, (dim.width - windowW)/2);
+			int windowY = prefs.getInt(KEY_WINDOW_Y, (dim.height - windowH)/2);
+			mainFrame.setBounds(windowX, windowY,windowW, windowH);
 		}
 	}
 
@@ -375,7 +377,7 @@ public class RobotOverlord {
 	 */
 	private void buildAvailableScenesTree(JMenu menu) {
 		// scan 'plugins' folder for sub-folders.  make them submenus.
-		File rootDirectory = new File(PathUtils.APP_PLUGINS);
+		File rootDirectory = new File(PathHelper.APP_PLUGINS);
 
 		if (!rootDirectory.isDirectory()) {
 			return;
@@ -464,8 +466,6 @@ public class RobotOverlord {
 				Translator.get("RobotOverlord.quitTitle"),
 				JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
-			mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
 			preferencesSave();
 
 			// Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting

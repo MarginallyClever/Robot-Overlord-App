@@ -1,11 +1,10 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
+import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
 
-import java.io.Serial;
-
 /**
- * Some {@link com.marginallyclever.robotoverlord.Component}s have
+ * Some {@link Component}s have
  * {@link com.marginallyclever.robotoverlord.parameters.DoubleParameter}.
  * This class ensures changing those parameters is undoable.
  *  

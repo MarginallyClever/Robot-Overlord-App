@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.OpenGLHelper;
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
@@ -130,20 +130,20 @@ public class Grid extends ShapeComponent {
     }
 
     @Override
-    public JSONObject toJSON() {
-        JSONObject jo = super.toJSON();
-        jo.put("width",width.toJSON());
-        jo.put("length",length.toJSON());
-        jo.put("snap",snap.toJSON());
+    public JSONObject toJSON(SerializationContext context) {
+        JSONObject jo = super.toJSON(context);
+        jo.put("width",width.toJSON(context));
+        jo.put("length",length.toJSON(context));
+        jo.put("snap",snap.toJSON(context));
         return jo;
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws JSONException {
-        super.parseJSON(jo);
-        width.parseJSON(jo.getJSONObject("width"));
-        length.parseJSON(jo.getJSONObject("length"));
-        snap.parseJSON(jo.getJSONObject("snap"));
+    public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
+        super.parseJSON(jo,context);
+        width.parseJSON(jo.getJSONObject("width"),context);
+        length.parseJSON(jo.getJSONObject("length"),context);
+        snap.parseJSON(jo.getJSONObject("snap"),context);
     }
 
     public void setWidth(int width) {

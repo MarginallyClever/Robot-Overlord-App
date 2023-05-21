@@ -1,11 +1,10 @@
 package com.marginallyclever.robotoverlord;
 
+import com.marginallyclever.convenience.helpers.PathHelper;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,7 +25,7 @@ public class ProjectTest {
 
     @AfterEach
     public void tearDown() {
-        PathUtils.deleteDirectory(tempDirectory.toFile());
+        PathHelper.deleteDirectory(tempDirectory.toFile());
     }
 
 
@@ -44,28 +43,11 @@ public class ProjectTest {
         assert(p.getEntityManager()!=null);
     }
 
-
     @Test
-    public void testCopyAssetsAndUpdateComponentPaths() throws IOException {
+    public void saveProjectAndCheckRelativePaths() throws IOException {
         Project project = new Project();
         project.setPath(projectPath.toString());
 
-/*
-        // Create sample assets and component
-        Files.write(assetsPath.resolve("asset1.txt"), "Asset 1 content".getBytes());
-        Files.write(assetsPath.resolve("asset2.txt"), "Asset 2 content".getBytes());
-
-        Component component = new Component();
-        component.setAssetPath(assetsPath.resolve("asset1.txt").toString());
-
-        // Save project
-        project.save(projectPath.toString());
-
-        // Check if assets are copied to the project folder
-        Assertions.assertTrue(Files.exists(projectPath.resolve("assets/asset1.txt")));
-        Assertions.assertTrue(Files.exists(projectPath.resolve("assets/asset2.txt")));
-
-        // Check if component asset path has been updated to use a relative path
-        Assertions.assertEquals("assets/asset1.txt", component.getAssetPath());*/
+        // TODO finish me!
     }
 }

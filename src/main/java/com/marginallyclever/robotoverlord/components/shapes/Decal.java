@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MathHelper;
+import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 

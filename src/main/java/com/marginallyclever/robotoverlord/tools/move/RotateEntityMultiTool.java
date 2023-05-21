@@ -1,9 +1,9 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.Viewport;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 
@@ -169,7 +169,11 @@ public class RotateEntityMultiTool implements EditorTool {
      */
     @Override
     public void update(double deltaTime) {
+        if (selectedItems == null || selectedItems.isEmpty()) return;
+
         for(EditorTool t : tools) t.update(deltaTime);
+
+        setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
     }
 
     /**

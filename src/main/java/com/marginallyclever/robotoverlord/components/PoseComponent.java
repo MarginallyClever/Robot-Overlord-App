@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotoverlord.Component;
-import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.robotoverlord.SerializationContext;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,20 +36,20 @@ public class PoseComponent extends Component implements PropertyChangeListener {
     }
 
     @Override
-    public JSONObject toJSON() {
-        JSONObject jo = super.toJSON();
-        jo.put("position",position.toJSON());
-        jo.put("rotation",rotation.toJSON());
-        jo.put("scale",scale.toJSON());
+    public JSONObject toJSON(SerializationContext context) {
+        JSONObject jo = super.toJSON(context);
+        jo.put("position",position.toJSON(context));
+        jo.put("rotation",rotation.toJSON(context));
+        jo.put("scale",scale.toJSON(context));
         return jo;
     }
 
     @Override
-    public void parseJSON(JSONObject jo) throws JSONException {
-        super.parseJSON(jo);
-        position.parseJSON(jo.getJSONObject("position"));
-        rotation.parseJSON(jo.getJSONObject("rotation"));
-        scale.parseJSON(jo.getJSONObject("scale"));
+    public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
+        super.parseJSON(jo,context);
+        position.parseJSON(jo.getJSONObject("position"),context);
+        rotation.parseJSON(jo.getJSONObject("rotation"),context);
+        scale.parseJSON(jo.getJSONObject("scale"),context);
         refreshLocalMatrix();
     }
 

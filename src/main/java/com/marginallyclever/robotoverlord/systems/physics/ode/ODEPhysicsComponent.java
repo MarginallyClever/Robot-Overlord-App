@@ -1,9 +1,9 @@
 package com.marginallyclever.robotoverlord.systems.physics.ode;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotoverlord.Component;
+import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import org.ode4j.ode.DBox;
 import org.ode4j.ode.DGeom;

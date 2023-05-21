@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.systems.render.gcodepath;
 
-import com.marginallyclever.convenience.FileAccess;
+import com.marginallyclever.convenience.helpers.FileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +81,7 @@ public class PathFactory {
         path.setSourceName(filename);
         path.setDirty(true);
 
-        try(BufferedInputStream stream = FileAccess.open(filename)) {
+        try(BufferedInputStream stream = FileHelper.open(filename)) {
             loader.load(stream,path);
         }
         catch(Exception e) {

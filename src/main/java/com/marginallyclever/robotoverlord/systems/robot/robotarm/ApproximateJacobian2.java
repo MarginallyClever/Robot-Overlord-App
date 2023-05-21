@@ -1,8 +1,9 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
+import com.marginallyclever.robotoverlord.robots.Robot;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -30,7 +31,7 @@ public class ApproximateJacobian2 {
 	public ApproximateJacobian2(RobotComponent arm) {
 		myArm = arm;
 
-		Matrix4d endEffectorPose = arm.getEndEffectorPose();
+		Matrix4d endEffectorPose = (Matrix4d)arm.get(Robot.END_EFFECTOR);
 		Entity newCopy = arm.getEntity().deepCopy();
 		RobotComponent temp = newCopy.getComponent(RobotComponent.class);
 		temp.findBones();
@@ -47,7 +48,7 @@ public class ApproximateJacobian2 {
 			double[] jointAnglesPlusDelta = arm.getAllJointValues();
 			jointAnglesPlusDelta[i] += ANGLE_STEP_SIZE_DEGREES;
 			temp.setAllJointValues(jointAnglesPlusDelta);
-			Matrix4d endEffectorPosePlusDelta = temp.getEndEffectorPose();
+			Matrix4d endEffectorPosePlusDelta = (Matrix4d)temp.get(Robot.END_EFFECTOR);
 
 			// use the finite difference in the two matrixes
 			// aka the approximate the rate of change (aka the integral, aka the velocity)

@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.components;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.robotoverlord.Entity;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.RayHit;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
@@ -13,7 +13,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 /**
- * A shape {@link com.marginallyclever.robotoverlord.Component} which can be rendered.
+ * A shape {@link Component} which can be rendered.
  *
  * @author Dan Royer
  * @since 2.5.0

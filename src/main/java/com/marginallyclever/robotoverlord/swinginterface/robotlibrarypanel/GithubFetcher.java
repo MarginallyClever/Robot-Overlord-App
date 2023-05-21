@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.swinginterface.robotlibrarypanel;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.marginallyclever.robotoverlord.PathUtils;
+import com.marginallyclever.convenience.helpers.PathHelper;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -41,7 +41,7 @@ public class GithubFetcher {
     private static final Gson gson = new Gson();
     private static final String ROBOT_PROPERTIES_FILE = "robot.properties";
     private static final String ALL_ROBOTS_TXT = "all_robots.txt";
-    public static final String ALL_ROBOTS_PATH = PathUtils.APP_CACHE + File.separator + "all_robots.txt";
+    public static final String ALL_ROBOTS_PATH = PathHelper.APP_CACHE + File.separator + "all_robots.txt";
 
     /**
      * Fetches the robot.properties file from the given repository and branch.
@@ -117,7 +117,7 @@ public class GithubFetcher {
         String[] urlParts = githubUrl.split("/");
         String owner = urlParts[urlParts.length - 2];
         String repo = urlParts[urlParts.length - 1];
-        return PathUtils.APP_CACHE + File.separator + owner+"_"+repo+"_tags.txt";
+        return PathHelper.APP_CACHE + File.separator + owner+"_"+repo+"_tags.txt";
     }
 
     private static List<String> getTagsFromGithub(String githubUrl) {
@@ -211,7 +211,7 @@ public class GithubFetcher {
      * @return The local path.
      */
     public static String getLocalPath(String owner, String repoName, String tag) {
-        Path destinationPath = Paths.get(PathUtils.APP_PLUGINS, owner, repoName, tag);
+        Path destinationPath = Paths.get(PathHelper.APP_PLUGINS, owner, repoName, tag);
         return destinationPath.toString();
     }
 
@@ -222,7 +222,7 @@ public class GithubFetcher {
      * @return The local path.
      */
     private static String getLocalPath(String owner, String repoName) {
-        Path destinationPath = Paths.get(PathUtils.APP_PLUGINS, owner, repoName);
+        Path destinationPath = Paths.get(PathHelper.APP_PLUGINS, owner, repoName);
         return destinationPath.toString();
     }
 

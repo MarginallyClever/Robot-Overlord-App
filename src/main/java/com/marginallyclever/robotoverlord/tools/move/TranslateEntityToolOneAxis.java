@@ -1,11 +1,11 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
 import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.MatrixHelper;
-import com.marginallyclever.convenience.OpenGLHelper;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.Plane;
-import com.marginallyclever.robotoverlord.Entity;
-import com.marginallyclever.robotoverlord.Viewport;
+import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Sphere;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
@@ -85,8 +85,6 @@ public class TranslateEntityToolOneAxis implements EditorTool {
 
     @Override
     public void handleMouseEvent(MouseEvent event) {
-        if(selectedItems!=null) setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
-
         if (event.getID() == MouseEvent.MOUSE_MOVED) {
             mouseMoved(event);
         } else if (event.getID() == MouseEvent.MOUSE_PRESSED) {
@@ -181,6 +179,8 @@ public class TranslateEntityToolOneAxis implements EditorTool {
     @Override
     public void update(double deltaTime) {
         // Update the tool's state, if necessary
+        if(selectedItems!=null) setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+
     }
 
     @Override

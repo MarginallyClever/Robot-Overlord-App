@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.systems.render.material;
 
-import com.marginallyclever.convenience.FileAccess;
+import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +58,7 @@ public class MaterialFactory {
 	private static void loadMaterialWithLoader(String filename, MaterialComponent material, MaterialLoader loader) {
 		logger.info("Loading "+filename+" with "+loader.getEnglishName());
 
-		try(BufferedInputStream stream = FileAccess.open(filename)) {
+		try(BufferedInputStream stream = FileHelper.open(filename)) {
 			loader.load(stream,material);
 		}
 		catch(Exception e) {

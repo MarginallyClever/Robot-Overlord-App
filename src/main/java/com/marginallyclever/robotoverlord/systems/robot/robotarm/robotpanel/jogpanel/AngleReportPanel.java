@@ -79,7 +79,7 @@ public class AngleReportPanel extends JPanel {
 		double bottom = (double)robot.get(Robot.JOINT_RANGE_MIN);
 		double top = (double)robot.get(Robot.JOINT_RANGE_MAX);
 		double current = (double)robot.get(Robot.JOINT_VALUE);
-		if(current>=top || current <bottom) {
+		if(current>top || current<bottom) {
 			throw new RuntimeException("Joint "+i+" is out of range.  "+current+" not in ["+bottom+","+top+"]");
 		}
 		JSlider slider = new JSlider( (int)bottom, (int)top, (int)current );
