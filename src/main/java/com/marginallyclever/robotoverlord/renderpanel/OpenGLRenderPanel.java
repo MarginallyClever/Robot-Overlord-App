@@ -909,6 +909,7 @@ public class OpenGLRenderPanel implements RenderPanel {
 
         // set the pick point
         pickPoint = entityManager.getRoot().findChildNamed("pick point");
+        if(pickPoint==null) createPickPoint();
 
         Vector3d from = ray.getPoint(rayHits.get(0).distance);
         Vector3d to = new Vector3d(from);
