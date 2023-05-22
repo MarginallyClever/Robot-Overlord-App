@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
@@ -118,6 +119,7 @@ public class OpenGLRenderPanel implements RenderPanel {
     private ShaderProgram shaderHUD;
     private final List<Entity> collectedEntities = new ArrayList<>();
     private final List<LightComponent> lights = new ArrayList<>();
+    private Entity pickPoint;
 
 
     public OpenGLRenderPanel(EntityManager entityManager) {
@@ -125,7 +127,7 @@ public class OpenGLRenderPanel implements RenderPanel {
         logger.info("creating OpenGLRenderPanel");
 
         this.entityManager = entityManager;
-
+        createPickPoint();
         createCanvas();
         addCanvasListeners();
         hideDefaultCursor();
@@ -905,6 +907,20 @@ public class OpenGLRenderPanel implements RenderPanel {
 
         rayHits.sort(Comparator.comparingDouble(o -> o.distance));
 
+        // set the pick point
+        pickPoint = entityManager.getRoot().findChildNamed("pick point");
+
+        Vector3d from = ray.getPoint(rayHits.get(0).distance);
+        Vector3d to = new Vector3d(from);
+        to.add(rayHits.get(0).normal);
+        Matrix4d m = MatrixHelper.createIdentityMatrix4();
+        //Matrix4d m = new Matrix4d();
+        //Matrix3d lookAt = MatrixHelper.lookAt(from,to);
+        //m.set(lookAt);
+        m.setTranslation(from);
+        pickPoint.getComponent(PoseComponent.class).setWorld(m);
+
+
         return rayHits.get(0).target.getEntity();
     }
 
@@ -913,6 +929,13 @@ public class OpenGLRenderPanel implements RenderPanel {
         if(activeToolIndex>=0) {
             editorTools.get(activeToolIndex).deactivate();
             editorTools.get(activeToolIndex).activate(list);
+        }
+    }
+
+    private void createPickPoint() {
+        if(pickPoint == null) {
+            pickPoint = new Entity("pick point");
+            entityManager.addEntityToParent(pickPoint,entityManager.getRoot());
         }
     }
 }

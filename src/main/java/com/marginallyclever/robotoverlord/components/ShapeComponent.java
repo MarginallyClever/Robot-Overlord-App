@@ -72,9 +72,10 @@ public class ShapeComponent extends RenderComponent {
         if(pose==null) return null;
 
         Ray localRay = transformRayToLocalSpace(pose, ray);
-        double distance = myMesh.intersect(localRay);
-        if(distance<Double.MAX_VALUE) {
-            return new RayHit(this,distance);
+        RayHit localHit = myMesh.intersect(localRay);
+        if(localHit.distance<Double.MAX_VALUE) {
+            Vector3d normal = transformNormalToWorldSpace(pose,localHit.normal);
+            return new RayHit(this,localHit.distance,normal);
         } else {
             return null;
         }
@@ -96,5 +97,17 @@ public class ShapeComponent extends RenderComponent {
         m.transform(d);
 
         return new Ray(o,d);
+    }
+
+    /**
+     * transform the ray into local space.
+     * @param pose the pose of the entity
+     * @param normal the normal in local space
+     * @return the ray in world space
+     */
+    private Vector3d transformNormalToWorldSpace(PoseComponent pose,Vector3d normal) {
+        Vector3d d = new Vector3d(normal);
+        pose.getWorld().transform(d);
+        return d;
     }
 }

@@ -5,6 +5,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.AABB;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.robotoverlord.RayHit;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -317,7 +318,7 @@ public class Mesh {
 		return hasIndexes;
 	}
 
-	public double intersect(Ray ray) {
+	public RayHit intersect(Ray ray) {
 		if (hasIndexes) {
 			return intersectWithIndexes(ray);
 		} else {
@@ -333,7 +334,8 @@ public class Mesh {
 		return renderStyle;
 	}
 
-	private double intersectWithIndexes(Ray ray) {
+	private RayHit intersectWithIndexes(Ray ray) {
+		int a=0,b=0,c=0;
 		double nearest = Double.MAX_VALUE;
 		for(int i=0;i<indexArray.size();i+=3) {
 			int i0 = indexArray.get(i);
@@ -343,20 +345,45 @@ public class Mesh {
 			Vector3d v1 = getVertex(i1);
 			Vector3d v2 = getVertex(i2);
 			double t = IntersectionHelper.rayTriangle(ray, v0, v1, v2);
-			nearest = Math.min(nearest, t);
+			if(nearest > t) {
+				nearest = t;
+				a=i0;
+				b=i1;
+				c=i2;
+			}
 		}
-		return nearest;
+		if(nearest<Double.MAX_VALUE) {
+			Vector3d normal = new Vector3d(getNormal(a));
+			normal.add(getNormal(b));
+			normal.add(getNormal(c));
+			normal.normalize();
+			return new RayHit(null,nearest,normal);
+		}
+		return new RayHit(null,Double.MAX_VALUE,new Vector3d(0,0,0));
 	}
 
-	private double intersectWithoutIndexes(Ray ray) {
+	private RayHit intersectWithoutIndexes(Ray ray) {
+		int a=0,b=0,c=0;
 		double nearest = Double.MAX_VALUE;
 		for(int i=0;i<getNumTriangles();i+=3) {
 			Vector3d v0 = getVertex(i);
 			Vector3d v1 = getVertex(i+1);
 			Vector3d v2 = getVertex(i+2);
 			double t = IntersectionHelper.rayTriangle(ray, v0, v1, v2);
-			nearest = Math.min(nearest, t);
+			if(nearest > t) {
+				nearest = t;
+				a=i;
+				b=i+1;
+				c=i+2;
+			}
 		}
-		return nearest;
+		if(nearest<Double.MAX_VALUE) {
+			Vector3d normal = new Vector3d(getNormal(a));
+			normal.add(getNormal(b));
+			normal.add(getNormal(c));
+			normal.normalize();
+			return new RayHit(null,nearest,normal);
+		}
+		return new RayHit(null,Double.MAX_VALUE,new Vector3d(0,0,0));
 	}
 }
