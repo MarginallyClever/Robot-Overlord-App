@@ -53,6 +53,7 @@ public interface EditorTool {
 
     /**
      * Renders any tool-specific visuals to the 3D scene.
+     * @param gl2 The OpenGL context.
      */
     void render(GL2 gl2);
 

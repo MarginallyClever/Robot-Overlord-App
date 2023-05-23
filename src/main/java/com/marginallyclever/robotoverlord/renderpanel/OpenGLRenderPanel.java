@@ -23,6 +23,7 @@ import com.marginallyclever.robotoverlord.systems.render.SkyBox;
 import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
+import com.marginallyclever.robotoverlord.tools.SelectionTool;
 import com.marginallyclever.robotoverlord.tools.move.MoveCameraTool;
 import com.marginallyclever.robotoverlord.tools.move.RotateEntityMultiTool;
 import com.marginallyclever.robotoverlord.tools.move.TranslateEntityMultiTool;
@@ -127,7 +128,6 @@ public class OpenGLRenderPanel implements RenderPanel {
         logger.info("creating OpenGLRenderPanel");
 
         this.entityManager = entityManager;
-        createPickPoint();
         createCanvas();
         addCanvasListeners();
         hideDefaultCursor();
@@ -150,6 +150,9 @@ public class OpenGLRenderPanel implements RenderPanel {
     }
 
     private JToolBar setupTools() {
+        SelectionTool selectionTool = new SelectionTool(entityManager,viewport);
+        editorTools.add(selectionTool);
+
         TranslateEntityMultiTool translateEntityMultiTool = new TranslateEntityMultiTool();
         editorTools.add(translateEntityMultiTool);
 
@@ -163,8 +166,12 @@ public class OpenGLRenderPanel implements RenderPanel {
         }
 
         // build the bar
-
         JToolBar bar = new JToolBar();
+        bar.setFloatable(false);
+        JButton activateSelectionTool = new JButton("Select");
+        bar.add(activateSelectionTool);
+        activateSelectionTool.addActionListener(e -> setActiveToolIndex(editorTools.indexOf(selectionTool)));
+
         JButton activateTranslateTool = new JButton("Translate");
         bar.add(activateTranslateTool);
         activateTranslateTool.addActionListener(e -> setActiveToolIndex(editorTools.indexOf(translateEntityMultiTool)));
@@ -297,10 +304,7 @@ public class OpenGLRenderPanel implements RenderPanel {
         glCanvas.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                // if they dragged the cursor around before releasing the mouse button, don't pick.
-                if (e.getClickCount() == 2) {
-                    pickItemUnderCursor();
-                }
+                for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
             }
 
             @Override
@@ -409,35 +413,6 @@ public class OpenGLRenderPanel implements RenderPanel {
             logger.error("Failed to create GL debug pipeline", e);
         }
         return gl;
-    }
-
-    private void pickItemUnderCursor() {
-        Entity found = findEntityUnderCursor();
-        System.out.println((found==null)?"found=null":"found=" + found.getName());
-
-        List<Entity> list = new ArrayList<>();
-        if(found!=null) list.add(found);
-        UndoSystem.addEvent(this,new SelectEdit(Clipboard.getSelectedEntities(),list));
-    }
-
-    /**
-     * test ray intersection with all entities in the scene.
-     * @param ray the ray to test.
-     */
-    private List<RayHit> findRayIntersections(Ray ray) {
-        List<RayHit> rayHits = new ArrayList<>();
-
-        Queue<Entity> toTest = new LinkedList<>(entityManager.getEntities());
-        while(!toTest.isEmpty()) {
-            Entity entity = toTest.remove();
-            toTest.addAll(entity.getChildren());
-
-            ShapeComponent shape = entity.getComponent(ShapeComponent.class);
-            if(shape==null) continue;
-            RayHit hit = shape.intersect(ray);
-            if(hit!=null) rayHits.add(hit);
-        }
-        return rayHits;
     }
 
     private CameraComponent getCamera() {
@@ -891,52 +866,11 @@ public class OpenGLRenderPanel implements RenderPanel {
         animator.stop();
     }
 
-    /**
-     * Use ray tracing to find the Entity at the cursor position closest to the camera.
-     * @return the name of the item under the cursor, or -1 if nothing was picked.
-     */
-    private Entity findEntityUnderCursor() {
-        CameraComponent camera = getCamera();
-        if(camera==null) return null;
-
-        Ray ray = viewport.getRayThroughCursor();
-
-        // traverse the scene Entities and find the ShapeComponent that collides with the ray.
-        List<RayHit> rayHits = findRayIntersections(ray);
-        if(rayHits.size()==0) return null;
-
-        rayHits.sort(Comparator.comparingDouble(o -> o.distance));
-
-        // set the pick point
-        pickPoint = entityManager.getRoot().findChildNamed("pick point");
-        if(pickPoint==null) createPickPoint();
-
-        Vector3d from = ray.getPoint(rayHits.get(0).distance);
-        Vector3d to = new Vector3d(from);
-        to.add(rayHits.get(0).normal);
-        Matrix4d m = MatrixHelper.createIdentityMatrix4();
-        //Matrix4d m = new Matrix4d();
-        //Matrix3d lookAt = MatrixHelper.lookAt(from,to);
-        //m.set(lookAt);
-        m.setTranslation(from);
-        pickPoint.getComponent(PoseComponent.class).setWorld(m);
-
-
-        return rayHits.get(0).target.getEntity();
-    }
-
     @Override
     public void updateSubjects(List<Entity> list) {
         if(activeToolIndex>=0) {
             editorTools.get(activeToolIndex).deactivate();
             editorTools.get(activeToolIndex).activate(list);
-        }
-    }
-
-    private void createPickPoint() {
-        if(pickPoint == null) {
-            pickPoint = new Entity("pick point");
-            entityManager.addEntityToParent(pickPoint,entityManager.getRoot());
         }
     }
 }
