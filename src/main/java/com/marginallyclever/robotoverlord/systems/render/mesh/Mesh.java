@@ -318,14 +318,6 @@ public class Mesh {
 		return hasIndexes;
 	}
 
-	public RayHit intersect(Ray ray) {
-		if (hasIndexes) {
-			return intersectWithIndexes(ray);
-		} else {
-			return intersectWithoutIndexes(ray);
-		}
-	}
-
 	public void setRenderStyle(int style) {
 		renderStyle = style;
 	}
@@ -334,41 +326,58 @@ public class Mesh {
 		return renderStyle;
 	}
 
-	private RayHit intersectWithIndexes(Ray ray) {
-		int a=0,b=0,c=0;
-		double nearest = Double.MAX_VALUE;
-		for(int i=0;i<indexArray.size();i+=3) {
-			int i0 = indexArray.get(i);
-			int i1 = indexArray.get(i+1);
-			int i2 = indexArray.get(i+2);
-			Vector3d v0 = getVertex(i0);
-			Vector3d v1 = getVertex(i1);
-			Vector3d v2 = getVertex(i2);
-			double t = IntersectionHelper.rayTriangle(ray, v0, v1, v2);
-			if(nearest > t) {
-				nearest = t;
-				a=i0;
-				b=i1;
-				c=i2;
-			}
-		}
-		if(nearest<Double.MAX_VALUE) {
-			Vector3d normal = new Vector3d(getNormal(a));
-			normal.add(getNormal(b));
-			normal.add(getNormal(c));
-			normal.normalize();
-			return new RayHit(null,nearest,normal);
-		}
-		return new RayHit(null,Double.MAX_VALUE,new Vector3d(0,0,0));
+	private interface VertexProvider {
+		Vector3d getVertex(int index);
+		Vector3d getNormal(int index);
+		int getCount();
 	}
 
-	private RayHit intersectWithoutIndexes(Ray ray) {
+	public RayHit intersect(Ray ray) {
+		VertexProvider vp;
+		if (hasIndexes) {
+			vp = new VertexProvider() {
+				@Override
+				public Vector3d getVertex(int index) {
+					return getVertex(indexArray.get(index));
+				}
+				@Override
+				public Vector3d getNormal(int index) {
+					return getNormal(indexArray.get(index));
+				}
+				@Override
+				public int getCount() {
+					return indexArray.size();
+				}
+			};
+		} else {
+			vp = new VertexProvider() {
+				@Override
+				public Vector3d getVertex(int index) {
+					return getVertex(index);
+				}
+				@Override
+				public Vector3d getNormal(int index) {
+					return getNormal(index);
+				}
+				@Override
+				public int getCount() {
+					return getNumVertices();
+				}
+			};
+		}
+
+		return intersect(ray,vp);
+	}
+
+
+	private RayHit intersect(Ray ray,VertexProvider provider) {
 		int a=0,b=0,c=0;
+
 		double nearest = Double.MAX_VALUE;
-		for(int i=0;i<getNumTriangles();i+=3) {
-			Vector3d v0 = getVertex(i);
-			Vector3d v1 = getVertex(i+1);
-			Vector3d v2 = getVertex(i+2);
+		for(int i=0;i<provider.getCount();i+=3) {
+			Vector3d v0 = provider.getVertex(i);
+			Vector3d v1 = provider.getVertex(i+1);
+			Vector3d v2 = provider.getVertex(i+2);
 			double t = IntersectionHelper.rayTriangle(ray, v0, v1, v2);
 			if(nearest > t) {
 				nearest = t;
@@ -377,11 +386,20 @@ public class Mesh {
 				c=i+2;
 			}
 		}
+
 		if(nearest<Double.MAX_VALUE) {
-			Vector3d normal = new Vector3d(getNormal(a));
-			normal.add(getNormal(b));
-			normal.add(getNormal(c));
-			normal.normalize();
+			Vector3d normal;
+			if(hasNormals) {
+				normal = getNormal(a);
+				normal.add(getNormal(b));
+				normal.add(getNormal(c));
+				normal.normalize();
+			} else {
+				Vector3d v0 = getVertex(a);
+				Vector3d v1 = getVertex(b);
+				Vector3d v2 = getVertex(c);
+				normal = IntersectionHelper.buildNormalFrom3Points(v0, v1, v2);
+			}
 			return new RayHit(null,nearest,normal);
 		}
 		return new RayHit(null,Double.MAX_VALUE,new Vector3d(0,0,0));
