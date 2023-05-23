@@ -122,6 +122,8 @@ public class OpenGLRenderPanel implements RenderPanel {
     private final List<LightComponent> lights = new ArrayList<>();
     private Entity pickPoint;
 
+    private double cursorSize = 10;
+
 
     public OpenGLRenderPanel(EntityManager entityManager) {
         super();
@@ -782,8 +784,6 @@ public class OpenGLRenderPanel implements RenderPanel {
 
     private void drawCursor(GL2 gl2) {
         if(!isMouseIn) return;
-
-        final double cursorSize = 10;
 
         boolean tex = OpenGLHelper.disableTextureStart(gl2);
         boolean lit = OpenGLHelper.disableLightingStart(gl2);
