@@ -479,4 +479,16 @@ public class IntersectionHelper {
 
 		return distance;
 	}
+
+	public static Vector3d buildNormalFrom3Points(Vector3d v0, Vector3d v1, Vector3d v2) {
+		// build normal from points v0,v1,v2
+		Vector3d edge1 = new Vector3d();
+		Vector3d edge2 = new Vector3d();
+		edge1.sub(v1, v0);
+		edge2.sub(v2, v0);
+		Vector3d normal = new Vector3d();
+		normal.cross(edge1, edge2);
+		normal.normalize();
+		return normal;
+	}
 }
