@@ -379,9 +379,7 @@ public class EditArmPanel extends JPanel {
         // adjust origins
         adjustOrigins.setSelected(false);
         generalPanel.add(adjustOrigins,c);
-        adjustOrigins.addActionListener(e -> {
-            updatePoses();
-        });
+        adjustOrigins.addActionListener(e -> updatePoses());
 
         this.add(generalPanel, BorderLayout.NORTH);
     }
