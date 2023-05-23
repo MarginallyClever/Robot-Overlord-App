@@ -114,7 +114,7 @@ public class Viewport extends Entity {
 		double nearVal = nearZ.get();
 		double farVal = farZ.get();
 
-		return MatrixHelper.orthographicMatrix4d(left,right,bottom,top,-1,1);
+		return MatrixHelper.orthographicMatrix4d(left,right,bottom,top,nearVal,farVal);
 	}
 
 	public Matrix4d getOrthographicMatrix() {

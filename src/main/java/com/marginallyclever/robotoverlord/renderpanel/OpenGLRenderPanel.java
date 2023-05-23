@@ -501,6 +501,8 @@ public class OpenGLRenderPanel implements RenderPanel {
         shaderDefault.setVector3d(gl2,"lightColor",lightColor);  // Light color
         shaderDefault.set4f(gl2,"objectColor",1,1,1,1);
         shaderDefault.set1f(gl2,"diffuseTexture",0);
+        shaderDefault.setVector3d(gl2,"specularColor",new Vector3d(0.5,0.5,0.5));
+        shaderDefault.setVector3d(gl2,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
     }
 
     private void setProjectionMatrix(GL2 gl2, ShaderProgram program) {
@@ -781,9 +783,7 @@ public class OpenGLRenderPanel implements RenderPanel {
     private void drawCursor(GL2 gl2) {
         if(!isMouseIn) return;
 
-        final double v = 10;
-        double w = viewport.getCanvasWidth();
-        double h = viewport.getCanvasHeight();
+        final double cursorSize = 10;
 
         boolean tex = OpenGLHelper.disableTextureStart(gl2);
         boolean lit = OpenGLHelper.disableLightingStart(gl2);
@@ -794,16 +794,17 @@ public class OpenGLRenderPanel implements RenderPanel {
         shaderHUD.setMatrix4d(gl2,"viewMatrix",MatrixHelper.createIdentityMatrix4());
         shaderHUD.setMatrix4d(gl2,"modelMatrix",MatrixHelper.createIdentityMatrix4());
 */
+        gl2.glUseProgram(0);
+
         gl2.glMatrixMode(GL2.GL_PROJECTION);
         gl2.glPushMatrix();
         gl2.glLoadIdentity();
         viewport.renderOrthographic(gl2,1);
         gl2.glMatrixMode(GL2.GL_MODELVIEW);
 
-
         double [] cursor = viewport.getCursorAsNormalized();
-        cursor[0] *= w / 2d;
-        cursor[1] *= h / 2d;
+        cursor[0] *= viewport.getCanvasWidth() / 2d;
+        cursor[1] *= viewport.getCanvasHeight() / 2d;
 
         gl2.glPushMatrix();
         MatrixHelper.setMatrix(gl2, MatrixHelper.createIdentityMatrix4());
@@ -811,21 +812,21 @@ public class OpenGLRenderPanel implements RenderPanel {
         gl2.glBegin(GL2.GL_LINES);
 
         gl2.glColor3d(0,0,0);
-        gl2.glVertex2d(1,-v);
-        gl2.glVertex2d(1, v);
-        gl2.glVertex2d(-v,1);
-        gl2.glVertex2d( v,1);
+        gl2.glVertex2d(1,-cursorSize);
+        gl2.glVertex2d(1, cursorSize);
+        gl2.glVertex2d(-cursorSize,1);
+        gl2.glVertex2d( cursorSize,1);
 
-        gl2.glVertex2d(-1,-v);
-        gl2.glVertex2d(-1, v);
-        gl2.glVertex2d(-v,-1);
-        gl2.glVertex2d( v,-1);
+        gl2.glVertex2d(-1,-cursorSize);
+        gl2.glVertex2d(-1, cursorSize);
+        gl2.glVertex2d(-cursorSize,-1);
+        gl2.glVertex2d( cursorSize,-1);
 
         gl2.glColor4d(1,1,1,1);
-        gl2.glVertex2d(0,-v);
-        gl2.glVertex2d(0, v);
-        gl2.glVertex2d(-v,0);
-        gl2.glVertex2d( v,0);
+        gl2.glVertex2d(0,-cursorSize);
+        gl2.glVertex2d(0, cursorSize);
+        gl2.glVertex2d(-cursorSize,0);
+        gl2.glVertex2d( cursorSize,0);
         gl2.glEnd();
         gl2.glPopMatrix();
 
