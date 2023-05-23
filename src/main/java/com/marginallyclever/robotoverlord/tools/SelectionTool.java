@@ -69,7 +69,7 @@ public class SelectionTool implements EditorTool {
         if(!isActive) return;
 
         // if they dragged the cursor around before releasing the mouse button, don't pick.
-        if (event.getClickCount() == 2) {
+        if (event.getClickCount() == 1) {  // 2 for double click
             pickItemUnderCursor();
         }
     }
@@ -244,8 +244,11 @@ public class SelectionTool implements EditorTool {
     }
 
     private void setPickPoint(Ray ray, List<RayHit> rayHits) {
-        Entity pickPoint = entityManager.getRoot().findChildNamed("pick point");
-        if(pickPoint==null) createPickPoint();
+        Entity pickPoint = entityManager.getRoot().findChildNamed(PICK_POINT_NAME);
+        if(pickPoint==null) {
+            createPickPoint();
+            pickPoint = entityManager.getRoot().findChildNamed(PICK_POINT_NAME);
+        }
 
         Vector3d from = ray.getPoint(rayHits.get(0).distance);
         Vector3d to = new Vector3d(from);
