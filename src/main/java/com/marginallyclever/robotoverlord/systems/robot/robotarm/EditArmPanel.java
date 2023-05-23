@@ -147,6 +147,8 @@ public class EditArmPanel extends JPanel {
             endEffector.mul(root,endEffector);
             targetPose.setWorld(endEffector);
         }
+
+        robotComponent.findBones();
     }
 
     private void setupPanel() {
