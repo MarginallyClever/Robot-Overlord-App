@@ -640,11 +640,11 @@ public class MatrixHelper {
 	 * Build a "look at" matrix.  The X+ axis is pointing (to-from) normalized.
 	 * The Z+ starts as pointing up.  Y+ is cross product of X and Z.  Z is then
 	 * recalculated based on the correct X and Y.
-	 * This will fail if to.z==from.z
+	 * This will fail if to-from is parallel to up.
 	 *  
 	 * @param from where i'm at
 	 * @param to what I'm looking at
-	 * @return
+	 * @return a matrix that will transform a point to the "look at" orientation
 	 */
 	static public Matrix3d lookAt(final Vector3d from, final Vector3d to) {
 		Vector3d forward = new Vector3d();
@@ -668,11 +668,11 @@ public class MatrixHelper {
 	 * Build a "look at" matrix.  The X+ axis is pointing (to-from) normalized.
 	 * The Z+ starts as pointing up.  Y+ is cross product of X and Z.  Z is then
 	 * recalculated based on the correct X and Y.
-	 * This will fail if to.z==from.z
+	 * This will fail if to-from is parallel to up.
 	 *  
 	 * @param from where i'm at
 	 * @param to what I'm looking at
-	 * @return
+	 * @return a matrix that will transform a point to the "look at" orientation
 	 */
 	static public Matrix4d lookAt(final Vector3d from, final Vector3d to,final Vector3d up) {
 		Vector3d forward = new Vector3d();
@@ -686,9 +686,9 @@ public class MatrixHelper {
 		up.normalize();
 
 		Matrix4d lookAt = new Matrix4d(
-				left.x,up.x,forward.x,0,
-				left.y,up.y,forward.y,0,
-				left.z,up.z,forward.z,0,
+				left.x,up.x,forward.x,from.x,
+				left.y,up.y,forward.y,from.y,
+				left.z,up.z,forward.z,from.z,
 				0,0,0,1);
 		
 		return lookAt;
