@@ -17,6 +17,7 @@ import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -30,6 +31,7 @@ public class SelectionTool implements EditorTool {
     private final EntityManager entityManager;
     private final Viewport viewport;
     private boolean isActive=false;
+    private boolean isShiftDown=false;
 
     public SelectionTool(EntityManager entityManager,Viewport viewport) {
         super();
@@ -79,8 +81,23 @@ public class SelectionTool implements EditorTool {
      */
     @Override
     public void handleKeyEvent(KeyEvent event) {
-
+        if(event.getID() == KeyEvent.KEY_PRESSED) {
+            handleKeyPressed(event);
+        } else if(event.getID() == KeyEvent.KEY_RELEASED) {
+            handleKeyReleased(event);
+        }
     }
+
+    private void handleKeyPressed(KeyEvent event) {
+        int keyCode = event.getKeyCode();
+        if(keyCode == KeyEvent.VK_SHIFT) isShiftDown=true;
+    }
+
+    private void handleKeyReleased(KeyEvent event) {
+        int keyCode = event.getKeyCode();
+        if(keyCode == KeyEvent.VK_SHIFT) isShiftDown=false;
+    }
+
 
     /**
      * Updates the tool's internal state, if necessary.
@@ -159,11 +176,20 @@ public class SelectionTool implements EditorTool {
         Entity found = findEntityUnderCursor();
         logger.debug((found==null)?"found=null":"found=" + found.getName());
 
-        // TODO shift + select to grow selection
-        // TODO ctrl + select to toggle item from selection.
-
         List<Entity> list = new ArrayList<>();
-        if(found!=null) list.add(found);
+        // shift + select to grow selection
+        if(isShiftDown) {
+            list.addAll(Clipboard.getSelectedEntities());
+            if(found==null) return;  // no change.
+
+            if(list.contains(found)) {
+                list.remove(found);
+            } else {
+                list.add(found);
+            }
+        } else {
+            if (found != null) list.add(found);
+        }
 
         UndoSystem.addEvent(this,new SelectEdit(Clipboard.getSelectedEntities(),list));
     }
@@ -184,20 +210,7 @@ public class SelectionTool implements EditorTool {
 
         rayHits.sort(Comparator.comparingDouble(o -> o.distance));
 
-        // set the pick point
-        Entity pickPoint = entityManager.getRoot().findChildNamed("pick point");
-        if(pickPoint==null) createPickPoint();
-
-        Vector3d from = ray.getPoint(rayHits.get(0).distance);
-        Vector3d to = new Vector3d(from);
-        to.add(rayHits.get(0).normal);
-        Matrix4d m = MatrixHelper.createIdentityMatrix4();
-        //Matrix4d m = new Matrix4d();
-        //Matrix3d lookAt = MatrixHelper.lookAt(from,to);
-        //m.set(lookAt);
-        m.setTranslation(from);
-        pickPoint.getComponent(PoseComponent.class).setWorld(m);
-
+        setPickPoint(ray,rayHits);
 
         return rayHits.get(0).target.getEntity();
     }
@@ -228,5 +241,20 @@ public class SelectionTool implements EditorTool {
             pickPoint = new Entity(PICK_POINT_NAME);
             entityManager.addEntityToParent(pickPoint,entityManager.getRoot());
         }
+    }
+
+    private void setPickPoint(Ray ray, List<RayHit> rayHits) {
+        Entity pickPoint = entityManager.getRoot().findChildNamed("pick point");
+        if(pickPoint==null) createPickPoint();
+
+        Vector3d from = ray.getPoint(rayHits.get(0).distance);
+        Vector3d to = new Vector3d(from);
+        to.add(rayHits.get(0).normal);
+        Matrix4d m = MatrixHelper.createIdentityMatrix4();
+        Matrix4d m2 = new Matrix4d();
+        Matrix3d lookAt = MatrixHelper.lookAt(from,to);
+        m2.set(lookAt);
+        m.setTranslation(from);
+        pickPoint.getComponent(PoseComponent.class).setWorld(m);
     }
 }
