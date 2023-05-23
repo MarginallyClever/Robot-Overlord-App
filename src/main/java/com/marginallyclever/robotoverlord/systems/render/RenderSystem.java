@@ -30,6 +30,7 @@ public class RenderSystem implements EntitySystem {
      */
     @Override
     public void decorate(ComponentPanelFactory view, Component component) {
+        if (component instanceof CameraComponent) decorateCamera(view,component);
         if(component instanceof RenderComponent) decorateRender(view, component);
         if(component instanceof GCodePathComponent) decorateGCodePath(view, component);
         if(component instanceof MeshFromFile) decorateMeshFromFile(view, component);
@@ -41,6 +42,13 @@ public class RenderSystem implements EntitySystem {
 
         if(component instanceof ProgramPathComponent) decoratePath(view, component);
         else if(component instanceof ShapeComponent) decorateShape(view, component);
+    }
+
+    private void decorateCamera(ComponentPanelFactory view,Component component) {
+        CameraComponent camera = (CameraComponent)component;
+        view.add(camera.orbitDistance).setReadOnly(true);
+        view.add(camera.pan).setReadOnly(true);
+        view.add(camera.tilt).setReadOnly(true);
     }
 
     private void decorateRender(ComponentPanelFactory view, Component component) {

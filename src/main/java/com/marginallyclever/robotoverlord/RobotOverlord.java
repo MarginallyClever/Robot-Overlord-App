@@ -184,7 +184,6 @@ public class RobotOverlord {
 	private void buildSystems() {
 		addSystem(new PhysicsSystem());
 		addSystem(new RenderSystem());
-		addSystem(new CameraSystem());
 		addSystem(new OriginAdjustSystem());
 		//addSystem(new SoundSystem());
 		addSystem(new ArmRobotSystem(project.getEntityManager()));
