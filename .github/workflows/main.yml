@@ -8,8 +8,6 @@ env:
 
 on:
   push:
-    branches:
-      - master
   pull_request:
 
 jobs:
@@ -36,8 +34,12 @@ jobs:
       shell: bash
       run: |
         mkdir -p target/universal-package &&
-        cp src/main/package/*.bat src/main/package/start* target/universal-package/ &&
-        cp CONTRIBUTING.md LICENSE README.md target/universal-package/ &&
+        cp src/main/package/*.bat target/universal-package/ &&
+        cp src/main/package/start* target/universal-package/ &&
+        cp target/universal-package/ &&
+        cp CONTRIBUTING.md target/universal-package/ &&
+        cp LICENSE target/universal-package/ &&
+        cp README.md target/universal-package/ &&
         cp target/RobotOverlord-*-with-dependencies.jar target/universal-package/ &&
         cd target/universal-package/ &&
         7z a -tzip RobotOverlord.zip . &&
