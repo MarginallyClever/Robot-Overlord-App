@@ -150,7 +150,7 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
     }
 
     private Matrix4d getToolCenterPoint() {
-        ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
+        ArmEndEffectorComponent ee = getEndEffector();
         if(ee==null) return null;
 
         Matrix4d m = ee.getToolCenterPoint();
@@ -158,7 +158,7 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
     }
 
     private void setToolCenterPointOffset(Matrix4d value) {
-        ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
+        ArmEndEffectorComponent ee = getEndEffector();
         if(ee==null) return;
         Matrix4d base = getPoseWorld();
         assert base != null;
@@ -216,11 +216,15 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
         setEndEffectorTargetPose(m);
     }
 
+    public ArmEndEffectorComponent getEndEffector() {
+        return getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
+    }
+
     /**
      * @return The pose of the end effector relative to the robot's base.
      */
     private Matrix4d getEndEffectorPose() {
-        ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
+        ArmEndEffectorComponent ee = getEndEffector();
         if(ee==null) return null;
         PoseComponent endEffectorPose = ee.getEntity().getComponent(PoseComponent.class);
         if(endEffectorPose==null) return null;
