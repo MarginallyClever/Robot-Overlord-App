@@ -6,7 +6,6 @@ import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import org.junit.Ignore;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
@@ -19,7 +18,7 @@ import java.util.List;
  * @since 2.6.1
  * @author Dan Royer
  */
-@Ignore
+@Disabled
 public class ApproximateJacobianTest {
     private EntityManager entityManager;
 
@@ -109,7 +108,6 @@ public class ApproximateJacobianTest {
         return robot;
     }
 
-    @Ignore
     @Test
     public void commutative1() throws Exception {
         RobotComponent robot = build5AxisArm();
@@ -123,7 +121,6 @@ public class ApproximateJacobianTest {
         }
     }
 
-    @Ignore
     @Test
     public void commutative2() throws Exception {
         RobotComponent robot = build6AxisArm();
@@ -137,7 +134,6 @@ public class ApproximateJacobianTest {
         }
     }
 
-    @Ignore
     @Test
     public void commutative3() throws Exception {
         RobotComponent robot = build5AxisArm();
@@ -151,7 +147,6 @@ public class ApproximateJacobianTest {
         }
     }
 
-    @Ignore
     @Test
     public void commutative4() throws Exception {
         RobotComponent robot = build6AxisArm();
@@ -169,7 +164,6 @@ public class ApproximateJacobianTest {
      * Compare the two methods.
      * @throws Exception if error
      */
-    @Ignore
     @Test
     public void compare() throws Exception {
         RobotComponent robot = build6AxisArm();
