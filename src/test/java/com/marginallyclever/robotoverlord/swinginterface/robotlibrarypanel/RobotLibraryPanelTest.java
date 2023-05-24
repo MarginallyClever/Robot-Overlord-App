@@ -14,13 +14,11 @@ import java.util.List;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless environment")
 public class RobotLibraryPanelTest {
-
     private FrameFixture window;
-    private Robot robot;
 
     @BeforeEach
     public void setUp() {
-        robot = BasicRobot.robotWithNewAwtHierarchy();
+        Robot robot = BasicRobot.robotWithNewAwtHierarchy();
         RobotLibraryPanel panel = new RobotLibraryPanel();
         JFrame frame = new JFrame();
         frame.setContentPane(panel);
@@ -29,14 +27,14 @@ public class RobotLibraryPanelTest {
         window.show(); // shows the frame to test
     }
 
+    @AfterEach
+    public void tearDown() {
+        window.cleanUp();
+    }
+
     @Test
     public void shouldDisplayMultiVersionPropertiesPanels() {
         window.panel("multiVersionPropertiesPanel_0").requireVisible();
         //window.panel("multiVersionPropertiesPanel_1").requireVisible();
-    }
-
-    @AfterEach
-    public void tearDown() {
-        window.cleanUp();
     }
 }

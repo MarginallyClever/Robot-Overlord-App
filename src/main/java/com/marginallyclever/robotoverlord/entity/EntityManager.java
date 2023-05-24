@@ -79,6 +79,9 @@ public class EntityManager {
 	}
 
 	public void addEntityToParent(Entity child,Entity parent) {
+		if(child.getParent()!=null) {
+			removeEntityFromParent(child,child.getParent());
+		}
 		parent.addEntity(child);
 		fireEntityManagerEvent(new EntityManagerEvent(EntityManagerEvent.ENTITY_ADDED, child, parent));
 	}
