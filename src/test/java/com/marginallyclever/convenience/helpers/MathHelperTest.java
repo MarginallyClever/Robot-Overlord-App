@@ -3,7 +3,7 @@ package com.marginallyclever.convenience.helpers;
 import com.marginallyclever.convenience.log.Log;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public class MathHelperTest {
 	}
 
     @Test
-    @Ignore
+    @Disabled
     @Deprecated
     public void testWrapDegrees() {
         logger.info("testWrapDegrees start");
