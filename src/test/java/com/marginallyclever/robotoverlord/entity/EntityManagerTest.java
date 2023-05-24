@@ -79,7 +79,7 @@ public class EntityManagerTest {
         Assertions.assertFalse(b.getChildren().contains(a));
         Assertions.assertTrue(c.getChildren().contains(a));
         // confirm removing a from b does nothing because a is not a child of b.
-        Assertions.assertThrows(IllegalArgumentException.class,()->entityManager.removeEntityFromParent(a,b));
+        entityManager.removeEntityFromParent(a,b);
         Assertions.assertEquals(c,a.getParent());
         Assertions.assertNotEquals(b,a.getParent());
     }

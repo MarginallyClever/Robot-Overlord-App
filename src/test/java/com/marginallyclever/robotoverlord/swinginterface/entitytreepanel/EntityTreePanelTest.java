@@ -46,5 +46,6 @@ public class EntityTreePanelTest {
     public void testMovingEntities() {
         EntityManagerTest emt = new EntityManagerTest();
         emt.moveEntityWithEntityManager(entityManager);
+        window.panel("EntityTreePanel").requireVisible();
     }
 }

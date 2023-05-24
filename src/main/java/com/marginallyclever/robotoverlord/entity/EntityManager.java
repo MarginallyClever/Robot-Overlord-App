@@ -87,6 +87,8 @@ public class EntityManager {
 	}
 
 	public void removeEntityFromParent(Entity child,Entity parent) {
+		if(!parent.children.contains(child)) return;
+
 		parent.removeEntity(child);
 		fireEntityManagerEvent(new EntityManagerEvent(EntityManagerEvent.ENTITY_REMOVED, child, parent));
 	}
