@@ -206,9 +206,9 @@ public class SelectionTool implements EditorTool {
 
         RayPickSystem rayPickSystem = new RayPickSystem(entityManager);
         RayHit rayHit = rayPickSystem.getFirstHit(ray);
+        if(rayHit == null) return null;
 
         setPickPoint(ray,rayHit);
-
         return rayHit.target.getEntity();
     }
 
