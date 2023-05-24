@@ -5,7 +5,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.AABB;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.robotoverlord.RayHit;
+import com.marginallyclever.convenience.RayHit;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;

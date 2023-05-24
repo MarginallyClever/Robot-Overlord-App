@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.convenience;
 
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 
