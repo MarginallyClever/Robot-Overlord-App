@@ -160,7 +160,7 @@ public class ArmRobotSystem implements EntitySystem {
      * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
      */
     private void applySmallCartesianForceToEndEffector(RobotComponent robotComponent,double[] cartesianVelocity) {
-        ApproximateJacobian2 aj = new ApproximateJacobian2(robotComponent);
+        ApproximateJacobian aj = new ApproximateJacobianScrewTheory(robotComponent);
         try {
             double[] jointVelocity = aj.getJointForceFromCartesianForce(cartesianVelocity);  // uses inverse jacobian
             double[] angles = robotComponent.getAllJointValues();  // # dof long
