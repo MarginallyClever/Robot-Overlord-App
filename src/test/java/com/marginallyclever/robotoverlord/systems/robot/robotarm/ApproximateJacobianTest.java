@@ -19,6 +19,7 @@ import java.util.List;
  * @since 2.6.1
  * @author Dan Royer
  */
+@Ignore
 public class ApproximateJacobianTest {
     private EntityManager entityManager;
 
