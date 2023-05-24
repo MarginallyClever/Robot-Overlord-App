@@ -33,7 +33,6 @@ public class Compass3D {
 		mat.setLit(false);
     }
 
-	@Deprecated
 	public void render(GL2 gl2,Viewport viewport,ShaderProgram program) {
 		program.use(gl2);
 		positionCubeModel(gl2,viewport,program);

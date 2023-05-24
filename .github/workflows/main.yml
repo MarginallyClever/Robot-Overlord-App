@@ -8,8 +8,6 @@ env:
 
 on:
   push:
-    branches:
-      - master
   pull_request:
 
 jobs:
@@ -36,12 +34,26 @@ jobs:
       shell: bash
       run: |
         mkdir -p target/universal-package &&
-        cp src/main/package/*.bat src/main/package/start* target/universal-package/ &&
-        cp CONTRIBUTING.md LICENSE README.md target/universal-package/ &&
+        cp src/main/package/*.bat target/universal-package/ &&
+        cp src/main/package/start* target/universal-package/ &&
+        cp CONTRIBUTING.md target/universal-package/ &&
+        cp LICENSE target/universal-package/ &&
+        cp README.md target/universal-package/ &&
         cp target/RobotOverlord-*-with-dependencies.jar target/universal-package/ &&
         cd target/universal-package/ &&
         7z a -tzip RobotOverlord.zip . &&
         mv RobotOverlord.zip ../..
+
+    - name: prepare package for distro
+      shell: bash
+      run: |
+        mkdir -p target/package
+        cp src/main/package/*.bat target/package/ &&
+        cp src/main/package/start* target/package/ &&
+        cp CONTRIBUTING.md target/package/ &&
+        cp LICENSE target/package/ &&
+        cp README.md target/package/
+
     - name: Deploy universal release
       if: github.repository == 'MarginallyClever/Robot-Overlord-App' && github.ref == 'refs/heads/master'
       uses: WebFreak001/deploy-nightly@v2.0.0
@@ -64,7 +76,9 @@ jobs:
           src/main/package/jpackage*
           src/main/package/logo*
           LICENSE
+          README
           target/package/*
+
   package:
     needs: build
     runs-on: ${{ matrix.os }}
@@ -81,6 +95,9 @@ jobs:
       with:
         name: jar
 
+    - name: Check files
+      run: ls -l target/package/
+
     - name: Build installation package
       shell: bash
       run: |
@@ -94,6 +111,7 @@ jobs:
         BINARY_NIGHTLY=$(echo $BINARY | sed 's/\(.*\)\.\(.*\)/\1-nightly-$$.\2/') &&
         echo "BINARY=$BINARY" | tee -a $GITHUB_ENV &&
         echo "BINARY_NIGHTLY=$BINARY_NIGHTLY" | tee -a $GITHUB_ENV
+
     - name: Deploy installation release
       if: github.repository == 'MarginallyClever/Robot-Overlord-App' && github.ref == 'refs/heads/master'
       uses: WebFreak001/deploy-nightly@v2.0.0

@@ -79,11 +79,16 @@ public class EntityManager {
 	}
 
 	public void addEntityToParent(Entity child,Entity parent) {
+		if(child.getParent()!=null) {
+			removeEntityFromParent(child,child.getParent());
+		}
 		parent.addEntity(child);
 		fireEntityManagerEvent(new EntityManagerEvent(EntityManagerEvent.ENTITY_ADDED, child, parent));
 	}
 
 	public void removeEntityFromParent(Entity child,Entity parent) {
+		if(!parent.children.contains(child)) return;
+
 		parent.removeEntity(child);
 		fireEntityManagerEvent(new EntityManagerEvent(EntityManagerEvent.ENTITY_REMOVED, child, parent));
 	}

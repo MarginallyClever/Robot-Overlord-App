@@ -51,19 +51,37 @@ public class EntityManagerTest {
     @Test
     public void moveEntity() {
         EntityManager entityManager = new EntityManager();
+        moveEntityWithEntityManager(entityManager);
+    }
+
+    public void moveEntityWithEntityManager(EntityManager entityManager) {
         Entity a = new Entity();
         Entity b = new Entity();
         Entity c = new Entity();
+
+        entityManager.addEntityToParent(b,entityManager.getRoot());
+        entityManager.addEntityToParent(c,entityManager.getRoot());
+        Assertions.assertEquals(entityManager.getRoot(),b.getParent());
+        Assertions.assertEquals(entityManager.getRoot(),c.getParent());
+        // move b into c and make sure no loose ends
+        entityManager.addEntityToParent(b,c);
+        Assertions.assertEquals(c,b.getParent());
+        Assertions.assertNotEquals(entityManager.getRoot(),b.getParent());
+        Assertions.assertTrue(c.getChildren().contains(b));
+        Assertions.assertEquals(entityManager.getRoot().getChildren().size(),1);
+
         entityManager.addEntityToParent(a,b);
         Assertions.assertEquals(b,a.getParent());
+        // move a to c and confirm there are no loose ends.
         entityManager.addEntityToParent(a,c);
         Assertions.assertEquals(c,a.getParent());
-        Assertions.assertEquals(c,a.getParent());
+        Assertions.assertNotEquals(b,a.getParent());
         Assertions.assertFalse(b.getChildren().contains(a));
+        Assertions.assertTrue(c.getChildren().contains(a));
+        // confirm removing a from b does nothing because a is not a child of b.
         entityManager.removeEntityFromParent(a,b);
         Assertions.assertEquals(c,a.getParent());
-        Assertions.assertNull(b.getParent());
-        Assertions.assertEquals(c,a.getParent());
+        Assertions.assertNotEquals(b,a.getParent());
     }
 
     @Test

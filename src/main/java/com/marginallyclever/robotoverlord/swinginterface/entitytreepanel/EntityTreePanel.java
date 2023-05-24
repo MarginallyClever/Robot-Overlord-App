@@ -35,6 +35,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 
 	public EntityTreePanel(EntityManager entityManager) {
 		super(new BorderLayout());
+		this.setName("EntityTreePanel");
 		this.entityManager = entityManager;
 
 		tree.setShowsRootHandles(true);

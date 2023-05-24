@@ -69,8 +69,7 @@ public class MoveCameraTool implements EditorTool {
     }
 
     @Override
-    public void mouseMoved(MouseEvent event) {
-    }
+    public void mouseMoved(MouseEvent event) {}
 
     @Override
     public void mousePressed(MouseEvent event) {

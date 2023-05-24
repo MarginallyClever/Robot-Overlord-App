@@ -4,7 +4,6 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.robotoverlord.systems.robot.robotarm.ApproximateJacobian2;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import org.json.JSONException;
@@ -151,7 +150,7 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
     }
 
     private Matrix4d getToolCenterPoint() {
-        ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
+        ArmEndEffectorComponent ee = getEndEffector();
         if(ee==null) return null;
 
         Matrix4d m = ee.getToolCenterPoint();
@@ -159,7 +158,7 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
     }
 
     private void setToolCenterPointOffset(Matrix4d value) {
-        ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
+        ArmEndEffectorComponent ee = getEndEffector();
         if(ee==null) return;
         Matrix4d base = getPoseWorld();
         assert base != null;
@@ -217,62 +216,15 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
         setEndEffectorTargetPose(m);
     }
 
-    private double sumCartesianVelocityComponents(double [] cartesianVelocity) {
-        double sum = 0;
-        for (double v : cartesianVelocity) {
-            sum += Math.abs(v);
-        }
-        return sum;
-    }
-
-    /**
-     * Applies a cartesian force to the robot, moving it in the direction of the cartesian force.
-     * @param cartesianVelocity three linear forces (mm) and three angular forces (degrees).
-     * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
-     */
-    public void applyCartesianForceToEndEffector(double[] cartesianVelocity) {
-        double sum = sumCartesianVelocityComponents(cartesianVelocity);
-        if(sum<0.0001) return;
-        if(sum <= 1) {
-            applySmallCartesianForceToEndEffector(cartesianVelocity);
-        } else {
-            // split the big move in to smaller moves.
-            int total = (int) Math.ceil(sum);
-            // allocate a new buffer so that we don't smash the original.
-            double[] cartesianVelocityUnit = new double[cartesianVelocity.length];
-            for (int i = 0; i < cartesianVelocity.length; ++i) {
-                cartesianVelocityUnit[i] = cartesianVelocity[i] / total;
-            }
-            for (int i = 0; i < total; ++i) {
-                applySmallCartesianForceToEndEffector(cartesianVelocityUnit);
-            }
-        }
-    }
-
-    /**
-     * Applies a cartesian force to the robot, moving it in the direction of the cartesian force.
-     * @param cartesianVelocity three linear forces (mm) and three angular forces (degrees).
-     * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
-     */
-    private void applySmallCartesianForceToEndEffector(double[] cartesianVelocity) {
-        ApproximateJacobian2 aj = new ApproximateJacobian2(this);
-        try {
-            double[] jointVelocity = aj.getJointVelocityFromCartesianVelocity(cartesianVelocity);  // uses inverse jacobian
-            double[] angles = this.getAllJointValues();  // # dof long
-            for (int i = 0; i < angles.length; ++i) {
-                angles[i] += jointVelocity[i];
-            }
-            this.setAllJointValues(angles);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public ArmEndEffectorComponent getEndEffector() {
+        return getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
     }
 
     /**
      * @return The pose of the end effector relative to the robot's base.
      */
     private Matrix4d getEndEffectorPose() {
-        ArmEndEffectorComponent ee = getEntity().findFirstComponentRecursive(ArmEndEffectorComponent.class);
+        ArmEndEffectorComponent ee = getEndEffector();
         if(ee==null) return null;
         PoseComponent endEffectorPose = ee.getEntity().getComponent(PoseComponent.class);
         if(endEffectorPose==null) return null;

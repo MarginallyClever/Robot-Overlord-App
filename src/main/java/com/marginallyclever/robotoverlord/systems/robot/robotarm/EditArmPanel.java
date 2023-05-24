@@ -137,18 +137,23 @@ public class EditArmPanel extends JPanel {
         }
 
         // Add end effector target entity to the root entity
+        updateTarget();
+
+        robotComponent.findBones();
+    }
+
+    private void updateTarget() {
         Entity target = robotComponent.getChildTarget();
         if(target==null) {
             target = new Entity(RobotComponent.TARGET_NAME);
             entityManager.addEntityToParent(target, rootEntity);
-            PoseComponent targetPose = target.getComponent(PoseComponent.class);
-            Matrix4d endEffector = (Matrix4d)robotComponent.get(Robot.END_EFFECTOR);
-            Matrix4d root = (Matrix4d)robotComponent.get(Robot.POSE);
-            endEffector.mul(root,endEffector);
-            targetPose.setWorld(endEffector);
         }
 
-        robotComponent.findBones();
+        PoseComponent targetPose = target.getComponent(PoseComponent.class);
+        Matrix4d endEffector = (Matrix4d)robotComponent.get(Robot.END_EFFECTOR);
+        Matrix4d root = (Matrix4d)robotComponent.get(Robot.POSE);
+        endEffector.mul(root,endEffector);
+        targetPose.setWorld(endEffector);
     }
 
     private void setupPanel() {
@@ -243,6 +248,7 @@ public class EditArmPanel extends JPanel {
                                 case 6 -> dhComponent.setJointHome(value);
                             }
                             updatePoses();
+                            updateTarget();
                         }
                     });
 
@@ -373,9 +379,7 @@ public class EditArmPanel extends JPanel {
         // adjust origins
         adjustOrigins.setSelected(false);
         generalPanel.add(adjustOrigins,c);
-        adjustOrigins.addActionListener(e -> {
-            updatePoses();
-        });
+        adjustOrigins.addActionListener(e -> updatePoses());
 
         this.add(generalPanel, BorderLayout.NORTH);
     }

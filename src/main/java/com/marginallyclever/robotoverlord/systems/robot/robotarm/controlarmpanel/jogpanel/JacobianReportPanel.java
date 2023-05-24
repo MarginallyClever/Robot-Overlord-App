@@ -2,7 +2,8 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpane
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
-import com.marginallyclever.robotoverlord.systems.robot.robotarm.ApproximateJacobian2;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.ApproximateJacobian;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.ApproximateJacobianFiniteDifferences;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -26,12 +27,13 @@ public class JacobianReportPanel extends JPanel {
 	public JacobianReportPanel(RobotComponent arm) {
 		super();
 
-		ApproximateJacobian2 aj = new ApproximateJacobian2(arm);
+		ApproximateJacobian aj = new ApproximateJacobianFiniteDifferences(arm);
 
 		DefaultTableCellRenderer renderRight = new DefaultTableCellRenderer();
         renderRight.setHorizontalAlignment(SwingConstants.RIGHT);
-        
-		table = new JTable(aj.jacobian.length,aj.jacobian[0].length) {
+
+		double [][] jacobian = aj.getJacobian();
+		table = new JTable(jacobian.length,jacobian[0].length) {
 			@Serial
 			private static final long serialVersionUID = 1L;
 
@@ -41,8 +43,6 @@ public class JacobianReportPanel extends JPanel {
 		    }
 		};
 
-		//setColumnNames(sixi3);
-		
 		this.setBorder(BorderFactory.createTitledBorder(/*BorderFactory.createEmptyBorder(),*/JacobianReportPanel.class.getSimpleName()));
 		this.setLayout(new BorderLayout());
 		this.add(/*new JScrollPane*/(table),BorderLayout.CENTER);
@@ -69,10 +69,11 @@ public class JacobianReportPanel extends JPanel {
 	}
 
 	private void updateReport(RobotComponent arm) {
-		ApproximateJacobian2 aj = new ApproximateJacobian2(arm);
-		for(int y=0;y<aj.jacobian.length;++y) {
-			for(int x=0;x<aj.jacobian[y].length;++x) {
-				table.setValueAt(String.format("%.3f", aj.jacobian[y][x]), y, x);
+		ApproximateJacobian aj = new ApproximateJacobianFiniteDifferences(arm);
+		double [][] jacobian = aj.getJacobian();
+		for(int y=0;y<jacobian.length;++y) {
+			for(int x=0;x<jacobian[y].length;++x) {
+				table.setValueAt(String.format("%.3f", jacobian[y][x]), y, x);
 			}
 		}
 	}

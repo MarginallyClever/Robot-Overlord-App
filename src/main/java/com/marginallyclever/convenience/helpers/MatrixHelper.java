@@ -290,32 +290,32 @@ public class MatrixHelper {
 				inverse[i][j] = Math.pow(-1, i + j)
 						* determinant(minor(a, i, j));
 
-		// adjugate and determinant
-		double det = 1.0 / determinant(a);
+		// transpose and divide by determinant
+		double det = determinant(a);
+		inverse = transpose(inverse);
 		for (int i = 0; i < inverse.length; i++) {
-			for (int j = 0; j <= i; j++) {
-				double temp = inverse[i][j];
-				inverse[i][j] = inverse[j][i] * det;
-				inverse[j][i] = temp * det;
+			for (int j = 0; j < inverse[i].length; j++) {
+				inverse[i][j] /= det;
 			}
 		}
+
 
 		return inverse;
 	}
 	
-	static public double [][] transpose(double [][] a) {
-		int h = a.length;
-		int w = a[0].length;
+	static public double [][] transpose(double [][] matrix) {
+		int h = matrix.length;
+		int w = matrix[0].length;
 		
-		double [][] b = createMatrix(w,h);
+		double [][] transposedMatrix = createMatrix(w,h);
 	
 		for(int y=0;y<h;y++) {
 			for(int x=0;x<w;x++) {
-				b[x][y] = a[y][x];
+				transposedMatrix[x][y] = matrix[y][x];
 			}
 		}
 	
-		return b;
+		return transposedMatrix;
 	}
 
 	/**
