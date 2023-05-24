@@ -47,6 +47,7 @@ public abstract class ComponentFactory {
 			GCodePathComponent.class,
 			ProgramPathComponent.class,
 			ProgramComponent.class,
+			RobotGripperComponent.class,
 	};
 	
 	public static ArrayList<String> getAllComponentNames() {

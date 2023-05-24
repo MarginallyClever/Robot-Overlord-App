@@ -1,5 +1,7 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
+import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.convenience.RayHit;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.program.*;
 import com.marginallyclever.robotoverlord.entity.Entity;
@@ -8,10 +10,12 @@ import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
+import com.marginallyclever.robotoverlord.systems.RayPickSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -198,6 +202,18 @@ public class ProgramExecutorSystem  implements EntitySystem {
     }
 
     private boolean executeEvent(RobotComponent robot, ProgramComponent program, ProgramEventComponent event, Entity programStep, double dt) {
+        RobotGripperComponent gripper = robot.getEntity().findFirstComponentRecursive(RobotGripperComponent.class);
+        if(gripper==null) return true;  // no gripper, no action.
+
+        switch (event.type.get()) {
+            case ProgramEventComponent.GRIPPER_GRAB -> gripper.mode.set(RobotGripperComponent.MODE_CLOSING);
+            case ProgramEventComponent.GRIPPER_RELEASE -> gripper.mode.set(RobotGripperComponent.MODE_OPENING);
+            default -> {
+                // TODO implement other events
+                logger.warn("unimplemented event type: {}", event.type.get());
+            }
+        }
+
         // assume instant finish
         return true;
     }
