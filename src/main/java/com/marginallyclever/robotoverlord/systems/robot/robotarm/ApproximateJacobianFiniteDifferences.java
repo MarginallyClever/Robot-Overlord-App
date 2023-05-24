@@ -9,35 +9,43 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 
 /**
- * Given the current pose of the robot, find the approximate jacobian, which
- * describe the relationship between joint velocity and cartesian velocity.
+ * <p>Given the current pose of the robot, find the approximate jacobian, which
+ * describe the relationship between joint velocity and cartesian velocity.  This method uses finite differences.</p>
+ * <ul>
+ *     <li>Slightly perturb each joint angle.</li>
+ *     <li>Compute the new end effector pose after this perturbation.</li>
+ *     <li>Subtract the original end effector pose from the perturbed pose to get the difference, which is an approximation of the Jacobian column corresponding to the current joint.</li>
+ *     <li>Fill this difference into the Jacobian matrix.</li>
+ * </ul>
+ *
  * See <a href="https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346">Robot
  *      Academy tutorial</a>
+ *
+ * @since 2.0.0?
+ * @author Dan Royer
  */
-public class ApproximateJacobian2 {
-	static public final double ANGLE_STEP_SIZE_DEGREES = 0.1; // degrees
-	private final RobotComponent myArm;
+public class ApproximateJacobianFiniteDifferences implements ApproximateJacobian {
 
 	/**
-	 * a 6x6 matrix that will be filled with the jacobian. The first three columns
+	 * a matrix that will be filled with the jacobian. The first three columns
 	 * are translation component. The last three columns are the rotation component.
 	 */
-	public final double[][] jacobian;
+	private double[][] jacobian;
+	private int DOF;
 
 	/**
 	 * Given the current pose of the robot, find the approximate jacobian.
 	 * @param arm the robot to analyze.
 	 */
-	public ApproximateJacobian2(RobotComponent arm) {
-		myArm = arm;
+	public ApproximateJacobianFiniteDifferences(RobotComponent arm) {
+		DOF = arm.getNumBones();
+		jacobian = MatrixHelper.createMatrix(6, DOF);
 
 		Matrix4d endEffectorPose = (Matrix4d)arm.get(Robot.END_EFFECTOR);
 		Entity newCopy = arm.getEntity().deepCopy();
 		RobotComponent temp = newCopy.getComponent(RobotComponent.class);
 		temp.findBones();
 
-		int DOF = arm.getNumBones();
-		jacobian = MatrixHelper.createMatrix(6, DOF);
 		Matrix4d endEffectorDifference = new Matrix4d();
 		Matrix3d endEffectorPoseRotation = new Matrix3d();
 		Matrix3d endEffectorDifferenceRotation = new Matrix3d();
@@ -78,18 +86,18 @@ public class ApproximateJacobian2 {
 
 	/**
 	 * Use the jacobian to get the cartesian velocity from the joint velocity.
-	 * @param jointVelocity joint velocity in degrees.
+	 * @param jointForce joint velocity in degrees.
 	 * @return 6 doubles containing the XYZ translation and UVW rotation forces on the end effector.
 	 */
-	public double[] getCartesianVelocityFromJointVelocity(final double[] jointVelocity) {
+	@Override
+	public double[] getCartesianForceFromJointForce(final double[] jointForce) {
 		// vector-matrix multiplication (y = x^T A)
-		double[] cartesianVelocity = new double[6];
-		int j, k;
+		double[] cartesianVelocity = new double[DOF];
 		double sum;
-		for (j = 0; j < 6; ++j) {
+		for (int j = 0; j < DOF; ++j) {
 			sum = 0;
-			for (k = 0; k < 6; ++k) {
-				sum += jacobian[k][j] * Math.toRadians(jointVelocity[k]);
+			for (int k = 0; k < 6; ++k) {
+				sum += jacobian[k][j] * Math.toRadians(jointForce[j]);
 			}
 			cartesianVelocity[j] = sum;
 		}
@@ -98,16 +106,15 @@ public class ApproximateJacobian2 {
 
 	// https://stackoverflow.com/a/53028167/1159440
 	private double[][] getInverseJacobian() {
-		int bones = myArm.getNumBones();
-        if( bones == 3 ) return getInverseJacobianOverdetermined();
+        if( DOF == 3 ) return getInverseJacobianOverdetermined();
 
-		// old method
-		//if (bones < 6) return getInverseJacobianOverdetermined();
-		//else if(bones>=6) return getInverseJacobianUnderdetermined();
-		//else return MatrixHelper.invert(jacobian);
+		// old method, Moore-Penrose pseudoinverse
+		if (DOF < 6) return getInverseJacobianOverdetermined();
+		else if(DOF>=6) return getInverseJacobianUnderdetermined();
+		else return MatrixHelper.invert(jacobian);
 
 		// new method
-		return getInverseJacobianDampedLeastSquares(0.0001);
+		//return getInverseJacobianDampedLeastSquares(0.0001);
 	}
 
 	// J_plus = J.transpose * (J*J.transpose()).inverse() // This is for
@@ -147,8 +154,8 @@ public class ApproximateJacobian2 {
 	 * @return jointVelocity joint velocity in degrees. Will be filled with the new velocity.
 	 * @throws Exception if joint velocities have NaN values
 	 */
-	public double[] getJointVelocityFromCartesianVelocity(final double[] cartesianVelocity) throws Exception {
-		int DOF = myArm.getNumBones();
+	@Override
+	public double[] getJointForceFromCartesianForce(final double[] cartesianVelocity) throws Exception {
 		double[][] inverseJacobian = getInverseJacobian();
 		double[] jointVelocity = new double[DOF];
 
@@ -167,4 +174,8 @@ public class ApproximateJacobian2 {
 		return jointVelocity;
 	}
 
+	@Override
+	public double[][] getJacobian() {
+		return jacobian;
+	}
 }
