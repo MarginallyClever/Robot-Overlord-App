@@ -118,7 +118,59 @@ public class ArmRobotSystem implements EntitySystem {
         capVectorToMagnitude(cartesianVelocity,linearVelocity*dt);
 
         // push the robot
-        robotComponent.applyCartesianForceToEndEffector(cartesianVelocity);
+        applyCartesianForceToEndEffector(robotComponent,cartesianVelocity);
+    }
+
+    private double sumCartesianVelocityComponents(double [] cartesianVelocity) {
+        double sum = 0;
+        for (double v : cartesianVelocity) {
+            sum += Math.abs(v);
+        }
+        return sum;
+    }
+
+    /**
+     * Applies a cartesian force to the robot, moving it in the direction of the cartesian force.
+     * @param cartesianVelocity three linear forces (mm) and three angular forces (degrees).
+     * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
+     */
+    public void applyCartesianForceToEndEffector(RobotComponent robotComponent,double[] cartesianVelocity) {
+        double sum = sumCartesianVelocityComponents(cartesianVelocity);
+        if(sum<0.0001) return;
+        if(sum <= 1) {
+            applySmallCartesianForceToEndEffector(robotComponent,cartesianVelocity);
+            return;
+        }
+
+        // split the big move in to smaller moves.
+        int total = (int) Math.ceil(sum);
+        // allocate a new buffer so that we don't smash the original.
+        double[] cartesianVelocityUnit = new double[cartesianVelocity.length];
+        for (int i = 0; i < cartesianVelocity.length; ++i) {
+            cartesianVelocityUnit[i] = cartesianVelocity[i] / total;
+        }
+        for (int i = 0; i < total; ++i) {
+            applySmallCartesianForceToEndEffector(robotComponent,cartesianVelocityUnit);
+        }
+    }
+
+    /**
+     * Applies a cartesian force to the robot, moving it in the direction of the cartesian force.
+     * @param cartesianVelocity three linear forces (mm) and three angular forces (degrees).
+     * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
+     */
+    private void applySmallCartesianForceToEndEffector(RobotComponent robotComponent,double[] cartesianVelocity) {
+        ApproximateJacobian2 aj = new ApproximateJacobian2(robotComponent);
+        try {
+            double[] jointVelocity = aj.getJointForceFromCartesianForce(cartesianVelocity);  // uses inverse jacobian
+            double[] angles = robotComponent.getAllJointValues();  // # dof long
+            for (int i = 0; i < angles.length; ++i) {
+                angles[i] += jointVelocity[i];
+            }
+            robotComponent.setAllJointValues(angles);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
