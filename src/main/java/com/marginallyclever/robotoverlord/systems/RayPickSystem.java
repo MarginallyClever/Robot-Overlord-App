@@ -8,6 +8,13 @@ import com.marginallyclever.robotoverlord.entity.EntityManager;
 
 import java.util.*;
 
+/**
+ * The {@link RayPickSystem} is separate from {@link com.marginallyclever.convenience.helpers.IntersectionHelper}
+ * because it references {@link EntityManager}, which is outside the scope of the Convenience Library.
+ *
+ * @since 2.6.1
+ * @author Dan Royer
+ */
 public class RayPickSystem {
     private final EntityManager entityManager;
 
@@ -36,7 +43,7 @@ public class RayPickSystem {
      * @param ray the ray to test.
      * @return all {@link RayHit} by the ray.  may be an empty list.
      */
-    private List<RayHit> findRayIntersections(Ray ray) {
+    public List<RayHit> findRayIntersections(Ray ray) {
         List<RayHit> rayHits = new ArrayList<>();
 
         Queue<Entity> toTest = new LinkedList<>(entityManager.getEntities());
