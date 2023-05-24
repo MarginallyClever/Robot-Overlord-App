@@ -12,6 +12,7 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
+import com.marginallyclever.robotoverlord.systems.RayPickSystem;
 import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -203,35 +204,12 @@ public class SelectionTool implements EditorTool {
 
         Ray ray = viewport.getRayThroughCursor();
 
-        // traverse the scene Entities and find the ShapeComponent that collides with the ray.
-        List<RayHit> rayHits = findRayIntersections(ray);
-        if(rayHits.size()==0) return null;
+        RayPickSystem rayPickSystem = new RayPickSystem(entityManager);
+        RayHit rayHit = rayPickSystem.getFirstHit(ray);
 
-        rayHits.sort(Comparator.comparingDouble(o -> o.distance));
+        setPickPoint(ray,rayHit);
 
-        setPickPoint(ray,rayHits);
-
-        return rayHits.get(0).target.getEntity();
-    }
-
-    /**
-     * test ray intersection with all entities in the scene.
-     * @param ray the ray to test.
-     */
-    private List<RayHit> findRayIntersections(Ray ray) {
-        List<RayHit> rayHits = new ArrayList<>();
-
-        Queue<Entity> toTest = new LinkedList<>(entityManager.getEntities());
-        while(!toTest.isEmpty()) {
-            Entity entity = toTest.remove();
-            toTest.addAll(entity.getChildren());
-
-            ShapeComponent shape = entity.getComponent(ShapeComponent.class);
-            if(shape==null) continue;
-            RayHit hit = shape.intersect(ray);
-            if(hit!=null) rayHits.add(hit);
-        }
-        return rayHits;
+        return rayHit.target.getEntity();
     }
 
     private void createPickPoint() {
@@ -242,16 +220,16 @@ public class SelectionTool implements EditorTool {
         }
     }
 
-    private void setPickPoint(Ray ray, List<RayHit> rayHits) {
+    private void setPickPoint(Ray ray, RayHit rayHit) {
         Entity pickPoint = entityManager.getRoot().findChildNamed(PICK_POINT_NAME);
         if(pickPoint==null) {
             createPickPoint();
             pickPoint = entityManager.getRoot().findChildNamed(PICK_POINT_NAME);
         }
 
-        Vector3d from = ray.getPoint(rayHits.get(0).distance);
+        Vector3d from = ray.getPoint(rayHit.distance);
         Vector3d to = new Vector3d(from);
-        to.add(rayHits.get(0).normal);
+        to.add(rayHit.normal);
         Matrix4d m = MatrixHelper.createIdentityMatrix4();
         Matrix4d m2 = new Matrix4d();
         Matrix3d lookAt = MatrixHelper.lookAt(from,to);
