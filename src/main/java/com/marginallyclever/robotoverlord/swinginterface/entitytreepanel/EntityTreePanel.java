@@ -15,7 +15,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +28,6 @@ public class EntityTreePanel extends JPanel {
 	private final JTree tree = new JTree();
 	private final DefaultTreeModel treeModel = new EntityTreeModel(null);
 	private final DefaultTreeCellRenderer treeCellRenderer = new FullNameTreeCellRenderer();
-	private final List<EntityTreePanelListener> listeners = new ArrayList<>();
 	private final List<AbstractAction> actions = new ArrayList<>();
 	private final EntityManager entityManager;
 
@@ -39,7 +37,6 @@ public class EntityTreePanel extends JPanel {
 		this.entityManager = entityManager;
 
 		tree.setShowsRootHandles(true);
-		addTreeSelectionListener();
 		tree.setCellRenderer(treeCellRenderer);
 		tree.setCellEditor(new EntityTreeCellEditor(tree, treeCellRenderer));
 		tree.setEditable(true);
@@ -48,29 +45,20 @@ public class EntityTreePanel extends JPanel {
 		tree.setDragEnabled(true);
 		tree.setDropMode(DropMode.ON_OR_INSERT);
 		tree.setTransferHandler(new EntityTreeTransferHandler(entityManager));
-
-		addExpansionListener();
-
-		addEntityTreePanelListener((e) -> {
-			if (e.eventType == EntityTreePanelEvent.SELECT ||
-					e.eventType == EntityTreePanelEvent.UNSELECT) {
-				UndoSystem.addEvent(new SelectEdit(Clipboard.getSelectedEntities(), e.subjects));
-			}
-		});
-
 		JScrollPane scroll = new JScrollPane();
 		scroll.setViewportView(tree);
 		this.add(scroll, BorderLayout.CENTER);
 		this.add(createMenu(), BorderLayout.NORTH);
 
+		addTreeSelectionListener();
+		addExpansionListener();
 		addTreeModelListener();
+		addEntityManagerListener();
 
 		addEntity(entityManager.getRoot());
-
-		addEntityManager();
 	}
 
-	private void addEntityManager() {
+	private void addEntityManagerListener() {
 		entityManager.addListener(new EntityManagerListener() {
 			@Override
 			public void entityManagerEvent(EntityManagerEvent event) {
@@ -98,6 +86,10 @@ public class EntityTreePanel extends JPanel {
 				}
 			}
 
+			/**
+			 * Find the Entity associated with this node, add it to the parent.
+			 * @param e a {@code TreeModelEvent} describing changes to a tree model
+			 */
 			@Override
 			public void treeNodesInserted(TreeModelEvent e) {
 				for(Object obj : e.getPath()) {
@@ -113,9 +105,12 @@ public class EntityTreePanel extends JPanel {
 				}
 			}
 
+			/**
+			 * Find the Entity associated with this node, remove it.
+			 * @param e a {@code TreeModelEvent} describing changes to a tree model
+			 */
 			@Override
 			public void treeNodesRemoved(TreeModelEvent e) {
-				// find the Entity associated with this node, remove it from the scene.
 				TreeNode node = (TreeNode) e.getTreePath().getLastPathComponent();
 				if (node instanceof EntityTreeNode) {
 					Entity child = ((EntityTreeNode) node).getEntity();
@@ -302,31 +297,17 @@ public class EntityTreePanel extends JPanel {
 			@Override
 			public void valueChanged(TreeSelectionEvent arg0) {
 				List<Entity> selected = new ArrayList<>();
-				TreePath[] paths = tree.getSelectionPaths();
-				if(paths!=null) {
-					for (TreePath p : paths) {
-						EntityTreeNode node = (EntityTreeNode) p.getLastPathComponent();
-						Entity entity = (node == null) ? null : (Entity) node.getUserObject();
+				TreePath[] selectedPaths = tree.getSelectionPaths();
+				if(selectedPaths!=null) {
+					for (TreePath selectedPath : selectedPaths) {
+						EntityTreeNode selectedNode = (EntityTreeNode) selectedPath.getLastPathComponent();
+						Entity entity = (Entity)selectedNode.getUserObject();
 						selected.add(entity);
 					}
 				}
-				updateListeners(new EntityTreePanelEvent(EntityTreePanelEvent.SELECT,EntityTreePanel.this,selected));
+				UndoSystem.addEvent(new SelectEdit(Clipboard.getSelectedEntities(), selected));
 			}
 		});
-	}
-
-	public void addEntityTreePanelListener(EntityTreePanelListener arg0) {
-		listeners.add(arg0);
-	}
-	
-	public void removeEntityTreePanelListener(EntityTreePanelListener arg0) {
-		listeners.remove(arg0);
-	}
-	
-	private void updateListeners(EntityTreePanelEvent event) {
-		for( EntityTreePanelListener e : listeners ) {
-			e.entityTreePanelEvent(event);
-		}
 	}
 
 	private void recursivelyAddChildren(EntityTreeNode parentNode, Entity child) {
@@ -357,7 +338,7 @@ public class EntityTreePanel extends JPanel {
 	}
 
 	/**
-	 * Tell all Actions to check if they are active.
+	 * Tell all {@link EditorAction}s of this panel to check if they are active.
 	 */
 	public void updateActionEnableStatus() {
 		for(AbstractAction a : actions) {
