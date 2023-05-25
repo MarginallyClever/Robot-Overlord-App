@@ -81,8 +81,7 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Pro
 		lock.lock();
 
 		if(newNumber != parameter.get()) {
-			AbstractUndoableEdit event = new IntParameterEdit(parameter, newNumber);
-			UndoSystem.addEvent(this,event);
+			UndoSystem.addEvent(new IntParameterEdit(parameter, newNumber));
 		}
 		lock.unlock();
 	}

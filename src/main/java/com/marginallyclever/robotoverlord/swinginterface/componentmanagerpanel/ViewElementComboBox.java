@@ -53,8 +53,7 @@ public class ViewElementComboBox extends ViewElement implements ActionListener, 
 	public void actionPerformed(ActionEvent arg0) {
 		int newIndex = field.getSelectedIndex();
 		if(newIndex != parameter.get()) {
-			AbstractUndoableEdit event = new ComboBoxEdit(parameter, parameter.getName(), newIndex);
-			UndoSystem.addEvent(this,event);
+			UndoSystem.addEvent(new ComboBoxEdit(parameter, parameter.getName(), newIndex));
 		}
 	}
 

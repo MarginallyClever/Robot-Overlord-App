@@ -50,7 +50,7 @@ public class EntityRenameAction extends AbstractAction implements EditorAction {
 				"Rename Entity",
 				JOptionPane.PLAIN_MESSAGE,null,null,e.getName());
 		if( newName!=null && !newName.equals(e.getName()) ) {
-			UndoSystem.addEvent(this,new EntityRenameEdit(e,newName,entityManager));
+			UndoSystem.addEvent(new EntityRenameEdit(e,newName,entityManager));
 		}
 	}
 

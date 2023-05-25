@@ -20,6 +20,7 @@ import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanel;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.systems.*;
+import com.marginallyclever.robotoverlord.systems.robot.RobotGripperSystem;
 import com.marginallyclever.robotoverlord.systems.robot.crab.CrabRobotSystem;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.ArmRobotSystem;
 import com.marginallyclever.robotoverlord.systems.robot.dog.DogRobotSystem;
@@ -190,6 +191,7 @@ public class RobotOverlord {
 		addSystem(new DogRobotSystem(project.getEntityManager()));
 		addSystem(new CrabRobotSystem(project.getEntityManager()));
 		addSystem(new ProgramExecutorSystem(project.getEntityManager()));
+		addSystem(new RobotGripperSystem(project.getEntityManager()));
 	}
 
 	private void addSystem(EntitySystem system) {
@@ -548,7 +550,7 @@ public class RobotOverlord {
 			pose.setPosition(project.getEntityManager().getCamera().getOrbitPoint());
 
 			// add entity to scene.
-			UndoSystem.addEvent(this,new EntityAddEdit(project.getEntityManager(), project.getEntityManager().getRoot(),entity));
+			UndoSystem.addEvent(new EntityAddEdit(project.getEntityManager(), project.getEntityManager().getRoot(),entity));
 		} catch(Exception e) {
 			logger.error("Error opening file",e);
 			return false;

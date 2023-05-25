@@ -63,6 +63,7 @@ public class ComponentManagerPanel extends JPanel {
 	public void refreshContentsFromClipboard() {
 		List<Entity> entityList = Clipboard.getSelectedEntities();
 
+		componentList.removeAll();
 		int size = entityList.size();
 		if(size==0) {
 			toolBar.setVisible(false);
@@ -82,7 +83,6 @@ public class ComponentManagerPanel extends JPanel {
 	}
 
 	private void buildSingleEntityPanel(Entity entity) {
-		componentList.removeAll();
 		if(entity == null) return;
 
 		for(int i=0;i<entity.getComponentCount();++i) {

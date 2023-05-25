@@ -15,7 +15,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,11 +24,10 @@ import java.util.List;
  * @author Dan Royer
  *
  */
-public class EntityTreePanel extends JPanel implements TreeSelectionListener, EntityManagerListener {
+public class EntityTreePanel extends JPanel {
 	private final JTree tree = new JTree();
 	private final DefaultTreeModel treeModel = new EntityTreeModel(null);
 	private final DefaultTreeCellRenderer treeCellRenderer = new FullNameTreeCellRenderer();
-	private final List<EntityTreePanelListener> listeners = new ArrayList<>();
 	private final List<AbstractAction> actions = new ArrayList<>();
 	private final EntityManager entityManager;
 
@@ -39,34 +37,41 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 		this.entityManager = entityManager;
 
 		tree.setShowsRootHandles(true);
-		tree.addTreeSelectionListener(this);
 		tree.setCellRenderer(treeCellRenderer);
-		tree.setCellEditor(new EntityTreeCellEditor(tree,treeCellRenderer));
+		tree.setCellEditor(new EntityTreeCellEditor(tree, treeCellRenderer));
 		tree.setEditable(true);
 		tree.setModel(treeModel);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 		tree.setDragEnabled(true);
 		tree.setDropMode(DropMode.ON_OR_INSERT);
 		tree.setTransferHandler(new EntityTreeTransferHandler(entityManager));
-
-		addMouseListener();
-		addExpansionListener();
-
-		addEntityTreePanelListener((e)-> {
-			if (e.eventType == EntityTreePanelEvent.SELECT) {
-				UndoSystem.addEvent(this,new SelectEdit(Clipboard.getSelectedEntities(),e.subjects));
-			}
-		});
-
 		JScrollPane scroll = new JScrollPane();
 		scroll.setViewportView(tree);
-		this.add(scroll,BorderLayout.CENTER);
-		this.add(createMenu(),BorderLayout.NORTH);
+		this.add(scroll, BorderLayout.CENTER);
+		this.add(createMenu(), BorderLayout.NORTH);
 
+		addTreeSelectionListener();
+		addExpansionListener();
 		addTreeModelListener();
+		addEntityManagerListener();
 
 		addEntity(entityManager.getRoot());
-		entityManager.addListener(this);
+	}
+
+	private void addEntityManagerListener() {
+		entityManager.addListener(new EntityManagerListener() {
+			@Override
+			public void entityManagerEvent(EntityManagerEvent event) {
+				if(event.type == EntityManagerEvent.ENTITY_ADDED) {
+					addEntityToParent(event.child,event.parent);
+				} else if(event.type == EntityManagerEvent.ENTITY_REMOVED) {
+					removeEntityFromParent(event.child,event.parent);
+				} else if(event.type == EntityManagerEvent.ENTITY_RENAMED) {
+					EntityTreeNode node = findTreeNode(event.child);
+					treeModel.reload(node);
+				}
+			}
+		});
 	}
 
 	private void addTreeModelListener() {
@@ -81,6 +86,10 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 				}
 			}
 
+			/**
+			 * Find the Entity associated with this node, add it to the parent.
+			 * @param e a {@code TreeModelEvent} describing changes to a tree model
+			 */
 			@Override
 			public void treeNodesInserted(TreeModelEvent e) {
 				for(Object obj : e.getPath()) {
@@ -96,9 +105,12 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 				}
 			}
 
+			/**
+			 * Find the Entity associated with this node, remove it.
+			 * @param e a {@code TreeModelEvent} describing changes to a tree model
+			 */
 			@Override
 			public void treeNodesRemoved(TreeModelEvent e) {
-				// find the Entity associated with this node, remove it from the scene.
 				TreeNode node = (TreeNode) e.getTreePath().getLastPathComponent();
 				if (node instanceof EntityTreeNode) {
 					Entity child = ((EntityTreeNode) node).getEntity();
@@ -262,30 +274,6 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 		}
 	}
 
-	private void addMouseListener() {
-		// clicking on empty part of tree unselects the rest.
-		// https://coderanch.com/t/518163/java/Deselect-nodes-JTree-user-clicks
-		tree.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				super.mouseClicked(e);
-				int row = tree.getRowForLocation(e.getX(), e.getY());
-				if (row == -1) {
-					// When user clicks on the "empty surface"
-					tree.clearSelection();
-				} else {
-					tree.setSelectionRow(row);
-					if(e.getClickCount()==2) {
-						TreePath path = tree.getPathForLocation(e.getX(), e.getY());
-						if (path != null) {
-							tree.startEditingAtPath(path);
-						}
-					}
-				}
-			}
-		});
-	}
-
 	private void addExpansionListener() {
 		tree.addTreeWillExpandListener(new TreeWillExpandListener() {
 			@Override
@@ -304,33 +292,22 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 		});
 	}
 
-	// TreeSelectionListener event
-	@Override
-	public void valueChanged(TreeSelectionEvent arg0) {
-		List<Entity> selected = new ArrayList<>();
-		TreePath[] paths = tree.getSelectionPaths();
-		if(paths!=null) {
-			for (TreePath p : paths) {
-				EntityTreeNode node = (EntityTreeNode) p.getLastPathComponent();
-				Entity entity = (node == null) ? null : (Entity) node.getUserObject();
-				selected.add(entity);
+	private void addTreeSelectionListener() {
+		tree.addTreeSelectionListener(new TreeSelectionListener() {
+			@Override
+			public void valueChanged(TreeSelectionEvent arg0) {
+				List<Entity> selected = new ArrayList<>();
+				TreePath[] selectedPaths = tree.getSelectionPaths();
+				if(selectedPaths!=null) {
+					for (TreePath selectedPath : selectedPaths) {
+						EntityTreeNode selectedNode = (EntityTreeNode) selectedPath.getLastPathComponent();
+						Entity entity = (Entity)selectedNode.getUserObject();
+						selected.add(entity);
+					}
+				}
+				UndoSystem.addEvent(new SelectEdit(Clipboard.getSelectedEntities(), selected));
 			}
-		}
-		updateListeners(new EntityTreePanelEvent(EntityTreePanelEvent.SELECT,this,selected));
-	}
-	
-	public void addEntityTreePanelListener(EntityTreePanelListener arg0) {
-		listeners.add(arg0);
-	}
-	
-	public void removeEntityTreePanelListener(EntityTreePanelListener arg0) {
-		listeners.remove(arg0);
-	}
-	
-	private void updateListeners(EntityTreePanelEvent event) {
-		for( EntityTreePanelListener e : listeners ) {
-			e.entityTreePanelEvent(event);
-		}
+		});
 	}
 
 	private void recursivelyAddChildren(EntityTreeNode parentNode, Entity child) {
@@ -338,18 +315,6 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 		parentNode.add(newNode);
 		for(Entity child2 : child.getChildren()) {
 			recursivelyAddChildren(newNode,child2);
-		}
-	}
-
-	@Override
-	public void entityManagerEvent(EntityManagerEvent event) {
-		if(event.type == EntityManagerEvent.ENTITY_ADDED) {
-			addEntityToParent(event.child,event.parent);
-		} else if(event.type == EntityManagerEvent.ENTITY_REMOVED) {
-			removeEntityFromParent(event.child,event.parent);
-		} else if(event.type == EntityManagerEvent.ENTITY_RENAMED) {
-			EntityTreeNode node = findTreeNode(event.child);
-			treeModel.reload(node);
 		}
 	}
 
@@ -373,7 +338,7 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 	}
 
 	/**
-	 * Tell all Actions to check if they are active.
+	 * Tell all {@link EditorAction}s of this panel to check if they are active.
 	 */
 	public void updateActionEnableStatus() {
 		for(AbstractAction a : actions) {

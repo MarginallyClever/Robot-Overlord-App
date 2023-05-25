@@ -191,7 +191,7 @@ public class SelectionTool implements EditorTool {
             if (found != null) list.add(found);
         }
 
-        UndoSystem.addEvent(this,new SelectEdit(Clipboard.getSelectedEntities(),list));
+        UndoSystem.addEvent(new SelectEdit(Clipboard.getSelectedEntities(),list));
     }
 
     /**

@@ -73,7 +73,7 @@ public class PoseComponent extends Component implements PropertyChangeListener {
      * Convert Euler rotations to a matrix.
      * See also <a href="https://www.learnopencv.com/rotation-matrix-to-euler-angles/">...</a>
      * Euler rotations are using the ZYX convention.
-     * @param arg0 a {@link Vector3d} with three angles (in radians)
+     * @param arg0 a {@link Vector3d} with three angles (in degrees)
      */
     public void setRotation(Vector3d arg0) {
         this.rotation.set(arg0);

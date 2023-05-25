@@ -50,8 +50,7 @@ public class ViewElementString extends ViewElement implements DocumentListener, 
 
 		String newValue = field.getText();
 		if( !newValue.equals(parameter.get()) ) {
-			AbstractUndoableEdit event = new StringParameterEdit(parameter, newValue);
-			UndoSystem.addEvent(this,event);
+			UndoSystem.addEvent(new StringParameterEdit(parameter, newValue));
 		}
 		lock.unlock();
 	}

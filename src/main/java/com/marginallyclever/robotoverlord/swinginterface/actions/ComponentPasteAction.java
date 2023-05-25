@@ -26,7 +26,7 @@ public class ComponentPasteAction extends AbstractAction implements EditorAction
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        UndoSystem.addEvent(this,new ComponentPasteEdit((String)this.getValue(Action.NAME),Clipboard.getCopiedComponents(),Clipboard.getSelectedEntities()));
+        UndoSystem.addEvent(new ComponentPasteEdit((String)this.getValue(Action.NAME),Clipboard.getCopiedComponents(),Clipboard.getSelectedEntities()));
     }
 
     @Override

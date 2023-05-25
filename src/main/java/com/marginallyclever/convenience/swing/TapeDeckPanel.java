@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.experiments;
+package com.marginallyclever.convenience.swing;
 
 import com.marginallyclever.convenience.log.Log;
 import org.apache.batik.ext.swing.GridBagConstants;
@@ -7,7 +7,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.Serial;
 import java.util.ArrayList;
 
 /**
@@ -16,16 +15,13 @@ import java.util.ArrayList;
  * @author Dan 
  *
  */
-@Deprecated
 public class TapeDeckPanel extends JPanel {
-	/**
-	 * 
-	 */
-	@Serial
-	private static final long serialVersionUID = -8342180275906617044L;
 	public static final int ACTION_STOP = 0;
 	public static final int ACTION_PLAY = 1;
 	public static final int ACTION_REWIND = 2;
+	public static String COMMAND_STOP = "stop";
+	public static String COMMAND_PLAY = "play";
+	public static String COMMAND_REWIND = "rewind";
 	
 	private final JButton bPlay = new JButton();
 	private final JButton bStop = new JButton();
@@ -35,8 +31,7 @@ public class TapeDeckPanel extends JPanel {
 	private final ArrayList<ActionListener> listeners = new ArrayList<>();
 
 	public TapeDeckPanel() {
-		super();
-		setLayout(new GridBagLayout());
+		super(new GridBagLayout());
 		
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx=0;
@@ -61,9 +56,9 @@ public class TapeDeckPanel extends JPanel {
 		bStop.setText("\u23F9");
 
 		final Object parent = this;
-		bRewind.addActionListener((e)->notifyListeners(new ActionEvent(parent,ACTION_REWIND,"rewind")));
-		bPlay.addActionListener((e)->notifyListeners(new ActionEvent(parent,ACTION_PLAY,"play")));
-		bStop.addActionListener((e)->notifyListeners(new ActionEvent(parent,ACTION_STOP,"stop")));
+		bRewind.addActionListener((e)->notifyListeners(new ActionEvent(parent,ACTION_REWIND,COMMAND_REWIND)));
+		bPlay.addActionListener((e)->notifyListeners(new ActionEvent(parent,ACTION_PLAY,COMMAND_PLAY)));
+		bStop.addActionListener((e)->notifyListeners(new ActionEvent(parent,ACTION_STOP,COMMAND_STOP)));
 	}
 	
 	public static void main(String[] args) {

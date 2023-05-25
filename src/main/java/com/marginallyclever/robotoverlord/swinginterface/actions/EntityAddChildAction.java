@@ -42,7 +42,7 @@ public class EntityAddChildAction extends AbstractAction implements EditorAction
 	public void actionPerformed(ActionEvent event) {
 		List<Entity> list = Clipboard.getSelectedEntities();
 		for(Entity parent : list) {
-			UndoSystem.addEvent(this,new EntityAddEdit(entityManager,parent,new Entity()));
+			UndoSystem.addEvent(new EntityAddEdit(entityManager,parent,new Entity()));
 		}
     }
 

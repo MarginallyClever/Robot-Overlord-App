@@ -263,7 +263,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
 
         dragging = false;
         if(selectedItems!=null) {
-            EditorUtils.updateUndoState(this,selectedItems);
+            EditorUtils.updateUndoState(selectedItems);
             selectedItems.savePose();
         }
     }

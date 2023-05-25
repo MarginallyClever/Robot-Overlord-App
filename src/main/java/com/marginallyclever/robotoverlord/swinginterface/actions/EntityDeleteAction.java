@@ -28,7 +28,7 @@ public class EntityDeleteAction extends AbstractAction implements EditorAction {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		UndoSystem.addEvent(this,new EntityDeleteEdit((String)this.getValue(Action.NAME), entityManager, Clipboard.getSelectedEntities()));
+		UndoSystem.addEvent(new EntityDeleteEdit((String)this.getValue(Action.NAME), entityManager, Clipboard.getSelectedEntities()));
 	}
 
 	@Override

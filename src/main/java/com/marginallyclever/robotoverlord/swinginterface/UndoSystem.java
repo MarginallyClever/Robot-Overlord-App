@@ -3,7 +3,6 @@ package com.marginallyclever.robotoverlord.swinginterface;
 import com.marginallyclever.robotoverlord.swinginterface.actions.RedoAction;
 import com.marginallyclever.robotoverlord.swinginterface.actions.UndoAction;
 
-import javax.swing.event.UndoableEditEvent;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoManager;
 
@@ -21,7 +20,7 @@ public class UndoSystem {
 	 */
 	public static void start() {
         commandUndo.setRedoCommand(commandRedo);
-    	commandRedo.setUndoCommand(commandUndo);
+    	commandRedo.setUndoAction(commandUndo);
 	}
 	
 	public static UndoAction getCommandUndo() {
@@ -32,15 +31,14 @@ public class UndoSystem {
 		return commandRedo;
 	}
 
-	public static void addEvent(Object src, AbstractUndoableEdit edit) {
-		undoManager.undoableEditHappened(new UndoableEditEvent(src,edit));
-		getCommandUndo().updateUndoState();
-		getCommandRedo().updateRedoState();
+	public static void addEvent(AbstractUndoableEdit edit) {
+		undoManager.addEdit(edit);
+		commandUndo.updateUndoState();
 	}
 
 	public static void reset() {
 		undoManager.discardAllEdits();
-		getCommandUndo().updateUndoState();
-		getCommandRedo().updateRedoState();
+		commandUndo.updateUndoState();
+		commandRedo.updateRedoState();
 	}
 }
