@@ -37,6 +37,8 @@ public class RobotGripperComponent extends Component {
     public DoubleParameter openDistance = new DoubleParameter("Open Distance (cm)",5.0);
     public DoubleParameter closeDistance = new DoubleParameter("Close Distance (cm)",1.0);
 
+    private final Vector3d gripDirection = new Vector3d();
+
     @Override
     public JSONObject toJSON(SerializationContext context) {
         JSONObject jo = super.toJSON(context);
@@ -81,5 +83,16 @@ public class RobotGripperComponent extends Component {
             if(shape!=null) results.add(shape);
         }
         return results;
+    }
+
+    /**
+     * @return the direction of the gripper in local space.
+     */
+    public Vector3d getGripDirection() {
+        return gripDirection;
+    }
+
+    public void setGripDirection(Vector3d direction) {
+        gripDirection.set(direction);
     }
 }
