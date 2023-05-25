@@ -29,8 +29,7 @@ public class EntityPasteAction extends AbstractAction implements EditorAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        UndoSystem.addEvent(this,
-                new EntityPasteEdit((String)this.getValue(Action.NAME),
+        UndoSystem.addEvent(new EntityPasteEdit((String)this.getValue(Action.NAME),
                         entityManager,
                         Clipboard.getCopiedEntities(),
                         Clipboard.getSelectedEntities())

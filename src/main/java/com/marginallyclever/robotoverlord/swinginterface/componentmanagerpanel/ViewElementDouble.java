@@ -83,8 +83,7 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		lock.lock();
 
 		if(newNumber != parameter.get()) {
-			AbstractUndoableEdit event = new DoubleParameterEdit(parameter, newNumber);
-			UndoSystem.addEvent(this,event);
+			UndoSystem.addEvent(new DoubleParameterEdit(parameter, newNumber));
 		}
 		
 		lock.unlock();

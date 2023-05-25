@@ -107,8 +107,7 @@ public class ViewElementVector3d extends ViewElement implements DocumentListener
 		diff.sub(newValue,oldValue);
 		
 		if(diff.lengthSquared()>1e-6) {
-			AbstractUndoableEdit event = new Vector3dParameterEdit(parameter, newValue);
-			UndoSystem.addEvent(this, event);
+			UndoSystem.addEvent(new Vector3dParameterEdit(parameter, newValue));
 		}
 		
 		lock.unlock();

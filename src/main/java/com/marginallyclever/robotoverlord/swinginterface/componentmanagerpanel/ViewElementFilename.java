@@ -95,7 +95,7 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 			public void run() {
 				int returnVal = chooser.showDialog(SwingUtilities.getWindowAncestor(chooserParent), Translator.get("Select"));
 				if(returnVal == JFileChooser.APPROVE_OPTION) {
-					UndoSystem.addEvent(this,new StringParameterEdit(parameter, chooser.getSelectedFile().getAbsolutePath()));
+					UndoSystem.addEvent(new StringParameterEdit(parameter, chooser.getSelectedFile().getAbsolutePath()));
 				}
 			}
 		});

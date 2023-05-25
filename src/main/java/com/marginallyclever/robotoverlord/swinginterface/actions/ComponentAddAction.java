@@ -67,7 +67,7 @@ public class ComponentAddAction extends AbstractAction {
 	private void createInstanceOf(Entity parent,String className) {
 		try {
 			Component newInstance = ComponentFactory.load(className);
-			if(newInstance != null) UndoSystem.addEvent(this,new ComponentAddEdit(componentManagerPanel,parent,newInstance));
+			if(newInstance != null) UndoSystem.addEvent(new ComponentAddEdit(componentManagerPanel,parent,newInstance));
 		} catch (Exception e) {
 			String msg = "Failed to instance "+className+": "+e.getLocalizedMessage();
 			JOptionPane.showMessageDialog(componentManagerPanel,msg);

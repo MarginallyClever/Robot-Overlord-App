@@ -72,7 +72,7 @@ public class ViewElementColor extends ViewElement implements PropertyChangeListe
 				c.getAlpha()/255.0
 		};
 
-		UndoSystem.addEvent(this,new ColorParameterEdit(parameter,newValues));
+		UndoSystem.addEvent(new ColorParameterEdit(parameter,newValues));
 	}
 
 	/**

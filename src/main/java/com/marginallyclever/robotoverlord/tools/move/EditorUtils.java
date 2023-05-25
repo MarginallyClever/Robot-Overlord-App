@@ -53,12 +53,12 @@ public class EditorUtils {
         return new Point3d(ray.getPoint(distance));
     }
 
-    public static void updateUndoState(Object src,SelectedItems selectedItems) {
+    public static void updateUndoState(SelectedItems selectedItems) {
         for (Entity entity : selectedItems.getEntities()) {
             Matrix4d before = selectedItems.getWorldPoseAtStart(entity);
             Matrix4d after = selectedItems.getWorldPoseNow(entity);
             entity.getComponent(PoseComponent.class).setWorld(before);
-            UndoSystem.addEvent(src, new PoseMoveEdit(entity, before, after));
+            UndoSystem.addEvent(new PoseMoveEdit(entity, before, after));
         }
     }
 }

@@ -68,8 +68,7 @@ public class ViewElementSliderDouble extends ViewElement implements ChangeListen
 		double newValue = field.getValue()/10.0;
 		
 		if(newValue!=oldValue) {
-			AbstractUndoableEdit event = new DoubleParameterEdit(parameter,newValue);
-			UndoSystem.addEvent(this,event);
+			UndoSystem.addEvent(new DoubleParameterEdit(parameter,newValue));
 		}
 	}
 

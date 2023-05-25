@@ -33,8 +33,7 @@ public class ViewElementBoolean extends ViewElement implements PropertyChangeLis
 			public void itemStateChanged(ItemEvent arg0) {
 				boolean newValue = field.isSelected();
 				if(parameter.get()!=newValue) {
-					AbstractUndoableEdit event = new BooleanParameterEdit(parameter, newValue);
-					UndoSystem.addEvent(this, event);
+					UndoSystem.addEvent(new BooleanParameterEdit(parameter, newValue));
 				}
 			}
 		});

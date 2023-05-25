@@ -80,8 +80,7 @@ public class ViewElementReference extends ViewElement implements ActionListener 
 		JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
 		List<Entity> chosen = EntityChooser.runDialog(parentFrame, entityManager.getRoot(),true);
 		String newFilename = chosen.isEmpty() ? null : chosen.get(0).getUniqueID();
-		AbstractUndoableEdit event = new StringParameterEdit(parameter, newFilename);
-		UndoSystem.addEvent(this,event);
+		UndoSystem.addEvent(new StringParameterEdit(parameter, newFilename));
 	}
 
 	@Override

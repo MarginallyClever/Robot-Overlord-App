@@ -21,9 +21,6 @@ import java.util.List;
  *
  */
 public class PoseMoveEdit extends AbstractUndoableEdit {
-	@Serial
-	private static final long serialVersionUID = 1L;
-		
 	private final List<Entity> entities = new LinkedList<>();
 	private final Matrix4d next;
 	private final Matrix4d prev;

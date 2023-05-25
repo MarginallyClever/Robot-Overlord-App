@@ -69,8 +69,7 @@ public class ViewElementSlider extends ViewElement implements ChangeListener, Pr
 		int newValue = field.getValue();
 		
 		if(newValue!=oldValue) {
-			AbstractUndoableEdit event = new IntParameterEdit(parameter,newValue);
-			UndoSystem.addEvent(this,event);
+			UndoSystem.addEvent(new IntParameterEdit(parameter,newValue));
 		}
 	}
 

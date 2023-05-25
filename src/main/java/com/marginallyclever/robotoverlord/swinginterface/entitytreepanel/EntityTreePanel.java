@@ -49,12 +49,12 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 		tree.setDropMode(DropMode.ON_OR_INSERT);
 		tree.setTransferHandler(new EntityTreeTransferHandler(entityManager));
 
-		addMouseListener();
 		addExpansionListener();
 
 		addEntityTreePanelListener((e)-> {
-			if (e.eventType == EntityTreePanelEvent.SELECT) {
-				UndoSystem.addEvent(this,new SelectEdit(Clipboard.getSelectedEntities(),e.subjects));
+			if (e.eventType == EntityTreePanelEvent.SELECT ||
+				e.eventType == EntityTreePanelEvent.UNSELECT) {
+				UndoSystem.addEvent(new SelectEdit(Clipboard.getSelectedEntities(),e.subjects));
 			}
 		});
 
@@ -260,30 +260,6 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 				treeModel.setRoot(null);
 			}
 		}
-	}
-
-	private void addMouseListener() {
-		// clicking on empty part of tree unselects the rest.
-		// https://coderanch.com/t/518163/java/Deselect-nodes-JTree-user-clicks
-		tree.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				super.mouseClicked(e);
-				int row = tree.getRowForLocation(e.getX(), e.getY());
-				if (row == -1) {
-					// When user clicks on the "empty surface"
-					tree.clearSelection();
-				} else {
-					tree.setSelectionRow(row);
-					if(e.getClickCount()==2) {
-						TreePath path = tree.getPathForLocation(e.getX(), e.getY());
-						if (path != null) {
-							tree.startEditingAtPath(path);
-						}
-					}
-				}
-			}
-		});
 	}
 
 	private void addExpansionListener() {

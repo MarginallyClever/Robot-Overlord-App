@@ -17,9 +17,6 @@ import java.util.List;
  *
  */
 public class SelectEdit extends AbstractUndoableEdit {
-	@Serial
-	private static final long serialVersionUID = 1L;
-
 	private final List<Entity> next;
 	private final List<Entity> prev;
 
@@ -29,7 +26,7 @@ public class SelectEdit extends AbstractUndoableEdit {
 		this.next = next;
 		this.prev = prev;
 
-		doIt();
+		doIt(next);
 	}
 
 	@Override
@@ -48,16 +45,16 @@ public class SelectEdit extends AbstractUndoableEdit {
 	@Override
 	public void redo() throws CannotRedoException {
 		super.redo();
-		doIt();
-	}
-
-	private void doIt() {
-		Clipboard.setSelectedEntities(next);
+		doIt(next);
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
 		super.undo();
-		Clipboard.setSelectedEntities(prev);
+		doIt(prev);
+	}
+
+	private void doIt(List<Entity> items) {
+		Clipboard.setSelectedEntities(items);
 	}
 }

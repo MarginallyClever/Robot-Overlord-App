@@ -184,7 +184,7 @@ class EntityTreeTransferHandler extends TransferHandler {
                 continue;
             }
 
-            UndoSystem.addEvent(this, new EntityReorganizeEdit(entityManager,entity, parentEntity));
+            UndoSystem.addEvent(new EntityReorganizeEdit(entityManager,entity, parentEntity));
         }
         return true;
     }
