@@ -55,7 +55,7 @@ public class Grid extends ShapeComponent {
         float dx = (float)p.x % gridSpace;
         float dy = (float)p.y % gridSpace;
 
-        drawGrid(gridWidth,gridLength,gridSpace,dx,dy);
+        drawGrid(gridWidth,gridLength,gridSpace,-dx,-dy);
     }
 
     /**
