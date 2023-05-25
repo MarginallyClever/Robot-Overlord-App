@@ -25,7 +25,7 @@ import java.util.List;
  * @author Dan Royer
  *
  */
-public class EntityTreePanel extends JPanel implements TreeSelectionListener, EntityManagerListener {
+public class EntityTreePanel extends JPanel {
 	private final JTree tree = new JTree();
 	private final DefaultTreeModel treeModel = new EntityTreeModel(null);
 	private final DefaultTreeCellRenderer treeCellRenderer = new FullNameTreeCellRenderer();
@@ -39,9 +39,9 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 		this.entityManager = entityManager;
 
 		tree.setShowsRootHandles(true);
-		tree.addTreeSelectionListener(this);
+		addTreeSelectionListener();
 		tree.setCellRenderer(treeCellRenderer);
-		tree.setCellEditor(new EntityTreeCellEditor(tree,treeCellRenderer));
+		tree.setCellEditor(new EntityTreeCellEditor(tree, treeCellRenderer));
 		tree.setEditable(true);
 		tree.setModel(treeModel);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
@@ -51,22 +51,39 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 
 		addExpansionListener();
 
-		addEntityTreePanelListener((e)-> {
+		addEntityTreePanelListener((e) -> {
 			if (e.eventType == EntityTreePanelEvent.SELECT ||
-				e.eventType == EntityTreePanelEvent.UNSELECT) {
-				UndoSystem.addEvent(new SelectEdit(Clipboard.getSelectedEntities(),e.subjects));
+					e.eventType == EntityTreePanelEvent.UNSELECT) {
+				UndoSystem.addEvent(new SelectEdit(Clipboard.getSelectedEntities(), e.subjects));
 			}
 		});
 
 		JScrollPane scroll = new JScrollPane();
 		scroll.setViewportView(tree);
-		this.add(scroll,BorderLayout.CENTER);
-		this.add(createMenu(),BorderLayout.NORTH);
+		this.add(scroll, BorderLayout.CENTER);
+		this.add(createMenu(), BorderLayout.NORTH);
 
 		addTreeModelListener();
 
 		addEntity(entityManager.getRoot());
-		entityManager.addListener(this);
+
+		addEntityManager();
+	}
+
+	private void addEntityManager() {
+		entityManager.addListener(new EntityManagerListener() {
+			@Override
+			public void entityManagerEvent(EntityManagerEvent event) {
+				if(event.type == EntityManagerEvent.ENTITY_ADDED) {
+					addEntityToParent(event.child,event.parent);
+				} else if(event.type == EntityManagerEvent.ENTITY_REMOVED) {
+					removeEntityFromParent(event.child,event.parent);
+				} else if(event.type == EntityManagerEvent.ENTITY_RENAMED) {
+					EntityTreeNode node = findTreeNode(event.child);
+					treeModel.reload(node);
+				}
+			}
+		});
 	}
 
 	private void addTreeModelListener() {
@@ -280,21 +297,24 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 		});
 	}
 
-	// TreeSelectionListener event
-	@Override
-	public void valueChanged(TreeSelectionEvent arg0) {
-		List<Entity> selected = new ArrayList<>();
-		TreePath[] paths = tree.getSelectionPaths();
-		if(paths!=null) {
-			for (TreePath p : paths) {
-				EntityTreeNode node = (EntityTreeNode) p.getLastPathComponent();
-				Entity entity = (node == null) ? null : (Entity) node.getUserObject();
-				selected.add(entity);
+	private void addTreeSelectionListener() {
+		tree.addTreeSelectionListener(new TreeSelectionListener() {
+			@Override
+			public void valueChanged(TreeSelectionEvent arg0) {
+				List<Entity> selected = new ArrayList<>();
+				TreePath[] paths = tree.getSelectionPaths();
+				if(paths!=null) {
+					for (TreePath p : paths) {
+						EntityTreeNode node = (EntityTreeNode) p.getLastPathComponent();
+						Entity entity = (node == null) ? null : (Entity) node.getUserObject();
+						selected.add(entity);
+					}
+				}
+				updateListeners(new EntityTreePanelEvent(EntityTreePanelEvent.SELECT,EntityTreePanel.this,selected));
 			}
-		}
-		updateListeners(new EntityTreePanelEvent(EntityTreePanelEvent.SELECT,this,selected));
+		});
 	}
-	
+
 	public void addEntityTreePanelListener(EntityTreePanelListener arg0) {
 		listeners.add(arg0);
 	}
@@ -314,18 +334,6 @@ public class EntityTreePanel extends JPanel implements TreeSelectionListener, En
 		parentNode.add(newNode);
 		for(Entity child2 : child.getChildren()) {
 			recursivelyAddChildren(newNode,child2);
-		}
-	}
-
-	@Override
-	public void entityManagerEvent(EntityManagerEvent event) {
-		if(event.type == EntityManagerEvent.ENTITY_ADDED) {
-			addEntityToParent(event.child,event.parent);
-		} else if(event.type == EntityManagerEvent.ENTITY_REMOVED) {
-			removeEntityFromParent(event.child,event.parent);
-		} else if(event.type == EntityManagerEvent.ENTITY_RENAMED) {
-			EntityTreeNode node = findTreeNode(event.child);
-			treeModel.reload(node);
 		}
 	}
 
