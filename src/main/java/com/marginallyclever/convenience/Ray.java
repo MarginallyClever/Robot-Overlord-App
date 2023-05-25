@@ -14,19 +14,26 @@ import javax.vecmath.Vector3d;
 public class Ray {
 	private final Point3d origin = new Point3d();
 	private final Vector3d direction = new Vector3d();
+	private double maxDistance = Double.MAX_VALUE;
 
 	public Ray() {
-		direction.set(0,0,1);
+		this(new Point3d(),new Vector3d(0,0,1),Double.MAX_VALUE);
 	}
 
 	public Ray(Point3d origin,Vector3d direction) {
+		this(origin,direction,Double.MAX_VALUE);
+	}
+
+	public Ray(Point3d origin,Vector3d direction,double maxDistance) {
 		this.origin.set(origin);
 		this.direction.set(direction);
+		this.maxDistance = maxDistance;
 	}
 
 	public Ray(Ray r) {
 		this.origin.set(r.origin);
 		this.direction.set(r.direction);
+		this.maxDistance = r.maxDistance;
 	}
 
 	/**
@@ -51,6 +58,14 @@ public class Ray {
 
 	public Point3d getOrigin() {
 		return origin;
+	}
+
+	public void setMaxDistance(double maxDistance) {
+		this.maxDistance = maxDistance;
+	}
+
+	public double getMaxDistance() {
+		return maxDistance;
 	}
 
 	public void render(GL2 gl2) {
