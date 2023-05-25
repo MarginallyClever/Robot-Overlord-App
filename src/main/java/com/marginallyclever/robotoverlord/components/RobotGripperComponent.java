@@ -59,13 +59,13 @@ public class RobotGripperComponent extends Component {
     /**
      * @return the center of the first two child entities in world space OR an empty list if there are not two children.
      */
-    public List<Vector3d> getPoints() {
+    public List<Point3d> getPoints() {
         List<Entity> children = getEntity().getChildren();
-        List<Vector3d> results = new ArrayList<>();
+        List<Point3d> results = new ArrayList<>();
         if(children.size()>=2) {
             for(int i=0;i<2;++i) {
                 Matrix4d pose = children.get(i).getComponent(PoseComponent.class).getWorld();
-                results.add(MatrixHelper.getPosition(pose));
+                results.add(new Point3d(MatrixHelper.getPosition(pose)));
             }
         }
         return results;
@@ -89,9 +89,13 @@ public class RobotGripperComponent extends Component {
      * @return the direction of the gripper in local space.
      */
     public Vector3d getGripDirection() {
-        return gripDirection;
+        return new Vector3d(gripDirection);
     }
 
+    /**
+     * Set the direction of the gripper in local space.
+     * @param direction the direction of the gripper in local space.
+     */
     public void setGripDirection(Vector3d direction) {
         gripDirection.set(direction);
     }
