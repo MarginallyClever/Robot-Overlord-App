@@ -102,20 +102,20 @@ public class RobotGripperSystem implements EntitySystem {
         // do not consider the gripper itself or the jaws.
         removeGripperAndJawsFromHits(gripper, hits);
 
-        if (hits.isEmpty()) return;  // no hit, nothing to grab
+        if(!hits.isEmpty()) {
+            // get the nearest item
+            hits.sort(Comparator.comparingDouble(o -> o.distance));
+            RayHit first = hits.get(0);
 
-        // get the nearest item
-        hits.sort(Comparator.comparingDouble(o -> o.distance));
-        RayHit first = hits.get(0);
+            //if object found is outside the gripper's distance, no grab.
+            if (first.distance > gripper.openDistance.get()) return;
 
-        //if object found is outside the gripper's distance, no grab.
-        if (first.distance > gripper.openDistance.get()) return;
-
-        // move the entity to the gripper
-        Entity entityBeingGrabbed = first.target.getEntity();
-        Matrix4d entityWorld = entityBeingGrabbed.getComponent(PoseComponent.class).getWorld();
-        entityManager.addEntityToParent(entityBeingGrabbed, gripper.getEntity());
-        entityBeingGrabbed.getComponent(PoseComponent.class).setWorld(entityWorld);
+            // move the entity to the gripper
+            Entity entityBeingGrabbed = first.target.getEntity();
+            Matrix4d entityWorld = entityBeingGrabbed.getComponent(PoseComponent.class).getWorld();
+            entityManager.addEntityToParent(entityBeingGrabbed, gripper.getEntity());
+            entityBeingGrabbed.getComponent(PoseComponent.class).setWorld(entityWorld);
+        }
 
         // change state to "closed"
         gripper.mode.set(RobotGripperComponent.MODE_CLOSED);
@@ -140,12 +140,13 @@ public class RobotGripperSystem implements EntitySystem {
         // release the object
         List<Entity> children = gripper.getEntity().getChildren();
         // assumes two jaws and only one item being held.
-        if(children.size()!=3) return;
-        Entity entityBeingGrabbed = children.get(2);
-        // move the entity to the world
-        Matrix4d entityWorld = entityBeingGrabbed.getComponent(PoseComponent.class).getWorld();
-        entityManager.addEntityToParent(entityBeingGrabbed,entityManager.getRoot());
-        entityBeingGrabbed.getComponent(PoseComponent.class).setWorld(entityWorld);
+        if(children.size()>2) {
+            // move the entity to the world
+            Entity entityBeingGrabbed = children.get(2);
+            Matrix4d entityWorld = entityBeingGrabbed.getComponent(PoseComponent.class).getWorld();
+            entityManager.addEntityToParent(entityBeingGrabbed,entityManager.getRoot());
+            entityBeingGrabbed.getComponent(PoseComponent.class).setWorld(entityWorld);
+        }
 
         // change state to "open"
         gripper.mode.set(RobotGripperComponent.MODE_OPEN);
@@ -159,6 +160,7 @@ public class RobotGripperSystem implements EntitySystem {
         double distance = (gripper.openDistance.get() - gripper.closeDistance.get());
         diff.scale(-distance / 2.0);
         moveJaws(gripper, diff);
+
         System.out.println("release="+diff);
     }
 
