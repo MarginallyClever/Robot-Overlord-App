@@ -21,17 +21,33 @@ import javax.vecmath.Vector3d;
  * @since 2.5.0
  */
 public class Compass3D {
-	protected ShapeComponent model = new MeshFromFile("/viewCube.obj");
-	protected MaterialComponent mat = new MaterialComponent();
-	protected DoubleParameter cubeSize = new DoubleParameter("size",25);
-	
+	private final ShapeComponent model = new MeshFromFile("/viewCube.obj");
+	private final MaterialComponent mat = new MaterialComponent();
+	private final DoubleParameter cubeSize = new DoubleParameter("size",25);
+	private final Mesh mesh = new Mesh();
+
     public Compass3D() {
     	super();
 		mat.setTextureFilename("/images/viewCube.png");
 		mat.setDiffuseColor(1, 1, 1, 1);
 		mat.setAmbientColor(1, 1, 1, 1);
 		mat.setLit(false);
-    }
+
+		float x=-1.05f;
+		float y=-1.05f;
+		float z=-0.95f;
+		float v=2.5f;
+
+		mesh.clear();
+		mesh.setRenderStyle(GL2.GL_LINES);
+		mesh.addColor(1, 0, 0,1);	mesh.addVertex(x, y, z);
+		mesh.addColor(1, 0, 0,1);	mesh.addVertex(x+v, y+0.0f, z+0.0f);
+		mesh.addColor(0, 1, 0,1);	mesh.addVertex(x, y, z);
+		mesh.addColor(0, 1, 0,1);	mesh.addVertex(x+0.0f, y+v, z+0.0f);
+		mesh.addColor(0, 0, 1,1);	mesh.addVertex(x, y, z);
+		mesh.addColor(0, 0, 1,1);	mesh.addVertex(x+0.0f, y+0.0f, z+v);
+
+	}
 
 	public void render(GL2 gl2,Viewport viewport,ShaderProgram program) {
 		program.use(gl2);
@@ -85,23 +101,8 @@ public class Compass3D {
 		program.set1f(gl2,"useLighting",0);
 		program.set1f(gl2,"useVertexColor",1);
 
-		Mesh mesh = new Mesh();
-		mesh.clear();
-		mesh.setRenderStyle(GL2.GL_LINES);
-		float x=-1.05f;
-		float y=-1.05f;
-		float z=-0.95f;
-
 		gl2.glLineWidth(4);
-
-		mesh.addColor(1, 0, 0,1);	mesh.addVertex(x, y, z);
-		mesh.addColor(1, 0, 0,1);	mesh.addVertex(x+2.5f, y+0.0f, z+0.0f);
-		mesh.addColor(0, 1, 0,1);	mesh.addVertex(x, y, z);
-		mesh.addColor(0, 1, 0,1);	mesh.addVertex(x+0.0f, y+2.5f, z+0.0f);
-		mesh.addColor(0, 0, 1,1);	mesh.addVertex(x, y, z);
-		mesh.addColor(0, 0, 1,1);	mesh.addVertex(x+0.0f, y+0.0f, z+2.5f);
 		mesh.render(gl2);
-
 		gl2.glLineWidth(1);
 	}
 }
