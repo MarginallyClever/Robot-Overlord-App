@@ -50,24 +50,33 @@ public class OpenGLTestStencil extends OpenGLTestPerspective {
     @Override
     public void display( GLAutoDrawable drawable ) {
         GL3 gl3 = drawable.getGL().getGL3();
-        gl3.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_STENCIL_BUFFER_BIT | GL3.GL_COLOR_BUFFER_BIT);
+        gl3.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_COLOR_BUFFER_BIT);
 
-        gl3.glEnable(GL3.GL_STENCIL_TEST);
-        gl3.glClear(GL3.GL_STENCIL_BUFFER_BIT);
+        super.display(drawable);
 
-        gl3.glStencilFunc(GL.GL_ALWAYS,1,0xff);
-        gl3.glStencilOp(GL3.GL_KEEP, GL3.GL_KEEP, GL3.GL_REPLACE);
-        //gl3.glStencilMask(0xFF);
-
-        super.display(drawable);  // draws a spinning triangle in perspective mode.
-
-        gl3.glDisable(GL3.GL_STENCIL_TEST);
-
+        displayToStencilFBO(gl3,drawable);
         copyStencilBufferToTexture(gl3);
         debugTexture(gl3,stencilTexture[0]);
     }
 
+    private void displayToStencilFBO(GL3 gl3, GLAutoDrawable drawable) {
+        gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, stencilFrameBuffer[0]);
+        gl3.glEnable(GL3.GL_STENCIL_TEST);
+
+        gl3.glClear(GL3.GL_STENCIL_BUFFER_BIT);
+        gl3.glStencilFunc(GL.GL_ALWAYS,1,0xff);
+        gl3.glStencilOp(GL3.GL_KEEP, GL3.GL_KEEP, GL3.GL_REPLACE);
+        gl3.glStencilMask(0xFF);
+
+        super.display(drawable);  // draws a spinning triangle in perspective mode.
+
+        gl3.glDisable(GL3.GL_STENCIL_TEST);
+        gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, 0);
+    }
+
     private void copyStencilBufferToTexture(GL3 gl3) {
+        gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, stencilFrameBuffer[0]);
+
         gl3.glBindTexture(GL3.GL_TEXTURE_2D, stencilTexture[0]);
 
         // Read the stencil data into the stencil texture
@@ -80,6 +89,7 @@ public class OpenGLTestStencil extends OpenGLTestPerspective {
 
         // Unbind everything
         gl3.glBindTexture(GL3.GL_TEXTURE_2D, 0);
+        gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, 0);
     }
 
     private void destroyStencilTexture(GL3 gl3) {
