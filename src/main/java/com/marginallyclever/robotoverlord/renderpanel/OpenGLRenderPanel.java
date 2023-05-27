@@ -7,16 +7,12 @@ import com.jogamp.opengl.util.texture.Texture;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.robotoverlord.*;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
-import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.systems.render.Compass3D;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.SkyBox;
@@ -31,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
@@ -62,8 +57,6 @@ public class OpenGLRenderPanel implements RenderPanel {
 
     // should I check the state of the OpenGL stack size?  true=every frame, false=never
     private final boolean checkStackSize = false;
-
-    // used to check the stack size.
     private final IntBuffer stackDepth = IntBuffer.allocate(1);
 
     private final JPanel panel = new JPanel(new BorderLayout());
@@ -80,7 +73,6 @@ public class OpenGLRenderPanel implements RenderPanel {
     private double frameDelay;
     private double frameLength;
 
-    // click on screen to change which entity is selected
     private final Viewport viewport = new Viewport();
 
     /**
@@ -104,11 +96,6 @@ public class OpenGLRenderPanel implements RenderPanel {
     /**
      * Used to sort items at systems time. Opaque items are rendered first, then alpha items.
      */
-    private static class MatrixMaterialRender {
-        public Matrix4d matrix = new Matrix4d();
-        public RenderComponent renderComponent;
-        public MaterialComponent materialComponent;
-    }
     private final List<MatrixMaterialRender> opaque = new ArrayList<>();
     private final List<MatrixMaterialRender> alpha = new ArrayList<>();
     private final List<MatrixMaterialRender> noMaterial = new ArrayList<>();
@@ -120,9 +107,18 @@ public class OpenGLRenderPanel implements RenderPanel {
     private ShaderProgram shaderHUD;
     private final List<Entity> collectedEntities = new ArrayList<>();
     private final List<LightComponent> lights = new ArrayList<>();
-    private Entity pickPoint;
 
+    private Entity pickPoint;
     private double cursorSize = 10;
+
+    // outline selected items
+    private int [] stencilTexture = new int[1];
+    private int [] stencilFBO = new int[1];
+    private int [] jfaOutputTexture = new int[1];
+    private int [] jfaOutputFBO = new int[1];
+    private ShaderProgram shaderJFA;
+    private ShaderProgram shaderOutline2;
+    private ShaderProgram shaderDebugTexture;
 
 
     public OpenGLRenderPanel(EntityManager entityManager) {
@@ -278,14 +274,21 @@ public class OpenGLRenderPanel implements RenderPanel {
             public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
                 viewport.setCanvasWidth(glCanvas.getSurfaceWidth());
                 viewport.setCanvasHeight(glCanvas.getSurfaceHeight());
+                GL2 gl2 = drawable.getGL().getGL2();
+
+                destroyStencilTexture(gl2);
+                destroyJFATexture(gl2);
+
+                createStencilTexture(gl2);
+                createJFATexture(gl2);
             }
 
             @Override
             public void dispose( GLAutoDrawable drawable ) {
                 GL2 gl2 = drawable.getGL().getGL2();
-                shaderDefault.delete(gl2);
-                shaderOutline.delete(gl2);
-                shaderHUD.delete(gl2);
+                destroyShaderPrograms(gl2);
+                destroyStencilTexture(gl2);
+                destroyJFATexture(gl2);
             }
 
             @Override
@@ -370,7 +373,7 @@ public class OpenGLRenderPanel implements RenderPanel {
 
     private String [] readResource(String resourceName) {
         ArrayList<String> lines = new ArrayList<>();
-        try(BufferedReader reader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream(resourceName)))) {
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(this.getClass().getResourceAsStream(resourceName))))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 lines.add(line+"\n");
@@ -391,6 +394,103 @@ public class OpenGLRenderPanel implements RenderPanel {
         shaderHUD = new ShaderProgram(gl2,
             readResource("notransform_330.vert"),
             readResource("givenColor_330.frag"));
+        shaderOutline2 = new ShaderProgram(gl2,
+            readResource("outline2_330.vert"),
+            readResource("outline2_330.frag"));
+        shaderJFA = new ShaderProgram(gl2,
+            readResource("jfa_330.vert"),
+            readResource("jfa_330.frag"));
+        shaderDebugTexture = new ShaderProgram(gl2,
+            readResource("debugTexture_330.vert"),
+            readResource("testTextureDepth1_330.frag"));
+    }
+
+    private void destroyShaderPrograms(GL2 gl2) {
+        shaderDefault.delete(gl2);
+        shaderOutline.delete(gl2);
+        shaderHUD.delete(gl2);
+        shaderOutline2.delete(gl2);
+        shaderJFA.delete(gl2);
+        shaderDebugTexture.delete(gl2);
+    }
+
+    private void reloadShaderPrograms(GL2 gl2) {
+        destroyShaderPrograms(gl2);
+        createShaderPrograms(gl2);
+    }
+
+    private void createStencilTexture(GL2 gl2) {
+        gl2.glGenFramebuffers(1, stencilFBO, 0);
+        gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, stencilFBO[0]);
+
+        gl2.glGenTextures(1, stencilTexture, 0);
+        gl2.glBindTexture(GL2.GL_TEXTURE_2D, stencilTexture[0]);
+        gl2.glTexImage2D(GL2.GL_TEXTURE_2D, 0, GL2.GL_DEPTH24_STENCIL8, viewport.getCanvasWidth(), viewport.getCanvasHeight(), 0, GL2.GL_DEPTH_STENCIL, GL2.GL_UNSIGNED_INT_24_8, null);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_NEAREST);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_NEAREST);
+        gl2.glBindTexture(GL2.GL_TEXTURE_2D, 0);
+
+        gl2.glFramebufferTexture2D(GL2.GL_FRAMEBUFFER, GL2.GL_DEPTH_STENCIL_ATTACHMENT, GL2.GL_TEXTURE_2D, stencilTexture[0], 0);
+
+        checkFrameBufferStatus(gl2,"stencil");
+
+        gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, 0);
+    }
+
+    private void checkFrameBufferStatus(GL2 gl2,String name) {
+        // Check if the framebuffer is complete
+        int result = gl2.glCheckFramebufferStatus(GL2.GL_FRAMEBUFFER);
+        if(result != GL2.GL_FRAMEBUFFER_COMPLETE) {
+            System.out.print("Error: "+name+" framebuffer is not complete.  ");
+            switch (result) {
+                case GL2.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT ->
+                        System.out.println("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT");
+                case GL2.GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS ->
+                        System.out.println("GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS");
+                case GL2.GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT ->
+                        System.out.println("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT");
+                case GL2.GL_FRAMEBUFFER_UNSUPPORTED -> System.out.println("GL_FRAMEBUFFER_UNSUPPORTED");
+                default -> System.out.println("Unknown error!");
+            }
+        }
+    }
+
+    private void destroyStencilTexture(GL2 gl2) {
+        gl2.glDeleteFramebuffers(1, stencilFBO, 0);
+        gl2.glDeleteTextures(1, stencilTexture, 0);
+    }
+
+    private void createJFATexture(GL2 gl2) {
+        // Generate and bind the FBO
+        gl2.glGenFramebuffers(1, jfaOutputFBO, 0);
+        gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, jfaOutputFBO[0]);
+
+        // Generate the texture
+        gl2.glGenTextures(1, jfaOutputTexture, 0);
+        gl2.glBindTexture(GL2.GL_TEXTURE_2D, jfaOutputTexture[0]);
+
+        // Allocate storage for the texture
+        gl2.glTexImage2D(GL2.GL_TEXTURE_2D, 0, GL2.GL_RGBA32F, viewport.getCanvasWidth(), viewport.getCanvasHeight(), 0, GL2.GL_RGBA, GL2.GL_FLOAT, null);
+
+        // Set texture parameters
+        gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_EDGE);
+        gl2.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_EDGE);
+        gl2.glBindTexture(GL2.GL_TEXTURE_2D, 0);
+
+        // Attach the texture to the FBO
+        gl2.glFramebufferTexture2D(GL2.GL_FRAMEBUFFER, GL2.GL_COLOR_ATTACHMENT0, GL2.GL_TEXTURE_2D, jfaOutputTexture[0], 0);
+
+        checkFrameBufferStatus(gl2,"jfa");
+
+        // Unbind the FBO
+        gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, 0);
+    }
+
+    private void destroyJFATexture(GL2 gl2) {
+        gl2.glDeleteFramebuffers(1, jfaOutputFBO, 0);
+        gl2.glDeleteTextures(1, jfaOutputTexture, 0);
     }
 
     private void deactivateAllTools() {
@@ -463,6 +563,7 @@ public class OpenGLRenderPanel implements RenderPanel {
             // TODO display a "no active camera found" message?
             return;
         }
+
         collectSelectedEntitiesAndTheirChildren();  // TODO only when selection changes?
         prepareToOutlineSelectedEntities(gl2);
 
@@ -569,13 +670,14 @@ public class OpenGLRenderPanel implements RenderPanel {
     private void outlineCollectedEntities(GL2 gl2) {
         if(shaderOutline ==null) return;
 
-        // update the depth buffer so the outline will appear around the collected entities.
-        // without this any part of a collected entity behind another entity will be completely filled with the outline color.
-        gl2.glClear(GL.GL_DEPTH_BUFFER_BIT);
-        gl2.glColorMask(false,false,false,false);
-        renderAllEntities(gl2,collectedEntities,shaderDefault);
-        gl2.glColorMask(true,true,true,true);
+        //drawCollectedEntitiesToStencilBuffer(gl2);
+        copyStencilBufferToTexture(gl2);
+        debugTexture(gl2,stencilTexture[0]);
 
+        //runJFA(gl2,viewport.getCanvasWidth(),viewport.getCanvasHeight());
+
+        //debugTexture(gl2,jfaOutputTexture[0]);
+/*
         // next draw, only draw where the stencil buffer is not 1
         gl2.glStencilFunc(GL.GL_NOTEQUAL,1,0xff);
         gl2.glStencilOp(GL.GL_KEEP,GL.GL_KEEP,GL.GL_KEEP);
@@ -588,17 +690,104 @@ public class OpenGLRenderPanel implements RenderPanel {
 
         // clean up
         gl2.glUseProgram(0);
+        gl2.glStencilMask(0xFF);*/
+    }
+
+    private void drawCollectedEntitiesToStencilBuffer(GL2 gl2) {
+        //gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, stencilFBO[0]);
         gl2.glStencilMask(0xFF);
+        gl2.glDisable(GL.GL_DEPTH_TEST);
+        gl2.glClear(GL.GL_STENCIL_BUFFER_BIT);
+        // update the depth buffer so the outline will appear around the collected entities.
+        // without this any part of a collected entity behind another entity will be completely filled with the outline color.
+        gl2.glColorMask(false,false,false,false);
+        renderAllEntities(gl2,collectedEntities,shaderDefault);
+        gl2.glColorMask(true,true,true,true);
+        gl2.glStencilMask(0x00);
+        //gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, 0);
+        gl2.glEnable(GL.GL_DEPTH_TEST);
+    }
+
+    private void runJFA(GL2 gl2, int textureWidth, int textureHeight) {
+        // Bind the JFA shader
+        shaderJFA.use(gl2);
+        shaderJFA.set2f(gl2,"screenSize",viewport.getCanvasWidth(),viewport.getCanvasHeight());
+        shaderJFA.set1i(gl2,"stencilBuffer",stencilTexture[0]);
+
+        // Determine the number of iterations
+        int iterations = (int) Math.ceil(Math.log(Math.max(textureWidth, textureHeight)) / Math.log(2));
+
+        // Bind jfaOutputFBO so the shader output will go there
+        gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, jfaOutputFBO[0]);
+        gl2.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+
+        // Run the JFA
+        for (int i = 0; i < iterations; i++) {
+            // Pass the step size to the shader
+            int stepSize = (int) Math.pow(2, iterations - i - 1);
+            shaderJFA.set1i(gl2,"step", stepSize);
+
+            // Render a full-screen quad to run the shader for each pixel
+            renderScreenSpaceQuad(gl2);
+        }
+
+        // Unbind the FBO and shader
+        gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, 0);
+        gl2.glUseProgram(0);
+    }
+
+    private void copyStencilBufferToTexture(GL2 gl2) {
+        // Bind the FBO and set it to read from the stencil buffer
+        //gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, stencilFBO[0]);
+        //gl2.glReadBuffer(GL2.GL_STENCIL_ATTACHMENT);
+
+        gl2.glBindTexture(GL2.GL_TEXTURE_2D, stencilTexture[0]);
+
+        // Read the stencil data into the stencil texture
+        gl2.glCopyTexImage2D(GL2.GL_TEXTURE_2D, 0, 0, 0, 0,
+                viewport.getCanvasWidth(), viewport.getCanvasHeight(), 0);
+
+        // Unbind everything
+        gl2.glBindTexture(GL2.GL_TEXTURE_2D, 0);
+        //gl2.glBindFramebuffer(GL2.GL_FRAMEBUFFER, 0);
+    }
+
+    private void renderScreenSpaceQuad(GL2 gl2) {
+        Mesh mesh = new Mesh();
+        mesh.setRenderStyle(GL2.GL_QUADS);
+        mesh.addNormal(0,0,1);  mesh.addTexCoord(0,0);  mesh.addColor(1,1,1,1);  mesh.addVertex(-1.0f, -1.0f,0.0f);
+        mesh.addNormal(0,0,1);  mesh.addTexCoord(1,0);  mesh.addColor(1,1,1,1);  mesh.addVertex( 1.0f, -1.0f,0.0f);
+        mesh.addNormal(0,0,1);  mesh.addTexCoord(1,1);  mesh.addColor(1,1,1,1);  mesh.addVertex( 1.0f,  1.0f,0.0f);
+        mesh.addNormal(0,0,1);  mesh.addTexCoord(0,1);  mesh.addColor(1,1,1,1);  mesh.addVertex(-1.0f,  1.0f,0.0f);
+        mesh.render(gl2);
     }
 
     private void useShaderOutline(GL2 gl2) {
         // must be in use before calls to glUniform*.
-        shaderOutline.use(gl2);
+        shaderOutline2.use(gl2);
         // tell the shader some important information
-        setProjectionMatrix(gl2,shaderOutline);
-        setViewMatrix(gl2,shaderOutline);
-        shaderOutline.set4f(gl2,"outlineColor",0.0f, 1.0f, 0.0f, 0.5f);
-        shaderOutline.set1f(gl2,"outlineSize",0.25f);
+        //setProjectionMatrix(gl2,shaderOutline);
+        //setViewMatrix(gl2,shaderOutline);
+        shaderOutline2.set4f(gl2,"outlineColor",1.0f, 0.0f, 1.0f, 0.5f);
+        shaderOutline2.set1f(gl2,"outlineSize",3f);
+        shaderOutline2.set2f(gl2,"screenSize",viewport.getCanvasWidth(),viewport.getCanvasHeight());
+        shaderOutline2.set1i(gl2,"jfaOutput",jfaOutputTexture[0]);
+    }
+
+    /**
+     * Render the given texture to the screen, for debugging purposes.
+     * @param gl2 The OpenGL state
+     * @param textureID The texture to render
+     */
+    private void debugTexture(GL2 gl2, int textureID) {
+        // Use the debug texture shader
+        shaderDebugTexture.use(gl2);
+        // Set the debugTexture uniform to use texture unit 0
+        shaderDebugTexture.set1i(gl2,"debugTexture",textureID);
+        // Render a full-screen quad
+        renderScreenSpaceQuad(gl2);
+        // Unbind the shader
+        gl2.glUseProgram(0);
     }
 
     /**
@@ -741,9 +930,7 @@ public class OpenGLRenderPanel implements RenderPanel {
                 shaderProgram.set1f(gl2,"diffuseTexture",0);
             }
 
-            gl2.glPushMatrix();
             mmr.renderComponent.render(gl2);
-            gl2.glPopMatrix();
         }
     }
 

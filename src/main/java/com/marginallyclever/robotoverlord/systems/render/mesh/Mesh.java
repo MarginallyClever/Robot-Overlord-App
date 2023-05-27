@@ -1,7 +1,8 @@
 package com.marginallyclever.robotoverlord.systems.render.mesh;
 
 import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL2GL3;
+import com.jogamp.opengl.GL2GL3;
 import com.marginallyclever.convenience.AABB;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.Ray;
@@ -42,7 +43,7 @@ public class Mesh {
 	private transient int[] VAO;
 	private transient int[] VBO;
 
-	public int renderStyle = GL2.GL_TRIANGLES;
+	public int renderStyle = GL2GL3.GL_TRIANGLES;
 	private String fileName = null;
 
 	// bounding limits
@@ -86,13 +87,13 @@ public class Mesh {
 		return isTransparent;
 	}
 
-	public void unload(GL2 gl2) {
+	public void unload(GL2GL3 gl2) {
 		if(!isLoaded) return;
 		isLoaded=false;
 		destroyBuffers(gl2);
 	}
 	
-	private void createBuffers(GL2 gl2) {
+	private void createBuffers(GL2GL3 gl2) {
 		VAO = new int[1];
 		gl2.glGenVertexArrays(NUM_BUFFERS, VAO, 0);
 
@@ -100,7 +101,7 @@ public class Mesh {
 		gl2.glGenBuffers(NUM_BUFFERS, VBO, 0);
 	}
 
-	private void destroyBuffers(GL2 gl2) {
+	private void destroyBuffers(GL2GL3 gl2) {
 		if(VBO != null) {
 			gl2.glDeleteBuffers(NUM_BUFFERS, VBO, 0);
 			VBO = null;
@@ -116,7 +117,7 @@ public class Mesh {
 	 * Also recalculate the bounding box.
 	 * @param gl2 the OpenGL context
 	 */
-	private void updateBuffers(GL2 gl2) {
+	private void updateBuffers(GL2GL3 gl2) {
 		long numVertexes = getNumVertices();
 
 		gl2.glBindVertexArray(VAO[0]);
@@ -131,29 +132,29 @@ public class Mesh {
 			for (Integer integer : indexArray) indexes.put(integer);
 			indexes.rewind();
 
-			gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, VBO[4]);
-			gl2.glBufferData(GL2.GL_ELEMENT_ARRAY_BUFFER, (long) indexArray.size() *BYTES_PER_INT, indexes, GL2.GL_STATIC_DRAW);
+			gl2.glBindBuffer(GL2GL3.GL_ELEMENT_ARRAY_BUFFER, VBO[4]);
+			gl2.glBufferData(GL2GL3.GL_ELEMENT_ARRAY_BUFFER, (long) indexArray.size() *BYTES_PER_INT, indexes, GL2GL3.GL_STATIC_DRAW);
 		}
 
 		gl2.glBindVertexArray(0);
 	}
 
-	private void bindArray(GL2 gl2, int attribIndex, int size) {
+	private void bindArray(GL2GL3 gl2, int attribIndex, int size) {
 		gl2.glEnableVertexAttribArray(attribIndex);
 		gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[attribIndex]);
-		gl2.glVertexAttribPointer(attribIndex,size,GL2.GL_FLOAT,false,0,0);
+		gl2.glVertexAttribPointer(attribIndex,size,GL2GL3.GL_FLOAT,false,0,0);
 	}
 
-	private void setupArray(GL2 gl2, int attribIndex, int size, long numVertexes,List<Float> list) {
+	private void setupArray(GL2GL3 gl2, int attribIndex, int size, long numVertexes,List<Float> list) {
 		FloatBuffer data = FloatBuffer.allocate(list.size());
 		for( Float f : list ) data.put(f);
 		data.rewind();
 
 		bindArray(gl2,attribIndex,size);
-		gl2.glBufferData(GL2.GL_ARRAY_BUFFER, numVertexes*size*BYTES_PER_FLOAT, data, GL2.GL_STATIC_DRAW);
+		gl2.glBufferData(GL2GL3.GL_ARRAY_BUFFER, numVertexes*size*BYTES_PER_FLOAT, data, GL2GL3.GL_STATIC_DRAW);
 	}
 
-	public void render(GL2 gl2) {
+	public void render(GL2GL3 gl2) {
 		if(!isLoaded) {
 			isLoaded=true;
 			isDirty=true;
@@ -172,7 +173,7 @@ public class Mesh {
 		if(hasTextures) bindArray(gl2,3,2);
 
 		if (hasIndexes) {
-			gl2.glDrawElements(renderStyle, indexArray.size(), GL2.GL_UNSIGNED_INT, 0);
+			gl2.glDrawElements(renderStyle, indexArray.size(), GL2GL3.GL_UNSIGNED_INT, 0);
 		} else {
 			gl2.glDrawArrays(renderStyle, 0, getNumVertices());
 		}
@@ -183,30 +184,7 @@ public class Mesh {
 
 		gl2.glBindVertexArray(0); // Unbind the VAO
 	}
-	
-	public void drawNormals(GL2 gl2) {
-		if(!hasNormals) return;
-		
-		double scale=2;
-		
-		gl2.glBegin(GL2.GL_LINES);
-		for(int i=0;i<vertexArray.size();i+=3) {
-			double px = vertexArray.get(i);
-			double py = vertexArray.get(i+1);
-			double pz = vertexArray.get(i+2);
-			gl2.glVertex3d(px, py, pz);
 
-			double nx = normalArray.get(i);
-			double ny = normalArray.get(i+1);
-			double nz = normalArray.get(i+2);
-			
-			gl2.glVertex3d( px + nx*scale, 
-							py + ny*scale,
-							pz + nz*scale);
-		}
-		gl2.glEnd();
-	}
-	
 	public void addNormal(float x,float y,float z) {
 		normalArray.add(x);
 		normalArray.add(y);

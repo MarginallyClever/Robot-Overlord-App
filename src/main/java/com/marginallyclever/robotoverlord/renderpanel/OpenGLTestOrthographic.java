@@ -21,14 +21,15 @@ import java.io.InputStreamReader;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class OpenGLTestOrthographic implements RenderPanel {
+public class OpenGLTestOrthographic implements RenderPanel, GLEventListener {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLTestOrthographic.class);
     private static final int BYTES_PER_FLOAT=(Float.SIZE/8);
     private final JPanel panel = new JPanel(new BorderLayout());
     protected final GLJPanel glCanvas;
+    private ShaderProgram shaderNoTransform;
     private ShaderProgram shaderDefault;
-    private ShaderProgram shaderTransform;
     private final Mesh testTriangle = createTestTriangle();
     protected final Viewport viewport = new Viewport();
     private int[] myVertexBuffer;
@@ -44,13 +45,13 @@ public class OpenGLTestOrthographic implements RenderPanel {
         panel.setMinimumSize(new Dimension(300, 300));
         panel.add(glCanvas, BorderLayout.CENTER);
 
-        addCanvasListeners();
+        glCanvas.addGLEventListener(this);
         startAnimationSystem();
     }
 
-    private String [] readResource(String resourceName) {
+    protected String [] readResource(String resourceName) {
         List<String> lines = new ArrayList<>();
-        try(BufferedReader reader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream(resourceName)))) {
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(this.getClass().getResourceAsStream(resourceName))))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 lines.add(line+"\n");
@@ -65,7 +66,7 @@ public class OpenGLTestOrthographic implements RenderPanel {
         GLJPanel canvas = null;
         try {
             logger.info("...get default caps");
-            GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
+            GLCapabilities caps = new GLCapabilities(GLProfile.getMaximum(true));
             caps.setBackgroundOpaque(true);
             caps.setDoubleBuffered(true);
             caps.setHardwareAccelerated(true);
@@ -81,161 +82,158 @@ public class OpenGLTestOrthographic implements RenderPanel {
         return canvas;
     }
 
-    private void addCanvasListeners() {
-        glCanvas.addGLEventListener(new GLEventListener() {
-            @Override
-            public void init( GLAutoDrawable drawable ) {
-                GL2 gl2 = drawable.getGL().getGL2();
+    @Override
+    public void init( GLAutoDrawable drawable ) {
+        GL3 gl3 = drawable.getGL().getGL3();
 
-                // turn on vsync
-                gl2.setSwapInterval(1);
+        // turn on vsync
+        gl3.setSwapInterval(1);
 
-                // make things pretty
-                gl2.glEnable(GL2.GL_LINE_SMOOTH);
-                gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
-                gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
-                // TODO add a settings toggle for this option, it really slows down older machines.
-                gl2.glEnable(GL2.GL_MULTISAMPLE);
+        // make things pretty
+        gl3.glEnable(GL3.GL_LINE_SMOOTH);
+        gl3.glEnable(GL3.GL_POLYGON_SMOOTH);
+        gl3.glHint(GL3.GL_POLYGON_SMOOTH_HINT, GL3.GL_NICEST);
+        // TODO add a settings toggle for this option, it really slows down older machines.
+        gl3.glEnable(GL3.GL_MULTISAMPLE);
 /*
-                // depth testing and culling options
-                gl2.glDepthFunc(GL2.GL_LESS);
-                gl2.glEnable(GL2.GL_DEPTH_TEST);
-                gl2.glDepthMask(true);
+        // depth testing and culling options
+        gl3.glDepthFunc(GL3.GL_LESS);
+        gl3.glEnable(GL3.GL_DEPTH_TEST);
+        gl3.glDepthMask(true);
 
-                gl2.glEnable(GL2.GL_CULL_FACE);
+        gl3.glEnable(GL3.GL_CULL_FACE);
 
-                gl2.glEnable(GL.GL_STENCIL_TEST);
+        gl3.glEnable(GL.GL_STENCIL_TEST);
 */
-                // default blending option for transparent materials
-                gl2.glEnable(GL2.GL_BLEND);
-                gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+        // default blending option for transparent materials
+        gl3.glEnable(GL3.GL_BLEND);
+        gl3.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);
 
-                // set the color to use when wiping the draw buffer
-                gl2.glClearColor(0.85f,0.85f,0.85f,0.0f);
+        // set the color to use when wiping the draw buffer
+        gl3.glClearColor(0.85f,0.85f,0.85f,0.0f);
 
-                createShaderPrograms(gl2);
+        createShaderPrograms(gl3);
 
-                myArrayBuffer = rawSetupVAO(gl2);
-                myVertexBuffer = rawSetupVBO(gl2);
-            }
-
-            @Override
-            public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
-                viewport.setCanvasWidth(glCanvas.getSurfaceWidth());
-                viewport.setCanvasHeight(glCanvas.getSurfaceHeight());
-            }
-
-            @Override
-            public void dispose( GLAutoDrawable drawable ) {
-                GL2 gl2 = drawable.getGL().getGL2();
-                rawCleanupVBO(gl2, myVertexBuffer);
-                rawCleanupVAO(gl2, myArrayBuffer);
-                shaderDefault.delete(gl2);
-                shaderTransform.delete(gl2);
-            }
-
-            @Override
-            public void display( GLAutoDrawable drawable ) {
-                GL2 gl2 = drawable.getGL().getGL2();
-                gl2.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
-
-                //testRaw(gl2);
-                //testRawWithShader(gl2);
-                //testRawWithShaderAndSetup(gl2);
-                //testRawWithShaderAndSetupVAO(gl2);
-                testShaderAndMesh(gl2);
-            }
-        });
+        myArrayBuffer = rawSetupVAO(gl3);
+        rawSetupVBO(gl3);
     }
 
-    private void testRawWithShaderAndSetupVAO(GL2 gl2) {
-        shaderDefault.use(gl2);
+    @Override
+    public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
+        viewport.setCanvasWidth(glCanvas.getSurfaceWidth());
+        viewport.setCanvasHeight(glCanvas.getSurfaceHeight());
+    }
 
-        gl2.glEnableVertexAttribArray(0);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, myVertexBuffer[0]);
-        gl2.glVertexAttribPointer(0,3,GL2.GL_FLOAT,false,0,0);
+    @Override
+    public void dispose( GLAutoDrawable drawable ) {
+        GL3 gl3 = drawable.getGL().getGL3();
+        rawCleanupVBO(gl3, myVertexBuffer);
+        rawCleanupVAO(gl3, myArrayBuffer);
+        shaderNoTransform.delete(gl3);
+        shaderDefault.delete(gl3);
+    }
 
-        gl2.glEnableVertexAttribArray(1);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, myVertexBuffer[1]);
-        gl2.glVertexAttribPointer(1,4,GL2.GL_FLOAT,false,0,0);
+    @Override
+    public void display( GLAutoDrawable drawable ) {
+        GL3 gl3 = drawable.getGL().getGL3();
+        gl3.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT);
+
+        //testRaw(gl3);
+        //testRawWithShader(gl3);
+        //testRawWithShaderAndSetup(gl3);
+        //testRawWithShaderAndSetupVAO(gl3);
+        //testShaderAndMesh(gl3,shaderNoTransform);
+        testShaderAndMesh(gl3,shaderDefault);
+    }
+
+    private void testRawWithShaderAndSetupVAO(GL3 gl3) {
+        shaderNoTransform.use(gl3);
+
+        setVertexBuffer(gl3,0,3);
+        setVertexBuffer(gl3,1,3);
+        setVertexBuffer(gl3,2,4);
 
         // Draw the triangle !
-        gl2.glDrawArrays(GL2.GL_TRIANGLES, 0, 3);
+        gl3.glDrawArrays(GL3.GL_TRIANGLES, 0, 3);
 
-        gl2.glDisableVertexAttribArray(0);
-        gl2.glDisableVertexAttribArray(1);
+        gl3.glDisableVertexAttribArray(0);
+        gl3.glDisableVertexAttribArray(1);
+        gl3.glDisableVertexAttribArray(2);
 
-        gl2.glUseProgram(0);
+        gl3.glUseProgram(0);
     }
 
-    private void testRawWithShaderAndSetup(GL2 gl2) {
-        shaderDefault.use(gl2);
-        rawRender(gl2, myVertexBuffer);
-        gl2.glUseProgram(0);
+    private void testRawWithShaderAndSetup(GL3 gl3) {
+        shaderNoTransform.use(gl3);
+        rawRender(gl3, myVertexBuffer);
+        gl3.glUseProgram(0);
     }
 
-    private void testRawWithShader(GL2 gl2) {
-        int[] vertexBuffer = rawSetupVBO(gl2);
+    private void testRawWithShader(GL3 gl3) {
+        rawSetupVBO(gl3);
 
-        shaderDefault.use(gl2);
-        rawRender(gl2,vertexBuffer);
-        gl2.glUseProgram(0);
+        shaderNoTransform.use(gl3);
+        rawRender(gl3,myVertexBuffer);
+        gl3.glUseProgram(0);
 
-        rawCleanupVBO(gl2, vertexBuffer);
+        rawCleanupVBO(gl3, myVertexBuffer);
     }
 
-    private void testRaw(GL2 gl2) {
-        int[] vertexBuffer = rawSetupVBO(gl2);
-        rawRender(gl2,vertexBuffer);
-        rawCleanupVBO(gl2,vertexBuffer);
+    private void testRaw(GL3 gl3) {
+        rawSetupVBO(gl3);
+        rawRender(gl3,myVertexBuffer);
+        rawCleanupVBO(gl3,myVertexBuffer);
     }
 
-    private void rawRender(GL2 gl2,int[] vertexBuffer) {
-        gl2.glEnableVertexAttribArray(0);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[0]);
-        gl2.glVertexAttribPointer(0,3,GL2.GL_FLOAT,false,0,0);
-
-        gl2.glEnableVertexAttribArray(1);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[1]);
-        gl2.glVertexAttribPointer(1,4,GL2.GL_FLOAT,false,0,0);
+    private void rawRender(GL3 gl3,int[] vertexBuffer) {
+        setVertexBuffer(gl3,0,3);
+        setVertexBuffer(gl3,1,3);
+        setVertexBuffer(gl3,2,4);
 
         // Draw the triangle !
-        gl2.glDrawArrays(GL2.GL_TRIANGLES, 0, 3);
+        gl3.glDrawArrays(GL3.GL_TRIANGLES, 0, 3);
 
-        gl2.glDisableVertexAttribArray(0);
-        gl2.glDisableVertexAttribArray(1);
+        gl3.glDisableVertexAttribArray(0);
+        gl3.glDisableVertexAttribArray(1);
+        gl3.glDisableVertexAttribArray(2);
     }
 
-    private int[] rawSetupVAO(GL2 gl2) {
+    private int[] rawSetupVAO(GL3 gl3) {
         int [] arrayBuffer = new int[1];
-        gl2.glGenVertexArrays(1, arrayBuffer,0);
-        gl2.glBindVertexArray(arrayBuffer[0]);
+        gl3.glGenVertexArrays(1, arrayBuffer,0);
+        gl3.glBindVertexArray(arrayBuffer[0]);
         return arrayBuffer;
     }
 
-    private void rawCleanupVAO(GL2 gl2, int[] arrayBuffer) {
-        gl2.glDeleteVertexArrays(arrayBuffer.length,arrayBuffer,0);
+    private void rawCleanupVAO(GL3 gl3, int[] arrayBuffer) {
+        gl3.glDeleteVertexArrays(arrayBuffer.length,arrayBuffer,0);
     }
 
-    private int[] rawSetupVBO(GL2 gl2) {
-        int [] vertexBuffer = new int[2];
-        gl2.glGenBuffers(vertexBuffer.length, vertexBuffer,0);
+    private void rawSetupVBO(GL3 gl3) {
+        myVertexBuffer = new int[3];
+        gl3.glGenBuffers(myVertexBuffer.length, myVertexBuffer,0);
 
-        gl2.glEnableVertexAttribArray(0);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[0]);
-        gl2.glVertexAttribPointer(0,3,GL2.GL_FLOAT,false,0,0);
-        gl2.glBufferData(GL.GL_ARRAY_BUFFER, 3*3*BYTES_PER_FLOAT, createVertexData(), GL.GL_STATIC_DRAW);
+        // vertexes
+        setVertexBuffer(gl3,0,3);
+        gl3.glBufferData(GL.GL_ARRAY_BUFFER, 3*3*BYTES_PER_FLOAT, createVertexData(), GL.GL_STATIC_DRAW);
 
-        gl2.glEnableVertexAttribArray(1);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[1]);
-        gl2.glVertexAttribPointer(1,4,GL2.GL_FLOAT,false,0,0);
-        gl2.glBufferData(GL.GL_ARRAY_BUFFER, 3*4*BYTES_PER_FLOAT, createColorData(), GL.GL_STATIC_DRAW);
+        // normals
+        setVertexBuffer(gl3,1,3);
+        gl3.glBufferData(GL.GL_ARRAY_BUFFER, 3*3*BYTES_PER_FLOAT, createNormalData(), GL.GL_STATIC_DRAW);
 
-        return vertexBuffer;
+        // colors
+        setVertexBuffer(gl3,2,4);
+        gl3.glBufferData(GL.GL_ARRAY_BUFFER, 4*3*BYTES_PER_FLOAT, createColorData(), GL.GL_STATIC_DRAW);
     }
 
-    private void rawCleanupVBO(GL2 gl2, int[] vertexBuffer) {
-        gl2.glDeleteBuffers(vertexBuffer.length,vertexBuffer,0);
+    void setVertexBuffer(GL3 gl3, int index, int size) {
+        gl3.glEnableVertexAttribArray(index);
+        gl3.glBindBuffer(GL.GL_ARRAY_BUFFER, myVertexBuffer[index]);
+        gl3.glVertexAttribPointer(index,size,GL3.GL_FLOAT,false,0,0);
+    }
+
+    private void rawCleanupVBO(GL3 gl3, int[] vertexBuffer) {
+        gl3.glDeleteBuffers(vertexBuffer.length,vertexBuffer,0);
     }
 
     private FloatBuffer createVertexData() {
@@ -243,6 +241,16 @@ public class OpenGLTestOrthographic implements RenderPanel {
                 -1f,-1f,0f,
                 1f,-1f,0f,
                 0f, 1f,0f,
+        });
+        vertexData.rewind();
+        return vertexData;
+    }
+
+    private FloatBuffer createNormalData() {
+        FloatBuffer vertexData = FloatBuffer.wrap(new float[]{
+                0,0,1,
+                0,0,1,
+                0,0,1,
         });
         vertexData.rewind();
         return vertexData;
@@ -258,22 +266,20 @@ public class OpenGLTestOrthographic implements RenderPanel {
         return colorData;
     }
 
-    private void createShaderPrograms(GL2 gl2) {
-        shaderDefault = new ShaderProgram(gl2,
+    private void createShaderPrograms(GL3 gl3) {
+        shaderNoTransform = new ShaderProgram(gl3,
                 readResource("notransform_330.vert"),
                 readResource("givenColor_330.frag"));
-        shaderTransform = new ShaderProgram(gl2,
+        shaderDefault = new ShaderProgram(gl3,
                 readResource("default_330.vert"),
                 readResource("givenColor_330.frag"));
     }
 
-    private void testShaderAndMesh(GL2 gl2) {
-        //ShaderProgram program = shaderDefault;
-        ShaderProgram program = shaderTransform;
-        program.use(gl2);
+    private void testShaderAndMesh(GL3 gl3,ShaderProgram program) {
+        program.use(gl3);
 
-        setProjectionMatrix(gl2, program);
-        setViewMatrix(gl2, program);
+        setProjectionMatrix(gl3, program);
+        setViewMatrix(gl3, program);
 
         // set model matrix
         // slowly rotate the matrix over time.
@@ -283,23 +289,23 @@ public class OpenGLTestOrthographic implements RenderPanel {
         modelMatrix.rotZ(time * 0.25 * Math.PI);
         modelMatrix.setTranslation(new Vector3d(0,0,0));
         modelMatrix.transpose();
-        program.setMatrix4d(gl2,"modelMatrix",modelMatrix);
+        program.setMatrix4d(gl3,"modelMatrix",modelMatrix);
 
-        testTriangle.render(gl2);
+        testTriangle.render(gl3);
     }
 
-    private void setViewMatrix(GL2 gl2, ShaderProgram program) {
+    private void setViewMatrix(GL3 gl3, ShaderProgram program) {
         Matrix4d viewMatrix = MatrixHelper.createIdentityMatrix4();
         viewMatrix.setTranslation(new Vector3d(0,0,-15));
         viewMatrix.transpose();
-        program.setMatrix4d(gl2,"viewMatrix",viewMatrix);
+        program.setMatrix4d(gl3,"viewMatrix",viewMatrix);
     }
 
-    protected void setProjectionMatrix(GL2 gl2, ShaderProgram program) {
-        double w = (double)glCanvas.getSurfaceWidth()/2.0;
-        double h = (double)glCanvas.getSurfaceHeight()/2.0;
-        Matrix4d orthoMatrix = MatrixHelper.orthographicMatrix4d(-w,w,-h,h,-1,1);
-        program.setMatrix4d(gl2,"projectionMatrix",orthoMatrix);
+    protected void setProjectionMatrix(GL3 gl3, ShaderProgram program) {
+        double w = glCanvas.getSurfaceWidth()/2.0;
+        double h = glCanvas.getSurfaceHeight()/2.0;
+        Matrix4d orthoMatrix = MatrixHelper.orthographicMatrix4d(-w,w,-h,h,10,20);
+        program.setMatrix4d(gl3,"projectionMatrix",orthoMatrix);
     }
 
     private Mesh createTestTriangle() {
@@ -342,12 +348,12 @@ public class OpenGLTestOrthographic implements RenderPanel {
         // make a frame
         JFrame frame = new JFrame( OpenGLTestOrthographic.class.getSimpleName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
         OpenGLTestOrthographic opengl = new OpenGLTestOrthographic(null);
         frame.setContentPane(opengl.getPanel());
         frame.setPreferredSize(new Dimension(600,600));
         frame.setSize(600,600);
         frame.pack();
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 }
