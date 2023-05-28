@@ -39,7 +39,7 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener {
 
     public OpenGLTestOrthographic(EntityManager entityManager) {
         super();
-        logger.info("creating OpenGLRenderPanelBasic");
+        logger.info("creating {}",this.getClass().getName());
         glCanvas = createCanvas();
 
         panel.setMinimumSize(new Dimension(300, 300));
@@ -105,6 +105,8 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener {
 
         gl3.glEnable(GL.GL_STENCIL_TEST);
 */
+        gl3.glActiveTexture(GL3.GL_TEXTURE0);
+
         // default blending option for transparent materials
         gl3.glEnable(GL3.GL_BLEND);
         gl3.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);

@@ -8,6 +8,6 @@ out vec4 FragColor;
 uniform sampler2D debugTexture;
 
 void main() {
-    float scale = 100.0;
-    FragColor = vec4(vec3(texture(debugTexture, TexCoord).z * scale), 1.0);
+    float scale = 1.0;
+    FragColor = vec4(vec3(texture(debugTexture, TexCoord).r * scale), 1.0);
 }
