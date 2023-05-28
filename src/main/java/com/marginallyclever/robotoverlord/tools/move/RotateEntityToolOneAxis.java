@@ -40,6 +40,9 @@ public class RotateEntityToolOneAxis implements EditorTool {
     private final double SNAP_RADIANS_5 = Math.toRadians(2);
     private final double SNAP_RADIANS_45 = Math.toRadians(3);
 
+    private double toolScale = 0.035;
+    private double localScale = 1;
+
     /**
      * The size of the handle and ring.
      */
@@ -86,7 +89,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
      * which axis of rotation will be used?  0,1,2 = x,y,z
      */
     private int rotation=2;
-    private boolean hovering = false;
+    private boolean cursorOverHandle = false;
     private final Box handleBox = new Box();
 
     /**
@@ -133,7 +136,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
     }
 
     public void mouseMoved(MouseEvent event) {
-        hovering = isCursorOverHandle(event.getX(), event.getY());
+        cursorOverHandle = isCursorOverHandle(event.getX(), event.getY());
     }
 
     @Override
@@ -141,7 +144,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
         startMatrix.set(pivotMatrix);
         if (isCursorOverHandle(event.getX(), event.getY())) {
             dragging = true;
-            hovering = true;
+            cursorOverHandle = true;
             startPoint = EditorUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,event.getX(), event.getY());
             if(selectedItems!=null) selectedItems.savePose();
         }
@@ -158,10 +161,10 @@ public class RotateEntityToolOneAxis implements EditorTool {
         diff.sub(point, MatrixHelper.getPosition(startMatrix));
 
         double dx = diff.dot(rotationAxisX);
-        if( Math.abs(dx-handleLength) > gripRadius ) return false;
+        if( Math.abs(dx-getHandleLengthScaled()) > getGripRadiusScaled() ) return false;
 
         double dy = diff.dot(rotationAxisY);
-        if( Math.abs(Math.abs(dy)-handleOffsetY) > gripRadius ) return false;
+        if( Math.abs(Math.abs(dy)-getHandleOffsetYScaled()) > getGripRadiusScaled() ) return false;
 
         return true;
     }
@@ -218,7 +221,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
         Vector3d diff = new Vector3d();
         Vector3d center = MatrixHelper.getPosition(startMatrix);
         diff.sub(currentPoint, center);
-        double diffLength = diff.length()/ringRadius;
+        double diffLength = diff.length()/getRingRadiusScaled();
         Vector3d xAxis = MatrixHelper.getXAxis(startMatrix);
         Vector3d yAxis = MatrixHelper.getYAxis(startMatrix);
         double angle = Math.atan2(yAxis.dot(diff),xAxis.dot(diff));
@@ -292,6 +295,15 @@ public class RotateEntityToolOneAxis implements EditorTool {
     @Override
     public void update(double deltaTime) {
         if(selectedItems!=null) setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+
+        updateLocalScale();
+    }
+
+    private void updateLocalScale() {
+        Vector3d cameraPoint = viewport.getCamera().getPosition();
+        Vector3d pivotPoint = MatrixHelper.getPosition(pivotMatrix);
+        pivotPoint.sub(cameraPoint);
+        localScale = pivotPoint.length()*toolScale;
     }
 
     /**
@@ -323,13 +335,15 @@ public class RotateEntityToolOneAxis implements EditorTool {
         Vector3d xAxis = MatrixHelper.getXAxis(startMatrix);
         Vector3d yAxis = MatrixHelper.getYAxis(startMatrix);
 
+        double rr = getRingRadiusScaled();
+
         gl2.glBegin(GL2.GL_LINES);
         // major line
         gl2.glVertex3d(0,0,0);
-        gl2.glVertex3d(xAxis.x*ringRadius, xAxis.y*ringRadius, xAxis.z*ringRadius);
+        gl2.glVertex3d(xAxis.x*rr, xAxis.y*rr, xAxis.z*rr);
 
-        double d0 = ringRadius * TICK_RATIO_INSIDE_45;
-        double d1 = ringRadius * TICK_RATIO_OUTSIDE_45;
+        double d0 = rr * TICK_RATIO_INSIDE_45;
+        double d1 = rr * TICK_RATIO_OUTSIDE_45;
         // 45 degree lines
         for(int i=45;i<360;i+=45) {
             Vector3d a = new Vector3d(xAxis);
@@ -349,11 +363,11 @@ public class RotateEntityToolOneAxis implements EditorTool {
             b.scale(Math.sin(Math.toRadians(i)));
             a.add(b);
             if(i%10==0) {
-                d0 = ringRadius * TICK_RATIO_INSIDE_10;
-                d1 = ringRadius * TICK_RATIO_OUTSIDE_10;
+                d0 = rr * TICK_RATIO_INSIDE_10;
+                d1 = rr * TICK_RATIO_OUTSIDE_10;
             } else {
-                d0 = ringRadius * TICK_RATIO_INSIDE_5;
-                d1 = ringRadius * TICK_RATIO_OUTSIDE_5;
+                d0 = rr * TICK_RATIO_INSIDE_5;
+                d1 = rr * TICK_RATIO_OUTSIDE_5;
             }
             gl2.glVertex3d(a.x*d0, a.y*d0, a.z*d0);
             gl2.glVertex3d(a.x*d1, a.y*d1, a.z*d1);
@@ -364,7 +378,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
 
         gl2.glPushMatrix();
         MatrixHelper.applyMatrix(gl2, pivotMatrix);
-        drawLine(gl2,new Vector3d(1,0,0),ringRadius);
+        drawLine(gl2,new Vector3d(1,0,0),rr);
 
         gl2.glPopMatrix();
     }
@@ -376,19 +390,19 @@ public class RotateEntityToolOneAxis implements EditorTool {
 
         float [] colors = new float[4];
         gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, colors, 0);
-        double colorScale = hovering? 1:0.5;
+        double colorScale = cursorOverHandle ? 1:0.5;
         gl2.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 1.0);
 
-        PrimitiveSolids.drawCircleXY(gl2, ringRadius, ringResolution);
+        PrimitiveSolids.drawCircleXY(gl2, getRingRadiusScaled(), ringResolution);
 
-        gl2.glTranslated(handleLength,handleOffsetY,0);
-        double v = gripRadius;
+        gl2.glTranslated(getHandleLengthScaled(),getHandleOffsetYScaled(),0);
+        double v = getGripRadiusScaled();
         gl2.glPushMatrix();
         gl2.glScaled(v, v, v);
         handleBox.render(gl2);
         gl2.glPopMatrix();
 
-        gl2.glTranslated(0,-2*handleOffsetY,0);
+        gl2.glTranslated(0,-2*getHandleOffsetYScaled(),0);
         gl2.glPushMatrix();
         gl2.glScaled(v, v, v);
         handleBox.render(gl2);
@@ -426,5 +440,28 @@ public class RotateEntityToolOneAxis implements EditorTool {
 
     public void setRotation(int i) {
         rotation=i;
+    }
+
+    private double getHandleLengthScaled() {
+        return handleLength * localScale;
+    }
+
+    private double getGripRadiusScaled() {
+        return gripRadius * localScale;
+    }
+
+    private double getHandleOffsetYScaled() {
+        return handleOffsetY * localScale;
+    }
+
+    private double getRingRadiusScaled() {
+        return ringRadius * localScale;
+    }
+
+    private double getToolScale() {
+        return toolScale;
+    }
+    private void setToolScale(double toolScale) {
+        this.toolScale = toolScale;
     }
 }
