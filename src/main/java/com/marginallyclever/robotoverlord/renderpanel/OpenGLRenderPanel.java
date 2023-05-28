@@ -120,7 +120,6 @@ public class OpenGLRenderPanel implements RenderPanel {
     private ShaderProgram shaderHUD;
     private final List<Entity> collectedEntities = new ArrayList<>();
     private final List<LightComponent> lights = new ArrayList<>();
-    private Entity pickPoint;
 
     private double cursorSize = 10;
 
