@@ -167,6 +167,13 @@ public class ArmRobotSystem implements EntitySystem {
         ApproximateJacobian aj = new ApproximateJacobianFiniteDifferences(robotComponent);
         try {
             double[] jointVelocity = aj.getJointForceFromCartesianForce(cartesianVelocity);  // uses inverse jacobian
+            // do not make moves for impossible velocities
+            for(double v : jointVelocity) {
+                if(Double.isNaN(v) || Math.abs(v)>100) {
+                    return;
+                }
+            }
+
             double[] angles = robotComponent.getAllJointValues();  // # dof long
             for (int i = 0; i < angles.length; ++i) {
                 angles[i] += jointVelocity[i];
