@@ -101,7 +101,7 @@ public class ShapeComponent extends RenderComponent {
         m.transform(o);
         m.transform(d);
 
-        return new Ray(o,d);
+        return new Ray(o,d,ray.getMaxDistance());
     }
 
     /**
