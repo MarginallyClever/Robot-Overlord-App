@@ -1,5 +1,8 @@
 package com.marginallyclever.robotoverlord.renderpanel;
 
+import com.jogamp.common.GlueGenVersion;
+import com.jogamp.common.os.Platform;
+import com.jogamp.common.util.JogampVersion;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
@@ -40,6 +43,8 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener {
     public OpenGLTestOrthographic(EntityManager entityManager) {
         super();
         logger.info("creating {}",this.getClass().getName());
+        logger.info("\n"+JoglVersion.getInstance().toString());
+
         glCanvas = createCanvas();
 
         panel.setMinimumSize(new Dimension(300, 300));
