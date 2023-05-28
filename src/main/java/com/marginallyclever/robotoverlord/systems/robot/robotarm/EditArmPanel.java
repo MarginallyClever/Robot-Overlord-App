@@ -417,9 +417,9 @@ public class EditArmPanel extends JPanel {
             JFrame frame = new JFrame(EditArmPanel.class.getSimpleName());
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(800,600);
-            frame.setLocationRelativeTo(null);
             frame.add(new EditArmPanel(entityManager.getRoot(),entityManager));
             frame.pack();
+            frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
     }

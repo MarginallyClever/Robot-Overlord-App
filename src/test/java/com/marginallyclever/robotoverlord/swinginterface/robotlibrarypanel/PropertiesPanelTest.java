@@ -22,8 +22,9 @@ public class PropertiesPanelTest {
         JFrame frame = new JFrame("Properties Panel");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 400);
+        frame.setContentPane(new PropertiesPanel(properties));
+        frame.pack();
         frame.setLocationRelativeTo(null);
-        frame.add(new PropertiesPanel(properties));
         frame.setVisible(true);
     }
 }

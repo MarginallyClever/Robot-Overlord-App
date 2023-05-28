@@ -342,12 +342,12 @@ public class OpenGLTestOrthographic implements RenderPanel {
         // make a frame
         JFrame frame = new JFrame( OpenGLTestOrthographic.class.getSimpleName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
         OpenGLTestOrthographic opengl = new OpenGLTestOrthographic(null);
         frame.setContentPane(opengl.getPanel());
         frame.setPreferredSize(new Dimension(600,600));
         frame.setSize(600,600);
         frame.pack();
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 }

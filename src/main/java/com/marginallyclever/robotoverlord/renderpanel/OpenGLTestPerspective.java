@@ -75,12 +75,12 @@ public class OpenGLTestPerspective extends OpenGLTestOrthographic {
         // make a frame
         JFrame frame = new JFrame( OpenGLTestPerspective.class.getSimpleName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
         OpenGLTestPerspective opengl = new OpenGLTestPerspective(null);
         frame.setContentPane(opengl.getPanel());
         frame.setPreferredSize(new Dimension(600,600));
         frame.setSize(600,600);
         frame.pack();
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 }
