@@ -61,6 +61,11 @@ public class ShapeComponent extends RenderComponent {
         myMesh.render(gl2);
     }
 
+    /**
+     * transform the ray into local space and test for intersection.
+     * @param ray the ray in world space
+     * @return the ray hit in world space, or null if no hit.
+     */
     public RayHit intersect(Ray ray) {
         if(myMesh==null) return null;
         if(!getEnabled()) return null;
@@ -73,7 +78,7 @@ public class ShapeComponent extends RenderComponent {
 
         Ray localRay = transformRayToLocalSpace(pose, ray);
         RayHit localHit = myMesh.intersect(localRay);
-        if(localHit.distance<Double.MAX_VALUE) {
+        if(localHit!=null && localHit.distance<Double.MAX_VALUE) {
             Vector3d normal = transformNormalToWorldSpace(pose,localHit.normal);
             return new RayHit(this,localHit.distance,normal);
         } else {
@@ -96,7 +101,7 @@ public class ShapeComponent extends RenderComponent {
         m.transform(o);
         m.transform(d);
 
-        return new Ray(o,d);
+        return new Ray(o,d,ray.getMaxDistance());
     }
 
     /**
