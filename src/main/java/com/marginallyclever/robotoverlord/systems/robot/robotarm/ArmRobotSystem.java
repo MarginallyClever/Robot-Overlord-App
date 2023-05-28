@@ -168,11 +168,7 @@ public class ArmRobotSystem implements EntitySystem {
         try {
             double[] jointVelocity = aj.getJointForceFromCartesianForce(cartesianVelocity);  // uses inverse jacobian
             // do not make moves for impossible velocities
-            for(double v : jointVelocity) {
-                if(Double.isNaN(v) || Math.abs(v)>100) {
-                    return;
-                }
-            }
+            if(impossibleVelocity(robotComponent,jointVelocity)) return;
 
             double[] angles = robotComponent.getAllJointValues();  // # dof long
             for (int i = 0; i < angles.length; ++i) {
@@ -182,6 +178,19 @@ public class ArmRobotSystem implements EntitySystem {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * @param robotComponent the robot to check
+     * @param jointVelocity the joint velocity to check
+     * @return true if the given joint velocity is impossible.
+     */
+    private boolean impossibleVelocity(RobotComponent robotComponent,double[] jointVelocity) {
+        double maxV = 100; // cm/s TODO: get from robot per joint
+        for(double v : jointVelocity) {
+            if(Double.isNaN(v) || Math.abs(v) > maxV) return true;
+        }
+        return false;
     }
 
     /**
