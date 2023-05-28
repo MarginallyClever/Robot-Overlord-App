@@ -326,7 +326,11 @@ public class Mesh {
 		return renderStyle;
 	}
 
-
+	/**
+	 * Intersect a ray with this mesh.
+	 * @param ray The ray to intersect with.
+	 * @return The RayHit object containing the intersection point and normal, or null if no intersection.
+	 */
 	public RayHit intersect(Ray ray) {
 		VertexProvider vp;
 		if (hasIndexes) {
@@ -365,6 +369,12 @@ public class Mesh {
 	}
 
 
+	/**
+	 *
+	 * @param ray the ray to intersect with
+	 * @param provider a VertexProvider that will provide the vertices and normals of the triangles to intersect with
+	 * @return null if no intersection, otherwise a RayHit object with the intersection point and normal.
+	 */
 	private RayHit intersect(Ray ray,VertexProvider provider) {
 		int a=0,b=0,c=0;
 
@@ -382,7 +392,7 @@ public class Mesh {
 			}
 		}
 
-		if(nearest<Double.MAX_VALUE) {
+		if(nearest<ray.getMaxDistance()) {
 			Vector3d normal;
 			if(hasNormals) {
 				normal =   provider.provideNormal(a);
@@ -397,6 +407,6 @@ public class Mesh {
 			}
 			return new RayHit(null,nearest,normal);
 		}
-		return new RayHit(null,Double.MAX_VALUE,new Vector3d(0,0,0));
+		return null;
 	}
 }
