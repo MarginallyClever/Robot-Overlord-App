@@ -2,7 +2,6 @@ package com.marginallyclever.robotoverlord.renderpanel;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
-import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
@@ -10,16 +9,14 @@ import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Objects;
 
 public class OpenGLTestStencil extends OpenGLTestPerspective {
-    private int width=0,height=0;
+    private int width=0, height=0;
     private final int [] stencilFrameBuffer = new int[1];
     private final int [] stencilTexture = new int[1];
-    private ShaderProgram shaderDebugTexture;
+    private ShaderProgram shaderDebugTextureUV;
+    private ShaderProgram shaderDebugTexture1;
+    private ShaderProgram shaderDebugTexture2;
 
     public OpenGLTestStencil(EntityManager entityManager) {
         super(entityManager);
@@ -27,22 +24,25 @@ public class OpenGLTestStencil extends OpenGLTestPerspective {
 
     @Override
     public void init( GLAutoDrawable drawable ) {
-        GL3 gl3 = drawable.getGL().getGL3();
-
         super.init(drawable);
-        drawable.getGL().glEnable(GL3.GL_STENCIL_TEST);
-        shaderDebugTexture = new ShaderProgram(gl3,
+        GL3 gl3 = drawable.getGL().getGL3();
+        shaderDebugTextureUV = new ShaderProgram(gl3,
+                readResource("debugTexture_330.vert"),
+                readResource("testTextureUV_330.frag"));
+        shaderDebugTexture1 = new ShaderProgram(gl3,
                 readResource("debugTexture_330.vert"),
                 readResource("testTextureDepth1_330.frag"));
+        shaderDebugTexture2 = new ShaderProgram(gl3,
+                readResource("debugTexture_330.vert"),
+                readResource("testTextureDepth2_330.frag"));
     }
 
     @Override
     public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
-        GL3 gl3 = drawable.getGL().getGL3();
-
         super.reshape(drawable, x, y, width, height);
         this.width=width;
         this.height=height;
+        GL3 gl3 = drawable.getGL().getGL3();
         destroyStencilTexture(gl3);
         createStencilTexture(gl3);
     }
@@ -54,19 +54,21 @@ public class OpenGLTestStencil extends OpenGLTestPerspective {
 
         super.display(drawable);
 
-        displayToStencilFBO(gl3,drawable);
-        copyStencilBufferToTexture(gl3);
-        debugTexture(gl3,stencilTexture[0]);
+        displayToStencilFramebuffer(gl3,drawable);
+        copyStencilFramebufferToTexture(gl3);
+        //debugTexture(gl3,stencilTexture[0],shaderDebugTextureUV);
+        debugTexture(gl3,stencilTexture[0],shaderDebugTexture1);
+        //debugTexture(gl3,stencilTexture[0],shaderDebugTexture2);
     }
 
-    private void displayToStencilFBO(GL3 gl3, GLAutoDrawable drawable) {
+    private void displayToStencilFramebuffer(GL3 gl3, GLAutoDrawable drawable) {
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, stencilFrameBuffer[0]);
         gl3.glEnable(GL3.GL_STENCIL_TEST);
 
-        gl3.glClear(GL3.GL_STENCIL_BUFFER_BIT);
         gl3.glStencilFunc(GL.GL_ALWAYS,1,0xff);
         gl3.glStencilOp(GL3.GL_KEEP, GL3.GL_KEEP, GL3.GL_REPLACE);
         gl3.glStencilMask(0xFF);
+        gl3.glClear(GL3.GL_STENCIL_BUFFER_BIT|GL3.GL_DEPTH_BUFFER_BIT);
 
         super.display(drawable);  // draws a spinning triangle in perspective mode.
 
@@ -74,44 +76,52 @@ public class OpenGLTestStencil extends OpenGLTestPerspective {
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, 0);
     }
 
-    private void copyStencilBufferToTexture(GL3 gl3) {
+    private void copyStencilFramebufferToTexture(GL3 gl3) {
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, stencilFrameBuffer[0]);
+        checkGLError(gl3);
 
-        gl3.glBindTexture(GL3.GL_TEXTURE_2D, stencilTexture[0]);
-
+        //checkFrameBufferStatus(gl3,"stencil");
         // Read the stencil data into the stencil texture
-        try {
-            gl3.glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL3.GL_STENCIL_BUFFER_BIT, GL3.GL_NEAREST);
-            //gl3.glCopyTexImage2D(GL3.GL_TEXTURE_2D, 0, GL3.GL_STENCIL_INDEX, 0, 0, width, height, 0);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        gl3.glCopyTexImage2D(GL3.GL_TEXTURE_2D, 0, GL3.GL_STENCIL_INDEX8, 0, 0, width, height, 0);
+        checkGLError(gl3);
 
         // Unbind everything
-        gl3.glBindTexture(GL3.GL_TEXTURE_2D, 0);
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, 0);
+        checkGLError(gl3);
+    }
+
+    protected void checkGLError(GL3 gl3) {
+        int err = gl3.glGetError();
+        if(err != GL3.GL_NO_ERROR) System.out.println("Error: "+err);
     }
 
     private void destroyStencilTexture(GL3 gl3) {
         gl3.glDeleteTextures(1, stencilTexture, 0);
+        checkGLError(gl3);
         gl3.glDeleteFramebuffers(1, stencilFrameBuffer, 0);
+        checkGLError(gl3);
     }
 
     private void createStencilTexture(GL3 gl3) {
+        // create stencil framebuffer
         gl3.glGenFramebuffers(1, stencilFrameBuffer, 0);
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, stencilFrameBuffer[0]);
 
+        // create stencil texture
         gl3.glGenTextures(1, stencilTexture, 0);
         gl3.glBindTexture(GL3.GL_TEXTURE_2D, stencilTexture[0]);
-        gl3.glTexImage2D(GL3.GL_TEXTURE_2D, 0, GL3.GL_DEPTH24_STENCIL8, width, height, 0, GL3.GL_DEPTH_STENCIL, GL3.GL_UNSIGNED_INT_24_8, null);
+
+        // bind the stencil texture to the framebuffer
+        gl3.glTexImage2D(GL3.GL_TEXTURE_2D, 0, GL3.GL_STENCIL_INDEX8, width, height, 0, GL3.GL_STENCIL_INDEX8, GL3.GL_UNSIGNED_INT, null);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_MIN_FILTER, GL3.GL_NEAREST);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_MAG_FILTER, GL3.GL_NEAREST);
-        gl3.glBindTexture(GL3.GL_TEXTURE_2D, 0);
+        gl3.glFramebufferTexture2D(GL3.GL_FRAMEBUFFER, GL3.GL_STENCIL_ATTACHMENT, GL3.GL_TEXTURE_2D, stencilTexture[0], 0);
 
-        gl3.glFramebufferTexture2D(GL3.GL_FRAMEBUFFER, GL3.GL_DEPTH_STENCIL_ATTACHMENT, GL3.GL_TEXTURE_2D, stencilTexture[0], 0);
-
+        // check it's sane
         checkFrameBufferStatus(gl3,"stencil");
 
+        // unbind everything
+        gl3.glBindTexture(GL3.GL_TEXTURE_2D, 0);
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, 0);
     }
 
@@ -130,6 +140,8 @@ public class OpenGLTestStencil extends OpenGLTestPerspective {
                 case GL3.GL_FRAMEBUFFER_UNSUPPORTED -> System.out.println("GL_FRAMEBUFFER_UNSUPPORTED");
                 default -> System.out.println("Unknown error!");
             }
+        } else {
+            System.out.println("Framebuffer "+name+" is complete.");
         }
     }
 
@@ -138,17 +150,20 @@ public class OpenGLTestStencil extends OpenGLTestPerspective {
      * @param gl3 The OpenGL state
      * @param textureID The texture to render
      */
-    private void debugTexture(GL3 gl3, int textureID) {
-        gl3.glBindTexture(GL3.GL_TEXTURE_2D, textureID);
+    private void debugTexture(GL3 gl3,int textureID, ShaderProgram program) {
         // Use the debug texture shader
-        shaderDebugTexture.use(gl3);
-        // Set the debugTexture uniform to use texture unit 0
-        shaderDebugTexture.set1i(gl3,"debugTexture",textureID);
+        program.use(gl3);
+
+        // Set the depthTexture uniform to use texture unit 0
+        gl3.glActiveTexture (GL3.GL_TEXTURE0);
+        gl3.glBindTexture   (GL3.GL_TEXTURE_2D, textureID);
+        program.set1i(gl3,"debugTexture",0);
         // Render a full-screen quad
         renderScreenSpaceQuad(gl3);
+        gl3.glBindTexture(GL3.GL_TEXTURE_2D, 0);
+
         // Unbind the shader
         gl3.glUseProgram(0);
-        gl3.glBindTexture(GL3.GL_TEXTURE_2D, 0);
     }
 
     private void renderScreenSpaceQuad(GL3 gl3) {
