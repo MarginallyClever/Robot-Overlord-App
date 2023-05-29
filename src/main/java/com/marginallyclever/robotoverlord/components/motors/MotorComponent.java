@@ -77,4 +77,8 @@ public class MotorComponent extends Component {
     public TreeMap<Integer,Double> getTorqueCurve() {
     	return torqueCurve;
     }
+
+    public void removeTorqueAtRPM(int rpm) {
+        torqueCurve.remove(rpm);
+    }
 }

@@ -24,11 +24,11 @@ public class LineGraph extends JPanel {
 		super();
 	}
 
-	public void add(double x,double y) {
+	public void addValue(double x,double y) {
 		data.put(x,y);
 	}
 
-	public void remove(double x) {
+	public void removeValue(double x) {
 		data.remove(x);
 	}
 
@@ -104,7 +104,7 @@ public class LineGraph extends JPanel {
 
 		LineGraph graph = new LineGraph();
 		for(int i=0;i<250;++i) {
-			graph.add(i,Math.random()*500);
+			graph.addValue(i,Math.random()*500);
 		}
 		graph.setBoundsToData();
 		graph.setBorder(new BevelBorder(BevelBorder.LOWERED));

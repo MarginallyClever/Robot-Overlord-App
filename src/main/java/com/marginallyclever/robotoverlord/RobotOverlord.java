@@ -10,6 +10,7 @@ import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.renderpanel.OpenGLRenderPanel;
 import com.marginallyclever.robotoverlord.renderpanel.RenderPanel;
+import com.marginallyclever.robotoverlord.systems.motor.MotorSystem;
 import com.marginallyclever.robotoverlord.systems.physics.PhysicsSystem;
 import com.marginallyclever.robotoverlord.systems.render.RenderSystem;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
