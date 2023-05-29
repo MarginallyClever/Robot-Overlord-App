@@ -3,8 +3,12 @@ package com.marginallyclever.convenience.swing;
 import com.marginallyclever.convenience.log.Log;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * A simple line graph.
@@ -13,89 +17,80 @@ import java.util.ArrayList;
  * @since 2.5.0
  */
 public class LineGraph extends JPanel {
-	private final ArrayList<Double> fx;
-	private Double yMin, yMax;
-	private Color lineColor = Color.BLUE;
-	
-	public LineGraph(ArrayList<Double> list) {
-		super();
-		
-		fx = list;
-	}
+	private final TreeMap<Double, Double> data = new TreeMap<>();
+	private double yMin, yMax, xMin, xMax;
 	
 	public LineGraph() {
-		this(new ArrayList<Double>());
+		super();
 	}
-	
+
+	public void add(double x,double y) {
+		data.put(x,y);
+	}
+
+	public void remove(double x) {
+		data.remove(x);
+	}
+
+	public void clear() {
+		data.clear();
+	}
+
+	public void setBounds(double xMin,double xMax,double yMin,double yMax) {
+		this.xMin = xMin;
+		this.xMax = xMax;
+		this.yMin = yMin;
+		this.yMax = yMax;
+	}
+	public void setYMin(double yMin) {
+		this.yMin = yMin;
+	}
+	public void setYMax(double yMax) {
+		this.yMax = yMax;
+	}
+	public void setXMin(double xMin) {
+		this.xMin = xMin;
+	}
+	public void setXMax(double xMax) {
+		this.xMax = xMax;
+	}
+
+	public void setBoundsToData() {
+		if(data.isEmpty()) return;
+
+		List<Double> x = new ArrayList<>(data.keySet());
+		List<Double> y = new ArrayList<>(data.values());
+		xMin = x.get(0);
+		xMax = x.get(0);
+		yMin = y.get(0);
+		yMax = y.get(0);
+		for(int i=1;i<x.size();++i) {
+			if(x.get(i)<xMin) xMin = x.get(i);
+			if(x.get(i)>xMax) xMax = x.get(i);
+			if(y.get(i)<yMin) yMin = y.get(i);
+			if(y.get(i)>yMax) yMax = y.get(i);
+		}
+	}
+
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		
-		Dimension size = getSize();
-		drawBox(g,size);
-		drawLine(g,size);
-	}
-	
-	private void drawLine(Graphics g, Dimension size) {
-		int entries = fx.size();
-		if(entries==0) return;
-		
-		updateRange();
-		
-		int x0=0;
-		Double y0d=fx.get(x0);
-		int y0=scaleY(y0d,size);
+		if(data.isEmpty()) return;
 
-		g.setColor(lineColor);
-		for(int i=1;i<entries;++i) {
-			Double y1d=fx.get(i);
-			int y1=scaleY(y1d,size);
-			int x1=(int)((double)size.width * (double)i/(double)entries);
-			
-			g.drawLine(x0,y0,x1,y1);
-			
-			x0=x1;
-			y0=y1;
+		g.setColor(getForeground());
+		int width = getWidth();
+		int height = getHeight();
+
+		Map.Entry<Double, Double> prevEntry = data.firstEntry();
+		int prevX = (int) (((prevEntry.getKey() - xMin) / (xMax - xMin)) * width);
+		int prevY = (int) (((prevEntry.getValue() - yMin) / (yMax - yMin)) * height);
+		for (Map.Entry<Double, Double> entry : data.entrySet()) {
+			int currentX = (int) (((entry.getKey() - xMin) / (xMax - xMin)) * width);
+			int currentY = (int) (((entry.getValue() - yMin) / (yMax - yMin)) * height);
+			g.drawLine(prevX, height - prevY, currentX, height - currentY);
+			prevX = currentX;
+			prevY = currentY;
 		}
-	}
-
-	private int scaleY(Double y1d,Dimension size) {
-		double ratio = (y1d-yMin) / (yMax-yMin);
-		return (int)(size.height * ratio);
-	}
-
-	private void drawBox(Graphics g, Dimension size) {
-		int w=size.width;
-		int h=size.height;
-		g.setColor(Color.GRAY);
-		g.drawLine(0,0,w,0);
-		g.drawLine(w,0,w,h);
-		g.drawLine(w,h,0,h);
-		g.drawLine(0,h,0,0);
-	}
-
-	public ArrayList<Double> getDataModel() {
-		return fx;
-	}
-	
-	public void updateRange() {
-		yMin = Double.MAX_VALUE;
-		yMax = -Double.MAX_VALUE;
-		
-		for(int i=0;i<fx.size();++i) {
-			Double d = fx.get(i);
-			if(yMin>d) yMin=d;
-			if(yMax<d) yMax=d;
-		}
-	}
-
-	
-	public Color getLineColor() {
-		return lineColor;
-	}
-
-	public void setLineColor(Color lineColor) {
-		this.lineColor = lineColor;
 	}
 
 	// TEST 
@@ -105,18 +100,21 @@ public class LineGraph extends JPanel {
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-		}
-		
-		ArrayList<Double> list = new ArrayList<Double>();
+		} catch (Exception ignored) {}
+
+		LineGraph graph = new LineGraph();
 		for(int i=0;i<250;++i) {
-			list.add(Math.random()*500);
+			graph.add(i,Math.random()*500);
 		}
+		graph.setBoundsToData();
+		graph.setBorder(new BevelBorder(BevelBorder.LOWERED));
 
 		JFrame frame = new JFrame("LineGraph");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new LineGraph(list));
+		frame.setPreferredSize(new Dimension(800,400));
+		frame.setContentPane(graph);
 		frame.pack();
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
 }
