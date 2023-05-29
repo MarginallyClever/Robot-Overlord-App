@@ -1,6 +1,10 @@
 package com.marginallyclever.robotoverlord.components.motors;
 
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.Component;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.*;
 
@@ -80,5 +84,29 @@ public class MotorComponent extends Component {
 
     public void removeTorqueAtRPM(int rpm) {
         torqueCurve.remove(rpm);
+    }
+
+    @Override
+    public JSONObject toJSON(SerializationContext context) {
+        JSONObject jo = super.toJSON(context);
+        JSONObject curve = new JSONObject();
+        for(Map.Entry<Integer, Double> entry : torqueCurve.entrySet()) {
+            curve.put(entry.getKey().toString(),entry.getValue());
+        }
+        jo.put("torqueCurve",curve);
+        return jo;
+    }
+
+    @Override
+    public void parseJSON(JSONObject jo, SerializationContext context) throws JSONException {
+        super.parseJSON(jo, context);
+        torqueCurve.clear();
+        JSONObject curve = jo.getJSONObject("torqueCurve");
+        Iterator<String> keys = curve.keys();
+        while(keys.hasNext()) {
+            String key = keys.next();
+            Double value = curve.getDouble(key);
+            torqueCurve.put(Integer.parseInt(key),value);
+        }
     }
 }
