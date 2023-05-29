@@ -44,7 +44,7 @@ public class ComponentAddAction extends AbstractAction {
 
 		JComboBox<String> additionComboBox = buildComponentComboBox();
 		int result = JOptionPane.showConfirmDialog(
-				componentManagerPanel,
+				SwingUtilities.getWindowAncestor(componentManagerPanel),
 				additionComboBox, 
 				(String)this.getValue(AbstractAction.NAME), 
 				JOptionPane.OK_CANCEL_OPTION,
