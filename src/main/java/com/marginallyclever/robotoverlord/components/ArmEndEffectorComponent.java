@@ -12,13 +12,6 @@ import javax.vecmath.Matrix4d;
  */
 @ComponentDependency(components = {PoseComponent.class})
 public class ArmEndEffectorComponent extends Component {
-
-    @Override
-    public void setEntity(Entity entity) {
-        super.setEntity(entity);
-        entity.addComponent(new PoseComponent());
-    }
-
     public Matrix4d getToolCenterPoint() {
         PoseComponent p = getEntity().getComponent(PoseComponent.class);
         if(p==null) return null;
