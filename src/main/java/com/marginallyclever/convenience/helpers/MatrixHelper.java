@@ -649,10 +649,17 @@ public class MatrixHelper {
 	static public Matrix3d lookAt(final Vector3d from, final Vector3d to) {
 		Vector3d forward = new Vector3d();
 		Vector3d left = new Vector3d();
-		Vector3d up = new Vector3d(0,0,1);
+		Vector3d up = new Vector3d();
 		
 		forward.sub(to,from);
 		forward.normalize();
+		if(forward.z==1) {
+			up.set(0,1,0);
+		} else if(forward.z==-1) {
+			up.set(0,-1,0);
+		} else {
+			up.set(0,0,1);
+		}
 		left.cross(up, forward);
 		left.normalize();
 		up.cross(forward, left);
