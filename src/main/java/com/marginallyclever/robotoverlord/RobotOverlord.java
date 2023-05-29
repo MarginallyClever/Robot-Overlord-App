@@ -192,6 +192,7 @@ public class RobotOverlord {
 		addSystem(new CrabRobotSystem(project.getEntityManager()));
 		addSystem(new ProgramExecutorSystem(project.getEntityManager()));
 		addSystem(new RobotGripperSystem(project.getEntityManager()));
+		addSystem(new MotorSystem(project.getEntityManager()));
 	}
 
 	private void addSystem(EntitySystem system) {

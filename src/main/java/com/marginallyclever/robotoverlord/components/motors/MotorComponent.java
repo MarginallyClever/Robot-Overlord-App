@@ -2,8 +2,7 @@ package com.marginallyclever.robotoverlord.components.motors;
 
 import com.marginallyclever.robotoverlord.components.Component;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A motor {@link Component} that approximates a torque curve.
@@ -12,7 +11,7 @@ import java.util.Map;
  * @since 2.5.0
  */
 public class MotorComponent extends Component {
-    private final Map<Integer, Double> torqueCurve = new HashMap<>();
+    private final TreeMap<Integer, Double> torqueCurve = new TreeMap<>();
     private int currentRPM=0;
 
     public MotorComponent() {
@@ -24,7 +23,10 @@ public class MotorComponent extends Component {
         this.torqueCurve.put(rpm, torque);
     }
 
-    // Get the torque for a specific RPM
+    /**
+     * @param rpm The RPM to get the torque for
+     * @return The torque at the given RPM, or 0.0 if the RPM is outside the curve.
+     */
     public double getTorqueAtRpm(int rpm) {
         // If the exact RPM is in the curve, return the torque for it
         if (this.torqueCurve.containsKey(rpm)) {
@@ -35,25 +37,19 @@ public class MotorComponent extends Component {
         Integer lowestRPM = null;
         Integer lowerRpm = null;
         Integer higherRpm = null;
-        for (Integer key : this.torqueCurve.keySet()) {
-            if (key <= rpm && (lowerRpm == null || key > lowerRpm)) {
-                lowerRpm = key;
-            }
-            if (key >= rpm && (higherRpm == null || key < higherRpm)) {
-                higherRpm = key;
-            }
-            if(lowestRPM == null || key < lowestRPM) {
-                lowestRPM = key;
-            }
+        for(Integer key : this.torqueCurve.keySet()) {
+            if(key <= rpm && ( lowerRpm == null || key >  lowerRpm))  lowerRpm = key;
+            if(key >= rpm && (higherRpm == null || key < higherRpm)) higherRpm = key;
+            if(lowestRPM == null || key < lowestRPM) lowestRPM = key;
         }
 
         // If no suitable lower or higher RPM is found, return 0.0
-        if(lowerRpm == null) return this.torqueCurve.get(lowestRPM);
+        if(lowerRpm == null) return torqueCurve.get(lowestRPM);
         if(higherRpm == null) return 0.0;
 
         // Perform linear interpolation
-        double lowerTorque = this.torqueCurve.get(lowerRpm);
-        double higherTorque = this.torqueCurve.get(higherRpm);
+        double lowerTorque = torqueCurve.get(lowerRpm);
+        double higherTorque = torqueCurve.get(higherRpm);
         double slope = (higherTorque - lowerTorque) / (higherRpm - lowerRpm);
         return lowerTorque + slope * (rpm - lowerRpm);
     }
@@ -71,5 +67,14 @@ public class MotorComponent extends Component {
     // Get current torque based on current RPM
     public double getCurrentTorque() {
         return getTorqueAtRpm(this.currentRPM);
+    }
+
+    public int getMaxRPM() {
+        List<Integer> x = new ArrayList<>(torqueCurve.keySet());
+    	return x.get(x.size()-1);
+    }
+
+    public TreeMap<Integer,Double> getTorqueCurve() {
+    	return torqueCurve;
     }
 }
