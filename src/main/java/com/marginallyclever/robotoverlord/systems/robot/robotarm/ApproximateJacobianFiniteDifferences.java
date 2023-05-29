@@ -106,24 +106,38 @@ public class ApproximateJacobianFiniteDifferences implements ApproximateJacobian
 
 	// https://stackoverflow.com/a/53028167/1159440
 	private double[][] getInverseJacobian() {
-        if( DOF == 3 ) return getInverseJacobianOverdetermined();
-
-		// old method, Moore-Penrose pseudoinverse
-		if (DOF < 6) return getInverseJacobianOverdetermined();
-		else if(DOF>=6) return getInverseJacobianUnderdetermined();
-		else return MatrixHelper.invert(jacobian);
+		int rows = jacobian.length;
+		int cols = jacobian[0].length;
+		if(rows==cols) return MatrixHelper.invert(jacobian);
+		else if (rows < cols) return getPseudoInverseUnderdetermined();
+		else return getPseudoInverseOverdetermined();
 
 		// new method
 		//return getInverseJacobianDampedLeastSquares(0.0001);
 	}
 
-	// J_plus = J.transpose * (J*J.transpose()).inverse() // This is for
-	// Underdetermined systems
-	private double[][] getInverseJacobianUnderdetermined() {
+	/**
+	 * Moore-Penrose pseudo-inverse for over-determined systems.
+	 * J_plus = J.transpose * (J*J.transpose()).inverse() // This is for
+	 * @return the pseudo-inverse of the jacobian matrix.
+	 */
+	private double[][] getPseudoInverseOverdetermined() {
 		double[][] jt = MatrixHelper.transpose(jacobian);
 		double[][] mm = MatrixHelper.multiplyMatrices(jacobian, jt);
 		double[][] ji = MatrixHelper.invert(mm);
 		return MatrixHelper.multiplyMatrices(jt, ji);
+	}
+
+	/**
+	 * Moore-Penrose pseudo-inverse for under-determined systems.
+	 * J_plus = (J.transpose()*J).inverse() * J.transpose()
+	 * @return the pseudo-inverse of the jacobian matrix.
+	 */
+	private double[][] getPseudoInverseUnderdetermined() {
+		double[][] jt = MatrixHelper.transpose(jacobian);
+		double[][] mm = MatrixHelper.multiplyMatrices(jt, jacobian);
+		double[][] ji = MatrixHelper.invert(mm);
+		return MatrixHelper.multiplyMatrices(ji, jt);
 	}
 
 	private double[][] getInverseJacobianDampedLeastSquares(double lambda) {
@@ -137,15 +151,6 @@ public class ApproximateJacobianFiniteDifferences implements ApproximateJacobian
 
 		double[][] jjt_inv = MatrixHelper.invert(jjt);
 		return MatrixHelper.multiplyMatrices(jt, jjt_inv);
-	}
-
-
-	// J_plus = (J.transpose()*J).inverse() * J.transpose()
-	private double[][] getInverseJacobianOverdetermined() {
-		double[][] jt = MatrixHelper.transpose(jacobian);
-		double[][] mm = MatrixHelper.multiplyMatrices(jt, jacobian);
-		double[][] ji = MatrixHelper.invert(mm);
-		return MatrixHelper.multiplyMatrices(ji, jt);
 	}
 
 	/**
