@@ -1,17 +1,12 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
-import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.convenience.RayHit;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementColor;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementComboBox;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
-import com.marginallyclever.robotoverlord.systems.RayPickSystem;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.ControlArmPanel;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
@@ -19,8 +14,6 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -62,7 +55,7 @@ public class ArmRobotSystem implements EntitySystem {
         view.add(robotComponent.gcodePath);
 
         ViewElementButton bMake = view.addButton("Edit Arm");
-        bMake.addActionEventListener((evt)-> makeRobotArm6(bMake,robotComponent,"Edit Arm"));
+        bMake.addActionEventListener((evt)-> editArm(bMake,robotComponent,"Edit Arm"));
 
         ViewElementButton bOpenJog = view.addButton(Translator.get("RobotROSystem.controlPanel"));
         bOpenJog.addActionEventListener((evt)-> showControlPanel(bOpenJog,robotComponent));
@@ -71,7 +64,7 @@ public class ArmRobotSystem implements EntitySystem {
         bHome.addActionEventListener((evt)-> robotComponent.goHome());
     }
 
-    private void makeRobotArm6(JComponent parent, RobotComponent robotComponent,String title) {
+    private void editArm(JComponent parent, RobotComponent robotComponent, String title) {
         EntitySystemUtils.makePanel(new EditArmPanel(robotComponent.getEntity(), entityManager), parent,title);
     }
 
@@ -186,7 +179,7 @@ public class ArmRobotSystem implements EntitySystem {
      * @return true if the given joint velocity is impossible.
      */
     private boolean impossibleVelocity(RobotComponent robotComponent,double[] jointVelocity) {
-        double maxV = 100; // cm/s TODO: get from robot per joint
+        double maxV = 100; // RPM*60 TODO: get from robot per joint
         for(double v : jointVelocity) {
             if(Double.isNaN(v) || Math.abs(v) > maxV) return true;
         }
