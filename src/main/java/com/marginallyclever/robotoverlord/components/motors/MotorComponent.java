@@ -74,8 +74,8 @@ public class MotorComponent extends Component {
     }
 
     public int getMaxRPM() {
-        List<Integer> x = new ArrayList<>(torqueCurve.keySet());
-    	return x.get(x.size()-1);
+        List<Integer> keys = new ArrayList<>(torqueCurve.keySet());
+    	return keys.get(keys.size()-1);
     }
 
     public TreeMap<Integer,Double> getTorqueCurve() {
