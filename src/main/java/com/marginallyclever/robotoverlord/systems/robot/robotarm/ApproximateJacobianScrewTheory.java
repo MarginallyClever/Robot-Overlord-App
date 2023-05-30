@@ -40,14 +40,14 @@ public class ApproximateJacobianScrewTheory implements ApproximateJacobian {
 			// for revolute joint
 			if (!(boolean) arm.get(Robot.JOINT_PRISMATIC)) {
 				// the screw axis is the rotation axis
-				Vector3d s = new Vector3d(T.m02, T.m12, T.m22);  // rotation axis
+				Vector3d s = MatrixHelper.getZAxis(T);
 
 				// The angular velocity component of the screw is the same as s
 				double[] w = new double[] { s.x,s.y,s.z };
 
 				// Compute the position of the joint origin and end effector
-				Vector3d p = new Vector3d(T.m03, T.m13, T.m23);  // position of joint origin
-				Point3d p_endEffector = (Point3d) arm.get(Robot.END_EFFECTOR_TARGET_POSITION); // position of end effector
+				Vector3d p = MatrixHelper.getPosition(T);  // position of joint origin
+				Vector3d p_endEffector = MatrixHelper.getPosition((Matrix4d)arm.get(Robot.END_EFFECTOR)); // position of end effector
 
 				// Compute the cross product of s and the vector from joint origin to end effector
 				Vector3d r = new Vector3d();
