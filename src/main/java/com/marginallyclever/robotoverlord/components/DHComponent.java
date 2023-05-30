@@ -292,10 +292,17 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
 
         myMesh.clear();
         myMesh.setRenderStyle(GL2.GL_LINES);
-        myMesh.addColor(0,0,1,1);            myMesh.addVertex(0,0,0);
-        myMesh.addColor(0,0,1,1);            myMesh.addVertex((float)d.x,(float)d.y,(float)d.z);
-        myMesh.addColor(1,0,0,1);            myMesh.addVertex((float)d.x,(float)d.y,(float)d.z);
-        myMesh.addColor(1,0,0,1);            myMesh.addVertex((float)dr.x,(float)dr.y,(float)dr.z);
+        myMesh.addColor(0,1,1,1);            myMesh.addVertex(0,0,0);
+        myMesh.addColor(0,1,1,1);            myMesh.addVertex((float)d.x,(float)d.y,(float)d.z);
+        myMesh.addColor(1,1,0,1);            myMesh.addVertex((float)d.x,(float)d.y,(float)d.z);
+        myMesh.addColor(1,1,0,1);            myMesh.addVertex((float)dr.x,(float)dr.y,(float)dr.z);
+
+        myMesh.addColor(1,0,0,1); myMesh.addVertex(0,0,0);
+        myMesh.addColor(1,0,0,1); myMesh.addVertex(5,0,0);
+        myMesh.addColor(0,1,0,1); myMesh.addVertex(0,0,0);
+        myMesh.addColor(0,1,0,1); myMesh.addVertex(0,5,0);
+        myMesh.addColor(0,0,1,1); myMesh.addVertex(0,0,0);
+        myMesh.addColor(0,0,1,1); myMesh.addVertex(0,0,5);
         myMesh.render(gl2);
 
         OpenGLHelper.drawAtopEverythingEnd(gl2, onTop);
