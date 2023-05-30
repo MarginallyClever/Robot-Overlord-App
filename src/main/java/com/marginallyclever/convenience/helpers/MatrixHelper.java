@@ -376,7 +376,7 @@ public class MatrixHelper {
 
 		for (int i = 0; i < matrix.length; i++)
 			for (int j = 0; i != row && j < matrix[i].length; j++)
-				if (j != column)
+				if (i != row && j != column)
 					minor[i < row ? i : i - 1][j < column ? j : j - 1] = matrix[i][j];
 		return minor;
 	}
