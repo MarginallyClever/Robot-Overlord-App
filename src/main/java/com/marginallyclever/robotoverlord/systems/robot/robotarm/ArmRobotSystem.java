@@ -158,6 +158,7 @@ public class ArmRobotSystem implements EntitySystem {
      */
     private void applySmallCartesianForceToEndEffector(RobotComponent robotComponent,double[] cartesianVelocity) {
         ApproximateJacobian aj = new ApproximateJacobianFiniteDifferences(robotComponent);
+        //ApproximateJacobian aj = new ApproximateJacobianScrewTheory(robotComponent);
         try {
             double[] jointVelocity = aj.getJointForceFromCartesianForce(cartesianVelocity);  // uses inverse jacobian
             // do not make moves for impossible velocities
