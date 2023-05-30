@@ -145,7 +145,7 @@ public class CartesianDrivePanel extends JPanel {
 	 * @return the new end effector matrix
 	 */
 	private Matrix4d getEndEffectorMovedInFrameOfReference(Robot robot, double amount) {
-		Matrix4d m4 = (Matrix4d)robot.get(Robot.END_EFFECTOR);
+		Matrix4d m4 = (Matrix4d)robot.get(Robot.END_EFFECTOR_TARGET);
 		Matrix4d mFor = getFrameOfReferenceMatrix(robot);
 		
 		Vector3d p = new Vector3d();
