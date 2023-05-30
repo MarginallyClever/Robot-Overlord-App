@@ -60,10 +60,7 @@ public class Entity {
 	}
 
 	public void setName(String name) {
-		// if(hasChanged()) return;
-		// setChanged();
 		this.name = name;
-		// notifyObservers(name);
 	}
 
 	public String getUniqueChildName(Entity e) {
@@ -250,6 +247,7 @@ public class Entity {
 		components.add(c);
 		c.setEntity(this);
 		addComponentDependencies(c.getClass());
+		c.onAttach();
 	}
 
 	public boolean containsAnInstanceOfTheSameClass(Component c0) {

@@ -36,8 +36,7 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
     public DoubleParameter desiredLinearVelocity = new DoubleParameter("Desired Linear Velocity (cm/s)",1);
 
     @Override
-    public void setEntity(Entity entity) {
-        super.setEntity(entity);
+    public void onAttach() {
         findBones();
     }
 

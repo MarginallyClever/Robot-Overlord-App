@@ -30,11 +30,8 @@ public class Skycam extends RenderComponent {
 	}
 
 	@Override
-	public void setEntity(Entity entity) {
-		super.setEntity(entity);
-		if(entity == null) return;
-
-		Entity maybe = entity.findByPath("./ee");
+	public void onAttach() {
+		Entity maybe = getEntity().findByPath("./ee");
 		Entity ee = (maybe!=null) ? maybe : new Entity("ee");
 		eePose = ee.getComponent(PoseComponent.class);
 		eePose.setPosition(new Vector3d(0,0,0));

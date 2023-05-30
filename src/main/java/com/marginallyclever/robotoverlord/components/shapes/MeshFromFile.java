@@ -40,18 +40,16 @@ public class MeshFromFile extends ShapeComponent {
     }
 
     @Override
-    public void setEntity(Entity entity) {
-        if(entity != null) {
-            String absolutePath = filename.get();
-            if(!absolutePath.trim().isEmpty() && MeshFactory.hasMaterial(absolutePath)) {
-                logger.debug("MeshFromFile: adding material for "+absolutePath);
-                String materialPath = MeshFactory.getMaterialPath(absolutePath);
-                entity.removeComponent(entity.getComponent(MaterialComponent.class));
-                entity.addComponent(MaterialFactory.load(materialPath));
-            }
+    public void onAttach() {
+        super.onAttach();
+        Entity entity = getEntity();
+        String absolutePath = filename.get();
+        if(!absolutePath.trim().isEmpty() && MeshFactory.hasMaterial(absolutePath)) {
+            logger.debug("MeshFromFile: adding material for "+absolutePath);
+            String materialPath = MeshFactory.getMaterialPath(absolutePath);
+            entity.removeComponent(entity.getComponent(MaterialComponent.class));
+            entity.addComponent(MaterialFactory.load(materialPath));
         }
-
-        super.setEntity(entity);
     }
 
     @Override

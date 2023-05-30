@@ -79,11 +79,8 @@ public class RotaryStewartPlatform extends RenderComponent {
 	}
 
 	@Override
-	public void setEntity(Entity entity) {
-		super.setEntity(entity);
-		if(entity == null) return;
-
-		Entity maybe = entity.findByPath("./ee");
+	public void onAttach() {
+		Entity maybe = getEntity().findByPath("./ee");
 		ee = (maybe!=null) ? maybe : new Entity("ee");
 		eePose = ee.getComponent(PoseComponent.class);
 		eePose.setPosition(new Vector3d(0,0,BASE_Z.get()+Math.abs(EE_Z.get())+ARM_LENGTH.get()));

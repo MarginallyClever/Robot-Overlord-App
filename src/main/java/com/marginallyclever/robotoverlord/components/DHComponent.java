@@ -33,11 +33,10 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
     public final DoubleParameter jointHome = new DoubleParameter("Home",0.0);
 
     @Override
-    public void setEntity(Entity entity) {
-        super.setEntity(entity);
+    public void onAttach() {
         refreshLocalMatrix();
         myMesh = new Mesh();
-        MaterialComponent mat = entity.getComponent(MaterialComponent.class);
+        MaterialComponent mat = getEntity().getComponent(MaterialComponent.class);
         mat.drawOnTop.set(true);
     }
 

@@ -71,4 +71,9 @@ public class Component {
     public void setExpanded(boolean arg0) {
         isExpanded = arg0;
     }
+
+    /**
+     * Called when this component is attached to an entity.
+     */
+    public void onAttach() {}
 }
