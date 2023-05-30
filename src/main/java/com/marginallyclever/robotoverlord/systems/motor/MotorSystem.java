@@ -50,6 +50,7 @@ public class MotorSystem implements EntitySystem {
 
     private void decorateMotor(ComponentPanelFactory view, Component component) {
         MotorComponent motor = (MotorComponent)component;
+        view.add(motor.gearRatio);
         ViewElementButton bCurve = view.addButton("Torque curve");
         bCurve.addActionEventListener(e -> MotorSystem.editCurve(bCurve,motor) );
     }
