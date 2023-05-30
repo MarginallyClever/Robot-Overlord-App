@@ -23,6 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  */
 public class ViewElementDouble extends ViewElement implements DocumentListener, PropertyChangeListener {
+	private final JLabel label;
 	private final JTextField field;
 	private final DoubleParameter parameter;
 	private final ReentrantLock lock = new ReentrantLock();
@@ -58,7 +59,7 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		field.setHorizontalAlignment(SwingConstants.RIGHT);
 		field.setText(StringHelper.formatDouble(parameter.get()));
 
-		JLabel label=new JLabel(parameter.getName(),JLabel.LEADING);
+		label=new JLabel(parameter.getName(),JLabel.LEADING);
 		label.setLabelFor(field);
 		
 		//this.setBorder(new LineBorder(Color.RED));
@@ -127,5 +128,9 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		lock.lock();
 		field.setText(StringHelper.formatDouble((Double)evt.getNewValue()));
 		lock.unlock();		
+	}
+
+	public void setLabel(String label) {
+		this.label.setText(label);
 	}
 }

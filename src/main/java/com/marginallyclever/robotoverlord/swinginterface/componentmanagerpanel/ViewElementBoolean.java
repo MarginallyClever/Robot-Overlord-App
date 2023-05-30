@@ -19,6 +19,7 @@ import java.beans.PropertyChangeListener;
  *
  */
 public class ViewElementBoolean extends ViewElement implements PropertyChangeListener {
+	private final JLabel label;
 	private final JCheckBox field = new JCheckBox();
 	
 	public ViewElementBoolean(BooleanParameter parameter) {
@@ -38,7 +39,7 @@ public class ViewElementBoolean extends ViewElement implements PropertyChangeLis
 			}
 		});
 		
-		JLabel label=new JLabel(parameter.getName(),SwingConstants.LEFT);
+		label=new JLabel(parameter.getName(),SwingConstants.LEFT);
 		label.setLabelFor(field);
 		
 		this.setLayout(new BorderLayout());
@@ -57,5 +58,9 @@ public class ViewElementBoolean extends ViewElement implements PropertyChangeLis
 	@Override
 	public void setReadOnly(boolean arg0) {
 		field.setEnabled(!arg0);
+	}
+
+	public void setLabel(String s) {
+		label.setText(s);
 	}
 }
