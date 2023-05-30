@@ -128,12 +128,13 @@ public class RenderSystem implements EntitySystem {
      */
     public void decorateMaterial(ComponentPanelFactory view, Component component) {
         MaterialComponent material = (MaterialComponent)component;
-        view.add(material.isLit  );
+        view.add(material.isLit);
         view.add(material.emission);
-        view.add(material.ambient );
-        view.add(material.diffuse );
+        view.add(material.ambient);
+        view.add(material.diffuse);
         view.add(material.specular);
         view.addRange(material.shininess, 128, 0);
+        view.add(material.drawOnTop);
 
         view.addFilename(material.texture, TextureParameter.getFilters());
     }

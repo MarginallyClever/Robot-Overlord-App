@@ -9,6 +9,7 @@ import com.marginallyclever.robotoverlord.parameters.TextureParameter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -160,6 +161,20 @@ public class MaterialComponent extends Component {
         shininess.parseJSON(jo.getJSONObject("shininess"),context);
         texture.parseJSON(jo.getJSONObject("texture"),context);
         if(jo.has("drawOnTop")) drawOnTop.parseJSON(jo.getJSONObject("drawOnTop"),context);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString()
+                + ",isLit=" + isLit.get()
+                + ",emission=" + Arrays.toString(emission.get())
+                + ",ambient=" + Arrays.toString(ambient.get())
+                + ",diffuse=" + Arrays.toString(diffuse.get())
+                + ",specular=" + Arrays.toString(specular.get())
+                + ",shininess=" + shininess.get()
+                + ",texture=" + texture.get()
+                + ",drawOnTop=" + drawOnTop.get()
+                +",\n";
     }
 
     /**

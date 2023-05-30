@@ -37,6 +37,8 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
         super.setEntity(entity);
         refreshLocalMatrix();
         myMesh = new Mesh();
+        MaterialComponent mat = entity.getComponent(MaterialComponent.class);
+        mat.drawOnTop.set(true);
     }
 
     public DHComponent() {
@@ -59,6 +61,7 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
         jo.put("ThetaMin", jointMin.toJSON(context));
         jo.put("ThetaHome", jointHome.toJSON(context));
         jo.put("Revolute", isRevolute.toJSON(context));
+        jo.put("Home", jointHome.toJSON(context));
         return jo;
     }
 
@@ -73,6 +76,7 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
         if(jo.has("ThetaMin")) jointMin.parseJSON(jo.getJSONObject("ThetaMin"),context);
         if(jo.has("ThetaHome")) jointHome.parseJSON(jo.getJSONObject("ThetaHome"),context);
         if(jo.has("Revolute")) isRevolute.parseJSON(jo.getJSONObject("Revolute"),context);
+        if(jo.has("Home")) jointHome.parseJSON(jo.getJSONObject("Home"),context);
         refreshLocalMatrix();
     }
 
@@ -83,7 +87,6 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
 
     private void refreshLocalMatrix() {
         setLocalMatrix(getLocalMatrix());
-        //updateChildAdjustmentNode();
     }
 
     private void setLocalMatrix(Matrix4d localMatrix) {
@@ -128,9 +131,9 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
                 +",r="+myR.get()
                 +",alpha="+ alpha.get()
                 +",theta="+ theta.get()
-                +",thetaMax="+ jointMax.get()
-                +",thetaMin="+ jointMin.get()
-                +",thetaHome="+ jointHome.get()
+                +",jointMax="+ jointMax.get()
+                +",jointMin="+ jointMin.get()
+                +",jointHome="+ jointHome.get()
                 +",revolute="+ isRevolute.get()
                 +",\n";
     }
