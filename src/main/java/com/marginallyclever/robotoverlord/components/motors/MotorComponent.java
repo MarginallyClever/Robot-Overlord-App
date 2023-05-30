@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.components.motors;
 
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.Component;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,6 +18,7 @@ import java.util.*;
 public class MotorComponent extends Component {
     private final TreeMap<Integer, Double> torqueCurve = new TreeMap<>();
     private int currentRPM=0;
+    public final DoubleParameter gearRatio = new DoubleParameter("Gear Ratio",1.0);
 
     public MotorComponent() {
         super();
@@ -94,12 +96,14 @@ public class MotorComponent extends Component {
             curve.put(entry.getKey().toString(),entry.getValue());
         }
         jo.put("torqueCurve",curve);
+        jo.put("gearRatio",gearRatio.get());
         return jo;
     }
 
     @Override
     public void parseJSON(JSONObject jo, SerializationContext context) throws JSONException {
         super.parseJSON(jo, context);
+        gearRatio.set(jo.getDouble("gearRatio"));
         torqueCurve.clear();
         JSONObject curve = jo.getJSONObject("torqueCurve");
         Iterator<String> keys = curve.keys();
@@ -108,5 +112,14 @@ public class MotorComponent extends Component {
             Double value = curve.getDouble(key);
             torqueCurve.put(Integer.parseInt(key),value);
         }
+    }
+
+    @Override
+    public String toString() {
+        return super.toString()
+                + ", gearRatio=" + gearRatio.get()
+                + ", torqueCurve=" + torqueCurve.toString()
+                + ", currentRPM=" + currentRPM
+                + ",\n";
     }
 }
