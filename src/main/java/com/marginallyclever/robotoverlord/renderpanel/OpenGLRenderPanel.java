@@ -122,6 +122,8 @@ public class OpenGLRenderPanel implements RenderPanel {
     private final List<LightComponent> lights = new ArrayList<>();
 
     private double cursorSize = 10;
+    private final Mesh cursorMesh = new Mesh();
+
 
 
     public OpenGLRenderPanel(EntityManager entityManager) {
@@ -132,6 +134,7 @@ public class OpenGLRenderPanel implements RenderPanel {
         createCanvas();
         addCanvasListeners();
         hideDefaultCursor();
+        createCursorMesh();
 
         panel.setMinimumSize(new Dimension(300, 300));
         panel.add(setupTools(), BorderLayout.NORTH);
@@ -388,7 +391,7 @@ public class OpenGLRenderPanel implements RenderPanel {
             readResource("outline_330.vert"),
             readResource("outline_330.frag"));
         shaderHUD = new ShaderProgram(gl2,
-            readResource("notransform_330.vert"),
+            readResource("default_330.vert"),
             readResource("givenColor_330.frag"));
     }
 
@@ -784,58 +787,49 @@ public class OpenGLRenderPanel implements RenderPanel {
     private void drawCursor(GL2 gl2) {
         if(!isMouseIn) return;
 
-        boolean tex = OpenGLHelper.disableTextureStart(gl2);
-        boolean lit = OpenGLHelper.disableLightingStart(gl2);
-        int top = OpenGLHelper.drawAtopEverythingStart(gl2);
-/*
         shaderHUD.use(gl2);
         setOrthograpicMatrix(gl2,shaderHUD);
         shaderHUD.setMatrix4d(gl2,"viewMatrix",MatrixHelper.createIdentityMatrix4());
-        shaderHUD.setMatrix4d(gl2,"modelMatrix",MatrixHelper.createIdentityMatrix4());
-*/
-        gl2.glUseProgram(0);
-
-        gl2.glMatrixMode(GL2.GL_PROJECTION);
-        gl2.glPushMatrix();
-        gl2.glLoadIdentity();
-        viewport.renderOrthographic(gl2,1);
-        gl2.glMatrixMode(GL2.GL_MODELVIEW);
 
         double [] cursor = viewport.getCursorAsNormalized();
-        cursor[0] *= viewport.getCanvasWidth() / 2d;
-        cursor[1] *= viewport.getCanvasHeight() / 2d;
+        Matrix4d modelView = MatrixHelper.createIdentityMatrix4();
+        modelView.m03 = cursor[0] * viewport.getCanvasWidth() / 2d;
+        modelView.m13 = cursor[1] * viewport.getCanvasHeight() / 2d;
+        modelView.m23 = -10;
+        modelView.transpose();
+        shaderHUD.setMatrix4d(gl2,"modelMatrix",modelView);
 
-        gl2.glPushMatrix();
-        MatrixHelper.setMatrix(gl2, MatrixHelper.createIdentityMatrix4());
-        gl2.glTranslated(cursor[0],cursor[1],-1);
-        gl2.glBegin(GL2.GL_LINES);
+        // draw!
+        boolean tex = OpenGLHelper.disableTextureStart(gl2);
+        boolean lit = OpenGLHelper.disableLightingStart(gl2);
+        int top = OpenGLHelper.drawAtopEverythingStart(gl2);
 
-        gl2.glColor3d(0,0,0);
-        gl2.glVertex2d(1,-cursorSize);
-        gl2.glVertex2d(1, cursorSize);
-        gl2.glVertex2d(-cursorSize,1);
-        gl2.glVertex2d( cursorSize,1);
-
-        gl2.glVertex2d(-1,-cursorSize);
-        gl2.glVertex2d(-1, cursorSize);
-        gl2.glVertex2d(-cursorSize,-1);
-        gl2.glVertex2d( cursorSize,-1);
-
-        gl2.glColor4d(1,1,1,1);
-        gl2.glVertex2d(0,-cursorSize);
-        gl2.glVertex2d(0, cursorSize);
-        gl2.glVertex2d(-cursorSize,0);
-        gl2.glVertex2d( cursorSize,0);
-        gl2.glEnd();
-        gl2.glPopMatrix();
+        cursorMesh.render(gl2);
 
         OpenGLHelper.drawAtopEverythingEnd(gl2,top);
         OpenGLHelper.disableLightingEnd(gl2,lit);
         OpenGLHelper.disableTextureEnd(gl2,tex);
+    }
 
-        gl2.glMatrixMode(GL2.GL_PROJECTION);
-        gl2.glPopMatrix();
-        gl2.glMatrixMode(GL2.GL_MODELVIEW);
+    private void createCursorMesh() {
+        // build mesh - only needs to be done once.
+        float cf = (float)cursorSize;
+        cursorMesh.clear();
+        cursorMesh.setRenderStyle(GL2.GL_LINES);
+        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(1,-cf,0);
+        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(1, cf,0);
+        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-cf,1,0);
+        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex( cf,1,0);
+
+        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-1,-cf,0);
+        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-1, cf,0);
+        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-cf,-1,0);
+        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex( cf,-1,0);
+
+        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex(0,-cf,0);
+        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex(0, cf,0);
+        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex(-cf,0,0);
+        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex( cf,0,0);
     }
 
     private void updateStep(double dt) {
