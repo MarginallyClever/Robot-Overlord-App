@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;
 
@@ -24,6 +25,7 @@ public class ApproximateJacobianScrewTheory extends ApproximateJacobian {
 	public ApproximateJacobianScrewTheory(RobotComponent arm) {
 		super(arm.getNumBones());
 
+		int oldActive = (int)arm.get(Robot.ACTIVE_JOINT);
 		// For each joint
 		for (int i = 0; i < DOF; ++i) {
 			// get pose of joint i relative to the robot base
@@ -34,7 +36,6 @@ public class ApproximateJacobianScrewTheory extends ApproximateJacobian {
 			if (!(boolean) arm.get(Robot.JOINT_PRISMATIC)) {
 				// the screw axis is the rotation axis
 				Vector3d s = MatrixHelper.getZAxis(T);
-
 				// The angular velocity component of the screw is the same as s
 				double[] w = new double[] { s.x,s.y,s.z };
 
@@ -45,15 +46,17 @@ public class ApproximateJacobianScrewTheory extends ApproximateJacobian {
 				// Compute the cross product of s and the vector from joint origin to end effector
 				Vector3d r = new Vector3d();
 				r.sub(p_endEffector, p); // Vector from joint origin to end effector
-				Vector3d v = new Vector3d();
-				v.cross(s,r);
-				double[] v1 = new double[] { v.x,v.y,v.z };
+				Vector3d sXr = new Vector3d();
+				sXr.cross(s,r);
+				double[] v1 = new double[] { sXr.x,sXr.y,sXr.z };
 
 				// Fill in the Jacobian column
-				for (int j = 0; j < 3; ++j) {
-					jacobian[j][i] = v1[j];
-					jacobian[j + 3][i] = w[j];
-				}
+				jacobian[0][i] = v1[0];
+				jacobian[1][i] = v1[1];
+				jacobian[2][i] = v1[2];
+				jacobian[3][i] = w[0];
+				jacobian[4][i] = w[1];
+				jacobian[5][i] = w[2];
 			} else {
 				// for prismatic joint, the screw axis is the direction of translation
 				double[] v = new double[] {T.m02, T.m12, T.m22};
@@ -61,10 +64,11 @@ public class ApproximateJacobianScrewTheory extends ApproximateJacobian {
 
 				// Fill in the Jacobian column
 				for (int j = 0; j < 3; ++j) {
-					jacobian[j][i] = v[j];
+					jacobian[j    ][i] = v[j];
 					jacobian[j + 3][i] = w[j];
 				}
 			}
 		}
+		arm.set(Robot.ACTIVE_JOINT, oldActive);
 	}
 }
