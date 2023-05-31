@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.parameters;
 
 import com.marginallyclever.robotoverlord.SerializationContext;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.EditArmPanel;
 import org.json.JSONObject;
 
 import java.beans.PropertyChangeEvent;
@@ -36,11 +37,11 @@ public abstract class AbstractParameter<T> {
     	if( this.t==null || !this.t.equals(t) ) {
     		T oldValue = this.t;
 	    	this.t = t;
-    		this.notifyPropertyChangeListeners(new PropertyChangeEvent(this,"value",oldValue,t));
+    		firePropertyChange(new PropertyChangeEvent(this,"value",oldValue,t));
     	}
     }
 
-	protected void notifyPropertyChangeListeners(PropertyChangeEvent value) {
+	protected void firePropertyChange(PropertyChangeEvent value) {
 		propertyChangeListeners.forEach(l->l.propertyChange(value));
 	}
 
@@ -51,6 +52,10 @@ public abstract class AbstractParameter<T> {
 
 	public void addPropertyChangeListener(PropertyChangeListener arg0) {
 		propertyChangeListeners.add(arg0);
+	}
+
+	public void removePropertyChangeListener(EditArmPanel arg0) {
+		propertyChangeListeners.remove(arg0);
 	}
 
 	public JSONObject toJSON(SerializationContext context) {

@@ -275,7 +275,7 @@ public class RemoteParameter extends StringParameter implements SessionLayerList
 		} else {
 			// no error
 			if(!data.trim().equals(CUE.trim())) {
-				notifyPropertyChangeListeners(new PropertyChangeEvent(this, "data", null, data));
+				firePropertyChange(new PropertyChangeEvent(this, "data", null, data));
 			}
 		}
 	}

@@ -7,6 +7,7 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.TextureParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
@@ -18,6 +19,8 @@ import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.systems.OriginAdjustSystem;
 
 import java.awt.Component;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
@@ -32,7 +35,7 @@ import java.awt.*;
  * @author Dan Royer
  * @since 2.5.7
  */
-public class EditArmPanel extends JPanel {
+public class EditArmPanel extends JPanel implements PropertyChangeListener {
     public static final int MAX_JOINTS = 6;
     private int numJoints = 1;
     private static final String [] labels = {"Joint", "D", "R", "Alpha", "Theta", "Max", "Min", "Home", "Mesh","Show"};
@@ -65,6 +68,14 @@ public class EditArmPanel extends JPanel {
         createComponents();
         setupPanel();
         add(centerContainer);
+    }
+
+    @Override
+    public void removeNotify() {
+        super.removeNotify();
+        for(Entity bone : joints) {
+            removeMyPropertyChangeListener(bone.getComponent(DHComponent.class));
+        }
     }
 
     private void addMenu() {
@@ -141,6 +152,10 @@ public class EditArmPanel extends JPanel {
                 entityManager.addEntityToParent(meshEntity, jointEntity);
                 meshEntity.addComponent(new MeshFromFile());
                 meshEntity.addComponent(new OriginAdjustComponent());
+            }
+            if(parent.getComponent(ArmEndEffectorComponent.class)!=null) {
+                // remove end effector component from the parent
+                parent.removeComponent(parent.getComponent(ArmEndEffectorComponent.class));
             }
 
             // Keep going
@@ -223,11 +238,8 @@ public class EditArmPanel extends JPanel {
             dhTable.add(elements[j++] = new ViewElementDouble(dhComponent.jointHome),c);  c.gridx++;
             for(j=0;j<elements.length;++j) {
                 elements[j].setLabel("");
-                elements[j].addPropertyChangeListener(e->{
-                    updatePoses();
-                    updateTarget();
-                });
             }
+            addMyPropertyChangeListener(dhComponent);
 
             // mesh selection
             c.weightx=1;
@@ -257,6 +269,38 @@ public class EditArmPanel extends JPanel {
             c.weightx=0;
             dhTable.add(viewElementShowDH,c);
         }
+    }
+
+    private void addMyPropertyChangeListener(DHComponent dhComponent) {
+        dhComponent.myD.addPropertyChangeListener(this);
+        dhComponent.myR.addPropertyChangeListener(this);
+        dhComponent.alpha.addPropertyChangeListener(this);
+        dhComponent.theta.addPropertyChangeListener(this);
+        dhComponent.jointMax.addPropertyChangeListener(this);
+        dhComponent.jointMin.addPropertyChangeListener(this);
+        dhComponent.jointHome.addPropertyChangeListener(this);
+    }
+
+    private void removeMyPropertyChangeListener(DHComponent dhComponent) {
+        dhComponent.myD.removePropertyChangeListener(this);
+        dhComponent.myR.removePropertyChangeListener(this);
+        dhComponent.alpha.removePropertyChangeListener(this);
+        dhComponent.theta.removePropertyChangeListener(this);
+        dhComponent.jointMax.removePropertyChangeListener(this);
+        dhComponent.jointMin.removePropertyChangeListener(this);
+        dhComponent.jointHome.removePropertyChangeListener(this);
+    }
+
+    /**
+     * This method gets called when a bound property is changed.
+     *
+     * @param evt A PropertyChangeEvent object describing the event source
+     *            and the property that has changed.
+     */
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        updatePoses();
+        updateTarget();
     }
 
     private void setupGeneralSettings() {
@@ -346,6 +390,7 @@ public class EditArmPanel extends JPanel {
         }
 
         // adjust origins
+        c.gridy++;
         adjustOrigins.setSelected(true);
         generalPanel.add(adjustOrigins,c);
         adjustOrigins.addActionListener(e -> updatePoses());
