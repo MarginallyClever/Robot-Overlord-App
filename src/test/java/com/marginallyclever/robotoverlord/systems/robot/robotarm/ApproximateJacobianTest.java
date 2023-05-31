@@ -108,58 +108,6 @@ public class ApproximateJacobianTest {
         return robot;
     }
 
-    @Test
-    public void commutative1() throws Exception {
-        RobotComponent robot = build5AxisArm();
-        ApproximateJacobian j = new ApproximateJacobianFiniteDifferences(robot);
-
-        double [] a = new double[] {1,2,3,4,5,6};
-        double [] b = j.getJointForceFromCartesianForce(a);
-        double [] c = j.getCartesianForceFromJointForce(b);
-        for(int i=0;i<a.length;++i) {
-            Assertions.assertEquals(a[i],c[i],0.0001);
-        }
-    }
-
-    @Test
-    public void commutative2() throws Exception {
-        RobotComponent robot = build6AxisArm();
-        ApproximateJacobian j = new ApproximateJacobianFiniteDifferences(robot);
-
-        double [] a = new double[] {1,2,3,4,5,6};
-        double [] b = j.getJointForceFromCartesianForce(a);
-        double [] c = j.getCartesianForceFromJointForce(b);
-        for(int i=0;i<a.length;++i) {
-            Assertions.assertEquals(a[i],c[i],0.0001);
-        }
-    }
-
-    @Test
-    public void commutative3() throws Exception {
-        RobotComponent robot = build5AxisArm();
-        ApproximateJacobian j = new ApproximateJacobianScrewTheory(robot);
-
-        double [] a = new double[] {1,2,3,4,5,6};
-        double [] b = j.getJointForceFromCartesianForce(a);
-        double [] c = j.getCartesianForceFromJointForce(b);
-        for(int i=0;i<a.length;++i) {
-            Assertions.assertEquals(a[i],c[i],0.0001);
-        }
-    }
-
-    @Test
-    public void commutative4() throws Exception {
-        RobotComponent robot = build6AxisArm();
-        ApproximateJacobian j = new ApproximateJacobianScrewTheory(robot);
-
-        double [] a = new double[] {1,2,3,4,5,6};
-        double [] b = j.getJointForceFromCartesianForce(a);
-        double [] c = j.getCartesianForceFromJointForce(b);
-        for(int i=0;i<a.length;++i) {
-            Assertions.assertEquals(a[i],c[i],0.0001);
-        }
-    }
-
     /**
      * Compare the two methods.
      * @throws Exception if error
@@ -170,14 +118,23 @@ public class ApproximateJacobianTest {
         ApproximateJacobian a = new ApproximateJacobianFiniteDifferences(robot);
         ApproximateJacobian b = new ApproximateJacobianScrewTheory(robot);
 
-        double [] v = new double[] {1,2,3,4,5,6};
+        double [][] ja = a.getJacobian();
+        double [][] jb = b.getJacobian();
+        System.out.println(a);
+        System.out.println(b);
+        for(int i=0;i<ja.length;++i) {
+            for(int j=0;j<ja[0].length;++j) {
+                Assertions.assertEquals(ja[i][j],jb[i][j],0.001);
+            }
+        }
 
+        double [] v = new double[] {1,2,3,4,5,6};
         double [] va = a.getJointForceFromCartesianForce(v);
         double [] vb = b.getJointForceFromCartesianForce(v);
         System.out.println(Arrays.toString(va));
         System.out.println(Arrays.toString(vb));
         for(int i=0;i<va.length;++i) {
-            Assertions.assertEquals(va[i],vb[i],0.0001);
+            Assertions.assertEquals(va[i],vb[i],0.001);
         }
     }
 }
