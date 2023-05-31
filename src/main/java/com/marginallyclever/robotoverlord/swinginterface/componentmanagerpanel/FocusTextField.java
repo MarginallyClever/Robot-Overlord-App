@@ -11,11 +11,6 @@ import java.awt.event.FocusListener;
  *
  */
 public class FocusTextField extends JTextField implements FocusListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public FocusTextField(int i) {
 		super(i);
 		addFocusListener(this);

@@ -36,11 +36,6 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		
 		field = new FocusTextField(8);
 		field.addActionListener(new AbstractAction() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				conditionalChange();
@@ -72,21 +67,19 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		double newNumber;
 		
 		try {
-			newNumber = Double.valueOf(field.getText());
+			newNumber = Double.parseDouble(field.getText());
+			field.setForeground(UIManager.getColor("Textfield.foreground"));
 		} catch(NumberFormatException e1) {
 			field.setForeground(Color.RED);
 			return;
 		}
 
-		field.setForeground(UIManager.getColor("Textfield.foreground"));
-		
 		if(lock.isLocked()) return;
 		lock.lock();
 
 		if(newNumber != parameter.get()) {
 			UndoSystem.addEvent(new DoubleParameterEdit(parameter, newNumber));
 		}
-		
 		lock.unlock();
 	}
 	
