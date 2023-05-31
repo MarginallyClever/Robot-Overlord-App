@@ -19,9 +19,10 @@ import java.util.Map;
  */
 public class MultiVersionPropertiesPanel extends JPanel {
     private final JComboBox<String> tagComboBox;
-    private final JPanel propertiesPanel = new JPanel();
+    private final JPanel propertiesPanelContainer = new JPanel();
     private final JPanel libraryStatus = new JPanel(new BorderLayout());
     private final int numTags;
+    private String robotName="missing";
 
     public MultiVersionPropertiesPanel(String githubRepositoryUrl) {
         setLayout(new BorderLayout());
@@ -35,7 +36,7 @@ public class MultiVersionPropertiesPanel extends JPanel {
 
         libraryStatus.setName("libraryStatus");
 
-        propertiesPanel.setLayout(new BoxLayout(propertiesPanel, BoxLayout.Y_AXIS));
+        propertiesPanelContainer.setLayout(new BoxLayout(propertiesPanelContainer, BoxLayout.Y_AXIS));
 
         tagComboBox = new JComboBox<>(tags.toArray(new String[0]));
         tagComboBox.setName("tagComboBox");
@@ -44,9 +45,9 @@ public class MultiVersionPropertiesPanel extends JPanel {
             updateLibraryStatusPanel(githubRepositoryUrl, (String) tagComboBox.getSelectedItem());
         });
 
-        propertiesPanel.setName("propertiesPanel");
+        propertiesPanelContainer.setName("propertiesPanel");
 
-        add(propertiesPanel, BorderLayout.CENTER);
+        add(propertiesPanelContainer, BorderLayout.CENTER);
         add(pageEnd, BorderLayout.PAGE_END);
         pageEnd.add(tagComboBox, BorderLayout.LINE_START);
         pageEnd.add(libraryStatus,BorderLayout.LINE_END);
@@ -104,6 +105,7 @@ public class MultiVersionPropertiesPanel extends JPanel {
         try {
             Map<String, String> libraryProperties = GithubFetcher.fetchRobotProperties(githubRepositoryUrl, tag);
             newCenterPanel = new PropertiesPanel(libraryProperties);
+            robotName = libraryProperties.get("name");
         } catch (IOException e) {
             //e.printStackTrace();
             //JOptionPane.showMessageDialog(this, "Error fetching properties for tag " + tag, "Error", JOptionPane.ERROR_MESSAGE);
@@ -112,10 +114,10 @@ public class MultiVersionPropertiesPanel extends JPanel {
         }
         newCenterPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        propertiesPanel.removeAll();
-        propertiesPanel.add(newCenterPanel);
-        propertiesPanel.revalidate();
-        propertiesPanel.repaint();
+        propertiesPanelContainer.removeAll();
+        propertiesPanelContainer.add(newCenterPanel);
+        propertiesPanelContainer.revalidate();
+        propertiesPanelContainer.repaint();
     }
 
     /**
@@ -136,6 +138,10 @@ public class MultiVersionPropertiesPanel extends JPanel {
         for(RobotLibraryListener listener : listeners) {
             listener.onRobotAdded();
         }
+    }
+
+    public String getRobotName() {
+        return robotName;
     }
 
     /**
