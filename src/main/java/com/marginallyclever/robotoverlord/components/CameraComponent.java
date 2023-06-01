@@ -26,15 +26,6 @@ public class CameraComponent extends RenderComponent {
     public final DoubleParameter orbitDistance = new DoubleParameter("Orbit distance",0);
     protected boolean isCurrentlyMoving=false;
 
-    @Override
-    public void setEntity(Entity entity) {
-        super.setEntity(entity);
-        if(entity!=null) {
-            PoseComponent p = entity.getComponent(PoseComponent.class);
-            if(p==null) entity.addComponent(new PoseComponent());
-        }
-    }
-
     public double getOrbitDistance() {
         return orbitDistance.get();
     }

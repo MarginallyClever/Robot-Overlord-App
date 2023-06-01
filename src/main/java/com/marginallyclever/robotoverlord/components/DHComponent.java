@@ -33,10 +33,11 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
     public final DoubleParameter jointHome = new DoubleParameter("Home",0.0);
 
     @Override
-    public void setEntity(Entity entity) {
-        super.setEntity(entity);
+    public void onAttach() {
         refreshLocalMatrix();
         myMesh = new Mesh();
+        MaterialComponent mat = getEntity().getComponent(MaterialComponent.class);
+        mat.drawOnTop.set(true);
     }
 
     public DHComponent() {
@@ -59,6 +60,7 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
         jo.put("ThetaMin", jointMin.toJSON(context));
         jo.put("ThetaHome", jointHome.toJSON(context));
         jo.put("Revolute", isRevolute.toJSON(context));
+        jo.put("Home", jointHome.toJSON(context));
         return jo;
     }
 
@@ -73,6 +75,7 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
         if(jo.has("ThetaMin")) jointMin.parseJSON(jo.getJSONObject("ThetaMin"),context);
         if(jo.has("ThetaHome")) jointHome.parseJSON(jo.getJSONObject("ThetaHome"),context);
         if(jo.has("Revolute")) isRevolute.parseJSON(jo.getJSONObject("Revolute"),context);
+        if(jo.has("Home")) jointHome.parseJSON(jo.getJSONObject("Home"),context);
         refreshLocalMatrix();
     }
 
@@ -83,7 +86,6 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
 
     private void refreshLocalMatrix() {
         setLocalMatrix(getLocalMatrix());
-        //updateChildAdjustmentNode();
     }
 
     private void setLocalMatrix(Matrix4d localMatrix) {
@@ -128,9 +130,9 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
                 +",r="+myR.get()
                 +",alpha="+ alpha.get()
                 +",theta="+ theta.get()
-                +",thetaMax="+ jointMax.get()
-                +",thetaMin="+ jointMin.get()
-                +",thetaHome="+ jointHome.get()
+                +",jointMax="+ jointMax.get()
+                +",jointMin="+ jointMin.get()
+                +",jointHome="+ jointHome.get()
                 +",revolute="+ isRevolute.get()
                 +",\n";
     }
@@ -290,10 +292,17 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
 
         myMesh.clear();
         myMesh.setRenderStyle(GL2.GL_LINES);
-        myMesh.addColor(0,0,1,1);            myMesh.addVertex(0,0,0);
-        myMesh.addColor(0,0,1,1);            myMesh.addVertex((float)d.x,(float)d.y,(float)d.z);
-        myMesh.addColor(1,0,0,1);            myMesh.addVertex((float)d.x,(float)d.y,(float)d.z);
-        myMesh.addColor(1,0,0,1);            myMesh.addVertex((float)dr.x,(float)dr.y,(float)dr.z);
+        myMesh.addColor(0,1,1,1);            myMesh.addVertex(0,0,0);
+        myMesh.addColor(0,1,1,1);            myMesh.addVertex((float)d.x,(float)d.y,(float)d.z);
+        myMesh.addColor(1,1,0,1);            myMesh.addVertex((float)d.x,(float)d.y,(float)d.z);
+        myMesh.addColor(1,1,0,1);            myMesh.addVertex((float)dr.x,(float)dr.y,(float)dr.z);
+
+        myMesh.addColor(1,0,0,1); myMesh.addVertex(0,0,0);
+        myMesh.addColor(1,0,0,1); myMesh.addVertex(5,0,0);
+        myMesh.addColor(0,1,0,1); myMesh.addVertex(0,0,0);
+        myMesh.addColor(0,1,0,1); myMesh.addVertex(0,5,0);
+        myMesh.addColor(0,0,1,1); myMesh.addVertex(0,0,0);
+        myMesh.addColor(0,0,1,1); myMesh.addVertex(0,0,5);
         myMesh.render(gl2);
 
         OpenGLHelper.drawAtopEverythingEnd(gl2, onTop);

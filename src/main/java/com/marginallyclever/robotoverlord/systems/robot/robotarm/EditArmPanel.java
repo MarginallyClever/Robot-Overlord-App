@@ -7,16 +7,20 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.TextureParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementSlider;
+import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.*;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementFilename;
 import com.marginallyclever.robotoverlord.systems.OriginAdjustSystem;
 
 import java.awt.Component;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
@@ -31,11 +35,11 @@ import java.awt.*;
  * @author Dan Royer
  * @since 2.5.7
  */
-public class EditArmPanel extends JPanel {
+public class EditArmPanel extends JPanel implements PropertyChangeListener {
     public static final int MAX_JOINTS = 6;
     private int numJoints = 1;
-    private static final String [] labels = {"Joint", "D", "R", "Alpha", "Theta", "Max", "Min", "Home", "Mesh"};
-    private static final int [] widths = {30,30,30,30,30,30,30,30,25};
+    private static final String [] labels = {"Joint", "D", "R", "Alpha", "Theta", "Max", "Min", "Home", "Mesh","Show"};
+    private static final int [] widths = {30,30,30,30,30,30,30,30,30,30};
     public static final int COLS = labels.length-1;
     private final EntityManager entityManager;
     private final Entity rootEntity;
@@ -46,20 +50,45 @@ public class EditArmPanel extends JPanel {
     private final RobotComponent robotComponent;
 
     public EditArmPanel(Entity rootEntity, EntityManager entityManager) {
-        super(new BorderLayout());
-
-        Dimension d = new Dimension(700,320);
-        setMinimumSize(d);
-        setPreferredSize(d);
-        setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-        add(centerContainer,BorderLayout.CENTER);
+        super();
         this.entityManager = entityManager;
         this.rootEntity = rootEntity;
         this.robotComponent = rootEntity.getComponent(RobotComponent.class);
+
+        setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
+
+        setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+
+        Dimension d = new Dimension(760,350);
+        setMinimumSize(d);
+        setPreferredSize(d);
+
+        addMenu();
         countJoints();
         createComponents();
         setupPanel();
+        add(centerContainer);
     }
+
+    @Override
+    public void removeNotify() {
+        super.removeNotify();
+        for(Entity bone : joints) {
+            removeMyPropertyChangeListener(bone.getComponent(DHComponent.class));
+        }
+    }
+
+    private void addMenu() {
+        JMenuBar menuBar = new JMenuBar();
+        menuBar.setMaximumSize(new Dimension(Short.MAX_VALUE,Short.MAX_VALUE));
+        JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.Edit"));
+        menuBar.add(menu);
+        menu.add(new JMenuItem(UndoSystem.getCommandUndo()));
+        menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
+
+        this.add(menuBar);
+    }
+
 
     private void countJoints() {
         boolean found;
@@ -124,6 +153,10 @@ public class EditArmPanel extends JPanel {
                 meshEntity.addComponent(new MeshFromFile());
                 meshEntity.addComponent(new OriginAdjustComponent());
             }
+            if(parent.getComponent(ArmEndEffectorComponent.class)!=null) {
+                // remove end effector component from the parent
+                parent.removeComponent(parent.getComponent(ArmEndEffectorComponent.class));
+            }
 
             // Keep going
             joints.add(jointEntity);
@@ -162,7 +195,6 @@ public class EditArmPanel extends JPanel {
     }
 
     private void setupDHTable() {
-
         centerContainer.removeAll();
         dhTable.removeAll();
         dhTable.setBorder(BorderFactory.createTitledBorder("DH Parameters"));
@@ -192,88 +224,83 @@ public class EditArmPanel extends JPanel {
             JLabel label = new JLabel(String.valueOf(i));
             label.setHorizontalAlignment(SwingConstants.RIGHT);
             dhTable.add(label,c);
-            for (int j = 0; j < COLS; j++) {
-                c.gridx=1+j;
-                if (j < COLS - 1) {
-                    final int paramIndex = j;
-                    DHComponent dhComponent = joints.get(i).getComponent(DHComponent.class);
+            DHComponent dhComponent = joints.get(i).getComponent(DHComponent.class);
 
-                    JTextField dhInput = new JTextField(7);
-                    dhInput.setHorizontalAlignment(SwingConstants.RIGHT);
-
-                    double v = switch (paramIndex) {
-                        case 0 -> dhComponent.getD();
-                        case 1 -> dhComponent.getR();
-                        case 2 -> dhComponent.getAlpha();
-                        case 3 -> dhComponent.getTheta();
-                        case 4 -> dhComponent.getJointMax();
-                        case 5 -> dhComponent.getJointMin();
-                        case 6 -> dhComponent.getJointHome();
-                        default -> Double.NaN;
-                    };
-                    dhInput.setText(StringHelper.formatDouble(v));
-                    dhInput.getDocument().addDocumentListener(new DocumentListener() {
-                        @Override
-                        public void insertUpdate(DocumentEvent e) {
-                            onChange(e);
-                        }
-
-                        @Override
-                        public void removeUpdate(DocumentEvent e) {
-                            onChange(e);
-                        }
-
-                        @Override
-                        public void changedUpdate(DocumentEvent e) {
-                            onChange(e);
-                        }
-
-                        private void onChange(DocumentEvent e) {
-                            String text = dhInput.getText();
-                            double value;
-
-                            try {
-                                value = (text == null) ? 0 : Double.parseDouble(text);
-                            } catch (NumberFormatException ex) {
-                                value = 0;
-                            }
-
-                            switch (paramIndex) {
-                                case 0 -> dhComponent.setD(value);
-                                case 1 -> dhComponent.setR(value);
-                                case 2 -> dhComponent.setAlpha(value);
-                                case 3 -> dhComponent.setTheta(value);
-                                case 4 -> dhComponent.setJointMax(value);
-                                case 5 -> dhComponent.setJointMin(value);
-                                case 6 -> dhComponent.setJointHome(value);
-                            }
-                            updatePoses();
-                            updateTarget();
-                        }
-                    });
-
-                    dhTable.add(dhInput,c);
-                } else {
-                    c.weightx=1;
-                    // last column mesh selection
-                    ShapeComponent shape = findChildShapeComponent(joints.get(i));
-                    if(shape!=null) {
-                        if (shape instanceof MeshFromFile) {
-                            MeshFromFile meshFromFile = (MeshFromFile) shape;
-                            StringParameter filenameParameter = meshFromFile.filename;
-                            ViewElementFilename viewElementFilename = new ViewElementFilename(filenameParameter);
-                            viewElementFilename.addFileFilters(MeshFactory.getAllExtensions());
-                            dhTable.add(viewElementFilename,c);
-                        } else {
-                            // is a ShapeComponent
-                            dhTable.add(new JLabel("Joint model is Shape"),c);
-                        }
-                    } else {
-                        dhTable.add(new JLabel("Joint model is missing"),c);
-                    }
-                }
+            ViewElementDouble [] elements = new ViewElementDouble[7];
+            int j=0;
+            c.gridx=1;
+            dhTable.add(elements[j++] = new ViewElementDouble(dhComponent.myD),c);  c.gridx++;
+            dhTable.add(elements[j++] = new ViewElementDouble(dhComponent.myR),c);  c.gridx++;
+            dhTable.add(elements[j++] = new ViewElementDouble(dhComponent.alpha),c);  c.gridx++;
+            dhTable.add(elements[j++] = new ViewElementDouble(dhComponent.theta),c);  c.gridx++;
+            dhTable.add(elements[j++] = new ViewElementDouble(dhComponent.jointMax),c);  c.gridx++;
+            dhTable.add(elements[j++] = new ViewElementDouble(dhComponent.jointMin),c);  c.gridx++;
+            dhTable.add(elements[j++] = new ViewElementDouble(dhComponent.jointHome),c);  c.gridx++;
+            for(j=0;j<elements.length;++j) {
+                elements[j].setLabel("");
             }
+            addMyPropertyChangeListener(dhComponent);
+
+            // mesh selection
+            c.weightx=1;
+            ShapeComponent shape = findChildShapeComponent(joints.get(i));
+            if(shape!=null) {
+                if (shape instanceof MeshFromFile) {
+                    MeshFromFile meshFromFile = (MeshFromFile) shape;
+                    StringParameter filenameParameter = meshFromFile.filename;
+                    ViewElementFilename viewElementFilename = new ViewElementFilename(filenameParameter);
+                    viewElementFilename.setLabel("");
+                    viewElementFilename.addFileFilters(MeshFactory.getAllExtensions());
+                    dhTable.add(viewElementFilename,c);
+                } else {
+                    // is a ShapeComponent
+                    dhTable.add(new JLabel("Joint model is Shape"),c);
+                }
+            } else {
+                dhTable.add(new JLabel("Joint model is missing"),c);
+            }
+            c.gridx++;
+
+            // show DH?
+
+            // show DH
+            ViewElementBoolean viewElementShowDH = new ViewElementBoolean(dhComponent.isVisible);
+            viewElementShowDH.setLabel("");
+            c.weightx=0;
+            dhTable.add(viewElementShowDH,c);
         }
+    }
+
+    private void addMyPropertyChangeListener(DHComponent dhComponent) {
+        dhComponent.myD.addPropertyChangeListener(this);
+        dhComponent.myR.addPropertyChangeListener(this);
+        dhComponent.alpha.addPropertyChangeListener(this);
+        dhComponent.theta.addPropertyChangeListener(this);
+        dhComponent.jointMax.addPropertyChangeListener(this);
+        dhComponent.jointMin.addPropertyChangeListener(this);
+        dhComponent.jointHome.addPropertyChangeListener(this);
+    }
+
+    private void removeMyPropertyChangeListener(DHComponent dhComponent) {
+        dhComponent.myD.removePropertyChangeListener(this);
+        dhComponent.myR.removePropertyChangeListener(this);
+        dhComponent.alpha.removePropertyChangeListener(this);
+        dhComponent.theta.removePropertyChangeListener(this);
+        dhComponent.jointMax.removePropertyChangeListener(this);
+        dhComponent.jointMin.removePropertyChangeListener(this);
+        dhComponent.jointHome.removePropertyChangeListener(this);
+    }
+
+    /**
+     * This method gets called when a bound property is changed.
+     *
+     * @param evt A PropertyChangeEvent object describing the event source
+     *            and the property that has changed.
+     */
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        updatePoses();
+        updateTarget();
     }
 
     private void setupGeneralSettings() {
@@ -321,6 +348,7 @@ public class EditArmPanel extends JPanel {
             textureParameter = new TextureParameter("", "");
         }
         ViewElementFilename textureFilename = new ViewElementFilename(textureParameter);
+        textureFilename.setLabel("");
         textureFilename.addFileFilters(MeshFactory.getAllExtensions());
         textureFilename.setAlignmentX(Component.LEFT_ALIGNMENT);
         textureFilename.setMaximumSize(textureFilename.getPreferredSize());
@@ -347,6 +375,7 @@ public class EditArmPanel extends JPanel {
             MeshFromFile meshFromFile = (MeshFromFile)shape;
             StringParameter filenameParameter = meshFromFile.filename;
             ViewElementFilename baseMeshFilename = new ViewElementFilename(filenameParameter);
+            baseMeshFilename.setLabel("");
             baseMeshFilename.addFileFilters(MeshFactory.getAllExtensions());
             baseMeshFilename.setAlignmentX(Component.LEFT_ALIGNMENT);
             baseMeshFilename.setMaximumSize(baseMeshFilename.getPreferredSize());
@@ -360,28 +389,13 @@ public class EditArmPanel extends JPanel {
             generalPanel.add(baseMeshFilename,c);
         }
 
-        // show DH
-        JCheckBox showDH = new JCheckBox("Show DH");
-        showDH.setSelected(false);
-        showDH.addActionListener(e -> {
-            for (int i = 0; i < numJoints; i++) {
-                joints.get(i).getComponent(DHComponent.class).setVisible(showDH.isSelected());
-            }
-        });
-
-        c.gridy++;
-        c.weightx=1;
-        c.gridx=0;
-        c.gridwidth=2;
-        generalPanel.add(showDH,c);
-        c.gridy++;
-
         // adjust origins
-        adjustOrigins.setSelected(false);
+        c.gridy++;
+        adjustOrigins.setSelected(true);
         generalPanel.add(adjustOrigins,c);
         adjustOrigins.addActionListener(e -> updatePoses());
 
-        this.add(generalPanel, BorderLayout.NORTH);
+        this.add(generalPanel);
     }
 
     private void updatePoses() {
@@ -416,10 +430,10 @@ public class EditArmPanel extends JPanel {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame(EditArmPanel.class.getSimpleName());
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(800,600);
-            frame.setLocationRelativeTo(null);
+            frame.setSize(800,640);
             frame.add(new EditArmPanel(entityManager.getRoot(),entityManager));
             frame.pack();
+            frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
     }

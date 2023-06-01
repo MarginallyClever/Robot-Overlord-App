@@ -25,6 +25,7 @@ import java.io.File;
  */
 public class ViewElementFilename extends ViewElement implements ActionListener {
 	private static final JFileChooser chooser = new JFileChooser(PathHelper.SCENE_PATH);
+	private final JLabel label;
 	private final JTextField field = new JTextField(15);
 	private final ArrayList<FileFilter> filters = new ArrayList<>();
 	private final StringParameter parameter;
@@ -48,7 +49,7 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 		field.setMargin(new Insets(1,0,1,0));
 		//pathAndFileName.setBorder(BorderFactory.createLoweredBevelBorder());
 		
-		JLabel label=new JLabel(parameter.getName(),JLabel.LEADING);
+		label=new JLabel(parameter.getName(),JLabel.LEADING);
 		label.setLabelFor(field);
 
 		JButton choose = new JButton("...");
@@ -127,4 +128,12 @@ public class ViewElementFilename extends ViewElement implements ActionListener {
 	public void setReadOnly(boolean arg0) {
 		field.setEnabled(!arg0);
 	}
+
+    public void setLabel(String s) {
+		label.setText(s);
+		GridBagLayout layout = (GridBagLayout)getLayout();
+		GridBagConstraints g = layout.getConstraints(label);
+		g.insets.right = (label.getText().trim().isEmpty()?0:5);
+		layout.setConstraints(label,g);
+    }
 }

@@ -70,7 +70,7 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Pro
 		int newNumber;
 		
 		try {
-			newNumber = Integer.valueOf(field.getText());
+			newNumber = Integer.parseInt(field.getText());
 			field.setForeground(UIManager.getColor("Textfield.foreground"));
 		} catch(NumberFormatException e1) {
 			field.setForeground(Color.RED);

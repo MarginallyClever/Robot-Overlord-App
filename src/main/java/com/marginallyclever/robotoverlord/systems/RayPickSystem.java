@@ -41,7 +41,7 @@ public class RayPickSystem {
     /**
      * Traverse the scene Entities and find all the {@link ShapeComponent}s that collide with the ray.
      * @param ray the ray to test.
-     * @return all {@link RayHit} by the ray.  may be an empty list.
+     * @return all {@link RayHit} by the ray.  May be an empty list.
      */
     public List<RayHit> findRayIntersections(Ray ray) {
         List<RayHit> rayHits = new ArrayList<>();

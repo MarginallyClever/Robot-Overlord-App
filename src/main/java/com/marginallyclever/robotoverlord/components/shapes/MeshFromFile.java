@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
 import com.marginallyclever.robotoverlord.SerializationContext;
+import com.marginallyclever.robotoverlord.components.ComponentDependency;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
@@ -22,6 +23,7 @@ import java.util.List;
  * @author Dan Royer
  * @since 1.0.0
  */
+@ComponentDependency(components = {MaterialComponent.class})
 public class MeshFromFile extends ShapeComponent {
     private static final Logger logger = LoggerFactory.getLogger(MeshFromFile.class);
 
@@ -38,21 +40,16 @@ public class MeshFromFile extends ShapeComponent {
     }
 
     @Override
-    public void setEntity(Entity entity) {
-        if(entity != null && entity.getComponent(MaterialComponent.class)==null) {
-            // no material, add one.
-            String absolutePath = filename.get();
-            if(!absolutePath.trim().isEmpty() && MeshFactory.hasMaterial(absolutePath)) {
-                logger.debug("MeshFromFile: adding material for "+absolutePath);
-                String materialPath = MeshFactory.getMaterialPath(absolutePath);
-                MaterialComponent material = MaterialFactory.load(materialPath);
-                entity.addComponent(material);
-            } else {
-                entity.addComponent(new MaterialComponent());
-            }
+    public void onAttach() {
+        super.onAttach();
+        Entity entity = getEntity();
+        String absolutePath = filename.get();
+        if(!absolutePath.trim().isEmpty() && MeshFactory.hasMaterial(absolutePath)) {
+            logger.debug("MeshFromFile: adding material for "+absolutePath);
+            String materialPath = MeshFactory.getMaterialPath(absolutePath);
+            entity.removeComponent(entity.getComponent(MaterialComponent.class));
+            entity.addComponent(MaterialFactory.load(materialPath));
         }
-
-        super.setEntity(entity);
     }
 
     @Override

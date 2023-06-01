@@ -53,9 +53,6 @@ import java.util.Vector;
  * The user-triggered collapsable panel containing the component (trigger) in the titled border
  */
 public class CollapsiblePanel extends JPanel {
-	@Serial
-    private static final long serialVersionUID = 1L;
-
     /**
      * listener interface.
      */
@@ -110,6 +107,7 @@ public class CollapsiblePanel extends JPanel {
      */
     public CollapsiblePanel(String text) {
         arrow.setText(text);
+        arrow.setHorizontalTextPosition(SwingConstants.RIGHT);
         titleComponent = arrow;
         collapsed = false;
         commonConstructor();

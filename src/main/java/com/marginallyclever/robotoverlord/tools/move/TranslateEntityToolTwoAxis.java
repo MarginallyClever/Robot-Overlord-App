@@ -24,6 +24,8 @@ import java.util.List;
  */
 public class TranslateEntityToolTwoAxis implements EditorTool {
     private final double padSize = 1;
+    private double toolScale = 0.035;
+    private double localScale = 1;
 
     /**
      * The viewport to which this tool is attached.
@@ -151,10 +153,10 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
         diff.sub(point, MatrixHelper.getPosition(pivotMatrix));
 
         double dx = diff.dot(translationAxisX);
-        if( dx<0 || dx>=padSize ) return false;
+        if( dx<0 || dx>=getPadSizeScaled() ) return false;
 
         double dy = diff.dot(translationAxisY);
-        if( dy<0 || dy>=padSize ) return false;
+        if( dy<0 || dy>=getPadSizeScaled() ) return false;
 
         return true;
     }
@@ -163,7 +165,16 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
     public void handleKeyEvent(KeyEvent event) {}
 
     @Override
-    public void update(double deltaTime) {}
+    public void update(double deltaTime) {
+        updateLocalScale();
+    }
+
+    private void updateLocalScale() {
+        Vector3d cameraPoint = viewport.getCamera().getPosition();
+        Vector3d pivotPoint = MatrixHelper.getPosition(pivotMatrix);
+        pivotPoint.sub(cameraPoint);
+        localScale = pivotPoint.length() * toolScale;
+    }
 
     @Override
     public void render(GL2 gl2) {
@@ -191,17 +202,18 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
     }
 
     private void drawQuad(GL2 gl2,int mode) {
+        double ps = getPadSizeScaled();
         gl2.glBegin(mode);
         gl2.glVertex3d( 0, 0,0);
-        gl2.glVertex3d(padSize, 0,0);
-        gl2.glVertex3d(padSize, padSize,0);
-        gl2.glVertex3d(0, padSize,0);
+        gl2.glVertex3d(ps, 0,0);
+        gl2.glVertex3d(ps, ps,0);
+        gl2.glVertex3d(0, ps,0);
         gl2.glEnd();
         gl2.glBegin(mode);
         gl2.glVertex3d( 0, 0,0);
-        gl2.glVertex3d(0, padSize,0);
-        gl2.glVertex3d(padSize, padSize,0);
-        gl2.glVertex3d(padSize, 0,0);
+        gl2.glVertex3d(0, ps,0);
+        gl2.glVertex3d(ps, ps,0);
+        gl2.glVertex3d(ps, 0,0);
         gl2.glEnd();
     }
 
@@ -223,5 +235,15 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
     @Override
     public Point3d getStartPoint() {
     	return startPoint;
+    }
+
+    private double getPadSizeScaled() {
+        return padSize * localScale;
+    }
+    private double getToolScale() {
+        return toolScale;
+    }
+    private void setToolScale(double toolScale) {
+        this.toolScale = toolScale;
     }
 }

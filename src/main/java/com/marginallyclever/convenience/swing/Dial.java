@@ -223,7 +223,6 @@ public class Dial extends JComponent {
         }
 
 		JFrame frame = new JFrame(Dial.class.getSimpleName());
-		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JPanel p = new JPanel();
 		frame.add(p);
@@ -243,6 +242,7 @@ public class Dial extends JComponent {
 		});
 
 		frame.pack();
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
 }

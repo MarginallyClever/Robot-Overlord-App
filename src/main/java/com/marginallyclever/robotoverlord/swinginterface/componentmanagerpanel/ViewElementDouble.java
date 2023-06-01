@@ -23,6 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  */
 public class ViewElementDouble extends ViewElement implements DocumentListener, PropertyChangeListener {
+	private final JLabel label;
 	private final JTextField field;
 	private final DoubleParameter parameter;
 	private final ReentrantLock lock = new ReentrantLock();
@@ -35,11 +36,6 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		
 		field = new FocusTextField(8);
 		field.addActionListener(new AbstractAction() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				conditionalChange();
@@ -58,7 +54,7 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		field.setHorizontalAlignment(SwingConstants.RIGHT);
 		field.setText(StringHelper.formatDouble(parameter.get()));
 
-		JLabel label=new JLabel(parameter.getName(),JLabel.LEADING);
+		label=new JLabel(parameter.getName(),JLabel.LEADING);
 		label.setLabelFor(field);
 		
 		//this.setBorder(new LineBorder(Color.RED));
@@ -71,21 +67,19 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		double newNumber;
 		
 		try {
-			newNumber = Double.valueOf(field.getText());
+			newNumber = Double.parseDouble(field.getText());
+			field.setForeground(UIManager.getColor("Textfield.foreground"));
 		} catch(NumberFormatException e1) {
 			field.setForeground(Color.RED);
 			return;
 		}
 
-		field.setForeground(UIManager.getColor("Textfield.foreground"));
-		
 		if(lock.isLocked()) return;
 		lock.lock();
 
 		if(newNumber != parameter.get()) {
 			UndoSystem.addEvent(new DoubleParameterEdit(parameter, newNumber));
 		}
-		
 		lock.unlock();
 	}
 	
@@ -127,5 +121,9 @@ public class ViewElementDouble extends ViewElement implements DocumentListener, 
 		lock.lock();
 		field.setText(StringHelper.formatDouble((Double)evt.getNewValue()));
 		lock.unlock();		
+	}
+
+	public void setLabel(String label) {
+		this.label.setText(label);
 	}
 }

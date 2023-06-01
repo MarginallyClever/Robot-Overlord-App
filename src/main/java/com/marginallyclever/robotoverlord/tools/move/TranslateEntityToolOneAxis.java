@@ -26,6 +26,8 @@ import java.util.List;
 public class TranslateEntityToolOneAxis implements EditorTool {
     private final double handleLength = 5;
     private final double gripRadius = 0.5;
+    private double toolScale = 0.035;
+    private double localScale = 1;
 
     /**
      * The viewport to which this tool is attached.
@@ -59,7 +61,7 @@ public class TranslateEntityToolOneAxis implements EditorTool {
 
     private Matrix4d pivotMatrix;
 
-    private boolean hovering = false;
+    private boolean cursorOverHandle = false;
 
     private Sphere handleSphere = new Sphere();
 
@@ -98,13 +100,13 @@ public class TranslateEntityToolOneAxis implements EditorTool {
 
     @Override
     public void mouseMoved(MouseEvent event) {
-        hovering = isCursorOverHandle(event.getX(), event.getY());
+        cursorOverHandle = isCursorOverHandle(event.getX(), event.getY());
     }
 
     public void mousePressed(MouseEvent event) {
         if (isCursorOverHandle(event.getX(), event.getY())) {
             dragging = true;
-            hovering = true;
+            cursorOverHandle = true;
             startPoint = EditorUtils.getPointOnPlaneFromCursor(translationPlane,viewport,event.getX(), event.getY());
             selectedItems.savePose();
         }
@@ -166,9 +168,9 @@ public class TranslateEntityToolOneAxis implements EditorTool {
 
         // Check if the point is within the handle's bounds
         Vector3d diff = new Vector3d(translationAxis);
-        diff.scaleAdd(handleLength, MatrixHelper.getPosition(pivotMatrix));
+        diff.scaleAdd(getHandleLengthScaled(), MatrixHelper.getPosition(pivotMatrix));
         diff.sub(point);
-        return (diff.lengthSquared() < gripRadius*gripRadius);
+        return (diff.lengthSquared() < getGripRadiusScaled()*getGripRadiusScaled());
     }
 
     @Override
@@ -181,6 +183,14 @@ public class TranslateEntityToolOneAxis implements EditorTool {
         // Update the tool's state, if necessary
         if(selectedItems!=null) setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
 
+        updateLocalScale();
+    }
+
+    private void updateLocalScale() {
+        Vector3d cameraPoint = viewport.getCamera().getPosition();
+        Vector3d pivotPoint = MatrixHelper.getPosition(pivotMatrix);
+        pivotPoint.sub(cameraPoint);
+        localScale = pivotPoint.length()*toolScale;
     }
 
     @Override
@@ -192,22 +202,22 @@ public class TranslateEntityToolOneAxis implements EditorTool {
         boolean light = OpenGLHelper.disableLightingStart(gl2);
 
         gl2.glPushMatrix();
-
         MatrixHelper.applyMatrix(gl2, pivotMatrix);
 
         float [] colors = new float[4];
         gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, colors, 0);
-        double colorScale = hovering? 1:0.5;
+        double colorScale = cursorOverHandle ? 1:0.5;
         gl2.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 1.0);
 
         gl2.glBegin(GL2.GL_LINES);
         gl2.glVertex3d(0, 0, 0);
-        gl2.glVertex3d(handleLength, 0, 0);
+        gl2.glVertex3d(getHandleLengthScaled(), 0, 0);
         gl2.glEnd();
 
-        gl2.glTranslated(handleLength, 0, 0);
+        gl2.glTranslated(getHandleLengthScaled(), 0, 0);
 
-        gl2.glScaled(gripRadius, gripRadius, gripRadius);
+        double grs = getGripRadiusScaled();
+        gl2.glScaled(grs,grs,grs);
         handleSphere.render(gl2);
 
         gl2.glPopMatrix();
@@ -234,5 +244,21 @@ public class TranslateEntityToolOneAxis implements EditorTool {
     @Override
     public Point3d getStartPoint() {
         return startPoint;
+    }
+
+
+    private double getHandleLengthScaled() {
+        return handleLength * localScale;
+    }
+
+    private double getGripRadiusScaled() {
+        return gripRadius * localScale;
+    }
+
+    private double getToolScale() {
+        return toolScale;
+    }
+    private void setToolScale(double toolScale) {
+        this.toolScale = toolScale;
     }
 }

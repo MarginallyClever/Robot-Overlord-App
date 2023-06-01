@@ -22,6 +22,7 @@ import javax.vecmath.Point3d;
  * @author Dan Royer
  * @since 2.5.0
  */
+@ComponentDependency(components = {PoseComponent.class})
 public class GCodePathComponent extends RenderComponent implements WalkablePath<Point3d> {
     private static final Logger logger = LoggerFactory.getLogger(GCodePathComponent.class);
 
@@ -39,14 +40,6 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
     public GCodePathComponent() {
         super();
         filename.addPropertyChangeListener(e->load(filename.get()));
-    }
-
-    @Override
-    public void setEntity(Entity entity) {
-        super.setEntity(entity);
-        if(entity!=null) {
-            entity.addComponent(new PoseComponent());
-        }
     }
 
     @Override

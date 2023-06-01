@@ -221,11 +221,8 @@ public class SelectionTool implements EditorTool {
     }
 
     private void setPickPoint(Ray ray, RayHit rayHit) {
+        createPickPoint();
         Entity pickPoint = entityManager.getRoot().findChildNamed(PICK_POINT_NAME);
-        if(pickPoint==null) {
-            createPickPoint();
-            pickPoint = entityManager.getRoot().findChildNamed(PICK_POINT_NAME);
-        }
 
         Vector3d from = ray.getPoint(rayHit.distance);
         Vector3d to = new Vector3d(from);
@@ -234,7 +231,7 @@ public class SelectionTool implements EditorTool {
         Matrix4d m2 = new Matrix4d();
         Matrix3d lookAt = MatrixHelper.lookAt(from,to);
         m2.set(lookAt);
-        m.setTranslation(from);
-        pickPoint.getComponent(PoseComponent.class).setWorld(m);
+        m2.setTranslation(from);
+        pickPoint.getComponent(PoseComponent.class).setWorld(m2);
     }
 }

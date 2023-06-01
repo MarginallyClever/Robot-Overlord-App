@@ -14,7 +14,7 @@ import javax.vecmath.Vector3d;
 public class Ray {
 	private final Point3d origin = new Point3d();
 	private final Vector3d direction = new Vector3d();
-	private double maxDistance = Double.MAX_VALUE;
+	private double maxDistance;
 
 	public Ray() {
 		this(new Point3d(),new Vector3d(0,0,1),Double.MAX_VALUE);

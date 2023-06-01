@@ -17,7 +17,7 @@ import java.util.*;
  * @author Dan Royer
  *
  */
-public class Entity implements PropertyChangeListener {
+public class Entity {
 	public static final String PATH_SEPARATOR = "/";
 	public static final String PATH_PREVIOUS = "..";
 	public static final String PATH_CURRENT = ".";
@@ -28,9 +28,6 @@ public class Entity implements PropertyChangeListener {
 
 	protected transient ArrayList<Entity> children = new ArrayList<>();
 	private final List<Component> components = new ArrayList<>();
-
-	// who is listening to me?
-	protected ArrayList<PropertyChangeListener> propertyChangeListeners = new ArrayList<>();
 
 	private boolean isExpanded = false;
 
@@ -63,10 +60,7 @@ public class Entity implements PropertyChangeListener {
 	}
 
 	public void setName(String name) {
-		// if(hasChanged()) return;
-		// setChanged();
 		this.name = name;
-		// notifyObservers(name);
 	}
 
 	public String getUniqueChildName(Entity e) {
@@ -227,34 +221,12 @@ public class Entity implements PropertyChangeListener {
 	public Object clone() throws CloneNotSupportedException {
 		Entity e = (Entity)super.clone();
 		
-		e.children = new ArrayList<Entity>();
+		e.children = new ArrayList<>();
 		for(int i = 0; i< children.size(); ++i) {
 			e.children.add((Entity) children.get(i).clone());
 		}
-		
-		e.propertyChangeListeners = new ArrayList<PropertyChangeListener>();
-		
-		return e;
-	}
 
-	/**
-	 * Something this Entity is observing has changed. Deal with it!
-	 */
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {}
-	
-	public void addPropertyChangeListener(PropertyChangeListener p) {
-		propertyChangeListeners.add(p);
-	}
-	
-	public void removePropertyChangeListener(PropertyChangeListener p) {
-		propertyChangeListeners.remove(p);
-	}
-	
-	protected void notifyPropertyChangeListeners(PropertyChangeEvent evt) {
-		for( PropertyChangeListener p : propertyChangeListeners ) {
-			p.propertyChange(evt);
-		}
+		return e;
 	}
 
 	@Override
@@ -275,6 +247,7 @@ public class Entity implements PropertyChangeListener {
 		components.add(c);
 		c.setEntity(this);
 		addComponentDependencies(c.getClass());
+		c.onAttach();
 	}
 
 	public boolean containsAnInstanceOfTheSameClass(Component c0) {
