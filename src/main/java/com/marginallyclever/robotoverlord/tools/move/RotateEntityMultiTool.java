@@ -29,6 +29,7 @@ public class RotateEntityMultiTool implements EditorTool {
     private final List<EditorTool> tools = new ArrayList<>();
 
     private SelectedItems selectedItems;
+    private int frameOfReference = EditorTool.FRAME_WORLD;
 
     public RotateEntityMultiTool() {
         super();
@@ -55,7 +56,11 @@ public class RotateEntityMultiTool implements EditorTool {
 
         if (selectedItems.isEmpty()) return;
 
-        setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+        updatePivotMatrix();
+    }
+
+    private void updatePivotMatrix() {
+        setPivotMatrix(EditorUtils.getPivotMatrix(frameOfReference,viewport,selectedItems));
     }
 
     private void setPivotMatrix(Matrix4d pivot) {
@@ -98,7 +103,7 @@ public class RotateEntityMultiTool implements EditorTool {
     public void handleMouseEvent(MouseEvent event) {
         if (selectedItems == null || selectedItems.isEmpty()) return;
 
-        setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+        updatePivotMatrix();
 
         if(event.getID() == MouseEvent.MOUSE_MOVED) {
             mouseMoved(event);
@@ -157,7 +162,7 @@ public class RotateEntityMultiTool implements EditorTool {
     public void handleKeyEvent(KeyEvent event) {
         if (selectedItems == null || selectedItems.isEmpty()) return;
 
-        setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+        updatePivotMatrix();
 
         for(EditorTool t : tools) t.handleKeyEvent(event);
     }
@@ -173,7 +178,7 @@ public class RotateEntityMultiTool implements EditorTool {
 
         for(EditorTool t : tools) t.update(deltaTime);
 
-        setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+        updatePivotMatrix();
     }
 
     /**
@@ -253,5 +258,17 @@ public class RotateEntityMultiTool implements EditorTool {
     @Override
     public void mouseReleased(MouseEvent event) {
         for(EditorTool t : tools) t.mouseReleased(event);
+    }
+
+    /**
+     * Sets the frame of reference for the tool.
+     *
+     * @param index 0 for world, 1 for local, 2 for camera.
+     */
+    @Override
+    public void setFrameOfReference(int index) {
+        frameOfReference = index;
+        for (EditorTool t : tools) t.setFrameOfReference(index);
+        updatePivotMatrix();
     }
 }

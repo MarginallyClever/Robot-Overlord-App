@@ -1,10 +1,12 @@
 package com.marginallyclever.robotoverlord.components;
 
+import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.json.JSONObject;
 
 import javax.vecmath.Matrix4d;
@@ -20,7 +22,7 @@ import java.util.List;
  * @since 2.6.1
  * @author Dan Royer
  */
-public class RobotGripperComponent extends Component {
+public class RobotGripperComponent extends ShapeComponent {
     public static final String [] names = new String[] {
             "Opening",
             "Open",
@@ -36,8 +38,12 @@ public class RobotGripperComponent extends Component {
     public IntParameter mode = new IntParameter("Mode",MODE_OPEN);
     public DoubleParameter openDistance = new DoubleParameter("Open Distance (cm)",5.0);
     public DoubleParameter closeDistance = new DoubleParameter("Close Distance (cm)",1.0);
-
     private final Vector3d gripDirection = new Vector3d();
+
+    public RobotGripperComponent() {
+        super();
+        myMesh = new Mesh();
+    }
 
     @Override
     public JSONObject toJSON(SerializationContext context) {
@@ -62,11 +68,10 @@ public class RobotGripperComponent extends Component {
     public List<Point3d> getPoints() {
         List<Entity> children = getEntity().getChildren();
         List<Point3d> results = new ArrayList<>();
-        if(children.size()>=2) {
-            for(int i=0;i<2;++i) {
-                Matrix4d pose = children.get(i).getComponent(PoseComponent.class).getWorld();
-                results.add(new Point3d(MatrixHelper.getPosition(pose)));
-            }
+        for(Entity child : children) {
+            if(child.getComponent(RobotGripperJawComponent.class)==null) continue;
+            Matrix4d pose = child.getComponent(PoseComponent.class).getWorld();
+            results.add(new Point3d(MatrixHelper.getPosition(pose)));
         }
         return results;
     }
@@ -75,28 +80,33 @@ public class RobotGripperComponent extends Component {
      *
      * @return the {@link ShapeComponent} of all children.
      */
-    public List<ShapeComponent> getJaws() {
-        List<ShapeComponent> results = new ArrayList<>();
+    public List<RobotGripperJawComponent> getJaws() {
+        List<RobotGripperJawComponent> results = new ArrayList<>();
         List<Entity> children = getEntity().getChildren();
         for(Entity child : children) {
-            ShapeComponent shape = child.getComponent(ShapeComponent.class);
-            if(shape!=null) results.add(shape);
+            RobotGripperJawComponent jaw = child.getComponent(RobotGripperJawComponent.class);
+            if(jaw!=null) results.add(jaw);
         }
         return results;
     }
 
-    /**
-     * @return the direction of the gripper in local space.
-     */
-    public Vector3d getGripDirection() {
-        return new Vector3d(gripDirection);
-    }
+    @Override
+    public void render(GL2 gl2) {
+        List<Entity> children = getEntity().getChildren();
+        if(children.size()<2) return;
 
-    /**
-     * Set the direction of the gripper in local space.
-     * @param direction the direction of the gripper in local space.
-     */
-    public void setGripDirection(Vector3d direction) {
-        gripDirection.set(direction);
+        myMesh.setRenderStyle(GL2.GL_LINES);
+        myMesh.clear();
+        for(RobotGripperJawComponent jaw : getJaws()) {
+            Matrix4d m = jaw.getEntity().getComponent(PoseComponent.class).getLocal();
+            Vector3d p = MatrixHelper.getPosition(m);
+            Vector3d z = MatrixHelper.getZAxis(m);
+            double d = (openDistance.get() - closeDistance.get());
+            z.scaleAdd(d,z,p);
+
+            myMesh.addColor(1.0f,0.0f,0.5f,1.0f);  myMesh.addVertex((float)p.x,(float)p.y,(float)p.z);
+            myMesh.addColor(1.0f,0.5f,1.0f,1.0f);  myMesh.addVertex((float)z.x,(float)z.y,(float)z.z);
+        }
+        myMesh.render(gl2);
     }
 }

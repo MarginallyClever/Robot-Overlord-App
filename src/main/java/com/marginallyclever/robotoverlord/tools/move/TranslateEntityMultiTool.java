@@ -32,6 +32,7 @@ public class TranslateEntityMultiTool implements EditorTool {
     private final List<EditorTool> tools = new ArrayList<>();
 
     private SelectedItems selectedItems;
+    private int frameOfReference = EditorTool.FRAME_WORLD;
 
     public TranslateEntityMultiTool() {
         super();
@@ -53,11 +54,11 @@ public class TranslateEntityMultiTool implements EditorTool {
     public void activate(List<Entity> list) {
         this.selectedItems = new SelectedItems(list);
 
-        for(EditorTool t : tools) t.activate(list);
+        for (EditorTool t : tools) t.activate(list);
 
-        if(selectedItems.isEmpty()) return;
+        if (selectedItems.isEmpty()) return;
 
-        setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+        updatePivotMatrix();
     }
 
     private void setPivotMatrix(Matrix4d pivot) {
@@ -99,7 +100,7 @@ public class TranslateEntityMultiTool implements EditorTool {
      */
     @Override
     public void deactivate() {
-        for(EditorTool t : tools) t.deactivate();
+        for (EditorTool t : tools) t.deactivate();
     }
 
     /**
@@ -111,25 +112,25 @@ public class TranslateEntityMultiTool implements EditorTool {
     public void handleMouseEvent(MouseEvent event) {
         if (selectedItems == null || selectedItems.isEmpty()) return;
 
-        setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+        updatePivotMatrix();
 
-        if(event.getID() == MouseEvent.MOUSE_MOVED) {
+        if (event.getID() == MouseEvent.MOUSE_MOVED) {
             mouseMoved(event);
-        } else if(event.getID() == MouseEvent.MOUSE_PRESSED) {
+        } else if (event.getID() == MouseEvent.MOUSE_PRESSED) {
             mousePressed(event);
-        } else if(event.getID() == MouseEvent.MOUSE_DRAGGED) {
+        } else if (event.getID() == MouseEvent.MOUSE_DRAGGED) {
             mouseDragged(event);
-        } else if(event.getID() == MouseEvent.MOUSE_RELEASED) {
+        } else if (event.getID() == MouseEvent.MOUSE_RELEASED) {
             mouseReleased(event);
         }
     }
 
     private boolean twoToolsInUseAtOnce() {
-        boolean foundOne=false;
-        for(EditorTool t : tools) {
-            if(t.isInUse()) {
-                if(foundOne) return true;
-                foundOne=true;
+        boolean foundOne = false;
+        for (EditorTool t : tools) {
+            if (t.isInUse()) {
+                if (foundOne) return true;
+                foundOne = true;
             }
         }
         return false;
@@ -142,20 +143,20 @@ public class TranslateEntityMultiTool implements EditorTool {
 
         PoseComponent cameraPose = viewport.getCamera().getEntity().getComponent(PoseComponent.class);
         Point3d cameraPosition = new Point3d(MatrixHelper.getPosition(cameraPose.getWorld()));
-        for(EditorTool t : tools) {
-            if(t.isInUse()) {
+        for (EditorTool t : tools) {
+            if (t.isInUse()) {
                 Point3d point = t.getStartPoint();
                 double d = point.distance(cameraPosition);
-                if(nearestDistance>d) {
-                    nearestDistance=d;
-                    nearestTool=t;
+                if (nearestDistance > d) {
+                    nearestDistance = d;
+                    nearestTool = t;
                 }
             }
         }
 
         // cancel all others.
-        for(EditorTool t : tools) {
-            if(t!=nearestTool) {
+        for (EditorTool t : tools) {
+            if (t != nearestTool) {
                 t.cancelUse();
             }
         }
@@ -170,9 +171,9 @@ public class TranslateEntityMultiTool implements EditorTool {
     public void handleKeyEvent(KeyEvent event) {
         if (selectedItems == null || selectedItems.isEmpty()) return;
 
-        setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+        updatePivotMatrix();
 
-        for(EditorTool t : tools) t.handleKeyEvent(event);
+        for (EditorTool t : tools) t.handleKeyEvent(event);
     }
 
     /**
@@ -184,9 +185,13 @@ public class TranslateEntityMultiTool implements EditorTool {
     public void update(double deltaTime) {
         if (selectedItems == null || selectedItems.isEmpty()) return;
 
-        for(EditorTool t : tools) t.update(deltaTime);
+        for (EditorTool t : tools) t.update(deltaTime);
 
-        setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+        updatePivotMatrix();
+    }
+
+    private void updatePivotMatrix() {
+        setPivotMatrix(EditorUtils.getPivotMatrix(frameOfReference,viewport,selectedItems));
     }
 
     /**
@@ -199,28 +204,28 @@ public class TranslateEntityMultiTool implements EditorTool {
         if (selectedItems == null || selectedItems.isEmpty()) return;
 
         int i = getIndexInUse();
-        if(0==i || -1==i) {
-            gl2.glColor3d(1,0,0);
+        if (0 == i || -1 == i) {
+            gl2.glColor3d(1, 0, 0);
             toolX.render(gl2);
         }
-        if(1==i || -1==i) {
-            gl2.glColor3d(0,1,0);
+        if (1 == i || -1 == i) {
+            gl2.glColor3d(0, 1, 0);
             toolY.render(gl2);
         }
-        if(2==i || -1==i) {
-            gl2.glColor3d(0,0,1);
+        if (2 == i || -1 == i) {
+            gl2.glColor3d(0, 0, 1);
             toolZ.render(gl2);
         }
-        if(3==i || -1==i) {
-            gl2.glColor3d(1,1,0);
+        if (3 == i || -1 == i) {
+            gl2.glColor3d(1, 1, 0);
             toolXY.render(gl2);
         }
-        if(4==i || -1==i) {
-            gl2.glColor3d(1,0,1);
+        if (4 == i || -1 == i) {
+            gl2.glColor3d(1, 0, 1);
             toolXZ.render(gl2);
         }
-        if(5==i || -1==i) {
-            gl2.glColor3d(0,1,1);
+        if (5 == i || -1 == i) {
+            gl2.glColor3d(0, 1, 1);
             toolYZ.render(gl2);
         }
     }
@@ -228,17 +233,18 @@ public class TranslateEntityMultiTool implements EditorTool {
     @Override
     public void setViewport(Viewport viewport) {
         this.viewport = viewport;
-        for(EditorTool t : tools) t.setViewport(viewport);
+        for (EditorTool t : tools) t.setViewport(viewport);
     }
 
     /**
      * Returns the index of the tool in use, or -1 if no tool is in use.
+     *
      * @return the index of the tool in use, or -1 if no tool is in use.
      */
     private int getIndexInUse() {
-        int i=0;
-        for(EditorTool t : tools) {
-            if(t.isInUse()) return i;
+        int i = 0;
+        for (EditorTool t : tools) {
+            if (t.isInUse()) return i;
             ++i;
         }
         return -1;
@@ -246,12 +252,12 @@ public class TranslateEntityMultiTool implements EditorTool {
 
     @Override
     public boolean isInUse() {
-        return getIndexInUse()>=0;
+        return getIndexInUse() >= 0;
     }
 
     @Override
     public void cancelUse() {
-        for(EditorTool t : tools) t.cancelUse();
+        for (EditorTool t : tools) t.cancelUse();
     }
 
     @Override
@@ -261,22 +267,34 @@ public class TranslateEntityMultiTool implements EditorTool {
 
     @Override
     public void mouseMoved(MouseEvent event) {
-        for(EditorTool t : tools) t.mouseMoved(event);
+        for (EditorTool t : tools) t.mouseMoved(event);
     }
 
     @Override
     public void mousePressed(MouseEvent event) {
-        for(EditorTool t : tools) t.mousePressed(event);
+        for (EditorTool t : tools) t.mousePressed(event);
         if (twoToolsInUseAtOnce()) cancelFurthestTool();
     }
 
     @Override
     public void mouseDragged(MouseEvent event) {
-        for(EditorTool t : tools) t.mouseDragged(event);
+        for (EditorTool t : tools) t.mouseDragged(event);
     }
 
     @Override
     public void mouseReleased(MouseEvent event) {
-        for(EditorTool t : tools) t.mouseReleased(event);
+        for (EditorTool t : tools) t.mouseReleased(event);
+    }
+
+    /**
+     * Sets the frame of reference for the tool.
+     *
+     * @param index 0 for world, 1 for local, 2 for camera.
+     */
+    @Override
+    public void setFrameOfReference(int index) {
+        frameOfReference = index;
+        for (EditorTool t : tools) t.setFrameOfReference(index);
+        updatePivotMatrix();
     }
 }

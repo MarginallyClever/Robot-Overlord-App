@@ -11,11 +11,15 @@ import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A system to manage robot arms.
@@ -24,7 +28,9 @@ import java.util.List;
  * @since 2.5.5
  */
 public class ArmRobotSystem implements EntitySystem {
+    private static final Logger logger = LoggerFactory.getLogger(ArmRobotSystem.class);
     private final EntityManager entityManager;
+    private final Map<RobotComponent,JDialog> armPanels = new HashMap<>();
 
     public ArmRobotSystem(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -65,21 +71,57 @@ public class ArmRobotSystem implements EntitySystem {
     }
 
     private void editArm(JComponent parent, RobotComponent robotComponent, String title) {
-        EntitySystemUtils.makePanel(new EditArmPanel(robotComponent.getEntity(), entityManager), parent,title);
+        if(armPanels.containsKey(robotComponent)) return;
+        JDialog dialog = EntitySystemUtils.makePanel(new EditArmPanel(robotComponent.getEntity(), entityManager), parent,title);
+        if(dialog==null) return;
+
+        armPanels.put(robotComponent,dialog);
+        dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                armPanels.remove(robotComponent);
+            }
+        });
     }
 
     private void showControlPanel(JComponent parent,RobotComponent robotComponent) {
-        try {
-            EntitySystemUtils.makePanel(new ControlArmPanel(robotComponent, getGCodePath(robotComponent)), parent, Translator.get("RobotROSystem.controlPanel"));
-        } catch (Exception e) {
-            e.printStackTrace();
+        if(armPanels.containsKey(robotComponent)) return;
+
+        if(robotComponent.getNumBones()==0) {
+            logger.warn("Failed to open window - This robot has no bones.  Please add bones to the robot first.");
             // display error message in a dialog
             JOptionPane.showMessageDialog(
                     SwingUtilities.getWindowAncestor(parent),
-                    "Failed to open window.  Is robot initialized?",
-                    "Error",
+                    "This robot has no bones.  Please add bones to the robot first.",
+                    "Failed to open window",
                     JOptionPane.ERROR_MESSAGE);
+            return;
         }
+
+        JDialog dialog;
+        try {
+            dialog = EntitySystemUtils.makePanel(new ControlArmPanel(robotComponent, getGCodePath(robotComponent)), parent, Translator.get("RobotROSystem.controlPanel"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.warn("Failed to open window", e);
+            // display error message in a dialog
+            JOptionPane.showMessageDialog(
+                    SwingUtilities.getWindowAncestor(parent),
+                    e.getLocalizedMessage(),
+                    "Failed to open window",
+                    JOptionPane.ERROR_MESSAGE);
+            dialog=null;
+        }
+
+        if(dialog==null) return;
+
+        armPanels.put(robotComponent,dialog);
+        dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                armPanels.remove(robotComponent);
+            }
+        });
     }
 
     private GCodePathComponent getGCodePath(RobotComponent robotComponent) {

@@ -15,6 +15,9 @@ import java.util.List;
  * @author Dan Royer
  */
 public interface EditorTool {
+    int FRAME_WORLD = 0;
+    int FRAME_LOCAL = 1;
+    int FRAME_CAMERA = 2;
 
     /**
      * This method is called when the tool is activated. It receives the SelectedItems object containing the selected
@@ -80,4 +83,10 @@ public interface EditorTool {
     void mousePressed(MouseEvent event);
     void mouseDragged(MouseEvent event);
     void mouseReleased(MouseEvent event);
+
+    /**
+     * Sets the frame of reference for the tool.
+     * @param index 0 for world, 1 for local, 2 for camera.
+     */
+    void setFrameOfReference(int index);
 }

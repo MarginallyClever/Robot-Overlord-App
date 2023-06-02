@@ -3,10 +3,7 @@ package com.marginallyclever.robotoverlord.systems.robot;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.RayHit;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.robotoverlord.components.Component;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.components.RobotGripperComponent;
-import com.marginallyclever.robotoverlord.components.ShapeComponent;
+import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
@@ -14,14 +11,18 @@ import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.V
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementComboBox;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.RayPickSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public class RobotGripperSystem implements EntitySystem {
+    private static final Logger logger = LoggerFactory.getLogger(RobotGripperSystem.class);
     private final EntityManager entityManager;
 
     public RobotGripperSystem(EntityManager entityManager) {
@@ -85,36 +86,38 @@ public class RobotGripperSystem implements EntitySystem {
     }
 
     public void doGrab(RobotGripperComponent gripper) {
-        List<Point3d> points = gripper.getPoints();
-        if (points.size()!=2) return;
+        List<RobotGripperJawComponent> jaws = gripper.getJaws();
+        if (jaws.size()==0) return;
 
-        Point3d p0 = points.get(0);
-        Point3d p1 = points.get(1);
-        Vector3d diff = new Vector3d(p1);
-        diff.sub(p0);
-        diff.normalize();
+        double distance = (gripper.openDistance.get() - gripper.closeDistance.get());
 
-        // cast a ray between the two points
-        Ray ray = new Ray(p0,diff,gripper.openDistance.get());
-        RayPickSystem picker = new RayPickSystem(entityManager);
-        List<RayHit> hits = picker.findRayIntersections(ray);
+        List<RayHit> hits = new ArrayList<>();
+        // cast a ray along axis of jaw travel
+        for(RobotGripperJawComponent jaw : jaws) {
+            Matrix4d jawMatrix = jaw.getEntity().getComponent(PoseComponent.class).getWorld();
+            Point3d jawP = new Point3d(MatrixHelper.getPosition(jawMatrix));
+            Vector3d jawZ = MatrixHelper.getZAxis(jawMatrix);
+            Ray ray = new Ray(jawP,jawZ,distance);
+            RayPickSystem picker = new RayPickSystem(entityManager);
+            try {
+                List<RayHit> jawHit = picker.findRayIntersections(ray);
+                hits.addAll(jawHit);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         // do not consider the gripper itself or the jaws.
         removeGripperAndJawsFromHits(gripper, hits);
 
         if(!hits.isEmpty()) {
-            // get the nearest item
-            hits.sort(Comparator.comparingDouble(o -> o.distance));
-            RayHit first = hits.get(0);
-
-            //if object found is outside the gripper's distance, no grab.
-            if (first.distance > gripper.openDistance.get()) return;
-
-            // move the entity to the gripper
-            Entity entityBeingGrabbed = first.target.getEntity();
-            Matrix4d entityWorld = entityBeingGrabbed.getComponent(PoseComponent.class).getWorld();
-            entityManager.addEntityToParent(entityBeingGrabbed, gripper.getEntity());
-            entityBeingGrabbed.getComponent(PoseComponent.class).setWorld(entityWorld);
+            // move the entities to the gripper
+            for(RayHit hit : hits) {
+                Entity entityBeingGrabbed = hit.target.getEntity();
+                Matrix4d entityWorld = entityBeingGrabbed.getComponent(PoseComponent.class).getWorld();
+                entityManager.addEntityToParent(entityBeingGrabbed, gripper.getEntity());
+                entityBeingGrabbed.getComponent(PoseComponent.class).setWorld(entityWorld);
+            }
         }
 
         // change state to "closed"
@@ -122,67 +125,62 @@ public class RobotGripperSystem implements EntitySystem {
 
         // close the gripper
         // TODO until it touches the object.
-        double distance = (gripper.openDistance.get() - gripper.closeDistance.get());
-        Vector3d dMove = new Vector3d(diff);
-        dMove.scale(distance / 2.0);
-        moveJaws(gripper, dMove);
+        moveJaws(gripper, distance/2);
 
         // remember grip direction for later
         Matrix4d gripperWorld = gripper.getEntity().getComponent(PoseComponent.class).getWorld();
         gripperWorld.setTranslation(new Vector3d());
         gripperWorld.invert();
-        gripperWorld.transform(diff); // diff now in local space.
-        gripper.setGripDirection(diff);
-        System.out.println("grab="+diff);
     }
 
     public void doRelease(RobotGripperComponent gripper) {
         // release the object
-        List<Entity> children = gripper.getEntity().getChildren();
-        // assumes two jaws and only one item being held.
-        if(children.size()>2) {
-            // move the entity to the world
-            Entity entityBeingGrabbed = children.get(2);
-            Matrix4d entityWorld = entityBeingGrabbed.getComponent(PoseComponent.class).getWorld();
-            entityManager.addEntityToParent(entityBeingGrabbed,entityManager.getRoot());
-            entityBeingGrabbed.getComponent(PoseComponent.class).setWorld(entityWorld);
+        List<RobotGripperJawComponent> jaws = gripper.getJaws();
+        List<Entity> children = new ArrayList<>(gripper.getEntity().getChildren());
+
+        // move all non-jaw items from the list to the world
+        if(children.size()>jaws.size()) {
+            for(Entity child : children) {
+                if(child.getComponent(RobotGripperJawComponent.class) != null) continue;
+                // move the entity to the world
+                Matrix4d entityWorld = child.getComponent(PoseComponent.class).getWorld();
+                entityManager.addEntityToParent(child, entityManager.getRoot());
+                child.getComponent(PoseComponent.class).setWorld(entityWorld);
+            }
         }
 
         // change state to "open"
         gripper.mode.set(RobotGripperComponent.MODE_OPEN);
 
         // open the gripper
-        Vector3d diff = gripper.getGripDirection();  // diff now in local space.
-        Matrix4d gripperWorld = gripper.getEntity().getComponent(PoseComponent.class).getWorld();
-        gripperWorld.setTranslation(new Vector3d());
-        gripperWorld.transform(diff);  // diff now in world space.
-
         double distance = (gripper.openDistance.get() - gripper.closeDistance.get());
-        diff.scale(-distance / 2.0);
-        moveJaws(gripper, diff);
-
-        System.out.println("release="+diff);
+        moveJaws(gripper, -distance/2);
     }
 
-    private void moveJaws(RobotGripperComponent gripper, Vector3d diff) {
-        List<ShapeComponent> jaws = gripper.getJaws();
-        moveOneJaw(jaws.get(0).getEntity(), diff);
-        diff.negate();
-        moveOneJaw(jaws.get(1).getEntity(), diff);
+    private void moveJaws(RobotGripperComponent gripper, double distance) {
+        List<RobotGripperJawComponent> jaws = gripper.getJaws();
+        for(RobotGripperJawComponent jaw : jaws) {
+            moveOneJaw(jaw, distance);
+        }
     }
 
-    private void moveOneJaw(Entity jaw, Vector3d diff) {
-        PoseComponent pose = jaw.getComponent(PoseComponent.class);
+    private void moveOneJaw(RobotGripperJawComponent jaw, double distance) {
+        PoseComponent pose = jaw.getEntity().getComponent(PoseComponent.class);
         Matrix4d m = pose.getWorld();
         Vector3d p = MatrixHelper.getPosition(m);
-        p.add(diff);
+        Vector3d z = MatrixHelper.getZAxis(m);
+        p.scaleAdd(distance,z,p);
         m.setTranslation(p);
         pose.setWorld(m);
     }
 
     private void removeGripperAndJawsFromHits(RobotGripperComponent gripper, List<RayHit> hits) {
-        List<ShapeComponent> jaws = gripper.getJaws();
+        List<RobotGripperJawComponent> jaws = gripper.getJaws();
+        List<ShapeComponent> meshes = new ArrayList<>();
+        for(RobotGripperJawComponent jaw : jaws) {
+            meshes.add(jaw.getEntity().getComponent(ShapeComponent.class));
+        }
         ShapeComponent gripperBody = gripper.getEntity().getComponent(ShapeComponent.class);
-        hits.removeIf(hit -> jaws.contains(hit.target) || hit.target == gripperBody);
+        hits.removeIf(hit -> meshes.contains(hit.target) || hit.target == gripperBody);
     }
 }

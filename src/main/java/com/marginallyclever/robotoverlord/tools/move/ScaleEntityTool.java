@@ -31,19 +31,13 @@ public class ScaleEntityTool implements EditorTool {
      * actions before another tool takes over.
      */
     @Override
-    public void deactivate() {
-
-    }
+    public void deactivate() {}
 
     @Override
-    public void handleMouseEvent(MouseEvent event) {
-
-    }
+    public void handleMouseEvent(MouseEvent event) {}
 
     @Override
-    public void handleKeyEvent(KeyEvent event) {
-
-    }
+    public void handleKeyEvent(KeyEvent event) {}
 
     /**
      * Updates the tool's internal state, if necessary.
@@ -59,14 +53,10 @@ public class ScaleEntityTool implements EditorTool {
      * @param gl2
      */
     @Override
-    public void render(GL2 gl2) {
-
-    }
+    public void render(GL2 gl2) {}
 
     @Override
-    public void setViewport(Viewport viewport) {
-
-    }
+    public void setViewport(Viewport viewport) {}
 
     @Override
     public boolean isInUse() {
@@ -74,9 +64,7 @@ public class ScaleEntityTool implements EditorTool {
     }
 
     @Override
-    public void cancelUse() {
-
-    }
+    public void cancelUse() {}
 
     @Override
     public Point3d getStartPoint() {
@@ -84,21 +72,22 @@ public class ScaleEntityTool implements EditorTool {
     }
 
     @Override
-    public void mouseMoved(MouseEvent event) {
-    }
+    public void mouseMoved(MouseEvent event) {}
 
     @Override
-    public void mousePressed(MouseEvent event) {
-
-    }
+    public void mousePressed(MouseEvent event) {}
 
     @Override
-    public void mouseDragged(MouseEvent event) {
-
-    }
+    public void mouseDragged(MouseEvent event) {}
 
     @Override
-    public void mouseReleased(MouseEvent event) {
+    public void mouseReleased(MouseEvent event) {}
 
-    }
+    /**
+     * Sets the frame of reference for the tool.
+     *
+     * @param index 0 for world, 1 for local, 2 for camera.
+     */
+    @Override
+    public void setFrameOfReference(int index) {}
 }

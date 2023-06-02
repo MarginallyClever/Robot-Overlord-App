@@ -63,14 +63,15 @@ public class TranslateEntityToolOneAxis implements EditorTool {
 
     private boolean cursorOverHandle = false;
 
-    private Sphere handleSphere = new Sphere();
+    private final Sphere handleSphere = new Sphere();
+    private int frameOfReference = EditorTool.FRAME_WORLD;
 
     @Override
     public void activate(List<Entity> list) {
         this.selectedItems = new SelectedItems(list);
         if(selectedItems.isEmpty()) return;
 
-        setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+        updatePivotMatrix();
     }
 
     public void setPivotMatrix(Matrix4d pivot) {
@@ -144,6 +145,21 @@ public class TranslateEntityToolOneAxis implements EditorTool {
         }
     }
 
+    /**
+     * Sets the frame of reference for the tool.
+     *
+     * @param index 0 for world, 1 for local, 2 for camera.
+     */
+    @Override
+    public void setFrameOfReference(int index) {
+        frameOfReference = index;
+        updatePivotMatrix();
+    }
+
+    private void updatePivotMatrix() {
+        setPivotMatrix(EditorUtils.getPivotMatrix(frameOfReference,viewport,selectedItems));
+    }
+
     private Point3d getNearestPointOnAxis(Point3d currentPoint) {
         // get the cross product of the translationAxis and the translationPlane's normal
         Vector3d orthogonal = new Vector3d();
@@ -181,7 +197,7 @@ public class TranslateEntityToolOneAxis implements EditorTool {
     @Override
     public void update(double deltaTime) {
         // Update the tool's state, if necessary
-        if(selectedItems!=null) setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+        if(selectedItems!=null) updatePivotMatrix();
 
         updateLocalScale();
     }

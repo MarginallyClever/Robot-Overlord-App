@@ -175,4 +175,14 @@ public class MoveCameraTool implements EditorTool {
     public Point3d getStartPoint() {
         return null;
     }
+
+    /**
+     * Sets the frame of reference for the tool.
+     *
+     * @param index 0 for world, 1 for local, 2 for camera.
+     */
+    @Override
+    public void setFrameOfReference(int index) {
+
+    }
 }

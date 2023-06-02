@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord;
 
 /**
- * Used by {@link com.marginallyclever.robotoverlord.components.ComponentWithDiskAsset} to translate between relative
+ * Used by {@link com.marginallyclever.robotoverlord.components} to translate between relative
  * and absolute paths as needed.
  *
  * @since 2.6.0

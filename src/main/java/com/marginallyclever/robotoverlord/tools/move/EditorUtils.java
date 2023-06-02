@@ -3,11 +3,13 @@ package com.marginallyclever.robotoverlord.tools.move;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.PoseMoveEdit;
+import com.marginallyclever.robotoverlord.tools.EditorTool;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -60,5 +62,26 @@ public class EditorUtils {
             entity.getComponent(PoseComponent.class).setWorld(before);
             UndoSystem.addEvent(new PoseMoveEdit(entity, before, after));
         }
+    }
+
+    public static Matrix4d getPivotMatrix(int frameOfReference,Viewport viewport,SelectedItems selectedItems) {
+        Matrix4d m;
+        switch(frameOfReference) {
+            case EditorTool.FRAME_WORLD -> {
+                m = MatrixHelper.createIdentityMatrix4();
+                m.setTranslation(MatrixHelper.getPosition(EditorUtils.getLastItemSelectedMatrix(selectedItems)));
+            }
+            case EditorTool.FRAME_LOCAL -> {
+                m = EditorUtils.getLastItemSelectedMatrix(selectedItems);
+                if(m==null) m = MatrixHelper.createIdentityMatrix4();
+            }
+            case EditorTool.FRAME_CAMERA -> {
+                m = viewport.getViewMatrix();
+                m.invert();
+                m.setTranslation(MatrixHelper.getPosition(EditorUtils.getLastItemSelectedMatrix(selectedItems)));
+            }
+            default -> throw new RuntimeException("Unknown frame of reference: " + frameOfReference);
+        }
+        return m;
     }
 }

@@ -105,9 +105,7 @@ public class SelectionTool implements EditorTool {
      * @param deltaTime Time elapsed since the last update.
      */
     @Override
-    public void update(double deltaTime) {
-
-    }
+    public void update(double deltaTime) {}
 
     /**
      * Renders any tool-specific visuals to the 3D scene.
@@ -115,14 +113,10 @@ public class SelectionTool implements EditorTool {
      * @param gl2 The OpenGL context.
      */
     @Override
-    public void render(GL2 gl2) {
-
-    }
+    public void render(GL2 gl2) {}
 
     @Override
-    public void setViewport(Viewport viewport) {
-
-    }
+    public void setViewport(Viewport viewport) {}
 
     /**
      * Returns true if the tool is active (was clicked correctly and could be dragged)
@@ -138,9 +132,7 @@ public class SelectionTool implements EditorTool {
      * Force cancel the tool.  useful if two tools are activated at once.
      */
     @Override
-    public void cancelUse() {
-
-    }
+    public void cancelUse() {}
 
     /**
      * Returns the point on the tool clicked by the user.  This is used to determine which tool is closer to the user.
@@ -153,24 +145,24 @@ public class SelectionTool implements EditorTool {
     }
 
     @Override
-    public void mouseMoved(MouseEvent event) {
-
-    }
+    public void mouseMoved(MouseEvent event) {}
 
     @Override
-    public void mousePressed(MouseEvent event) {
-
-    }
+    public void mousePressed(MouseEvent event) {}
 
     @Override
-    public void mouseDragged(MouseEvent event) {
-
-    }
+    public void mouseDragged(MouseEvent event) {}
 
     @Override
-    public void mouseReleased(MouseEvent event) {
+    public void mouseReleased(MouseEvent event) {}
 
-    }
+    /**
+     * Sets the frame of reference for the tool.
+     *
+     * @param index 0 for world, 1 for local, 2 for camera.
+     */
+    @Override
+    public void setFrameOfReference(int index) {}
 
     private void pickItemUnderCursor() {
         Entity found = findEntityUnderCursor();
