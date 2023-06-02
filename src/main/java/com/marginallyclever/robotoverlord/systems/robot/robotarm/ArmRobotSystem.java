@@ -11,6 +11,8 @@ import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
@@ -24,6 +26,7 @@ import java.util.List;
  * @since 2.5.5
  */
 public class ArmRobotSystem implements EntitySystem {
+    private static final Logger logger = LoggerFactory.getLogger(ArmRobotSystem.class);
     private final EntityManager entityManager;
 
     public ArmRobotSystem(EntityManager entityManager) {
@@ -73,11 +76,12 @@ public class ArmRobotSystem implements EntitySystem {
             EntitySystemUtils.makePanel(new ControlArmPanel(robotComponent, getGCodePath(robotComponent)), parent, Translator.get("RobotROSystem.controlPanel"));
         } catch (Exception e) {
             e.printStackTrace();
+            logger.warn("Failed to open window", e);
             // display error message in a dialog
             JOptionPane.showMessageDialog(
                     SwingUtilities.getWindowAncestor(parent),
-                    "Failed to open window.  Is robot initialized?",
-                    "Error",
+                    e.getLocalizedMessage(),
+                    "Failed to open window",
                     JOptionPane.ERROR_MESSAGE);
         }
     }

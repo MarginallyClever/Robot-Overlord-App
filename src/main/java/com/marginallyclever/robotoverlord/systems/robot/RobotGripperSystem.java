@@ -11,6 +11,8 @@ import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.V
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementComboBox;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.RayPickSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -20,6 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class RobotGripperSystem implements EntitySystem {
+    private static final Logger logger = LoggerFactory.getLogger(RobotGripperSystem.class);
     private final EntityManager entityManager;
 
     public RobotGripperSystem(EntityManager entityManager) {
