@@ -76,8 +76,6 @@ public class Project {
             }
         };
 
-        //source.;
-
         FileUtils.copyDirectory(
                 new File(source.getPath()),
                 new File(destinationPath),
@@ -165,10 +163,10 @@ public class Project {
      * @throws IOException if the asset files cannot be copied
      */
     private void addProjectCommon(Project from,String path) throws IOException {
-        this.copyDiskAssetsToScenePath(from, path);
+        copyDiskAssetsToScenePath(from, path);
         String str = from.saveToStringWithContext(new SerializationContext(from.getPath()));
         Project adjusted = new Project();
         adjusted.loadFromStringWithContext(str,new SerializationContext(path));
-        this.entityManager.addScene(adjusted.entityManager);
+        entityManager.addScene(adjusted.entityManager);
     }
 }
