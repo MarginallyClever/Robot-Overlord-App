@@ -98,7 +98,7 @@ public class RobotGripperComponent extends ShapeComponent {
         myMesh.setRenderStyle(GL2.GL_LINES);
         myMesh.clear();
         for(RobotGripperJawComponent jaw : getJaws()) {
-            Matrix4d m = jaw.getEntity().getComponent(PoseComponent.class).getWorld();
+            Matrix4d m = jaw.getEntity().getComponent(PoseComponent.class).getLocal();
             Vector3d p = MatrixHelper.getPosition(m);
             Vector3d z = MatrixHelper.getZAxis(m);
             double d = (openDistance.get() - closeDistance.get());
