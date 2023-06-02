@@ -7,16 +7,12 @@ import com.jogamp.opengl.util.texture.Texture;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.robotoverlord.*;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
-import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.systems.render.Compass3D;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.SkyBox;
@@ -27,11 +23,11 @@ import com.marginallyclever.robotoverlord.tools.SelectionTool;
 import com.marginallyclever.robotoverlord.tools.move.MoveCameraTool;
 import com.marginallyclever.robotoverlord.tools.move.RotateEntityMultiTool;
 import com.marginallyclever.robotoverlord.tools.move.TranslateEntityMultiTool;
+import org.eclipse.jgit.diff.Edit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
@@ -100,6 +96,7 @@ public class OpenGLRenderPanel implements RenderPanel {
 
     private final ColorParameter ambientLight = new ColorParameter("Ambient light",0.2,0.2,0.2,1);
     private final MaterialComponent defaultMaterial = new MaterialComponent();
+    private final JToolBar toolBar = new JToolBar();
 
     /**
      * Used to sort items at systems time. Opaque items are rendered first, then alpha items.
@@ -135,9 +132,10 @@ public class OpenGLRenderPanel implements RenderPanel {
         addCanvasListeners();
         hideDefaultCursor();
         createCursorMesh();
+        setupTools();
 
         panel.setMinimumSize(new Dimension(300, 300));
-        panel.add(setupTools(), BorderLayout.NORTH);
+        panel.add(toolBar, BorderLayout.NORTH);
         panel.add(glCanvas, BorderLayout.CENTER);
 
         startAnimationSystem();
@@ -153,7 +151,7 @@ public class OpenGLRenderPanel implements RenderPanel {
         return panel;
     }
 
-    private JToolBar setupTools() {
+    private void setupTools() {
         SelectionTool selectionTool = new SelectionTool(entityManager,viewport);
         editorTools.add(selectionTool);
 
@@ -170,21 +168,28 @@ public class OpenGLRenderPanel implements RenderPanel {
         }
 
         // build the bar
-        JToolBar bar = new JToolBar();
-        bar.setFloatable(false);
+        toolBar.setFloatable(false);
         JButton activateSelectionTool = new JButton("Select");
-        bar.add(activateSelectionTool);
+        toolBar.add(activateSelectionTool);
         activateSelectionTool.addActionListener(e -> setActiveToolIndex(editorTools.indexOf(selectionTool)));
 
         JButton activateTranslateTool = new JButton("Translate");
-        bar.add(activateTranslateTool);
+        toolBar.add(activateTranslateTool);
         activateTranslateTool.addActionListener(e -> setActiveToolIndex(editorTools.indexOf(translateEntityMultiTool)));
 
         JButton activateRotateTool = new JButton("Rotate");
-        bar.add(activateRotateTool);
+        toolBar.add(activateRotateTool);
         activateRotateTool.addActionListener(e -> setActiveToolIndex(editorTools.indexOf(rotateEntityMultiTool)));
 
-        return bar;
+        JComboBox<String> frameOfReferenceSelector = new JComboBox<>(new String[]{"World","Local","Camera"});
+        frameOfReferenceSelector.addActionListener(e -> {
+            int index = frameOfReferenceSelector.getSelectedIndex();
+            for(EditorTool tool : editorTools) {
+                tool.setFrameOfReference(index);
+            }
+        });
+        frameOfReferenceSelector.setMaximumSize(frameOfReferenceSelector.getPreferredSize());
+        toolBar.add(frameOfReferenceSelector);
     }
 
     private void setActiveToolIndex(int activeToolIndex) {

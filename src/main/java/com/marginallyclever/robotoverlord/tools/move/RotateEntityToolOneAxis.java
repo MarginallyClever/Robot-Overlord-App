@@ -91,6 +91,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
     private int rotation=2;
     private boolean cursorOverHandle = false;
     private final Box handleBox = new Box();
+    private int frameOfReference = EditorTool.FRAME_WORLD;
 
     /**
      * This method is called when the tool is activated. It receives the SelectedItems object containing the selected
@@ -103,7 +104,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
         this.selectedItems = new SelectedItems(list);
         if (selectedItems.isEmpty()) return;
 
-        setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+        updatePivotMatrix();
     }
 
     public void setPivotMatrix(Matrix4d pivot) {
@@ -294,9 +295,13 @@ public class RotateEntityToolOneAxis implements EditorTool {
      */
     @Override
     public void update(double deltaTime) {
-        if(selectedItems!=null) setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+        if(selectedItems!=null) updatePivotMatrix();
 
         updateLocalScale();
+    }
+
+    private void updatePivotMatrix() {
+        setPivotMatrix(EditorUtils.getPivotMatrix(frameOfReference,viewport,selectedItems));
     }
 
     private void updateLocalScale() {
@@ -463,5 +468,16 @@ public class RotateEntityToolOneAxis implements EditorTool {
     }
     private void setToolScale(double toolScale) {
         this.toolScale = toolScale;
+    }
+
+    /**
+     * Sets the frame of reference for the tool.
+     *
+     * @param index 0 for world, 1 for local, 2 for camera.
+     */
+    @Override
+    public void setFrameOfReference(int index) {
+        frameOfReference = index;
+        updatePivotMatrix();
     }
 }
