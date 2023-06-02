@@ -27,6 +27,7 @@ public class RobotLibraryPanel extends JPanel {
 
     public RobotLibraryPanel() {
         super(new BorderLayout());
+        setName("RobotLibraryPanel");
         addSearchBar();
         repositoriesPanel.setLayout(new BoxLayout(repositoriesPanel, BoxLayout.Y_AXIS));
         JScrollPane scrollPane = new JScrollPane(repositoriesPanel);
@@ -65,13 +66,22 @@ public class RobotLibraryPanel extends JPanel {
 
         int j=0;
         repositoriesPanel.removeAll();
-        for(MultiVersionPropertiesPanel containerPanel : filteredPanels) {
+        for(MultiVersionPropertiesPanel panel : filteredPanels) {
             if (j > 0) repositoriesPanel.add(new JSeparator());
+
+            JPanel containerPanel = new JPanel();
+            containerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            containerPanel.setLayout(new BorderLayout());
+            containerPanel.add(panel, BorderLayout.CENTER);
+            containerPanel.setName("multiVersionPropertiesPanel_" + j);
+            containerPanel.setMaximumSize(containerPanel.getPreferredSize());
+
             repositoriesPanel.add(containerPanel);
             ++j;
         }
         repositoriesPanel.add(Box.createVerticalGlue());
         revalidate();
+        repaint();
     }
 
     private void collectPanels() {
@@ -84,21 +94,15 @@ public class RobotLibraryPanel extends JPanel {
 
             multiVersionPropertiesPanel.addRobotLibraryListener(this::fireRobotAdded);
 
-
-            JPanel containerPanel = new JPanel();
-            containerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-            containerPanel.setLayout(new BorderLayout());
-            containerPanel.add(multiVersionPropertiesPanel, BorderLayout.CENTER);
-            containerPanel.setName("multiVersionPropertiesPanel_" + j);
-            containerPanel.setMaximumSize(containerPanel.getPreferredSize());
-            ++j;
-
             logger.info("Adding " + url);
             allPanels.add(multiVersionPropertiesPanel);
         }
     }
 
     private void addSearchBar() {
+        match.setName("match");
+
+        searchBar.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         searchBar.add(new JLabel(" \uD83D\uDD0E "), BorderLayout.LINE_START);
         searchBar.add(match, BorderLayout.CENTER);
         add(searchBar, BorderLayout.NORTH);

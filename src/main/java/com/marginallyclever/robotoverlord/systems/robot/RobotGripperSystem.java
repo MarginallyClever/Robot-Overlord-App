@@ -92,7 +92,7 @@ public class RobotGripperSystem implements EntitySystem {
         double distance = (gripper.openDistance.get() - gripper.closeDistance.get());
 
         List<RayHit> hits = new ArrayList<>();
-        // cast a ray between the two points
+        // cast a ray along axis of jaw travel
         for(RobotGripperJawComponent jaw : jaws) {
             Matrix4d jawMatrix = jaw.getEntity().getComponent(PoseComponent.class).getWorld();
             Point3d jawP = new Point3d(MatrixHelper.getPosition(jawMatrix));
