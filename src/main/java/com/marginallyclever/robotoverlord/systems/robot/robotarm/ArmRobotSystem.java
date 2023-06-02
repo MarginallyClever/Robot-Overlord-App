@@ -16,8 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A system to manage robot arms.
@@ -67,11 +69,25 @@ public class ArmRobotSystem implements EntitySystem {
         bHome.addActionEventListener((evt)-> robotComponent.goHome());
     }
 
+    private final Map<RobotComponent,JDialog> editArmPanels = new HashMap<>();
+
     private void editArm(JComponent parent, RobotComponent robotComponent, String title) {
-        EntitySystemUtils.makePanel(new EditArmPanel(robotComponent.getEntity(), entityManager), parent,title);
+        if(editArmPanels.containsKey(robotComponent)) return;
+        JDialog dialog = EntitySystemUtils.makePanel(new EditArmPanel(robotComponent.getEntity(), entityManager), parent,title);
+        if(dialog==null) return;
+
+        editArmPanels.put(robotComponent,dialog);
+        dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                editArmPanels.remove(robotComponent);
+            }
+        });
     }
 
     private void showControlPanel(JComponent parent,RobotComponent robotComponent) {
+        if(editArmPanels.containsKey(robotComponent)) return;
+
         if(robotComponent.getNumBones()==0) {
             logger.warn("Failed to open window - This robot has no bones.  Please add bones to the robot first.");
             // display error message in a dialog
@@ -83,8 +99,9 @@ public class ArmRobotSystem implements EntitySystem {
             return;
         }
 
+        JDialog dialog;
         try {
-            EntitySystemUtils.makePanel(new ControlArmPanel(robotComponent, getGCodePath(robotComponent)), parent, Translator.get("RobotROSystem.controlPanel"));
+            dialog = EntitySystemUtils.makePanel(new ControlArmPanel(robotComponent, getGCodePath(robotComponent)), parent, Translator.get("RobotROSystem.controlPanel"));
         } catch (Exception e) {
             e.printStackTrace();
             logger.warn("Failed to open window", e);
@@ -94,7 +111,18 @@ public class ArmRobotSystem implements EntitySystem {
                     e.getLocalizedMessage(),
                     "Failed to open window",
                     JOptionPane.ERROR_MESSAGE);
+            dialog=null;
         }
+
+        if(dialog==null) return;
+
+        editArmPanels.put(robotComponent,dialog);
+        dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                editArmPanels.remove(robotComponent);
+            }
+        });
     }
 
     private GCodePathComponent getGCodePath(RobotComponent robotComponent) {
