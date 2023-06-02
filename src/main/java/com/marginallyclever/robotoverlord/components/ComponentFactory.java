@@ -49,6 +49,7 @@ public abstract class ComponentFactory {
 			ProgramPathComponent.class,
 			ProgramComponent.class,
 			RobotGripperComponent.class,
+			RobotGripperJawComponent.class,
 			MotorComponent.class,
 	};
 	

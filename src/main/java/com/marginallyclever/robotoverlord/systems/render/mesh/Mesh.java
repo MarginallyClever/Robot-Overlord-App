@@ -332,6 +332,11 @@ public class Mesh {
 	 * @return The RayHit object containing the intersection point and normal, or null if no intersection.
 	 */
 	public RayHit intersect(Ray ray) {
+
+		if( renderStyle != GL2.GL_TRIANGLES &&
+			renderStyle != GL2.GL_TRIANGLE_FAN &&
+			renderStyle != GL2.GL_TRIANGLE_STRIP) return null;
+
 		VertexProvider vp;
 		if (hasIndexes) {
 			vp = new VertexProvider() {
