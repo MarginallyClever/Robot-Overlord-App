@@ -5,6 +5,7 @@ import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.program.ProgramPathComponent;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.render.gcodepath.PathFactory;
+import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.components.shapes.Grid;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.components.shapes.Sphere;
@@ -40,6 +41,8 @@ public class RenderSystem implements EntitySystem {
         if(component instanceof MaterialComponent) decorateMaterial(view,component);
         if(component instanceof LinearPatternComponent) decorateLinearPattern(view,component);
 
+        if(component instanceof Box) decorateBox(view, component);
+
         if(component instanceof ProgramPathComponent) decoratePath(view, component);
         else if(component instanceof ShapeComponent) decorateShape(view, component);
     }
@@ -54,6 +57,11 @@ public class RenderSystem implements EntitySystem {
     private void decorateRender(ComponentPanelFactory view, Component component) {
         RenderComponent renderComponent = (RenderComponent) component;
         view.add(renderComponent.isVisible);
+    }
+
+    private void decorateBox(ComponentPanelFactory view, Component component) {
+        Box boxComponent = (Box) component;
+        view.add(boxComponent.updatedSize);
     }
 
     private void decorateShape(ComponentPanelFactory view, Component component) {

@@ -3,7 +3,11 @@ package com.marginallyclever.robotoverlord.components.shapes;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
+import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.vecmath.Vector3d;
 
@@ -12,12 +16,24 @@ import javax.vecmath.Vector3d;
  * TODO add texture coordinates
  */
 public class Box extends ShapeComponent {
+
+    public transient final Vector3DParameter updatedSize = new Vector3DParameter("size", new Vector3d(0.5f,0.5f,0.5f));
+
     public Box() {
         super();
 
         myMesh = new Mesh();
         updateModel();
         setModel(myMesh);
+
+        updatedSize.addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                updateModel();
+            }
+            
+        });
     }
 
     // Procedurally generate a list of triangles that form a box, subdivided by some amount.
@@ -26,13 +42,13 @@ public class Box extends ShapeComponent {
         myMesh.setRenderStyle(GL2.GL_TRIANGLES);
         //shape.renderStyle=GL2.GL_LINES;  // set to see the wireframe
 
-        float w = 0.5f;
-        float d = 0.5f;
-        float h = 0.5f;
+        float w = (float)this.updatedSize.get().getX();
+        float d = (float)this.updatedSize.get().getY();
+        float h = (float)this.updatedSize.get().getZ();
 
-        int wParts = 1;
-        int hParts = 1;
-        int dParts = 1;
+        int wParts = (int)w*2;
+        int hParts = (int)h*2;
+        int dParts = (int)d*2;
 
         Vector3d n=new Vector3d();
         Vector3d p0=new Vector3d();
