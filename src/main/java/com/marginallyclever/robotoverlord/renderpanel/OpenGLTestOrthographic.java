@@ -1,8 +1,5 @@
 package com.marginallyclever.robotoverlord.renderpanel;
 
-import com.jogamp.common.GlueGenVersion;
-import com.jogamp.common.os.Platform;
-import com.jogamp.common.util.JogampVersion;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;

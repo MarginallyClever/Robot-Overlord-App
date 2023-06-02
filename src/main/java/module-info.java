@@ -13,10 +13,10 @@ module com.marginallyclever.robotoverlord {
 	requires com.google.gson;
 	requires org.eclipse.jgit;
 	requires org.joml;
+	requires jogl.all;
 	
 	requires vecmath;
 	requires jsch;
-	requires jogamp.fat;
 	requires annotations;
 	requires jssc;
 	requires batik.all;

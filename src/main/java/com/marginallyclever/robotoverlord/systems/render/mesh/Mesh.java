@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.systems.render.mesh;
 
 import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2GL3;
+import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2GL3;
 import com.marginallyclever.convenience.AABB;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
