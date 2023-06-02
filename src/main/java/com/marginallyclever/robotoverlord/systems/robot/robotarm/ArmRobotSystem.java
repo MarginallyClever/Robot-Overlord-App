@@ -72,6 +72,17 @@ public class ArmRobotSystem implements EntitySystem {
     }
 
     private void showControlPanel(JComponent parent,RobotComponent robotComponent) {
+        if(robotComponent.getNumBones()==0) {
+            logger.warn("Failed to open window - This robot has no bones.  Please add bones to the robot first.");
+            // display error message in a dialog
+            JOptionPane.showMessageDialog(
+                    SwingUtilities.getWindowAncestor(parent),
+                    "This robot has no bones.  Please add bones to the robot first.",
+                    "Failed to open window",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         try {
             EntitySystemUtils.makePanel(new ControlArmPanel(robotComponent, getGCodePath(robotComponent)), parent, Translator.get("RobotROSystem.controlPanel"));
         } catch (Exception e) {
