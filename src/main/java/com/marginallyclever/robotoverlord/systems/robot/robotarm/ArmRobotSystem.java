@@ -30,6 +30,7 @@ import java.util.Map;
 public class ArmRobotSystem implements EntitySystem {
     private static final Logger logger = LoggerFactory.getLogger(ArmRobotSystem.class);
     private final EntityManager entityManager;
+    private final Map<RobotComponent,JDialog> armPanels = new HashMap<>();
 
     public ArmRobotSystem(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -69,24 +70,22 @@ public class ArmRobotSystem implements EntitySystem {
         bHome.addActionEventListener((evt)-> robotComponent.goHome());
     }
 
-    private final Map<RobotComponent,JDialog> editArmPanels = new HashMap<>();
-
     private void editArm(JComponent parent, RobotComponent robotComponent, String title) {
-        if(editArmPanels.containsKey(robotComponent)) return;
+        if(armPanels.containsKey(robotComponent)) return;
         JDialog dialog = EntitySystemUtils.makePanel(new EditArmPanel(robotComponent.getEntity(), entityManager), parent,title);
         if(dialog==null) return;
 
-        editArmPanels.put(robotComponent,dialog);
+        armPanels.put(robotComponent,dialog);
         dialog.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                editArmPanels.remove(robotComponent);
+                armPanels.remove(robotComponent);
             }
         });
     }
 
     private void showControlPanel(JComponent parent,RobotComponent robotComponent) {
-        if(editArmPanels.containsKey(robotComponent)) return;
+        if(armPanels.containsKey(robotComponent)) return;
 
         if(robotComponent.getNumBones()==0) {
             logger.warn("Failed to open window - This robot has no bones.  Please add bones to the robot first.");
@@ -116,11 +115,11 @@ public class ArmRobotSystem implements EntitySystem {
 
         if(dialog==null) return;
 
-        editArmPanels.put(robotComponent,dialog);
+        armPanels.put(robotComponent,dialog);
         dialog.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                editArmPanels.remove(robotComponent);
+                armPanels.remove(robotComponent);
             }
         });
     }
