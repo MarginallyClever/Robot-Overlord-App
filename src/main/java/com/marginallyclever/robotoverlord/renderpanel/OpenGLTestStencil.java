@@ -112,9 +112,11 @@ public class OpenGLTestStencil extends OpenGLTestPerspective {
         gl3.glBindTexture(GL3.GL_TEXTURE_2D, stencilTexture[0]);
 
         // bind the stencil texture to the framebuffer
-        gl3.glTexImage2D(GL3.GL_TEXTURE_2D, 0, GL3.GL_STENCIL_INDEX, width, height, 0, GL3.GL_STENCIL_INDEX, GL3.GL_UNSIGNED_INT, null);
+        gl3.glTexImage2D(GL3.GL_TEXTURE_2D, 0, GL3.GL_DEPTH24_STENCIL8, width, height, 0, GL3.GL_DEPTH_STENCIL, GL3.GL_UNSIGNED_INT_24_8, null);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_MIN_FILTER, GL3.GL_NEAREST);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_MAG_FILTER, GL3.GL_NEAREST);
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_S, GL3.GL_CLAMP_TO_EDGE);
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_T, GL3.GL_CLAMP_TO_EDGE);
         gl3.glFramebufferTexture2D(GL3.GL_FRAMEBUFFER, GL3.GL_STENCIL_ATTACHMENT, GL3.GL_TEXTURE_2D, stencilTexture[0], 0);
 
         // check it's sane
