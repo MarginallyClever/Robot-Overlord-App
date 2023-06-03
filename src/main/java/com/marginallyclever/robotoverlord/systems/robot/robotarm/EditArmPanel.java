@@ -171,15 +171,29 @@ public class EditArmPanel extends JPanel implements PropertyChangeListener {
 
     private void updateTarget() {
         Entity target = robotComponent.getChildTarget();
+
+        TargetComponent targetComponent = new TargetComponent();
+
+        // If there isn't a target, then search for it by name (legacy method)
         if(target==null) {
-            target = new Entity(RobotComponent.TARGET_NAME);
+            target = robotComponent.getEntity().findChildNamed("target");
+        }
+
+        // If the robot is still without target, create it. Otherwise simply add the component 
+        if(target==null) {
+
+            target = new Entity("target");
+            target.addComponent(targetComponent);
+            
             entityManager.addEntityToParent(target, rootEntity);
+        } else {
+            target.addComponent(targetComponent);
         }
 
         PoseComponent targetPose = target.getComponent(PoseComponent.class);
         Matrix4d endEffector = (Matrix4d)robotComponent.get(Robot.END_EFFECTOR);
         Matrix4d root = (Matrix4d)robotComponent.get(Robot.POSE);
-        endEffector.mul(root,endEffector);
+        endEffector.mul(root, endEffector);
         targetPose.setWorld(endEffector);
     }
 

@@ -27,7 +27,6 @@ import java.util.*;
 @ComponentDependency(components = {PoseComponent.class})
 public class RobotComponent extends Component implements Robot, ComponentWithReferences {
     private static final Logger logger = LoggerFactory.getLogger(RobotComponent.class);
-    public static final String TARGET_NAME = "target";
 
     private int activeJoint;
     private final List<DHComponent> bones = new ArrayList<>();
@@ -177,8 +176,13 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
         return inBaseFrameOfReference(m);
     }
 
+    /**
+     * Search for the first child entity that has a TargetComponent 
+     * @return The target entity or null
+     */
     public Entity getChildTarget() {
-        return getEntity().findChildNamed(TARGET_NAME);
+        TargetComponent targetComponent = getEntity().findFirstComponentRecursive(TargetComponent.class);
+        return targetComponent != null ? targetComponent.getEntity() : null;
     }
 
     /**

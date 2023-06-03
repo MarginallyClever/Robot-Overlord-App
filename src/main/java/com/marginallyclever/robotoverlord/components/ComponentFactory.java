@@ -37,6 +37,7 @@ public abstract class ComponentFactory {
 			Cylinder.class,
 
 			OriginAdjustComponent.class,
+			TargetComponent.class,
 
 			DHComponent.class,
 			RobotComponent.class,

@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 import com.marginallyclever.robotoverlord.components.ArmEndEffectorComponent;
 import com.marginallyclever.robotoverlord.components.DHComponent;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
+import com.marginallyclever.robotoverlord.components.TargetComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.robots.Robot;
@@ -39,8 +40,9 @@ public class ApproximateJacobianTest {
         base.addComponent(robot);
 
         // add target
-        Entity target = new Entity(RobotComponent.TARGET_NAME);
-        entityManager.addEntityToParent(target, base);
+        TargetComponent targetComponent = new TargetComponent();
+        Entity target = new Entity("target");
+        target.addComponent(targetComponent);
 
         // position arm
         List<Entity> joints = new ArrayList<>();
@@ -76,8 +78,9 @@ public class ApproximateJacobianTest {
         base.addComponent(robot);
 
         // add target
-        Entity target = new Entity(RobotComponent.TARGET_NAME);
-        entityManager.addEntityToParent(target, base);
+        TargetComponent targetComponent = new TargetComponent();
+        Entity target = new Entity("target");
+        target.addComponent(targetComponent);
 
         // position arm
         List<Entity> joints = new ArrayList<>();

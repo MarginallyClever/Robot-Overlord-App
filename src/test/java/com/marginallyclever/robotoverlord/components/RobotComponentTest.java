@@ -19,8 +19,12 @@ public class RobotComponentTest {
         Entity base = new Entity("Base");
         RobotComponent robot = new RobotComponent();
         base.addComponent(robot);
+
         // add target
-        Entity target = new Entity(RobotComponent.TARGET_NAME);
+        TargetComponent targetComponent = new TargetComponent();
+        Entity target = new Entity("target");
+        target.addComponent(targetComponent);
+
         entityManager.addEntityToParent(target, base);
         // position arm
         List<Entity> joints = new ArrayList<>();
