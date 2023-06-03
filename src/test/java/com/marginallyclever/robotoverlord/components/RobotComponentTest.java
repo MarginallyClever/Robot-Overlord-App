@@ -24,8 +24,8 @@ public class RobotComponentTest {
         TargetComponent targetComponent = new TargetComponent();
         Entity target = new Entity("target");
         target.addComponent(targetComponent);
-
         entityManager.addEntityToParent(target, base);
+        
         // position arm
         List<Entity> joints = new ArrayList<>();
         List<DHComponent> dh = new ArrayList<>();
