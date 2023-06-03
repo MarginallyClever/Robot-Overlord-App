@@ -38,6 +38,7 @@ public class ArmRobotSystem implements EntitySystem {
 
     @Override
     public void decorate(ComponentPanelFactory view, Component component) {
+        if( component instanceof ArmRobotComponent ) decorateArmRobot(view,component);
         if( component instanceof RobotComponent ) decorateRobot(view,component);
         if( component instanceof DHComponent ) decorateDH(view,component);
     }
@@ -54,7 +55,7 @@ public class ArmRobotSystem implements EntitySystem {
         view.add(dh.jointHome).setReadOnly(true);
     }
 
-    private void decorateRobot(ComponentPanelFactory view, Component component) {
+    private void decorateArmRobot(ComponentPanelFactory view, Component component) {
         RobotComponent robotComponent = (RobotComponent)component;
 
         view.add(robotComponent.desiredLinearVelocity);
@@ -62,6 +63,10 @@ public class ArmRobotSystem implements EntitySystem {
 
         ViewElementButton bMake = view.addButton("Edit Arm");
         bMake.addActionEventListener((evt)-> editArm(bMake,robotComponent,"Edit Arm"));
+    }
+
+    private void decorateRobot(ComponentPanelFactory view, Component component) {
+        RobotComponent robotComponent = (RobotComponent)component;
 
         ViewElementButton bOpenJog = view.addButton(Translator.get("RobotROSystem.controlPanel"));
         bOpenJog.addActionEventListener((evt)-> showControlPanel(bOpenJog,robotComponent));
@@ -69,6 +74,7 @@ public class ArmRobotSystem implements EntitySystem {
         ViewElementButton bHome = view.addButton("Go home");
         bHome.addActionEventListener((evt)-> robotComponent.goHome());
     }
+
 
     private void editArm(JComponent parent, RobotComponent robotComponent, String title) {
         if(armPanels.containsKey(robotComponent)) return;

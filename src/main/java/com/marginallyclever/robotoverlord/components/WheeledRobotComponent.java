@@ -17,16 +17,14 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.*;
 
-
 /**
- * RobotComponent indicate a generic set of joints attached to common root.
- * @author Dan Royer
- * @since 2022-09-14
+ * A Wheeled robot is a generic set of wheels connected to a connon root.
+ * @author Giacomo Rossetoo
+ * @since 2023-06-03
  */
 @ComponentDependency(components = {PoseComponent.class})
-public class RobotComponent extends Component implements Robot, ComponentWithReferences {
+public class WheeledRobotComponent extends RobotComponent {
     private static final Logger logger = LoggerFactory.getLogger(RobotComponent.class);
-    public static final String TARGET_NAME = "target";
 
     private int activeJoint;
     private final List<DHComponent> bones = new ArrayList<>();
@@ -174,10 +172,6 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
         if(target==null) return getEndEffectorPose();
         Matrix4d m = target.getComponent(PoseComponent.class).getWorld();
         return inBaseFrameOfReference(m);
-    }
-
-    public Entity getChildTarget() {
-        return getEntity().findChildNamed(TARGET_NAME);
     }
 
     /**

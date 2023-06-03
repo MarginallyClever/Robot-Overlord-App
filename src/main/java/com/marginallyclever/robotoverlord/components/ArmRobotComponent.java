@@ -17,14 +17,15 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.*;
 
-
 /**
- * RobotComponent indicate a generic set of joints attached to common root.
+ * RobotComponent is attached to the root of a robotic arm.
+ * It requires that each link in the arm has a {@link PoseComponent} and a {@link DHComponent}.  The end effector
+ * must have an {@link ArmEndEffectorComponent}.
  * @author Dan Royer
  * @since 2022-09-14
  */
 @ComponentDependency(components = {PoseComponent.class})
-public class RobotComponent extends Component implements Robot, ComponentWithReferences {
+public class ArmRobotComponent extends Component implements Robot, ComponentWithReferences {
     private static final Logger logger = LoggerFactory.getLogger(RobotComponent.class);
     public static final String TARGET_NAME = "target";
 

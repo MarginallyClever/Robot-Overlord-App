@@ -26,6 +26,7 @@ import com.marginallyclever.robotoverlord.systems.robot.crab.CrabRobotSystem;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.ArmRobotSystem;
 import com.marginallyclever.robotoverlord.systems.robot.dog.DogRobotSystem;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.ProgramExecutorSystem;
+import com.marginallyclever.robotoverlord.systems.robot.wheel.WheeledRobotSystem;
 import com.marginallyclever.util.PropertiesFileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,6 +192,7 @@ public class RobotOverlord {
 		addSystem(new ArmRobotSystem(project.getEntityManager()));
 		addSystem(new DogRobotSystem(project.getEntityManager()));
 		addSystem(new CrabRobotSystem(project.getEntityManager()));
+		addSystem(new WheeledRobotSystem(project.getEntityManager()));
 		addSystem(new ProgramExecutorSystem(project.getEntityManager()));
 		addSystem(new RobotGripperSystem(project.getEntityManager()));
 		addSystem(new MotorSystem(project.getEntityManager()));

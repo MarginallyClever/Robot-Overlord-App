@@ -37,13 +37,14 @@ public abstract class ComponentFactory {
 			Cylinder.class,
 
 			OriginAdjustComponent.class,
-
 			DHComponent.class,
-			RobotComponent.class,
 			ArmEndEffectorComponent.class,
 
+			RobotComponent.class,
+			ArmRobotComponent.class,
 			CrabRobotComponent.class,
 			DogRobotComponent.class,
+			WheeledRobotComponent.class,
 
 			GCodePathComponent.class,
 			ProgramPathComponent.class,
