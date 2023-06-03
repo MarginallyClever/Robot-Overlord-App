@@ -15,9 +15,9 @@ import javax.vecmath.Vector3d;
  * A box with a width, height, and length of 1.  It is centered around the origin.
  * TODO add texture coordinates
  */
-public class Box extends ShapeComponent {
+public class Box extends ShapeComponent implements PropertyChangeListener {
 
-    public transient final Vector3DParameter updatedSize = new Vector3DParameter("size", new Vector3d(0.5f,0.5f,0.5f));
+    public final Vector3DParameter size = new Vector3DParameter("Size", new Vector3d(0.5f, 0.5f, 0.5f));
 
     public Box() {
         super();
@@ -26,14 +26,7 @@ public class Box extends ShapeComponent {
         updateModel();
         setModel(myMesh);
 
-        updatedSize.addPropertyChangeListener(new PropertyChangeListener() {
-
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                updateModel();
-            }
-            
-        });
+        size.addPropertyChangeListener(this);
     }
 
     // Procedurally generate a list of triangles that form a box, subdivided by some amount.
@@ -42,9 +35,9 @@ public class Box extends ShapeComponent {
         myMesh.setRenderStyle(GL2.GL_TRIANGLES);
         //shape.renderStyle=GL2.GL_LINES;  // set to see the wireframe
 
-        float w = (float)this.updatedSize.get().getX();
-        float d = (float)this.updatedSize.get().getY();
-        float h = (float)this.updatedSize.get().getZ();
+        float w = (float)this.size.get().getX();
+        float d = (float)this.size.get().getY();
+        float h = (float)this.size.get().getZ();
 
         int wParts = (int)w*2;
         int hParts = (int)h*2;
@@ -200,5 +193,10 @@ public class Box extends ShapeComponent {
                 }
             }
         }
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        updateModel();
     }
 }

@@ -3,7 +3,11 @@ package com.marginallyclever.robotoverlord.components.shapes;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.vecmath.Vector3d;
 
@@ -12,13 +16,20 @@ import javax.vecmath.Vector3d;
  * @author Dan Royer
  *
  */
-public class Decal extends ShapeComponent {
+public class Decal extends ShapeComponent implements PropertyChangeListener {
+
+    public final DoubleParameter height = new DoubleParameter("Height", 0.5f);
+    public final DoubleParameter width = new DoubleParameter("Width", 0.5f);
+
 	public Decal() {
 		super();
 
 		myMesh = new Mesh();
 		updateModel();
 		setModel(myMesh);
+
+		height.addPropertyChangeListener(this);
+        width.addPropertyChangeListener(this);
 	}
 
 	/**
@@ -29,8 +40,8 @@ public class Decal extends ShapeComponent {
 		myMesh.setRenderStyle(GL2.GL_TRIANGLES);
 		//model.renderStyle=GL2.GL_LINES;  // set to see the wireframe
 		
-		float w = 0.5f;
-		float h = 0.5f;
+		float w = width.get().floatValue();
+		float h = height.get().floatValue();
 		
 		int wParts = (int)(w/4f)*2;
 		int hParts = (int)(h/4f)*2;
@@ -132,5 +143,10 @@ public class Decal extends ShapeComponent {
 				}
 			}
 		}
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		updateModel();
 	}
 }

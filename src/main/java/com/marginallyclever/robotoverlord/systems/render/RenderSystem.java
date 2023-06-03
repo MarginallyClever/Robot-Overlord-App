@@ -6,6 +6,8 @@ import com.marginallyclever.robotoverlord.components.program.ProgramPathComponen
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.render.gcodepath.PathFactory;
 import com.marginallyclever.robotoverlord.components.shapes.Box;
+import com.marginallyclever.robotoverlord.components.shapes.Cylinder;
+import com.marginallyclever.robotoverlord.components.shapes.Decal;
 import com.marginallyclever.robotoverlord.components.shapes.Grid;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.components.shapes.Sphere;
@@ -37,11 +39,12 @@ public class RenderSystem implements EntitySystem {
         if(component instanceof MeshFromFile) decorateMeshFromFile(view, component);
         if(component instanceof Sphere) decorateSphere(view,component);
         if(component instanceof Grid) decorateGrid(view,component);
+        if(component instanceof Box) decorateBox(view, component);
+        if(component instanceof Cylinder) decorateCylinder(view, component);
+        if(component instanceof Decal) decorateDecal(view, component);
         if(component instanceof LightComponent) decorateLight(view,component);
         if(component instanceof MaterialComponent) decorateMaterial(view,component);
         if(component instanceof LinearPatternComponent) decorateLinearPattern(view,component);
-
-        if(component instanceof Box) decorateBox(view, component);
 
         if(component instanceof ProgramPathComponent) decoratePath(view, component);
         else if(component instanceof ShapeComponent) decorateShape(view, component);
@@ -61,7 +64,13 @@ public class RenderSystem implements EntitySystem {
 
     private void decorateBox(ComponentPanelFactory view, Component component) {
         Box boxComponent = (Box) component;
-        view.add(boxComponent.updatedSize);
+        view.add(boxComponent.size);
+    }
+
+    private void decorateCylinder(ComponentPanelFactory view, Component component) {
+        Cylinder cylinderComponent = (Cylinder) component;
+        view.add(cylinderComponent.height);
+        view.add(cylinderComponent.radius);
     }
 
     private void decorateShape(ComponentPanelFactory view, Component component) {
@@ -105,6 +114,13 @@ public class RenderSystem implements EntitySystem {
     private void decorateSphere(ComponentPanelFactory view, Component component) {
         Sphere sphereComponent = (Sphere) component;
         view.add(sphereComponent.detail);
+        view.add(sphereComponent.radius);
+    }
+
+    private void decorateDecal(ComponentPanelFactory view, Component component) {
+        Decal decalComponent = (Decal) component;
+        view.add(decalComponent.height);
+        view.add(decalComponent.width);
     }
 
     private void decorateGrid(ComponentPanelFactory view, Component component) {
