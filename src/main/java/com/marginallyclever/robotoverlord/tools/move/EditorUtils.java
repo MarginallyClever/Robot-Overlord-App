@@ -69,16 +69,21 @@ public class EditorUtils {
         switch(frameOfReference) {
             case EditorTool.FRAME_WORLD -> {
                 m = MatrixHelper.createIdentityMatrix4();
-                m.setTranslation(MatrixHelper.getPosition(EditorUtils.getLastItemSelectedMatrix(selectedItems)));
+                Matrix4d lis = getLastItemSelectedMatrix(selectedItems);
+                assert lis!=null;
+                m.setTranslation(MatrixHelper.getPosition(lis));
             }
             case EditorTool.FRAME_LOCAL -> {
-                m = EditorUtils.getLastItemSelectedMatrix(selectedItems);
-                if(m==null) m = MatrixHelper.createIdentityMatrix4();
+                m = getLastItemSelectedMatrix(selectedItems);
+                assert m!=null;
+                m = MatrixHelper.createIdentityMatrix4();
             }
             case EditorTool.FRAME_CAMERA -> {
                 m = viewport.getViewMatrix();
                 m.invert();
-                m.setTranslation(MatrixHelper.getPosition(EditorUtils.getLastItemSelectedMatrix(selectedItems)));
+                Matrix4d lis = getLastItemSelectedMatrix(selectedItems);
+                assert lis!=null;
+                m.setTranslation(MatrixHelper.getPosition(lis));
             }
             default -> throw new RuntimeException("Unknown frame of reference: " + frameOfReference);
         }
