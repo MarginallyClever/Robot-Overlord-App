@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.convenience.helpers.PathHelper;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -43,11 +44,19 @@ public class ProjectTest {
         assert(p.getEntityManager()!=null);
     }
 
+    // TODO in a separate test put stuff in project 'a'
+    // TODO in a separate test use a different context for project 'b'
     @Test
-    public void saveProjectAndCheckRelativePaths() throws IOException {
-        Project project = new Project();
-        project.setPath(projectPath.toString());
+    public void saveAndLoad() throws IOException {
+        Project a = new Project();
+        Project b = new Project();
 
-        // TODO finish me!
+        SerializationContext contexta = new SerializationContext("");
+        SerializationContext contextb = new SerializationContext("");
+
+        b.parseJSON(a.toJSON(contexta),contextb);
+
+        SerializationContext contextc = new SerializationContext("");
+        Assertions.assertEquals(a.toJSON(contextc).toString(),b.toJSON(contextc).toString());
     }
 }
