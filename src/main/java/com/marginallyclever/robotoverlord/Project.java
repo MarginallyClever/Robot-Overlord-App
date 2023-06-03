@@ -21,6 +21,7 @@ import java.nio.file.Paths;
  */
 public class Project {
     private static final Logger logger = LoggerFactory.getLogger(Project.class);
+    private final int schemaVerison = 1;
 
     /**
      * The path on disk where the project is stored.  If path is null then the project has not been saved.
@@ -129,11 +130,32 @@ public class Project {
     }
 
     private void loadFromStringWithContext(String string,SerializationContext context) {
-        entityManager.parseJSON(new JSONObject(string),context);
+        JSONObject json = new JSONObject(string);
+        parseJSON(json,context);;
+    }
+
+    public void parseJSON(JSONObject json,SerializationContext context) {
+        if(!json.has("schemaVersion")) {
+            // v0
+            entityManager.parseJSON(json, context);
+        } else {
+            int schemaVersion = json.getInt("schemaVersion");
+            if(schemaVersion != this.schemaVerison) {
+                logger.warn("Schema version mismatch.  Expected {} but got {}",this.schemaVerison,schemaVersion);
+            }
+            entityManager.parseJSON(json.getJSONObject("entityManager"), context);
+        }
     }
 
     private String saveToStringWithContext(SerializationContext context) {
-        return entityManager.toJSON(context).toString();
+        return toJSON(context).toString();
+    }
+
+    public JSONObject toJSON(SerializationContext context) {
+        JSONObject json = new JSONObject();
+        json.put("schemaVersion",schemaVerison);
+        json.put("entityManager",entityManager.toJSON(context));
+        return json;
     }
 
     /**
