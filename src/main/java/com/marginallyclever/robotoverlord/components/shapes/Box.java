@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.components.shapes;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.helpers.MathHelper;
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
@@ -10,6 +11,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.vecmath.Vector3d;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * A box with a width, height, and length of 1.  It is centered around the origin.
@@ -199,4 +203,18 @@ public class Box extends ShapeComponent implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent evt) {
         updateModel();
     }
+
+    @Override
+	public JSONObject toJSON(SerializationContext context) {
+		JSONObject jo = super.toJSON(context);
+		jo.put("size", size.toJSON(context));
+
+		return jo;
+	}
+
+	@Override
+	public void parseJSON(JSONObject jo, SerializationContext context) throws JSONException {
+		super.parseJSON(jo, context);
+		size.parseJSON(jo.getJSONObject("size"), context);
+	}
 }
