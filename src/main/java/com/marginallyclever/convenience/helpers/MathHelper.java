@@ -189,7 +189,6 @@ public class MathHelper {
 	 * @param t [0...1]
 	 * @return a + (b-a)*t
 	 */
-	@Deprecated
 	static public float interpolate(float a,float b,double t) {
 		return (b-a)*(float)t + a;
 	}
@@ -201,7 +200,6 @@ public class MathHelper {
 	 * @param t [0...1]
 	 * @return a + (b-a)*t
 	 */
-	@Deprecated
 	static public double interpolate(double a,double b,double t) {
 		return (b-a)*t + a;
 	}

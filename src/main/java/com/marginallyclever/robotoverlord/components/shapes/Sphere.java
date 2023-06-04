@@ -3,8 +3,13 @@ package com.marginallyclever.robotoverlord.components.shapes;
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -12,18 +17,19 @@ import org.json.JSONObject;
  * A sphere with a radius of 0.5 centered around the local origin.
  * TODO add texture coordinates
  */
-public class Sphere extends ShapeComponent {
-    public final IntParameter detail = new IntParameter("Detail",32);
+public class Sphere extends ShapeComponent implements PropertyChangeListener{
+    public final DoubleParameter radius = new DoubleParameter("Radius", 0.5f);
+    public final IntParameter detail = new IntParameter("Detail", 32);
 
     public Sphere() {
         super();
-        detail.addPropertyChangeListener((evt)-> {
-            detail.set(Math.max(1,detail.get()));
-            updateModel();
-        } );
+
         myMesh = new Mesh();
         updateModel();
         setModel(myMesh);
+
+        radius.addPropertyChangeListener(this);
+        detail.addPropertyChangeListener(this);
     }
 
     // Procedurally generate a list of triangles that form a sphere subdivided by some amount.
@@ -31,7 +37,7 @@ public class Sphere extends ShapeComponent {
         myMesh.clear();
         myMesh.setRenderStyle(GL2.GL_TRIANGLES);
 
-        float r = 0.5f;
+        float r = radius.get().floatValue();
 
         int height = detail.get();
         int width = height*2;
@@ -92,13 +98,23 @@ public class Sphere extends ShapeComponent {
     @Override
     public JSONObject toJSON(SerializationContext context) {
         JSONObject jo = super.toJSON(context);
+        jo.put("radius",radius.toJSON(context));
         jo.put("detail",detail.toJSON(context));
+        jo.put("radius",radius.toJSON(context));
         return jo;
     }
 
     @Override
     public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
         super.parseJSON(jo,context);
+        radius.parseJSON(jo.getJSONObject("radius"),context);
         detail.parseJSON(jo.getJSONObject("detail"),context);
+        if(jo.has("radius")) radius.parseJSON(jo.getJSONObject("radius"),context);
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        detail.set(Math.max(1,detail.get()));
+        updateModel();
     }
 }

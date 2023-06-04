@@ -208,6 +208,8 @@ public class ArmRobotSystem implements EntitySystem {
 
             double[] angles = robotComponent.getAllJointValues();  // # dof long
             for (int i = 0; i < angles.length; ++i) {
+                // TODO: set desired velocity in joint motor component, let motor system handle the rest.
+                // TODO: get next derivative and set acceleration?
                 angles[i] += jointVelocity[i];
             }
             robotComponent.setAllJointValues(angles);
