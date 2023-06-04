@@ -70,7 +70,8 @@ public class RenderSystem implements EntitySystem {
     private void decorateCylinder(ComponentPanelFactory view, Component component) {
         Cylinder cylinderComponent = (Cylinder) component;
         view.add(cylinderComponent.height);
-        view.add(cylinderComponent.radius);
+        view.add(cylinderComponent.radius0);
+        view.add(cylinderComponent.radius1);
     }
 
     private void decorateShape(ComponentPanelFactory view, Component component) {
