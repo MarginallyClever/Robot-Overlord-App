@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.systems.motor;
 import com.marginallyclever.convenience.swing.LineGraph;
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
+import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
@@ -40,6 +41,12 @@ public class MotorSystem implements EntitySystem {
     @Override
     public void decorate(ComponentPanelFactory view, Component component) {
         if(component instanceof MotorComponent) decorateMotor(view, component);
+        if(component instanceof ServoComponent) decorateServo(view, component);
+    }
+
+    private void decorateServo(ComponentPanelFactory view, Component component) {
+        ServoComponent servo = (ServoComponent)component;
+        view.add(servo.targetAngle);
     }
 
     /**
