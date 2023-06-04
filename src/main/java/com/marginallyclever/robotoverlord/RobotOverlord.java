@@ -22,6 +22,7 @@ import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityT
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.systems.*;
 import com.marginallyclever.robotoverlord.systems.robot.RobotGripperSystem;
+import com.marginallyclever.robotoverlord.systems.VehicleSystem;
 import com.marginallyclever.robotoverlord.systems.robot.crab.CrabRobotSystem;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.ArmRobotSystem;
 import com.marginallyclever.robotoverlord.systems.robot.dog.DogRobotSystem;
@@ -194,6 +195,7 @@ public class RobotOverlord {
 		addSystem(new ProgramExecutorSystem(project.getEntityManager()));
 		addSystem(new RobotGripperSystem(project.getEntityManager()));
 		addSystem(new MotorSystem(project.getEntityManager()));
+		addSystem(new VehicleSystem(project.getEntityManager()));
 	}
 
 	private void addSystem(EntitySystem system) {
