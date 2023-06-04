@@ -42,6 +42,14 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
         height.addPropertyChangeListener(this);
     }
 
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if(radius0.get()<0) radius0.set(0.0);
+        if(radius1.get()<0) radius1.set(0.0);
+        if(height.get()<0) height.set(0.0);
+        updateModel();
+    }
+
     private void updateModel() {
         myMesh.clear();
         myMesh.setRenderStyle(GL2.GL_TRIANGLES);
@@ -51,8 +59,8 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
 
     private void addCylinder(float height, float radius0,float radius1) {
         float halfHeight = height / 2;
-        addFace(halfHeight, radius1);
-        addFace(-halfHeight, radius0);
+        if(radius0>0) addFace(-halfHeight, radius0);
+        if(radius1>0) addFace(halfHeight, radius1);
         addTube(-halfHeight, halfHeight, radius0,radius1);
     }
 
@@ -112,11 +120,6 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
         Vector3d n = new Vector3d(x,y,diff);
         n.normalize();
         myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-    }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        updateModel();
     }
 
     @Override
