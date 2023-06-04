@@ -79,7 +79,7 @@ public class VehicleSystemTest {
         build4WheelCar();
 
         for (int i = 0; i < 4; ++i) {
-            WheelComponent wheel = em.findEntityByUniqueID(car.getWheel(i)).getComponent(WheelComponent.class));
+            WheelComponent wheel = em.findEntityByUniqueID(car.getWheel(i)).getComponent(WheelComponent.class);
             wheel.type.set(WheelComponent.TYPE_MECANUM);
         }
 
