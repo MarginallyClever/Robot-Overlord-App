@@ -42,13 +42,13 @@ public class Box extends ShapeComponent implements PropertyChangeListener {
         myMesh.setRenderStyle(GL2.GL_TRIANGLES);
         //shape.renderStyle=GL2.GL_LINES;  // set to see the wireframe
 
-        float w = this.width.get().floatValue();
-        float d = this.length.get().floatValue();
-        float h = this.height.get().floatValue();
+        float w = width.get().floatValue()*0.5f;
+        float d = length.get().floatValue()*0.5f;
+        float h = height.get().floatValue()*0.5f;
 
-        int wParts = (int)w*2;
-        int hParts = (int)h*2;
-        int dParts = (int)d*2;
+        int wParts = (int)Math.ceil(w);
+        int hParts = (int)Math.ceil(h);
+        int dParts = (int)Math.ceil(d);
 
         Vector3d n=new Vector3d();
         Vector3d p0=new Vector3d();

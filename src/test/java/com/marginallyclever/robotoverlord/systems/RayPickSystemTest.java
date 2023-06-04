@@ -25,6 +25,8 @@ public class RayPickSystemTest {
         em = new EntityManager();
         rps = new RayPickSystem(em);
 
+        // arrange boxes b a c in a line
+
         entityA = new Entity("a");
         entityA.addComponent(new Box());
         em.addEntityToParent(entityA,em.getRoot());
