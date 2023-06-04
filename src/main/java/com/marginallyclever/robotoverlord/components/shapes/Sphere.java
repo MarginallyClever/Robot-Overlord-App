@@ -18,7 +18,6 @@ import org.json.JSONObject;
  * TODO add texture coordinates
  */
 public class Sphere extends ShapeComponent implements PropertyChangeListener{
-
     public final DoubleParameter radius = new DoubleParameter("Radius", 0.5f);
     public final IntParameter detail = new IntParameter("Detail", 32);
 
@@ -100,6 +99,7 @@ public class Sphere extends ShapeComponent implements PropertyChangeListener{
     public JSONObject toJSON(SerializationContext context) {
         JSONObject jo = super.toJSON(context);
         jo.put("detail",detail.toJSON(context));
+        jo.put("radius",radius.toJSON(context));
         return jo;
     }
 
@@ -107,6 +107,7 @@ public class Sphere extends ShapeComponent implements PropertyChangeListener{
     public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
         super.parseJSON(jo,context);
         detail.parseJSON(jo.getJSONObject("detail"),context);
+        if(jo.has("radius")) radius.parseJSON(jo.getJSONObject("radius"),context);
     }
 
     @Override
