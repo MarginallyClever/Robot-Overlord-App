@@ -109,6 +109,7 @@ public class VehicleSystemTest {
             car.addWheel(wheelEntity[i]);
 
             wheels[i] = new WheelComponent();
+            wheels[i].type.set(WheelComponent.TYPE_OMNI);
             wheelEntity[i].addComponent(wheels[i]);
             wheels[i].diameter.set(2.0);
             wheels[i].width.set(0.5);
