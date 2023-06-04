@@ -16,8 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A system to manage robot arms.
@@ -28,6 +30,7 @@ import java.util.List;
 public class ArmRobotSystem implements EntitySystem {
     private static final Logger logger = LoggerFactory.getLogger(ArmRobotSystem.class);
     private final EntityManager entityManager;
+    private final Map<RobotComponent,JDialog> armPanels = new HashMap<>();
 
     public ArmRobotSystem(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -68,10 +71,22 @@ public class ArmRobotSystem implements EntitySystem {
     }
 
     private void editArm(JComponent parent, RobotComponent robotComponent, String title) {
-        EntitySystemUtils.makePanel(new EditArmPanel(robotComponent.getEntity(), entityManager), parent,title);
+        if(armPanels.containsKey(robotComponent)) return;
+        JDialog dialog = EntitySystemUtils.makePanel(new EditArmPanel(robotComponent.getEntity(), entityManager), parent,title);
+        if(dialog==null) return;
+
+        armPanels.put(robotComponent,dialog);
+        dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                armPanels.remove(robotComponent);
+            }
+        });
     }
 
     private void showControlPanel(JComponent parent,RobotComponent robotComponent) {
+        if(armPanels.containsKey(robotComponent)) return;
+
         if(robotComponent.getNumBones()==0) {
             logger.warn("Failed to open window - This robot has no bones.  Please add bones to the robot first.");
             // display error message in a dialog
@@ -83,8 +98,9 @@ public class ArmRobotSystem implements EntitySystem {
             return;
         }
 
+        JDialog dialog;
         try {
-            EntitySystemUtils.makePanel(new ControlArmPanel(robotComponent, getGCodePath(robotComponent)), parent, Translator.get("RobotROSystem.controlPanel"));
+            dialog = EntitySystemUtils.makePanel(new ControlArmPanel(robotComponent, getGCodePath(robotComponent)), parent, Translator.get("RobotROSystem.controlPanel"));
         } catch (Exception e) {
             e.printStackTrace();
             logger.warn("Failed to open window", e);
@@ -94,7 +110,18 @@ public class ArmRobotSystem implements EntitySystem {
                     e.getLocalizedMessage(),
                     "Failed to open window",
                     JOptionPane.ERROR_MESSAGE);
+            dialog=null;
         }
+
+        if(dialog==null) return;
+
+        armPanels.put(robotComponent,dialog);
+        dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                armPanels.remove(robotComponent);
+            }
+        });
     }
 
     private GCodePathComponent getGCodePath(RobotComponent robotComponent) {
@@ -181,6 +208,8 @@ public class ArmRobotSystem implements EntitySystem {
 
             double[] angles = robotComponent.getAllJointValues();  // # dof long
             for (int i = 0; i < angles.length; ++i) {
+                // TODO: set desired velocity in joint motor component, let motor system handle the rest.
+                // TODO: get next derivative and set acceleration?
                 angles[i] += jointVelocity[i];
             }
             robotComponent.setAllJointValues(angles);

@@ -21,6 +21,7 @@ import java.nio.file.Paths;
  */
 public class Project {
     private static final Logger logger = LoggerFactory.getLogger(Project.class);
+    private final int schemaVerison = 1;
 
     /**
      * The path on disk where the project is stored.  If path is null then the project has not been saved.
@@ -61,69 +62,6 @@ public class Project {
         logger.debug("Setting path to "+absolutePath);
         this.path = absolutePath;
     }
-
-    /**
-     * Returns true if unCheckedAssetFilename is in the scene path.
-     * @param unCheckedAssetFilename a file that may or may not be within the scene path.
-     * @return true if unCheckedAssetFilename is in the scene path.
-     */
-    public boolean isAssetPathInScenePath(String unCheckedAssetFilename) {
-        Path input = Paths.get(unCheckedAssetFilename);
-        Path scene = Paths.get(getPath());
-        return input.toAbsolutePath().startsWith(scene.toAbsolutePath());
-    }
-
-    /**
-     * Displays a warning to the user if the asset is not within the scene path.
-     * @param unCheckedAssetFilename a file that may or may not be within the scene path.
-     */
-    public void warnIfAssetPathIsNotInScenePath(String unCheckedAssetFilename) {
-        if(isAssetPathInScenePath(unCheckedAssetFilename)) return;
-
-        String message = Translator.get("Scene.AssetPathNotInScenePathWarning",unCheckedAssetFilename,getPath());
-        logger.warn("asset "+unCheckedAssetFilename+" not in scene path: "+getPath());
-
-        // try to show a pop-up if we have a display
-        if(!GraphicsEnvironment.isHeadless()) {
-            JOptionPane.showMessageDialog(
-                    null,
-                    message,
-                    Translator.get("Scene.AssetPathNotInScenePathWarningTitle"),
-                    JOptionPane.WARNING_MESSAGE);
-        }
-    }
-
-    public String checkForScenePath(String fn) {
-        if (!isAssetPathInScenePath(fn)) {
-            String fn2 = addScenePath(fn);
-            if ((new File(fn2)).exists()) {
-                return fn2;
-            }
-        } else {
-            warnIfAssetPathIsNotInScenePath(fn);
-        }
-        return fn;
-    }
-
-    /**
-     * Returns the relative path to the asset, or absolute if the asset is not within the scene gcodepath.
-     * @param unCheckedAssetFilename a file that may or may not be within the scene gcodepath.
-     * @return the relative gcodepath to the asset, or absolute if the asset is not within the scene gcodepath.
-     */
-    public String removeScenePath(String unCheckedAssetFilename) {
-        if(unCheckedAssetFilename==null) return null;
-
-        String scenePathValue = getPath();
-        if(unCheckedAssetFilename.startsWith(scenePathValue)) {
-            return unCheckedAssetFilename.substring(scenePathValue.length());
-        }
-        return unCheckedAssetFilename;
-    }
-
-    public String addScenePath(String fn) {
-        return getPath() + fn;
-    }
-
 
     public void copyDiskAssetsToScenePath(Project source, String destinationPath) throws IOException {
         if(source.getPath().equals(destinationPath)) return;
@@ -192,11 +130,32 @@ public class Project {
     }
 
     private void loadFromStringWithContext(String string,SerializationContext context) {
-        entityManager.parseJSON(new JSONObject(string),context);
+        JSONObject json = new JSONObject(string);
+        parseJSON(json,context);;
+    }
+
+    public void parseJSON(JSONObject json,SerializationContext context) {
+        if(!json.has("schemaVersion")) {
+            // v0
+            entityManager.parseJSON(json, context);
+        } else {
+            int schemaVersion = json.getInt("schemaVersion");
+            if(schemaVersion != this.schemaVerison) {
+                logger.warn("Schema version mismatch.  Expected {} but got {}",this.schemaVerison,schemaVersion);
+            }
+            entityManager.parseJSON(json.getJSONObject("entityManager"), context);
+        }
     }
 
     private String saveToStringWithContext(SerializationContext context) {
-        return entityManager.toJSON(context).toString();
+        return toJSON(context).toString();
+    }
+
+    public JSONObject toJSON(SerializationContext context) {
+        JSONObject json = new JSONObject();
+        json.put("schemaVersion",schemaVerison);
+        json.put("entityManager",entityManager.toJSON(context));
+        return json;
     }
 
     /**
@@ -226,10 +185,10 @@ public class Project {
      * @throws IOException if the asset files cannot be copied
      */
     private void addProjectCommon(Project from,String path) throws IOException {
-        this.copyDiskAssetsToScenePath(from, path);
+        copyDiskAssetsToScenePath(from, path);
         String str = from.saveToStringWithContext(new SerializationContext(from.getPath()));
         Project adjusted = new Project();
         adjusted.loadFromStringWithContext(str,new SerializationContext(path));
-        this.entityManager.addScene(adjusted.entityManager);
+        entityManager.addScene(adjusted.entityManager);
     }
 }

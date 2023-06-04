@@ -60,13 +60,24 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
     private Matrix4d pivotMatrix;
 
     private boolean hovering = false;
+    private int frameOfReference = EditorTool.FRAME_WORLD;
 
     @Override
     public void activate(List<Entity> list) {
         this.selectedItems = new SelectedItems(list);
         if (selectedItems.isEmpty()) return;
 
-        setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+        updatePivotMatrix();
+    }
+
+    @Override
+    public void deactivate() {
+        dragging = false;
+        selectedItems = null;
+    }
+
+    private void updatePivotMatrix() {
+        setPivotMatrix(EditorUtils.getPivotMatrix(frameOfReference,viewport,selectedItems));
     }
 
     public void setPivotMatrix(Matrix4d pivot) {
@@ -77,14 +88,8 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
     }
 
     @Override
-    public void deactivate() {
-        dragging = false;
-        selectedItems = null;
-    }
-
-    @Override
     public void handleMouseEvent(MouseEvent event) {
-        if(selectedItems!=null) setPivotMatrix(EditorUtils.getLastItemSelectedMatrix(selectedItems));
+        if(selectedItems!=null) updatePivotMatrix();
 
         if (event.getID() == MouseEvent.MOUSE_MOVED) {
             mouseMoved(event);
@@ -245,5 +250,16 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
     }
     private void setToolScale(double toolScale) {
         this.toolScale = toolScale;
+    }
+
+    /**
+     * Sets the frame of reference for the tool.
+     *
+     * @param index 0 for world, 1 for local, 2 for camera.
+     */
+    @Override
+    public void setFrameOfReference(int index) {
+        frameOfReference = index;
+        updatePivotMatrix();
     }
 }

@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.systems.robot;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.RobotGripperComponent;
+import com.marginallyclever.robotoverlord.components.RobotGripperJawComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.components.shapes.Cylinder;
 import com.marginallyclever.robotoverlord.entity.Entity;
@@ -28,31 +29,43 @@ public class RobotGripperSystemTest {
     public void BeforeEach() {
         entityManager = new EntityManager();
         gripperSystem = new RobotGripperSystem(entityManager);
-        base = new Entity();
-        j0 = new Entity();
-        j1 = new Entity();
-        subject = new Entity();
+        base = new Entity("base");
+        j0 = new Entity("j0");
+        j1 = new Entity("j1");
+        subject = new Entity("subject");
 
         entityManager.addEntityToParent(j0,base);
         entityManager.addEntityToParent(j1,base);
         entityManager.addEntityToParent(base,entityManager.getRoot());
         entityManager.addEntityToParent(subject,entityManager.getRoot());
 
-        base.addComponent(new Cylinder());
         j0.addComponent(new Box());
+        j0.addComponent(new RobotGripperJawComponent());
+
         j1.addComponent(new Box());
+        j1.addComponent(new RobotGripperJawComponent());
+
+        base.addComponent(new Cylinder());
+
         subject.addComponent(new Box());
 
         // set the jaws in the open position
-        j0.getComponent(PoseComponent.class).setPosition(new Vector3d(-2.5,0,2.5));
-        j1.getComponent(PoseComponent.class).setPosition(new Vector3d(2.5,0,2.5));
+        Matrix4d m = MatrixHelper.createIdentityMatrix4();
+        m.rotY(Math.PI/2);
+        m.setTranslation(new Vector3d(-2.5,0,2.5));
+
+        j0.getComponent(PoseComponent.class).setWorld(m);
+        m.rotY(-Math.PI/2);
+        m.setTranslation(new Vector3d(2.5,0,2.5));
+        j1.getComponent(PoseComponent.class).setWorld(m);
         // put the subject in the middle of the gripper
         subject.getComponent(PoseComponent.class).setPosition(new Vector3d(0,0,2.5));
+
         // set the gripper base to the origin
         gripperComponent = new RobotGripperComponent();
-        base.addComponent(gripperComponent);
         gripperComponent.openDistance.set(5.0);
         gripperComponent.closeDistance.set(0.0);
+        base.addComponent(gripperComponent);
     }
 
     @Test
