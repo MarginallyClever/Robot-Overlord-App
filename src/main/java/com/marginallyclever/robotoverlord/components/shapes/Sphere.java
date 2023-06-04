@@ -98,6 +98,7 @@ public class Sphere extends ShapeComponent implements PropertyChangeListener{
     @Override
     public JSONObject toJSON(SerializationContext context) {
         JSONObject jo = super.toJSON(context);
+        jo.put("radius",radius.toJSON(context));
         jo.put("detail",detail.toJSON(context));
         jo.put("radius",radius.toJSON(context));
         return jo;
@@ -106,6 +107,7 @@ public class Sphere extends ShapeComponent implements PropertyChangeListener{
     @Override
     public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
         super.parseJSON(jo,context);
+        radius.parseJSON(jo.getJSONObject("radius"),context);
         detail.parseJSON(jo.getJSONObject("detail"),context);
         if(jo.has("radius")) radius.parseJSON(jo.getJSONObject("radius"),context);
     }

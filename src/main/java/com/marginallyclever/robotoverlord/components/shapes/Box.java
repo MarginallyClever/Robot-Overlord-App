@@ -15,6 +15,9 @@ import java.beans.PropertyChangeListener;
 
 import javax.vecmath.Vector3d;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * A box with a width, height, and length of 1.  It is centered around the origin.
  * TODO add texture coordinates

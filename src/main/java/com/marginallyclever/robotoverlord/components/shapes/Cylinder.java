@@ -3,6 +3,9 @@ package com.marginallyclever.robotoverlord.components.shapes;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.robotoverlord.SerializationContext;
@@ -15,7 +18,8 @@ import org.json.JSONObject;
 import javax.vecmath.Vector3d;
 
 /**
- * A cylinder with a radius of 0.5 and a height of 1.  It is centered at the origin.
+ * A cylinder with a radius of 0.5 and a height of 1. It is centered at the
+ * origin.
  * TODO add texture coordinates
  */
 public class Cylinder extends ShapeComponent implements PropertyChangeListener {
