@@ -25,8 +25,12 @@ public class VehicleSystemTest {
         carEntity.addComponent(car);
         em.addEntityToParent(carEntity, em.getRoot());
     }
+
     @AfterEach
     public void tearDown() {
+        em=null;
+        vs=null;
+        car=null;
     }
 
     @Test
@@ -78,6 +82,7 @@ public class VehicleSystemTest {
     public void drive4WheelMecanumCar() {
         build4WheelCar();
 
+        // change wheel type to mecanum
         for (int i = 0; i < 4; ++i) {
             WheelComponent wheel = em.findEntityByUniqueID(car.getWheel(i)).getComponent(WheelComponent.class);
             wheel.type.set(WheelComponent.TYPE_MECANUM);
@@ -119,6 +124,20 @@ public class VehicleSystemTest {
                     10*Math.sin(Math.toRadians(120*i)),
                     1));
         }
+    }
+
+    @Test
+    public void driveOmniCar() {
+        build3WheelOmniCar();
+
+        // TODO set velocity to drive forward
+        // TODO set the turn rate to turn left
+        // TODO set the strafe rate to strafe right
+
+        // move a bit
+        vs.update(1.0/30.0);
+
+        // TODO check position of car
     }
 }
 
