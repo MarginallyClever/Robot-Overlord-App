@@ -2,9 +2,12 @@ package com.marginallyclever.robotoverlord.components.shapes;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.helpers.MathHelper;
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -17,7 +20,6 @@ import javax.vecmath.Vector3d;
  *
  */
 public class Decal extends ShapeComponent implements PropertyChangeListener {
-
     public final DoubleParameter height = new DoubleParameter("Height", 0.5f);
     public final DoubleParameter width = new DoubleParameter("Width", 0.5f);
 
@@ -148,5 +150,20 @@ public class Decal extends ShapeComponent implements PropertyChangeListener {
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		updateModel();
+	}
+
+	@Override
+	public JSONObject toJSON(SerializationContext context) {
+		JSONObject json = super.toJSON(context);
+		json.put("width", width.get());
+		json.put("height", height.get());
+		return json;
+	}
+
+	@Override
+	public void parseJSON(JSONObject jo, SerializationContext context) throws JSONException {
+		super.parseJSON(jo, context);
+		width.set(jo.getDouble("width"));
+		height.set(jo.getDouble("height"));
 	}
 }
