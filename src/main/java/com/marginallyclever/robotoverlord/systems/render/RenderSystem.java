@@ -64,7 +64,9 @@ public class RenderSystem implements EntitySystem {
 
     private void decorateBox(ComponentPanelFactory view, Component component) {
         Box boxComponent = (Box) component;
-        view.add(boxComponent.size);
+        view.add(boxComponent.width);
+        view.add(boxComponent.length);
+        view.add(boxComponent.height);
     }
 
     private void decorateCylinder(ComponentPanelFactory view, Component component) {
