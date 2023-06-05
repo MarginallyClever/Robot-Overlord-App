@@ -12,18 +12,25 @@ import org.json.JSONObject;
  * @author Dan Royer
  */
 public class ServoComponent extends MotorComponent {
-    public final DoubleParameter targetAngle = new DoubleParameter("Target angle", 0);
+    public final DoubleParameter desiredAngle = new DoubleParameter("Target angle", 0);
 
     @Override
     public JSONObject toJSON(SerializationContext context) {
         JSONObject json = super.toJSON(context);
-        json.put("targetAngle", targetAngle.toJSON(context));
+        json.put("desiredAngle", desiredAngle.toJSON(context));
         return json;
     }
 
     @Override
     public void parseJSON(JSONObject jo, SerializationContext context) throws JSONException {
         super.parseJSON(jo, context);
-        targetAngle.parseJSON(jo.getJSONObject("targetAngle"), context);
+        desiredAngle.parseJSON(jo.getJSONObject("desiredAngle"), context);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString()
+                + ", desiredAngle=" + desiredAngle
+                + ",\n";
     }
 }

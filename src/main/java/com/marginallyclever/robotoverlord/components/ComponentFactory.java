@@ -7,6 +7,8 @@ import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
 import com.marginallyclever.robotoverlord.components.program.ProgramComponent;
 import com.marginallyclever.robotoverlord.components.program.ProgramPathComponent;
 import com.marginallyclever.robotoverlord.components.shapes.*;
+import com.marginallyclever.robotoverlord.components.vehicle.CarComponent;
+import com.marginallyclever.robotoverlord.components.vehicle.WheelComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,9 +50,14 @@ public abstract class ComponentFactory {
 			GCodePathComponent.class,
 			ProgramPathComponent.class,
 			ProgramComponent.class,
+
 			RobotGripperComponent.class,
 			RobotGripperJawComponent.class,
+
 			MotorComponent.class,
+
+			CarComponent.class,
+			WheelComponent.class,
 	};
 	
 	public static ArrayList<String> getAllComponentNames() {

@@ -25,4 +25,8 @@ public class ReferenceParameter extends StringParameter {
             set(oldToNewIDMap.get(id));
         }
     }
+
+    public void set(Entity entity) {
+        set(entity.getUniqueID());
+    }
 }

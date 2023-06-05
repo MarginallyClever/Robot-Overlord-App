@@ -2,10 +2,8 @@ package com.marginallyclever.robotoverlord.components.vehicle;
 
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.Component;
-import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
-import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.robotoverlord.parameters.IntParameter;
+import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,29 +17,27 @@ import org.json.JSONObject;
  * @author Dan Royer
  */
 public class WheelComponent extends Component {
-    public static final String [] wheelTypeNames = {"Normal","Omni","Mecanum"};
-    public static final int TYPE_NORMAL = 0;
-    public static final int TYPE_OMNI = 1;
-    public static final int TYPE_MECANUM = 2;
-
-    public final IntParameter type = new IntParameter("Type", WheelComponent.TYPE_NORMAL);
     public final DoubleParameter diameter = new DoubleParameter("Diameter", 1);
     public final DoubleParameter width = new DoubleParameter("Width", 1);
+    public final ReferenceParameter drive = new ReferenceParameter("Drive motor");
+    public final ReferenceParameter steer = new ReferenceParameter("Steer motor");
 
     @Override
     public JSONObject toJSON(SerializationContext context) {
         JSONObject jo = super.toJSON(context);
-        jo.put("type", type.toJSON(context));
         jo.put("diameter", diameter.toJSON(context));
         jo.put("width", width.toJSON(context));
+        jo.put("motor", drive.toJSON(context));
+        jo.put("steer", steer.toJSON(context));
         return jo;
     }
 
     @Override
     public void parseJSON(JSONObject jo, SerializationContext context) throws JSONException {
         super.parseJSON(jo, context);
-        type.parseJSON(jo.getJSONObject("type"), context);
         diameter.parseJSON(jo.getJSONObject("diameter"), context);
         width.parseJSON(jo.getJSONObject("width"), context);
+        drive.parseJSON(jo.getJSONObject("motor"), context);
+        steer.parseJSON(jo.getJSONObject("steer"), context);
     }
 }

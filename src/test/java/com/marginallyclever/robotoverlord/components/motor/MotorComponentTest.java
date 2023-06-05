@@ -16,17 +16,17 @@ public class MotorComponentTest {
         MotorComponent after = new MotorComponent();
 
         // Set a known Torque Curve
-        TreeMap<Integer, Double> a = before.getTorqueCurve();
-        a.put(1000, 200.5);
-        a.put(2000, 400.7);
-        a.put(3000, 600.2);
+        TreeMap<Double, Double> a = before.getTorqueCurve();
+        a.put(1000.0, 200.5);
+        a.put(2000.0, 400.7);
+        a.put(3000.0, 600.2);
         before.gearRatio.set(2.0);
 
         ComponentTest.saveAndLoad(before,after);
 
         SerializationContext context = new SerializationContext("");
         after.parseJSON(before.toJSON(context),context);
-        TreeMap<Integer, Double> b = after.getTorqueCurve();
+        TreeMap<Double, Double> b = after.getTorqueCurve();
 
         // Validate the Torque Curve
         Assertions.assertEquals(a, b);
