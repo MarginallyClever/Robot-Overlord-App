@@ -17,7 +17,7 @@ public class DoubleParameter extends AbstractParameter<Double> {
 
 	@Override
 	public String toString() {
-		return getName()+"="+StringHelper.formatDouble(t);
+		return getName()+"="+StringHelper.formatDouble(get());
 	}
 
 	@Override

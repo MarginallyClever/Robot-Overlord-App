@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord.parameters;
 
 import com.marginallyclever.robotoverlord.SerializationContext;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -17,7 +16,7 @@ public class IntParameter extends AbstractParameter<Integer> {
 	
 	@Override
 	public String toString() {
-		return getName()+"="+t.toString();
+		return getName()+"="+ get().toString();
 	}
 
 	@Override

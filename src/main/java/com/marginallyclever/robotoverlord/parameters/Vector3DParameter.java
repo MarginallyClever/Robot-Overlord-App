@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord.parameters;
 
 import com.marginallyclever.robotoverlord.SerializationContext;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,12 +21,12 @@ public class Vector3DParameter extends AbstractParameter<Vector3d> {
 	}
 	
 	public void set(double x,double y,double z) {
-		t.set(x,y,z);
+		set(new Vector3d(x,y,z));
 	}
 	
 	@Override
 	public String toString() {
-		return getName()+"="+t.toString();
+		return getName()+"="+ get().toString();
 	}
 	
 	@Override

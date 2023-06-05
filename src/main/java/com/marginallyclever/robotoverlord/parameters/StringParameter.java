@@ -16,7 +16,7 @@ public class StringParameter extends AbstractParameter<String> {
 
 	@Override
 	public String toString() {
-		return getName()+"="+t;
+		return getName()+"="+ get();
 	}
 
 	@Override

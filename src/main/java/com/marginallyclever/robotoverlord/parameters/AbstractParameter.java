@@ -17,12 +17,18 @@ import java.util.List;
 public abstract class AbstractParameter<T> {
 	private String name;
 	// the data to store
-	protected T t;
+	private T value;
 	private final List<PropertyChangeListener> propertyChangeListeners = new ArrayList<>();
 
-	public AbstractParameter(String name, T t) {
+	public AbstractParameter() {}
+
+	public AbstractParameter(String name, T value) {
 		this.name = name;
-    	this.t = t;
+    	this.value = value;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getName() {
@@ -30,13 +36,13 @@ public abstract class AbstractParameter<T> {
 	}
 	
     public T get() {
-    	return t;
+    	return value;
     }
     
     public void set(T t) {
-    	if( this.t==null || !this.t.equals(t) ) {
-    		T oldValue = this.t;
-	    	this.t = t;
+    	if( this.value ==null || !this.value.equals(t) ) {
+    		T oldValue = this.value;
+	    	this.value = t;
     		firePropertyChange(new PropertyChangeEvent(this,"value",oldValue,t));
     	}
     }
