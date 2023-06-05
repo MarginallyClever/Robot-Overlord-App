@@ -1,18 +1,22 @@
 package com.marginallyclever.robotoverlord.systems;
 
 import com.marginallyclever.robotoverlord.components.Component;
-import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.vehicle.CarComponent;
 import com.marginallyclever.robotoverlord.components.vehicle.WheelComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
-import com.marginallyclever.robotoverlord.systems.EntitySystem;
 
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * A system that manages all vehicles.
+ *
+ * @since 2.6.3
+ * @author Dan Royer
+ */
 public class VehicleSystem implements EntitySystem {
     private final EntityManager entityManager;
 
@@ -42,7 +46,7 @@ public class VehicleSystem implements EntitySystem {
     }
 
     private void decorateWheel(ComponentPanelFactory view, WheelComponent component) {
-        view.addComboBox(component.type, WheelComponent.names);
+        view.addComboBox(component.type, WheelComponent.wheelTypeNames);
         view.add(component.diameter);
         view.add(component.width);
     }
@@ -66,6 +70,7 @@ public class VehicleSystem implements EntitySystem {
 
     private void updateCar(CarComponent found, double dt) {
         if(found.wheels.size()==0) return;  // nothing to do
+
 
     }
 }
