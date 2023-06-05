@@ -17,7 +17,6 @@ import org.json.JSONObject;
  * @since 2.6.3
  * @author Dan Royer
  */
-@ComponentDependency(components = {PoseComponent.class,MotorComponent.class})
 public class WheelComponent extends Component {
     public static final String [] names = {"Normal","Omni","Mecanum"};
     public static final int TYPE_NORMAL = 0;

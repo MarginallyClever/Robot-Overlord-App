@@ -33,12 +33,15 @@ public class VehicleSystemTest {
         car=null;
     }
 
+    /**
+     * Build a tank with 2 wheels.  Steering is differential drive.
+     */
     @Test
-    public void build4WheelCar() {
-        Entity[] wheelEntity = new Entity[4];
-        WheelComponent[] wheels = new WheelComponent[4];
-        MotorComponent[] motors = new MotorComponent[4];
-        for (int i = 0; i < 4; ++i) {
+    public void buildTank() {
+        Entity[] wheelEntity = new Entity[2];
+        WheelComponent[] wheels = new WheelComponent[wheelEntity.length];
+        MotorComponent[] motors = new MotorComponent[wheelEntity.length];
+        for (int i = 0; i < wheelEntity.length; ++i) {
             wheelEntity[i] = new Entity("wheel" + i);
             em.addEntityToParent(wheelEntity[i], car.getEntity());
             car.addWheel(wheelEntity[i]);
@@ -48,25 +51,24 @@ public class VehicleSystemTest {
             wheels[i].diameter.set(2.0);
             wheels[i].width.set(0.5);
 
-            motors[i] = wheelEntity[i].getComponent(MotorComponent.class);
-            Assertions.assertNotNull(motors[i]);
+            motors[i] = new MotorComponent();
+            wheelEntity[i].addComponent(motors[i]);
         }
 
         // wheels should spin around their local z axis
         wheelEntity[0].getComponent(PoseComponent.class).setRotation(new Vector3d(0, -90, 0));
-        wheelEntity[1].getComponent(PoseComponent.class).setRotation(new Vector3d(0, -90, 0));
-        wheelEntity[2].getComponent(PoseComponent.class).setRotation(new Vector3d(0, 90, 0));
-        wheelEntity[3].getComponent(PoseComponent.class).setRotation(new Vector3d(0, 90, 0));
+        wheelEntity[1].getComponent(PoseComponent.class).setRotation(new Vector3d(0, 90, 0));
         // place wheels at the corners of the car
-        wheelEntity[0].getComponent(PoseComponent.class).setPosition(new Vector3d(-10, 10, 1));
-        wheelEntity[1].getComponent(PoseComponent.class).setPosition(new Vector3d(-10, -10, 1));
-        wheelEntity[2].getComponent(PoseComponent.class).setPosition(new Vector3d(10, 10, 1));
-        wheelEntity[3].getComponent(PoseComponent.class).setPosition(new Vector3d(10, -10, 1));
+        wheelEntity[0].getComponent(PoseComponent.class).setPosition(new Vector3d(-10, 0, 1));
+        wheelEntity[1].getComponent(PoseComponent.class).setPosition(new Vector3d(10, 0, 1));
     }
 
+    /**
+     * test drive a tank.
+     */
     @Test
-    public void drive4WheelCar() {
-        build4WheelCar();
+    public void driveTank() {
+        buildTank();
 
         // TODO set velocity to drive forward
         // TODO set the turn rate to turn left
@@ -78,26 +80,9 @@ public class VehicleSystemTest {
         // TODO check position of car
     }
 
-    @Test
-    public void drive4WheelMecanumCar() {
-        build4WheelCar();
-
-        // change wheel type to mecanum
-        for (int i = 0; i < 4; ++i) {
-            WheelComponent wheel = em.findEntityByUniqueID(car.getWheel(i)).getComponent(WheelComponent.class);
-            wheel.type.set(WheelComponent.TYPE_MECANUM);
-        }
-
-        // TODO set velocity to drive forward
-        // TODO set the turn rate to turn left
-        // TODO set the strafe rate to strafe right
-
-        // move a bit
-        vs.update(1.0/30.0);
-
-        // TODO check position of car
-    }
-
+    /**
+     * Build a car with 3 wheels.  Steering is omni-style (wheels turn outwards).
+     */
     @Test
     public void build3WheelOmniCar() {
         Entity[] wheelEntity = new Entity[3];
@@ -114,8 +99,8 @@ public class VehicleSystemTest {
             wheels[i].diameter.set(2.0);
             wheels[i].width.set(0.5);
 
-            motors[i] = wheelEntity[i].getComponent(MotorComponent.class);
-            Assertions.assertNotNull(motors[i]);
+            motors[i] = new MotorComponent();
+            wheelEntity[i].addComponent(motors[i]);
 
             // rotate wheels so they point outwards
             wheelEntity[i].getComponent(PoseComponent.class).setRotation(new Vector3d(0, 90, 120*i));
@@ -127,11 +112,132 @@ public class VehicleSystemTest {
         }
     }
 
+    /**
+     * Test drive an omni-wheel car.
+     */
     @Test
     public void driveOmniCar() {
         build3WheelOmniCar();
 
         // TODO set velocity to drive forward
+        // TODO set the turn rate to turn left
+        // TODO set the strafe rate to strafe right
+
+        // move a bit
+        vs.update(1.0/30.0);
+
+        // TODO check position of car
+    }
+
+    /**
+     * Build a car with 4 wheels
+     */
+    @Test
+    public void buildCar() {
+        Entity[] wheelEntity = new Entity[4];
+        WheelComponent[] wheels = new WheelComponent[wheelEntity.length];
+        MotorComponent[] motors = new MotorComponent[wheelEntity.length];
+        for (int i = 0; i < wheelEntity.length; ++i) {
+            wheelEntity[i] = new Entity("wheel" + i);
+            em.addEntityToParent(wheelEntity[i], car.getEntity());
+            car.addWheel(wheelEntity[i]);
+
+            wheels[i] = new WheelComponent();
+            wheelEntity[i].addComponent(wheels[i]);
+            wheels[i].diameter.set(2.0);
+            wheels[i].width.set(0.5);
+        }
+
+        // wheels should spin around their local z axis
+        wheelEntity[0].getComponent(PoseComponent.class).setRotation(new Vector3d(0, -90, 0));
+        wheelEntity[1].getComponent(PoseComponent.class).setRotation(new Vector3d(0, -90, 0));
+        wheelEntity[2].getComponent(PoseComponent.class).setRotation(new Vector3d(0, 90, 0));
+        wheelEntity[3].getComponent(PoseComponent.class).setRotation(new Vector3d(0, 90, 0));
+        // place wheels at the corners of the car
+        wheelEntity[0].getComponent(PoseComponent.class).setPosition(new Vector3d(-10, 10, 1));
+        wheelEntity[1].getComponent(PoseComponent.class).setPosition(new Vector3d(-10, -10, 1));
+        wheelEntity[2].getComponent(PoseComponent.class).setPosition(new Vector3d(10, 10, 1));
+        wheelEntity[3].getComponent(PoseComponent.class).setPosition(new Vector3d(10, -10, 1));
+        // TODO add steering to front wheels
+    }
+
+    /**
+     * Build a car with front-wheel drive and steering.
+     */
+    @Test
+    public void buildFWD() {
+        buildCar();
+        // add motors to front wheels
+        for (int i = 0; i < 2; ++i) {
+            Entity wheelEntity = em.findEntityByUniqueID(car.getWheel(i));
+            wheelEntity.addComponent(new MotorComponent());
+        }
+
+    }
+
+    /**
+     * test drive a front-wheel drive car.
+     */
+    @Test
+    public void driveFWD() {
+        buildFWD();
+
+        // TODO set velocity to drive forward
+        // TODO set the turn rate to turn left
+        // TODO set the strafe rate to strafe right (should do nothing in this car)
+
+        // move a bit
+        vs.update(1.0/30.0);
+
+        // TODO check position of car
+    }
+
+    /**
+     * Build a car with front-wheel drive and steering.
+     */
+    @Test
+    public void buildRWD() {
+        buildCar();
+        // add motors to the rear wheels
+        for (int i = 2; i < 4; ++i) {
+            Entity wheelEntity = em.findEntityByUniqueID(car.getWheel(i));
+            wheelEntity.addComponent(new MotorComponent());
+        }
+    }
+
+    /**
+     * test drive a front-wheel drive car.
+     */
+    @Test
+    public void driveRWD() {
+        buildRWD();
+
+        // TODO set velocity to drive forward
+        // TODO set the turn rate to turn left
+        // TODO set the strafe rate to strafe right (should do nothing in this car)
+
+        // move a bit
+        vs.update(1.0/30.0);
+
+        // TODO check position of car
+    }
+
+    /**
+     * test drive a mecanum-wheel car.
+     */
+    @Test
+    public void driveMecanumCar() {
+        buildCar();
+
+        // change wheel type to mecanum
+        for (int i = 0; i < 4; ++i) {
+            WheelComponent wheel = em.findEntityByUniqueID(car.getWheel(i)).getComponent(WheelComponent.class);
+            wheel.type.set(WheelComponent.TYPE_MECANUM);
+        }
+
+        // drive forward
+        car.forwardVelocity.set(10.0);
+
         // TODO set the turn rate to turn left
         // TODO set the strafe rate to strafe right
 

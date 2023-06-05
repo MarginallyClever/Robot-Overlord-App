@@ -1,8 +1,10 @@
 package com.marginallyclever.robotoverlord.components.vehicle;
 
+import com.marginallyclever.convenience.AABB;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,6 +18,8 @@ import java.util.List;
  */
 public class CarComponent extends Component {
     public final List<ReferenceParameter> wheels = new ArrayList<>();
+    public final DoubleParameter forwardVelocity = new DoubleParameter("Forward Velocity", 0);  // cm/s
+    public final DoubleParameter turnRadius = new DoubleParameter("Turn radius", 0);  // cm, at center of car
 
     public CarComponent() {
         super();
@@ -28,6 +32,8 @@ public class CarComponent extends Component {
         for(int i=0;i<wheels.size();++i) {
             json.put("wheel"+i, wheels.get(i).toJSON(context));
         }
+        json.put("forwardVelocity", forwardVelocity.toJSON(context));
+        json.put("turnRadius", turnRadius.toJSON(context));
         return json;
     }
 
@@ -39,6 +45,8 @@ public class CarComponent extends Component {
             wheels.add(new ReferenceParameter("wheel"+i));
             wheels.get(i).parseJSON(jo.getJSONObject("wheel"+i), context);
         }
+        forwardVelocity.parseJSON(jo.getJSONObject("forwardVelocity"), context);
+        turnRadius.parseJSON(jo.getJSONObject("turnRadius"), context);
     }
 
     public void addWheel(Entity entity) {
