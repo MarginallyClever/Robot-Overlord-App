@@ -8,6 +8,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class MotorSystemTest {
+    public static void setMotorTestCurve(MotorComponent mc) {
+        mc.setTorqueAtRPM(0, 3);
+        mc.setTorqueAtRPM(100, 2.5);
+        mc.setTorqueAtRPM(200, 2);
+        mc.setTorqueAtRPM(300, 1);
+        mc.setTorqueAtRPM(400, 0);
+    }
     @Test
     public void testNoLoadMotor() {
         EntityManager em = new EntityManager();
@@ -15,12 +22,7 @@ public class MotorSystemTest {
 
         MotorComponent mc = new MotorComponent();
         em.getRoot().addComponent(mc);
-
-        mc.setTorqueAtRPM(0, 3);
-        mc.setTorqueAtRPM(100, 2.5);
-        mc.setTorqueAtRPM(200, 2);
-        mc.setTorqueAtRPM(300, 1);
-        mc.setTorqueAtRPM(400, 0);
+        MotorSystemTest.setMotorTestCurve(mc);
 
         Assertions.assertEquals(3,mc.getTorqueAtRpm(0));
         Assertions.assertEquals(2.5,mc.getTorqueAtRpm(100));
@@ -46,12 +48,7 @@ public class MotorSystemTest {
 
         ServoComponent sc = new ServoComponent();
         em.getRoot().addComponent(sc);
-
-        sc.setTorqueAtRPM(0, 3);
-        sc.setTorqueAtRPM(100, 2.5);
-        sc.setTorqueAtRPM(200, 2);
-        sc.setTorqueAtRPM(300, 1);
-        sc.setTorqueAtRPM(400, 0);
+        MotorSystemTest.setMotorTestCurve(sc);
 
         Assertions.assertEquals(3,sc.getTorqueAtRpm(0));
         Assertions.assertEquals(2.5,sc.getTorqueAtRpm(100));
