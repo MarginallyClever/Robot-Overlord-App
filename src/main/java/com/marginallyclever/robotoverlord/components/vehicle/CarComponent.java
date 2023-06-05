@@ -19,6 +19,7 @@ import java.util.List;
 public class CarComponent extends Component {
     public final List<ReferenceParameter> wheels = new ArrayList<>();
     public final DoubleParameter forwardVelocity = new DoubleParameter("Forward Velocity", 0);  // cm/s
+    public final DoubleParameter strafeVelocity = new DoubleParameter("Strafe Velocity", 0);  // cm/s
     public final DoubleParameter turnRadius = new DoubleParameter("Turn radius", 0);  // cm, at center of car
 
     public CarComponent() {
@@ -33,6 +34,7 @@ public class CarComponent extends Component {
             json.put("wheel"+i, wheels.get(i).toJSON(context));
         }
         json.put("forwardVelocity", forwardVelocity.toJSON(context));
+        json.put("strafeVelocity", strafeVelocity.toJSON(context));
         json.put("turnRadius", turnRadius.toJSON(context));
         return json;
     }
@@ -46,6 +48,7 @@ public class CarComponent extends Component {
             wheels.get(i).parseJSON(jo.getJSONObject("wheel"+i), context);
         }
         forwardVelocity.parseJSON(jo.getJSONObject("forwardVelocity"), context);
+        strafeVelocity.parseJSON(jo.getJSONObject("strafeVelocity"), context);
         turnRadius.parseJSON(jo.getJSONObject("turnRadius"), context);
     }
 

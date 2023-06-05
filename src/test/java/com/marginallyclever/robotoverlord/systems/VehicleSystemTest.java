@@ -70,14 +70,20 @@ public class VehicleSystemTest {
     public void driveTank() {
         buildTank();
 
-        // TODO set velocity to drive forward
-        // TODO set the turn rate to turn left
-        // TODO set the strafe rate to strafe right (should do nothing in this car)
+        // drive forward
+        car.forwardVelocity.set(10.0);
+        // set the turn rate to turn left
+        car.turnRadius.set(-20.0);
+        // set the strafe rate to strafe right
+        car.strafeVelocity.set(10.0);
 
         // move a bit
         vs.update(1.0/30.0);
 
         // TODO check position of car
+        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().x);
+        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().y);
+        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().z);
     }
 
     /**
@@ -119,14 +125,20 @@ public class VehicleSystemTest {
     public void driveOmniCar() {
         build3WheelOmniCar();
 
-        // TODO set velocity to drive forward
-        // TODO set the turn rate to turn left
-        // TODO set the strafe rate to strafe right
+        // drive forward
+        car.forwardVelocity.set(10.0);
+        // set the turn rate to turn left
+        car.turnRadius.set(-20.0);
+        // set the strafe rate to strafe right
+        car.strafeVelocity.set(10.0);
 
         // move a bit
         vs.update(1.0/30.0);
 
         // TODO check position of car
+        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().x);
+        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().y);
+        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().z);
     }
 
     /**
@@ -136,7 +148,6 @@ public class VehicleSystemTest {
     public void buildCar() {
         Entity[] wheelEntity = new Entity[4];
         WheelComponent[] wheels = new WheelComponent[wheelEntity.length];
-        MotorComponent[] motors = new MotorComponent[wheelEntity.length];
         for (int i = 0; i < wheelEntity.length; ++i) {
             wheelEntity[i] = new Entity("wheel" + i);
             em.addEntityToParent(wheelEntity[i], car.getEntity());
@@ -182,14 +193,20 @@ public class VehicleSystemTest {
     public void driveFWD() {
         buildFWD();
 
-        // TODO set velocity to drive forward
-        // TODO set the turn rate to turn left
-        // TODO set the strafe rate to strafe right (should do nothing in this car)
+        // drive forward
+        car.forwardVelocity.set(10.0);
+        // set the turn rate to turn left
+        car.turnRadius.set(-20.0);
+        // set the strafe rate to strafe right
+        car.strafeVelocity.set(10.0);
 
         // move a bit
         vs.update(1.0/30.0);
 
         // TODO check position of car
+        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().x);
+        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().y);
+        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().z);
     }
 
     /**
@@ -212,14 +229,20 @@ public class VehicleSystemTest {
     public void driveRWD() {
         buildRWD();
 
-        // TODO set velocity to drive forward
-        // TODO set the turn rate to turn left
-        // TODO set the strafe rate to strafe right (should do nothing in this car)
+        // drive forward
+        car.forwardVelocity.set(10.0);
+        // set the turn rate to turn left
+        car.turnRadius.set(-20.0);
+        // set the strafe rate to strafe right
+        car.strafeVelocity.set(10.0);
 
         // move a bit
         vs.update(1.0/30.0);
 
         // TODO check position of car
+        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().x);
+        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().y);
+        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().z);
     }
 
     /**
@@ -237,14 +260,18 @@ public class VehicleSystemTest {
 
         // drive forward
         car.forwardVelocity.set(10.0);
-
-        // TODO set the turn rate to turn left
-        // TODO set the strafe rate to strafe right
+        // set the turn rate to turn left
+        car.turnRadius.set(-20.0);
+        // set the strafe rate to strafe right
+        car.strafeVelocity.set(10.0);
 
         // move a bit
         vs.update(1.0/30.0);
 
         // TODO check position of car
+        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().x);
+        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().y);
+        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().z);
     }
 }
 
