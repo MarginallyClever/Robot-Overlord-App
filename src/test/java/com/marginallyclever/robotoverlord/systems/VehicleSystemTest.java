@@ -10,6 +10,12 @@ import org.junit.jupiter.api.*;
 
 import javax.vecmath.Vector3d;
 
+/**
+ * Build and drive a variety of vehicles.
+ *
+ * @since 2.6.3
+ * @author Dan Royer
+ */
 public class VehicleSystemTest {
     private EntityManager em;
     private VehicleSystem vs;
@@ -55,9 +61,6 @@ public class VehicleSystemTest {
             wheelEntity[i].addComponent(motors[i]);
         }
 
-        // wheels should spin around their local z axis
-        wheelEntity[0].getComponent(PoseComponent.class).setRotation(new Vector3d(0, -90, 0));
-        wheelEntity[1].getComponent(PoseComponent.class).setRotation(new Vector3d(0, 90, 0));
         // place wheels at the corners of the car
         wheelEntity[0].getComponent(PoseComponent.class).setPosition(new Vector3d(-10, 0, 1));
         wheelEntity[1].getComponent(PoseComponent.class).setPosition(new Vector3d(10, 0, 1));
@@ -109,7 +112,7 @@ public class VehicleSystemTest {
             wheelEntity[i].addComponent(motors[i]);
 
             // rotate wheels so they point outwards
-            wheelEntity[i].getComponent(PoseComponent.class).setRotation(new Vector3d(0, 90, 120*i));
+            wheelEntity[i].getComponent(PoseComponent.class).setRotation(new Vector3d(0, 0, 120*i));
             // place wheels at the corners of the car
             wheelEntity[i].getComponent(PoseComponent.class).setPosition(new Vector3d(
                     10*Math.cos(Math.toRadians(120*i)),
@@ -142,7 +145,7 @@ public class VehicleSystemTest {
     }
 
     /**
-     * Build a car with 4 wheels
+     * Build a car with 4 wheels and front wheel steering.
      */
     @Test
     public void buildCar() {
@@ -150,26 +153,30 @@ public class VehicleSystemTest {
         WheelComponent[] wheels = new WheelComponent[wheelEntity.length];
         for (int i = 0; i < wheelEntity.length; ++i) {
             wheelEntity[i] = new Entity("wheel" + i);
-            em.addEntityToParent(wheelEntity[i], car.getEntity());
-            car.addWheel(wheelEntity[i]);
 
             wheels[i] = new WheelComponent();
             wheelEntity[i].addComponent(wheels[i]);
             wheels[i].diameter.set(2.0);
             wheels[i].width.set(0.5);
+            car.addWheel(wheelEntity[i]);
         }
 
-        // wheels should spin around their local z axis
-        wheelEntity[0].getComponent(PoseComponent.class).setRotation(new Vector3d(0, -90, 0));
-        wheelEntity[1].getComponent(PoseComponent.class).setRotation(new Vector3d(0, -90, 0));
-        wheelEntity[2].getComponent(PoseComponent.class).setRotation(new Vector3d(0, 90, 0));
-        wheelEntity[3].getComponent(PoseComponent.class).setRotation(new Vector3d(0, 90, 0));
+        Entity [] steeringEntity = new Entity[2];
+        for (int i = 0; i < steeringEntity.length; ++i) {
+            steeringEntity[i] = new Entity("steering" + i);
+            em.addEntityToParent(steeringEntity[i], car.getEntity());
+        }
+
+        em.addEntityToParent(wheelEntity[0],steeringEntity[0]);
+        em.addEntityToParent(wheelEntity[2],steeringEntity[1]);
+        em.addEntityToParent(wheelEntity[1], car.getEntity());
+        em.addEntityToParent(wheelEntity[3], car.getEntity());
+
         // place wheels at the corners of the car
         wheelEntity[0].getComponent(PoseComponent.class).setPosition(new Vector3d(-10, 10, 1));
         wheelEntity[1].getComponent(PoseComponent.class).setPosition(new Vector3d(-10, -10, 1));
         wheelEntity[2].getComponent(PoseComponent.class).setPosition(new Vector3d(10, 10, 1));
         wheelEntity[3].getComponent(PoseComponent.class).setPosition(new Vector3d(10, -10, 1));
-        // TODO add steering to front wheels
     }
 
     /**
