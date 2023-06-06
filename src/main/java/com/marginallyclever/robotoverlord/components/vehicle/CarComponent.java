@@ -7,12 +7,13 @@ import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.ListParameter;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
+import com.marginallyclever.robotoverlord.systems.vehicle.VehicleSystem;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
  * {@link CarComponent} references a list of {@link WheelComponent}s.  A
- * {@link com.marginallyclever.robotoverlord.systems.VehicleSystem} uses these to move
+ * {@link VehicleSystem} uses these to move
  * the {@link com.marginallyclever.robotoverlord.entity.Entity} that owns the CarComponent.
  *
  * @since 2.6.3

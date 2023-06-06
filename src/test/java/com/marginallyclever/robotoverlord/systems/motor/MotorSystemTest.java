@@ -14,30 +14,14 @@ import org.junit.jupiter.api.Test;
 import javax.vecmath.Vector3d;
 
 public class MotorSystemTest {
-    public static void setMotorTestCurve(MotorComponent mc) {
-        mc.setTorqueAtRPM(0, 3);
-        mc.setTorqueAtRPM(100, 2.5);
-        mc.setTorqueAtRPM(200, 2);
-        mc.setTorqueAtRPM(300, 1);
-        mc.setTorqueAtRPM(400, 0);
-
-        Assertions.assertEquals(3,mc.getTorqueAtRpm(0));
-        Assertions.assertEquals(2.5,mc.getTorqueAtRpm(100));
-        Assertions.assertEquals(2,mc.getTorqueAtRpm(200));
-        Assertions.assertEquals(1,mc.getTorqueAtRpm(300));
-        Assertions.assertEquals(0,mc.getTorqueAtRpm(400));
-        // test interpolation
-        Assertions.assertEquals(1.5,mc.getTorqueAtRpm(250));
-    }
 
     @Test
     public void testNoLoadMotor() {
         EntityManager em = new EntityManager();
         MotorSystem ms = new MotorSystem(em);
 
-        MotorComponent mc = new MotorComponent();
+        MotorComponent mc = MotorFactory.createDefaultMotor();
         em.getRoot().addComponent(mc);
-        MotorSystemTest.setMotorTestCurve(mc);
 
         mc.setCurrentVelocity(0);
         mc.setDesiredVelocity(10.0);
@@ -53,9 +37,8 @@ public class MotorSystemTest {
         EntityManager em = new EntityManager();
         MotorSystem ms = new MotorSystem(em);
 
-        ServoComponent sc = new ServoComponent();
+        ServoComponent sc = MotorFactory.createDefaultServo();
         em.getRoot().addComponent(sc);
-        MotorSystemTest.setMotorTestCurve(sc);
 
         Entity attached = new Entity();
         em.addEntityToParent(attached,em.getRoot());

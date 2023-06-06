@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.systems;
+package com.marginallyclever.robotoverlord.systems.vehicle;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.Component;
@@ -12,6 +12,7 @@ import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
+import com.marginallyclever.robotoverlord.systems.EntitySystem;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;

@@ -4,11 +4,12 @@ import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
+import com.marginallyclever.robotoverlord.systems.vehicle.VehicleSystem;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * A {@link WheelComponent} is used by a {@link com.marginallyclever.robotoverlord.systems.VehicleSystem}.
+ * A {@link WheelComponent} is used by a {@link VehicleSystem}.
  * It is assumed that the local x axis is the forward direction.
  * It is assumed that the local y axis is the left/right direction.
  * It is assumed that the local z axis is the up/down direction.
