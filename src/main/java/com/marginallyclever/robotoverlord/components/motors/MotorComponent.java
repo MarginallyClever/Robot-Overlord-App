@@ -2,6 +2,8 @@ package com.marginallyclever.robotoverlord.components.motors;
 
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.Component;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -136,5 +138,17 @@ public class MotorComponent extends Component {
                 + ", desiredRPM=" + desiredVelocity
                 + ", currentAngle=" + currentAngle
                 + ",\n";
+    }
+
+    public double getGearAngle() {
+        return currentAngle.get() * gearRatio.get();
+    }
+
+    public double getGearVelocity() {
+        return currentVelocity.get() * gearRatio.get();
+    }
+
+    public void setAngle(double angle) {
+        currentAngle.set(angle);
     }
 }

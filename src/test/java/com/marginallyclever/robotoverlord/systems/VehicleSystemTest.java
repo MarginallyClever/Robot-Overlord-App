@@ -7,10 +7,12 @@ import com.marginallyclever.robotoverlord.components.vehicle.CarComponent;
 import com.marginallyclever.robotoverlord.components.vehicle.WheelComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
+import com.marginallyclever.robotoverlord.systems.motor.MotorSystem;
 import com.marginallyclever.robotoverlord.systems.motor.MotorSystemTest;
 import org.junit.jupiter.api.*;
 
 import javax.vecmath.Vector3d;
+import java.util.List;
 
 /**
  * Build and drive a variety of vehicles.
@@ -19,25 +21,28 @@ import javax.vecmath.Vector3d;
  * @author Dan Royer
  */
 public class VehicleSystemTest {
-    private EntityManager em;
-    private VehicleSystem vs;
+    private EntityManager entityManager;
+    private VehicleSystem vehicleSystem;
+    private MotorSystem motorSystem;
+    private List<EntitySystem> systems;
     private CarComponent car;
 
     @BeforeEach
     public void setUp() {
-        em = new EntityManager();
-        vs = new VehicleSystem(em);
+        entityManager = new EntityManager();
+        vehicleSystem = new VehicleSystem(entityManager);
+        motorSystem = new MotorSystem(entityManager);
 
         Entity carEntity = new Entity("car");
         car = new CarComponent();
         carEntity.addComponent(car);
-        em.addEntityToParent(carEntity, em.getRoot());
+        entityManager.addEntityToParent(carEntity, entityManager.getRoot());
     }
 
     @AfterEach
     public void tearDown() {
-        em=null;
-        vs=null;
+        entityManager =null;
+        vehicleSystem =null;
         car=null;
     }
 
@@ -51,7 +56,7 @@ public class VehicleSystemTest {
         MotorComponent[] motors = new MotorComponent[wheelEntity.length];
         for (int i = 0; i < wheelEntity.length; ++i) {
             wheelEntity[i] = new Entity("wheel" + i);
-            em.addEntityToParent(wheelEntity[i], car.getEntity());
+            entityManager.addEntityToParent(wheelEntity[i], car.getEntity());
             car.addWheel(wheelEntity[i]);
 
             wheels[i] = new WheelComponent();
@@ -86,7 +91,7 @@ public class VehicleSystemTest {
 
         // move a bit
         for(int i=0;i<30;++i) {
-            vs.update(1.0 / 30.0);
+            vehicleSystem.update(1.0 / 30.0);
             System.out.println(car.getEntity().getComponent(PoseComponent.class).getPosition());
         }
 
@@ -109,7 +114,7 @@ public class VehicleSystemTest {
 
         for (int i = 0; i < 3; ++i) {
             wheelEntity[i] = new Entity("wheel" + i);
-            em.addEntityToParent(wheelEntity[i], car.getEntity());
+            entityManager.addEntityToParent(wheelEntity[i], car.getEntity());
             car.addWheel(wheelEntity[i]);
 
             wheels[i] = new WheelComponent();
@@ -149,7 +154,7 @@ public class VehicleSystemTest {
 
         // move a bit
         for(int i=0;i<30;++i) {
-            vs.update(1.0 / 30.0);
+            vehicleSystem.update(1.0 / 30.0);
             System.out.println(car.getEntity().getComponent(PoseComponent.class).getPosition());
         }
 
@@ -162,7 +167,6 @@ public class VehicleSystemTest {
     /**
      * Build a car with 4 wheels and front wheel steering.
      */
-    @Test
     public void buildCarWithNoMotor() {
         // add 4 wheels
         Entity[] wheelEntity = new Entity[4];
@@ -170,9 +174,9 @@ public class VehicleSystemTest {
         WheelComponent[] wheels = new WheelComponent[wheelEntity.length];
         for (int i = 0; i < wheelEntity.length; ++i) {
             steerEntity[i] = new Entity("steer" + i);
-            em.addEntityToParent(steerEntity[i], car.getEntity());
+            entityManager.addEntityToParent(steerEntity[i], car.getEntity());
             wheelEntity[i] = new Entity("wheel" + i);
-            em.addEntityToParent(wheelEntity[i], steerEntity[i]);
+            entityManager.addEntityToParent(wheelEntity[i], steerEntity[i]);
 
             wheels[i] = new WheelComponent();
             wheelEntity[i].addComponent(wheels[i]);
@@ -201,7 +205,7 @@ public class VehicleSystemTest {
 
         Entity motor = new Entity("Motor");
         motor.addComponent(mc);
-        em.addEntityToParent(motor,car.getEntity());
+        entityManager.addEntityToParent(motor,car.getEntity());
 
         // add steering
         ServoComponent sc = new ServoComponent();
@@ -209,15 +213,18 @@ public class VehicleSystemTest {
 
         Entity steer = new Entity("Steering");
         steer.addComponent(sc);
-        em.addEntityToParent(steer,car.getEntity());
+        entityManager.addEntityToParent(steer,car.getEntity());
 
         for (int i = 0; i < 2; ++i) {
-            Entity wheelEntity = em.findEntityByUniqueID(car.getWheel(i));
+            Entity wheelEntity = entityManager.findEntityByUniqueID(car.getWheel(i));
             // add front wheel steering
             wheelEntity.getComponent(WheelComponent.class).steer.set(steer);
+            entityManager.addEntityToParent(wheelEntity,steer);
             // connect the motor to the front wheels
             wheelEntity.getComponent(WheelComponent.class).drive.set(motor);
         }
+
+        Entity wheelEntity = entityManager.findEntityByUniqueID(car.getWheel(0));
 
         // drive forward
         car.forwardVelocity.set(10.0);
@@ -226,11 +233,18 @@ public class VehicleSystemTest {
         // set the strafe rate to strafe right
         car.strafeVelocity.set(10.0);
 
+        // turn the steering wheel and confirm wheel rotates
+        motorSystem.rotateMotor(sc,15);
+        double z = wheelEntity.getComponent(PoseComponent.class).getRotation().z;
+        Assertions.assertEquals(15.0,z,0.001);
+
         // move a bit
         for(int i=0;i<30;++i) {
-            vs.update(1.0 / 30.0);
+            motorSystem.update(1.0 / 30.0);
+            vehicleSystem.update(1.0 / 30.0);
             System.out.println(car.getEntity().getComponent(PoseComponent.class).getPosition());
         }
+
 
         // TODO check position of car
         Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().x);
@@ -251,7 +265,7 @@ public class VehicleSystemTest {
 
         Entity motor = new Entity("Motor");
         motor.addComponent(mc);
-        em.addEntityToParent(motor,car.getEntity());
+        entityManager.addEntityToParent(motor,car.getEntity());
 
         // add steering
         ServoComponent sc = new ServoComponent();
@@ -259,17 +273,18 @@ public class VehicleSystemTest {
 
         Entity steer = new Entity("Steering");
         steer.addComponent(sc);
-        em.addEntityToParent(steer,car.getEntity());
+        entityManager.addEntityToParent(steer,car.getEntity());
 
         // add front wheel steering
         for (int i = 0; i < 2; ++i) {
-            Entity wheelEntity = em.findEntityByUniqueID(car.getWheel(i));
+            Entity wheelEntity = entityManager.findEntityByUniqueID(car.getWheel(i));
+            entityManager.addEntityToParent(wheelEntity,steer);
             wheelEntity.getComponent(WheelComponent.class).steer.set(steer);
         }
 
         // connect the motor to the front wheels
         for (int i = 2; i < 4; ++i) {
-            Entity wheelEntity = em.findEntityByUniqueID(car.getWheel(i));
+            Entity wheelEntity = entityManager.findEntityByUniqueID(car.getWheel(i));
             wheelEntity.getComponent(WheelComponent.class).drive.set(motor);
         }
 
@@ -282,7 +297,7 @@ public class VehicleSystemTest {
 
         // move a bit
         for(int i=0;i<30;++i) {
-            vs.update(1.0 / 30.0);
+            vehicleSystem.update(1.0 / 30.0);
             System.out.println(car.getEntity().getComponent(PoseComponent.class).getPosition());
         }
 
@@ -301,7 +316,7 @@ public class VehicleSystemTest {
 
         // add motors to all wheels
         for (int i = 0; i < 4; ++i) {
-            Entity wheelEntity = em.findEntityByUniqueID(car.getWheel(i));
+            Entity wheelEntity = entityManager.findEntityByUniqueID(car.getWheel(i));
             MotorComponent mc = new MotorComponent();
             MotorSystemTest.setMotorTestCurve(mc);
             wheelEntity.addComponent(mc);
@@ -320,7 +335,7 @@ public class VehicleSystemTest {
 
         // move a bit
         for(int i=0;i<30;++i) {
-            vs.update(1.0 / 30.0);
+            vehicleSystem.update(1.0 / 30.0);
             System.out.println(car.getEntity().getComponent(PoseComponent.class).getPosition());
         }
 

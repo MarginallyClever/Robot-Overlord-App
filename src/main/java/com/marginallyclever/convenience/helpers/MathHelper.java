@@ -334,4 +334,10 @@ public class MathHelper {
 		double p = x-start;
 		return p/range;
 	}
+
+    public static boolean equals(Vector3d xAttached, Vector3d vector3d, double v) {
+		return ( Math.abs(xAttached.x - vector3d.x) <= v) &&
+		       ( Math.abs(xAttached.y - vector3d.y) <= v) &&
+			   ( Math.abs(xAttached.z - vector3d.z) <= v);
+	}
 }

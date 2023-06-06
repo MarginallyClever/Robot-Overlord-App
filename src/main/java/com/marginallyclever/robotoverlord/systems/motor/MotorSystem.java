@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.systems.motor;
 
 import com.marginallyclever.convenience.swing.LineGraph;
 import com.marginallyclever.robotoverlord.components.Component;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.motors.DCMotorComponent;
 import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
 import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
@@ -17,6 +18,7 @@ import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableModel;
+import javax.vecmath.Matrix4d;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -154,33 +156,52 @@ public class MotorSystem implements EntitySystem {
         motor.setDesiredVelocity(k * deltaAngle);
 
         updateMotorBasic(motor, dt);
-
     }
 
     private void updateMotorBasic(MotorComponent motor, double dt) {
         double currentVelocity = motor.getCurrentVelocity();
         double desiredVelocity = motor.getDesiredVelocity();
-        if(currentVelocity==desiredVelocity) return;
+        if (currentVelocity == desiredVelocity) return;
 
         double torque = motor.getTorqueAtRpm(currentVelocity);
         // assume direct relationship
         double acceleration = torque;
         double dv = acceleration * dt;
-        if(currentVelocity<desiredVelocity) {
-            currentVelocity = Math.min(currentVelocity+dv,desiredVelocity);
+        if (currentVelocity < desiredVelocity) {
+            currentVelocity = Math.min(currentVelocity + dv, desiredVelocity);
         } else {
-            currentVelocity = Math.max(currentVelocity-dv,desiredVelocity);
+            currentVelocity = Math.max(currentVelocity - dv, desiredVelocity);
         }
         motor.setCurrentVelocity(currentVelocity);
 
         // adjust angle
-        double currentAngle = motor.currentAngle.get();
-        currentAngle += motor.getCurrentVelocity() * dt;
+        double newAngle = motor.currentAngle.get();
+        newAngle += motor.getCurrentVelocity() * dt;
 
         // Ensure the current angle stays within the valid range for a servo (typically -180 to 180 degrees,
         // but could be different depending on your servo)
-        if (currentAngle > 360) currentAngle -= 360;
-        else if (currentAngle < 0) currentAngle += 360;
-        motor.currentAngle.set(currentAngle);
+        if (newAngle > 360) newAngle -= 360;
+        else if (newAngle < 0) newAngle += 360;
+
+        rotateMotor(motor, newAngle);
+    }
+
+    public void rotateMotor(MotorComponent motor, double newAngle) {
+        double oldAngle = motor.currentAngle.get();
+        motor.currentAngle.set(newAngle);
+        double diff = newAngle - oldAngle;
+        if (diff > 180) diff -= 360;
+        else if (diff < -180) diff += 360;
+
+        List<Entity> children = motor.getEntity().getChildren();
+        if(children.size()==0) return;
+
+        Entity firstchild = children.get(0);
+        PoseComponent childPose = firstchild.getComponent(PoseComponent.class);
+        Matrix4d m = childPose.getLocal();
+        Matrix4d rotZ = new Matrix4d();
+        rotZ.rotZ(Math.toRadians(diff));
+        m.mul(rotZ);
+        childPose.setLocalMatrix4(m);
     }
 }

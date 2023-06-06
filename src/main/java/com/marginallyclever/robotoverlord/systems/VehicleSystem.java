@@ -80,9 +80,10 @@ public class VehicleSystem implements EntitySystem {
         if(car.wheels.size()==0) return;  // nothing to do
 
         switch (car.wheelType.get()) {
-            case CarComponent.WHEEL_NORMAL -> updateNormal(car, dt);
             case CarComponent.WHEEL_OMNI -> updateCarOmni(car, dt);
             case CarComponent.WHEEL_MECANUM -> updateCarMecanum(car, dt);
+            //case CarComponent.WHEEL_TRACTION -> updateCarTraction(car, dt);
+            default -> updateNormal(car, dt);
         }
 
         updateCarBody(car, dt);
@@ -91,6 +92,8 @@ public class VehicleSystem implements EntitySystem {
     private void updateCarBody(CarComponent car, double dt) {
         // Initialize total force as zero
         Vector3d totalForce = new Vector3d(0, 0,0);
+
+        //System.out.println("  car="+car.getEntity().getName());
 
         for (ReferenceParameter wheelRef : car.wheels) {
             // Fetch the WheelComponent and MotorComponent.
@@ -105,18 +108,31 @@ public class VehicleSystem implements EntitySystem {
             // For omni or mecanum wheels, the direction of the force also depends on the orientation of the wheel
             PoseComponent wheelPose = wheel.getEntity().getComponent(PoseComponent.class);
             // Get the orientation of the wheel. This depends on the details of PoseComponent.
-            Vector3d wheelOrientation = MatrixHelper.getXAxis(wheelPose.getLocal());
+            Vector3d wheelOrientation = MatrixHelper.getXAxis(wheelPose.getWorld());
 
             // Calculate the force vector based on the wheel type
             Vector3d wheelForce = new Vector3d(forceMagnitude * wheelOrientation.x, forceMagnitude * wheelOrientation.y,0);
 
             // Add the wheel's force to the total force
             totalForce.add(wheelForce);
+            //System.out.println("  wheelForce="+wheelForce);
         }
 
+        //System.out.println("  totalForce="+totalForce);
+
+        // get
         PoseComponent carPose = car.getEntity().getComponent(PoseComponent.class);
-        totalForce.add(carPose.getPosition());
-        carPose.setPosition(totalForce);
+        Matrix4d carWorld = carPose.getWorld();
+        Vector3d pos = MatrixHelper.getPosition(carWorld);
+        pos.add(totalForce);
+        // use the turn velocity to rotate the car
+        Matrix4d rot = MatrixHelper.createIdentityMatrix4();
+        rot.rotZ(Math.toRadians(car.turnVelocity.get()));
+        // put it together
+        carWorld.mul(rot);
+        MatrixHelper.setPosition(carWorld,pos);
+        // apply
+        carPose.setWorld(carWorld);
     }
 
     public double calculateForceMagnitude(CarComponent car, WheelComponent wheel, MotorComponent driveMotor) {
@@ -162,7 +178,7 @@ public class VehicleSystem implements EntitySystem {
 
                 // Calculate the desired steering angle based on the turn radius.
                 double wheelBase = wheelPositionRelative.y;
-                double desiredSteeringAngle = Math.atan(wheelBase / rTurn);
+                double desiredSteeringAngle = Math.toDegrees(Math.atan(wheelBase / rTurn));
                 steerMotor.desiredAngle.set(desiredSteeringAngle);
             }
         }

@@ -19,10 +19,14 @@ import org.json.JSONObject;
  * @author Dan Royer
  */
 public class CarComponent extends Component {
-    public static final String [] wheelTypeNames = {"Normal","Omni","Mecanum"};
+    public static final String [] wheelTypeNames = {"Normal","Omni","Mecanum","Traction"};
     public static final int WHEEL_NORMAL = 0;
+    // omni wheels have rollers at a right angle to the plane of the wheel
     public static final int WHEEL_OMNI = 1;
+    // mecanum wheels have rollers at a 45 degree angle to the plane of the wheel
     public static final int WHEEL_MECANUM = 2;
+    // traction wheels use differential steering
+    public static final int WHEEL_TRACTION = 0;
 
     public final IntParameter wheelType = new IntParameter("Wheel type", CarComponent.WHEEL_NORMAL);
     public final ListParameter<ReferenceParameter> wheels = new ListParameter<>();
