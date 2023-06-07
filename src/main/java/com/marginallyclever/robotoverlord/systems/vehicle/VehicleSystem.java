@@ -44,8 +44,11 @@ public class VehicleSystem implements EntitySystem {
         if(component instanceof WheelComponent) decorateWheel(view, (WheelComponent)component);
     }
 
-    private void decorateCar(ComponentPanelFactory view, CarComponent component) {
-        view.addComboBox(component.wheelType, CarComponent.wheelTypeNames);
+    private void decorateCar(ComponentPanelFactory view, CarComponent car) {
+        view.addComboBox(car.wheelType, CarComponent.wheelTypeNames);
+        view.add(car.turnVelocity);
+        view.add(car.forwardVelocity);
+        view.add(car.strafeVelocity);
 
         // TODO: how to manage a list?
 
@@ -55,9 +58,11 @@ public class VehicleSystem implements EntitySystem {
         });
     }
 
-    private void decorateWheel(ComponentPanelFactory view, WheelComponent component) {
-        view.add(component.diameter);
-        view.add(component.width);
+    private void decorateWheel(ComponentPanelFactory view, WheelComponent wheel) {
+        view.add(wheel.diameter);
+        view.add(wheel.width);
+        view.add(wheel.drive);
+        view.add(wheel.steer);
     }
 
     /**
@@ -78,6 +83,7 @@ public class VehicleSystem implements EntitySystem {
     }
 
     private void updateCar(CarComponent car, double dt) {
+        if(!car.getEnabled()) return;
         if(car.wheels.size()==0) return;  // nothing to do
 
         switch (car.wheelType.get()) {
@@ -92,19 +98,25 @@ public class VehicleSystem implements EntitySystem {
 
     private void updateCarBody(CarComponent car, double dt) {
         // Initialize total force as zero
-        Vector3d totalForce = new Vector3d(0, 0,0);
-
+        Vector3d totalVelocity = new Vector3d(0, 0,0);
+        double totalRotationalVelocity = 0;
         //System.out.println("  car="+car.getEntity().getName());
 
+        int motorCount=0;
         for (ReferenceParameter wheelRef : car.wheels) {
             // Fetch the WheelComponent and MotorComponent.
             WheelComponent wheel = entityManager.findEntityByUniqueID(wheelRef.get()).getComponent(WheelComponent.class);
+
             String driveName = wheel.drive.get();
             if(driveName==null || driveName.isEmpty()) continue;
             MotorComponent driveMotor = entityManager.findEntityByUniqueID(wheel.drive.get()).getComponent(MotorComponent.class);
 
             // Calculate the thrust of the wheel.
-            double forceMagnitude = calculateForceMagnitude(car,wheel,driveMotor);
+            //double forceMagnitude = calculateForceMagnitude(car,wheel,driveMotor);
+            double velocityAtEdge = wheel.diameter.get() * Math.PI * driveMotor.getCurrentVelocity() / 2.0;
+            if(velocityAtEdge==0) continue;
+
+            motorCount++;
 
             // For omni or mecanum wheels, the direction of the force also depends on the orientation of the wheel
             PoseComponent wheelPose = wheel.getEntity().getComponent(PoseComponent.class);
@@ -112,23 +124,33 @@ public class VehicleSystem implements EntitySystem {
             Vector3d wheelOrientation = MatrixHelper.getXAxis(wheelPose.getWorld());
 
             // Calculate the force vector based on the wheel type
-            Vector3d wheelForce = new Vector3d(forceMagnitude * wheelOrientation.x, forceMagnitude * wheelOrientation.y,0);
+            Vector3d wheelVelocity = new Vector3d(velocityAtEdge * wheelOrientation.x, velocityAtEdge * wheelOrientation.y,0);
 
             // Add the wheel's force to the total force
-            totalForce.add(wheelForce);
-            //System.out.println("  wheelForce="+wheelForce);
+            totalVelocity.add(wheelVelocity);
+            //System.out.println("  wheelVelocity="+wheelVelocity);
+
+            // Calculate the rotational velocity of the car
+            Vector3d wheelPosition = MatrixHelper.getPosition(wheelPose.getLocal());
+            Vector3d wheelToBodyTorque = new Vector3d();
+            wheelToBodyTorque.cross(wheelPosition,wheelVelocity);
+            totalRotationalVelocity += wheelToBodyTorque.z;
         }
 
-        //System.out.println("  totalForce="+totalForce);
+        if(motorCount>0) totalVelocity.scale(1.0/motorCount);
+        //System.out.println("  totalVelocity="+totalVelocity);
 
         // get
         PoseComponent carPose = car.getEntity().getComponent(PoseComponent.class);
         Matrix4d carWorld = carPose.getWorld();
         Vector3d pos = MatrixHelper.getPosition(carWorld);
-        pos.add(totalForce);
+        totalVelocity.scale(dt);
+        pos.add(totalVelocity);
+
         // use the turn velocity to rotate the car
         Matrix4d rot = MatrixHelper.createIdentityMatrix4();
-        rot.rotZ(Math.toRadians(car.turnVelocity.get()));
+        rot.rotZ(totalRotationalVelocity*dt);
+
         // put it together
         carWorld.mul(rot);
         MatrixHelper.setPosition(carWorld,pos);
@@ -145,10 +167,12 @@ public class VehicleSystem implements EntitySystem {
 
     private void updateNormal(CarComponent car, double dt) {
         double vForward = car.forwardVelocity.get();
+
         double vTurn = Math.toRadians(car.turnVelocity.get());  // Fetch the turn velocity.
 
         // Compute the turn radius from the forward and turn velocities.
-        double rTurn = vForward / vTurn;
+
+        double rTurn = (vTurn!=0) ? vForward / vTurn : 0;
 
         for (ReferenceParameter wheelRef : car.wheels) {
             WheelComponent wheel = entityManager.findEntityByUniqueID(wheelRef.get()).getComponent(WheelComponent.class);
@@ -164,25 +188,29 @@ public class VehicleSystem implements EntitySystem {
                 driveMotor.setDesiredVelocity(rpm);
             }
 
-            // Steer Motor
-            String steerMotorName = wheel.steer.get();
-            if(steerMotorName!=null && !steerMotorName.isEmpty()) {
-                ServoComponent steerMotor = entityManager.findEntityByUniqueID(steerMotorName).getComponent(ServoComponent.class);
-
-                // Fetch the PoseComponent of the car and the wheel.
-                PoseComponent carPose = car.getEntity().getComponent(PoseComponent.class);
-                PoseComponent wheelPose = wheel.getEntity().getComponent(PoseComponent.class);
-
-                // Calculate the position of the wheel relative to the car's center of mass.
-                Matrix4d wheelLocal = wheelPose.getLocal();
-                Vector3d wheelPositionRelative = MatrixHelper.getPosition(wheelLocal);
-
-                // Calculate the desired steering angle based on the turn radius.
-                double wheelBase = wheelPositionRelative.y;
-                double desiredSteeringAngle = Math.toDegrees(Math.atan(wheelBase / rTurn));
-                steerMotor.desiredAngle.set(desiredSteeringAngle);
-            }
+            steerOneWheel(wheel,car,rTurn);
         }
+    }
+
+    private void steerOneWheel(WheelComponent wheel, CarComponent car,double rTurn) {
+        String steerMotorName = wheel.steer.get();
+        if(steerMotorName==null || steerMotorName.isEmpty()) return;
+        ServoComponent steerMotor = entityManager.findEntityByUniqueID(steerMotorName).getComponent(ServoComponent.class);
+        if(steerMotor==null) return;
+
+        // Fetch the PoseComponent of the car and the wheel.
+        PoseComponent carPose = car.getEntity().getComponent(PoseComponent.class);
+        PoseComponent wheelPose = wheel.getEntity().getComponent(PoseComponent.class);
+
+        // Calculate the position of the wheel relative to the car's center of mass.
+        Matrix4d wheelLocal = wheelPose.getLocal();
+        Vector3d wheelPositionRelative = MatrixHelper.getPosition(wheelLocal);
+
+        // Calculate the desired steering angle based on the turn radius.
+        double wheelBase = wheelPositionRelative.x;
+        double desiredSteeringAngle = Math.abs(rTurn)<1e-5? 0 : Math.toDegrees(Math.atan2(wheelBase, rTurn));
+        desiredSteeringAngle = Math.max(steerMotor.minAngle.get(), Math.min(steerMotor.maxAngle.get(), desiredSteeringAngle));
+        steerMotor.desiredAngle.set(desiredSteeringAngle);
     }
 
     /**
