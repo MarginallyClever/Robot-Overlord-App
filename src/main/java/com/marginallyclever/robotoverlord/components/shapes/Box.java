@@ -28,15 +28,24 @@ public class Box extends ShapeComponent implements PropertyChangeListener {
     public final DoubleParameter length = new DoubleParameter("length",1.0);
 
     public Box() {
+        this(1.0,1.0,1.0);
+    }
+
+    public Box(double width,double height,double length) {
         super();
 
         myMesh = new Mesh();
+
+        this.width.set(width);
+        this.height.set(height);
+        this.length.set(length);
+
+        this.width.addPropertyChangeListener(this);
+        this.height.addPropertyChangeListener(this);
+        this.length.addPropertyChangeListener(this);
+
         updateModel();
         setModel(myMesh);
-
-        width.addPropertyChangeListener(this);
-        height.addPropertyChangeListener(this);
-        length.addPropertyChangeListener(this);
     }
 
     // Procedurally generate a list of triangles that form a box, subdivided by some amount.

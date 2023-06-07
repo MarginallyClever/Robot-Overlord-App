@@ -31,15 +31,24 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
     public final DoubleParameter height = new DoubleParameter("Height", 2);
 
     public Cylinder() {
+        this(2, 0.5f, 0.5f);
+    }
+
+    public Cylinder(double height, double radius0, double radius1) {
         super();
 
         myMesh = new Mesh();
+
+        this.radius0.set(radius0);
+        this.radius1.set(radius1);
+        this.height.set(height);
+
+        this.radius0.addPropertyChangeListener(this);
+        this.radius1.addPropertyChangeListener(this);
+        this.height.addPropertyChangeListener(this);
+
         updateModel();
         setModel(myMesh);
-
-        radius0.addPropertyChangeListener(this);
-        radius1.addPropertyChangeListener(this);
-        height.addPropertyChangeListener(this);
     }
 
     @Override
