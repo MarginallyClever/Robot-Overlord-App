@@ -368,6 +368,7 @@ public class RobotOverlord {
 	private JComponent createDemoMenu() {
 		JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.Demos"));
 		//menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
+		menu.add(new JMenuItem(new CreateVehicleAction(project.getEntityManager(),mainFrame)));
 		menu.addSeparator();
 		menu.add(new JMenuItem(new ShowRobotLibraryPanel(this::refreshMainMenu)));
 		buildAvailableScenesTree(menu);
