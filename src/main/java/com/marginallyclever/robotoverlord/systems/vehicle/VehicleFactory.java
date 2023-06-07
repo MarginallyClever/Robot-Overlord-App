@@ -2,35 +2,65 @@ package com.marginallyclever.robotoverlord.systems.vehicle;
 
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
-import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
+import com.marginallyclever.robotoverlord.components.shapes.Box;
+import com.marginallyclever.robotoverlord.components.shapes.Cylinder;
 import com.marginallyclever.robotoverlord.components.vehicle.CarComponent;
 import com.marginallyclever.robotoverlord.components.vehicle.WheelComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.systems.motor.MotorFactory;
 
+import javax.swing.*;
 import javax.vecmath.Vector3d;
 
 public class VehicleFactory {
+    public static final int CHASSIS4 = 0;
+    public static final int MECANUM = 1;
+    public static final int OMNI = 2;
+    public static final int TANK = 3;
+    public static final int FWD4 = 4;
+    public static final int RWD4 = 5;
+    private static final String[] names = {
+            "4 Wheel Chassis",
+            "Mecanum",
+            "Omni",
+            "Tank",
+            "FWD 4",
+            "RWD 4"
+    };
+
+    public static String [] getNames() {
+        return names;
+    }
+
     /**
      * Build a car with 4 wheels and front wheel steering.
      * Immediately add it to the entityManager root.
      */
     private static Entity build4WheelCarWithNoMotor(EntityManager entityManager) {
-        Entity carEntity = new Entity("carWithNoMotor");
+        Entity carEntity = new Entity("CarWithNoMotor");
         CarComponent car = new CarComponent();
         carEntity.addComponent(car);
         entityManager.addEntityToParent(carEntity, entityManager.getRoot());
+
+        Entity mesh = new Entity("Mesh");
+        mesh.addComponent(new Box(20,2,18));
+        mesh.getComponent(PoseComponent.class).setPosition(new Vector3d(0,0,1.5));
+        entityManager.addEntityToParent(mesh, carEntity);
 
         // add 4 wheels
         Entity[] wheelEntity = new Entity[4];
         for (int i = 0; i < wheelEntity.length; ++i) {
             // add suspension to the body
-            Entity suspension = new Entity("suspension" + i);
+            Entity suspension = new Entity("Suspension" + i);
             entityManager.addEntityToParent(suspension, carEntity);
             // add wheel to suspension
-            wheelEntity[i] = new Entity("wheel" + i);
+            wheelEntity[i] = new Entity("Wheel" + i);
             entityManager.addEntityToParent(wheelEntity[i], suspension);
+            Entity wheelMesh = new Entity("Mesh");
+            wheelMesh.addComponent(new Cylinder(0.5,2,2));
+            wheelMesh.getComponent(PoseComponent.class).setRotation(new Vector3d(0,90,90));
+            entityManager.addEntityToParent(wheelMesh, wheelEntity[i]);
 
             WheelComponent wheel = new WheelComponent();
             wheelEntity[i].addComponent(wheel);
@@ -40,29 +70,38 @@ public class VehicleFactory {
         }
 
         // place wheels at the corners of the car
-        wheelEntity[0].getComponent(PoseComponent.class).setPosition(new Vector3d(-10, 10, 1));
-        wheelEntity[1].getComponent(PoseComponent.class).setPosition(new Vector3d( 10, 10, 1));
-        wheelEntity[2].getComponent(PoseComponent.class).setPosition(new Vector3d(-10, -10, 1));
-        wheelEntity[3].getComponent(PoseComponent.class).setPosition(new Vector3d( 10, -10, 1));
+        wheelEntity[0].getComponent(PoseComponent.class).setPosition(new Vector3d(-10, -10, 1));
+        wheelEntity[1].getComponent(PoseComponent.class).setPosition(new Vector3d(-10,  10, 1));
+        wheelEntity[2].getComponent(PoseComponent.class).setPosition(new Vector3d( 10, -10, 1));
+        wheelEntity[3].getComponent(PoseComponent.class).setPosition(new Vector3d( 10,  10, 1));
 
         return carEntity;
     }
-
 
     /**
      * Build a car with 3 wheels.  Steering is omni-style (wheels turn outwards).
      */
     public static Entity buildOmni(EntityManager entityManager) {
-        Entity carEntity = new Entity("omni");
+        Entity carEntity = new Entity("Omni");
         CarComponent car = new CarComponent();
         carEntity.addComponent(car);
 
         car.wheelType.set(CarComponent.WHEEL_OMNI);
 
+        Entity mesh = new Entity("Mesh");
+        mesh.addComponent(new Cylinder(2,8,8));
+        mesh.getComponent(PoseComponent.class).setPosition(new Vector3d(0,0,1.5));
+        entityManager.addEntityToParent(mesh, carEntity);
+
         for (int i = 0; i < 3; ++i) {
-            Entity wheelEntity = new Entity("wheel" + i);
+            Entity wheelEntity = new Entity("Wheel" + i);
             entityManager.addEntityToParent(wheelEntity, carEntity);
             car.addWheel(wheelEntity);
+
+            Entity wheelMesh = new Entity("Mesh");
+            wheelMesh.addComponent(new Cylinder(0.5,2,2));
+            wheelMesh.getComponent(PoseComponent.class).setRotation(new Vector3d(0,90,0));
+            entityManager.addEntityToParent(wheelMesh, wheelEntity);
 
             WheelComponent wc = new WheelComponent();
             wheelEntity.addComponent(wc);
@@ -90,16 +129,26 @@ public class VehicleFactory {
      * Build a tank with 2 wheels.  Steering is differential drive.
      */
     public static Entity buildTank(EntityManager entityManager) {
-        Entity carEntity = new Entity("tank");
+        Entity carEntity = new Entity("Tank");
         CarComponent car = new CarComponent();
         carEntity.addComponent(car);
+
+        Entity mesh = new Entity("Mesh");
+        mesh.addComponent(new Box(20,2,18));
+        mesh.getComponent(PoseComponent.class).setPosition(new Vector3d(0,0,1.5));
+        entityManager.addEntityToParent(mesh, carEntity);
 
         Entity[] wheelEntity = new Entity[2];
         MotorComponent[] motors = new MotorComponent[wheelEntity.length];
         for (int i = 0; i < wheelEntity.length; ++i) {
-            wheelEntity[i] = new Entity("wheel" + i);
+            wheelEntity[i] = new Entity("Wheel" + i);
             entityManager.addEntityToParent(wheelEntity[i], carEntity);
             car.addWheel(wheelEntity[i]);
+
+            Entity wheelMesh = new Entity("Mesh");
+            wheelMesh.addComponent(new Cylinder(0.5,2,2));
+            wheelMesh.getComponent(PoseComponent.class).setRotation(new Vector3d(0,90,0));
+            entityManager.addEntityToParent(wheelMesh, wheelEntity[i]);
 
             WheelComponent wc = new WheelComponent();
             wheelEntity[i].addComponent(wc);
@@ -198,5 +247,17 @@ public class VehicleFactory {
         }
 
         return carEntity;
+    }
+
+    public static Entity createByID(int type, EntityManager entityManager) {
+        return switch (type) {
+            case VehicleFactory.CHASSIS4 -> VehicleFactory.build4WheelCarWithNoMotor(entityManager);
+            case VehicleFactory.MECANUM -> VehicleFactory.buildMecanum(entityManager);
+            case VehicleFactory.OMNI -> VehicleFactory.buildOmni(entityManager);
+            case VehicleFactory.TANK -> VehicleFactory.buildTank(entityManager);
+            case VehicleFactory.FWD4 -> VehicleFactory.buildFWD(entityManager);
+            case VehicleFactory.RWD4 -> VehicleFactory.buildRWD(entityManager);
+            default -> throw new RuntimeException("Unknown vehicle type: " + type);
+        };
     }
 }
