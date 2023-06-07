@@ -18,8 +18,8 @@ import java.util.*;
  */
 public class MotorComponent extends Component {
     private final TreeMap<Double, Double> torqueCurve = new TreeMap<>();
-    private final DoubleParameter currentVelocity = new DoubleParameter("Current Velocity (rpm)",0);  // rpm
-    private final DoubleParameter desiredVelocity = new DoubleParameter("Desired Velocity (rpm)",0);  // rpm
+    public final DoubleParameter currentVelocity = new DoubleParameter("Current Velocity (rpm)",0);  // rpm
+    public final DoubleParameter desiredVelocity = new DoubleParameter("Desired Velocity (rpm)",0);  // rpm
     public final DoubleParameter gearRatio = new DoubleParameter("Gear Ratio",1.0);
     public final DoubleParameter currentAngle = new DoubleParameter("Current angle", 0);
 
@@ -93,7 +93,7 @@ public class MotorComponent extends Component {
     	return torqueCurve;
     }
 
-    public void removeTorqueAtRPM(int rpm) {
+    public void removeTorqueAtRPM(double rpm) {
         torqueCurve.remove(rpm);
     }
 
