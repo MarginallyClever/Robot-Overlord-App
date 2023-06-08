@@ -109,22 +109,20 @@ public class VehicleSystem implements EntitySystem {
         MotorComponent driveMotor0 = entityManager.findEntityByUniqueID(wheel0.drive.get()).getComponent(MotorComponent.class);
         Vector3d local0 = MatrixHelper.getPosition(wheelEntity0.getComponent(PoseComponent.class).getLocal());
         double wheelDistanceFromCenter0 = local0.length();
-        double wheelDiameter0 = wheel0.diameter.get();
 
         Entity wheelEntity1 = entityManager.findEntityByUniqueID(car.wheels.get(1).get());
         WheelComponent wheel1 = wheelEntity1.getComponent(WheelComponent.class);
         MotorComponent driveMotor1 = entityManager.findEntityByUniqueID(wheel1.drive.get()).getComponent(MotorComponent.class);
         Vector3d local1 = MatrixHelper.getPosition(wheelEntity1.getComponent(PoseComponent.class).getLocal());
         double wheelDistanceFromCenter1 = local1.length();
-        double wheelDiameter1 = wheel1.diameter.get();
 
         // Calculate the desired linear velocity of each wheel.
         double vLeft = forwardVel + turnVel * wheelDistanceFromCenter0;
         double vRight = forwardVel - turnVel * wheelDistanceFromCenter1;
 
         // Convert these to angular velocities (RPM) for each wheel.
-        double leftWheelRPM  = getRPMFromWheelVelocity(vLeft, wheelDiameter0);
-        double rightWheelRPM = getRPMFromWheelVelocity(vRight, wheelDiameter1);
+        double leftWheelRPM  = getRPMFromWheelVelocity(vLeft, wheel0.diameter.get());
+        double rightWheelRPM = getRPMFromWheelVelocity(vRight, wheel1.diameter.get());
 
         driveMotor0.setDesiredRPM(leftWheelRPM);
         driveMotor1.setDesiredRPM(rightWheelRPM);
@@ -191,7 +189,8 @@ public class VehicleSystem implements EntitySystem {
         // get the thrust of a powered wheel
         String driveName = poweredWheel.drive.get();
         MotorComponent driveMotor = entityManager.findEntityByUniqueID(driveName).getComponent(MotorComponent.class);
-        double linearVelocity = poweredWheel.diameter.get() * Math.PI * driveMotor.getCurrentRPM() / 2.0;
+        // 2 * pi * r * rpm / 60
+        double linearVelocity = poweredWheel.diameter.get() * Math.PI * (driveMotor.getCurrentRPM()/60.0);
 
         // find the rate of turn based on the wheel base and the turn velocity
         double steeringAngleRadians = Math.toRadians(car.turnVelocity.get());
@@ -262,8 +261,7 @@ public class VehicleSystem implements EntitySystem {
             double vWheel = -vForward * Math.sin(wheelAngles[i]) + vStrafe * Math.cos(wheelAngles[i]) + d * vTurn;
 
             // Update the motor's velocity.
-            double wheelDiameter = wheel.diameter.get();
-            double rpm = getRPMFromWheelVelocity(-vWheel, wheelDiameter);
+            double rpm = getRPMFromWheelVelocity(-vWheel, wheel.diameter.get());
             driveMotor.setCurrentRPM(rpm);
         }
 
@@ -280,7 +278,9 @@ public class VehicleSystem implements EntitySystem {
         double vStrafe = car.strafeVelocity.get();
         double vTurn = Math.toRadians(car.turnVelocity.get());
 
-        for (ReferenceParameter wheelRef : car.wheels) {
+        for(int i=0;i<car.wheels.size();++i) {
+            ReferenceParameter wheelRef = car.wheels.get(i);
+
             // Fetch the WheelComponent and MotorComponent.
             WheelComponent wheel = entityManager.findEntityByUniqueID(wheelRef.get()).getComponent(WheelComponent.class);
             String driveMotorName = wheel.drive.get();
@@ -296,14 +296,20 @@ public class VehicleSystem implements EntitySystem {
             // Placeholder line, replace it with your actual computation.
             Matrix4d wheelLocal = wheelPose.getLocal();
             Vector3d wheelPositionRelative = MatrixHelper.getPosition(wheelLocal);
+            double dx = Math.abs(wheelPositionRelative.x);
+            double dy = Math.abs(wheelPositionRelative.y);
+
+            // Determine the wheel's relative orientation (front-left and rear-right are positive, front-right and rear-left are negative)
+            int orientation = (i % 2 == 0) ? 1 : -1;
 
             // Calculate the desired velocities.
-            double vRotate = vTurn * wheelPositionRelative.y;
+            // This depends on the specifics of your setup, but for a common setup, it might look like this:
+            double vWheel = vForward
+                    + orientation * vStrafe
+                    + ((i < 2) ? -1 : 1) * (dx + dy) * vTurn;
 
             // Update the motor's velocity.
-            double v = vForward + vStrafe + vRotate;
-            double wheelDiameter = wheel.diameter.get();
-            double rpm = getRPMFromWheelVelocity(v, wheelDiameter);
+            double rpm = getRPMFromWheelVelocity(vWheel, wheel.diameter.get());
             driveMotor.setCurrentRPM(rpm);
         }
 

@@ -54,6 +54,9 @@ public class VehicleFactory {
     /**
      * Build a car with 4 wheels and front wheel steering.
      * Immediately add it to the entityManager root.
+     * Assume X+ is the forward direction of travel.
+     * The order of the wheels is front left, front right, rear left, rear right.
+     * @return the car entity
      */
     private static Entity build4WheelCarWithNoMotor(EntityManager entityManager) {
         Entity carEntity = new Entity("CarWithNoMotor");
@@ -225,7 +228,9 @@ public class VehicleFactory {
         for (int i = 0; i < 2; ++i) {
             Entity wheelEntity = entityManager.findEntityByUniqueID(car.getWheel(i));
             Entity suspension = wheelEntity.getParent();
-            suspension.addComponent(MotorFactory.createDefaultServo());
+            MotorComponent steerMotor = MotorFactory.createDefaultServo();
+            suspension.addComponent(steerMotor);
+            steerMotor.addConnection(wheelEntity);
             WheelComponent wc = wheelEntity.getComponent(WheelComponent.class);
             wc.steer.set(suspension);
         }
@@ -257,7 +262,9 @@ public class VehicleFactory {
             // add servo in the suspension
             Entity wheelEntity = entityManager.findEntityByUniqueID(car.getWheel(i));
             Entity suspension = wheelEntity.getParent();
-            suspension.addComponent(MotorFactory.createDefaultServo());
+            MotorComponent steerMotor = MotorFactory.createDefaultServo();
+            suspension.addComponent(steerMotor);
+            steerMotor.addConnection(wheelEntity);
             // tell wheel for reference later
             WheelComponent wc = wheelEntity.getComponent(WheelComponent.class);
             wc.steer.set(suspension);
@@ -320,16 +327,18 @@ public class VehicleFactory {
         // add servo in the suspension
         Entity frontWheel = entityManager.findEntityByUniqueID(car.getWheel(0));
         Entity suspension = frontWheel.getParent();
-        suspension.addComponent(MotorFactory.createDefaultServo());
+        MotorComponent steerMotor = MotorFactory.createDefaultServo();
+        suspension.addComponent(steerMotor);
         // tell wheel for reference later
         WheelComponent wc = frontWheel.getComponent(WheelComponent.class);
         wc.steer.set(suspension);
+        steerMotor.addConnection(frontWheel);
 
         // connect the motor to the back wheel
         Entity backWheel = entityManager.findEntityByUniqueID(car.getWheel(1));
         wc = backWheel.getComponent(WheelComponent.class);
         wc.drive.set(motor);
-        mc.addConnection(backWheel);
+        mc.addConnection(backWheel.getChildren().get(0));
 
         return carEntity;
     }
