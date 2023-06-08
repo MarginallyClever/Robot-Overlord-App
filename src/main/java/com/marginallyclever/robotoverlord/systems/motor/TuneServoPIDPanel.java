@@ -59,8 +59,8 @@ public class TuneServoPIDPanel extends JPanel {
         servo.resetPIDMemory();
         servo.currentAngle.set(start.get());
         servo.desiredAngle.set(target.get());
-        servo.currentVelocity.set(0.0);
-        servo.desiredVelocity.set(0.0);
+        servo.currentRPM.set(0.0);
+        servo.desiredRPM.set(0.0);
 
         double maxTime = time.get();
         double stepSize=1.0/30.0;

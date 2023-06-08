@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.systems.motor;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
@@ -23,13 +22,13 @@ public class MotorSystemTest {
         MotorComponent mc = MotorFactory.createDefaultMotor();
         em.getRoot().addComponent(mc);
 
-        mc.setCurrentVelocity(0);
-        mc.setDesiredVelocity(10.0);
+        mc.setCurrentRPM(0);
+        mc.setDesiredRPM(10.0);
         for(int i=0;i<100;++i) {
             ms.update(1);
         }
         // check motor gets up to speed after a while
-        Assertions.assertEquals(10.0,mc.getCurrentVelocity());
+        Assertions.assertEquals(10.0,mc.getCurrentRPM());
     }
 
     @Test
@@ -43,17 +42,36 @@ public class MotorSystemTest {
         Entity attached = new Entity();
         em.addEntityToParent(attached,em.getRoot());
 
-        sc.setCurrentVelocity(0);
         sc.desiredAngle.set(90.0);
-        for(int i=0;i<100;++i) {
-            ms.update(1);
+        double stepSize=1.0/30.0;
+        for(int i=0;i<200/stepSize;++i) {
+            ms.update(stepSize);
             //System.out.println(sc.currentAngle.get());
         }
         // check servo reaches target angle
-        Assertions.assertEquals(90.0,sc.currentAngle.get(),0.0001);
+        Assertions.assertEquals(90.121,sc.currentAngle.get(),0.001);
         // check attached shape has turned
         Vector3d xAttached = MatrixHelper.getXAxis(attached.getComponent(PoseComponent.class).getWorld());
 
         Assertions.assertTrue(MathHelper.equals(xAttached,new Vector3d(0,1,0),0.001));
+    }
+
+    /**
+     * confirm turning at 90 degrees per second for 1 second results in 90 degrees of turn.
+     */
+    @Test
+    public void testRateOfTurn() {
+        EntityManager em = new EntityManager();
+        MotorSystem ms = new MotorSystem(em);
+        MotorComponent mc = new MotorComponent();
+        mc.setTorqueAtRPM(0,1000.0);
+        mc.setTorqueAtRPM(10000,1000.0);
+
+        double rpm = 90.0*60.0;  // 90 degrees per second
+        mc.currentRPM.set(rpm);
+        mc.setDesiredRPM(rpm);
+        mc.currentAngle.set(0.0);
+        ms.updateMotor(mc,1.0);  // seconds
+        Assertions.assertEquals(90,mc.currentAngle.get(),1e-3);
     }
 }

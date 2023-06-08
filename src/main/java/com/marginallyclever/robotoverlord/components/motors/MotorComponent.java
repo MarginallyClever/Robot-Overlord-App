@@ -2,9 +2,11 @@ package com.marginallyclever.robotoverlord.components.motors;
 
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.Component;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
+import com.marginallyclever.robotoverlord.parameters.ListParameter;
+import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
+import org.eclipse.jgit.lib.Ref;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,10 +20,11 @@ import java.util.*;
  */
 public class MotorComponent extends Component {
     private final TreeMap<Double, Double> torqueCurve = new TreeMap<>();
-    public final DoubleParameter currentVelocity = new DoubleParameter("Current Velocity (rpm)",0);  // rpm
-    public final DoubleParameter desiredVelocity = new DoubleParameter("Desired Velocity (rpm)",0);  // rpm
+    public final DoubleParameter currentRPM = new DoubleParameter("Current Velocity (rpm)",0);  // rpm
+    public final DoubleParameter desiredRPM = new DoubleParameter("Desired Velocity (rpm)",0);  // rpm
     public final DoubleParameter gearRatio = new DoubleParameter("Gear Ratio",1.0);
     public final DoubleParameter currentAngle = new DoubleParameter("Current angle", 0);
+    public final ListParameter<ReferenceParameter> connectedTo = new ListParameter<>("Connected to");
 
     public MotorComponent() {
         super();
@@ -63,25 +66,25 @@ public class MotorComponent extends Component {
         return lowerTorque + slope * (rpm - lowerRpm);
     }
 
-    public void setCurrentVelocity(double rpm) {
-        this.currentVelocity.set(rpm);
+    public void setCurrentRPM(double rpm) {
+        this.currentRPM.set(rpm);
     }
 
-    public double getCurrentVelocity() {
-        return this.currentVelocity.get();
+    public double getCurrentRPM() {
+        return this.currentRPM.get();
     }
 
-    public void setDesiredVelocity(double rpm) {
-        this.desiredVelocity.set(rpm);
+    public void setDesiredRPM(double rpm) {
+        this.desiredRPM.set(rpm);
     }
 
-    public double getDesiredVelocity() {
-        return this.desiredVelocity.get();
+    public double getDesiredRPM() {
+        return this.desiredRPM.get();
     }
 
     // Get current torque based on current RPM
     public double getCurrentTorque() {
-        return getTorqueAtRpm(this.currentVelocity.get());
+        return getTorqueAtRpm(this.currentRPM.get());
     }
 
     public double getMaxRPM() {
@@ -106,9 +109,10 @@ public class MotorComponent extends Component {
         }
         jo.put("torqueCurve",curve);
         jo.put("gearRatio",gearRatio.get());
-        jo.put("currentVelocity",currentVelocity.toJSON(context));
-        jo.put("desiredVelocity",desiredVelocity.toJSON(context));
+        jo.put("currentVelocity", currentRPM.toJSON(context));
+        jo.put("desiredVelocity", desiredRPM.toJSON(context));
         jo.put("currentAngle",currentAngle.toJSON(context));
+        jo.put("connectedTo",connectedTo.toJSON(context));
         return jo;
     }
 
@@ -124,9 +128,10 @@ public class MotorComponent extends Component {
             Double value = curve.getDouble(key);
             torqueCurve.put(Double.parseDouble(key),value);
         }
-        currentVelocity.parseJSON(jo.getJSONObject("currentVelocity"),context);
-        desiredVelocity.parseJSON(jo.getJSONObject("desiredVelocity"),context);
+        currentRPM.parseJSON(jo.getJSONObject("currentVelocity"),context);
+        desiredRPM.parseJSON(jo.getJSONObject("desiredVelocity"),context);
         currentAngle.parseJSON(jo.getJSONObject("currentAngle"),context);
+        connectedTo.parseJSON(jo.getJSONObject("connectedTo"),context);
     }
 
     @Override
@@ -134,9 +139,10 @@ public class MotorComponent extends Component {
         return super.toString()
                 + ", gearRatio=" + gearRatio.get()
                 + ", torqueCurve=" + torqueCurve.toString()
-                + ", currentRPM=" + currentVelocity
-                + ", desiredRPM=" + desiredVelocity
+                + ", currentRPM=" + currentRPM
+                + ", desiredRPM=" + desiredRPM
                 + ", currentAngle=" + currentAngle
+                + ", connectedTo=" + connectedTo.toString()
                 + ",\n";
     }
 
@@ -145,10 +151,28 @@ public class MotorComponent extends Component {
     }
 
     public double getGearVelocity() {
-        return currentVelocity.get() * gearRatio.get();
+        return currentRPM.get() * gearRatio.get();
     }
 
     public void setAngle(double angle) {
         currentAngle.set(angle);
+    }
+
+    public void addConnection(Entity entity) {
+        int next = getBiggestConnectionNumber(connectedTo)+1;
+        connectedTo.add(new ReferenceParameter("connection"+next,entity.getUniqueID()));
+    }
+
+    private int getBiggestConnectionNumber(ListParameter<ReferenceParameter> list) {
+        int biggest = 0;
+        for(ReferenceParameter rp : list.get()) {
+            String name = rp.getName();
+            if(!name.startsWith("connection")) continue;
+            try {
+                int num = Integer.parseInt(name.substring(5));
+                if (num > biggest) biggest = num;
+            } catch(NumberFormatException ignored) {}
+        }
+        return biggest;
     }
 }

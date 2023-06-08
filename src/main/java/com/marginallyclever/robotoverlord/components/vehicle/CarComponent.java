@@ -27,14 +27,14 @@ public class CarComponent extends Component {
     // mecanum wheels have rollers at a 45 degree angle to the plane of the wheel
     public static final int WHEEL_MECANUM = 2;
     // traction wheels use differential steering
-    public static final int WHEEL_TRACTION = 0;
+    public static final int WHEEL_DIFFERENTIAL = 3;
 
     public final IntParameter wheelType = new IntParameter("Wheel type", CarComponent.WHEEL_NORMAL);
     public final ListParameter<ReferenceParameter> wheels = new ListParameter<>();
 
-    public final DoubleParameter forwardVelocity = new DoubleParameter("Forward velocity", 0);  // cm/s
-    public final DoubleParameter strafeVelocity = new DoubleParameter("Strafe velocity", 0);  // cm/s
-    public final DoubleParameter turnVelocity = new DoubleParameter("Turn velocity", 0);  // deg/s at center of car
+    public final DoubleParameter forwardVelocity = new DoubleParameter("Desired forward (cm/s)", 0);  // cm/s
+    public final DoubleParameter strafeVelocity = new DoubleParameter("Desired strafe (cm/s)", 0);  // cm/s
+    public final DoubleParameter turnVelocity = new DoubleParameter("Desired turn (deg/s)", 0);  // deg/s at center of car
 
     public CarComponent() {
         super();

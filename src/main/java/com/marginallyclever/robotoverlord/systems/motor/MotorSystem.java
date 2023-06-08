@@ -7,6 +7,7 @@ import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
 import com.marginallyclever.robotoverlord.components.motors.StepperMotorComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
+import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
@@ -62,8 +63,8 @@ public class MotorSystem implements EntitySystem {
     private void decorateMotor(ComponentPanelFactory view, Component component) {
         MotorComponent motor = (MotorComponent) component;
         view.add(motor.currentAngle);
-        view.add(motor.currentVelocity);
-        view.add(motor.desiredVelocity);
+        view.add(motor.currentRPM);
+        view.add(motor.desiredRPM);
         view.add(motor.gearRatio);
 
         ViewElementButton bCurve = view.addButton("Torque curve");
@@ -126,7 +127,7 @@ public class MotorSystem implements EntitySystem {
 
         // Update the current angle.
         // Note that we're not considering physical limitations here like max speed or acceleration of the servo.
-        servo.setDesiredVelocity(output);
+        servo.setDesiredRPM(output);
 
         updateMotorBasic(servo, dt);
     }
@@ -134,23 +135,24 @@ public class MotorSystem implements EntitySystem {
     private void updateMotorBasic(MotorComponent motor, double dt) {
         if(!motor.enabled.get()) return;
 
-        double currentVelocity = motor.getCurrentVelocity();
-        double desiredVelocity = motor.getDesiredVelocity();
-        if (currentVelocity == desiredVelocity) return;
-
-        double torque = motor.getTorqueAtRpm(currentVelocity);
-        // assume direct relationship
-        double acceleration = torque;
-        double dv = acceleration * dt;
-        if (currentVelocity < desiredVelocity) {
-            currentVelocity = Math.min(currentVelocity + dv, desiredVelocity);
-        } else {
-            currentVelocity = Math.max(currentVelocity - dv, desiredVelocity);
+        double currentRPM = motor.getCurrentRPM();
+        double desiredRPM = motor.getDesiredRPM();
+        if (currentRPM != desiredRPM) {
+            double torque = motor.getTorqueAtRpm(currentRPM);
+            // assume direct relationship
+            double acceleration = torque;
+            double dv = acceleration * dt;
+            if (currentRPM < desiredRPM) {
+                currentRPM = Math.min(currentRPM + dv, desiredRPM);
+            } else {
+                currentRPM = Math.max(currentRPM - dv, desiredRPM);
+            }
+            motor.setCurrentRPM(currentRPM);
         }
-        motor.setCurrentVelocity(currentVelocity);
 
         // adjust angle
-        double newAngle = motor.currentAngle.get() + motor.getCurrentVelocity() * dt;
+        double degreesPerSecond = motor.getCurrentRPM()*360.0/60.0;
+        double newAngle = motor.currentAngle.get() + degreesPerSecond * dt;
 
         rotateMotor(motor, newAngle);
     }
@@ -169,15 +171,21 @@ public class MotorSystem implements EntitySystem {
         if (diff > 180) diff -= 360;
         else if (diff < -180) diff += 360;
 
-        List<Entity> children = motor.getEntity().getChildren();
-        if(children.size()==0) return;
+        rotateAffectedEntities(motor, diff);
+    }
 
-        Entity firstchild = children.get(0);
-        PoseComponent childPose = firstchild.getComponent(PoseComponent.class);
-        Matrix4d m = childPose.getLocal();
-        Matrix4d rotZ = new Matrix4d();
-        rotZ.rotZ(Math.toRadians(diff));
-        m.mul(rotZ);
-        childPose.setLocalMatrix4(m);
+    private void rotateAffectedEntities(MotorComponent motor, double diff) {
+        Entity motorEntity = motor.getEntity();
+        if(motorEntity==null) return;
+
+        for(ReferenceParameter name : motor.connectedTo) {
+            Entity connection = entityManager.findEntityByUniqueID(name.get());
+            PoseComponent childPose = connection.getComponent(PoseComponent.class);
+            Matrix4d m = childPose.getLocal();
+            Matrix4d rotZ = new Matrix4d();
+            rotZ.rotZ(Math.toRadians(diff));
+            m.mul(rotZ);
+            childPose.setLocalMatrix4(m);
+        }
     }
 }
