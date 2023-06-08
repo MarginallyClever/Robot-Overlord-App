@@ -335,9 +335,16 @@ public class MathHelper {
 		return p/range;
 	}
 
-    public static boolean equals(Vector3d xAttached, Vector3d vector3d, double v) {
-		return ( Math.abs(xAttached.x - vector3d.x) <= v) &&
-		       ( Math.abs(xAttached.y - vector3d.y) <= v) &&
-			   ( Math.abs(xAttached.z - vector3d.z) <= v);
+	/**
+	 * compare two vectors
+	 * @param a	the first vector
+	 * @param b the second vector
+	 * @param v tolerance
+	 * @return true if the absolute difference on every axis is less than v
+	 */
+    public static boolean equals(Vector3d a, Vector3d b, double v) {
+		return ( Math.abs(a.x - b.x) <= v) &&
+		       ( Math.abs(a.y - b.y) <= v) &&
+			   ( Math.abs(a.z - b.z) <= v);
 	}
 }
