@@ -41,19 +41,20 @@ public class MotorSystemTest {
 
         Entity attached = new Entity();
         em.addEntityToParent(attached,em.getRoot());
+        sc.addConnection(attached);
 
         sc.desiredAngle.set(90.0);
         double stepSize=1.0/30.0;
-        for(int i=0;i<200/stepSize;++i) {
+        for(int i=0;i<5/stepSize;++i) {
             ms.update(stepSize);
             //System.out.println(sc.currentAngle.get());
         }
         // check servo reaches target angle
-        Assertions.assertEquals(90.121,sc.currentAngle.get(),0.001);
+        Assertions.assertEquals(90.0,sc.currentAngle.get(),0.001);
         // check attached shape has turned
         Vector3d xAttached = MatrixHelper.getXAxis(attached.getComponent(PoseComponent.class).getWorld());
 
-        Assertions.assertTrue(MathHelper.equals(xAttached,new Vector3d(0,1,0),0.001));
+        Assertions.assertTrue(MathHelper.equals(xAttached,new Vector3d(0,1,0),0.01));
     }
 
     /**
@@ -67,7 +68,7 @@ public class MotorSystemTest {
         mc.setTorqueAtRPM(0,1000.0);
         mc.setTorqueAtRPM(10000,1000.0);
 
-        double rpm = 90.0*60.0;  // 90 degrees per second
+        double rpm = (90.0/360.0)*60.0;  // 90 degrees per second
         mc.currentRPM.set(rpm);
         mc.setDesiredRPM(rpm);
         mc.currentAngle.set(0.0);

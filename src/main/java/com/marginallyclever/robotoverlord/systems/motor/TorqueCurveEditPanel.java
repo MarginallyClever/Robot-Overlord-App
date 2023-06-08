@@ -30,6 +30,8 @@ public class TorqueCurveEditPanel extends JPanel {
         graph.setBoundsToData();
         graph.setXMin(0);
         graph.setYMin(0);
+        graph.setGridSpacingX(10);
+        graph.setGridSpacingY(1);
 
         table.addDataChangeListener((evt) -> {
             graph.clear();

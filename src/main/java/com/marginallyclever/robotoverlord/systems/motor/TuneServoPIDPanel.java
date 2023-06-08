@@ -56,6 +56,8 @@ public class TuneServoPIDPanel extends JPanel {
 
     private void updateGraph(PropertyChangeEvent propertyChangeEvent) {
         graph.clear();
+        graph.setGridSpacingX(1);
+        graph.setGridSpacingY(10);
         servo.resetPIDMemory();
         servo.currentAngle.set(start.get());
         servo.desiredAngle.set(target.get());

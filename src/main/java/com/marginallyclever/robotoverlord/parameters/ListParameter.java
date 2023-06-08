@@ -352,6 +352,6 @@ public class ListParameter<T extends AbstractParameter<?>> extends AbstractParam
 
     @Override
     public String toString() {
-        return super.toString() + " " + get().toString();
+        return get().toString();
     }
 }

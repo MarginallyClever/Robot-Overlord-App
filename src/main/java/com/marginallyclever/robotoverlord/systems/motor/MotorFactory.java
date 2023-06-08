@@ -27,9 +27,9 @@ public class MotorFactory {
         ServoComponent sc = new ServoComponent();
         MotorFactory.setDefaultMotorCurve(sc);
 
-        sc.kP.set(Math.E);
+        sc.kP.set(0.3333);
         sc.kI.set(0.0);
-        sc.kD.set(70-Math.E);
+        sc.kD.set(0.0);
 
         return sc;
     }
