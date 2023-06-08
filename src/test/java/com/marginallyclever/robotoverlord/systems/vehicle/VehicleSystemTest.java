@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.systems;
+package com.marginallyclever.robotoverlord.systems.vehicle;
 
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
@@ -7,6 +7,7 @@ import com.marginallyclever.robotoverlord.components.vehicle.CarComponent;
 import com.marginallyclever.robotoverlord.components.vehicle.WheelComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
+import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.motor.MotorSystem;
 import com.marginallyclever.robotoverlord.systems.motor.MotorSystemTest;
 import com.marginallyclever.robotoverlord.systems.vehicle.VehicleFactory;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.*;
 
 import javax.swing.event.CaretEvent;
 import javax.vecmath.Vector3d;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,13 +29,15 @@ public class VehicleSystemTest {
     private EntityManager entityManager;
     private VehicleSystem vehicleSystem;
     private MotorSystem motorSystem;
-    private List<EntitySystem> systems;
+    private final List<EntitySystem> systems = new ArrayList<>();
 
     @BeforeEach
     public void setUp() {
         entityManager = new EntityManager();
         vehicleSystem = new VehicleSystem(entityManager);
         motorSystem = new MotorSystem(entityManager);
+        systems.add(vehicleSystem);
+        systems.add(motorSystem);
     }
 
     @AfterEach
@@ -50,24 +54,7 @@ public class VehicleSystemTest {
         Entity carEntity = VehicleFactory.buildTank(entityManager);
         CarComponent car = carEntity.getComponent(CarComponent.class);
         entityManager.addEntityToParent(carEntity, entityManager.getRoot());
-
-        // drive forward
-        car.forwardVelocity.set(10.0);
-        // set the turn rate to turn left
-        car.turnVelocity.set(20.0);
-        // set the strafe rate to strafe right
-        car.strafeVelocity.set(10.0);
-
-        // move a bit
-        for(int i=0;i<30;++i) {
-            vehicleSystem.update(1.0 / 30.0);
-            System.out.println(car.getEntity().getComponent(PoseComponent.class).getPosition());
-        }
-
-        // TODO check position of car
-        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().x);
-        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().y);
-        //Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().z);
+        testShared(car);
     }
 
 
@@ -79,24 +66,7 @@ public class VehicleSystemTest {
         Entity carEntity = VehicleFactory.buildOmni(entityManager);
         CarComponent car = carEntity.getComponent(CarComponent.class);
         entityManager.addEntityToParent(carEntity, entityManager.getRoot());
-
-        // drive forward
-        car.forwardVelocity.set(10.0);
-        // set the turn rate to turn left
-        car.turnVelocity.set(20.0);
-        // set the strafe rate to strafe right
-        car.strafeVelocity.set(10.0);
-
-        // move a bit
-        for(int i=0;i<30;++i) {
-            vehicleSystem.update(1.0 / 30.0);
-            System.out.println(car.getEntity().getComponent(PoseComponent.class).getPosition());
-        }
-
-        // TODO check position of car
-        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().x);
-        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().y);
-        //Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().z);
+        testShared(car);
     }
 
 
@@ -107,13 +77,7 @@ public class VehicleSystemTest {
     public void driveFWD() {
         Entity carEntity = VehicleFactory.buildFWD(entityManager);
         CarComponent car = carEntity.getComponent(CarComponent.class);
-
-        // drive forward
-        car.forwardVelocity.set(10.0);
-        // set the turn rate to turn left
-        car.turnVelocity.set(20.0);
-        // set the strafe rate to strafe right
-        car.strafeVelocity.set(10.0);
+        entityManager.addEntityToParent(carEntity, entityManager.getRoot());
 
         // turn the steering wheel and confirm wheel rotates
         Entity wheelEntity = entityManager.findEntityByUniqueID(car.getWheel(0));
@@ -124,18 +88,7 @@ public class VehicleSystemTest {
         double z = wheelEntity.getComponent(PoseComponent.class).getRotation().z;
         Assertions.assertEquals(15.0,z,0.001);
 
-        // move a bit
-        for(int i=0;i<30;++i) {
-            motorSystem.update(1.0 / 30.0);
-            vehicleSystem.update(1.0 / 30.0);
-            System.out.println(car.getEntity().getComponent(PoseComponent.class).getPosition());
-        }
-
-
-        // TODO check position of car
-        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().x);
-        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().y);
-        //Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().z);
+        testShared(car);
     }
 
     /**
@@ -145,24 +98,8 @@ public class VehicleSystemTest {
     public void driveRWD() {
         Entity carEntity = VehicleFactory.buildRWD(entityManager);
         CarComponent car = carEntity.getComponent(CarComponent.class);
-
-        // drive forward
-        car.forwardVelocity.set(10.0);
-        // set the turn rate to turn left
-        car.turnVelocity.set(20.0);
-        // set the strafe rate to strafe right
-        car.strafeVelocity.set(10.0);
-
-        // move a bit
-        for(int i=0;i<30;++i) {
-            vehicleSystem.update(1.0 / 30.0);
-            System.out.println(car.getEntity().getComponent(PoseComponent.class).getPosition());
-        }
-
-        // TODO check position of car
-        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().x);
-        Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().y);
-        //Assertions.assertNotEquals(0.0,car.getEntity().getComponent(PoseComponent.class).getPosition().z);
+        entityManager.addEntityToParent(carEntity, entityManager.getRoot());
+        testShared(car);
     }
 
     /**
@@ -173,7 +110,10 @@ public class VehicleSystemTest {
         Entity carEntity = VehicleFactory.buildMecanum(entityManager);
         CarComponent car = carEntity.getComponent(CarComponent.class);
         entityManager.addEntityToParent(carEntity, entityManager.getRoot());
+        testShared(car);
+    }
 
+    private void testShared(CarComponent car) {
         // drive forward
         car.forwardVelocity.set(10.0);
         // set the turn rate to turn left
@@ -182,8 +122,11 @@ public class VehicleSystemTest {
         car.strafeVelocity.set(10.0);
 
         // move a bit
+        double dt=1.0/30.0;
         for(int i=0;i<30;++i) {
-            vehicleSystem.update(1.0 / 30.0);
+            for(EntitySystem es : systems) {
+                es.update(dt);
+            }
             System.out.println(car.getEntity().getComponent(PoseComponent.class).getPosition());
         }
 
