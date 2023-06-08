@@ -19,8 +19,11 @@ import java.util.function.IntFunction;
  */
 public class ListParameter<T extends AbstractParameter<?>> extends AbstractParameter<List<T>> implements Collection<T> {
     public ListParameter() {
-        super();
-        set(new ArrayList<>());
+        super("list",new ArrayList<>());
+    }
+
+    public ListParameter(String name) {
+        this(name,new ArrayList<>());
     }
 
     public ListParameter(String name, List<T> ts) {
@@ -345,5 +348,10 @@ public class ListParameter<T extends AbstractParameter<?>> extends AbstractParam
     @Override
     public <T1> T1[] toArray(@NotNull T1[] a) {
         return get().toArray(a);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + " " + get().toString();
     }
 }
