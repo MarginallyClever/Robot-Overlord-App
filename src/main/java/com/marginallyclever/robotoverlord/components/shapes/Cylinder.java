@@ -77,6 +77,7 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
         float sign = z > 0 ? 1 : -1;
         for (int i = 0; i < RESOLUTION_CIRCULAR; ++i) {
             myMesh.addVertex(0, 0, z);
+            myMesh.addTexCoord(0.5f,0.5f);
             myMesh.addNormal(0, 0, sign);
 
             addCirclePoint(r, i, RESOLUTION_CIRCULAR, z);
@@ -88,7 +89,10 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
     private void addCirclePoint(float r, float i, int resolution, float z) {
         float sign = z > 0 ? 1 : -1;
         double a = MathHelper.interpolate(0,Math.PI*2.0, (double)i/(double)resolution);
-        myMesh.addVertex((float)Math.cos(a)*r,(float)Math.sin(a)*r,z);
+        float x = (float)Math.cos(a);
+        float y = (float)Math.sin(a);
+        myMesh.addVertex(x*r,y*r,z);
+        myMesh.addTexCoord(0.5f+x*0.5f,0.5f+y*0.5f);
         myMesh.addNormal(0,0,sign);
     }
 
@@ -125,9 +129,10 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
         double a = Math.PI*2.0 * (double)i/(double)RESOLUTION_CIRCULAR;
         float x = (float)Math.cos(a);
         float y = (float)Math.sin(a);
-        myMesh.addVertex(x*radius, y*radius, z);
         Vector3d n = new Vector3d(x,y,diff);
         n.normalize();
+        myMesh.addVertex(x*radius, y*radius, z);
+        myMesh.addTexCoord(0.5f+x*0.5f,0.5f+y*0.5f);
         myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
     }
 
