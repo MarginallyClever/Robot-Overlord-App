@@ -14,7 +14,7 @@ import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +112,7 @@ public class DeltaRobot3 extends RenderComponent implements Robot {
 	}
 
 	@Deprecated
-	public void getView(ComponentPanelFactory view) {
+	public void getView(ViewPanelFactory view) {
 		view.addButton("Go home").addActionEventListener((e)->goHome());
 		ViewElementButton bOpen = view.addButton("Open control panel");
 		bOpen.addActionEventListener((evt)-> onOpenAction() );

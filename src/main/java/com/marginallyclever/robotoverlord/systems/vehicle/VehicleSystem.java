@@ -10,7 +10,7 @@ import com.marginallyclever.robotoverlord.components.vehicle.WheelComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 
@@ -39,16 +39,17 @@ public class VehicleSystem implements EntitySystem {
      * @param component the component to visualize
      */
     @Override
-    public void decorate(ComponentPanelFactory view, Component component) {
+    public void decorate(ViewPanelFactory view, Component component) {
         if(component instanceof CarComponent) decorateCar(view, (CarComponent)component);
         if(component instanceof WheelComponent) decorateWheel(view, (WheelComponent)component);
     }
 
-    private void decorateCar(ComponentPanelFactory view, CarComponent car) {
+    private void decorateCar(ViewPanelFactory view, CarComponent car) {
         view.addComboBox(car.wheelType, CarComponent.wheelTypeNames);
         view.add(car.turnVelocity);
         view.add(car.forwardVelocity);
         view.add(car.strafeVelocity);
+        view.add(car.wheels);
 
         // TODO: how to manage a list?
 
@@ -58,7 +59,7 @@ public class VehicleSystem implements EntitySystem {
         });
     }
 
-    private void decorateWheel(ComponentPanelFactory view, WheelComponent wheel) {
+    private void decorateWheel(ViewPanelFactory view, WheelComponent wheel) {
         view.add(wheel.diameter);
         view.add(wheel.width);
         view.add(wheel.drive);

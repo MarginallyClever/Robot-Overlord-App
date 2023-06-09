@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
 
 /**
  * Adjustable form of rotary stewart platform.  All dimensions can be tweaked from the control panel.
@@ -64,7 +64,7 @@ public class RotaryStewartPlatformAdjustable extends RotaryStewartPlatform {
 
 
 	@Override
-    public void getView(ComponentPanelFactory view) {
+    public void getView(ViewPanelFactory view) {
 		view.add(BASE_X);
 		view.add(BASE_Y);
 		view.add(BASE_Z);

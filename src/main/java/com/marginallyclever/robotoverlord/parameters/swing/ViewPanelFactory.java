@@ -1,36 +1,28 @@
-package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
+package com.marginallyclever.robotoverlord.parameters.swing;
 
-import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.*;
 import com.marginallyclever.robotoverlord.parameters.swing.*;
-import com.marginallyclever.robotoverlord.systems.EntitySystem;
 
 import java.util.List;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
-import java.util.ArrayList;
 
 /**
  * A factory that builds Swing elements for the entity editor
  * @author Dan Royer
  * @since 1.6.0
  */
-public class ComponentPanelFactory {
+public class ViewPanelFactory {
 	private final JPanel innerPanel = new JPanel();
 	private final GridBagConstraints gbc = new GridBagConstraints();
-
-	private final List<EntitySystem> systems = new ArrayList<>();
 	private final EntityManager entityManager;
-	private final Component component;
 
-	public ComponentPanelFactory(EntityManager entityManager, Component component, List<EntitySystem> systems) {
+	public ViewPanelFactory(EntityManager entityManager) {
 		super();
 		this.entityManager = entityManager;
-		this.component = component;
-		this.systems.addAll(systems);
 
 		innerPanel.setLayout(new GridBagLayout());
 		innerPanel.setBorder(new EmptyBorder(1, 1, 1, 1));
@@ -43,7 +35,7 @@ public class ComponentPanelFactory {
 		gbc.insets.set(1, 1, 1, 1);
 	}
 	
-	private void pushViewElement(ViewElement c) {
+	private void addViewElement(ViewElement c) {
 		gbc.gridy++;
 		innerPanel.add(c,gbc);
 	}
@@ -68,12 +60,13 @@ public class ComponentPanelFactory {
 		else if(parameter instanceof Vector3DParameter ) element = new ViewElementVector3d ((Vector3DParameter)parameter);
 		else if(parameter instanceof ReferenceParameter) element = new ViewElementReference((ReferenceParameter)parameter, entityManager);
 		else if(parameter instanceof StringParameter   ) element = new ViewElementString   ((StringParameter)parameter);
+		else if(parameter instanceof ListParameter     ) element = new ViewElementList((ListParameter<?>)parameter, entityManager);
 
 		if(null==element) {
 			return addStaticText("ViewPanel.add("+parameter.getClass().toString()+")");
 		}
 
-		pushViewElement(element);
+		addViewElement(element);
 		return element;
 	}
 	
@@ -81,7 +74,7 @@ public class ComponentPanelFactory {
 	public ViewElement addStaticText(String text) {
 		ViewElement b = new ViewElement();
 		b.add(new JLabel(text,JLabel.LEADING));
-		pushViewElement(b);
+		addViewElement(b);
 		return b;
 	}
 
@@ -93,7 +86,7 @@ public class ComponentPanelFactory {
 	 */
 	public ViewElement addComboBox(IntParameter e, String [] labels) {
 		ViewElement b = new ViewElementComboBox(e,labels);
-		pushViewElement(b);
+		addViewElement(b);
 		return b;
 		
 	}
@@ -107,7 +100,7 @@ public class ComponentPanelFactory {
 	 */
 	public ViewElement addRange(IntParameter e, int top, int bottom) {
 		ViewElement b = new ViewElementSlider(e,top,bottom);
-		pushViewElement(b);
+		addViewElement(b);
 		return b;
 	}
 
@@ -120,7 +113,7 @@ public class ComponentPanelFactory {
 	 */
 	public ViewElement addRange(DoubleParameter e, int top, int bottom) {
 		ViewElement b = new ViewElementSliderDouble(e,top,bottom);
-		pushViewElement(b);
+		addViewElement(b);
 		return b;
 	}
 
@@ -133,25 +126,13 @@ public class ComponentPanelFactory {
 	public ViewElement addFilename(StringParameter parameter, List<FileFilter> filters) {
 		ViewElementFilename b = new ViewElementFilename(parameter);
 		b.addFileFilters(filters);
-		pushViewElement(b);
+		addViewElement(b);
 		return b;
 	}
 
 	public ViewElementButton addButton(String string) {
 		ViewElementButton b = new ViewElementButton(string);
-		pushViewElement(b);
+		addViewElement(b);
 		return b;
-	}
-
-	public JComponent buildSwingView() {
-		// add control common to all components
-		add(component.enabled);
-
-		// custom panel views based on component type
-		for(EntitySystem sys : systems) {
-			sys.decorate(this,component);
-		}
-
-		return innerPanel;
 	}
 }

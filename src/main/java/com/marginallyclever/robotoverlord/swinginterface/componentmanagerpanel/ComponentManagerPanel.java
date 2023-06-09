@@ -4,6 +4,7 @@ import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
 import com.marginallyclever.robotoverlord.swinginterface.CollapsiblePanel;
 import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentAddAction;
 import com.marginallyclever.robotoverlord.swinginterface.actions.ComponentCopyAction;
@@ -92,10 +93,18 @@ public class ComponentManagerPanel extends JPanel {
 
 	private void addSingleComponent(Component component) {
 		// get the view
-		ComponentPanelFactory factory = new ComponentPanelFactory(entityManager, component,systems);
-		//component.getView(factory);
-		//JComponent finalView = wrapViewWithCommonComponentControls(factory.getFinalView(),component);
-		JComponent outerPanel = wrapViewWithCommonComponentControls(factory.buildSwingView(),component);
+		ViewPanelFactory factory = new ViewPanelFactory(entityManager);
+
+		// add control common to all components
+		factory.add(component.enabled);
+
+		// custom panel views based on component type
+		for(EntitySystem sys : systems) {
+			sys.decorate(factory,component);
+		}
+
+
+		JComponent outerPanel = wrapViewWithCommonComponentControls(factory.getFinalView(),component);
 		componentList.add(outerPanel);
 	}
 

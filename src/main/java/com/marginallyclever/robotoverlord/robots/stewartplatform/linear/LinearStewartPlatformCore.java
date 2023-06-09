@@ -13,7 +13,7 @@ import com.marginallyclever.robotoverlord.components.RenderComponent;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -264,7 +264,7 @@ public class LinearStewartPlatformCore extends RenderComponent {
 	}
 	
 	@Deprecated
-	public void getView(ComponentPanelFactory view) {
+	public void getView(ViewPanelFactory view) {
 		view.add(connection);
 		view.addButton("GOTO EE").addActionEventListener((evt)->gotoPose());
 		view.addButton("GOTO ZERO").addActionEventListener((evt)->{

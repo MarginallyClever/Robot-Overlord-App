@@ -8,7 +8,7 @@ import com.marginallyclever.robotoverlord.components.motors.StepperMotorComponen
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
@@ -39,12 +39,12 @@ public class MotorSystem implements EntitySystem {
      * @param component the component to visualize
      */
     @Override
-    public void decorate(ComponentPanelFactory view, Component component) {
+    public void decorate(ViewPanelFactory view, Component component) {
         if (component instanceof ServoComponent) decorateServo(view, component);
         if (component instanceof MotorComponent) decorateMotor(view, component);
     }
 
-    private void decorateServo(ComponentPanelFactory view, Component component) {
+    private void decorateServo(ViewPanelFactory view, Component component) {
         ServoComponent servo = (ServoComponent) component;
 
         ViewElementButton bCurve = view.addButton("Tune PID");
@@ -60,12 +60,13 @@ public class MotorSystem implements EntitySystem {
         EntitySystemUtils.makePanel(panel, parent, "Tune PID");
     }
 
-    private void decorateMotor(ComponentPanelFactory view, Component component) {
+    private void decorateMotor(ViewPanelFactory view, Component component) {
         MotorComponent motor = (MotorComponent) component;
         view.add(motor.currentAngle);
         view.add(motor.currentRPM);
         view.add(motor.desiredRPM);
         view.add(motor.gearRatio);
+        view.add(motor.connectedTo);
 
         ViewElementButton bCurve = view.addButton("Torque curve");
         bCurve.addActionEventListener(e -> editCurve(bCurve, motor));

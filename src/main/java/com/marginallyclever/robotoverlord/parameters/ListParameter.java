@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.deser.impl.CreatorCandidate;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
@@ -18,6 +20,7 @@ import java.util.function.IntFunction;
  * @param <T> the type of parameter
  */
 public class ListParameter<T extends AbstractParameter<?>> extends AbstractParameter<List<T>> implements Collection<T> {
+    private static final Logger logger = LoggerFactory.getLogger(ListParameter.class);
     private final T instance;
 
     public ListParameter(String name, T instance) {
@@ -49,16 +52,22 @@ public class ListParameter<T extends AbstractParameter<?>> extends AbstractParam
         list.clear();
         for(int i=0;i<size;++i) {
             JSONObject item = jo.getJSONObject("item"+i);
-            try {
-                T inst = (T) instance.getClass().getDeclaredConstructor().newInstance();
-                inst.parseJSON(item,context);
-                list.add(inst);
-            } catch (IllegalAccessException | InstantiationException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException | NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            }
+            T inst = createNewElement();
+            inst.parseJSON(item,context);
+            list.add(inst);
         }
+    }
+
+    public T createNewElement() {
+        try {
+            return (T)instance.getClass().getDeclaredConstructor().newInstance();
+        } catch (IllegalAccessException | InstantiationException e) {
+            e.printStackTrace();
+            logger.error("Failed to instance {}. ",instance.getClass().getName(),e.getMessage());
+        } catch (InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 
     @Override
