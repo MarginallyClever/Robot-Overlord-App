@@ -18,16 +18,15 @@ import java.util.function.IntFunction;
  * @param <T> the type of parameter
  */
 public class ListParameter<T extends AbstractParameter<?>> extends AbstractParameter<List<T>> implements Collection<T> {
-    public ListParameter() {
-        super("list",new ArrayList<>());
+    private final T instance;
+
+    public ListParameter(String name, T instance) {
+        this(name,new ArrayList<>(),instance);
     }
 
-    public ListParameter(String name) {
-        this(name,new ArrayList<>());
-    }
-
-    public ListParameter(String name, List<T> ts) {
+    public ListParameter(String name, List<T> ts, T instance) {
         super(name, ts);
+        this.instance = instance;
     }
 
     @Override
@@ -46,24 +45,20 @@ public class ListParameter<T extends AbstractParameter<?>> extends AbstractParam
     public void parseJSON(JSONObject jo, SerializationContext context) {
         super.parseJSON(jo, context);
         int size = jo.getInt("size");
-        List<T> list = new ArrayList<>();
+        List<T> list = get();
+        list.clear();
         for(int i=0;i<size;++i) {
             JSONObject item = jo.getJSONObject("item"+i);
-            String type = item.getString("type");
             try {
-                Class<?> c = Class.forName(type);
-                T t = (T)c.getDeclaredConstructor().newInstance();
-                t.parseJSON(item,context);
-                list.add(t);
-            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+                T inst = (T) instance.getClass().getDeclaredConstructor().newInstance();
+                inst.parseJSON(item,context);
+                list.add(inst);
+            } catch (IllegalAccessException | InstantiationException e) {
                 e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException(e);
-            } catch (NoSuchMethodException e) {
+            } catch (InvocationTargetException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
         }
-        set(list);
     }
 
     @Override

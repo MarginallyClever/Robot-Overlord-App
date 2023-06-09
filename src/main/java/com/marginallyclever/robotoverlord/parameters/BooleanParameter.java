@@ -14,6 +14,14 @@ public class BooleanParameter extends AbstractParameter<Boolean> {
 		super(name,value);
 	}
 
+	public BooleanParameter(String name) {
+		this(name,false);
+	}
+
+	public BooleanParameter() {
+		this("boolean");
+	}
+
 	@Override
 	public String toString() {
 		return getName()+"="+ get().toString();

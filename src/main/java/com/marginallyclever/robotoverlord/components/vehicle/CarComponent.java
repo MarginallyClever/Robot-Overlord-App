@@ -30,7 +30,7 @@ public class CarComponent extends Component {
     public static final int WHEEL_DIFFERENTIAL = 3;
 
     public final IntParameter wheelType = new IntParameter("Wheel type", CarComponent.WHEEL_NORMAL);
-    public final ListParameter<ReferenceParameter> wheels = new ListParameter<>();
+    public final ListParameter<ReferenceParameter> wheels = new ListParameter<>("Wheels",new ReferenceParameter());
 
     public final DoubleParameter forwardVelocity = new DoubleParameter("Desired forward (cm/s)", 0);  // cm/s
     public final DoubleParameter strafeVelocity = new DoubleParameter("Desired strafe (cm/s)", 0);  // cm/s

@@ -24,7 +24,7 @@ public class MotorComponent extends Component {
     public final DoubleParameter desiredRPM = new DoubleParameter("Desired Velocity (rpm)",0);  // rpm
     public final DoubleParameter gearRatio = new DoubleParameter("Gear Ratio",1.0);
     public final DoubleParameter currentAngle = new DoubleParameter("Current angle", 0);
-    public final ListParameter<ReferenceParameter> connectedTo = new ListParameter<>("Connected to");
+    public final ListParameter<ReferenceParameter> connectedTo = new ListParameter<>("Connected to",new ReferenceParameter());
 
     public MotorComponent() {
         super();

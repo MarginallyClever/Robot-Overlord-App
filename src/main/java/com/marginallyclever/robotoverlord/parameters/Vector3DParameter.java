@@ -16,6 +16,14 @@ public class Vector3DParameter extends AbstractParameter<Vector3d> {
 		super(name,value);
 	}
 
+	public Vector3DParameter(String name) {
+		super(name,new Vector3d());
+	}
+
+	public Vector3DParameter() {
+		super("Vector3D",new Vector3d());
+	}
+
 	public Vector3DParameter(String name, double x, double y, double z) {
 		super(name,new Vector3d(x,y,z));
 	}

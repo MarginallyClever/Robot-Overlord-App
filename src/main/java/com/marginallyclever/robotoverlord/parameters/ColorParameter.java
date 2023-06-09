@@ -18,6 +18,14 @@ public class ColorParameter extends AbstractParameter<double[]> {
 		super(name,new double[] {r,g,b,a});
 	}
 
+	public ColorParameter(String name) {
+		this(name,0,0,0,0);
+	}
+
+	public ColorParameter() {
+		this("Color");
+	}
+
 	public void set(double r,double g,double b,double a) {
 		super.set(new double[] {r,g,b,a});
 	}

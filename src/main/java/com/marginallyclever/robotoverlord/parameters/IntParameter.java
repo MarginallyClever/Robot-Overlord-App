@@ -13,6 +13,14 @@ public class IntParameter extends AbstractParameter<Integer> {
 	public IntParameter(String name, int value) {
 		super(name,value);
 	}
+
+	public IntParameter(String name) {
+		this(name,0);
+	}
+
+	public IntParameter() {
+		this("int");
+	}
 	
 	@Override
 	public String toString() {

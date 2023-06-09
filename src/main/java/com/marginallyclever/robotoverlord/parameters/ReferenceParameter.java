@@ -19,6 +19,10 @@ public class ReferenceParameter extends StringParameter {
         this(name, null);
     }
 
+    public ReferenceParameter() {
+        this("", null);
+    }
+
     public void updateReferences(Map<String, String> oldToNewIDMap) {
         String id = get();
         if(oldToNewIDMap.containsKey(id)) {
