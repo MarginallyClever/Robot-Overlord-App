@@ -4,7 +4,7 @@ import com.marginallyclever.convenience.swing.LineGraph;
 import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementDouble;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewElementDouble;
 
 import javax.swing.*;
 import java.awt.*;

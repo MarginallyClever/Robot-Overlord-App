@@ -1,13 +1,14 @@
-package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
+package com.marginallyclever.robotoverlord.parameters.swing;
 
-import com.marginallyclever.robotoverlord.parameters.IntParameter;
+import com.marginallyclever.convenience.helpers.StringHelper;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.IntParameterEdit;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.FocusTextField;
+import com.marginallyclever.robotoverlord.swinginterface.edits.DoubleParameterEdit;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.undo.AbstractUndoableEdit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
@@ -21,12 +22,13 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Dan Royer
  *
  */
-public class ViewElementInt extends ViewElement implements DocumentListener, PropertyChangeListener {
+public class ViewElementDouble extends ViewElement implements DocumentListener, PropertyChangeListener {
+	private final JLabel label;
 	private final JTextField field;
-	private final IntParameter parameter;
+	private final DoubleParameter parameter;
 	private final ReentrantLock lock = new ReentrantLock();
 	
-	public ViewElementInt(IntParameter parameter) {
+	public ViewElementDouble(DoubleParameter parameter) {
 		super();
 		this.parameter = parameter;
 		
@@ -34,11 +36,6 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Pro
 		
 		field = new FocusTextField(8);
 		field.addActionListener(new AbstractAction() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				conditionalChange();
@@ -55,9 +52,9 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Pro
 		});
 		field.getDocument().addDocumentListener(this);
 		field.setHorizontalAlignment(SwingConstants.RIGHT);
-		field.setText(parameter.get().toString());
+		field.setText(StringHelper.formatDouble(parameter.get()));
 
-		JLabel label=new JLabel(parameter.getName(),JLabel.LEADING);
+		label=new JLabel(parameter.getName(),JLabel.LEADING);
 		label.setLabelFor(field);
 		
 		//this.setBorder(new LineBorder(Color.RED));
@@ -67,34 +64,34 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Pro
 	}
 	
 	protected void conditionalChange() {
-		int newNumber;
+		double newNumber;
 		
 		try {
-			newNumber = Integer.parseInt(field.getText());
+			newNumber = Double.parseDouble(field.getText());
 			field.setForeground(UIManager.getColor("Textfield.foreground"));
 		} catch(NumberFormatException e1) {
 			field.setForeground(Color.RED);
-			newNumber = parameter.get();
+			return;
 		}
-		
+
 		if(lock.isLocked()) return;
 		lock.lock();
 
 		if(newNumber != parameter.get()) {
-			UndoSystem.addEvent(new IntParameterEdit(parameter, newNumber));
+			UndoSystem.addEvent(new DoubleParameterEdit(parameter, newNumber));
 		}
 		lock.unlock();
 	}
 	
 	protected void validateField() {
 		try {
-			Integer.valueOf(field.getText());
+			Double.valueOf(field.getText());
 			field.setForeground(UIManager.getColor("Textfield.foreground"));
 		} catch(NumberFormatException e1) {
 			field.setForeground(Color.RED);
 		}
 	}
-	
+
 	/**
 	 * panel changed, poke entity
 	 */
@@ -102,7 +99,7 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Pro
 	public void changedUpdate(DocumentEvent arg0) {
 		validateField();
 	}
-
+	
 	@Override
 	public void insertUpdate(DocumentEvent arg0) {
 		validateField();
@@ -119,11 +116,14 @@ public class ViewElementInt extends ViewElement implements DocumentListener, Pro
 	}
 
 	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
+	public void propertyChange(PropertyChangeEvent evt) {		
 		if(lock.isLocked()) return;
 		lock.lock();
-		Integer i = (Integer)evt.getNewValue();
-		field.setText(i.toString());
-		lock.unlock();
+		field.setText(StringHelper.formatDouble((Double)evt.getNewValue()));
+		lock.unlock();		
+	}
+
+	public void setLabel(String label) {
+		this.label.setText(label);
 	}
 }

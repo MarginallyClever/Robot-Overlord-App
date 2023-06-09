@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.*;
+import com.marginallyclever.robotoverlord.parameters.swing.*;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 
 import java.util.List;
@@ -60,8 +61,8 @@ public class ComponentPanelFactory {
 		
 		//logger.debug("Add "+e.getClass().toString());
 		
-			 if(parameter instanceof BooleanParameter  ) element = new ViewElementBoolean  ((BooleanParameter)parameter);
-		else if(parameter instanceof ColorParameter    ) element = new ViewElementColor    ((ColorParameter)parameter);
+			 if(parameter instanceof BooleanParameter  ) element = new ViewElementBoolean((BooleanParameter)parameter);
+		else if(parameter instanceof ColorParameter    ) element = new ViewElementColor((ColorParameter)parameter);
 		else if(parameter instanceof DoubleParameter   ) element = new ViewElementDouble   ((DoubleParameter)parameter);
 		else if(parameter instanceof IntParameter      ) element = new ViewElementInt      ((IntParameter)parameter);
 		else if(parameter instanceof Vector3DParameter ) element = new ViewElementVector3d ((Vector3DParameter)parameter);

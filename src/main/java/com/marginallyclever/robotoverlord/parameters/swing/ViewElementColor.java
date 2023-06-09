@@ -1,7 +1,8 @@
-package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
+package com.marginallyclever.robotoverlord.parameters.swing;
 
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.BackgroundPaintedButton;
 import com.marginallyclever.robotoverlord.swinginterface.edits.ColorParameterEdit;
 
 import javax.swing.*;

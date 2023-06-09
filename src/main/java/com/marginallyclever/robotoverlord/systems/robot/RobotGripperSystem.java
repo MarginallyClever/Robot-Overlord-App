@@ -7,8 +7,8 @@ import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementComboBox;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewElementComboBox;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.RayPickSystem;
 import org.slf4j.Logger;
@@ -18,7 +18,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class RobotGripperSystem implements EntitySystem {
