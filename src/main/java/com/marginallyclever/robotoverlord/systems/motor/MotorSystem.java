@@ -180,6 +180,8 @@ public class MotorSystem implements EntitySystem {
         if(motorEntity==null) return;
 
         for(ReferenceParameter name : motor.connectedTo) {
+            String uid = name.get();
+            if(uid==null || uid.isEmpty()) continue;
             Entity connection = entityManager.findEntityByUniqueID(name.get());
             PoseComponent childPose = connection.getComponent(PoseComponent.class);
             Matrix4d m = childPose.getLocal();

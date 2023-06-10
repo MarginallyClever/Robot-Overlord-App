@@ -137,6 +137,7 @@ public class VehicleSystem implements EntitySystem {
         if(Math.abs(forwardVel)>1e-6) {
             // Drive Motors
             for (ReferenceParameter wheelRef : car.wheels) {
+                if(wheelRef.get()==null || wheelRef.get().isEmpty()) continue;
                 WheelComponent wheel = entityManager.findEntityByUniqueID(wheelRef.get()).getComponent(WheelComponent.class);
 
                 String driveMotorName = wheel.drive.get();
@@ -154,6 +155,7 @@ public class VehicleSystem implements EntitySystem {
 
         double turnVel = car.turnVelocity.get();
         for (ReferenceParameter wheelRef : car.wheels) {
+            if(wheelRef.get()==null || wheelRef.get().isEmpty()) continue;
             WheelComponent wheel = entityManager.findEntityByUniqueID(wheelRef.get()).getComponent(WheelComponent.class);
             steerOneWheel(wheel,car,turnVel);
         }
@@ -248,6 +250,7 @@ public class VehicleSystem implements EntitySystem {
 
         for (int i = 0; i < car.wheels.size(); i++) {
             ReferenceParameter wheelRef = car.wheels.get(i);
+            if(wheelRef.get()==null || wheelRef.get().isEmpty()) continue;
             WheelComponent wheel = entityManager.findEntityByUniqueID(wheelRef.get()).getComponent(WheelComponent.class);
 
             String driveMotorName = wheel.drive.get();
@@ -281,6 +284,7 @@ public class VehicleSystem implements EntitySystem {
 
         for(int i=0;i<car.wheels.size();++i) {
             ReferenceParameter wheelRef = car.wheels.get(i);
+            if(wheelRef.get()==null || wheelRef.get().isEmpty()) continue;
 
             // Fetch the WheelComponent and MotorComponent.
             WheelComponent wheel = entityManager.findEntityByUniqueID(wheelRef.get()).getComponent(WheelComponent.class);

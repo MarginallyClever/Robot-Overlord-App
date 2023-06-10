@@ -159,19 +159,6 @@ public class MotorComponent extends Component {
     }
 
     public void addConnection(Entity entity) {
-        int next = getBiggestConnectionNumber(connectedTo)+1;
-        connectedTo.add(new ReferenceParameter(Integer.toString(next),entity.getUniqueID()));
-    }
-
-    private int getBiggestConnectionNumber(ListParameter<ReferenceParameter> list) {
-        int biggest = 0;
-        for(ReferenceParameter rp : list.get()) {
-            String name = rp.getName();
-            try {
-                int num = Integer.parseInt(name.substring(5));
-                if (num > biggest) biggest = num;
-            } catch(NumberFormatException ignored) {}
-        }
-        return biggest;
+        connectedTo.add(new ReferenceParameter("",entity.getUniqueID()));
     }
 }

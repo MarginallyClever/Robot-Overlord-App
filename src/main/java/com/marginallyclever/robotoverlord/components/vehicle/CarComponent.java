@@ -66,20 +66,7 @@ public class CarComponent extends Component {
     }
 
     private void addWheelToList(Entity entity, ListParameter<ReferenceParameter> list) {
-        int next = getBiggestWheelNumber(list)+1;
-        list.add(new ReferenceParameter(Integer.toString(next),entity.getUniqueID()));
-    }
-
-    private int getBiggestWheelNumber(ListParameter<ReferenceParameter> list) {
-        int biggest = 0;
-        for(ReferenceParameter rp : list.get()) {
-            String name = rp.getName();
-            try {
-                int num = Integer.parseInt(name.substring(5));
-                if (num > biggest) biggest = num;
-            } catch(NumberFormatException ignored) {}
-        }
-        return biggest;
+        list.add(new ReferenceParameter("",entity.getUniqueID()));
     }
 
     /**
