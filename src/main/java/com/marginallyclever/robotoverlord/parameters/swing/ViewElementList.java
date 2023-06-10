@@ -12,6 +12,8 @@ import java.awt.*;
 
 /**
  * Panel to alter a {@link ListParameter}.
+ * @author Dan Royer
+ * @since 2.6.3
  */
 public class ViewElementList extends ViewElement {
     private final ListParameter<?> list;
@@ -107,7 +109,7 @@ public class ViewElementList extends ViewElement {
         JFrame frame = new JFrame(ListParameter.class.getSimpleName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
-        frame.add(factory.add(list),BorderLayout.CENTER);
+        frame.add(factory.add(list),BorderLayout.NORTH);
         frame.setPreferredSize(new Dimension(400,400));
         frame.pack();
         frame.setLocationRelativeTo(null);
