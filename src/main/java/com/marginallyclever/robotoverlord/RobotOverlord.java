@@ -228,7 +228,7 @@ public class RobotOverlord {
 	private void layoutComponents() {
 		// the right hand top/bottom split
 		rightFrameSplitter.add(buildEntityManagerPanel());
-		rightFrameSplitter.add(new JScrollPane(componentManagerPanel));
+		rightFrameSplitter.add(componentManagerPanel);
 		// make sure the master panel can't be squished.
         Dimension minimumSize = new Dimension(360,300);
         rightFrameSplitter.setMinimumSize(minimumSize);

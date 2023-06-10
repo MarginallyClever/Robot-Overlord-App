@@ -44,7 +44,7 @@ public class ComponentManagerPanel extends JPanel {
 		add(toolBar,BorderLayout.NORTH);
 		JPanel wrapper = new JPanel(new BorderLayout());
 		wrapper.add(componentList,BorderLayout.PAGE_START);
-		add(wrapper,BorderLayout.CENTER);
+		add(new JScrollPane(wrapper),BorderLayout.CENTER);
 
 		createToolBar();
 
