@@ -1,10 +1,21 @@
 package com.marginallyclever.robotoverlord.parameters;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.vecmath.Vector3d;
 
 public class ListParameterTest {
+    @Test
+    public void addAndRemove() {
+        ListParameter<BooleanParameter> a = new ListParameter<>("A",new BooleanParameter());
+        a.add(new BooleanParameter("a1",true));
+        a.add(new BooleanParameter("a2",false));
+        a.add(new BooleanParameter("a3",true));
+        a.remove(0);
+        Assertions.assertEquals(2,a.size());
+    }
+
     @Test
     public void saveAndLoadBoolean() throws Exception {
         ListParameter<BooleanParameter> a = new ListParameter<>("A",new BooleanParameter());
