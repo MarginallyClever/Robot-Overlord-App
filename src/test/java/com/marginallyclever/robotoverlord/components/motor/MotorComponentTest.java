@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.components.motor;
 
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.ComponentTest;
+import com.marginallyclever.robotoverlord.components.motors.DCMotorComponent;
 import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -12,8 +13,8 @@ public class MotorComponentTest {
     @Test
     public void serialize() throws Exception {
         // Create a new MotorComponent
-        MotorComponent before = new MotorComponent();
-        MotorComponent after = new MotorComponent();
+        MotorComponent before = new DCMotorComponent();
+        MotorComponent after = new DCMotorComponent();
 
         // Set a known Torque Curve
         TreeMap<Double, Double> a = before.getTorqueCurve();

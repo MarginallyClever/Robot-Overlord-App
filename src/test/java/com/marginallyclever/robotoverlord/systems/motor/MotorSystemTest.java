@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.systems.motor;
 import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.motors.DCMotorComponent;
 import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
 import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
@@ -64,7 +65,7 @@ public class MotorSystemTest {
     public void testRateOfTurn() {
         EntityManager em = new EntityManager();
         MotorSystem ms = new MotorSystem(em);
-        MotorComponent mc = new MotorComponent();
+        MotorComponent mc = new DCMotorComponent();
         mc.setTorqueAtRPM(0,1000.0);
         mc.setTorqueAtRPM(10000,1000.0);
 
