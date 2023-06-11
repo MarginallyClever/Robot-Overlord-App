@@ -20,6 +20,8 @@ public class DriveVehiclePanel extends JPanel {
         super();
         this.car = car;
 
+        this.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+
         this.setLayout(new GridLayout(3,2));
         this.add(new JLabel("Throttle"));
         this.add(sliderThrottle);
@@ -27,6 +29,18 @@ public class DriveVehiclePanel extends JPanel {
         this.add(sliderSteering);
         this.add(new JLabel("Strafe"));
         this.add(sliderStrafe);
+
+        sliderThrottle.setMajorTickSpacing(25);
+        sliderThrottle.setMinorTickSpacing(5);
+        sliderThrottle.setPaintTicks(true);
+
+        sliderStrafe.setMajorTickSpacing(25);
+        sliderStrafe.setMinorTickSpacing(5);
+        sliderStrafe.setPaintTicks(true);
+
+        sliderSteering.setMajorTickSpacing(45);
+        sliderSteering.setMinorTickSpacing(15);
+        sliderSteering.setPaintTicks(true);
 
         sliderSteering.setValue(car.turnVelocity.get().intValue());
         sliderThrottle.setValue(car.forwardVelocity.get().intValue());
@@ -41,5 +55,15 @@ public class DriveVehiclePanel extends JPanel {
         sliderStrafe.addChangeListener(e -> {
             car.strafeVelocity.set((double)sliderStrafe.getValue());
         });
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("DriveVehiclePanel");
+        frame.setContentPane(new DriveVehiclePanel(new CarComponent()));
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setPreferredSize(new Dimension(400,200));
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
     }
 }
