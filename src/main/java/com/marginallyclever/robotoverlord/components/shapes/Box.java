@@ -31,18 +31,24 @@ public class Box extends ShapeComponent implements PropertyChangeListener {
         this(1.0,1.0,1.0);
     }
 
-    public Box(double width,double height,double length) {
+    /**
+     * Create a box with the given dimensions.
+     * @param width
+     * @param length
+     * @param height
+     */
+    public Box(double width,double length,double height) {
         super();
 
         myMesh = new Mesh();
 
         this.width.set(width);
-        this.height.set(height);
         this.length.set(length);
+        this.height.set(height);
 
         this.width.addPropertyChangeListener(this);
-        this.height.addPropertyChangeListener(this);
         this.length.addPropertyChangeListener(this);
+        this.height.addPropertyChangeListener(this);
 
         updateModel();
         setModel(myMesh);

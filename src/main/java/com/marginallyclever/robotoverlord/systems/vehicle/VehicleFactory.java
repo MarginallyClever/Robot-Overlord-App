@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.systems.vehicle;
 
-import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Box;
@@ -9,10 +8,8 @@ import com.marginallyclever.robotoverlord.components.vehicle.CarComponent;
 import com.marginallyclever.robotoverlord.components.vehicle.WheelComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
-import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.robotoverlord.systems.motor.MotorFactory;
 
-import javax.swing.*;
 import javax.vecmath.Vector3d;
 
 public class VehicleFactory {
@@ -33,6 +30,42 @@ public class VehicleFactory {
             "Tank",
             "4 Wheel Chassis",
     };
+
+    private static double wheelRadius = 2.0;
+    private static double wheelWidth = 0.5;
+    private static double bodyLength = 18;
+    private static double bodyWidth = 20;
+    private static double bodyHeight = 2;
+    private static double bodyRadius = 8;
+    private static double groundClearance = 1.0;
+
+    public static void setWheelRadius(double wheelRadius) {
+        VehicleFactory.wheelRadius = wheelRadius;
+    }
+
+    public static void setWheelWidth(double wheelWidth) {
+        VehicleFactory.wheelWidth = wheelWidth;
+    }
+
+    public static void setBodyLength(double bodyLength) {
+        VehicleFactory.bodyLength = bodyLength;
+    }
+
+    public static void setBodyWidth(double bodyWidth) {
+        VehicleFactory.bodyWidth = bodyWidth;
+    }
+
+    public static void setBodyHeight(double bodyHeight) {
+        VehicleFactory.bodyHeight = bodyHeight;
+    }
+
+    public static void setBodyRadius(double bodyRadius) {
+        VehicleFactory.bodyRadius = bodyRadius;
+    }
+
+    public static void setGroundClearance(double groundClearance) {
+        VehicleFactory.groundClearance = groundClearance;
+    }
 
     public static Entity createByID(int type, EntityManager entityManager) {
         return switch (type) {
@@ -65,8 +98,8 @@ public class VehicleFactory {
         entityManager.addEntityToParent(carEntity, entityManager.getRoot());
 
         Entity mesh = new Entity("Mesh");
-        mesh.addComponent(new Box(20,2,18));
-        mesh.getComponent(PoseComponent.class).setPosition(new Vector3d(0,0,1.5));
+        mesh.addComponent(new Box(bodyLength,bodyWidth,bodyHeight));
+        mesh.getComponent(PoseComponent.class).setPosition(new Vector3d(0,0,groundClearance+bodyHeight/2));
         entityManager.addEntityToParent(mesh, carEntity);
 
         // add 4 wheels
@@ -79,22 +112,24 @@ public class VehicleFactory {
             wheelEntity[i] = new Entity("Wheel" + i);
             entityManager.addEntityToParent(wheelEntity[i], suspension);
             Entity wheelMesh = new Entity("Mesh");
-            wheelMesh.addComponent(new Cylinder(0.5,2,2));
+            wheelMesh.addComponent(new Cylinder(wheelWidth,wheelRadius,wheelRadius));
             wheelMesh.getComponent(PoseComponent.class).setRotation(new Vector3d(0,90,90));
             entityManager.addEntityToParent(wheelMesh, wheelEntity[i]);
 
             WheelComponent wheel = new WheelComponent();
             wheelEntity[i].addComponent(wheel);
-            wheel.diameter.set(4.0);
-            wheel.width.set(0.5);
+            wheel.diameter.set(wheelRadius*2);
+            wheel.width.set(wheelWidth);
             car.addWheel(wheelEntity[i]);
         }
 
         // place wheels at the corners of the car
-        wheelEntity[0].getComponent(PoseComponent.class).setPosition(new Vector3d( 10, -10, 1));
-        wheelEntity[1].getComponent(PoseComponent.class).setPosition(new Vector3d( 10,  10, 1));
-        wheelEntity[2].getComponent(PoseComponent.class).setPosition(new Vector3d(-10, -10, 1));
-        wheelEntity[3].getComponent(PoseComponent.class).setPosition(new Vector3d(-10,  10, 1));
+        double wid2 = (bodyWidth+wheelWidth)/2;
+        double len2 = bodyLength/2;
+        wheelEntity[0].getComponent(PoseComponent.class).setPosition(new Vector3d( len2, -wid2, wheelRadius));
+        wheelEntity[1].getComponent(PoseComponent.class).setPosition(new Vector3d( len2,  wid2, wheelRadius));
+        wheelEntity[2].getComponent(PoseComponent.class).setPosition(new Vector3d(-len2, -wid2, wheelRadius));
+        wheelEntity[3].getComponent(PoseComponent.class).setPosition(new Vector3d(-len2,  wid2, wheelRadius));
 
         return carEntity;
     }
@@ -110,8 +145,8 @@ public class VehicleFactory {
         car.wheelType.set(CarComponent.WHEEL_OMNI);
 
         Entity mesh = new Entity("Mesh");
-        mesh.addComponent(new Cylinder(2,8,8));
-        mesh.getComponent(PoseComponent.class).setPosition(new Vector3d(0,0,1.5));
+        mesh.addComponent(new Cylinder(bodyHeight,bodyRadius,bodyRadius));
+        mesh.getComponent(PoseComponent.class).setPosition(new Vector3d(0,0,groundClearance+bodyHeight/2));
         entityManager.addEntityToParent(mesh, carEntity);
 
         for (int i = 0; i < 3; ++i) {
@@ -120,14 +155,14 @@ public class VehicleFactory {
             car.addWheel(wheelEntity);
 
             Entity wheelMesh = new Entity("Mesh");
-            wheelMesh.addComponent(new Cylinder(0.5,2,2));
+            wheelMesh.addComponent(new Cylinder(wheelWidth,wheelRadius,wheelRadius));
             wheelMesh.getComponent(PoseComponent.class).setRotation(new Vector3d(0,90,0));
             entityManager.addEntityToParent(wheelMesh, wheelEntity);
 
             WheelComponent wc = new WheelComponent();
             wheelEntity.addComponent(wc);
-            wc.diameter.set(4.0);
-            wc.width.set(0.5);
+            wc.diameter.set(wheelRadius*2);
+            wc.width.set(wheelWidth);
 
             // add motors to all wheels
             MotorComponent motor = MotorFactory.createDefaultMotor();
@@ -137,11 +172,12 @@ public class VehicleFactory {
 
             // rotate wheels so they point outwards
             wheelEntity.getComponent(PoseComponent.class).setRotation(new Vector3d(0, 0, 120*i));
+            double w = bodyRadius+wheelWidth/2;
             // place wheels at the corners of the car
             wheelEntity.getComponent(PoseComponent.class).setPosition(new Vector3d(
-                    10*Math.cos(Math.toRadians(120*i)),
-                    10*Math.sin(Math.toRadians(120*i)),
-                    1));
+                    w*Math.cos(Math.toRadians(120*i)),
+                    w*Math.sin(Math.toRadians(120*i)),
+                    wheelRadius));
         }
 
         return carEntity;
@@ -157,8 +193,8 @@ public class VehicleFactory {
         car.wheelType.set(CarComponent.WHEEL_DIFFERENTIAL);
 
         Entity mesh = new Entity("Mesh");
-        mesh.addComponent(new Box(20,2,18));
-        mesh.getComponent(PoseComponent.class).setPosition(new Vector3d(0,0,1.5));
+        mesh.addComponent(new Box(bodyLength,bodyWidth,bodyHeight));
+        mesh.getComponent(PoseComponent.class).setPosition(new Vector3d(0,0,groundClearance+bodyHeight/2));
         entityManager.addEntityToParent(mesh, carEntity);
 
         Entity [] wheelEntity = new Entity[2];
@@ -168,14 +204,14 @@ public class VehicleFactory {
             car.addWheel(wheelEntity[i]);
 
             Entity wheelMesh = new Entity("Mesh");
-            wheelMesh.addComponent(new Cylinder(0.5,2,2));
+            wheelMesh.addComponent(new Cylinder(wheelWidth,wheelRadius,wheelRadius));
             wheelMesh.getComponent(PoseComponent.class).setRotation(new Vector3d(0,90,90));
             entityManager.addEntityToParent(wheelMesh, wheelEntity[i]);
 
             WheelComponent wc = new WheelComponent();
             wheelEntity[i].addComponent(wc);
-            wc.diameter.set(4.0);
-            wc.width.set(0.5);
+            wc.diameter.set(wheelRadius*2);
+            wc.width.set(wheelWidth);
 
             MotorComponent motor = MotorFactory.createDefaultMotor();
             wheelEntity[i].addComponent(motor);
@@ -184,8 +220,9 @@ public class VehicleFactory {
         }
 
         // place wheels at either side of the car
-        wheelEntity[0].getComponent(PoseComponent.class).setPosition(new Vector3d(0, -10, 1));
-        wheelEntity[1].getComponent(PoseComponent.class).setPosition(new Vector3d(0,  10, 1));
+        double w = (bodyWidth+wheelWidth)/2;
+        wheelEntity[0].getComponent(PoseComponent.class).setPosition(new Vector3d(0, -w, wheelRadius));
+        wheelEntity[1].getComponent(PoseComponent.class).setPosition(new Vector3d(0,  w, wheelRadius));
 
         return carEntity;
     }
@@ -288,8 +325,8 @@ public class VehicleFactory {
         entityManager.addEntityToParent(carEntity, entityManager.getRoot());
 
         Entity mesh = new Entity("Mesh");
-        mesh.addComponent(new Box(5,2,3));
-        mesh.getComponent(PoseComponent.class).setPosition(new Vector3d(0,0,1.5));
+        mesh.addComponent(new Box(bodyLength,bodyWidth,bodyHeight));
+        mesh.getComponent(PoseComponent.class).setPosition(new Vector3d(0,0,groundClearance+bodyHeight/2));
         entityManager.addEntityToParent(mesh, carEntity);
 
         // add wheels
@@ -302,20 +339,20 @@ public class VehicleFactory {
             wheelEntity[i] = new Entity("Wheel" + i);
             entityManager.addEntityToParent(wheelEntity[i], suspension);
             Entity wheelMesh = new Entity("Mesh");
-            wheelMesh.addComponent(new Cylinder(0.5,2,2));
+            wheelMesh.addComponent(new Cylinder(wheelWidth,wheelRadius,wheelRadius));
             wheelMesh.getComponent(PoseComponent.class).setRotation(new Vector3d(0,90,90));
             entityManager.addEntityToParent(wheelMesh, wheelEntity[i]);
 
             WheelComponent wc = new WheelComponent();
             wheelEntity[i].addComponent(wc);
-            wc.diameter.set(4.0);
-            wc.width.set(0.5);
+            wc.diameter.set(wheelRadius*2);
+            wc.width.set(wheelWidth);
             car.addWheel(wheelEntity[i]);
         }
 
         // place wheels
-        wheelEntity[0].getComponent(PoseComponent.class).setPosition(new Vector3d( 3, 0, 1));
-        wheelEntity[1].getComponent(PoseComponent.class).setPosition(new Vector3d(-3, 0, 1));
+        wheelEntity[0].getComponent(PoseComponent.class).setPosition(new Vector3d( bodyLength/2, 0, wheelRadius));
+        wheelEntity[1].getComponent(PoseComponent.class).setPosition(new Vector3d(-bodyLength/2, 0, wheelRadius));
 
         // add one motor
         Entity motor = new Entity("Motor");
