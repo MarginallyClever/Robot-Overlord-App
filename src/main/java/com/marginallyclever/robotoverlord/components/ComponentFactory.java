@@ -3,7 +3,10 @@ package com.marginallyclever.robotoverlord.components;
 import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
 
 import com.marginallyclever.robotoverlord.components.demo.DogRobotComponent;
+import com.marginallyclever.robotoverlord.components.motors.DCMotorComponent;
 import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
+import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
+import com.marginallyclever.robotoverlord.components.motors.StepperMotorComponent;
 import com.marginallyclever.robotoverlord.components.program.ProgramComponent;
 import com.marginallyclever.robotoverlord.components.program.ProgramPathComponent;
 import com.marginallyclever.robotoverlord.components.shapes.*;
@@ -54,7 +57,9 @@ public abstract class ComponentFactory {
 			RobotGripperComponent.class,
 			RobotGripperJawComponent.class,
 
-			MotorComponent.class,
+			DCMotorComponent.class,
+			ServoComponent.class,
+			StepperMotorComponent.class,
 
 			CarComponent.class,
 			WheelComponent.class,
