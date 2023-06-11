@@ -13,7 +13,9 @@ import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
+import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
 
+import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.util.LinkedList;
@@ -54,9 +56,12 @@ public class VehicleSystem implements EntitySystem {
         // TODO: how to manage a list?
 
         ViewElementButton bDrive = view.addButton("Drive");
-        bDrive.addActionEventListener(evt -> {
-            // TODO: open panel to drive the car
-        });
+        bDrive.addActionEventListener(evt -> openDrivePanel(bDrive,car));
+    }
+
+    private void openDrivePanel(JComponent parent, CarComponent car) {
+        DriveVehiclePanel panel = new DriveVehiclePanel(car);;
+        EntitySystemUtils.makePanel(panel, parent, "Drive Vehicle");
     }
 
     private void decorateWheel(ViewPanelFactory view, WheelComponent wheel) {
