@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.systems.motor;
 
+import com.marginallyclever.robotoverlord.components.motors.DCMotorComponent;
 import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
 import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
 import com.marginallyclever.robotoverlord.components.motors.StepperMotorComponent;
@@ -9,7 +10,7 @@ import com.marginallyclever.robotoverlord.components.motors.StepperMotorComponen
  */
 public class MotorFactory {
     public static MotorComponent createDefaultMotor() {
-        MotorComponent mc = new MotorComponent();
+        MotorComponent mc = new DCMotorComponent();
         setDefaultMotorCurve(mc);
         return mc;
     }
