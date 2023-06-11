@@ -4,6 +4,7 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementFactory;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
@@ -13,7 +14,7 @@ import java.awt.*;
 
 public class CreateVehiclePanel extends JPanel {
     private final EntityManager entityManager;
-    private final JComboBox<String> names;
+    private final IntParameter vehicleType = new IntParameter("vehicle type",0);
     private final DoubleParameter wheelRadius = new DoubleParameter("wheel radius",2.0);
     private final DoubleParameter wheelWidth = new DoubleParameter("wheel width",0.5);
     private final DoubleParameter bodyLength = new DoubleParameter("body length",18);
@@ -27,23 +28,25 @@ public class CreateVehiclePanel extends JPanel {
         this.entityManager = entityManager;
 
         this.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-
-        names = new JComboBox<>(VehicleFactory.getNames());
-        add(names,BorderLayout.NORTH);
+        ViewElementFactory factory = new ViewElementFactory(entityManager);
 
         JPanel center = new JPanel();
         center.setLayout(new BoxLayout(center,BoxLayout.Y_AXIS));
-        ViewElementFactory factory = new ViewElementFactory(entityManager);
+
+
+        center.add(factory.addComboBox(vehicleType,VehicleFactory.getNames()));
+
         AbstractParameter<?> [] list = {wheelRadius,wheelWidth,bodyLength,bodyWidth,bodyHeight,bodyRadius,groundClearance};
         for(AbstractParameter<?> p : list) {
             center.add(factory.add(p));
             p.addPropertyChangeListener(e->updateVehicleFactory());
         }
-        add(center,BorderLayout.CENTER);
+        add(center,BorderLayout.NORTH);
 
         JButton bAdd = new JButton("Add");
         add(bAdd,BorderLayout.SOUTH);
         bAdd.addActionListener(e -> addNow());
+        this.setMinimumSize(this.getPreferredSize());
     }
 
     private void updateVehicleFactory() {
@@ -57,7 +60,7 @@ public class CreateVehiclePanel extends JPanel {
     }
 
     private void addNow() {
-        Entity carEntity = VehicleFactory.createByID(names.getSelectedIndex(), entityManager);
+        Entity carEntity = VehicleFactory.createByID(vehicleType.get(), entityManager);
         entityManager.removeEntityFromParent(carEntity,entityManager.getRoot());
         UndoSystem.addEvent(new EntityAddEdit(entityManager,entityManager.getRoot(),carEntity));
     }
