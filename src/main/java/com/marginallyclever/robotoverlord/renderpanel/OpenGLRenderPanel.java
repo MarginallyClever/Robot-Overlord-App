@@ -204,10 +204,11 @@ public class OpenGLRenderPanel implements RenderPanel {
     private void createCanvas() {
         try {
             logger.info("...get default caps");
-            GLProfile profile = GLProfile.get(GLProfile.GL3);
+            //GLProfile profile = GLProfile.get(GLProfile.GL3);
+            GLProfile profile = GLProfile.getDefault();
             GLCapabilities caps = new GLCapabilities(profile);
             caps.setHardwareAccelerated(true);
-            //caps.setBackgroundOpaque(true);
+            caps.setBackgroundOpaque(true);
             caps.setDoubleBuffered(true);
 
             caps.setStencilBits(8);
@@ -497,19 +498,20 @@ public class OpenGLRenderPanel implements RenderPanel {
         program.setMatrix4d(gl3,"viewMatrix",viewMatrix);
     }
 
-    private void drawOverlays(GL3 gl3) {
+    private void drawOverlays(GL3 gl) {
         // overlays
-        gl3.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_STENCIL_BUFFER_BIT);
-        gl3.glUseProgram(0);
+        gl.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_STENCIL_BUFFER_BIT);
+        gl.glUseProgram(0);
 
+        useShaderDefault(gl);
         // 3D overlays
-        for(EditorTool tool : editorTools) tool.render(gl3,shaderDefault);
+        for(EditorTool tool : editorTools) tool.render(gl,shaderDefault);
 
         // 2D overlays
-        compass3d.render(gl3,viewport,shaderDefault);
-        drawCursor(gl3);
+        compass3d.render(gl,viewport,shaderDefault);
+        drawCursor(gl);
 
-        shaderDefault.use(gl3);
+        shaderDefault.use(gl);
     }
 
     private void checkGLError(GL3 gl3) {
