@@ -35,6 +35,16 @@ jobs:
         7z a -tzip RobotOverlord.zip . &&
         mv RobotOverlord.zip ../..
 
+    - name: prepare package for distro
+      shell: bash
+      run: |
+        mkdir -p target/package
+        cp src/main/package/*.bat target/package/ &&
+        cp src/main/package/start* target/package/ &&
+        cp CONTRIBUTING.md target/package/ &&
+        cp LICENSE target/package/ &&
+        cp README.md target/package/
+
   package:
     needs: build_universal_package
     runs-on: ${{ matrix.os }}
