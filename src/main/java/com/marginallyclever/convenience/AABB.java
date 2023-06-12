@@ -1,6 +1,6 @@
 package com.marginallyclever.convenience;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
@@ -110,24 +110,24 @@ public class AABB implements BoundingVolume, Serializable {
 	}
 
 	@Deprecated
-	public void render(GL2 gl2) {
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose);
+	public void render(GL3 gl) {
+		gl.glPushMatrix();
+			MatrixHelper.applyMatrix(gl, pose);
 
 			IntBuffer depthFunc = IntBuffer.allocate(1);
-			gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
-			gl2.glDepthFunc(GL2.GL_ALWAYS);
+			gl.glGetIntegerv(GL3.GL_DEPTH_FUNC, depthFunc);
+			gl.glDepthFunc(GL3.GL_ALWAYS);
 			
-			boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-			gl2.glDisable(GL2.GL_LIGHTING);
+			boolean isLit = gl.glIsEnabled(GL3.GL_LIGHTING);
+			gl.glDisable(GL3.GL_LIGHTING);
 			
-			gl2.glColor3d(255,255,255);
-			PrimitiveSolids.drawBoxWireframe(gl2, getBoundsBottom(),getBoundsTop());
+			gl.glColor3d(255,255,255);
+			PrimitiveSolids.drawBoxWireframe(gl, getBoundsBottom(),getBoundsTop());
 	
-			if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
+			if (isLit) gl.glEnable(GL3.GL_LIGHTING);
 			
-			gl2.glDepthFunc(depthFunc.get());
-		gl2.glPopMatrix();
+			gl.glDepthFunc(depthFunc.get());
+		gl.glPopMatrix();
 	}
 	
 	public void setDirty(boolean newState) {

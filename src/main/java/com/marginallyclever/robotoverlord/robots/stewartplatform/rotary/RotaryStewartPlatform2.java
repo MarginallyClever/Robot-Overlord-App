@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.robots.stewartplatform.rotary;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
@@ -43,40 +43,40 @@ public class RotaryStewartPlatform2 extends RotaryStewartPlatform {
 	}
 
 	@Override
-	public void render(GL2 gl2) {
+	public void render(GL3 gl) {
 		PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
 
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, myPose.getLocal());
+		gl.glPushMatrix();
+			MatrixHelper.applyMatrix(gl, myPose.getLocal());
 
-			baseModel.render(gl2);
+			baseModel.render(gl);
 			
 			// draw the end effector
-			gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, getEndEffectorPose());
-			eeModel.render(gl2);
-			gl2.glPopMatrix();
+			gl.glPushMatrix();
+			MatrixHelper.applyMatrix(gl, getEndEffectorPose());
+			eeModel.render(gl);
+			gl.glPopMatrix();
 
-			drawBiceps(gl2);
-			drawForearms(gl2);
-		gl2.glPopMatrix();
+			drawBiceps(gl);
+			drawForearms(gl);
+		gl.glPopMatrix();
 
-		super.render(gl2);
+		super.render(gl);
 	}
 
 	@Override
-	protected void drawBiceps(GL2 gl2) {
+	protected void drawBiceps(GL3 gl) {
 		for(int i=0;i<arms.length;++i) {
 			int k = (i+arms.length-1)%arms.length;
 			double j = (k/2)+1;
 
-			gl2.glPushMatrix();
-				gl2.glTranslated(arms[i].pShoulder.x,arms[i].pShoulder.y, arms[i].pShoulder.z);
-				gl2.glRotated(j*120, 0, 0, 1);
-				gl2.glRotated(-90, 0, 1, 0);
-				gl2.glRotated(-arms[i].angle, 0, 0, 1);
-				armModel.render(gl2);
-			gl2.glPopMatrix();
+			gl.glPushMatrix();
+				gl.glTranslated(arms[i].pShoulder.x,arms[i].pShoulder.y, arms[i].pShoulder.z);
+				gl.glRotated(j*120, 0, 0, 1);
+				gl.glRotated(-90, 0, 1, 0);
+				gl.glRotated(-arms[i].angle, 0, 0, 1);
+				armModel.render(gl);
+			gl.glPopMatrix();
 		}
 	}
 

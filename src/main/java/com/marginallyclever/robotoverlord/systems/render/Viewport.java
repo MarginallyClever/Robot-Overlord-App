@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.systems.render;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
@@ -43,50 +43,50 @@ public class Viewport extends Entity {
 	}
 
 	@Deprecated
-	public void renderPerspective(GL2 gl2) {
+	public void renderPerspective(GL3 gl) {
 		double zNear = nearZ.get();
 		double zFar = farZ.get();
 		double fH = Math.tan(Math.toRadians(fieldOfView.get() / 2)) * zNear;
 		double aspect = (double)canvasWidth / (double)canvasHeight;
 		double fW = fH * aspect;
-		gl2.glFrustum(-fW,fW,-fH,fH,zNear,zFar);
+		gl.glFrustum(-fW,fW,-fH,fH,zNear,zFar);
 	}
 
 	/**
 	 * Render the scene in orthographic projection.
-	 * @param gl2 the OpenGL context
+	 * @param gl the OpenGL context
 	 * @param zoom the zoom factor
 	 */
 	@Deprecated
-	public void renderOrthographic(GL2 gl2, double zoom) {
+	public void renderOrthographic(GL3 gl, double zoom) {
 		double w = canvasWidth / 2.0;
 		double h = canvasHeight / 2.0;
-		gl2.glOrtho(-w / zoom, w / zoom, -h / zoom, h / zoom, nearZ.get(), farZ.get());
+		gl.glOrtho(-w / zoom, w / zoom, -h / zoom, h / zoom, nearZ.get(), farZ.get());
 	}
 
 	@Deprecated
-	public void renderOrthographic(GL2 gl2) {
-		renderOrthographic(gl2,camera.getOrbitDistance()/100.0);
+	public void renderOrthographic(GL3 gl) {
+		renderOrthographic(gl,camera.getOrbitDistance()/100.0);
 	}
 
 	@Deprecated
-	public void renderChosenProjection(GL2 gl2) {
-		gl2.glMatrixMode(GL2.GL_PROJECTION);
-		gl2.glLoadIdentity();
+	public void renderChosenProjection(GL3 gl) {
+		gl.glMatrixMode(GL3.GL_PROJECTION);
+		gl.glLoadIdentity();
 
 		if(drawOrthographic.get()) {
-			renderOrthographic(gl2);
+			renderOrthographic(gl);
 		} else {
-			renderPerspective(gl2);
+			renderPerspective(gl);
 		}
 
-		gl2.glMatrixMode(GL2.GL_MODELVIEW);
-		gl2.glLoadIdentity();
+		gl.glMatrixMode(GL3.GL_MODELVIEW);
+		gl.glLoadIdentity();
 		if(camera !=null) {
 			PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
 			Matrix4d inverseCamera = pose.getWorld();
 			inverseCamera.invert();
-			MatrixHelper.applyMatrix(gl2, inverseCamera);
+			MatrixHelper.applyMatrix(gl, inverseCamera);
 		}
 	}
 
@@ -190,9 +190,9 @@ public class Viewport extends Entity {
 	}
 
 	@Deprecated
-	public void showPickingTest(GL2 gl2) {
-		renderChosenProjection(gl2);
-		gl2.glPushMatrix();
+	public void showPickingTest(GL3 gl) {
+		renderChosenProjection(gl);
+		gl.glPushMatrix();
 
 		Ray r = getRayThroughCursor();
 
@@ -227,42 +227,40 @@ public class Viewport extends Entity {
         br2.add(br.getOrigin());
         r2.add(r.getOrigin());
 
-		boolean tex = OpenGLHelper.disableTextureStart(gl2);
-		boolean light = OpenGLHelper.disableLightingStart(gl2);
+		boolean tex = OpenGLHelper.disableTextureStart(gl);
 		
-        gl2.glColor3d(1, 0, 0);
-		gl2.glBegin(GL2.GL_LINES);
-		drawPoint(gl2,tl.getOrigin());		drawPoint(gl2,tl2);
-		drawPoint(gl2,tr.getOrigin());		drawPoint(gl2,tr2);
-		drawPoint(gl2,bl.getOrigin());		drawPoint(gl2,bl2);
-		drawPoint(gl2,br.getOrigin());		drawPoint(gl2,br2);
-        gl2.glColor3d(1, 1, 1);
-		drawPoint(gl2,r.getOrigin());		drawPoint(gl2,r2);
-		gl2.glEnd();
-        gl2.glColor3d(0, 1, 0);
-		gl2.glBegin(GL2.GL_LINE_LOOP);
-		drawPoint(gl2,tl2);
-		drawPoint(gl2,tr2);
-		drawPoint(gl2,br2);
-		drawPoint(gl2,bl2);
-		gl2.glEnd();
-        gl2.glColor3d(0, 0, 1);
-		gl2.glBegin(GL2.GL_LINE_LOOP);
-		drawPoint(gl2,tl.getOrigin());
-		drawPoint(gl2,tr.getOrigin());
-		drawPoint(gl2,br.getOrigin());
-		drawPoint(gl2,bl.getOrigin());
-		gl2.glEnd();
+        gl.glColor3d(1, 0, 0);
+		gl.glBegin(GL3.GL_LINES);
+		drawPoint(gl,tl.getOrigin());		drawPoint(gl,tl2);
+		drawPoint(gl,tr.getOrigin());		drawPoint(gl,tr2);
+		drawPoint(gl,bl.getOrigin());		drawPoint(gl,bl2);
+		drawPoint(gl,br.getOrigin());		drawPoint(gl,br2);
+        gl.glColor3d(1, 1, 1);
+		drawPoint(gl,r.getOrigin());		drawPoint(gl,r2);
+		gl.glEnd();
+        gl.glColor3d(0, 1, 0);
+		gl.glBegin(GL3.GL_LINE_LOOP);
+		drawPoint(gl,tl2);
+		drawPoint(gl,tr2);
+		drawPoint(gl,br2);
+		drawPoint(gl,bl2);
+		gl.glEnd();
+        gl.glColor3d(0, 0, 1);
+		gl.glBegin(GL3.GL_LINE_LOOP);
+		drawPoint(gl,tl.getOrigin());
+		drawPoint(gl,tr.getOrigin());
+		drawPoint(gl,br.getOrigin());
+		drawPoint(gl,bl.getOrigin());
+		gl.glEnd();
 		
-		PrimitiveSolids.drawStar(gl2,r2,5);
-		gl2.glPopMatrix();
+		PrimitiveSolids.drawStar(gl,r2,5);
+		gl.glPopMatrix();
 
-		OpenGLHelper.disableLightingEnd(gl2,light);
-		OpenGLHelper.disableTextureEnd(gl2,tex);
+		OpenGLHelper.disableTextureEnd(gl,tex);
 	}
 
-	private void drawPoint(GL2 gl2, Tuple3d vector) {
-		gl2.glVertex3d(vector.x, vector.y, vector.z);
+	private void drawPoint(GL3 gl, Tuple3d vector) {
+		gl.glVertex3d(vector.x, vector.y, vector.z);
 	}
 
 	/**

@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.systems.render.mesh;
 
 import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.AABB;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.Ray;
@@ -42,7 +42,7 @@ public class Mesh {
 	private transient int[] VAO;
 	private transient int[] VBO;
 
-	public int renderStyle = GL2.GL_TRIANGLES;
+	public int renderStyle = GL3.GL_TRIANGLES;
 	private String fileName = null;
 
 	// bounding limits
@@ -86,27 +86,27 @@ public class Mesh {
 		return isTransparent;
 	}
 
-	public void unload(GL2 gl2) {
+	public void unload(GL3 gl) {
 		if(!isLoaded) return;
 		isLoaded=false;
-		destroyBuffers(gl2);
+		destroyBuffers(gl);
 	}
 	
-	private void createBuffers(GL2 gl2) {
+	private void createBuffers(GL3 gl) {
 		VAO = new int[1];
-		gl2.glGenVertexArrays(NUM_BUFFERS, VAO, 0);
+		gl.glGenVertexArrays(NUM_BUFFERS, VAO, 0);
 
 		VBO = new int[NUM_BUFFERS];
-		gl2.glGenBuffers(NUM_BUFFERS, VBO, 0);
+		gl.glGenBuffers(NUM_BUFFERS, VBO, 0);
 	}
 
-	private void destroyBuffers(GL2 gl2) {
+	private void destroyBuffers(GL3 gl) {
 		if(VBO != null) {
-			gl2.glDeleteBuffers(NUM_BUFFERS, VBO, 0);
+			gl.glDeleteBuffers(NUM_BUFFERS, VBO, 0);
 			VBO = null;
 		}
 		if(VAO != null) {
-			gl2.glDeleteVertexArrays(NUM_BUFFERS, VAO, 0);
+			gl.glDeleteVertexArrays(NUM_BUFFERS, VAO, 0);
 			VAO = null;
 		}
 	}
@@ -114,97 +114,74 @@ public class Mesh {
 	/**
 	 * Regenerate the optimized rendering buffers for the fixed function pipeline.
 	 * Also recalculate the bounding box.
-	 * @param gl2 the OpenGL context
+	 * @param gl the OpenGL context
 	 */
-	private void updateBuffers(GL2 gl2) {
+	private void updateBuffers(GL3 gl) {
 		long numVertexes = getNumVertices();
 
-		gl2.glBindVertexArray(VAO[0]);
+		gl.glBindVertexArray(VAO[0]);
 
-		setupArray(gl2,0,3,numVertexes,vertexArray);
-		if(hasNormals ) setupArray(gl2,1,3,numVertexes,normalArray );
-		if(hasColors  ) setupArray(gl2,2,4,numVertexes,colorArray  );
-		if(hasTextures) setupArray(gl2,3,2,numVertexes,textureArray);
+		setupArray(gl,0,3,numVertexes,vertexArray);
+		if(hasNormals ) setupArray(gl,1,3,numVertexes,normalArray );
+		if(hasColors  ) setupArray(gl,2,4,numVertexes,colorArray  );
+		if(hasTextures) setupArray(gl,3,2,numVertexes,textureArray);
 		
 		if(hasIndexes) {
 			IntBuffer indexes = IntBuffer.allocate(indexArray.size());
 			for (Integer integer : indexArray) indexes.put(integer);
 			indexes.rewind();
 
-			gl2.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, VBO[4]);
-			gl2.glBufferData(GL2.GL_ELEMENT_ARRAY_BUFFER, (long) indexArray.size() *BYTES_PER_INT, indexes, GL2.GL_STATIC_DRAW);
+			gl.glBindBuffer(GL3.GL_ELEMENT_ARRAY_BUFFER, VBO[4]);
+			gl.glBufferData(GL3.GL_ELEMENT_ARRAY_BUFFER, (long) indexArray.size() *BYTES_PER_INT, indexes, GL3.GL_STATIC_DRAW);
 		}
 
-		gl2.glBindVertexArray(0);
+		gl.glBindVertexArray(0);
 	}
 
-	private void bindArray(GL2 gl2, int attribIndex, int size) {
-		gl2.glEnableVertexAttribArray(attribIndex);
-		gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[attribIndex]);
-		gl2.glVertexAttribPointer(attribIndex,size,GL2.GL_FLOAT,false,0,0);
+	private void bindArray(GL3 gl, int attribIndex, int size) {
+		gl.glEnableVertexAttribArray(attribIndex);
+		gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[attribIndex]);
+		gl.glVertexAttribPointer(attribIndex,size,GL3.GL_FLOAT,false,0,0);
 	}
 
-	private void setupArray(GL2 gl2, int attribIndex, int size, long numVertexes,List<Float> list) {
+	private void setupArray(GL3 gl, int attribIndex, int size, long numVertexes,List<Float> list) {
 		FloatBuffer data = FloatBuffer.allocate(list.size());
 		for( Float f : list ) data.put(f);
 		data.rewind();
 
-		bindArray(gl2,attribIndex,size);
-		gl2.glBufferData(GL2.GL_ARRAY_BUFFER, numVertexes*size*BYTES_PER_FLOAT, data, GL2.GL_STATIC_DRAW);
+		bindArray(gl,attribIndex,size);
+		gl.glBufferData(GL3.GL_ARRAY_BUFFER, numVertexes*size*BYTES_PER_FLOAT, data, GL3.GL_STATIC_DRAW);
 	}
 
-	public void render(GL2 gl2) {
+	public void render(GL3 gl) {
 		if(!isLoaded) {
 			isLoaded=true;
 			isDirty=true;
 		}
 		if(isDirty) {
-			if(VBO==null) createBuffers(gl2);
-			updateBuffers(gl2);
+			if(VBO==null) createBuffers(gl);
+			updateBuffers(gl);
 			isDirty=false;
 		}
 
-		gl2.glBindVertexArray(VAO[0]);
+		gl.glBindVertexArray(VAO[0]);
 
-		bindArray(gl2,0,3);
-		if(hasNormals) bindArray(gl2,1,3);
-		if(hasColors) bindArray(gl2,2,4);
-		if(hasTextures) bindArray(gl2,3,2);
+		bindArray(gl,0,3);
+		if(hasNormals) bindArray(gl,1,3);
+		if(hasColors) bindArray(gl,2,4);
+		if(hasTextures) bindArray(gl,3,2);
 
 		if (hasIndexes) {
-			gl2.glDrawElements(renderStyle, indexArray.size(), GL2.GL_UNSIGNED_INT, 0);
+			gl.glDrawElements(renderStyle, indexArray.size(), GL3.GL_UNSIGNED_INT, 0);
 		} else {
-			gl2.glDrawArrays(renderStyle, 0, getNumVertices());
+			gl.glDrawArrays(renderStyle, 0, getNumVertices());
 		}
 
 		for(int i=0;i<NUM_BUFFERS;++i) {
-			gl2.glDisableVertexAttribArray(i);
+			gl.glDisableVertexAttribArray(i);
 		}
 
-		gl2.glBindVertexArray(0); // Unbind the VAO
-	}
-	
-	public void drawNormals(GL2 gl2) {
-		if(!hasNormals) return;
-		
-		double scale=2;
-		
-		gl2.glBegin(GL2.GL_LINES);
-		for(int i=0;i<vertexArray.size();i+=3) {
-			double px = vertexArray.get(i);
-			double py = vertexArray.get(i+1);
-			double pz = vertexArray.get(i+2);
-			gl2.glVertex3d(px, py, pz);
-
-			double nx = normalArray.get(i);
-			double ny = normalArray.get(i+1);
-			double nz = normalArray.get(i+2);
-			
-			gl2.glVertex3d( px + nx*scale, 
-							py + ny*scale,
-							pz + nz*scale);
-		}
-		gl2.glEnd();
+		gl.glBindVertexArray(0); // Unbind the VAO
 	}
 	
 	public void addNormal(float x,float y,float z) {
@@ -333,9 +310,9 @@ public class Mesh {
 	 */
 	public RayHit intersect(Ray ray) {
 
-		if( renderStyle != GL2.GL_TRIANGLES &&
-			renderStyle != GL2.GL_TRIANGLE_FAN &&
-			renderStyle != GL2.GL_TRIANGLE_STRIP) return null;
+		if( renderStyle != GL3.GL_TRIANGLES &&
+			renderStyle != GL3.GL_TRIANGLE_FAN &&
+			renderStyle != GL3.GL_TRIANGLE_STRIP) return null;
 
 		VertexProvider vp;
 		if (hasIndexes) {

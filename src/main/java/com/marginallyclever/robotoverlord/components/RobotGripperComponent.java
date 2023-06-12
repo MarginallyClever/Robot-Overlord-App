@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.entity.Entity;
@@ -91,11 +91,11 @@ public class RobotGripperComponent extends ShapeComponent {
     }
 
     @Override
-    public void render(GL2 gl2) {
+    public void render(GL3 gl) {
         List<Entity> children = getEntity().getChildren();
         if(children.size()<2) return;
 
-        myMesh.setRenderStyle(GL2.GL_LINES);
+        myMesh.setRenderStyle(GL3.GL_LINES);
         myMesh.clear();
         for(RobotGripperJawComponent jaw : getJaws()) {
             Matrix4d m = jaw.getEntity().getComponent(PoseComponent.class).getLocal();
@@ -107,6 +107,6 @@ public class RobotGripperComponent extends ShapeComponent {
             myMesh.addColor(1.0f,0.0f,0.5f,1.0f);  myMesh.addVertex((float)p.x,(float)p.y,(float)p.z);
             myMesh.addColor(1.0f,0.5f,1.0f,1.0f);  myMesh.addVertex((float)z.x,(float)z.y,(float)z.z);
         }
-        myMesh.render(gl2);
+        myMesh.render(gl);
     }
 }

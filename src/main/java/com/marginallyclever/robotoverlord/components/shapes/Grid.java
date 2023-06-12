@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
@@ -28,7 +28,7 @@ public class Grid extends ShapeComponent {
         super();
         myMesh = new Mesh();
         setModel(myMesh);
-        myMesh.setRenderStyle(GL2.GL_LINES);
+        myMesh.setRenderStyle(GL3.GL_LINES);
 
         //width.addPropertyChangeListener(e->updateMesh());
         //length.addPropertyChangeListener(e->updateMesh());
@@ -42,9 +42,9 @@ public class Grid extends ShapeComponent {
     }
 
     @Override
-    public void render(GL2 gl2) {
+    public void render(GL3 gl) {
         updateMesh();
-        super.render(gl2);
+        super.render(gl);
     }
 
     private void drawGridWithSnap(int gridWidth, int gridLength, int gridSpace) {
@@ -60,7 +60,7 @@ public class Grid extends ShapeComponent {
 
     /**
      * Draw a grid of lines in the current color
-     * @param gl2 the systems context
+     * @param gl the systems context
      * @param gridWidth the dimensions of the grid
      * @param gridLength the dimensions of the grid
      * @param gridSpace the distance between lines on the grid.

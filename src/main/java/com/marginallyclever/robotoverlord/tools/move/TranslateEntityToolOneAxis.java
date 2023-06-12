@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.Plane;
@@ -210,36 +210,35 @@ public class TranslateEntityToolOneAxis implements EditorTool {
     }
 
     @Override
-    public void render(GL2 gl2) {
+    public void render(GL3 gl) {
         if(selectedItems==null || selectedItems.isEmpty()) return;
 
         // Render the translation handle on the axis
-        boolean texture = OpenGLHelper.disableTextureStart(gl2);
-        boolean light = OpenGLHelper.disableLightingStart(gl2);
+        boolean texture = OpenGLHelper.disableTextureStart(gl);
+        boolean light = OpenGLHelper.disableLightingStart(gl);
 
-        gl2.glPushMatrix();
-        MatrixHelper.applyMatrix(gl2, pivotMatrix);
+        gl.glPushMatrix();
+        MatrixHelper.applyMatrix(gl, pivotMatrix);
 
         float [] colors = new float[4];
-        gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, colors, 0);
+        gl.glGetFloatv(GL3.GL_CURRENT_COLOR, colors, 0);
         double colorScale = cursorOverHandle ? 1:0.5;
-        gl2.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 1.0);
+        gl.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 1.0);
 
-        gl2.glBegin(GL2.GL_LINES);
-        gl2.glVertex3d(0, 0, 0);
-        gl2.glVertex3d(getHandleLengthScaled(), 0, 0);
-        gl2.glEnd();
+        gl.glBegin(GL3.GL_LINES);
+        gl.glVertex3d(0, 0, 0);
+        gl.glVertex3d(getHandleLengthScaled(), 0, 0);
+        gl.glEnd();
 
-        gl2.glTranslated(getHandleLengthScaled(), 0, 0);
+        gl.glTranslated(getHandleLengthScaled(), 0, 0);
 
         double grs = getGripRadiusScaled();
-        gl2.glScaled(grs,grs,grs);
-        handleSphere.render(gl2);
+        gl.glScaled(grs,grs,grs);
+        handleSphere.render(gl);
 
-        gl2.glPopMatrix();
+        gl.glPopMatrix();
 
-        OpenGLHelper.disableLightingEnd(gl2, light);
-        OpenGLHelper.disableTextureEnd(gl2, texture);
+        OpenGLHelper.disableTextureEnd(gl, texture);
     }
 
     @Override

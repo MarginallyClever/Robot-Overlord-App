@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.robots.stewartplatform.linear;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.*;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
@@ -182,85 +182,85 @@ public class LinearStewartPlatformCore extends RenderComponent {
 	}
 	
 	@Override
-	public void render(GL2 gl2) {
+	public void render(GL3 gl) {
 		PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
 
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, myPose.getLocal());
-			drawBase(gl2);
-			drawTopPlate(gl2);
-			if(debugEEPoints.get()) drawDebugEEPoints(gl2);
-			if(debugSlides.get()) drawDebugSlides(gl2);
-			if(debugArms.get()) drawDebugArms(gl2);
-		gl2.glPopMatrix();
+		gl.glPushMatrix();
+			MatrixHelper.applyMatrix(gl, myPose.getLocal());
+			drawBase(gl);
+			drawTopPlate(gl);
+			if(debugEEPoints.get()) drawDebugEEPoints(gl);
+			if(debugSlides.get()) drawDebugSlides(gl);
+			if(debugArms.get()) drawDebugArms(gl);
+		gl.glPopMatrix();
 	}
 
-	private void drawBase(GL2 gl2) {
+	private void drawBase(GL3 gl) {
 	}
 
-	private void drawTopPlate(GL2 gl2) {
-		MatrixHelper.drawMatrix(gl2, getEndEffectorPose(),5);
+	private void drawTopPlate(GL3 gl) {
+		MatrixHelper.drawMatrix(gl, getEndEffectorPose(),5);
 	}
 
 	public Matrix4d getEndEffectorPose() {
 		return eePose.getLocal();
 	}
 
-	private void drawDebugEEPoints(GL2 gl2) {
-		boolean wasLit = OpenGLHelper.disableLightingStart(gl2);
+	private void drawDebugEEPoints(GL3 gl) {
+		boolean wasLit = OpenGLHelper.disableLightingStart(gl);
 		Vector3d eeCenter = MatrixHelper.getPosition(eePose.getLocal());
-		gl2.glColor3d(1, 0, 0);
-		gl2.glBegin(GL2.GL_LINES);
+		gl.glColor3d(1, 0, 0);
+		gl.glBegin(GL3.GL_LINES);
 		for (LinearStewartPlatformArm arm : arms) {
-			gl2.glVertex3d(eeCenter.x, eeCenter.y, eeCenter.z);
-			gl2.glVertex3d(arm.pEE2.x,
+			gl.glVertex3d(eeCenter.x, eeCenter.y, eeCenter.z);
+			gl.glVertex3d(arm.pEE2.x,
 					arm.pEE2.y,
 					arm.pEE2.z);
-			gl2.glColor3d(0, 0, 0);
+			gl.glColor3d(0, 0, 0);
 		}
-		gl2.glEnd();
-		OpenGLHelper.disableLightingEnd(gl2,wasLit);
+		gl.glEnd();
+		OpenGLHelper.disableLightingEnd(gl,wasLit);
 	}
 
-	private void drawDebugSlides(GL2 gl2)  {
-		boolean wasLit = OpenGLHelper.disableLightingStart(gl2);
+	private void drawDebugSlides(GL3 gl)  {
+		boolean wasLit = OpenGLHelper.disableLightingStart(gl);
 		for(int i=0;i<arms.length;++i) {
-			renderOneLinearSlide(gl2,
+			renderOneLinearSlide(gl,
 					arms[i].pSlide,
 					BASE_Z.get(),
 					BASE_Z.get()+SLIDE_TRAVEL.get(),
 					i==0);
 		}
-		OpenGLHelper.disableLightingEnd(gl2,wasLit);
+		OpenGLHelper.disableLightingEnd(gl,wasLit);
 	}
 
-	protected void drawDebugArms(GL2 gl2) {
-		boolean wasLit = OpenGLHelper.disableLightingStart(gl2);
-		gl2.glColor3d(1, 0, 0);
-		gl2.glBegin(GL2.GL_LINES);
+	protected void drawDebugArms(GL3 gl) {
+		boolean wasLit = OpenGLHelper.disableLightingStart(gl);
+		gl.glColor3d(1, 0, 0);
+		gl.glBegin(GL3.GL_LINES);
 		for(int i=0;i<arms.length;++i) {
-			gl2.glVertex3d(arms[i].pEE2.x,
+			gl.glVertex3d(arms[i].pEE2.x,
 						   arms[i].pEE2.y,
 						   arms[i].pEE2.z);
-			gl2.glVertex3d( arms[i].pSlide.x,
+			gl.glVertex3d( arms[i].pSlide.x,
 							arms[i].pSlide.y,
 							arms[i].pSlide.z);
-			gl2.glColor3d(0, 0, 0);
+			gl.glColor3d(0, 0, 0);
 		}
-		gl2.glEnd();
-		OpenGLHelper.disableLightingEnd(gl2,wasLit);
+		gl.glEnd();
+		OpenGLHelper.disableLightingEnd(gl,wasLit);
 	}
 
-	private void renderOneLinearSlide(GL2 gl2,Point3d p,double min,double max,boolean first) {
-		gl2.glBegin(GL2.GL_LINES);
-		if(first) gl2.glColor3d(1, 0, 0);
-		else      gl2.glColor3d(0, 1, 0);
-		gl2.glVertex3d(p.x, p.y, min);
-		gl2.glVertex3d(p.x, p.y, p.z);
-		gl2.glColor3d(0, 0, 1);
-		gl2.glVertex3d(p.x, p.y, p.z);
-		gl2.glVertex3d(p.x, p.y, max);
-		gl2.glEnd();
+	private void renderOneLinearSlide(GL3 gl,Point3d p,double min,double max,boolean first) {
+		gl.glBegin(GL3.GL_LINES);
+		if(first) gl.glColor3d(1, 0, 0);
+		else      gl.glColor3d(0, 1, 0);
+		gl.glVertex3d(p.x, p.y, min);
+		gl.glVertex3d(p.x, p.y, p.z);
+		gl.glColor3d(0, 0, 1);
+		gl.glVertex3d(p.x, p.y, p.z);
+		gl.glVertex3d(p.x, p.y, max);
+		gl.glEnd();
 	}
 	
 	@Deprecated

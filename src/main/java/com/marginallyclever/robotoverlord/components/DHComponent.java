@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.entity.Entity;
@@ -271,10 +271,10 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
     }
 
     @Override
-    public void render(GL2 gl2) {
-        boolean lit = OpenGLHelper.disableLightingStart(gl2);
-        boolean tex = OpenGLHelper.disableTextureStart(gl2);
-        int onTop = OpenGLHelper.drawAtopEverythingStart(gl2);
+    public void render(GL3 gl) {
+        boolean lit = OpenGLHelper.disableLightingStart(gl);
+        boolean tex = OpenGLHelper.disableTextureStart(gl);
+        int onTop = OpenGLHelper.drawAtopEverythingStart(gl);
 
         Matrix4d m = getLocal();
         //m.invert();
@@ -291,7 +291,7 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
         m.transform(dr);
 
         myMesh.clear();
-        myMesh.setRenderStyle(GL2.GL_LINES);
+        myMesh.setRenderStyle(GL3.GL_LINES);
         myMesh.addColor(0,1,1,1);            myMesh.addVertex(0,0,0);
         myMesh.addColor(0,1,1,1);            myMesh.addVertex((float)d.x,(float)d.y,(float)d.z);
         myMesh.addColor(1,1,0,1);            myMesh.addVertex((float)d.x,(float)d.y,(float)d.z);
@@ -303,11 +303,11 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
         myMesh.addColor(0,1,0,1); myMesh.addVertex(0,5,0);
         myMesh.addColor(0,0,1,1); myMesh.addVertex(0,0,0);
         myMesh.addColor(0,0,1,1); myMesh.addVertex(0,0,5);
-        myMesh.render(gl2);
+        myMesh.render(gl);
 
-        OpenGLHelper.drawAtopEverythingEnd(gl2, onTop);
-        OpenGLHelper.disableTextureEnd(gl2, tex);
-        OpenGLHelper.disableLightingEnd(gl2, lit);
+        OpenGLHelper.drawAtopEverythingEnd(gl, onTop);
+        OpenGLHelper.disableTextureEnd(gl, tex);
+        OpenGLHelper.disableLightingEnd(gl, lit);
     }
 
     public void setRevolute(boolean b) {

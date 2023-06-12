@@ -261,7 +261,7 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
         listeners.remove(p);
     }
 
-    private void notifyPropertyChangeListeners(PropertyChangeEvent ee) {
+    private void firePropertyChangeEvent(PropertyChangeEvent ee) {
         for(PropertyChangeListener p : listeners) {
             p.propertyChange(ee);
         }
@@ -276,7 +276,7 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
         getBone(activeJoint).setJointValueWRTLimits(value);
         Matrix4d eeNew = getEndEffectorPose();
 
-        notifyPropertyChangeListeners(new PropertyChangeEvent(this,"ee",eeOld,eeNew));
+        firePropertyChangeEvent(new PropertyChangeEvent(this,"ee",eeOld,eeNew));
     }
 
     public void setAllJointValues(double[] angles) {
@@ -292,7 +292,7 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
         }
         if(changed) {
             Matrix4d eeNew = getEndEffectorPose();
-            notifyPropertyChangeListeners(new PropertyChangeEvent(this, "ee", eeOld, eeNew));
+            firePropertyChangeEvent(new PropertyChangeEvent(this, "ee", eeOld, eeNew));
         }
     }
 

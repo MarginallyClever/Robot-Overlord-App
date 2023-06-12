@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.robots.deltarobot3;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.communications.session.SessionLayer;
 import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
@@ -208,78 +208,78 @@ public class DeltaRobot3 extends RenderComponent implements Robot {
 	}
 
 	@Override
-	public void render(GL2 gl2) {
-		gl2.glPushMatrix();
+	public void render(GL3 gl) {
+		gl.glPushMatrix();
 
-		gl2.glTranslated(0,0,2);
+		gl.glTranslated(0,0,2);
 		
-		drawModel(gl2);
-		drawForearms(gl2);
-		drawDebugInfo(gl2);
+		drawModel(gl);
+		drawForearms(gl);
+		drawDebugInfo(gl);
 
-		gl2.glPopMatrix();
+		gl.glPopMatrix();
 	}
 
-	private void drawModel(GL2 gl2) {
-		modelBase.render(gl2);
+	private void drawModel(GL3 gl) {
+		modelBase.render(gl);
 
 		for(int i=0;i<NUM_ARMS;++i) {
-			gl2.glPushMatrix();
-			gl2.glTranslated(arms[i].shoulder.x,
+			gl.glPushMatrix();
+			gl.glTranslated(arms[i].shoulder.x,
 					arms[i].shoulder.y,
 					arms[i].shoulder.z);
-			gl2.glRotated(90,0,1,0);  // model oriented wrong direction
-			gl2.glRotated(60-i*(360.0f/NUM_ARMS), 1, 0, 0);
-			gl2.glTranslated(0, 0, 0.125f*2.54f);  // model origin wrong
-			gl2.glRotated(180-arms[i].angle,0,0,1);
-			modelArm.render(gl2);
-			gl2.glPopMatrix();
+			gl.glRotated(90,0,1,0);  // model oriented wrong direction
+			gl.glRotated(60-i*(360.0f/NUM_ARMS), 1, 0, 0);
+			gl.glTranslated(0, 0, 0.125f*2.54f);  // model origin wrong
+			gl.glRotated(180-arms[i].angle,0,0,1);
+			modelArm.render(gl);
+			gl.glPopMatrix();
 		}
 		//top
-		gl2.glPushMatrix();
-		gl2.glTranslated(motionNow.x,motionNow.y,motionNow.z);
-		modelTop.render(gl2);
-		gl2.glPopMatrix();
+		gl.glPushMatrix();
+		gl.glTranslated(motionNow.x,motionNow.y,motionNow.z);
+		modelTop.render(gl);
+		gl.glPopMatrix();
 	}
 
-	private void drawDebugInfo(GL2 gl2) {
-		gl2.glDisable(GL2.GL_LIGHTING);
-		gl2.glDisable(GL2.GL_TEXTURE);
+	private void drawDebugInfo(GL3 gl) {
+		gl.glDisable(GL3.GL_LIGHTING);
+		gl.glDisable(GL3.GL_TEXTURE);
 		// debug info
-		gl2.glPushMatrix();
+		gl.glPushMatrix();
 
 		for(DeltaRobot3Arm arm : arms) {
-			gl2.glColor3f(1,1,1);
-			PrimitiveSolids.drawStar(gl2, arm.shoulder,5);
-			PrimitiveSolids.drawStar(gl2, arm.elbow,3);
-			PrimitiveSolids.drawStar(gl2, arm.wrist,1);
+			gl.glColor3f(1,1,1);
+			PrimitiveSolids.drawStar(gl, arm.shoulder,5);
+			PrimitiveSolids.drawStar(gl, arm.elbow,3);
+			PrimitiveSolids.drawStar(gl, arm.wrist,1);
 
-			gl2.glBegin(GL2.GL_LINES);
-			gl2.glColor3f(0,1,0);
-			gl2.glVertex3d(arm.elbow.x,arm.elbow.y,arm.elbow.z);
-			gl2.glColor3f(0,0,1);
-			gl2.glVertex3d(arm.shoulder.x,arm.shoulder.y,arm.shoulder.z);
-			gl2.glEnd();
+			gl.glBegin(GL3.GL_LINES);
+			gl.glColor3f(0,1,0);
+			gl.glVertex3d(arm.elbow.x,arm.elbow.y,arm.elbow.z);
+			gl.glColor3f(0,0,1);
+			gl.glVertex3d(arm.shoulder.x,arm.shoulder.y,arm.shoulder.z);
+			gl.glEnd();
 		}
-		gl2.glPopMatrix();
+		gl.glPopMatrix();
 
 		// draw finger center (end effector)
-		gl2.glPushMatrix();
-		gl2.glTranslated(
+		gl.glPushMatrix();
+		gl.glTranslated(
 				motionNow.x,
 				motionNow.y,
 				motionNow.z);
-		PrimitiveSolids.drawStar(gl2, 5);
-		gl2.glPopMatrix();
+		PrimitiveSolids.drawStar(gl, 5);
+		gl.glPopMatrix();
 
-		PrimitiveSolids.drawStar(gl2, 2);
+		PrimitiveSolids.drawStar(gl, 2);
 
-		gl2.glEnable(GL2.GL_LIGHTING);
-		gl2.glEnable(GL2.GL_TEXTURE);
+		gl.glEnable(GL3.GL_LIGHTING);
+		gl.glEnable(GL3.GL_TEXTURE);
 
 	}
 
-	private void drawForearms(GL2 gl2) {
+	private void drawForearms(GL3 gl) {
 		Vector3d a = new Vector3d();
 		Vector3d b = new Vector3d();
 
@@ -299,7 +299,7 @@ public class DeltaRobot3 extends RenderComponent implements Robot {
 			b.scale(1);
 			a.add(b);
 			tube.SetP2(a);
-			tube.render(gl2);
+			tube.render(gl);
 
 			a.set(arm.wrist);
 			b.set(ortho);
@@ -311,7 +311,7 @@ public class DeltaRobot3 extends RenderComponent implements Robot {
 			b.scale(-1);
 			a.add(b);
 			tube.SetP2(a);
-			tube.render(gl2);
+			tube.render(gl);
 		}
 	}
 

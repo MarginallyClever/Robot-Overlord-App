@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.robots.skycam;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.entity.Entity;
@@ -38,17 +38,17 @@ public class Skycam extends RenderComponent {
 	}
 
 	@Override
-	public void render(GL2 gl2) {
+	public void render(GL3 gl) {
 		PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
 
-		gl2.glPushMatrix();
-		MatrixHelper.applyMatrix(gl2, myPose.getLocal());
+		gl.glPushMatrix();
+		MatrixHelper.applyMatrix(gl, myPose.getLocal());
 
 		// user controlled version
 		setPosition(MatrixHelper.getPosition(eePose.getLocal()));
-		renderModel(gl2);
+		renderModel(gl);
 
-		gl2.glPopMatrix();
+		gl.glPopMatrix();
 	}
 
 	public boolean setPosition(Vector3d p) {
@@ -66,22 +66,22 @@ public class Skycam extends RenderComponent {
 		return ok;
 	}
 
-	public void renderModel(GL2 gl2) {
-		gl2.glColor4d(1,1,1,1);
+	public void renderModel(GL3 gl) {
+		gl.glColor4d(1,1,1,1);
 
 		Vector3d s = size.get();
 		Point3d bottom = new Point3d(-s.x/2,-s.y/2,0);
 		Point3d top    = new Point3d(+s.x/2,+s.y/2,+s.z);
-		PrimitiveSolids.drawBoxWireframe(gl2, bottom,top);
+		PrimitiveSolids.drawBoxWireframe(gl, bottom,top);
 
 		Vector3d ep = eePose.getPosition();
-		gl2.glBegin(GL2.GL_LINES);
-		gl2.glVertex3d(ep.x,ep.y,ep.z);  gl2.glVertex3d(bottom.x,bottom.y,top.z);
-		gl2.glVertex3d(ep.x,ep.y,ep.z);  gl2.glVertex3d(bottom.x,top   .y,top.z);
-		gl2.glVertex3d(ep.x,ep.y,ep.z);  gl2.glVertex3d(top   .x,top   .y,top.z);
-		gl2.glVertex3d(ep.x,ep.y,ep.z);  gl2.glVertex3d(top   .x,bottom.y,top.z);
-		gl2.glEnd();
+		gl.glBegin(GL3.GL_LINES);
+		gl.glVertex3d(ep.x,ep.y,ep.z);  gl.glVertex3d(bottom.x,bottom.y,top.z);
+		gl.glVertex3d(ep.x,ep.y,ep.z);  gl.glVertex3d(bottom.x,top   .y,top.z);
+		gl.glVertex3d(ep.x,ep.y,ep.z);  gl.glVertex3d(top   .x,top   .y,top.z);
+		gl.glVertex3d(ep.x,ep.y,ep.z);  gl.glVertex3d(top   .x,bottom.y,top.z);
+		gl.glEnd();
 
-		gl2.glPopMatrix();
+		gl.glPopMatrix();
 	}
 }

@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
@@ -314,38 +314,38 @@ public class RotateEntityToolOneAxis implements EditorTool {
     /**
      * Renders any tool-specific visuals to the 3D scene.
      *
-     * @param gl2 The OpenGL systems context.
+     * @param gl The OpenGL systems context.
      */
     @Override
-    public void render(GL2 gl2) {
+    public void render(GL3 gl) {
         if(selectedItems==null || selectedItems.isEmpty()) return;
 
         // Render the rotation handles on the plane
-        boolean texture = OpenGLHelper.disableTextureStart(gl2);
-        boolean light = OpenGLHelper.disableLightingStart(gl2);
+        boolean texture = OpenGLHelper.disableTextureStart(gl);
+        boolean light = OpenGLHelper.disableLightingStart(gl);
 
-        drawMainRingAndHandles(gl2);
-        if(dragging) drawWhileDragging(gl2);
+        drawMainRingAndHandles(gl);
+        if(dragging) drawWhileDragging(gl);
 
-        OpenGLHelper.disableLightingEnd(gl2, light);
-        OpenGLHelper.disableTextureEnd(gl2, texture);
+        OpenGLHelper.disableLightingEnd(gl, light);
+        OpenGLHelper.disableTextureEnd(gl, texture);
     }
 
-    private void drawWhileDragging(GL2 gl2) {
-        gl2.glColor3d(1,1,1);
+    private void drawWhileDragging(GL3 gl) {
+        gl.glColor3d(1,1,1);
 
-        gl2.glPushMatrix();
+        gl.glPushMatrix();
 
-        gl2.glTranslated(startMatrix.m03, startMatrix.m13, startMatrix.m23);
+        gl.glTranslated(startMatrix.m03, startMatrix.m13, startMatrix.m23);
         Vector3d xAxis = MatrixHelper.getXAxis(startMatrix);
         Vector3d yAxis = MatrixHelper.getYAxis(startMatrix);
 
         double rr = getRingRadiusScaled();
 
-        gl2.glBegin(GL2.GL_LINES);
+        gl.glBegin(GL3.GL_LINES);
         // major line
-        gl2.glVertex3d(0,0,0);
-        gl2.glVertex3d(xAxis.x*rr, xAxis.y*rr, xAxis.z*rr);
+        gl.glVertex3d(0,0,0);
+        gl.glVertex3d(xAxis.x*rr, xAxis.y*rr, xAxis.z*rr);
 
         double d0 = rr * TICK_RATIO_INSIDE_45;
         double d1 = rr * TICK_RATIO_OUTSIDE_45;
@@ -356,8 +356,8 @@ public class RotateEntityToolOneAxis implements EditorTool {
             a.scale(Math.cos(Math.toRadians(i)));
             b.scale(Math.sin(Math.toRadians(i)));
             a.add(b);
-            gl2.glVertex3d(a.x*d0, a.y*d0, a.z*d0);
-            gl2.glVertex3d(a.x*d1, a.y*d1, a.z*d1);
+            gl.glVertex3d(a.x*d0, a.y*d0, a.z*d0);
+            gl.glVertex3d(a.x*d1, a.y*d1, a.z*d1);
         }
 
         // 5 and 10 degree lines
@@ -374,53 +374,53 @@ public class RotateEntityToolOneAxis implements EditorTool {
                 d0 = rr * TICK_RATIO_INSIDE_5;
                 d1 = rr * TICK_RATIO_OUTSIDE_5;
             }
-            gl2.glVertex3d(a.x*d0, a.y*d0, a.z*d0);
-            gl2.glVertex3d(a.x*d1, a.y*d1, a.z*d1);
+            gl.glVertex3d(a.x*d0, a.y*d0, a.z*d0);
+            gl.glVertex3d(a.x*d1, a.y*d1, a.z*d1);
         }
 
-        gl2.glEnd();
-        gl2.glPopMatrix();
+        gl.glEnd();
+        gl.glPopMatrix();
 
-        gl2.glPushMatrix();
-        MatrixHelper.applyMatrix(gl2, pivotMatrix);
-        drawLine(gl2,new Vector3d(1,0,0),rr);
+        gl.glPushMatrix();
+        MatrixHelper.applyMatrix(gl, pivotMatrix);
+        drawLine(gl,new Vector3d(1,0,0),rr);
 
-        gl2.glPopMatrix();
+        gl.glPopMatrix();
     }
 
-    private void drawMainRingAndHandles(GL2 gl2) {
-        gl2.glPushMatrix();
+    private void drawMainRingAndHandles(GL3 gl) {
+        gl.glPushMatrix();
 
-        MatrixHelper.applyMatrix(gl2, pivotMatrix);
+        MatrixHelper.applyMatrix(gl, pivotMatrix);
 
         float [] colors = new float[4];
-        gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, colors, 0);
+        gl.glGetFloatv(GL3.GL_CURRENT_COLOR, colors, 0);
         double colorScale = cursorOverHandle ? 1:0.5;
-        gl2.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 1.0);
+        gl.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 1.0);
 
-        PrimitiveSolids.drawCircleXY(gl2, getRingRadiusScaled(), ringResolution);
+        PrimitiveSolids.drawCircleXY(gl, getRingRadiusScaled(), ringResolution);
 
-        gl2.glTranslated(getHandleLengthScaled(),getHandleOffsetYScaled(),0);
+        gl.glTranslated(getHandleLengthScaled(),getHandleOffsetYScaled(),0);
         double v = getGripRadiusScaled();
-        gl2.glPushMatrix();
-        gl2.glScaled(v, v, v);
-        handleBox.render(gl2);
-        gl2.glPopMatrix();
+        gl.glPushMatrix();
+        gl.glScaled(v, v, v);
+        handleBox.render(gl);
+        gl.glPopMatrix();
 
-        gl2.glTranslated(0,-2*getHandleOffsetYScaled(),0);
-        gl2.glPushMatrix();
-        gl2.glScaled(v, v, v);
-        handleBox.render(gl2);
-        gl2.glPopMatrix();
+        gl.glTranslated(0,-2*getHandleOffsetYScaled(),0);
+        gl.glPushMatrix();
+        gl.glScaled(v, v, v);
+        handleBox.render(gl);
+        gl.glPopMatrix();
 
-        gl2.glPopMatrix();
+        gl.glPopMatrix();
     }
 
-    private void drawLine(GL2 gl2, Tuple3d dest,double scale) {
-        gl2.glBegin(GL2.GL_LINES);
-        gl2.glVertex3d(0,0,0);
-        gl2.glVertex3d(dest.x*scale,dest.y*scale,dest.z*scale);
-        gl2.glEnd();
+    private void drawLine(GL3 gl, Tuple3d dest,double scale) {
+        gl.glBegin(GL3.GL_LINES);
+        gl.glVertex3d(0,0,0);
+        gl.glVertex3d(dest.x*scale,dest.y*scale,dest.z*scale);
+        gl.glEnd();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.robots.stewartplatform.linear;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
@@ -34,29 +34,29 @@ public class LinearStewartPlatform1 extends LinearStewartPlatformCore {
     }
 
     @Override
-    public void render(GL2 gl2) {
-        super.render(gl2);
+    public void render(GL3 gl) {
+        super.render(gl);
 
         PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
 
-        gl2.glPushMatrix();
+        gl.glPushMatrix();
             // draw the base
-            MatrixHelper.applyMatrix(gl2, myPose.getLocal());
-            baseModel.render(gl2);
+            MatrixHelper.applyMatrix(gl, myPose.getLocal());
+            baseModel.render(gl);
 
             // draw the end effector
-            gl2.glPushMatrix();
-                MatrixHelper.applyMatrix(gl2, getEndEffectorPose());
-                eeModel.render(gl2);
-            gl2.glPopMatrix();
+            gl.glPushMatrix();
+                MatrixHelper.applyMatrix(gl, getEndEffectorPose());
+                eeModel.render(gl);
+            gl.glPopMatrix();
 
-            drawArms(gl2);
+            drawArms(gl);
 
-        gl2.glPopMatrix();
+        gl.glPopMatrix();
     }
 
     // draw the arms (some work to get each matrix...)
-    public void drawArms(GL2 gl2) {
+    public void drawArms(GL3 gl) {
         Matrix4d m = new Matrix4d();
         for (LinearStewartPlatformArm arm : arms) {
             // we need the pose of each bone to draw the mesh.
@@ -100,10 +100,10 @@ public class LinearStewartPlatform1 extends LinearStewartPlatformCore {
             m.m23 = arm.pSlide.z;
             m.m33 = 1;
 
-            gl2.glPushMatrix();
-            MatrixHelper.applyMatrix(gl2, m);
-            armModel.render(gl2);
-            gl2.glPopMatrix();
+            gl.glPushMatrix();
+            MatrixHelper.applyMatrix(gl, m);
+            armModel.render(gl);
+            gl.glPopMatrix();
         }
     }
 }

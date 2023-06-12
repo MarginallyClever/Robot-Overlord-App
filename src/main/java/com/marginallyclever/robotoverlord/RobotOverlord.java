@@ -24,7 +24,7 @@ import com.marginallyclever.robotoverlord.systems.*;
 import com.marginallyclever.robotoverlord.systems.robot.RobotGripperSystem;
 import com.marginallyclever.robotoverlord.systems.vehicle.VehicleSystem;
 import com.marginallyclever.robotoverlord.systems.robot.crab.CrabRobotSystem;
-import com.marginallyclever.robotoverlord.systems.robot.robotarm.ArmRobotSystem;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.RobotArmSystem;
 import com.marginallyclever.robotoverlord.systems.robot.dog.DogRobotSystem;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.ProgramExecutorSystem;
 import com.marginallyclever.util.PropertiesFileHelper;
@@ -189,7 +189,7 @@ public class RobotOverlord {
 		addSystem(new RenderSystem());
 		addSystem(new OriginAdjustSystem());
 		//addSystem(new SoundSystem());
-		addSystem(new ArmRobotSystem(project.getEntityManager()));
+		addSystem(new RobotArmSystem(project.getEntityManager()));
 		addSystem(new DogRobotSystem(project.getEntityManager()));
 		addSystem(new CrabRobotSystem(project.getEntityManager()));
 		addSystem(new ProgramExecutorSystem(project.getEntityManager()));

@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.SerializationContext;
@@ -42,24 +42,24 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
     }
 
     @Override
-    public void render(GL2 gl2) {
+    public void render(GL3 gl) {
         if(gCodePath==null) return;
 
-        boolean tex = OpenGLHelper.disableTextureStart(gl2);
-        boolean light = OpenGLHelper.disableLightingStart(gl2);
+        boolean tex = OpenGLHelper.disableTextureStart(gl);
+        boolean light = OpenGLHelper.disableLightingStart(gl);
 
-        drawEntirePath(gl2);
+        drawEntirePath(gl);
 
-        OpenGLHelper.disableTextureEnd(gl2,tex);
-        OpenGLHelper.disableLightingEnd(gl2,light);
+        OpenGLHelper.disableTextureEnd(gl,tex);
+        OpenGLHelper.disableLightingEnd(gl,light);
     }
 
-    private void drawEntirePath(GL2 gl2) {
+    private void drawEntirePath(GL3 gl) {
         PathWalker pathWalker = new PathWalker(null,gCodePath,maxStepSize);
-        gl2.glBegin(GL2.GL_LINE_STRIP);
+        gl.glBegin(GL3.GL_LINE_STRIP);
 
         double prevX = 0, prevY = 0, prevZ = 0;
-        gl2.glColor4d(0, 0, 1,0.25);
+        gl.glColor4d(0, 0, 1,0.25);
 
         while (pathWalker.hasNext()) {
             pathWalker.next();
@@ -70,23 +70,23 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
             if (command.equalsIgnoreCase("G0") || command.equalsIgnoreCase("G1")) {
                 if(currentElement.getExtrusion()==null) {
                     // rapid
-                    gl2.glColor4d(0, 0, 1,0.25);
+                    gl.glColor4d(0, 0, 1,0.25);
                 } else {
                     // extrusion / milling movement
-                    gl2.glColor3d(1, 0, 0);
+                    gl.glColor3d(1, 0, 0);
                 }
-                gl2.glVertex3d(currentPosition.x,currentPosition.y,currentPosition.z);
+                gl.glVertex3d(currentPosition.x,currentPosition.y,currentPosition.z);
             } else if (command.equalsIgnoreCase("G2") || command.equalsIgnoreCase("G3")) {
                 // arc
-                gl2.glColor3d(0, 1, 0);
-                gl2.glVertex3d(currentPosition.x,currentPosition.y,currentPosition.z);
+                gl.glColor3d(0, 1, 0);
+                gl.glVertex3d(currentPosition.x,currentPosition.y,currentPosition.z);
             } // else unknown, ignore.
         }
 
-        gl2.glEnd();
+        gl.glEnd();
 
         if(location!=null) {
-            PrimitiveSolids.drawStar(gl2,location,3);
+            PrimitiveSolids.drawStar(gl,location,3);
         }
     }
 

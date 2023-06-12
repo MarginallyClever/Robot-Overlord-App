@@ -1,6 +1,6 @@
 package com.marginallyclever.convenience;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 
 import javax.vecmath.Vector3d;
 
@@ -87,12 +87,12 @@ public class Cylinder implements BoundingVolume {
 		f.normalize();
 	}
 	
-	public void render(GL2 gl2) {
+	public void render(GL3 gl) {
 		/*
-		gl2.glBegin(GL2.GL_LINES);
-		gl2.glVertex3d(this.GetP1().x, this.GetP1().y, this.GetP1().z);
-		gl2.glVertex3d(this.GetP2().x, this.GetP2().y, this.GetP2().z);
-		gl2.glEnd();
+		gl.glBegin(GL3.GL_LINES);
+		gl.glVertex3d(this.GetP1().x, this.GetP1().y, this.GetP1().z);
+		gl.glVertex3d(this.GetP2().x, this.GetP2().y, this.GetP2().z);
+		gl.glEnd();
 		*/
 
 		Vector3d tx = new Vector3d();
@@ -105,8 +105,8 @@ public class Cylinder implements BoundingVolume {
 		int c=10;
 		
 		// left
-		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-		gl2.glNormal3d(-this.GetN().x,-this.GetN().y,-this.GetN().z);
+		gl.glBegin(GL3.GL_TRIANGLE_FAN);
+		gl.glNormal3d(-this.GetN().x,-this.GetN().y,-this.GetN().z);
 		for(i=0;i<=c;++i) {
 			tx.set(this.GetR());
 			ty.set(this.GetF());
@@ -117,12 +117,12 @@ public class Cylinder implements BoundingVolume {
 			t1.set(this.GetP1());
 			t1.add(tx);
 			t1.add(ty);
-			gl2.glVertex3d(t1.x,t1.y,t1.z);
+			gl.glVertex3d(t1.x,t1.y,t1.z);
 		}
-		gl2.glEnd();
+		gl.glEnd();
 		// right
-		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-		gl2.glNormal3d(this.GetN().x,this.GetN().y,this.GetN().z);
+		gl.glBegin(GL3.GL_TRIANGLE_FAN);
+		gl.glNormal3d(this.GetN().x,this.GetN().y,this.GetN().z);
 		for(i=0;i<=c;++i) {
 			tx.set(this.GetR());
 			ty.set(this.GetF());
@@ -133,12 +133,12 @@ public class Cylinder implements BoundingVolume {
 			t1.set(this.GetP2());
 			t1.add(tx);
 			t1.add(ty);
-			gl2.glVertex3d(t1.x,t1.y,t1.z);
+			gl.glVertex3d(t1.x,t1.y,t1.z);
 		}
-		gl2.glEnd();
+		gl.glEnd();
 
 		// edge
-		gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
+		gl.glBegin(GL3.GL_TRIANGLE_STRIP);
 		for(i=0;i<=c;++i) {
 			tx.set(this.GetR());
 			ty.set(this.GetF());
@@ -154,12 +154,12 @@ public class Cylinder implements BoundingVolume {
 			t2.add(ty);
 			n.set(t2);
 			n.normalize();
-			gl2.glNormal3d(n.x,n.y,n.z);
+			gl.glNormal3d(n.x,n.y,n.z);
 			t2.add(this.GetP2());
-			gl2.glVertex3d(t1.x,t1.y,t1.z);
-			gl2.glVertex3d(t2.x,t2.y,t2.z);
+			gl.glVertex3d(t1.x,t1.y,t1.z);
+			gl.glVertex3d(t2.x,t2.y,t2.z);
 			
 		}
-		gl2.glEnd();
+		gl.glEnd();
 	}
 }

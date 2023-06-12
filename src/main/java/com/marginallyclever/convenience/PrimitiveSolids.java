@@ -1,6 +1,6 @@
 package com.marginallyclever.convenience;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 
@@ -18,40 +18,40 @@ import java.nio.IntBuffer;
  * @since 2.5.0
  */
 public class PrimitiveSolids {
-	static public void drawCircleYZ(GL2 gl2,double radius,int steps) {
+	static public void drawCircleYZ(GL3 gl,double radius,int steps) {
 		double stepSize = Math.PI*2 / (double)(steps+1);
 		
-		gl2.glBegin(GL2.GL_LINE_LOOP);
+		gl.glBegin(GL3.GL_LINE_LOOP);
 		for(double n=0;n<Math.PI*2;n+=stepSize) {
 			double c = Math.cos(n);
 			double s = Math.sin(n);
-			gl2.glVertex3d(0,c*radius, s*radius);
+			gl.glVertex3d(0,c*radius, s*radius);
 		}
-		gl2.glEnd();
+		gl.glEnd();
 	}
 	
-	static public void drawCircleXZ(GL2 gl2,double radius,int steps) {
+	static public void drawCircleXZ(GL3 gl,double radius,int steps) {
 		double stepSize = Math.PI*2 / (double)(steps+1);
 		
-		gl2.glBegin(GL2.GL_LINE_LOOP);
+		gl.glBegin(GL3.GL_LINE_LOOP);
 		for(double n=0;n<Math.PI*2;n+=stepSize) {
 			double c = Math.cos(n);
 			double s = Math.sin(n);
-			gl2.glVertex3d(c*radius,0, s*radius);
+			gl.glVertex3d(c*radius,0, s*radius);
 		}
-		gl2.glEnd();
+		gl.glEnd();
 	}
 	
-	static public void drawCircleXY(GL2 gl2,double radius,int steps) {
+	static public void drawCircleXY(GL3 gl,double radius,int steps) {
 		double stepSize = Math.PI*2 / (double)(steps+1);
 		
-		gl2.glBegin(GL2.GL_LINE_LOOP);
+		gl.glBegin(GL3.GL_LINE_LOOP);
 		for(double n=0;n<Math.PI*2;n+=stepSize) {
 			double c = Math.cos(n);
 			double s = Math.sin(n);
-			gl2.glVertex3d(c*radius, s*radius,0);
+			gl.glVertex3d(c*radius, s*radius,0);
 		}
-		gl2.glEnd();
+		gl.glEnd();
 	}
 	
 	/**
@@ -59,10 +59,10 @@ public class PrimitiveSolids {
 	 * TODO expose quality parameters?
 	 * TODO generate a sphere once as a shape, return that.
 	 * See <a href="https://www.gamedev.net/forums/topic/537269-procedural-sphere-creation/4469427/">Gamedev.net</a>
-	 * @param gl2 OpenGL context
+	 * @param gl OpenGL context
 	 * @param radius radius of the sphere
 	 */
-	static public void drawSphere(GL2 gl2,double radius) {
+	static public void drawSphere(GL3 gl,double radius) {
 		int height = 16;
 		int width = height*2;
 		
@@ -118,157 +118,157 @@ public class PrimitiveSolids {
 		final int NUM_BUFFERS=1;
 		final int[] VBO = new int[NUM_BUFFERS];
 
-		gl2.glGenBuffers(NUM_BUFFERS, VBO, 0);
-		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, VBO[0]);
+		gl.glGenBuffers(NUM_BUFFERS, VBO, 0);
+		gl.glBindBuffer(GL3.GL_ARRAY_BUFFER, VBO[0]);
 	    // Write out vertex buffer to the currently bound VBO.
-	    gl2.glBufferData(GL2.GL_ARRAY_BUFFER, (long) ver.length * BYTES_PER_FLOAT, vertices, GL2.GL_STATIC_DRAW);
+	    gl.glBufferData(GL3.GL_ARRAY_BUFFER, (long) ver.length * BYTES_PER_FLOAT, vertices, GL3.GL_STATIC_DRAW);
 
-		gl2.glEnableClientState(GL2.GL_VERTEX_ARRAY);
-		gl2.glVertexPointer(3,GL2.GL_FLOAT,0,0);
+		gl.glEnableClientState(GL3.GL_VERTEX_ARRAY);
+		gl.glVertexPointer(3,GL3.GL_FLOAT,0,0);
 		
-		gl2.glEnableClientState(GL2.GL_NORMAL_ARRAY);
-		gl2.glNormalPointer(GL2.GL_FLOAT,0,0);
+		gl.glEnableClientState(GL3.GL_NORMAL_ARRAY);
+		gl.glNormalPointer(GL3.GL_FLOAT,0,0);
 
-		gl2.glPushMatrix();
-		gl2.glScaled(radius, radius, radius);
-		gl2.glDrawElements(GL2.GL_TRIANGLES, ntri * 3, GL2.GL_UNSIGNED_INT, indexes);
-		gl2.glPopMatrix();
+		gl.glPushMatrix();
+		gl.glScaled(radius, radius, radius);
+		gl.glDrawElements(GL3.GL_TRIANGLES, ntri * 3, GL3.GL_UNSIGNED_INT, indexes);
+		gl.glPopMatrix();
 
-		gl2.glDisableClientState(GL2.GL_NORMAL_ARRAY);
-		gl2.glDisableClientState(GL2.GL_VERTEX_ARRAY);
+		gl.glDisableClientState(GL3.GL_NORMAL_ARRAY);
+		gl.glDisableClientState(GL3.GL_VERTEX_ARRAY);
 		
-		gl2.glDeleteBuffers(NUM_BUFFERS, VBO, 0);
+		gl.glDeleteBuffers(NUM_BUFFERS, VBO, 0);
 	}
 
 	/**
 	 * Draw a cylinder with a base at the origin
-	 * @param gl2 systems context
+	 * @param gl systems context
 	 * @param height height of the cylinder
 	 * @param radius radius in the XY plane
 	 */
-	static public void drawCylinderAlongZ(GL2 gl2, double height, double radius) {
-		gl2.glPushMatrix();
+	static public void drawCylinderAlongZ(GL3 gl, double height, double radius) {
+		gl.glPushMatrix();
 		if(height<0) {
 			height=-height;
-			gl2.glTranslated(0,0,-height);
+			gl.glTranslated(0,0,-height);
 		}
-		gl2.glTranslated(0,0,height/2);
-		drawCenteredCylinderAlongZ(gl2,height,radius);
+		gl.glTranslated(0,0,height/2);
+		drawCenteredCylinderAlongZ(gl,height,radius);
 
-		gl2.glPopMatrix();
+		gl.glPopMatrix();
 	}
 
 	/**
 	 * Draw a cylinder with a base in the center of the cylinder
-	 * @param gl2 systems context
+	 * @param gl systems context
 	 * @param height height of the cylinder
 	 * @param radius radius in the XY plane
 	 */
-	static public void drawCenteredCylinderAlongZ(GL2 gl2, double height, double radius) {
+	static public void drawCenteredCylinderAlongZ(GL3 gl, double height, double radius) {
 		double i;
 		double resolution=36;
 
 		height/=2;
 
 		// top
-		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-		gl2.glNormal3d(0,0,-1);
+		gl.glBegin(GL3.GL_TRIANGLE_FAN);
+		gl.glNormal3d(0,0,-1);
 		for(i=0;i<=resolution;++i) {
 			double ratio= Math.PI * 2.0f * i/resolution;
-			gl2.glVertex3d(Math.sin(ratio)*radius,
+			gl.glVertex3d(Math.sin(ratio)*radius,
 							Math.cos(ratio)*radius,
 							-height);
 		}
-		gl2.glEnd();
+		gl.glEnd();
 		// bottom
-		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-		gl2.glNormal3d(0,0,1);
+		gl.glBegin(GL3.GL_TRIANGLE_FAN);
+		gl.glNormal3d(0,0,1);
 		for(i=0;i<=resolution;++i) {
 			double ratio= Math.PI * 2.0f * i/resolution;
-			gl2.glVertex3d(Math.cos(ratio)*radius,
+			gl.glVertex3d(Math.cos(ratio)*radius,
 							Math.sin(ratio)*radius,
 							height);
 		}
-		gl2.glEnd();
+		gl.glEnd();
 
 		// sides
-		gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
+		gl.glBegin(GL3.GL_TRIANGLE_STRIP);
 		for(i=0;i<=resolution;++i) {
 			double ratio= Math.PI * 2.0f * i/resolution;
 			double s = Math.sin(ratio)*radius;
 			double c = Math.cos(ratio)*radius;
-			gl2.glNormal3d(c,s,0);
-			gl2.glVertex3d(c,s,height);
-			gl2.glVertex3d(c,s,-height);
+			gl.glNormal3d(c,s,0);
+			gl.glVertex3d(c,s,height);
+			gl.glVertex3d(c,s,-height);
 		}
-		gl2.glEnd();
+		gl.glEnd();
 	}
 	
 	/**
 	 * draw box based on depth,width, and height with the origin in the bottom center.
-	 * @param gl2 systems context
+	 * @param gl systems context
 	 * @param depth y axis
 	 * @param width x axis
 	 * @param height z axis
 	 */
-	static public void drawBox(GL2 gl2,double depth,double width,double height) {
+	static public void drawBox(GL3 gl,double depth,double width,double height) {
 		width/=2;
 		depth/=2;
 
-		gl2.glPushMatrix();
-		gl2.glBegin(GL2.GL_QUADS);
+		gl.glPushMatrix();
+		gl.glBegin(GL3.GL_QUADS);
 		// bottom
-		gl2.glNormal3f( 0, 0,-1);
-		gl2.glVertex3d(-width, depth,0);
-		gl2.glVertex3d( width, depth,0);
-		gl2.glVertex3d( width,-depth,0);
-		gl2.glVertex3d(-width,-depth,0);
+		gl.glNormal3f( 0, 0,-1);
+		gl.glVertex3d(-width, depth,0);
+		gl.glVertex3d( width, depth,0);
+		gl.glVertex3d( width,-depth,0);
+		gl.glVertex3d(-width,-depth,0);
 
 		// top
-		gl2.glNormal3f( 0, 0, 1);
-		gl2.glVertex3d( width, depth,height);
-		gl2.glVertex3d(-width, depth,height);
-		gl2.glVertex3d(-width,-depth,height);
-		gl2.glVertex3d( width,-depth,height);
+		gl.glNormal3f( 0, 0, 1);
+		gl.glVertex3d( width, depth,height);
+		gl.glVertex3d(-width, depth,height);
+		gl.glVertex3d(-width,-depth,height);
+		gl.glVertex3d( width,-depth,height);
 
 		
 		// side
-		gl2.glNormal3f( 0, 1, 0);
-		gl2.glVertex3d(-width, depth,height);
-		gl2.glVertex3d( width, depth,height);
-		gl2.glVertex3d( width, depth,0);
-		gl2.glVertex3d(-width, depth,0);
+		gl.glNormal3f( 0, 1, 0);
+		gl.glVertex3d(-width, depth,height);
+		gl.glVertex3d( width, depth,height);
+		gl.glVertex3d( width, depth,0);
+		gl.glVertex3d(-width, depth,0);
 		
-		gl2.glNormal3f( 0,-1, 0);
-		gl2.glVertex3d( width,-depth,height);
-		gl2.glVertex3d(-width,-depth,height);
-		gl2.glVertex3d(-width,-depth,0);
-		gl2.glVertex3d( width,-depth,0);
+		gl.glNormal3f( 0,-1, 0);
+		gl.glVertex3d( width,-depth,height);
+		gl.glVertex3d(-width,-depth,height);
+		gl.glVertex3d(-width,-depth,0);
+		gl.glVertex3d( width,-depth,0);
 
-		gl2.glNormal3f( 1, 0, 0);
-		gl2.glVertex3d( width, depth,0);
-		gl2.glVertex3d( width, depth,height);
-		gl2.glVertex3d( width,-depth,height);
-		gl2.glVertex3d( width,-depth,0);
+		gl.glNormal3f( 1, 0, 0);
+		gl.glVertex3d( width, depth,0);
+		gl.glVertex3d( width, depth,height);
+		gl.glVertex3d( width,-depth,height);
+		gl.glVertex3d( width,-depth,0);
 	
-		gl2.glNormal3f(-1, 0, 0);
-		gl2.glVertex3d(-width,-depth,height);
-		gl2.glVertex3d(-width, depth,height);
-		gl2.glVertex3d(-width, depth,0);
-		gl2.glVertex3d(-width,-depth,0);
+		gl.glNormal3f(-1, 0, 0);
+		gl.glVertex3d(-width,-depth,height);
+		gl.glVertex3d(-width, depth,height);
+		gl.glVertex3d(-width, depth,0);
+		gl.glVertex3d(-width,-depth,0);
 
-		gl2.glEnd();
+		gl.glEnd();
 		
-		gl2.glPopMatrix();
+		gl.glPopMatrix();
 	}
 
 	/**
 	 * draw box based on two corners
-	 * @param gl2 systems context
+	 * @param gl systems context
 	 * @param bottom minimum bounds
 	 * @param top maximum bounds
 	 */
-	static public void drawBox(GL2 gl2,Tuple3d bottom,Tuple3d top) {
+	static public void drawBox(GL3 gl,Tuple3d bottom,Tuple3d top) {
 		double x0=bottom.x;
 		double y0=bottom.y;
 		double z0=bottom.z;
@@ -276,14 +276,14 @@ public class PrimitiveSolids {
 		double y1=top.y;
 		double z1=top.z;
 
-		gl2.glBegin(GL2.GL_QUADS);
-			gl2.glNormal3f( 0, 0,-1);	gl2.glVertex3d(x0,y1,z0);	gl2.glVertex3d(x1,y1,z0);	gl2.glVertex3d(x1,y0,z0);	gl2.glVertex3d(x0,y0,z0);  // bottom
-			gl2.glNormal3f( 0, 0, 1);	gl2.glVertex3d(x1,y1,z1);	gl2.glVertex3d(x0,y1,z1);	gl2.glVertex3d(x0,y0,z1);	gl2.glVertex3d(x1,y0,z1);  // top
-			gl2.glNormal3f( 0, 1, 0);	gl2.glVertex3d(x0,y1,z1);	gl2.glVertex3d(x1,y1,z1);	gl2.glVertex3d(x1,y1,z0);	gl2.glVertex3d(x0,y1,z0);  // side
-			gl2.glNormal3f( 0,-1, 0);	gl2.glVertex3d(x1,y0,z1);	gl2.glVertex3d(x0,y0,z1);	gl2.glVertex3d(x0,y0,z0);	gl2.glVertex3d(x1,y0,z0);
-			gl2.glNormal3f( 1, 0, 0);	gl2.glVertex3d(x1,y1,z0);	gl2.glVertex3d(x1,y1,z1);	gl2.glVertex3d(x1,y0,z1);	gl2.glVertex3d(x1,y0,z0);
-			gl2.glNormal3f(-1, 0, 0);	gl2.glVertex3d(x0,y0,z1);	gl2.glVertex3d(x0,y1,z1);	gl2.glVertex3d(x0,y1,z0);	gl2.glVertex3d(x0,y0,z0);
-		gl2.glEnd();
+		gl.glBegin(GL3.GL_QUADS);
+			gl.glNormal3f( 0, 0,-1);	gl.glVertex3d(x0,y1,z0);	gl.glVertex3d(x1,y1,z0);	gl.glVertex3d(x1,y0,z0);	gl.glVertex3d(x0,y0,z0);  // bottom
+			gl.glNormal3f( 0, 0, 1);	gl.glVertex3d(x1,y1,z1);	gl.glVertex3d(x0,y1,z1);	gl.glVertex3d(x0,y0,z1);	gl.glVertex3d(x1,y0,z1);  // top
+			gl.glNormal3f( 0, 1, 0);	gl.glVertex3d(x0,y1,z1);	gl.glVertex3d(x1,y1,z1);	gl.glVertex3d(x1,y1,z0);	gl.glVertex3d(x0,y1,z0);  // side
+			gl.glNormal3f( 0,-1, 0);	gl.glVertex3d(x1,y0,z1);	gl.glVertex3d(x0,y0,z1);	gl.glVertex3d(x0,y0,z0);	gl.glVertex3d(x1,y0,z0);
+			gl.glNormal3f( 1, 0, 0);	gl.glVertex3d(x1,y1,z0);	gl.glVertex3d(x1,y1,z1);	gl.glVertex3d(x1,y0,z1);	gl.glVertex3d(x1,y0,z0);
+			gl.glNormal3f(-1, 0, 0);	gl.glVertex3d(x0,y0,z1);	gl.glVertex3d(x0,y1,z1);	gl.glVertex3d(x0,y1,z0);	gl.glVertex3d(x0,y0,z0);
+		gl.glEnd();
 	}
 
 	public static Point3d[] get8PointsOfBox(Point3d bottom, Point3d top) {
@@ -308,13 +308,13 @@ public class PrimitiveSolids {
 
 	/**
 	 * draw box based on two corners
-	 * @param gl2 systems context
+	 * @param gl systems context
 	 * @param bottom minimum bounds
 	 * @param top maximum bounds
 	 */
-	static public void drawBoxWireframe(GL2 gl2,Tuple3d bottom,Tuple3d top) {
-		boolean tex = OpenGLHelper.disableTextureStart(gl2);
-		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
+	static public void drawBoxWireframe(GL3 gl,Tuple3d bottom,Tuple3d top) {
+		boolean tex = OpenGLHelper.disableTextureStart(gl);
+		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl);
 		
 		double x0=bottom.x;
 		double y0=bottom.y;
@@ -323,66 +323,66 @@ public class PrimitiveSolids {
 		double y1=top.y;
 		double z1=top.z;
 
-		gl2.glBegin(GL2.GL_LINE_LOOP);	gl2.glNormal3f( 0, 0,-1);	gl2.glVertex3d(x0,y1,z0);	gl2.glVertex3d(x1,y1,z0);	gl2.glVertex3d(x1,y0,z0);	gl2.glVertex3d(x0,y0,z0);	gl2.glEnd();  // bottom	
-		gl2.glBegin(GL2.GL_LINE_LOOP);	gl2.glNormal3f( 0, 0, 1);	gl2.glVertex3d(x1,y1,z1);	gl2.glVertex3d(x0,y1,z1);	gl2.glVertex3d(x0,y0,z1);	gl2.glVertex3d(x1,y0,z1);	gl2.glEnd();  // top
-		gl2.glBegin(GL2.GL_LINE_LOOP);	gl2.glNormal3f( 0, 1, 0);	gl2.glVertex3d(x0,y1,z1);	gl2.glVertex3d(x1,y1,z1);	gl2.glVertex3d(x1,y1,z0);	gl2.glVertex3d(x0,y1,z0);	gl2.glEnd();  // side
-		gl2.glBegin(GL2.GL_LINE_LOOP);	gl2.glNormal3f( 0,-1, 0);	gl2.glVertex3d(x1,y0,z1);	gl2.glVertex3d(x0,y0,z1);	gl2.glVertex3d(x0,y0,z0);	gl2.glVertex3d(x1,y0,z0);	gl2.glEnd();
-		gl2.glBegin(GL2.GL_LINE_LOOP);	gl2.glNormal3f( 1, 0, 0);	gl2.glVertex3d(x1,y1,z0);	gl2.glVertex3d(x1,y1,z1);	gl2.glVertex3d(x1,y0,z1);	gl2.glVertex3d(x1,y0,z0);	gl2.glEnd();
-		gl2.glBegin(GL2.GL_LINE_LOOP);	gl2.glNormal3f(-1, 0, 0);	gl2.glVertex3d(x0,y0,z1);	gl2.glVertex3d(x0,y1,z1);	gl2.glVertex3d(x0,y1,z0);	gl2.glVertex3d(x0,y0,z0);	gl2.glEnd();
+		gl.glBegin(GL3.GL_LINE_LOOP);	gl.glNormal3f( 0, 0,-1);	gl.glVertex3d(x0,y1,z0);	gl.glVertex3d(x1,y1,z0);	gl.glVertex3d(x1,y0,z0);	gl.glVertex3d(x0,y0,z0);	gl.glEnd();  // bottom
+		gl.glBegin(GL3.GL_LINE_LOOP);	gl.glNormal3f( 0, 0, 1);	gl.glVertex3d(x1,y1,z1);	gl.glVertex3d(x0,y1,z1);	gl.glVertex3d(x0,y0,z1);	gl.glVertex3d(x1,y0,z1);	gl.glEnd();  // top
+		gl.glBegin(GL3.GL_LINE_LOOP);	gl.glNormal3f( 0, 1, 0);	gl.glVertex3d(x0,y1,z1);	gl.glVertex3d(x1,y1,z1);	gl.glVertex3d(x1,y1,z0);	gl.glVertex3d(x0,y1,z0);	gl.glEnd();  // side
+		gl.glBegin(GL3.GL_LINE_LOOP);	gl.glNormal3f( 0,-1, 0);	gl.glVertex3d(x1,y0,z1);	gl.glVertex3d(x0,y0,z1);	gl.glVertex3d(x0,y0,z0);	gl.glVertex3d(x1,y0,z0);	gl.glEnd();
+		gl.glBegin(GL3.GL_LINE_LOOP);	gl.glNormal3f( 1, 0, 0);	gl.glVertex3d(x1,y1,z0);	gl.glVertex3d(x1,y1,z1);	gl.glVertex3d(x1,y0,z1);	gl.glVertex3d(x1,y0,z0);	gl.glEnd();
+		gl.glBegin(GL3.GL_LINE_LOOP);	gl.glNormal3f(-1, 0, 0);	gl.glVertex3d(x0,y0,z1);	gl.glVertex3d(x0,y1,z1);	gl.glVertex3d(x0,y1,z0);	gl.glVertex3d(x0,y0,z0);	gl.glEnd();
 
-		OpenGLHelper.disableLightingEnd(gl2,lightWasOn);
-		OpenGLHelper.disableTextureEnd(gl2,tex);
+		OpenGLHelper.disableLightingEnd(gl,lightWasOn);
+		OpenGLHelper.disableTextureEnd(gl,tex);
 	}
 	
-	static public void drawStar(GL2 gl2,double size) {
-		drawStar(gl2,new Vector3d(0,0,0),size);
+	static public void drawStar(GL3 gl,double size) {
+		drawStar(gl,new Vector3d(0,0,0),size);
 	}
 	
-	static public void drawStar(GL2 gl2,Tuple3d p) {
-		drawStar(gl2,p,1.0f);
+	static public void drawStar(GL3 gl,Tuple3d p) {
+		drawStar(gl,p,1.0f);
 	}
 	
-	static public void drawStar(GL2 gl2,Tuple3d p,double size) {
+	static public void drawStar(GL3 gl,Tuple3d p,double size) {
 		// save the current color
 		double [] params = new double[4];
-		gl2.glGetDoublev(GL2.GL_CURRENT_COLOR, params, 0);
+		gl.glGetDoublev(GL3.GL_CURRENT_COLOR, params, 0);
 		
-		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
-		int depth = OpenGLHelper.drawAtopEverythingStart(gl2);
+		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl);
+		int depth = OpenGLHelper.drawAtopEverythingStart(gl);
 
 		size/=2.0f;
 		
-		gl2.glPushMatrix();
-		gl2.glTranslated(p.x, p.y, p.z);
-		gl2.glBegin(GL2.GL_LINES);
-		gl2.glColor3d(1, 0, 0);		gl2.glVertex3d(0, 0, 0);		gl2.glVertex3d(size, 0, 0);
-		gl2.glColor3d(0, 1, 0);		gl2.glVertex3d(0, 0, 0);		gl2.glVertex3d(0, size, 0);
-		gl2.glColor3d(0, 0, 1);		gl2.glVertex3d(0, 0, 0);		gl2.glVertex3d(0, 0, size);
-		gl2.glEnd();
-		gl2.glPopMatrix();
+		gl.glPushMatrix();
+		gl.glTranslated(p.x, p.y, p.z);
+		gl.glBegin(GL3.GL_LINES);
+		gl.glColor3d(1, 0, 0);		gl.glVertex3d(0, 0, 0);		gl.glVertex3d(size, 0, 0);
+		gl.glColor3d(0, 1, 0);		gl.glVertex3d(0, 0, 0);		gl.glVertex3d(0, size, 0);
+		gl.glColor3d(0, 0, 1);		gl.glVertex3d(0, 0, 0);		gl.glVertex3d(0, 0, size);
+		gl.glEnd();
+		gl.glPopMatrix();
 
-		OpenGLHelper.drawAtopEverythingEnd(gl2,depth);
-		OpenGLHelper.disableLightingEnd(gl2,lightWasOn);
+		OpenGLHelper.drawAtopEverythingEnd(gl,depth);
+		OpenGLHelper.disableLightingEnd(gl,lightWasOn);
 		
 		// restore color
-		gl2.glColor4dv(params,0);
+		gl.glColor4dv(params,0);
 	}	
 
-	public static void drawSphere(GL2 gl2, Tuple3d p, double radius) {
-		gl2.glPushMatrix();
-		gl2.glTranslated(p.x,p.y,p.z);
-		drawSphere(gl2,radius);
-		gl2.glPopMatrix();
+	public static void drawSphere(GL3 gl, Tuple3d p, double radius) {
+		gl.glPushMatrix();
+		gl.glTranslated(p.x,p.y,p.z);
+		drawSphere(gl,radius);
+		gl.glPopMatrix();
 	}
 	
 	/** draw square billboard facing the camera.
-	 * @param gl2 systems context
+	 * @param gl systems context
 	 * @param p center of billboard
 	 * @param w width of square
 	 * @param h height of square
 	 */
-	public static void drawBillboard(GL2 gl2, Tuple3d p,double w,double h) {
-		Matrix4d m = OpenGLHelper.getModelviewMatrix(gl2);
+	public static void drawBillboard(GL3 gl, Tuple3d p,double w,double h) {
+		Matrix4d m = OpenGLHelper.getModelviewMatrix(gl);
 		Vector3d up = MatrixHelper.getYAxis(m);
 		Vector3d left = MatrixHelper.getXAxis(m);
 
@@ -397,11 +397,11 @@ public class PrimitiveSolids {
 		a2.set(p);		a2.sub(up);		a2.add(left);
 		a3.set(p);		a3.sub(up);		a3.sub(left);
 
-		gl2.glBegin(GL2.GL_TRIANGLE_FAN);
-		gl2.glTexCoord2d(0, 1);		gl2.glVertex3d(a3.x,a3.y,a3.z);
-		gl2.glTexCoord2d(1, 1);		gl2.glVertex3d(a2.x,a2.y,a2.z);
-		gl2.glTexCoord2d(1, 0);		gl2.glVertex3d(a1.x,a1.y,a1.z);
-		gl2.glTexCoord2d(0, 0);		gl2.glVertex3d(a0.x,a0.y,a0.z);
-		gl2.glEnd();
+		gl.glBegin(GL3.GL_TRIANGLE_FAN);
+		gl.glTexCoord2d(0, 1);		gl.glVertex3d(a3.x,a3.y,a3.z);
+		gl.glTexCoord2d(1, 1);		gl.glVertex3d(a2.x,a2.y,a2.z);
+		gl.glTexCoord2d(1, 0);		gl.glVertex3d(a1.x,a1.y,a1.z);
+		gl.glTexCoord2d(0, 0);		gl.glVertex3d(a0.x,a0.y,a0.z);
+		gl.glEnd();
 	}
 }

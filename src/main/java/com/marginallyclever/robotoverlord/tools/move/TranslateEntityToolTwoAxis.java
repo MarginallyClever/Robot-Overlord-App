@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.Plane;
@@ -182,44 +182,44 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
     }
 
     @Override
-    public void render(GL2 gl2) {
+    public void render(GL3 gl) {
         if(selectedItems==null || selectedItems.isEmpty()) return;
 
         // Render the translation pad on the plane
-        boolean light = OpenGLHelper.disableLightingStart(gl2);
+        boolean light = OpenGLHelper.disableLightingStart(gl);
 
-        gl2.glPushMatrix();
+        gl.glPushMatrix();
 
-        MatrixHelper.applyMatrix(gl2, pivotMatrix);
+        MatrixHelper.applyMatrix(gl, pivotMatrix);
 
         float [] colors = new float[4];
-        gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, colors, 0);
+        gl.glGetFloatv(GL3.GL_CURRENT_COLOR, colors, 0);
         double colorScale = hovering? 1:0.8;
 
-        gl2.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 0.5);
-        drawQuad(gl2,GL2.GL_TRIANGLE_FAN);
-        gl2.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 1.0);
-        drawQuad(gl2,GL2.GL_LINE_LOOP);
+        gl.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 0.5);
+        drawQuad(gl,GL3.GL_TRIANGLE_FAN);
+        gl.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 1.0);
+        drawQuad(gl,GL3.GL_LINE_LOOP);
 
-        gl2.glPopMatrix();
+        gl.glPopMatrix();
 
-        OpenGLHelper.disableLightingEnd(gl2, light);
+        OpenGLHelper.disableLightingEnd(gl, light);
     }
 
-    private void drawQuad(GL2 gl2,int mode) {
+    private void drawQuad(GL3 gl,int mode) {
         double ps = getPadSizeScaled();
-        gl2.glBegin(mode);
-        gl2.glVertex3d( 0, 0,0);
-        gl2.glVertex3d(ps, 0,0);
-        gl2.glVertex3d(ps, ps,0);
-        gl2.glVertex3d(0, ps,0);
-        gl2.glEnd();
-        gl2.glBegin(mode);
-        gl2.glVertex3d( 0, 0,0);
-        gl2.glVertex3d(0, ps,0);
-        gl2.glVertex3d(ps, ps,0);
-        gl2.glVertex3d(ps, 0,0);
-        gl2.glEnd();
+        gl.glBegin(mode);
+        gl.glVertex3d( 0, 0,0);
+        gl.glVertex3d(ps, 0,0);
+        gl.glVertex3d(ps, ps,0);
+        gl.glVertex3d(0, ps,0);
+        gl.glEnd();
+        gl.glBegin(mode);
+        gl.glVertex3d( 0, 0,0);
+        gl.glVertex3d(0, ps,0);
+        gl.glVertex3d(ps, ps,0);
+        gl.glVertex3d(ps, 0,0);
+        gl.glEnd();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.marginallyclever.convenience.helpers;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Plane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,130 +18,130 @@ public class MatrixHelper {
 	private static final Logger logger = LoggerFactory.getLogger(MatrixHelper.class);
 
 	/**
-	 * See drawMatrix(gl2,p,u,v,w,1)
-	 * @param gl2
+	 * See drawMatrix(gl,p,u,v,w,1)
+	 * @param gl
 	 * @param m
 	 * @param scale
 	 */
-	static public void drawMatrix(GL2 gl2,Matrix4d m,double scale) {
-		boolean isTex = OpenGLHelper.disableTextureStart(gl2);
-		int depthWasOn = OpenGLHelper.drawAtopEverythingStart(gl2);
-		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
+	static public void drawMatrix(GL3 gl,Matrix4d m,double scale) {
+		boolean isTex = OpenGLHelper.disableTextureStart(gl);
+		int depthWasOn = OpenGLHelper.drawAtopEverythingStart(gl);
+		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl);
 		
-		gl2.glPushMatrix();
-			gl2.glTranslated(m.m03,m.m13,m.m23);
-			gl2.glScaled(scale, scale, scale);
+		gl.glPushMatrix();
+			gl.glTranslated(m.m03,m.m13,m.m23);
+			gl.glScaled(scale, scale, scale);
 			
-			gl2.glBegin(GL2.GL_LINES);
-			gl2.glColor3f(1,0,0);		gl2.glVertex3f(0,0,0);		gl2.glVertex3d(m.m00,m.m10,m.m20);  // 1,0,0 = red
-			gl2.glColor3f(0,1,0);		gl2.glVertex3f(0,0,0);		gl2.glVertex3d(m.m01,m.m11,m.m21);  // 0,1,0 = green 
-			gl2.glColor3f(0,0,1);		gl2.glVertex3f(0,0,0);		gl2.glVertex3d(m.m02,m.m12,m.m22);  // 0,0,1 = blue
-			gl2.glEnd();
+			gl.glBegin(GL3.GL_LINES);
+			gl.glColor3f(1,0,0);		gl.glVertex3f(0,0,0);		gl.glVertex3d(m.m00,m.m10,m.m20);  // 1,0,0 = red
+			gl.glColor3f(0,1,0);		gl.glVertex3f(0,0,0);		gl.glVertex3d(m.m01,m.m11,m.m21);  // 0,1,0 = green 
+			gl.glColor3f(0,0,1);		gl.glVertex3f(0,0,0);		gl.glVertex3d(m.m02,m.m12,m.m22);  // 0,0,1 = blue
+			gl.glEnd();
 	
-		gl2.glPopMatrix();
+		gl.glPopMatrix();
 		
-		OpenGLHelper.disableLightingEnd(gl2,lightWasOn);
-		OpenGLHelper.drawAtopEverythingEnd(gl2, depthWasOn);
-		OpenGLHelper.disableTextureEnd(gl2,isTex);
+		OpenGLHelper.disableLightingEnd(gl,lightWasOn);
+		OpenGLHelper.drawAtopEverythingEnd(gl, depthWasOn);
+		OpenGLHelper.disableTextureEnd(gl,isTex);
 	}
 
-	static public void drawMatrix(GL2 gl2,double scale) {
+	static public void drawMatrix(GL3 gl,double scale) {
 		Matrix4d m= new Matrix4d();
 		m.setIdentity();
-		drawMatrix(gl2,m,scale);
+		drawMatrix(gl,m,scale);
 	}
 
-	static public void drawMatrix2(GL2 gl2,double scale) {
+	static public void drawMatrix2(GL3 gl,double scale) {
 		Matrix4d m= new Matrix4d();
 		m.setIdentity();
-		drawMatrix2(gl2,m,scale);
+		drawMatrix2(gl,m,scale);
 	}
 	
 	/**
-	 * See drawMatrix(gl2,p,u,v,w,1)
-	 * @param gl2
+	 * See drawMatrix(gl,p,u,v,w,1)
+	 * @param gl
 	 * @param m
 	 * @param scale
 	 */
-	static public void drawMatrix2(GL2 gl2,Matrix4d m,double scale) {
-		boolean isTex = OpenGLHelper.disableTextureStart(gl2);
-		int depthWasOn = OpenGLHelper.drawAtopEverythingStart(gl2);
-		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl2);
+	static public void drawMatrix2(GL3 gl,Matrix4d m,double scale) {
+		boolean isTex = OpenGLHelper.disableTextureStart(gl);
+		int depthWasOn = OpenGLHelper.drawAtopEverythingStart(gl);
+		boolean lightWasOn = OpenGLHelper.disableLightingStart(gl);
 		
-		gl2.glPushMatrix();
-			gl2.glTranslated(m.m03,m.m13,m.m23);
-			gl2.glScaled(scale, scale, scale);
+		gl.glPushMatrix();
+			gl.glTranslated(m.m03,m.m13,m.m23);
+			gl.glScaled(scale, scale, scale);
 			
-			gl2.glBegin(GL2.GL_LINES);
-			gl2.glColor3f(1,1,0);		gl2.glVertex3f(0,0,0);		gl2.glVertex3d(m.m00,m.m10,m.m20);  // 1,1,0 = yellow
-			gl2.glColor3f(0,1,1);		gl2.glVertex3f(0,0,0);		gl2.glVertex3d(m.m01,m.m11,m.m21);  // 0,1,1 = teal 
-			gl2.glColor3f(1,0,1);		gl2.glVertex3f(0,0,0);		gl2.glVertex3d(m.m02,m.m12,m.m22);  // 1,0,1 = magenta
-			gl2.glEnd();
+			gl.glBegin(GL3.GL_LINES);
+			gl.glColor3f(1,1,0);		gl.glVertex3f(0,0,0);		gl.glVertex3d(m.m00,m.m10,m.m20);  // 1,1,0 = yellow
+			gl.glColor3f(0,1,1);		gl.glVertex3f(0,0,0);		gl.glVertex3d(m.m01,m.m11,m.m21);  // 0,1,1 = teal 
+			gl.glColor3f(1,0,1);		gl.glVertex3f(0,0,0);		gl.glVertex3d(m.m02,m.m12,m.m22);  // 1,0,1 = magenta
+			gl.glEnd();
 	
-		gl2.glPopMatrix();
+		gl.glPopMatrix();
 		
-		OpenGLHelper.disableLightingEnd(gl2,lightWasOn);
-		OpenGLHelper.drawAtopEverythingEnd(gl2, depthWasOn);
-		OpenGLHelper.disableTextureEnd(gl2,isTex);
+		OpenGLHelper.disableLightingEnd(gl,lightWasOn);
+		OpenGLHelper.drawAtopEverythingEnd(gl, depthWasOn);
+		OpenGLHelper.disableTextureEnd(gl,isTex);
 	}
 
 	/**
-	 * See drawMatrix(gl2,p,u,v,w,1)
+	 * See drawMatrix(gl,p,u,v,w,1)
 	 */
-	static public void drawMatrix(GL2 gl2,Vector3d p,Vector3d u,Vector3d v,Vector3d w) {
-		drawMatrix(gl2,p,u,v,w,1);
+	static public void drawMatrix(GL3 gl,Vector3d p,Vector3d u,Vector3d v,Vector3d w) {
+		drawMatrix(gl,p,u,v,w,1);
 	}
 	
 	/**
 	 * Draw the three vectors of a matrix at a point
-	 * @param gl2 systems context
+	 * @param gl systems context
 	 * @param p position at which to draw
 	 * @param u in yellow (1,1,0)
 	 * @param v in teal (0,1,1)
 	 * @param w in magenta (1,0,1)
 	 * @param scale nominally 1
 	 */
-	static public void drawMatrix(GL2 gl2,Vector3d p,Vector3d u,Vector3d v,Vector3d w,double scale) {
+	static public void drawMatrix(GL3 gl,Vector3d p,Vector3d u,Vector3d v,Vector3d w,double scale) {
 		Matrix4d m = new Matrix4d(
 				u.x,u.y,u.z,p.x,
 				v.x,v.y,v.z,p.y,
 				w.x,w.y,w.z,p.z,
 				0,0,0,1.0
 				);
-		drawMatrix(gl2,m,scale);
+		drawMatrix(gl,m,scale);
 	}
 
 	/**
 	 * Same as drawMatrix, but with alternate colors
-	 * See drawMatrix(gl2,p,u,v,w,1)
-	 * @param gl2
+	 * See drawMatrix(gl,p,u,v,w,1)
+	 * @param gl
 	 * @param p
 	 * @param u
 	 * @param v
 	 * @param w
 	 */
-	static public void drawMatrix2(GL2 gl2,Vector3d p,Vector3d u,Vector3d v,Vector3d w) {
-		drawMatrix2(gl2,p,u,v,w,1);
+	static public void drawMatrix2(GL3 gl,Vector3d p,Vector3d u,Vector3d v,Vector3d w) {
+		drawMatrix2(gl,p,u,v,w,1);
 	}
 	
 	/**
 	 * Same as drawMatrix, but with alternate colors
 	 * Draw the three vectors of a matrix at a point
-	 * @param gl2 systems context
+	 * @param gl systems context
 	 * @param p position at which to draw
 	 * @param u in red
 	 * @param v in green
 	 * @param w in blue
 	 * @param scale nominally 1
 	 */
-	static public void drawMatrix2(GL2 gl2,Vector3d p,Vector3d u,Vector3d v,Vector3d w,double scale) {
+	static public void drawMatrix2(GL3 gl,Vector3d p,Vector3d u,Vector3d v,Vector3d w,double scale) {
 		Matrix4d m = new Matrix4d(
 				u.x,u.y,u.z,p.x,
 				v.x,v.y,v.z,p.y,
 				w.x,w.y,w.z,p.z,
 				0,0,0,1.0
 				);
-		drawMatrix2(gl2,m,scale);
+		drawMatrix2(gl,m,scale);
 	}
 	
 	/**
@@ -265,13 +265,13 @@ public class MatrixHelper {
 
 	@Deprecated
 	// cumulative multiplication of matrixes
-	static public void applyMatrix(GL2 gl2,Matrix4d pose) {
-		gl2.glMultMatrixd(matrix4dToArray(pose), 0);
+	static public void applyMatrix(GL3 gl,Matrix4d pose) {
+		gl.glMultMatrixd(matrix4dToArray(pose), 0);
 	}
 
 	@Deprecated
-	static public void setMatrix(GL2 gl2,Matrix4d pose) {
-		gl2.glLoadMatrixd(matrix4dToArray(pose), 0);
+	static public void setMatrix(GL3 gl,Matrix4d pose) {
+		gl.glLoadMatrixd(matrix4dToArray(pose), 0);
 	}
 
 	/**
@@ -970,14 +970,14 @@ public class MatrixHelper {
 
 	/**
 	 *
-	 * @param gl2
-	 * @param type either GL2.GL_MODELVIEW_MATRIX or GL2.GL_PROJECTION_MATRIX
+	 * @param gl
+	 * @param type either GL3.GL_MODELVIEW_MATRIX or GL3.GL_PROJECTION_MATRIX
 	 * @return
 	 */
-	public static Matrix4d getMatrix(GL2 gl2, int type) {
+	public static Matrix4d getMatrix(GL3 gl, int type) {
 		Matrix4d m = new Matrix4d();
 		double [] list = new double[16];
-		gl2.glGetDoublev(type, list,0);
+		gl.glGetDoublev(type, list,0);
 		m.set(list);
 		return m;
 	}

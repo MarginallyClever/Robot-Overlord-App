@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.components.demo;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.components.*;
@@ -68,26 +68,26 @@ public class DogRobotComponent extends RenderComponent {
     }
 
     @Override
-    public void render(GL2 gl2) {
-        gl2.glPushMatrix();
+    public void render(GL3 gl) {
+        gl.glPushMatrix();
         PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
         Matrix4d m = myPose.getWorld();
         m.invert();
-        MatrixHelper.applyMatrix(gl2,m);
+        MatrixHelper.applyMatrix(gl,m);
 
         for(int i=0;i<NUM_LEGS;++i) {
-            PrimitiveSolids.drawStar(gl2,lastPOC[i],2);
-            PrimitiveSolids.drawStar(gl2,nextPOC[i],4);
-            drawMarker(gl2,targets[i],0);
+            PrimitiveSolids.drawStar(gl,lastPOC[i],2);
+            PrimitiveSolids.drawStar(gl,nextPOC[i],4);
+            drawMarker(gl,targets[i],0);
         }
-        gl2.glPopMatrix();
+        gl.glPopMatrix();
 
-        PrimitiveSolids.drawCircleXY(gl2,standingRadius.get(),32);
+        PrimitiveSolids.drawCircleXY(gl,standingRadius.get(),32);
     }
 
-    private void drawMarker(GL2 gl2, Tuple3d v, int color) {
-        if(color==0) PrimitiveSolids.drawStar(gl2,v,5);
-        else PrimitiveSolids.drawSphere(gl2,v,1);
+    private void drawMarker(GL3 gl, Tuple3d v, int color) {
+        if(color==0) PrimitiveSolids.drawStar(gl,v,5);
+        else PrimitiveSolids.drawSphere(gl,v,1);
     }
 
     public RobotComponent [] getLegs() {

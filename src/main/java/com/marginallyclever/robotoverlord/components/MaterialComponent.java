@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
@@ -33,26 +33,26 @@ public class MaterialComponent extends Component {
         super();
     }
 
-    public void render(GL2 gl2) {
-        gl2.glColor4d(diffuse.getR(),diffuse.getG(),diffuse.getB(),diffuse.getA());
-        gl2.glMaterialfv(GL2.GL_FRONT, GL2.GL_DIFFUSE, diffuse.getFloatArray(),0);
-        gl2.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, specular.getFloatArray(),0);
-        gl2.glMaterialfv(GL2.GL_FRONT, GL2.GL_EMISSION, emission.getFloatArray(),0);
-        gl2.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, ambient.getFloatArray(),0);
-        gl2.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, shininess.get().floatValue());
-        gl2.glColorMaterial(GL2.GL_FRONT,GL2.GL_AMBIENT_AND_DIFFUSE );
+    public void render(GL3 gl) {
+        gl.glColor4d(diffuse.getR(),diffuse.getG(),diffuse.getB(),diffuse.getA());
+        gl.glMaterialfv(GL3.GL_FRONT, GL3.GL_DIFFUSE, diffuse.getFloatArray(),0);
+        gl.glMaterialfv(GL3.GL_FRONT, GL3.GL_SPECULAR, specular.getFloatArray(),0);
+        gl.glMaterialfv(GL3.GL_FRONT, GL3.GL_EMISSION, emission.getFloatArray(),0);
+        gl.glMaterialfv(GL3.GL_FRONT, GL3.GL_AMBIENT, ambient.getFloatArray(),0);
+        gl.glMaterialf(GL3.GL_FRONT, GL3.GL_SHININESS, shininess.get().floatValue());
+        gl.glColorMaterial(GL3.GL_FRONT,GL3.GL_AMBIENT_AND_DIFFUSE );
 
-        boolean isColorEnabled = gl2.glIsEnabled(GL2.GL_COLOR_MATERIAL);
-        gl2.glDisable(GL2.GL_COLOR_MATERIAL);
+        boolean isColorEnabled = gl.glIsEnabled(GL3.GL_COLOR_MATERIAL);
+        gl.glDisable(GL3.GL_COLOR_MATERIAL);
 
-        gl2.glShadeModel(GL2.GL_SMOOTH);
+        gl.glShadeModel(GL3.GL_SMOOTH);
 
-        if(isLit()) gl2.glEnable(GL2.GL_LIGHTING);
-        else gl2.glDisable(GL2.GL_LIGHTING);
+        if(isLit()) gl.glEnable(GL3.GL_LIGHTING);
+        else gl.glDisable(GL3.GL_LIGHTING);
 
-        texture.render(gl2);
+        texture.render(gl);
 
-        if(isColorEnabled) gl2.glEnable(GL2.GL_COLOR_MATERIAL);
+        if(isColorEnabled) gl.glEnable(GL3.GL_COLOR_MATERIAL);
     }
 
 

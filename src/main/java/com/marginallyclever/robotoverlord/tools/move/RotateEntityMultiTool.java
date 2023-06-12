@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.systems.render.Viewport;
@@ -184,24 +184,24 @@ public class RotateEntityMultiTool implements EditorTool {
     /**
      * Renders any tool-specific visuals to the 3D scene.
      *
-     * @param gl2 The OpenGL context to systems to.
+     * @param gl The OpenGL context to systems to.
      */
     @Override
-    public void render(GL2 gl2) {
+    public void render(GL3 gl) {
         if (selectedItems == null || selectedItems.isEmpty()) return;
 
         int i = getIndexInUse();
         if(0==i || -1==i) {
-            gl2.glColor3d(1,0,0);
-            toolX.render(gl2);
+            gl.glColor3d(1,0,0);
+            toolX.render(gl);
         }
         if(1==i || -1==i) {
-            gl2.glColor3d(0,1,0);
-            toolY.render(gl2);
+            gl.glColor3d(0,1,0);
+            toolY.render(gl);
         }
         if(2==i || -1==i) {
-            gl2.glColor3d(0,0,1);
-            toolZ.render(gl2);
+            gl.glColor3d(0,0,1);
+            toolZ.render(gl);
         }
     }
 

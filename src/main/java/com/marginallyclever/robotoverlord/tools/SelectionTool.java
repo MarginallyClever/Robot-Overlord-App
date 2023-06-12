@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.tools;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.RayHit;
@@ -110,10 +110,10 @@ public class SelectionTool implements EditorTool {
     /**
      * Renders any tool-specific visuals to the 3D scene.
      *
-     * @param gl2 The OpenGL context.
+     * @param gl The OpenGL context.
      */
     @Override
-    public void render(GL2 gl2) {}
+    public void render(GL3 gl) {}
 
     @Override
     public void setViewport(Viewport viewport) {}
