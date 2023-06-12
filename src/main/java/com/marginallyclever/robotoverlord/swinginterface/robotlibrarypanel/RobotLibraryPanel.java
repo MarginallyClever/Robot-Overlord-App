@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.swinginterface.robotlibrarypanel;
 
 import com.marginallyclever.robotoverlord.RobotOverlord;
+import com.marginallyclever.robotoverlord.swinginterface.searchBar.SearchBar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +20,7 @@ import java.util.List;
  */
 public class RobotLibraryPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(RobotLibraryPanel.class);
-    private final JPanel searchBar = new JPanel(new BorderLayout());
-    private final JTextField match = new JTextField();
+    private final JPanel searchBar = new SearchBar();
     private final JPanel repositoriesPanel = new JPanel();
     private final List<RobotLibraryListener> listeners = new ArrayList<>();
     private final List<MultiVersionPropertiesPanel> allPanels = new ArrayList<>();
@@ -28,38 +28,23 @@ public class RobotLibraryPanel extends JPanel {
     public RobotLibraryPanel() {
         super(new BorderLayout());
         setName("RobotLibraryPanel");
-        addSearchBar();
+        add(searchBar, BorderLayout.NORTH);
         repositoriesPanel.setLayout(new BoxLayout(repositoriesPanel, BoxLayout.Y_AXIS));
         JScrollPane scrollPane = new JScrollPane(repositoriesPanel);
         scrollPane.setAlignmentX(LEFT_ALIGNMENT);
 
         collectPanels();
-        refreshPanels();
+        refreshPanels("");
 
         add(scrollPane, BorderLayout.CENTER);
-
-        match.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                refreshPanels();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                refreshPanels();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                refreshPanels();
-            }
-        });
+        searchBar.addPropertyChangeListener("match", evt -> refreshPanels(evt.getNewValue().toString()));
     }
 
-    private void refreshPanels() {
+    private void refreshPanels(String match) {
+        match = match.toLowerCase();
         List<MultiVersionPropertiesPanel> filteredPanels = new ArrayList<>();
         for(MultiVersionPropertiesPanel panel : allPanels) {
-            if (panel.getRobotName().toLowerCase().contains(match.getText().toLowerCase())) {
+            if (panel.getRobotName().toLowerCase().contains(match)) {
                 filteredPanels.add(panel);
             }
         }
@@ -97,15 +82,6 @@ public class RobotLibraryPanel extends JPanel {
             logger.info("Adding " + url);
             allPanels.add(multiVersionPropertiesPanel);
         }
-    }
-
-    private void addSearchBar() {
-        match.setName("match");
-
-        searchBar.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        searchBar.add(new JLabel(" \uD83D\uDD0E "), BorderLayout.LINE_START);
-        searchBar.add(match, BorderLayout.CENTER);
-        add(searchBar, BorderLayout.NORTH);
     }
 
     public void addRobotLibraryListener(RobotLibraryListener listener) {
