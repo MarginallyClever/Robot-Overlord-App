@@ -6,7 +6,6 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.texture.Texture;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.entity.Entity;
@@ -23,7 +22,6 @@ import com.marginallyclever.robotoverlord.tools.SelectionTool;
 import com.marginallyclever.robotoverlord.tools.move.MoveCameraTool;
 import com.marginallyclever.robotoverlord.tools.move.RotateEntityMultiTool;
 import com.marginallyclever.robotoverlord.tools.move.TranslateEntityMultiTool;
-import org.eclipse.jgit.diff.Edit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +33,6 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.nio.IntBuffer;
 import java.util.List;
 import java.util.Queue;
 import java.util.*;
@@ -55,13 +52,6 @@ public class OpenGLRenderPanel implements RenderPanel {
     // OpenGL debugging
     private final boolean glDebug=false;
     private final boolean glTrace=false;
-
-    // should I check the state of the OpenGL stack size?  true=every frame, false=never
-    private final boolean checkStackSize = false;
-
-    // used to check the stack size.
-    private final IntBuffer stackDepth = IntBuffer.allocate(1);
-
     private final JPanel panel = new JPanel(new BorderLayout());
 
     // the systems canvas
@@ -227,7 +217,7 @@ public class OpenGLRenderPanel implements RenderPanel {
             }
             StringBuilder sb = new StringBuilder();
             caps.toString(sb);
-            logger.info("...set caps to "+sb.toString());
+            logger.info("...set caps to "+sb);
             logger.info("...create canvas");
             glCanvas = new GLJPanel(caps);
         } catch(GLException e) {
@@ -307,7 +297,7 @@ public class OpenGLRenderPanel implements RenderPanel {
 
                 GL3 gl3 = drawable.getGL().getGL3();
 
-                checkRenderStep(gl3);
+                renderStep(gl3);
             }
         });
 
@@ -430,30 +420,6 @@ public class OpenGLRenderPanel implements RenderPanel {
         return entityManager.getCamera();
     }
 
-    private void checkRenderStep(GL3 gl3) {
-        int before;
-        if(checkStackSize) {
-            gl3.glGetIntegerv(GL3.GL_MODELVIEW_STACK_DEPTH, stackDepth);
-            before = stackDepth.get(0);
-        }
-
-        try {
-            renderStep(gl3);
-        } catch(Exception e) {
-            logger.error("GL error",e);
-            e.printStackTrace();
-        }
-
-        if(checkStackSize) {
-            gl3.glGetIntegerv(GL3.GL_MODELVIEW_STACK_DEPTH, stackDepth);
-            int after = stackDepth.get(0);
-            if(before != after) {
-                System.err.println("stack depth " + before + " vs " + after);
-                logger.warn("stack depth " + before + " vs " + after);
-            }
-        }
-    }
-
     private void renderStep(GL3 gl3) {
         // clear green color, the depth bit, and the stencil buffer.
         gl3.glClearColor(0.85f,0.85f,0.85f,1.0f);
@@ -464,29 +430,28 @@ public class OpenGLRenderPanel implements RenderPanel {
         drawOverlays(gl3);
     }
 
-    private void draw3DScene(GL3 gl3) {
+    private void draw3DScene(GL3 gl) {
         CameraComponent camera = getCamera();
         if (camera == null) {
-            gl3.glClearColor(0.85f,0.85f,0.85f,1.0f);
-            gl3.glClear(GL3.GL_COLOR_BUFFER_BIT);
+            gl.glClearColor(0.85f,0.85f,0.85f,1.0f);
+            gl.glClear(GL3.GL_COLOR_BUFFER_BIT);
             // TODO display a "no active camera found" message?
             return;
         }
         collectSelectedEntitiesAndTheirChildren();  // TODO only when selection changes?
-        prepareToOutlineSelectedEntities(gl3);
+        prepareToOutlineSelectedEntities(gl);
 
         viewport.setCamera(camera);
-        viewport.renderChosenProjection(gl3);
-        renderLights(gl3);
+        renderLights();
 
-        useShaderDefault(gl3);
+        useShaderDefault(gl);
 
-        skyBox.render(gl3, camera,shaderDefault);
+        skyBox.render(gl, camera,shaderDefault);
 
-        renderAllEntities(gl3, entityManager.getEntities(),shaderDefault);
-        if (showWorldOrigin.get()) PrimitiveSolids.drawStar(gl3, 10);
+        renderAllEntities(gl, entityManager.getEntities(),shaderDefault);
+        if (showWorldOrigin.get()) MatrixHelper.drawMatrix(10).render(gl);
 
-        outlineCollectedEntities(gl3);
+        outlineCollectedEntities(gl);
     }
 
     private void useShaderDefault(GL3 gl3) {
@@ -536,10 +501,9 @@ public class OpenGLRenderPanel implements RenderPanel {
         // overlays
         gl3.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_STENCIL_BUFFER_BIT);
         gl3.glUseProgram(0);
-        viewport.renderChosenProjection(gl3);
 
         // 3D overlays
-        for(EditorTool tool : editorTools) tool.render(gl3);
+        for(EditorTool tool : editorTools) tool.render(gl3,shaderDefault);
 
         // 2D overlays
         compass3d.render(gl3,viewport,shaderDefault);
@@ -750,22 +714,14 @@ public class OpenGLRenderPanel implements RenderPanel {
                 shaderProgram.set1f(gl3,"diffuseTexture",0);
             }
 
-            gl3.glPushMatrix();
             mmr.renderComponent.render(gl3);
-            gl3.glPopMatrix();
         }
     }
 
-    private void renderLights(GL3 gl3) {
-        // global ambient light
-        //gl3.glLightModelfv( GL3.GL_LIGHT_MODEL_AMBIENT, ambientLight.getFloatArray(),0);
-
-        int maxLights = getMaxLights(gl3);
-        turnOffAllLights(gl3,maxLights);
+    private void renderLights() {
         lights.clear();
 
         Queue<Entity> found = new LinkedList<>(entityManager.getEntities());
-        int i=0;
         while(!found.isEmpty()) {
             Entity obj = found.remove();
             found.addAll(obj.getChildren());
@@ -773,21 +729,7 @@ public class OpenGLRenderPanel implements RenderPanel {
             LightComponent light = obj.getComponent(LightComponent.class);
             if(light!=null && light.getEnabled()) {
                 lights.add(light);
-                light.setupLight(gl3,i++);
-                if(i==maxLights) return;
             }
-        }
-    }
-
-    private int getMaxLights(GL3 gl3) {
-        IntBuffer intBuffer = IntBuffer.allocate(1);
-        gl3.glGetIntegerv(GL3.GL_MAX_LIGHTS, intBuffer);
-        return intBuffer.get();
-    }
-
-    private void turnOffAllLights(GL3 gl3,int maxLights) {
-        for(int i=0;i<maxLights;++i) {
-            gl3.glDisable(GL3.GL_LIGHT0+i);
         }
     }
 
@@ -808,13 +750,11 @@ public class OpenGLRenderPanel implements RenderPanel {
 
         // draw!
         boolean tex = OpenGLHelper.disableTextureStart(gl3);
-        boolean lit = OpenGLHelper.disableLightingStart(gl3);
         int top = OpenGLHelper.drawAtopEverythingStart(gl3);
 
         cursorMesh.render(gl3);
 
         OpenGLHelper.drawAtopEverythingEnd(gl3,top);
-        OpenGLHelper.disableLightingEnd(gl3,lit);
         OpenGLHelper.disableTextureEnd(gl3,tex);
     }
 

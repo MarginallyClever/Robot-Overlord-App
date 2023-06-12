@@ -1,13 +1,16 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
 import com.jogamp.opengl.GL3;
+import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Sphere;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 
 import javax.vecmath.Matrix4d;
@@ -65,6 +68,12 @@ public class TranslateEntityToolOneAxis implements EditorTool {
 
     private final Sphere handleSphere = new Sphere();
     private int frameOfReference = EditorTool.FRAME_WORLD;
+    private final ColorRGB color;
+
+    public TranslateEntityToolOneAxis(ColorRGB color) {
+        super();
+        this.color = color;
+    }
 
     @Override
     public void activate(List<Entity> list) {
@@ -210,35 +219,34 @@ public class TranslateEntityToolOneAxis implements EditorTool {
     }
 
     @Override
-    public void render(GL3 gl) {
+    public void render(GL3 gl, ShaderProgram shaderProgram) {
         if(selectedItems==null || selectedItems.isEmpty()) return;
 
+        shaderProgram.set1i(gl,"useTexture",0);
         // Render the translation handle on the axis
-        boolean texture = OpenGLHelper.disableTextureStart(gl);
-        boolean light = OpenGLHelper.disableLightingStart(gl);
 
-        gl.glPushMatrix();
-        MatrixHelper.applyMatrix(gl, pivotMatrix);
+        shaderProgram.setMatrix4d(gl,"modelMatrix",pivotMatrix);
 
-        float [] colors = new float[4];
-        gl.glGetFloatv(GL3.GL_CURRENT_COLOR, colors, 0);
-        double colorScale = cursorOverHandle ? 1:0.5;
-        gl.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 1.0);
+        float colorScale = cursorOverHandle ? 1:0.5f;
+        float red   = color.red   * colorScale / 255f;
+        float green = color.green * colorScale / 255f;
+        float blue  = color.blue  * colorScale / 255f;
+        shaderProgram.set4f(gl, "objectColor", red, green, blue, 1.0f);
 
-        gl.glBegin(GL3.GL_LINES);
-        gl.glVertex3d(0, 0, 0);
-        gl.glVertex3d(getHandleLengthScaled(), 0, 0);
-        gl.glEnd();
-
-        gl.glTranslated(getHandleLengthScaled(), 0, 0);
+        Mesh mesh = new Mesh(GL3.GL_LINES);
+        mesh.addVertex(0, 0, 0);
+        mesh.addVertex((float)getHandleLengthScaled(), 0, 0);
+        mesh.render(gl);
 
         double grs = getGripRadiusScaled();
-        gl.glScaled(grs,grs,grs);
+        Matrix4d m = new Matrix4d(pivotMatrix);
+        m.m03+=getHandleLengthScaled();
+        m.m00*=grs;
+        m.m11*=grs;
+        m.m22*=grs;
+        shaderProgram.setMatrix4d(gl,"modelMatrix",m);
+
         handleSphere.render(gl);
-
-        gl.glPopMatrix();
-
-        OpenGLHelper.disableTextureEnd(gl, texture);
     }
 
     @Override

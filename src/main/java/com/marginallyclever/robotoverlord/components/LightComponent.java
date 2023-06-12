@@ -59,37 +59,6 @@ public class LightComponent extends Component {
     public final DoubleParameter attenuationLinear = new DoubleParameter("Linear attenuation",0.014);
     public final DoubleParameter attenuationQuadratic = new DoubleParameter("Quadratic attenuation",0.0007);
 
-    public void setupLight(GL3 gl, int lightIndex) {
-        int i = GL3.GL_LIGHT0+lightIndex;
-
-        gl.glEnable(i);
-
-        Matrix4d poseWorld = getEntity().getComponent(PoseComponent.class).getWorld();
-        position[0]=(float)poseWorld.m03;
-        position[1]=(float)poseWorld.m13;
-        position[2]=(float)poseWorld.m23;
-        position[3]=isDirectional.get()?1:0;
-        gl.glLightfv(i, GL3.GL_POSITION, position,0);
-
-        gl.glLightfv(i, GL3.GL_AMBIENT, ambient.getFloatArray(),0);
-        gl.glLightfv(i, GL3.GL_DIFFUSE, diffuse.getFloatArray(),0);
-        gl.glLightfv(i, GL3.GL_SPECULAR, specular.getFloatArray(),0);
-
-        // z axis of the matrix is the light direction
-        spotDirection[0]=(float)poseWorld.m02;
-        spotDirection[1]=(float)poseWorld.m12;
-        spotDirection[2]=(float)poseWorld.m22;
-        gl.glLightfv(i, GL3.GL_SPOT_DIRECTION, spotDirection,0);
-
-        gl.glLightf(i, GL3.GL_SPOT_CUTOFF, cutoff.get().floatValue());
-        gl.glLightf(i, GL3.GL_SPOT_EXPONENT, exponent.get().floatValue());
-
-        // falloff/fade out
-        gl.glLightf(i, GL3.GL_CONSTANT_ATTENUATION,attenuationConstant.get().floatValue());
-        gl.glLightf(i, GL3.GL_LINEAR_ATTENUATION,attenuationLinear.get().floatValue());
-        gl.glLightf(i, GL3.GL_QUADRATIC_ATTENUATION,attenuationQuadratic.get().floatValue());
-    }
-
     /**
      *
      * @param arg0 true for directional light, false for point source light.

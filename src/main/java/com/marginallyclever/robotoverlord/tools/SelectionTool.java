@@ -13,6 +13,7 @@ import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.systems.RayPickSystem;
+import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,7 +114,7 @@ public class SelectionTool implements EditorTool {
      * @param gl The OpenGL context.
      */
     @Override
-    public void render(GL3 gl) {}
+    public void render(GL3 gl, ShaderProgram shaderProgram) {}
 
     @Override
     public void setViewport(Viewport viewport) {}

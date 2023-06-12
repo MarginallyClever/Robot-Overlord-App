@@ -46,12 +46,11 @@ public class ODEPhysicsComponent extends Component {
 	}
 
 	public void render(GL3 gl) {
-		gl.glPushMatrix();
-		if(geom instanceof DBox) drawBox(gl);
-		else if(geom instanceof DSphere) drawSphere(gl);
-		else if(geom instanceof DPlane) drawPlane(gl);
+		//if(geom instanceof DBox) drawBox(gl);
+		//else if(geom instanceof DSphere) drawSphere(gl);
+		//else
+			if(geom instanceof DPlane) drawPlane(gl);
 		else logger.error("systems() unknown type "+geom.getClass().getName());
-		gl.glPopMatrix();
 	}
 
 	private void drawPlane(GL3 gl) {
@@ -70,28 +69,11 @@ public class ODEPhysicsComponent extends Component {
 		Vector3d nx = new Vector3d();
 		nx.cross(nz, ny);
 		ny.cross(nx, nz);
-		MatrixHelper.drawMatrix(gl, p, nx, ny, nx);
 		Matrix4d m = new Matrix4d(
 				nx.x,nx.y,nx.z,p.x,
 				ny.x,ny.y,ny.z,p.y,
 				nz.x,nz.y,nz.z,p.z,
 				0,0,0,1);
-		MatrixHelper.applyMatrix(gl, m);
-
-		PrimitiveSolids.drawCircleXY(gl, 10, 40);
-		PrimitiveSolids.drawStar(gl, 10);
-	}
-
-	private void drawSphere(GL3 gl) {
-		MatrixHelper.applyMatrix(gl, ODEConverter.getMatrix4d(geom));
-		PrimitiveSolids.drawSphere(gl, ((DSphere)geom).getRadius());
-	}
-
-	private void drawBox(GL3 gl) {
-		MatrixHelper.applyMatrix(gl, ODEConverter.getMatrix4d(geom));
-		Vector3d top = ODEConverter.getVector3d(((DBox)geom).getLengths());
-		top.scale(0.5);
-		Vector3d bottom = new Vector3d(-top.x,-top.y,-top.z);
-		PrimitiveSolids.drawBox(gl, bottom, top);
+		MatrixHelper.drawMatrix(m,10).render(gl);
 	}
 }

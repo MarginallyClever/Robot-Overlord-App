@@ -91,7 +91,6 @@ public class Compass3D {
 		gl.glEnable(GL3.GL_DEPTH_TEST);
 		gl.glEnable(GL3.GL_CULL_FACE);
 		gl.glBlendFunc(GL3.GL_SRC_ALPHA,GL3.GL_ONE_MINUS_SRC_ALPHA);
-		gl.glEnable(GL3.GL_COLOR_MATERIAL);
 		mat.render(gl);
 		model.render(gl);
 	}

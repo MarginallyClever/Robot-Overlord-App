@@ -184,22 +184,19 @@ public class LinearStewartPlatformCore extends RenderComponent {
 	@Override
 	public void render(GL3 gl) {
 		PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
-
-		gl.glPushMatrix();
-			MatrixHelper.applyMatrix(gl, myPose.getLocal());
-			drawBase(gl);
-			drawTopPlate(gl);
-			if(debugEEPoints.get()) drawDebugEEPoints(gl);
-			if(debugSlides.get()) drawDebugSlides(gl);
-			if(debugArms.get()) drawDebugArms(gl);
-		gl.glPopMatrix();
+		drawBase(gl);
+		drawTopPlate(gl);
+		if(debugEEPoints.get()) drawDebugEEPoints(gl);
+		if(debugSlides.get()) drawDebugSlides(gl);
+		if(debugArms.get()) drawDebugArms(gl);
 	}
 
 	private void drawBase(GL3 gl) {
+		//MatrixHelper.drawMatrix(gl, MatrixHelper.createIdentityMatrix4(),5);
 	}
 
 	private void drawTopPlate(GL3 gl) {
-		MatrixHelper.drawMatrix(gl, getEndEffectorPose(),5);
+		//MatrixHelper.drawMatrix(gl, getEndEffectorPose(),5);
 	}
 
 	public Matrix4d getEndEffectorPose() {
@@ -207,8 +204,7 @@ public class LinearStewartPlatformCore extends RenderComponent {
 	}
 
 	private void drawDebugEEPoints(GL3 gl) {
-		boolean wasLit = OpenGLHelper.disableLightingStart(gl);
-		Vector3d eeCenter = MatrixHelper.getPosition(eePose.getLocal());
+		Vector3d eeCenter = MatrixHelper.getPosition(eePose.getLocal());/*
 		gl.glColor3d(1, 0, 0);
 		gl.glBegin(GL3.GL_LINES);
 		for (LinearStewartPlatformArm arm : arms) {
@@ -218,12 +214,10 @@ public class LinearStewartPlatformCore extends RenderComponent {
 					arm.pEE2.z);
 			gl.glColor3d(0, 0, 0);
 		}
-		gl.glEnd();
-		OpenGLHelper.disableLightingEnd(gl,wasLit);
+		gl.glEnd();*/
 	}
 
 	private void drawDebugSlides(GL3 gl)  {
-		boolean wasLit = OpenGLHelper.disableLightingStart(gl);
 		for(int i=0;i<arms.length;++i) {
 			renderOneLinearSlide(gl,
 					arms[i].pSlide,
@@ -231,11 +225,9 @@ public class LinearStewartPlatformCore extends RenderComponent {
 					BASE_Z.get()+SLIDE_TRAVEL.get(),
 					i==0);
 		}
-		OpenGLHelper.disableLightingEnd(gl,wasLit);
 	}
 
-	protected void drawDebugArms(GL3 gl) {
-		boolean wasLit = OpenGLHelper.disableLightingStart(gl);
+	protected void drawDebugArms(GL3 gl) {/*
 		gl.glColor3d(1, 0, 0);
 		gl.glBegin(GL3.GL_LINES);
 		for(int i=0;i<arms.length;++i) {
@@ -247,11 +239,10 @@ public class LinearStewartPlatformCore extends RenderComponent {
 							arms[i].pSlide.z);
 			gl.glColor3d(0, 0, 0);
 		}
-		gl.glEnd();
-		OpenGLHelper.disableLightingEnd(gl,wasLit);
+		gl.glEnd();*/
 	}
 
-	private void renderOneLinearSlide(GL3 gl,Point3d p,double min,double max,boolean first) {
+	private void renderOneLinearSlide(GL3 gl,Point3d p,double min,double max,boolean first) {/*
 		gl.glBegin(GL3.GL_LINES);
 		if(first) gl.glColor3d(1, 0, 0);
 		else      gl.glColor3d(0, 1, 0);
@@ -260,7 +251,7 @@ public class LinearStewartPlatformCore extends RenderComponent {
 		gl.glColor3d(0, 0, 1);
 		gl.glVertex3d(p.x, p.y, p.z);
 		gl.glVertex3d(p.x, p.y, max);
-		gl.glEnd();
+		gl.glEnd();*/
 	}
 	
 	@Deprecated

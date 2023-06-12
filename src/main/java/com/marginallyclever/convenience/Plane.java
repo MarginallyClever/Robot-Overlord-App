@@ -45,13 +45,6 @@ public class Plane {
 		this.distance = distance;
 	}
 	
-	public void render(GL3 gl) {
-		gl.glBegin(GL3.GL_LINES);
-		gl.glColor3d(1,1,1);
-		gl.glVertex3d(normal.x* distance, normal.y* distance, normal.z* distance);
-		gl.glVertex3d(normal.x*(distance +1), normal.y*(distance +1), normal.z*(distance +1));
-	}
-	
 	/**
 	 * @return distance to plane from origin.  effectively normal.dot(start)
 	 */

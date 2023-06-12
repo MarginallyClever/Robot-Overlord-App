@@ -68,17 +68,6 @@ public class Ray {
 		return maxDistance;
 	}
 
-	public void render(GL3 gl) {
-		gl.glBegin(GL3.GL_LINES);
-		gl.glColor3d(1,0,0); 
-		gl.glVertex3d(origin.x, origin.y, origin.z);
-		gl.glColor3d(0,1,0);
-		gl.glVertex3d(
-				origin.x+direction.x*50,
-				origin.y+direction.y*50,
-				origin.z+direction.z*50);
-	}
-	
 	/**
 	 * @return start + direction * t
 	 */

@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.robots.skycam;
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.RenderComponent;
@@ -20,7 +21,7 @@ import javax.vecmath.Vector3d;
  * @since 1.7.1
  */
 @Deprecated
-public class Skycam extends RenderComponent {
+public class Skycam extends Component {
 	private static final Logger logger = LoggerFactory.getLogger(Skycam.class);
 	protected transient Vector3DParameter size = new Vector3DParameter("size",100,100,100);
 	private PoseComponent eePose;
@@ -37,20 +38,6 @@ public class Skycam extends RenderComponent {
 		eePose.setPosition(new Vector3d(0,0,0));
 	}
 
-	@Override
-	public void render(GL3 gl) {
-		PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
-
-		gl.glPushMatrix();
-		MatrixHelper.applyMatrix(gl, myPose.getLocal());
-
-		// user controlled version
-		setPosition(MatrixHelper.getPosition(eePose.getLocal()));
-		renderModel(gl);
-
-		gl.glPopMatrix();
-	}
-
 	public boolean setPosition(Vector3d p) {
 		Vector3d s = size.get();
 
@@ -64,24 +51,5 @@ public class Skycam extends RenderComponent {
 		eePose.setPosition(p);
 
 		return ok;
-	}
-
-	public void renderModel(GL3 gl) {
-		gl.glColor4d(1,1,1,1);
-
-		Vector3d s = size.get();
-		Point3d bottom = new Point3d(-s.x/2,-s.y/2,0);
-		Point3d top    = new Point3d(+s.x/2,+s.y/2,+s.z);
-		PrimitiveSolids.drawBoxWireframe(gl, bottom,top);
-
-		Vector3d ep = eePose.getPosition();
-		gl.glBegin(GL3.GL_LINES);
-		gl.glVertex3d(ep.x,ep.y,ep.z);  gl.glVertex3d(bottom.x,bottom.y,top.z);
-		gl.glVertex3d(ep.x,ep.y,ep.z);  gl.glVertex3d(bottom.x,top   .y,top.z);
-		gl.glVertex3d(ep.x,ep.y,ep.z);  gl.glVertex3d(top   .x,top   .y,top.z);
-		gl.glVertex3d(ep.x,ep.y,ep.z);  gl.glVertex3d(top   .x,bottom.y,top.z);
-		gl.glEnd();
-
-		gl.glPopMatrix();
 	}
 }

@@ -34,27 +34,8 @@ public class MaterialComponent extends Component {
     }
 
     public void render(GL3 gl) {
-        gl.glColor4d(diffuse.getR(),diffuse.getG(),diffuse.getB(),diffuse.getA());
-        gl.glMaterialfv(GL3.GL_FRONT, GL3.GL_DIFFUSE, diffuse.getFloatArray(),0);
-        gl.glMaterialfv(GL3.GL_FRONT, GL3.GL_SPECULAR, specular.getFloatArray(),0);
-        gl.glMaterialfv(GL3.GL_FRONT, GL3.GL_EMISSION, emission.getFloatArray(),0);
-        gl.glMaterialfv(GL3.GL_FRONT, GL3.GL_AMBIENT, ambient.getFloatArray(),0);
-        gl.glMaterialf(GL3.GL_FRONT, GL3.GL_SHININESS, shininess.get().floatValue());
-        gl.glColorMaterial(GL3.GL_FRONT,GL3.GL_AMBIENT_AND_DIFFUSE );
-
-        boolean isColorEnabled = gl.glIsEnabled(GL3.GL_COLOR_MATERIAL);
-        gl.glDisable(GL3.GL_COLOR_MATERIAL);
-
-        gl.glShadeModel(GL3.GL_SMOOTH);
-
-        if(isLit()) gl.glEnable(GL3.GL_LIGHTING);
-        else gl.glDisable(GL3.GL_LIGHTING);
-
         texture.render(gl);
-
-        if(isColorEnabled) gl.glEnable(GL3.GL_COLOR_MATERIAL);
     }
-
 
     public void setShininess(int arg0) {
         arg0 = Math.min(Math.max(arg0, 0), 128);

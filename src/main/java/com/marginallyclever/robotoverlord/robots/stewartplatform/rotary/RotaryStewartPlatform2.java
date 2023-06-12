@@ -16,9 +16,6 @@ import java.io.Serial;
  */
 @Deprecated
 public class RotaryStewartPlatform2 extends RotaryStewartPlatform {
-	@Serial
-	private static final long serialVersionUID = 1L;
-
 	public final String hello = "HELLO WORLD! I AM STEWART PLATFORM V4.2";
 	// machine dimensions
 	private final MeshFromFile baseModel;
@@ -40,48 +37,5 @@ public class RotaryStewartPlatform2 extends RotaryStewartPlatform {
 		//eeModel.setShapeRotation(180,0,30);
 		//baseModel.setShapeRotation(0,90,90);
 		//baseModel.setShapeOrigin(0,0,BASE_Z.get() + 0.6);
-	}
-
-	@Override
-	public void render(GL3 gl) {
-		PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
-
-		gl.glPushMatrix();
-			MatrixHelper.applyMatrix(gl, myPose.getLocal());
-
-			baseModel.render(gl);
-			
-			// draw the end effector
-			gl.glPushMatrix();
-			MatrixHelper.applyMatrix(gl, getEndEffectorPose());
-			eeModel.render(gl);
-			gl.glPopMatrix();
-
-			drawBiceps(gl);
-			drawForearms(gl);
-		gl.glPopMatrix();
-
-		super.render(gl);
-	}
-
-	@Override
-	protected void drawBiceps(GL3 gl) {
-		for(int i=0;i<arms.length;++i) {
-			int k = (i+arms.length-1)%arms.length;
-			double j = (k/2)+1;
-
-			gl.glPushMatrix();
-				gl.glTranslated(arms[i].pShoulder.x,arms[i].pShoulder.y, arms[i].pShoulder.z);
-				gl.glRotated(j*120, 0, 0, 1);
-				gl.glRotated(-90, 0, 1, 0);
-				gl.glRotated(-arms[i].angle, 0, 0, 1);
-				armModel.render(gl);
-			gl.glPopMatrix();
-		}
-	}
-
-	@Override
-	public void getView(ViewPanelFactory view) {
-		super.getView(view);
 	}
 }

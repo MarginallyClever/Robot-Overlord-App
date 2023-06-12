@@ -1,8 +1,10 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
 import com.jogamp.opengl.GL3;
+import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
@@ -22,9 +24,9 @@ import java.util.List;
  */
 public class RotateEntityMultiTool implements EditorTool {
     private Viewport viewport;
-    private final RotateEntityToolOneAxis toolX = new RotateEntityToolOneAxis();
-    private final RotateEntityToolOneAxis toolY = new RotateEntityToolOneAxis();
-    private final RotateEntityToolOneAxis toolZ = new RotateEntityToolOneAxis();
+    private final RotateEntityToolOneAxis toolX = new RotateEntityToolOneAxis(new ColorRGB(255,0,0));
+    private final RotateEntityToolOneAxis toolY = new RotateEntityToolOneAxis(new ColorRGB(0,255,0));
+    private final RotateEntityToolOneAxis toolZ = new RotateEntityToolOneAxis(new ColorRGB(0,0,255));
 
     private final List<EditorTool> tools = new ArrayList<>();
 
@@ -187,21 +189,18 @@ public class RotateEntityMultiTool implements EditorTool {
      * @param gl The OpenGL context to systems to.
      */
     @Override
-    public void render(GL3 gl) {
+    public void render(GL3 gl, ShaderProgram shaderProgram) {
         if (selectedItems == null || selectedItems.isEmpty()) return;
 
         int i = getIndexInUse();
         if(0==i || -1==i) {
-            gl.glColor3d(1,0,0);
-            toolX.render(gl);
+            toolX.render(gl,shaderProgram);
         }
         if(1==i || -1==i) {
-            gl.glColor3d(0,1,0);
-            toolY.render(gl);
+            toolY.render(gl,shaderProgram);
         }
         if(2==i || -1==i) {
-            gl.glColor3d(0,0,1);
-            toolZ.render(gl);
+            toolZ.render(gl,shaderProgram);
         }
     }
 

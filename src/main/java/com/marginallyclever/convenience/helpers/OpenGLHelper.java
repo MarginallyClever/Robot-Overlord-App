@@ -32,24 +32,6 @@ public class OpenGLHelper {
 		return lineWidth.get(0);
 	}
 
-	public static Matrix4d getModelviewMatrix(GL3 gl) {
-		FloatBuffer ptr = FloatBuffer.allocate(16);
-		gl.glGetFloatv(GL3.GL_MODELVIEW_MATRIX, ptr);
-		float [] fArray = ptr.array();
-		double [] dArray = new double[fArray.length];
-		for(int i=0;i<fArray.length;++i) dArray[i]=fArray[i];
-		return new Matrix4d(dArray);
-	}
-
-	public static Matrix4d getProjectionMatrix(GL3 gl) {
-		FloatBuffer ptr = FloatBuffer.allocate(16);
-		gl.glGetFloatv(GL3.GL_PROJECTION_MATRIX, ptr);
-		float [] fArray = ptr.array();
-		double [] dArray = new double[fArray.length];
-		for(int i=0;i<fArray.length;++i) dArray[i]=fArray[i];
-		return new Matrix4d(dArray);
-	}
-
 	public static boolean disableTextureStart(GL3 gl) {
 		boolean b = gl.glIsEnabled(GL3.GL_TEXTURE_2D);
 		gl.glDisable(GL3.GL_TEXTURE_2D);

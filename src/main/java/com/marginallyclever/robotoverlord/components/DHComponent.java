@@ -272,7 +272,6 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
 
     @Override
     public void render(GL3 gl) {
-        boolean lit = OpenGLHelper.disableLightingStart(gl);
         boolean tex = OpenGLHelper.disableTextureStart(gl);
         int onTop = OpenGLHelper.drawAtopEverythingStart(gl);
 
@@ -307,7 +306,6 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
 
         OpenGLHelper.drawAtopEverythingEnd(gl, onTop);
         OpenGLHelper.disableTextureEnd(gl, tex);
-        OpenGLHelper.disableLightingEnd(gl, lit);
     }
 
     public void setRevolute(boolean b) {

@@ -1,12 +1,14 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
 import com.jogamp.opengl.GL3;
+import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 
 import javax.vecmath.Matrix4d;
@@ -23,7 +25,7 @@ import java.util.List;
  * @since 2.5.0
  */
 public class TranslateEntityToolTwoAxis implements EditorTool {
-    private final double padSize = 1;
+    private double padSize = 1;
     private double toolScale = 0.035;
     private double localScale = 1;
 
@@ -59,8 +61,14 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
     private final Vector3d translationAxisY = new Vector3d();
     private Matrix4d pivotMatrix;
 
-    private boolean hovering = false;
+    private boolean cursorOverHandle = false;
     private int frameOfReference = EditorTool.FRAME_WORLD;
+    private final ColorRGB color;
+
+    public TranslateEntityToolTwoAxis(ColorRGB color) {
+        super();
+        this.color = color;
+    }
 
     @Override
     public void activate(List<Entity> list) {
@@ -104,14 +112,14 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
 
     @Override
     public void mouseMoved(MouseEvent event) {
-        hovering = isCursorOverPad(event.getX(), event.getY());
+        cursorOverHandle = isCursorOverPad(event.getX(), event.getY());
     }
 
     @Override
     public void mousePressed(MouseEvent event) {
         if (isCursorOverPad(event.getX(), event.getY())) {
             dragging = true;
-            hovering = true;
+            cursorOverHandle = true;
             startPoint = EditorUtils.getPointOnPlaneFromCursor(translationPlane,viewport,event.getX(), event.getY());
             selectedItems.savePose();
         }
@@ -182,44 +190,41 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
     }
 
     @Override
-    public void render(GL3 gl) {
+    public void render(GL3 gl, ShaderProgram shaderProgram) {
         if(selectedItems==null || selectedItems.isEmpty()) return;
 
         // Render the translation pad on the plane
-        boolean light = OpenGLHelper.disableLightingStart(gl);
 
-        gl.glPushMatrix();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",pivotMatrix);
 
-        MatrixHelper.applyMatrix(gl, pivotMatrix);
-
-        float [] colors = new float[4];
-        gl.glGetFloatv(GL3.GL_CURRENT_COLOR, colors, 0);
-        double colorScale = hovering? 1:0.8;
-
-        gl.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 0.5);
+        float colorScale = cursorOverHandle ? 1:0.5f;
+        float red   = color.red   * colorScale / 255f;
+        float green = color.green * colorScale / 255f;
+        float blue  = color.blue  * colorScale / 255f;
+        shaderProgram.set4f(gl, "objectColor", red, green, blue, 0.5f);
         drawQuad(gl,GL3.GL_TRIANGLE_FAN);
-        gl.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 1.0);
+        shaderProgram.set4f(gl, "objectColor", red, green, blue, 1.0f);
         drawQuad(gl,GL3.GL_LINE_LOOP);
-
-        gl.glPopMatrix();
-
-        OpenGLHelper.disableLightingEnd(gl, light);
     }
 
     private void drawQuad(GL3 gl,int mode) {
-        double ps = getPadSizeScaled();
-        gl.glBegin(mode);
-        gl.glVertex3d( 0, 0,0);
-        gl.glVertex3d(ps, 0,0);
-        gl.glVertex3d(ps, ps,0);
-        gl.glVertex3d(0, ps,0);
-        gl.glEnd();
-        gl.glBegin(mode);
-        gl.glVertex3d( 0, 0,0);
-        gl.glVertex3d(0, ps,0);
-        gl.glVertex3d(ps, ps,0);
-        gl.glVertex3d(ps, 0,0);
-        gl.glEnd();
+        float ps = (float)getPadSizeScaled();
+
+        Mesh mesh = new Mesh();
+        mesh.setRenderStyle(mode);
+        mesh.addVertex( 0, 0,0);
+        mesh.addVertex(ps, 0,0);
+        mesh.addVertex(ps, ps,0);
+        mesh.addVertex(0, ps,0);
+        mesh.render(gl);
+
+        mesh = new Mesh();
+        mesh.setRenderStyle(mode);
+        mesh.addVertex( 0, 0,0);
+        mesh.addVertex(0, ps,0);
+        mesh.addVertex(ps, ps,0);
+        mesh.addVertex(ps, 0,0);
+        mesh.render(gl);
     }
 
     @Override

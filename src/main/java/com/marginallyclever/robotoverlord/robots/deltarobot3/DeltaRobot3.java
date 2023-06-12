@@ -6,10 +6,7 @@ import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotoverlord.components.ComponentDependency;
-import com.marginallyclever.robotoverlord.components.MaterialComponent;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.components.RenderComponent;
+import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
 import com.marginallyclever.robotoverlord.robots.Robot;
@@ -40,7 +37,7 @@ import java.util.List;
  */
 @Deprecated
 @ComponentDependency(components = {PoseComponent.class, MaterialComponent.class})
-public class DeltaRobot3 extends RenderComponent implements Robot {
+public class DeltaRobot3 extends Component implements Robot {
 	private static final Logger logger = LoggerFactory.getLogger(DeltaRobot3.class);
 
 	// machine ID
@@ -205,114 +202,6 @@ public class DeltaRobot3 extends RenderComponent implements Robot {
 		connection.sendMessage(command);
 
 		return true;
-	}
-
-	@Override
-	public void render(GL3 gl) {
-		gl.glPushMatrix();
-
-		gl.glTranslated(0,0,2);
-		
-		drawModel(gl);
-		drawForearms(gl);
-		drawDebugInfo(gl);
-
-		gl.glPopMatrix();
-	}
-
-	private void drawModel(GL3 gl) {
-		modelBase.render(gl);
-
-		for(int i=0;i<NUM_ARMS;++i) {
-			gl.glPushMatrix();
-			gl.glTranslated(arms[i].shoulder.x,
-					arms[i].shoulder.y,
-					arms[i].shoulder.z);
-			gl.glRotated(90,0,1,0);  // model oriented wrong direction
-			gl.glRotated(60-i*(360.0f/NUM_ARMS), 1, 0, 0);
-			gl.glTranslated(0, 0, 0.125f*2.54f);  // model origin wrong
-			gl.glRotated(180-arms[i].angle,0,0,1);
-			modelArm.render(gl);
-			gl.glPopMatrix();
-		}
-		//top
-		gl.glPushMatrix();
-		gl.glTranslated(motionNow.x,motionNow.y,motionNow.z);
-		modelTop.render(gl);
-		gl.glPopMatrix();
-	}
-
-	private void drawDebugInfo(GL3 gl) {
-		gl.glDisable(GL3.GL_LIGHTING);
-		gl.glDisable(GL3.GL_TEXTURE);
-		// debug info
-		gl.glPushMatrix();
-
-		for(DeltaRobot3Arm arm : arms) {
-			gl.glColor3f(1,1,1);
-			PrimitiveSolids.drawStar(gl, arm.shoulder,5);
-			PrimitiveSolids.drawStar(gl, arm.elbow,3);
-			PrimitiveSolids.drawStar(gl, arm.wrist,1);
-
-			gl.glBegin(GL3.GL_LINES);
-			gl.glColor3f(0,1,0);
-			gl.glVertex3d(arm.elbow.x,arm.elbow.y,arm.elbow.z);
-			gl.glColor3f(0,0,1);
-			gl.glVertex3d(arm.shoulder.x,arm.shoulder.y,arm.shoulder.z);
-			gl.glEnd();
-		}
-		gl.glPopMatrix();
-
-		// draw finger center (end effector)
-		gl.glPushMatrix();
-		gl.glTranslated(
-				motionNow.x,
-				motionNow.y,
-				motionNow.z);
-		PrimitiveSolids.drawStar(gl, 5);
-		gl.glPopMatrix();
-
-		PrimitiveSolids.drawStar(gl, 2);
-
-		gl.glEnable(GL3.GL_LIGHTING);
-		gl.glEnable(GL3.GL_TEXTURE);
-
-	}
-
-	private void drawForearms(GL3 gl) {
-		Vector3d a = new Vector3d();
-		Vector3d b = new Vector3d();
-
-		int i=0;
-		for(DeltaRobot3Arm arm : arms) {
-			Vector3d ortho = getNormalOfArmPlane(i);
-			++i;
-
-			a.set(arm.wrist);
-			b.set(ortho);
-			b.scale(1);
-			a.add(b);
-			tube.SetP1(a);
-
-			a.set(arm.elbow);
-			b.set(ortho);
-			b.scale(1);
-			a.add(b);
-			tube.SetP2(a);
-			tube.render(gl);
-
-			a.set(arm.wrist);
-			b.set(ortho);
-			b.scale(-1);
-			a.add(b);
-			tube.SetP1(a);
-			a.set(arm.elbow);
-			b.set(ortho);
-			b.scale(-1);
-			a.add(b);
-			tube.SetP2(a);
-			tube.render(gl);
-		}
 	}
 
 	private void setModeAbsolute() {

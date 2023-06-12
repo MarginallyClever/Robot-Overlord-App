@@ -52,6 +52,11 @@ public class Mesh {
 		super();
 		AABB.setShape(this);
 	}
+
+	public Mesh(int renderStyle) {
+		this();
+		this.renderStyle = renderStyle;
+	}
 	
 	/**
 	 * Remove all vertexes, normals, colors, texture coordinates, etc.

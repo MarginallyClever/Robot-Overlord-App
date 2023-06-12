@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.components;
 
 import com.jogamp.opengl.GL3;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.SerializationContext;
@@ -9,6 +10,7 @@ import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementSlider;
 import com.marginallyclever.robotoverlord.systems.render.gcodepath.*;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -22,18 +24,13 @@ import javax.vecmath.Point3d;
  * @since 2.5.0
  */
 @ComponentDependency(components = {PoseComponent.class})
-public class GCodePathComponent extends RenderComponent implements WalkablePath<Point3d> {
-    private static final Logger logger = LoggerFactory.getLogger(GCodePathComponent.class);
-
+public class GCodePathComponent extends ShapeComponent implements WalkablePath<Point3d> {
     public final StringParameter filename = new StringParameter("File","");
     public final IntParameter numCommands = new IntParameter("Commands",0);
     public final DoubleParameter distanceMeasured = new DoubleParameter("Distance",0);
     public final IntParameter getCommand = new IntParameter("Show",0);
-
     private final double maxStepSize = 0.1;
     private Point3d location;
-    private ViewElementSlider slider;
-
     private GCodePath gCodePath;
 
     public GCodePathComponent() {
@@ -46,20 +43,22 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
         if(gCodePath==null) return;
 
         boolean tex = OpenGLHelper.disableTextureStart(gl);
-        boolean light = OpenGLHelper.disableLightingStart(gl);
 
-        drawEntirePath(gl);
+        myMesh.render(gl);
+
+        if(location!=null) {
+            MatrixHelper.drawMatrix(location,3).render(gl);
+        }
 
         OpenGLHelper.disableTextureEnd(gl,tex);
-        OpenGLHelper.disableLightingEnd(gl,light);
     }
 
-    private void drawEntirePath(GL3 gl) {
+    private void drawEntirePath() {
         PathWalker pathWalker = new PathWalker(null,gCodePath,maxStepSize);
-        gl.glBegin(GL3.GL_LINE_STRIP);
 
-        double prevX = 0, prevY = 0, prevZ = 0;
-        gl.glColor4d(0, 0, 1,0.25);
+        if(myMesh==null) myMesh = new Mesh();
+        myMesh.clear();
+        myMesh.setRenderStyle(GL3.GL_LINE_STRIP);
 
         while (pathWalker.hasNext()) {
             pathWalker.next();
@@ -70,23 +69,17 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
             if (command.equalsIgnoreCase("G0") || command.equalsIgnoreCase("G1")) {
                 if(currentElement.getExtrusion()==null) {
                     // rapid
-                    gl.glColor4d(0, 0, 1,0.25);
+                    myMesh.addColor(0, 0, 1,0.25f);
                 } else {
                     // extrusion / milling movement
-                    gl.glColor3d(1, 0, 0);
+                    myMesh.addColor(1, 0, 0,1);
                 }
-                gl.glVertex3d(currentPosition.x,currentPosition.y,currentPosition.z);
+                myMesh.addVertex( (float)currentPosition.x, (float)currentPosition.y, (float)currentPosition.z );
             } else if (command.equalsIgnoreCase("G2") || command.equalsIgnoreCase("G3")) {
                 // arc
-                gl.glColor3d(0, 1, 0);
-                gl.glVertex3d(currentPosition.x,currentPosition.y,currentPosition.z);
+                myMesh.addColor(0, 1, 0, 1);
+                myMesh.addVertex( (float)currentPosition.x, (float)currentPosition.y, (float)currentPosition.z );
             } // else unknown, ignore.
-        }
-
-        gl.glEnd();
-
-        if(location!=null) {
-            PrimitiveSolids.drawStar(gl,location,3);
         }
     }
 
@@ -171,6 +164,7 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
 
     public void load(String filename) {
         gCodePath = PathFactory.load(filename);
+        drawEntirePath();
         updateNumCommands();
     }
 
@@ -181,7 +175,6 @@ public class GCodePathComponent extends RenderComponent implements WalkablePath<
         } else {
             numCommands.set(gCodePath.getElements().size());
             distanceMeasured.set(calculateDistance());
-            if(slider!=null) slider.setMaximum(numCommands.get());
             updateLocation();
         }
     }

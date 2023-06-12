@@ -1,9 +1,6 @@
 package com.marginallyclever.robotoverlord.systems.render;
 
-import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.helpers.OpenGLHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
@@ -23,7 +20,6 @@ import javax.vecmath.*;
  */
 public class Viewport extends Entity {
 	private int canvasWidth, canvasHeight;
-	private final int[] viewportDimensions = new int[4];
 
 	/**
 	 * The mouse cursor position in screen coordinates.
@@ -40,54 +36,6 @@ public class Viewport extends Entity {
 	
 	public Viewport() {
 		super();
-	}
-
-	@Deprecated
-	public void renderPerspective(GL3 gl) {
-		double zNear = nearZ.get();
-		double zFar = farZ.get();
-		double fH = Math.tan(Math.toRadians(fieldOfView.get() / 2)) * zNear;
-		double aspect = (double)canvasWidth / (double)canvasHeight;
-		double fW = fH * aspect;
-		gl.glFrustum(-fW,fW,-fH,fH,zNear,zFar);
-	}
-
-	/**
-	 * Render the scene in orthographic projection.
-	 * @param gl the OpenGL context
-	 * @param zoom the zoom factor
-	 */
-	@Deprecated
-	public void renderOrthographic(GL3 gl, double zoom) {
-		double w = canvasWidth / 2.0;
-		double h = canvasHeight / 2.0;
-		gl.glOrtho(-w / zoom, w / zoom, -h / zoom, h / zoom, nearZ.get(), farZ.get());
-	}
-
-	@Deprecated
-	public void renderOrthographic(GL3 gl) {
-		renderOrthographic(gl,camera.getOrbitDistance()/100.0);
-	}
-
-	@Deprecated
-	public void renderChosenProjection(GL3 gl) {
-		gl.glMatrixMode(GL3.GL_PROJECTION);
-		gl.glLoadIdentity();
-
-		if(drawOrthographic.get()) {
-			renderOrthographic(gl);
-		} else {
-			renderPerspective(gl);
-		}
-
-		gl.glMatrixMode(GL3.GL_MODELVIEW);
-		gl.glLoadIdentity();
-		if(camera !=null) {
-			PoseComponent pose = camera.getEntity().getComponent(PoseComponent.class);
-			Matrix4d inverseCamera = pose.getWorld();
-			inverseCamera.invert();
-			MatrixHelper.applyMatrix(gl, inverseCamera);
-		}
 	}
 
 	public Matrix4d getPerspectiveFrustum() {
@@ -189,80 +137,6 @@ public class Viewport extends Entity {
 		return new Ray(origin,direction);
 	}
 
-	@Deprecated
-	public void showPickingTest(GL3 gl) {
-		renderChosenProjection(gl);
-		gl.glPushMatrix();
-
-		Ray r = getRayThroughCursor();
-
-		double cx=cursorX;
-		double cy=cursorY;
-        int w = canvasWidth;
-        int h = canvasHeight;
-        setCursor(0,0);	Ray tl = getRayThroughCursor();
-        setCursor(w,0);		Ray tr = getRayThroughCursor();
-        setCursor(0,h);		Ray bl = getRayThroughCursor();
-        setCursor(w,h);			Ray br = getRayThroughCursor();
-		cursorX=cx;
-		cursorY=cy;
-
-        double scale=20;
-        
-        Vector3d tl2 = new Vector3d(tl.getDirection());
-        Vector3d tr2 = new Vector3d(tr.getDirection());
-        Vector3d bl2 = new Vector3d(bl.getDirection());
-        Vector3d br2 = new Vector3d(br.getDirection());
-        Vector3d r2  = new Vector3d(r .getDirection());
-
-		tl2.scale(scale);
-		tr2.scale(scale);
-		bl2.scale(scale);
-		br2.scale(scale);
-		r2 .scale(scale);
-
-        tl2.add(tl.getOrigin());
-        tr2.add(tr.getOrigin());
-        bl2.add(bl.getOrigin());
-        br2.add(br.getOrigin());
-        r2.add(r.getOrigin());
-
-		boolean tex = OpenGLHelper.disableTextureStart(gl);
-		
-        gl.glColor3d(1, 0, 0);
-		gl.glBegin(GL3.GL_LINES);
-		drawPoint(gl,tl.getOrigin());		drawPoint(gl,tl2);
-		drawPoint(gl,tr.getOrigin());		drawPoint(gl,tr2);
-		drawPoint(gl,bl.getOrigin());		drawPoint(gl,bl2);
-		drawPoint(gl,br.getOrigin());		drawPoint(gl,br2);
-        gl.glColor3d(1, 1, 1);
-		drawPoint(gl,r.getOrigin());		drawPoint(gl,r2);
-		gl.glEnd();
-        gl.glColor3d(0, 1, 0);
-		gl.glBegin(GL3.GL_LINE_LOOP);
-		drawPoint(gl,tl2);
-		drawPoint(gl,tr2);
-		drawPoint(gl,br2);
-		drawPoint(gl,bl2);
-		gl.glEnd();
-        gl.glColor3d(0, 0, 1);
-		gl.glBegin(GL3.GL_LINE_LOOP);
-		drawPoint(gl,tl.getOrigin());
-		drawPoint(gl,tr.getOrigin());
-		drawPoint(gl,br.getOrigin());
-		drawPoint(gl,bl.getOrigin());
-		gl.glEnd();
-		
-		PrimitiveSolids.drawStar(gl,r2,5);
-		gl.glPopMatrix();
-
-		OpenGLHelper.disableTextureEnd(gl,tex);
-	}
-
-	private void drawPoint(GL3 gl, Tuple3d vector) {
-		gl.glVertex3d(vector.x, vector.y, vector.z);
-	}
-
 	/**
 	 * Set the cursor position in the canvas.
 	 * @param x the x position in the canvas.  0....canvasWidth
@@ -291,18 +165,6 @@ public class Viewport extends Entity {
 	
 	public double getAspectRatio() {
 		return (double)canvasWidth/(double)canvasHeight;
-	}
-
-	public double getFieldOfView() {
-		return fieldOfView.get();
-	}
-
-	@Deprecated
-	public void getView(ViewPanelFactory view) {
-		view.add(drawOrthographic);
-		view.add(farZ);
-		view.add(nearZ);
-		view.add(fieldOfView);
 	}
 
 	public double [] getCursor() {

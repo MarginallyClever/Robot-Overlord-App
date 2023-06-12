@@ -2,9 +2,7 @@ package com.marginallyclever.robotoverlord.components;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.SerializationContext;
-import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -234,8 +232,6 @@ public class CameraComponent extends RenderComponent {
     }
 
     private void renderOrbitPoint(GL3 gl) {
-        gl.glPushMatrix();
-
         // reset matrix to camera inverse * orbit point
         PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         Matrix4d inverseCamera = pose.getWorld();
@@ -243,14 +239,9 @@ public class CameraComponent extends RenderComponent {
 
         Matrix4d orbitPointMatrix = MatrixHelper.createIdentityMatrix4();
         orbitPointMatrix.setTranslation(getOrbitPoint());
-
         orbitPointMatrix.mul(inverseCamera,orbitPointMatrix);
-        MatrixHelper.applyMatrix(gl,orbitPointMatrix);
 
-        // draw marker
-        PrimitiveSolids.drawStar(gl,25);
-
-        gl.glPopMatrix();
+        MatrixHelper.drawMatrix(orbitPointMatrix,25);
     }
 
     public void setCurrentlyMoving(boolean state) {

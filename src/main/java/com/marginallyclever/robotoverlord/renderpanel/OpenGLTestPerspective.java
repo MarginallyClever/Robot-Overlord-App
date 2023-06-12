@@ -26,51 +26,6 @@ public class OpenGLTestPerspective extends OpenGLTestOrthographic {
         program.setMatrix4d(gl,"projectionMatrix",perspectiveMatrix);
     }
 
-    /**
-     * Compare the way the master branch and the new branch calculate the projection, view, and model matrices.
-     * @param gl the GL3 context
-     */
-    private void compareMatrices(GL3 gl) {
-        // get old style
-        Entity cameraEntity = new Entity("Camera");
-        CameraComponent camera = new CameraComponent();
-        cameraEntity.addComponent(camera);
-        viewport.setCamera(camera);
-        camera.setOrbitDistance(5);
-        viewport.renderChosenProjection(gl);
-
-        double [] oldProjectionMatrix = new double[16];
-        gl.glGetDoublev(GL3.GL_PROJECTION_MATRIX,oldProjectionMatrix,0);
-
-        double [] oldViewMatrix = new double[16];
-        gl.glGetDoublev(GL3.GL_MODELVIEW_MATRIX,oldViewMatrix,0);
-
-        // get new style
-        Matrix4d modelMatrix = new Matrix4d();
-        modelMatrix.rotZ(0.25 * Math.PI);
-        modelMatrix.setTranslation(new Vector3d(0,0,3));
-        MatrixHelper.applyMatrix(gl,modelMatrix);
-        modelMatrix.transpose();
-
-        double [] oldModelMatrix = new double[16];
-        gl.glGetDoublev(GL3.GL_MODELVIEW_MATRIX,oldModelMatrix,0);
-
-        double w = glCanvas.getSurfaceWidth();
-        double h = glCanvas.getSurfaceHeight();
-        Matrix4d projectionMatrix = MatrixHelper.perspectiveMatrix4d(
-                60, w/h, 0.1f, 100.0f);
-
-        Matrix4d viewMatrix = MatrixHelper.createIdentityMatrix4();
-        viewMatrix.setTranslation(new Vector3d(0,0,-5));
-        viewMatrix.invert();
-
-        // good place to put a breakpoint.
-        gl.glMatrixMode(GL3.GL_PROJECTION);
-        gl.glLoadIdentity();
-        gl.glMatrixMode(GL3.GL_MODELVIEW_MATRIX);
-        gl.glLoadIdentity();
-    }
-
     public static void main(String[] args) {
         // make a frame
         JFrame frame = new JFrame( OpenGLTestPerspective.class.getSimpleName());

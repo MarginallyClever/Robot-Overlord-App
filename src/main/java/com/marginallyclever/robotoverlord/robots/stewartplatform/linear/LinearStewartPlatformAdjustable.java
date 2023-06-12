@@ -19,44 +19,6 @@ public class LinearStewartPlatformAdjustable extends LinearStewartPlatformCore {
     }
 
     @Override
-    public void render(GL3 gl) {
-        PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
-
-        gl.glPushMatrix();
-        MatrixHelper.applyMatrix(gl,myPose.getLocal());
-
-        material.render(gl);
-        renderBase(gl);
-        renderTopPlate(gl);
-        drawDebugArms(gl);
-        gl.glPopMatrix();
-
-        super.render(gl);
-    }
-
-    private void renderTopPlate(GL3 gl) {
-        double x = EE_X.get();
-        double y = EE_Y.get();
-        double z = EE_Z.get();
-        double r = Math.sqrt(x*x + y*y);
-
-        gl.glPushMatrix();
-        MatrixHelper.applyMatrix(gl,getEndEffectorPose());
-        PrimitiveSolids.drawCylinderAlongZ(gl,z,r);
-        gl.glPopMatrix();
-    }
-
-    private void renderBase(GL3 gl) {
-        double x = BASE_X.get();
-        double y = BASE_Y.get();
-        double z = BASE_Z.get();
-        double r = Math.sqrt(x * x + y * y);
-
-        gl.glColor3d(1, 1, 1);
-        PrimitiveSolids.drawCylinderAlongZ(gl, z, r);
-    }
-
-    @Override
     public void update(double dt) {
         calculateBasePointsOneTime();
         calculateEndEffectorPointsOneTime();

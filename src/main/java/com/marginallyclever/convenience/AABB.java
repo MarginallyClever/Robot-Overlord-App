@@ -109,27 +109,6 @@ public class AABB implements BoundingVolume, Serializable {
 		return new Matrix4d(pose);
 	}
 
-	@Deprecated
-	public void render(GL3 gl) {
-		gl.glPushMatrix();
-			MatrixHelper.applyMatrix(gl, pose);
-
-			IntBuffer depthFunc = IntBuffer.allocate(1);
-			gl.glGetIntegerv(GL3.GL_DEPTH_FUNC, depthFunc);
-			gl.glDepthFunc(GL3.GL_ALWAYS);
-			
-			boolean isLit = gl.glIsEnabled(GL3.GL_LIGHTING);
-			gl.glDisable(GL3.GL_LIGHTING);
-			
-			gl.glColor3d(255,255,255);
-			PrimitiveSolids.drawBoxWireframe(gl, getBoundsBottom(),getBoundsTop());
-	
-			if (isLit) gl.glEnable(GL3.GL_LIGHTING);
-			
-			gl.glDepthFunc(depthFunc.get());
-		gl.glPopMatrix();
-	}
-	
 	public void setDirty(boolean newState) {
 		isDirty=newState;
 	}
