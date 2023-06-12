@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.systems.motor;
 
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.motors.DCMotorComponent;
 import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
 import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
 import com.marginallyclever.robotoverlord.components.motors.StepperMotorComponent;
@@ -40,13 +41,28 @@ public class MotorSystem implements EntitySystem {
      */
     @Override
     public void decorate(ViewPanelFactory view, Component component) {
-        if (component instanceof ServoComponent) decorateServo(view, component);
-        if (component instanceof MotorComponent) decorateMotor(view, component);
+        if (component instanceof ServoComponent) decorateServo(view, (ServoComponent) component);
+        if (component instanceof StepperMotorComponent) decorateStepper(view, (StepperMotorComponent)component);
+        if (component instanceof MotorComponent) decorateMotor(view, (MotorComponent) component);
     }
 
-    private void decorateServo(ViewPanelFactory view, Component component) {
-        ServoComponent servo = (ServoComponent) component;
+    private void decorateStepper(ViewPanelFactory view, StepperMotorComponent stepper) {
+        view.add(stepper.stepPerRevolution);
+        view.add(stepper.microStepping);
+        view.addComboBox(stepper.direction,StepperMotorComponent.directionNames);
+        view.addButton("Step").addActionEventListener(e -> stepNow(stepper));
+    }
 
+    private void stepNow(StepperMotorComponent stepper) {
+        double degreePerStep = 360.0/(stepper.microStepping.get() * stepper.stepPerRevolution.get());
+        double angle = stepper.currentAngle.get();
+        if(stepper.direction.get()==StepperMotorComponent.DIRECTION_BACKWARD) angle -= degreePerStep;
+        else angle += degreePerStep;
+
+        rotateMotor(stepper,angle);
+    }
+
+    private void decorateServo(ViewPanelFactory view, ServoComponent servo) {
         ViewElementButton bCurve = view.addButton("Tune PID");
         bCurve.addActionEventListener(e -> editPID(bCurve, servo));
         view.add(servo.kP);
@@ -60,8 +76,7 @@ public class MotorSystem implements EntitySystem {
         EntitySystemUtils.makePanel(panel, parent, "Tune PID");
     }
 
-    private void decorateMotor(ViewPanelFactory view, Component component) {
-        MotorComponent motor = (MotorComponent) component;
+    private void decorateMotor(ViewPanelFactory view, MotorComponent motor) {
         view.add(motor.currentAngle);
         view.add(motor.currentRPM);
         view.add(motor.desiredRPM);
@@ -95,9 +110,8 @@ public class MotorSystem implements EntitySystem {
 
     public void updateMotor(MotorComponent motor, double dt) {
         if(motor instanceof ServoComponent) updateServo((ServoComponent)motor,dt);
-        else if(motor instanceof StepperMotorComponent) {}
-        //else if(motor instanceof DCMotorComponent) {}
-        else updateMotorBasic(motor, dt);
+        else if(motor instanceof StepperMotorComponent) updateStepper((StepperMotorComponent)motor,dt);
+        else if(motor instanceof DCMotorComponent) updateMotorBasic(motor, dt);
     }
 
     private void updateServo(ServoComponent servo, double dt) {
@@ -133,6 +147,16 @@ public class MotorSystem implements EntitySystem {
         updateMotorBasic(servo, dt);
     }
 
+    private void updateStepper(StepperMotorComponent motor, double dt) {
+        if(!motor.enabled.get()) return;
+
+        // adjust angle
+        double degreesPerSecond = motor.getCurrentRPM()*360.0/60.0;
+        double newAngle = motor.currentAngle.get() + degreesPerSecond * dt;
+
+        rotateMotor(motor, newAngle);
+    }
+
     private void updateMotorBasic(MotorComponent motor, double dt) {
         if(!motor.enabled.get()) return;
 
@@ -158,6 +182,11 @@ public class MotorSystem implements EntitySystem {
         rotateMotor(motor, newAngle);
     }
 
+    /**
+     * Rotate the motor to the specified angle.
+     * @param motor the motor to rotate
+     * @param newAngle the new angle in degrees
+     */
     public void rotateMotor(MotorComponent motor, double newAngle) {
         double oldAngle = motor.currentAngle.get();
 
