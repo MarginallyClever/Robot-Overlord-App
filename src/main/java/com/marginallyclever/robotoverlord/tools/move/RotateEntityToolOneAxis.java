@@ -329,14 +329,21 @@ public class RotateEntityToolOneAxis implements EditorTool {
     public void render(GL3 gl, ShaderProgram shaderProgram) {
         if(selectedItems==null || selectedItems.isEmpty()) return;
 
-        shaderProgram.set1i(gl,"useTexture", 0);
+        shaderProgram.set1i(gl,"useTexture",0);
+        shaderProgram.set1i(gl,"useLighting",0);
+        shaderProgram.set1i(gl,"useVertexColor",0);
 
         drawMainRingAndHandles(gl,shaderProgram);
-        if(dragging) drawWhileDragging(gl,shaderProgram);
+        if(dragging) {
+            shaderProgram.set4f(gl, "objectColor", 1,1,1,1);
+            drawWhileDragging(gl,shaderProgram);
+        }
     }
 
     private void drawWhileDragging(GL3 gl,ShaderProgram shaderProgram) {
-        shaderProgram.setMatrix4d(gl,"modelMatrix",startMatrix);
+        Matrix4d m = new Matrix4d(startMatrix);
+        m.transpose();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",m);
 
         float rr = (float)getRingRadiusScaled();
 
@@ -344,16 +351,16 @@ public class RotateEntityToolOneAxis implements EditorTool {
         mesh.setRenderStyle(GL3.GL_LINES);
         
         // major line
-        mesh.addColor(1,1,1,1);     mesh.addVertex(0,0,0);
-        mesh.addColor(1,1,1,1);     mesh.addVertex(rr,0,0);
+        mesh.addVertex(0,0,0);
+        mesh.addVertex(rr,0,0);
 
         float d0 = rr * (float)TICK_RATIO_INSIDE_45;
         float d1 = rr * (float)TICK_RATIO_OUTSIDE_45;
         // 45 degree lines
         for(int i=45;i<360;i+=45) {
             Vector3d a = new Vector3d(Math.cos(Math.toRadians(i)),Math.sin(Math.toRadians(i)),0);
-            mesh.addColor(1,1,1,1);     mesh.addVertex( (float)a.x*d0, (float)a.y*d0, (float)a.z*d0);
-            mesh.addColor(1,1,1,1);     mesh.addVertex( (float)a.x*d1, (float)a.y*d1, (float)a.z*d1);
+            mesh.addVertex( (float)a.x*d0, (float)a.y*d0, (float)a.z*d0);
+            mesh.addVertex( (float)a.x*d1, (float)a.y*d1, (float)a.z*d1);
         }
 
         // 5 and 10 degree lines
@@ -366,23 +373,24 @@ public class RotateEntityToolOneAxis implements EditorTool {
                 d0 = rr * (float)TICK_RATIO_INSIDE_5;
                 d1 = rr * (float)TICK_RATIO_OUTSIDE_5;
             }
-            mesh.addColor(1,1,1,1);     mesh.addVertex((float)a.x*d0, (float)a.y*d0, (float)a.z*d0);
-            mesh.addColor(1,1,1,1);     mesh.addVertex((float)a.x*d1, (float)a.y*d1, (float)a.z*d1);
+            mesh.addVertex((float)a.x*d0, (float)a.y*d0, (float)a.z*d0);
+            mesh.addVertex((float)a.x*d1, (float)a.y*d1, (float)a.z*d1);
         }
 
-        mesh.render(gl);
-
         // current angle
-        Matrix4d m = new Matrix4d(startMatrix);
-        m.invert();
-        m.mul(pivotMatrix);
+        Matrix4d m2 = new Matrix4d(startMatrix);
+        m2.invert();
+        m2.mul(pivotMatrix);
         mesh.addVertex(0,0,0);
         mesh.addVertex((float)m.m00*rr, (float)m.m01*rr, (float)m.m02*rr);
+
+        mesh.render(gl);
     }
 
     private void drawMainRingAndHandles(GL3 gl,ShaderProgram shaderProgram) {
-        Matrix4d m = new Matrix4d();
-        m.set(pivotMatrix);
+        Matrix4d m = new Matrix4d(pivotMatrix);
+        m.transpose();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",m);
 
         float colorScale = cursorOverHandle ? 1:0.5f;
         float red   = color.red   * colorScale / 255f;
@@ -391,17 +399,25 @@ public class RotateEntityToolOneAxis implements EditorTool {
         shaderProgram.set4f(gl, "objectColor", red, green, blue, 1.0f);
         PrimitiveSolids.drawCircleXY(gl, getRingRadiusScaled(), ringResolution).render(gl);
 
-        m.m03 += getHandleLengthScaled();
-        m.m13 += getHandleOffsetYScaled();
-        shaderProgram.setMatrix4d(gl,"modelMatrix",m);
         double v = getGripRadiusScaled();
         handleBox.height.set(v);
         handleBox.width.set(v);
         handleBox.length.set(v);
+
+        Matrix4d m2 = MatrixHelper.createIdentityMatrix4();
+        m2.m03 = getHandleLengthScaled();
+        m2.m13 = getHandleOffsetYScaled();
+        m2.mul(pivotMatrix,m2);
+        m2.transpose();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",m2);
         handleBox.render(gl);
 
-        m.m13 -= getHandleOffsetYScaled()*2;
-        shaderProgram.setMatrix4d(gl,"modelMatrix",m);
+        m2 = MatrixHelper.createIdentityMatrix4();
+        m2.m03 = getHandleLengthScaled();
+        m2.m13 = -getHandleOffsetYScaled();
+        m2.mul(pivotMatrix,m2);
+        m2.transpose();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",m2);
         handleBox.render(gl);
     }
 

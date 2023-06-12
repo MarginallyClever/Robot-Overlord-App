@@ -194,8 +194,13 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
         if(selectedItems==null || selectedItems.isEmpty()) return;
 
         // Render the translation pad on the plane
+        shaderProgram.set1i(gl,"useTexture",0);
+        shaderProgram.set1i(gl,"useLighting",0);
+        shaderProgram.set1i(gl,"useVertexColor",0);
 
-        shaderProgram.setMatrix4d(gl,"modelMatrix",pivotMatrix);
+        Matrix4d m = new Matrix4d(pivotMatrix);
+        m.transpose();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",m);
 
         float colorScale = cursorOverHandle ? 1:0.5f;
         float red   = color.red   * colorScale / 255f;

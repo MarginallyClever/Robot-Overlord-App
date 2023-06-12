@@ -218,34 +218,42 @@ public class TranslateEntityToolOneAxis implements EditorTool {
         localScale = pivotPoint.length()*toolScale;
     }
 
+    // Render the translation handle on the axis
     @Override
     public void render(GL3 gl, ShaderProgram shaderProgram) {
-        if(selectedItems==null || selectedItems.isEmpty()) return;
+        if (selectedItems == null || selectedItems.isEmpty()) return;
 
-        shaderProgram.set1i(gl,"useTexture",0);
-        // Render the translation handle on the axis
-
-        shaderProgram.setMatrix4d(gl,"modelMatrix",pivotMatrix);
+        shaderProgram.set1i(gl, "useTexture", 0);
+        shaderProgram.set1i(gl, "useLighting", 0);
+        shaderProgram.set1i(gl, "useVertexColor", 0);
 
         float colorScale = cursorOverHandle ? 1:0.5f;
         float red   = color.red   * colorScale / 255f;
         float green = color.green * colorScale / 255f;
         float blue  = color.blue  * colorScale / 255f;
-        shaderProgram.set4f(gl, "objectColor", red, green, blue, 1.0f);
+        shaderProgram.set4f(gl,"objectColor",red, green, blue, 1.0f);
 
+        drawHandleOnAxis(gl, shaderProgram);
+    }
+
+    private void drawHandleOnAxis(GL3 gl, ShaderProgram shaderProgram) {
+        Matrix4d m = new Matrix4d(pivotMatrix);
+        m.transpose();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",m);
+
+        // handle line
         Mesh mesh = new Mesh(GL3.GL_LINES);
         mesh.addVertex(0, 0, 0);
         mesh.addVertex((float)getHandleLengthScaled(), 0, 0);
         mesh.render(gl);
 
-        double grs = getGripRadiusScaled();
-        Matrix4d m = new Matrix4d(pivotMatrix);
-        m.m03+=getHandleLengthScaled();
-        m.m00*=grs;
-        m.m11*=grs;
-        m.m22*=grs;
-        shaderProgram.setMatrix4d(gl,"modelMatrix",m);
-
+        // ball at end of handle
+        Matrix4d m2 = MatrixHelper.createIdentityMatrix4();
+        m2.m03 += getHandleLengthScaled();
+        m2.mul(pivotMatrix,m2);
+        m2.transpose();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",m2);
+        handleSphere.radius.set(getGripRadiusScaled());
         handleSphere.render(gl);
     }
 

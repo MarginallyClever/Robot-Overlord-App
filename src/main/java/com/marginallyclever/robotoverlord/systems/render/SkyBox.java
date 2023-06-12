@@ -86,8 +86,9 @@ public class SkyBox {
 		program.set1i(gl,"useLighting",0);
 		program.set1i(gl,"useVertexColor",0);
 
-		Matrix4d m1 = cameraPose.getWorld();
-		m1.invert();
+		Matrix4d m1 = MatrixHelper.createIdentityMatrix4();
+		Vector3d cameraPosition = new Vector3d(cameraPose.getPosition());
+		m1.setTranslation(cameraPosition);
 		m1.transpose();
 		program.setMatrix4d(gl,"modelMatrix",m1);
 
