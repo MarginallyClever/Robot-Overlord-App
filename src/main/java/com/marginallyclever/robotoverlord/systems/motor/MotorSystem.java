@@ -1,21 +1,23 @@
 package com.marginallyclever.robotoverlord.systems.motor;
 
-import com.marginallyclever.convenience.swing.LineGraph;
 import com.marginallyclever.robotoverlord.components.Component;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.motors.DCMotorComponent;
 import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
+import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
+import com.marginallyclever.robotoverlord.components.motors.StepperMotorComponent;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
+import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
 
 import javax.swing.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.table.TableModel;
-import java.awt.*;
-import java.util.ArrayList;
+import javax.vecmath.Matrix4d;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.TreeMap;
 
 /**
  * <p>For motors</p>
@@ -38,72 +40,184 @@ public class MotorSystem implements EntitySystem {
      * @param component the component to visualize
      */
     @Override
-    public void decorate(ComponentPanelFactory view, Component component) {
-        if(component instanceof MotorComponent) decorateMotor(view, component);
+    public void decorate(ViewPanelFactory view, Component component) {
+        if (component instanceof ServoComponent) decorateServo(view, (ServoComponent) component);
+        if (component instanceof StepperMotorComponent) decorateStepper(view, (StepperMotorComponent)component);
+        if (component instanceof MotorComponent) decorateMotor(view, (MotorComponent) component);
+    }
+
+    private void decorateStepper(ViewPanelFactory view, StepperMotorComponent stepper) {
+        view.add(stepper.stepPerRevolution);
+        view.add(stepper.microStepping);
+        view.addComboBox(stepper.direction,StepperMotorComponent.directionNames);
+        view.addButton("Step").addActionEventListener(e -> stepNow(stepper));
+    }
+
+    private void stepNow(StepperMotorComponent stepper) {
+        double degreePerStep = 360.0/(stepper.microStepping.get() * stepper.stepPerRevolution.get());
+        double angle = stepper.currentAngle.get();
+        if(stepper.direction.get()==StepperMotorComponent.DIRECTION_BACKWARD) angle -= degreePerStep;
+        else angle += degreePerStep;
+
+        rotateMotor(stepper,angle);
+    }
+
+    private void decorateServo(ViewPanelFactory view, ServoComponent servo) {
+        ViewElementButton bCurve = view.addButton("Tune PID");
+        bCurve.addActionEventListener(e -> editPID(bCurve, servo));
+        view.add(servo.kP);
+        view.add(servo.kI);
+        view.add(servo.kD);
+        view.add(servo.desiredAngle);
+    }
+
+    private void editPID(JComponent parent, ServoComponent servo) {
+        TuneServoPIDPanel panel = new TuneServoPIDPanel(servo,this);
+        EntitySystemUtils.makePanel(panel, parent, "Tune PID");
+    }
+
+    private void decorateMotor(ViewPanelFactory view, MotorComponent motor) {
+        view.add(motor.currentAngle);
+        view.add(motor.currentRPM);
+        view.add(motor.desiredRPM);
+        view.add(motor.gearRatio);
+        view.add(motor.connectedTo);
+
+        ViewElementButton bCurve = view.addButton("Torque curve");
+        bCurve.addActionEventListener(e -> editCurve(bCurve, motor));
+    }
+
+    public void editCurve(JComponent parent, MotorComponent motor) {
+        TorqueCurveEditPanel panel = new TorqueCurveEditPanel(motor);
+        EntitySystemUtils.makePanel(panel, parent, "Torque curve");
     }
 
     /**
      * Update the system over time.
+     *
      * @param dt the time step in seconds.
      */
-    public void update(double dt) {}
+    public void update(double dt) {
+        List<Entity> list = new LinkedList<>(entityManager.getEntities());
+        while (!list.isEmpty()) {
+            Entity e = list.remove(0);
+            list.addAll(e.getChildren());
 
-    private void decorateMotor(ComponentPanelFactory view, Component component) {
-        MotorComponent motor = (MotorComponent)component;
-        view.add(motor.gearRatio);
-        ViewElementButton bCurve = view.addButton("Torque curve");
-        bCurve.addActionEventListener(e -> MotorSystem.editCurve(bCurve,motor) );
+            MotorComponent found = e.getComponent(MotorComponent.class);
+            if (found != null) updateMotor(found, dt);
+        }
     }
 
-    public static void editCurve(JComponent parent, MotorComponent motor) {
-        LineGraph graph = new LineGraph();
-        RPMToTorqueTable table = new RPMToTorqueTable();
+    public void updateMotor(MotorComponent motor, double dt) {
+        if(motor instanceof ServoComponent) updateServo((ServoComponent)motor,dt);
+        else if(motor instanceof StepperMotorComponent) updateStepper((StepperMotorComponent)motor,dt);
+        else if(motor instanceof DCMotorComponent) updateMotorBasic(motor, dt);
+    }
 
-        TreeMap<Integer,Double> curve = motor.getTorqueCurve();
-        List<Integer> keys = new ArrayList<>(curve.keySet());
-        for (Integer key : keys) {
-            graph.addValue(key, curve.get(key));
-            table.addValue(key, curve.get(key));
-        }
-        graph.setBoundsToData();
-        graph.setXMin(0);
-        graph.setYMin(0);
+    private void updateServo(ServoComponent servo, double dt) {
+        if(!servo.enabled.get()) return;
 
-        table.addDataChangeListener((evt)->{
-            int row = evt.getFirstRow();
-            int col = evt.getColumn();
-            TableModel model = (TableModel)evt.getSource();
+        double desiredAngle = servo.desiredAngle.get();
+        double currentAngle = servo.currentAngle.get();
 
-            if(evt.getType() == TableModelEvent.DELETE) {
-                try {
-                    int rpm = (int) Integer.parseInt((String) model.getValueAt(row, 0));
-                    graph.removeValue(rpm);
-                    motor.removeTorqueAtRPM(rpm);
-                } catch (NumberFormatException ignore) {}
+        // PID control
+        // Use a simple proportional control to move towards the desired angle.
+        // The constant of proportionality would depend on your specific servo and application.
+        double kP = servo.kP.get();
+        double kI = servo.kI.get();
+        double kD = servo.kD.get();
 
-            } else if(evt.getType() == TableModelEvent.UPDATE ||
-                    evt.getType() == TableModelEvent.INSERT) {
-                try {
-                    int rpm = (int) Integer.parseInt((String)model.getValueAt(row, 0));
-                    double torque = (double) Double.parseDouble((String)model.getValueAt(row, 1));
-                    graph.removeValue(rpm);
-                    graph.addValue(rpm, torque);
-                    motor.setTorqueAtRPM(rpm, torque);
-                } catch (NumberFormatException ignore) {}
+        // Calculate the angle difference
+        double error = desiredAngle - currentAngle;
+
+        double errorSum = servo.errorSum.get();
+        double previousError = servo.lastError.get();
+        errorSum += error;
+
+        double derivative = error - previousError;
+        double output = kP*error + kI*errorSum + kD*derivative;
+
+        servo.lastError.set(error);
+        servo.errorSum.set(errorSum);
+
+        // Update the current angle.
+        // Note that we're not considering physical limitations here like max speed or acceleration of the servo.
+        servo.setDesiredRPM(output);
+
+        updateMotorBasic(servo, dt);
+    }
+
+    private void updateStepper(StepperMotorComponent motor, double dt) {
+        if(!motor.enabled.get()) return;
+
+        // adjust angle
+        double degreesPerSecond = motor.getCurrentRPM()*360.0/60.0;
+        double newAngle = motor.currentAngle.get() + degreesPerSecond * dt;
+
+        rotateMotor(motor, newAngle);
+    }
+
+    private void updateMotorBasic(MotorComponent motor, double dt) {
+        if(!motor.enabled.get()) return;
+
+        double currentRPM = motor.getCurrentRPM();
+        double desiredRPM = motor.getDesiredRPM();
+        if (currentRPM != desiredRPM) {
+            double torque = motor.getTorqueAtRpm(currentRPM);
+            // assume direct relationship
+            double acceleration = torque;
+            double dv = acceleration * dt;
+            if (currentRPM < desiredRPM) {
+                currentRPM = Math.min(currentRPM + dv, desiredRPM);
+            } else {
+                currentRPM = Math.max(currentRPM - dv, desiredRPM);
             }
-            graph.setBoundsToData();
-            graph.setXMin(0);
-            graph.setYMin(0);
-            graph.repaint();
-        });
+            motor.setCurrentRPM(currentRPM);
+        }
 
-        graph.setPreferredSize(new Dimension(300,200));
-        table.setPreferredSize(new Dimension(300,200));
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(graph,BorderLayout.CENTER);
-        panel.add(table,BorderLayout.SOUTH);
+        // adjust angle
+        double degreesPerSecond = motor.getCurrentRPM()*360.0/60.0;
+        double newAngle = motor.currentAngle.get() + degreesPerSecond * dt;
 
+        rotateMotor(motor, newAngle);
+    }
 
-        EntitySystemUtils.makePanel(panel, parent,"Torque curve");
+    /**
+     * Rotate the motor to the specified angle.
+     * @param motor the motor to rotate
+     * @param newAngle the new angle in degrees
+     */
+    public void rotateMotor(MotorComponent motor, double newAngle) {
+        double oldAngle = motor.currentAngle.get();
+
+        // Ensure the current angle stays within the valid range for a servo (typically -180 to 180 degrees,
+        // but could be different depending on your servo)
+        //if (newAngle > 360) newAngle -= 360;
+        //else if (newAngle < 0) newAngle += 360;
+
+        motor.currentAngle.set(newAngle);
+
+        double diff = newAngle - oldAngle;
+        if (diff > 180) diff -= 360;
+        else if (diff < -180) diff += 360;
+
+        rotateAffectedEntities(motor, diff);
+    }
+
+    private void rotateAffectedEntities(MotorComponent motor, double diff) {
+        Entity motorEntity = motor.getEntity();
+        if(motorEntity==null) return;
+
+        for(ReferenceParameter name : motor.connectedTo) {
+            String uid = name.get();
+            if(uid==null || uid.isEmpty()) continue;
+            Entity connection = entityManager.findEntityByUniqueID(name.get());
+            PoseComponent childPose = connection.getComponent(PoseComponent.class);
+            Matrix4d m = childPose.getLocal();
+            Matrix4d rotZ = new Matrix4d();
+            rotZ.rotZ(Math.toRadians(diff));
+            m.mul(rotZ);
+            childPose.setLocalMatrix4(m);
+        }
     }
 }

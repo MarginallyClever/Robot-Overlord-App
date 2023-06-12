@@ -14,9 +14,17 @@ public class StringParameter extends AbstractParameter<String> {
 		super(name,value);
 	}
 
+	public StringParameter(String name) {
+		super(name,"");
+	}
+
+	public StringParameter() {
+		super("string","");
+	}
+
 	@Override
 	public String toString() {
-		return getName()+"="+t;
+		return getName()+"="+ get();
 	}
 
 	@Override

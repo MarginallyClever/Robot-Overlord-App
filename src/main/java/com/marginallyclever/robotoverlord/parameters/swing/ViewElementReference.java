@@ -1,13 +1,14 @@
-package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
+package com.marginallyclever.robotoverlord.parameters.swing;
 
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.EntityChooser;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.FocusTextField;
 import com.marginallyclever.robotoverlord.swinginterface.edits.StringParameterEdit;
 
 import javax.swing.*;
-import javax.swing.undo.AbstractUndoableEdit;
 import java.util.List;
 import java.awt.*;
 import java.awt.event.ActionEvent;

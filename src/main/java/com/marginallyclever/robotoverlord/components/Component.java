@@ -12,7 +12,7 @@ import org.json.JSONObject;
  * @author Dan Royer
  * @since 2022-08-03
  */
-public class Component {
+public abstract class Component {
     private Entity myEntity;
 
     public final BooleanParameter enabled = new BooleanParameter("Enabled",true);

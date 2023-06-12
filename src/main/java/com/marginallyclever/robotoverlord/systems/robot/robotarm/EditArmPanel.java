@@ -6,9 +6,11 @@ import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.parameters.TextureParameter;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewElementBoolean;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewElementDouble;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewElementFilename;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.*;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
@@ -220,7 +222,7 @@ public class EditArmPanel extends JPanel implements PropertyChangeListener {
             dhTable.add(label,c);
             DHComponent dhComponent = joints.get(i).getComponent(DHComponent.class);
 
-            ViewElementDouble [] elements = new ViewElementDouble[7];
+            ViewElementDouble[] elements = new ViewElementDouble[7];
             int j=0;
             c.gridx=1;
             dhTable.add(elements[j++] = new ViewElementDouble(dhComponent.myD),c);  c.gridx++;

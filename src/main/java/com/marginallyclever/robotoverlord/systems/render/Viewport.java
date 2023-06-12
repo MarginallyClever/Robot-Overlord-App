@@ -10,7 +10,7 @@ import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
 
 import javax.vecmath.*;
 
@@ -300,7 +300,7 @@ public class Viewport extends Entity {
 	}
 
 	@Deprecated
-	public void getView(ComponentPanelFactory view) {
+	public void getView(ViewPanelFactory view) {
 		view.add(drawOrthographic);
 		view.add(farZ);
 		view.add(nearZ);

@@ -13,8 +13,8 @@ public class ComponentTest {
 
     @Test
     public void saveAndLoad() throws Exception {
-        Component a = new Component();
-        Component b = new Component();
+        Component a = new PoseComponent();
+        Component b = new PoseComponent();
         ComponentTest.saveAndLoad(a,b);
 
         a.setEnable(false);

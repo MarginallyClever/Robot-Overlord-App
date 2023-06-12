@@ -91,7 +91,7 @@ public class RPMToTorqueTable extends JPanel {
         });
     }
 
-    public void addValue(int rpm, double torque) {
+    public void addValue(double rpm, double torque) {
         model.addRow(new Object[]{rpm, torque});
     }
 

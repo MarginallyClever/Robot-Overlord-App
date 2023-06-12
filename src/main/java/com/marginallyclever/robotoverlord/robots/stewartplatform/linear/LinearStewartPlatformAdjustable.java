@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
 
 /**
  * A linear stewart platform is a 6DOF robot that can move in X, Y, Z, and rotate around X, Y, Z.
@@ -65,7 +65,7 @@ public class LinearStewartPlatformAdjustable extends LinearStewartPlatformCore {
     }
 
     @Deprecated
-    public void getView(ComponentPanelFactory view) {
+    public void getView(ViewPanelFactory view) {
         view.add(BASE_X);
         view.add(BASE_Y);
         view.add(BASE_Z);

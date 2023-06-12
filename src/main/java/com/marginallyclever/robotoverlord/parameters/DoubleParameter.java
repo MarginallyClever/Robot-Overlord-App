@@ -15,9 +15,17 @@ public class DoubleParameter extends AbstractParameter<Double> {
 		super(name, value);
 	}
 
+	public DoubleParameter(String name) {
+		super(name, 0.0);
+	}
+
+	public DoubleParameter() {
+		super("double", 0.0);
+	}
+
 	@Override
 	public String toString() {
-		return getName()+"="+StringHelper.formatDouble(t);
+		return getName()+"="+StringHelper.formatDouble(get());
 	}
 
 	@Override

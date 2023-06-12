@@ -31,15 +31,32 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
     public final DoubleParameter height = new DoubleParameter("Height", 2);
 
     public Cylinder() {
+        this(2, 0.5f, 0.5f);
+    }
+
+    public Cylinder(double height, double radius0, double radius1) {
         super();
 
         myMesh = new Mesh();
+
+        this.radius0.set(radius0);
+        this.radius1.set(radius1);
+        this.height.set(height);
+
+        this.radius0.addPropertyChangeListener(this);
+        this.radius1.addPropertyChangeListener(this);
+        this.height.addPropertyChangeListener(this);
+
         updateModel();
         setModel(myMesh);
+    }
 
-        radius0.addPropertyChangeListener(this);
-        radius1.addPropertyChangeListener(this);
-        height.addPropertyChangeListener(this);
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if(radius0.get()<0) radius0.set(0.0);
+        if(radius1.get()<0) radius1.set(0.0);
+        if(height.get()<0) height.set(0.0);
+        updateModel();
     }
 
     private void updateModel() {
@@ -51,8 +68,8 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
 
     private void addCylinder(float height, float radius0,float radius1) {
         float halfHeight = height / 2;
-        addFace(halfHeight, radius1);
-        addFace(-halfHeight, radius0);
+        if(radius0>0) addFace(-halfHeight, radius0);
+        if(radius1>0) addFace(halfHeight, radius1);
         addTube(-halfHeight, halfHeight, radius0,radius1);
     }
 
@@ -60,6 +77,7 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
         float sign = z > 0 ? 1 : -1;
         for (int i = 0; i < RESOLUTION_CIRCULAR; ++i) {
             myMesh.addVertex(0, 0, z);
+            myMesh.addTexCoord(0.5f,0.5f);
             myMesh.addNormal(0, 0, sign);
 
             addCirclePoint(r, i, RESOLUTION_CIRCULAR, z);
@@ -71,7 +89,10 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
     private void addCirclePoint(float r, float i, int resolution, float z) {
         float sign = z > 0 ? 1 : -1;
         double a = MathHelper.interpolate(0,Math.PI*2.0, (double)i/(double)resolution);
-        myMesh.addVertex((float)Math.cos(a)*r,(float)Math.sin(a)*r,z);
+        float x = (float)Math.cos(a);
+        float y = (float)Math.sin(a);
+        myMesh.addVertex(x*r,y*r,z);
+        myMesh.addTexCoord(0.5f+x*0.5f,0.5f+y*0.5f);
         myMesh.addNormal(0,0,sign);
     }
 
@@ -108,15 +129,11 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
         double a = Math.PI*2.0 * (double)i/(double)RESOLUTION_CIRCULAR;
         float x = (float)Math.cos(a);
         float y = (float)Math.sin(a);
-        myMesh.addVertex(x*radius, y*radius, z);
         Vector3d n = new Vector3d(x,y,diff);
         n.normalize();
+        myMesh.addVertex(x*radius, y*radius, z);
+        myMesh.addTexCoord(0.5f+x*0.5f,0.5f+y*0.5f);
         myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-    }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        updateModel();
     }
 
     @Override

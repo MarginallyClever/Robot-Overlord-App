@@ -22,6 +22,7 @@ import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityT
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.systems.*;
 import com.marginallyclever.robotoverlord.systems.robot.RobotGripperSystem;
+import com.marginallyclever.robotoverlord.systems.vehicle.VehicleSystem;
 import com.marginallyclever.robotoverlord.systems.robot.crab.CrabRobotSystem;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.ArmRobotSystem;
 import com.marginallyclever.robotoverlord.systems.robot.dog.DogRobotSystem;
@@ -194,6 +195,7 @@ public class RobotOverlord {
 		addSystem(new ProgramExecutorSystem(project.getEntityManager()));
 		addSystem(new RobotGripperSystem(project.getEntityManager()));
 		addSystem(new MotorSystem(project.getEntityManager()));
+		addSystem(new VehicleSystem(project.getEntityManager()));
 	}
 
 	private void addSystem(EntitySystem system) {
@@ -226,7 +228,7 @@ public class RobotOverlord {
 	private void layoutComponents() {
 		// the right hand top/bottom split
 		rightFrameSplitter.add(buildEntityManagerPanel());
-		rightFrameSplitter.add(new JScrollPane(componentManagerPanel));
+		rightFrameSplitter.add(componentManagerPanel);
 		// make sure the master panel can't be squished.
         Dimension minimumSize = new Dimension(360,300);
         rightFrameSplitter.setMinimumSize(minimumSize);
@@ -366,6 +368,7 @@ public class RobotOverlord {
 	private JComponent createDemoMenu() {
 		JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.Demos"));
 		//menu.add(new JMenuItem(new DemoAction(this,new ODEPhysicsDemo())));
+		menu.add(new JMenuItem(new CreateVehicleAction(project.getEntityManager(),mainFrame)));
 		menu.addSeparator();
 		menu.add(new JMenuItem(new ShowRobotLibraryPanel(this::refreshMainMenu)));
 		buildAvailableScenesTree(menu);

@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord.parameters;
 
 import com.marginallyclever.robotoverlord.SerializationContext;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,9 +14,17 @@ public class BooleanParameter extends AbstractParameter<Boolean> {
 		super(name,value);
 	}
 
+	public BooleanParameter(String name) {
+		this(name,false);
+	}
+
+	public BooleanParameter() {
+		this("boolean");
+	}
+
 	@Override
 	public String toString() {
-		return getName()+"="+t.toString();
+		return getName()+"="+ get().toString();
 	}
 	
 	public void toggle() {
