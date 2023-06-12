@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.systems.physics;
 
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 
 /**
@@ -19,11 +19,11 @@ public class PhysicsSystem implements EntitySystem {
      * @param component the component to visualize
      */
     @Override
-    public void decorate(ComponentPanelFactory view, Component component) {
+    public void decorate(ViewPanelFactory view, Component component) {
         if(component instanceof PoseComponent) decoratePose(view,component);
     }
 
-    private void decoratePose(ComponentPanelFactory view, Component component) {
+    private void decoratePose(ViewPanelFactory view, Component component) {
         PoseComponent pose = (PoseComponent)component;
         view.add(pose.position);
         view.add(pose.rotation);

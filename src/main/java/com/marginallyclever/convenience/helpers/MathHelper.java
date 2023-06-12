@@ -189,7 +189,6 @@ public class MathHelper {
 	 * @param t [0...1]
 	 * @return a + (b-a)*t
 	 */
-	@Deprecated
 	static public float interpolate(float a,float b,double t) {
 		return (b-a)*(float)t + a;
 	}
@@ -201,7 +200,6 @@ public class MathHelper {
 	 * @param t [0...1]
 	 * @return a + (b-a)*t
 	 */
-	@Deprecated
 	static public double interpolate(double a,double b,double t) {
 		return (b-a)*t + a;
 	}
@@ -335,5 +333,18 @@ public class MathHelper {
 		double range = end-start;
 		double p = x-start;
 		return p/range;
+	}
+
+	/**
+	 * compare two vectors
+	 * @param a	the first vector
+	 * @param b the second vector
+	 * @param v tolerance
+	 * @return true if the absolute difference on every axis is less than v
+	 */
+    public static boolean equals(Vector3d a, Vector3d b, double v) {
+		return ( Math.abs(a.x - b.x) <= v) &&
+		       ( Math.abs(a.y - b.y) <= v) &&
+			   ( Math.abs(a.z - b.z) <= v);
 	}
 }

@@ -2,20 +2,54 @@ package com.marginallyclever.robotoverlord.components.shapes;
 
 import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.helpers.MathHelper;
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
+import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.vecmath.Vector3d;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * A box with a width, height, and length of 1.  It is centered around the origin.
  * TODO add texture coordinates
  */
-public class Box extends ShapeComponent {
+public class Box extends ShapeComponent implements PropertyChangeListener {
+    public final DoubleParameter width = new DoubleParameter("width",1.0);
+    public final DoubleParameter height = new DoubleParameter("height",1.0);
+    public final DoubleParameter length = new DoubleParameter("length",1.0);
+
     public Box() {
+        this(1.0,1.0,1.0);
+    }
+
+    /**
+     * Create a box with the given dimensions.
+     * @param width
+     * @param length
+     * @param height
+     */
+    public Box(double width,double length,double height) {
         super();
 
         myMesh = new Mesh();
+
+        this.width.set(width);
+        this.length.set(length);
+        this.height.set(height);
+
+        this.width.addPropertyChangeListener(this);
+        this.length.addPropertyChangeListener(this);
+        this.height.addPropertyChangeListener(this);
+
         updateModel();
         setModel(myMesh);
     }
@@ -26,13 +60,13 @@ public class Box extends ShapeComponent {
         myMesh.setRenderStyle(GL2.GL_TRIANGLES);
         //shape.renderStyle=GL2.GL_LINES;  // set to see the wireframe
 
-        float w = 0.5f;
-        float d = 0.5f;
-        float h = 0.5f;
+        float w = width.get().floatValue()*0.5f;
+        float d = length.get().floatValue()*0.5f;
+        float h = height.get().floatValue()*0.5f;
 
-        int wParts = 1;
-        int hParts = 1;
-        int dParts = 1;
+        int wParts = (int)Math.ceil(w);
+        int hParts = (int)Math.ceil(h);
+        int dParts = (int)Math.ceil(d);
 
         Vector3d n=new Vector3d();
         Vector3d p0=new Vector3d();
@@ -184,5 +218,27 @@ public class Box extends ShapeComponent {
                 }
             }
         }
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        updateModel();
+    }
+
+    @Override
+    public JSONObject toJSON(SerializationContext context) {
+        JSONObject json = super.toJSON(context);
+        json.put("width", width.get());
+        json.put("length", length.get());
+        json.put("height", height.get());
+        return json;
+    }
+
+    @Override
+    public void parseJSON(JSONObject jo, SerializationContext context) throws JSONException {
+        super.parseJSON(jo, context);
+        width.set(jo.getDouble("width"));
+        length.set(jo.getDouble("length"));
+        height.set(jo.getDouble("height"));
     }
 }

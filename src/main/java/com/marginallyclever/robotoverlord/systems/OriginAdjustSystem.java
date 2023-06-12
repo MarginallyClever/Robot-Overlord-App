@@ -4,7 +4,7 @@ import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.components.OriginAdjustComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
 
 import javax.vecmath.Matrix4d;
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ public class OriginAdjustSystem implements EntitySystem {
      * @param component the component to visualize
      */
     @Override
-    public void decorate(ComponentPanelFactory view, Component component) {
+    public void decorate(ViewPanelFactory view, Component component) {
         if(component instanceof OriginAdjustComponent) decorateOriginAdjust(view, component);
     }
 
@@ -40,7 +40,7 @@ public class OriginAdjustSystem implements EntitySystem {
      */
     public void update(double dt) {}
 
-    private void decorateOriginAdjust(ComponentPanelFactory view, Component component) {
+    private void decorateOriginAdjust(ViewPanelFactory view, Component component) {
         OriginAdjustComponent adj = (OriginAdjustComponent)component;
         view.addButton("Adjust me").addActionEventListener( e -> OriginAdjustSystem.adjustOne(component.getEntity()) );
     }

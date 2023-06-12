@@ -8,8 +8,8 @@ import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.ControlArmPanel;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,12 +37,12 @@ public class ArmRobotSystem implements EntitySystem {
     }
 
     @Override
-    public void decorate(ComponentPanelFactory view, Component component) {
+    public void decorate(ViewPanelFactory view, Component component) {
         if( component instanceof RobotComponent ) decorateRobot(view,component);
         if( component instanceof DHComponent ) decorateDH(view,component);
     }
 
-    private void decorateDH(ComponentPanelFactory view, Component component) {
+    private void decorateDH(ViewPanelFactory view, Component component) {
         DHComponent dh = (DHComponent)component;
         view.add(dh.isRevolute).setReadOnly(true);
         view.add(dh.myD).setReadOnly(true);
@@ -54,7 +54,7 @@ public class ArmRobotSystem implements EntitySystem {
         view.add(dh.jointHome).setReadOnly(true);
     }
 
-    private void decorateRobot(ComponentPanelFactory view, Component component) {
+    private void decorateRobot(ViewPanelFactory view, Component component) {
         RobotComponent robotComponent = (RobotComponent)component;
 
         view.add(robotComponent.desiredLinearVelocity);
@@ -208,6 +208,8 @@ public class ArmRobotSystem implements EntitySystem {
 
             double[] angles = robotComponent.getAllJointValues();  // # dof long
             for (int i = 0; i < angles.length; ++i) {
+                // TODO: set desired velocity in joint motor component, let motor system handle the rest.
+                // TODO: get next derivative and set acceleration?
                 angles[i] += jointVelocity[i];
             }
             robotComponent.setAllJointValues(angles);

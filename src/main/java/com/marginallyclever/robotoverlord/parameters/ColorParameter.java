@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord.parameters;
 
 import com.marginallyclever.robotoverlord.SerializationContext;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,6 +18,14 @@ public class ColorParameter extends AbstractParameter<double[]> {
 		super(name,new double[] {r,g,b,a});
 	}
 
+	public ColorParameter(String name) {
+		this(name,0,0,0,0);
+	}
+
+	public ColorParameter() {
+		this("Color");
+	}
+
 	public void set(double r,double g,double b,double a) {
 		super.set(new double[] {r,g,b,a});
 	}
@@ -28,21 +35,22 @@ public class ColorParameter extends AbstractParameter<double[]> {
 		set(newValue[0],newValue[1],newValue[2],newValue[3]);		
 	}
 
-	public double getR() { return t[0]; }
-	public double getG() { return t[1]; }
-	public double getB() { return t[2]; }
-	public double getA() { return t[3]; }
+	public double getR() { return get()[0]; }
+	public double getG() { return get()[1]; }
+	public double getB() { return get()[2]; }
+	public double getA() { return get()[3]; }
 	
 	public float [] getFloatArray() {
+		double [] value = get();
 		return new float[] {
-				(float)t[0],
-				(float)t[1],
-				(float)t[2],
-				(float)t[3] };
+				(float) value[0],
+				(float) value[1],
+				(float) value[2],
+				(float) value[3] };
 	}
 	
 	public double[] getDoubleArray() {
-		return t.clone();
+		return get().clone();
 	}
 	
 	@Override

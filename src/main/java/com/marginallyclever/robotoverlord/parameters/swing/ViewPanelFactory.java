@@ -1,35 +1,31 @@
-package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
+package com.marginallyclever.robotoverlord.parameters.swing;
 
-import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.*;
-import com.marginallyclever.robotoverlord.systems.EntitySystem;
+import com.marginallyclever.robotoverlord.parameters.swing.*;
 
+import java.security.InvalidParameterException;
 import java.util.List;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
-import java.util.ArrayList;
 
 /**
- * A factory that builds Swing elements for the entity editor
+ * A factory that builds Swing elements for the entity editor and collects them in a {@link JPanel}.
  * @author Dan Royer
  * @since 1.6.0
  */
-public class ComponentPanelFactory {
+public class ViewPanelFactory {
+	private final ViewElementFactory viewElementFactory;
 	private final JPanel innerPanel = new JPanel();
 	private final GridBagConstraints gbc = new GridBagConstraints();
-
-	private final List<EntitySystem> systems = new ArrayList<>();
 	private final EntityManager entityManager;
-	private final Component component;
 
-	public ComponentPanelFactory(EntityManager entityManager, Component component, List<EntitySystem> systems) {
+	public ViewPanelFactory(EntityManager entityManager) {
 		super();
 		this.entityManager = entityManager;
-		this.component = component;
-		this.systems.addAll(systems);
+		viewElementFactory = new ViewElementFactory(entityManager);
 
 		innerPanel.setLayout(new GridBagLayout());
 		innerPanel.setBorder(new EmptyBorder(1, 1, 1, 1));
@@ -42,7 +38,7 @@ public class ComponentPanelFactory {
 		gbc.insets.set(1, 1, 1, 1);
 	}
 	
-	private void pushViewElement(ViewElement c) {
+	private void addViewElement(ViewElement c) {
 		gbc.gridy++;
 		innerPanel.add(c,gbc);
 	}
@@ -56,31 +52,22 @@ public class ComponentPanelFactory {
 	 * @param parameter the parameter to add
 	 */
 	public ViewElement add(AbstractParameter<?> parameter) {
-		ViewElement element=null;
-		
-		//logger.debug("Add "+e.getClass().toString());
-		
-			 if(parameter instanceof BooleanParameter  ) element = new ViewElementBoolean  ((BooleanParameter)parameter);
-		else if(parameter instanceof ColorParameter    ) element = new ViewElementColor    ((ColorParameter)parameter);
-		else if(parameter instanceof DoubleParameter   ) element = new ViewElementDouble   ((DoubleParameter)parameter);
-		else if(parameter instanceof IntParameter      ) element = new ViewElementInt      ((IntParameter)parameter);
-		else if(parameter instanceof Vector3DParameter ) element = new ViewElementVector3d ((Vector3DParameter)parameter);
-		else if(parameter instanceof ReferenceParameter) element = new ViewElementReference((ReferenceParameter)parameter, entityManager);
-		else if(parameter instanceof StringParameter   ) element = new ViewElementString   ((StringParameter)parameter);
+		ViewElement element;
 
-		if(null==element) {
+		try {
+			element = viewElementFactory.add(parameter);
+		} catch(InvalidParameterException e) {
 			return addStaticText("ViewPanel.add("+parameter.getClass().toString()+")");
 		}
 
-		pushViewElement(element);
+		addViewElement(element);
 		return element;
 	}
 	
 
 	public ViewElement addStaticText(String text) {
-		ViewElement b = new ViewElement();
-		b.add(new JLabel(text,JLabel.LEADING));
-		pushViewElement(b);
+		ViewElement b = viewElementFactory.addStaticText(text);
+		addViewElement(b);
 		return b;
 	}
 
@@ -91,10 +78,10 @@ public class ComponentPanelFactory {
 	 * @return the element
 	 */
 	public ViewElement addComboBox(IntParameter e, String [] labels) {
-		ViewElement b = new ViewElementComboBox(e,labels);
-		pushViewElement(b);
+		ViewElement b = viewElementFactory.addComboBox(e,labels);
+		addViewElement(b);
 		return b;
-		
+
 	}
 
 	/**
@@ -105,8 +92,8 @@ public class ComponentPanelFactory {
 	 * @return the element
 	 */
 	public ViewElement addRange(IntParameter e, int top, int bottom) {
-		ViewElement b = new ViewElementSlider(e,top,bottom);
-		pushViewElement(b);
+		ViewElement b = viewElementFactory.addRange(e,top,bottom);
+		addViewElement(b);
 		return b;
 	}
 
@@ -118,8 +105,8 @@ public class ComponentPanelFactory {
 	 * @return the element
 	 */
 	public ViewElement addRange(DoubleParameter e, int top, int bottom) {
-		ViewElement b = new ViewElementSliderDouble(e,top,bottom);
-		pushViewElement(b);
+		ViewElement b = viewElementFactory.addRange(e,top,bottom);
+		addViewElement(b);
 		return b;
 	}
 
@@ -129,28 +116,15 @@ public class ComponentPanelFactory {
 	 * @param filters
 	 * @return the element
 	 */
-	public ViewElement addFilename(StringParameter parameter, List<FileFilter> filters) {
-		ViewElementFilename b = new ViewElementFilename(parameter);
-		b.addFileFilters(filters);
-		pushViewElement(b);
+	public ViewElementFilename addFilename(StringParameter parameter, List<FileFilter> filters) {
+		ViewElementFilename b = viewElementFactory.addFilename(parameter,filters);
+		addViewElement(b);
 		return b;
 	}
 
 	public ViewElementButton addButton(String string) {
-		ViewElementButton b = new ViewElementButton(string);
-		pushViewElement(b);
+		ViewElementButton b = viewElementFactory.addButton(string);
+		addViewElement(b);
 		return b;
-	}
-
-	public JComponent buildSwingView() {
-		// add control common to all components
-		add(component.enabled);
-
-		// custom panel views based on component type
-		for(EntitySystem sys : systems) {
-			sys.decorate(this,component);
-		}
-
-		return innerPanel;
 	}
 }

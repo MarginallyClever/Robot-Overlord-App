@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
 
 import java.io.Serial;
 
@@ -81,7 +81,7 @@ public class RotaryStewartPlatform2 extends RotaryStewartPlatform {
 	}
 
 	@Override
-	public void getView(ComponentPanelFactory view) {
+	public void getView(ViewPanelFactory view) {
 		super.getView(view);
 	}
 }

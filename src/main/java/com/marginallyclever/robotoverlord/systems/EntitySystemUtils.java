@@ -10,8 +10,10 @@ import java.awt.*;
  * @since 2.5.6
  */
 public class EntitySystemUtils {
-    public static JDialog makePanel(JPanel panel, JComponent parent, String title) {
-        JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(parent);
+    public static JDialog makePanel(JPanel panel, Component parent, String title) {
+        JFrame parentFrame = (parent instanceof JFrame)
+                            ? (JFrame)parent
+                            : (JFrame)SwingUtilities.getWindowAncestor(parent);
 
         try {
             JDialog dialog = new JDialog(parentFrame, title);

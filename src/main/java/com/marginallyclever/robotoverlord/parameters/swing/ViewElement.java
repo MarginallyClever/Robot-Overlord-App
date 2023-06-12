@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
+package com.marginallyclever.robotoverlord.parameters.swing;
 
 import javax.swing.*;
 import java.awt.*;

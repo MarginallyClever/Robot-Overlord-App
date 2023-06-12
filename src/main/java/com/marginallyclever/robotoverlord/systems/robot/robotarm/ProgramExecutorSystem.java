@@ -1,21 +1,17 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
-import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.convenience.RayHit;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.program.*;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentPanelFactory;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ViewElementButton;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
-import com.marginallyclever.robotoverlord.systems.RayPickSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,11 +24,11 @@ public class ProgramExecutorSystem  implements EntitySystem {
     }
 
     @Override
-    public void decorate(ComponentPanelFactory view, Component component) {
+    public void decorate(ViewPanelFactory view, Component component) {
         if( component instanceof ProgramComponent) decorateProgram(view,component);
     }
 
-    private void decorateProgram(ComponentPanelFactory view, Component component) {
+    private void decorateProgram(ViewPanelFactory view, Component component) {
         final ProgramComponent program = (ProgramComponent)component;
         view.add(program.programEntity).addPropertyChangeListener((evt) -> {
             program.setRunning(false);

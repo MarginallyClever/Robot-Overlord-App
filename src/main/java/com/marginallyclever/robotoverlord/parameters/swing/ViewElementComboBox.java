@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
+package com.marginallyclever.robotoverlord.parameters.swing;
 
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
@@ -6,7 +6,6 @@ import com.marginallyclever.robotoverlord.swinginterface.edits.ComboBoxEdit;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.undo.AbstractUndoableEdit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

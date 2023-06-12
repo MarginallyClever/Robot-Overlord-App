@@ -1024,4 +1024,10 @@ public class MatrixHelper {
 		frustum.get(list);
 		return new Matrix4d(list);
 	}
+
+	public static Vector3d transform(Matrix4d mat, Vector3d vector) {
+		Vector3d force = new Vector3d(vector);
+		mat.transform(force);
+		return force;
+	}
 }

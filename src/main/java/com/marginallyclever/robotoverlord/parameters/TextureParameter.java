@@ -54,20 +54,21 @@ public class TextureParameter extends FilenameParameter {
 	}
 
 	private void loadTexture() {
-		if(t == null || t.length()==0) {
+		String value = get();
+		if(value == null || value.length()==0) {
 			texture = null;
 			textureDirty=false;
 			return;
 		}
 
-		texture = texturePool.get(t);
+		texture = texturePool.get(value);
 		if(texture==null) {
 			try {
-				texture = TextureIO.newTexture(FileHelper.open(t), false, t.substring(t.lastIndexOf('.')+1));
-				texturePool.put(t, texture);
+				texture = TextureIO.newTexture(FileHelper.open(value), false, value.substring(value.lastIndexOf('.')+1));
+				texturePool.put(value, texture);
 			} catch (IOException e) {
 				//e.printStackTrace();
-				logger.error("Failed to load {}",t,e);
+				logger.error("Failed to load {}", value,e);
 			}
 		}
 		textureDirty=false;
@@ -83,8 +84,9 @@ public class TextureParameter extends FilenameParameter {
 	
 	@Override
 	public void set(String s) {
-		if(s != null && s.equals(t)) return;
-		if(s==null && t==null) return;
+		String value = get();
+		if(s != null && s.equals(value)) return;
+		if(s==null && value ==null) return;
 
 		super.set(s);
 		textureDirty=true;
