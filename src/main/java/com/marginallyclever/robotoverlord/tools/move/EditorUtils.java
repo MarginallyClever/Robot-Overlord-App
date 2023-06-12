@@ -65,7 +65,6 @@ public class EditorUtils {
     }
 
     public static Matrix4d getPivotMatrix(int frameOfReference,Viewport viewport,SelectedItems selectedItems) {
-
         Matrix4d m;
         switch(frameOfReference) {
             case EditorTool.FRAME_WORLD -> {
@@ -89,6 +88,9 @@ public class EditorUtils {
             default -> throw new RuntimeException("Unknown frame of reference: " + frameOfReference);
         }
 
+        if(m==null) {
+            m = MatrixHelper.createIdentityMatrix4();
+        }
         return m;
     }
 }

@@ -270,6 +270,8 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
     @Override
     public void setFrameOfReference(int index) {
         frameOfReference = index;
-        updatePivotMatrix();
+        if(selectedItems!=null) {
+            updatePivotMatrix();
+        }
     }
 }
