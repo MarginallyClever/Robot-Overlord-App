@@ -386,10 +386,10 @@ public class OpenGLRenderPanel implements RenderPanel {
             readResource("givenColor_330.frag"));
     }
 
-    private void destroyShaderPrograms(GL2 gl2) {
-        shaderDefault.delete(gl2);
-        shaderOutline.delete(gl2);
-        shaderHUD.delete(gl2);
+    private void destroyShaderPrograms(GL3 gl) {
+        shaderDefault.delete(gl);
+        shaderOutline.delete(gl);
+        shaderHUD.delete(gl);
     }
 
     private void deactivateAllTools() {
