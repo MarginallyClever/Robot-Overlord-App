@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.components.program;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
@@ -33,27 +33,27 @@ public class ProgramPathComponent extends ProgramStepComponent {
     }
 
     @Override
-    public void render(GL2 gl2) {
+    public void render(GL3 gl) {
         if (!this.getVisible() || !this.getEnabled()) return;
 
         List<Matrix4d> waypoints = buildListOfWaypoints();
         switch (moveType.get()) {
-            default -> drawRapid(gl2, waypoints);
-            case MOVE_LINEAR -> drawLinear(gl2, waypoints);
-            //case MOVE_BEZIER -> drawBezier(gl2, waypoints);
+            default -> drawRapid(gl, waypoints);
+            case MOVE_LINEAR -> drawLinear(gl, waypoints);
+            //case MOVE_BEZIER -> drawBezier(gl, waypoints);
         }
         setModel(myMesh);
-        myMesh.render(gl2);
+        myMesh.render(gl);
     }
 
-    private void drawRapid(GL2 gl2,List<Matrix4d> waypoints) {
+    private void drawRapid(GL3 gl,List<Matrix4d> waypoints) {
         buildLinearPath(waypoints);
-        myMesh.setRenderStyle(GL2.GL_LINE_STRIP);
+        myMesh.setRenderStyle(GL3.GL_LINE_STRIP);
     }
 
-    private void drawLinear(GL2 gl2,List<Matrix4d> waypoints) {
+    private void drawLinear(GL3 gl,List<Matrix4d> waypoints) {
         buildLinearPath(waypoints);
-        myMesh.setRenderStyle(GL2.GL_LINES);
+        myMesh.setRenderStyle(GL3.GL_LINES);
     }
 
     private void buildLinearPath(List<Matrix4d> waypoints) {

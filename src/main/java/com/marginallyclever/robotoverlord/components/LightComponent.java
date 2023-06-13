@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
@@ -58,37 +58,6 @@ public class LightComponent extends Component {
     public final DoubleParameter attenuationConstant = new DoubleParameter("Constant attenuation",1.0);
     public final DoubleParameter attenuationLinear = new DoubleParameter("Linear attenuation",0.014);
     public final DoubleParameter attenuationQuadratic = new DoubleParameter("Quadratic attenuation",0.0007);
-
-    public void setupLight(GL2 gl2, int lightIndex) {
-        int i = GL2.GL_LIGHT0+lightIndex;
-
-        gl2.glEnable(i);
-
-        Matrix4d poseWorld = getEntity().getComponent(PoseComponent.class).getWorld();
-        position[0]=(float)poseWorld.m03;
-        position[1]=(float)poseWorld.m13;
-        position[2]=(float)poseWorld.m23;
-        position[3]=isDirectional.get()?1:0;
-        gl2.glLightfv(i, GL2.GL_POSITION, position,0);
-
-        gl2.glLightfv(i, GL2.GL_AMBIENT, ambient.getFloatArray(),0);
-        gl2.glLightfv(i, GL2.GL_DIFFUSE, diffuse.getFloatArray(),0);
-        gl2.glLightfv(i, GL2.GL_SPECULAR, specular.getFloatArray(),0);
-
-        // z axis of the matrix is the light direction
-        spotDirection[0]=(float)poseWorld.m02;
-        spotDirection[1]=(float)poseWorld.m12;
-        spotDirection[2]=(float)poseWorld.m22;
-        gl2.glLightfv(i, GL2.GL_SPOT_DIRECTION, spotDirection,0);
-
-        gl2.glLightf(i, GL2.GL_SPOT_CUTOFF, cutoff.get().floatValue());
-        gl2.glLightf(i, GL2.GL_SPOT_EXPONENT, exponent.get().floatValue());
-
-        // falloff/fade out
-        gl2.glLightf(i, GL2.GL_CONSTANT_ATTENUATION,attenuationConstant.get().floatValue());
-        gl2.glLightf(i, GL2.GL_LINEAR_ATTENUATION,attenuationLinear.get().floatValue());
-        gl2.glLightf(i, GL2.GL_QUADRATIC_ATTENUATION,attenuationQuadratic.get().floatValue());
-    }
 
     /**
      *

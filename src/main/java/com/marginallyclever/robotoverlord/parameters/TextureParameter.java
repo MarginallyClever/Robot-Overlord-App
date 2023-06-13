@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.parameters;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.helpers.FileHelper;
@@ -42,14 +42,14 @@ public class TextureParameter extends FilenameParameter {
 		return filters;
 	}
 
-	public void render(GL2 gl2) {
+	public void render(GL3 gl) {
 		if(textureDirty) loadTexture();
 
 	    if(texture==null) {
-			gl2.glDisable(GL2.GL_TEXTURE_2D);
+			gl.glDisable(GL3.GL_TEXTURE_2D);
 	    } else {
-			gl2.glEnable(GL2.GL_TEXTURE_2D);
-	    	texture.bind(gl2);
+			gl.glEnable(GL3.GL_TEXTURE_2D);
+	    	texture.bind(gl);
 	    }
 	}
 

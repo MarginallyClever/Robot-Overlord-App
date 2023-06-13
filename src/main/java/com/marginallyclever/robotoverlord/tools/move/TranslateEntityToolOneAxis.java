@@ -1,13 +1,16 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
+import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Sphere;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 
 import javax.vecmath.Matrix4d;
@@ -65,6 +68,12 @@ public class TranslateEntityToolOneAxis implements EditorTool {
 
     private final Sphere handleSphere = new Sphere();
     private int frameOfReference = EditorTool.FRAME_WORLD;
+    private final ColorRGB color;
+
+    public TranslateEntityToolOneAxis(ColorRGB color) {
+        super();
+        this.color = color;
+    }
 
     @Override
     public void activate(List<Entity> list) {
@@ -153,7 +162,9 @@ public class TranslateEntityToolOneAxis implements EditorTool {
     @Override
     public void setFrameOfReference(int index) {
         frameOfReference = index;
-        updatePivotMatrix();
+        if(selectedItems!=null) {
+            updatePivotMatrix();
+        }
     }
 
     private void updatePivotMatrix() {
@@ -209,37 +220,43 @@ public class TranslateEntityToolOneAxis implements EditorTool {
         localScale = pivotPoint.length()*toolScale;
     }
 
+    // Render the translation handle on the axis
     @Override
-    public void render(GL2 gl2) {
-        if(selectedItems==null || selectedItems.isEmpty()) return;
+    public void render(GL3 gl, ShaderProgram shaderProgram) {
+        if (selectedItems == null || selectedItems.isEmpty()) return;
 
-        // Render the translation handle on the axis
-        boolean texture = OpenGLHelper.disableTextureStart(gl2);
-        boolean light = OpenGLHelper.disableLightingStart(gl2);
+        shaderProgram.set1i(gl, "useTexture", 0);
+        shaderProgram.set1i(gl, "useLighting", 0);
+        shaderProgram.set1i(gl, "useVertexColor", 0);
 
-        gl2.glPushMatrix();
-        MatrixHelper.applyMatrix(gl2, pivotMatrix);
+        float colorScale = cursorOverHandle ? 1:0.5f;
+        float red   = color.red   * colorScale / 255f;
+        float green = color.green * colorScale / 255f;
+        float blue  = color.blue  * colorScale / 255f;
+        shaderProgram.set4f(gl,"objectColor",red, green, blue, 1.0f);
 
-        float [] colors = new float[4];
-        gl2.glGetFloatv(GL2.GL_CURRENT_COLOR, colors, 0);
-        double colorScale = cursorOverHandle ? 1:0.5;
-        gl2.glColor4d(colors[0]*colorScale, colors[1]*colorScale, colors[2]*colorScale, 1.0);
+        drawHandleOnAxis(gl, shaderProgram);
+    }
 
-        gl2.glBegin(GL2.GL_LINES);
-        gl2.glVertex3d(0, 0, 0);
-        gl2.glVertex3d(getHandleLengthScaled(), 0, 0);
-        gl2.glEnd();
+    private void drawHandleOnAxis(GL3 gl, ShaderProgram shaderProgram) {
+        Matrix4d m = new Matrix4d(pivotMatrix);
+        m.transpose();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",m);
 
-        gl2.glTranslated(getHandleLengthScaled(), 0, 0);
+        // handle line
+        Mesh mesh = new Mesh(GL3.GL_LINES);
+        mesh.addVertex(0, 0, 0);
+        mesh.addVertex((float)getHandleLengthScaled(), 0, 0);
+        mesh.render(gl);
 
-        double grs = getGripRadiusScaled();
-        gl2.glScaled(grs,grs,grs);
-        handleSphere.render(gl2);
-
-        gl2.glPopMatrix();
-
-        OpenGLHelper.disableLightingEnd(gl2, light);
-        OpenGLHelper.disableTextureEnd(gl2, texture);
+        // ball at end of handle
+        Matrix4d m2 = MatrixHelper.createIdentityMatrix4();
+        m2.m03 += getHandleLengthScaled();
+        m2.mul(pivotMatrix,m2);
+        m2.transpose();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",m2);
+        handleSphere.radius.set(getGripRadiusScaled());
+        handleSphere.render(gl);
     }
 
     @Override

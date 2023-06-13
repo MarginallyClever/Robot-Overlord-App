@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
@@ -35,7 +35,7 @@ public class Sphere extends ShapeComponent implements PropertyChangeListener{
     // Procedurally generate a list of triangles that form a sphere subdivided by some amount.
     private void updateModel() {
         myMesh.clear();
-        myMesh.setRenderStyle(GL2.GL_TRIANGLES);
+        myMesh.setRenderStyle(GL3.GL_TRIANGLES);
 
         float r = radius.get().floatValue();
 

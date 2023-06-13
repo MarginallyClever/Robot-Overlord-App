@@ -6,7 +6,6 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.texture.Texture;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.entity.Entity;
@@ -23,7 +22,6 @@ import com.marginallyclever.robotoverlord.tools.SelectionTool;
 import com.marginallyclever.robotoverlord.tools.move.MoveCameraTool;
 import com.marginallyclever.robotoverlord.tools.move.RotateEntityMultiTool;
 import com.marginallyclever.robotoverlord.tools.move.TranslateEntityMultiTool;
-import org.eclipse.jgit.diff.Edit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +33,6 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.nio.IntBuffer;
 import java.util.List;
 import java.util.Queue;
 import java.util.*;
@@ -55,11 +52,6 @@ public class OpenGLRenderPanel implements RenderPanel {
     // OpenGL debugging
     private final boolean glDebug=false;
     private final boolean glTrace=false;
-
-    // should I check the state of the OpenGL stack size?  true=every frame, false=never
-    private final boolean checkStackSize = false;
-    private final IntBuffer stackDepth = IntBuffer.allocate(1);
-
     private final JPanel panel = new JPanel(new BorderLayout());
 
     // the systems canvas
@@ -205,10 +197,13 @@ public class OpenGLRenderPanel implements RenderPanel {
     private void createCanvas() {
         try {
             logger.info("...get default caps");
-            GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
+            //GLProfile profile = GLProfile.get(GLProfile.GL3);
+            GLProfile profile = GLProfile.getDefault();
+            GLCapabilities caps = new GLCapabilities(profile);
+            caps.setHardwareAccelerated(true);
             caps.setBackgroundOpaque(true);
             caps.setDoubleBuffered(true);
-            caps.setHardwareAccelerated(true);
+
             caps.setStencilBits(8);
             if(FSAA_NUM_SAMPLES>1) {
                 caps.setSampleBuffers(true);
@@ -216,7 +211,7 @@ public class OpenGLRenderPanel implements RenderPanel {
             }
             StringBuilder sb = new StringBuilder();
             caps.toString(sb);
-            logger.info("...set caps to "+sb.toString());
+            logger.info("...set caps to "+sb);
             logger.info("...create canvas");
             glCanvas = new GLJPanel(caps);
         } catch(GLException e) {
@@ -232,44 +227,44 @@ public class OpenGLRenderPanel implements RenderPanel {
                 if(glDebug) gl = useGLDebugPipeline(gl);
                 if(glTrace) gl = useTracePipeline(gl);
 
-                GL2 gl2 = drawable.getGL().getGL2();
+                GL3 gl3 = drawable.getGL().getGL3();
 
                 // turn on vsync
-                gl2.setSwapInterval(VERTICAL_SYNC_ON);
+                gl3.setSwapInterval(VERTICAL_SYNC_ON);
 
                 // make things pretty
-                gl2.glEnable(GL2.GL_LINE_SMOOTH);
-                gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
-                gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
+                gl3.glEnable(GL3.GL_LINE_SMOOTH);
+                gl3.glEnable(GL3.GL_POLYGON_SMOOTH);
+                gl3.glHint(GL3.GL_POLYGON_SMOOTH_HINT, GL3.GL_NICEST);
                 // TODO add a settings toggle for this option, it really slows down older machines.
-                gl2.glEnable(GL2.GL_MULTISAMPLE);
+                gl3.glEnable(GL3.GL_MULTISAMPLE);
 
                 // Don't draw triangles facing away from camera
-                gl2.glCullFace(GL2.GL_BACK);
+                gl3.glCullFace(GL3.GL_BACK);
 
-                gl2.glActiveTexture(GL2.GL_TEXTURE0);
+                gl3.glActiveTexture(GL3.GL_TEXTURE0);
 
                 int [] buf = new int[1];
                 int [] sbuf = new int[1];
-                gl2.glGetIntegerv(GL2.GL_SAMPLES, buf, 0);
-                gl2.glGetIntegerv(GL2.GL_SAMPLE_BUFFERS, sbuf, 0);
+                gl3.glGetIntegerv(GL3.GL_SAMPLES, buf, 0);
+                gl3.glGetIntegerv(GL3.GL_SAMPLE_BUFFERS, sbuf, 0);
 
                 // depth testing and culling options
-                gl2.glDepthFunc(GL2.GL_LESS);
-                gl2.glEnable(GL2.GL_DEPTH_TEST);
-                gl2.glDepthMask(true);
-                gl2.glEnable(GL2.GL_CULL_FACE);
+                gl3.glDepthFunc(GL3.GL_LESS);
+                gl3.glEnable(GL3.GL_DEPTH_TEST);
+                gl3.glDepthMask(true);
+                gl3.glEnable(GL3.GL_CULL_FACE);
 
-                gl2.glEnable(GL.GL_STENCIL_TEST);
+                gl3.glEnable(GL.GL_STENCIL_TEST);
 
                 // default blending option for transparent materials
-                gl2.glEnable(GL2.GL_BLEND);
-                gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+                gl3.glEnable(GL3.GL_BLEND);
+                gl3.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);
 
                 // set the color to use when wiping the draw buffer
-                gl2.glClearColor(0.85f,0.85f,0.85f,0.0f);
+                gl3.glClearColor(0.85f,0.85f,0.85f,0.0f);
 
-                createShaderPrograms(gl2);
+                createShaderPrograms(gl3);
             }
 
             @Override
@@ -280,7 +275,10 @@ public class OpenGLRenderPanel implements RenderPanel {
 
             @Override
             public void dispose( GLAutoDrawable drawable ) {
-                GL2 gl2 = drawable.getGL().getGL2();
+                GL3 gl3 = drawable.getGL().getGL3();
+                shaderDefault.delete(gl3);
+                shaderOutline.delete(gl3);
+                shaderHUD.delete(gl3);
             }
 
             @Override
@@ -291,9 +289,9 @@ public class OpenGLRenderPanel implements RenderPanel {
 
                 updateStep(dt*0.001);  // to seconds
 
-                GL2 gl2 = drawable.getGL().getGL2();
+                GL3 gl3 = drawable.getGL().getGL3();
 
-                checkRenderStep(gl2);
+                renderStep(gl3);
             }
         });
 
@@ -376,14 +374,14 @@ public class OpenGLRenderPanel implements RenderPanel {
         return lines.toArray(new String[0]);
     }
 
-    private void createShaderPrograms(GL2 gl2) {
-        shaderDefault = new ShaderProgram(gl2,
+    private void createShaderPrograms(GL3 gl3) {
+        shaderDefault = new ShaderProgram(gl3,
             readResource("default_330.vert"),
             readResource("default_330.frag"));
-        shaderOutline = new ShaderProgram(gl2,
+        shaderOutline = new ShaderProgram(gl3,
             readResource("outline_330.vert"),
             readResource("outline_330.frag"));
-        shaderHUD = new ShaderProgram(gl2,
+        shaderHUD = new ShaderProgram(gl3,
             readResource("default_330.vert"),
             readResource("givenColor_330.frag"));
     }
@@ -422,67 +420,42 @@ public class OpenGLRenderPanel implements RenderPanel {
         return entityManager.getCamera();
     }
 
-    private void checkRenderStep(GL2 gl2) {
-        int before;
-        if(checkStackSize) {
-            gl2.glGetIntegerv(GL2.GL_MODELVIEW_STACK_DEPTH, stackDepth);
-            before = stackDepth.get(0);
-        }
-
-        try {
-            renderStep(gl2);
-        } catch(Exception e) {
-            logger.error("GL error",e);
-            e.printStackTrace();
-        }
-
-        if(checkStackSize) {
-            gl2.glGetIntegerv(GL2.GL_MODELVIEW_STACK_DEPTH, stackDepth);
-            int after = stackDepth.get(0);
-            if(before != after) {
-                System.err.println("stack depth " + before + " vs " + after);
-                logger.warn("stack depth " + before + " vs " + after);
-            }
-        }
-    }
-
-    private void renderStep(GL2 gl2) {
+    private void renderStep(GL3 gl3) {
         // clear green color, the depth bit, and the stencil buffer.
-        gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
-        gl2.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_STENCIL_BUFFER_BIT);
+        gl3.glClearColor(0.85f,0.85f,0.85f,1.0f);
+        gl3.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_STENCIL_BUFFER_BIT);
 
-        draw3DScene(gl2);
-        //viewport.showPickingTest(gl2);
-        drawOverlays(gl2);
+        draw3DScene(gl3);
+        //viewport.showPickingTest(gl3);
+        drawOverlays(gl3);
     }
 
-    private void draw3DScene(GL2 gl2) {
+    private void draw3DScene(GL3 gl) {
         CameraComponent camera = getCamera();
         if (camera == null) {
-            gl2.glClearColor(0.85f,0.85f,0.85f,1.0f);
-            gl2.glClear(GL2.GL_COLOR_BUFFER_BIT);
+            gl.glClearColor(0.85f,0.85f,0.85f,1.0f);
+            gl.glClear(GL3.GL_COLOR_BUFFER_BIT);
             // TODO display a "no active camera found" message?
             return;
         }
 
         collectSelectedEntitiesAndTheirChildren();  // TODO only when selection changes?
-        prepareToOutlineSelectedEntities(gl2);
+        prepareToOutlineSelectedEntities(gl);
 
         viewport.setCamera(camera);
-        viewport.renderChosenProjection(gl2);
-        renderLights(gl2);
+        renderLights();
 
-        useShaderDefault(gl2);
+        useShaderDefault(gl);
 
-        skyBox.render(gl2, camera,shaderDefault);
+        skyBox.render(gl, camera,shaderDefault);
 
-        renderAllEntities(gl2, entityManager.getEntities(),shaderDefault);
-        if (showWorldOrigin.get()) PrimitiveSolids.drawStar(gl2, 10);
+        renderAllEntities(gl, entityManager.getEntities(),shaderDefault);
+        if (showWorldOrigin.get()) MatrixHelper.drawMatrix(10).render(gl);
 
-        outlineCollectedEntities(gl2);
+        outlineCollectedEntities(gl);
     }
 
-    private void useShaderDefault(GL2 gl2) {
+    private void useShaderDefault(GL3 gl3) {
         Vector3d cameraPos = getCamera().getPosition();
 
         Vector3d lightPos, lightColor;
@@ -496,65 +469,66 @@ public class OpenGLRenderPanel implements RenderPanel {
             lightColor = new Vector3d(1,1,1);
         }
 
-        shaderDefault.use(gl2);
-        setProjectionMatrix(gl2,shaderDefault);
-        setViewMatrix(gl2,shaderDefault);
+        shaderDefault.use(gl3);
+        setProjectionMatrix(gl3,shaderDefault);
+        setViewMatrix(gl3,shaderDefault);
 
-        shaderDefault.setVector3d(gl2,"lightPos",lightPos);  // Light position in world space
-        shaderDefault.setVector3d(gl2,"cameraPos",cameraPos);  // Camera position in world space
-        shaderDefault.setVector3d(gl2,"lightColor",lightColor);  // Light color
-        shaderDefault.set4f(gl2,"objectColor",1,1,1,1);
-        shaderDefault.set1f(gl2,"diffuseTexture",0);
-        shaderDefault.setVector3d(gl2,"specularColor",new Vector3d(0.5,0.5,0.5));
-        shaderDefault.setVector3d(gl2,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
+        shaderDefault.setVector3d(gl3,"lightPos",lightPos);  // Light position in world space
+        shaderDefault.setVector3d(gl3,"cameraPos",cameraPos);  // Camera position in world space
+        shaderDefault.setVector3d(gl3,"lightColor",lightColor);  // Light color
+        shaderDefault.set4f(gl3,"objectColor",1,1,1,1);
+        shaderDefault.set1f(gl3,"diffuseTexture",0);
+        shaderDefault.setVector3d(gl3,"specularColor",new Vector3d(0.5,0.5,0.5));
+        shaderDefault.setVector3d(gl3,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
     }
 
-    private void setProjectionMatrix(GL2 gl2, ShaderProgram program) {
+    private void setProjectionMatrix(GL3 gl3, ShaderProgram program) {
         Matrix4d projectionMatrix = viewport.getChosenProjectionMatrix();
-        program.setMatrix4d(gl2,"projectionMatrix",projectionMatrix);
+        program.setMatrix4d(gl3,"projectionMatrix",projectionMatrix);
     }
 
-    private void setOrthograpicMatrix(GL2 gl2, ShaderProgram program) {
+    private void setOrthograpicMatrix(GL3 gl3, ShaderProgram program) {
         Matrix4d projectionMatrix = viewport.getOrthographicMatrix();
-        program.setMatrix4d(gl2,"projectionMatrix",projectionMatrix);
+        program.setMatrix4d(gl3,"projectionMatrix",projectionMatrix);
     }
 
-    private void setViewMatrix(GL2 gl2,ShaderProgram program) {
+    private void setViewMatrix(GL3 gl3,ShaderProgram program) {
         Matrix4d viewMatrix = viewport.getViewMatrix();
         viewMatrix.transpose();
-        program.setMatrix4d(gl2,"viewMatrix",viewMatrix);
+        program.setMatrix4d(gl3,"viewMatrix",viewMatrix);
     }
 
-    private void drawOverlays(GL2 gl2) {
+    private void drawOverlays(GL3 gl) {
         // overlays
-        gl2.glClear(GL2.GL_DEPTH_BUFFER_BIT | GL2.GL_STENCIL_BUFFER_BIT);
-        gl2.glUseProgram(0);
-        viewport.renderChosenProjection(gl2);
+        gl.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_STENCIL_BUFFER_BIT);
+        gl.glUseProgram(0);
 
+        useShaderDefault(gl);
         // 3D overlays
-        for(EditorTool tool : editorTools) tool.render(gl2);
+        for(EditorTool tool : editorTools) tool.render(gl,shaderDefault);
 
         // 2D overlays
-        compass3d.render(gl2,viewport,shaderDefault);
-        drawCursor(gl2,shaderDefault);
 
-        shaderDefault.use(gl2);
+        compass3d.render(gl,viewport,shaderDefault);
+        drawCursor(gl);
+
+        shaderDefault.use(gl);
     }
 
-    private void checkGLError(GL2 gl2) {
-        if(gl2.glGetError() != GL2.GL_NO_ERROR) {
-            logger.error("GL error:" + gl2.glGetError());
+    private void checkGLError(GL3 gl3) {
+        if(gl3.glGetError() != GL3.GL_NO_ERROR) {
+            logger.error("GL error:" + gl3.glGetError());
         }
     }
 
-    private void prepareToOutlineSelectedEntities(GL2 gl2) {
-        gl2.glStencilFunc(GL.GL_ALWAYS,1,0xff);
+    private void prepareToOutlineSelectedEntities(GL3 gl3) {
+        gl3.glStencilFunc(GL.GL_ALWAYS,1,0xff);
         // if we pass the depth test, keep the old value in the stencil buffer.
         // if we pass the stencil test, keep the old value in the stencil buffer.
         // if we pass BOTH then replace the stencil buffer value with the reference value (1).
-        gl2.glStencilOp(GL.GL_KEEP,GL.GL_KEEP,GL.GL_REPLACE);
+        gl3.glStencilOp(GL.GL_KEEP,GL.GL_KEEP,GL.GL_REPLACE);
         // by default write nothing to the stencil buffer.
-        gl2.glStencilMask(0x00);
+        gl3.glStencilMask(0x00);
     }
 
     // get the selected entities and all their children.
@@ -568,39 +542,39 @@ public class OpenGLRenderPanel implements RenderPanel {
         }
     }
 
-    private void outlineCollectedEntities(GL2 gl2) {
+    private void outlineCollectedEntities(GL3 gl3) {
         if(shaderOutline ==null) return;
 
         // update the depth buffer so the outline will appear around the collected entities.
         // without this any part of a collected entity behind another entity will be completely filled with the outline color.
-        gl2.glClear(GL.GL_DEPTH_BUFFER_BIT);
-        gl2.glColorMask(false,false,false,false);
-        renderAllEntities(gl2,collectedEntities,shaderDefault);
-        gl2.glColorMask(true,true,true,true);
+        gl3.glClear(GL.GL_DEPTH_BUFFER_BIT);
+        gl3.glColorMask(false,false,false,false);
+        renderAllEntities(gl3,collectedEntities,shaderDefault);
+        gl3.glColorMask(true,true,true,true);
 
         // next draw, only draw where the stencil buffer is not 1
-        gl2.glStencilFunc(GL.GL_NOTEQUAL,1,0xff);
-        gl2.glStencilOp(GL.GL_KEEP,GL.GL_KEEP,GL.GL_KEEP);
+        gl3.glStencilFunc(GL.GL_NOTEQUAL,1,0xff);
+        gl3.glStencilOp(GL.GL_KEEP,GL.GL_KEEP,GL.GL_KEEP);
         // and do not update the stencil buffer.
-        gl2.glStencilMask(0x00);
+        gl3.glStencilMask(0x00);
 
-        useShaderOutline(gl2);
+        useShaderOutline(gl3);
 
-        renderAllEntities(gl2,collectedEntities,shaderOutline);
+        renderAllEntities(gl3,collectedEntities,shaderOutline);
 
         // clean up
-        gl2.glUseProgram(0);
-        gl2.glStencilMask(0xFF);
+        gl3.glUseProgram(0);
+        gl3.glStencilMask(0xFF);
     }
 
-    private void useShaderOutline(GL2 gl2) {
+    private void useShaderOutline(GL3 gl3) {
         // must be in use before calls to glUniform*.
-        shaderOutline.use(gl2);
+        shaderOutline.use(gl3);
         // tell the shader some important information
-        setProjectionMatrix(gl2,shaderOutline);
-        setViewMatrix(gl2,shaderOutline);
-        shaderOutline.set4f(gl2,"outlineColor",0.0f, 1.0f, 0.0f, 0.5f);
-        shaderOutline.set1f(gl2,"outlineSize",0.25f);
+        setProjectionMatrix(gl3,shaderOutline);
+        setViewMatrix(gl3,shaderOutline);
+        shaderOutline.set4f(gl3,"outlineColor",0.0f, 1.0f, 0.0f, 0.5f);
+        shaderOutline.set1f(gl3,"outlineSize",0.25f);
     }
 
     /**
@@ -610,7 +584,7 @@ public class OpenGLRenderPanel implements RenderPanel {
      * and systems the no-material.
      *
      */
-    private void renderAllEntities(GL2 gl2,List<Entity> list,ShaderProgram shaderProgram) {
+    private void renderAllEntities(GL3 gl3,List<Entity> list,ShaderProgram shaderProgram) {
         opaque.clear();
         alpha.clear();
         noMaterial.clear();
@@ -638,8 +612,8 @@ public class OpenGLRenderPanel implements RenderPanel {
         }
 
         // opaque objects
-        defaultMaterial.render(gl2);
-        renderMMRList(gl2,opaque,shaderProgram);
+        defaultMaterial.render(gl3);
+        renderMMRList(gl3,opaque,shaderProgram);
 
         // sort alpha objects back to front
         Vector3d cameraPoint = new Vector3d();
@@ -659,20 +633,20 @@ public class OpenGLRenderPanel implements RenderPanel {
         });
 
         // alpha objects
-        renderMMRList(gl2,alpha,shaderProgram);
+        renderMMRList(gl3,alpha,shaderProgram);
 
         // objects with no material
-        defaultMaterial.render(gl2);
-        renderMMRList(gl2,noMaterial,shaderProgram);
+        defaultMaterial.render(gl3);
+        renderMMRList(gl3,noMaterial,shaderProgram);
 
         // onTop
-        gl2.glDisable(GL2.GL_DEPTH_TEST);
-        defaultMaterial.render(gl2);
-        renderMMRList(gl2,onTop,shaderProgram);
-        gl2.glEnable(GL2.GL_DEPTH_TEST);
+        gl3.glDisable(GL3.GL_DEPTH_TEST);
+        defaultMaterial.render(gl3);
+        renderMMRList(gl3,onTop,shaderProgram);
+        gl3.glEnable(GL3.GL_DEPTH_TEST);
     }
 
-    private void renderMMRList(GL2 gl2, List<MatrixMaterialRender> list,ShaderProgram shaderProgram) {
+    private void renderMMRList(GL3 gl3, List<MatrixMaterialRender> list,ShaderProgram shaderProgram) {
         for(MatrixMaterialRender mmr : list) {
             if(mmr.renderComponent==null || !mmr.renderComponent.getVisible()) continue;
 
@@ -680,14 +654,14 @@ public class OpenGLRenderPanel implements RenderPanel {
                 Matrix4d m = mmr.matrix;
                 m.transpose();
                 // tell the shaders about our modelMatrix.
-                shaderProgram.setMatrix4d(gl2,"modelMatrix",m);
+                shaderProgram.setMatrix4d(gl3,"modelMatrix",m);
             }
 
             if(collectedEntities.contains(mmr.renderComponent.getEntity())) {
                 // if this mesh is one of the selected entities, then also render it to the stencil buffer for the outline shader.
-                gl2.glStencilMask(0xFF);
+                gl3.glStencilMask(0xFF);
             } else {
-                gl2.glStencilMask(0x00);
+                gl3.glStencilMask(0x00);
             }
 
             Texture texture = null;
@@ -696,7 +670,7 @@ public class OpenGLRenderPanel implements RenderPanel {
             boolean useLighting=true;
             if(mmr.materialComponent!=null && mmr.materialComponent.getEnabled()) {
                 MaterialComponent material = mmr.materialComponent;
-                material.render(gl2);
+                material.render(gl3);
                 // flat light?
                 useLighting &= material.isLit();
                 // if we have a texture assigned, then we might still enable textures.
@@ -704,7 +678,7 @@ public class OpenGLRenderPanel implements RenderPanel {
                 if(texture==null) useTexture = false;
                 // assign the object's overall color.
                 double[] diffuseColor = material.getDiffuseColor();
-                shaderDefault.set4f(gl2,
+                shaderDefault.set4f(gl3,
                         "objectColor",
                         (float)diffuseColor[0],
                         (float)diffuseColor[1],
@@ -732,33 +706,25 @@ public class OpenGLRenderPanel implements RenderPanel {
                 useLighting=false;
             }
 
-            shaderProgram.set1i(gl2,"useVertexColor",useVertexColor?1:0);
-            shaderProgram.set1i(gl2,"useLighting",useLighting?1:0);
-            shaderProgram.set1i(gl2,"useTexture",useTexture?1:0);
+            shaderProgram.set1i(gl3,"useVertexColor",useVertexColor?1:0);
+            shaderProgram.set1i(gl3,"useLighting",useLighting?1:0);
+            shaderProgram.set1i(gl3,"useTexture",useTexture?1:0);
 
             if(useTexture && texture!=null) {
-                gl2.glEnable(GL.GL_TEXTURE_2D);
-                texture.bind(gl2);
-                mmr.materialComponent.render(gl2);
-                shaderProgram.set1f(gl2,"diffuseTexture",0);
+                gl3.glEnable(GL.GL_TEXTURE_2D);
+                texture.bind(gl3);
+                mmr.materialComponent.render(gl3);
+                shaderProgram.set1f(gl3,"diffuseTexture",0);
             }
 
-            gl2.glPushMatrix();
-            mmr.renderComponent.render(gl2);
-            gl2.glPopMatrix();
+            mmr.renderComponent.render(gl3);
         }
     }
 
-    private void renderLights(GL2 gl2) {
-        // global ambient light
-        //gl2.glLightModelfv( GL2.GL_LIGHT_MODEL_AMBIENT, ambientLight.getFloatArray(),0);
-
-        int maxLights = getMaxLights(gl2);
-        turnOffAllLights(gl2,maxLights);
+    private void renderLights() {
         lights.clear();
 
         Queue<Entity> found = new LinkedList<>(entityManager.getEntities());
-        int i=0;
         while(!found.isEmpty()) {
             Entity obj = found.remove();
             found.addAll(obj.getChildren());
@@ -766,30 +732,16 @@ public class OpenGLRenderPanel implements RenderPanel {
             LightComponent light = obj.getComponent(LightComponent.class);
             if(light!=null && light.getEnabled()) {
                 lights.add(light);
-                light.setupLight(gl2,i++);
-                if(i==maxLights) return;
             }
         }
     }
 
-    private int getMaxLights(GL2 gl2) {
-        IntBuffer intBuffer = IntBuffer.allocate(1);
-        gl2.glGetIntegerv(GL2.GL_MAX_LIGHTS, intBuffer);
-        return intBuffer.get();
-    }
-
-    private void turnOffAllLights(GL2 gl2,int maxLights) {
-        for(int i=0;i<maxLights;++i) {
-            gl2.glDisable(GL2.GL_LIGHT0+i);
-        }
-    }
-
-    private void drawCursor(GL2 gl2,ShaderProgram program) {
+    private void drawCursor(GL3 gl3) {
         if(!isMouseIn) return;
 
-        shaderHUD.use(gl2);
-        setOrthograpicMatrix(gl2,shaderHUD);
-        shaderHUD.setMatrix4d(gl2,"viewMatrix",MatrixHelper.createIdentityMatrix4());
+        shaderHUD.use(gl3);
+        setOrthograpicMatrix(gl3,shaderHUD);
+        shaderHUD.setMatrix4d(gl3,"viewMatrix",MatrixHelper.createIdentityMatrix4());
 
         double [] cursor = viewport.getCursorAsNormalized();
         Matrix4d modelView = MatrixHelper.createIdentityMatrix4();
@@ -797,25 +749,23 @@ public class OpenGLRenderPanel implements RenderPanel {
         modelView.m13 = cursor[1] * viewport.getCanvasHeight() / 2d;
         modelView.m23 = -10;
         modelView.transpose();
-        shaderHUD.setMatrix4d(gl2,"modelMatrix",modelView);
+        shaderHUD.setMatrix4d(gl3,"modelMatrix",modelView);
 
         // draw!
-        boolean tex = OpenGLHelper.disableTextureStart(gl2);
-        boolean lit = OpenGLHelper.disableLightingStart(gl2);
-        int top = OpenGLHelper.drawAtopEverythingStart(gl2);
+        boolean tex = OpenGLHelper.disableTextureStart(gl3);
+        int top = OpenGLHelper.drawAtopEverythingStart(gl3);
 
-        cursorMesh.render(gl2);
+        cursorMesh.render(gl3);
 
-        OpenGLHelper.drawAtopEverythingEnd(gl2,top);
-        OpenGLHelper.disableLightingEnd(gl2,lit);
-        OpenGLHelper.disableTextureEnd(gl2,tex);
+        OpenGLHelper.drawAtopEverythingEnd(gl3,top);
+        OpenGLHelper.disableTextureEnd(gl3,tex);
     }
 
     private void createCursorMesh() {
         // build mesh - only needs to be done once.
         float cf = (float)cursorSize;
         cursorMesh.clear();
-        cursorMesh.setRenderStyle(GL2.GL_LINES);
+        cursorMesh.setRenderStyle(GL3.GL_LINES);
         cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(1,-cf,0);
         cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(1, cf,0);
         cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-cf,1,0);

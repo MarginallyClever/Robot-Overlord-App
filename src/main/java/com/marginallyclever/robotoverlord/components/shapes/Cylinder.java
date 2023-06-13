@@ -6,7 +6,7 @@ import java.beans.PropertyChangeListener;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
@@ -61,7 +61,7 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
 
     private void updateModel() {
         myMesh.clear();
-        myMesh.setRenderStyle(GL2.GL_TRIANGLES);
+        myMesh.setRenderStyle(GL3.GL_TRIANGLES);
 
         addCylinder(height.get().floatValue(), radius0.get().floatValue(), radius1.get().floatValue());
     }

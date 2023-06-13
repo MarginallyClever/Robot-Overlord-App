@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.robots.stewartplatform.rotary;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
@@ -16,9 +16,6 @@ import java.io.Serial;
  */
 @Deprecated
 public class RotaryStewartPlatform2 extends RotaryStewartPlatform {
-	@Serial
-	private static final long serialVersionUID = 1L;
-
 	public final String hello = "HELLO WORLD! I AM STEWART PLATFORM V4.2";
 	// machine dimensions
 	private final MeshFromFile baseModel;
@@ -40,48 +37,5 @@ public class RotaryStewartPlatform2 extends RotaryStewartPlatform {
 		//eeModel.setShapeRotation(180,0,30);
 		//baseModel.setShapeRotation(0,90,90);
 		//baseModel.setShapeOrigin(0,0,BASE_Z.get() + 0.6);
-	}
-
-	@Override
-	public void render(GL2 gl2) {
-		PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
-
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, myPose.getLocal());
-
-			baseModel.render(gl2);
-			
-			// draw the end effector
-			gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, getEndEffectorPose());
-			eeModel.render(gl2);
-			gl2.glPopMatrix();
-
-			drawBiceps(gl2);
-			drawForearms(gl2);
-		gl2.glPopMatrix();
-
-		super.render(gl2);
-	}
-
-	@Override
-	protected void drawBiceps(GL2 gl2) {
-		for(int i=0;i<arms.length;++i) {
-			int k = (i+arms.length-1)%arms.length;
-			double j = (k/2)+1;
-
-			gl2.glPushMatrix();
-				gl2.glTranslated(arms[i].pShoulder.x,arms[i].pShoulder.y, arms[i].pShoulder.z);
-				gl2.glRotated(j*120, 0, 0, 1);
-				gl2.glRotated(-90, 0, 1, 0);
-				gl2.glRotated(-arms[i].angle, 0, 0, 1);
-				armModel.render(gl2);
-			gl2.glPopMatrix();
-		}
-	}
-
-	@Override
-	public void getView(ViewPanelFactory view) {
-		super.getView(view);
 	}
 }

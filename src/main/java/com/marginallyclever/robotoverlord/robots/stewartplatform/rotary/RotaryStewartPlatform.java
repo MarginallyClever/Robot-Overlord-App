@@ -1,9 +1,10 @@
 package com.marginallyclever.robotoverlord.robots.stewartplatform.rotary;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
+import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
@@ -24,9 +25,8 @@ import javax.vecmath.Vector3d;
  * @since 2015?
  */
 @Deprecated
-public class RotaryStewartPlatform extends RenderComponent {
+public class RotaryStewartPlatform extends Component {
 	private static final Logger logger = LoggerFactory.getLogger(RotaryStewartPlatform.class);
-
 
 	public final String hello = "HELLO WORLD! I AM STEWART PLATFORM V4.2";
 	// machine dimensions
@@ -242,168 +242,7 @@ public class RotaryStewartPlatform extends RenderComponent {
 		}
 	}
 
-	@Override
-	public void render(GL2 gl2) {
-		PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
-
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, myPose.getLocal());
-
-			// draw the end effector
-			gl2.glPushMatrix();
-			MatrixHelper.drawMatrix(gl2, getEndEffectorPose(),5);
-			gl2.glPopMatrix();
-
-			drawBiceps(gl2);
-			drawForearms(gl2);
-			
-			// debug info
-			if(debugElbows.get()) drawDebugElbows(gl2);
-			if(debugEEPoints.get()) drawDebugEEPoints(gl2);
-			if(debugArms.get()) drawDebugArms(gl2);
-		gl2.glPopMatrix();
-	}
-	
-	protected void drawDebugElbows(GL2 gl2) {
-		boolean wasLit = OpenGLHelper.disableLightingStart(gl2);
-
-		for (RotaryStewartPlatformArm arm : arms) {
-			gl2.glPushMatrix();
-			gl2.glTranslated(
-					arm.pElbow.x,
-					arm.pElbow.y,
-					arm.pElbow.z);
-			MatrixHelper.drawMatrix(gl2, 3);
-			gl2.glPopMatrix();
-		}
-		
-
-		gl2.glBegin(GL2.GL_LINES);
-		int i;
-		for(i=0;i<arms.length;++i) {
-			int j = (i+arms.length-1)%arms.length;
-			
-			// project wrist position onto plane of bicep (wop)
-			double angle = Math.toRadians(((int)(j/2)+1)*120.0);
-			double c= Math.cos(angle);
-			double s= Math.sin(angle);
-			Vector3d normal = new Vector3d(c,s,0);
-			Vector3d ortho = new Vector3d(-s,c,0);
-			gl2.glColor3d(1, 0, 0);
-			gl2.glVertex3d(0, 0, 0);
-			gl2.glVertex3d(
-					normal.x*10,
-					normal.y*10,
-					normal.z*10);
-			gl2.glColor3d(0, 1, 0);
-			gl2.glVertex3d(0, 0, 0);
-			gl2.glVertex3d(
-					ortho.x*10,
-					ortho.y*10,
-					ortho.z*10);
-		}
-		gl2.glEnd();
-
-		OpenGLHelper.disableLightingEnd(gl2,wasLit);
-	}
-
-	protected void drawBiceps(GL2 gl2) {
-		boolean wasLit = OpenGLHelper.disableLightingStart(gl2);
-
-		gl2.glBegin(GL2.GL_LINES);
-		for(int i=0;i<arms.length;++i) {
-			int k = (i+arms.length-1)%arms.length;
-			gl2.glVertex3d(arms[i].pShoulder.x,arms[i].pShoulder.y, arms[i].pShoulder.z);
-			gl2.glVertex3d(arms[i].pElbow.x,arms[i].pElbow.y,arms[i].pElbow.z);
-		}
-		gl2.glEnd();
-
-		OpenGLHelper.disableLightingEnd(gl2,wasLit);
-	}
-
-	protected void drawForearms(GL2 gl2) {
-		boolean wasLit = OpenGLHelper.disableLightingStart(gl2);
-
-		gl2.glColor3d(1, 0, 0);
-		gl2.glBegin(GL2.GL_LINES);
-		for (RotaryStewartPlatformArm arm : arms) {
-			gl2.glVertex3d(arm.pEE2.x,
-					arm.pEE2.y,
-					arm.pEE2.z);
-			gl2.glVertex3d(arm.pElbow.x,
-					arm.pElbow.y,
-					arm.pElbow.z);
-			gl2.glColor3d(0, 0, 0);
-		}
-		gl2.glEnd();
-		OpenGLHelper.disableLightingEnd(gl2,wasLit);
-	}
-
-	protected void drawDebugArms(GL2 gl2) {
-		gl2.glColor3d(1, 0, 0);
-		gl2.glBegin(GL2.GL_LINES);
-		for (RotaryStewartPlatformArm arm : arms) {
-			gl2.glVertex3d(arm.pElbow.x,
-					arm.pElbow.y,
-					arm.pElbow.z);
-			gl2.glVertex3d(arm.pShoulder.x,
-					arm.pShoulder.y,
-					arm.pShoulder.z);
-			gl2.glColor3d(0, 0, 0);
-		}
-		gl2.glEnd();
-	}
-
-	protected void drawDebugEEPoints(GL2 gl2) {
-		Vector3d eeCenter = MatrixHelper.getPosition(getEndEffectorPose());
-		gl2.glColor3d(1, 0, 0);
-		gl2.glBegin(GL2.GL_LINES);
-		for (RotaryStewartPlatformArm arm : arms) {
-			gl2.glVertex3d(eeCenter.x, eeCenter.y, eeCenter.z);
-			gl2.glVertex3d(arm.pEE2.x,
-					arm.pEE2.y,
-					arm.pEE2.z);
-			gl2.glColor3d(0, 0, 0);
-		}
-		gl2.glEnd();
-	}
-	
 	@Deprecated
-	public void getView(ViewPanelFactory view) {
-		view.add(connection);
-		view.addButton("GOTO EE").addActionEventListener((evt)->gotoPose());
-		view.addButton("GOTO ZERO").addActionEventListener((evt)->{
-			String message = "G0"
-					+" F"+StringHelper.formatDouble(velocity.get())
-					+" A"+StringHelper.formatDouble(acceleration.get())
-					+" X0"
-					+" Y0"
-					+" Z0"
-					+" U0"
-					+" V0"
-					+" W0";
-			logger.info(message);
-			connection.sendMessage(message);
-			Matrix4d ident = new Matrix4d();
-			ident.setIdentity();
-			ident.setTranslation(new Vector3d(0,0,BASE_Z.get()+Math.abs(EE_Z.get())+ARM_LENGTH.get()));
-			eePose.setLocalMatrix4(ident);
-		});
-		view.addButton("Factory Reset").addActionEventListener((evt)->{
-			for(int i=0;i<6;++i) {
-				connection.sendMessage("M101 A"+i+" B-1000 T0");
-				// wait while it saves...
-				try {
-					Thread.sleep(2500);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		view.addRange(velocity, 20, 1);
-		view.addRange(acceleration, 1000, 0);
-	}
-
 	private void gotoPose() {
 		float scale=-10;
 		String message = "G0"

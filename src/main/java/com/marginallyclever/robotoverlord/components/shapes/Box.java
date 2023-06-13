@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
@@ -57,8 +57,8 @@ public class Box extends ShapeComponent implements PropertyChangeListener {
     // Procedurally generate a list of triangles that form a box, subdivided by some amount.
     private void updateModel() {
         myMesh.clear();
-        myMesh.setRenderStyle(GL2.GL_TRIANGLES);
-        //shape.renderStyle=GL2.GL_LINES;  // set to see the wireframe
+        myMesh.setRenderStyle(GL3.GL_TRIANGLES);
+        //shape.renderStyle=GL3.GL_LINES;  // set to see the wireframe
 
         float w = width.get().floatValue()*0.5f;
         float d = length.get().floatValue()*0.5f;
@@ -167,7 +167,7 @@ public class Box extends ShapeComponent implements PropertyChangeListener {
                 pG.set(MathHelper.interpolate(pA, pC, y1));
                 pH.set(MathHelper.interpolate(pB, pD, y1));
 
-                if(myMesh.getRenderStyle() == GL2.GL_TRIANGLES) {
+                if(myMesh.getRenderStyle() == GL3.GL_TRIANGLES) {
                     for(int i=0;i<6;++i) {
                         myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
                         myMesh.addColor(1,1,1,1);
@@ -187,7 +187,7 @@ public class Box extends ShapeComponent implements PropertyChangeListener {
                     myMesh.addTexCoord(0,0);
                     myMesh.addTexCoord(1,1);
                     myMesh.addTexCoord(0,1);
-                } else if(myMesh.getRenderStyle() == GL2.GL_LINES) {
+                } else if(myMesh.getRenderStyle() == GL3.GL_LINES) {
                     for(int i=0;i<8;++i) {
                         myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
                         myMesh.addColor(1,1,1,1);

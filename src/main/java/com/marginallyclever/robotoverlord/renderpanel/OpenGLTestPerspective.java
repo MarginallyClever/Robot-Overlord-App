@@ -18,12 +18,12 @@ public class OpenGLTestPerspective extends OpenGLTestOrthographic {
     }
 
     @Override
-    protected void setProjectionMatrix(GL3 gl3, ShaderProgram program) {
-        double w = glCanvas.getSurfaceWidth();
-        double h = glCanvas.getSurfaceHeight();
+    protected void setProjectionMatrix(GL3 gl, ShaderProgram program) {
+        double w = (double)glCanvas.getSurfaceWidth();
+        double h = (double)glCanvas.getSurfaceHeight();
         Matrix4d perspectiveMatrix = MatrixHelper.perspectiveMatrix4d(
                 60, w/h, 1f, 1000.0f);
-        program.setMatrix4d(gl3,"projectionMatrix",perspectiveMatrix);
+        program.setMatrix4d(gl,"projectionMatrix",perspectiveMatrix);
     }
 
     public static void main(String[] args) {

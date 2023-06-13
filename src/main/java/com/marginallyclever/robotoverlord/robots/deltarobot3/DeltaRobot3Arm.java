@@ -8,6 +8,7 @@ import javax.vecmath.Vector3d;
  * @author Dan Royer
  * @since 1.7.1
  */
+@Deprecated
 public class DeltaRobot3Arm {
 	private final Vector3d ortho = new Vector3d();
 	public final Vector3d shoulder = new Vector3d();

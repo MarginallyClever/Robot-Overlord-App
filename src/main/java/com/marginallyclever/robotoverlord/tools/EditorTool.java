@@ -1,7 +1,8 @@
 package com.marginallyclever.robotoverlord.tools;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.Viewport;
 
 import javax.vecmath.Point3d;
@@ -56,9 +57,9 @@ public interface EditorTool {
 
     /**
      * Renders any tool-specific visuals to the 3D scene.
-     * @param gl2 The OpenGL context.
+     * @param gl The OpenGL context.
      */
-    void render(GL2 gl2);
+    void render(GL3 gl, ShaderProgram shaderProgram);
 
     void setViewport(Viewport viewport);
 

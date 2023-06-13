@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 
@@ -19,7 +19,7 @@ public class LinearPatternComponent extends RenderComponent {
     public final IntParameter quantity = new IntParameter("quantity", 1);
 
     @Override
-    public void render(GL2 gl2) {
+    public void render(GL3 gl) {
         // draw each child at each pattern location
         // TODO finish me!
     }

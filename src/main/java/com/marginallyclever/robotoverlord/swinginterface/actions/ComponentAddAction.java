@@ -43,6 +43,7 @@ public class ComponentAddAction extends AbstractAction {
 		List<Entity> list = Clipboard.getSelectedEntities();
 
 		JComboBox<String> additionComboBox = buildComponentComboBox();
+
 		int result = JOptionPane.showConfirmDialog(
 				SwingUtilities.getWindowAncestor(componentManagerPanel),
 				additionComboBox, 

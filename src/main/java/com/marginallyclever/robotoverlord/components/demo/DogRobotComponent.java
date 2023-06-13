@@ -1,15 +1,10 @@
 package com.marginallyclever.robotoverlord.components.demo;
 
-import com.jogamp.opengl.GL2;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
-import javax.vecmath.Tuple3d;
 
 /**
  * a robot with 4 legs.
@@ -18,7 +13,7 @@ import javax.vecmath.Tuple3d;
  * @since 2.5.0
  */
 @ComponentDependency(components = {PoseComponent.class})
-public class DogRobotComponent extends RenderComponent {
+public class DogRobotComponent extends Component {
     public static final double KINEMATIC_BODY_WIDTH = 8;
     public static final double KINEMATIC_BODY_LENGTH = 8;
     public static final double KINEMATIC_BODY_HEIGHT = 18.5;
@@ -65,29 +60,6 @@ public class DogRobotComponent extends RenderComponent {
 
     public void setLeg(int i, RobotComponent leg) {
         legs[i] = leg;
-    }
-
-    @Override
-    public void render(GL2 gl2) {
-        gl2.glPushMatrix();
-        PoseComponent myPose = getEntity().getComponent(PoseComponent.class);
-        Matrix4d m = myPose.getWorld();
-        m.invert();
-        MatrixHelper.applyMatrix(gl2,m);
-
-        for(int i=0;i<NUM_LEGS;++i) {
-            PrimitiveSolids.drawStar(gl2,lastPOC[i],2);
-            PrimitiveSolids.drawStar(gl2,nextPOC[i],4);
-            drawMarker(gl2,targets[i],0);
-        }
-        gl2.glPopMatrix();
-
-        PrimitiveSolids.drawCircleXY(gl2,standingRadius.get(),32);
-    }
-
-    private void drawMarker(GL2 gl2, Tuple3d v, int color) {
-        if(color==0) PrimitiveSolids.drawStar(gl2,v,5);
-        else PrimitiveSolids.drawSphere(gl2,v,1);
     }
 
     public RobotComponent [] getLegs() {

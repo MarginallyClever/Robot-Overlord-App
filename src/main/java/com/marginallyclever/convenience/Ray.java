@@ -1,6 +1,6 @@
 package com.marginallyclever.convenience;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -68,17 +68,6 @@ public class Ray {
 		return maxDistance;
 	}
 
-	public void render(GL2 gl2) {
-		gl2.glBegin(GL2.GL_LINES);
-		gl2.glColor3d(1,0,0); 
-		gl2.glVertex3d(origin.x, origin.y, origin.z);
-		gl2.glColor3d(0,1,0);
-		gl2.glVertex3d(
-				origin.x+direction.x*50,
-				origin.y+direction.y*50,
-				origin.z+direction.z*50);
-	}
-	
 	/**
 	 * @return start + direction * t
 	 */

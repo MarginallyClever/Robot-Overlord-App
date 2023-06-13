@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.tools;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.RayHit;
@@ -13,6 +13,7 @@ import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.SelectEdit;
 import com.marginallyclever.robotoverlord.systems.RayPickSystem;
+import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,10 +111,10 @@ public class SelectionTool implements EditorTool {
     /**
      * Renders any tool-specific visuals to the 3D scene.
      *
-     * @param gl2 The OpenGL context.
+     * @param gl The OpenGL context.
      */
     @Override
-    public void render(GL2 gl2) {}
+    public void render(GL3 gl, ShaderProgram shaderProgram) {}
 
     @Override
     public void setViewport(Viewport viewport) {}

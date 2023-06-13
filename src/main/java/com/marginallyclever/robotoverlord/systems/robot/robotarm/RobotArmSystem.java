@@ -2,6 +2,8 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.*;
+import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
+import com.marginallyclever.robotoverlord.components.motors.StepperMotorComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.robots.Robot;
@@ -27,23 +29,23 @@ import java.util.Map;
  * @author Dan Royer
  * @since 2.5.5
  */
-public class ArmRobotSystem implements EntitySystem {
-    private static final Logger logger = LoggerFactory.getLogger(ArmRobotSystem.class);
+public class RobotArmSystem implements EntitySystem {
+    private static final Logger logger = LoggerFactory.getLogger(RobotArmSystem.class);
     private final EntityManager entityManager;
     private final Map<RobotComponent,JDialog> armPanels = new HashMap<>();
 
-    public ArmRobotSystem(EntityManager entityManager) {
+    public RobotArmSystem(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
     @Override
     public void decorate(ViewPanelFactory view, Component component) {
-        if( component instanceof RobotComponent ) decorateRobot(view,component);
-        if( component instanceof DHComponent ) decorateDH(view,component);
+        if( component instanceof RobotComponent ) decorateRobot(view,(RobotComponent)component);
+        if( component instanceof DHComponent ) decorateDH(view,(DHComponent)component);
+        if( component instanceof RobotArmComponent ) decorateRobotArm(view,(RobotArmComponent)component);
     }
 
-    private void decorateDH(ViewPanelFactory view, Component component) {
-        DHComponent dh = (DHComponent)component;
+    private void decorateDH(ViewPanelFactory view, DHComponent dh) {
         view.add(dh.isRevolute).setReadOnly(true);
         view.add(dh.myD).setReadOnly(true);
         view.add(dh.myR).setReadOnly(true);
@@ -54,20 +56,46 @@ public class ArmRobotSystem implements EntitySystem {
         view.add(dh.jointHome).setReadOnly(true);
     }
 
-    private void decorateRobot(ViewPanelFactory view, Component component) {
-        RobotComponent robotComponent = (RobotComponent)component;
-
-        view.add(robotComponent.desiredLinearVelocity);
-        view.add(robotComponent.gcodePath);
+    private void decorateRobot(ViewPanelFactory view, RobotComponent robot) {
+        view.add(robot.desiredLinearVelocity);
+        view.add(robot.gcodePath);
 
         ViewElementButton bMake = view.addButton("Edit Arm");
-        bMake.addActionEventListener((evt)-> editArm(bMake,robotComponent,"Edit Arm"));
+        bMake.addActionEventListener((evt)-> editArm(bMake,robot,"Edit Arm"));
 
         ViewElementButton bOpenJog = view.addButton(Translator.get("RobotROSystem.controlPanel"));
-        bOpenJog.addActionEventListener((evt)-> showControlPanel(bOpenJog,robotComponent));
+        bOpenJog.addActionEventListener((evt)-> showControlPanel(bOpenJog,robot));
 
         ViewElementButton bHome = view.addButton("Go home");
-        bHome.addActionEventListener((evt)-> robotComponent.goHome());
+        bHome.addActionEventListener((evt)-> robot.goHome());
+    }
+
+    private void decorateRobotArm(ViewPanelFactory view, RobotArmComponent arm) {
+        view.add(arm.desiredLinearVelocity);
+        view.add(arm.endEffectorTarget);
+        view.add(arm.joints);
+
+        //ViewElementButton bOpenJog = view.addButton(Translator.get("RobotROSystem.controlPanel"));
+        //bOpenJog.addActionEventListener((evt)-> showControlPanel(bOpenJog,arm));
+
+        ViewElementButton bHome = view.addButton("Go home");
+        bHome.addActionEventListener((evt)-> goHome(arm));
+    }
+
+    private void goHome(RobotArmComponent arm) {
+        List<Entity> list = new LinkedList<>();
+        list.add(arm.getEntity());
+        while(list.size()>0) {
+            Entity entity = list.remove(0);
+            list.addAll(entity.getChildren());
+
+            DHComponent dh = entity.getComponent(DHComponent.class);
+            if(dh==null) continue;
+            ServoComponent servo = entity.getComponent(ServoComponent.class);
+            if(servo!=null) servo.desiredAngle.set(dh.getJointHome());
+            //StepperMotorComponent stepper = entity.getComponent(StepperMotorComponent.class);
+            //if(stepper!=null) stepper.desiredPosition.set(dh.getJointHome());
+        }
     }
 
     private void editArm(JComponent parent, RobotComponent robotComponent, String title) {
