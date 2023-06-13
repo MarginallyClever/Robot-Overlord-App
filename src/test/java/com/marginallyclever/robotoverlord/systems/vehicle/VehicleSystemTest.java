@@ -1,21 +1,15 @@
 package com.marginallyclever.robotoverlord.systems.vehicle;
 
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
 import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
-import com.marginallyclever.robotoverlord.components.vehicle.CarComponent;
+import com.marginallyclever.robotoverlord.components.vehicle.VehicleComponent;
 import com.marginallyclever.robotoverlord.components.vehicle.WheelComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.motor.MotorSystem;
-import com.marginallyclever.robotoverlord.systems.motor.MotorSystemTest;
-import com.marginallyclever.robotoverlord.systems.vehicle.VehicleFactory;
-import com.marginallyclever.robotoverlord.systems.vehicle.VehicleSystem;
 import org.junit.jupiter.api.*;
 
-import javax.swing.event.CaretEvent;
-import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,7 +46,7 @@ public class VehicleSystemTest {
     @Test
     public void driveTank() {
         Entity carEntity = VehicleFactory.buildTank(entityManager);
-        CarComponent car = carEntity.getComponent(CarComponent.class);
+        VehicleComponent car = carEntity.getComponent(VehicleComponent.class);
         entityManager.addEntityToParent(carEntity, entityManager.getRoot());
         testShared(car);
     }
@@ -64,7 +58,7 @@ public class VehicleSystemTest {
     @Test
     public void driveOmni() {
         Entity carEntity = VehicleFactory.buildOmni(entityManager);
-        CarComponent car = carEntity.getComponent(CarComponent.class);
+        VehicleComponent car = carEntity.getComponent(VehicleComponent.class);
         entityManager.addEntityToParent(carEntity, entityManager.getRoot());
         testShared(car);
     }
@@ -76,7 +70,7 @@ public class VehicleSystemTest {
     @Test
     public void driveFWD() {
         Entity carEntity = VehicleFactory.buildFWD(entityManager);
-        CarComponent car = carEntity.getComponent(CarComponent.class);
+        VehicleComponent car = carEntity.getComponent(VehicleComponent.class);
         entityManager.addEntityToParent(carEntity, entityManager.getRoot());
 
         // turn the steering wheel and confirm wheel rotates
@@ -97,7 +91,7 @@ public class VehicleSystemTest {
     @Test
     public void driveRWD() {
         Entity carEntity = VehicleFactory.buildRWD(entityManager);
-        CarComponent car = carEntity.getComponent(CarComponent.class);
+        VehicleComponent car = carEntity.getComponent(VehicleComponent.class);
         entityManager.addEntityToParent(carEntity, entityManager.getRoot());
         testShared(car);
     }
@@ -108,12 +102,12 @@ public class VehicleSystemTest {
     @Test
     public void driveMecanum() {
         Entity carEntity = VehicleFactory.buildMecanum(entityManager);
-        CarComponent car = carEntity.getComponent(CarComponent.class);
+        VehicleComponent car = carEntity.getComponent(VehicleComponent.class);
         entityManager.addEntityToParent(carEntity, entityManager.getRoot());
         testShared(car);
     }
 
-    private void testShared(CarComponent car) {
+    private void testShared(VehicleComponent car) {
         // drive forward
         car.forwardVelocity.set(10.0);
         // set the turn rate to turn left

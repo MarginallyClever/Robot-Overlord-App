@@ -5,7 +5,7 @@ import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
 import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
-import com.marginallyclever.robotoverlord.components.vehicle.CarComponent;
+import com.marginallyclever.robotoverlord.components.vehicle.VehicleComponent;
 import com.marginallyclever.robotoverlord.components.vehicle.WheelComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
@@ -42,12 +42,12 @@ public class VehicleSystem implements EntitySystem {
      */
     @Override
     public void decorate(ViewPanelFactory view, Component component) {
-        if(component instanceof CarComponent) decorateCar(view, (CarComponent)component);
+        if(component instanceof VehicleComponent) decorateCar(view, (VehicleComponent)component);
         if(component instanceof WheelComponent) decorateWheel(view, (WheelComponent)component);
     }
 
-    private void decorateCar(ViewPanelFactory view, CarComponent car) {
-        view.addComboBox(car.wheelType, CarComponent.wheelTypeNames);
+    private void decorateCar(ViewPanelFactory view, VehicleComponent car) {
+        view.addComboBox(car.wheelType, VehicleComponent.wheelTypeNames);
         view.add(car.turnVelocity);
         view.add(car.forwardVelocity);
         view.add(car.strafeVelocity);
@@ -59,7 +59,7 @@ public class VehicleSystem implements EntitySystem {
         bDrive.addActionEventListener(evt -> openDrivePanel(bDrive,car));
     }
 
-    private void openDrivePanel(JComponent parent, CarComponent car) {
+    private void openDrivePanel(JComponent parent, VehicleComponent car) {
         DriveVehiclePanel panel = new DriveVehiclePanel(car);;
         EntitySystemUtils.makePanel(panel, parent, "Drive Vehicle");
     }
@@ -83,19 +83,19 @@ public class VehicleSystem implements EntitySystem {
             Entity e = list.remove(0);
             list.addAll(e.getChildren());
 
-            CarComponent found = e.getComponent(CarComponent.class);
+            VehicleComponent found = e.getComponent(VehicleComponent.class);
             if (found != null) updateCar(found, dt);
         }
     }
 
-    private void updateCar(CarComponent car, double dt) {
+    private void updateCar(VehicleComponent car, double dt) {
         if(!car.getEnabled()) return;
         if(car.wheels.size()==0) return;  // nothing to do
 
         switch (car.wheelType.get()) {
-            case CarComponent.WHEEL_OMNI -> updateCarOmni(car, dt);
-            case CarComponent.WHEEL_MECANUM -> updateCarMecanum(car, dt);
-            case CarComponent.WHEEL_DIFFERENTIAL -> updateCarDifferential(car, dt);
+            case VehicleComponent.WHEEL_OMNI -> updateCarOmni(car, dt);
+            case VehicleComponent.WHEEL_MECANUM -> updateCarMecanum(car, dt);
+            case VehicleComponent.WHEEL_DIFFERENTIAL -> updateCarDifferential(car, dt);
             default -> updateCarNormal(car, dt);
         }
     }
@@ -105,7 +105,7 @@ public class VehicleSystem implements EntitySystem {
      * @param car the car to update
      * @param dt time step
      */
-    private void updateCarDifferential(CarComponent car, double dt) {
+    private void updateCarDifferential(VehicleComponent car, double dt) {
         double forwardVel = car.forwardVelocity.get();
         double turnVel = Math.toRadians(car.turnVelocity.get());
         //=double strafeVel = car.strafeVelocity.get();
@@ -136,7 +136,7 @@ public class VehicleSystem implements EntitySystem {
         adjustCarPosition(car, forwardVel, 0.0, turnVel, dt);
     }
 
-    private void updateCarNormal(CarComponent car, double dt) {
+    private void updateCarNormal(VehicleComponent car, double dt) {
         WheelComponent poweredWheel = null;
         double forwardVel = car.forwardVelocity.get();
         if(Math.abs(forwardVel)>1e-6) {
@@ -185,7 +185,7 @@ public class VehicleSystem implements EntitySystem {
      * @param dt time step
      * @param poweredWheel a wheel that is powered
      */
-    private void updateCarFrontWheelSteering(CarComponent car, double dt, WheelComponent poweredWheel) {
+    private void updateCarFrontWheelSteering(VehicleComponent car, double dt, WheelComponent poweredWheel) {
         // get the wheel base from the front and rear wheels
         PoseComponent pose0 = entityManager.findEntityByUniqueID(car.wheels.get(0).get()).getComponent(PoseComponent.class);
         PoseComponent pose2 = entityManager.findEntityByUniqueID(car.wheels.get(car.wheels.size() - 1).get()).getComponent(PoseComponent.class);
@@ -208,7 +208,7 @@ public class VehicleSystem implements EntitySystem {
         adjustCarPosition(car, linearVelocity, 0.0, rateOfTurnRadians, dt);
     }
 
-    private void adjustCarPosition(CarComponent car, double linearVelocity, double strafeVelocity, double rateOfTurnRadians, double dt) {
+    private void adjustCarPosition(VehicleComponent car, double linearVelocity, double strafeVelocity, double rateOfTurnRadians, double dt) {
         // get car position
         PoseComponent carPose = car.getEntity().getComponent(PoseComponent.class);
         Matrix4d carWorld = carPose.getWorld();
@@ -232,7 +232,7 @@ public class VehicleSystem implements EntitySystem {
         carPose.setWorld(carWorld);
     }
 
-    private void steerOneWheel(WheelComponent wheel, CarComponent car,double wheelAngle) {
+    private void steerOneWheel(WheelComponent wheel, VehicleComponent car, double wheelAngle) {
         String steerMotorName = wheel.steer.get();
         if(steerMotorName==null || steerMotorName.isEmpty()) return;
         ServoComponent steerMotor = entityManager.findEntityByUniqueID(steerMotorName).getComponent(ServoComponent.class);
@@ -246,7 +246,7 @@ public class VehicleSystem implements EntitySystem {
      * @param car the car to update
      * @param dt the time step in seconds
      */
-    private void updateCarOmni(CarComponent car, double dt) {
+    private void updateCarOmni(VehicleComponent car, double dt) {
         double vForward = car.forwardVelocity.get();
         double vStrafe = car.strafeVelocity.get();
         double vTurn = Math.toRadians(car.turnVelocity.get());
@@ -282,7 +282,7 @@ public class VehicleSystem implements EntitySystem {
      * @param car the car to update
      * @param dt the time step in seconds
      */
-    private void updateCarMecanum(CarComponent car, double dt) {
+    private void updateCarMecanum(VehicleComponent car, double dt) {
         double vForward = car.forwardVelocity.get();
         double vStrafe = car.strafeVelocity.get();
         double vTurn = Math.toRadians(car.turnVelocity.get());

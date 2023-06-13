@@ -12,14 +12,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * {@link CarComponent} references a list of {@link WheelComponent}s.  A
+ * {@link VehicleComponent} references a list of {@link WheelComponent}s.  A
  * {@link VehicleSystem} uses these to move
  * the {@link com.marginallyclever.robotoverlord.entity.Entity} that owns the CarComponent.
  *
  * @since 2.6.3
  * @author Dan Royer
  */
-public class CarComponent extends Component {
+public class VehicleComponent extends Component {
     public static final String [] wheelTypeNames = {"Normal","Omni","Mecanum","Traction"};
     public static final int WHEEL_NORMAL = 0;
     // omni wheels have rollers at a right angle to the plane of the wheel
@@ -29,14 +29,14 @@ public class CarComponent extends Component {
     // traction wheels use differential steering
     public static final int WHEEL_DIFFERENTIAL = 3;
 
-    public final IntParameter wheelType = new IntParameter("Wheel type", CarComponent.WHEEL_NORMAL);
+    public final IntParameter wheelType = new IntParameter("Wheel type", VehicleComponent.WHEEL_NORMAL);
     public final ListParameter<ReferenceParameter> wheels = new ListParameter<>("Wheels",new ReferenceParameter());
 
     public final DoubleParameter forwardVelocity = new DoubleParameter("Desired forward (cm/s)", 0);  // cm/s
     public final DoubleParameter strafeVelocity = new DoubleParameter("Desired strafe (cm/s)", 0);  // cm/s
     public final DoubleParameter turnVelocity = new DoubleParameter("Desired turn (deg/s)", 0);  // deg/s at center of car
 
-    public CarComponent() {
+    public VehicleComponent() {
         super();
     }
 

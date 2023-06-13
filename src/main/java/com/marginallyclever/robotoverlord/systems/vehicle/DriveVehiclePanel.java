@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.systems.vehicle;
 
-import com.marginallyclever.robotoverlord.components.vehicle.CarComponent;
+import com.marginallyclever.robotoverlord.components.vehicle.VehicleComponent;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,12 +11,12 @@ import java.awt.*;
  * @author Dan Royer
  */
 public class DriveVehiclePanel extends JPanel {
-    private final CarComponent car;
+    private final VehicleComponent car;
     private final JSlider sliderThrottle = new JSlider(-100,100,0);
     private final JSlider sliderStrafe = new JSlider(-100,100,0);
     private final JSlider sliderSteering = new JSlider(-90,90,0);
 
-    public DriveVehiclePanel(CarComponent car) {
+    public DriveVehiclePanel(VehicleComponent car) {
         super();
         this.car = car;
 
@@ -59,7 +59,7 @@ public class DriveVehiclePanel extends JPanel {
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("DriveVehiclePanel");
-        frame.setContentPane(new DriveVehiclePanel(new CarComponent()));
+        frame.setContentPane(new DriveVehiclePanel(new VehicleComponent()));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setPreferredSize(new Dimension(400,200));
         frame.pack();
