@@ -6,6 +6,7 @@ import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serial;
 
 /**
  * Display an About dialog box. This action is not undoable.

@@ -1,10 +1,10 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
-import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
+import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
+import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swinginterface.EditorAction;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
 import com.marginallyclever.robotoverlord.swinginterface.edits.EntityDeleteEdit;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 

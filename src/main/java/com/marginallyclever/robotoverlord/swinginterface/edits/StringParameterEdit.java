@@ -2,6 +2,9 @@ package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
 
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+
 /**
  * Undoable action to select a string.
  * <p>

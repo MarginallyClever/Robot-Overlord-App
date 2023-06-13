@@ -3,8 +3,7 @@ package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 import com.marginallyclever.robotoverlord.entity.Entity;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultTreeCellEditor;
-import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.*;
 import java.awt.*;
 
 class EntityTreeCellEditor extends DefaultTreeCellEditor {

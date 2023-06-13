@@ -5,6 +5,7 @@ import com.marginallyclever.robotoverlord.swinginterface.searchBar.SearchBar;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
 public class ComponentFactoryPanel extends JPanel {
@@ -18,6 +19,8 @@ public class ComponentFactoryPanel extends JPanel {
         add(searchBar, BorderLayout.NORTH);
         searchBar.addPropertyChangeListener("match", evt -> filterSearch(evt.getNewValue().toString()));
         filterSearch("");
+
+        add(new JScrollPane(filteredNames), BorderLayout.CENTER);
     }
 
     private void filterSearch(String match) {
