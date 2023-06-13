@@ -4,16 +4,11 @@ import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel3;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.components.ShapeComponent;
-import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
-import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.renderpanel.OpenGLRenderPanel;
 import com.marginallyclever.robotoverlord.renderpanel.RenderPanel;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
 import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
-import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
 import com.marginallyclever.robotoverlord.swinginterface.entitytreepanel.EntityTreePanel;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
@@ -21,7 +16,6 @@ import com.marginallyclever.robotoverlord.systems.OriginAdjustSystem;
 import com.marginallyclever.robotoverlord.systems.motor.MotorSystem;
 import com.marginallyclever.robotoverlord.systems.physics.PhysicsSystem;
 import com.marginallyclever.robotoverlord.systems.render.RenderSystem;
-import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.systems.robot.RobotGripperSystem;
 import com.marginallyclever.robotoverlord.systems.robot.crab.CrabRobotSystem;
 import com.marginallyclever.robotoverlord.systems.robot.dog.DogRobotSystem;
@@ -35,12 +29,7 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetAdapter;
-import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
@@ -165,8 +154,6 @@ public class RobotOverlord {
 		entityTreePanel = new EntityTreePanel(project.getEntityManager());
 		componentManagerPanel = new ComponentManagerPanel(project.getEntityManager(),systems);
 		renderPanel = new OpenGLRenderPanel(project.getEntityManager());
-		//renderPanel = new OpenGLTestOrthographic(project.getEntityManager());
-		//renderPanel = new OpenGLTestPerspective(project.getEntityManager());
 		renderPanel.setUpdateCallback((dt)->{
 			for(EntitySystem system : systems) system.update(dt);
 		});
@@ -254,6 +241,7 @@ public class RobotOverlord {
 		mainFrame.setJMenuBar(mainMenu);
 		setWindowSizeAndPosition();
 		setupDropTarget();
+
         mainFrame.addWindowListener(new WindowAdapter() {
             // when someone tries to close the app, confirm it.
 			@Override
@@ -494,79 +482,6 @@ public class RobotOverlord {
 	}
 
 	private void setupDropTarget() {
-		logger.debug("adding drag + drop support...");
-		new DropTarget(mainFrame,new DropTargetAdapter() {
-			@Override
-			public void drop(DropTargetDropEvent event) {
-				try {
-					Transferable tr = event.getTransferable();
-					DataFlavor[] flavors = tr.getTransferDataFlavors();
-					for (DataFlavor flavor : flavors) {
-						logger.debug("Possible flavor: {}", flavor.getMimeType());
-						if (flavor.isFlavorJavaFileListType()) {
-							event.acceptDrop(DnDConstants.ACTION_COPY);
-							Object object = tr.getTransferData(flavor);
-							if (object instanceof List<?>) {
-								List<?> list = (List<?>) object;
-								if (list.size() > 0) {
-									object = list.get(0);
-									if (object instanceof File) {
-										File file = (File) object;
-										if(importMesh(file.getAbsolutePath())) {
-											event.dropComplete(true);
-											return;
-										}
-										if(importScene(file)) {
-											event.dropComplete(true);
-											return;
-										}
-									}
-								}
-							}
-						}
-					}
-					logger.debug("Drop failed: {}", event);
-					event.rejectDrop();
-				} catch (Exception e) {
-					logger.error("Drop error", e);
-					event.rejectDrop();
-				}
-			}
-		});
-	}
-
-	private boolean importScene(File file) {
-		ProjectImportAction action = new ProjectImportAction(project);
-		return action.loadFile(file,mainFrame);
-	}
-
-	private boolean importMesh(String absolutePath) {
-		if(!MeshFactory.canLoad(absolutePath)) return false;
-
-		logger.debug("importing mesh "+absolutePath);
-        try {
-			// create entity.
-			Entity entity = new Entity();
-			entity.setName(getFilenameWithoutExtensionFromPath(absolutePath));
-			// add shape, which will add pose and material.
-			ShapeComponent shape = new MeshFromFile(absolutePath);
-			entity.addComponent(shape);
-			// move entity to camera orbit point so that it is visible.
-			PoseComponent pose = entity.getComponent(PoseComponent.class);
-			pose.setPosition(project.getEntityManager().getCamera().getOrbitPoint());
-
-			// add entity to scene.
-			UndoSystem.addEvent(new EntityAddEdit(project.getEntityManager(), project.getEntityManager().getRoot(),entity));
-		} catch(Exception e) {
-			logger.error("Error opening file",e);
-			return false;
-		}
-		return true;
-	}
-
-	private String getFilenameWithoutExtensionFromPath(String absolutePath) {
-		File f = new File(absolutePath);
-		String fullName = f.getName();
-		return fullName.substring(0,fullName.lastIndexOf('.'));
+		new DropTarget(mainFrame,new MainWindowDropTarget(mainFrame,project));
 	}
 }
