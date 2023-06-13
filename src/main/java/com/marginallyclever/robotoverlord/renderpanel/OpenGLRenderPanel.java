@@ -514,12 +514,6 @@ public class OpenGLRenderPanel implements RenderPanel {
         shaderDefault.use(gl);
     }
 
-    private void checkGLError(GL3 gl3) {
-        if(gl3.glGetError() != GL3.GL_NO_ERROR) {
-            logger.error("GL error:" + gl3.glGetError());
-        }
-    }
-
     private void prepareToOutlineSelectedEntities(GL3 gl3) {
         gl3.glStencilFunc(GL.GL_ALWAYS,1,0xff);
         // if we pass the depth test, keep the old value in the stencil buffer.
