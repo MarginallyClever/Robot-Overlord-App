@@ -1,12 +1,13 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
+import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.ComponentFactory;
 import com.marginallyclever.robotoverlord.entity.Entity;
-import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
-import com.marginallyclever.robotoverlord.clipboard.Clipboard;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
+import com.marginallyclever.robotoverlord.swinginterface.ComponentFactoryPanel;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
+import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
+import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.ComponentManagerPanel;
 import com.marginallyclever.robotoverlord.swinginterface.edits.ComponentAddEdit;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import org.slf4j.Logger;
@@ -14,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,28 +42,21 @@ public class ComponentAddAction extends AbstractAction {
 	public void actionPerformed(ActionEvent event) {
 		List<Entity> list = Clipboard.getSelectedEntities();
 
-		JComboBox<String> additionComboBox = buildComponentComboBox();
+		ComponentFactoryPanel panel = new ComponentFactoryPanel();
 
 		int result = JOptionPane.showConfirmDialog(
 				SwingUtilities.getWindowAncestor(componentManagerPanel),
-				additionComboBox, 
+				panel,
 				(String)this.getValue(AbstractAction.NAME), 
 				JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
 			for(Entity parent : list) {
-				createInstanceOf(parent,additionComboBox.getItemAt(additionComboBox.getSelectedIndex()));
+				createInstanceOf(parent,panel.getSelectedClassName());
 			}
 			componentManagerPanel.refreshContentsFromClipboard();
 		}
     }
-
-	private JComboBox<String> buildComponentComboBox() {
-		JComboBox<String> box = new JComboBox<>();
-		ArrayList<String> names = ComponentFactory.getAllComponentNames();
-		for( String n : names ) box.addItem(n);
-		return box;
-	}
 
 	private void createInstanceOf(Entity parent,String className) {
 		try {
