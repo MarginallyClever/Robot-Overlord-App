@@ -65,7 +65,8 @@ public class OpenGLTestOrthographic implements RenderPanel {
         GLJPanel canvas = null;
         try {
             logger.info("...get default caps");
-            GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
+            GLProfile profile = GLProfile.get(GLProfile.GL3);
+            GLCapabilities caps = new GLCapabilities(profile);
             caps.setBackgroundOpaque(true);
             caps.setDoubleBuffered(true);
             caps.setHardwareAccelerated(true);
@@ -85,38 +86,38 @@ public class OpenGLTestOrthographic implements RenderPanel {
         glCanvas.addGLEventListener(new GLEventListener() {
             @Override
             public void init( GLAutoDrawable drawable ) {
-                GL2 gl2 = drawable.getGL().getGL2();
+                GL3 gl = drawable.getGL().getGL3();
 
                 // turn on vsync
-                gl2.setSwapInterval(1);
+                gl.setSwapInterval(1);
 
                 // make things pretty
-                gl2.glEnable(GL2.GL_LINE_SMOOTH);
-                gl2.glEnable(GL2.GL_POLYGON_SMOOTH);
-                gl2.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
+                gl.glEnable(GL3.GL_LINE_SMOOTH);
+                gl.glEnable(GL3.GL_POLYGON_SMOOTH);
+                gl.glHint(GL3.GL_POLYGON_SMOOTH_HINT, GL3.GL_NICEST);
                 // TODO add a settings toggle for this option, it really slows down older machines.
-                gl2.glEnable(GL2.GL_MULTISAMPLE);
+                gl.glEnable(GL3.GL_MULTISAMPLE);
 /*
                 // depth testing and culling options
-                gl2.glDepthFunc(GL2.GL_LESS);
-                gl2.glEnable(GL2.GL_DEPTH_TEST);
-                gl2.glDepthMask(true);
+                gl.glDepthFunc(GL3.GL_LESS);
+                gl.glEnable(GL3.GL_DEPTH_TEST);
+                gl.glDepthMask(true);
 
-                gl2.glEnable(GL2.GL_CULL_FACE);
+                gl.glEnable(GL3.GL_CULL_FACE);
 
-                gl2.glEnable(GL.GL_STENCIL_TEST);
+                gl.glEnable(GL.GL_STENCIL_TEST);
 */
                 // default blending option for transparent materials
-                gl2.glEnable(GL2.GL_BLEND);
-                gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+                gl.glEnable(GL3.GL_BLEND);
+                gl.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);
 
                 // set the color to use when wiping the draw buffer
-                gl2.glClearColor(0.85f,0.85f,0.85f,0.0f);
+                gl.glClearColor(0.85f,0.85f,0.85f,0.0f);
 
-                createShaderPrograms(gl2);
+                createShaderPrograms(gl);
 
-                myArrayBuffer = rawSetupVAO(gl2);
-                myVertexBuffer = rawSetupVBO(gl2);
+                myArrayBuffer = rawSetupVAO(gl);
+                myVertexBuffer = rawSetupVBO(gl);
             }
 
             @Override
@@ -127,115 +128,115 @@ public class OpenGLTestOrthographic implements RenderPanel {
 
             @Override
             public void dispose( GLAutoDrawable drawable ) {
-                GL2 gl2 = drawable.getGL().getGL2();
-                rawCleanupVBO(gl2, myVertexBuffer);
-                rawCleanupVAO(gl2, myArrayBuffer);
-                shaderDefault.delete(gl2);
-                shaderTransform.delete(gl2);
+                GL3 gl = drawable.getGL().getGL3();
+                rawCleanupVBO(gl, myVertexBuffer);
+                rawCleanupVAO(gl, myArrayBuffer);
+                shaderDefault.delete(gl);
+                shaderTransform.delete(gl);
             }
 
             @Override
             public void display( GLAutoDrawable drawable ) {
-                GL2 gl2 = drawable.getGL().getGL2();
-                gl2.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+                GL3 gl = drawable.getGL().getGL3();
+                gl.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT);
 
-                //testRaw(gl2);
-                //testRawWithShader(gl2);
-                //testRawWithShaderAndSetup(gl2);
-                //testRawWithShaderAndSetupVAO(gl2);
-                testShaderAndMesh(gl2);
+                //testRaw(gl);
+                //testRawWithShader(gl);
+                //testRawWithShaderAndSetup(gl);
+                //testRawWithShaderAndSetupVAO(gl);
+                testShaderAndMesh(gl);
             }
         });
     }
 
-    private void testRawWithShaderAndSetupVAO(GL2 gl2) {
-        shaderDefault.use(gl2);
+    private void testRawWithShaderAndSetupVAO(GL3 gl) {
+        shaderDefault.use(gl);
 
-        gl2.glEnableVertexAttribArray(0);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, myVertexBuffer[0]);
-        gl2.glVertexAttribPointer(0,3,GL2.GL_FLOAT,false,0,0);
+        gl.glEnableVertexAttribArray(0);
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, myVertexBuffer[0]);
+        gl.glVertexAttribPointer(0,3,GL3.GL_FLOAT,false,0,0);
 
-        gl2.glEnableVertexAttribArray(1);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, myVertexBuffer[1]);
-        gl2.glVertexAttribPointer(1,4,GL2.GL_FLOAT,false,0,0);
-
-        // Draw the triangle !
-        gl2.glDrawArrays(GL2.GL_TRIANGLES, 0, 3);
-
-        gl2.glDisableVertexAttribArray(0);
-        gl2.glDisableVertexAttribArray(1);
-
-        gl2.glUseProgram(0);
-    }
-
-    private void testRawWithShaderAndSetup(GL2 gl2) {
-        shaderDefault.use(gl2);
-        rawRender(gl2, myVertexBuffer);
-        gl2.glUseProgram(0);
-    }
-
-    private void testRawWithShader(GL2 gl2) {
-        int[] vertexBuffer = rawSetupVBO(gl2);
-
-        shaderDefault.use(gl2);
-        rawRender(gl2,vertexBuffer);
-        gl2.glUseProgram(0);
-
-        rawCleanupVBO(gl2, vertexBuffer);
-    }
-
-    private void testRaw(GL2 gl2) {
-        int[] vertexBuffer = rawSetupVBO(gl2);
-        rawRender(gl2,vertexBuffer);
-        rawCleanupVBO(gl2,vertexBuffer);
-    }
-
-    private void rawRender(GL2 gl2,int[] vertexBuffer) {
-        gl2.glEnableVertexAttribArray(0);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[0]);
-        gl2.glVertexAttribPointer(0,3,GL2.GL_FLOAT,false,0,0);
-
-        gl2.glEnableVertexAttribArray(1);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[1]);
-        gl2.glVertexAttribPointer(1,4,GL2.GL_FLOAT,false,0,0);
+        gl.glEnableVertexAttribArray(1);
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, myVertexBuffer[1]);
+        gl.glVertexAttribPointer(1,4,GL3.GL_FLOAT,false,0,0);
 
         // Draw the triangle !
-        gl2.glDrawArrays(GL2.GL_TRIANGLES, 0, 3);
+        gl.glDrawArrays(GL3.GL_TRIANGLES, 0, 3);
 
-        gl2.glDisableVertexAttribArray(0);
-        gl2.glDisableVertexAttribArray(1);
+        gl.glDisableVertexAttribArray(0);
+        gl.glDisableVertexAttribArray(1);
+
+        gl.glUseProgram(0);
     }
 
-    private int[] rawSetupVAO(GL2 gl2) {
+    private void testRawWithShaderAndSetup(GL3 gl) {
+        shaderDefault.use(gl);
+        rawRender(gl, myVertexBuffer);
+        gl.glUseProgram(0);
+    }
+
+    private void testRawWithShader(GL3 gl) {
+        int[] vertexBuffer = rawSetupVBO(gl);
+
+        shaderDefault.use(gl);
+        rawRender(gl,vertexBuffer);
+        gl.glUseProgram(0);
+
+        rawCleanupVBO(gl, vertexBuffer);
+    }
+
+    private void testRaw(GL3 gl) {
+        int[] vertexBuffer = rawSetupVBO(gl);
+        rawRender(gl,vertexBuffer);
+        rawCleanupVBO(gl,vertexBuffer);
+    }
+
+    private void rawRender(GL3 gl,int[] vertexBuffer) {
+        gl.glEnableVertexAttribArray(0);
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[0]);
+        gl.glVertexAttribPointer(0,3,GL3.GL_FLOAT,false,0,0);
+
+        gl.glEnableVertexAttribArray(1);
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[1]);
+        gl.glVertexAttribPointer(1,4,GL3.GL_FLOAT,false,0,0);
+
+        // Draw the triangle !
+        gl.glDrawArrays(GL3.GL_TRIANGLES, 0, 3);
+
+        gl.glDisableVertexAttribArray(0);
+        gl.glDisableVertexAttribArray(1);
+    }
+
+    private int[] rawSetupVAO(GL3 gl) {
         int [] arrayBuffer = new int[1];
-        gl2.glGenVertexArrays(1, arrayBuffer,0);
-        gl2.glBindVertexArray(arrayBuffer[0]);
+        gl.glGenVertexArrays(1, arrayBuffer,0);
+        gl.glBindVertexArray(arrayBuffer[0]);
         return arrayBuffer;
     }
 
-    private void rawCleanupVAO(GL2 gl2, int[] arrayBuffer) {
-        gl2.glDeleteVertexArrays(arrayBuffer.length,arrayBuffer,0);
+    private void rawCleanupVAO(GL3 gl, int[] arrayBuffer) {
+        gl.glDeleteVertexArrays(arrayBuffer.length,arrayBuffer,0);
     }
 
-    private int[] rawSetupVBO(GL2 gl2) {
+    private int[] rawSetupVBO(GL3 gl) {
         int [] vertexBuffer = new int[2];
-        gl2.glGenBuffers(vertexBuffer.length, vertexBuffer,0);
+        gl.glGenBuffers(vertexBuffer.length, vertexBuffer,0);
 
-        gl2.glEnableVertexAttribArray(0);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[0]);
-        gl2.glVertexAttribPointer(0,3,GL2.GL_FLOAT,false,0,0);
-        gl2.glBufferData(GL.GL_ARRAY_BUFFER, 3*3*BYTES_PER_FLOAT, createVertexData(), GL.GL_STATIC_DRAW);
+        gl.glEnableVertexAttribArray(0);
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[0]);
+        gl.glVertexAttribPointer(0,3,GL3.GL_FLOAT,false,0,0);
+        gl.glBufferData(GL.GL_ARRAY_BUFFER, 3*3*BYTES_PER_FLOAT, createVertexData(), GL.GL_STATIC_DRAW);
 
-        gl2.glEnableVertexAttribArray(1);
-        gl2.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[1]);
-        gl2.glVertexAttribPointer(1,4,GL2.GL_FLOAT,false,0,0);
-        gl2.glBufferData(GL.GL_ARRAY_BUFFER, 3*4*BYTES_PER_FLOAT, createColorData(), GL.GL_STATIC_DRAW);
+        gl.glEnableVertexAttribArray(1);
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[1]);
+        gl.glVertexAttribPointer(1,4,GL3.GL_FLOAT,false,0,0);
+        gl.glBufferData(GL.GL_ARRAY_BUFFER, 3*4*BYTES_PER_FLOAT, createColorData(), GL.GL_STATIC_DRAW);
 
         return vertexBuffer;
     }
 
-    private void rawCleanupVBO(GL2 gl2, int[] vertexBuffer) {
-        gl2.glDeleteBuffers(vertexBuffer.length,vertexBuffer,0);
+    private void rawCleanupVBO(GL3 gl, int[] vertexBuffer) {
+        gl.glDeleteBuffers(vertexBuffer.length,vertexBuffer,0);
     }
 
     private FloatBuffer createVertexData() {
@@ -258,22 +259,22 @@ public class OpenGLTestOrthographic implements RenderPanel {
         return colorData;
     }
 
-    private void createShaderPrograms(GL2 gl2) {
-        shaderDefault = new ShaderProgram(gl2,
+    private void createShaderPrograms(GL3 gl) {
+        shaderDefault = new ShaderProgram(gl,
                 readResource("notransform_330.vert"),
                 readResource("givenColor_330.frag"));
-        shaderTransform = new ShaderProgram(gl2,
+        shaderTransform = new ShaderProgram(gl,
                 readResource("default_330.vert"),
                 readResource("givenColor_330.frag"));
     }
 
-    private void testShaderAndMesh(GL2 gl2) {
+    private void testShaderAndMesh(GL3 gl) {
         //ShaderProgram program = shaderDefault;
         ShaderProgram program = shaderTransform;
-        program.use(gl2);
+        program.use(gl);
 
-        setProjectionMatrix(gl2, program);
-        setViewMatrix(gl2, program);
+        setProjectionMatrix(gl, program);
+        setViewMatrix(gl, program);
 
         // set model matrix
         // slowly rotate the matrix over time.
@@ -283,23 +284,23 @@ public class OpenGLTestOrthographic implements RenderPanel {
         modelMatrix.rotZ(time * 0.25 * Math.PI);
         modelMatrix.setTranslation(new Vector3d(0,0,0));
         modelMatrix.transpose();
-        program.setMatrix4d(gl2,"modelMatrix",modelMatrix);
+        program.setMatrix4d(gl,"modelMatrix",modelMatrix);
 
-        testTriangle.render(gl2);
+        testTriangle.render(gl);
     }
 
-    private void setViewMatrix(GL2 gl2, ShaderProgram program) {
+    private void setViewMatrix(GL3 gl, ShaderProgram program) {
         Matrix4d viewMatrix = MatrixHelper.createIdentityMatrix4();
         viewMatrix.setTranslation(new Vector3d(0,0,-15));
         viewMatrix.transpose();
-        program.setMatrix4d(gl2,"viewMatrix",viewMatrix);
+        program.setMatrix4d(gl,"viewMatrix",viewMatrix);
     }
 
-    protected void setProjectionMatrix(GL2 gl2, ShaderProgram program) {
+    protected void setProjectionMatrix(GL3 gl, ShaderProgram program) {
         double w = (double)glCanvas.getSurfaceWidth()/2.0;
         double h = (double)glCanvas.getSurfaceHeight()/2.0;
         Matrix4d orthoMatrix = MatrixHelper.orthographicMatrix4d(-w,w,-h,h,-1,1);
-        program.setMatrix4d(gl2,"projectionMatrix",orthoMatrix);
+        program.setMatrix4d(gl,"projectionMatrix",orthoMatrix);
     }
 
     private Mesh createTestTriangle() {

@@ -1,6 +1,6 @@
 package com.marginallyclever.convenience;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
@@ -109,27 +109,6 @@ public class AABB implements BoundingVolume, Serializable {
 		return new Matrix4d(pose);
 	}
 
-	@Deprecated
-	public void render(GL2 gl2) {
-		gl2.glPushMatrix();
-			MatrixHelper.applyMatrix(gl2, pose);
-
-			IntBuffer depthFunc = IntBuffer.allocate(1);
-			gl2.glGetIntegerv(GL2.GL_DEPTH_FUNC, depthFunc);
-			gl2.glDepthFunc(GL2.GL_ALWAYS);
-			
-			boolean isLit = gl2.glIsEnabled(GL2.GL_LIGHTING);
-			gl2.glDisable(GL2.GL_LIGHTING);
-			
-			gl2.glColor3d(255,255,255);
-			PrimitiveSolids.drawBoxWireframe(gl2, getBoundsBottom(),getBoundsTop());
-	
-			if (isLit) gl2.glEnable(GL2.GL_LIGHTING);
-			
-			gl2.glDepthFunc(depthFunc.get());
-		gl2.glPopMatrix();
-	}
-	
 	public void setDirty(boolean newState) {
 		isDirty=newState;
 	}

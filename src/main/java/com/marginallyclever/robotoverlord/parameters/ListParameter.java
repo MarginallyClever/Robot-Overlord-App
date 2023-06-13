@@ -58,7 +58,7 @@ public class ListParameter<T extends AbstractParameter<?>> extends AbstractParam
             return (T)instance.getClass().getDeclaredConstructor().newInstance();
         } catch (IllegalAccessException | InstantiationException e) {
             e.printStackTrace();
-            logger.error("Failed to instance {}. ",instance.getClass().getName(),e.getMessage());
+            logger.error("Failed to instance {}. ",instance.getClass().getName(),e);
         } catch (InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }

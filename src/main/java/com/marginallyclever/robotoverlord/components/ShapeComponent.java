@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.convenience.RayHit;
@@ -56,9 +56,9 @@ public class ShapeComponent extends RenderComponent {
         return myMesh;
     }
 
-    public void render(GL2 gl2) {
+    public void render(GL3 gl) {
         if( !getEnabled() || !getVisible() || myMesh==null ) return;
-        myMesh.render(gl2);
+        myMesh.render(gl);
     }
 
     /**

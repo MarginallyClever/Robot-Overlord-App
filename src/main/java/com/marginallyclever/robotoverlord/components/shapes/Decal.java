@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
@@ -44,8 +44,8 @@ public class Decal extends ShapeComponent implements PropertyChangeListener {
 	 */
 	protected void updateModel() {
 		myMesh.clear();
-		myMesh.setRenderStyle(GL2.GL_TRIANGLES);
-		// model.renderStyle=GL2.GL_LINES; // set to see the wireframe
+		myMesh.setRenderStyle(GL3.GL_TRIANGLES);
+		// model.renderStyle=GL3.GL_LINES; // set to see the wireframe
 
 		float w = width.get().floatValue();
 		float h = height.get().floatValue();
@@ -118,7 +118,7 @@ public class Decal extends ShapeComponent implements PropertyChangeListener {
 				pG.set(MathHelper.interpolate(pA, pC, (double) (y + 1) / (double) yParts));
 				pH.set(MathHelper.interpolate(pB, pD, (double) (y + 1) / (double) yParts));
 
-				if (myMesh.getRenderStyle() == GL2.GL_TRIANGLES) {
+				if (myMesh.getRenderStyle() == GL3.GL_TRIANGLES) {
 					for (int j = 0; j < 6; ++j) {
 						myMesh.addNormal((float) n.x, (float) n.y, (float) n.z);
 						myMesh.addColor(1, 1, 1, 1);
@@ -131,7 +131,7 @@ public class Decal extends ShapeComponent implements PropertyChangeListener {
 					myMesh.addVertex((float) pE.x, (float) pE.y, (float) pE.z);
 					myMesh.addVertex((float) pH.x, (float) pH.y, (float) pH.z);
 					myMesh.addVertex((float) pG.x, (float) pG.y, (float) pG.z);
-				} else if (myMesh.getRenderStyle() == GL2.GL_LINES) {
+				} else if (myMesh.getRenderStyle() == GL3.GL_LINES) {
 					for (int j = 0; j < 8; ++j) {
 						myMesh.addNormal((float) n.x, (float) n.y, (float) n.z);
 						myMesh.addColor(1, 1, 1, 1);

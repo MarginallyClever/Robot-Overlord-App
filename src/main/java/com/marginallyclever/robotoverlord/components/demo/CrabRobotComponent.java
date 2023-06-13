@@ -1,7 +1,8 @@
 package com.marginallyclever.robotoverlord.components.demo;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.PrimitiveSolids;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
@@ -17,7 +18,7 @@ import javax.vecmath.Vector3d;
  * @since 2.5.0
  */
 @ComponentDependency(components = {PoseComponent.class})
-public class CrabRobotComponent extends RenderComponent {
+public class CrabRobotComponent extends Component {
     public static final int NUM_LEGS = 6;
     public static final String HIP = "Hip";
     public static final String THIGH = "Thigh";
@@ -56,26 +57,6 @@ public class CrabRobotComponent extends RenderComponent {
 
     public void setLeg(int index,RobotComponent leg) {
         legs[index] = leg;
-    }
-
-    @Override
-    public void render(GL2 gl2) {
-        gl2.glPushMatrix();
-        //MatrixHelper.setMatrix(gl2,MatrixHelper.createIdentityMatrix4());
-        PrimitiveSolids.drawCircleXY(gl2,standingRadius.get(),32);
-
-        for(int i=0;i<NUM_LEGS;++i) {
-            //PrimitiveSolids.drawStar(gl2,lastPOC[i],0);
-            //PrimitiveSolids.drawStar(gl2,nextPOC[i],1);
-            drawMarker(gl2,targets[i],0);
-        }
-        gl2.glPopMatrix();
-    }
-
-
-    private void drawMarker(GL2 gl2, Tuple3d v, int color) {
-        if(color==0) PrimitiveSolids.drawStar(gl2,v,5);
-        else PrimitiveSolids.drawSphere(gl2,v,1);
     }
 
     public double getGaitCycleTime() {

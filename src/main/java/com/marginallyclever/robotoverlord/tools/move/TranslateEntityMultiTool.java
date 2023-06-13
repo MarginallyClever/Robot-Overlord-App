@@ -1,8 +1,10 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
+import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
@@ -22,12 +24,12 @@ import java.util.List;
  */
 public class TranslateEntityMultiTool implements EditorTool {
     private Viewport viewport;
-    private final TranslateEntityToolOneAxis toolX = new TranslateEntityToolOneAxis();
-    private final TranslateEntityToolOneAxis toolY = new TranslateEntityToolOneAxis();
-    private final TranslateEntityToolOneAxis toolZ = new TranslateEntityToolOneAxis();
-    private final TranslateEntityToolTwoAxis toolXY = new TranslateEntityToolTwoAxis();
-    private final TranslateEntityToolTwoAxis toolXZ = new TranslateEntityToolTwoAxis();
-    private final TranslateEntityToolTwoAxis toolYZ = new TranslateEntityToolTwoAxis();
+    private final TranslateEntityToolOneAxis toolX = new TranslateEntityToolOneAxis(new ColorRGB(255,0,0));
+    private final TranslateEntityToolOneAxis toolY = new TranslateEntityToolOneAxis(new ColorRGB(0,255,0));
+    private final TranslateEntityToolOneAxis toolZ = new TranslateEntityToolOneAxis(new ColorRGB(0,0,255));
+    private final TranslateEntityToolTwoAxis toolXY = new TranslateEntityToolTwoAxis(new ColorRGB(255,255,0));
+    private final TranslateEntityToolTwoAxis toolXZ = new TranslateEntityToolTwoAxis(new ColorRGB(255,0,255));
+    private final TranslateEntityToolTwoAxis toolYZ = new TranslateEntityToolTwoAxis(new ColorRGB(0,255,255));
 
     private final List<EditorTool> tools = new ArrayList<>();
 
@@ -197,37 +199,19 @@ public class TranslateEntityMultiTool implements EditorTool {
     /**
      * Renders any tool-specific visuals to the 3D scene.
      *
-     * @param gl2 The OpenGL context to systems to.
+     * @param gl The OpenGL context to systems to.
      */
     @Override
-    public void render(GL2 gl2) {
+    public void render(GL3 gl, ShaderProgram shaderProgram) {
         if (selectedItems == null || selectedItems.isEmpty()) return;
 
         int i = getIndexInUse();
-        if (0 == i || -1 == i) {
-            gl2.glColor3d(1, 0, 0);
-            toolX.render(gl2);
-        }
-        if (1 == i || -1 == i) {
-            gl2.glColor3d(0, 1, 0);
-            toolY.render(gl2);
-        }
-        if (2 == i || -1 == i) {
-            gl2.glColor3d(0, 0, 1);
-            toolZ.render(gl2);
-        }
-        if (3 == i || -1 == i) {
-            gl2.glColor3d(1, 1, 0);
-            toolXY.render(gl2);
-        }
-        if (4 == i || -1 == i) {
-            gl2.glColor3d(1, 0, 1);
-            toolXZ.render(gl2);
-        }
-        if (5 == i || -1 == i) {
-            gl2.glColor3d(0, 1, 1);
-            toolYZ.render(gl2);
-        }
+        if (0 == i || -1 == i) toolX.render(gl,shaderProgram);
+        if (1 == i || -1 == i) toolY.render(gl,shaderProgram);
+        if (2 == i || -1 == i) toolZ.render(gl,shaderProgram);
+        if (3 == i || -1 == i) toolXY.render(gl,shaderProgram);
+        if (4 == i || -1 == i) toolXZ.render(gl,shaderProgram);
+        if (5 == i || -1 == i) toolYZ.render(gl,shaderProgram);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.marginallyclever.convenience;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Tuple3d;
@@ -43,13 +43,6 @@ public class Plane {
 		super();
 		this.normal.set(normal);
 		this.distance = distance;
-	}
-	
-	public void render(GL2 gl2) {
-		gl2.glBegin(GL2.GL_LINES);
-		gl2.glColor3d(1,1,1);
-		gl2.glVertex3d(normal.x* distance, normal.y* distance, normal.z* distance);
-		gl2.glVertex3d(normal.x*(distance +1), normal.y*(distance +1), normal.z*(distance +1));
 	}
 	
 	/**

@@ -1,10 +1,8 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.SerializationContext;
-import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -227,15 +225,13 @@ public class CameraComponent extends RenderComponent {
     }
 
     @Override
-    public void render(GL2 gl2) {
+    public void render(GL3 gl) {
         if (!isCurrentlyMoving) return;
         isCurrentlyMoving = false;
-        renderOrbitPoint(gl2);
+        renderOrbitPoint(gl);
     }
 
-    private void renderOrbitPoint(GL2 gl2) {
-        gl2.glPushMatrix();
-
+    private void renderOrbitPoint(GL3 gl) {
         // reset matrix to camera inverse * orbit point
         PoseComponent pose = getEntity().getComponent(PoseComponent.class);
         Matrix4d inverseCamera = pose.getWorld();
@@ -243,14 +239,9 @@ public class CameraComponent extends RenderComponent {
 
         Matrix4d orbitPointMatrix = MatrixHelper.createIdentityMatrix4();
         orbitPointMatrix.setTranslation(getOrbitPoint());
-
         orbitPointMatrix.mul(inverseCamera,orbitPointMatrix);
-        MatrixHelper.applyMatrix(gl2,orbitPointMatrix);
 
-        // draw marker
-        PrimitiveSolids.drawStar(gl2,25);
-
-        gl2.glPopMatrix();
+        MatrixHelper.drawMatrix(orbitPointMatrix,25);
     }
 
     public void setCurrentlyMoving(boolean state) {
