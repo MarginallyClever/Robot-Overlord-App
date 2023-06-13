@@ -1,17 +1,17 @@
 package com.marginallyclever.robotoverlord.systems.robot.cartesian;
 
 import com.marginallyclever.convenience.helpers.StringHelper;
-import com.marginallyclever.robotoverlord.entity.Entity;
-import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.components.ArmEndEffectorComponent;
 import com.marginallyclever.robotoverlord.components.DHComponent;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.OriginAdjustComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
-import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
+import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementFilename;
 import com.marginallyclever.robotoverlord.systems.OriginAdjustSystem;
+import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 
 import javax.swing.*;
 import java.awt.*;

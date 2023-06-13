@@ -1,12 +1,18 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
-import com.marginallyclever.robotoverlord.components.*;
-import com.marginallyclever.robotoverlord.components.program.*;
+import com.marginallyclever.robotoverlord.components.Component;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
+import com.marginallyclever.robotoverlord.components.RobotGripperComponent;
+import com.marginallyclever.robotoverlord.components.program.ProgramComponent;
+import com.marginallyclever.robotoverlord.components.program.ProgramEventComponent;
+import com.marginallyclever.robotoverlord.components.program.ProgramPathComponent;
+import com.marginallyclever.robotoverlord.components.program.ProgramStepComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
-import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

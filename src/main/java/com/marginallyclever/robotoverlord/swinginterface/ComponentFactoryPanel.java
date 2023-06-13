@@ -8,25 +8,29 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
+/**
+ * Searchable list of all {@link ComponentFactory} names.
+ * @since 2.7.0
+ * @author Dan Royer
+ */
 public class ComponentFactoryPanel extends JPanel {
-    private final SearchBar searchBar = new SearchBar();
     private final JList<String> filteredNames = new JList<>();
-    private final JButton addButton = new JButton("Add");
+    private static String lastSearch = "";
 
     public ComponentFactoryPanel() {
         super(new BorderLayout());
         setName("ComponentFactoryPanel");
 
+        SearchBar searchBar = new SearchBar(lastSearch);
         add(searchBar, BorderLayout.NORTH);
         searchBar.addPropertyChangeListener("match", evt -> filterSearch(evt.getNewValue().toString()));
-        filterSearch("");
+        filterSearch(lastSearch);
 
         add(new JScrollPane(filteredNames), BorderLayout.CENTER);
-        add(addButton, BorderLayout.SOUTH);
-        addButton.addActionListener(evt->addNow(evt));
     }
 
     private void filterSearch(String match) {
+        lastSearch = match;
         ArrayList<String> names = ComponentFactory.getAllComponentNames();
         match = match.toLowerCase();
 
@@ -42,10 +46,8 @@ public class ComponentFactoryPanel extends JPanel {
         filteredNames.setModel(model);
     }
 
-    private void addNow(ActionEvent evt) {
-        String name = filteredNames.getSelectedValue();
-        if (name==null) return;
-        //ComponentFactory.createInstance(name);
+    public String getSelectedClassName() {
+        return filteredNames.getSelectedValue();
     }
 
     public static void main(String[] args) {

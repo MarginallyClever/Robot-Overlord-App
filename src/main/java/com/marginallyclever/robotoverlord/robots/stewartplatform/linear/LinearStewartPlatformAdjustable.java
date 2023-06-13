@@ -1,9 +1,5 @@
 package com.marginallyclever.robotoverlord.robots.stewartplatform.linear;
 
-import com.jogamp.opengl.GL3;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
 
 /**

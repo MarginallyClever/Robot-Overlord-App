@@ -3,9 +3,9 @@ package com.marginallyclever.robotoverlord.systems.render.mesh;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.AABB;
-import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.RayHit;
+import com.marginallyclever.convenience.helpers.IntersectionHelper;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;

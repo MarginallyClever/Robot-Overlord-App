@@ -1,7 +1,5 @@
 package com.marginallyclever.robotoverlord.systems.render.gcodepath;
 
-import javax.vecmath.Point3d;
-
 /**
  * A path that can be walked along.
  * @param <T> the type of point in the path.

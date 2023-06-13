@@ -6,7 +6,6 @@ import javax.vecmath.Vector3d;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Iterator;
 
 /**
  * Save a mesh as an STL file.

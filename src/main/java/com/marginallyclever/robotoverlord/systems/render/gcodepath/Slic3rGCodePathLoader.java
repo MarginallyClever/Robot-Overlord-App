@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.systems.render.gcodepath;
 
-import java.io.BufferedReader;
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

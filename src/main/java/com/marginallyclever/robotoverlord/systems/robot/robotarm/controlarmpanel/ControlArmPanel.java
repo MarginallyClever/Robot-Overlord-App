@@ -1,13 +1,13 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.GCodePathComponent;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.jogpanel.JogPanel;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.presentationlayer.PresentationFactory;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.presentationlayer.PresentationLayer;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.programpanel.ProgramPanel;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
 import java.awt.*;

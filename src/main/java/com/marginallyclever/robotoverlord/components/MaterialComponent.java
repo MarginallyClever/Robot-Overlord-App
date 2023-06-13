@@ -10,8 +10,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * A material is a collection of parameters that describe how a surface should be rendered.

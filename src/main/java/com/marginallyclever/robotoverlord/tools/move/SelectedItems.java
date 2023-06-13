@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.entity.Entity;
 
 import javax.vecmath.Matrix4d;
 import java.util.ArrayList;

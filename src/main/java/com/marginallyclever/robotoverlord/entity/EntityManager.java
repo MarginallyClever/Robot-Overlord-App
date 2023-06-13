@@ -1,10 +1,11 @@
 package com.marginallyclever.robotoverlord.entity;
 
-import com.marginallyclever.convenience.*;
+import com.marginallyclever.convenience.AABB;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.robotoverlord.Collidable;
 import com.marginallyclever.robotoverlord.SerializationContext;
-import com.marginallyclever.robotoverlord.components.*;
+import com.marginallyclever.robotoverlord.components.CameraComponent;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;

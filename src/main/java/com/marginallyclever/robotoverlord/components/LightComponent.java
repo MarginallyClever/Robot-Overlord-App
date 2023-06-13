@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
@@ -9,8 +8,6 @@ import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import javax.vecmath.Matrix4d;
 
 /**
  * A light {@link Component}.

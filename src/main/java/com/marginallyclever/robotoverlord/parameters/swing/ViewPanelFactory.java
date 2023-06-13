@@ -1,15 +1,17 @@
 package com.marginallyclever.robotoverlord.parameters.swing;
 
 import com.marginallyclever.robotoverlord.entity.EntityManager;
-import com.marginallyclever.robotoverlord.parameters.*;
-import com.marginallyclever.robotoverlord.parameters.swing.*;
+import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
+import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
+import com.marginallyclever.robotoverlord.parameters.IntParameter;
+import com.marginallyclever.robotoverlord.parameters.StringParameter;
 
-import java.security.InvalidParameterException;
-import java.util.List;
-import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
+import java.awt.*;
+import java.security.InvalidParameterException;
+import java.util.List;
 
 /**
  * A factory that builds Swing elements for the entity editor and collects them in a {@link JPanel}.
