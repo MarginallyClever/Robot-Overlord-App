@@ -43,7 +43,7 @@ public abstract class ComponentFactory {
 
 			DHComponent.class,
 			RobotComponent.class,
-			RobotArmComponent.class,
+			//RobotArmComponent.class,
 			ArmEndEffectorComponent.class,
 
 			CrabRobotComponent.class,
