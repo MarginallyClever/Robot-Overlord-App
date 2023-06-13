@@ -1,13 +1,13 @@
 package com.marginallyclever.robotoverlord.systems.robot.dog;
 
 import com.marginallyclever.convenience.ColorRGB;
-import com.marginallyclever.robotoverlord.entity.Entity;
-import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.demo.DogRobotComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.components.shapes.Cylinder;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
+import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.entity.EntityManager;
 
 import javax.swing.*;
 import javax.vecmath.Vector3d;

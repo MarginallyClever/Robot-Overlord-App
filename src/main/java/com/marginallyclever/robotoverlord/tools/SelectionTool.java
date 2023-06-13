@@ -2,12 +2,11 @@ package com.marginallyclever.robotoverlord.tools;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.RayHit;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
@@ -24,7 +23,8 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SelectionTool implements EditorTool {
     private static final Logger logger = LoggerFactory.getLogger(SelectionTool.class);

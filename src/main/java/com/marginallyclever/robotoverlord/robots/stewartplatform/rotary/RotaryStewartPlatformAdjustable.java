@@ -1,11 +1,5 @@
 package com.marginallyclever.robotoverlord.robots.stewartplatform.rotary;
 
-import com.jogamp.opengl.GL3;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
-
 /**
  * Adjustable form of rotary stewart platform.  All dimensions can be tweaked from the control panel.
  * @author Dan Royer

@@ -6,7 +6,6 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.ListParameter;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
-import org.eclipse.jgit.lib.Ref;
 import org.json.JSONException;
 import org.json.JSONObject;
 

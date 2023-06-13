@@ -1,11 +1,5 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.robotoverlord.SerializationContext;
@@ -16,6 +10,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.vecmath.Vector3d;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * A cylinder with a radius of 0.5 and a height of 1. It is centered at the

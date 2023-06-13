@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord.components;
 
 import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
-
 import com.marginallyclever.robotoverlord.components.demo.DogRobotComponent;
 import com.marginallyclever.robotoverlord.components.motors.DCMotorComponent;
 import com.marginallyclever.robotoverlord.components.motors.ServoComponent;

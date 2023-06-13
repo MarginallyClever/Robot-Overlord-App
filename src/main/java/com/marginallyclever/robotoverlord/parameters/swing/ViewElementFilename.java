@@ -6,8 +6,6 @@ import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.StringParameterEdit;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
-import java.util.List;
-import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileView;
@@ -17,6 +15,8 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Panel to alter a file parameter.

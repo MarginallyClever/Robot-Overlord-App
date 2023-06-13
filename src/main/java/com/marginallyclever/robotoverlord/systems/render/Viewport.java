@@ -1,15 +1,16 @@
 package com.marginallyclever.robotoverlord.systems.render;
 
-import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
 
-import javax.vecmath.*;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 
 /**
  * Wrapper for all projection matrix stuff at the start of the systems pipeline.

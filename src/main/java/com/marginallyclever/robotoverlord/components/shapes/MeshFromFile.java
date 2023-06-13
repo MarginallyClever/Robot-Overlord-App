@@ -2,20 +2,16 @@ package com.marginallyclever.robotoverlord.components.shapes;
 
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.ComponentDependency;
-import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.FilenameParameter;
 import com.marginallyclever.robotoverlord.systems.render.material.MaterialFactory;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
-import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A mesh loaded from a file.

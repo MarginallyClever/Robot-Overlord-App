@@ -6,12 +6,11 @@ import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * A sphere with a radius of 0.5 centered around the local origin.

@@ -1,14 +1,14 @@
 package com.marginallyclever.robotoverlord.tools.move;
 
-import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.robotoverlord.entity.Entity;
-import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.edits.PoseMoveEdit;
+import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 
 import javax.vecmath.Matrix4d;

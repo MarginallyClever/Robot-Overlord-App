@@ -1,11 +1,11 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.programpanel;
 
 import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.entity.Entity;
-import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.components.GCodePathComponent;
-import com.marginallyclever.robotoverlord.systems.render.gcodepath.PathWalker;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.robots.Robot;
+import com.marginallyclever.robotoverlord.systems.render.gcodepath.PathWalker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

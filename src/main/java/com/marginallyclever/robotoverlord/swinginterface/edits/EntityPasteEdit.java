@@ -1,9 +1,9 @@
 package com.marginallyclever.robotoverlord.swinginterface.edits;
 
 import com.marginallyclever.robotoverlord.SerializationContext;
+import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
-import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import org.json.JSONObject;
 
 import javax.swing.undo.AbstractUndoableEdit;

@@ -2,13 +2,10 @@ package com.marginallyclever.robotoverlord.systems.physics.ode;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import org.ode4j.ode.DBox;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DPlane;
-import org.ode4j.ode.DSphere;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

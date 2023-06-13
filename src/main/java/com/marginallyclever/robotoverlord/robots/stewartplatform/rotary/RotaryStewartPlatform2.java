@@ -1,12 +1,6 @@
 package com.marginallyclever.robotoverlord.robots.stewartplatform.rotary;
 
-import com.jogamp.opengl.GL3;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
-
-import java.io.Serial;
 
 /**
  * a rotary stewart platform is a 6DOF robot that can move in X, Y, Z, and rotate around X, Y, Z.

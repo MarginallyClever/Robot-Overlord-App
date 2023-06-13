@@ -1,14 +1,13 @@
 package com.marginallyclever.robotoverlord.components.demo;
 
-import com.jogamp.opengl.GL3;
-import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.robotoverlord.components.*;
+import com.marginallyclever.robotoverlord.components.Component;
+import com.marginallyclever.robotoverlord.components.ComponentDependency;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 
 import javax.vecmath.Point3d;
-import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 
 /**
