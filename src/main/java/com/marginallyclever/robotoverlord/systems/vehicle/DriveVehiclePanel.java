@@ -11,14 +11,14 @@ import java.awt.*;
  * @author Dan Royer
  */
 public class DriveVehiclePanel extends JPanel {
-    private final VehicleComponent car;
+    private final VehicleComponent vehicleComponent;
     private final JSlider sliderThrottle = new JSlider(-100,100,0);
     private final JSlider sliderStrafe = new JSlider(-100,100,0);
     private final JSlider sliderSteering = new JSlider(-90,90,0);
 
-    public DriveVehiclePanel(VehicleComponent car) {
+    public DriveVehiclePanel(VehicleComponent vehicleComponent) {
         super();
-        this.car = car;
+        this.vehicleComponent = vehicleComponent;
 
         this.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 
@@ -42,18 +42,18 @@ public class DriveVehiclePanel extends JPanel {
         sliderSteering.setMinorTickSpacing(15);
         sliderSteering.setPaintTicks(true);
 
-        sliderSteering.setValue(car.turnVelocity.get().intValue());
-        sliderThrottle.setValue(car.forwardVelocity.get().intValue());
-        sliderStrafe.setValue(car.strafeVelocity.get().intValue());
+        sliderSteering.setValue(vehicleComponent.turnVelocity.get().intValue());
+        sliderThrottle.setValue(vehicleComponent.forwardVelocity.get().intValue());
+        sliderStrafe.setValue(vehicleComponent.strafeVelocity.get().intValue());
 
         sliderSteering.addChangeListener(e -> {
-            car.turnVelocity.set((double)sliderSteering.getValue());
+            vehicleComponent.turnVelocity.set((double)sliderSteering.getValue());
         });
         sliderThrottle.addChangeListener(e -> {
-            car.forwardVelocity.set((double)sliderThrottle.getValue());
+            vehicleComponent.forwardVelocity.set((double)sliderThrottle.getValue());
         });
         sliderStrafe.addChangeListener(e -> {
-            car.strafeVelocity.set((double)sliderStrafe.getValue());
+            vehicleComponent.strafeVelocity.set((double)sliderStrafe.getValue());
         });
     }
 
