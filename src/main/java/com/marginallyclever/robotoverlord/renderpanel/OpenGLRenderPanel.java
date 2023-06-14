@@ -202,6 +202,8 @@ public class OpenGLRenderPanel implements RenderPanel {
     }
 
     private void createCanvas() {
+        logger.info("availability="+GLProfile.glAvailabilityToString());
+
         try {
             logger.info("...get default caps");
             //GLProfile profile = GLProfile.get(GLProfile.GL3);
