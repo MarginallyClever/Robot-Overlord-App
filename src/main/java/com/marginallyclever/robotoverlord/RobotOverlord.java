@@ -245,6 +245,26 @@ public class RobotOverlord {
 				super.windowClosing(e);
 			}
 		});
+
+		if (Desktop.isDesktopSupported()) {
+			Desktop desktop = Desktop.getDesktop();
+			if (desktop.isSupported(Desktop.Action.APP_QUIT_HANDLER)) {
+				desktop.setQuitHandler((evt, res) -> {
+					if (confirmClose()) {
+						res.performQuit();
+					} else {
+						res.cancelQuit();
+					}
+				});
+			}
+			if (desktop.isSupported(Desktop.Action.APP_ABOUT)) {
+				desktop.setAboutHandler((e) ->{
+					AboutAction a = new AboutAction();
+					a.actionPerformed(null);
+				});
+			}
+		}
+
 		mainFrame.setVisible(true);
 	}
 
@@ -402,7 +422,7 @@ public class RobotOverlord {
 		componentManagerPanel.refreshContentsFromClipboard();
 	}
 
-	public void confirmClose() {
+	public boolean confirmClose() {
         int result = JOptionPane.showConfirmDialog(
 				mainFrame,
 				Translator.get("RobotOverlord.quitConfirm"),
@@ -417,7 +437,9 @@ public class RobotOverlord {
 				mainFrame.dispose();
 				Log.end();
 			}).start();
-        }
+			return true;
+		}
+		return false;
 	}
 
 	/**

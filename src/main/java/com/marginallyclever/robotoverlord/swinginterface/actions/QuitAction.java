@@ -13,9 +13,9 @@ import java.awt.event.ActionListener;
  *
  */
 public class QuitAction extends AbstractAction implements ActionListener {
-	protected RobotOverlord ro;
+	protected RobotOverlord app;
 	
-	public QuitAction(RobotOverlord ro) {
+	public QuitAction(RobotOverlord app) {
 		super(Translator.get("QuitAction.name"));
         putValue(SHORT_DESCRIPTION, Translator.get("QuitAction.shortDescription"));
         
@@ -24,11 +24,11 @@ public class QuitAction extends AbstractAction implements ActionListener {
         // on OSX
         //putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.ALT_MASK | ActionEvent.SHIFT_MASK) );
         
-		this.ro = ro;
+		this.app = app;
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		ro.confirmClose();
+		app.confirmClose();
 	}
 }
