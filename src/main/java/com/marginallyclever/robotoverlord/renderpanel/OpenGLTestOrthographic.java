@@ -235,7 +235,7 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
     private void createBuffer(GL3 gl, int bufferID,int size,int [] vertexBuffer,FloatBuffer source) {
         gl.glEnableVertexAttribArray(bufferID);
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[bufferID]);
-        gl.glVertexAttribPointer(bufferID,4,GL3.GL_FLOAT,false,0,0);
+        gl.glVertexAttribPointer(bufferID,size,GL3.GL_FLOAT,false,0,0);
         gl.glBufferData(GL.GL_ARRAY_BUFFER, (long) size *3*BYTES_PER_FLOAT, source, GL.GL_STATIC_DRAW);
     }
 
@@ -311,7 +311,7 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
     protected void setProjectionMatrix(GL3 gl, ShaderProgram program) {
         double w = (double)glCanvas.getSurfaceWidth()/2.0;
         double h = (double)glCanvas.getSurfaceHeight()/2.0;
-        Matrix4d orthoMatrix = MatrixHelper.orthographicMatrix4d(-w,w,-h,h,-1,1);
+        Matrix4d orthoMatrix = MatrixHelper.orthographicMatrix4d(-w,w,-h,h,-1,100);
         program.setMatrix4d(gl,"projectionMatrix",orthoMatrix);
     }
 
