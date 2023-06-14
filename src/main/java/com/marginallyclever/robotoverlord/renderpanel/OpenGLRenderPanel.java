@@ -206,13 +206,11 @@ public class OpenGLRenderPanel implements RenderPanel {
 
         try {
             logger.info("...get default caps");
-            //GLProfile profile = GLProfile.get(GLProfile.GL3);
-            GLProfile profile = GLProfile.getDefault();
+            GLProfile profile = GLProfile.getMaximum(true);
             GLCapabilities caps = new GLCapabilities(profile);
             caps.setHardwareAccelerated(true);
             caps.setBackgroundOpaque(true);
             caps.setDoubleBuffered(true);
-
             caps.setStencilBits(8);
             if(FSAA_NUM_SAMPLES>1) {
                 caps.setSampleBuffers(true);

@@ -65,7 +65,7 @@ public class OpenGLTestOrthographic implements RenderPanel {
         GLJPanel canvas = null;
         try {
             logger.info("...get default caps");
-            GLProfile profile = GLProfile.get(GLProfile.GL3);
+            GLProfile profile = GLProfile.getMaxProgrammable(true);
             GLCapabilities caps = new GLCapabilities(profile);
             caps.setBackgroundOpaque(true);
             caps.setDoubleBuffered(true);
@@ -144,7 +144,8 @@ public class OpenGLTestOrthographic implements RenderPanel {
                 //testRawWithShader(gl);
                 //testRawWithShaderAndSetup(gl);
                 //testRawWithShaderAndSetupVAO(gl);
-                testShaderAndMesh(gl);
+                //testShaderAndMesh(gl,shaderDefault);
+                testShaderAndMesh(gl,shaderTransform);
             }
         });
     }
@@ -268,9 +269,7 @@ public class OpenGLTestOrthographic implements RenderPanel {
                 readResource("givenColor_330.frag"));
     }
 
-    private void testShaderAndMesh(GL3 gl) {
-        //ShaderProgram program = shaderDefault;
-        ShaderProgram program = shaderTransform;
+    private void testShaderAndMesh(GL3 gl,ShaderProgram program) {
         program.use(gl);
 
         setProjectionMatrix(gl, program);
