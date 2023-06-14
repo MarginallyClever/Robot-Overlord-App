@@ -222,20 +222,21 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
     }
 
     private int[] rawSetupVBO(GL3 gl) {
-        int [] vertexBuffer = new int[2];
+        int [] vertexBuffer = new int[3];
         gl.glGenBuffers(vertexBuffer.length, vertexBuffer,0);
 
-        gl.glEnableVertexAttribArray(0);
-        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[0]);
-        gl.glVertexAttribPointer(0,3,GL3.GL_FLOAT,false,0,0);
-        gl.glBufferData(GL.GL_ARRAY_BUFFER, 3*3*BYTES_PER_FLOAT, createVertexData(), GL.GL_STATIC_DRAW);
-
-        gl.glEnableVertexAttribArray(1);
-        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[1]);
-        gl.glVertexAttribPointer(1,4,GL3.GL_FLOAT,false,0,0);
-        gl.glBufferData(GL.GL_ARRAY_BUFFER, 3*4*BYTES_PER_FLOAT, createColorData(), GL.GL_STATIC_DRAW);
+        createBuffer(gl,0,3,vertexBuffer,createVertexData());
+        createBuffer(gl,1,3,vertexBuffer,createNormalData());
+        createBuffer(gl,2,4,vertexBuffer,createColorData());
 
         return vertexBuffer;
+    }
+
+    private void createBuffer(GL3 gl, int bufferID,int size,int [] vertexBuffer,FloatBuffer source) {
+        gl.glEnableVertexAttribArray(bufferID);
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[bufferID]);
+        gl.glVertexAttribPointer(bufferID,4,GL3.GL_FLOAT,false,0,0);
+        gl.glBufferData(GL.GL_ARRAY_BUFFER, (long) size *3*BYTES_PER_FLOAT, source, GL.GL_STATIC_DRAW);
     }
 
     private void rawCleanupVBO(GL3 gl, int[] vertexBuffer) {
@@ -250,6 +251,16 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
         });
         vertexData.rewind();
         return vertexData;
+    }
+
+    private FloatBuffer createNormalData() {
+        FloatBuffer normalData = FloatBuffer.wrap(new float[]{
+                0,0,1,
+                0,0,1,
+                0,0,1,
+        });
+        normalData.rewind();
+        return normalData;
     }
 
     private FloatBuffer createColorData() {
@@ -362,9 +373,8 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
             case KeyEvent.VK_4 -> testMode = 3;
             case KeyEvent.VK_5 -> testMode = 4;
             case KeyEvent.VK_6 -> testMode = 5;
-            default -> testMode = 5;
         }
-        System.out.println("keycode="+e.getKeyChar()+" testMode="+testMode);
+        System.out.println("testMode="+testMode);
     }
 
     @Override
