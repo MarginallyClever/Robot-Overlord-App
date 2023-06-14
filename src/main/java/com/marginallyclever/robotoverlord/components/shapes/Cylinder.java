@@ -44,7 +44,6 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
         this.height.addPropertyChangeListener(this);
 
         updateModel();
-        setModel(myMesh);
     }
 
     @Override
@@ -60,6 +59,7 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
         myMesh.setRenderStyle(GL3.GL_TRIANGLES);
 
         addCylinder(height.get().floatValue(), radius0.get().floatValue(), radius1.get().floatValue());
+        setModel(myMesh);
     }
 
     private void addCylinder(float height, float radius0,float radius1) {
@@ -144,8 +144,13 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
     @Override
     public void parseJSON(JSONObject jo, SerializationContext context) throws JSONException {
         super.parseJSON(jo, context);
-        radius0.set(jo.getDouble("radius0"));
-        radius1.set(jo.getDouble("radius1"));
-        height.set(jo.getDouble("height"));
+        if(jo.has("radius")) {
+            radius0.set(jo.getDouble("radius"));
+            radius1.set(jo.getDouble("radius"));
+        } else {
+            if(jo.has("radius0")) radius0.set(jo.getDouble("radius0"));
+            if(jo.has("radius1")) radius1.set(jo.getDouble("radius1"));
+        }
+        if(jo.has("height")) height.set(jo.getDouble("height"));
     }
 }
