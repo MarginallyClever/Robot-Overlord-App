@@ -5,16 +5,17 @@ import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
 import com.marginallyclever.robotoverlord.systems.vehicle.CreateVehiclePanel;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class CreateVehicleAction extends AbstractAction {
     private final EntityManager entityManager;
-    private final JFrame mainframe;
+    private final Component parentComponent;
 
-    public CreateVehicleAction(EntityManager entityManager,JFrame mainframe) {
+    public CreateVehicleAction(EntityManager entityManager,Component parentComponent) {
         super("Create Vehicle");
         this.entityManager = entityManager;
-        this.mainframe = mainframe;
+        this.parentComponent = parentComponent;
     }
 
     /**
@@ -25,6 +26,6 @@ public class CreateVehicleAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent event) {
         CreateVehiclePanel panel = new CreateVehiclePanel(entityManager);
-        EntitySystemUtils.makePanel(panel, mainframe, (String)this.getValue(Action.NAME));
+        EntitySystemUtils.makePanel(panel, parentComponent, (String)this.getValue(Action.NAME));
     }
 }
