@@ -49,11 +49,6 @@ public class RobotOverlord {
 
 	public static final String APP_TITLE = "Robot Overlord";
 	public static final String APP_URL = "https://github.com/MarginallyClever/Robot-Overlord";
-	private static final String KEY_WINDOW_WIDTH = "windowWidth";
-	private static final String KEY_WINDOW_HEIGHT = "windowHeight";
-	private static final String KEY_WINDOW_X = "windowX";
-	private static final String KEY_WINDOW_Y = "windowY";
-	private static final String KEY_IS_FULLSCREEN = "isFullscreen";
 	private static final String KEY_LAST_DIRECTORY_IMPORT = "LastDirectoryImport";
 	private static final String KEY_LAST_DIRECTORY_SAVE = "LastDirectorySave";
 	private static final String KEY_LAST_DIRECTORY_LOAD = "LastDirectoryLoad";
@@ -80,7 +75,7 @@ public class RobotOverlord {
 	/**
 	 * The main frame of the GUI
 	 */
-	private JFrame mainFrame;
+	private MainFrame mainFrame;
 
 	/**
 	 * The frame that contains the log panel.
@@ -235,11 +230,11 @@ public class RobotOverlord {
 	private void buildMainFrame() {
 		logger.info("buildMainFrame()");
 		// start the main application frame - the largest visible rectangle on the screen with the minimize/maximize/close buttons.
-        mainFrame = new JFrame( APP_TITLE + " " + VERSION );
+        mainFrame = new MainFrame( APP_TITLE + " " + VERSION, prefs);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setLocationRelativeTo(null);
 		mainFrame.setJMenuBar(mainMenu);
-		setWindowSizeAndPosition();
+		mainFrame.setWindowSizeAndPosition();
 		setupDropTarget();
 
         mainFrame.addWindowListener(new WindowAdapter() {
@@ -250,54 +245,7 @@ public class RobotOverlord {
 				super.windowClosing(e);
 			}
 		});
-
-		mainFrame.addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentResized(ComponentEvent e) {
-				saveWindowSizeAndPosition();
-			}
-
-			@Override
-			public void componentMoved(ComponentEvent e) {
-				saveWindowSizeAndPosition();
-			}
-		});
 		mainFrame.setVisible(true);
-	}
-
-	private void setWindowSizeAndPosition() {
-		logger.info("Set window size and position");
-
-		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		boolean isFullscreen = prefs.getBoolean("isFullscreen",false);
-		if(isFullscreen) {
-			mainFrame.setExtendedState(mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-		} else {
-			int windowW = prefs.getInt(KEY_WINDOW_WIDTH, dim.width);
-			int windowH = prefs.getInt(KEY_WINDOW_HEIGHT, dim.height);
-			int windowX = prefs.getInt(KEY_WINDOW_X, (dim.width - windowW)/2);
-			int windowY = prefs.getInt(KEY_WINDOW_Y, (dim.height - windowH)/2);
-			mainFrame.setBounds(windowX, windowY,windowW, windowH);
-		}
-	}
-
-	// remember window location for next time.
-	private void saveWindowSizeAndPosition() {
-		int state = mainFrame.getExtendedState();
-		boolean isFullscreen = ((state & JFrame.MAXIMIZED_BOTH)!=0);
-		prefs.putBoolean(KEY_IS_FULLSCREEN, isFullscreen);
-		if(!isFullscreen) {
-			Dimension frameSize = mainFrame.getSize();
-			prefs.putInt(KEY_WINDOW_WIDTH, frameSize.width);
-			prefs.putInt(KEY_WINDOW_HEIGHT, frameSize.height);
-			Point p = mainFrame.getLocation();
-			prefs.putInt(KEY_WINDOW_X, p.x);
-			prefs.putInt(KEY_WINDOW_Y, p.y);
-		}
-	}
-
-	public JFrame getMainFrame() {
-		return mainFrame;
 	}
 
 	private void refreshMainMenu() {
