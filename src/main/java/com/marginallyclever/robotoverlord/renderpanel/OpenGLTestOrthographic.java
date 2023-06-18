@@ -155,13 +155,11 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
     private void testRawWithShaderAndSetupVAO(GL3 gl) {
         shaderDefault.use(gl);
 
-        gl.glEnableVertexAttribArray(0);
-        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, myVertexBuffer[0]);
-        gl.glVertexAttribPointer(0,3,GL3.GL_FLOAT,false,0,0);
+        gl.glBindVertexArray(myArrayBuffer[0]);
 
-        gl.glEnableVertexAttribArray(1);
-        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, myVertexBuffer[1]);
-        gl.glVertexAttribPointer(1,4,GL3.GL_FLOAT,false,0,0);
+        enableAndBind(gl, 0, 3, myVertexBuffer);
+        enableAndBind(gl, 1, 3, myVertexBuffer);
+        enableAndBind(gl, 2, 4, myVertexBuffer);
 
         // Draw the triangle !
         gl.glDrawArrays(GL3.GL_TRIANGLES, 0, 3);
@@ -170,6 +168,8 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
         gl.glDisableVertexAttribArray(1);
 
         gl.glUseProgram(0);
+
+        gl.glBindVertexArray(myArrayBuffer[0]); // Unbind the VAO
     }
 
     private void testRawWithShaderAndSetup(GL3 gl) {
@@ -204,6 +204,7 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
 
         gl.glDisableVertexAttribArray(0);
         gl.glDisableVertexAttribArray(1);
+        gl.glDisableVertexAttribArray(2);
     }
 
     private int[] rawSetupVAO(GL3 gl) {
@@ -233,6 +234,7 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBuffer[bufferID]);
         gl.glVertexAttribPointer(bufferID,size,GL3.GL_FLOAT,false,0,0);
     }
+
     private void createBuffer(GL3 gl, int bufferID,int size,int [] vertexBuffer,FloatBuffer source) {
         enableAndBind(gl, bufferID, size, vertexBuffer);
         gl.glBufferData(GL.GL_ARRAY_BUFFER, (long) size *3*BYTES_PER_FLOAT, source, GL.GL_STATIC_DRAW);
