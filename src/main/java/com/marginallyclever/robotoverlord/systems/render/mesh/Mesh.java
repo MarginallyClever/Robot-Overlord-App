@@ -186,7 +186,7 @@ public class Mesh {
 			gl.glDisableVertexAttribArray(i);
 		}
 
-		gl.glBindVertexArray(VAO[0]); // Unbind the VAO
+		gl.glBindVertexArray(0); // Unbind the VAO
 	}
 	
 	public void addNormal(float x,float y,float z) {

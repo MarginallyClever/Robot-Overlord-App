@@ -169,7 +169,7 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
 
         gl.glUseProgram(0);
 
-        gl.glBindVertexArray(myArrayBuffer[0]); // Unbind the VAO
+        gl.glBindVertexArray(0); // Unbind the VAO
     }
 
     private void testRawWithShaderAndSetup(GL3 gl) {
