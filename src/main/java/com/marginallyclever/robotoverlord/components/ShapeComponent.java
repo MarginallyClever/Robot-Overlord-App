@@ -115,4 +115,10 @@ public class ShapeComponent extends RenderComponent {
         pose.getWorld().transform(d);
         return d;
     }
+
+    public void reload() {
+        if(myMesh!=null) {
+            myMesh.setDirty(true);
+        }
+    }
 }

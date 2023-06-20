@@ -71,12 +71,12 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
     /**
      * Displayed in a 2D overlay, helps the user orient themselves in 3D space.
      */
-    private transient final Compass3D compass3d = new Compass3D();
+    private final Compass3D compass3d = new Compass3D();
 
     /**
      * The "very far away" background to the scene.
      */
-    private transient final SkyBox skyBox = new SkyBox();
+    private final SkyBox skyBox = new SkyBox();
 
     private final List<EditorTool> editorTools = new ArrayList<>();
     private int activeToolIndex = -1;
@@ -284,7 +284,6 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
     }
 
     private void reloadAllAssets(GL3 gl) {
-        MeshFactory.setAllDirty();
         TextureParameter.unloadAll(gl);
         TextureParameter.loadAll();
 
@@ -294,8 +293,13 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
             Entity test = list.remove(0);
             list.addAll(test.getChildren());
             MaterialComponent material = test.getComponent(MaterialComponent.class);
-            if(material == null) continue;
-            material.reloadTextures(gl);
+            if(material != null) {
+                material.reloadTextures(gl);
+            }
+            ShapeComponent shape = test.getComponent(ShapeComponent.class);
+            if(shape != null) {
+                shape.reload();
+            }
         }
     }
 
