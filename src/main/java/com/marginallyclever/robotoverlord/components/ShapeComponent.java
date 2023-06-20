@@ -67,9 +67,7 @@ public class ShapeComponent extends RenderComponent {
      * @return the ray hit in world space, or null if no hit.
      */
     public RayHit intersect(Ray ray) {
-        if(myMesh==null) return null;
-        if(!getEnabled()) return null;
-        if(!getVisible()) return null;
+        if( !getEnabled() || !getVisible() || myMesh==null ) return null;
 
         Entity e = getEntity();
         if(e==null) return null;
@@ -119,6 +117,12 @@ public class ShapeComponent extends RenderComponent {
     public void reload() {
         if(myMesh!=null) {
             myMesh.setDirty(true);
+        }
+    }
+
+    public void unload(GL3 gl) {
+        if(myMesh!=null) {
+            myMesh.unload(gl);
         }
     }
 }
