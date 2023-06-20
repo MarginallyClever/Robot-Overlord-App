@@ -4,6 +4,7 @@ import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel3;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
+import com.marginallyclever.robotoverlord.preferences.GraphicsPreferences;
 import com.marginallyclever.robotoverlord.renderpanel.OpenGLRenderPanel;
 import com.marginallyclever.robotoverlord.renderpanel.RenderPanel;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
@@ -67,7 +68,7 @@ public class RobotOverlord {
 	}
 
 	// settings
-	private final Preferences prefs = Preferences.userRoot().node("Evil Overlord");
+	private final Preferences prefs = Preferences.userRoot().node("RobotOverlord");
 
 	private final Project project = new Project();
 
@@ -175,9 +176,11 @@ public class RobotOverlord {
 		ProjectImportAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_IMPORT, System.getProperty("user.dir")));
 		ProjectLoadAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_LOAD, System.getProperty("user.dir")));
 		ProjectSaveAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_SAVE, System.getProperty("user.dir")));
+		GraphicsPreferences.load();
 	}
 
 	private void preferencesSave() {
+		GraphicsPreferences.save();
 		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_IMPORT, ProjectImportAction.getLastDirectory());
 		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_LOAD, ProjectLoadAction.getLastDirectory());
 		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_SAVE, ProjectSaveAction.getLastDirectory());
@@ -240,7 +243,7 @@ public class RobotOverlord {
 			}
 			if (desktop.isSupported(Desktop.Action.APP_ABOUT)) {
 				desktop.setAboutHandler((e) ->{
-					AboutAction a = new AboutAction();
+					AboutAction a = new AboutAction(this.mainFrame);
 					a.actionPerformed(null);
 				});
 			}
@@ -266,6 +269,7 @@ public class RobotOverlord {
 				Translator.get("RobotOverlord.quitTitle"),
 				JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
+			mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			preferencesSave();
 
 			// Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
