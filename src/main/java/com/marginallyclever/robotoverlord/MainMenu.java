@@ -78,7 +78,7 @@ public class MainMenu extends JMenuBar {
         menu.add(new JMenuItem(UndoSystem.getCommandUndo()));
         menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
         menu.add(new JSeparator());
-        menu.add(new JMenuItem(new EditPreferencesAction(this)));
+        menu.add(new JMenuItem(new EditPreferencesAction(app,this)));
         return menu;
     }
 

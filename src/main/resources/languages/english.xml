@@ -34,7 +34,6 @@
 	<string>
 		<key>Undo </key>
 		<value>Undo </value>
-		<hint></hint>
 	</string>
 	
 	<string>
@@ -166,7 +165,6 @@
 	<string>
 		<key>Millimeters</key>
 		<value>mm</value>
-		<hint></hint>
 	</string>
 
 	<string>
@@ -203,7 +201,6 @@
 	<string>
 		<key>Centimeters</key>
 		<value>cm</value>
-		<hint></hint>
 	</string>
 
 	<string>
@@ -645,12 +642,10 @@ to check yourself.</value>
 	<string>
 		<key>MenuOpenFile</key>
 		<value>Open File...</value>
-		<hint></hint>
 	</string>
 	<string>
 		<key>MenuReopenFile</key>
 		<value>Reopen last file</value>
-		<hint></hint>
 	</string>
 	<string>
 		<key>MenuSaveGCODEAs</key>
@@ -959,43 +954,36 @@ to check yourself.</value>
 	<string>
 		<key>MenuGenerate</key>
 		<value>Generate art</value>
-		<hint></hint>
 	</string>
 
 	<string>
 		<key>MenuNewFile</key>
 		<value>New</value>
-		<hint></hint>
 	</string>
 
 	<string>
 		<key>LSystemTreeName</key>
 		<value>L System Tree Fractal</value>
-		<hint></hint>
 	</string>
 
 	<string>
 		<key>LimitTestName</key>
 		<value>Limit Test</value>
-		<hint></hint>
 	</string>
 
 	<string>
 		<key>KochTreeName</key>
 		<value>Koch Curve Fractal</value>
-		<hint></hint>
 	</string>
 	
 	<string>
 		<key>FibonacciSpiralName</key>
 		<value>Fibonacci Spiral Fractal</value>
-		<hint></hint>
 	</string>
 
 	<string>
 		<key>DragonName</key>
 		<value>Dragon Fractal</value>
-		<hint></hint>
 	</string>
 
 	<string>
@@ -1478,5 +1466,23 @@ to check yourself.</value>
 	<string>
 		<key>RobotROSystem.DHTable</key>
 		<value>DH Table</value>
+	</string>
+
+	<string>
+		<key>EditPreferencesAction.name</key>
+		<value>Edit Preferences</value>
+	</string>
+
+	<string>
+		<key>PreferencesPanel.title</key>
+		<value>Preferences</value>
+	</string>
+	<string>
+		<key>InteractionPreferencesPanel.title</key>
+		<value>Interaction</value>
+	</string>
+	<string>
+		<key>GraphicsPreferencesPanel.title</key>
+		<value>Graphics</value>
 	</string>
 </language>

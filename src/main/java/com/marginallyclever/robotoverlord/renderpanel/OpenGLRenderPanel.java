@@ -12,6 +12,8 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
+import com.marginallyclever.robotoverlord.parameters.TextureParameter;
+import com.marginallyclever.robotoverlord.preferences.InteractionPreferences;
 import com.marginallyclever.robotoverlord.preferences.GraphicsPreferences;
 import com.marginallyclever.robotoverlord.systems.render.Compass3D;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
@@ -37,7 +39,6 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Queue;
 import java.util.*;
-import java.util.prefs.Preferences;
 
 /**
  * Encapsulates the OpenGL rendering.
@@ -49,8 +50,6 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
     private final EntityManager entityManager;
 
     // OpenGL debugging
-    private boolean glDebug=false;
-    private boolean glTrace=false;
     private final JPanel panel = new JPanel(new BorderLayout());
 
     // the systems canvas
@@ -106,10 +105,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
     private ShaderProgram shaderHUD;
     private final List<Entity> collectedEntities = new ArrayList<>();
     private final List<LightComponent> lights = new ArrayList<>();
-
-    private double cursorSize = 10;
     private final Mesh cursorMesh = new Mesh();
-
 
 
     public OpenGLRenderPanel(EntityManager entityManager) {
@@ -240,8 +236,8 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
 
     private GL3 getGL3(GLAutoDrawable drawable) {
         GL gl = drawable.getGL();
-        if(glDebug) gl = useGLDebugPipeline(gl);
-        if(glTrace) gl = useTracePipeline(gl);
+        if(GraphicsPreferences.glDebug.get()) gl = useGLDebugPipeline(gl);
+        if(GraphicsPreferences.glTrace.get()) gl = useTracePipeline(gl);
         return gl.getGL3();
     }
 
@@ -284,6 +280,8 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         gl3.glClearColor(0.85f,0.85f,0.85f,0.0f);
 
         createShaderPrograms(gl3);
+
+        TextureParameter.loadAll();
     }
 
     @Override
@@ -444,7 +442,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
 
         useShaderDefault(gl);
 
-        skyBox.render(gl, camera,shaderDefault);
+        skyBox.render(gl, camera, shaderDefault);
 
         renderAllEntities(gl, entityManager.getEntities(),shaderDefault);
         if (showWorldOrigin.get()) MatrixHelper.drawMatrix(10).render(gl);
@@ -753,23 +751,23 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
 
     private void createCursorMesh() {
         // build mesh - only needs to be done once.
-        float cf = (float)cursorSize;
+        float c = (float) InteractionPreferences.cursorSize.get();
         cursorMesh.clear();
         cursorMesh.setRenderStyle(GL3.GL_LINES);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(1,-cf,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(1, cf,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-cf,1,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex( cf,1,0);
+        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(1,-c,0);
+        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(1, c,0);
+        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-c,1,0);
+        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex( c,1,0);
 
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-1,-cf,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-1, cf,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-cf,-1,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex( cf,-1,0);
+        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-1,-c,0);
+        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-1, c,0);
+        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-c,-1,0);
+        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex( c,-1,0);
 
-        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex(0,-cf,0);
-        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex(0, cf,0);
-        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex(-cf,0,0);
-        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex( cf,0,0);
+        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex(0,-c,0);
+        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex(0, c,0);
+        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex(-c,0,0);
+        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex( c,0,0);
     }
 
     private void updateStep(double dt) {
