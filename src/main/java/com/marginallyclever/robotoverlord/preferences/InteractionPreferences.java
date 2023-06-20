@@ -15,14 +15,17 @@ public class InteractionPreferences {
 
     public static final IntParameter cursorSize = new IntParameter("cursor size",10);
     public static final DoubleParameter toolScale = new DoubleParameter("tool scale",0.035);
+    public static final DoubleParameter compassSize = new DoubleParameter("compass size",25);
 
     public static void save() {
         preferences.putInt("cursorSize", cursorSize.get());
         preferences.putDouble("toolScale", toolScale.get());
+        preferences.putDouble("compassSize", compassSize.get());
     }
 
     public static void load() {
         cursorSize.set(preferences.getInt("cursorSize", cursorSize.get()));
         toolScale.set(preferences.getDouble("toolScale", toolScale.get()));
+        compassSize.set(preferences.getDouble("compassSize", compassSize.get()));
     }
 }
