@@ -6,6 +6,11 @@ import com.marginallyclever.robotoverlord.parameters.IntParameter;
 
 import java.util.prefs.Preferences;
 
+/**
+ * Container for graphics preferences
+ * @since 2.7.0
+ * @author Dan Royer
+ */
 public class GraphicsPreferences {
     public static final String[] FSAA_NAMES = {"off","1","2","4","8"};
     private static final Preferences preferences = Preferences.userRoot().node("RobotOverlord").node("Graphics");

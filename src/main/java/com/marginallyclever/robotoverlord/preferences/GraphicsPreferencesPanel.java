@@ -3,12 +3,18 @@ package com.marginallyclever.robotoverlord.preferences;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementFactory;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+/**
+ * Panel to display graphics preferences
+ * @since 2.7.0
+ * @author Dan Royer
+ */
 public class GraphicsPreferencesPanel extends JPanel {
     public GraphicsPreferencesPanel() {
         super(new BorderLayout());
@@ -17,7 +23,7 @@ public class GraphicsPreferencesPanel extends JPanel {
         GraphicsPreferences.load();
 
         ViewPanelFactory factory = new ViewPanelFactory(new EntityManager());
-        factory.add(GraphicsPreferences.framesPerSecond);
+        factory.addRange(GraphicsPreferences.framesPerSecond,120,1);
         factory.add(GraphicsPreferences.verticalSync);
         factory.add(GraphicsPreferences.glDebug);
         factory.add(GraphicsPreferences.glTrace);
@@ -26,14 +32,14 @@ public class GraphicsPreferencesPanel extends JPanel {
         factory.add(GraphicsPreferences.doubleBuffered);
         factory.addComboBox(GraphicsPreferences.fsaaSamples,GraphicsPreferences.FSAA_NAMES);
 
-        this.add(factory.getFinalView(),BorderLayout.CENTER);
+        this.add(factory.getFinalView(),BorderLayout.NORTH);
     }
 
     public static void main(String[] args) throws BackingStoreException {
-        JFrame frame = new JFrame("GraphicsPreferencesPanel");
+        Translator.start();
+        JFrame frame = new JFrame(Translator.get("GraphicsPreferencesPanel.title"));
         frame.setContentPane(new GraphicsPreferencesPanel());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setPreferredSize(new Dimension(350,220));
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);

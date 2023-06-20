@@ -11,14 +11,11 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 public class PreferencesViewer extends JPanel {
-    private final Preferences prefs;
-    private final JSplitPane splitPane;
     private final JTree tree;
     private final JTextArea textArea = new JTextArea();
 
     public PreferencesViewer(Preferences prefs) {
         super(new BorderLayout());
-        this.prefs = prefs;
 
         tree = new JTree(createNodes(prefs));
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -52,9 +49,9 @@ public class PreferencesViewer extends JPanel {
         JScrollPane treeView = new JScrollPane(tree);
         JScrollPane textView = new JScrollPane(textArea);
 
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeView, textView);
-        splitPane.setOneTouchExpandable(true);
-        splitPane.setDividerLocation(300);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeView, textView);
+        splitPane.setOneTouchExpandable(false);
+        splitPane.setDividerLocation(200);
 
         this.add(splitPane, BorderLayout.CENTER);
     }
