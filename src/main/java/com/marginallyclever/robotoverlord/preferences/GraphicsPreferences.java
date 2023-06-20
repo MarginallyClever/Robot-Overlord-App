@@ -32,7 +32,6 @@ public class GraphicsPreferences {
         preferences.putBoolean("hardwareAccelerated",hardwareAccelerated.get());
         preferences.putBoolean("backgroundOpaque",backgroundOpaque.get());
         preferences.putBoolean("doubleBuffered",doubleBuffered.get());
-        preferences.putBoolean("antialiasing",antialiasing.get());
         preferences.putInt("framesPerSecond",framesPerSecond.get());
         preferences.putInt("fsaaSamples",fsaaSamples.get());
     }
@@ -44,7 +43,6 @@ public class GraphicsPreferences {
         hardwareAccelerated.set(preferences.getBoolean("hardwareAccelerated",hardwareAccelerated.get()));
         backgroundOpaque.set(preferences.getBoolean("backgroundOpaque",backgroundOpaque.get()));
         doubleBuffered.set(preferences.getBoolean("doubleBuffered",doubleBuffered.get()));
-        antialiasing.set(preferences.getBoolean("antialiasing",antialiasing.get()));
         framesPerSecond.set(preferences.getInt("framesPerSecond",framesPerSecond.get()));
         fsaaSamples.set(preferences.getInt("fsaaSamples",fsaaSamples.get()));
     }

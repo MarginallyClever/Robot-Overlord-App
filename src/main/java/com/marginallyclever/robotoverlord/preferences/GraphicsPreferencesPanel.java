@@ -29,7 +29,6 @@ public class GraphicsPreferencesPanel extends JPanel {
         factory.add(GraphicsPreferences.hardwareAccelerated);
         factory.add(GraphicsPreferences.backgroundOpaque);
         factory.add(GraphicsPreferences.doubleBuffered);
-        factory.add(GraphicsPreferences.antialiasing);
         factory.addComboBox(GraphicsPreferences.fsaaSamples,GraphicsPreferences.FSAA_NAMES);
         factory.addRange(GraphicsPreferences.framesPerSecond,120,1);
 
