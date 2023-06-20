@@ -1472,6 +1472,10 @@ to check yourself.</value>
 		<key>EditPreferencesAction.name</key>
 		<value>Edit Preferences</value>
 	</string>
+	<string>
+		<key>EditPreferencesAction.shortDescription</key>
+		<value>Edit Preferences</value>
+	</string>
 
 	<string>
 		<key>PreferencesPanel.title</key>
