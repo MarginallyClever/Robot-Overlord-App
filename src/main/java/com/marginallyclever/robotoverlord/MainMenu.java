@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord;
 
 import com.marginallyclever.convenience.helpers.PathHelper;
+import com.marginallyclever.robotoverlord.preferences.RecentFiles;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.actions.*;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
@@ -76,6 +77,8 @@ public class MainMenu extends JMenuBar {
         JMenu menu = new JMenu(Translator.get("RobotOverlord.Menu.Edit"));
         menu.add(new JMenuItem(UndoSystem.getCommandUndo()));
         menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
+        menu.add(new JSeparator());
+        menu.add(new JMenuItem(new EditPreferencesAction(this)));
         return menu;
     }
 
@@ -161,7 +164,7 @@ public class MainMenu extends JMenuBar {
         menu.add(buttonViewLog);
         menu.add(new JMenuItem(new ForumsAction()));
         menu.add(new JMenuItem(new CheckForUpdateAction()));
-        menu.add(new JMenuItem(new AboutAction()));
+        menu.add(new JMenuItem(new AboutAction(this)));
         return menu;
     }
 }
