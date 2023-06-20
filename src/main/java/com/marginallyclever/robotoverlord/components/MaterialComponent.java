@@ -39,6 +39,7 @@ public class MaterialComponent extends Component {
         arg0 = Math.min(Math.max(arg0, 0), 128);
         shininess.set(arg0);
     }
+
     public double getShininess() {
         return shininess.get();
     }
