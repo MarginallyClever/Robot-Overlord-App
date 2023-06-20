@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.parameters;
 
 import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.helpers.FileHelper;
@@ -12,6 +13,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A texture file name.  Loads the texture when needed from a pool to reduce duplication.
@@ -43,7 +45,7 @@ public class TextureParameter extends FilenameParameter {
 	}
 
 	public void render(GL3 gl) {
-		if(textureDirty) loadTexture();
+		if(textureDirty) loadTexture(gl);
 
 	    if(texture==null) {
 			gl.glDisable(GL3.GL_TEXTURE_2D);
@@ -53,7 +55,16 @@ public class TextureParameter extends FilenameParameter {
 	    }
 	}
 
-	private void loadTexture() {
+	private void unloadTexture(GL3 gl) {
+		if(texture!=null) {
+			texture.destroy(gl);
+			texture=null;
+		}
+	}
+
+	private void loadTexture(GL3 gl) {
+		unloadTexture(gl);
+
 		String value = get();
 		if(value == null || value.length()==0) {
 			texture = null;
@@ -63,23 +74,35 @@ public class TextureParameter extends FilenameParameter {
 
 		texture = texturePool.get(value);
 		if(texture==null) {
-			try {
-				texture = TextureIO.newTexture(FileHelper.open(value), false, value.substring(value.lastIndexOf('.')+1));
-				texturePool.put(value, texture);
-			} catch (IOException e) {
-				//e.printStackTrace();
-				logger.error("Failed to load {}", value,e);
-			}
+			texture = TextureParameter.createTexture(value);
+			if(texture!=null) texturePool.put(value, texture);
 		}
 		textureDirty=false;
 	}
 
-	public static void drainPool() {
-		texturePool.clear();
+	private static Texture createTexture(String filename) {
+		Texture t = null;
+
+		try {
+			t = TextureIO.newTexture(FileHelper.open(filename), false, filename.substring(filename.lastIndexOf('.')+1));
+		} catch (IOException e) {
+			//e.printStackTrace();
+			logger.error("Failed to load {}", filename,e);
+		}
+
+		return t;
+	}
+
+	public static void unloadAll(GL3 gl) {
+		for(Texture t : texturePool.values()) t.destroy(gl);
 	}
 	
-	public static void forceReload(String filename) {
-		texturePool.remove(filename);
+	public static void loadAll() {
+		Set<String> keys = texturePool.keySet();
+		for(String key : keys) {
+			Texture t = TextureParameter.createTexture(key);
+			texturePool.put(key, t);
+		}
 	}
 	
 	@Override
