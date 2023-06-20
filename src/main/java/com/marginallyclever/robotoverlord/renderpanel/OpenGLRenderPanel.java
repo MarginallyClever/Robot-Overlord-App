@@ -298,7 +298,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
             }
             ShapeComponent shape = test.getComponent(ShapeComponent.class);
             if(shape != null) {
-                shape.reload();
+                shape.unload(gl);
             }
         }
     }
@@ -469,8 +469,10 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         outlineCollectedEntities(gl);
     }
 
-    private void useShaderDefault(GL3 gl3) {
+    private void useShaderDefault(GL3 gl) {
         Vector3d cameraPos = entityManager.getCamera().getPosition();
+
+        OpenGLHelper.checkGLError(gl,logger);
 
         Vector3d lightPos, lightColor;
         if(!lights.isEmpty()) {
@@ -483,17 +485,27 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
             lightColor = new Vector3d(1,1,1);
         }
 
-        shaderDefault.use(gl3);
-        setProjectionMatrix(gl3,shaderDefault);
-        setViewMatrix(gl3,shaderDefault);
+        shaderDefault.use(gl);
+        setProjectionMatrix(gl,shaderDefault);
+        setViewMatrix(gl,shaderDefault);
 
-        shaderDefault.setVector3d(gl3,"lightPos",lightPos);  // Light position in world space
-        shaderDefault.setVector3d(gl3,"cameraPos",cameraPos);  // Camera position in world space
-        shaderDefault.setVector3d(gl3,"lightColor",lightColor);  // Light color
-        shaderDefault.set4f(gl3,"objectColor",1,1,1,1);
-        shaderDefault.set1f(gl3,"diffuseTexture",0);
-        shaderDefault.setVector3d(gl3,"specularColor",new Vector3d(0.5,0.5,0.5));
-        shaderDefault.setVector3d(gl3,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
+        OpenGLHelper.checkGLError(gl,logger);
+
+        shaderDefault.setVector3d(gl,"lightPos",lightPos);  // Light position in world space
+        OpenGLHelper.checkGLError(gl,logger);
+        shaderDefault.setVector3d(gl,"cameraPos",cameraPos);  // Camera position in world space
+        OpenGLHelper.checkGLError(gl,logger);
+        shaderDefault.setVector3d(gl,"lightColor",lightColor);  // Light color
+        OpenGLHelper.checkGLError(gl,logger);
+        shaderDefault.set4f(gl,"objectColor",1,1,1,1);
+        OpenGLHelper.checkGLError(gl,logger);
+        //shaderDefault.set1f(gl,"diffuseTexture",0);
+        //OpenGLHelper.checkGLError(gl,logger);
+        shaderDefault.setVector3d(gl,"specularColor",new Vector3d(0.5,0.5,0.5));
+        OpenGLHelper.checkGLError(gl,logger);
+        shaderDefault.setVector3d(gl,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
+
+        OpenGLHelper.checkGLError(gl,logger);
     }
 
     private void setProjectionMatrix(GL3 gl3, ShaderProgram program) {
@@ -773,20 +785,20 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         float c = (float) InteractionPreferences.cursorSize.get();
         cursorMesh.clear();
         cursorMesh.setRenderStyle(GL3.GL_LINES);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(1,-c,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(1, c,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-c,1,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex( c,1,0);
+        cursorMesh.addVertex(1,-c,0);   cursorMesh.addColor(0,0,0,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex(1, c,0);   cursorMesh.addColor(0,0,0,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex(-c,1,0);   cursorMesh.addColor(0,0,0,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex( c,1,0);   cursorMesh.addColor(0,0,0,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
 
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-1,-c,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-1, c,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-c,-1,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex( c,-1,0);
+        cursorMesh.addVertex(-1,-c,0);  cursorMesh.addColor(0,0,0,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex(-1, c,0);  cursorMesh.addColor(0,0,0,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex(-c,-1,0);  cursorMesh.addColor(0,0,0,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex( c,-1,0);  cursorMesh.addColor(0,0,0,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
 
-        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex(0,-c,0);
-        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex(0, c,0);
-        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex(-c,0,0);
-        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex( c,0,0);
+        cursorMesh.addVertex(0,-c,0);   cursorMesh.addColor(1,1,1,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex(0, c,0);   cursorMesh.addColor(1,1,1,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex(-c,0,0);   cursorMesh.addColor(1,1,1,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex( c,0,0);   cursorMesh.addColor(1,1,1,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
     }
 
     private void updateStep(double dt) {
