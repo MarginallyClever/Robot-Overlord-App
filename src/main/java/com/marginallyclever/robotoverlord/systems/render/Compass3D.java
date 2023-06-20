@@ -44,7 +44,6 @@ public class Compass3D {
 		axies.addColor(0, 1, 0,1);	axies.addVertex(x+0.0f, y+v, z+0.0f);
 		axies.addColor(0, 0, 1,1);	axies.addVertex(x, y, z);
 		axies.addColor(0, 0, 1,1);	axies.addVertex(x+0.0f, y+0.0f, z+v);
-
 	}
 
 	public void render(GL3 gl,Viewport viewport,ShaderProgram program) {
@@ -67,7 +66,6 @@ public class Compass3D {
 		modelMatrix.setTranslation(new Vector3d(w2,h2,-5));
 		modelMatrix.transpose();
 		program.setMatrix4d(gl,"modelMatrix",modelMatrix);
-
 		program.setVector3d(gl,"lightPos",new Vector3d(w2,h2,10));  // Light position in world space
 		program.setVector3d(gl,"ambientLightColor",new Vector3d(0.6,0.6,0.6));
 		program.setVector3d(gl,"specularColor",new Vector3d(0,0,0));
@@ -90,6 +88,7 @@ public class Compass3D {
 		gl.glEnable(GL3.GL_CULL_FACE);
 		gl.glBlendFunc(GL3.GL_SRC_ALPHA,GL3.GL_ONE_MINUS_SRC_ALPHA);
 		mat.render(gl);
+		//cube.getModel().setDirty(true);
 		cube.render(gl);
 	}
 
