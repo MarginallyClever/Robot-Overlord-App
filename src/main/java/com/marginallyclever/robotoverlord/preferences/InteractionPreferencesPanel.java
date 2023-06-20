@@ -23,6 +23,7 @@ public class InteractionPreferencesPanel extends JPanel {
         ViewPanelFactory factory = new ViewPanelFactory(new EntityManager());
         factory.addRange(InteractionPreferences.cursorSize,20,3);
         factory.add(InteractionPreferences.toolScale);
+        factory.addRange(InteractionPreferences.compassSize,50,5);
 
         this.add(factory.getFinalView(),BorderLayout.NORTH);
     }

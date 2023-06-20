@@ -164,4 +164,8 @@ public class MaterialComponent extends Component {
     public boolean isAlpha() {
         return diffuse.getA()!=1.0;
     }
+
+    public void reloadTextures(GL3 gl) {
+        texture.loadTexture(gl);
+    }
 }

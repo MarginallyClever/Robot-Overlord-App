@@ -23,14 +23,15 @@ public class GraphicsPreferencesPanel extends JPanel {
         GraphicsPreferences.load();
 
         ViewPanelFactory factory = new ViewPanelFactory(new EntityManager());
-        factory.addRange(GraphicsPreferences.framesPerSecond,120,1);
         factory.add(GraphicsPreferences.verticalSync);
         factory.add(GraphicsPreferences.glDebug);
         factory.add(GraphicsPreferences.glTrace);
         factory.add(GraphicsPreferences.hardwareAccelerated);
         factory.add(GraphicsPreferences.backgroundOpaque);
         factory.add(GraphicsPreferences.doubleBuffered);
+        factory.add(GraphicsPreferences.antialiasing);
         factory.addComboBox(GraphicsPreferences.fsaaSamples,GraphicsPreferences.FSAA_NAMES);
+        factory.addRange(GraphicsPreferences.framesPerSecond,120,1);
 
         this.add(factory.getFinalView(),BorderLayout.NORTH);
     }

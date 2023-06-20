@@ -161,6 +161,7 @@ public class RobotOverlord {
 
 	public void buildRenderPanel() {
 		if(renderPanel!=null) {
+			logger.debug("stopping old renderPanel");
 			renderPanel.stopAnimationSystem();
 			splitLeftRight.remove(renderPanel.getPanel());
 		}

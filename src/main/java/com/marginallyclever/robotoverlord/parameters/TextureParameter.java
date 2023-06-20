@@ -62,7 +62,7 @@ public class TextureParameter extends FilenameParameter {
 		}
 	}
 
-	private void loadTexture(GL3 gl) {
+	public void loadTexture(GL3 gl) {
 		unloadTexture(gl);
 
 		String value = get();
@@ -104,7 +104,7 @@ public class TextureParameter extends FilenameParameter {
 			texturePool.put(key, t);
 		}
 	}
-	
+
 	@Override
 	public void set(String s) {
 		String value = get();

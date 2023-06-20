@@ -140,7 +140,7 @@ public class Mesh {
 			gl.glBufferData(GL3.GL_ELEMENT_ARRAY_BUFFER, (long) indexArray.size() *BYTES_PER_INT, indexes, GL3.GL_STATIC_DRAW);
 		}
 
-		//gl.glBindVertexArray(0);
+		gl.glBindVertexArray(0);
 	}
 
 	private void bindArray(GL3 gl, int attribIndex, int size) {
@@ -171,10 +171,10 @@ public class Mesh {
 
 		gl.glBindVertexArray(VAO[0]);
 
-		//bindArray(gl,0,3);
-		//if(hasNormals) bindArray(gl,1,3);
-		//if(hasColors) bindArray(gl,2,4);
-		//if(hasTextures) bindArray(gl,3,2);
+		bindArray(gl,0,3);
+		if(hasNormals) bindArray(gl,1,3);
+		if(hasColors) bindArray(gl,2,4);
+		if(hasTextures) bindArray(gl,3,2);
 
 		if (hasIndexes) {
 			gl.glDrawElements(renderStyle, indexArray.size(), GL3.GL_UNSIGNED_INT, 0);
@@ -182,8 +182,8 @@ public class Mesh {
 			gl.glDrawArrays(renderStyle, 0, getNumVertices());
 		}
 
-		//for(int i=0;i<NUM_BUFFERS;++i) gl.glDisableVertexAttribArray(i);
-		//gl.glBindVertexArray(0); // Unbind the VAO
+		for(int i=0;i<NUM_BUFFERS;++i) gl.glDisableVertexAttribArray(i);
+		gl.glBindVertexArray(0); // Unbind the VAO
 	}
 	
 	public void addNormal(float x,float y,float z) {

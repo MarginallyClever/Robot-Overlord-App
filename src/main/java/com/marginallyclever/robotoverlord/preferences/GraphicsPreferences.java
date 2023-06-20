@@ -12,7 +12,7 @@ import java.util.prefs.Preferences;
  * @author Dan Royer
  */
 public class GraphicsPreferences {
-    public static final String[] FSAA_NAMES = {"off","1","2","4","8"};
+    public static final String[] FSAA_NAMES = {"off","2","4","8"};
     private static final Preferences preferences = Preferences.userRoot().node("RobotOverlord").node("Graphics");
 
     public static final BooleanParameter verticalSync = new BooleanParameter("vertical sync",true);
@@ -23,7 +23,7 @@ public class GraphicsPreferences {
     public static final BooleanParameter doubleBuffered = new BooleanParameter("double buffered",true);
     public static final BooleanParameter antialiasing = new BooleanParameter("antialiasing",true);
     public static final IntParameter framesPerSecond = new IntParameter("fps",30);
-    public static final IntParameter fsaaSamples = new IntParameter("FSAA samples",0);
+    public static final IntParameter fsaaSamples = new IntParameter("FSAA samples",2);
 
     public static void save() {
         preferences.putBoolean("verticalSync",verticalSync.get());

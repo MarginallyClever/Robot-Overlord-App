@@ -130,4 +130,10 @@ public class MeshFactory {
 		}
 		return null;
 	}
+
+	public static void setAllDirty() {
+		for( Mesh m : meshPool ) {
+			m.setDirty(true);
+		}
+	}
 }
