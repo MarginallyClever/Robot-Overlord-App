@@ -4,6 +4,7 @@ import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
@@ -65,21 +66,24 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
         return lines.toArray(new String[0]);
     }
 
+    private GLCapabilities getCapabilities() {
+        GLProfile profile = GLProfile.getMaxProgrammable(true);
+        GLCapabilities capabilities = new GLCapabilities(profile);
+        capabilities.setHardwareAccelerated(true);
+        capabilities.setBackgroundOpaque(true);
+        capabilities.setDoubleBuffered(true);
+        capabilities.setStencilBits(8);
+        StringBuilder sb = new StringBuilder();
+        capabilities.toString(sb);
+        logger.info("capabilities="+sb);
+        return capabilities;
+    }
+
     private GLJPanel createCanvas() {
         GLJPanel canvas = null;
         try {
-            logger.info("...get default caps");
-            GLProfile profile = GLProfile.getMaxProgrammable(true);
-            GLCapabilities caps = new GLCapabilities(profile);
-            caps.setBackgroundOpaque(true);
-            caps.setDoubleBuffered(true);
-            caps.setHardwareAccelerated(true);
-            caps.setStencilBits(8);
-            StringBuilder sb = new StringBuilder();
-            caps.toString(sb);
-            logger.info("...set caps to "+sb.toString());
             logger.info("...create canvas");
-            canvas = new GLJPanel(caps);
+            canvas = new GLJPanel(getCapabilities());
         } catch(GLException e) {
             logger.error("Failed to get/set Capabilities.  Are your native drivers missing?");
         }
@@ -153,20 +157,10 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
     }
 
     private void testRawWithShaderAndSetupVAO(GL3 gl) {
-        shaderDefault.use(gl);
-
         gl.glBindVertexArray(myArrayBuffer[0]);
 
-        enableAndBind(gl, 0, 3, myVertexBuffer);
-        enableAndBind(gl, 1, 3, myVertexBuffer);
-        enableAndBind(gl, 2, 4, myVertexBuffer);
-
-        // Draw the triangle !
-        gl.glDrawArrays(GL3.GL_TRIANGLES, 0, 3);
-
-        gl.glDisableVertexAttribArray(0);
-        gl.glDisableVertexAttribArray(1);
-
+        shaderDefault.use(gl);
+        rawRender(gl, myVertexBuffer);
         gl.glUseProgram(0);
 
         gl.glBindVertexArray(0); // Unbind the VAO
@@ -210,7 +204,9 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
     private int[] rawSetupVAO(GL3 gl) {
         int [] arrayBuffer = new int[1];
         gl.glGenVertexArrays(1, arrayBuffer,0);
+        OpenGLHelper.checkGLError(gl,logger);
         gl.glBindVertexArray(arrayBuffer[0]);
+        OpenGLHelper.checkGLError(gl,logger);
         return arrayBuffer;
     }
 
