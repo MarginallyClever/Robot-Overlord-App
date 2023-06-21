@@ -11,7 +11,6 @@ import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
-import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.parameters.TextureParameter;
 import com.marginallyclever.robotoverlord.preferences.InteractionPreferences;
 import com.marginallyclever.robotoverlord.preferences.GraphicsPreferences;
@@ -20,7 +19,6 @@ import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.SkyBox;
 import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
-import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 import com.marginallyclever.robotoverlord.tools.SelectionTool;
 import com.marginallyclever.robotoverlord.tools.move.MoveCameraTool;
@@ -499,8 +497,8 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         OpenGLHelper.checkGLError(gl,logger);
         shaderDefault.set4f(gl,"objectColor",1,1,1,1);
         OpenGLHelper.checkGLError(gl,logger);
-        //shaderDefault.set1f(gl,"diffuseTexture",0);
-        //OpenGLHelper.checkGLError(gl,logger);
+        shaderDefault.set1i(gl,"diffuseTexture",0);
+        OpenGLHelper.checkGLError(gl,logger);
         shaderDefault.setVector3d(gl,"specularColor",new Vector3d(0.5,0.5,0.5));
         OpenGLHelper.checkGLError(gl,logger);
         shaderDefault.setVector3d(gl,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
@@ -665,7 +663,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         gl3.glEnable(GL3.GL_DEPTH_TEST);
     }
 
-    private void renderMMRList(GL3 gl3, List<MatrixMaterialRender> list,ShaderProgram shaderProgram) {
+    private void renderMMRList(GL3 gl, List<MatrixMaterialRender> list,ShaderProgram shaderProgram) {
         for(MatrixMaterialRender mmr : list) {
             if(mmr.renderComponent==null || !mmr.renderComponent.getVisible()) continue;
 
@@ -673,15 +671,17 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
                 Matrix4d m = mmr.matrix;
                 m.transpose();
                 // tell the shaders about our modelMatrix.
-                shaderProgram.setMatrix4d(gl3,"modelMatrix",m);
+                shaderProgram.setMatrix4d(gl,"modelMatrix",m);
             }
 
             if(collectedEntities.contains(mmr.renderComponent.getEntity())) {
                 // if this mesh is one of the selected entities, then also render it to the stencil buffer for the outline shader.
-                gl3.glStencilMask(0xFF);
+                gl.glStencilMask(0xFF);
             } else {
-                gl3.glStencilMask(0x00);
+                gl.glStencilMask(0x00);
             }
+
+            OpenGLHelper.checkGLError(gl,logger);
 
             Texture texture = null;
             boolean useVertexColor=true;
@@ -689,7 +689,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
             boolean useLighting=true;
             if(mmr.materialComponent!=null && mmr.materialComponent.getEnabled()) {
                 MaterialComponent material = mmr.materialComponent;
-                material.render(gl3);
+                material.render(gl);
                 // flat light?
                 useLighting &= material.isLit();
                 // if we have a texture assigned, then we might still enable textures.
@@ -697,12 +697,14 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
                 if(texture==null) useTexture = false;
                 // assign the object's overall color.
                 double[] diffuseColor = material.getDiffuseColor();
-                shaderDefault.set4f(gl3,
+                shaderProgram.set4f(gl,
                         "objectColor",
                         (float)diffuseColor[0],
                         (float)diffuseColor[1],
                         (float)diffuseColor[2],
                         (float)diffuseColor[3]);
+
+                OpenGLHelper.checkGLError(gl,logger);
             }
 
             boolean hasMesh = false;
@@ -725,18 +727,21 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
                 useLighting=false;
             }
 
-            shaderProgram.set1i(gl3,"useVertexColor",useVertexColor?1:0);
-            shaderProgram.set1i(gl3,"useLighting",useLighting?1:0);
-            shaderProgram.set1i(gl3,"useTexture",useTexture?1:0);
+            shaderProgram.set1i(gl,"useVertexColor",useVertexColor?1:0);
+            shaderProgram.set1i(gl,"useLighting",useLighting?1:0);
+            shaderProgram.set1i(gl,"useTexture",useTexture?1:0);
+
+            OpenGLHelper.checkGLError(gl,logger);
 
             if(useTexture && texture!=null) {
-                gl3.glEnable(GL.GL_TEXTURE_2D);
-                texture.bind(gl3);
-                mmr.materialComponent.render(gl3);
-                shaderProgram.set1f(gl3,"diffuseTexture",0);
+                gl.glEnable(GL.GL_TEXTURE_2D);
+                texture.bind(gl);
+                mmr.materialComponent.render(gl);
+                shaderProgram.set1i(gl,"diffuseTexture",0);
+                OpenGLHelper.checkGLError(gl,logger);
             }
 
-            mmr.renderComponent.render(gl3);
+            mmr.renderComponent.render(gl);
         }
     }
 

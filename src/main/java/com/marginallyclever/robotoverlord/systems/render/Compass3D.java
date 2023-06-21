@@ -9,6 +9,8 @@ import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.preferences.InteractionPreferences;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -20,12 +22,14 @@ import javax.vecmath.Vector3d;
  * @since 2.5.0
  */
 public class Compass3D {
+	private static final Logger logger = LoggerFactory.getLogger(Compass3D.class);
 	private final ShapeComponent cube = new MeshFromFile("/viewCube.obj");
 	private final MaterialComponent mat = new MaterialComponent();
 	private final Mesh axies = new Mesh();
 
     public Compass3D() {
     	super();
+		logger.info("Compass3D()");
 		mat.setTextureFilename("/images/viewCube.png");
 		mat.setDiffuseColor(1, 1, 1, 1);
 		mat.setAmbientColor(1, 1, 1, 1);
@@ -44,6 +48,8 @@ public class Compass3D {
 		axies.addColor(0, 1, 0,1);	axies.addVertex(x+0.0f, y+v, z+0.0f);
 		axies.addColor(0, 0, 1,1);	axies.addVertex(x, y, z);
 		axies.addColor(0, 0, 1,1);	axies.addVertex(x+0.0f, y+0.0f, z+v);
+
+		cube.getModel().setDirty(true);
 	}
 
 	public void render(GL3 gl,Viewport viewport,ShaderProgram program) {
