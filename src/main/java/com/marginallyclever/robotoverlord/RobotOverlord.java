@@ -126,16 +126,13 @@ public class RobotOverlord {
 		Translator.start();
 		UndoSystem.start();
 		preferencesLoad();
-
 		buildSystems();
 
 		buildMainFrame();
 		entityTreePanel = new EntityTreePanel(project.getEntityManager());
 		componentManagerPanel = new ComponentManagerPanel(project.getEntityManager(),systems);
 		buildRenderPanel();
-
 		setSplitterDefaults();
-
 		layoutComponents();
 		mainMenu.refresh();
 
@@ -193,6 +190,16 @@ public class RobotOverlord {
 
 	private void listenToClipboardChanges() {
 		Clipboard.addListener(this::updateActionEnableStatus);
+	}
+
+	/**
+	 * Tell all Actions to check if they are active.
+	 */
+	private void updateActionEnableStatus() {
+		entityTreePanel.setSelection(Clipboard.getSelectedEntities());
+		if(renderPanel!=null) renderPanel.updateSubjects(Clipboard.getSelectedEntities());
+		componentManagerPanel.refreshContentsFromClipboard();
+		entityTreePanel.updateActionEnableStatus();
 	}
 
 	private void preferencesLoad() {
@@ -260,16 +267,6 @@ public class RobotOverlord {
 		mainFrame.setVisible(true);
 	}
 
-    private void updateSelectEntities() {
-		if(entityTreePanel!=null) entityTreePanel.setSelection(Clipboard.getSelectedEntities());
-		if(renderPanel!=null) renderPanel.updateSubjects(Clipboard.getSelectedEntities());
-		updateComponentPanel();
-	}
-
-	public void updateComponentPanel() {
-		componentManagerPanel.refreshContentsFromClipboard();
-	}
-
 	public boolean confirmClose() {
         int result = JOptionPane.showConfirmDialog(
 				mainFrame,
@@ -289,14 +286,6 @@ public class RobotOverlord {
 			return true;
 		}
 		return false;
-	}
-
-	/**
-	 * Tell all Actions to check if they are active.
-	 */
-	private void updateActionEnableStatus() {
-		updateSelectEntities();
-		entityTreePanel.updateActionEnableStatus();
 	}
 
 	private void setupDropTarget() {
