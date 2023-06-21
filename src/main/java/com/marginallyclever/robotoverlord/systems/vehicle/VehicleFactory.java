@@ -4,7 +4,7 @@ import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.components.shapes.Cylinder;
-import com.marginallyclever.robotoverlord.components.vehicle.CarComponent;
+import com.marginallyclever.robotoverlord.components.vehicle.VehicleComponent;
 import com.marginallyclever.robotoverlord.components.vehicle.WheelComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
@@ -93,7 +93,7 @@ public class VehicleFactory {
      */
     private static Entity build4WheelCarWithNoMotor(EntityManager entityManager) {
         Entity carEntity = new Entity("CarWithNoMotor");
-        CarComponent car = new CarComponent();
+        VehicleComponent car = new VehicleComponent();
         carEntity.addComponent(car);
         entityManager.addEntityToParent(carEntity, entityManager.getRoot());
 
@@ -139,10 +139,10 @@ public class VehicleFactory {
      */
     public static Entity buildOmni(EntityManager entityManager) {
         Entity carEntity = new Entity("Omni");
-        CarComponent car = new CarComponent();
+        VehicleComponent car = new VehicleComponent();
         carEntity.addComponent(car);
 
-        car.wheelType.set(CarComponent.WHEEL_OMNI);
+        car.wheelType.set(VehicleComponent.WHEEL_OMNI);
 
         Entity mesh = new Entity("Mesh");
         mesh.addComponent(new Cylinder(bodyHeight,bodyRadius,bodyRadius));
@@ -188,9 +188,9 @@ public class VehicleFactory {
      */
     public static Entity buildTank(EntityManager entityManager) {
         Entity carEntity = new Entity("Tank");
-        CarComponent car = new CarComponent();
+        VehicleComponent car = new VehicleComponent();
         carEntity.addComponent(car);
-        car.wheelType.set(CarComponent.WHEEL_DIFFERENTIAL);
+        car.wheelType.set(VehicleComponent.WHEEL_DIFFERENTIAL);
 
         Entity mesh = new Entity("Mesh");
         mesh.addComponent(new Box(bodyLength,bodyWidth,bodyHeight));
@@ -230,7 +230,7 @@ public class VehicleFactory {
     public static Entity buildMecanum(EntityManager entityManager) {
         Entity carEntity = build4WheelCarWithNoMotor(entityManager);
         carEntity.setName("Mecanum");
-        CarComponent car = carEntity.getComponent(CarComponent.class);
+        VehicleComponent car = carEntity.getComponent(VehicleComponent.class);
 
         // add motors to all wheels
         for (int i = 0; i < 4; ++i) {
@@ -243,7 +243,7 @@ public class VehicleFactory {
         }
 
         // change wheel type to mecanum
-        car.wheelType.set(CarComponent.WHEEL_MECANUM);
+        car.wheelType.set(VehicleComponent.WHEEL_MECANUM);
         return carEntity;
     }
 
@@ -253,7 +253,7 @@ public class VehicleFactory {
     public static Entity buildRWD(EntityManager entityManager) {
         Entity carEntity = build4WheelCarWithNoMotor(entityManager);
         carEntity.setName("RWD");
-        CarComponent car = carEntity.getComponent(CarComponent.class);
+        VehicleComponent car = carEntity.getComponent(VehicleComponent.class);
 
         // add one motor
         Entity motor = new Entity("Motor");
@@ -286,7 +286,7 @@ public class VehicleFactory {
     public static Entity buildFWD(EntityManager entityManager) {
         Entity carEntity = build4WheelCarWithNoMotor(entityManager);
         carEntity.setName("FWD");
-        CarComponent car = carEntity.getComponent(CarComponent.class);
+        VehicleComponent car = carEntity.getComponent(VehicleComponent.class);
 
         // add one motor
         Entity motor = new Entity("Motor");
@@ -320,7 +320,7 @@ public class VehicleFactory {
 
     private static Entity buildMotorcycle(EntityManager entityManager) {
         Entity carEntity = new Entity("Motorcycle");
-        CarComponent car = new CarComponent();
+        VehicleComponent car = new VehicleComponent();
         carEntity.addComponent(car);
         entityManager.addEntityToParent(carEntity, entityManager.getRoot());
 

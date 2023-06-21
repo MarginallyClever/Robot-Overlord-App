@@ -1,6 +1,8 @@
 package com.marginallyclever.convenience.helpers;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.GLAutoDrawable;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -14,18 +16,25 @@ import java.nio.IntBuffer;
  * @since 2.5.0
  */
 public class OpenGLHelper {
-	static public int drawAtopEverythingStart(GL3 gl) {
+	public static int drawAtopEverythingStart(GL3 gl) {
 		IntBuffer depthFunc = IntBuffer.allocate(1);
 		gl.glGetIntegerv(GL3.GL_DEPTH_FUNC, depthFunc);
 		gl.glDepthFunc(GL3.GL_ALWAYS);
 		return depthFunc.get();
 	}
-	
-	static public void drawAtopEverythingEnd(GL3 gl, int previousState) {
+
+	public static void checkGLError(GL3 gl3,org.slf4j.Logger logger) {
+		int err = gl3.glGetError();
+		if(err != GL.GL_NO_ERROR) {
+			logger.error("GL error:" + err);
+		}
+	}
+
+	public static void drawAtopEverythingEnd(GL3 gl, int previousState) {
 		gl.glDepthFunc(previousState);
 	}
 
-	static public float setLineWidth(GL3 gl,float newWidth) {
+	public static float setLineWidth(GL3 gl,float newWidth) {
 		FloatBuffer lineWidth = FloatBuffer.allocate(1);
 		gl.glGetFloatv(GL3.GL_LINE_WIDTH, lineWidth);
 		gl.glLineWidth(newWidth);

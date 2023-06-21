@@ -9,10 +9,10 @@ import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.F
 import com.marginallyclever.robotoverlord.swinginterface.edits.StringParameterEdit;
 
 import javax.swing.*;
-import java.util.List;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 /**
  * Panel to alter a {@link ReferenceParameter}.

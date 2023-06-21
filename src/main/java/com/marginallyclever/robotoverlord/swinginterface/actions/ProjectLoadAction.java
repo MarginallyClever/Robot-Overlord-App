@@ -22,6 +22,7 @@ import java.io.*;
  */
 public class ProjectLoadAction extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(ProjectLoadAction.class);
+    public static final String UP_ARROW_FROM_BAR = "\u21A5";
     private final Project project;
 
     /**
@@ -33,7 +34,7 @@ public class ProjectLoadAction extends AbstractAction {
         super(Translator.get("SceneLoadAction.name"));
         this.project = project;
         fc.setFileFilter(RobotOverlord.FILE_FILTER);
-        putValue(SMALL_ICON,new UnicodeIcon("\u1F5C1"));  // file icon
+        putValue(SMALL_ICON,new UnicodeIcon(UP_ARROW_FROM_BAR));
         putValue(SHORT_DESCRIPTION, Translator.get("SceneLoadAction.shortDescription"));
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK) );
     }
@@ -60,7 +61,7 @@ public class ProjectLoadAction extends AbstractAction {
      * Load the file into the current Scene.
      * @param file the file to load
      */
-    public void loadIntoScene(File file,JFrame parentFrame) {
+    public void loadIntoScene(File file,Component parentFrame) {
         try {
             Project projectToAdd = new Project();
             projectToAdd.load(file);

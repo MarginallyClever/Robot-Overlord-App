@@ -2,13 +2,12 @@ package com.marginallyclever.robotoverlord.systems.render;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
-import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
+import com.marginallyclever.robotoverlord.preferences.InteractionPreferences;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
 import javax.vecmath.Matrix4d;
@@ -21,10 +20,9 @@ import javax.vecmath.Vector3d;
  * @since 2.5.0
  */
 public class Compass3D {
-	private final ShapeComponent model = new MeshFromFile("/viewCube.obj");
+	private final ShapeComponent cube = new MeshFromFile("/viewCube.obj");
 	private final MaterialComponent mat = new MaterialComponent();
-	private final DoubleParameter cubeSize = new DoubleParameter("size",25);
-	private final Mesh mesh = new Mesh();
+	private final Mesh axies = new Mesh();
 
     public Compass3D() {
     	super();
@@ -38,26 +36,25 @@ public class Compass3D {
 		float z=-0.95f;
 		float v=2.5f;
 
-		mesh.clear();
-		mesh.setRenderStyle(GL3.GL_LINES);
-		mesh.addColor(1, 0, 0,1);	mesh.addVertex(x, y, z);
-		mesh.addColor(1, 0, 0,1);	mesh.addVertex(x+v, y+0.0f, z+0.0f);
-		mesh.addColor(0, 1, 0,1);	mesh.addVertex(x, y, z);
-		mesh.addColor(0, 1, 0,1);	mesh.addVertex(x+0.0f, y+v, z+0.0f);
-		mesh.addColor(0, 0, 1,1);	mesh.addVertex(x, y, z);
-		mesh.addColor(0, 0, 1,1);	mesh.addVertex(x+0.0f, y+0.0f, z+v);
-
+		axies.clear();
+		axies.setRenderStyle(GL3.GL_LINES);
+		axies.addColor(1, 0, 0,1);	axies.addVertex(x, y, z);
+		axies.addColor(1, 0, 0,1);	axies.addVertex(x+v, y+0.0f, z+0.0f);
+		axies.addColor(0, 1, 0,1);	axies.addVertex(x, y, z);
+		axies.addColor(0, 1, 0,1);	axies.addVertex(x+0.0f, y+v, z+0.0f);
+		axies.addColor(0, 0, 1,1);	axies.addVertex(x, y, z);
+		axies.addColor(0, 0, 1,1);	axies.addVertex(x+0.0f, y+0.0f, z+v);
 	}
 
 	public void render(GL3 gl,Viewport viewport,ShaderProgram program) {
 		program.use(gl);
 		positionCubeModel(gl,viewport,program);
-		renderCubeModel(gl,program);
+		renderCubeModel(gl);
 		renderMajorAxies(gl,program);
 	}
 	
 	private void positionCubeModel(GL3 gl, Viewport viewport,ShaderProgram program) {
-		double scale = 25.0;
+		double scale = InteractionPreferences.compassSize.get();
 		double c = 2.0;
         double w2 = viewport.getCanvasWidth() /(2.0*scale) - c;
         double h2 = viewport.getCanvasHeight()/(2.0*scale) - c;
@@ -69,7 +66,6 @@ public class Compass3D {
 		modelMatrix.setTranslation(new Vector3d(w2,h2,-5));
 		modelMatrix.transpose();
 		program.setMatrix4d(gl,"modelMatrix",modelMatrix);
-
 		program.setVector3d(gl,"lightPos",new Vector3d(w2,h2,10));  // Light position in world space
 		program.setVector3d(gl,"ambientLightColor",new Vector3d(0.6,0.6,0.6));
 		program.setVector3d(gl,"specularColor",new Vector3d(0,0,0));
@@ -87,12 +83,13 @@ public class Compass3D {
 		return m;
 	}
 
-	private void renderCubeModel(GL3 gl,ShaderProgram program) {
+	private void renderCubeModel(GL3 gl) {
 		gl.glEnable(GL3.GL_DEPTH_TEST);
 		gl.glEnable(GL3.GL_CULL_FACE);
 		gl.glBlendFunc(GL3.GL_SRC_ALPHA,GL3.GL_ONE_MINUS_SRC_ALPHA);
 		mat.render(gl);
-		model.render(gl);
+		//cube.getModel().setDirty(true);
+		cube.render(gl);
 	}
 
 	private void renderMajorAxies(GL3 gl,ShaderProgram program) {
@@ -101,7 +98,7 @@ public class Compass3D {
 		program.set1f(gl,"useVertexColor",1);
 
 		gl.glLineWidth(4);
-		mesh.render(gl);
+		axies.render(gl);
 		gl.glLineWidth(1);
 	}
 }

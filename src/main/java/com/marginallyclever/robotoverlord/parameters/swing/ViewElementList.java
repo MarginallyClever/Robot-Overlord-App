@@ -5,10 +5,10 @@ import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
 import com.marginallyclever.robotoverlord.parameters.ListParameter;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
 
-import java.util.List;
-import java.util.ArrayList;
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Panel to alter a {@link ListParameter}.

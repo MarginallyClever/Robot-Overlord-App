@@ -5,18 +5,13 @@ import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
-import javax.vecmath.Vector3d;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * A box with a width, height, and length of 1.  It is centered around the origin.
@@ -51,7 +46,6 @@ public class Box extends ShapeComponent implements PropertyChangeListener {
         this.height.addPropertyChangeListener(this);
 
         updateModel();
-        setModel(myMesh);
     }
 
     // Procedurally generate a list of triangles that form a box, subdivided by some amount.
@@ -118,6 +112,8 @@ public class Box extends ShapeComponent implements PropertyChangeListener {
         p2.set(-w, d,-h);
         p3.set(-w,-d,-h);
         addSubdividedPlane(n,p0,p1,p2,p3,dParts,hParts);
+
+        setModel(myMesh);
     }
 
     /**
@@ -237,8 +233,8 @@ public class Box extends ShapeComponent implements PropertyChangeListener {
     @Override
     public void parseJSON(JSONObject jo, SerializationContext context) throws JSONException {
         super.parseJSON(jo, context);
-        width.set(jo.getDouble("width"));
-        length.set(jo.getDouble("length"));
-        height.set(jo.getDouble("height"));
+        if(jo.has("width")) width.set(jo.getDouble("width"));
+        if(jo.has("length")) length.set(jo.getDouble("length"));
+        if(jo.has("height")) height.set(jo.getDouble("height"));
     }
 }

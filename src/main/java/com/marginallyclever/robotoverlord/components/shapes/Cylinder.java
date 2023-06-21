@@ -1,11 +1,5 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.robotoverlord.SerializationContext;
@@ -16,6 +10,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.vecmath.Vector3d;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * A cylinder with a radius of 0.5 and a height of 1. It is centered at the
@@ -48,7 +44,6 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
         this.height.addPropertyChangeListener(this);
 
         updateModel();
-        setModel(myMesh);
     }
 
     @Override
@@ -64,6 +59,7 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
         myMesh.setRenderStyle(GL3.GL_TRIANGLES);
 
         addCylinder(height.get().floatValue(), radius0.get().floatValue(), radius1.get().floatValue());
+        setModel(myMesh);
     }
 
     private void addCylinder(float height, float radius0,float radius1) {
@@ -148,8 +144,13 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
     @Override
     public void parseJSON(JSONObject jo, SerializationContext context) throws JSONException {
         super.parseJSON(jo, context);
-        radius0.set(jo.getDouble("radius0"));
-        radius1.set(jo.getDouble("radius1"));
-        height.set(jo.getDouble("height"));
+        if(jo.has("radius")) {
+            radius0.set(jo.getDouble("radius"));
+            radius1.set(jo.getDouble("radius"));
+        } else {
+            if(jo.has("radius0")) radius0.set(jo.getDouble("radius0"));
+            if(jo.has("radius1")) radius1.set(jo.getDouble("radius1"));
+        }
+        if(jo.has("height")) height.set(jo.getDouble("height"));
     }
 }

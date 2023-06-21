@@ -2,8 +2,8 @@ package com.marginallyclever.robotoverlord.components;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.convenience.RayHit;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
@@ -67,9 +67,7 @@ public class ShapeComponent extends RenderComponent {
      * @return the ray hit in world space, or null if no hit.
      */
     public RayHit intersect(Ray ray) {
-        if(myMesh==null) return null;
-        if(!getEnabled()) return null;
-        if(!getVisible()) return null;
+        if( !getEnabled() || !getVisible() || myMesh==null ) return null;
 
         Entity e = getEntity();
         if(e==null) return null;
@@ -114,5 +112,17 @@ public class ShapeComponent extends RenderComponent {
         Vector3d d = new Vector3d(normal);
         pose.getWorld().transform(d);
         return d;
+    }
+
+    public void reload() {
+        if(myMesh!=null) {
+            myMesh.setDirty(true);
+        }
+    }
+
+    public void unload(GL3 gl) {
+        if(myMesh!=null) {
+            myMesh.unload(gl);
+        }
     }
 }

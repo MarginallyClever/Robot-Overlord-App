@@ -9,13 +9,9 @@ import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
-import javax.vecmath.Vector3d;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * A nearly two dimensional object with a texture on both sides.

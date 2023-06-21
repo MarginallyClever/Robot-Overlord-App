@@ -2,12 +2,11 @@ package com.marginallyclever.robotoverlord.tools;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.RayHit;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
@@ -23,10 +22,12 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public class SelectionTool implements EditorTool {
+public class SelectionTool extends MouseAdapter implements EditorTool {
     private static final Logger logger = LoggerFactory.getLogger(SelectionTool.class);
     public static final String PICK_POINT_NAME = "pick point";
     private final EntityManager entityManager;
@@ -144,18 +145,6 @@ public class SelectionTool implements EditorTool {
     public Point3d getStartPoint() {
         return null;
     }
-
-    @Override
-    public void mouseMoved(MouseEvent event) {}
-
-    @Override
-    public void mousePressed(MouseEvent event) {}
-
-    @Override
-    public void mouseDragged(MouseEvent event) {}
-
-    @Override
-    public void mouseReleased(MouseEvent event) {}
 
     /**
      * Sets the frame of reference for the tool.

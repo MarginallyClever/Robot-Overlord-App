@@ -2,12 +2,13 @@ package com.marginallyclever.robotoverlord.tools.move;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.ColorRGB;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.Plane;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.preferences.InteractionPreferences;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.Viewport;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 
@@ -26,7 +27,6 @@ import java.util.List;
  */
 public class TranslateEntityToolTwoAxis implements EditorTool {
     private double padSize = 1;
-    private double toolScale = 0.035;
     private double localScale = 1;
 
     /**
@@ -186,7 +186,7 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
         Vector3d cameraPoint = viewport.getCamera().getPosition();
         Vector3d pivotPoint = MatrixHelper.getPosition(pivotMatrix);
         pivotPoint.sub(cameraPoint);
-        localScale = pivotPoint.length() * toolScale;
+        localScale = pivotPoint.length() * InteractionPreferences.toolScale.get();;
     }
 
     @Override
@@ -254,12 +254,6 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
 
     private double getPadSizeScaled() {
         return padSize * localScale;
-    }
-    private double getToolScale() {
-        return toolScale;
-    }
-    private void setToolScale(double toolScale) {
-        this.toolScale = toolScale;
     }
 
     /**

@@ -2,20 +2,19 @@ package com.marginallyclever.robotoverlord.tools.move;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.ColorRGB;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotoverlord.entity.Entity;
-import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
-import com.marginallyclever.robotoverlord.systems.render.Viewport;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Box;
+import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.preferences.InteractionPreferences;
+import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
+import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
-import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -42,8 +41,6 @@ public class RotateEntityToolOneAxis implements EditorTool {
      */
     private final double SNAP_RADIANS_5 = Math.toRadians(2);
     private final double SNAP_RADIANS_45 = Math.toRadians(3);
-
-    private double toolScale = 0.035;
     private double localScale = 1;
 
     /**
@@ -317,7 +314,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
         Vector3d cameraPoint = viewport.getCamera().getPosition();
         Vector3d pivotPoint = MatrixHelper.getPosition(pivotMatrix);
         pivotPoint.sub(cameraPoint);
-        localScale = pivotPoint.length()*toolScale;
+        localScale = pivotPoint.length() * InteractionPreferences.toolScale.get();
     }
 
     /**
@@ -461,12 +458,6 @@ public class RotateEntityToolOneAxis implements EditorTool {
         return ringRadius * localScale;
     }
 
-    private double getToolScale() {
-        return toolScale;
-    }
-    private void setToolScale(double toolScale) {
-        this.toolScale = toolScale;
-    }
 
     /**
      * Sets the frame of reference for the tool.

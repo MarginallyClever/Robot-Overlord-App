@@ -10,8 +10,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * A material is a collection of parameters that describe how a surface should be rendered.
@@ -41,6 +39,7 @@ public class MaterialComponent extends Component {
         arg0 = Math.min(Math.max(arg0, 0), 128);
         shininess.set(arg0);
     }
+
     public double getShininess() {
         return shininess.get();
     }
@@ -164,5 +163,9 @@ public class MaterialComponent extends Component {
      */
     public boolean isAlpha() {
         return diffuse.getA()!=1.0;
+    }
+
+    public void reloadTextures(GL3 gl) {
+        texture.loadTexture(gl);
     }
 }

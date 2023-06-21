@@ -4,9 +4,7 @@ import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.*;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
-import java.awt.*;
 import java.security.InvalidParameterException;
 import java.util.List;
 

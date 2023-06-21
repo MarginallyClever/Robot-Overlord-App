@@ -4,6 +4,7 @@ import com.marginallyclever.robotoverlord.RobotOverlord;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serial;
@@ -14,8 +15,11 @@ import java.io.Serial;
  *
  */
 public class AboutAction extends AbstractAction implements ActionListener {
-	public AboutAction() {
+	private final Component parent;
+
+	public AboutAction(Component parent) {
 		super(Translator.get("AboutAction.name"));
+		this.parent = parent;
         putValue(SHORT_DESCRIPTION, Translator.get("AboutAction.shortDescription"));
 	}
 
@@ -26,18 +30,18 @@ public class AboutAction extends AbstractAction implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		JOptionPane.showMessageDialog(
-				null,
-				"<html><body>"
-						+"<h1>"+RobotOverlord.APP_TITLE+" "+RobotOverlord.VERSION+"</h1>"
-						+"<h3><a href='http://www.marginallyclever.com/'>http://www.marginallyclever.com/</a></h3>"
-						+"<h4>Created by</h4>"
-						+"<p>Dan Royer (dan@marginallyclever.com).</p>"
-						+"<h4>Testers</h4>"
-						+"<p>Omar al rafei (Arc robotics)</p>"
-						+"<h4>More info</h4>"
-						+"<p>To get the latest version please visit<br><a href='"+RobotOverlord.APP_URL+"'>"+RobotOverlord.APP_URL+"</a></p><br>"
-						+"<p>This program is open source and free.  If this was helpful<br> to you, please buy me a thank you beer through Paypal.</p>"
-						+"</body></html>");
+				SwingUtilities.getWindowAncestor(parent),
+		"<html><body>"
+				+"<h1>"+RobotOverlord.APP_TITLE+" "+RobotOverlord.VERSION+"</h1>"
+				+"<h3><a href='http://www.marginallyclever.com/'>http://www.marginallyclever.com/</a></h3>"
+				+"<h4>Created by</h4>"
+				+"<p>Dan Royer (dan@marginallyclever.com).</p>"
+				+"<h4>Testers</h4>"
+				+"<p>Omar al rafei (Arc robotics)</p>"
+				+"<h4>More info</h4>"
+				+"<p>To get the latest version please visit<br><a href='"+RobotOverlord.APP_URL+"'>"+RobotOverlord.APP_URL+"</a></p><br>"
+				+"<p>This program is open source and free.  If this was helpful<br> to you, please buy me a thank you beer through Paypal.</p>"
+				+"</body></html>");
 	}
 
 	/**
@@ -45,6 +49,6 @@ public class AboutAction extends AbstractAction implements ActionListener {
 	 * @param args ignored
 	 */
 	public static void main(String[] args) {
-		new AboutAction().actionPerformed(null);
+		new AboutAction(null).actionPerformed(null);
 	}
 }

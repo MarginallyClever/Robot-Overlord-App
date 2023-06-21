@@ -1,19 +1,13 @@
 package com.marginallyclever.robotoverlord.systems.render;
 
-import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.program.ProgramPathComponent;
-import com.marginallyclever.robotoverlord.systems.EntitySystem;
-import com.marginallyclever.robotoverlord.systems.render.gcodepath.PathFactory;
-import com.marginallyclever.robotoverlord.components.shapes.Box;
-import com.marginallyclever.robotoverlord.components.shapes.Cylinder;
-import com.marginallyclever.robotoverlord.components.shapes.Decal;
-import com.marginallyclever.robotoverlord.components.shapes.Grid;
-import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
-import com.marginallyclever.robotoverlord.components.shapes.Sphere;
-import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
+import com.marginallyclever.robotoverlord.components.shapes.*;
 import com.marginallyclever.robotoverlord.parameters.TextureParameter;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.systems.EntitySystem;
+import com.marginallyclever.robotoverlord.systems.render.gcodepath.PathFactory;
+import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 
 import javax.swing.filechooser.FileFilter;
 import java.util.ArrayList;

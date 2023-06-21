@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord;
 
+import com.marginallyclever.robotoverlord.preferences.RecentFiles;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;

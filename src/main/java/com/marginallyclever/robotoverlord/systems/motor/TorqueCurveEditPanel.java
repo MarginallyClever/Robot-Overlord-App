@@ -2,11 +2,9 @@ package com.marginallyclever.robotoverlord.systems.motor;
 
 import com.marginallyclever.convenience.swing.LineGraph;
 import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
-import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 
 import javax.swing.*;
-import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableModel;
 import java.awt.*;
 import java.util.ArrayList;

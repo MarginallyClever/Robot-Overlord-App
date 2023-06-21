@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.jogamp.opengl.GL3;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.ListParameter;

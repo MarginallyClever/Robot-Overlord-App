@@ -19,6 +19,7 @@ import java.nio.file.Path;
  */
 public class ProjectImportAction extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(ProjectImportAction.class);
+    public static final String UP_ARROW_FROM_BAR = "\u21A5";
 
     private final Project project;
     /**
@@ -32,7 +33,7 @@ public class ProjectImportAction extends AbstractAction {
         super(Translator.get("SceneImportAction.name"));
         this.project = project;
         fc.setFileFilter(RobotOverlord.FILE_FILTER);
-        putValue(SMALL_ICON,new UnicodeIcon("\u1F5C1"));  // file icon
+        putValue(SMALL_ICON,new UnicodeIcon(UP_ARROW_FROM_BAR));  // file icon
         putValue(SHORT_DESCRIPTION, Translator.get("SceneImportAction.shortDescription"));
     }
 

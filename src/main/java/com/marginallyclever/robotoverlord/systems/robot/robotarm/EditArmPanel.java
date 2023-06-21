@@ -1,10 +1,11 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.robotoverlord.entity.Entity;
-import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
+import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.entity.EntityManager;
+import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.parameters.TextureParameter;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementBoolean;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementDouble;
@@ -12,18 +13,17 @@ import com.marginallyclever.robotoverlord.parameters.swing.ViewElementFilename;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
-import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
-import com.marginallyclever.robotoverlord.parameters.StringParameter;
 import com.marginallyclever.robotoverlord.systems.OriginAdjustSystem;
+import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 
+import javax.swing.*;
+import javax.vecmath.Matrix4d;
 import java.awt.Component;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.*;
-import javax.vecmath.Matrix4d;
-import java.awt.*;
 
 /**
  * Make an industrial 6 axis robot arm.  Every joint is stacked on the previous joint in a serially-linked design.

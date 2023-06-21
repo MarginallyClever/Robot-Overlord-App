@@ -1,17 +1,18 @@
 package com.marginallyclever.robotoverlord.robots.deltarobot3;
 
-import com.jogamp.opengl.GL3;
 import com.marginallyclever.communications.session.SessionLayer;
 import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.PrimitiveSolids;
-import com.marginallyclever.robotoverlord.components.*;
+import com.marginallyclever.robotoverlord.components.Component;
+import com.marginallyclever.robotoverlord.components.ComponentDependency;
+import com.marginallyclever.robotoverlord.components.MaterialComponent;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.parameters.RemoteParameter;
-import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.robots.Robot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

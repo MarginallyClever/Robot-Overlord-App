@@ -1,8 +1,5 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.marginallyclever.robotoverlord.entity.Entity;
-
-import java.util.List;
 import java.util.Map;
 
 /**

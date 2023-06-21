@@ -2,14 +2,14 @@ package com.marginallyclever.robotoverlord.tools.move;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.ColorRGB;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.Plane;
-import com.marginallyclever.robotoverlord.entity.Entity;
-import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
-import com.marginallyclever.robotoverlord.systems.render.Viewport;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Sphere;
+import com.marginallyclever.robotoverlord.entity.Entity;
+import com.marginallyclever.robotoverlord.preferences.InteractionPreferences;
+import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
+import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
 
@@ -29,7 +29,6 @@ import java.util.List;
 public class TranslateEntityToolOneAxis implements EditorTool {
     private final double handleLength = 5;
     private final double gripRadius = 0.5;
-    private double toolScale = 0.035;
     private double localScale = 1;
 
     /**
@@ -217,7 +216,7 @@ public class TranslateEntityToolOneAxis implements EditorTool {
         Vector3d cameraPoint = viewport.getCamera().getPosition();
         Vector3d pivotPoint = MatrixHelper.getPosition(pivotMatrix);
         pivotPoint.sub(cameraPoint);
-        localScale = pivotPoint.length()*toolScale;
+        localScale = pivotPoint.length() * InteractionPreferences.toolScale.get();
     }
 
     // Render the translation handle on the axis
@@ -286,12 +285,5 @@ public class TranslateEntityToolOneAxis implements EditorTool {
 
     private double getGripRadiusScaled() {
         return gripRadius * localScale;
-    }
-
-    private double getToolScale() {
-        return toolScale;
-    }
-    private void setToolScale(double toolScale) {
-        this.toolScale = toolScale;
     }
 }
