@@ -226,9 +226,6 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
         createBuffer(gl,1,3,vertexBuffer,createNormalData());
         createBuffer(gl,2,4,vertexBuffer,createColorData());
 
-        // colors
-        setVertexBuffer(gl,vertexBuffer,2,4);
-        gl.glBufferData(GL.GL_ARRAY_BUFFER, 4*3*BYTES_PER_FLOAT, createColorData(), GL.GL_STATIC_DRAW);
         return vertexBuffer;
     }
 
