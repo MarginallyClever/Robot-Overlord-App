@@ -24,8 +24,9 @@ public class OpenGLHelper {
 	}
 
 	public static void checkGLError(GL3 gl3,org.slf4j.Logger logger) {
-		if(gl3.glGetError() != GL3.GL_NO_ERROR) {
-			logger.error("GL error:" + gl3.glGetError());
+		int err = gl3.glGetError();
+		if(err != GL.GL_NO_ERROR) {
+			logger.error("GL error:" + err);
 		}
 	}
 

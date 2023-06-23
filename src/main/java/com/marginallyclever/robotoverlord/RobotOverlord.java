@@ -4,6 +4,9 @@ import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.log.LogPanel3;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
+import com.marginallyclever.robotoverlord.parameters.TextureParameter;
+import com.marginallyclever.robotoverlord.preferences.GraphicsPreferences;
+import com.marginallyclever.robotoverlord.preferences.InteractionPreferences;
 import com.marginallyclever.robotoverlord.renderpanel.OpenGLRenderPanel;
 import com.marginallyclever.robotoverlord.renderpanel.RenderPanel;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
@@ -67,7 +70,7 @@ public class RobotOverlord {
 	}
 
 	// settings
-	private final Preferences prefs = Preferences.userRoot().node("Evil Overlord");
+	private final Preferences prefs = Preferences.userRoot().node("RobotOverlord");
 
 	private final Project project = new Project();
 
@@ -84,7 +87,7 @@ public class RobotOverlord {
 	/**
 	 * The panel that contains the OpenGL canvas.
 	 */
-	private final RenderPanel renderPanel;
+	private RenderPanel renderPanel;
 
 	/**
 	 * The menu bar of the main frame.
@@ -123,17 +126,13 @@ public class RobotOverlord {
 		Translator.start();
 		UndoSystem.start();
 		preferencesLoad();
-
 		buildSystems();
 
 		buildMainFrame();
 		entityTreePanel = new EntityTreePanel(project.getEntityManager());
 		componentManagerPanel = new ComponentManagerPanel(project.getEntityManager(),systems);
-		renderPanel = new OpenGLRenderPanel(project.getEntityManager());
-		renderPanel.setUpdateCallback((dt)->{
-			for(EntitySystem system : systems) system.update(dt);
-		});
-
+		buildRenderPanel();
+		setSplitterDefaults();
 		layoutComponents();
 		mainMenu.refresh();
 
@@ -147,6 +146,28 @@ public class RobotOverlord {
 
 		logger.info("** READY **");
     }
+
+	private void setSplitterDefaults() {
+		// make sure the master panel can't be squished.
+		rightFrameSplitter.setMinimumSize(new Dimension(360,300));
+		// if the window resizes, give top and bottom halves equal share of the real estate
+		rightFrameSplitter.setResizeWeight(0.25);
+		// if the window resizes, give left half as much real estate as it can get.
+		splitLeftRight.setResizeWeight(1);
+	}
+
+	public void buildRenderPanel() {
+		if(renderPanel!=null) {
+			logger.debug("stopping old renderPanel");
+			renderPanel.stopAnimationSystem();
+			splitLeftRight.remove(renderPanel.getPanel());
+		}
+
+		renderPanel = new OpenGLRenderPanel(project.getEntityManager());
+		renderPanel.setUpdateCallback((dt)->{
+			for(EntitySystem system : systems) system.update(dt);
+		});
+	}
 
 	private void buildSystems() {
 		addSystem(new PhysicsSystem());
@@ -171,39 +192,38 @@ public class RobotOverlord {
 		Clipboard.addListener(this::updateActionEnableStatus);
 	}
 
+	/**
+	 * Tell all Actions to check if they are active.
+	 */
+	private void updateActionEnableStatus() {
+		entityTreePanel.setSelection(Clipboard.getSelectedEntities());
+		if(renderPanel!=null) renderPanel.updateSubjects(Clipboard.getSelectedEntities());
+		componentManagerPanel.refreshContentsFromClipboard();
+		entityTreePanel.updateActionEnableStatus();
+	}
+
 	private void preferencesLoad() {
 		ProjectImportAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_IMPORT, System.getProperty("user.dir")));
 		ProjectLoadAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_LOAD, System.getProperty("user.dir")));
 		ProjectSaveAction.setLastDirectory(prefs.get(RobotOverlord.KEY_LAST_DIRECTORY_SAVE, System.getProperty("user.dir")));
+		GraphicsPreferences.load();
+		InteractionPreferences.load();
 	}
 
 	private void preferencesSave() {
+		InteractionPreferences.save();
+		GraphicsPreferences.save();
 		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_IMPORT, ProjectImportAction.getLastDirectory());
 		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_LOAD, ProjectLoadAction.getLastDirectory());
 		prefs.put(RobotOverlord.KEY_LAST_DIRECTORY_SAVE, ProjectSaveAction.getLastDirectory());
 	}
 
-	private JComponent buildEntityManagerPanel() {
-        logger.info("buildEntityManagerPanel()");
+	public void layoutComponents() {
+		rightFrameSplitter.setTopComponent(entityTreePanel);
+		rightFrameSplitter.setBottomComponent(componentManagerPanel);
 
-		return entityTreePanel;
-	}
-
-	private void layoutComponents() {
-		// the right hand top/bottom split
-		rightFrameSplitter.add(buildEntityManagerPanel());
-		rightFrameSplitter.add(componentManagerPanel);
-		// make sure the master panel can't be squished.
-        Dimension minimumSize = new Dimension(360,300);
-        rightFrameSplitter.setMinimumSize(minimumSize);
-        // if the window resizes, give top and bottom halves equal share of the real estate
-		rightFrameSplitter.setResizeWeight(0.25);
-
-		// left/right split
-        splitLeftRight.add(renderPanel.getPanel());
-        splitLeftRight.add(rightFrameSplitter);
-        // if the window resizes, give left half as much real estate as it can get.
-        splitLeftRight.setResizeWeight(1);
+        splitLeftRight.setLeftComponent(renderPanel.getPanel());
+        splitLeftRight.setRightComponent(rightFrameSplitter);
 
         mainFrame.add(splitLeftRight);
 	}
@@ -212,8 +232,6 @@ public class RobotOverlord {
 		logger.info("buildMainFrame()");
 		// start the main application frame - the largest visible rectangle on the screen with the minimize/maximize/close buttons.
         mainFrame = new MainFrame( APP_TITLE + " " + VERSION, prefs);
-		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mainFrame.setLocationRelativeTo(null);
 		mainFrame.setJMenuBar(mainMenu);
 		mainFrame.setWindowSizeAndPosition();
 		setupDropTarget();
@@ -240,23 +258,13 @@ public class RobotOverlord {
 			}
 			if (desktop.isSupported(Desktop.Action.APP_ABOUT)) {
 				desktop.setAboutHandler((e) ->{
-					AboutAction a = new AboutAction();
+					AboutAction a = new AboutAction(this.mainFrame);
 					a.actionPerformed(null);
 				});
 			}
 		}
 
 		mainFrame.setVisible(true);
-	}
-
-    private void updateSelectEntities() {
-		entityTreePanel.setSelection(Clipboard.getSelectedEntities());
-		renderPanel.updateSubjects(Clipboard.getSelectedEntities());
-		updateComponentPanel();
-	}
-
-	public void updateComponentPanel() {
-		componentManagerPanel.refreshContentsFromClipboard();
 	}
 
 	public boolean confirmClose() {
@@ -266,6 +274,7 @@ public class RobotOverlord {
 				Translator.get("RobotOverlord.quitTitle"),
 				JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
+			mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			preferencesSave();
 
 			// Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
@@ -277,15 +286,6 @@ public class RobotOverlord {
 			return true;
 		}
 		return false;
-	}
-
-	/**
-	 * Tell all Actions to check if they are active.
-	 */
-	private void updateActionEnableStatus() {
-		updateSelectEntities();
-
-		entityTreePanel.updateActionEnableStatus();
 	}
 
 	private void setupDropTarget() {

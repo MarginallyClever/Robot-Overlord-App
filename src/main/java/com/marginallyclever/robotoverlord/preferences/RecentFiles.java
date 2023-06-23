@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord;
+package com.marginallyclever.robotoverlord.preferences;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,12 +17,10 @@ public class RecentFiles {
 	private static final Logger logger = LoggerFactory.getLogger(RecentFiles.class);
 	public static final int MAX_FILES=10;
 	private final List<String> filenames = new ArrayList<>();
-	private final Preferences prefs;
+	private final Preferences prefs = Preferences.userRoot().node("RobotOverlord").node("Recent files");
 	
 	public RecentFiles() {
-		Preferences root = Preferences.userRoot().node("Evil Overlord");
-		prefs = root.node("Recent files");
-
+		super();
 		// load recent files from prefs
 		for(int i=0;i<MAX_FILES;++i) {
 			String fn = prefs.get(String.valueOf(i),null);

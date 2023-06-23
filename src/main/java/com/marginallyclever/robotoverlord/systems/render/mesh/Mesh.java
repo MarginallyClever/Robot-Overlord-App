@@ -6,6 +6,9 @@ import com.marginallyclever.convenience.AABB;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.RayHit;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
+import com.marginallyclever.convenience.helpers.OpenGLHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -21,6 +24,7 @@ import java.util.List;
  * @author Dan Royer
  */
 public class Mesh {
+	private static final Logger logger = LoggerFactory.getLogger(Mesh.class);
 	public static final int NUM_BUFFERS=5;  // verts, normals, colors, textureCoordinates, index
 	public static final int BYTES_PER_INT = Integer.SIZE/8;
 	public static final int BYTES_PER_FLOAT = Float.SIZE/8;
@@ -99,10 +103,12 @@ public class Mesh {
 	
 	private void createBuffers(GL3 gl) {
 		VAO = new int[1];
-		gl.glGenVertexArrays(NUM_BUFFERS, VAO, 0);
+		gl.glGenVertexArrays(1, VAO, 0);
+		OpenGLHelper.checkGLError(gl,logger);
 
 		VBO = new int[NUM_BUFFERS];
 		gl.glGenBuffers(NUM_BUFFERS, VBO, 0);
+		OpenGLHelper.checkGLError(gl,logger);
 	}
 
 	private void destroyBuffers(GL3 gl) {
@@ -111,7 +117,7 @@ public class Mesh {
 			VBO = null;
 		}
 		if(VAO != null) {
-			gl.glDeleteVertexArrays(NUM_BUFFERS, VAO, 0);
+			gl.glDeleteVertexArrays(1, VAO, 0);
 			VAO = null;
 		}
 	}
@@ -125,19 +131,22 @@ public class Mesh {
 		long numVertexes = getNumVertices();
 
 		gl.glBindVertexArray(VAO[0]);
+		OpenGLHelper.checkGLError(gl,logger);
 
 		setupArray(gl,0,3,numVertexes,vertexArray);
 		if(hasNormals ) setupArray(gl,1,3,numVertexes,normalArray );
+		else gl.glDisableVertexAttribArray(1);
 		if(hasColors  ) setupArray(gl,2,4,numVertexes,colorArray  );
+		else gl.glDisableVertexAttribArray(2);
 		if(hasTextures) setupArray(gl,3,2,numVertexes,textureArray);
-		
-		if(hasIndexes) {
-			IntBuffer indexes = IntBuffer.allocate(indexArray.size());
-			for (Integer integer : indexArray) indexes.put(integer);
-			indexes.rewind();
+		else gl.glDisableVertexAttribArray(3);
 
+		if(hasIndexes) {
+			IntBuffer data = IntBuffer.allocate(indexArray.size());
+			for (Integer integer : indexArray) data.put(integer);
+			data.rewind();
 			gl.glBindBuffer(GL3.GL_ELEMENT_ARRAY_BUFFER, VBO[4]);
-			gl.glBufferData(GL3.GL_ELEMENT_ARRAY_BUFFER, (long) indexArray.size() *BYTES_PER_INT, indexes, GL3.GL_STATIC_DRAW);
+			gl.glBufferData(GL3.GL_ELEMENT_ARRAY_BUFFER, (long) indexArray.size() *BYTES_PER_INT, data, GL3.GL_STATIC_DRAW);
 		}
 
 		gl.glBindVertexArray(0);
@@ -153,7 +162,6 @@ public class Mesh {
 		FloatBuffer data = FloatBuffer.allocate(list.size());
 		for( Float f : list ) data.put(f);
 		data.rewind();
-
 		bindArray(gl,attribIndex,size);
 		gl.glBufferData(GL3.GL_ARRAY_BUFFER, numVertexes*size*BYTES_PER_FLOAT, data, GL3.GL_STATIC_DRAW);
 	}
@@ -164,16 +172,17 @@ public class Mesh {
 			isDirty=true;
 		}
 		if(isDirty) {
-			if(VBO==null) createBuffers(gl);
+			createBuffers(gl);
 			updateBuffers(gl);
 			isDirty=false;
 		}
 
 		gl.glBindVertexArray(VAO[0]);
+		OpenGLHelper.checkGLError(gl,logger);
 
 		bindArray(gl,0,3);
-		if(hasNormals) bindArray(gl,1,3);
-		if(hasColors) bindArray(gl,2,4);
+		if(hasNormals ) bindArray(gl,1,3);
+		if(hasColors  ) bindArray(gl,2,4);
 		if(hasTextures) bindArray(gl,3,2);
 
 		if (hasIndexes) {
@@ -181,12 +190,7 @@ public class Mesh {
 		} else {
 			gl.glDrawArrays(renderStyle, 0, getNumVertices());
 		}
-
-		for(int i=0;i<NUM_BUFFERS;++i) {
-			gl.glDisableVertexAttribArray(i);
-		}
-
-		gl.glBindVertexArray(0); // Unbind the VAO
+		OpenGLHelper.checkGLError(gl,logger);
 	}
 	
 	public void addNormal(float x,float y,float z) {
@@ -211,9 +215,9 @@ public class Mesh {
 		hasColors=true;
 	}
 	
-	public void addTexCoord(float x,float y) {
-		textureArray.add(x);
-		textureArray.add(y);
+	public void addTexCoord(float u,float v) {
+		textureArray.add(u);
+		textureArray.add(v);
 		hasTextures =true;
 	}
 	
@@ -223,7 +227,7 @@ public class Mesh {
 	}
 	
 	/**
-	 * Force recalculation of the the minimum bounding box to contain this STL file.
+	 * Force recalculation of the minimum bounding box to contain this STL file.
 	 * Done automatically every time updateBuffers() is called.
 	 * Meaningless if there is no vertexArray of points.
 	 */

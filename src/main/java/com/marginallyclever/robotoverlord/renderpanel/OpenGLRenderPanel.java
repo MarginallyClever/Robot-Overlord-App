@@ -11,7 +11,9 @@ import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
-import com.marginallyclever.robotoverlord.parameters.ColorParameter;
+import com.marginallyclever.robotoverlord.parameters.TextureParameter;
+import com.marginallyclever.robotoverlord.preferences.InteractionPreferences;
+import com.marginallyclever.robotoverlord.preferences.GraphicsPreferences;
 import com.marginallyclever.robotoverlord.systems.render.Compass3D;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.SkyBox;
@@ -41,17 +43,12 @@ import java.util.*;
  * Encapsulates the OpenGL rendering.
  * @author Dan Royer
  */
-public class OpenGLRenderPanel implements RenderPanel {
+public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLRenderPanel.class);
-    private static final int FSAA_NUM_SAMPLES = 4;  // 1,2,4,8
-    private static final int VERTICAL_SYNC_ON = 1;  // 1 on, 0 off
-    private static final int DEFAULT_FRAMES_PER_SECOND = 30;
 
     private final EntityManager entityManager;
 
     // OpenGL debugging
-    private final boolean glDebug=false;
-    private final boolean glTrace=false;
     private final JPanel panel = new JPanel(new BorderLayout());
 
     // the systems canvas
@@ -61,7 +58,7 @@ public class OpenGLRenderPanel implements RenderPanel {
     private boolean isMouseIn=false;
 
     // timing for animations
-    private final FPSAnimator animator = new FPSAnimator(DEFAULT_FRAMES_PER_SECOND);
+    private final FPSAnimator animator = new FPSAnimator(GraphicsPreferences.framesPerSecond.get());
     private long lastTime;
     private double frameDelay;
     private double frameLength;
@@ -72,19 +69,17 @@ public class OpenGLRenderPanel implements RenderPanel {
     /**
      * Displayed in a 2D overlay, helps the user orient themselves in 3D space.
      */
-    private transient final Compass3D compass3d = new Compass3D();
+    private final Compass3D compass3d = new Compass3D();
 
     /**
      * The "very far away" background to the scene.
      */
-    private transient final SkyBox skyBox = new SkyBox();
+    private final SkyBox skyBox = new SkyBox();
 
     private final List<EditorTool> editorTools = new ArrayList<>();
     private int activeToolIndex = -1;
 
     private final BooleanParameter showWorldOrigin = new BooleanParameter("Show world origin",false);
-
-    private final ColorParameter ambientLight = new ColorParameter("Ambient light",0.2,0.2,0.2,1);
     private final MaterialComponent defaultMaterial = new MaterialComponent();
     private final JToolBar toolBar = new JToolBar();
 
@@ -107,19 +102,17 @@ public class OpenGLRenderPanel implements RenderPanel {
     private ShaderProgram shaderHUD;
     private final List<Entity> collectedEntities = new ArrayList<>();
     private final List<LightComponent> lights = new ArrayList<>();
-
-    private double cursorSize = 10;
     private final Mesh cursorMesh = new Mesh();
-
 
 
     public OpenGLRenderPanel(EntityManager entityManager) {
         super();
         logger.info("creating OpenGLRenderPanel");
-
         this.entityManager = entityManager;
         createCanvas();
+
         addCanvasListeners();
+
         hideDefaultCursor();
         createCursorMesh();
         setupTools();
@@ -201,171 +194,194 @@ public class OpenGLRenderPanel implements RenderPanel {
         glCanvas.setCursor(noCursor);
     }
 
-    private void createCanvas() {
-        logger.info("availability="+GLProfile.glAvailabilityToString());
+    private GLCapabilities getCapabilities() {
+        GLProfile profile = GLProfile.getMaxProgrammable(true);
+        GLCapabilities capabilities = new GLCapabilities(profile);
+        capabilities.setHardwareAccelerated(GraphicsPreferences.hardwareAccelerated.get());
+        capabilities.setBackgroundOpaque(GraphicsPreferences.backgroundOpaque.get());
+        capabilities.setDoubleBuffered(GraphicsPreferences.doubleBuffered.get());
+        capabilities.setStencilBits(8);
+        int fsaa = GraphicsPreferences.fsaaSamples.get();
+        if(fsaa>0) {
+            capabilities.setSampleBuffers(true);
+            capabilities.setNumSamples(1<<fsaa);
+        }
+        StringBuilder sb = new StringBuilder();
+        capabilities.toString(sb);
+        logger.info("capabilities="+sb);
+        return capabilities;
+    }
 
+    private void createCanvas() {
         try {
-            logger.info("...get default caps");
-            GLProfile profile = GLProfile.getMaximum(true);
-            GLCapabilities caps = new GLCapabilities(profile);
-            caps.setHardwareAccelerated(true);
-            caps.setBackgroundOpaque(true);
-            caps.setDoubleBuffered(true);
-            caps.setStencilBits(8);
-            if(FSAA_NUM_SAMPLES>1) {
-                caps.setSampleBuffers(true);
-                caps.setNumSamples(FSAA_NUM_SAMPLES);
-            }
-            StringBuilder sb = new StringBuilder();
-            caps.toString(sb);
-            logger.info("...set caps to "+sb);
-            logger.info("...create canvas");
-            glCanvas = new GLJPanel(caps);
+            logger.info("availability="+GLProfile.glAvailabilityToString());
+            GLCapabilities capabilities = getCapabilities();
+            logger.info("create canvas");
+            glCanvas = new GLJPanel(capabilities);
         } catch(GLException e) {
-            logger.error("Failed to get/set Capabilities.  Are your native drivers missing?");
+            logger.error("Failed to create canvas.  Are your native drivers missing?");
         }
     }
 
     private void addCanvasListeners() {
-        glCanvas.addGLEventListener(new GLEventListener() {
-            @Override
-            public void init( GLAutoDrawable drawable ) {
-                GL gl = drawable.getGL();
-                if(glDebug) gl = useGLDebugPipeline(gl);
-                if(glTrace) gl = useTracePipeline(gl);
+        glCanvas.addGLEventListener(this);
+        glCanvas.addMouseListener(this);
+        glCanvas.addMouseMotionListener(this);
+        glCanvas.addMouseWheelListener(this);
+        glCanvas.addKeyListener(this);
+    }
 
-                GL3 gl3 = drawable.getGL().getGL3();
+    private GL3 getGL3(GLAutoDrawable drawable) {
+        GL gl = drawable.getGL();
+        if(GraphicsPreferences.glDebug.get()) gl = useGLDebugPipeline(gl);
+        if(GraphicsPreferences.glTrace.get()) gl = useTracePipeline(gl);
+        return gl.getGL3();
+    }
 
-                // turn on vsync
-                gl3.setSwapInterval(VERTICAL_SYNC_ON);
+    @Override
+    public void init( GLAutoDrawable drawable ) {
+        GL3 gl = getGL3(drawable);
 
-                // make things pretty
-                gl3.glEnable(GL3.GL_LINE_SMOOTH);
-                gl3.glEnable(GL3.GL_POLYGON_SMOOTH);
-                gl3.glHint(GL3.GL_POLYGON_SMOOTH_HINT, GL3.GL_NICEST);
-                // TODO add a settings toggle for this option, it really slows down older machines.
-                gl3.glEnable(GL3.GL_MULTISAMPLE);
+        // turn on vsync
+        gl.setSwapInterval(GraphicsPreferences.verticalSync.get() ? 1 : 0);
 
-                // Don't draw triangles facing away from camera
-                gl3.glCullFace(GL3.GL_BACK);
+        // make things pretty
+        gl.glEnable(GL3.GL_LINE_SMOOTH);
+        gl.glEnable(GL3.GL_POLYGON_SMOOTH);
+        gl.glHint(GL3.GL_POLYGON_SMOOTH_HINT, GL3.GL_NICEST);
+        // TODO add a settings toggle for this option, it really slows down older machines.
+        if (GraphicsPreferences.fsaaSamples.get()>0) {
+            gl.glEnable(GL3.GL_MULTISAMPLE);
+        } else {
+            gl.glDisable(GL3.GL_MULTISAMPLE);
+        }
 
-                gl3.glActiveTexture(GL3.GL_TEXTURE0);
+        // Don't draw triangles facing away from camera
+        gl.glCullFace(GL3.GL_BACK);
 
-                int [] buf = new int[1];
-                int [] sbuf = new int[1];
-                gl3.glGetIntegerv(GL3.GL_SAMPLES, buf, 0);
-                gl3.glGetIntegerv(GL3.GL_SAMPLE_BUFFERS, sbuf, 0);
+        gl.glActiveTexture(GL3.GL_TEXTURE0);
 
-                // depth testing and culling options
-                gl3.glDepthFunc(GL3.GL_LESS);
-                gl3.glEnable(GL3.GL_DEPTH_TEST);
-                gl3.glDepthMask(true);
-                gl3.glEnable(GL3.GL_CULL_FACE);
+        // depth testing and culling options
+        gl.glDepthFunc(GL3.GL_LESS);
+        gl.glEnable(GL3.GL_DEPTH_TEST);
+        gl.glDepthMask(true);
+        gl.glEnable(GL3.GL_CULL_FACE);
 
-                gl3.glEnable(GL.GL_STENCIL_TEST);
+        gl.glEnable(GL.GL_STENCIL_TEST);
 
-                // default blending option for transparent materials
-                gl3.glEnable(GL3.GL_BLEND);
-                gl3.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);
+        // default blending option for transparent materials
+        gl.glEnable(GL3.GL_BLEND);
+        gl.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);
 
-                // set the color to use when wiping the draw buffer
-                gl3.glClearColor(0.85f,0.85f,0.85f,0.0f);
+        // set the color to use when wiping the draw buffer
+        gl.glClearColor(0.85f, 0.85f, 0.85f, 0.0f);
 
-                createShaderPrograms(gl3);
+        createShaderPrograms(gl);
+
+        reloadAllAssets(gl);
+    }
+
+    private void reloadAllAssets(GL3 gl) {
+        TextureParameter.unloadAll(gl);
+        TextureParameter.loadAll();
+
+        List<Entity> list = new ArrayList<>();
+        list.add(entityManager.getRoot());
+        while(!list.isEmpty()) {
+            Entity test = list.remove(0);
+            list.addAll(test.getChildren());
+            MaterialComponent material = test.getComponent(MaterialComponent.class);
+            if(material != null) {
+                material.reloadTextures(gl);
             }
-
-            @Override
-            public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
-                viewport.setCanvasWidth(glCanvas.getSurfaceWidth());
-                viewport.setCanvasHeight(glCanvas.getSurfaceHeight());
+            ShapeComponent shape = test.getComponent(ShapeComponent.class);
+            if(shape != null) {
+                shape.unload(gl);
             }
+        }
+    }
 
-            @Override
-            public void dispose( GLAutoDrawable drawable ) {
-                GL3 gl3 = drawable.getGL().getGL3();
-                shaderDefault.delete(gl3);
-                shaderOutline.delete(gl3);
-                shaderHUD.delete(gl3);
-            }
+    @Override
+    public void reshape( GLAutoDrawable drawable, int x, int y, int width, int height ) {
+        viewport.setCanvasWidth(glCanvas.getSurfaceWidth());
+        viewport.setCanvasHeight(glCanvas.getSurfaceHeight());
+    }
 
-            @Override
-            public void display( GLAutoDrawable drawable ) {
-                long nowTime = System.currentTimeMillis();
-                long dt = nowTime - lastTime;
-                lastTime = nowTime;
+    @Override
+    public void dispose( GLAutoDrawable drawable ) {
+        GL3 gl3 = getGL3(drawable);
+        shaderDefault.delete(gl3);
+        shaderOutline.delete(gl3);
+        shaderHUD.delete(gl3);
+    }
 
-                updateStep(dt*0.001);  // to seconds
+    @Override
+    public void display( GLAutoDrawable drawable ) {
+        long nowTime = System.currentTimeMillis();
+        long dt = nowTime - lastTime;
+        lastTime = nowTime;
 
-                GL3 gl3 = drawable.getGL().getGL3();
+        updateStep(dt*0.001);  // to seconds
 
-                renderStep(gl3);
-            }
-        });
+        renderStep(getGL3(drawable));
+    }
 
-        // this class also listens to the glCanvas (messy!)
-        glCanvas.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
-            }
 
-            @Override
-            public void mousePressed(MouseEvent e) {
-                for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
-            }
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
+    }
 
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
-            }
+    @Override
+    public void mousePressed(MouseEvent e) {
+        for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
+    }
 
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                isMouseIn=true;
-                glCanvas.requestFocusInWindow();
-            }
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
+    }
 
-            @Override
-            public void mouseExited(MouseEvent e) {
-                isMouseIn=false;
-            }
-        });
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        isMouseIn=true;
+        // needed for keys+mouse to work
+        glCanvas.requestFocusInWindow();
+    }
 
-        glCanvas.addMouseMotionListener(new MouseMotionListener() {
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                viewport.setCursor(e.getX(),e.getY());
-                for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
-            }
+    @Override
+    public void mouseExited(MouseEvent e) {
+        isMouseIn=false;
+    }
 
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                viewport.setCursor(e.getX(),e.getY());
-                for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
-            }
-        });
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        viewport.setCursor(e.getX(),e.getY());
+        for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
+    }
 
-        glCanvas.addMouseWheelListener(new MouseAdapter() {
-            @Override
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                super.mouseWheelMoved(e);
-                for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
-            }
-        });
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        viewport.setCursor(e.getX(),e.getY());
+        for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
+    }
 
-        glCanvas.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                super.keyPressed(e);
-                for(EditorTool tool : editorTools) tool.handleKeyEvent(e);
-            }
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        for(EditorTool tool : editorTools) tool.handleMouseEvent(e);
+    }
 
-            @Override
-            public void keyReleased(KeyEvent e) {
-                super.keyReleased(e);
-                for(EditorTool tool : editorTools) tool.handleKeyEvent(e);
-            }
-        });
+    @Override
+    public void keyTyped(KeyEvent e) {}
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        for(EditorTool tool : editorTools) tool.handleKeyEvent(e);
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        for(EditorTool tool : editorTools) tool.handleKeyEvent(e);
     }
 
     private String [] readResource(String resourceName) {
@@ -417,10 +433,6 @@ public class OpenGLRenderPanel implements RenderPanel {
         return gl;
     }
 
-    private CameraComponent getCamera() {
-        return entityManager.getCamera();
-    }
-
     private void renderStep(GL3 gl3) {
         // clear green color, the depth bit, and the stencil buffer.
         gl3.glClearColor(0.85f,0.85f,0.85f,1.0f);
@@ -432,7 +444,7 @@ public class OpenGLRenderPanel implements RenderPanel {
     }
 
     private void draw3DScene(GL3 gl) {
-        CameraComponent camera = getCamera();
+        CameraComponent camera = entityManager.getCamera();
         if (camera == null) {
             gl.glClearColor(0.85f,0.85f,0.85f,1.0f);
             gl.glClear(GL3.GL_COLOR_BUFFER_BIT);
@@ -447,7 +459,7 @@ public class OpenGLRenderPanel implements RenderPanel {
 
         useShaderDefault(gl);
 
-        skyBox.render(gl, camera,shaderDefault);
+        skyBox.render(gl, camera, shaderDefault);
 
         renderAllEntities(gl, entityManager.getEntities(),shaderDefault);
         if (showWorldOrigin.get()) MatrixHelper.drawMatrix(10).render(gl);
@@ -455,8 +467,10 @@ public class OpenGLRenderPanel implements RenderPanel {
         outlineCollectedEntities(gl);
     }
 
-    private void useShaderDefault(GL3 gl3) {
-        Vector3d cameraPos = getCamera().getPosition();
+    private void useShaderDefault(GL3 gl) {
+        Vector3d cameraPos = entityManager.getCamera().getPosition();
+
+        OpenGLHelper.checkGLError(gl,logger);
 
         Vector3d lightPos, lightColor;
         if(!lights.isEmpty()) {
@@ -469,17 +483,27 @@ public class OpenGLRenderPanel implements RenderPanel {
             lightColor = new Vector3d(1,1,1);
         }
 
-        shaderDefault.use(gl3);
-        setProjectionMatrix(gl3,shaderDefault);
-        setViewMatrix(gl3,shaderDefault);
+        shaderDefault.use(gl);
+        setProjectionMatrix(gl,shaderDefault);
+        setViewMatrix(gl,shaderDefault);
 
-        shaderDefault.setVector3d(gl3,"lightPos",lightPos);  // Light position in world space
-        shaderDefault.setVector3d(gl3,"cameraPos",cameraPos);  // Camera position in world space
-        shaderDefault.setVector3d(gl3,"lightColor",lightColor);  // Light color
-        shaderDefault.set4f(gl3,"objectColor",1,1,1,1);
-        shaderDefault.set1f(gl3,"diffuseTexture",0);
-        shaderDefault.setVector3d(gl3,"specularColor",new Vector3d(0.5,0.5,0.5));
-        shaderDefault.setVector3d(gl3,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
+        OpenGLHelper.checkGLError(gl,logger);
+
+        shaderDefault.setVector3d(gl,"lightPos",lightPos);  // Light position in world space
+        OpenGLHelper.checkGLError(gl,logger);
+        shaderDefault.setVector3d(gl,"cameraPos",cameraPos);  // Camera position in world space
+        OpenGLHelper.checkGLError(gl,logger);
+        shaderDefault.setVector3d(gl,"lightColor",lightColor);  // Light color
+        OpenGLHelper.checkGLError(gl,logger);
+        shaderDefault.set4f(gl,"objectColor",1,1,1,1);
+        OpenGLHelper.checkGLError(gl,logger);
+        shaderDefault.set1i(gl,"diffuseTexture",0);
+        OpenGLHelper.checkGLError(gl,logger);
+        shaderDefault.setVector3d(gl,"specularColor",new Vector3d(0.5,0.5,0.5));
+        OpenGLHelper.checkGLError(gl,logger);
+        shaderDefault.setVector3d(gl,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
+
+        OpenGLHelper.checkGLError(gl,logger);
     }
 
     private void setProjectionMatrix(GL3 gl3, ShaderProgram program) {
@@ -610,7 +634,7 @@ public class OpenGLRenderPanel implements RenderPanel {
 
         // sort alpha objects back to front
         Vector3d cameraPoint = new Vector3d();
-        Entity cameraEntity = getCamera().getEntity();
+        Entity cameraEntity = entityManager.getCamera().getEntity();
         cameraEntity.getComponent(PoseComponent.class).getWorld().get(cameraPoint);
 
         Vector3d p1 = new Vector3d();
@@ -639,7 +663,7 @@ public class OpenGLRenderPanel implements RenderPanel {
         gl3.glEnable(GL3.GL_DEPTH_TEST);
     }
 
-    private void renderMMRList(GL3 gl3, List<MatrixMaterialRender> list,ShaderProgram shaderProgram) {
+    private void renderMMRList(GL3 gl, List<MatrixMaterialRender> list,ShaderProgram shaderProgram) {
         for(MatrixMaterialRender mmr : list) {
             if(mmr.renderComponent==null || !mmr.renderComponent.getVisible()) continue;
 
@@ -647,15 +671,17 @@ public class OpenGLRenderPanel implements RenderPanel {
                 Matrix4d m = mmr.matrix;
                 m.transpose();
                 // tell the shaders about our modelMatrix.
-                shaderProgram.setMatrix4d(gl3,"modelMatrix",m);
+                shaderProgram.setMatrix4d(gl,"modelMatrix",m);
             }
 
             if(collectedEntities.contains(mmr.renderComponent.getEntity())) {
                 // if this mesh is one of the selected entities, then also render it to the stencil buffer for the outline shader.
-                gl3.glStencilMask(0xFF);
+                gl.glStencilMask(0xFF);
             } else {
-                gl3.glStencilMask(0x00);
+                gl.glStencilMask(0x00);
             }
+
+            OpenGLHelper.checkGLError(gl,logger);
 
             Texture texture = null;
             boolean useVertexColor=true;
@@ -663,7 +689,7 @@ public class OpenGLRenderPanel implements RenderPanel {
             boolean useLighting=true;
             if(mmr.materialComponent!=null && mmr.materialComponent.getEnabled()) {
                 MaterialComponent material = mmr.materialComponent;
-                material.render(gl3);
+                material.render(gl);
                 // flat light?
                 useLighting &= material.isLit();
                 // if we have a texture assigned, then we might still enable textures.
@@ -671,12 +697,14 @@ public class OpenGLRenderPanel implements RenderPanel {
                 if(texture==null) useTexture = false;
                 // assign the object's overall color.
                 double[] diffuseColor = material.getDiffuseColor();
-                shaderDefault.set4f(gl3,
+                shaderProgram.set4f(gl,
                         "objectColor",
                         (float)diffuseColor[0],
                         (float)diffuseColor[1],
                         (float)diffuseColor[2],
                         (float)diffuseColor[3]);
+
+                OpenGLHelper.checkGLError(gl,logger);
             }
 
             boolean hasMesh = false;
@@ -699,18 +727,21 @@ public class OpenGLRenderPanel implements RenderPanel {
                 useLighting=false;
             }
 
-            shaderProgram.set1i(gl3,"useVertexColor",useVertexColor?1:0);
-            shaderProgram.set1i(gl3,"useLighting",useLighting?1:0);
-            shaderProgram.set1i(gl3,"useTexture",useTexture?1:0);
+            shaderProgram.set1i(gl,"useVertexColor",useVertexColor?1:0);
+            shaderProgram.set1i(gl,"useLighting",useLighting?1:0);
+            shaderProgram.set1i(gl,"useTexture",useTexture?1:0);
+
+            OpenGLHelper.checkGLError(gl,logger);
 
             if(useTexture && texture!=null) {
-                gl3.glEnable(GL.GL_TEXTURE_2D);
-                texture.bind(gl3);
-                mmr.materialComponent.render(gl3);
-                shaderProgram.set1f(gl3,"diffuseTexture",0);
+                gl.glEnable(GL.GL_TEXTURE_2D);
+                texture.bind(gl);
+                mmr.materialComponent.render(gl);
+                shaderProgram.set1i(gl,"diffuseTexture",0);
+                OpenGLHelper.checkGLError(gl,logger);
             }
 
-            mmr.renderComponent.render(gl3);
+            mmr.renderComponent.render(gl);
         }
     }
 
@@ -756,23 +787,23 @@ public class OpenGLRenderPanel implements RenderPanel {
 
     private void createCursorMesh() {
         // build mesh - only needs to be done once.
-        float cf = (float)cursorSize;
+        float c = (float) InteractionPreferences.cursorSize.get();
         cursorMesh.clear();
         cursorMesh.setRenderStyle(GL3.GL_LINES);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(1,-cf,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(1, cf,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-cf,1,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex( cf,1,0);
+        cursorMesh.addVertex(1,-c,0);   cursorMesh.addColor(0,0,0,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex(1, c,0);   cursorMesh.addColor(0,0,0,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex(-c,1,0);   cursorMesh.addColor(0,0,0,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex( c,1,0);   cursorMesh.addColor(0,0,0,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
 
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-1,-cf,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-1, cf,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex(-cf,-1,0);
-        cursorMesh.addColor(0,0,0,1);   cursorMesh.addVertex( cf,-1,0);
+        cursorMesh.addVertex(-1,-c,0);  cursorMesh.addColor(0,0,0,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex(-1, c,0);  cursorMesh.addColor(0,0,0,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex(-c,-1,0);  cursorMesh.addColor(0,0,0,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex( c,-1,0);  cursorMesh.addColor(0,0,0,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
 
-        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex(0,-cf,0);
-        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex(0, cf,0);
-        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex(-cf,0,0);
-        cursorMesh.addColor(1,1,1,1);   cursorMesh.addVertex( cf,0,0);
+        cursorMesh.addVertex(0,-c,0);   cursorMesh.addColor(1,1,1,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex(0, c,0);   cursorMesh.addColor(1,1,1,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex(-c,0,0);   cursorMesh.addColor(1,1,1,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
+        cursorMesh.addVertex( c,0,0);   cursorMesh.addColor(1,1,1,1);   cursorMesh.addNormal(0,0,1);    cursorMesh.addTexCoord(0,0);
     }
 
     private void updateStep(double dt) {
@@ -788,9 +819,11 @@ public class OpenGLRenderPanel implements RenderPanel {
 
     @Override
     public void startAnimationSystem() {
-        logger.debug("start the animation system");
+        logger.debug("starting animation system");
+        int fps = GraphicsPreferences.framesPerSecond.get();
+        animator.setFPS(fps);
         frameDelay=0;
-        frameLength=1.0f/(float)DEFAULT_FRAMES_PER_SECOND;
+        frameLength=1.0f/(float)fps;
         animator.add(glCanvas);
         // record the start time of the application, also the end of the core initialization process.
         lastTime = System.currentTimeMillis();
@@ -800,6 +833,7 @@ public class OpenGLRenderPanel implements RenderPanel {
 
     @Override
     public void stopAnimationSystem() {
+        logger.debug("stopping animation system");
         animator.stop();
     }
 
