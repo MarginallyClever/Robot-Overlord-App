@@ -9,6 +9,7 @@ import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 
 public class OpenGLTestStencil extends OpenGLTestPerspective {
     private int width=0, height=0;
@@ -17,6 +18,7 @@ public class OpenGLTestStencil extends OpenGLTestPerspective {
     private ShaderProgram shaderDebugTextureUV;
     private ShaderProgram shaderDebugTexture1;
     private ShaderProgram shaderDebugTexture2;
+    private int stencilMode = 0;
 
     public OpenGLTestStencil(EntityManager entityManager) {
         super(entityManager);
@@ -56,9 +58,12 @@ public class OpenGLTestStencil extends OpenGLTestPerspective {
 
         displayToStencilFramebuffer(gl3,drawable);
         copyStencilFramebufferToTexture(gl3);
-        //debugTexture(gl3,stencilTexture[0],shaderDebugTextureUV);
-        debugTexture(gl3,stencilTexture[0],shaderDebugTexture1);
-        //debugTexture(gl3,stencilTexture[0],shaderDebugTexture2);
+
+        switch(stencilMode) {
+            case 0 -> debugTexture(gl3,stencilTexture[0],shaderDebugTextureUV);
+            case 1 -> debugTexture(gl3,stencilTexture[0],shaderDebugTexture1);
+            case 2 -> debugTexture(gl3,stencilTexture[0],shaderDebugTexture2);
+        }
     }
 
     private void displayToStencilFramebuffer(GL3 gl3, GLAutoDrawable drawable) {
@@ -161,21 +166,30 @@ public class OpenGLTestStencil extends OpenGLTestPerspective {
         gl3.glBindTexture   (GL3.GL_TEXTURE_2D, textureID);
         program.set1i(gl3,"debugTexture",0);
         // Render a full-screen quad
-        renderScreenSpaceQuad(gl3);
+        renderScreenSpaceQuad(gl3,0.9f);  // scaled so that we can see what's behind the quad
         gl3.glBindTexture(GL3.GL_TEXTURE_2D, 0);
 
         // Unbind the shader
         gl3.glUseProgram(0);
     }
 
-    private void renderScreenSpaceQuad(GL3 gl3) {
+    @Override
+    public void keyTyped(KeyEvent e) {
+        switch (e.getKeyChar()) {
+            case KeyEvent.VK_7 -> stencilMode = 0;
+            case KeyEvent.VK_8 -> stencilMode = 1;
+            case KeyEvent.VK_9 -> stencilMode = 2;
+        }
+        super.keyTyped(e);
+    }
+
+    private void renderScreenSpaceQuad(GL3 gl3,float scale) {
         Mesh mesh = new Mesh();
         mesh.setRenderStyle(GL3.GL_QUADS);
-        float v = 0.9f;
-        mesh.addNormal(0,0,1);  mesh.addTexCoord(0,0);  mesh.addColor(1,1,1,1);  mesh.addVertex(-v, -v,0.0f);
-        mesh.addNormal(0,0,1);  mesh.addTexCoord(1,0);  mesh.addColor(1,1,1,1);  mesh.addVertex( v, -v,0.0f);
-        mesh.addNormal(0,0,1);  mesh.addTexCoord(1,1);  mesh.addColor(1,1,1,1);  mesh.addVertex( v,  v,0.0f);
-        mesh.addNormal(0,0,1);  mesh.addTexCoord(0,1);  mesh.addColor(1,1,1,1);  mesh.addVertex(-v,  v,0.0f);
+        mesh.addNormal(0,0,1);  mesh.addTexCoord(0,0);  mesh.addColor(1,1,1,1);  mesh.addVertex(-scale, -scale,0.0f);
+        mesh.addNormal(0,0,1);  mesh.addTexCoord(1,0);  mesh.addColor(1,1,1,1);  mesh.addVertex( scale, -scale,0.0f);
+        mesh.addNormal(0,0,1);  mesh.addTexCoord(1,1);  mesh.addColor(1,1,1,1);  mesh.addVertex( scale,  scale,0.0f);
+        mesh.addNormal(0,0,1);  mesh.addTexCoord(0,1);  mesh.addColor(1,1,1,1);  mesh.addVertex(-scale,  scale,0.0f);
         mesh.render(gl3);
     }
 
