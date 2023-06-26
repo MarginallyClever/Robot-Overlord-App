@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * A simple line graph.
+ * A simple line graph.  Assumes at most one y value per x value.  Interpolates between given values.
  *
  * @author Dan Royer
  * @since 2.5.0
@@ -26,20 +26,33 @@ public class LineGraph extends JPanel {
 	private Color minorLineColor = new Color(0.9f,0.9f,0.9f);
 	private int gridSpacingX = 10;
 	private int gridSpacingY = 10;
+	private boolean mouseIn = false;
+	private double mouseX, mouseY;
 
 	public LineGraph() {
 		super();
 		setBackground(Color.WHITE);
 
+		final JPanel me = this;
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
+				mouseIn = true;
 				updateToolTip(e);
 			}
 
 			@Override
 			public void mouseExited(MouseEvent e) {
+				mouseIn = false;
 				setToolTipText("");
+				me.repaint();
+			}
+		});
+
+		addMouseMotionListener(new MouseAdapter() {
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				me.repaint();
 			}
 		});
 
@@ -54,8 +67,9 @@ public class LineGraph extends JPanel {
 	public void updateToolTip(MouseEvent event) {
 		double mx = event.getX();
 		double scaledX = mx / getWidth();
-		double x = xMin + (xMax - xMin) * scaledX;
-		setToolTipText( x+"="+ StringHelper.formatDouble(getYatX(x)) );
+		mouseX = xMin + (xMax - xMin) * scaledX;
+		mouseY = getYatX(mouseX);
+		setToolTipText( mouseX+"="+ StringHelper.formatDouble(mouseY) );
 	}
 
 	private double getYatX(double x) {
@@ -144,7 +158,9 @@ public class LineGraph extends JPanel {
 		Graphics2D g2d = (Graphics2D)g;
 		super.paintComponent(g2d);
 		drawGrid(g2d);
+		if(mouseIn) drawYatX1(g2d);
 		drawGraphLine(g2d);
+		if(mouseIn) drawYatX2(g2d);
 	}
 
 	private void drawGrid(Graphics g) {
@@ -197,37 +213,37 @@ public class LineGraph extends JPanel {
 		}
 	}
 
+	private void drawYatX1(Graphics g) {
+		if (data.isEmpty()) return;
+
+		g.setColor(minorLineColor);
+		int currentX = transformX(mouseX);
+		int y0 = transformY(yMin);
+		int y1 = transformY(yMax);
+		g.drawLine(currentX, y0, currentX, y1);
+	}
+
+	private void drawYatX2(Graphics g) {
+		if(data.isEmpty()) return;
+
+		int currentX = transformX(mouseX);
+		int height = getHeight();
+		g.setColor(getForeground());
+		int y0 = transformY(mouseY);
+
+		int v = 2;
+		g.drawLine(currentX-v,height - y0-v,currentX+v,height - y0-v);
+		g.drawLine(currentX+v,height - y0-v,currentX+v,height - y0+v);
+		g.drawLine(currentX+v,height - y0+v,currentX-v,height - y0+v);
+		g.drawLine(currentX-v,height - y0+v,currentX-v,height - y0-v);
+	}
+
 	private int transformX(double x) {
 		return (int) (((x - xMin) / (xMax - xMin)) * getWidth());
 	}
 
 	private int transformY(double y) {
 		return (int) (((y - yMin) / (yMax - yMin)) * getHeight());
-	}
-
-	// TEST 
-	
-	public static void main(String[] args) {
-		Log.start();
-
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception ignored) {}
-
-		LineGraph graph = new LineGraph();
-		for(int i=0;i<250;++i) {
-			graph.addValue(i,Math.random()*500);
-		}
-		graph.setBoundsToData();
-		graph.setBorder(new BevelBorder(BevelBorder.LOWERED));
-
-		JFrame frame = new JFrame("LineGraph");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setPreferredSize(new Dimension(800,400));
-		frame.setContentPane(graph);
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
 	}
 
 	public Color getMajorLineColor() {
@@ -260,5 +276,32 @@ public class LineGraph extends JPanel {
 
 	public void setGridSpacingY(int gridSpacingY) {
 		this.gridSpacingY = gridSpacingY;
+	}
+
+	// TEST
+
+	public static void main(String[] args) {
+		Log.start();
+
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception ignored) {}
+
+		LineGraph graph = new LineGraph();
+		double v = Math.random()*500;
+		for(int i=0;i<250;++i) {
+			graph.addValue(i,v);
+			v += Math.random()*10-5;
+		}
+		graph.setBoundsToData();
+		graph.setBorder(new BevelBorder(BevelBorder.LOWERED));
+
+		JFrame frame = new JFrame("LineGraph");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setPreferredSize(new Dimension(800,400));
+		frame.setContentPane(graph);
+		frame.pack();
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
 	}
 }
