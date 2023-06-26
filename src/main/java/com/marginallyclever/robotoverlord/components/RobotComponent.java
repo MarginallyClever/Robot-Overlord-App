@@ -197,6 +197,7 @@ public class RobotComponent extends Component implements Robot, ComponentWithRef
      */
     private void setEndEffectorTargetPose(Matrix4d newPose) {
         Entity target = getChildTarget();
+        if(target==null) return;
         PoseComponent targetPose = target.getComponent(PoseComponent.class);
         newPose.mul(getPoseWorld(),newPose);
         targetPose.setWorld(newPose);
