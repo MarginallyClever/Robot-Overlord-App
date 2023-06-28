@@ -24,14 +24,16 @@ import java.io.InputStreamReader;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, KeyListener {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLTestOrthographic.class);
     private static final int BYTES_PER_FLOAT=(Float.SIZE/8);
     private final JPanel panel = new JPanel(new BorderLayout());
     protected final GLJPanel glCanvas;
-    private ShaderProgram shaderDefault;
+    private ShaderProgram shaderNoTransform;
     private ShaderProgram shaderTransform;
+    private ShaderProgram shaderDefault;
     private final Mesh testTriangle = createTestTriangle();
     protected final Viewport viewport = new Viewport();
     private int[] myVertexBuffer;
@@ -42,7 +44,9 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
 
     public OpenGLTestOrthographic(EntityManager entityManager) {
         super();
-        logger.info("creating OpenGLRenderPanelBasic");
+        logger.info("creating {}",this.getClass().getName());
+        logger.info("\n"+JoglVersion.getInstance().toString());
+
         glCanvas = createCanvas();
         glCanvas.addGLEventListener(this);
         glCanvas.addKeyListener(this);
@@ -53,9 +57,9 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
         startAnimationSystem();
     }
 
-    private String [] readResource(String resourceName) {
+    protected String [] readResource(String resourceName) {
         List<String> lines = new ArrayList<>();
-        try(BufferedReader reader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream(resourceName)))) {
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(this.getClass().getResourceAsStream(resourceName))))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 lines.add(line+"\n");
@@ -73,17 +77,18 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
         capabilities.setBackgroundOpaque(true);
         capabilities.setDoubleBuffered(true);
         capabilities.setStencilBits(8);
-        StringBuilder sb = new StringBuilder();
-        capabilities.toString(sb);
-        logger.info("capabilities="+sb);
         return capabilities;
     }
 
     private GLJPanel createCanvas() {
         GLJPanel canvas = null;
         try {
-            logger.info("...create canvas");
-            canvas = new GLJPanel(getCapabilities());
+            GLCapabilities capabilities = getCapabilities();
+            StringBuilder sb = new StringBuilder();
+            capabilities.toString(sb);
+            logger.info("capabilities="+sb);
+
+            canvas = new GLJPanel(capabilities);
         } catch(GLException e) {
             logger.error("Failed to get/set Capabilities.  Are your native drivers missing?");
         }
@@ -271,8 +276,12 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
     }
 
     private void createShaderPrograms(GL3 gl) {
+        System.out.println("Create shader programs");
         shaderDefault = new ShaderProgram(gl,
-                readResource("notransform_330.vert"),
+                readResource("default_330.vert"),
+                readResource("givenColor_330.frag"));
+        shaderNoTransform = new ShaderProgram(gl,
+                readResource("noTransform_330.vert"),
                 readResource("givenColor_330.frag"));
         shaderTransform = new ShaderProgram(gl,
                 readResource("default_330.vert"),
@@ -298,7 +307,7 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
         testTriangle.render(gl);
     }
 
-    private void setViewMatrix(GL3 gl, ShaderProgram program) {
+    protected void setViewMatrix(GL3 gl, ShaderProgram program) {
         Matrix4d viewMatrix = MatrixHelper.createIdentityMatrix4();
         viewMatrix.setTranslation(new Vector3d(0,0,-15));
         viewMatrix.transpose();

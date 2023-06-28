@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.preferences;
 
 import com.marginallyclever.robotoverlord.components.GCodePathComponent;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
+import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 
 import java.util.prefs.Preferences;
@@ -24,6 +25,8 @@ public class GraphicsPreferences {
     public static final BooleanParameter antialiasing = new BooleanParameter("antialiasing",true);
     public static final IntParameter framesPerSecond = new IntParameter("fps",30);
     public static final IntParameter fsaaSamples = new IntParameter("FSAA samples",2);
+    public static final IntParameter outlineWidth = new IntParameter("outline width",5);
+    public static final ColorParameter outlineColor = new ColorParameter("outline color", 0,1,0,0.5);
 
     public static void save() {
         preferences.putBoolean("verticalSync",verticalSync.get());
@@ -34,6 +37,8 @@ public class GraphicsPreferences {
         preferences.putBoolean("doubleBuffered",doubleBuffered.get());
         preferences.putInt("framesPerSecond",framesPerSecond.get());
         preferences.putInt("fsaaSamples",fsaaSamples.get());
+        preferences.putInt("outlineWidth",outlineWidth.get());
+        preferences.putInt("outlineColor",outlineColor.getHex());
     }
 
     public static void load() {
@@ -45,5 +50,7 @@ public class GraphicsPreferences {
         doubleBuffered.set(preferences.getBoolean("doubleBuffered",doubleBuffered.get()));
         framesPerSecond.set(preferences.getInt("framesPerSecond",framesPerSecond.get()));
         fsaaSamples.set(preferences.getInt("fsaaSamples",fsaaSamples.get()));
+        outlineWidth.set(preferences.getInt("outlineWidth",outlineWidth.get()));
+        outlineColor.setFromHex(preferences.getInt("outlineColor",outlineColor.getHex()));
     }
 }

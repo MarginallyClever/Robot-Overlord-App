@@ -17,6 +17,7 @@ public class OpenGLTestPerspective extends OpenGLTestOrthographic {
         super(entityManager);
     }
 
+
     @Override
     protected void setProjectionMatrix(GL3 gl, ShaderProgram program) {
         double w = glCanvas.getSurfaceWidth();

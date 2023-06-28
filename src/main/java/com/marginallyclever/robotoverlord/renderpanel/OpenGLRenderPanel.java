@@ -63,7 +63,6 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
     private double frameDelay;
     private double frameLength;
 
-    // click on screen to change which entity is selected
     private final Viewport viewport = new Viewport();
 
     /**
@@ -83,18 +82,6 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
     private final MaterialComponent defaultMaterial = new MaterialComponent();
     private final JToolBar toolBar = new JToolBar();
 
-    /**
-     * Used to sort items at systems time. Opaque items are rendered first, then alpha items.
-     */
-    private static class MatrixMaterialRender {
-        public Matrix4d matrix = new Matrix4d();
-        public RenderComponent renderComponent;
-        public MaterialComponent materialComponent;
-    }
-    private final List<MatrixMaterialRender> opaque = new ArrayList<>();
-    private final List<MatrixMaterialRender> alpha = new ArrayList<>();
-    private final List<MatrixMaterialRender> noMaterial = new ArrayList<>();
-    private final List<MatrixMaterialRender> onTop = new ArrayList<>();
     private UpdateCallback updateCallback;
 
     private ShaderProgram shaderDefault;
@@ -386,7 +373,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
 
     private String [] readResource(String resourceName) {
         ArrayList<String> lines = new ArrayList<>();
-        try(BufferedReader reader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream(resourceName)))) {
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(this.getClass().getResourceAsStream(resourceName))))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 lines.add(line+"\n");
@@ -407,6 +394,12 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         shaderHUD = new ShaderProgram(gl3,
             readResource("default_330.vert"),
             readResource("givenColor_330.frag"));
+    }
+
+    private void destroyShaderPrograms(GL3 gl) {
+        shaderDefault.delete(gl);
+        shaderOutline.delete(gl);
+        shaderHUD.delete(gl);
     }
 
     private void deactivateAllTools() {
@@ -446,11 +439,10 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
     private void draw3DScene(GL3 gl) {
         CameraComponent camera = entityManager.getCamera();
         if (camera == null) {
-            gl.glClearColor(0.85f,0.85f,0.85f,1.0f);
-            gl.glClear(GL3.GL_COLOR_BUFFER_BIT);
             // TODO display a "no active camera found" message?
             return;
         }
+
         collectSelectedEntitiesAndTheirChildren();  // TODO only when selection changes?
         prepareToOutlineSelectedEntities(gl);
 
@@ -532,6 +524,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         for(EditorTool tool : editorTools) tool.render(gl,shaderDefault);
 
         // 2D overlays
+
         compass3d.render(gl,viewport,shaderDefault);
         drawCursor(gl);
 
@@ -559,29 +552,42 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         }
     }
 
-    private void outlineCollectedEntities(GL3 gl3) {
+    private void outlineCollectedEntities(GL3 gl) {
         if(shaderOutline ==null) return;
+
+        MatrixMaterialRenderSet mmrSet = new MatrixMaterialRenderSet(collectedEntities);
 
         // update the depth buffer so the outline will appear around the collected entities.
         // without this any part of a collected entity behind another entity will be completely filled with the outline color.
-        gl3.glClear(GL.GL_DEPTH_BUFFER_BIT);
-        gl3.glColorMask(false,false,false,false);
-        renderAllEntities(gl3,collectedEntities,shaderDefault);
-        gl3.glColorMask(true,true,true,true);
+        gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
+        gl.glColorMask(false,false,false,false);
+        renderMMRSet(gl,mmrSet,shaderDefault);
+        gl.glColorMask(true,true,true,true);
 
         // next draw, only draw where the stencil buffer is not 1
-        gl3.glStencilFunc(GL.GL_NOTEQUAL,1,0xff);
-        gl3.glStencilOp(GL.GL_KEEP,GL.GL_KEEP,GL.GL_KEEP);
+        gl.glStencilFunc(GL.GL_NOTEQUAL,1,0xff);
+        gl.glStencilOp(GL.GL_KEEP,GL.GL_KEEP,GL.GL_KEEP);
         // and do not update the stencil buffer.
-        gl3.glStencilMask(0x00);
+        gl.glStencilMask(0x00);
 
-        useShaderOutline(gl3);
+        gl.glLineWidth(GraphicsPreferences.outlineWidth.get());
+        gl.glDepthMask(false);
+        gl.glDisable(GL.GL_CULL_FACE);
 
-        renderAllEntities(gl3,collectedEntities,shaderOutline);
+        gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL3.GL_LINE);
+        try {
+            useShaderOutline(gl);
+            renderMMRSet(gl, mmrSet, shaderDefault);
+        } catch(Exception ignored) {}
+        gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL3.GL_FILL);
+
+        gl.glEnable(GL.GL_CULL_FACE);
+        gl.glDepthMask(true);
+        gl.glLineWidth(1);
 
         // clean up
-        gl3.glUseProgram(0);
-        gl3.glStencilMask(0xFF);
+        gl.glUseProgram(0);
+        gl.glStencilMask(0xFF);
     }
 
     private void useShaderOutline(GL3 gl3) {
@@ -590,8 +596,13 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         // tell the shader some important information
         setProjectionMatrix(gl3,shaderOutline);
         setViewMatrix(gl3,shaderOutline);
-        shaderOutline.set4f(gl3,"outlineColor",0.0f, 1.0f, 0.0f, 0.5f);
-        shaderOutline.set1f(gl3,"outlineSize",0.25f);
+        double[] color = GraphicsPreferences.outlineColor.get();
+        shaderOutline.set4f(gl3,
+                "outlineColor",
+                (float)color[0],
+                (float)color[1],
+                (float)color[2],
+                (float)color[3]);
     }
 
     /**
@@ -602,35 +613,14 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
      *
      */
     private void renderAllEntities(GL3 gl3,List<Entity> list,ShaderProgram shaderProgram) {
-        opaque.clear();
-        alpha.clear();
-        noMaterial.clear();
-        onTop.clear();
+        MatrixMaterialRenderSet mmrSet = new MatrixMaterialRenderSet(list);
+        renderMMRSet(gl3, mmrSet, shaderProgram);
+    }
 
-        // collect all entities with a RenderComponent
-        Queue<Entity> toRender = new LinkedList<>(list);
-        while(!toRender.isEmpty()) {
-            Entity entity = toRender.remove();
-            toRender.addAll(entity.getChildren());
-
-            RenderComponent renderComponent = entity.getComponent(RenderComponent.class);
-            if(renderComponent!=null) {
-                MatrixMaterialRender mmr = new MatrixMaterialRender();
-                mmr.renderComponent = entity.getComponent(RenderComponent.class);
-                mmr.materialComponent = entity.getComponent(MaterialComponent.class);
-                PoseComponent pose = entity.getComponent(PoseComponent.class);
-                if(pose!=null) mmr.matrix.set(pose.getWorld());
-
-                if(mmr.materialComponent==null) noMaterial.add(mmr);
-                else if(mmr.materialComponent.drawOnTop.get()) onTop.add(mmr);
-                else if(mmr.materialComponent.isAlpha()) alpha.add(mmr);
-                else opaque.add(mmr);
-            }
-        }
-
+    private void renderMMRSet(GL3 gl3, MatrixMaterialRenderSet mmrSet, ShaderProgram shaderProgram) {
         // opaque objects
         defaultMaterial.render(gl3);
-        renderMMRList(gl3,opaque,shaderProgram);
+        renderMMRList(gl3,mmrSet.opaque,shaderProgram);
 
         // sort alpha objects back to front
         Vector3d cameraPoint = new Vector3d();
@@ -639,7 +629,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
 
         Vector3d p1 = new Vector3d();
         Vector3d p2 = new Vector3d();
-        alpha.sort((o1, o2) -> {
+        mmrSet.alpha.sort((o1, o2) -> {
             o1.matrix.get(p1);
             o2.matrix.get(p2);
             p1.sub(cameraPoint);
@@ -650,16 +640,16 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         });
 
         // alpha objects
-        renderMMRList(gl3,alpha,shaderProgram);
+        renderMMRList(gl3,mmrSet.alpha,shaderProgram);
 
         // objects with no material
         defaultMaterial.render(gl3);
-        renderMMRList(gl3,noMaterial,shaderProgram);
+        renderMMRList(gl3,mmrSet.noMaterial,shaderProgram);
 
         // onTop
         gl3.glDisable(GL3.GL_DEPTH_TEST);
         defaultMaterial.render(gl3);
-        renderMMRList(gl3,onTop,shaderProgram);
+        renderMMRList(gl3,mmrSet.onTop,shaderProgram);
         gl3.glEnable(GL3.GL_DEPTH_TEST);
     }
 
@@ -674,13 +664,9 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
                 shaderProgram.setMatrix4d(gl,"modelMatrix",m);
             }
 
-            if(collectedEntities.contains(mmr.renderComponent.getEntity())) {
-                // if this mesh is one of the selected entities, then also render it to the stencil buffer for the outline shader.
-                gl.glStencilMask(0xFF);
-            } else {
-                gl.glStencilMask(0x00);
-            }
-
+            // if this mesh is one of the selected entities, then also render it to the stencil buffer for the outline shader.
+            boolean isCollected = collectedEntities.contains(mmr.renderComponent.getEntity());
+            gl.glStencilMask(isCollected ? 0xFF : 0x00);
             OpenGLHelper.checkGLError(gl,logger);
 
             Texture texture = null;

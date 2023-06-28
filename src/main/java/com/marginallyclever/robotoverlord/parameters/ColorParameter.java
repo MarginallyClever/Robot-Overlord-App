@@ -79,4 +79,22 @@ public class ColorParameter extends AbstractParameter<double[]> {
 		rgba[3] = jo.getDouble("a");
 		set(rgba);
 	}
+
+	public int getHex() {
+		double[] rgba = get();
+		int r = (int)(rgba[0]*255);
+		int g = (int)(rgba[1]*255);
+		int b = (int)(rgba[2]*255);
+		int a = (int)(rgba[3]*255);
+		return (r<<24) | (g<<16) | (b<<8) | a;
+	}
+
+	public void setFromHex(int hex) {
+		double[] rgba = get();
+		rgba[0] = ((hex>>24)&0xFF)/255.0;
+		rgba[1] = ((hex>>16)&0xFF)/255.0;
+		rgba[2] = ((hex>> 8)&0xFF)/255.0;
+		rgba[3] = ((hex    )&0xFF)/255.0;
+		set(rgba);
+	}
 }

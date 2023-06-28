@@ -163,6 +163,9 @@ public class RobotOverlord {
 			splitLeftRight.remove(renderPanel.getPanel());
 		}
 
+		//renderPanel = new OpenGLTestOrthographic(project.getEntityManager());
+		//renderPanel = new OpenGLTestPerspective(project.getEntityManager());
+		//renderPanel = new OpenGLTestStencil(project.getEntityManager());
 		renderPanel = new OpenGLRenderPanel(project.getEntityManager());
 		renderPanel.setUpdateCallback((dt)->{
 			for(EntitySystem system : systems) system.update(dt);
