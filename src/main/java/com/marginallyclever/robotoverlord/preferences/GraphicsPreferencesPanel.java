@@ -31,6 +31,8 @@ public class GraphicsPreferencesPanel extends JPanel {
         factory.add(GraphicsPreferences.doubleBuffered);
         factory.addComboBox(GraphicsPreferences.fsaaSamples,GraphicsPreferences.FSAA_NAMES);
         factory.addRange(GraphicsPreferences.framesPerSecond,120,1);
+        factory.addRange(GraphicsPreferences.outlineWidth,20,1);
+        factory.add(GraphicsPreferences.outlineColor);
 
         this.add(factory.getFinalView(),BorderLayout.NORTH);
     }
