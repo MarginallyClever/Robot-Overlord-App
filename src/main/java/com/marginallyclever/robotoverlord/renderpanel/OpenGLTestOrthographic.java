@@ -77,17 +77,18 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
         capabilities.setBackgroundOpaque(true);
         capabilities.setDoubleBuffered(true);
         capabilities.setStencilBits(8);
-        StringBuilder sb = new StringBuilder();
-        capabilities.toString(sb);
-        logger.info("capabilities="+sb);
         return capabilities;
     }
 
     private GLJPanel createCanvas() {
         GLJPanel canvas = null;
         try {
-            logger.info("...create canvas");
-            canvas = new GLJPanel(getCapabilities());
+            GLCapabilities capabilities = getCapabilities();
+            StringBuilder sb = new StringBuilder();
+            capabilities.toString(sb);
+            logger.info("capabilities="+sb);
+
+            canvas = new GLJPanel(capabilities);
         } catch(GLException e) {
             logger.error("Failed to get/set Capabilities.  Are your native drivers missing?");
         }
