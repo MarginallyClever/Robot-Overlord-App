@@ -131,7 +131,7 @@ public class Project {
 
     private void loadFromStringWithContext(String string,SerializationContext context) {
         JSONObject json = new JSONObject(string);
-        parseJSON(json,context);;
+        parseJSON(json,context);
     }
 
     public void parseJSON(JSONObject json,SerializationContext context) {
