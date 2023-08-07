@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,18 @@ public class RPMToTorqueTable extends JPanel {
         model.addTableModelListener(e -> {
             for(DataChangeListener listener : listeners) {
                 listener.onDataChange(e);
+            }
+        });
+        // sort columns by double value
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(model);
+        table.setRowSorter(sorter);
+        sorter.setComparator(0, (o1, o2) -> {
+            try {
+                double d1 = Double.parseDouble(o1.toString());
+                double d2 = Double.parseDouble(o2.toString());
+                return Double.compare(d1, d2);
+            } catch (NumberFormatException e) {
+                return o1.toString().compareTo(o2.toString());
             }
         });
 
