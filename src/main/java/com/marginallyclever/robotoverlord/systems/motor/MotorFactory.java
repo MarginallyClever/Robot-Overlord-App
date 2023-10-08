@@ -1,14 +1,24 @@
 package com.marginallyclever.robotoverlord.systems.motor;
 
+import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.motors.DCMotorComponent;
 import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
 import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
 import com.marginallyclever.robotoverlord.components.motors.StepperMotorComponent;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * produce common motors in robotics, prefilled with torque curve.
  */
 public class MotorFactory {
+    private static final Logger logger = LoggerFactory.getLogger(MotorFactory.class);
+
     public static MotorComponent createDefaultMotor() {
         MotorComponent mc = new DCMotorComponent();
         setDefaultMotorCurve(mc);
@@ -48,5 +58,45 @@ public class MotorFactory {
         smc.setTorqueAtRPM(180,6);
         smc.setTorqueAtRPM(240,1.8);
         return smc;
+    }
+
+    /**
+     * Create a {@link MotorComponent} from JSON file.
+     * @param file JSON file to load
+     * @return a motor component
+     */
+    public static MotorComponent createMotorFromFile(File file) throws IOException {
+        String newPath = file.getAbsolutePath();
+        logger.debug("Loading from {}", newPath);
+
+        Path path = Paths.get(newPath);
+        String onlyPath = path.getParent().toString();
+
+        StringBuilder responseStrBuilder = new StringBuilder();
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+            String inputStr;
+            while ((inputStr = reader.readLine()) != null) {
+                responseStrBuilder.append(inputStr);
+            }
+        }
+
+        SerializationContext context = new SerializationContext(onlyPath);
+        JSONObject json = new JSONObject(responseStrBuilder.toString());
+        return createMotorFromJSON(json,context);
+    }
+
+    public static MotorComponent createMotorFromJSON(JSONObject json, SerializationContext context) {
+        MotorComponent mc = null;
+        String type = json.getString("type");
+        switch (type) {
+            case "DCMotorComponent" -> mc = new DCMotorComponent();
+            case "ServoComponent" -> mc = new ServoComponent();
+            case "StepperMotorComponent" -> mc = new StepperMotorComponent();
+            default -> throw new RuntimeException("Unknown motor type " + type);
+        }
+
+        mc.parseJSON(json, context);
+
+        return mc;
     }
 }
