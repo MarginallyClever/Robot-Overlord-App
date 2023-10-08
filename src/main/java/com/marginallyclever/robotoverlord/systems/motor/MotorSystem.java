@@ -140,8 +140,6 @@ public class MotorSystem implements EntitySystem {
         servo.lastError.set(error);
         servo.errorSum.set(errorSum);
 
-        // Update the current angle.
-        // Note that we're not considering physical limitations here like max speed or acceleration of the servo.
         servo.setDesiredRPM(output);
 
         updateMotorBasic(servo, dt);
@@ -176,7 +174,7 @@ public class MotorSystem implements EntitySystem {
         }
 
         // adjust angle
-        double degreesPerSecond = motor.getCurrentRPM()*360.0/60.0;
+        double degreesPerSecond = motor.getCurrentRPM()*6.0;  // 1 rpm = 6 deg/s.
         double newAngle = motor.currentAngle.get() + degreesPerSecond * dt;
 
         rotateMotor(motor, newAngle);
