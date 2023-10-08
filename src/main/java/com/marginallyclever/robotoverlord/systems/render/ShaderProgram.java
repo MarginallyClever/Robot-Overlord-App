@@ -2,6 +2,7 @@ package com.marginallyclever.robotoverlord.systems.render;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,19 +113,27 @@ public class ShaderProgram {
     }
 
     public void set3f(GL3 gl, String name, float v0, float v1, float v2) {
-        gl.glUniform3f(getUniformLocation(gl, name), v0, v1, v2);
+        int location = getUniformLocation(gl, name);
+        if(location==-1) return;
+        gl.glUniform3f(location, v0, v1, v2);
     }
 
     public void set4f(GL3 gl, String name, float v0, float v1, float v2, float v3) {
-        gl.glUniform4f(getUniformLocation(gl, name), v0, v1, v2, v3);
+        int location = getUniformLocation(gl, name);
+        if(location==-1) return;
+        gl.glUniform4f(location, v0, v1, v2, v3);
     }
 
     public void setVector3d(GL3 gl, String name, Vector3d v) {
-        gl.glUniform3f(getUniformLocation(gl, name), (float) v.x, (float) v.y, (float) v.z);
+        int location = getUniformLocation(gl, name);
+        if(location==-1) return;
+        gl.glUniform3f(location, (float) v.x, (float) v.y, (float) v.z);
     }
 
     public void setMatrix4d(GL3 gl, String name, Matrix4d matrix4d) {
-        gl.glUniformMatrix4fv(getUniformLocation(gl, name), 1, false, MatrixHelper.matrixToFloatBuffer(matrix4d));
+        int location = getUniformLocation(gl, name);
+        if(location==-1) return;
+        gl.glUniformMatrix4fv(location, 1, false, MatrixHelper.matrixToFloatBuffer(matrix4d));
     }
 
     public void set1i(GL3 gl, String name, int b) {
