@@ -52,6 +52,7 @@ public abstract class ComponentFactory {
 			GCodePathComponent.class,
 			ProgramPathComponent.class,
 			ProgramComponent.class,
+			ProjectorComponent.class,
 
 			RobotGripperComponent.class,
 			RobotGripperJawComponent.class,
