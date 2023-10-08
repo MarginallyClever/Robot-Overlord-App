@@ -11,7 +11,6 @@ import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
-import com.marginallyclever.robotoverlord.parameters.TextureParameter;
 import com.marginallyclever.robotoverlord.preferences.InteractionPreferences;
 import com.marginallyclever.robotoverlord.preferences.GraphicsPreferences;
 import com.marginallyclever.robotoverlord.systems.render.Compass3D;
@@ -269,8 +268,8 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
     }
 
     private void reloadAllAssets(GL3 gl) {
-        TextureParameter.unloadAll(gl);
-        TextureParameter.loadAll();
+        TextureFactory.unloadAll(gl);
+        TextureFactory.loadAll();
 
         List<Entity> list = new ArrayList<>();
         list.add(entityManager.getRoot());
@@ -310,7 +309,11 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
 
         updateStep(dt*0.001);  // to seconds
 
-        renderStep(getGL3(drawable));
+        try {
+            renderStep(getGL3(drawable));
+        } catch(Exception e) {
+            logger.error("Exception during render",e);
+        }
     }
 
 
@@ -448,9 +451,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
 
         viewport.setCamera(camera);
         renderLights();
-
         useShaderDefault(gl);
-
         skyBox.render(gl, camera, shaderDefault);
 
         renderAllEntities(gl, entityManager.getEntities(),shaderDefault);
@@ -577,7 +578,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL3.GL_LINE);
         try {
             useShaderOutline(gl);
-            renderMMRSet(gl, mmrSet, shaderDefault);
+            renderMMRSet(gl, mmrSet, shaderOutline);
         } catch(Exception ignored) {}
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL3.GL_FILL);
 
@@ -622,25 +623,27 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         defaultMaterial.render(gl3);
         renderMMRList(gl3,mmrSet.opaque,shaderProgram);
 
-        // sort alpha objects back to front
-        Vector3d cameraPoint = new Vector3d();
-        Entity cameraEntity = entityManager.getCamera().getEntity();
-        cameraEntity.getComponent(PoseComponent.class).getWorld().get(cameraPoint);
+        if(!mmrSet.alpha.isEmpty()) {
+            // sort alpha objects back to front
+            Vector3d cameraPoint = new Vector3d();
+            Entity cameraEntity = entityManager.getCamera().getEntity();
+            cameraEntity.getComponent(PoseComponent.class).getWorld().get(cameraPoint);
 
-        Vector3d p1 = new Vector3d();
-        Vector3d p2 = new Vector3d();
-        mmrSet.alpha.sort((o1, o2) -> {
-            o1.matrix.get(p1);
-            o2.matrix.get(p2);
-            p1.sub(cameraPoint);
-            p2.sub(cameraPoint);
-            double d1 = p1.lengthSquared();
-            double d2 = p2.lengthSquared();
-            return (int)Math.signum(d2-d1);
-        });
+            Vector3d p1 = new Vector3d();
+            Vector3d p2 = new Vector3d();
+            mmrSet.alpha.sort((o1, o2) -> {
+                o1.matrix.get(p1);
+                o2.matrix.get(p2);
+                p1.sub(cameraPoint);
+                p2.sub(cameraPoint);
+                double d1 = p1.lengthSquared();
+                double d2 = p2.lengthSquared();
+                return (int) Math.signum(d2 - d1);
+            });
 
-        // alpha objects
-        renderMMRList(gl3,mmrSet.alpha,shaderProgram);
+            // alpha objects
+            renderMMRList(gl3, mmrSet.alpha, shaderProgram);
+        }
 
         // objects with no material
         defaultMaterial.render(gl3);
@@ -676,6 +679,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
             if(mmr.materialComponent!=null && mmr.materialComponent.getEnabled()) {
                 MaterialComponent material = mmr.materialComponent;
                 material.render(gl);
+                OpenGLHelper.checkGLError(gl,logger);
                 // flat light?
                 useLighting &= material.isLit();
                 // if we have a texture assigned, then we might still enable textures.
@@ -683,6 +687,9 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
                 if(texture==null) useTexture = false;
                 // assign the object's overall color.
                 double[] diffuseColor = material.getDiffuseColor();
+
+                OpenGLHelper.checkGLError(gl,logger);
+
                 shaderProgram.set4f(gl,
                         "objectColor",
                         (float)diffuseColor[0],
@@ -723,6 +730,8 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
                 gl.glEnable(GL.GL_TEXTURE_2D);
                 texture.bind(gl);
                 mmr.materialComponent.render(gl);
+                OpenGLHelper.checkGLError(gl,logger);
+
                 shaderProgram.set1i(gl,"diffuseTexture",0);
                 OpenGLHelper.checkGLError(gl,logger);
             }

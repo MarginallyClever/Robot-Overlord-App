@@ -24,6 +24,7 @@ module com.marginallyclever.robotoverlord {
 	requires java.datatransfer;
 	requires core;
 	requires flexmark.util.ast;
+	requires webcam.capture;
 
 	// AFAIK this is only needed for the test 'GCodePathLoaderTest'.
 	// I don't know why it throws `InaccessibleObjectException` without this.
