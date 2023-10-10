@@ -22,6 +22,10 @@
 
     <logger name="com.marginallyclever" level="debug" />
 
+
+    <root level="debug">
+        <appender-ref ref="STDOUT" />
+    </root>
     <root level="info">
         <appender-ref ref="FILE" />
     </root>
