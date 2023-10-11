@@ -2,10 +2,13 @@ package com.marginallyclever.robotoverlord.systems.render;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.parameters.TextureParameter;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -15,6 +18,7 @@ import javax.vecmath.Vector3d;
  * @author Dan Royer
  */
 public class SkyBox {
+	private static final Logger logger = LoggerFactory.getLogger(SkyBox.class);
 	private transient final TextureParameter textureXPos = new TextureParameter("XPos","/skybox/cube-x-pos.png");
 	private transient final TextureParameter textureXNeg = new TextureParameter("XNeg","/skybox/cube-x-neg.png");
 	private transient final TextureParameter textureYPos = new TextureParameter("YPos","/skybox/cube-y-pos.png");
@@ -78,18 +82,26 @@ public class SkyBox {
 		meshes[5] = mesh5;
 	}
 
-	public void render(GL3 gl,CameraComponent camera,ShaderProgram program) {
-		PoseComponent cameraPose = camera.getEntity().getComponent(PoseComponent.class);
-
-		program.set1i(gl,"useTexture",1);
-		program.set1i(gl,"useLighting",0);
-		program.set1i(gl,"useVertexColor",0);
+	public void render(GL3 gl,Viewport viewport,ShaderProgram program) {
+		PoseComponent cameraPose = viewport.getCamera().getEntity().getComponent(PoseComponent.class);
 
 		Matrix4d m1 = MatrixHelper.createIdentityMatrix4();
 		Vector3d cameraPosition = new Vector3d(cameraPose.getPosition());
 		m1.setTranslation(cameraPosition);
 		m1.transpose();
 		program.setMatrix4d(gl,"modelMatrix",m1);
+
+		program.setMatrix4d(gl,"projectionMatrix",viewport.getChosenProjectionMatrix());
+
+		Matrix4d viewMatrix = viewport.getViewMatrix();
+		viewMatrix.transpose();
+		program.setMatrix4d(gl,"viewMatrix",viewMatrix);
+
+		program.set1i(gl,"useVertexColor",0);
+		program.set1i(gl,"useLighting",0);
+		program.set1i(gl,"useTexture",1);
+		program.set1i(gl,"diffuseTexture",0);
+		program.set4f(gl,"objectColor",1,1,1,1);
 
 		textureXPos.render(gl);		meshes[0].render(gl);
 		textureXNeg.render(gl);		meshes[1].render(gl);
@@ -98,6 +110,7 @@ public class SkyBox {
 		textureZPos.render(gl);		meshes[4].render(gl);
 		textureZNeg.render(gl);		meshes[5].render(gl);
 
+		OpenGLHelper.checkGLError(gl,logger);
 		// Clear the depth buffer
         gl.glClear(GL3.GL_DEPTH_BUFFER_BIT);
 	}
