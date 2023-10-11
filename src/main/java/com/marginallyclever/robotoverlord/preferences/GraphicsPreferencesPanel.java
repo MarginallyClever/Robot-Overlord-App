@@ -33,6 +33,7 @@ public class GraphicsPreferencesPanel extends JPanel {
         factory.addRange(GraphicsPreferences.framesPerSecond,120,1);
         factory.addRange(GraphicsPreferences.outlineWidth,20,1);
         factory.add(GraphicsPreferences.outlineColor);
+        factory.add(GraphicsPreferences.backgroundColor);
 
         this.add(factory.getFinalView(),BorderLayout.NORTH);
     }

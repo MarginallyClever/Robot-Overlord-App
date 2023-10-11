@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.preferences;
 
-import com.marginallyclever.robotoverlord.components.GCodePathComponent;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
@@ -22,11 +21,11 @@ public class GraphicsPreferences {
     public static final BooleanParameter hardwareAccelerated = new BooleanParameter("hardware accelerated",true);
     public static final BooleanParameter backgroundOpaque = new BooleanParameter("background opaque",true);
     public static final BooleanParameter doubleBuffered = new BooleanParameter("double buffered",true);
-    public static final BooleanParameter antialiasing = new BooleanParameter("antialiasing",true);
     public static final IntParameter framesPerSecond = new IntParameter("fps",30);
     public static final IntParameter fsaaSamples = new IntParameter("FSAA samples",2);
     public static final IntParameter outlineWidth = new IntParameter("outline width",5);
     public static final ColorParameter outlineColor = new ColorParameter("outline color", 0,1,0,0.5);
+    public static final ColorParameter backgroundColor = new ColorParameter("background color", 0.85f,0.85f,0.85f,1.0f);
 
     public static void save() {
         preferences.putBoolean("verticalSync",verticalSync.get());
@@ -39,6 +38,7 @@ public class GraphicsPreferences {
         preferences.putInt("fsaaSamples",fsaaSamples.get());
         preferences.putInt("outlineWidth",outlineWidth.get());
         preferences.putInt("outlineColor",outlineColor.getHex());
+        preferences.putInt("backgroundColor", backgroundColor.getHex());
     }
 
     public static void load() {
@@ -52,5 +52,6 @@ public class GraphicsPreferences {
         fsaaSamples.set(preferences.getInt("fsaaSamples",fsaaSamples.get()));
         outlineWidth.set(preferences.getInt("outlineWidth",outlineWidth.get()));
         outlineColor.setFromHex(preferences.getInt("outlineColor",outlineColor.getHex()));
+        backgroundColor.setFromHex(preferences.getInt("backgroundColor", backgroundColor.getHex()));
     }
 }
