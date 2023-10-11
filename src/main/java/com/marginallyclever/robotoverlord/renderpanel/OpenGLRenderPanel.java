@@ -448,15 +448,14 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         }
 
         collectSelectedEntitiesAndTheirChildren();  // TODO only when selection changes?
-        prepareToOutlineSelectedEntities(gl);
 
         viewport.setCamera(camera);
         renderLights();
         useShaderDefault(gl);
         skyBox.render(gl, viewport, shaderDefault);
 
+        prepareToOutlineSelectedEntities(gl);
         renderAllEntities(gl, entityManager.getEntities(),shaderDefault);
-
         outlineCollectedEntities(gl);
     }
 
@@ -506,7 +505,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         program.setMatrix4d(gl,"projectionMatrix",projectionMatrix);
     }
 
-    private void setOrthograpicMatrix(GL3 gl3, ShaderProgram program) {
+    private void setOrthographicMatrix(GL3 gl3, ShaderProgram program) {
         Matrix4d projectionMatrix = viewport.getOrthographicMatrix();
         program.setMatrix4d(gl3,"projectionMatrix",projectionMatrix);
     }
@@ -517,23 +516,19 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         program.setMatrix4d(gl3,"viewMatrix",viewMatrix);
     }
 
+    /**
+     * Render 3d and then 2d overlays.
+     * @param gl the OpenGL context
+     */
     private void drawOverlays(GL3 gl) {
-        // overlays
         gl.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_STENCIL_BUFFER_BIT);
-        gl.glUseProgram(0);
-
         useShaderDefault(gl);
-        shaderDefault.setVector3d(gl,"specularColor",new Vector3d(1,1,1));
-        shaderDefault.setVector3d(gl,"ambientLightColor",new Vector3d(1,1,1));
         // 3D overlays
         if (showWorldOrigin.get()) MatrixHelper.drawMatrix(10).render(gl);
         for(EditorTool tool : editorTools) tool.render(gl,shaderDefault);
-
         // 2D overlays
         compass3d.render(gl,viewport,shaderDefault);
         drawCursor(gl);
-
-        useShaderDefault(gl);
     }
 
     private void prepareToOutlineSelectedEntities(GL3 gl3) {
@@ -762,7 +757,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         if(!isMouseIn) return;
 
         shaderHUD.use(gl3);
-        setOrthograpicMatrix(gl3,shaderHUD);
+        setOrthographicMatrix(gl3,shaderHUD);
         shaderHUD.setMatrix4d(gl3,"viewMatrix",MatrixHelper.createIdentityMatrix4());
 
         double [] cursor = viewport.getCursorAsNormalized();
