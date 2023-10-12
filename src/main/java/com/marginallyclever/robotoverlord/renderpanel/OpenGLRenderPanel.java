@@ -455,12 +455,12 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         // do not write to stencil buffer.
         gl.glStencilMask(0x00);
         gl.glStencilFunc(GL.GL_ALWAYS,1,0xFF);
+        gl.glStencilOp(GL3.GL_KEEP, GL3.GL_KEEP, GL3.GL_REPLACE);
 
         viewport.setCamera(camera);
         renderLights();
         useShaderDefault(gl);
         skyBox.render(gl, viewport, shaderDefault);
-
         renderAllEntities(gl, entityManager.getEntities(),shaderDefault);
         outlineCollectedEntities(gl);
     }
@@ -484,26 +484,16 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         shaderDefault.use(gl);
         setProjectionMatrix(gl,shaderDefault);
         setViewMatrix(gl,shaderDefault);
-
         OpenGLHelper.checkGLError(gl,logger);
 
         shaderDefault.setVector3d(gl,"lightPos",lightPos);  // Light position in world space
-        OpenGLHelper.checkGLError(gl,logger);
         shaderDefault.setVector3d(gl,"cameraPos",cameraPos);  // Camera position in world space
-        OpenGLHelper.checkGLError(gl,logger);
         shaderDefault.setVector3d(gl,"lightColor",lightColor);  // Light color
-        OpenGLHelper.checkGLError(gl,logger);
         shaderDefault.set4f(gl,"objectColor",1,1,1,1);
-        OpenGLHelper.checkGLError(gl,logger);
-        shaderDefault.set1i(gl,"diffuseTexture",0);
-        OpenGLHelper.checkGLError(gl,logger);
         shaderDefault.setVector3d(gl,"specularColor",new Vector3d(0.5,0.5,0.5));
-        OpenGLHelper.checkGLError(gl,logger);
         shaderDefault.setVector3d(gl,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
-
         shaderDefault.set1f(gl,"useVertexColor",0);
-
-        OpenGLHelper.checkGLError(gl,logger);
+        shaderDefault.set1i(gl,"diffuseTexture",0);
     }
 
     private void setProjectionMatrix(GL3 gl, ShaderProgram program) {
@@ -552,10 +542,10 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
     }
 
     /**
-     * <ul>
+     * <ol>
      * <li>Draw selected entities and update the stencil and depth buffers</li>
      * <li>Draw the selected entities with the outline shader, masked by the stencil buffer.</li>
-     * </ul>
+     * </ol>
      * @param gl the OpenGL context
      */
     private void outlineCollectedEntities(GL3 gl) {
@@ -563,24 +553,28 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
 
         MatrixMaterialRenderSet mmrSet = new MatrixMaterialRenderSet(collectedEntities);
         sortMMRAlpha(mmrSet);
+        useShaderDefault(gl);
         drawMMRSetToStencilBuffer(gl,mmrSet);
 
-        gl.glDepthMask(false);
         // only draw where the stencil buffer is not 1 (where there are no collectedEntities)
         gl.glStencilFunc(GL.GL_NOTEQUAL,1,0xFF);
         gl.glStencilOp(GL.GL_KEEP,GL.GL_KEEP,GL.GL_KEEP);
 
+        gl.glDepthMask(false);
         gl.glLineWidth(GraphicsPreferences.outlineWidth.get());
         gl.glDisable(GL.GL_CULL_FACE);
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL3.GL_LINE);
-        useShaderOutline(gl);
-        renderMMRSet(gl, mmrSet, shaderOutline);
+
+            useShaderOutline(gl);
+            renderMMRSet(gl, mmrSet, shaderOutline);
+
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL3.GL_FILL);
         gl.glEnable(GL.GL_CULL_FACE);
         gl.glLineWidth(1);
+        gl.glDepthMask(true);
 
         gl.glStencilFunc(GL.GL_ALWAYS,1,0xFF);
-        gl.glDepthMask(true);
+        gl.glStencilOp(GL3.GL_KEEP, GL3.GL_KEEP, GL3.GL_REPLACE);
     }
 
     private void drawMMRSetToStencilBuffer(GL3 gl, MatrixMaterialRenderSet mmrSet) {
@@ -620,6 +614,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         // tell the shader some important information
         setProjectionMatrix(gl,shaderOutline);
         setViewMatrix(gl,shaderOutline);
+
         double[] color = GraphicsPreferences.outlineColor.get();
         shaderOutline.set4f(gl,
                 "outlineColor",
@@ -627,7 +622,6 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
                 (float)color[1],
                 (float)color[2],
                 (float)color[3]);
-        shaderOutline.set1f(gl,"useVertexColor",0);
     }
 
     /**
@@ -647,24 +641,24 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
 
     /**
      * Render all the lists in an {@link MatrixMaterialRenderSet} in the correct order.
-     * @param gl3 the OpenGL context
+     * @param gl the OpenGL context
      * @param mmrSet the set to render
      * @param shaderProgram the shader to use
      */
-    private void renderMMRSet(GL3 gl3, MatrixMaterialRenderSet mmrSet, ShaderProgram shaderProgram) {
-        defaultMaterial.render(gl3);
-        // opaque objects
-        renderMMRList(gl3,mmrSet.opaque,shaderProgram);
-        // alpha objects
-        renderMMRList(gl3, mmrSet.alpha, shaderProgram);
+    private void renderMMRSet(GL3 gl, MatrixMaterialRenderSet mmrSet, ShaderProgram shaderProgram) {
+        defaultMaterial.render(gl);
         // objects with no material
-        defaultMaterial.render(gl3);
-        renderMMRList(gl3,mmrSet.noMaterial,shaderProgram);
+        defaultMaterial.render(gl);
+        renderMMRList(gl,mmrSet.noMaterial,shaderProgram);
+        // opaque objects
+        renderMMRList(gl,mmrSet.opaque,shaderProgram);
+        // alpha objects
+        renderMMRList(gl, mmrSet.alpha,shaderProgram);
         // objects on top of everything else
-        gl3.glDisable(GL3.GL_DEPTH_TEST);
-        defaultMaterial.render(gl3);
-        renderMMRList(gl3,mmrSet.onTop,shaderProgram);
-        gl3.glEnable(GL3.GL_DEPTH_TEST);
+        gl.glDisable(GL3.GL_DEPTH_TEST);
+        defaultMaterial.render(gl);
+        renderMMRList(gl,mmrSet.onTop,shaderProgram);
+        gl.glEnable(GL3.GL_DEPTH_TEST);
     }
 
     private void renderMMRList(GL3 gl, List<MatrixMaterialRender> list,ShaderProgram shaderProgram) {
@@ -677,7 +671,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         if(mmr.renderComponent==null || !mmr.renderComponent.getVisible()) return;
 
         if(mmr.matrix!=null) {
-            Matrix4d m = mmr.matrix;
+            Matrix4d m = new Matrix4d(mmr.matrix);
             m.transpose();
             // tell the shaders about our modelMatrix.
             shaderProgram.setMatrix4d(gl,"modelMatrix",m);
@@ -704,8 +698,6 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
                     (float)diffuseColor[1],
                     (float)diffuseColor[2],
                     (float)diffuseColor[3]);
-
-            OpenGLHelper.checkGLError(gl,logger);
         }
 
         boolean hasMesh = false;
@@ -728,17 +720,16 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
             useLighting=false;
         }
 
+        OpenGLHelper.checkGLError(gl,logger);
+
         shaderProgram.set1i(gl,"useVertexColor",useVertexColor?1:0);
         shaderProgram.set1i(gl,"useLighting",useLighting?1:0);
         shaderProgram.set1i(gl,"useTexture",useTexture?1:0);
-
-        OpenGLHelper.checkGLError(gl,logger);
 
         if(useTexture && texture!=null) {
             gl.glEnable(GL.GL_TEXTURE_2D);
             mmr.materialComponent.render(gl);
             shaderProgram.set1i(gl,"diffuseTexture",0);
-            OpenGLHelper.checkGLError(gl,logger);
         }
 
         mmr.renderComponent.render(gl);
