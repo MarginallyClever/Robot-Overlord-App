@@ -13,6 +13,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+/**
+ * Run this to visually test
+ */
 public class VisuallyTestSphereMap extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(VisuallyTestSphereMap.class);
     private final BufferedImage image;
@@ -103,7 +106,7 @@ public class VisuallyTestSphereMap extends JPanel {
     public VisuallyTestSphereMap() throws IOException {
         setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
 
-        image = ImageIO.read(new File("C:\\Users\\aggra\\Desktop\\whiteRoomSphericalProjection2.png"));
+        image = ImageIO.read(new File("whiteRoomSphericalProjection2.png"));
         // paint source with image, filling the entire panel.
 
         remapped = new BufferedImage(1536,256,BufferedImage.TYPE_INT_RGB);
