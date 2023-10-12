@@ -11,6 +11,7 @@ import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
+import com.marginallyclever.robotoverlord.parameters.TextureParameter;
 import com.marginallyclever.robotoverlord.preferences.InteractionPreferences;
 import com.marginallyclever.robotoverlord.preferences.GraphicsPreferences;
 import com.marginallyclever.robotoverlord.systems.render.Compass3D;
@@ -259,17 +260,16 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         gl.glEnable(GL3.GL_BLEND);
         gl.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);
 
-        // set the color to use when wiping the draw buffer
-        gl.glClearColor(0.85f, 0.85f, 0.85f, 0.0f);
-
         createShaderPrograms(gl);
 
         reloadAllAssets(gl);
     }
 
     private void reloadAllAssets(GL3 gl) {
-        TextureFactory.unloadAll(gl);
-        TextureFactory.loadAll();
+        logger.debug("reloading all assets");
+
+        TextureParameter.unloadAll(gl);
+        TextureParameter.loadAll();
 
         List<Entity> list = new ArrayList<>();
         list.add(entityManager.getRoot());
@@ -430,10 +430,14 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
     }
 
     private void renderStep(GL3 gl) {
+        double[] bg = GraphicsPreferences.backgroundColor.get();
         // clear green color, the depth bit, and the stencil buffer.
-        gl.glClearColor(0.85f,0.85f,0.85f,1.0f);
-        gl.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_STENCIL_BUFFER_BIT);
+        gl.glClearColor((float)bg[0],(float)bg[1],(float)bg[2],(float)bg[3]);
+        gl.glDepthMask(true);
         gl.glColorMask(true,true,true,true);
+        gl.glStencilMask(0xFF);
+        // erase!
+        gl.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT | GL.GL_STENCIL_BUFFER_BIT);
 
         draw3DScene(gl);
         //viewport.showPickingTest(gl);
@@ -448,13 +452,15 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         }
 
         collectSelectedEntitiesAndTheirChildren();  // TODO only when selection changes?
+        // do not write to stencil buffer.
+        gl.glStencilMask(0x00);
+        gl.glStencilFunc(GL.GL_ALWAYS,1,0xFF);
 
         viewport.setCamera(camera);
         renderLights();
         useShaderDefault(gl);
         skyBox.render(gl, viewport, shaderDefault);
 
-        prepareToOutlineSelectedEntities(gl);
         renderAllEntities(gl, entityManager.getEntities(),shaderDefault);
         outlineCollectedEntities(gl);
     }
@@ -521,6 +527,8 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
      * @param gl the OpenGL context
      */
     private void drawOverlays(GL3 gl) {
+        //gl.glStencilMask(0xFF);
+        //gl.glDepthMask(true);
         gl.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_STENCIL_BUFFER_BIT);
         useShaderDefault(gl);
         // 3D overlays
@@ -531,16 +539,6 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         drawCursor(gl);
     }
 
-    private void prepareToOutlineSelectedEntities(GL3 gl3) {
-        gl3.glStencilFunc(GL.GL_ALWAYS,1,0xff);
-        // if we pass the depth test, keep the old value in the stencil buffer.
-        // if we pass the stencil test, keep the old value in the stencil buffer.
-        // if we pass BOTH then replace the stencil buffer value with the reference value (1).
-        gl3.glStencilOp(GL.GL_KEEP,GL.GL_KEEP,GL.GL_REPLACE);
-        // by default write nothing to the stencil buffer.
-        gl3.glStencilMask(0x00);
-    }
-
     // get the selected entities and all their children.
     private void collectSelectedEntitiesAndTheirChildren() {
         List<Entity> toScan = new ArrayList<>(Clipboard.getSelectedEntities());
@@ -548,47 +546,60 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         while(!toScan.isEmpty()) {
             Entity entity = toScan.remove(0);
             toScan.addAll(entity.getChildren());
+            if(collectedEntities.contains(entity)) continue;
             collectedEntities.add(entity);
         }
     }
 
+    /**
+     * <ul>
+     * <li>Draw selected entities and update the stencil and depth buffers</li>
+     * <li>Draw the selected entities with the outline shader, masked by the stencil buffer.</li>
+     * </ul>
+     * @param gl the OpenGL context
+     */
     private void outlineCollectedEntities(GL3 gl) {
-        if(shaderOutline==null) return;
+        if(shaderOutline==null || collectedEntities.isEmpty()) return;
 
         MatrixMaterialRenderSet mmrSet = new MatrixMaterialRenderSet(collectedEntities);
         sortMMRAlpha(mmrSet);
+        drawMMRSetToStencilBuffer(gl,mmrSet);
 
-        // update the depth buffer so the outline will appear around the collected entities.
-        // without this any part of a collected entity behind another entity will be completely filled with the outline color.
-        gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
-        gl.glColorMask(false,false,false,false);
-        renderMMRSet(gl,mmrSet,shaderDefault);
-        gl.glColorMask(true,true,true,true);
-
-        // next draw, only draw where the stencil buffer is not 1
-        gl.glStencilFunc(GL.GL_NOTEQUAL,1,0xff);
+        gl.glDepthMask(false);
+        // only draw where the stencil buffer is not 1 (where there are no collectedEntities)
+        gl.glStencilFunc(GL.GL_NOTEQUAL,1,0xFF);
         gl.glStencilOp(GL.GL_KEEP,GL.GL_KEEP,GL.GL_KEEP);
-        // and do not update the stencil buffer.
-        gl.glStencilMask(0x00);
 
         gl.glLineWidth(GraphicsPreferences.outlineWidth.get());
-        gl.glDepthMask(false);
         gl.glDisable(GL.GL_CULL_FACE);
-
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL3.GL_LINE);
-        try {
-            useShaderOutline(gl);
-            renderMMRSet(gl, mmrSet, shaderOutline);
-        } catch(Exception ignored) {}
+        useShaderOutline(gl);
+        renderMMRSet(gl, mmrSet, shaderOutline);
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL3.GL_FILL);
-
         gl.glEnable(GL.GL_CULL_FACE);
-        gl.glDepthMask(true);
         gl.glLineWidth(1);
 
-        // clean up
-        gl.glUseProgram(0);
+        gl.glStencilFunc(GL.GL_ALWAYS,1,0xFF);
+        gl.glDepthMask(true);
+    }
+
+    private void drawMMRSetToStencilBuffer(GL3 gl, MatrixMaterialRenderSet mmrSet) {
+        // do not change the color buffer, only the stencil and depth buffers.
+        gl.glDepthMask(true);
         gl.glStencilMask(0xFF);
+        gl.glColorMask(false,false,false,false);
+
+        gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
+
+        // update the stencil buffer only when stencil and depth tests pass
+        gl.glStencilFunc(GL.GL_ALWAYS,1,0xFF);
+        gl.glStencilOp(GL.GL_KEEP,GL.GL_KEEP,GL.GL_REPLACE);
+
+        renderMMRSet(gl,mmrSet,shaderDefault);
+
+        // resume editing the color buffer, do not change the depth mask.
+        gl.glColorMask(true,true,true,true);
+        gl.glStencilMask(0x00);
     }
 
     /**
@@ -671,11 +682,6 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
             // tell the shaders about our modelMatrix.
             shaderProgram.setMatrix4d(gl,"modelMatrix",m);
         }
-
-        // if this mesh is one of the selected entities, then also render it to the stencil buffer for the outline shader.
-        boolean isCollected = collectedEntities.contains(mmr.renderComponent.getEntity());
-        gl.glStencilMask(isCollected ? 0xFF : 0x00);
-        OpenGLHelper.checkGLError(gl,logger);
 
         Texture texture = null;
         boolean useVertexColor=true;
