@@ -181,6 +181,10 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
         int[] vertexBuffer = rawSetupVBO(gl);
 
         shaderDefault.use(gl);
+        setProjectionMatrix(gl, shaderDefault);
+        setViewMatrix(gl, shaderDefault);
+        setModelviewMatrix(gl, shaderDefault);
+
         rawRender(gl,vertexBuffer);
         gl.glUseProgram(0);
 
@@ -207,6 +211,7 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
     }
 
     private int[] rawSetupVAO(GL3 gl) {
+        logger.debug("rawSetupVAO");
         int [] arrayBuffer = new int[1];
         gl.glGenVertexArrays(1, arrayBuffer,0);
         OpenGLHelper.checkGLError(gl,logger);
@@ -220,6 +225,7 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
     }
 
     private int[] rawSetupVBO(GL3 gl) {
+        logger.debug("rawSetupVBO");
         int [] vertexBuffer = new int[3];
         gl.glGenBuffers(vertexBuffer.length, vertexBuffer,0);
 
@@ -293,7 +299,12 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
 
         setProjectionMatrix(gl, program);
         setViewMatrix(gl, program);
+        setModelviewMatrix(gl, program);
 
+        testTriangle.render(gl);
+    }
+
+    protected void setModelviewMatrix(GL3 gl, ShaderProgram program) {
         // set model matrix
         // slowly rotate the matrix over time.
         time = (double)System.currentTimeMillis() * 0.001;
@@ -303,8 +314,6 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
         modelMatrix.setTranslation(new Vector3d(0,0,0));
         modelMatrix.transpose();
         program.setMatrix4d(gl,"modelMatrix",modelMatrix);
-
-        testTriangle.render(gl);
     }
 
     protected void setViewMatrix(GL3 gl, ShaderProgram program) {

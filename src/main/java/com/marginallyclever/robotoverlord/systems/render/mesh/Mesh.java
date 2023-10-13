@@ -133,13 +133,16 @@ public class Mesh {
 		gl.glBindVertexArray(VAO[0]);
 		OpenGLHelper.checkGLError(gl,logger);
 
-		setupArray(gl,0,3,numVertexes,vertexArray);
-		if(hasNormals ) setupArray(gl,1,3,numVertexes,normalArray );
-		else gl.glDisableVertexAttribArray(1);
-		if(hasColors  ) setupArray(gl,2,4,numVertexes,colorArray  );
-		else gl.glDisableVertexAttribArray(2);
-		if(hasTextures) setupArray(gl,3,2,numVertexes,textureArray);
-		else gl.glDisableVertexAttribArray(3);
+		disableAllVertexAttribArrays(gl);
+
+		int attribIndex=0;
+		setupArray(gl,attribIndex++,3,numVertexes,vertexArray);
+		if(hasNormals ) setupArray(gl,attribIndex++,3,numVertexes,normalArray );
+		else gl.glDisableVertexAttribArray(attribIndex++);
+		if(hasColors  ) setupArray(gl,attribIndex++,4,numVertexes,colorArray  );
+		else gl.glDisableVertexAttribArray(attribIndex++);
+		if(hasTextures) setupArray(gl,attribIndex++,2,numVertexes,textureArray);
+		else gl.glDisableVertexAttribArray(attribIndex++);
 
 		if(hasIndexes) {
 			IntBuffer data = IntBuffer.allocate(indexArray.size());
@@ -152,10 +155,17 @@ public class Mesh {
 		gl.glBindVertexArray(0);
 	}
 
+	private void disableAllVertexAttribArrays(GL3 gl) {
+		int[] maxAttribs = new int[1];
+		gl.glGetIntegerv(GL3.GL_MAX_VERTEX_ATTRIBS, maxAttribs, 0);
+		for(int i=0;i<maxAttribs[0];i++) gl.glDisableVertexAttribArray(i);
+	}
+
 	private void bindArray(GL3 gl, int attribIndex, int size) {
 		gl.glEnableVertexAttribArray(attribIndex);
 		gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[attribIndex]);
 		gl.glVertexAttribPointer(attribIndex,size,GL3.GL_FLOAT,false,0,0);
+		OpenGLHelper.checkGLError(gl,logger);
 	}
 
 	private void setupArray(GL3 gl, int attribIndex, int size, long numVertexes,List<Float> list) {
@@ -164,6 +174,7 @@ public class Mesh {
 		data.rewind();
 		bindArray(gl,attribIndex,size);
 		gl.glBufferData(GL3.GL_ARRAY_BUFFER, numVertexes*size*BYTES_PER_FLOAT, data, GL3.GL_STATIC_DRAW);
+		OpenGLHelper.checkGLError(gl,logger);
 	}
 
 	public void render(GL3 gl) {
@@ -180,10 +191,11 @@ public class Mesh {
 		gl.glBindVertexArray(VAO[0]);
 		OpenGLHelper.checkGLError(gl,logger);
 
-		bindArray(gl,0,3);
-		if(hasNormals ) bindArray(gl,1,3);
-		if(hasColors  ) bindArray(gl,2,4);
-		if(hasTextures) bindArray(gl,3,2);
+		int attribIndex=0;
+		bindArray(gl,attribIndex++,3);
+		if(hasNormals ) bindArray(gl,attribIndex++,3);
+		if(hasColors  ) bindArray(gl,attribIndex++,4);
+		if(hasTextures) bindArray(gl,attribIndex++,2);
 
 		if (hasIndexes) {
 			gl.glDrawElements(renderStyle, indexArray.size(), GL3.GL_UNSIGNED_INT, 0);

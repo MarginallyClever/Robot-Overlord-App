@@ -16,7 +16,6 @@ out vec2 textureCoord;
 
 void main() {
     vec4 worldPose = modelMatrix * vec4(aPosition, 1.0);
-
     gl_Position = projectionMatrix * viewMatrix * worldPose;
 
     fragmentColor = aColor;

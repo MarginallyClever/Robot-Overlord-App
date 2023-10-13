@@ -28,7 +28,7 @@ public class OpenGLHelper {
 		int err = gl3.glGetError();
 		if(err != GL.GL_NO_ERROR) {
 			GLU glu = new GLU();
-			logger.error("GL error " + err + ": " + glu.gluErrorString(err));
+			logger.error("GL error {}: {}", err, glu.gluErrorString(err));
 		}
 	}
 

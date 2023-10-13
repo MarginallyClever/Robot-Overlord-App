@@ -11,6 +11,7 @@ import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
+import com.marginallyclever.robotoverlord.parameters.TextureParameter;
 import com.marginallyclever.robotoverlord.preferences.InteractionPreferences;
 import com.marginallyclever.robotoverlord.preferences.GraphicsPreferences;
 import com.marginallyclever.robotoverlord.systems.render.Compass3D;
@@ -259,17 +260,16 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         gl.glEnable(GL3.GL_BLEND);
         gl.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);
 
-        // set the color to use when wiping the draw buffer
-        gl.glClearColor(0.85f, 0.85f, 0.85f, 0.0f);
-
         createShaderPrograms(gl);
 
         reloadAllAssets(gl);
     }
 
     private void reloadAllAssets(GL3 gl) {
-        TextureFactory.unloadAll(gl);
-        TextureFactory.loadAll();
+        logger.debug("reloading all assets");
+
+        TextureParameter.unloadAll(gl);
+        TextureParameter.loadAll();
 
         List<Entity> list = new ArrayList<>();
         list.add(entityManager.getRoot());
@@ -429,14 +429,19 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         return gl;
     }
 
-    private void renderStep(GL3 gl3) {
+    private void renderStep(GL3 gl) {
+        double[] bg = GraphicsPreferences.backgroundColor.get();
         // clear green color, the depth bit, and the stencil buffer.
-        gl3.glClearColor(0.85f,0.85f,0.85f,1.0f);
-        gl3.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_STENCIL_BUFFER_BIT);
+        gl.glClearColor((float)bg[0],(float)bg[1],(float)bg[2],(float)bg[3]);
+        gl.glDepthMask(true);
+        gl.glColorMask(true,true,true,true);
+        gl.glStencilMask(0xFF);
+        // erase!
+        gl.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT | GL.GL_STENCIL_BUFFER_BIT);
 
-        draw3DScene(gl3);
-        //viewport.showPickingTest(gl3);
-        drawOverlays(gl3);
+        draw3DScene(gl);
+        //viewport.showPickingTest(gl);
+        drawOverlays(gl);
     }
 
     private void draw3DScene(GL3 gl) {
@@ -447,16 +452,16 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         }
 
         collectSelectedEntitiesAndTheirChildren();  // TODO only when selection changes?
-        prepareToOutlineSelectedEntities(gl);
+        // do not write to stencil buffer.
+        gl.glStencilMask(0x00);
+        gl.glStencilFunc(GL.GL_ALWAYS,1,0xFF);
+        gl.glStencilOp(GL3.GL_KEEP, GL3.GL_KEEP, GL3.GL_REPLACE);
 
         viewport.setCamera(camera);
         renderLights();
         useShaderDefault(gl);
-        skyBox.render(gl, camera, shaderDefault);
-
+        skyBox.render(gl, viewport, shaderDefault);
         renderAllEntities(gl, entityManager.getEntities(),shaderDefault);
-        if (showWorldOrigin.get()) MatrixHelper.drawMatrix(10).render(gl);
-
         outlineCollectedEntities(gl);
     }
 
@@ -479,32 +484,24 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         shaderDefault.use(gl);
         setProjectionMatrix(gl,shaderDefault);
         setViewMatrix(gl,shaderDefault);
-
         OpenGLHelper.checkGLError(gl,logger);
 
         shaderDefault.setVector3d(gl,"lightPos",lightPos);  // Light position in world space
-        OpenGLHelper.checkGLError(gl,logger);
         shaderDefault.setVector3d(gl,"cameraPos",cameraPos);  // Camera position in world space
-        OpenGLHelper.checkGLError(gl,logger);
         shaderDefault.setVector3d(gl,"lightColor",lightColor);  // Light color
-        OpenGLHelper.checkGLError(gl,logger);
         shaderDefault.set4f(gl,"objectColor",1,1,1,1);
-        OpenGLHelper.checkGLError(gl,logger);
-        shaderDefault.set1i(gl,"diffuseTexture",0);
-        OpenGLHelper.checkGLError(gl,logger);
         shaderDefault.setVector3d(gl,"specularColor",new Vector3d(0.5,0.5,0.5));
-        OpenGLHelper.checkGLError(gl,logger);
         shaderDefault.setVector3d(gl,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
-
-        OpenGLHelper.checkGLError(gl,logger);
+        shaderDefault.set1f(gl,"useVertexColor",0);
+        shaderDefault.set1i(gl,"diffuseTexture",0);
     }
 
-    private void setProjectionMatrix(GL3 gl3, ShaderProgram program) {
+    private void setProjectionMatrix(GL3 gl, ShaderProgram program) {
         Matrix4d projectionMatrix = viewport.getChosenProjectionMatrix();
-        program.setMatrix4d(gl3,"projectionMatrix",projectionMatrix);
+        program.setMatrix4d(gl,"projectionMatrix",projectionMatrix);
     }
 
-    private void setOrthograpicMatrix(GL3 gl3, ShaderProgram program) {
+    private void setOrthographicMatrix(GL3 gl3, ShaderProgram program) {
         Matrix4d projectionMatrix = viewport.getOrthographicMatrix();
         program.setMatrix4d(gl3,"projectionMatrix",projectionMatrix);
     }
@@ -515,31 +512,21 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         program.setMatrix4d(gl3,"viewMatrix",viewMatrix);
     }
 
+    /**
+     * Render 3d and then 2d overlays.
+     * @param gl the OpenGL context
+     */
     private void drawOverlays(GL3 gl) {
-        // overlays
+        //gl.glStencilMask(0xFF);
+        //gl.glDepthMask(true);
         gl.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_STENCIL_BUFFER_BIT);
-        gl.glUseProgram(0);
-
         useShaderDefault(gl);
         // 3D overlays
+        if (showWorldOrigin.get()) MatrixHelper.drawMatrix(10).render(gl);
         for(EditorTool tool : editorTools) tool.render(gl,shaderDefault);
-
         // 2D overlays
-
         compass3d.render(gl,viewport,shaderDefault);
         drawCursor(gl);
-
-        shaderDefault.use(gl);
-    }
-
-    private void prepareToOutlineSelectedEntities(GL3 gl3) {
-        gl3.glStencilFunc(GL.GL_ALWAYS,1,0xff);
-        // if we pass the depth test, keep the old value in the stencil buffer.
-        // if we pass the stencil test, keep the old value in the stencil buffer.
-        // if we pass BOTH then replace the stencil buffer value with the reference value (1).
-        gl3.glStencilOp(GL.GL_KEEP,GL.GL_KEEP,GL.GL_REPLACE);
-        // by default write nothing to the stencil buffer.
-        gl3.glStencilMask(0x00);
     }
 
     // get the selected entities and all their children.
@@ -549,56 +536,87 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         while(!toScan.isEmpty()) {
             Entity entity = toScan.remove(0);
             toScan.addAll(entity.getChildren());
+            if(collectedEntities.contains(entity)) continue;
             collectedEntities.add(entity);
         }
     }
 
+    /**
+     * <ol>
+     * <li>Draw selected entities and update the stencil and depth buffers</li>
+     * <li>Draw the selected entities with the outline shader, masked by the stencil buffer.</li>
+     * </ol>
+     * @param gl the OpenGL context
+     */
     private void outlineCollectedEntities(GL3 gl) {
-        if(shaderOutline ==null) return;
+        if(shaderOutline==null || collectedEntities.isEmpty()) return;
 
         MatrixMaterialRenderSet mmrSet = new MatrixMaterialRenderSet(collectedEntities);
+        sortMMRAlpha(mmrSet);
+        useShaderDefault(gl);
+        drawMMRSetToStencilBuffer(gl,mmrSet);
 
-        // update the depth buffer so the outline will appear around the collected entities.
-        // without this any part of a collected entity behind another entity will be completely filled with the outline color.
-        gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
-        gl.glColorMask(false,false,false,false);
-        renderMMRSet(gl,mmrSet,shaderDefault);
-        gl.glColorMask(true,true,true,true);
-
-        // next draw, only draw where the stencil buffer is not 1
-        gl.glStencilFunc(GL.GL_NOTEQUAL,1,0xff);
+        // only draw where the stencil buffer is not 1 (where there are no collectedEntities)
+        gl.glStencilFunc(GL.GL_NOTEQUAL,1,0xFF);
         gl.glStencilOp(GL.GL_KEEP,GL.GL_KEEP,GL.GL_KEEP);
-        // and do not update the stencil buffer.
-        gl.glStencilMask(0x00);
 
-        gl.glLineWidth(GraphicsPreferences.outlineWidth.get());
         gl.glDepthMask(false);
+        gl.glLineWidth(GraphicsPreferences.outlineWidth.get());
         gl.glDisable(GL.GL_CULL_FACE);
-
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL3.GL_LINE);
-        try {
+
             useShaderOutline(gl);
             renderMMRSet(gl, mmrSet, shaderOutline);
-        } catch(Exception ignored) {}
+
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL3.GL_FILL);
-
         gl.glEnable(GL.GL_CULL_FACE);
-        gl.glDepthMask(true);
         gl.glLineWidth(1);
+        gl.glDepthMask(true);
 
-        // clean up
-        gl.glUseProgram(0);
-        gl.glStencilMask(0xFF);
+        gl.glStencilFunc(GL.GL_ALWAYS,1,0xFF);
+        gl.glStencilOp(GL3.GL_KEEP, GL3.GL_KEEP, GL3.GL_REPLACE);
     }
 
-    private void useShaderOutline(GL3 gl3) {
+    private void drawMMRSetToStencilBuffer(GL3 gl, MatrixMaterialRenderSet mmrSet) {
+        // do not change the color buffer, only the stencil and depth buffers.
+        gl.glDepthMask(true);
+        gl.glStencilMask(0xFF);
+        gl.glColorMask(false,false,false,false);
+
+        gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
+
+        // update the stencil buffer only when stencil and depth tests pass
+        gl.glStencilFunc(GL.GL_ALWAYS,1,0xFF);
+        gl.glStencilOp(GL.GL_KEEP,GL.GL_KEEP,GL.GL_REPLACE);
+
+        renderMMRSet(gl,mmrSet,shaderDefault);
+
+        // resume editing the color buffer, do not change the depth mask.
+        gl.glColorMask(true,true,true,true);
+        gl.glStencilMask(0x00);
+    }
+
+    /**
+     * Sort alpha objects back to front
+     * @param mmrSet the set to sort
+     */
+    private void sortMMRAlpha(MatrixMaterialRenderSet mmrSet) {
+        if(mmrSet.alpha.isEmpty()) return;
+        Vector3d cameraPoint = new Vector3d();
+        Entity cameraEntity = entityManager.getCamera().getEntity();
+        cameraEntity.getComponent(PoseComponent.class).getWorld().get(cameraPoint);
+        mmrSet.sortAlpha(cameraPoint);
+    }
+
+    private void useShaderOutline(GL3 gl) {
         // must be in use before calls to glUniform*.
-        shaderOutline.use(gl3);
+        shaderOutline.use(gl);
         // tell the shader some important information
-        setProjectionMatrix(gl3,shaderOutline);
-        setViewMatrix(gl3,shaderOutline);
+        setProjectionMatrix(gl,shaderOutline);
+        setViewMatrix(gl,shaderOutline);
+
         double[] color = GraphicsPreferences.outlineColor.get();
-        shaderOutline.set4f(gl3,
+        shaderOutline.set4f(gl,
                 "outlineColor",
                 (float)color[0],
                 (float)color[1],
@@ -611,133 +629,110 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
      * Sort them into three lists: those with no material, those with opaque material, and those with transparent
      * material.  Further sort the alpha list by distance from the camera.  Then systems the opaque, systems the alpha,
      * and systems the no-material.
-     *
+     * @param gl3 the OpenGL context
+     * @param list the list of entities to render
+     * @param shaderProgram the shader to use
      */
     private void renderAllEntities(GL3 gl3,List<Entity> list,ShaderProgram shaderProgram) {
         MatrixMaterialRenderSet mmrSet = new MatrixMaterialRenderSet(list);
+        sortMMRAlpha(mmrSet);
         renderMMRSet(gl3, mmrSet, shaderProgram);
     }
 
-    private void renderMMRSet(GL3 gl3, MatrixMaterialRenderSet mmrSet, ShaderProgram shaderProgram) {
-        // opaque objects
-        defaultMaterial.render(gl3);
-        renderMMRList(gl3,mmrSet.opaque,shaderProgram);
-
-        if(!mmrSet.alpha.isEmpty()) {
-            // sort alpha objects back to front
-            Vector3d cameraPoint = new Vector3d();
-            Entity cameraEntity = entityManager.getCamera().getEntity();
-            cameraEntity.getComponent(PoseComponent.class).getWorld().get(cameraPoint);
-
-            Vector3d p1 = new Vector3d();
-            Vector3d p2 = new Vector3d();
-            mmrSet.alpha.sort((o1, o2) -> {
-                o1.matrix.get(p1);
-                o2.matrix.get(p2);
-                p1.sub(cameraPoint);
-                p2.sub(cameraPoint);
-                double d1 = p1.lengthSquared();
-                double d2 = p2.lengthSquared();
-                return (int) Math.signum(d2 - d1);
-            });
-
-            // alpha objects
-            renderMMRList(gl3, mmrSet.alpha, shaderProgram);
-        }
-
+    /**
+     * Render all the lists in an {@link MatrixMaterialRenderSet} in the correct order.
+     * @param gl the OpenGL context
+     * @param mmrSet the set to render
+     * @param shaderProgram the shader to use
+     */
+    private void renderMMRSet(GL3 gl, MatrixMaterialRenderSet mmrSet, ShaderProgram shaderProgram) {
+        defaultMaterial.render(gl);
         // objects with no material
-        defaultMaterial.render(gl3);
-        renderMMRList(gl3,mmrSet.noMaterial,shaderProgram);
-
-        // onTop
-        gl3.glDisable(GL3.GL_DEPTH_TEST);
-        defaultMaterial.render(gl3);
-        renderMMRList(gl3,mmrSet.onTop,shaderProgram);
-        gl3.glEnable(GL3.GL_DEPTH_TEST);
+        defaultMaterial.render(gl);
+        renderMMRList(gl,mmrSet.noMaterial,shaderProgram);
+        // opaque objects
+        renderMMRList(gl,mmrSet.opaque,shaderProgram);
+        // alpha objects
+        renderMMRList(gl, mmrSet.alpha,shaderProgram);
+        // objects on top of everything else
+        gl.glDisable(GL3.GL_DEPTH_TEST);
+        defaultMaterial.render(gl);
+        renderMMRList(gl,mmrSet.onTop,shaderProgram);
+        gl.glEnable(GL3.GL_DEPTH_TEST);
     }
 
     private void renderMMRList(GL3 gl, List<MatrixMaterialRender> list,ShaderProgram shaderProgram) {
-        for(MatrixMaterialRender mmr : list) {
-            if(mmr.renderComponent==null || !mmr.renderComponent.getVisible()) continue;
-
-            if(mmr.matrix!=null) {
-                Matrix4d m = mmr.matrix;
-                m.transpose();
-                // tell the shaders about our modelMatrix.
-                shaderProgram.setMatrix4d(gl,"modelMatrix",m);
-            }
-
-            // if this mesh is one of the selected entities, then also render it to the stencil buffer for the outline shader.
-            boolean isCollected = collectedEntities.contains(mmr.renderComponent.getEntity());
-            gl.glStencilMask(isCollected ? 0xFF : 0x00);
-            OpenGLHelper.checkGLError(gl,logger);
-
-            Texture texture = null;
-            boolean useVertexColor=true;
-            boolean useTexture=true;
-            boolean useLighting=true;
-            if(mmr.materialComponent!=null && mmr.materialComponent.getEnabled()) {
-                MaterialComponent material = mmr.materialComponent;
-                material.render(gl);
-                OpenGLHelper.checkGLError(gl,logger);
-                // flat light?
-                useLighting &= material.isLit();
-                // if we have a texture assigned, then we might still enable textures.
-                texture = material.texture.getTexture();
-                if(texture==null) useTexture = false;
-                // assign the object's overall color.
-                double[] diffuseColor = material.getDiffuseColor();
-
-                OpenGLHelper.checkGLError(gl,logger);
-
-                shaderProgram.set4f(gl,
-                        "objectColor",
-                        (float)diffuseColor[0],
-                        (float)diffuseColor[1],
-                        (float)diffuseColor[2],
-                        (float)diffuseColor[3]);
-
-                OpenGLHelper.checkGLError(gl,logger);
-            }
-
-            boolean hasMesh = false;
-            if(mmr.renderComponent instanceof ShapeComponent) {
-                // if this component is a shape
-                ShapeComponent shape = (ShapeComponent)mmr.renderComponent;
-                Mesh mesh = shape.getModel();
-                if(mesh != null) {
-                    hasMesh = true;
-                    // and it has vertex colors, enable them.
-                    useVertexColor &= mesh.getHasColors();
-                    // and it has texture coordinates, continue to allow textures.
-                    useTexture &= mesh.getHasTextures();
-                    useLighting &= mesh.getHasNormals();
-                }
-            }
-            if(!hasMesh) {
-                useVertexColor=false;
-                useTexture=false;
-                useLighting=false;
-            }
-
-            shaderProgram.set1i(gl,"useVertexColor",useVertexColor?1:0);
-            shaderProgram.set1i(gl,"useLighting",useLighting?1:0);
-            shaderProgram.set1i(gl,"useTexture",useTexture?1:0);
-
-            OpenGLHelper.checkGLError(gl,logger);
-
-            if(useTexture && texture!=null) {
-                gl.glEnable(GL.GL_TEXTURE_2D);
-                texture.bind(gl);
-                mmr.materialComponent.render(gl);
-                OpenGLHelper.checkGLError(gl,logger);
-
-                shaderProgram.set1i(gl,"diffuseTexture",0);
-                OpenGLHelper.checkGLError(gl,logger);
-            }
-
-            mmr.renderComponent.render(gl);
+        for (MatrixMaterialRender mmr : list) {
+            renderOneMMRItem(gl, mmr, shaderProgram);
         }
+    }
+
+    private void renderOneMMRItem(GL3 gl, MatrixMaterialRender mmr, ShaderProgram shaderProgram) {
+        if(mmr.renderComponent==null || !mmr.renderComponent.getVisible()) return;
+
+        if(mmr.matrix!=null) {
+            Matrix4d m = new Matrix4d(mmr.matrix);
+            m.transpose();
+            // tell the shaders about our modelMatrix.
+            shaderProgram.setMatrix4d(gl,"modelMatrix",m);
+        }
+
+        Texture texture = null;
+        boolean useVertexColor=true;
+        boolean useTexture=true;
+        boolean useLighting=true;
+        if(mmr.materialComponent!=null && mmr.materialComponent.getEnabled()) {
+            MaterialComponent material = mmr.materialComponent;
+            material.render(gl);
+            OpenGLHelper.checkGLError(gl,logger);
+            // flat light?
+            useLighting &= material.isLit();
+            // if we have a texture assigned, then we might still enable textures.
+            texture = material.texture.getTexture();
+            if(texture==null) useTexture = false;
+            // assign the object's overall color.
+            double[] diffuseColor = material.getDiffuseColor();
+            shaderProgram.set4f(gl,
+                    "objectColor",
+                    (float)diffuseColor[0],
+                    (float)diffuseColor[1],
+                    (float)diffuseColor[2],
+                    (float)diffuseColor[3]);
+        }
+
+        boolean hasMesh = false;
+        if(mmr.renderComponent instanceof ShapeComponent) {
+            // if this component is a shape
+            ShapeComponent shape = (ShapeComponent)mmr.renderComponent;
+            Mesh mesh = shape.getModel();
+            if(mesh != null) {
+                hasMesh = true;
+                // and it has vertex colors, enable them.
+                useVertexColor &= mesh.getHasColors();
+                // and it has texture coordinates, continue to allow textures.
+                useTexture &= mesh.getHasTextures();
+                useLighting &= mesh.getHasNormals();
+            }
+        }
+        if(!hasMesh) {
+            useVertexColor=false;
+            useTexture=false;
+            useLighting=false;
+        }
+
+        OpenGLHelper.checkGLError(gl,logger);
+
+        shaderProgram.set1i(gl,"useVertexColor",useVertexColor?1:0);
+        shaderProgram.set1i(gl,"useLighting",useLighting?1:0);
+        shaderProgram.set1i(gl,"useTexture",useTexture?1:0);
+
+        if(useTexture && texture!=null) {
+            gl.glEnable(GL.GL_TEXTURE_2D);
+            mmr.materialComponent.render(gl);
+            shaderProgram.set1i(gl,"diffuseTexture",0);
+        }
+
+        mmr.renderComponent.render(gl);
     }
 
     private void renderLights() {
@@ -759,7 +754,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         if(!isMouseIn) return;
 
         shaderHUD.use(gl3);
-        setOrthograpicMatrix(gl3,shaderHUD);
+        setOrthographicMatrix(gl3,shaderHUD);
         shaderHUD.setMatrix4d(gl3,"viewMatrix",MatrixHelper.createIdentityMatrix4());
 
         double [] cursor = viewport.getCursorAsNormalized();
