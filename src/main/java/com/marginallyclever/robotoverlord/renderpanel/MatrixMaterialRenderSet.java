@@ -24,6 +24,8 @@ public class MatrixMaterialRenderSet {
     public MatrixMaterialRenderSet(List<Entity> list) {
         super();
 
+        Set<RenderComponent> alreadyAdded = new HashSet<>();
+
         // collect all entities with a RenderComponent
         Queue<Entity> toRender = new LinkedList<>(list);
         while(!toRender.isEmpty()) {
@@ -32,6 +34,8 @@ public class MatrixMaterialRenderSet {
 
             RenderComponent renderComponent = entity.getComponent(RenderComponent.class);
             if(renderComponent==null) continue;
+            if(alreadyAdded.contains(renderComponent)) continue;
+            alreadyAdded.add(renderComponent);
 
             PoseComponent pose = entity.getComponent(PoseComponent.class);
             Matrix4d m = (pose==null) ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();

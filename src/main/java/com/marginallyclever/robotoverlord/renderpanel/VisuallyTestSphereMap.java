@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.renderpanel;
 
-import com.marginallyclever.robotoverlord.systems.render.SphericalMap;
+import com.marginallyclever.convenience.SphericalMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,8 +11,10 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
+/**
+ * Run this to visually test
+ */
 public class VisuallyTestSphereMap extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(VisuallyTestSphereMap.class);
     private final BufferedImage image;
@@ -91,7 +93,7 @@ public class VisuallyTestSphereMap extends JPanel {
 
     public static void main(String[] args) throws IOException {
         // make a frame
-        JFrame frame = new JFrame( OpenGLTestPerspective.class.getSimpleName());
+        JFrame frame = new JFrame( VisuallyTestSphereMap.class.getSimpleName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         VisuallyTestSphereMap opengl = new VisuallyTestSphereMap();
         frame.setContentPane(opengl);
@@ -103,33 +105,35 @@ public class VisuallyTestSphereMap extends JPanel {
     public VisuallyTestSphereMap() throws IOException {
         setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
 
-        image = ImageIO.read(new File("C:\\Users\\aggra\\Desktop\\whiteRoomSphericalProjection2.png"));
+        image = ImageIO.read(new File("c:/users/aggra/desktop/whiteRoomSphericalProjection2.png"));
         // paint source with image, filling the entire panel.
 
-        remapped = new BufferedImage(1536,256,BufferedImage.TYPE_INT_RGB);
+        remapped = new BufferedImage(256*6,256,BufferedImage.TYPE_INT_RGB);
         makeMap();
 
         // display a 256 tall and (256*6) wide BufferedImage in the target.
-        topPanel.setPreferredSize(new Dimension(1536,768));
-        bottomPanel.setPreferredSize(new Dimension(1536,256));  // 1536 = 256*6
+        topPanel.setPreferredSize(new Dimension(256*6,512));
+        bottomPanel.setPreferredSize(new Dimension(256*6,256));  // 1536 = 256*6
         add(topPanel);
         add(bottomPanel);
     }
 
+    /**
+     * Remap the image from a sphere to a cube.
+     * This is done by sampling the image at the cube's UV coordinates.
+     * If the sampling is done from the sphere to the cube some pixels will be missed.
+     */
     private void makeMap() {
-        for(int v=0;v<image.getHeight();++v) {
-            for(int u=0;u<image.getWidth();++u) {
-                double pan = u / (double)image.getWidth();
-                double tilt = v / (double)image.getHeight();
-                SphericalMap.CubeCoordinate cube = SphericalMap.planeToCube(pan,tilt);
-                int cx = (int)(cube.position.x*256) + cube.face*256;
-                int cy = (int)(cube.position.y*256);
-
-                cx = Math.max(0,Math.min(cx,remapped.getWidth()-1));
-                cy = Math.max(0,Math.min(cy,remapped.getHeight()-1));
-
-                int color = image.getRGB(u,v);
-                remapped.setRGB(cx,cy,color);
+        for(int face=0;face<6;++face) {
+            for(int v=0;v<256;++v) {
+                for(int u=0;u<256;++u) {
+                    double [] sphere = SphericalMap.cubeToSphere(face,u/256.0,v/256.0);
+                    double [] xy = SphericalMap.sphereToPlane(sphere);
+                    int cx = (int)(xy[0]*(image.getWidth()-1));
+                    int cy = (int)(xy[1]*(image.getHeight()-1));
+                    int color = image.getRGB(cx,cy);
+                    remapped.setRGB(u+face*256,v,color);
+                }
             }
         }
     }

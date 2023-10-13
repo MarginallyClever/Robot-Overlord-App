@@ -17,7 +17,7 @@ module com.marginallyclever.robotoverlord {
 	
 	requires vecmath;
 	requires jsch;
-	requires annotations;
+	requires org.jetbrains.annotations;
 	requires jssc;
 	requires batik.all;
 	requires xml.apis.ext;

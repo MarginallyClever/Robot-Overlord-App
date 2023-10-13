@@ -116,27 +116,34 @@ public class ShaderProgram {
         int location = getUniformLocation(gl, name);
         if(location==-1) return;
         gl.glUniform3f(location, v0, v1, v2);
+        OpenGLHelper.checkGLError(gl,logger);
     }
 
     public void set4f(GL3 gl, String name, float v0, float v1, float v2, float v3) {
         int location = getUniformLocation(gl, name);
         if(location==-1) return;
         gl.glUniform4f(location, v0, v1, v2, v3);
+        OpenGLHelper.checkGLError(gl,logger);
     }
 
     public void setVector3d(GL3 gl, String name, Vector3d v) {
         int location = getUniformLocation(gl, name);
         if(location==-1) return;
         gl.glUniform3f(location, (float) v.x, (float) v.y, (float) v.z);
+        OpenGLHelper.checkGLError(gl,logger);
     }
 
     public void setMatrix4d(GL3 gl, String name, Matrix4d matrix4d) {
         int location = getUniformLocation(gl, name);
         if(location==-1) return;
         gl.glUniformMatrix4fv(location, 1, false, MatrixHelper.matrixToFloatBuffer(matrix4d));
+        OpenGLHelper.checkGLError(gl,logger);
     }
 
     public void set1i(GL3 gl, String name, int b) {
-        gl.glUniform1i(getUniformLocation(gl, name), b );
+        int location = getUniformLocation(gl, name);
+        if(location==-1) return;
+        gl.glUniform1i(location, b);
+        OpenGLHelper.checkGLError(gl,logger);
     }
 }
