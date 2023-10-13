@@ -68,8 +68,8 @@ public class VisuallyTestSphereMap extends JPanel {
                 @Override
                 public void mouseMoved(MouseEvent e) {
                     super.mouseMoved(e);
-                    double pan = e.getX() / (double)getWidth();
-                    double tilt = e.getY() / (double)getHeight();
+                    double pan = e.getX() / (double)image.getWidth();
+                    double tilt = e.getY() / (double)image.getHeight();
 
                     // repaint the target with a cross-hair based on the SphericalMap.
                     SphericalMap.CubeCoordinate cube = SphericalMap.planeToCube(pan,tilt);
@@ -105,14 +105,14 @@ public class VisuallyTestSphereMap extends JPanel {
     public VisuallyTestSphereMap() throws IOException {
         setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
 
-        image = ImageIO.read(new File("c:/users/aggra/desktop/whiteRoomSphericalProjection2.png"));
+        image = ImageIO.read(new File("src/main/resources/skybox/industrial_sunset_02_puresky_4k.png"));
         // paint source with image, filling the entire panel.
 
         remapped = new BufferedImage(256*6,256,BufferedImage.TYPE_INT_RGB);
         makeMap();
 
         // display a 256 tall and (256*6) wide BufferedImage in the target.
-        topPanel.setPreferredSize(new Dimension(256*6,512));
+        topPanel.setPreferredSize(new Dimension(image.getWidth(),image.getHeight()));
         bottomPanel.setPreferredSize(new Dimension(256*6,256));  // 1536 = 256*6
         add(topPanel);
         add(bottomPanel);

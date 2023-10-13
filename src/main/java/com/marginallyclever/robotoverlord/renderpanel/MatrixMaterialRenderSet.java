@@ -16,6 +16,8 @@ import java.util.*;
  * @since 2.7.1
  */
 public class MatrixMaterialRenderSet {
+    // background is always first
+    public final List<MatrixMaterialRender> onBottom = new ArrayList<>();
     public final List<MatrixMaterialRender> opaque = new ArrayList<>();
     public final List<MatrixMaterialRender> alpha = new ArrayList<>();
     public final List<MatrixMaterialRender> noMaterial = new ArrayList<>();
@@ -44,6 +46,7 @@ public class MatrixMaterialRenderSet {
                     entity.getComponent(MaterialComponent.class));
 
             if(mmr.materialComponent==null) noMaterial.add(mmr);
+            else if(mmr.materialComponent.drawOnBottom.get()) onBottom.add(mmr);
             else if(mmr.materialComponent.drawOnTop.get()) onTop.add(mmr);
             else if(mmr.materialComponent.isAlpha()) alpha.add(mmr);
             else opaque.add(mmr);

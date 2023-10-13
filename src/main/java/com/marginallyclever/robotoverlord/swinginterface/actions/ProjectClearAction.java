@@ -1,18 +1,19 @@
 package com.marginallyclever.robotoverlord.swinginterface.actions;
 
+import com.marginallyclever.robotoverlord.components.*;
+import com.marginallyclever.robotoverlord.components.shapes.Sphere;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.Project;
 import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.swinginterface.UnicodeIcon;
-import com.marginallyclever.robotoverlord.components.CameraComponent;
-import com.marginallyclever.robotoverlord.components.LightComponent;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
 import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
 
 import javax.swing.*;
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
@@ -54,14 +55,26 @@ public class ProjectClearAction extends AbstractAction {
 	}
 
 	public void addDefaultEntities() {
+		Entity background = new Entity("Background");
+		background.addComponent(new Background());
+		project.getEntityManager().addEntityToParent(background, project.getEntityManager().getRoot());
+		Entity sky = new Entity("Sky");
+		Sphere skySphere = new Sphere();
+		sky.addComponent(skySphere);
+		skySphere.radius.set(-100.0);
+		MaterialComponent material = sky.getComponent(MaterialComponent.class);
+		material.texture.set("/skybox/industrial_sunset_02_puresky_4k.tga");
+		material.setLit(false);
+		project.getEntityManager().addEntityToParent(sky, background);
+		sky.getComponent(PoseComponent.class).setRotation(new Vector3d(90,0,0));
+
 		Entity mainCamera = new Entity("Main Camera");
 		CameraComponent camera = new CameraComponent();
 		mainCamera.addComponent(camera);
 		PoseComponent pose = mainCamera.getComponent(PoseComponent.class);
-
-		project.getEntityManager().addEntityToParent(mainCamera, project.getEntityManager().getRoot());
 		pose.setPosition(new Vector3d(25,20,15));
 		camera.lookAt(new Vector3d(0,0,0));
+		project.getEntityManager().addEntityToParent(mainCamera, project.getEntityManager().getRoot());
 
 		Entity light0 = new Entity("Light");
 		light0.addComponent(pose = new PoseComponent());
