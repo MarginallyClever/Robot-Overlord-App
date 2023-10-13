@@ -39,6 +39,8 @@ public abstract class ComponentFactory {
 			Decal.class,
 			Cylinder.class,
 
+			Background.class,
+
 			OriginAdjustComponent.class,
 
 			DHComponent.class,

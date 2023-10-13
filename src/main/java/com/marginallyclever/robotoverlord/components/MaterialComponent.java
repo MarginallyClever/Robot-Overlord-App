@@ -26,6 +26,7 @@ public class MaterialComponent extends Component {
     public final BooleanParameter isLit    = new BooleanParameter("Lit",true);
     public final TextureParameter texture  = new TextureParameter("Texture",null);
     public final BooleanParameter drawOnTop = new BooleanParameter("Draw on top",false);
+    public final BooleanParameter drawOnBottom = new BooleanParameter("Draw on bottom",false);
 
     public MaterialComponent() {
         super();
@@ -127,6 +128,7 @@ public class MaterialComponent extends Component {
         jo.put("shininess",shininess.toJSON(context));
         jo.put("texture",texture.toJSON(context));
         jo.put("drawOnTop",drawOnTop.toJSON(context));
+        jo.put("drawOnBottom",drawOnBottom.toJSON(context));
         return jo;
     }
 
@@ -141,6 +143,7 @@ public class MaterialComponent extends Component {
         shininess.parseJSON(jo.getJSONObject("shininess"),context);
         texture.parseJSON(jo.getJSONObject("texture"),context);
         if(jo.has("drawOnTop")) drawOnTop.parseJSON(jo.getJSONObject("drawOnTop"),context);
+        if(jo.has("drawOnBottom")) drawOnBottom.parseJSON(jo.getJSONObject("drawOnBottom"),context);
     }
 
     @Override
@@ -154,6 +157,7 @@ public class MaterialComponent extends Component {
                 + ",shininess=" + shininess.get()
                 + ",texture=" + texture.get()
                 + ",drawOnTop=" + drawOnTop.get()
+                + ",drawOnBottom=" + drawOnBottom.get()
                 +",\n";
     }
 

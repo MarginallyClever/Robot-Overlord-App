@@ -156,6 +156,7 @@ public class RenderSystem implements EntitySystem {
         view.add(material.specular);
         view.addRange(material.shininess, 128, 0);
         view.add(material.drawOnTop);
+        view.add(material.drawOnBottom);
 
         view.addFilename(material.texture, TextureParameter.getFilters());
     }

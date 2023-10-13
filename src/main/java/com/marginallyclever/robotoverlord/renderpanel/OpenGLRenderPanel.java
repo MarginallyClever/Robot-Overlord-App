@@ -16,7 +16,6 @@ import com.marginallyclever.robotoverlord.preferences.InteractionPreferences;
 import com.marginallyclever.robotoverlord.preferences.GraphicsPreferences;
 import com.marginallyclever.robotoverlord.systems.render.Compass3D;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
-import com.marginallyclever.robotoverlord.systems.render.SkyBox;
 import com.marginallyclever.robotoverlord.systems.render.Viewport;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.tools.EditorTool;
@@ -69,11 +68,6 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
      * Displayed in a 2D overlay, helps the user orient themselves in 3D space.
      */
     private final Compass3D compass3d = new Compass3D();
-
-    /**
-     * The "very far away" background to the scene.
-     */
-    private final SkyBox skyBox = new SkyBox();
 
     private final List<EditorTool> editorTools = new ArrayList<>();
     private int activeToolIndex = -1;
@@ -458,11 +452,28 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         gl.glStencilOp(GL3.GL_KEEP, GL3.GL_KEEP, GL3.GL_REPLACE);
 
         viewport.setCamera(camera);
-        renderLights();
         useShaderDefault(gl);
-        skyBox.render(gl, viewport, shaderDefault);
+        renderLights();
+        defaultMaterial.render(gl);
+        updateBackgrounds();
+
         renderAllEntities(gl, entityManager.getEntities(),shaderDefault);
         outlineCollectedEntities(gl);
+    }
+
+    /**
+     * Position the first background to be on the camera position.
+     */
+    private void updateBackgrounds() {
+        Background bg = entityManager.getRoot().findFirstComponentRecursive(Background.class);
+        if(bg==null || !bg.getEnabled()) return;
+
+        PoseComponent cameraPose = entityManager.getCamera().getEntity().getComponent(PoseComponent.class);
+
+        Matrix4d m1 = MatrixHelper.createIdentityMatrix4();
+        Vector3d cameraPosition = new Vector3d(cameraPose.getPosition());
+        m1.setTranslation(cameraPosition);
+        bg.getEntity().getComponent(PoseComponent.class).setWorld(m1);
     }
 
     private void useShaderDefault(GL3 gl) {
@@ -497,13 +508,11 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
     }
 
     private void setProjectionMatrix(GL3 gl, ShaderProgram program) {
-        Matrix4d projectionMatrix = viewport.getChosenProjectionMatrix();
-        program.setMatrix4d(gl,"projectionMatrix",projectionMatrix);
+        program.setMatrix4d(gl,"projectionMatrix",viewport.getChosenProjectionMatrix());
     }
 
     private void setOrthographicMatrix(GL3 gl3, ShaderProgram program) {
-        Matrix4d projectionMatrix = viewport.getOrthographicMatrix();
-        program.setMatrix4d(gl3,"projectionMatrix",projectionMatrix);
+        program.setMatrix4d(gl3,"projectionMatrix",viewport.getOrthographicMatrix());
     }
 
     private void setViewMatrix(GL3 gl3,ShaderProgram program) {
@@ -553,7 +562,6 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
 
         MatrixMaterialRenderSet mmrSet = new MatrixMaterialRenderSet(collectedEntities);
         sortMMRAlpha(mmrSet);
-        useShaderDefault(gl);
         drawMMRSetToStencilBuffer(gl,mmrSet);
 
         // only draw where the stencil buffer is not 1 (where there are no collectedEntities)
@@ -589,6 +597,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         gl.glStencilFunc(GL.GL_ALWAYS,1,0xFF);
         gl.glStencilOp(GL.GL_KEEP,GL.GL_KEEP,GL.GL_REPLACE);
 
+        useShaderDefault(gl);
         renderMMRSet(gl,mmrSet,shaderDefault);
 
         // resume editing the color buffer, do not change the depth mask.
@@ -647,14 +656,18 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
      */
     private void renderMMRSet(GL3 gl, MatrixMaterialRenderSet mmrSet, ShaderProgram shaderProgram) {
         defaultMaterial.render(gl);
-        // objects with no material
-        defaultMaterial.render(gl);
-        renderMMRList(gl,mmrSet.noMaterial,shaderProgram);
+        // bottom (background) objects
+        renderMMRList(gl,mmrSet.onBottom,shaderProgram);
+        gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
+
         // opaque objects
         renderMMRList(gl,mmrSet.opaque,shaderProgram);
         // alpha objects
         renderMMRList(gl, mmrSet.alpha,shaderProgram);
-        // objects on top of everything else
+        // objects with no material
+        defaultMaterial.render(gl);
+        renderMMRList(gl,mmrSet.noMaterial,shaderProgram);
+        // top objects
         gl.glDisable(GL3.GL_DEPTH_TEST);
         defaultMaterial.render(gl);
         renderMMRList(gl,mmrSet.onTop,shaderProgram);
@@ -727,8 +740,8 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         shaderProgram.set1i(gl,"useTexture",useTexture?1:0);
 
         if(useTexture && texture!=null) {
-            gl.glEnable(GL.GL_TEXTURE_2D);
             mmr.materialComponent.render(gl);
+            shaderProgram.set1f(gl,"useTexture",1);
             shaderProgram.set1i(gl,"diffuseTexture",0);
         }
 
