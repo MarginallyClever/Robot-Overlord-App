@@ -27,7 +27,7 @@ public class RenderSystem implements EntitySystem {
      */
     @Override
     public void decorate(ViewPanelFactory view, Component component) {
-        if (component instanceof CameraComponent) decorateCamera(view,component);
+        if(component instanceof CameraComponent) decorateCamera(view,component);
         if(component instanceof RenderComponent) decorateRender(view, component);
         if(component instanceof GCodePathComponent) decorateGCodePath(view, component);
         if(component instanceof MeshFromFile) decorateMeshFromFile(view, component);
