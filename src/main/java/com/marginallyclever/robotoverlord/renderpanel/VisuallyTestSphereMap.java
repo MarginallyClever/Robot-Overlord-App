@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.renderpanel;
 
 import com.marginallyclever.convenience.SphericalMap;
+import com.marginallyclever.convenience.helpers.FileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +12,8 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Objects;
 
 /**
  * Run this to visually test
@@ -105,7 +108,10 @@ public class VisuallyTestSphereMap extends JPanel {
     public VisuallyTestSphereMap() throws IOException {
         setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
 
-        image = ImageIO.read(new File("src/main/resources/skybox/industrial_sunset_02_puresky_4k.png"));
+        File f = new File(FileHelper.getUserDirectory()+"/src/main/resources/skybox/industrial_sunset_02_puresky_4k.png");
+
+        if(!f.exists()) throw new RuntimeException("File not found: "+f.getAbsolutePath());
+        image = ImageIO.read(f);
         // paint source with image, filling the entire panel.
 
         remapped = new BufferedImage(256*6,256,BufferedImage.TYPE_INT_RGB);

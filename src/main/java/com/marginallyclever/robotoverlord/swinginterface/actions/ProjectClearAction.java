@@ -63,8 +63,9 @@ public class ProjectClearAction extends AbstractAction {
 		sky.addComponent(skySphere);
 		skySphere.radius.set(-100.0);
 		MaterialComponent material = sky.getComponent(MaterialComponent.class);
-		material.texture.set("/skybox/industrial_sunset_02_puresky_4k.tga");
+		material.texture.set("/skybox/industrial_sunset_02_puresky_4k.png");
 		material.setLit(false);
+		material.drawOnBottom.set(true);
 		project.getEntityManager().addEntityToParent(sky, background);
 		sky.getComponent(PoseComponent.class).setRotation(new Vector3d(90,0,0));
 
