@@ -1,6 +1,6 @@
 ![workflow](https://github.com/MarginallyClever/Robot-Overlord-App/actions/workflows/main.yml/badge.svg)
 
-![Preview image](https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/Screenshot%202023-05-04%20154621.png?raw=true)
+![Preview image](https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/2023-10-14.png)
 
 # Robot Overlord #
 
@@ -46,3 +46,5 @@ For robot arms, select an arm and then open the control panel.
 ## More
 
 If you're reading this, make an issue ticket and we will respond to it promptly.
+
+![Preview image](https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/Screenshot%202023-05-04%20154621.png)
