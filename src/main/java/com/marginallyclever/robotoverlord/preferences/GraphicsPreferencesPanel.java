@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.preferences;
 
 import com.marginallyclever.robotoverlord.entity.EntityManager;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ComponentSwingViewFactory;
 import com.marginallyclever.robotoverlord.swing.translator.Translator;
 
 import javax.swing.*;
@@ -20,7 +20,7 @@ public class GraphicsPreferencesPanel extends JPanel {
 
         GraphicsPreferences.load();
 
-        ViewPanelFactory factory = new ViewPanelFactory(new EntityManager());
+        ComponentSwingViewFactory factory = new ComponentSwingViewFactory(new EntityManager());
         factory.add(GraphicsPreferences.verticalSync);
         factory.add(GraphicsPreferences.glDebug);
         factory.add(GraphicsPreferences.glTrace);
@@ -33,7 +33,7 @@ public class GraphicsPreferencesPanel extends JPanel {
         factory.add(GraphicsPreferences.outlineColor);
         factory.add(GraphicsPreferences.backgroundColor);
 
-        this.add(factory.getFinalView(),BorderLayout.NORTH);
+        this.add(factory.getResult(),BorderLayout.NORTH);
     }
 
     public static void main(String[] args) throws BackingStoreException {

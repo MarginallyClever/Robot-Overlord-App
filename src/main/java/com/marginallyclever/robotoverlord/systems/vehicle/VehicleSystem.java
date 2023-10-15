@@ -11,7 +11,7 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ComponentSwingViewFactory;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
 
@@ -41,12 +41,12 @@ public class VehicleSystem implements EntitySystem {
      * @param component the component to visualize
      */
     @Override
-    public void decorate(ViewPanelFactory view, Component component) {
+    public void decorate(ComponentSwingViewFactory view, Component component) {
         if(component instanceof VehicleComponent) decorateCar(view, (VehicleComponent)component);
         if(component instanceof WheelComponent) decorateWheel(view, (WheelComponent)component);
     }
 
-    private void decorateCar(ViewPanelFactory view, VehicleComponent car) {
+    private void decorateCar(ComponentSwingViewFactory view, VehicleComponent car) {
         view.addComboBox(car.wheelType, VehicleComponent.wheelTypeNames);
         view.add(car.turnVelocity);
         view.add(car.forwardVelocity);
@@ -64,7 +64,7 @@ public class VehicleSystem implements EntitySystem {
         EntitySystemUtils.makePanel(panel, parent, "Drive Vehicle");
     }
 
-    private void decorateWheel(ViewPanelFactory view, WheelComponent wheel) {
+    private void decorateWheel(ComponentSwingViewFactory view, WheelComponent wheel) {
         view.add(wheel.diameter);
         view.add(wheel.width);
         view.add(wheel.drive);

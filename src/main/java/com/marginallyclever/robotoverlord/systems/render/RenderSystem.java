@@ -4,7 +4,7 @@ import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.program.ProgramPathComponent;
 import com.marginallyclever.robotoverlord.components.shapes.*;
 import com.marginallyclever.robotoverlord.parameters.TextureParameter;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ComponentSwingViewFactory;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.render.gcodepath.PathFactory;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
@@ -26,7 +26,7 @@ public class RenderSystem implements EntitySystem {
      * @param component the component to visualize
      */
     @Override
-    public void decorate(ViewPanelFactory view, Component component) {
+    public void decorate(ComponentSwingViewFactory view, Component component) {
         if(component instanceof CameraComponent) decorateCamera(view,component);
         if(component instanceof RenderComponent) decorateRender(view, component);
         if(component instanceof GCodePathComponent) decorateGCodePath(view, component);
@@ -44,33 +44,33 @@ public class RenderSystem implements EntitySystem {
         else if(component instanceof ShapeComponent) decorateShape(view, component);
     }
 
-    private void decorateCamera(ViewPanelFactory view, Component component) {
+    private void decorateCamera(ComponentSwingViewFactory view, Component component) {
         CameraComponent camera = (CameraComponent)component;
         view.add(camera.orbitDistance).setReadOnly(true);
         view.add(camera.pan).setReadOnly(true);
         view.add(camera.tilt).setReadOnly(true);
     }
 
-    private void decorateRender(ViewPanelFactory view, Component component) {
+    private void decorateRender(ComponentSwingViewFactory view, Component component) {
         RenderComponent renderComponent = (RenderComponent) component;
         view.add(renderComponent.isVisible);
     }
 
-    private void decorateBox(ViewPanelFactory view, Component component) {
+    private void decorateBox(ComponentSwingViewFactory view, Component component) {
         Box boxComponent = (Box) component;
         view.add(boxComponent.width);
         view.add(boxComponent.length);
         view.add(boxComponent.height);
     }
 
-    private void decorateCylinder(ViewPanelFactory view, Component component) {
+    private void decorateCylinder(ComponentSwingViewFactory view, Component component) {
         Cylinder cylinderComponent = (Cylinder) component;
         view.add(cylinderComponent.height);
         view.add(cylinderComponent.radius0);
         view.add(cylinderComponent.radius1);
     }
 
-    private void decorateShape(ViewPanelFactory view, Component component) {
+    private void decorateShape(ComponentSwingViewFactory view, Component component) {
         ShapeComponent shapeComponent = (ShapeComponent) component;
         view.add(shapeComponent.numVertices).setReadOnly(true);
         view.add(shapeComponent.hasNormals).setReadOnly(true);
@@ -78,7 +78,7 @@ public class RenderSystem implements EntitySystem {
         view.add(shapeComponent.hasUVs).setReadOnly(true);
     }
 
-    public void decorateGCodePath(ViewPanelFactory view, Component component) {
+    public void decorateGCodePath(ComponentSwingViewFactory view, Component component) {
         GCodePathComponent pathComponent = (GCodePathComponent)component;
         ArrayList<FileFilter> filters = PathFactory.getAllExtensions();
         view.addFilename(pathComponent.filename,filters);
@@ -88,46 +88,46 @@ public class RenderSystem implements EntitySystem {
         view.add(pathComponent.getCommand).addPropertyChangeListener((e)->pathComponent.updateLocation());
     }
 
-    public void decoratePath(ViewPanelFactory view, Component component) {
+    public void decoratePath(ComponentSwingViewFactory view, Component component) {
         ProgramPathComponent programPathComponent = (ProgramPathComponent) component;
         ArrayList<FileFilter> filters = PathFactory.getAllExtensions();
         view.add(programPathComponent.moveSpeed);
         view.addComboBox(programPathComponent.moveType, ProgramPathComponent.MOVE_TYPE_NAMES);
     }
 
-    public void decorateLinearPattern(ViewPanelFactory view, Component component) {
+    public void decorateLinearPattern(ComponentSwingViewFactory view, Component component) {
         LinearPatternComponent patternComponent = (LinearPatternComponent) component;
         view.addComboBox(patternComponent.spacingType, LinearPatternComponent.SPACING_TYPE_NAMES);
         view.add(patternComponent.measure);
         view.add(patternComponent.quantity);
     }
 
-    private void decorateMeshFromFile(ViewPanelFactory view, Component component) {
+    private void decorateMeshFromFile(ComponentSwingViewFactory view, Component component) {
         MeshFromFile meshComponent = (MeshFromFile) component;
         view.addFilename(meshComponent.filename,MeshFactory.getAllExtensions());
         view.addButton("Reload").addActionEventListener(e -> meshComponent.reload());
     }
 
-    private void decorateSphere(ViewPanelFactory view, Component component) {
+    private void decorateSphere(ComponentSwingViewFactory view, Component component) {
         Sphere sphereComponent = (Sphere) component;
         view.add(sphereComponent.detail);
         view.add(sphereComponent.radius);
     }
 
-    private void decorateDecal(ViewPanelFactory view, Component component) {
+    private void decorateDecal(ComponentSwingViewFactory view, Component component) {
         Decal decalComponent = (Decal) component;
         view.add(decalComponent.height);
         view.add(decalComponent.width);
     }
 
-    private void decorateGrid(ViewPanelFactory view, Component component) {
+    private void decorateGrid(ComponentSwingViewFactory view, Component component) {
         Grid sphereComponent = (Grid) component;
         view.add(sphereComponent.width);
         view.add(sphereComponent.length);
         view.add(sphereComponent.snap);
     }
 
-    private void decorateLight(ViewPanelFactory view, Component component) {
+    private void decorateLight(ComponentSwingViewFactory view, Component component) {
         LightComponent light = (LightComponent)component;
         view.add(light.isDirectional);
         view.addComboBox(light.preset, LightComponent.PRESET_NAMES);
@@ -147,7 +147,7 @@ public class RenderSystem implements EntitySystem {
      * @param view      the factory to use to create the panel
      * @param component the component to visualize
      */
-    public void decorateMaterial(ViewPanelFactory view, Component component) {
+    public void decorateMaterial(ComponentSwingViewFactory view, Component component) {
         MaterialComponent material = (MaterialComponent)component;
         view.add(material.isLit);
         view.add(material.emission);

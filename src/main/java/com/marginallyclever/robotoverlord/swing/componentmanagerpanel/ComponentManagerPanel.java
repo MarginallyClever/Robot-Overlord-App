@@ -4,7 +4,7 @@ import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ComponentSwingViewFactory;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 import com.marginallyclever.robotoverlord.swing.actions.ComponentAddAction;
 import com.marginallyclever.robotoverlord.swing.actions.ComponentCopyAction;
@@ -93,7 +93,7 @@ public class ComponentManagerPanel extends JPanel {
 
 	private void addSingleComponent(Component component) {
 		// get the view
-		ViewPanelFactory factory = new ViewPanelFactory(entityManager);
+		ComponentSwingViewFactory factory = new ComponentSwingViewFactory(entityManager);
 
 		// add control common to all components
 		factory.add(component.enabled);
@@ -104,7 +104,7 @@ public class ComponentManagerPanel extends JPanel {
 		}
 
 
-		JComponent outerPanel = wrapViewWithCommonComponentControls(factory.getFinalView(),component);
+		JComponent outerPanel = wrapViewWithCommonComponentControls(factory.getResult(),component);
 		componentList.add(outerPanel);
 	}
 

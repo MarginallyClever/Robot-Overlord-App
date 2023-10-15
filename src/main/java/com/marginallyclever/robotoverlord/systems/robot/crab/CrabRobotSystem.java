@@ -8,7 +8,7 @@ import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ComponentSwingViewFactory;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
 
@@ -39,11 +39,11 @@ public class CrabRobotSystem implements EntitySystem {
      * @param component the component to visualize
      */
     @Override
-    public void decorate(ViewPanelFactory view, Component component) {
+    public void decorate(ComponentSwingViewFactory view, Component component) {
         if( component instanceof CrabRobotComponent) decorateCrab(view,component);
     }
 
-    public void decorateCrab(ViewPanelFactory view, Component component) {
+    public void decorateCrab(ComponentSwingViewFactory view, Component component) {
         CrabRobotComponent crab = (CrabRobotComponent)component;
         view.add(crab.standingRadius);
         view.add(crab.standingHeight);

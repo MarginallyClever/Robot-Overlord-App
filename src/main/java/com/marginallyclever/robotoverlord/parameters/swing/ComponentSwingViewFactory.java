@@ -14,23 +14,23 @@ import java.security.InvalidParameterException;
 import java.util.List;
 
 /**
- * A factory that builds Swing elements for the entity editor and collects them in a {@link JPanel}.
+ * {@link ComponentSwingViewFactory} builds Swing elements and collects them in a {@link JPanel}.
  * @author Dan Royer
  * @since 1.6.0
  */
-public class ViewPanelFactory {
+public class ComponentSwingViewFactory {
 	private final ViewElementFactory viewElementFactory;
-	private final JPanel innerPanel = new JPanel();
+	private final JPanel result = new JPanel();
 	private final GridBagConstraints gbc = new GridBagConstraints();
 	private final EntityManager entityManager;
 
-	public ViewPanelFactory(EntityManager entityManager) {
+	public ComponentSwingViewFactory(EntityManager entityManager) {
 		super();
 		this.entityManager = entityManager;
 		viewElementFactory = new ViewElementFactory(entityManager);
 
-		innerPanel.setLayout(new GridBagLayout());
-		innerPanel.setBorder(new EmptyBorder(1, 1, 1, 1));
+		result.setLayout(new GridBagLayout());
+		result.setBorder(new EmptyBorder(1, 1, 1, 1));
 
 		gbc.weightx = 1;
 		gbc.gridx = 0;
@@ -42,11 +42,15 @@ public class ViewPanelFactory {
 	
 	private void addViewElement(ViewElement c) {
 		gbc.gridy++;
-		innerPanel.add(c,gbc);
+		result.add(c,gbc);
 	}
 
-	public JComponent getFinalView() {
-		return innerPanel;
+	/**
+	 * Get the result of the build.
+	 * @return JPanel the result
+	 */
+	public JPanel getResult() {
+		return result;
 	}
 	
 	/**

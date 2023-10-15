@@ -10,7 +10,7 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ComponentSwingViewFactory;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
 
@@ -40,13 +40,13 @@ public class MotorSystem implements EntitySystem {
      * @param component the component to visualize
      */
     @Override
-    public void decorate(ViewPanelFactory view, Component component) {
+    public void decorate(ComponentSwingViewFactory view, Component component) {
         if (component instanceof ServoComponent) decorateServo(view, (ServoComponent) component);
         if (component instanceof StepperMotorComponent) decorateStepper(view, (StepperMotorComponent)component);
         if (component instanceof MotorComponent) decorateMotor(view, (MotorComponent) component);
     }
 
-    private void decorateStepper(ViewPanelFactory view, StepperMotorComponent stepper) {
+    private void decorateStepper(ComponentSwingViewFactory view, StepperMotorComponent stepper) {
         view.add(stepper.stepPerRevolution);
         view.add(stepper.microStepping);
         view.addComboBox(stepper.direction,StepperMotorComponent.directionNames);
@@ -62,7 +62,7 @@ public class MotorSystem implements EntitySystem {
         rotateMotor(stepper,angle);
     }
 
-    private void decorateServo(ViewPanelFactory view, ServoComponent servo) {
+    private void decorateServo(ComponentSwingViewFactory view, ServoComponent servo) {
         ViewElementButton bCurve = view.addButton("Tune PID");
         bCurve.addActionEventListener(e -> editPID(bCurve, servo));
         view.add(servo.kP);
@@ -76,7 +76,7 @@ public class MotorSystem implements EntitySystem {
         EntitySystemUtils.makePanel(panel, parent, "Tune PID");
     }
 
-    private void decorateMotor(ViewPanelFactory view, MotorComponent motor) {
+    private void decorateMotor(ComponentSwingViewFactory view, MotorComponent motor) {
         view.add(motor.currentAngle);
         view.add(motor.currentRPM);
         view.add(motor.desiredRPM);
