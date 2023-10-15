@@ -13,17 +13,7 @@ import com.marginallyclever.robotoverlord.swing.actions.*;
 import com.marginallyclever.robotoverlord.swing.componentmanagerpanel.ComponentManagerPanel;
 import com.marginallyclever.robotoverlord.swing.entitytreepanel.EntityTreePanel;
 import com.marginallyclever.robotoverlord.swing.translator.Translator;
-import com.marginallyclever.robotoverlord.systems.EntitySystem;
-import com.marginallyclever.robotoverlord.systems.OriginAdjustSystem;
-import com.marginallyclever.robotoverlord.systems.motor.MotorSystem;
-import com.marginallyclever.robotoverlord.systems.physics.PhysicsSystem;
-import com.marginallyclever.robotoverlord.systems.render.RenderSystem;
-import com.marginallyclever.robotoverlord.systems.robot.RobotGripperSystem;
-import com.marginallyclever.robotoverlord.systems.robot.crab.CrabRobotSystem;
-import com.marginallyclever.robotoverlord.systems.robot.dog.DogRobotSystem;
-import com.marginallyclever.robotoverlord.systems.robot.robotarm.ProgramExecutorSystem;
-import com.marginallyclever.robotoverlord.systems.robot.robotarm.RobotArmSystem;
-import com.marginallyclever.robotoverlord.systems.vehicle.VehicleSystem;
+import com.marginallyclever.robotoverlord.systems.SystemManager;
 import com.marginallyclever.util.PropertiesFileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +24,6 @@ import java.awt.*;
 import java.awt.dnd.DropTarget;
 import java.awt.event.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.prefs.Preferences;
 
 /**
@@ -112,7 +100,7 @@ public class RobotOverlord {
 	 */
 	private final ComponentManagerPanel componentManagerPanel;
 
-	private final List<EntitySystem> systems = new ArrayList<>();
+	private final SystemManager systemManager;
 
 	public RobotOverlord() {
 		super();
@@ -124,11 +112,11 @@ public class RobotOverlord {
 		Translator.start();
 		UndoSystem.start();
 		preferencesLoad();
-		buildSystems();
+		systemManager = new SystemManager(project.getEntityManager());
 
 		buildMainFrame();
 		entityTreePanel = new EntityTreePanel(project.getEntityManager());
-		componentManagerPanel = new ComponentManagerPanel(project.getEntityManager(),systems);
+		componentManagerPanel = new ComponentManagerPanel(project.getEntityManager(),systemManager);
 		buildRenderPanel();
 		setSplitterDefaults();
 		layoutComponents();
@@ -165,28 +153,7 @@ public class RobotOverlord {
 		//renderPanel = new OpenGLTestPerspective(project.getEntityManager());
 		//renderPanel = new OpenGLTestStencil(project.getEntityManager());
 		renderPanel = new OpenGLRenderPanel(project.getEntityManager());
-		renderPanel.setUpdateCallback((dt)->{
-			for(EntitySystem system : systems) system.update(dt);
-		});
-	}
-
-	private void buildSystems() {
-		addSystem(new PhysicsSystem());
-		addSystem(new RenderSystem());
-		addSystem(new OriginAdjustSystem());
-		//addSystem(new SoundSystem());
-		addSystem(new RobotArmSystem(project.getEntityManager()));
-		addSystem(new DogRobotSystem(project.getEntityManager()));
-		addSystem(new CrabRobotSystem(project.getEntityManager()));
-		addSystem(new ProgramExecutorSystem(project.getEntityManager()));
-		addSystem(new RobotGripperSystem(project.getEntityManager()));
-		addSystem(new MotorSystem(project.getEntityManager()));
-		addSystem(new VehicleSystem(project.getEntityManager()));
-	}
-
-	private void addSystem(EntitySystem system) {
-		systems.add(system);
-		//system.addListener(this);
+		renderPanel.setUpdateCallback((dt)->systemManager.update(dt));
 	}
 
 	private void listenToClipboardChanges() {
