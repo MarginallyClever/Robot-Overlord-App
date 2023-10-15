@@ -32,7 +32,6 @@ public class MatrixMaterialRenderSet {
         Queue<Entity> toRender = new LinkedList<>(list);
         while(!toRender.isEmpty()) {
             Entity entity = toRender.remove();
-            toRender.addAll(entity.getChildren());
 
             RenderComponent renderComponent = entity.getComponent(RenderComponent.class);
             if(renderComponent==null) continue;

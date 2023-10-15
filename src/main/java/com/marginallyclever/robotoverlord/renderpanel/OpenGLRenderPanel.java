@@ -445,7 +445,9 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
             return;
         }
 
-        collectSelectedEntitiesAndTheirChildren();  // TODO only when selection changes?
+        //collectSelectedEntitiesAndTheirChildren();  // TODO only when selection changes?
+        collectSelectedEntities();
+
         // do not write to stencil buffer.
         gl.glStencilMask(0x00);
         gl.glStencilFunc(GL.GL_ALWAYS,1,0xFF);
@@ -457,7 +459,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         defaultMaterial.render(gl);
         updateBackgrounds();
 
-        renderAllEntities(gl, entityManager.getEntities(),shaderDefault);
+        renderAllEntities(gl, shaderDefault);
         outlineCollectedEntities(gl);
     }
 
@@ -539,8 +541,14 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
     }
 
     // get the selected entities and all their children.
+    private void collectSelectedEntities() {
+        collectedEntities.clear();
+        collectedEntities.addAll(Clipboard.getSelectedEntities());
+    }
+
+    // get the selected entities and all their children.
     private void collectSelectedEntitiesAndTheirChildren() {
-        List<Entity> toScan = new ArrayList<>(Clipboard.getSelectedEntities());
+        List<Entity> toScan = Clipboard.getSelectedEntities();
         collectedEntities.clear();
         while(!toScan.isEmpty()) {
             Entity entity = toScan.remove(0);
@@ -642,8 +650,17 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
      * @param list the list of entities to render
      * @param shaderProgram the shader to use
      */
-    private void renderAllEntities(GL3 gl3,List<Entity> list,ShaderProgram shaderProgram) {
-        MatrixMaterialRenderSet mmrSet = new MatrixMaterialRenderSet(list);
+    private void renderAllEntities(GL3 gl3,ShaderProgram shaderProgram) {
+        List<Entity> toScan = new LinkedList<>();
+        toScan.add(entityManager.getRoot());
+        List<Entity> collected = new LinkedList<>();
+        while(!toScan.isEmpty()) {
+            Entity toAdd = toScan.remove(0);
+            toScan.addAll(toAdd.getChildren());
+            collected.add(toAdd);
+        }
+
+        MatrixMaterialRenderSet mmrSet = new MatrixMaterialRenderSet(collected);
         sortMMRAlpha(mmrSet);
         renderMMRSet(gl3, mmrSet, shaderProgram);
     }
