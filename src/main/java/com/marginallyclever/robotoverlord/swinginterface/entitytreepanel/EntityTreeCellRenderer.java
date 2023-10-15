@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel;
+package com.marginallyclever.robotoverlord.swinginterface.entitytreepanel;
 
 import com.marginallyclever.robotoverlord.entity.Entity;
 
