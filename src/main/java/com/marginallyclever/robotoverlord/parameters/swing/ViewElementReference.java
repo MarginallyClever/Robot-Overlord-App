@@ -5,7 +5,6 @@ import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.robotoverlord.swing.UndoSystem;
 import com.marginallyclever.robotoverlord.swing.componentmanagerpanel.EntityChooser;
-import com.marginallyclever.robotoverlord.swing.componentmanagerpanel.FocusTextField;
 import com.marginallyclever.robotoverlord.swing.edits.StringParameterEdit;
 
 import javax.swing.*;

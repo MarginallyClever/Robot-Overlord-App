@@ -3,7 +3,6 @@ package com.marginallyclever.robotoverlord.parameters.swing;
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
 import com.marginallyclever.robotoverlord.swing.UndoSystem;
-import com.marginallyclever.robotoverlord.swing.componentmanagerpanel.FocusTextField;
 import com.marginallyclever.robotoverlord.swing.edits.Vector3dParameterEdit;
 
 import javax.swing.*;

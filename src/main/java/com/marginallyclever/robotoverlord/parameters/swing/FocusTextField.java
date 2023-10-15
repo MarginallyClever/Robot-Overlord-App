@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swing.componentmanagerpanel;
+package com.marginallyclever.robotoverlord.parameters.swing;
 
 import javax.swing.*;
 import java.awt.event.FocusEvent;
