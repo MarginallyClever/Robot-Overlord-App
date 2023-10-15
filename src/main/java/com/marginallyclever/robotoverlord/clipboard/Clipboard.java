@@ -52,9 +52,9 @@ public class Clipboard {
     }
 
     public static void setSelectedEntity(Entity entity) {
-        List<Entity> list = new ArrayList<>();
-        if(entity!=null) list.add(entity);
-        setSelectedEntities(list);
+        selectedEntities.clear();
+        selectedEntities.add(entity);
+        fireClipboardChanged();
     }
 
     public static void setSelectedEntities(List<Entity> list) {
