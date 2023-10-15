@@ -85,6 +85,10 @@ public class PreferencesViewer extends JPanel {
     }
 
     public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch(Exception ignored) {}
+
         JFrame frame = new JFrame("PreferencesEditor");
         Preferences prefs = Preferences.userRoot();
         frame.setContentPane(new PreferencesViewer(prefs));
