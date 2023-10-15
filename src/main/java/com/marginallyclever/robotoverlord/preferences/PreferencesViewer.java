@@ -89,12 +89,11 @@ public class PreferencesViewer extends JPanel {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch(Exception ignored) {}
 
-        JFrame frame = new JFrame("PreferencesEditor");
+        JFrame frame = new JFrame("Preferences Viewer");
         Preferences prefs = Preferences.userRoot();
         frame.setContentPane(new PreferencesViewer(prefs));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setPreferredSize(new Dimension(800, 600));
-        frame.setTitle("Preferences Viewer");
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
