@@ -18,7 +18,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 /**
- * A factory for creating {@link Component} objects.
+ * A factory to list and create {@link Component}s.
  *
  * @author Dan Royer
  * @since 2.5.0
