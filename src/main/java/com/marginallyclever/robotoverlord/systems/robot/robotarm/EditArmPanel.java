@@ -11,8 +11,8 @@ import com.marginallyclever.robotoverlord.parameters.swing.ViewElementBoolean;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementDouble;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementFilename;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import com.marginallyclever.robotoverlord.swing.UndoSystem;
+import com.marginallyclever.robotoverlord.swing.translator.Translator;
 import com.marginallyclever.robotoverlord.systems.OriginAdjustSystem;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 

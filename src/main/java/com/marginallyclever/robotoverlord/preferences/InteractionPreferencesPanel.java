@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.preferences;
 
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import com.marginallyclever.robotoverlord.swing.translator.Translator;
 
 import javax.swing.*;
 import java.awt.*;

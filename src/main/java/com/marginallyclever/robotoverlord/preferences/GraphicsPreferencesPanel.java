@@ -1,14 +1,12 @@
 package com.marginallyclever.robotoverlord.preferences;
 
 import com.marginallyclever.robotoverlord.entity.EntityManager;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewElementFactory;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import com.marginallyclever.robotoverlord.swing.translator.Translator;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 
 /**
  * Panel to display graphics preferences

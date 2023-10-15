@@ -6,8 +6,8 @@ import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementFactory;
-import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.EntityAddEdit;
+import com.marginallyclever.robotoverlord.swing.UndoSystem;
+import com.marginallyclever.robotoverlord.swing.edits.EntityAddEdit;
 
 import javax.swing.*;
 import java.awt.*;

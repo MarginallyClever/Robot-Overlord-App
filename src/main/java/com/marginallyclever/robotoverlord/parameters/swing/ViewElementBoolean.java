@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.parameters.swing;
 
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
-import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.BooleanParameterEdit;
+import com.marginallyclever.robotoverlord.swing.UndoSystem;
+import com.marginallyclever.robotoverlord.swing.edits.BooleanParameterEdit;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

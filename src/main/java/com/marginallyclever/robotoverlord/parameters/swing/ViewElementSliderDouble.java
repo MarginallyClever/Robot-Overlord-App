@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.parameters.swing;
 
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.DoubleParameterEdit;
+import com.marginallyclever.robotoverlord.swing.UndoSystem;
+import com.marginallyclever.robotoverlord.swing.edits.DoubleParameterEdit;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
