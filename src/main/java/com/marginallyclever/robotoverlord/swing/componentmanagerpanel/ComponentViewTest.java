@@ -6,20 +6,25 @@ import com.marginallyclever.robotoverlord.components.ComponentFactory;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.swing.translator.Translator;
+import com.marginallyclever.robotoverlord.systems.SystemManager;
 
 import java.util.List;
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
 
 public class ComponentViewTest extends JPanel {
     private final EntityManager entityManager = new EntityManager();
-    private final ComponentManagerPanel componentManagerPanel = new ComponentManagerPanel(entityManager,null);
+    private final SystemManager systems = new SystemManager(entityManager);
+    private final ComponentManagerPanel componentManagerPanel = new ComponentManagerPanel(entityManager,systems);
     private final JComboBox<String> names = new JComboBox<>();
 
     public ComponentViewTest() {
         super(new BorderLayout());
+        setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         add(getSelectionPanel(),BorderLayout.NORTH);
         add(componentManagerPanel,BorderLayout.CENTER);
+        componentManagerPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
     }
 
     private JPanel getSelectionPanel() {
@@ -27,6 +32,9 @@ public class ComponentViewTest extends JPanel {
         ComponentFactory.getAllComponentNames().forEach(names::addItem);
         names.addActionListener(e -> updateInnerView());
         panel.add(names);
+        JButton reload = new JButton("⟳");
+        reload.addActionListener(e->updateInnerView());
+        panel.add(reload);
         updateInnerView();
         return panel;
     }

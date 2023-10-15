@@ -12,6 +12,7 @@ import com.marginallyclever.robotoverlord.swing.actions.ComponentDeleteAction;
 import com.marginallyclever.robotoverlord.swing.actions.ComponentPasteAction;
 import com.marginallyclever.robotoverlord.swing.translator.Translator;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
+import com.marginallyclever.robotoverlord.systems.SystemManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,13 +31,13 @@ public class ComponentManagerPanel extends JPanel {
 	private final ComponentPasteAction componentPasteAction = new ComponentPasteAction();
 	private final List<EntitySystem> systems = new ArrayList<>();
 
-	public ComponentManagerPanel(EntityManager entityManager, List<EntitySystem> systems) {
+	public ComponentManagerPanel(EntityManager entityManager, SystemManager systems) {
 		super(new BorderLayout());
 
 		if(entityManager == null) throw new NullPointerException("entityManager cannot be null.");
 		this.entityManager = entityManager;
 
-		if(systems != null) this.systems.addAll(systems);
+		if(systems != null) this.systems.addAll(systems.getList());
 
 		componentList.setLayout(new BoxLayout(componentList,BoxLayout.Y_AXIS));
 		Insets in = componentList.getInsets();
