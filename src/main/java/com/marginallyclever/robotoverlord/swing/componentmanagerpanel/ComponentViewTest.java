@@ -13,6 +13,11 @@ import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
 
+/**
+ * View a single {@link Component} and any components upon which it depends.
+ * @author Dan Royer
+ * @since 2023-10-15
+ */
 public class ComponentViewTest extends JPanel {
     private final EntityManager entityManager = new EntityManager();
     private final SystemManager systems = new SystemManager(entityManager);

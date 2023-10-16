@@ -22,11 +22,9 @@ public class ComponentSwingViewFactory {
 	private final ViewElementFactory viewElementFactory;
 	private final JPanel result = new JPanel();
 	private final GridBagConstraints gbc = new GridBagConstraints();
-	private final EntityManager entityManager;
 
 	public ComponentSwingViewFactory(EntityManager entityManager) {
 		super();
-		this.entityManager = entityManager;
 		viewElementFactory = new ViewElementFactory(entityManager);
 
 		result.setLayout(new GridBagLayout());

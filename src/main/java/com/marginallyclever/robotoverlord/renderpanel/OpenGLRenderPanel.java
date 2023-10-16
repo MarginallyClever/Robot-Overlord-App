@@ -647,7 +647,6 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
      * material.  Further sort the alpha list by distance from the camera.  Then systems the opaque, systems the alpha,
      * and systems the no-material.
      * @param gl3 the OpenGL context
-     * @param list the list of entities to render
      * @param shaderProgram the shader to use
      */
     private void renderAllEntities(GL3 gl3,ShaderProgram shaderProgram) {
