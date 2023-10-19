@@ -9,7 +9,7 @@ import com.marginallyclever.robotoverlord.components.demo.DogRobotComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ComponentSwingViewFactory;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
 
@@ -40,11 +40,11 @@ public class DogRobotSystem implements EntitySystem {
      * @param component the component to visualize
      */
     @Override
-    public void decorate(ViewPanelFactory view, Component component) {
+    public void decorate(ComponentSwingViewFactory view, Component component) {
         if( component instanceof DogRobotComponent) decorateDog(view,component);
     }
 
-    public void decorateDog(ViewPanelFactory view, Component component) {
+    public void decorateDog(ComponentSwingViewFactory view, Component component) {
         DogRobotComponent dog = (DogRobotComponent)component;
 
         view.add(dog.standingRadius);

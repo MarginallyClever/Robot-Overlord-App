@@ -11,7 +11,7 @@ import com.marginallyclever.robotoverlord.components.program.ProgramStepComponen
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ComponentSwingViewFactory;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import org.slf4j.Logger;
@@ -30,11 +30,11 @@ public class ProgramExecutorSystem  implements EntitySystem {
     }
 
     @Override
-    public void decorate(ViewPanelFactory view, Component component) {
+    public void decorate(ComponentSwingViewFactory view, Component component) {
         if( component instanceof ProgramComponent) decorateProgram(view,component);
     }
 
-    private void decorateProgram(ViewPanelFactory view, Component component) {
+    private void decorateProgram(ComponentSwingViewFactory view, Component component) {
         final ProgramComponent program = (ProgramComponent)component;
         view.add(program.programEntity).addPropertyChangeListener((evt) -> {
             program.setRunning(false);

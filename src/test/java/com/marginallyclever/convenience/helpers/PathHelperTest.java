@@ -24,9 +24,9 @@ public class PathHelperTest {
     @Test
     public void test() {
         try {
-            testResults("src\\main\\java\\com\\marginallyclever\\robotoverlord\\swinginterface\\actions\\SceneLoadAction.java");
-            testResults("\\src\\main\\java\\com\\marginallyclever\\robotoverlord\\swinginterface\\actions\\");
-            testResults("src\\main\\java\\com\\marginallyclever\\robotoverlord\\swinginterface\\actions");
+            testResults("src\\main\\java\\com\\marginallyclever\\robotoverlord\\swing\\actions\\SceneLoadAction.java");
+            testResults("\\src\\main\\java\\com\\marginallyclever\\robotoverlord\\swing\\actions\\");
+            testResults("src\\main\\java\\com\\marginallyclever\\robotoverlord\\swing\\actions");
         } catch (Exception ignored) {
             // ignored.
         }

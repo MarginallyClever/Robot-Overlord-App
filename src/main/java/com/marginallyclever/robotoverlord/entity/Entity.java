@@ -459,6 +459,6 @@ public class Entity {
 	}
 
 	public List<Component> getComponents() {
-		return components;
+		return new ArrayList<>(components);
 	}
 }

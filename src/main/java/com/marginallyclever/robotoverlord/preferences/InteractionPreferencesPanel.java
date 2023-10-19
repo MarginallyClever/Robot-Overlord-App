@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.preferences;
 
 import com.marginallyclever.robotoverlord.entity.EntityManager;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import com.marginallyclever.robotoverlord.parameters.swing.ComponentSwingViewFactory;
+import com.marginallyclever.robotoverlord.swing.translator.Translator;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,12 +20,12 @@ public class InteractionPreferencesPanel extends JPanel {
 
         InteractionPreferences.load();
 
-        ViewPanelFactory factory = new ViewPanelFactory(new EntityManager());
+        ComponentSwingViewFactory factory = new ComponentSwingViewFactory(new EntityManager());
         factory.addRange(InteractionPreferences.cursorSize,20,3);
         factory.add(InteractionPreferences.toolScale);
         factory.addRange(InteractionPreferences.compassSize,50,5);
 
-        this.add(factory.getFinalView(),BorderLayout.NORTH);
+        this.add(factory.getResult(),BorderLayout.NORTH);
     }
 
     public static void main(String[] args) throws BackingStoreException {

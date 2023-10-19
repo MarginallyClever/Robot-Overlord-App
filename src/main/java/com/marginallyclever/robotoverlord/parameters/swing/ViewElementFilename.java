@@ -2,9 +2,9 @@ package com.marginallyclever.robotoverlord.parameters.swing;
 
 import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
-import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.edits.StringParameterEdit;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import com.marginallyclever.robotoverlord.swing.UndoSystem;
+import com.marginallyclever.robotoverlord.swing.edits.StringParameterEdit;
+import com.marginallyclever.robotoverlord.swing.translator.Translator;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;

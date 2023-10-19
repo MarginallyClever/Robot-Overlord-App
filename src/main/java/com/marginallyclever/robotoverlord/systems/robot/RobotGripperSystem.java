@@ -8,7 +8,7 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementComboBox;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ComponentSwingViewFactory;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.RayPickSystem;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public class RobotGripperSystem implements EntitySystem {
      * @param component the component to visualize
      */
     @Override
-    public void decorate(ViewPanelFactory view, Component component) {
+    public void decorate(ComponentSwingViewFactory view, Component component) {
         if( component instanceof RobotGripperComponent) decorateGripper(view,component);
     }
 
@@ -47,7 +47,7 @@ public class RobotGripperSystem implements EntitySystem {
     @Override
     public void update(double dt) {}
 
-    private void decorateGripper(ViewPanelFactory view, Component component) {
+    private void decorateGripper(ComponentSwingViewFactory view, Component component) {
         RobotGripperComponent gripper = (RobotGripperComponent)component;
 
         view.add(gripper.openDistance);

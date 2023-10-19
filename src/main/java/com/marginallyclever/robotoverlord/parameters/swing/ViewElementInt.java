@@ -1,9 +1,8 @@
 package com.marginallyclever.robotoverlord.parameters.swing;
 
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
-import com.marginallyclever.robotoverlord.swinginterface.UndoSystem;
-import com.marginallyclever.robotoverlord.swinginterface.componentmanagerpanel.FocusTextField;
-import com.marginallyclever.robotoverlord.swinginterface.edits.IntParameterEdit;
+import com.marginallyclever.robotoverlord.swing.UndoSystem;
+import com.marginallyclever.robotoverlord.swing.edits.IntParameterEdit;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

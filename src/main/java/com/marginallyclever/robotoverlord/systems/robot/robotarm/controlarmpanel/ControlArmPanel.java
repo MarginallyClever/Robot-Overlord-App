@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpane
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.GCodePathComponent;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import com.marginallyclever.robotoverlord.swing.translator.Translator;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.jogpanel.JogPanel;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.presentationlayer.PresentationFactory;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.presentationlayer.PresentationLayer;

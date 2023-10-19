@@ -6,9 +6,9 @@ import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ComponentSwingViewFactory;
 import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.swinginterface.translator.Translator;
+import com.marginallyclever.robotoverlord.swing.translator.Translator;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.ControlArmPanel;
@@ -38,13 +38,13 @@ public class RobotArmSystem implements EntitySystem {
     }
 
     @Override
-    public void decorate(ViewPanelFactory view, Component component) {
+    public void decorate(ComponentSwingViewFactory view, Component component) {
         if( component instanceof RobotComponent ) decorateRobot(view,(RobotComponent)component);
         if( component instanceof DHComponent ) decorateDH(view,(DHComponent)component);
         if( component instanceof RobotArmComponent ) decorateRobotArm(view,(RobotArmComponent)component);
     }
 
-    private void decorateDH(ViewPanelFactory view, DHComponent dh) {
+    private void decorateDH(ComponentSwingViewFactory view, DHComponent dh) {
         view.add(dh.isRevolute).setReadOnly(true);
         view.add(dh.myD).setReadOnly(true);
         view.add(dh.myR).setReadOnly(true);
@@ -55,7 +55,7 @@ public class RobotArmSystem implements EntitySystem {
         view.add(dh.jointHome).setReadOnly(true);
     }
 
-    private void decorateRobot(ViewPanelFactory view, RobotComponent robot) {
+    private void decorateRobot(ComponentSwingViewFactory view, RobotComponent robot) {
         view.add(robot.desiredLinearVelocity);
         view.add(robot.gcodePath);
 
@@ -69,7 +69,7 @@ public class RobotArmSystem implements EntitySystem {
         bHome.addActionEventListener((evt)-> robot.goHome());
     }
 
-    private void decorateRobotArm(ViewPanelFactory view, RobotArmComponent arm) {
+    private void decorateRobotArm(ComponentSwingViewFactory view, RobotArmComponent arm) {
         view.add(arm.desiredLinearVelocity);
         view.add(arm.endEffectorTarget);
         view.add(arm.joints);

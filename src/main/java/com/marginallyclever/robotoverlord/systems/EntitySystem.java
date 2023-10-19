@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.systems;
 
 import com.marginallyclever.robotoverlord.components.Component;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewPanelFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ComponentSwingViewFactory;
 
 /**
  * {@link EntitySystem} are Systems in an <a href="https://en.wikipedia.org/wiki/Entity_component_system">
@@ -19,7 +19,7 @@ public interface EntitySystem {
      * @param view the factory to use to create the panel
      * @param component the component to visualize
      */
-    void decorate(ViewPanelFactory view, Component component);
+    void decorate(ComponentSwingViewFactory view, Component component);
 
     /**
      * Update the system over time.
