@@ -129,4 +129,28 @@ public abstract class ApproximateJacobian {
         }
         return sb.toString();
     }
+
+    /**
+     * The time derivative is calculated by multiplying the jacobian by the joint velocities.
+     * You can do this by taking the derivative of each element of the Jacobian matrix individually.
+     * @param jointVelocities joint velocities in degrees.  In classical notation this would be qDot.
+     * @return the time derivative of the Jacobian matrix.
+     */
+    public double [][] getTimeDerivative(double [] jointVelocities) {
+        if(jointVelocities.length!=DOF) throw new IllegalArgumentException("jointVelocities must be the same length as the number of joints.");
+
+        double[][] jacobianDot = new double[6][DOF];  // Initialize the derivative of the Jacobian matrix
+
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < DOF; j++) {
+                // Calculate the derivative of each element of the Jacobian
+                double derivative = 0.0;
+                for (int k = 0; k < DOF; k++) {
+                    derivative += jacobian[i][k] * jointVelocities[k];  // Assuming qDot represents joint velocities
+                }
+                jacobianDot[i][j] = derivative;
+            }
+        }
+        return jacobianDot;
+    }
 }
