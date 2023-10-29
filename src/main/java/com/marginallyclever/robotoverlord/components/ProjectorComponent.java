@@ -10,9 +10,13 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-public class ProjectorComponent  extends ShapeComponent implements PropertyChangeListener {
-    private boolean hasCapturedFrame = false;
-    private int width, height;
+/**
+ * Projects one camera feed into the world on a flat surface.
+ * @author Dan Royer
+ * @since 2.10.0
+ */
+public class ProjectorComponent  extends ShapeComponent {
+    private BufferedImage image;
     private Texture texture;
     private MaterialComponent myMaterial;
 
@@ -47,7 +51,7 @@ public class ProjectorComponent  extends ShapeComponent implements PropertyChang
     }
 
     private void updateTexture(GL3 gl) {
-        BufferedImage image = captureFrame();
+        image = captureFrame();
 
         if (texture == null) {
             texture = AWTTextureIO.newTexture(gl.getGLProfile(), image, true);
@@ -56,25 +60,19 @@ public class ProjectorComponent  extends ShapeComponent implements PropertyChang
         }
     }
 
+    /**
+     * @return one frame of video from the default camera.
+     */
     private BufferedImage captureFrame() {
         // get default webcam and open it
         Webcam webcam = Webcam.getDefault();
         webcam.open();
-        BufferedImage image = webcam.getImage();
-        width = image.getWidth();
-        height = image.getHeight();
-        hasCapturedFrame = true;
-        return image;
+        BufferedImage img = webcam.getImage();
+        webcam.close();
+        return img;
     }
 
-    /**
-     * This method gets called when a bound property is changed.
-     *
-     * @param evt A PropertyChangeEvent object describing the event source
-     *            and the property that has changed.
-     */
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-
+    public BufferedImage getBufferedImage() {
+        return image;
     }
 }
