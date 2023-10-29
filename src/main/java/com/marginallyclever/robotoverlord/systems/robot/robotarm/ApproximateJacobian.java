@@ -133,10 +133,10 @@ public abstract class ApproximateJacobian {
     /**
      * The time derivative is calculated by multiplying the jacobian by the joint velocities.
      * You can do this by taking the derivative of each element of the Jacobian matrix individually.
-     * @param jointVelocities joint velocities in degrees.  In classical notation this would be qDot.
+     * @param jointVelocities joint velocities in radians.  In classical notation this would be qDot.
      * @return the time derivative of the Jacobian matrix.
      */
-    public double [][] getTimeDerivative(double [] jointVelocities) {
+    public double[][] getTimeDerivative(double [] jointVelocities) {
         if(jointVelocities.length!=DOF) throw new IllegalArgumentException("jointVelocities must be the same length as the number of joints.");
 
         double[][] jacobianDot = new double[6][DOF];  // Initialize the derivative of the Jacobian matrix
@@ -152,5 +152,32 @@ public abstract class ApproximateJacobian {
             }
         }
         return jacobianDot;
+    }
+
+    /**
+     * Calculate the coriolis term.
+     * @param jointVelocities joint velocities in radians.  In classical notation this would be qDot.
+     * @return the coriolis term.
+     */
+    public double[] getCoriolisTerm(double[] jointVelocities) {
+        if(jointVelocities.length!=DOF) throw new IllegalArgumentException("jointVelocities must be the same length as the number of joints.");
+
+        // Initialize the coriolis term vector with zeros
+        double[] coriolisTerm = new double[DOF];
+
+        for (int i = 0; i < DOF; i++) {
+            for (int j = 0; j < DOF; j++) {
+                for (int k = 0; k < DOF; k++) {
+                    // Calculate the Coriolis term contribution for joint i
+                    double v = jacobian[k][i] * jacobian[k][j];
+                    coriolisTerm[i] += -0.5 * (
+                            v * jointVelocities[i] +
+                            v * jointVelocities[j] -
+                            v * jointVelocities[k]);
+                }
+            }
+        }
+
+        return coriolisTerm;
     }
 }
