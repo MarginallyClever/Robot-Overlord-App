@@ -34,13 +34,15 @@ public abstract class ApproximateJacobian {
         return cartesianVelocity;
     }
 
-
-    // https://stackoverflow.com/a/53028167/1159440
+    /**
+     * See <a href="https://stackoverflow.com/a/53028167/1159440">5 DOF Inverse kinematics for Jacobian Matrices</a>.
+     * @return the inverse Jacobian matrix.
+     */
     private double[][] getInverseJacobian() {
         int rows = jacobian.length;
         int cols = jacobian[0].length;
-        if(rows>cols) return getPseudoInverseOverdetermined();
-        else if (rows < cols) return getPseudoInverseUnderdetermined();
+        if(rows<cols) return getPseudoInverseOverdetermined();
+        else if (rows>cols) return getPseudoInverseUnderdetermined();
         else {
             return getInverseDampedLeastSquares(0.0001);
             //return MatrixHelper.invert(jacobian);  // old way
