@@ -105,6 +105,7 @@ public class RenderSystem implements EntitySystem {
     private void decorateMeshFromFile(ComponentSwingViewFactory view, Component component) {
         MeshFromFile meshComponent = (MeshFromFile) component;
         view.addFilename(meshComponent.filename,MeshFactory.getAllExtensions());
+        meshComponent.filename.addPropertyChangeListener(e -> meshComponent.load());
         view.addButton("Reload").addActionEventListener(e -> meshComponent.reload());
     }
 

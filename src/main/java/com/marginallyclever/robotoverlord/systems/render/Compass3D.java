@@ -23,7 +23,7 @@ import javax.vecmath.Vector3d;
  */
 public class Compass3D {
 	private static final Logger logger = LoggerFactory.getLogger(Compass3D.class);
-	private final ShapeComponent cube = new MeshFromFile("/viewCube.obj");
+	private final MeshFromFile cube = new MeshFromFile("/viewCube.obj");
 	private final MaterialComponent mat = new MaterialComponent();
 	private final Mesh axies = new Mesh();
 
@@ -49,6 +49,7 @@ public class Compass3D {
 		axies.addColor(0, 0, 1,1);	axies.addVertex(x, y, z);
 		axies.addColor(0, 0, 1,1);	axies.addVertex(x+0.0f, y+0.0f, z+v);
 
+		cube.load();
 		cube.getModel().setDirty(true);
 	}
 

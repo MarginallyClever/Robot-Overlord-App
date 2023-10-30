@@ -27,7 +27,6 @@ public class MeshFromFile extends ShapeComponent {
 
     public MeshFromFile() {
         super();
-        filename.addPropertyChangeListener(e->load());
     }
 
     public MeshFromFile(String filename) {
@@ -67,7 +66,7 @@ public class MeshFromFile extends ShapeComponent {
     }
 
     public String getFilename() {
-        return new String(filename.get());
+        return filename.get();
     }
 
     @Override
