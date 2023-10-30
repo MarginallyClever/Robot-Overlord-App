@@ -3,6 +3,11 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 
+/**
+ * This class is used to calculate the Jacobian matrix for a robot arm.
+ * Each implementation can derive this class and fill in the jacobian matrix.
+ * @author Dan Royer
+ */
 public abstract class ApproximateJacobian {
     /**
      * a matrix that will be filled with the jacobian. The first three columns
