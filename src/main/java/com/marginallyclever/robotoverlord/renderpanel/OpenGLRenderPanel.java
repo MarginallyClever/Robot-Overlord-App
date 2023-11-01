@@ -260,7 +260,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
     }
 
     private void reloadAllAssets(GL3 gl) {
-        logger.debug("reloading all assets");
+        logger.info("reloading all assets");
 
         TextureParameter.unloadAll(gl);
         TextureParameter.loadAll();

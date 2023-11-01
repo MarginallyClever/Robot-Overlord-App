@@ -29,7 +29,6 @@ public class Compass3D {
 
     public Compass3D() {
     	super();
-		logger.info("Compass3D()");
 		mat.setTextureFilename("/images/viewCube.png");
 		mat.setDiffuseColor(1, 1, 1, 1);
 		mat.setAmbientColor(1, 1, 1, 1);

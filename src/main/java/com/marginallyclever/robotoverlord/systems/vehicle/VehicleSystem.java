@@ -90,7 +90,7 @@ public class VehicleSystem implements EntitySystem {
 
     private void updateCar(VehicleComponent car, double dt) {
         if(!car.getEnabled()) return;
-        if(car.wheels.size()==0) return;  // nothing to do
+        if(car.wheels.isEmpty()) return;  // nothing to do
 
         switch (car.wheelType.get()) {
             case VehicleComponent.WHEEL_OMNI -> updateCarOmni(car, dt);

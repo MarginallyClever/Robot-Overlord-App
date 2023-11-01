@@ -53,10 +53,10 @@ public class Project {
      * @param absolutePath the absolute path to the scene directory.
      */
     public void setPath(String absolutePath) {
+        logger.debug("Setting path to '{}'", absolutePath);
         File file = new File(absolutePath);
-        if(!file.exists()) logger.warn("does not exist: "+absolutePath);
-        if(!file.isDirectory()) logger.warn("Not a directory: "+absolutePath);
-        logger.debug("Setting path to "+absolutePath);
+        if(!file.exists()) logger.warn("path '{}' does not exist", absolutePath);
+        else if(!file.isDirectory()) logger.warn("path '{}' is not a directory", absolutePath);
         this.path = absolutePath;
     }
 
