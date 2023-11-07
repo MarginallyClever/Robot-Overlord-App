@@ -479,7 +479,8 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
     }
 
     private void useShaderDefault(GL3 gl) {
-        Vector3d cameraPos = entityManager.getCamera().getPosition();
+        CameraComponent camera = entityManager.getCamera();
+        Vector3d cameraPos = camera==null ? new Vector3d() : camera.getPosition();
 
         OpenGLHelper.checkGLError(gl,logger);
 
