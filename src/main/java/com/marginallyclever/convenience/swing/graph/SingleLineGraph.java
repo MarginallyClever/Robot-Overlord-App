@@ -1,10 +1,8 @@
-package com.marginallyclever.convenience.swing;
+package com.marginallyclever.convenience.swing.graph;
 
 import com.marginallyclever.convenience.helpers.StringHelper;
-import com.marginallyclever.convenience.log.Log;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -19,7 +17,7 @@ import java.util.TreeMap;
  * @author Dan Royer
  * @since 2.5.0
  */
-public class LineGraph extends JPanel {
+public class SingleLineGraph extends JPanel {
 	private final TreeMap<Double, Double> data = new TreeMap<>();
 	private double yMin, yMax, xMin, xMax;
 	private Color majorLineColor = new Color(0.8f,0.8f,0.8f);
@@ -29,7 +27,7 @@ public class LineGraph extends JPanel {
 	private boolean mouseIn = false;
 	private double mouseX, mouseY;
 
-	public LineGraph() {
+	public SingleLineGraph() {
 		super();
 		setBackground(Color.WHITE);
 
@@ -65,6 +63,8 @@ public class LineGraph extends JPanel {
 	}
 
 	public void updateToolTip(MouseEvent event) {
+		if(data.isEmpty()) return;
+
 		double mx = event.getX();
 		double scaledX = mx / getWidth();
 		mouseX = xMin + (xMax - xMin) * scaledX;
@@ -100,6 +100,14 @@ public class LineGraph extends JPanel {
 		data.clear();
 	}
 
+	/**
+	 * Set the bounds of the graph.  This limits the range of values that can be displayed.
+	 * Data outside this range will not be drawn, but will still be stored.
+	 * @param xMin the minimum x value
+	 * @param xMax the maximum x value
+	 * @param yMin the minimum y value
+	 * @param yMax the maximum y value
+	 */
 	public void setBounds(double xMin,double xMax,double yMin,double yMax) {
 		this.xMin = xMin;
 		this.xMax = xMax;
@@ -276,32 +284,5 @@ public class LineGraph extends JPanel {
 
 	public void setGridSpacingY(int gridSpacingY) {
 		this.gridSpacingY = gridSpacingY;
-	}
-
-	// TEST
-
-	public static void main(String[] args) {
-		Log.start();
-
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception ignored) {}
-
-		LineGraph graph = new LineGraph();
-		double v = Math.random()*500;
-		for(int i=0;i<250;++i) {
-			graph.addValue(i,v);
-			v += Math.random()*10-5;
-		}
-		graph.setBoundsToData();
-		graph.setBorder(new BevelBorder(BevelBorder.LOWERED));
-
-		JFrame frame = new JFrame("LineGraph");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setPreferredSize(new Dimension(800,400));
-		frame.setContentPane(graph);
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
 	}
 }

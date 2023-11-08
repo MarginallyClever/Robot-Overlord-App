@@ -4,6 +4,7 @@ import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.swing.Dial;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;
+import com.marginallyclever.robotoverlord.swing.translator.Translator;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,11 +27,13 @@ public class AngleDrivePanel extends JPanel {
 
 		ButtonGroup buttonGroup = new ButtonGroup();
 		buttons = new JRadioButton[numJoints];
-		for(int i=0;i<numJoints;++i) {
-			robot.set(Robot.ACTIVE_JOINT,i);
-			buttons[i] = makeRadioButton(buttonGroup,(String)robot.get(Robot.JOINT_NAME));
+		if(numJoints>0) {
+			for (int i = 0; i < numJoints; ++i) {
+				robot.set(Robot.ACTIVE_JOINT, i);
+				buttons[i] = makeRadioButton(buttonGroup, (String) robot.get(Robot.JOINT_NAME));
+			}
+			buttons[0].setSelected(true);
 		}
-		buttons[0].setSelected(true);
 
 		dial.addActionListener((evt)-> onDialTurn(robot) );
 		dial.setPreferredSize(new Dimension(120,120));
@@ -97,6 +100,7 @@ public class AngleDrivePanel extends JPanel {
 
 	public static void main(String[] args) {
 		Log.start();
+		Translator.start();
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

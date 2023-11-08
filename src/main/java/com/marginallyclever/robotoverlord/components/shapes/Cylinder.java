@@ -14,7 +14,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 /**
- * A cylinder with a radius of 0.5 and a height of 1. It is centered at the
+ * A cylinder with a radius of 0.5 and a height of 2. It is centered at the
  * origin.
  * TODO add texture coordinates
  */
