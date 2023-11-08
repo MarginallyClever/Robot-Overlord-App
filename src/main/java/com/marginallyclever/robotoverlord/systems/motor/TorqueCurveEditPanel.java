@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.systems.motor;
 
-import com.marginallyclever.convenience.swing.LineGraph;
+import com.marginallyclever.convenience.swing.graph.SingleLineGraph;
 import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 
@@ -16,7 +16,7 @@ public class TorqueCurveEditPanel extends JPanel {
         super(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        LineGraph graph = new LineGraph();
+        SingleLineGraph graph = new SingleLineGraph();
         RPMToTorqueTable table = new RPMToTorqueTable();
 
         TreeMap<Double, Double> curve = motor.getTorqueCurve();

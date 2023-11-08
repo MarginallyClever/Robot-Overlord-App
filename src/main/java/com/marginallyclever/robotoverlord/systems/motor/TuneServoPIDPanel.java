@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.systems.motor;
 
-import com.marginallyclever.convenience.swing.LineGraph;
+import com.marginallyclever.convenience.swing.graph.SingleLineGraph;
 import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
@@ -11,7 +11,7 @@ import java.awt.*;
 import java.beans.PropertyChangeEvent;
 
 public class TuneServoPIDPanel extends JPanel {
-    private final LineGraph graph = new LineGraph();
+    private final SingleLineGraph graph = new SingleLineGraph();
     private final ServoComponent servo;
     private final MotorSystem motorSystem;
     private final DoubleParameter start = new DoubleParameter("start (deg)",0);
