@@ -16,8 +16,6 @@ import java.io.Serial;
  * @since 2.5.0
  */
 public class JogPanel extends JPanel {
-	@Serial
-	private static final long serialVersionUID = 1L;
 	private final Robot myRobot;
 	private final CartesianReportPanel eeReport, tcpReport;
 

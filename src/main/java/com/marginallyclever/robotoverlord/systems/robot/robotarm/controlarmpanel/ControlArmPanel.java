@@ -5,6 +5,7 @@ import com.marginallyclever.robotoverlord.components.GCodePathComponent;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.swing.translator.Translator;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.jogpanel.JogPanel;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.jointhistorypanel.JointHistoryPanel;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.presentationlayer.PresentationFactory;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.presentationlayer.PresentationLayer;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.programpanel.ProgramPanel;
@@ -18,6 +19,7 @@ import java.awt.*;
  */
 public class ControlArmPanel extends JPanel {
 	private final ProgramPanel programPanel;
+	private final JointHistoryPanel jointHistory;
 
 	private final JPanel presentationContainer = new JPanel(new BorderLayout());
 	private final JPanel presentationSelection = new JPanel(new BorderLayout());
@@ -41,12 +43,14 @@ public class ControlArmPanel extends JPanel {
 
 		JogPanel jogPanel = new JogPanel(robot);
 		programPanel = new ProgramPanel(robot,path);
+		jointHistory = new JointHistoryPanel(robot);
 		setupPresentationContainer();
 
 		JTabbedPane pane = new JTabbedPane();
 		pane.addTab(Translator.get("RobotPanel.Jog"), jogPanel);
 		pane.addTab(Translator.get("RobotPanel.Program"), programPanel);
 		pane.addTab(Translator.get("RobotPanel.Connect"), presentationContainer);
+		pane.addTab(Translator.get("RobotPanel.History"), jointHistory);
 
 		this.setLayout(new BorderLayout());
 		this.add(pane, BorderLayout.CENTER);
@@ -168,15 +172,17 @@ public class ControlArmPanel extends JPanel {
 
 	public static void main(String[] args) {
 		Log.start();
-		JFrame frame = new JFrame("RobotArmInterface");
+		Translator.start();
+
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception ignored) {}
+
+		JFrame frame = new JFrame(ControlArmPanel.class.getSimpleName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new ControlArmPanel(new RobotComponent(),null));
 		frame.pack();
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
-
-
 }

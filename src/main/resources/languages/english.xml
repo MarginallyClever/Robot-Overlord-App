@@ -6,892 +6,216 @@
 		<author>Dan Royer (dan@marginallyclever.com)</author>
 	</meta>
 
-	<string>
-		<key>ConfirmQuitQuestion</key>
-		<value>Are you sure you want to quit?</value>
-		<hint>confirm quit dialog question</hint>
-	</string>
+	<string><key>DXFScaleOnLoad</key><value>Scale image to fit paper</value></string>
+	<string><key>DXFInfillOnLoad</key><value>Fill in closed areas</value></string>
 	
-	<string>
-		<key>ConfirmQuitTitle</key>
-		<value>Exit</value>
-		<hint>confirm quit dialog title</hint>
-	</string>
+	<string><key>Undo </key><value>Undo </value></string>
+	<string><key>Redo </key><value>Redo </value></string>
+	<string><key>change </key><value>change </value></string>
+	<string><key>Add </key><value>Add </value></string>
+	<string><key>Remove </key><value>Remove </value></string>
+	<string><key>Move </key><value>Move </value></string>
+	<string><key>choose </key><value>choose </value></string>
+	<string><key>Cancel</key><value>Cancel</value></string>
+	<string><key>Save</key><value>Save</value></string>
+	<string><key>Load</key><value>Load</value></string>
+	<string><key>CouldNotFind</key><value>Could not find </value></string>
 	
-	<string>
-		<key>DXFScaleOnLoad</key>
-		<value>Scale image to fit paper</value>
-		<hint>DXF load option</hint>
-	</string>
+	<string><key>MachineWidth</key><value>Machine width</value></string>
+	<string><key>MachineHeight</key><value>Machine height</value></string>
 	
-	<string>
-		<key>DXFInfillOnLoad</key>
-		<value>Fill in closed areas</value>
-		<hint>DXF load option</hint>
-	</string>
+	<string><key>PaperWidth</key><value>Paper width</value></string>
+	<string><key>PaperHeight</key><value>Paper height</value></string>
+	<string><key>isLandscape</key><value>Is landscape?</value></string>
+	<string><key>GoPaperBorder</key><value>Border</value></string>
 	
+	<string><key>InvertLeft</key><value>Invert left</value></string>
+	<string><key>InvertRight</key><value>Invert right</value></string>
+	<string><key>ToolType</key><value>Tool type</value></string>
 	
-	<string>
-		<key>Undo </key>
-		<value>Undo </value>
-	</string>
+	<string><key>PaperSize</key><value>Paper Size</value></string>
+	<string><key>AdjustPulleySize</key><value>Pulley diameter</value></string>
+	<string><key>AdjustAcceleration</key><value>Acceleration</value></string>
 	
-	<string>
-		<key>Redo </key>
-		<value>Redo </value>
-	</string>
+	<string><key>Left</key><value>Left</value></string>
+	<string><key>Right</key><value>Right</value></string>
+	<string><key>Millimeters</key><value>mm</value></string>
+
+	<string><key>ConnectingTo</key><value>Connecting to </value></string>
+	<string><key>PortNotConfigured</key><value>Port could not be configured: </value></string>
+	<string><key>PortOpened</key><value>Port opened.</value></string>
+	<string><key>TitlePrefix</key><value>Makelangelo</value></string>
+	<string><key>TitlePostfix</key><value> connected</value></string>
+
+	<string><key>LineSegments</key><value> line segments.</value></string>
+	<string><key>Centimeters</key><value>cm</value></string>
+
+	<string><key>EstimatedTime</key><value>Estimated draw time: </value></string>
+
+	<string><key>LoadError</key><value>File could not be loaded:</value></string>
+	<string><key>SaveError</key><value>File could not be saved:</value></string>
+
+	<string><key>ConversionOptions</key><value>Conversion options</value></string>
+	<string><key>FlipForGlass</key><value>Flip for glass</value></string>
+
+	<string><key>Start</key><value>Start</value></string>
+
+	<string><key>PaperMargin</key><value>Margin (%)</value></string>
+	<string><key>Converting</key><value>Converting</value></string>
+	<string><key>Finished</key><value>Completed</value></string>
+	<string><key>Cancelled</key><value>Cancelled</value></string>
+	<string><key>Failed</key><value>Failed: </value></string>
+
+	<string><key>ConversionStyle</key><value>Conversion style</value></string>
+
+	<string><key>OpeningFile</key><value>Opening </value></string>
+	<string><key>UnknownFileType</key><value>Unknown file type</value></string>
+	<string><key>SetPaperSize</key><value>Please set a paper size before importing an image.</value></string>
+
+	<string><key>FileTypeGCode</key><value>GCODE (ngc)</value></string>
+	<string><key>FileTypeImage</key><value>Image (jpg/bmp/png/gif)</value></string>
+	<string><key>FileTypeDXF</key><value>DXF R12 for map data (dxf)</value></string>
+	<string><key>FileTypeSVG</key><value>Scaleable Vector Graphics 1.1 (svg)</value></string>
+
+	<string><key>MenuDriveControls</key><value>Manual Driving</value></string>
+	<string><key>MenuCreativeControl</key><value>Creative control</value></string>
+	<string><key>MenuAnimate</key><value>Animation control</value></string>
 	
-	<string>
-		<key>change </key>
-		<value>change </value>
-	</string>
+	<string><key>MenuSoundsTitle</key><value>Sounds</value></string>
+	<string><key>MenuSoundsConnect</key><value>Connect</value></string>
+	<string><key>MenuSoundsDisconnect</key><value>Disconnect</value></string>
+	<string><key>MenuSoundsFinishConvert</key><value>Finish converting</value></string>
+	<string><key>MenuSoundsFinishDraw</key><value>Finish drawing</value></string>
+
+	<string><key>MenuGraphicsTitle</key><value>Graphics</value></string>
+	<string><key>MenuGraphicsPenUp</key><value>Show pen up moves</value></string>
+	<string><key>MenuGraphicsAntialias</key><value>Antialias lines</value></string>
+	<string><key>MenuGraphicsSpeedVSQuality</key><value>Speed over quality</value></string>
+	<string><key>MenuGraphicsDrawWhileRunning</key><value>Show entire image while drawing</value></string>
+
+	<string><key>MenuResetMachinePreferences</key><value>Reset Preferences</value></string>
+	<string><key>MenuLanguageTitle</key><value>Language</value></string>
+
+	<string><key>InvalidTool</key><value>Requested invalid tool #</value></string>
+	<string><key>ChangeToolPrefix</key><value>Please prepare </value></string>
+	<string><key>ChangeToolPostfix</key><value> and click any button to continue.</value></string>
+
+	<string><key>StartAt</key><value>Start at</value></string>
+	<string><key>StartAtLine</key><value>Start at line #</value></string>
+
+	<string><key>Pause</key><value>Pause</value></string>
+	<string><key>Unpause</key><value>Unpause</value></string>
+
+	<string><key>SetHome</key><value>Set home</value></string>
+	<string><key>GoHome</key><value>Go home</value></string>
+	<string><key>FindHome</key><value>Find home</value></string>
+
+	<string><key>Top</key><value>Top</value></string>
+	<string><key>Bottom</key><value>Bottom</value></string>
+	<string><key>PenUp</key><value>Pen up</value></string>
+	<string><key>PenDown</key><value>Pen down</value></string>
+
+	<string><key>Set</key><value>Set</value></string>
+	<string><key>Speed</key><value>Speed:</value></string>
+	<string><key>Rate</key><value>steps/min</value></string>
+
+	<string><key>JogMotors</key><value>Motors</value></string>
+	<string><key>JogIn</key><value>IN</value></string>
+	<string><key>JogOut</key><value>OUT</value></string>
+	<string><key>Invert</key><value>Invert</value></string>
+
+	<string><key>UpdateNotice</key><value><![CDATA[<html><body>A new version of this software is available.<br/>Please visit <a href="https://www.marginallyclever.com/products/robot-overlord/">https://www.marginallyclever.com/products/robot-overlord/</a> to get the new hotness.</html></body>]]></value></string>
+	<string><key>UpToDate</key><value>This software is up to date.</value></string>
+	<string><key>UpdateCheckFailed</key><value>Sorry, I failed. Please visit http://www.marginallyclever.com/to check yourself.</value></string>
+
+	<string><key>Send</key><value>Send</value></string>
+	<string><key>TitleNotConnected</key><value> not connected</value></string>
+	<string><key>MenuMakelangelo</key><value>Makelangelo</value></string>
+	<string><key>MenuPreferences</key><value>Preferences</value></string>
+	<string><key>MenuLog</key><value>Log</value></string>
+	<string><key>MenuUpdate</key><value>Check for updates</value></string>
+	<string><key>QuitAction.name</key><value>Quit</value></string>
+	<string><key>QuitAction.shortDescription</key><value>Gracefully terminate this app</value></string>
+
+	<string><key>MenuConnect</key><value>Connect</value></string>
+	<string><key>ButtonConnect</key><value>Connect</value></string>
+	<string><key>ButtonDisconnect</key><value>Disconnect</value></string>
+	<string><key>MenuRescan</key><value>Rescan</value></string>
+	<string><key>MenuDisconnect</key><value>Disconnect</value></string>
+
+	<string><key>MenuLoadMachineConfig</key><value>Load settings for...</value></string>
+
+	<string><key>MenuSettings</key><value>Settings</value></string>
+	<string><key>MenuSettingsMachine</key><value>Machine</value></string>
+	<string><key>MenuAdjustPaper</key><value>Paper</value></string>
+	<string><key>MenuAdjustPulleys</key><value>Pulley size</value></string>
+	<string><key>MenuJogMotors</key><value>Jog Motors</value></string>
+
+	<string><key>MenuSelectTool</key><value>Select active tool</value></string>
+	<string><key>MenuAdjustTool</key><value>Pen</value></string>
+
+	<string><key>MenuGCODE</key><value>Convert</value></string>
+	<string><key>MenuTextToGCODE</key><value>Your message here</value></string>
+	<string><key>MenuConvertImage</key><value>Open Recent...</value></string>
+	<string><key>MenuOpenFile</key><value>Open File...</value></string>
+	<string><key>MenuReopenFile</key><value>Reopen last file</value></string>
+	<string><key>MenuSaveGCODEAs</key><value>Save as...</value></string>
+
+	<string><key>MenuDraw</key><value>Draw</value></string>
+	<string><key>Halt</key><value>Halt</value></string>
+
+	<string><key>MenuPreview</key><value>View</value></string>
+	<string><key>ZoomIn</key><value>Zoom +</value></string>
+	<string><key>ZoomOut</key><value>Zoom -</value></string>
+	<string><key>ZoomFit</key><value>Zoom to fit</value></string>
+	<string><key>ShowLog</key><value>Show Log</value></string>
+	<string><key>HideLog</key><value>Hide Log</value></string>
+	<string><key>mmNotice</key><value>All values in mm.</value></string>
+
+	<string><key>penToolAdjust</key><value>Pen</value></string>
+	<string><key>penToolDiameter</key><value>Diameter</value></string>
+	<string><key>penToolMaxFeedRate</key><value>Max speed</value></string>
+	<string><key>penToolUp</key><value>Up</value></string>
+	<string><key>penToolDown</key><value>Down</value></string>
+	<string><key>penToolLiftSpeed</key><value>Lift delay</value></string>
+	<string><key>penToolTest</key><value>Test</value></string>
+
+	<string><key>spraypaintToolDiameter</key><value>Dot size</value></string>
+	<string><key>spraypaintToolMaxFeedRate</key><value>max speed</value></string>
+	<string><key>spraypaintToolUp</key><value>Off</value></string>
+	<string><key>spraypaintToolDown</key><value>On</value></string>
+	<string><key>spraypaintToolLiftSpeed</key><value>On/off speed</value></string>
+	<string><key>spraypaintToolTest</key><value>Make a dot</value></string>
+
+	<string><key>voronoiStipplingName</key><value>Voronoi stipples</value></string>
+	<string><key>voronoiStipplingCellCount</key><value>Number of Cells</value></string>
+	<string><key>voronoiStipplingGenCount</key><value>Number of Generations</value></string>
+	<string><key>voronoiStipplingDotMax</key><value>Max dot size</value></string>
+	<string><key>voronoiStipplingDotMin</key><value>Min dot size</value></string>
+
+	<string><key>BoxGeneratorName</key><value>Boxxy</value></string>
+	<string><key>CrosshatchName</key><value>Crosshatch</value></string>
+	<string><key>HilbertCurveName</key><value>Hilbert Curve</value></string>
+	<string><key>HilbertCurveSize</key><value>Size</value></string>
+	<string><key>HilbertCurveOrder</key><value>Order</value></string>
+	<string><key>MazeName</key><value>Maze</value></string>
+	<string><key>MazeRows</key><value>Rows</value></string>
+	<string><key>MazeColumns</key><value>Columns</value></string>
+
+	<string><key>PulseLineName</key><value>Pulse Line</value></string>
+	<string><key>ZigZagName</key><value>Big zig zag</value></string>
+	<string><key>YourMsgHereName</key><value>Your message here</value></string>
+	<string><key>SpiralName</key><value>Spiral</value></string>
+	<string><key>ScanlineName</key><value>Scanline</value></string>
+	<string><key>RGBName</key><value>Red Green Blue</value></string>
+
+	<string><key>StatusSoFar</key><value>Time running: </value></string>
+	<string><key>StatusRemaining</key><value>Estimated time left: </value></string>
+
+	<string><key>DisengageMotors</key><value>Disengage</value></string>
+	<string><key>EngageMotors</key><value>Engage</value></string>
 	
-	<string>
-		<key>Add </key>
-		<value>Add </value>
-	</string>
-	
-	<string>
-		<key>Remove </key>
-		<value>Remove </value>
-	</string>
-	
-	<string>
-		<key>Move </key>
-		<value>Move </value>
-	</string>
-	
-	<string>
-		<key>choose </key>
-		<value>choose </value>
-	</string>
-	
-	<string>
-		<key>Cancel</key>
-		<value>Cancel</value>
-		<hint>used in many places</hint>
-	</string>
-	<string>
-		<key>Save</key>
-		<value>Save</value>
-		<hint>used in many places</hint>
-	</string>
-	
-	<string>
-		<key>Load</key>
-		<value>Load</value>
-		<hint>used in many places</hint>
-	</string>
-	<string>
-		<key>CouldNotFind</key>
-		<value>Could not find </value>
-		<hint>as in, "could not find FILEX". keep the space at the end.</hint>
-	</string>
-	
-	<string>
-		<key>MachineWidth</key>
-		<value>Machine width</value>
-		<hint>Machine settings</hint>
-	</string>
-	<string>
-		<key>MachineHeight</key>
-		<value>Machine height</value>
-		<hint>Machine settings</hint>
-	</string>
-	
-	<string>
-		<key>PaperWidth</key>
-		<value>Paper width</value>
-		<hint>Paper settings panel</hint>
-	</string>
-	<string>
-		<key>PaperHeight</key>
-		<value>Paper height</value>
-		<hint>Paper settings panel</hint>
-	</string>
-	<string>
-		<key>isLandscape</key>
-		<value>Is landscape?</value>
-		<hint>Paper settings dialog</hint>
-	</string>
-	<string>
-		<key>GoPaperBorder</key>
-		<value>Border</value>
-		<hint>Trace edge of paper with pen holder</hint>
-	</string>
-	
-	<string>
-		<key>InvertLeft</key>
-		<value>Invert left</value>
-		<hint>jog motor control panel</hint>
-	</string>
-	<string>
-		<key>InvertRight</key>
-		<value>Invert right</value>
-		<hint>jog motor control panel</hint>
-	</string>
-	<string>
-		<key>ToolType</key>
-		<value>Tool type</value>
-		<hint>tool settings</hint>
-	</string>
-	
-	<string>
-		<key>PaperSize</key>
-		<value>Paper Size</value>
-		<hint>machine size control panel</hint>
-	</string>
-	<string>
-		<key>AdjustPulleySize</key>
-		<value>Pulley diameter</value>
-		<hint>machine size control panel</hint>
-	</string>
-	<string>
-		<key>AdjustAcceleration</key>
-		<value>Acceleration</value>
-		<hint>machine size control panel</hint>
-	</string>
-	
-	<string>
-		<key>Left</key>
-		<value>Left</value>
-		<hint>used in many places</hint>
-	</string>
-	<string>
-		<key>Right</key>
-		<value>Right</value>
-		<hint>used in many places</hint>
-	</string>
-	<string>
-		<key>Millimeters</key>
-		<value>mm</value>
-	</string>
-
-	<string>
-		<key>ConnectingTo</key>
-		<value>Connecting to </value>
-		<hint>status message. keep the space at the end.</hint>
-	</string>
-	<string>
-		<key>PortNotConfigured</key>
-		<value>Port could not be configured: </value>
-		<hint>status message. keep the space at the end.</hint>
-	</string>
-	<string>
-		<key>PortOpened</key>
-		<value>Port opened.</value>
-		<hint>status message</hint>
-	</string>
-	<string>
-		<key>TitlePrefix</key>
-		<value>Makelangelo</value>
-		<hint>window title</hint>
-	</string>
-	<string>
-		<key>TitlePostfix</key>
-		<value> connected</value>
-		<hint>window title</hint>
-	</string>
-
-	<string>
-		<key>LineSegments</key>
-		<value> line segments.</value>
-		<hint>status message</hint>
-	</string>
-	<string>
-		<key>Centimeters</key>
-		<value>cm</value>
-	</string>
-
-	<string>
-		<key>EstimatedTime</key>
-		<value>Estimated draw time: </value>
-		<hint>status message. keep the space at the end.</hint>
-	</string>
-
-	<string>
-		<key>LoadError</key>
-		<value>File could not be loaded:</value>
-		<hint>status message.</hint>
-	</string>
-
-	<string>
-		<key>SaveError</key>
-		<value>File could not be saved:</value>
-		<hint>status message.</hint>
-	</string>
-
-	<string>
-		<key>ConversionOptions</key>
-		<value>Conversion options</value>
-		<hint>dialog title</hint>
-	</string>
-	<string>
-		<key>FlipForGlass</key>
-		<value>Flip for glass</value>
-		<hint>conversion options</hint>
-	</string>
-
-	<string>
-		<key>Start</key>
-		<value>Start</value>
-		<hint>As in "start drawing"</hint>
-	</string>
-
-	<string>
-		<key>PaperMargin</key>
-		<value>Margin (%)</value>
-		<hint>conversion options</hint>
-	</string>
-	<string>
-		<key>Converting</key>
-		<value>Converting</value>
-		<hint>status update</hint>
-	</string>
-	<string>
-		<key>Finished</key>
-		<value>Completed</value>
-		<hint>status update</hint>
-	</string>
-	<string>
-		<key>Cancelled</key>
-		<value>Cancelled</value>
-		<hint>status update</hint>
-	</string>
-	<string>
-		<key>Failed</key>
-		<value>Failed: </value>
-		<hint>status update. keep the space at the end.</hint>
-	</string>
-
-	<string>
-		<key>ConversionStyle</key>
-		<value>Conversion style</value>
-		<hint>conversion options</hint>
-	</string>
-
-	<string>
-		<key>OpeningFile</key>
-		<value>Opening </value>
-		<hint>status update. keep the space at the end.</hint>
-	</string>
-	<string>
-		<key>UnknownFileType</key>
-		<value>Unknown file type</value>
-		<hint>status update</hint>
-	</string>
-	<string>
-		<key>SetPaperSize</key>
-		<value>Please set a paper size before importing an image.</value>
-		<hint>warning message</hint>
-	</string>
-
-	<string>
-		<key>FileTypeGCode</key>
-		<value>GCODE (ngc)</value>
-		<hint>file open dialog</hint>
-	</string>
-	<string>
-		<key>FileTypeImage</key>
-		<value>Image (jpg/bmp/png/gif)</value>
-		<hint>file open dialog</hint>
-	</string>
-	<string>
-		<key>FileTypeDXF</key>
-		<value>DXF R12 for map data (dxf)</value>
-		<hint>file open dialog</hint>
-	</string>
-	<string>
-		<key>FileTypeSVG</key>
-		<value>Scaleable Vector Graphics 1.1 (svg)</value>
-		<hint>file open dialog</hint>
-	</string>
-
-	<string>
-		<key>MenuDriveControls</key>
-		<value>Manual Driving</value>
-		<hint>context sensitive menu</hint>
-	</string>
-	<string>
-		<key>MenuCreativeControl</key>
-		<value>Creative control</value>
-		<hint>context sensitive menu</hint>
-	</string>
-	<string>
-		<key>MenuAnimate</key>
-		<value>Animation control</value>
-		<hint>context sensitive menu</hint>
-	</string>
-
-	
-	<string>
-		<key>MenuSoundsTitle</key>
-		<value>Sounds</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>MenuSoundsConnect</key>
-		<value>Connect</value>
-		<hint>sound settings dialog</hint>
-	</string>
-	<string>
-		<key>MenuSoundsDisconnect</key>
-		<value>Disconnect</value>
-		<hint>sound settings dialog</hint>
-	</string>
-	<string>
-		<key>MenuSoundsFinishConvert</key>
-		<value>Finish converting</value>
-		<hint>sound settings dialog</hint>
-	</string>
-	<string>
-		<key>MenuSoundsFinishDraw</key>
-		<value>Finish drawing</value>
-		<hint>sound settings dialog</hint>
-	</string>
-
-	<string>
-		<key>MenuGraphicsTitle</key>
-		<value>Graphics</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>MenuGraphicsPenUp</key>
-		<value>Show pen up moves</value>
-		<hint>graphics settings dialog</hint>
-	</string>
-	<string>
-		<key>MenuGraphicsAntialias</key>
-		<value>Antialias lines</value>
-		<hint>graphics settings dialog</hint>
-	</string>
-	<string>
-		<key>MenuGraphicsSpeedVSQuality</key>
-		<value>Speed over quality</value>
-		<hint>graphics settings dialog</hint>
-	</string>
-	<string>
-		<key>MenuGraphicsDrawWhileRunning</key>
-		<value>Show entire image while drawing</value>
-		<hint>graphics settings dialog</hint>
-	</string>
-
-	<string>
-		<key>MenuResetMachinePreferences</key>
-		<value>Reset Preferences</value>
-		<hint>Preferences menu</hint>
-	</string>
-	<string>
-		<key>MenuLanguageTitle</key>
-		<value>Language</value>
-		<hint>menu or dialog title</hint>
-	</string>
-
-	<string>
-		<key>InvalidTool</key>
-		<value>Requested invalid tool #</value>
-		<hint>warning message</hint>
-	</string>
-	<string>
-		<key>ChangeToolPrefix</key>
-		<value>Please prepare </value>
-		<hint>tool change prompt. keep the space at the end.</hint>
-	</string>
-	<string>
-		<key>ChangeToolPostfix</key>
-		<value> and click any button to continue.</value>
-		<hint>tool change prompt. keep the space at the start.</hint>
-	</string>
-
-	<string>
-		<key>StartAt</key>
-		<value>Start at</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>StartAtLine</key>
-		<value>Start at line #</value>
-		<hint>start at dialog</hint>
-	</string>
-
-	<string>
-		<key>Pause</key>
-		<value>Pause</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>Unpause</key>
-		<value>Unpause</value>
-		<hint>menu or dialog title</hint>
-	</string>
-
-	<string>
-		<key>SetHome</key>
-		<value>Set home</value>
-		<hint>manual driving dialog</hint>
-	</string>
-	<string>
-		<key>GoHome</key>
-		<value>Go home</value>
-		<hint>manual driving dialog</hint>
-	</string>
-	<string>
-		<key>FindHome</key>
-		<value>Find home</value>
-		<hint>manual driving dialog</hint>
-	</string>
-
-	<string>
-		<key>Top</key>
-		<value>Top</value>
-		<hint>manual driving dialog</hint>
-	</string>
-	<string>
-		<key>Bottom</key>
-		<value>Bottom</value>
-		<hint>manual driving dialog</hint>
-	</string>
-	<string>
-		<key>PenUp</key>
-		<value>Pen up</value>
-		<hint>manual driving dialog</hint>
-	</string>
-	<string>
-		<key>PenDown</key>
-		<value>Pen down</value>
-		<hint>manual driving dialog</hint>
-	</string>
-
-	<string>
-		<key>Set</key>
-		<value>Set</value>
-		<hint>manual driving dialog</hint>
-	</string>
-	<string>
-		<key>Speed</key>
-		<value>Speed:</value>
-		<hint>manual driving dialog</hint>
-	</string>
-	<string>
-		<key>Rate</key>
-		<value>steps/min</value>
-		<hint>manual driving dialog</hint>
-	</string>
-
-	<string>
-		<key>JogMotors</key>
-		<value>Motors</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>JogIn</key>
-		<value>IN</value>
-		<hint>jog motors dialog</hint>
-	</string>
-	<string>
-		<key>JogOut</key>
-		<value>OUT</value>
-		<hint>jog motors dialog</hint>
-	</string>
-	<string>
-		<key>Invert</key>
-		<value>Invert</value>
-		<hint>jog motors dialog</hint>
-	</string>
-
-	<string>
-		<key>UpdateNotice</key>
-		<value><![CDATA[<html><body>A new version of this software is available.<br/>Please visit <a href="https://www.marginallyclever.com/products/robot-overlord/">https://www.marginallyclever.com/products/robot-overlord/</a> to get the new hotness.</html></body>]]></value>
-		<hint>check for update dialog</hint>
-	</string>
-	<string>
-		<key>UpToDate</key>
-		<value>This software is up to date.</value>
-		<hint>check for update dialog</hint>
-	</string>
-	<string>
-		<key>UpdateCheckFailed</key>
-		<value>Sorry, I failed. Please visit http://www.marginallyclever.com/ 
-to check yourself.</value>
-		<hint>check for update dialog</hint>
-	</string>
-
-	<string>
-		<key>Send</key>
-		<value>Send</value>
-		<hint>drive manually dialog</hint>
-	</string>
-	<string>
-		<key>TitleNotConnected</key>
-		<value> not connected</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>MenuMakelangelo</key>
-		<value>Makelangelo</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>MenuPreferences</key>
-		<value>Preferences</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>MenuLog</key>
-		<value>Log</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>MenuUpdate</key>
-		<value>Check for updates</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>QuitAction.name</key>
-		<value>Quit</value>
-	</string>
-	<string>
-		<key>QuitAction.shortDescription</key>
-		<value>Gracefully terminate this app</value>
-	</string>
-
-	<string>
-		<key>MenuConnect</key>
-		<value>Connect</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>ButtonConnect</key>
-		<value>Connect</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>ButtonDisconnect</key>
-		<value>Disconnect</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>MenuRescan</key>
-		<value>Rescan</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>MenuDisconnect</key>
-		<value>Disconnect</value>
-		<hint>menu or dialog title</hint>
-	</string>
-
-	<string>
-		<key>MenuLoadMachineConfig</key>
-		<value>Load settings for...</value>
-		<hint>menu or dialog title</hint>
-	</string>
-
-	<string>
-		<key>MenuSettings</key>
-		<value>Settings</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>MenuSettingsMachine</key>
-		<value>Machine</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>MenuAdjustPaper</key>
-		<value>Paper</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>MenuAdjustPulleys</key>
-		<value>Pulley size</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>MenuJogMotors</key>
-		<value>Jog Motors</value>
-		<hint>menu or dialog title</hint>
-	</string>
-
-	<string>
-		<key>MenuSelectTool</key>
-		<value>Select active tool</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>MenuAdjustTool</key>
-		<value>Pen</value>
-		<hint>menu or dialog title</hint>
-	</string>
-
-	<string>
-		<key>MenuGCODE</key>
-		<value>Convert</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>MenuTextToGCODE</key>
-		<value>Your message here</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>MenuConvertImage</key>
-		<value>Open Recent...</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>MenuOpenFile</key>
-		<value>Open File...</value>
-	</string>
-	<string>
-		<key>MenuReopenFile</key>
-		<value>Reopen last file</value>
-	</string>
-	<string>
-		<key>MenuSaveGCODEAs</key>
-		<value>Save as...</value>
-		<hint>menu or dialog title</hint>
-	</string>
-
-	<string>
-		<key>MenuDraw</key>
-		<value>Draw</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>Halt</key>
-		<value>Halt</value>
-		<hint>menu or dialog title</hint>
-	</string>
-
-	<string>
-		<key>MenuPreview</key>
-		<value>View</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>ZoomIn</key>
-		<value>Zoom +</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>ZoomOut</key>
-		<value>Zoom -</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>ZoomFit</key>
-		<value>Zoom to fit</value>
-		<hint>menu or dialog title</hint>
-	</string>
-	<string>
-	<key>ShowLog</key>
-	<value>Show Log</value>
-	<hint>menu or dialog title</hint>
-	</string>
-	<string>
-	<key>HideLog</key>
-	<value>Hide Log</value>
-	<hint>menu or dialog title</hint>
-	</string>
-	<string>
-		<key>mmNotice</key>
-		<value>All values in mm.</value>
-		<hint>Machine size</hint>
-	</string>
-
-	<string>
-		<key>penToolAdjust</key>
-		<value>Pen</value>
-		<hint>Adjust pen tool</hint>
-	</string>
-	<string>
-		<key>penToolDiameter</key>
-		<value>Diameter</value>
-		<hint>Adjust pen tool</hint>
-	</string>
-	<string>
-		<key>penToolMaxFeedRate</key>
-		<value>Max speed</value>
-		<hint>Adjust pen tool</hint>
-	</string>
-	<string>
-		<key>penToolUp</key>
-		<value>Up</value>
-		<hint>Adjust pen tool</hint>
-	</string>
-	<string>
-		<key>penToolDown</key>
-		<value>Down</value>
-		<hint>Adjust pen tool</hint>
-	</string>
-	<string>
-		<key>penToolLiftSpeed</key>
-		<value>Lift delay</value>
-		<hint>Adjust pen tool</hint>
-	</string>
-	<string>
-		<key>penToolTest</key>
-		<value>Test</value>
-		<hint>Adjust pen tool</hint>
-	</string>
-
-	<string>
-		<key>spraypaintToolDiameter</key>
-		<value>Dot size</value>
-		<hint>Spraypaint tool</hint>
-	</string>
-	<string>
-		<key>spraypaintToolMaxFeedRate</key>
-		<value>max speed</value>
-		<hint>Spraypaint tool</hint>
-	</string>
-	<string>
-		<key>spraypaintToolUp</key>
-		<value>Off</value>
-		<hint>Spraypaint tool</hint>
-	</string>
-	<string>
-		<key>spraypaintToolDown</key>
-		<value>On</value>
-		<hint>Spraypaint tool</hint>
-	</string>
-	<string>
-		<key>spraypaintToolLiftSpeed</key>
-		<value>On/off speed</value>
-		<hint>Spraypaint tool</hint>
-	</string>
-	<string>
-		<key>spraypaintToolTest</key>
-		<value>Make a dot</value>
-		<hint>Spraypaint tool</hint>
-	</string>
-
-	<string>
-		<key>voronoiStipplingName</key>
-		<value>Voronoi stipples</value>
-		<hint>voronoi stippling generator</hint>
-	</string>
-	<string>
-		<key>voronoiStipplingCellCount</key>
-		<value>Number of Cells</value>
-		<hint>voronoi stippling generator</hint>
-	</string>
-	<string>
-		<key>voronoiStipplingGenCount</key>
-		<value>Number of Generations</value>
-		<hint>voronoi stippling generator</hint>
-	</string>
-	<string>
-		<key>voronoiStipplingDotMax</key>
-		<value>Max dot size</value>
-		<hint>voronoi stippling generator</hint>
-	</string>
-	<string>
-		<key>voronoiStipplingDotMin</key>
-		<value>Min dot size</value>
-		<hint>voronoi stippling generator</hint>
-	</string>
-
-	<string>
-		<key>BoxGeneratorName</key>
-		<value>Boxxy</value>
-		<hint>Boxxy generator</hint>
-	</string>
-	<string>
-		<key>CrosshatchName</key>
-		<value>Crosshatch</value>
-		<hint>Crosshatch generator</hint>
-	</string>
-	<string>
-		<key>HilbertCurveName</key>
-		<value>Hilbert Curve</value>
-		<hint>Hilbert Curve generator</hint>
-	</string>
-	<string>
-		<key>HilbertCurveSize</key>
-		<value>Size</value>
-		<hint>Hilbert Curve generator</hint>
-	</string>
-	<string>
-		<key>HilbertCurveOrder</key>
-		<value>Order</value>
-		<hint>Hilbert Curve generator</hint>
-	</string>
-	<string>
-		<key>MazeName</key>
-		<value>Maze</value>
-		<hint>Maze generator</hint>
-	</string>
-	<string>
-		<key>MazeRows</key>
-		<value>Rows</value>
-		<hint>Maze generator</hint>
-	</string>
-	<string>
-		<key>MazeColumns</key>
-		<value>Columns</value>
-		<hint>Maze generator</hint>
-	</string>
-
-	<string>
-		<key>PulseLineName</key>
-		<value>Pulse Line</value>
-		<hint>Pulse Line generator</hint>
-	</string>
-	<string>
-		<key>ZigZagName</key>
-		<value>Big zig zag</value>
-		<hint>Zig Zag generator</hint>
-	</string>
-	<string>
-		<key>YourMsgHereName</key>
-		<value>Your message here</value>
-		<hint>Your message here generator</hint>
-	</string>
-	<string>
-		<key>SpiralName</key>
-		<value>Spiral</value>
-		<hint>Spiral generator</hint>
-	</string>
-	<string>
-		<key>ScanlineName</key>
-		<value>Scanline</value>
-		<hint>Scanline generator</hint>
-	</string>
-	<string>
-		<key>RGBName</key>
-		<value>Red Green Blue</value>
-		<hint>RGB generator</hint>
-	</string>
-
-	<string>
-		<key>StatusSoFar</key>
-		<value>Time running: </value>
-		<hint>time machine has been drawing</hint>
-	</string>
-
-	<string>
-		<key>StatusRemaining</key>
-		<value>Estimated time left: </value>
-		<hint>time machine will be drawing</hint>
-	</string>
-
-	<string>
-		<key>DisengageMotors</key>
-		<value>Disengage</value>
-		<hint>Manual driving dialog</hint>
-	</string>
-	<string>
-		<key>EngageMotors</key>
-		<value>Engage</value>
-		<hint>Manual driving dialog</hint>
-	</string>
-	
-	<string>
-		<key>AboutHTML</key>
-		<value><![CDATA[
-    <html>
+	<string><key>AboutHTML</key><value><![CDATA[   <html>
       <body>
         <h1>Robot Overlord %VERSION%</h1>
       <h3>
@@ -904,589 +228,152 @@ to check yourself.</value>
         <a href='https://ca.linkedin.com/in/kington-chu-219923123'>Kington Chu</a>.</p>
       </body>
     </html>
-    ]]>
-        </value>
-        <hint>HTML for About Dialog</hint>
-    </string>
+    ]]></value></string>
 
-	<string>
-		<key>MenuSettingsRegister</key>
-		<value>Register</value>
-		<hint>Machine Configuration > Register tab title</hint>
-	</string>
+	<string><key>MenuSettingsRegister</key><value>Register</value></string>
+	<string><key>PleaseRegister</key><value><![CDATA[<p>Register your robot with your Marginally Clever user account to Unlock features and show your support.</p>]]></value></string>
+	<string><key>PleaseRegisterCreateAccountButton</key><value>Create an account</value></string>
+	<string><key>PleaseRegisterUsername</key><value>User name</value></string>
+	<string><key>PleaseRegisterPassword</key><value>Password</value></string>
 
-	<string>
-		<key>PleaseRegister</key>
-		<value><![CDATA[<p>Register your robot with your Marginally Clever user account to Unlock features and show your support.</p>]]></value>
-		<hint>Machine Configuration > Register robot</hint>
-	</string>
+	<string><key>MachineNumber</key><value>Machine #</value></string>
 
-	<string>
-		<key>PleaseRegisterCreateAccountButton</key>
-		<value>Create an account</value>
-		<hint>Machine Configuration > Register robot</hint>
-	</string>
+	<string><key>MenuResetMachinePreferencesWarning</key><value>Are you sure you want to erase all your preferences?</value></string>
 
-	<string>
-		<key>PleaseRegisterUsername</key>
-		<value>User name</value>
-		<hint>Machine Configuration > Register robot</hint>
-	</string>
+	<string><key>MenuGenerate</key><value>Generate art</value></string>
+	<string><key>MenuNewFile</key><value>New</value></string>
 
-	<string>
-		<key>PleaseRegisterPassword</key>
-		<value>Password</value>
-		<hint>Machine Configuration > Register robot</hint>
-	</string>
+	<string><key>LimitTestName</key><value>Limit Test</value></string>
 
-	<string>
-		<key>MachineNumber</key>
-		<value>Machine #</value>
-		<hint>Prepare image panel</hint>
-	</string>
+	<string><key>ClickAndDrag</key><value>Click &amp; Drag</value></string>
+	<string><key>configureMachine</key><value>Settings</value></string>
+	<string><key>ServoLengthNeeded</key><value>Servo wire length:</value></string>
+	<string><key>StepperLengthNeeded</key><value>Stepper wire length (each):</value></string>
+	<string><key>BeltLengthNeeded</key><value>Timing belt length (each):</value></string>
 
-	<string>
-		<key>MenuResetMachinePreferencesWarning</key>
-		<value>Are you sure you want to erase all your preferences?</value>
-		<hint>Makelangelo > preferences > reset preferences</hint>
-	</string>
-
-	<string>
-		<key>MenuGenerate</key>
-		<value>Generate art</value>
-	</string>
-
-	<string>
-		<key>MenuNewFile</key>
-		<value>New</value>
-	</string>
-
-	<string>
-		<key>LSystemTreeName</key>
-		<value>L System Tree Fractal</value>
-	</string>
-
-	<string>
-		<key>LimitTestName</key>
-		<value>Limit Test</value>
-	</string>
-
-	<string>
-		<key>KochTreeName</key>
-		<value>Koch Curve Fractal</value>
-	</string>
-	
-	<string>
-		<key>FibonacciSpiralName</key>
-		<value>Fibonacci Spiral Fractal</value>
-	</string>
-
-	<string>
-		<key>DragonName</key>
-		<value>Dragon Fractal</value>
-	</string>
-
-	<string>
-		<key>ClickAndDrag</key>
-		<value>Click &amp; Drag</value>
-		<hint>live drawing panel</hint>
-	</string>
-	<string>
-		<key>configureMachine</key>
-		<value>Settings</value>
-		<hint>open machine settings dialog</hint>
-	</string>
-	<string>
-		<key>ServoLengthNeeded</key>
-		<value>Servo wire length:</value>
-		<hint>settings > machine > measurement calculations</hint>
-	</string>
-	<string>
-		<key>StepperLengthNeeded</key>
-		<value>Stepper wire length (each):</value>
-		<hint>settings > machine > measurement calculations</hint>
-	</string>
-	<string>
-		<key>BeltLengthNeeded</key>
-		<value>Timing belt length (each):</value>
-		<hint>settings > machine > measurement calculations</hint>
-	</string>
-	<string>
-		<key>ConverterWanderName</key>
-		<value>Wander</value>
-		<hint>name of Wander converter style</hint>
-	</string>
-	<string>
-		<key>ConverterWanderLineCount</key>
-		<value># Lines</value>
-		<hint>Wander converter style parameter</hint>
-	</string>
-	
-	<string>
-		<key>ConverterMultipassName</key>
-		<value>Multipass</value>
-		<hint>name of Multipass converter style</hint>
-	</string>
-	<string>
-		<key>ConverterMultipassAngle</key>
-		<value>Angle (degrees)</value>
-		<hint>Multipass converter option</hint>
-	</string>
-	<string>
-		<key>ConverterMultipassLevels</key>
-		<value>Levels</value>
-		<hint>Multipass converter option</hint>
-	</string>
-	
-	<string>
-		<key>firmwareVersionBadTitle</key>
-		<value>Firmware update</value>
-		<hint>Software is too new for firmware</hint>
-	</string>
-
-	<string>
-		<key>HardwareVersion</key>
-		<value>Model: </value>
-		<hint>What is the hardware model of this robot?</hint>
-	</string>
-	
-	<string>
-		<key>firmwareVersionBadMessage</key>
-		<value><![CDATA[<html><body>The firmware (code in the brain of your robot) is not the version I expect. I found <strong>v%VERSION%</strong>.<br/>Please visit <a href="https://www.marginallyclever.com/product/makelangelo-firmware/">https://www.marginallyclever.com/product/makelangelo-firmware/</a><br>
-		   for the latest firmware.<br>Please visit <a href="https://www.marginallyclever.com/product/makelangelo-software/">https://www.marginallyclever.com/product/makelangelo-software/</a> for the latest software.</html></body>]]></value>
-		<hint>Software is too new for firmware</hint>
-	</string>
+	<string><key>firmwareVersionBadTitle</key><value>Firmware update</value></string>
+	<string><key>HardwareVersion</key><value>Model: </value></string>
+	<string><key>firmwareVersionBadMessage</key><value><![CDATA[<html><body>The firmware (code in the brain of your robot) is not the version I expect. I found <strong>v%VERSION%</strong>.<br/>Please visit <a href="https://www.marginallyclever.com/product/makelangelo-firmware/">https://www.marginallyclever.com/product/makelangelo-firmware/</a><br>	   for the latest firmware.<br>Please visit <a href="https://www.marginallyclever.com/product/makelangelo-software/">https://www.marginallyclever.com/product/makelangelo-software/</a> for the latest software.</html></body>]]></value></string>
 		
-	<string>
-		<key>Add Entity</key>
-		<value>Add Entity</value>
-		<hint>Above entity tree</hint>
-	</string>
-	<string>
-		<key>Rename Entity</key>
-		<value>Rename Entity</value>
-		<hint>Above entity tree</hint>
-	</string>
-	<string>
-		<key>Remove Entity</key>
-		<value>Remove Entity</value>
-		<hint>Above entity tree</hint>
-	</string>
+	<string><key>Add Entity</key><value>Add Entity</value></string>
+	<string><key>Rename Entity</key><value>Rename Entity</value></string>
+	<string><key>Remove Entity</key><value>Remove Entity</value></string>
 
-	<string>
-		<key>ComponentAddAction.name</key>
-		<value>Add Component</value>
-	</string>
-	<string>
-		<key>ComponentAddAction.shortDescription</key>
-		<value>Add a Component to an Entity</value>
-	</string>
+	<string><key>ComponentAddAction.name</key><value>Add Component</value></string>
+	<string><key>ComponentAddAction.shortDescription</key><value>Add a Component to an Entity</value></string>
 	
-	<string>
-		<key>New</key>
-		<value>New</value>
-		<hint>Main Menu/Robot Overlord</hint>
-	</string>
-	<string>
-		<key>Open</key>
-		<value>Open</value>
-		<hint>Main Menu/Robot Overlord</hint>
-	</string>
-	<string>
-		<key>Save as</key>
-		<value>Save as...</value>
-		<hint>Main Menu/Robot Overlord</hint>
-	</string>
-	<string>
-		<key>Quit</key>
-		<value>Quit</value>
-		<hint>Main Menu/Robot Overlord</hint>
-	</string>
-	<string>
-		<key>RobotOverlord.SaveAs</key>
-		<value>Save As...</value>
-	</string>
+	<string><key>New</key><value>New</value></string>
+	<string><key>Open</key><value>Open</value></string>
+	<string><key>Save as</key><value>Save as...</value></string>
+	<string><key>Quit</key><value>Quit</value></string>
+	<string><key>RobotOverlord.SaveAs</key><value>Save As...</value></string>
 	
-	<string>
-		<key>Controls</key>
-		<value>Controls</value>
-		<hint>Main Menu/Help</hint>
-	</string>
-	<string>
-		<key>Online help</key>
-		<value>Online help</value>
-		<hint>Main Menu/Help</hint>
-	</string>
-	<string>
-		<key>Check for update</key>
-		<value>Check for update</value>
-		<hint>Main Menu/Help</hint>
-	</string>
-	<string>
-		<key>AboutAction.name</key>
-		<value>About</value>
-		<hint>Main Menu/Help</hint>
-	</string>
+	<string><key>Controls</key><value>Controls</value></string>
+	<string><key>Online help</key><value>Online help</value></string>
+	<string><key>Check for update</key><value>Check for update</value></string>
+	<string><key>AboutAction.name</key><value>About</value></string>
 	
-	<string>
-		<key>Connect</key>
-		<value>Connect</value>
-		<hint>Sixi 2</hint>
-	</string>
-	<string>
-		<key>Local</key>
-		<value>Local</value>
-		<hint>Sixi 2/Connect</hint>
-	</string>
-	<string>
-		<key>Remote</key>
-		<value>Local</value>
-		<hint>Sixi 2/Connect</hint>
-	</string>
+	<string><key>Connect</key><value>Connect</value></string>
+	<string><key>Local</key><value>Local</value></string>
+	<string><key>Remote</key><value>Local</value></string>
 
-	<string>
-		<key>EntityPasteAction.name</key>
-		<value>Paste Entity</value>
-	</string>
-	<string>
-		<key>EntityCopyAction.name</key>
-		<value>Copy Entity</value>
-	</string>
-	<string>
-		<key>EntityDeleteAction.name</key>
-		<value>Delete entity</value>
-	</string>
-	<string>
-		<key>EntityCutAction.name</key>
-		<value>Cut Entity</value>
-	</string>
-	<string>
-		<key>SceneClearAction.name</key>
-		<value>New Scene</value>
-	</string>
-	<string>
-		<key>SceneClearAction.shortDescription</key>
-		<value>Clear everything and restart</value>
-	</string>
-	<string>
-		<key>SceneLoadAction.name</key>
-		<value>Load...</value>
-	</string>
-	<string>
-		<key>SceneLoadAction.shortDescription</key>
-		<value>Load a entityManager</value>
-	</string>
-	<string>
-		<key>SceneSaveAction.name</key>
-		<value>Save As...</value>
-	</string>
-	<string>
-		<key>SceneSaveAction.shortDescription</key>
-		<value>Save this entityManager</value>
-	</string>
-	<string>
-		<key>SceneImportAction.name</key>
-		<value>Import...</value>
-	</string>
-	<string>
-		<key>SceneImportAction.namePreselected</key>
-		<value>%1</value>
-	</string>
-	<string>
-		<key>SceneImportAction.shortDescription</key>
-		<value>Copy a entityManager into the current entityManager.</value>
-	</string>
+	<string><key>EntityPasteAction.name</key><value>Paste Entity</value></string>
+	<string><key>EntityCopyAction.name</key><value>Copy Entity</value></string>
+	<string><key>EntityDeleteAction.name</key><value>Delete entity</value></string>
+	<string><key>EntityCutAction.name</key><value>Cut Entity</value></string>
+	<string><key>SceneClearAction.name</key><value>New Scene</value></string>
+	<string><key>SceneClearAction.shortDescription</key><value>Clear everything and restart</value></string>
+	<string><key>SceneLoadAction.name</key><value>Load...</value></string>
+	<string><key>SceneLoadAction.shortDescription</key><value>Load a entityManager</value></string>
+	<string><key>SceneSaveAction.name</key><value>Save As...</value></string>
+	<string><key>SceneSaveAction.shortDescription</key><value>Save this entityManager</value></string>
+	<string><key>SceneImportAction.name</key><value>Import...</value></string>
+	<string><key>SceneImportAction.namePreselected</key><value>%1</value></string>
+	<string><key>SceneImportAction.shortDescription</key><value>Copy a entityManager into the current entityManager.</value></string>
 
-	<string>
-		<key>AddChildEntity.name</key>
-		<value>Add Entity</value>
-	</string>
-	<string>
-		<key>EntityRenameAction.name</key>
-		<value>Rename Entity</value>
-	</string>
-	<string>
-		<key>EntityAddChildAction.name</key>
-		<value>Add Entity</value>
-	</string>
-	<string>
-		<key>ComponentDeleteAction.name</key>
-		<value>Delete</value>
-	</string>
-	<string>
-		<key>ComponentDeleteAction.shortDescription</key>
-		<value>Delete a Component from an Entity</value>
-	</string>
-	<string>
-		<key>DemoAction.shortDescription</key>
-		<value>Opens a procedurally built demo</value>
-	</string>
+	<string><key>AddChildEntity.name</key><value>Add Entity</value></string>
+	<string><key>EntityRenameAction.name</key><value>Rename Entity</value></string>
+	<string><key>EntityAddChildAction.name</key><value>Add Entity</value></string>
+	<string><key>ComponentDeleteAction.name</key><value>Delete</value></string>
+	<string><key>ComponentDeleteAction.shortDescription</key><value>Delete a Component from an Entity</value></string>
+	<string><key>DemoAction.shortDescription</key><value>Opens a procedurally built demo</value></string>
 
-	<string>
-		<key>are you sure?</key>
-		<value>are you sure?</value>
-	</string>
+	<string><key>are you sure?</key><value>are you sure?</value></string>
 
-	<string>
-		<key>RobotOverlord.quitConfirm</key>
-		<value>Are you sure you want to quit?</value>
-	</string>
+	<string><key>RobotOverlord.quitTitle</key><value>Are you sure you want to quit?</value></string>
+	<string><key>RobotOverlord.quitConfirm</key><value>Are you sure you want to quit?</value></string>
 
-	<string>
-		<key>RobotOverlord.quitTitle</key>
-		<value>Are you sure you want to quit?</value>
-	</string>
+	<string><key>Warning</key><value>Warning</value></string>
 
-	<string>
-		<key>Warning</key>
-		<value>Warning</value>
-	</string>
+	<string><key>ProjectSaveAction.doesNotContainAllAssets</key><value>Project folder does not contain all assets.</value></string>
 
-	<string>
-		<key>ProjectSaveAction.doesNotContainAllAssets</key>
-		<value>Project folder does not contain all assets.</value>
-	</string>
+	<string><key>Scene.AssetPathNotInScenePathWarningTitle</key><value>Asset path warning</value></string>
+	<string><key>Scene.AssetPathNotInScenePathWarning</key><value>Asset \n%1\nis not in entityManager path\n%2\nConsider moving your asset into the entityManager path for easier sharing with others.</value></string>
 
+	<string><key>Are you sure?</key><value>Are you sure?</value></string>
 
-	<string>
-		<key>Scene.AssetPathNotInScenePathWarningTitle</key>
-		<value>Asset path warning</value>
-	</string>
+	<string><key>UndoAction.name</key><value>Undo</value></string>
+	<string><key>RedoAction.name</key><value>Redo</value></string>
 
-	<string>
-		<key>Scene.AssetPathNotInScenePathWarning</key>
-		<value>Asset \n%1\nis not in entityManager path\n%2\nConsider moving your asset into the entityManager path for easier sharing with others.</value>
-	</string>
+	<string><key>ComponentCopyAction.name</key><value>Copy</value></string>
+	<string><key>ComponentCopyAction.shortDescription</key><value>Copy a Component</value></string>
+	<string><key>ComponentPasteAction.name</key><value>Paste</value></string>
+	<string><key>ComponentPasteAction.shortDescription</key><value>Paste a Component to an Entity</value></string>
 
-	<string>
-		<key>Are you sure?</key>
-		<value>Are you sure?</value>
-	</string>
+	<string><key>Select</key><value>Select</value></string>
+	<string><key>Select.one</key><value>Select %1</value></string>
+	<string><key>Select.nothing</key><value>Select nothing</value></string>
+	<string><key>Select.many</key><value>%1 items</value></string>
 
-	<string>
-		<key>UndoAction.name</key>
-		<value>Undo</value>
-	</string>
-	<string>
-		<key>RedoAction.name</key>
-		<value>Redo</value>
-	</string>
+	<string><key>PoseMoveEdit.one</key><value>Move %1</value></string>
+	<string><key>PoseMoveEdit.many</key><value>Move %1 items</value></string>
 
-	<string>
-		<key>ComponentCopyAction.name</key>
-		<value>Copy</value>
-	</string>
-	<string>
-		<key>ComponentCopyAction.shortDescription</key>
-		<value>Copy a Component</value>
-	</string>
-	<string>
-		<key>ComponentPasteAction.name</key>
-		<value>Paste</value>
-	</string>
-	<string>
-		<key>ComponentPasteAction.shortDescription</key>
-		<value>Paste a Component to an Entity</value>
-	</string>
+	<string><key>EntityAddChildAction.shortDescription</key><value>Add</value></string>
+	<string><key>EntityDeleteAction.shortDescription</key><value>Delete</value></string>
+	<string><key>EntityCopyAction.shortDescription</key><value>Copy</value></string>
+	<string><key>EntityCutAction.shortDescription</key><value>Cut</value></string>
+	<string><key>EntityPasteAction.shortDescription</key><value>Paste</value></string>
+	<string><key>EntityRenameAction.shortDescription</key><value>Paste</value></string>
+	<string><key>EntityReorganizeEdit.name</key><value>Reorganize</value></string>
 
-	<string>
-		<key>Select</key>
-		<value>Select</value>
-	</string>
+	<string><key>RobotOverlord.Menu.File</key><value>File</value></string>
+	<string><key>RobotOverlord.Menu.RecentFiles</key><value>Recent Files</value></string>
+	<string><key>RobotOverlord.Menu.Edit</key><value>Edit</value></string>
+	<string><key>RobotOverlord.Menu.Demos</key><value>Demos</value></string>
+	<string><key>RobotOverlord.Menu.Help</key><value>Help</value></string>
+	<string><key>RobotOverlord.Menu.ShowLog</key><value>Show log</value></string>
 
-	<string>
-		<key>Select.one</key>
-		<value>Select %1</value>
-	</string>
+	<string><key>RobotPanel.Home</key><value>Home</value></string>
+	<string><key>RobotPanel.Rewind</key><value>Rewind</value></string>
+	<string><key>RobotPanel.Play</key><value>Play</value></string>
+	<string><key>RobotPanel.Step</key><value>Step</value></string>
+	<string><key>RobotPanel.Pause</key><value>Pause</value></string>
+	<string><key>RobotPanel.Jog</key><value>Jog</value></string>
+	<string><key>RobotPanel.Program</key><value>Program</value></string>
+	<string><key>RobotPanel.Connect</key><value>Connect</value></string>
+	<string><key>AboutAction.shortDescription</key><value>About this program</value></string>
 
-	<string>
-		<key>Select.nothing</key>
-		<value>Select nothing</value>
-	</string>
+	<string><key>BrowseURLAction.name</key><value>Browse URL</value></string>
+	<string><key>BrowseURLAction.shortDescription</key><value>Open a URL in your default browser</value></string>
+	<string><key>BrowseURLAction.fail</key><value>Could not open %1</value></string>
+	<string><key>RobotPanel.History</key><value>History</value></string>
 
-	<string>
-		<key>Select.many</key>
-		<value>%1 items</value>
-	</string>
+	<string><key>CheckForUpdateAction.name</key><value>Check for update</value></string>
+	<string><key>CheckForUpdateAction.shortDescription</key><value>Check if you are using the latest version of this app</value></string>
 
-	<string>
-		<key>PoseMoveEdit.one</key>
-		<value>Move %1</value>
-	</string>
-	<string>
-		<key>PoseMoveEdit.many</key>
-		<value>Move %1 items</value>
-	</string>
+	<string><key>ForumsAction.name</key><value>Online help</value></string>
+	<string><key>ForumsAction.shortDescription</key><value>Go to the forums</value></string>
+	<string><key>AbstractParameterEdit.name</key><value>Change %1</value></string>
+	<string><key>ComponentDeleteEdit.name</key><value>Delete %1</value></string>
+	<string><key>ComponentRenameEdit.name</key><value>Rename %1</value></string>
 
-	<string>
-		<key>EntityAddChildAction.shortDescription</key>
-		<value>Add</value>
-	</string>
+	<string><key>RobotROSystem.controlPanel</key><value>Control panel</value></string>
+	<string><key>RobotROSystem.DHTable</key><value>DH Table</value></string>
 
-	<string>
-		<key>EntityDeleteAction.shortDescription</key>
-		<value>Delete</value>
-	</string>
+	<string><key>EditPreferencesAction.name</key><value>Edit Preferences</value></string>
+	<string><key>EditPreferencesAction.shortDescription</key><value>Edit Preferences</value></string>
 
-	<string>
-		<key>EntityCopyAction.shortDescription</key>
-		<value>Copy</value>
-	</string>
-
-	<string>
-		<key>EntityCutAction.shortDescription</key>
-		<value>Cut</value>
-	</string>
-
-	<string>
-		<key>EntityPasteAction.shortDescription</key>
-		<value>Paste</value>
-	</string>
-
-	<string>
-		<key>EntityRenameAction.shortDescription</key>
-		<value>Paste</value>
-	</string>
-
-	<string>
-		<key>EntityReorganizeEdit.name</key>
-		<value>Reorganize</value>
-	</string>
-
-	<string>
-		<key>RobotOverlord.Menu.File</key>
-		<value>File</value>
-	</string>
-
-	<string>
-		<key>RobotOverlord.Menu.RecentFiles</key>
-		<value>Recent Files</value>
-	</string>
-	<string>
-		<key>RobotOverlord.Menu.Edit</key>
-		<value>Edit</value>
-	</string>
-	<string>
-		<key>RobotOverlord.Menu.Demos</key>
-		<value>Demos</value>
-	</string>
-	<string>
-		<key>RobotOverlord.Menu.Help</key>
-		<value>Help</value>
-	</string>
-	<string>
-		<key>RobotOverlord.Menu.ShowLog</key>
-		<value>Show log</value>
-	</string>
-
-	<string>
-		<key>RobotPanel.Home</key>
-		<value>Home</value>
-	</string>
-	<string>
-		<key>RobotPanel.Rewind</key>
-		<value>Rewind</value>
-	</string>
-	<string>
-		<key>RobotPanel.Play</key>
-		<value>Play</value>
-	</string>
-	<string>
-		<key>RobotPanel.Step</key>
-		<value>Step</value>
-	</string>
-	<string>
-		<key>RobotPanel.Pause</key>
-		<value>Pause</value>
-	</string>
-	<string>
-		<key>RobotPanel.Jog</key>
-		<value>Jog</value>
-	</string>
-	<string>
-		<key>RobotPanel.Program</key>
-		<value>Program</value>
-	</string>
-	<string>
-		<key>RobotPanel.Connect</key>
-		<value>Connect</value>
-	</string>
-	<string>
-		<key>AboutAction.shortDescription</key>
-		<value>About this program</value>
-	</string>
-
-	<string>
-		<key>BrowseURLAction.name</key>
-		<value>Browse URL</value>
-	</string>
-	<string>
-		<key>BrowseURLAction.shortDescription</key>
-		<value>Open a URL in your default browser</value>
-	</string>
-	<string>
-		<key>BrowseURLAction.fail</key>
-		<value>Could not open %1</value>
-	</string>
-
-	<string>
-		<key>CheckForUpdateAction.name</key>
-		<value>Check for update</value>
-	</string>
-	<string>
-		<key>CheckForUpdateAction.shortDescription</key>
-		<value>Check if you are using the latest version of this app</value>
-	</string>
-
-	<string>
-		<key>ForumsAction.name</key>
-		<value>Online help</value>
-	</string>
-	<string>
-		<key>ForumsAction.shortDescription</key>
-		<value>Go to the forums</value>
-	</string>
-	<string>
-		<key>AbstractParameterEdit.name</key>
-		<value>Change %1</value>
-	</string>
-	<string>
-		<key>ComponentDeleteEdit.name</key>
-		<value>Delete %1</value>
-	</string>
-	<string>
-		<key>ComponentRenameEdit.name</key>
-		<value>Rename %1</value>
-	</string>
-
-	<string>
-		<key>RobotROSystem.controlPanel</key>
-		<value>Control panel</value>
-	</string>
-	<string>
-		<key>RobotROSystem.DHTable</key>
-		<value>DH Table</value>
-	</string>
-
-	<string>
-		<key>EditPreferencesAction.name</key>
-		<value>Edit Preferences</value>
-	</string>
-	<string>
-		<key>EditPreferencesAction.shortDescription</key>
-		<value>Edit Preferences</value>
-	</string>
-
-	<string>
-		<key>PreferencesPanel.title</key>
-		<value>Preferences</value>
-	</string>
-	<string>
-		<key>InteractionPreferencesPanel.title</key>
-		<value>Interaction</value>
-	</string>
-	<string>
-		<key>GraphicsPreferencesPanel.title</key>
-		<value>Graphics</value>
-	</string>
+	<string><key>PreferencesPanel.title</key><value>Preferences</value></string>
+	<string><key>InteractionPreferencesPanel.title</key><value>Interaction</value></string>
+	<string><key>GraphicsPreferencesPanel.title</key><value>Graphics</value></string>
 </language>
