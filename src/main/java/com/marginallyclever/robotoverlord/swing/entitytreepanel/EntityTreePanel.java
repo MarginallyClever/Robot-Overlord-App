@@ -3,13 +3,13 @@ package com.marginallyclever.robotoverlord.swing.entitytreepanel;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.entity.EntityManagerEvent;
-import com.marginallyclever.robotoverlord.entity.EntityManagerListener;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swing.EditorAction;
 import com.marginallyclever.robotoverlord.swing.UndoSystem;
 import com.marginallyclever.robotoverlord.swing.actions.*;
 import com.marginallyclever.robotoverlord.swing.edits.SelectEdit;
-import com.marginallyclever.robotoverlord.swing.componentmanagerpanel.ComponentManagerPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -24,6 +24,7 @@ import java.util.List;
  * @author Dan Royer
  */
 public class EntityTreePanel extends JPanel {
+	private static final Logger logger = LoggerFactory.getLogger(EntityTreePanel.class);
 	private final JTree tree = new JTree();
 	private final DefaultTreeModel treeModel = new EntityTreeModel(null);
 	private final List<AbstractAction> actions = new ArrayList<>();
@@ -50,10 +51,9 @@ public class EntityTreePanel extends JPanel {
 		this.add(createMenu(), BorderLayout.NORTH);
 
 		addTreeSelectionListener();
-		addTreeModelListener();
 		addEntityManagerListener();
 
-		addEntity(entityManager.getRoot());
+		populateTree();
 	}
 
 	private void addEntityManagerListener() {
@@ -64,106 +64,9 @@ public class EntityTreePanel extends JPanel {
 				removeEntityFromParent(event.child,event.parent);
 			} else if(event.type == EntityManagerEvent.ENTITY_RENAMED) {
 				EntityTreeNode node = findTreeNode(event.child);
-				treeModel.reload(node);
+				treeModel.nodeChanged(node);
 			}
-		});
-	}
-
-	private void addTreeModelListener() {
-		treeModel.addTreeModelListener(new TreeModelListener() {
-			/**
-			 * <p>Invoked after a node (or a set of siblings) has changed in some
-			 * way. The node(s) have not changed locations in the tree or
-			 * altered their children arrays, but other attributes have
-			 * changed and may affect presentation. Example: the name of a
-			 * file has changed, but it is in the same location in the file
-			 * system.</p>
-			 *
-			 * <p>To indicate the root has changed, childIndices and children
-			 * will be null.</p>
-			 *
-			 * <p>Use {@code e.getPath()} to get the parent of the changed node(s).
-			 * {@code e.getChildIndices()} returns the index(es) of the changed node(s).</p>
-			 *
-			 * @param e a {@code TreeModelEvent} describing changes to a tree model
-			 */
-			@Override
-			public void treeNodesChanged(TreeModelEvent e) {
-				// find the Entity associated with this node and rename the entity.
-				TreeNode node = (TreeNode) e.getTreePath().getLastPathComponent();
-				if (node instanceof EntityTreeNode) {
-					EntityTreeNode etn = (EntityTreeNode) node;
-					etn.getEntity().setName(etn.toString());
-				}
-			}
-
-			/**
-			 * <p>Invoked after nodes have been inserted into the tree.</p>
-			 *
-			 * <p>Use {@code e.getPath()} to get the parent of the new node(s).
-			 * {@code e.getChildIndices()} returns the index(es) of the new node(s)
-			 * in ascending order.</p>
-			 *
-			 * @param e a {@code TreeModelEvent} describing changes to a tree model
-			 */
-			@Override
-			public void treeNodesInserted(TreeModelEvent e) {
-				for(Object obj : e.getPath()) {
-					TreeNode parentNode = (TreeNode) obj;
-					if(parentNode instanceof EntityTreeNode) {
-						TreeNode node = (TreeNode) e.getTreePath().getLastPathComponent();
-						if (node instanceof EntityTreeNode) {
-							Entity child = ((EntityTreeNode) node).getEntity();
-							Entity parent = child.getParent();
-							entityManager.addEntityToParent(child,parent);
-						}
-					}
-				}
-			}
-
-			/**
-			 * <p>Invoked after nodes have been removed from the tree.  Note that
-			 * if a subtree is removed from the tree, this method may only be
-			 * invoked once for the root of the removed subtree, not once for
-			 * each individual set of siblings removed.</p>
-			 *
-			 * <p>Use {@code e.getPath()} to get the former parent of the deleted
-			 * node(s). {@code e.getChildIndices()} returns, in ascending order, the
-			 * index(es) the node(s) had before being deleted.
-			 *
-			 * @param e a {@code TreeModelEvent} describing changes to a tree model
-			 */
-			@Override
-			public void treeNodesRemoved(TreeModelEvent e) {
-				TreeNode node = (TreeNode) e.getTreePath().getLastPathComponent();
-				if (node instanceof EntityTreeNode) {
-					Entity child = ((EntityTreeNode) node).getEntity();
-					Entity parent = child.getParent();
-					entityManager.removeEntityFromParent(child,parent);
-				}
-			}
-
-			/**
-			 * <p>Invoked after the tree has drastically changed structure from a
-			 * given node down.  If the path returned by e.getPath() is of length
-			 * one and the first element does not identify the current root node
-			 * the first element should become the new root of the tree.
-			 *
-			 * <p>Use {@code e.getPath()} to get the path to the node.
-			 * {@code e.getChildIndices()} returns null.
-			 *
-			 * @param e a {@code TreeModelEvent} describing changes to a tree model
-			 */
-			@Override
-			public void treeStructureChanged(TreeModelEvent e) {
-				Object [] list = e.getPath();
-				if(list.length==1 && treeModel.getRoot() != list[0]) {
-					// list[0] should become the new root of the tree.  This should never happen in our case.
-					Entity parent = ((EntityTreeNode) list[0]).getEntity();
-					Entity child =  ((EntityTreeNode) e.getTreePath().getLastPathComponent()).getEntity();
-					entityManager.addEntityToParent(child,parent);
-				}
-			}
+			repaint();
 		});
 	}
 
@@ -216,13 +119,13 @@ public class EntityTreePanel extends JPanel {
 			}
 		}
 
-		if(pathList.size()>0) {
+		if(pathList.isEmpty()) {
+			tree.clearSelection();
+		} else {
 			TreePath[] paths = new TreePath[pathList.size()];
 			pathList.toArray(paths);
 
 			tree.setSelectionPaths(paths);
-		} else {
-			tree.clearSelection();
 		}
 	}
 
@@ -247,76 +150,64 @@ public class EntityTreePanel extends JPanel {
 		return null;
 	}
 
-	public void addEntity(Entity me) {
-		Entity parentEntity = me.getParent();
-		if(parentEntity!=null) {
-			EntityTreeNode parentNode = findTreeNode(parentEntity);
-			if(parentNode!=null) {
-				EntityTreeNode newNode = new EntityTreeNode(me);
-				parentNode.add(newNode);
-			}
-		} else {
-			EntityTreeNode newNode = new EntityTreeNode(me);
-			treeModel.setRoot(newNode);
-		}
+	public void populateTree() {
+		//logger.debug("populateTree");
+        Entity root = entityManager.getRoot();
 
-		for(Entity child : me.getChildren()) {
-			addEntity(child);
-		}
-	}
-
-	public void removeEntity(Entity entity) {
-		EntityTreeNode node = findTreeNode(entity);
-		if(node!=null) {
-			EntityTreeNode parent = (EntityTreeNode)node.getParent();
-			if(parent!=null) {
-				parent.remove(node);
-			} else {
-				treeModel.setRoot(null);
-			}
+		treeModel.setRoot(new EntityTreeNode(root));
+		List<Entity> list = new ArrayList<>(root.getChildren());
+		while(!list.isEmpty()) {
+			Entity child = list.remove(0);
+			addEntityToParent(child,child.getParent());
+			list.addAll(child.getChildren());
 		}
 	}
 
 	private void addTreeSelectionListener() {
-		tree.addTreeSelectionListener(new TreeSelectionListener() {
-			@Override
-			public void valueChanged(TreeSelectionEvent arg0) {
-				List<Entity> selected = new ArrayList<>();
-				TreePath[] selectedPaths = tree.getSelectionPaths();
-				if(selectedPaths!=null) {
-					for (TreePath selectedPath : selectedPaths) {
-						EntityTreeNode selectedNode = (EntityTreeNode) selectedPath.getLastPathComponent();
-						Entity entity = (Entity)selectedNode.getUserObject();
-						selected.add(entity);
-					}
+		tree.addTreeSelectionListener((arg0) -> {
+			List<Entity> selected = new ArrayList<>();
+			TreePath[] selectedPaths = tree.getSelectionPaths();
+			if(selectedPaths!=null) {
+				for (TreePath selectedPath : selectedPaths) {
+					EntityTreeNode selectedNode = (EntityTreeNode) selectedPath.getLastPathComponent();
+					Entity entity = (Entity)selectedNode.getUserObject();
+					selected.add(entity);
 				}
-				UndoSystem.addEvent(new SelectEdit(Clipboard.getSelectedEntities(), selected));
 			}
+			UndoSystem.addEvent(new SelectEdit(Clipboard.getSelectedEntities(), selected));
 		});
 	}
 
 	private void recursivelyAddChildren(EntityTreeNode parentNode, Entity child) {
+		//logger.debug("recursivelyAddChildren "+child.getName()+" to "+parentNode.getEntity().getName());
 		EntityTreeNode newNode = new EntityTreeNode(child);
 		parentNode.add(newNode);
+		int [] index = new int[]{parentNode.getIndex(findTreeNode(child))};
+		treeModel.nodesWereInserted(parentNode, index);
 		for(Entity child2 : child.getChildren()) {
 			recursivelyAddChildren(newNode,child2);
 		}
 	}
 
-	private void addEntityToParent(Entity parent, Entity child) {
+	/**
+	 * Add a child to a parent.
+	 * @param child the child to add
+	 * @param parent the parent to add the child to
+	 */
+	private void addEntityToParent(Entity child, Entity parent) {
 		EntityTreeNode parentNode = findTreeNode(parent);
 		if(parentNode!=null) {
 			recursivelyAddChildren(parentNode,child);
-			treeModel.reload(parentNode);
 		}
 	}
 
-	private void removeEntityFromParent(Entity parent, Entity child) {
+	private void removeEntityFromParent(Entity child, Entity parent) {
 		EntityTreeNode parentNode = findTreeNode(parent);
 		EntityTreeNode childNode = findTreeNode(child);
 		if(parentNode!=null && childNode!=null) {
+			int [] list = new int[]{parentNode.getIndex(childNode)};
 			parentNode.remove(childNode);
-			treeModel.reload(parentNode);
+			treeModel.nodesWereRemoved(parentNode, list, new Object[]{childNode});
 		}
 	}
 
