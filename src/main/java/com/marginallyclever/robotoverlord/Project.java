@@ -36,7 +36,7 @@ public class Project {
     }
 
     public Project(String path) {
-        this();
+        super();
         setPath(path);
     }
 

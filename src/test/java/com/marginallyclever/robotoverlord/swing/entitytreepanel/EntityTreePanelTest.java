@@ -28,6 +28,7 @@ public class EntityTreePanelTest {
         Robot robot = BasicRobot.robotWithNewAwtHierarchy();
         entityManager = new EntityManager();
         panel = new EntityTreePanel(entityManager);
+
         JFrame frame = new JFrame();
         frame.setContentPane(panel);
         frame.pack();

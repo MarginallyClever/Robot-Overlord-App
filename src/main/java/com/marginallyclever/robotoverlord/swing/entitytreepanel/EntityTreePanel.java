@@ -3,13 +3,13 @@ package com.marginallyclever.robotoverlord.swing.entitytreepanel;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.entity.EntityManagerEvent;
-import com.marginallyclever.robotoverlord.entity.EntityManagerListener;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swing.EditorAction;
 import com.marginallyclever.robotoverlord.swing.UndoSystem;
 import com.marginallyclever.robotoverlord.swing.actions.*;
 import com.marginallyclever.robotoverlord.swing.edits.SelectEdit;
-import com.marginallyclever.robotoverlord.swing.componentmanagerpanel.ComponentManagerPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -20,14 +20,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Uses an Observer Pattern to tell subscribers about changes using EntityTreePanelEvent.
+ * {@link EntityTreePanel} provides a UI to view/edit the contents of an {@link EntityManager}.
  * @author Dan Royer
- *
  */
 public class EntityTreePanel extends JPanel {
+	private static final Logger logger = LoggerFactory.getLogger(EntityTreePanel.class);
 	private final JTree tree = new JTree();
 	private final DefaultTreeModel treeModel = new EntityTreeModel(null);
-	private final DefaultTreeCellRenderer treeCellRenderer = new FullNameTreeCellRenderer();
 	private final List<AbstractAction> actions = new ArrayList<>();
 	private final EntityManager entityManager;
 
@@ -37,6 +36,7 @@ public class EntityTreePanel extends JPanel {
 		this.entityManager = entityManager;
 
 		tree.setShowsRootHandles(true);
+		DefaultTreeCellRenderer treeCellRenderer = new FullNameTreeCellRenderer();
 		tree.setCellRenderer(treeCellRenderer);
 		tree.setCellEditor(new EntityTreeCellEditor(tree, treeCellRenderer));
 		tree.setEditable(true);
@@ -51,85 +51,22 @@ public class EntityTreePanel extends JPanel {
 		this.add(createMenu(), BorderLayout.NORTH);
 
 		addTreeSelectionListener();
-		addExpansionListener();
-		addTreeModelListener();
 		addEntityManagerListener();
 
-		addEntity(entityManager.getRoot());
+		populateTree();
 	}
 
 	private void addEntityManagerListener() {
-		entityManager.addListener(new EntityManagerListener() {
-			@Override
-			public void entityManagerEvent(EntityManagerEvent event) {
-				if(event.type == EntityManagerEvent.ENTITY_ADDED) {
-					addEntityToParent(event.child,event.parent);
-				} else if(event.type == EntityManagerEvent.ENTITY_REMOVED) {
-					removeEntityFromParent(event.child,event.parent);
-				} else if(event.type == EntityManagerEvent.ENTITY_RENAMED) {
-					EntityTreeNode node = findTreeNode(event.child);
-					treeModel.reload(node);
-				}
+		entityManager.addListener((event)-> {
+			if(event.type == EntityManagerEvent.ENTITY_ADDED) {
+				addEntityToParent(event.child,event.parent);
+			} else if(event.type == EntityManagerEvent.ENTITY_REMOVED) {
+				removeEntityFromParent(event.child,event.parent);
+			} else if(event.type == EntityManagerEvent.ENTITY_RENAMED) {
+				EntityTreeNode node = findTreeNode(event.child);
+				treeModel.nodeChanged(node);
 			}
-		});
-	}
-
-	private void addTreeModelListener() {
-		treeModel.addTreeModelListener(new TreeModelListener() {
-			@Override
-			public void treeNodesChanged(TreeModelEvent e) {
-				// find the Entity associated with this node and rename the entity.
-				TreeNode node = (TreeNode) e.getTreePath().getLastPathComponent();
-				if (node instanceof EntityTreeNode) {
-					EntityTreeNode etn = (EntityTreeNode) node;
-					etn.getEntity().setName(etn.toString());
-				}
-			}
-
-			/**
-			 * Find the Entity associated with this node, add it to the parent.
-			 * @param e a {@code TreeModelEvent} describing changes to a tree model
-			 */
-			@Override
-			public void treeNodesInserted(TreeModelEvent e) {
-				for(Object obj : e.getPath()) {
-					TreeNode parentNode = (TreeNode) obj;
-					if(parentNode instanceof EntityTreeNode) {
-						TreeNode node = (TreeNode) e.getTreePath().getLastPathComponent();
-						if (node instanceof EntityTreeNode) {
-							Entity child = ((EntityTreeNode) node).getEntity();
-							Entity parent = child.getParent();
-							entityManager.addEntityToParent(child,parent);
-						}
-					}
-				}
-			}
-
-			/**
-			 * Find the Entity associated with this node, remove it.
-			 * @param e a {@code TreeModelEvent} describing changes to a tree model
-			 */
-			@Override
-			public void treeNodesRemoved(TreeModelEvent e) {
-				TreeNode node = (TreeNode) e.getTreePath().getLastPathComponent();
-				if (node instanceof EntityTreeNode) {
-					Entity child = ((EntityTreeNode) node).getEntity();
-					Entity parent = child.getParent();
-					entityManager.removeEntityFromParent(child,parent);
-				}
-			}
-
-			@Override
-			public void treeStructureChanged(TreeModelEvent e) {
-				Object [] list = e.getPath();
-				if(list.length==1) {
-					if(treeModel.getRoot() != list[0]) {
-						Entity parent = ((EntityTreeNode) list[0]).getEntity();
-						Entity child =  ((EntityTreeNode) e.getTreePath().getLastPathComponent()).getEntity();
-						entityManager.addEntityToParent(child,parent);
-					}
-				}
-			}
+			repaint();
 		});
 	}
 
@@ -182,13 +119,13 @@ public class EntityTreePanel extends JPanel {
 			}
 		}
 
-		if(pathList.size()>0) {
+		if(pathList.isEmpty()) {
+			tree.clearSelection();
+		} else {
 			TreePath[] paths = new TreePath[pathList.size()];
 			pathList.toArray(paths);
 
 			tree.setSelectionPaths(paths);
-		} else {
-			tree.clearSelection();
 		}
 	}
 
@@ -213,127 +150,64 @@ public class EntityTreePanel extends JPanel {
 		return null;
 	}
 
-	/**
-	 * Recursively expand or collapse this node and all child nodes.
-	 */
-	private void setNodeExpandedState(EntityTreeNode node) {
-		List<TreeNode> list = new ArrayList<>();
-		list.add(node);
+	public void populateTree() {
+		//logger.debug("populateTree");
+        Entity root = entityManager.getRoot();
 
+		treeModel.setRoot(new EntityTreeNode(root));
+		List<Entity> list = new ArrayList<>(root.getChildren());
 		while(!list.isEmpty()) {
-			EntityTreeNode n = (EntityTreeNode)list.remove(0);
-
-			Entity e = (Entity)n.getUserObject();
-			if(!n.isLeaf()) {
-				TreePath path = new TreePath(n.getPath());
-				if (e.getExpanded()) {
-					tree.expandPath(path);
-					// only expand children if the parent is also expanded.
-					list.addAll(Collections.list(n.children()));
-				} else {
-					tree.collapsePath(path);
-				}
-			}
+			Entity child = list.remove(0);
+			addEntityToParent(child,child.getParent());
+			list.addAll(child.getChildren());
 		}
-	}
-
-    /**
-	 * List all objects in scene.  Click an item to load its {@link ComponentManagerPanel}.
-	 * See <a href="https://docs.oracle.com/javase/7/docs/api/javax/swing/JTree.html">JTree</a>
-	 */
-
-	public void addEntity(Entity me) {
-		Entity parentEntity = me.getParent();
-		if(parentEntity!=null) {
-			EntityTreeNode parentNode = findTreeNode(parentEntity);
-			if(parentNode!=null) {
-				EntityTreeNode newNode = new EntityTreeNode(me);
-				parentNode.add(newNode);
-				setNodeExpandedState(parentNode);
-			}
-		} else {
-			EntityTreeNode newNode = new EntityTreeNode(me);
-			treeModel.setRoot(newNode);
-			setNodeExpandedState((EntityTreeNode) treeModel.getRoot());
-		}
-
-		for(Entity child : me.getChildren()) {
-			addEntity(child);
-		}
-	}
-
-	public void removeEntity(Entity entity) {
-		EntityTreeNode node = findTreeNode(entity);
-		if(node!=null) {
-			EntityTreeNode parent = (EntityTreeNode)node.getParent();
-			if(parent!=null) {
-				parent.remove(node);
-			} else {
-				treeModel.setRoot(null);
-			}
-		}
-	}
-
-	private void addExpansionListener() {
-		tree.addTreeWillExpandListener(new TreeWillExpandListener() {
-			@Override
-			public void treeWillExpand(TreeExpansionEvent event) {
-				EntityTreeNode node = (EntityTreeNode)event.getPath().getLastPathComponent();
-				Entity e = (Entity)node.getUserObject();
-				e.setExpanded(true);
-			}
-
-			@Override
-			public void treeWillCollapse(TreeExpansionEvent event) {
-				EntityTreeNode node = (EntityTreeNode)event.getPath().getLastPathComponent();
-				Entity e = (Entity)node.getUserObject();
-				e.setExpanded(false);
-			}
-		});
 	}
 
 	private void addTreeSelectionListener() {
-		tree.addTreeSelectionListener(new TreeSelectionListener() {
-			@Override
-			public void valueChanged(TreeSelectionEvent arg0) {
-				List<Entity> selected = new ArrayList<>();
-				TreePath[] selectedPaths = tree.getSelectionPaths();
-				if(selectedPaths!=null) {
-					for (TreePath selectedPath : selectedPaths) {
-						EntityTreeNode selectedNode = (EntityTreeNode) selectedPath.getLastPathComponent();
-						Entity entity = (Entity)selectedNode.getUserObject();
-						selected.add(entity);
-					}
+		tree.addTreeSelectionListener((arg0) -> {
+			List<Entity> selected = new ArrayList<>();
+			TreePath[] selectedPaths = tree.getSelectionPaths();
+			if(selectedPaths!=null) {
+				for (TreePath selectedPath : selectedPaths) {
+					EntityTreeNode selectedNode = (EntityTreeNode) selectedPath.getLastPathComponent();
+					Entity entity = (Entity)selectedNode.getUserObject();
+					selected.add(entity);
 				}
-				UndoSystem.addEvent(new SelectEdit(Clipboard.getSelectedEntities(), selected));
 			}
+			UndoSystem.addEvent(new SelectEdit(Clipboard.getSelectedEntities(), selected));
 		});
 	}
 
 	private void recursivelyAddChildren(EntityTreeNode parentNode, Entity child) {
+		//logger.debug("recursivelyAddChildren "+child.getName()+" to "+parentNode.getEntity().getName());
 		EntityTreeNode newNode = new EntityTreeNode(child);
 		parentNode.add(newNode);
+		int [] index = new int[]{parentNode.getIndex(findTreeNode(child))};
+		treeModel.nodesWereInserted(parentNode, index);
 		for(Entity child2 : child.getChildren()) {
 			recursivelyAddChildren(newNode,child2);
 		}
 	}
 
-	private void addEntityToParent(Entity parent, Entity child) {
+	/**
+	 * Add a child to a parent.
+	 * @param child the child to add
+	 * @param parent the parent to add the child to
+	 */
+	private void addEntityToParent(Entity child, Entity parent) {
 		EntityTreeNode parentNode = findTreeNode(parent);
 		if(parentNode!=null) {
 			recursivelyAddChildren(parentNode,child);
-			treeModel.reload(parentNode);
-			setNodeExpandedState((EntityTreeNode)treeModel.getRoot());
 		}
 	}
 
-	private void removeEntityFromParent(Entity parent, Entity child) {
+	private void removeEntityFromParent(Entity child, Entity parent) {
 		EntityTreeNode parentNode = findTreeNode(parent);
 		EntityTreeNode childNode = findTreeNode(child);
 		if(parentNode!=null && childNode!=null) {
+			int [] list = new int[]{parentNode.getIndex(childNode)};
 			parentNode.remove(childNode);
-			treeModel.reload(parentNode);
-			setNodeExpandedState((EntityTreeNode)treeModel.getRoot());
+			treeModel.nodesWereRemoved(parentNode, list, new Object[]{childNode});
 		}
 	}
 

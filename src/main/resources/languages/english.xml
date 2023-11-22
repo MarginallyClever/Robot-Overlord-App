@@ -333,7 +333,7 @@
 	<string><key>EntityCopyAction.shortDescription</key><value>Copy</value></string>
 	<string><key>EntityCutAction.shortDescription</key><value>Cut</value></string>
 	<string><key>EntityPasteAction.shortDescription</key><value>Paste</value></string>
-	<string><key>EntityRenameAction.shortDescription</key><value>Paste</value></string>
+	<string><key>EntityRenameAction.shortDescription</key><value>Rename</value></string>
 	<string><key>EntityReorganizeEdit.name</key><value>Reorganize</value></string>
 
 	<string><key>RobotOverlord.Menu.File</key><value>File</value></string>

@@ -21,7 +21,7 @@ public class EntityManagerEvent {
     public final Entity parent;
     public final Entity child;
 
-    public EntityManagerEvent(int type,Entity parent,Entity child) {
+    public EntityManagerEvent(int type,Entity child,Entity parent) {
         this.type = type;
         this.parent = parent;
         this.child = child;

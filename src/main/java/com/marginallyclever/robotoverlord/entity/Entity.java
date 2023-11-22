@@ -27,8 +27,6 @@ public class Entity {
 	protected transient ArrayList<Entity> children = new ArrayList<>();
 	private final List<Component> components = new ArrayList<>();
 
-	private boolean isExpanded = false;
-
 	/**
 	 * The unique ID of this Entity.
 	 */
@@ -232,8 +230,7 @@ public class Entity {
 		return "name=" + name + ", " +
 				"uniqueID=" + uniqueID + ", " +
 				"entities=" + Arrays.toString(children.toArray()) + ", " +
-				"components=" + Arrays.toString(components.toArray()) +
-				"expanded=" + isExpanded;
+				"components=" + Arrays.toString(components.toArray());
 	}
 
 	public int getComponentCount() {
@@ -314,7 +311,6 @@ public class Entity {
 		jo.put("type",this.getClass().getName());
 		jo.put("uniqueID",this.uniqueID);
 		jo.put("name",this.name);
-		jo.put("expanded",this.isExpanded);
 		if(!children.isEmpty()) jo.put("entities", getEntitiesAsJSON(context));
 		if(!components.isEmpty()) jo.put("components",getComponentsAsJSON(context));
 		return jo;
@@ -341,7 +337,6 @@ public class Entity {
 		if(jo.has("uniqueID")) this.uniqueID = jo.getString("uniqueID");
 		if(jo.has("entities")) readEntities(jo.getJSONArray("entities"),context);
 		if(jo.has("components")) readComponents(jo.getJSONArray("components"),context);
-		if(jo.has("expanded")) this.isExpanded = jo.getBoolean("expanded");
 	}
 
 	private void readEntities(JSONArray jo,SerializationContext context) throws JSONException {
@@ -419,14 +414,6 @@ public class Entity {
 			toAdd.addAll(e.getChildren());
 		}
 		return list;
-	}
-
-	public boolean getExpanded() {
-		return isExpanded;
-	}
-
-	public void setExpanded(boolean arg0) {
-		isExpanded = arg0;
 	}
 
 	private void addComponentDependencies(Class<?> myClass) {
