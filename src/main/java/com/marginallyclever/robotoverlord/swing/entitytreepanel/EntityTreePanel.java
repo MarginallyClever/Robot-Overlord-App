@@ -50,7 +50,6 @@ public class EntityTreePanel extends JPanel {
 		this.add(createMenu(), BorderLayout.NORTH);
 
 		addTreeSelectionListener();
-		addExpansionListener();
 		addTreeModelListener();
 		addEntityManagerListener();
 
@@ -58,17 +57,14 @@ public class EntityTreePanel extends JPanel {
 	}
 
 	private void addEntityManagerListener() {
-		entityManager.addListener(new EntityManagerListener() {
-			@Override
-			public void entityManagerEvent(EntityManagerEvent event) {
-				if(event.type == EntityManagerEvent.ENTITY_ADDED) {
-					addEntityToParent(event.child,event.parent);
-				} else if(event.type == EntityManagerEvent.ENTITY_REMOVED) {
-					removeEntityFromParent(event.child,event.parent);
-				} else if(event.type == EntityManagerEvent.ENTITY_RENAMED) {
-					EntityTreeNode node = findTreeNode(event.child);
-					treeModel.reload(node);
-				}
+		entityManager.addListener((event)-> {
+			if(event.type == EntityManagerEvent.ENTITY_ADDED) {
+				addEntityToParent(event.child,event.parent);
+			} else if(event.type == EntityManagerEvent.ENTITY_REMOVED) {
+				removeEntityFromParent(event.child,event.parent);
+			} else if(event.type == EntityManagerEvent.ENTITY_RENAMED) {
+				EntityTreeNode node = findTreeNode(event.child);
+				treeModel.reload(node);
 			}
 		});
 	}
@@ -251,34 +247,6 @@ public class EntityTreePanel extends JPanel {
 		return null;
 	}
 
-	/**
-	 * Recursively expand or collapse this node and all child nodes.
-	 */
-	private void setNodeExpandedState(EntityTreeNode node) {
-		List<TreeNode> list = new ArrayList<>();
-		list.add(node);
-
-		while(!list.isEmpty()) {
-			EntityTreeNode n = (EntityTreeNode)list.remove(0);
-			if(!n.isLeaf()) {
-				Entity e = (Entity)n.getUserObject();
-				TreePath path = new TreePath(n.getPath());
-				if (e.getExpanded()) {
-					tree.expandPath(path);
-					// only expand children if the parent is also expanded.
-					list.addAll(Collections.list(n.children()));
-				} else {
-					tree.collapsePath(path);
-				}
-			}
-		}
-	}
-
-    /**
-	 * List all objects in scene.  Click an item to load its {@link ComponentManagerPanel}.
-	 * See <a href="https://docs.oracle.com/javase/7/docs/api/javax/swing/JTree.html">JTree</a>
-	 */
-
 	public void addEntity(Entity me) {
 		Entity parentEntity = me.getParent();
 		if(parentEntity!=null) {
@@ -286,12 +254,10 @@ public class EntityTreePanel extends JPanel {
 			if(parentNode!=null) {
 				EntityTreeNode newNode = new EntityTreeNode(me);
 				parentNode.add(newNode);
-				setNodeExpandedState(parentNode);
 			}
 		} else {
 			EntityTreeNode newNode = new EntityTreeNode(me);
 			treeModel.setRoot(newNode);
-			setNodeExpandedState((EntityTreeNode) treeModel.getRoot());
 		}
 
 		for(Entity child : me.getChildren()) {
@@ -309,26 +275,6 @@ public class EntityTreePanel extends JPanel {
 				treeModel.setRoot(null);
 			}
 		}
-	}
-
-	private void addExpansionListener() {
-		tree.addTreeExpansionListener(new TreeExpansionListener() {
-			@Override
-			public void treeExpanded(TreeExpansionEvent event) {
-				EntityTreeNode node = (EntityTreeNode)event.getPath().getLastPathComponent();
-				Entity e = (Entity)node.getUserObject();
-				e.setExpanded(true);
-				setNodeExpandedState((EntityTreeNode)treeModel.getRoot());
-			}
-
-			@Override
-			public void treeCollapsed(TreeExpansionEvent event) {
-				EntityTreeNode node = (EntityTreeNode)event.getPath().getLastPathComponent();
-				Entity e = (Entity)node.getUserObject();
-				e.setExpanded(false);
-				setNodeExpandedState((EntityTreeNode)treeModel.getRoot());
-			}
-		});
 	}
 
 	private void addTreeSelectionListener() {
@@ -362,7 +308,6 @@ public class EntityTreePanel extends JPanel {
 		if(parentNode!=null) {
 			recursivelyAddChildren(parentNode,child);
 			treeModel.reload(parentNode);
-			setNodeExpandedState((EntityTreeNode)treeModel.getRoot());
 		}
 	}
 
@@ -372,7 +317,6 @@ public class EntityTreePanel extends JPanel {
 		if(parentNode!=null && childNode!=null) {
 			parentNode.remove(childNode);
 			treeModel.reload(parentNode);
-			setNodeExpandedState((EntityTreeNode)treeModel.getRoot());
 		}
 	}
 

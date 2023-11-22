@@ -27,8 +27,6 @@ public class Entity {
 	protected transient ArrayList<Entity> children = new ArrayList<>();
 	private final List<Component> components = new ArrayList<>();
 
-	private transient boolean isExpanded = false;
-
 	/**
 	 * The unique ID of this Entity.
 	 */
@@ -416,14 +414,6 @@ public class Entity {
 			toAdd.addAll(e.getChildren());
 		}
 		return list;
-	}
-
-	public boolean getExpanded() {
-		return isExpanded;
-	}
-
-	public void setExpanded(boolean arg0) {
-		isExpanded = arg0;
 	}
 
 	private void addComponentDependencies(Class<?> myClass) {

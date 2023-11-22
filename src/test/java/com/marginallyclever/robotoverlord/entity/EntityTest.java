@@ -4,7 +4,6 @@ import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.components.RobotComponent;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -16,14 +15,15 @@ public class EntityTest {
     }
 
     @Test
-    public void saveAndLoad() throws Exception {
+    public void saveAndLoadNameChange() throws Exception {
         Entity a = new Entity();
         Entity b = new Entity();
         EntityTest.saveAndLoad(a,b);
 
-        a.setExpanded(!a.getExpanded());
+        a.setName("test");
         EntityTest.saveAndLoad(a,b);
     }
+
     @Test
     public void addAndRemoveOneComponent() {
         Entity e = new Entity();
