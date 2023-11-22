@@ -20,14 +20,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Uses an Observer Pattern to tell subscribers about changes using EntityTreePanelEvent.
+ * {@link EntityTreePanel} provides a UI to view/edit the contents of an {@link EntityManager}.
  * @author Dan Royer
- *
  */
 public class EntityTreePanel extends JPanel {
 	private final JTree tree = new JTree();
 	private final DefaultTreeModel treeModel = new EntityTreeModel(null);
-	private final DefaultTreeCellRenderer treeCellRenderer = new FullNameTreeCellRenderer();
 	private final List<AbstractAction> actions = new ArrayList<>();
 	private final EntityManager entityManager;
 
@@ -37,6 +35,7 @@ public class EntityTreePanel extends JPanel {
 		this.entityManager = entityManager;
 
 		tree.setShowsRootHandles(true);
+		DefaultTreeCellRenderer treeCellRenderer = new FullNameTreeCellRenderer();
 		tree.setCellRenderer(treeCellRenderer);
 		tree.setCellEditor(new EntityTreeCellEditor(tree, treeCellRenderer));
 		tree.setEditable(true);
@@ -76,6 +75,22 @@ public class EntityTreePanel extends JPanel {
 
 	private void addTreeModelListener() {
 		treeModel.addTreeModelListener(new TreeModelListener() {
+			/**
+			 * <p>Invoked after a node (or a set of siblings) has changed in some
+			 * way. The node(s) have not changed locations in the tree or
+			 * altered their children arrays, but other attributes have
+			 * changed and may affect presentation. Example: the name of a
+			 * file has changed, but it is in the same location in the file
+			 * system.</p>
+			 *
+			 * <p>To indicate the root has changed, childIndices and children
+			 * will be null.</p>
+			 *
+			 * <p>Use {@code e.getPath()} to get the parent of the changed node(s).
+			 * {@code e.getChildIndices()} returns the index(es) of the changed node(s).</p>
+			 *
+			 * @param e a {@code TreeModelEvent} describing changes to a tree model
+			 */
 			@Override
 			public void treeNodesChanged(TreeModelEvent e) {
 				// find the Entity associated with this node and rename the entity.
@@ -87,7 +102,12 @@ public class EntityTreePanel extends JPanel {
 			}
 
 			/**
-			 * Find the Entity associated with this node, add it to the parent.
+			 * <p>Invoked after nodes have been inserted into the tree.</p>
+			 *
+			 * <p>Use {@code e.getPath()} to get the parent of the new node(s).
+			 * {@code e.getChildIndices()} returns the index(es) of the new node(s)
+			 * in ascending order.</p>
+			 *
 			 * @param e a {@code TreeModelEvent} describing changes to a tree model
 			 */
 			@Override
@@ -106,7 +126,15 @@ public class EntityTreePanel extends JPanel {
 			}
 
 			/**
-			 * Find the Entity associated with this node, remove it.
+			 * <p>Invoked after nodes have been removed from the tree.  Note that
+			 * if a subtree is removed from the tree, this method may only be
+			 * invoked once for the root of the removed subtree, not once for
+			 * each individual set of siblings removed.</p>
+			 *
+			 * <p>Use {@code e.getPath()} to get the former parent of the deleted
+			 * node(s). {@code e.getChildIndices()} returns, in ascending order, the
+			 * index(es) the node(s) had before being deleted.
+			 *
 			 * @param e a {@code TreeModelEvent} describing changes to a tree model
 			 */
 			@Override
@@ -119,15 +147,25 @@ public class EntityTreePanel extends JPanel {
 				}
 			}
 
+			/**
+			 * <p>Invoked after the tree has drastically changed structure from a
+			 * given node down.  If the path returned by e.getPath() is of length
+			 * one and the first element does not identify the current root node
+			 * the first element should become the new root of the tree.
+			 *
+			 * <p>Use {@code e.getPath()} to get the path to the node.
+			 * {@code e.getChildIndices()} returns null.
+			 *
+			 * @param e a {@code TreeModelEvent} describing changes to a tree model
+			 */
 			@Override
 			public void treeStructureChanged(TreeModelEvent e) {
 				Object [] list = e.getPath();
-				if(list.length==1) {
-					if(treeModel.getRoot() != list[0]) {
-						Entity parent = ((EntityTreeNode) list[0]).getEntity();
-						Entity child =  ((EntityTreeNode) e.getTreePath().getLastPathComponent()).getEntity();
-						entityManager.addEntityToParent(child,parent);
-					}
+				if(list.length==1 && treeModel.getRoot() != list[0]) {
+					// list[0] should become the new root of the tree.  This should never happen in our case.
+					Entity parent = ((EntityTreeNode) list[0]).getEntity();
+					Entity child =  ((EntityTreeNode) e.getTreePath().getLastPathComponent()).getEntity();
+					entityManager.addEntityToParent(child,parent);
 				}
 			}
 		});
@@ -222,9 +260,8 @@ public class EntityTreePanel extends JPanel {
 
 		while(!list.isEmpty()) {
 			EntityTreeNode n = (EntityTreeNode)list.remove(0);
-
-			Entity e = (Entity)n.getUserObject();
 			if(!n.isLeaf()) {
+				Entity e = (Entity)n.getUserObject();
 				TreePath path = new TreePath(n.getPath());
 				if (e.getExpanded()) {
 					tree.expandPath(path);
@@ -275,19 +312,21 @@ public class EntityTreePanel extends JPanel {
 	}
 
 	private void addExpansionListener() {
-		tree.addTreeWillExpandListener(new TreeWillExpandListener() {
+		tree.addTreeExpansionListener(new TreeExpansionListener() {
 			@Override
-			public void treeWillExpand(TreeExpansionEvent event) {
+			public void treeExpanded(TreeExpansionEvent event) {
 				EntityTreeNode node = (EntityTreeNode)event.getPath().getLastPathComponent();
 				Entity e = (Entity)node.getUserObject();
 				e.setExpanded(true);
+				setNodeExpandedState((EntityTreeNode)treeModel.getRoot());
 			}
 
 			@Override
-			public void treeWillCollapse(TreeExpansionEvent event) {
+			public void treeCollapsed(TreeExpansionEvent event) {
 				EntityTreeNode node = (EntityTreeNode)event.getPath().getLastPathComponent();
 				Entity e = (Entity)node.getUserObject();
 				e.setExpanded(false);
+				setNodeExpandedState((EntityTreeNode)treeModel.getRoot());
 			}
 		});
 	}
