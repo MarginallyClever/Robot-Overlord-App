@@ -43,7 +43,7 @@ public class EntityRenameEdit extends AbstractUndoableEdit {
 
 	protected void doIt() {
 		entity.setName(newName);
-		entityManager.fireEntityManagerEvent(new EntityManagerEvent(EntityManagerEvent.ENTITY_RENAMED,null,entity));
+		entityManager.fireEntityManagerEvent(new EntityManagerEvent(EntityManagerEvent.ENTITY_RENAMED,entity,null));
 	}
 	
 	@Override
