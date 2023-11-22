@@ -25,13 +25,13 @@ public class EntityTreePanelTest {
     public void setUp() {
         Translator.start();
         UndoSystem.start();
-        Robot robot = BasicRobot.robotWithNewAwtHierarchy();
         entityManager = new EntityManager();
         panel = new EntityTreePanel(entityManager);
+
         JFrame frame = new JFrame();
         frame.setContentPane(panel);
         frame.pack();
-        window = new FrameFixture(robot, frame);
+        window = new FrameFixture(BasicRobot.robotWithNewAwtHierarchy(), frame);
         window.show(); // shows the frame to test
     }
 
