@@ -486,6 +486,22 @@
 			<artifactId>webcam-capture</artifactId>
 			<version>0.3.12</version>
 		</dependency>
+
+		<dependency>
+			<groupId>io.github.andrewauclair</groupId>
+			<artifactId>modern-docking-api</artifactId>
+			<version>0.10.0</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.andrewauclair</groupId>
+			<artifactId>modern-docking-single-app</artifactId>
+			<version>0.10.0</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.andrewauclair</groupId>
+			<artifactId>modern-docking-ui</artifactId>
+			<version>0.10.0</version>
+		</dependency>
 	</dependencies>
 
 	<properties>

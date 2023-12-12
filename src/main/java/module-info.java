@@ -14,6 +14,8 @@ module com.marginallyclever.robotoverlord {
 	requires org.eclipse.jgit;
 	requires org.joml;
 	requires jogl.all;
+	requires modern.docking.single.app;
+	requires modern.docking.ui;
 	
 	requires vecmath;
 	requires jsch;
