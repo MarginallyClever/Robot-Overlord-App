@@ -300,6 +300,14 @@
 				<artifactId>maven-project-info-reports-plugin</artifactId>
 				<version>2.8</version>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>16</source>
+					<target>16</target>
+				</configuration>
+			</plugin>
 		</plugins>
 
 		<pluginManagement>
@@ -513,7 +521,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<minimum.maven.version>3.8.1</minimum.maven.version>
-		<minimum.java.version>15</minimum.java.version>
+		<minimum.java.version>16</minimum.java.version>
 		<maven-dependency-plugin.ignoreNonCompile>true</maven-dependency-plugin.ignoreNonCompile>
 		<maven.compiler.source>${minimum.java.version}</maven.compiler.source>
 		<maven.compiler.target>${minimum.java.version}</maven.compiler.target>

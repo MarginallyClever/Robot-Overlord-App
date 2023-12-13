@@ -28,8 +28,10 @@ module com.marginallyclever.robotoverlord {
 	requires core;
 	requires flexmark.util.ast;
 	requires webcam.capture;
+    requires ch.qos.logback.classic;
+    requires ch.qos.logback.core;
 
-	// AFAIK this is only needed for the test 'GCodePathLoaderTest'.
+    // AFAIK this is only needed for the test 'GCodePathLoaderTest'.
 	// I don't know why it throws `InaccessibleObjectException` without this.
     opens com.marginallyclever.robotoverlord.systems.render.gcodepath;
 	opens com.marginallyclever.robotoverlord.components;
