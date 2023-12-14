@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.nodes;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ public class Node {
     }
 
     public Node(String name) {
+        super();
         this.nodeID = java.util.UUID.randomUUID();
         this.name = name;
     }
@@ -34,7 +36,7 @@ public class Node {
     /**
      * Called after this node is added to its parent.
      */
-    private void onAttach() {}
+    protected void onAttach() {}
 
     public void removeChild(Node child) {
         child.onDetach();
@@ -46,7 +48,7 @@ public class Node {
     /**
      * Called after this node is removed from its parent.
      */
-    private void onDetach() {}
+    protected void onDetach() {}
 
     public String getName() {
         return name;
@@ -68,10 +70,18 @@ public class Node {
         this.name = name;
     }
 
-    public List<Node> getChildren() {
-        return children;
+    /**
+     * @return an iterator so that calling class cannot modify the list.
+     */
+    public Iterator<Node> getChildren() {
+        return children.iterator();
     }
 
+    /**
+     * Find the first parent with the given name.
+     * @param name the name to match.
+     * @return the first parent, or null if none found.
+     */
     public Node findParent(String name) {
         Node p = parent;
         while(p != null) {
@@ -83,15 +93,11 @@ public class Node {
         return null;
     }
 
-    public Node findChild(String name) {
-        for(Node child : children) {
-            if(child.getName().equals(name)) {
-                return child;
-            }
-        }
-        return null;
-    }
-
+    /**
+     * Find the first parent of the given type.
+     * @param type the type of node to find
+     * @return the first parent of the given type, or null if none found.
+     */
     public Node findParent(Class<? extends Node> type) {
         Node p = parent;
         while(p != null) {
@@ -101,6 +107,63 @@ public class Node {
             p = p.getParent();
         }
         return null;
+    }
+
+    /**
+     * Find the first child of this node with the given name.
+     * @param name the name to match.
+     * @return the child, or null if none found.
+     */
+    public Node findChild(String name) {
+        for(Node child : children) {
+            if(child.getName().equals(name)) {
+                return child;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Find the node in the tree with the given path.
+     * @param path the path to the node.  can be relative or absolute.  understands ".." to go up one level.
+     * @return the node, or null if none found.
+     */
+    public Node get(String path) {
+        String[] parts = path.split("/");
+        Node node = this;
+        if(parts[0].isEmpty()) {
+            node = getRootNode();
+        }
+        for(String part : parts) {
+            if(part.equals("..")) {
+                node = node.getParent();
+            } else {
+                node = node.findChild(part);
+            }
+            if(node == null) {
+                return null;
+            }
+        }
+        return node;
+    }
+
+    public Node getRootNode() {
+        Node node = this;
+        while(node.getParent() != null) {
+            node = node.getParent();
+        }
+        return node;
+    }
+
+    public String getAbsolutePath() {
+        StringBuilder sb = new StringBuilder();
+        Node node = this;
+        do {
+            sb.insert(0,node.getName());
+            sb.insert(0,"/");
+            node = node.getParent();
+        } while(node != null);
+        return sb.toString();
     }
 
     public void addNodeListener(NodeListener listener) {
@@ -116,4 +179,8 @@ public class Node {
             listener.nodeEvent(event);
         }
     }
+
+    protected void onReady() {}
+
+    public void update(double dt) {}
 }
