@@ -31,6 +31,14 @@ public class Node {
         child.setParent(this);
         fireNodeEvent(new NodeEvent(child,NodeEvent.ATTACHED));
         child.onAttach();
+        if(child.children.isEmpty()) {
+            child.fireNodeEvent(new NodeEvent(child,NodeEvent.READY));
+            child.onReady();
+        } else {
+            for(Node grandchild : child.children) {
+                child.addChild(grandchild);
+            }
+        }
     }
 
     /**
@@ -50,6 +58,11 @@ public class Node {
      */
     protected void onDetach() {}
 
+    /**
+     * Called when the node is attached and all children are ready.
+     */
+    protected void onReady() {}
+
     public String getName() {
         return name;
     }
@@ -62,10 +75,16 @@ public class Node {
         return parent;
     }
 
+    /**
+     * @return the unique ID of this node.
+     */
     public UUID getNodeID() {
         return nodeID;
     }
 
+    /**
+     * @param name the new name of this node.
+     */
     public void setName(String name) {
         this.name = name;
     }
@@ -155,6 +174,9 @@ public class Node {
         return node;
     }
 
+    /**
+     * @return the absolute path to this node.
+     */
     public String getAbsolutePath() {
         StringBuilder sb = new StringBuilder();
         Node node = this;
@@ -180,7 +202,9 @@ public class Node {
         }
     }
 
-    protected void onReady() {}
-
+    /**
+     * Called every frame.
+     * @param dt the time since the last frame.
+     */
     public void update(double dt) {}
 }
