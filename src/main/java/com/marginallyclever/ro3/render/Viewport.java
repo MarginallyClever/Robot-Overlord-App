@@ -1,19 +1,30 @@
 package com.marginallyclever.ro3.render;
 
+import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.nodes.Camera;
+import com.marginallyclever.ro3.nodes.MeshInstance;
+import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Connects a {@link Camera} to an {@link OpenGLPanel}.
  */
 public class Viewport extends OpenGLPanel implements GLEventListener {
+    private static final Logger logger = LoggerFactory.getLogger(Viewport.class);
     private Camera camera;
     private double fovY = 60;
     private double nearZ = 1;
@@ -27,6 +38,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private final JSpinner farZSpinner = new JSpinner(farZModel);
     private final JSpinner nearZSpinner = new JSpinner(new SpinnerNumberModel(nearZ, 0, 10000, 1));
     private final JSpinner fovSpinner = new JSpinner(new SpinnerNumberModel(fovY, 1, 180, 1));
+    private ShaderProgram shaderDefault;
 
     public Viewport() {
         super("Viewport");
@@ -163,11 +175,31 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
         super.init(glAutoDrawable);
+
+        GL3 gl3 = glAutoDrawable.getGL().getGL3();
+        shaderDefault = new ShaderProgram(gl3,
+                readResource("default_330.vert"),
+                readResource("default_330.frag"));
+    }
+
+    protected String [] readResource(String resourceName) {
+        List<String> lines = new ArrayList<>();
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(this.getClass().getResourceAsStream(resourceName))))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                lines.add(line+"\n");
+            }
+        } catch (Exception e) {
+            logger.error("Failed to read resource: {}",resourceName,e);
+        }
+        return lines.toArray(new String[0]);
     }
 
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         super.dispose(glAutoDrawable);
+        GL3 gl3 = glAutoDrawable.getGL().getGL3();
+        shaderDefault.delete(gl3);
     }
 
     @Override
@@ -181,10 +213,14 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         super.display(glAutoDrawable);
         if (camera == null) return;
 
-        // set the view matrix
-        Matrix4d v = getViewMatrix();
+        GL3 gl = glAutoDrawable.getGL().getGL3();
 
-        // set the projection matrix
-        Matrix4d p = getChosenProjectionMatrix();
+        shaderDefault.use(gl);
+        shaderDefault.setMatrix4d(gl,"viewMatrix",getViewMatrix());
+        shaderDefault.setMatrix4d(gl,"projectionMatrix",getChosenProjectionMatrix());
+
+        // draw the scene
+        MeshInstance meshInstance = new MeshInstance();
+        shaderDefault.setMatrix4d(gl,"modelMatrix",meshInstance.getWorld());
     }
 }
