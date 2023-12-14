@@ -1,7 +1,12 @@
 package com.marginallyclever.ro3;
 
+import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -9,6 +14,9 @@ import java.util.function.Supplier;
  * @param <T> The class of object to create.
  */
 public class Factory<T> {
+    private static final Logger logger = LoggerFactory.getLogger(Factory.class);
+    private final Class<T> type;
+
     /**
      * A category of objects.  These categories can be nested in a tree.
      * @param <T> The class of object to create.
@@ -29,6 +37,11 @@ public class Factory<T> {
     }
 
     private final Category<T> root = new Category<>("root",null);
+
+    public Factory(Class<T> type) {
+        this.type = type;
+        scan();
+    }
 
     public Category<T> getRoot() {
         return root;
@@ -51,5 +64,16 @@ public class Factory<T> {
         Supplier<T> supplier = getSupplierFor(path);
         if(supplier==null) return null;
         return supplier.get();
+    }
+
+    public void scan() {
+        // Create a new instance of Reflections
+        Reflections reflections = new Reflections("com.marginallyclever.ro3");
+        // Get all classes that extend T
+        Set<Class<? extends T>> found = reflections.getSubTypesOf(type);
+        // Now, classes contains all classes that extend T
+        for (Class<? extends T> clazz : found) {
+            logger.info("Found " + clazz.getName());
+        }
     }
 }
