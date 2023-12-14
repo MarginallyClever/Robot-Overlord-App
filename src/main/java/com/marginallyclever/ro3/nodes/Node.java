@@ -1,5 +1,7 @@
 package com.marginallyclever.ro3.nodes;
 
+import com.marginallyclever.robotoverlord.components.Component;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -117,11 +119,11 @@ public class Node {
      * @param type the type of node to find
      * @return the first parent of the given type, or null if none found.
      */
-    public Node findParent(Class<? extends Node> type) {
+    public <T extends Node> T findParent(Class<T> type) {
         Node p = parent;
         while(p != null) {
             if(type.isInstance(p)) {
-                return p;
+                return type.cast(p);
             }
             p = p.getParent();
         }
