@@ -1,13 +1,10 @@
 package com.marginallyclever.convenience;
 
-import com.jogamp.opengl.GL3;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import java.io.Serializable;
-import java.nio.IntBuffer;
 
 /**
  * Axially-aligned bounding box.  Used for fast sorting and filtering.
