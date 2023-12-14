@@ -17,6 +17,8 @@ module com.marginallyclever.robotoverlord {
 	requires modern_docking.api;
 	requires modern_docking.single_app;
 	requires modern_docking.ui_ext;
+	requires com.formdev.flatlaf;
+	requires com.github.weisj.jsvg;
 	
 	requires vecmath;
 	requires jsch;

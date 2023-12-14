@@ -516,6 +516,18 @@
 			<artifactId>modern-docking-ui</artifactId>
 			<version>0.11.0-SNAPSHOT</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.formdev/flatlaf -->
+		<dependency>
+			<groupId>com.formdev</groupId>
+			<artifactId>flatlaf</artifactId>
+			<version>3.2.5</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.github.weisj/jsvg -->
+		<dependency>
+			<groupId>com.github.weisj</groupId>
+			<artifactId>jsvg</artifactId>
+			<version>1.3.0</version>
+		</dependency>
 	</dependencies>
 
 	<properties>

@@ -4,8 +4,13 @@ import ModernDocking.DockingRegion;
 import ModernDocking.app.DockableMenuItem;
 import ModernDocking.app.Docking;
 import ModernDocking.app.RootDockingPanel;
+import ModernDocking.ext.ui.DockingUI;
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 import com.marginallyclever.ro3.logpanel.LogPanel;
 import com.marginallyclever.ro3.nodetreepanel.NodeTreePanel;
+import com.marginallyclever.ro3.render.OpenGLPanel;
+import com.marginallyclever.ro3.render.Viewport;
 import com.marginallyclever.robotoverlord.swing.actions.AboutAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,10 +18,11 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
+import static javax.swing.UIManager.setLookAndFeel;
 
 public class RO3Frame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(RO3Frame.class);
@@ -28,29 +34,38 @@ public class RO3Frame extends JFrame {
     public RO3Frame() {
         super("RO3");
 
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {
-            logger.error("Failed to set look and feel.");
-        }
+        setLookAndFeel();
 
         setSize(800, 600);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setBackground(Color.LIGHT_GRAY);
+        setLocationByPlatform(true);
 
+        initDocking();
+        createPanels();
+        createMenus();
+        addQuitHandler();
+        addAboutHandler();
+    }
+
+    private void setLookAndFeel() {
+        FlatLaf.registerCustomDefaultsSource("docking");
+        try {
+            UIManager.setLookAndFeel(new FlatLightLaf());
+            //UIManager.setLookAndFeel(new FlatDarkLaf());
+            //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ignored) {
+            logger.error("Failed to set look and feel.");
+        }
+    }
+
+    private void initDocking() {
         Docking.initialize(this);
+        DockingUI.initialize();
         ModernDocking.settings.Settings.setAlwaysDisplayTabMode(true);
         ModernDocking.settings.Settings.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
         RootDockingPanel root = new RootDockingPanel(this);
         add(root, BorderLayout.CENTER);
-        root.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-
-        createPanels();
-        createMenus();
-        addQuitHandler();
-        addAboutHandler();
     }
 
     private void addQuitHandler() {
@@ -136,7 +151,7 @@ public class RO3Frame extends JFrame {
     private void createPanels() {
         DockingPanel a;
 
-        a = renderPanel = new OpenGLPanel("3D view");
+        a = renderPanel = new Viewport("3D view");
         Docking.dock(a, this, DockingRegion.CENTER);
         windows.add(a);
 
@@ -144,9 +159,9 @@ public class RO3Frame extends JFrame {
         Docking.dock(a,this, DockingRegion.WEST);
         windows.add(a);
 
-        a = new DockingPanel("Details");
-        Docking.dock(a,this, DockingRegion.EAST);
-        windows.add(a);
+        DockingPanel b = new DockingPanel("Details");
+        Docking.dock(b,a, DockingRegion.SOUTH);
+        windows.add(b);
 
         a = new DockingPanel("Log");
         a.add(logPanel, BorderLayout.CENTER);

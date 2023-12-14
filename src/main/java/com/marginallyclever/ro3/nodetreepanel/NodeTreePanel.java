@@ -6,6 +6,8 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.nodes.Node;
 import com.marginallyclever.ro3.nodes.NodeEvent;
 import com.marginallyclever.ro3.nodes.NodeListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.tree.*;
@@ -13,6 +15,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -20,8 +23,9 @@ import java.util.function.Supplier;
  * NodeTreePanel is a panel that displays the node tree.
  */
 public class NodeTreePanel extends DockingPanel implements NodeListener {
+    private static final Logger logger = LoggerFactory.getLogger(NodeTreePanel.class);
     private final JTree tree;
-    private final NodeTreeNode treeModel = new NodeTreeNode(Registry.root);
+    private final NodeTreeNode treeModel = new NodeTreeNode(Registry.scene);
 
     JToolBar menuBar = new JToolBar();
 
@@ -44,8 +48,8 @@ public class NodeTreePanel extends DockingPanel implements NodeListener {
         JScrollPane scroll = new JScrollPane();
         scroll.setViewportView(tree);
 
-        add(menuBar, BorderLayout.NORTH);
         add(scroll, BorderLayout.CENTER);
+        add(menuBar, BorderLayout.NORTH);
 
         buildMenuBar();
     }
@@ -53,27 +57,35 @@ public class NodeTreePanel extends DockingPanel implements NodeListener {
     @Override
     public void addNotify() {
         super.addNotify();
-        Registry.root.addNodeListener(this);
-        scanTree(Registry.root);
-    }
-
-    private void scanTree(Node parent) {
-        if(parent == null) return;
-        NodeTreeNode me = findTreeNode(parent);
-        if(me == null) return;
-
-        for(Node child : parent.getChildren()) {
-            NodeTreeNode node = new NodeTreeNode(child);
-            me.add(node);
-            child.addNodeListener(this);
-            scanTree(child);
-        }
+        Registry.scene.addNodeListener(this);
     }
 
     @Override
     public void removeNotify() {
         super.removeNotify();
-        Registry.root.removeNodeListener(this);
+        Registry.scene.removeNodeListener(this);
+    }
+
+    /**
+     * Scan the tree for existing nodes.
+     * @param parent the node to scan
+     */
+    public void scanTree(Node parent) {
+        if(parent == null) return;
+        NodeTreeNode me = findTreeNode(parent);
+        if(me == null) return;
+
+        for (Iterator<Node> it = parent.getChildren(); it.hasNext(); ) {
+            Node child = it.next();
+            logger.debug("scanTree "+parent.getAbsolutePath()+" has child "+child.getAbsolutePath());
+            NodeTreeNode node = findTreeNode(child);
+            if(node==null) {
+                node = new NodeTreeNode(child);
+                me.add(node);
+            }
+            child.addNodeListener(this);
+            scanTree(child);
+        }
     }
 
     private void buildMenuBar() {
@@ -83,6 +95,7 @@ public class NodeTreePanel extends DockingPanel implements NodeListener {
                 FactoryPanel<Node> nfd = new FactoryPanel<>(Registry.nodeFactory);
                 int result = JOptionPane.showConfirmDialog(NodeTreePanel.this,nfd,"Create Node",JOptionPane.OK_CANCEL_OPTION);
                 if(result != JOptionPane.OK_OPTION) return;
+                if(nfd.getResult() != JOptionPane.OK_OPTION) return;
                 String type = nfd.getSelectedNode();
                 if(type.isEmpty()) return;
                 Supplier<Node> factory = Registry.nodeFactory.getSupplierFor(type);
@@ -92,7 +105,7 @@ public class NodeTreePanel extends DockingPanel implements NodeListener {
                 TreePath[] paths = tree.getSelectionPaths();
                 if(paths==null || paths.length==0) {
                     // no selection, add to root
-                    Registry.root.addChild(factory.get());
+                    Registry.scene.addChild(factory.get());
                 } else {
                     // add a new node to each selected node
                     for(TreePath path : paths) {
@@ -120,9 +133,6 @@ public class NodeTreePanel extends DockingPanel implements NodeListener {
                 }
             }
         });
-    }
-
-    private void runNodeSelectionDialog() {
     }
 
     /**
@@ -156,11 +166,7 @@ public class NodeTreePanel extends DockingPanel implements NodeListener {
             Node child = event.source();
             child.addNodeListener(this);
             Node parent = child.getParent();
-            if(parent==null) throw new RuntimeException("NodeTreePanel: attached node has no parent");
-            NodeTreeNode nodeParent = findTreeNode(parent);
-            if(nodeParent==null) throw new RuntimeException("NodeTreePanel: attached node has no parent node");
-            NodeTreeNode node = new NodeTreeNode(child);
-            nodeParent.add(node);
+            scanTree(parent);
             ((DefaultTreeModel)tree.getModel()).reload();
         } else if(event.type() == NodeEvent.DETACHED) {
             Node child = event.source();
