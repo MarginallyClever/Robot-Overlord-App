@@ -89,4 +89,10 @@ public class Pose extends Node {
     public Vector3d getPosition() {
         return new Vector3d(local.m03,local.m13,local.m23);
     }
+
+    public void setPosition(Vector3d p) {
+        local.m03 = p.x;
+        local.m13 = p.y;
+        local.m23 = p.z;
+    }
 }
