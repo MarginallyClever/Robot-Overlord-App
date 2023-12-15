@@ -222,15 +222,17 @@ public class Node {
         JPanel pane = panel.getContentPane();
 
         // custom stuff
-        pane.setLayout(new FlowLayout(FlowLayout.LEADING));
-        JLabel name = new JLabel("Name");
-        pane.add(name);
+        pane.setLayout(new GridLayout(0,2));
+        JLabel label = new JLabel("Name");
+
         JTextField nameField = new JTextField(getName());
         nameField.addActionListener(e -> {
             // should not be allowed to match siblings?
             setName(nameField.getText());
         });
-        pane.add(nameField);
+        label.setLabelFor(nameField);
 
+        pane.add(label);
+        pane.add(nameField);
     }
 }
