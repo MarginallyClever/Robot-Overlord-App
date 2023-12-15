@@ -2,10 +2,12 @@ package com.marginallyclever.ro3;
 
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.node.nodes.Camera;
+import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.MeshInstance;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.render.OpenGLPanel;
+import com.marginallyclever.ro3.texture.TextureFactory;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshLoader;
 
@@ -17,6 +19,7 @@ public class Registry {
     public static Node scene = new Node("Scene");
     public static ListWithEvents<Camera> cameras = new ListWithEvents<>();
     public static ListWithEvents<Mesh> meshes = new ListWithEvents<>();
+    public static TextureFactory textureFactory;
 
     public static void start() {
         Factory.Category<Node> nodule = new Factory.Category<>("Node", null);
@@ -25,9 +28,12 @@ public class Registry {
         pose.add(new Factory.Category<>("MeshInstance", MeshInstance::new ));
         pose.add(new Factory.Category<>("Camera", Camera::new ));
         nodule.add(pose);
+        nodule.add(new Factory.Category<>("Material", Material::new ));
 
         panelFactory.getRoot().add(new Factory.Category<>("Panel A", () -> new DockingPanel("Panel A") ));
         panelFactory.getRoot().add(new Factory.Category<>("3D view", () -> new OpenGLPanel("3D view") ));
+
+        textureFactory = new TextureFactory();
 
         cameras.add(new Camera("Camera 1"));
     }

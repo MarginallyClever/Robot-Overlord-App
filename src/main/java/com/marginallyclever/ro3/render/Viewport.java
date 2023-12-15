@@ -8,6 +8,7 @@ import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
+import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.MeshInstance;
 import com.marginallyclever.robotoverlord.preferences.GraphicsPreferences;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
@@ -274,6 +275,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         shaderDefault.delete(gl3);
         unloadAllMeshes(gl3);
+        Registry.textureFactory.unloadAll();
     }
 
     @Override
@@ -328,10 +330,23 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
                 // if they have a mesh, draw it.
                 Mesh mesh = meshInstance.getMesh();
                 if(mesh==null) continue;
+                // set the texture to the first sibling that is a material and has a texture
+                meshInstance.getParent().getChildren().stream()
+                        .filter(n -> n instanceof Material)
+                        .map(n -> (Material) n)
+                        .filter(m -> m.getTexture() != null)
+                        .findFirst()
+                        .ifPresent(m -> {
+                            m.getTexture().use(shaderDefault);
+                        });
+
+                // set the model matrix
                 Matrix4d m = meshInstance.getWorld();
                 m.transpose();
                 shaderDefault.setMatrix4d(gl3,"modelMatrix",m);
+                // draw it
                 mesh.render(gl3);
+
                 OpenGLHelper.checkGLError(gl3,logger);
             }
 
