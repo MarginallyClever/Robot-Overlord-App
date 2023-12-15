@@ -134,13 +134,6 @@ public class Pose extends Node {
         setPosition(p);
     }
 
-    private void addLabelAndComponent(JPanel pane, String labelText, JComponent component) {
-        JLabel label = new JLabel(labelText);
-        label.setLabelFor(component);
-        pane.add(label);
-        pane.add(component);
-    }
-
     public Vector3d getPosition() {
         return new Vector3d(local.m03,local.m13,local.m23);
     }

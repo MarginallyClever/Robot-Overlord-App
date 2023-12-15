@@ -273,29 +273,37 @@ public class Node {
 
         // custom stuff
         pane.setLayout(new GridLayout(0,2));
-        JLabel label = new JLabel("Name");
 
         JTextField nameField = new JTextField(getName());
         nameField.addActionListener(e -> {
             // should not be allowed to match siblings?
             setName(nameField.getText());
         });
-        label.setLabelFor(nameField);
 
-        pane.add(label);
-        pane.add(nameField);
+        addLabelAndComponent(pane,"Name",nameField);
     }
 
+    /**
+     * @param newName the new name to check
+     * @return true if the new name is already used by a sibling
+     */
     public boolean isNameUsedBySibling(String newName) {
         // Check if the new name is already used by a sibling
         Node parent = getParent();
         if (parent != null) {
             for (Node sibling : parent.getChildren()) {
                 if (sibling != this && sibling.getName().equals(newName)) {
-                    return false;
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
+    }
+
+    protected void addLabelAndComponent(JPanel pane, String labelText, JComponent component) {
+        JLabel label = new JLabel(labelText);
+        label.setLabelFor(component);
+        pane.add(label);
+        pane.add(component);
     }
 }
