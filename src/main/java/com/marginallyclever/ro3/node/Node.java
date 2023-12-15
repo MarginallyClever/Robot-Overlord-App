@@ -33,15 +33,43 @@ public class Node {
     public void addChild(Node child) {
         children.add(child);
         child.setParent(this);
-        fireNodeEvent(new NodeEvent(child,NodeEvent.ATTACHED));
+        fireAttachEvent(child);
         child.onAttach();
         if(child.children.isEmpty()) {
-            child.fireNodeEvent(new NodeEvent(child,NodeEvent.READY));
+            fireReadyEvent(child);
             child.onReady();
         } else {
             for(Node grandchild : child.children) {
                 child.addChild(grandchild);
             }
+        }
+    }
+
+    private void fireReadyEvent(Node child) {
+        for(NodeReadyListener listener : listeners.getListeners(NodeReadyListener.class)) {
+            listener.nodeReady(child);
+        }
+    }
+
+    private void fireAttachEvent(Node child) {
+        for(NodeAttachListener listener : listeners.getListeners(NodeAttachListener.class)) {
+            listener.nodeAttached(child);
+        }
+
+        for(Node grandchild : child.children) {
+            fireAttachEvent(grandchild);
+        }
+    }
+
+    private void fireDetachEvent(Node child) {
+        for(NodeDetachListener listener : listeners.getListeners(NodeDetachListener.class)) {
+            listener.nodeDetached(child);
+        }
+    }
+
+    private void fireRenameEvent(Node child) {
+        for(NodeRenameListener listener : listeners.getListeners(NodeRenameListener.class)) {
+            listener.nodeRenamed(child);
         }
     }
 
@@ -52,7 +80,7 @@ public class Node {
 
     public void removeChild(Node child) {
         child.onDetach();
-        fireNodeEvent(new NodeEvent(child,NodeEvent.DETACHED));
+        fireDetachEvent(child);
         children.remove(child);
         child.setParent(null);
     }
@@ -91,6 +119,7 @@ public class Node {
      */
     public void setName(String name) {
         this.name = name;
+        fireRenameEvent(this);
     }
 
     /**
@@ -192,18 +221,36 @@ public class Node {
         return sb.toString();
     }
 
-    public void addNodeListener(NodeListener listener) {
-        listeners.add(NodeListener.class,listener);
+    public void addAttachListener(NodeAttachListener listener) {
+        listeners.add(NodeAttachListener.class,listener);
     }
 
-    public void removeNodeListener(NodeListener listener) {
-        listeners.remove(NodeListener.class,listener);
+    public void removeAttachListener(NodeDetachListener listener) {
+        listeners.remove(NodeDetachListener.class,listener);
     }
 
-    public void fireNodeEvent(NodeEvent event) {
-        for(NodeListener listener : listeners.getListeners(NodeListener.class)) {
-            listener.nodeEvent(event);
-        }
+    public void addDetachListener(NodeAttachListener listener) {
+        listeners.add(NodeAttachListener.class,listener);
+    }
+
+    public void removeDetachListener(NodeDetachListener listener) {
+        listeners.remove(NodeDetachListener.class,listener);
+    }
+
+    public void addReadyListener(NodeReadyListener listener) {
+        listeners.add(NodeReadyListener.class,listener);
+    }
+
+    public void removeReadyListener(NodeReadyListener listener) {
+        listeners.remove(NodeReadyListener.class,listener);
+    }
+
+    public void addRenameListener(NodeRenameListener listener) {
+        listeners.add(NodeRenameListener.class,listener);
+    }
+
+    public void removeRenameListener(NodeRenameListener listener) {
+        listeners.remove(NodeRenameListener.class,listener);
     }
 
     /**

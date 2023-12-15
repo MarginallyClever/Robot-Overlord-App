@@ -4,8 +4,9 @@ import com.marginallyclever.ro3.DockingPanel;
 import com.marginallyclever.ro3.FactoryPanel;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.NodeEvent;
-import com.marginallyclever.ro3.node.NodeListener;
+import com.marginallyclever.ro3.node.NodeAttachListener;
+import com.marginallyclever.ro3.node.NodeDetachListener;
+import com.marginallyclever.ro3.node.NodeRenameListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,16 +15,14 @@ import javax.swing.event.EventListenerList;
 import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
 import java.util.function.Supplier;
 
 /**
  * NodeTreePanel is a panel that displays the nodes tree.
  */
-public class NodeTreeView extends DockingPanel implements NodeListener {
+public class NodeTreeView extends DockingPanel implements NodeAttachListener, NodeDetachListener, NodeRenameListener {
     private static final Logger logger = LoggerFactory.getLogger(NodeTreeView.class);
     private final JTree tree;
     private final NodeTreeNode treeModel = new NodeTreeNode(Registry.scene);
@@ -70,13 +69,17 @@ public class NodeTreeView extends DockingPanel implements NodeListener {
     @Override
     public void addNotify() {
         super.addNotify();
-        Registry.scene.addNodeListener(this);
+        Registry.scene.addAttachListener(this);
+        Registry.scene.addDetachListener(this);
+        Registry.scene.addRenameListener(this);
     }
 
     @Override
     public void removeNotify() {
         super.removeNotify();
-        Registry.scene.removeNodeListener(this);
+        Registry.scene.removeAttachListener(this);
+        Registry.scene.removeDetachListener(this);
+        Registry.scene.removeRenameListener(this);
     }
 
     /**
@@ -95,7 +98,9 @@ public class NodeTreeView extends DockingPanel implements NodeListener {
                 node = new NodeTreeNode(child);
                 me.add(node);
             }
-            child.addNodeListener(this);
+            child.addAttachListener(this);
+            child.addDetachListener(this);
+            child.addRenameListener(this);
             scanTree(child);
         }
     }
@@ -172,26 +177,6 @@ public class NodeTreeView extends DockingPanel implements NodeListener {
         return null;
     }
 
-    @Override
-    public void nodeEvent(NodeEvent event) {
-        if(event.type()== NodeEvent.ATTACHED) {
-            Node child = event.source();
-            child.addNodeListener(this);
-            Node parent = child.getParent();
-            scanTree(parent);
-            ((DefaultTreeModel)tree.getModel()).reload();
-        } else if(event.type() == NodeEvent.DETACHED) {
-            Node child = event.source();
-            child.removeNodeListener(this);
-            Node parent = child.getParent();
-            if(parent==null) throw new RuntimeException("NodeTreePanel: attached nodes has no parent");
-            NodeTreeNode nodeParent = findTreeNode(parent);
-            if(nodeParent==null) throw new RuntimeException("NodeTreePanel: attached nodes has no parent nodes");
-            nodeParent.remove(findTreeNode(child));
-            ((DefaultTreeModel)tree.getModel()).reload();
-        }
-    }
-
     public void addSelectionChangeListener(SelectionChangeListener listener) {
         listenerList.add(SelectionChangeListener.class, listener);
     }
@@ -204,5 +189,35 @@ public class NodeTreeView extends DockingPanel implements NodeListener {
         for(SelectionChangeListener listener : listenerList.getListeners(SelectionChangeListener.class)) {
             listener.selectionChanged(newSelection);
         }
+    }
+
+    @Override
+    public void nodeAttached(Node source) {
+        source.addAttachListener(this);
+        source.addDetachListener(this);
+        source.addRenameListener(this);
+
+        Node parent = source.getParent();
+        scanTree(parent);
+        ((DefaultTreeModel)tree.getModel()).reload();
+    }
+
+    @Override
+    public void nodeDetached(Node source) {
+        source.removeAttachListener(this);
+        source.removeDetachListener(this);
+        source.removeRenameListener(this);
+
+        Node parent = source.getParent();
+        if(parent==null) throw new RuntimeException("NodeTreePanel: attached nodes has no parent");
+        NodeTreeNode nodeParent = findTreeNode(parent);
+        if(nodeParent==null) throw new RuntimeException("NodeTreePanel: attached nodes has no parent nodes");
+        nodeParent.remove(findTreeNode(source));
+        ((DefaultTreeModel)tree.getModel()).reload();
+    }
+
+    @Override
+    public void nodeRenamed(Node node) {
+        ((DefaultTreeModel)tree.getModel()).reload();
     }
 }
