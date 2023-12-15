@@ -1,7 +1,5 @@
 package com.marginallyclever.ro3.node.nodes;
 
-import com.marginallyclever.convenience.helpers.PathHelper;
-import com.marginallyclever.robotoverlord.swing.translator.Translator;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import org.slf4j.Logger;
@@ -11,6 +9,10 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.util.List;
 
+/**
+ * {@link MeshFactoryPanel} is a panel that displays controls to load a mesh from a file.
+ * {@link Mesh} are created using the {@link MeshFactory}, which makes sure identical items are not loaded twice.
+ */
 public class MeshFactoryPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(MeshFactoryPanel.class);
     private static final JFileChooser chooser = new JFileChooser();
@@ -41,14 +43,17 @@ public class MeshFactoryPanel extends JPanel {
             try {
                 lastMeshLoaded = MeshFactory.load(absPath);
             } catch(Exception e) {
-                logger.error("Failed to load mesh from "+absPath,e);
+                logger.error("Failed to load from "+absPath,e);
+                returnVal = JFileChooser.CANCEL_OPTION;
             }
-            returnVal = JFileChooser.APPROVE_OPTION;
         }
 
         return returnVal;
     }
 
+    /**
+     * @return the last mesh loaded by this panel.
+     */
     public Mesh getMesh() {
         return lastMeshLoaded;
     }

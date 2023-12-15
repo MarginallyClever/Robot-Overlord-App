@@ -5,6 +5,7 @@ import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.util.List;
 
 public class MeshInstance extends Pose {
@@ -28,29 +29,29 @@ public class MeshInstance extends Pose {
         JPanel pane = panel.getContentPane();
 
         pane.setLayout(new GridLayout(0,2));
-        JLabel label = new JLabel("Mesh");
-        JButton button = new JButton((mesh==null) ? "..." : mesh.getClass().getSimpleName());
-        label.setLabelFor(button);
-        pane.add(label);
-        pane.add(button);
 
+        JButton button = new JButton();
+        setMeshButtonLabel(button);
         button.addActionListener(e -> {
             MeshFactoryPanel meshFactoryPanel = new MeshFactoryPanel();
             int result = meshFactoryPanel.run();
             if(result == JFileChooser.APPROVE_OPTION) {
                 mesh = meshFactoryPanel.getMesh();
-                button.setText(mesh.getClass().getSimpleName());
+                setMeshButtonLabel(button);
             }
         });
+        addLabelAndComponent(pane,"Mesh",button);
 
         if(mesh!=null) {
-            pane.add(new JLabel("verts"));
-            pane.add(new JLabel(""+mesh.getNumVertices()));
-            pane.add(new JLabel("tris"));
-            pane.add(new JLabel(""+mesh.getNumTriangles()));
+            addLabelAndComponent(pane,"Vertices",new JLabel(""+mesh.getNumVertices()));
+            addLabelAndComponent(pane,"Triangles",new JLabel(""+mesh.getNumTriangles()));
         }
 
         super.getComponents(list);
+    }
+
+    private void setMeshButtonLabel(JButton button) {
+        button.setText((mesh==null) ? "..." : mesh.getSourceName().substring(mesh.getSourceName().lastIndexOf(File.separatorChar)+1));
     }
 
     public Mesh getMesh() {
