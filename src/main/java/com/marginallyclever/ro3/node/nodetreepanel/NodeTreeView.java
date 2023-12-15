@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 public class NodeTreeView extends DockingPanel implements NodeAttachListener, NodeDetachListener, NodeRenameListener {
     private static final Logger logger = LoggerFactory.getLogger(NodeTreeView.class);
     private final JTree tree;
-    private final NodeTreeNode treeModel = new NodeTreeNode(Registry.scene);
+    private final NodeTreeBranch treeModel = new NodeTreeBranch(Registry.scene);
     private final EventListenerList listenerList = new EventListenerList();
 
     JToolBar menuBar = new JToolBar();
@@ -56,11 +56,13 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.setDragEnabled(true);
         tree.setDropMode(DropMode.ON_OR_INSERT);
-        tree.setCellEditor(new NodeTreeCellEditor(tree, new DefaultTreeCellRenderer()));
+        NodeTreeBranchRenderer cellRender = new NodeTreeBranchRenderer();
+        tree.setCellRenderer(cellRender);
+        tree.setCellEditor(new NodeTreeBranchEditor(tree, cellRender));
         tree.addTreeSelectionListener((e) ->{
             // single selection
             TreePath path = e.getPath();
-            NodeTreeNode selectedNode = (NodeTreeNode) path.getLastPathComponent();
+            NodeTreeBranch selectedNode = (NodeTreeBranch) path.getLastPathComponent();
             // Do something with selectedNode
             fireSelectionChangeEvent(List.of(selectedNode.getNode()));
         });
@@ -88,14 +90,14 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
      */
     public void scanTree(Node parent) {
         if(parent == null) return;
-        NodeTreeNode me = findTreeNode(parent);
+        NodeTreeBranch me = findTreeNode(parent);
         if(me == null) return;
 
         for (Node child : parent.getChildren()) {
             logger.debug("scanTree "+parent.getAbsolutePath()+" has child "+child.getAbsolutePath());
-            NodeTreeNode node = findTreeNode(child);
+            NodeTreeBranch node = findTreeNode(child);
             if(node==null) {
-                node = new NodeTreeNode(child);
+                node = new NodeTreeBranch(child);
                 me.add(node);
             }
             child.addAttachListener(this);
@@ -126,7 +128,7 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
                 } else {
                     // add a new node to each selected nodes
                     for(TreePath path : paths) {
-                        NodeTreeNode node = (NodeTreeNode)path.getLastPathComponent();
+                        NodeTreeBranch node = (NodeTreeBranch)path.getLastPathComponent();
                         node.getNode().addChild(factory.get());
                     }
                 }
@@ -140,7 +142,7 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
                 if(paths != null) {
                     // remove all selected nodes
                     for(TreePath path : paths) {
-                        NodeTreeNode treeNode = (NodeTreeNode)path.getLastPathComponent();
+                        NodeTreeBranch treeNode = (NodeTreeBranch)path.getLastPathComponent();
                         Node node = treeNode.getNode();
                         Node parent = node.getParent();
                         if(parent!=null) {
@@ -157,15 +159,15 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
      * @param target the node to find
      * @return the NodeTreeNode that contains e, or null if not found.
      */
-    private NodeTreeNode findTreeNode(Node target) {
-        NodeTreeNode root = ((NodeTreeNode)treeModel.getRoot());
+    private NodeTreeBranch findTreeNode(Node target) {
+        NodeTreeBranch root = ((NodeTreeBranch)treeModel.getRoot());
         if(root==null) return null;
 
         List<TreeNode> list = new ArrayList<>();
         list.add(root);
         while(!list.isEmpty()) {
             TreeNode treeNode = list.remove(0);
-            if(treeNode instanceof NodeTreeNode node) {
+            if(treeNode instanceof NodeTreeBranch node) {
                 if (target == node.getUserObject()) {
                     return node;
                 }
@@ -210,7 +212,7 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
 
         Node parent = source.getParent();
         if(parent==null) throw new RuntimeException("attached node has no parent");
-        NodeTreeNode nodeParent = findTreeNode(parent);
+        NodeTreeBranch nodeParent = findTreeNode(parent);
         if(nodeParent==null) throw new RuntimeException("attached node has no parent");
         nodeParent.remove(findTreeNode(source));
         ((DefaultTreeModel)tree.getModel()).reload();

@@ -4,9 +4,11 @@ import com.marginallyclever.ro3.node.Node;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-public class NodeTreeNode extends DefaultMutableTreeNode {
-
-    public NodeTreeNode(Node node) {
+/**
+ * {@link NodeTreeBranch} is a tree branch that contains a {@link Node}.
+ */
+public class NodeTreeBranch extends DefaultMutableTreeNode {
+    public NodeTreeBranch(Node node) {
         super(node);
     }
 
@@ -24,10 +26,6 @@ public class NodeTreeNode extends DefaultMutableTreeNode {
     }
 
     public void setNode(Node node) {
-        if (node instanceof Node) {
-            setUserObject(node);
-        } else {
-            throw new IllegalArgumentException("Argument is not an instance of Node");
-        }
+        setUserObject(node);
     }
 }
