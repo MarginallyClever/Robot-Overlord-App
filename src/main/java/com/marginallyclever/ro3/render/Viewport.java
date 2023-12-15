@@ -209,9 +209,11 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
         canvasWidth = width;
         canvasHeight = height;
-
-        // force reload of all meshes.
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
+        forceReloadAllMeshes(gl3);
+    }
+
+    private void forceReloadAllMeshes(GL3 gl3) {
         List<Node> toScan = new ArrayList<>(Registry.scene.getChildren());
         while(!toScan.isEmpty()) {
             Node node = toScan.remove(0);
