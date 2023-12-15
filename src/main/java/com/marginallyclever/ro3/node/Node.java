@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * A nodes in a tree.
+ * A node in a tree.
  */
 public class Node {
     private String name;
@@ -74,7 +74,7 @@ public class Node {
     }
 
     /**
-     * Called after this nodes is added to its parent.
+     * Called after this node is added to its parent.
      */
     protected void onAttach() {}
 
@@ -86,12 +86,12 @@ public class Node {
     }
 
     /**
-     * Called after this nodes is removed from its parent.
+     * Called after this node is removed from its parent.
      */
     protected void onDetach() {}
 
     /**
-     * Called when the nodes is attached and all children are ready.
+     * Called when the node is attached and all children are ready.
      */
     protected void onReady() {}
 
@@ -108,16 +108,19 @@ public class Node {
     }
 
     /**
-     * @return the unique ID of this nodes.
+     * @return the unique ID of this node.
      */
     public UUID getNodeID() {
         return nodeID;
     }
 
     /**
-     * @param name the new name of this nodes.
+     * @param name the new name of this node.
      */
     public void setName(String name) {
+        if(isNameUsedBySibling(name)) {
+            return;
+        }
         this.name = name;
         fireRenameEvent(this);
     }
@@ -147,7 +150,7 @@ public class Node {
 
     /**
      * Find the first parent of the given type.
-     * @param type the type of nodes to find
+     * @param type the type of node to find
      * @return the first parent of the given type, or null if none found.
      */
     public <T extends Node> T findParent(Class<T> type) {
@@ -162,7 +165,7 @@ public class Node {
     }
 
     /**
-     * Find the first child of this nodes with the given name.
+     * Find the first child of this node with the given name.
      * @param name the name to match.
      * @return the child, or null if none found.
      */
@@ -176,9 +179,9 @@ public class Node {
     }
 
     /**
-     * Find the nodes in the tree with the given path.
-     * @param path the path to the nodes.  can be relative or absolute.  understands ".." to go up one level.
-     * @return the nodes, or null if none found.
+     * Find the node in the tree with the given path.
+     * @param path the path to the node.  can be relative or absolute.  understands ".." to go up one level.
+     * @return the node, or null if none found.
      */
     public Node get(String path) {
         String[] parts = path.split("/");
@@ -208,7 +211,7 @@ public class Node {
     }
 
     /**
-     * @return the absolute path to this nodes.
+     * @return the absolute path to this node.
      */
     public String getAbsolutePath() {
         StringBuilder sb = new StringBuilder();
@@ -281,5 +284,18 @@ public class Node {
 
         pane.add(label);
         pane.add(nameField);
+    }
+
+    public boolean isNameUsedBySibling(String newName) {
+        // Check if the new name is already used by a sibling
+        Node parent = getParent();
+        if (parent != null) {
+            for (Node sibling : parent.getChildren()) {
+                if (sibling != this && sibling.getName().equals(newName)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
