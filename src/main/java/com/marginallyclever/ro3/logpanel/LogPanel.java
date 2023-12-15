@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 
@@ -38,6 +39,7 @@ public class LogPanel extends JPanel {
         for(String n : p.stringPropertyNames()) {
             logger.info(n+" = "+p.get(n));
         }
+        logger.info("locale = "+ Locale.getDefault());
         logger.info("------------------------------------------------");
     }
 
