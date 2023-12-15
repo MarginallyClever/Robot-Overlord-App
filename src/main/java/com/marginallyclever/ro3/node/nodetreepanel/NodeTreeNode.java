@@ -11,7 +11,11 @@ public class NodeTreeNode extends DefaultMutableTreeNode {
     }
 
     public Node getNode() {
-        return (Node)userObject;
+        if (userObject instanceof Node) {
+            return (Node) userObject;
+        } else {
+            throw new ClassCastException("UserObject is not an instance of Node");
+        }
     }
 
     @Override
@@ -20,6 +24,10 @@ public class NodeTreeNode extends DefaultMutableTreeNode {
     }
 
     public void setNode(Node node) {
-        setUserObject(node);
+        if (node instanceof Node) {
+            setUserObject(node);
+        } else {
+            throw new IllegalArgumentException("Argument is not an instance of Node");
+        }
     }
 }
