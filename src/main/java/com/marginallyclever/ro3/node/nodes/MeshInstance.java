@@ -1,11 +1,9 @@
-package com.marginallyclever.ro3.nodes;
+package com.marginallyclever.ro3.node.nodes;
 
-import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
 import javax.swing.*;
-import javax.vecmath.Matrix4d;
 import java.awt.*;
 import java.util.List;
 
@@ -29,19 +27,33 @@ public class MeshInstance extends Pose {
         list.add(panel);
         JPanel pane = panel.getContentPane();
 
-        pane.setLayout(new FlowLayout(FlowLayout.LEADING));
+        pane.setLayout(new GridLayout(0,2));
         JLabel label = new JLabel("Mesh");
-        JButton button = new JButton((mesh==null) ? "..." : mesh.getSourceName());
+        JButton button = new JButton((mesh==null) ? "..." : mesh.getClass().getSimpleName());
         label.setLabelFor(button);
         pane.add(label);
         pane.add(button);
 
         button.addActionListener(e -> {
-            // TODO run MeshFactoryPanel?
-            System.out.println("TODO run MeshFactoryPanel?");
-            
+            MeshFactoryPanel meshFactoryPanel = new MeshFactoryPanel();
+            int result = meshFactoryPanel.run();
+            if(result == JFileChooser.APPROVE_OPTION) {
+                mesh = meshFactoryPanel.getMesh();
+                button.setText(mesh.getClass().getSimpleName());
+            }
         });
 
+        if(mesh!=null) {
+            pane.add(new JLabel("verts"));
+            pane.add(new JLabel(""+mesh.getNumVertices()));
+            pane.add(new JLabel("tris"));
+            pane.add(new JLabel(""+mesh.getNumTriangles()));
+        }
+
         super.getComponents(list);
+    }
+
+    public Mesh getMesh() {
+        return mesh;
     }
 }

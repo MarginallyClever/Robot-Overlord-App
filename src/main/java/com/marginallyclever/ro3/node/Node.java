@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.nodes;
+package com.marginallyclever.ro3.node;
 
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * A node in a tree.
+ * A nodes in a tree.
  */
 public class Node {
     private String name;
@@ -46,7 +46,7 @@ public class Node {
     }
 
     /**
-     * Called after this node is added to its parent.
+     * Called after this nodes is added to its parent.
      */
     protected void onAttach() {}
 
@@ -58,12 +58,12 @@ public class Node {
     }
 
     /**
-     * Called after this node is removed from its parent.
+     * Called after this nodes is removed from its parent.
      */
     protected void onDetach() {}
 
     /**
-     * Called when the node is attached and all children are ready.
+     * Called when the nodes is attached and all children are ready.
      */
     protected void onReady() {}
 
@@ -80,14 +80,14 @@ public class Node {
     }
 
     /**
-     * @return the unique ID of this node.
+     * @return the unique ID of this nodes.
      */
     public UUID getNodeID() {
         return nodeID;
     }
 
     /**
-     * @param name the new name of this node.
+     * @param name the new name of this nodes.
      */
     public void setName(String name) {
         this.name = name;
@@ -96,8 +96,8 @@ public class Node {
     /**
      * @return an iterator so that calling class cannot modify the list.
      */
-    public Iterator<Node> getChildren() {
-        return children.iterator();
+    public List<Node> getChildren() {
+        return children;
     }
 
     /**
@@ -118,7 +118,7 @@ public class Node {
 
     /**
      * Find the first parent of the given type.
-     * @param type the type of node to find
+     * @param type the type of nodes to find
      * @return the first parent of the given type, or null if none found.
      */
     public <T extends Node> T findParent(Class<T> type) {
@@ -133,7 +133,7 @@ public class Node {
     }
 
     /**
-     * Find the first child of this node with the given name.
+     * Find the first child of this nodes with the given name.
      * @param name the name to match.
      * @return the child, or null if none found.
      */
@@ -147,9 +147,9 @@ public class Node {
     }
 
     /**
-     * Find the node in the tree with the given path.
-     * @param path the path to the node.  can be relative or absolute.  understands ".." to go up one level.
-     * @return the node, or null if none found.
+     * Find the nodes in the tree with the given path.
+     * @param path the path to the nodes.  can be relative or absolute.  understands ".." to go up one level.
+     * @return the nodes, or null if none found.
      */
     public Node get(String path) {
         String[] parts = path.split("/");
@@ -179,7 +179,7 @@ public class Node {
     }
 
     /**
-     * @return the absolute path to this node.
+     * @return the absolute path to this nodes.
      */
     public String getAbsolutePath() {
         StringBuilder sb = new StringBuilder();
