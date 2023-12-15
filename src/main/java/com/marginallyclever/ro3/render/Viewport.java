@@ -4,10 +4,12 @@ import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.node.nodes.MeshInstance;
+import com.marginallyclever.robotoverlord.preferences.GraphicsPreferences;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.slf4j.Logger;
@@ -17,6 +19,8 @@ import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -43,6 +47,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private final JSpinner fovSpinner = new JSpinner(new SpinnerNumberModel(fovY, 1, 180, 1));
     private ShaderProgram shaderDefault;
 
+    private final Vector3d moveCamera = new Vector3d();
+
     public Viewport() {
         super("Viewport");
     }
@@ -56,6 +62,37 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         addNearSpinner();
         addFarSpinner();
         addOrthographicCheckbox();
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                switch(e.getKeyCode()) {
+                    case KeyEvent.VK_W: moveCamera.x=+1;  break;
+                    case KeyEvent.VK_S: moveCamera.x=-1;  break;
+                    case KeyEvent.VK_A: moveCamera.y=+1;  break;
+                    case KeyEvent.VK_D: moveCamera.y=-1;  break;
+                    case KeyEvent.VK_Q: moveCamera.z=+1;  break;
+                    case KeyEvent.VK_E: moveCamera.z=-1;  break;
+                    default: break;
+                }
+                System.out.println("Press "+e.getKeyCode()+" "+e.getKeyChar()+" "+e.getKeyLocation()+" "+e.isActionKey()+" "+e.isAltDown()+" "+e.isAltGraphDown()+" "+e.isConsumed()+" "+e.isControlDown()+" "+e.isMetaDown()+" "+e.isShiftDown());
+                super.keyPressed(e);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                switch(e.getKeyCode()) {
+                    case KeyEvent.VK_W: moveCamera.x=0;  break;
+                    case KeyEvent.VK_S: moveCamera.x=0;  break;
+                    case KeyEvent.VK_A: moveCamera.y=0;  break;
+                    case KeyEvent.VK_D: moveCamera.y=0;  break;
+                    case KeyEvent.VK_Q: moveCamera.z=0;  break;
+                    case KeyEvent.VK_E: moveCamera.z=0;  break;
+                    default: break;
+                }
+                System.out.println("Release "+e.getKeyCode()+" "+e.getKeyChar()+" "+e.getKeyLocation()+" "+e.isActionKey()+" "+e.isAltDown()+" "+e.isAltGraphDown()+" "+e.isConsumed()+" "+e.isControlDown()+" "+e.isMetaDown()+" "+e.isShiftDown());
+                super.keyReleased(e);
+            }
+        });
     }
 
     @Override
@@ -177,12 +214,44 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
+        logger.info("init");
         super.init(glAutoDrawable);
 
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
+
+        // turn on vsync
+        gl3.setSwapInterval(GraphicsPreferences.verticalSync.get() ? 1 : 0);
+
+        // make things pretty
+        gl3.glEnable(GL3.GL_LINE_SMOOTH);
+        gl3.glEnable(GL3.GL_POLYGON_SMOOTH);
+        gl3.glHint(GL3.GL_POLYGON_SMOOTH_HINT, GL3.GL_NICEST);
+        // depth testing and culling options
+        gl3.glEnable(GL3.GL_DEPTH_TEST);
+        gl3.glDepthFunc(GL3.GL_LESS);
+        gl3.glDepthMask(true);
+        // Don't draw triangles facing away from camera
+        gl3.glEnable(GL3.GL_CULL_FACE);
+        gl3.glCullFace(GL3.GL_BACK);
+        // default blending option for transparent materials
+        gl3.glEnable(GL3.GL_BLEND);
+        gl3.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);
+
+        gl3.glActiveTexture(GL3.GL_TEXTURE0);
+        // create the default shader
         shaderDefault = new ShaderProgram(gl3,
                 readResource("default_330.vert"),
                 readResource("default_330.frag"));
+        shaderDefault.use(gl3);
+        shaderDefault.setVector3d(gl3,"lightColor",new Vector3d(1,1,1));  // Light color
+        shaderDefault.set4f(gl3,"objectColor",1,1,1,1);
+        shaderDefault.setVector3d(gl3,"specularColor",new Vector3d(0.5,0.5,0.5));
+        shaderDefault.setVector3d(gl3,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
+        shaderDefault.set1f(gl3,"useVertexColor",0);
+        shaderDefault.set1i(gl3,"useLighting",1);
+        shaderDefault.set1i(gl3,"useTexture",0);
+        shaderDefault.set1i(gl3,"diffuseTexture",0);
+        OpenGLHelper.checkGLError(gl3,logger);
     }
 
     protected String [] readResource(String resourceName) {
@@ -200,20 +269,21 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
 
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
+        logger.info("dispose");
         super.dispose(glAutoDrawable);
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         shaderDefault.delete(gl3);
+        unloadAllMeshes(gl3);
     }
 
     @Override
     public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
+        logger.info("reshape {}x{}",width,height);
         canvasWidth = width;
         canvasHeight = height;
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        forceReloadAllMeshes(gl3);
     }
 
-    private void forceReloadAllMeshes(GL3 gl3) {
+    private void unloadAllMeshes(GL3 gl3) {
         List<Node> toScan = new ArrayList<>(Registry.scene.getChildren());
         while(!toScan.isEmpty()) {
             Node node = toScan.remove(0);
@@ -231,27 +301,23 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
         super.display(glAutoDrawable);
+
+        updateAllNodes(0.03);
+
         if (camera == null) return;
 
-        GL3 gl = glAutoDrawable.getGL().getGL3();
+        Vector3d p = camera.getPosition();
+        p.add(moveCamera);
+        camera.setPosition(p);
 
-        shaderDefault.use(gl);
-        shaderDefault.setMatrix4d(gl,"viewMatrix",getViewMatrix());
-        shaderDefault.setMatrix4d(gl,"projectionMatrix",getChosenProjectionMatrix());
+        GL3 gl3 = glAutoDrawable.getGL().getGL3();
+        shaderDefault.use(gl3);
+        shaderDefault.setMatrix4d(gl3,"viewMatrix",getViewMatrix());
+        shaderDefault.setMatrix4d(gl3,"projectionMatrix",getChosenProjectionMatrix());
+        OpenGLHelper.checkGLError(gl3,logger);
 
-        // draw the scene
-
-        shaderDefault.setVector3d(gl,"lightPos",camera.getPosition());  // Light position in world space
-        shaderDefault.setVector3d(gl,"cameraPos",camera.getPosition());  // Camera position in world space
-        shaderDefault.setVector3d(gl,"lightColor",new Vector3d(1,1,1));  // Light color
-        shaderDefault.set4f(gl,"objectColor",1,1,1,1);
-        shaderDefault.setVector3d(gl,"specularColor",new Vector3d(0.5,0.5,0.5));
-        shaderDefault.setVector3d(gl,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
-        shaderDefault.set1f(gl,"useVertexColor",0);
-        shaderDefault.set1i(gl,"diffuseTexture",0);
-        shaderDefault.set1i(gl,"useLighting",0);
-        shaderDefault.set1i(gl,"useTexture",0);
-        shaderDefault.set1i(gl,"diffuseTexture",0);
+        shaderDefault.setVector3d(gl3,"lightPos",camera.getPosition());  // Light position in world space
+        shaderDefault.setVector3d(gl3,"cameraPos",camera.getPosition());  // Camera position in world space
 
         // find all MeshInstance nodes in Registry
         List<Node> toScan = new ArrayList<>(Registry.scene.getChildren());
@@ -262,10 +328,22 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
                 // if they have a mesh, draw it.
                 Mesh mesh = meshInstance.getMesh();
                 if(mesh==null) continue;
-                shaderDefault.setMatrix4d(gl,"modelMatrix",meshInstance.getWorld());
-                mesh.render(gl);
+                Matrix4d m = meshInstance.getWorld();
+                m.transpose();
+                shaderDefault.setMatrix4d(gl3,"modelMatrix",m);
+                mesh.render(gl3);
+                OpenGLHelper.checkGLError(gl3,logger);
             }
 
+            toScan.addAll(node.getChildren());
+        }
+    }
+
+    private void updateAllNodes(double dt) {
+        List<Node> toScan = new ArrayList<>(Registry.scene.getChildren());
+        while(!toScan.isEmpty()) {
+            Node node = toScan.remove(0);
+            node.update(dt);
             toScan.addAll(node.getChildren());
         }
     }
