@@ -1,5 +1,4 @@
 package com.marginallyclever.ro3.listwithevents;
-import com.marginallyclever.ro3.nodes.Camera;
 
 import javax.swing.event.EventListenerList;
 import java.util.ArrayList;

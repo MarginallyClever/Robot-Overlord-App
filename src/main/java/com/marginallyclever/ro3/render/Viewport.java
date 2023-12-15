@@ -5,14 +5,17 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.nodes.Camera;
-import com.marginallyclever.ro3.nodes.MeshInstance;
+import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.Camera;
+import com.marginallyclever.ro3.node.nodes.MeshInstance;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -206,6 +209,21 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
         canvasWidth = width;
         canvasHeight = height;
+
+        // force reload of all meshes.
+        GL3 gl3 = glAutoDrawable.getGL().getGL3();
+        List<Node> toScan = new ArrayList<>(Registry.scene.getChildren());
+        while(!toScan.isEmpty()) {
+            Node node = toScan.remove(0);
+
+            if(node instanceof MeshInstance meshInstance) {
+                Mesh mesh = meshInstance.getMesh();
+                if(mesh==null) continue;
+                mesh.unload(gl3);
+            }
+
+            toScan.addAll(node.getChildren());
+        }
     }
 
     @Override
@@ -220,7 +238,33 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         shaderDefault.setMatrix4d(gl,"projectionMatrix",getChosenProjectionMatrix());
 
         // draw the scene
-        MeshInstance meshInstance = new MeshInstance();
-        shaderDefault.setMatrix4d(gl,"modelMatrix",meshInstance.getWorld());
+
+        shaderDefault.setVector3d(gl,"lightPos",camera.getPosition());  // Light position in world space
+        shaderDefault.setVector3d(gl,"cameraPos",camera.getPosition());  // Camera position in world space
+        shaderDefault.setVector3d(gl,"lightColor",new Vector3d(1,1,1));  // Light color
+        shaderDefault.set4f(gl,"objectColor",1,1,1,1);
+        shaderDefault.setVector3d(gl,"specularColor",new Vector3d(0.5,0.5,0.5));
+        shaderDefault.setVector3d(gl,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
+        shaderDefault.set1f(gl,"useVertexColor",0);
+        shaderDefault.set1i(gl,"diffuseTexture",0);
+        shaderDefault.set1i(gl,"useLighting",0);
+        shaderDefault.set1i(gl,"useTexture",0);
+        shaderDefault.set1i(gl,"diffuseTexture",0);
+
+        // find all MeshInstance nodes in Registry
+        List<Node> toScan = new ArrayList<>(Registry.scene.getChildren());
+        while(!toScan.isEmpty()) {
+            Node node = toScan.remove(0);
+
+            if(node instanceof MeshInstance meshInstance) {
+                // if they have a mesh, draw it.
+                Mesh mesh = meshInstance.getMesh();
+                if(mesh==null) continue;
+                shaderDefault.setMatrix4d(gl,"modelMatrix",meshInstance.getWorld());
+                mesh.render(gl);
+            }
+
+            toScan.addAll(node.getChildren());
+        }
     }
 }

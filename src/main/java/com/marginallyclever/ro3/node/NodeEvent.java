@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.nodes;
+package com.marginallyclever.ro3.node;
 
 /**
  * {@link NodeEvent} is for {@link Node} events sent to {@link NodeListener}s.

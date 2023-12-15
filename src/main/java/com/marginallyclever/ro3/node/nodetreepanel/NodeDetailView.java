@@ -1,7 +1,7 @@
-package com.marginallyclever.ro3.nodetreepanel;
+package com.marginallyclever.ro3.node.nodetreepanel;
 
 import com.marginallyclever.ro3.DockingPanel;
-import com.marginallyclever.ro3.nodes.Node;
+import com.marginallyclever.ro3.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,7 @@ public class NodeDetailView extends DockingPanel implements SelectionChangeListe
             try {
                 node.getComponents(list);
             } catch(Exception e) {
-                logger.error("Error getting components for node {}",node,e);
+                logger.error("Error getting components for nodes {}",node,e);
             }
         }
 

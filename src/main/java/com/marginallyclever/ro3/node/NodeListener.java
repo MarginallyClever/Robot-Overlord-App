@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.nodes;
+package com.marginallyclever.ro3.node;
 
 import java.util.EventListener;
 

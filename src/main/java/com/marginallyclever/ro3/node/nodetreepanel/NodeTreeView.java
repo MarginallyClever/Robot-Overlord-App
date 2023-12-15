@@ -1,11 +1,11 @@
-package com.marginallyclever.ro3.nodetreepanel;
+package com.marginallyclever.ro3.node.nodetreepanel;
 
 import com.marginallyclever.ro3.DockingPanel;
 import com.marginallyclever.ro3.FactoryPanel;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.nodes.Node;
-import com.marginallyclever.ro3.nodes.NodeEvent;
-import com.marginallyclever.ro3.nodes.NodeListener;
+import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodeEvent;
+import com.marginallyclever.ro3.node.NodeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * NodeTreePanel is a panel that displays the node tree.
+ * NodeTreePanel is a panel that displays the nodes tree.
  */
 public class NodeTreeView extends DockingPanel implements NodeListener {
     private static final Logger logger = LoggerFactory.getLogger(NodeTreeView.class);
@@ -81,15 +81,14 @@ public class NodeTreeView extends DockingPanel implements NodeListener {
 
     /**
      * Scan the tree for existing nodes.
-     * @param parent the node to scan
+     * @param parent the nodes to scan
      */
     public void scanTree(Node parent) {
         if(parent == null) return;
         NodeTreeNode me = findTreeNode(parent);
         if(me == null) return;
 
-        for (Iterator<Node> it = parent.getChildren(); it.hasNext(); ) {
-            Node child = it.next();
+        for (Node child : parent.getChildren()) {
             logger.debug("scanTree "+parent.getAbsolutePath()+" has child "+child.getAbsolutePath());
             NodeTreeNode node = findTreeNode(child);
             if(node==null) {
@@ -114,13 +113,13 @@ public class NodeTreeView extends DockingPanel implements NodeListener {
                 Supplier<Node> factory = Registry.nodeFactory.getSupplierFor(type);
                 if(factory==null) throw new RuntimeException("NodeTreePanel: no factory for "+type);
 
-                // get the selected node, if any.
+                // get the selected nodes, if any.
                 TreePath[] paths = tree.getSelectionPaths();
                 if(paths==null || paths.length==0) {
                     // no selection, add to root
                     Registry.scene.addChild(factory.get());
                 } else {
-                    // add a new node to each selected node
+                    // add a new nodes to each selected nodes
                     for(TreePath path : paths) {
                         NodeTreeNode node = (NodeTreeNode)path.getLastPathComponent();
                         node.getNode().addChild(factory.get());
@@ -134,7 +133,7 @@ public class NodeTreeView extends DockingPanel implements NodeListener {
                 // remove the selected nodes and all child nodes.
                 TreePath[] paths = tree.getSelectionPaths();
                 if(paths != null) {
-                    // remove each selected node
+                    // remove each selected nodes
                     for(TreePath path : paths) {
                         NodeTreeNode treeNode = (NodeTreeNode)path.getLastPathComponent();
                         Node node = treeNode.getNode();
@@ -149,8 +148,8 @@ public class NodeTreeView extends DockingPanel implements NodeListener {
     }
 
     /**
-     * Find node n in the tree.
-     * @param target the node to find
+     * Find nodes n in the tree.
+     * @param target the nodes to find
      * @return the NodeTreeNode that contains e, or null if not found.
      */
     private NodeTreeNode findTreeNode(Node target) {
@@ -185,9 +184,9 @@ public class NodeTreeView extends DockingPanel implements NodeListener {
             Node child = event.source();
             child.removeNodeListener(this);
             Node parent = child.getParent();
-            if(parent==null) throw new RuntimeException("NodeTreePanel: attached node has no parent");
+            if(parent==null) throw new RuntimeException("NodeTreePanel: attached nodes has no parent");
             NodeTreeNode nodeParent = findTreeNode(parent);
-            if(nodeParent==null) throw new RuntimeException("NodeTreePanel: attached node has no parent node");
+            if(nodeParent==null) throw new RuntimeException("NodeTreePanel: attached nodes has no parent nodes");
             nodeParent.remove(findTreeNode(child));
             ((DefaultTreeModel)tree.getModel()).reload();
         }

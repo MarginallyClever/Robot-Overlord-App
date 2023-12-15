@@ -1,18 +1,22 @@
 package com.marginallyclever.ro3;
 
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
-import com.marginallyclever.ro3.nodes.*;
+import com.marginallyclever.ro3.node.nodes.Camera;
+import com.marginallyclever.ro3.node.nodes.MeshInstance;
+import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.render.OpenGLPanel;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshLoader;
 
 public class Registry {
     public static final Factory<Node> nodeFactory = new Factory<>(Node.class);
     public static final Factory<DockingPanel> panelFactory = new Factory<>(DockingPanel.class);
+    public static final Factory<MeshLoader> meshLoaderFactory = new Factory<>(MeshLoader.class);
 
     public static Node scene = new Node("Scene");
     public static ListWithEvents<Camera> cameras = new ListWithEvents<>();
+    public static ListWithEvents<Mesh> meshes = new ListWithEvents<>();
 
     public static void start() {
         Factory.Category<Node> nodule = new Factory.Category<>("Node", null);

@@ -1,6 +1,6 @@
-package com.marginallyclever.ro3.nodetreepanel;
+package com.marginallyclever.ro3.node.nodetreepanel;
 
-import com.marginallyclever.ro3.nodes.Node;
+import com.marginallyclever.ro3.node.Node;
 
 import java.util.EventListener;
 import java.util.List;
