@@ -8,7 +8,8 @@ import ModernDocking.ext.ui.DockingUI;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.marginallyclever.ro3.logpanel.LogPanel;
-import com.marginallyclever.ro3.nodetreepanel.NodeTreePanel;
+import com.marginallyclever.ro3.nodetreepanel.NodeDetailView;
+import com.marginallyclever.ro3.nodetreepanel.NodeTreeView;
 import com.marginallyclever.ro3.render.OpenGLPanel;
 import com.marginallyclever.ro3.render.Viewport;
 import com.marginallyclever.robotoverlord.swing.actions.AboutAction;
@@ -149,23 +150,22 @@ public class RO3Frame extends JFrame {
     }
 
     private void createPanels() {
-        DockingPanel a;
+        renderPanel = new Viewport("3D view");
+        Docking.dock(renderPanel, this, DockingRegion.CENTER);
+        windows.add(renderPanel);
 
-        a = renderPanel = new Viewport("3D view");
-        Docking.dock(a, this, DockingRegion.CENTER);
-        windows.add(a);
+        NodeTreeView nodeTreeView = new NodeTreeView("Scene");
+        Docking.dock(nodeTreeView,this, DockingRegion.WEST);
+        windows.add(nodeTreeView);
 
-        a = new NodeTreePanel("Scene");
-        Docking.dock(a,this, DockingRegion.WEST);
-        windows.add(a);
+        NodeDetailView nodeDetailView = new NodeDetailView("Details");
+        Docking.dock(nodeDetailView, nodeTreeView, DockingRegion.SOUTH);
+        windows.add(nodeDetailView);
+        nodeTreeView.addSelectionChangeListener(nodeDetailView);
 
-        DockingPanel b = new DockingPanel("Details");
-        Docking.dock(b,a, DockingRegion.SOUTH);
-        windows.add(b);
-
-        a = new DockingPanel("Log");
-        a.add(logPanel, BorderLayout.CENTER);
-        Docking.dock(a, this, DockingRegion.SOUTH);
-        windows.add(a);
+        DockingPanel logView = new DockingPanel("Log");
+        logView.add(logPanel, BorderLayout.CENTER);
+        Docking.dock(logView, this, DockingRegion.SOUTH);
+        windows.add(logView);
     }
 }
