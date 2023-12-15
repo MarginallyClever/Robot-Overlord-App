@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.event.EventListenerList;
 import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -22,18 +23,19 @@ import java.util.function.Supplier;
 /**
  * NodeTreePanel is a panel that displays the node tree.
  */
-public class NodeTreePanel extends DockingPanel implements NodeListener {
-    private static final Logger logger = LoggerFactory.getLogger(NodeTreePanel.class);
+public class NodeTreeView extends DockingPanel implements NodeListener {
+    private static final Logger logger = LoggerFactory.getLogger(NodeTreeView.class);
     private final JTree tree;
     private final NodeTreeNode treeModel = new NodeTreeNode(Registry.scene);
+    private final EventListenerList listenerList = new EventListenerList();
 
     JToolBar menuBar = new JToolBar();
 
-    public NodeTreePanel() {
+    public NodeTreeView() {
         this("Node Tree");
     }
 
-    public NodeTreePanel(String tabText) {
+    public NodeTreeView(String tabText) {
         super(tabText);
         setLayout(new BorderLayout());
 
@@ -42,7 +44,7 @@ public class NodeTreePanel extends DockingPanel implements NodeListener {
         tree.setRootVisible(true);
         tree.setShowsRootHandles(true);
         tree.setEditable(true);
-        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.setDragEnabled(true);
         tree.setDropMode(DropMode.ON_OR_INSERT);
         JScrollPane scroll = new JScrollPane();
@@ -52,6 +54,17 @@ public class NodeTreePanel extends DockingPanel implements NodeListener {
         add(menuBar, BorderLayout.NORTH);
 
         buildMenuBar();
+        watchTree();
+    }
+
+    private void watchTree() {
+        tree.addTreeSelectionListener((e) ->{
+            // single selection
+            TreePath path = e.getPath();
+            NodeTreeNode selectedNode = (NodeTreeNode) path.getLastPathComponent();
+            // Do something with selectedNode
+            fireSelectionChangeEvent(List.of(selectedNode.getNode()));
+        });
     }
 
     @Override
@@ -93,7 +106,7 @@ public class NodeTreePanel extends DockingPanel implements NodeListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 FactoryPanel<Node> nfd = new FactoryPanel<>(Registry.nodeFactory);
-                int result = JOptionPane.showConfirmDialog(NodeTreePanel.this,nfd,"Create Node",JOptionPane.OK_CANCEL_OPTION);
+                int result = JOptionPane.showConfirmDialog(NodeTreeView.this,nfd,"Create Node",JOptionPane.OK_CANCEL_OPTION);
                 if(result != JOptionPane.OK_OPTION) return;
                 if(nfd.getResult() != JOptionPane.OK_OPTION) return;
                 String type = nfd.getSelectedNode();
@@ -177,6 +190,20 @@ public class NodeTreePanel extends DockingPanel implements NodeListener {
             if(nodeParent==null) throw new RuntimeException("NodeTreePanel: attached node has no parent node");
             nodeParent.remove(findTreeNode(child));
             ((DefaultTreeModel)tree.getModel()).reload();
+        }
+    }
+
+    public void addSelectionChangeListener(SelectionChangeListener listener) {
+        listenerList.add(SelectionChangeListener.class, listener);
+    }
+
+    public void removeSelectionChangeListener(SelectionChangeListener listener) {
+        listenerList.remove(SelectionChangeListener.class, listener);
+    }
+
+    private void fireSelectionChangeEvent(List<Node> newSelection) {
+        for(SelectionChangeListener listener : listenerList.getListeners(SelectionChangeListener.class)) {
+            listener.selectionChanged(newSelection);
         }
     }
 }
