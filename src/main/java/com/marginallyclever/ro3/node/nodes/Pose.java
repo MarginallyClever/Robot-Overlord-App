@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 
@@ -53,37 +54,91 @@ public class Pose extends Node {
         list.add(panel);
         JPanel pane = panel.getContentPane();
 
+        pane.setLayout(new GridLayout(0, 2));
+
         NumberFormat format = NumberFormat.getNumberInstance();
         NumberFormatter formatter = new NumberFormatter(format);
         formatter.setValueClass(Double.class);
-        formatter.setAllowsInvalid(false);
+        formatter.setAllowsInvalid(true);
+        formatter.setCommitsOnValidEdit(true);
 
-        JFormattedTextField x = new JFormattedTextField(formatter);
-        x.setValue(local.m03);
-        JFormattedTextField y = new JFormattedTextField(formatter);
-        y.setValue(local.m13);
-        JFormattedTextField z = new JFormattedTextField(formatter);
-        z.setValue(local.m23);
-
-        pane.setLayout(new GridLayout(0,2));
-        pane.add(new JLabel("X"));
-        pane.add(x);
-        pane.add(new JLabel("Y"));
-        pane.add(y);
-        pane.add(new JLabel("Z"));
-        pane.add(z);
-
-        x.addPropertyChangeListener("value", e -> {
-            local.m03 = ((Number)x.getValue()).doubleValue();
-        } );
-        y.addPropertyChangeListener("value", e -> {
-            local.m13 = ((Number)y.getValue()).doubleValue();
-        } );
-        z.addPropertyChangeListener("value", e -> {
-            local.m23 = ((Number)z.getValue()).doubleValue();
-        } );
+        addTranslationComponents(pane,formatter);
+        addRotationComponents(pane,formatter);
 
         super.getComponents(list);
+    }
+
+    private void addTranslationComponents(JPanel pane, NumberFormatter formatter) {
+        JFormattedTextField tx = new JFormattedTextField(formatter);        tx.setValue(local.m03);
+        JFormattedTextField ty = new JFormattedTextField(formatter);        ty.setValue(local.m13);
+        JFormattedTextField tz = new JFormattedTextField(formatter);        tz.setValue(local.m23);
+
+        tx.addPropertyChangeListener("value", e -> local.m03 = ((Number) tx.getValue()).doubleValue() );
+        ty.addPropertyChangeListener("value", e -> local.m13 = ((Number) ty.getValue()).doubleValue() );
+        tz.addPropertyChangeListener("value", e -> local.m23 = ((Number) tz.getValue()).doubleValue() );
+
+        addLabelAndComponent(pane, "Translation", new JLabel());
+        addLabelAndComponent(pane, "X", tx);
+        addLabelAndComponent(pane, "Y", ty);
+        addLabelAndComponent(pane, "Z", tz);
+    }
+
+    private void addRotationComponents(JPanel pane, NumberFormatter formatter) {
+        Vector3d r = getRotationEuler();
+
+        JFormattedTextField rx = new JFormattedTextField(formatter);        rx.setValue(r.x);
+        JFormattedTextField ry = new JFormattedTextField(formatter);        ry.setValue(r.y);
+        JFormattedTextField rz = new JFormattedTextField(formatter);        rz.setValue(r.z);
+
+        rx.addPropertyChangeListener("value", e -> {
+            Vector3d r2 = getRotationEuler();
+            r2.x = ((Number) rx.getValue()).doubleValue();
+            setRotationEuler(r2);
+        });
+        ry.addPropertyChangeListener("value", e -> {
+            Vector3d r2 = getRotationEuler();
+            r2.y = ((Number) ry.getValue()).doubleValue();
+            setRotationEuler(r2);
+        });
+        rz.addPropertyChangeListener("value", e -> {
+            Vector3d r2 = getRotationEuler();
+            r2.z = ((Number) rz.getValue()).doubleValue();
+            setRotationEuler(r2);
+        });
+
+        addLabelAndComponent(pane, "Rotation", new JLabel());
+        addLabelAndComponent(pane, "Type", new JLabel("Euler ZYX"));
+        addLabelAndComponent(pane, "X", rx);
+        addLabelAndComponent(pane, "Y", ry);
+        addLabelAndComponent(pane, "Z", rz);
+    }
+
+    /**
+     * @return the rotation of this pose using Euler angles in degrees.
+     */
+    public Vector3d getRotationEuler() {
+        Vector3d r = MatrixHelper.matrixToEuler(local);
+        r.scale(180.0/Math.PI);
+        return r;
+    }
+
+    /**
+     * Set the rotation of this pose using Euler angles.
+     * @param r Euler angles in degrees.
+     */
+    public void setRotationEuler(Vector3d r) {
+        Vector3d p = getPosition();
+        Vector3d rRad = new Vector3d(r);
+        rRad.scale(Math.PI/180.0);
+        local.set(MatrixHelper.eulerToMatrix(rRad));
+        setPosition(p);
+    }
+
+    private void addLabelAndComponent(JPanel pane, String labelText, JComponent component) {
+        JLabel label = new JLabel(labelText);
+        label.setLabelFor(component);
+        pane.add(label);
+        pane.add(component);
     }
 
     public Vector3d getPosition() {
