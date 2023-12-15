@@ -1,7 +1,10 @@
 package com.marginallyclever.ro3.nodes;
 
-import com.marginallyclever.robotoverlord.components.Component;
+import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 
+import javax.swing.*;
+import javax.swing.event.EventListenerList;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -15,8 +18,7 @@ public class Node {
     private final List<Node> children = new ArrayList<>();
     private Node parent;
     private UUID nodeID;
-
-    private final List<NodeListener> listeners = new ArrayList<>();
+    private final EventListenerList listeners = new EventListenerList();
 
     public Node() {
         this("Node");
@@ -191,15 +193,15 @@ public class Node {
     }
 
     public void addNodeListener(NodeListener listener) {
-        listeners.add(listener);
+        listeners.add(NodeListener.class,listener);
     }
 
     public void removeNodeListener(NodeListener listener) {
-        listeners.remove(listener);
+        listeners.remove(NodeListener.class,listener);
     }
 
     public void fireNodeEvent(NodeEvent event) {
-        for(NodeListener listener : listeners) {
+        for(NodeListener listener : listeners.getListeners(NodeListener.class)) {
             listener.nodeEvent(event);
         }
     }
@@ -209,4 +211,26 @@ public class Node {
      * @param dt the time since the last frame.
      */
     public void update(double dt) {}
+
+    /**
+     * Build a Swing Component that represents this Node.
+     * @param list the list to add components to.
+     */
+    public void getComponents(List<JComponent> list) {
+        CollapsiblePanel panel = new CollapsiblePanel(Node.class.getSimpleName());
+        list.add(panel);
+        JPanel pane = panel.getContentPane();
+
+        // custom stuff
+        pane.setLayout(new FlowLayout(FlowLayout.LEADING));
+        JLabel name = new JLabel("Name");
+        pane.add(name);
+        JTextField nameField = new JTextField(getName());
+        nameField.addActionListener(e -> {
+            // should not be allowed to match siblings?
+            setName(nameField.getText());
+        });
+        pane.add(nameField);
+
+    }
 }
