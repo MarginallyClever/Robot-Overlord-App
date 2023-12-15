@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * NodeTreePanel is a panel that displays the nodes tree.
+ * {@link NodeTreeView} is a panel that displays the node tree.
  */
 public class NodeTreeView extends DockingPanel implements NodeAttachListener, NodeDetachListener, NodeRenameListener {
     private static final Logger logger = LoggerFactory.getLogger(NodeTreeView.class);
@@ -39,24 +39,24 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
         setLayout(new BorderLayout());
 
         tree = new JTree(treeModel);
+        setupTree();
 
+        buildMenuBar();
+
+        JScrollPane scroll = new JScrollPane();
+        scroll.setViewportView(tree);
+        add(scroll, BorderLayout.CENTER);
+        add(menuBar, BorderLayout.NORTH);
+    }
+
+    private void setupTree() {
         tree.setRootVisible(true);
         tree.setShowsRootHandles(true);
         tree.setEditable(true);
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.setDragEnabled(true);
         tree.setDropMode(DropMode.ON_OR_INSERT);
-        JScrollPane scroll = new JScrollPane();
-        scroll.setViewportView(tree);
-
-        add(scroll, BorderLayout.CENTER);
-        add(menuBar, BorderLayout.NORTH);
-
-        buildMenuBar();
-        watchTree();
-    }
-
-    private void watchTree() {
+        tree.setCellEditor(new NodeTreeCellEditor(tree, new DefaultTreeCellRenderer()));
         tree.addTreeSelectionListener((e) ->{
             // single selection
             TreePath path = e.getPath();
@@ -84,7 +84,7 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
 
     /**
      * Scan the tree for existing nodes.
-     * @param parent the nodes to scan
+     * @param parent the node to scan
      */
     public void scanTree(Node parent) {
         if(parent == null) return;
@@ -124,7 +124,7 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
                     // no selection, add to root
                     Registry.scene.addChild(factory.get());
                 } else {
-                    // add a new nodes to each selected nodes
+                    // add a new node to each selected nodes
                     for(TreePath path : paths) {
                         NodeTreeNode node = (NodeTreeNode)path.getLastPathComponent();
                         node.getNode().addChild(factory.get());
@@ -138,7 +138,7 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
                 // remove the selected nodes and all child nodes.
                 TreePath[] paths = tree.getSelectionPaths();
                 if(paths != null) {
-                    // remove each selected nodes
+                    // remove all selected nodes
                     for(TreePath path : paths) {
                         NodeTreeNode treeNode = (NodeTreeNode)path.getLastPathComponent();
                         Node node = treeNode.getNode();
@@ -153,8 +153,8 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
     }
 
     /**
-     * Find nodes n in the tree.
-     * @param target the nodes to find
+     * Find a node in the tree.
+     * @param target the node to find
      * @return the NodeTreeNode that contains e, or null if not found.
      */
     private NodeTreeNode findTreeNode(Node target) {
@@ -209,9 +209,9 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
         source.removeRenameListener(this);
 
         Node parent = source.getParent();
-        if(parent==null) throw new RuntimeException("NodeTreePanel: attached nodes has no parent");
+        if(parent==null) throw new RuntimeException("attached node has no parent");
         NodeTreeNode nodeParent = findTreeNode(parent);
-        if(nodeParent==null) throw new RuntimeException("NodeTreePanel: attached nodes has no parent nodes");
+        if(nodeParent==null) throw new RuntimeException("attached node has no parent");
         nodeParent.remove(findTreeNode(source));
         ((DefaultTreeModel)tree.getModel()).reload();
     }

@@ -31,7 +31,7 @@ public class NodeDetailView extends DockingPanel implements SelectionChangeListe
             try {
                 node.getComponents(list);
             } catch(Exception e) {
-                logger.error("Error getting components for nodes {}",node,e);
+                logger.error("Error getting components for node {}",node,e);
             }
         }
 
