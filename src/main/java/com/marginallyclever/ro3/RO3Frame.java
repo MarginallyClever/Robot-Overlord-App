@@ -11,6 +11,7 @@ import com.marginallyclever.ro3.logpanel.LogPanel;
 import com.marginallyclever.ro3.node.nodetreepanel.NodeDetailView;
 import com.marginallyclever.ro3.node.nodetreepanel.NodeTreeView;
 import com.marginallyclever.ro3.render.OpenGLPanel;
+import com.marginallyclever.ro3.render.RenderPassPanel;
 import com.marginallyclever.ro3.render.Viewport;
 import com.marginallyclever.robotoverlord.swing.actions.AboutAction;
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ public class RO3Frame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(RO3Frame.class);
 
     private OpenGLPanel renderPanel;
+    private final RenderPassPanel rpp = new RenderPassPanel();
     private final LogPanel logPanel = new LogPanel();
     private final List<DockingPanel> windows = new ArrayList<>();
 
@@ -167,5 +169,9 @@ public class RO3Frame extends JFrame {
         logView.add(logPanel, BorderLayout.CENTER);
         Docking.dock(logView, this, DockingRegion.SOUTH);
         windows.add(logView);
+
+        DockingPanel renderPassesView = new DockingPanel("Render");
+        renderPassesView.add(rpp, BorderLayout.CENTER);
+        windows.add(renderPassesView);
     }
 }

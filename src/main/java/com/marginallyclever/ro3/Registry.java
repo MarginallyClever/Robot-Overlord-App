@@ -7,8 +7,12 @@ import com.marginallyclever.ro3.node.nodes.MeshInstance;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.render.OpenGLPanel;
+import com.marginallyclever.ro3.render.RenderPass;
+import com.marginallyclever.ro3.render.renderpasses.DrawBackground;
+import com.marginallyclever.ro3.render.renderpasses.DrawMeshes;
+import com.marginallyclever.ro3.render.renderpasses.DrawPose;
 import com.marginallyclever.ro3.texture.TextureFactory;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshLoader;
 
 public class Registry {
@@ -18,8 +22,8 @@ public class Registry {
 
     public static Node scene = new Node("Scene");
     public static ListWithEvents<Camera> cameras = new ListWithEvents<>();
-    public static ListWithEvents<Mesh> meshes = new ListWithEvents<>();
     public static TextureFactory textureFactory;
+    public static ListWithEvents<RenderPass> renderPasses = new ListWithEvents<>();
 
     public static void start() {
         Factory.Category<Node> nodule = new Factory.Category<>("Node", null);
@@ -36,5 +40,9 @@ public class Registry {
         textureFactory = new TextureFactory();
 
         cameras.add(new Camera("Camera 1"));
+
+        renderPasses.add(new DrawBackground());
+        renderPasses.add(new DrawMeshes());
+        renderPasses.add(new DrawPose());
     }
 }

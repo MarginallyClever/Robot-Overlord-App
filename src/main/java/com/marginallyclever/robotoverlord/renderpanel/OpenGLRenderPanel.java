@@ -525,7 +525,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
     }
 
     /**
-     * Render 3d and then 2d overlays.
+     * Render 3d and then 2d renderpasses.
      * @param gl the OpenGL context
      */
     private void drawOverlays(GL3 gl) {
@@ -533,10 +533,10 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         //gl.glDepthMask(true);
         gl.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_STENCIL_BUFFER_BIT);
         useShaderDefault(gl);
-        // 3D overlays
+        // 3D renderpasses
         if (showWorldOrigin.get()) MatrixHelper.drawMatrix(10).render(gl);
         for(EditorTool tool : editorTools) tool.render(gl,shaderDefault);
-        // 2D overlays
+        // 2D renderpasses
         compass3d.render(gl,viewport,shaderDefault);
         drawCursor(gl);
     }

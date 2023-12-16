@@ -38,7 +38,6 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private double nearZ = 1;
     private double farZ = 1000;
     private boolean drawOrthographic = false;
-    private int canvasWidth, canvasHeight;
 
     private final JToolBar toolBar = new JToolBar();
     private final DefaultComboBoxModel<Camera> cameraListModel = new DefaultComboBoxModel<>();
@@ -46,7 +45,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private final JSpinner farZSpinner = new JSpinner(farZModel);
     private final JSpinner nearZSpinner = new JSpinner(new SpinnerNumberModel(nearZ, 0, 10000, 1));
     private final JSpinner fovSpinner = new JSpinner(new SpinnerNumberModel(fovY, 1, 180, 1));
-    private ShaderProgram shaderDefault;
+    private final JPopupMenu overlayMenu = new JPopupMenu();
+
 
     private final Vector3d moveCamera = new Vector3d();
 
@@ -63,6 +63,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         addNearSpinner();
         addFarSpinner();
         addOrthographicCheckbox();
+        addOverlaySelection();
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -96,15 +97,74 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         });
     }
 
+    private void addOverlaySelection() {
+        JButton button = new JButton("...");
+        toolBar.add(button);
+
+        overlayMenu.removeAll();
+
+        // Add an ActionListener to the JButton to show the JPopupMenu when clicked
+        button.addActionListener(e -> overlayMenu.show(button, button.getWidth()/2, button.getHeight()/2));
+
+        for(RenderPass renderPass : Registry.renderPasses.getList()) {
+            addOverlayInternal(renderPass);
+        }
+    }
+
+    private void addOverlayInternal(RenderPass renderPass) {
+        JCheckBox checkBox = new JCheckBox(renderPass.getName());
+        checkBox.setSelected(renderPass.getActiveStatus() == RenderPass.ALWAYS);
+        checkBox.addActionListener(e -> {
+            renderPass.setActiveStatus(checkBox.isSelected() ? RenderPass.ALWAYS : RenderPass.NEVER);
+        });
+        overlayMenu.add(checkBox);
+    }
+
+    private void removeOverlayInternal(RenderPass renderPass) {
+        for(Component c : overlayMenu.getComponents()) {
+            if(c instanceof JCheckBox checkBox) {
+                if(checkBox.getText().equals(renderPass.getName())) {
+                    overlayMenu.remove(c);
+                    return;
+                }
+            }
+        }
+    }
+
     @Override
     public void addNotify() {
         super.addNotify();
+        addGLEventListener(this);
         Registry.cameras.addItemAddedListener(this::addCamera);
         Registry.cameras.addItemRemovedListener(this::removeCamera);
+        Registry.renderPasses.addItemAddedListener(this::addOverlay);
+        Registry.renderPasses.addItemRemovedListener(this::removeOverlay);
+    }
+
+    @Override
+    public void removeNotify() {
+        super.removeNotify();
+        removeGLEventListener(this);
+        Registry.cameras.removeItemAddedListener(this::addCamera);
+        Registry.cameras.removeItemRemovedListener(this::removeCamera);
+        Registry.renderPasses.removeItemAddedListener(this::addOverlay);
+        Registry.renderPasses.removeItemRemovedListener(this::removeOverlay);
+    }
+
+    private void addOverlay(RenderPass renderPass) {
+        addOverlayInternal(renderPass);
+        //addGLEventListener(overlay);
+    }
+
+    private void removeOverlay(RenderPass renderPass) {
+        removeOverlayInternal(renderPass);
+        //removeGLEventListener(overlay);
     }
 
     private void addCamera(Camera camera) {
-        cameraListModel.addElement(camera);
+        if(cameraListModel.getIndexOf(camera) == -1) {
+            cameraListModel.addElement(camera);
+        }
     }
 
     private void removeCamera(Camera camera) {
@@ -215,98 +275,26 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
-        logger.info("init");
         super.init(glAutoDrawable);
-
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
-
-        // turn on vsync
-        gl3.setSwapInterval(GraphicsPreferences.verticalSync.get() ? 1 : 0);
-
-        // make things pretty
-        gl3.glEnable(GL3.GL_LINE_SMOOTH);
-        gl3.glEnable(GL3.GL_POLYGON_SMOOTH);
-        gl3.glHint(GL3.GL_POLYGON_SMOOTH_HINT, GL3.GL_NICEST);
-        // depth testing and culling options
-        gl3.glEnable(GL3.GL_DEPTH_TEST);
-        gl3.glDepthFunc(GL3.GL_LESS);
-        gl3.glDepthMask(true);
-        // Don't draw triangles facing away from camera
-        gl3.glEnable(GL3.GL_CULL_FACE);
-        gl3.glCullFace(GL3.GL_BACK);
-        // default blending option for transparent materials
-        gl3.glEnable(GL3.GL_BLEND);
-        gl3.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);
-
-        gl3.glActiveTexture(GL3.GL_TEXTURE0);
-        // create the default shader
-        shaderDefault = new ShaderProgram(gl3,
-                readResource("default_330.vert"),
-                readResource("default_330.frag"));
-        shaderDefault.use(gl3);
-        shaderDefault.setVector3d(gl3,"lightColor",new Vector3d(1,1,1));  // Light color
-        shaderDefault.set4f(gl3,"objectColor",1,1,1,1);
-        shaderDefault.setVector3d(gl3,"specularColor",new Vector3d(0.5,0.5,0.5));
-        shaderDefault.setVector3d(gl3,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
-        shaderDefault.set1f(gl3,"useVertexColor",0);
-        shaderDefault.set1i(gl3,"useLighting",1);
-        shaderDefault.set1i(gl3,"useTexture",0);
-        shaderDefault.set1i(gl3,"diffuseTexture",0);
-        OpenGLHelper.checkGLError(gl3,logger);
-    }
-
-    protected String [] readResource(String resourceName) {
-        List<String> lines = new ArrayList<>();
-        try(BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(this.getClass().getResourceAsStream(resourceName))))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                lines.add(line+"\n");
-            }
-        } catch (Exception e) {
-            logger.error("Failed to read resource: {}",resourceName,e);
-        }
-        return lines.toArray(new String[0]);
     }
 
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
-        logger.info("dispose");
         super.dispose(glAutoDrawable);
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        shaderDefault.delete(gl3);
-        unloadAllMeshes(gl3);
-        Registry.textureFactory.unloadAll();
     }
 
     @Override
     public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
-        logger.info("reshape {}x{}",width,height);
-        canvasWidth = width;
-        canvasHeight = height;
-    }
-
-    private void unloadAllMeshes(GL3 gl3) {
-        List<Node> toScan = new ArrayList<>(Registry.scene.getChildren());
-        while(!toScan.isEmpty()) {
-            Node node = toScan.remove(0);
-
-            if(node instanceof MeshInstance meshInstance) {
-                Mesh mesh = meshInstance.getMesh();
-                if(mesh==null) continue;
-                mesh.unload(gl3);
-            }
-
-            toScan.addAll(node.getChildren());
-        }
+        super.reshape(glAutoDrawable,x,y,width,height);
     }
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
-        super.display(glAutoDrawable);
-
-        updateAllNodes(0.03);
+        double dt = 0.03;
+        updateAllNodes(dt);
 
         if (camera == null) return;
+        if (shaderDefault == null) return;
 
         Vector3d p = camera.getPosition();
         p.add(moveCamera);
@@ -316,42 +304,12 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         shaderDefault.use(gl3);
         shaderDefault.setMatrix4d(gl3,"viewMatrix",getViewMatrix());
         shaderDefault.setMatrix4d(gl3,"projectionMatrix",getChosenProjectionMatrix());
+        shaderDefault.setVector3d(gl3,"cameraPos",camera.getPosition());  // Camera position in world space
+        shaderDefault.setVector3d(gl3,"lightPos",camera.getPosition());  // Light position in world space
         OpenGLHelper.checkGLError(gl3,logger);
 
-        shaderDefault.setVector3d(gl3,"lightPos",camera.getPosition());  // Light position in world space
-        shaderDefault.setVector3d(gl3,"cameraPos",camera.getPosition());  // Camera position in world space
-
-        // find all MeshInstance nodes in Registry
-        List<Node> toScan = new ArrayList<>(Registry.scene.getChildren());
-        while(!toScan.isEmpty()) {
-            Node node = toScan.remove(0);
-
-            if(node instanceof MeshInstance meshInstance) {
-                // if they have a mesh, draw it.
-                Mesh mesh = meshInstance.getMesh();
-                if(mesh==null) continue;
-                // set the texture to the first sibling that is a material and has a texture
-                meshInstance.getParent().getChildren().stream()
-                        .filter(n -> n instanceof Material)
-                        .map(n -> (Material) n)
-                        .filter(m -> m.getTexture() != null)
-                        .findFirst()
-                        .ifPresent(m -> {
-                            m.getTexture().use(shaderDefault);
-                        });
-
-                // set the model matrix
-                Matrix4d m = meshInstance.getWorld();
-                m.transpose();
-                shaderDefault.setMatrix4d(gl3,"modelMatrix",m);
-                // draw it
-                mesh.render(gl3);
-
-                OpenGLHelper.checkGLError(gl3,logger);
-            }
-
-            toScan.addAll(node.getChildren());
-        }
+        // render all passes
+        super.display(glAutoDrawable);
     }
 
     private void updateAllNodes(double dt) {
