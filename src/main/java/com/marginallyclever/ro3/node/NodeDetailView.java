@@ -23,6 +23,11 @@ public class NodeDetailView extends DockingPanel implements SelectionChangeListe
         super(tabName);
     }
 
+    /**
+     * Called when the selection changes.
+     * See <a href="https://stackoverflow.com/questions/62864625/why-boxlayout-is-taking-extra-space">layout fix</a>
+     * @param selectedNodes the list of nodes that are currently selected.
+     */
     @Override
     public void selectionChanged(List<Node> selectedNodes) {
         JPanel parent = new JPanel();

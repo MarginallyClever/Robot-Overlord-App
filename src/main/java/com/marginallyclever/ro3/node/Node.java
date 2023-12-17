@@ -18,7 +18,7 @@ public class Node {
     private String name;
     private final List<Node> children = new ArrayList<>();
     private Node parent;
-    private UUID nodeID;
+    private final UUID nodeID;
     private final EventListenerList listeners = new EventListenerList();
 
     public Node() {

@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3;
 
-
 import ModernDocking.Dockable;
 import ModernDocking.app.Docking;
 
@@ -8,6 +7,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.UUID;
 
+/**
+ * {@link DockingPanel} is a {@link JPanel} that implements {@link Dockable}.
+ */
 public class DockingPanel extends JPanel implements Dockable {
     private final String tabText;
     private final String persistentID = UUID.randomUUID().toString();

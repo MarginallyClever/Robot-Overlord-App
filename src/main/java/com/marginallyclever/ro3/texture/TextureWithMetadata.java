@@ -10,7 +10,7 @@ import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import java.awt.image.BufferedImage;
 
 public class TextureWithMetadata {
-    private BufferedImage image;
+    private final BufferedImage image;
     private Texture texture;
     private final String source;
 
