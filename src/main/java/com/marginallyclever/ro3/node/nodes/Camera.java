@@ -48,7 +48,7 @@ public class Camera extends Pose {
         JSpinner nearZSpinner = new JSpinner(new SpinnerNumberModel(nearZ, 0, 10000, 1));
         JSpinner fovSpinner = new JSpinner(new SpinnerNumberModel(fovY, 1, 180, 1));
 
-        JCheckBox ortho = new JCheckBox("Orthographic");
+        JCheckBox ortho = new JCheckBox();
         ortho.addActionListener(e -> {
             drawOrthographic = ortho.isSelected();
             farZSpinner.setEnabled(!drawOrthographic);
@@ -72,10 +72,10 @@ public class Camera extends Pose {
             farZ = (double) farZSpinner.getValue();
         });
 
+        addLabelAndComponent(pane,"Orthographic",ortho);
         addLabelAndComponent(pane,"FOV",fovSpinner);
         addLabelAndComponent(pane,"Near",nearZSpinner);
         addLabelAndComponent(pane,"Far",farZSpinner);
-        addLabelAndComponent(pane,"Orthographic",ortho);
 
         super.getComponents(list);
     }

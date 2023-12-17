@@ -31,17 +31,20 @@ public class MatrixHelper {
 
 		Mesh mesh = new Mesh();
 		mesh.setRenderStyle(GL3.GL_LINES);
-		mesh.addColor(1,0,0,1);		mesh.addVertex(x, y, z);
+		mesh.addColor(1,0,0,1);
+		mesh.addVertex(x, y, z);
 		mesh.addColor(1,0,0,1);
 		mesh.addVertex((float)(x+m.m00*scale),
 						(float)(y+m.m10*scale),
 						(float)(z+m.m20*scale));
-		mesh.addColor(0,1,0,1);		mesh.addVertex(x, y, z);
+		mesh.addColor(0,1,0,1);
+		mesh.addVertex(x, y, z);
 		mesh.addColor(0,1,0,1);
 		mesh.addVertex((float)(x+m.m01*scale),
 						(float)(y+m.m11*scale),
 						(float)(z+m.m21*scale));
-		mesh.addColor(0,0,1,1);		mesh.addVertex(x, y, z);
+		mesh.addColor(0,0,1,1);
+		mesh.addVertex(x, y, z);
 		mesh.addColor(0,0,1,1);
 		mesh.addVertex((float)(x+m.m02*scale),
 						(float)(y+m.m12*scale),
@@ -255,38 +258,6 @@ public class MatrixHelper {
 	 *
 	 * @return determinant of given matrix
 	 */
-	static public double matrixDeterminant (double[][] matrix) {
-		double [][] temporary;
-		double result = 0;
-
-		if (matrix.length == 1) {
-			result = matrix[0][0];
-			return (result);
-		}
-
-		if (matrix.length == 2) {
-			result = ((matrix[0][0] * matrix[1][1]) - (matrix[0][1] * matrix[1][0]));
-			return (result);
-		}
-
-		for (int i = 0; i < matrix[0].length; i++) {
-			temporary = new double[matrix.length - 1][matrix[0].length - 1];
-
-			for (int j = 1; j < matrix.length; j++) {
-				for (int k = 0; k < matrix[0].length; k++) {
-					if (k < i) {
-						temporary[j - 1][k] = matrix[j][k];
-					} else if (k > i) {
-						temporary[j - 1][k - 1] = matrix[j][k];
-					}
-				}
-			}
-
-			result += matrix[0][i] * Math.pow (-1, (double) i) * matrixDeterminant (temporary);
-		}
-		return (result);
-	}
-
 	static public double determinant(double[][] matrix) {
 		if (matrix.length != matrix[0].length)
 			throw new IllegalStateException("invalid dimensions");
@@ -824,7 +795,8 @@ public class MatrixHelper {
 	}
 
 	/**
-	 * Convert a {@link javax.vecmath.Matrix4d} to an array of doubles.  Matrix4d and OpenGL are column-major.
+	 * Convert a {@link javax.vecmath.Matrix4d} to an array of doubles.  {@link Matrix4d} is row-major and
+	 * OpenGL is column-major.
 	 * @param m the matrix to convert
 	 * @return a double array of length 16
 	 */
@@ -873,29 +845,6 @@ public class MatrixHelper {
 		matrixBuffer.rewind();
 
 		return matrixBuffer;
-	}
-
-	public static double [] matrixToArrayF(Matrix4d m) {
-		double [] list = new double[16];
-
-		list[0] = (double)m.m00;
-		list[1] = (double)m.m01;
-		list[2] = (double)m.m02;
-		list[3] = (double)m.m03;
-		list[4] = (double)m.m10;
-		list[5] = (double)m.m11;
-		list[6] = (double)m.m12;
-		list[7] = (double)m.m13;
-		list[8] = (double)m.m20;
-		list[9] = (double)m.m21;
-		list[10] = (double)m.m22;
-		list[11] = (double)m.m23;
-		list[12] = (double)m.m30;
-		list[13] = (double)m.m31;
-		list[14] = (double)m.m32;
-		list[15] = (double)m.m33;
-
-		return list;
 	}
 
 	/**
