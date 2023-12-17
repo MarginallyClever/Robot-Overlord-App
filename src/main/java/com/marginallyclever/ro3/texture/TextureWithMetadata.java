@@ -39,7 +39,13 @@ public class TextureWithMetadata {
      */
     public void use(ShaderProgram shader) {
         if(texture==null) {
-            texture = AWTTextureIO.newTexture(GLProfile.getDefault(), image, false);
+            BufferedImage flip = new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_ARGB);
+            for(int y=0;y<image.getHeight();++y) {
+                for(int x=0;x<image.getWidth();++x) {
+                    flip.setRGB(x,y,image.getRGB(x,image.getHeight()-y-1));
+                }
+            }
+            texture = AWTTextureIO.newTexture(GLProfile.getDefault(), flip, false);
         }
 
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
