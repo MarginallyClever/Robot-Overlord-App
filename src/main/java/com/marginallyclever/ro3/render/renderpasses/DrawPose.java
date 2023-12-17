@@ -16,9 +16,7 @@ import java.util.List;
 
 public class DrawPose implements RenderPass {
     private int activeStatus = ALWAYS;
-    private double scale=1.0;
-
-    private final Mesh waldo = MatrixHelper.createMesh(scale);
+    private final Mesh waldo = MatrixHelper.createMesh(1.0);
 
     /**
      * @return NEVER, SOMETIMES, or ALWAYS
