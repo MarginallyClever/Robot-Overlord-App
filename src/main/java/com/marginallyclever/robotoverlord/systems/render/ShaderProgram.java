@@ -101,7 +101,11 @@ public class ShaderProgram {
     }
 
     public int getUniformLocation(GL3 gl, String name) {
-        return gl.glGetUniformLocation(programId, name);
+        int result = gl.glGetUniformLocation(programId, name);
+        if(result==-1) {
+            logger.error("Could not find uniform "+name);
+        }
+        return result;
     }
 
     public void set1f(GL3 gl, String name, float v0) {
