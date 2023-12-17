@@ -14,7 +14,7 @@ import javax.vecmath.Matrix4d;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DrawPose implements RenderPass {
+public class DrawPoses implements RenderPass {
     private int activeStatus = ALWAYS;
     private final Mesh waldo = MatrixHelper.createMesh(1.0);
 
@@ -45,21 +45,25 @@ public class DrawPose implements RenderPass {
     @Override
     public void draw(ShaderProgram shader) {
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
+
         shader.set1f(gl3,"useVertexColor",1);
         shader.set1i(gl3,"useLighting",0);
         shader.set1i(gl3,"useTexture",0);
         gl3.glDisable(GL3.GL_DEPTH_TEST);
 
         // draw the world pose of every node in the Registry.
-        List<Node> toScan = new ArrayList<>(Registry.scene.getChildren());
+        List<Node> toScan = new ArrayList<>();
+        toScan.add(Registry.scene);
         while(!toScan.isEmpty()) {
             Node node = toScan.remove(0);
+            toScan.addAll(node.getChildren());
+
             if(node instanceof Pose pose) {
-                Matrix4d w = pose.getWorld();
                 // set modelView to world
+                Matrix4d w = pose.getWorld();
                 w.transpose();
                 shader.setMatrix4d(gl3,"modelView",w);
-                // draw one MatrixHelper here.
+                // draw the waldo
                 waldo.render(gl3);
             }
         }
