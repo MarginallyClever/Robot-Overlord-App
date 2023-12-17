@@ -58,6 +58,8 @@ public class DrawMeshes implements RenderPass {
                 // if they have a mesh, draw it.
                 Mesh mesh = meshInstance.getMesh();
                 if(mesh==null) continue;
+
+                final boolean[] hasTexture = {false};
                 // set the texture to the first sibling that is a material and has a texture
                 meshInstance.getParent().getChildren().stream()
                         .filter(n -> n instanceof Material)
@@ -66,7 +68,12 @@ public class DrawMeshes implements RenderPass {
                         .findFirst()
                         .ifPresent(m -> {
                             m.getTexture().use(shader);
+                            hasTexture[0] = true;
                         });
+                if(!hasTexture[0]) {
+                    gl3.glDisable(GL3.GL_TEXTURE_2D);
+                    shader.set1i(gl3,"useTexture",0);
+                }
 
                 // set the model matrix
                 Matrix4d w = meshInstance.getWorld();
