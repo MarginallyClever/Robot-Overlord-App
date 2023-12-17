@@ -5,6 +5,7 @@ import com.marginallyclever.ro3.node.nodes.*;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.render.RenderPass;
 import com.marginallyclever.ro3.render.renderpasses.DrawBackground;
+import com.marginallyclever.ro3.render.renderpasses.DrawCameras;
 import com.marginallyclever.ro3.render.renderpasses.DrawMeshes;
 import com.marginallyclever.ro3.render.renderpasses.DrawPoses;
 import com.marginallyclever.ro3.texture.TextureFactory;
@@ -35,5 +36,6 @@ public class Registry {
         renderPasses.add(new DrawBackground());
         renderPasses.add(new DrawMeshes());
         renderPasses.add(new DrawPoses());
+        renderPasses.add(new DrawCameras());
     }
 }
