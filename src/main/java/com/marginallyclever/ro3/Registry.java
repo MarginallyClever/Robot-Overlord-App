@@ -1,11 +1,8 @@
 package com.marginallyclever.ro3;
 
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
-import com.marginallyclever.ro3.node.nodes.Camera;
-import com.marginallyclever.ro3.node.nodes.Material;
-import com.marginallyclever.ro3.node.nodes.MeshInstance;
+import com.marginallyclever.ro3.node.nodes.*;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.render.OpenGLPanel;
 import com.marginallyclever.ro3.render.RenderPass;
 import com.marginallyclever.ro3.render.renderpasses.DrawBackground;
@@ -33,6 +30,7 @@ public class Registry {
         pose.add(new Factory.Category<>("Camera", Camera::new ));
         nodule.add(pose);
         nodule.add(new Factory.Category<>("Material", Material::new ));
+        nodule.add(new Factory.Category<>("DH Parameter", DHParameter::new ));
 
         panelFactory.getRoot().add(new Factory.Category<>("Panel A", () -> new DockingPanel("Panel A") ));
         panelFactory.getRoot().add(new Factory.Category<>("3D view", () -> new OpenGLPanel("3D view") ));
