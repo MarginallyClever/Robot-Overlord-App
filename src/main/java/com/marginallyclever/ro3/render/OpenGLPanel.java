@@ -28,7 +28,7 @@ import java.util.Objects;
  */
 public class OpenGLPanel extends JPanel implements GLEventListener {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLPanel.class);
-    private GLJPanel glCanvas;
+    protected GLJPanel glCanvas;
     protected int canvasWidth, canvasHeight;
     protected ShaderProgram shaderDefault;
     private final FPSAnimator animator = new FPSAnimator(GraphicsPreferences.framesPerSecond.get());
