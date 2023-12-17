@@ -183,7 +183,7 @@
 							<SplashScreen-Image>splash.png</SplashScreen-Image>
 						</manifestEntries>
 						<manifest>
-							<mainClass>com.marginallyclever.robotoverlord.RobotOverlord</mainClass>
+							<mainClass>com.marginallyclever.ro3.RO3</mainClass>
 							<addClasspath>true</addClasspath>
 						</manifest>
 					</archive>
