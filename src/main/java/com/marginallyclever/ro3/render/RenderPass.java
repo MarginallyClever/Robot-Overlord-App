@@ -11,6 +11,7 @@ public interface RenderPass {
     int NEVER = 0;
     int SOMETIMES = 1;
     int ALWAYS = 2;
+    int MAX_STATUS = 3;
 
     /**
      * @return NEVER, SOMETIMES, or ALWAYS

@@ -5,9 +5,6 @@ import com.marginallyclever.ro3.Registry;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * A panel that shows the {@link com.marginallyclever.ro3.Registry#renderPasses} list and allows the user to change it.
- */
 public class RenderPassPanel extends JPanel {
     private final DefaultListModel<RenderPass> model = new DefaultListModel<>();
     private final JList<RenderPass> list = new JList<>(model);
@@ -15,12 +12,28 @@ public class RenderPassPanel extends JPanel {
     public RenderPassPanel() {
         super(new BorderLayout());
 
-        list.setCellRenderer(new DefaultListCellRenderer() {
+        list.setCellRenderer(new ListCellRenderer<RenderPass>() {
             @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                setText(((RenderPass) value).getName());
-                return this;
+            public Component getListCellRendererComponent(JList<? extends RenderPass> list, RenderPass value, int index, boolean isSelected, boolean cellHasFocus) {
+                JPanel panel = new JPanel(new BorderLayout());
+                JButton button = new JButton();
+                setButtonLabel(button, value.getActiveStatus());
+                button.addActionListener(e -> {
+                    value.setActiveStatus((value.getActiveStatus() + 1) % RenderPass.MAX_STATUS );
+                    setButtonLabel(button, value.getActiveStatus());
+                    list.repaint();
+                });
+                panel.add(button, BorderLayout.WEST);
+                panel.add(new JLabel(value.getName()), BorderLayout.CENTER);
+                return panel;
+            }
+
+            void setButtonLabel(JButton button, int status) {
+                switch(status) {
+                    case RenderPass.NEVER -> button.setText("N");
+                    case RenderPass.SOMETIMES -> button.setText("S");
+                    case RenderPass.ALWAYS -> button.setText("A");
+                }
             }
         });
 
