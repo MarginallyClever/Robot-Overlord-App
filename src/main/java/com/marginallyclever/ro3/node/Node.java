@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node;
 
+import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 
 import javax.swing.*;
@@ -228,12 +229,12 @@ public class Node {
         listeners.add(NodeAttachListener.class,listener);
     }
 
-    public void removeAttachListener(NodeDetachListener listener) {
-        listeners.remove(NodeDetachListener.class,listener);
+    public void removeAttachListener(NodeAttachListener listener) {
+        listeners.remove(NodeAttachListener.class,listener);
     }
 
-    public void addDetachListener(NodeAttachListener listener) {
-        listeners.add(NodeAttachListener.class,listener);
+    public void addDetachListener(NodeDetachListener listener) {
+        listeners.add(NodeDetachListener.class,listener);
     }
 
     public void removeDetachListener(NodeDetachListener listener) {
@@ -305,5 +306,24 @@ public class Node {
         label.setLabelFor(component);
         pane.add(label);
         pane.add(component);
+    }
+
+    public <T extends Node> T findFirstChild(Class<T> type) {
+        for(Node child : children) {
+            if(type.isInstance(child)) {
+                return type.cast(child);
+            }
+        }
+        return null;
+    }
+
+    public <T extends Node> T findFirstSibling(Class<T> type) {
+        if(parent==null) return null;
+        for(Node child : parent.children) {
+            if(type.isInstance(child)) {
+                return type.cast(child);
+            }
+        }
+        return null;
     }
 }
