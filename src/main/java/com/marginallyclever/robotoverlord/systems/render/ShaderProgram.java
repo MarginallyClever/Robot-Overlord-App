@@ -126,24 +126,31 @@ public class ShaderProgram {
         OpenGLHelper.checkGLError(gl,logger);
     }
 
-    public void setVector3d(GL3 gl, String name, Vector3d v) {
+    public void setVector3d(GL3 gl, String name, Vector3d value) {
         int location = getUniformLocation(gl, name);
         if(location==-1) return;
-        gl.glUniform3f(location, (float) v.x, (float) v.y, (float) v.z);
+        gl.glUniform3f(location, (float) value.x, (float) value.y, (float) value.z);
         OpenGLHelper.checkGLError(gl,logger);
     }
 
-    public void setMatrix4d(GL3 gl, String name, Matrix4d matrix4d) {
+    /**
+     * Set a matrix in the shader.  OpenGL uses column-major order, where Java and DirectX use row-major order.
+     * Don't forget to transpose!
+     * @param gl the render context
+     * @param name the name of the uniform variable
+     * @param value the matrix to set
+     */
+    public void setMatrix4d(GL3 gl, String name, Matrix4d value) {
         int location = getUniformLocation(gl, name);
         if(location==-1) return;
-        gl.glUniformMatrix4fv(location, 1, false, MatrixHelper.matrixToFloatBuffer(matrix4d));
+        gl.glUniformMatrix4fv(location, 1, false, MatrixHelper.matrixToFloatBuffer(value));
         OpenGLHelper.checkGLError(gl,logger);
     }
 
-    public void set1i(GL3 gl, String name, int b) {
+    public void set1i(GL3 gl, String name, int value) {
         int location = getUniformLocation(gl, name);
         if(location==-1) return;
-        gl.glUniform1i(location, b);
+        gl.glUniform1i(location, value);
         OpenGLHelper.checkGLError(gl,logger);
     }
 }
