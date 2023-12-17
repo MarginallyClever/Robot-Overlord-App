@@ -53,7 +53,7 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
         tree.setRootVisible(true);
         tree.setShowsRootHandles(true);
         tree.setEditable(true);
-        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         tree.setDragEnabled(true);
         tree.setDropMode(DropMode.ON_OR_INSERT);
         NodeTreeBranchRenderer cellRender = new NodeTreeBranchRenderer();
