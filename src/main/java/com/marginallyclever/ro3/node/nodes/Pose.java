@@ -15,15 +15,14 @@ import java.text.NumberFormat;
 import java.util.List;
 
 public class Pose extends Node {
-    private final Matrix4d local = new Matrix4d();
+    private final Matrix4d local = MatrixHelper.createIdentityMatrix4();
 
     public Pose() {
-        super("Pose");
+        this("Pose");
     }
 
     public Pose(String name) {
         super(name);
-        local.setIdentity();
     }
 
     public Matrix4d getLocal() {
