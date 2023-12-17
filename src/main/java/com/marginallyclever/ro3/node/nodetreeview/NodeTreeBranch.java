@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodetreepanel;
+package com.marginallyclever.ro3.node.nodetreeview;
 
 import com.marginallyclever.ro3.node.Node;
 

@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodetreepanel;
+package com.marginallyclever.ro3.node.nodetreeview;
 
 import com.marginallyclever.ro3.DockingPanel;
 import com.marginallyclever.ro3.FactoryPanel;
@@ -90,20 +90,12 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
      */
     public void scanTree(Node parent) {
         if(parent == null) return;
-        NodeTreeBranch me = findTreeNode(parent);
-        if(me == null) return;
+        NodeTreeBranch parentBranch = findTreeNode(parent);
+        if(parentBranch == null) return;
 
         for (Node child : parent.getChildren()) {
             logger.debug("scanTree "+parent.getAbsolutePath()+" has child "+child.getAbsolutePath());
-            NodeTreeBranch node = findTreeNode(child);
-            if(node==null) {
-                node = new NodeTreeBranch(child);
-                me.add(node);
-            }
-            child.addAttachListener(this);
-            child.addDetachListener(this);
-            child.addRenameListener(this);
-            scanTree(child);
+            nodeAttached(child);
         }
     }
 
@@ -195,31 +187,44 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
 
     @Override
     public void nodeAttached(Node source) {
+        logger.debug("attached "+source.getAbsolutePath());
+        Node parent = source.getParent();
+        if(parent==null) throw new RuntimeException("source node has no parent");
+        NodeTreeBranch branchParent = findTreeNode(parent);
+        if(branchParent==null) throw new RuntimeException("parent node has no branch");
+        NodeTreeBranch branchChild = new NodeTreeBranch(source);
+        branchParent.add(branchChild);
+
         source.addAttachListener(this);
         source.addDetachListener(this);
         source.addRenameListener(this);
 
-        Node parent = source.getParent();
-        scanTree(parent);
-        ((DefaultTreeModel)tree.getModel()).reload();
+        scanTree(source);
+
+        ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(branchParent);
     }
 
     @Override
     public void nodeDetached(Node source) {
+        logger.debug("detached "+source.getAbsolutePath());
         source.removeAttachListener(this);
         source.removeDetachListener(this);
         source.removeRenameListener(this);
 
         Node parent = source.getParent();
-        if(parent==null) throw new RuntimeException("attached node has no parent");
-        NodeTreeBranch nodeParent = findTreeNode(parent);
-        if(nodeParent==null) throw new RuntimeException("attached node has no parent");
-        nodeParent.remove(findTreeNode(source));
-        ((DefaultTreeModel)tree.getModel()).reload();
+        if(parent==null) throw new RuntimeException("source node has no parent");
+        NodeTreeBranch branchParent = findTreeNode(parent);
+        if(branchParent==null) throw new RuntimeException("parent node has no branch");
+        branchParent.remove(findTreeNode(source));
+        ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(branchParent);
     }
 
     @Override
-    public void nodeRenamed(Node node) {
-        ((DefaultTreeModel)tree.getModel()).reload();
+    public void nodeRenamed(Node source) {
+        logger.debug("renamed "+source.getAbsolutePath());
+        NodeTreeBranch branch = findTreeNode(source);
+        if (branch != null) {
+            ((DefaultTreeModel) tree.getModel()).nodeChanged(branch);
+        }
     }
 }

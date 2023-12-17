@@ -8,8 +8,8 @@ import ModernDocking.ext.ui.DockingUI;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.marginallyclever.ro3.logpanel.LogPanel;
-import com.marginallyclever.ro3.node.nodetreepanel.NodeDetailView;
-import com.marginallyclever.ro3.node.nodetreepanel.NodeTreeView;
+import com.marginallyclever.ro3.node.NodeDetailView;
+import com.marginallyclever.ro3.node.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.render.OpenGLPanel;
 import com.marginallyclever.ro3.render.RenderPassPanel;
 import com.marginallyclever.ro3.render.Viewport;
@@ -167,7 +167,6 @@ public class RO3Frame extends JFrame {
 
         DockingPanel logView = new DockingPanel("Log");
         logView.add(logPanel, BorderLayout.CENTER);
-        Docking.dock(logView, this, DockingRegion.SOUTH);
         windows.add(logView);
 
         DockingPanel renderPassesView = new DockingPanel("Render");

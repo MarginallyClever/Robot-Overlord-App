@@ -1,7 +1,7 @@
-package com.marginallyclever.ro3.node.nodetreepanel;
+package com.marginallyclever.ro3.node;
 
 import com.marginallyclever.ro3.DockingPanel;
-import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodetreeview.SelectionChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +10,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * {@link NodeDetailView} is a panel that displays the details of a class that implements {@link Node}.
+ */
 public class NodeDetailView extends DockingPanel implements SelectionChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(NodeDetailView.class);
     public NodeDetailView() {
@@ -23,7 +26,10 @@ public class NodeDetailView extends DockingPanel implements SelectionChangeListe
     @Override
     public void selectionChanged(List<Node> selectedNodes) {
         JPanel parent = new JPanel();
-        parent.setLayout(new BoxLayout(parent,BoxLayout.PAGE_AXIS));
+
+        parent.setLayout(new BorderLayout());
+        Box vertical = Box.createVerticalBox();
+        parent.add(vertical,BorderLayout.PAGE_START);
 
         List<JComponent> list = new ArrayList<>();
 
@@ -36,7 +42,7 @@ public class NodeDetailView extends DockingPanel implements SelectionChangeListe
         }
 
         for(JComponent c : list) {
-            parent.add(c);
+            vertical.add(c);
         }
 
         this.removeAll();
