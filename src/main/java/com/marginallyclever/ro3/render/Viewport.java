@@ -51,11 +51,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private final Vector3d moveCamera = new Vector3d();
 
     public Viewport() {
-        super("Viewport");
-    }
-
-    public Viewport(String tabText) {
-        super(tabText);
+        super();
         add(toolBar, BorderLayout.NORTH);
         toolBar.setLayout(new FlowLayout(FlowLayout.LEFT,5,1));
         addCameraSelector();
@@ -64,6 +60,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         addFarSpinner();
         addOrthographicCheckbox();
         addOverlaySelection();
+
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -95,6 +92,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
                 super.keyReleased(e);
             }
         });
+        this.setFocusable(true);
     }
 
     private void addOverlaySelection() {

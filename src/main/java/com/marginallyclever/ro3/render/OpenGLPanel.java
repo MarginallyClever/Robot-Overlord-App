@@ -26,7 +26,7 @@ import java.util.Objects;
 /**
  * {@link OpenGLPanel} is a {@link DockingPanel} that contains a {@link GLJPanel} and an {@link FPSAnimator}.
  */
-public class OpenGLPanel extends DockingPanel implements GLEventListener {
+public class OpenGLPanel extends JPanel implements GLEventListener {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLPanel.class);
     private GLJPanel glCanvas;
     protected int canvasWidth, canvasHeight;
@@ -35,12 +35,7 @@ public class OpenGLPanel extends DockingPanel implements GLEventListener {
     private final List<GLEventListener> listeners = new ArrayList<>();
 
     public OpenGLPanel() {
-        this("OpenGL");
-    }
-
-    public OpenGLPanel(String tabText) {
-        super(tabText);
-        setLayout(new BorderLayout());
+        super(new BorderLayout());
 
         try {
             logger.info("availability="+ GLProfile.glAvailabilityToString());
@@ -188,7 +183,7 @@ public class OpenGLPanel extends DockingPanel implements GLEventListener {
 
     @Override
     public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
-        logger.info("reshape {}x{}",width,height);
+        logger.debug("reshape {}x{}",width,height);
         canvasWidth = width;
         canvasHeight = height;
     }

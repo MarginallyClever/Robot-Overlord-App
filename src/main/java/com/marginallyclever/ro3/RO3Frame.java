@@ -78,7 +78,7 @@ public class RO3Frame extends JFrame {
             public void windowClosing(WindowEvent e) {
                 if(confirmClose()) {
                     setDefaultCloseOperation(EXIT_ON_CLOSE);
-                };
+                }
                 super.windowClosing(e);
             }
         });
@@ -152,9 +152,11 @@ public class RO3Frame extends JFrame {
     }
 
     private void createPanels() {
-        renderPanel = new Viewport("3D view");
-        Docking.dock(renderPanel, this, DockingRegion.CENTER);
-        windows.add(renderPanel);
+        renderPanel = new Viewport();
+        DockingPanel renderView = new DockingPanel("3D view");
+        renderView.add(renderPanel, BorderLayout.CENTER);
+        Docking.dock(renderView, this, DockingRegion.CENTER);
+        windows.add(renderView);
 
         NodeTreeView nodeTreeView = new NodeTreeView("Scene");
         Docking.dock(nodeTreeView,this, DockingRegion.WEST);
