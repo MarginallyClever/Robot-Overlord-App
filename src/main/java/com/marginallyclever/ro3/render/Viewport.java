@@ -203,7 +203,6 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         viewMatrix.transpose();
         shaderDefault.setMatrix4d(gl3,"viewMatrix",viewMatrix);
         Matrix4d projectionMatrix = getChosenProjectionMatrix();
-        projectionMatrix.transpose();
         shaderDefault.setMatrix4d(gl3,"projectionMatrix",projectionMatrix);
         shaderDefault.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
         shaderDefault.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
