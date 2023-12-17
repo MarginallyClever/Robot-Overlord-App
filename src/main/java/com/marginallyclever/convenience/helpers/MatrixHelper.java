@@ -24,7 +24,7 @@ public class MatrixHelper {
 	 * @param m     matrix to draw
 	 * @param scale scale to draw at
 	 */
-	static public Mesh drawMatrix(Matrix4d m, float scale) {
+	static public Mesh createMesh(Matrix4d m, double scale) {
 		float x = (float)m.m03;
 		float y = (float)m.m13;
 		float z = (float)m.m23;
@@ -32,29 +32,38 @@ public class MatrixHelper {
 		Mesh mesh = new Mesh();
 		mesh.setRenderStyle(GL3.GL_LINES);
 		mesh.addColor(1,0,0,1);		mesh.addVertex(x, y, z);
-		mesh.addColor(1,0,0,1);		mesh.addVertex(x+(float)m.m00*scale, y+(float)m.m10*scale, z+(float)m.m20*scale);
+		mesh.addColor(1,0,0,1);
+		mesh.addVertex((float)(x+m.m00*scale),
+						(float)(y+m.m10*scale),
+						(float)(z+m.m20*scale));
 		mesh.addColor(0,1,0,1);		mesh.addVertex(x, y, z);
-		mesh.addColor(0,1,0,1);		mesh.addVertex(x+(float)m.m01*scale, y+(float)m.m11*scale, z+(float)m.m21*scale);
+		mesh.addColor(0,1,0,1);
+		mesh.addVertex((float)(x+m.m01*scale),
+						(float)(y+m.m11*scale),
+						(float)(z+m.m21*scale));
 		mesh.addColor(0,0,1,1);		mesh.addVertex(x, y, z);
-		mesh.addColor(0,0,1,1);		mesh.addVertex(x+(float)m.m02*scale, y+(float)m.m12*scale, z+(float)m.m22*scale);
+		mesh.addColor(0,0,1,1);
+		mesh.addVertex((float)(x+m.m02*scale),
+						(float)(y+m.m12*scale),
+						(float)(z+m.m22*scale));
 		return mesh;
 	}
 
-	static public Mesh drawMatrix(Tuple3d p,float scale) {
+	static public Mesh createMesh(Tuple3d p, double scale) {
 		Matrix4d m = MatrixHelper.createIdentityMatrix4();
 		m.setTranslation(new Vector3d(p.x,p.y,p.z));
-		return MatrixHelper.drawMatrix(m,scale);
+		return MatrixHelper.createMesh(m,scale);
 	}
 
-	static public Mesh drawMatrix(float scale) {
-		return drawMatrix(new Vector3d(),scale);
+	static public Mesh createMesh(double scale) {
+		return createMesh(new Vector3d(),scale);
 	}
 
 	/**
 	 * See drawMatrix(gl,p,u,v,w,1)
 	 */
-	static public void drawMatrix(GL3 gl,Vector3d p,Vector3d u,Vector3d v,Vector3d w) {
-		drawMatrix(gl,p,u,v,w,1);
+	static public void createMesh(GL3 gl, Vector3d p, Vector3d u, Vector3d v, Vector3d w) {
+		createMesh(gl,p,u,v,w,1);
 	}
 	
 	/**
@@ -66,14 +75,14 @@ public class MatrixHelper {
 	 * @param w in magenta (1,0,1)
 	 * @param scale nominally 1
 	 */
-	static public void drawMatrix(GL3 gl,Vector3d p,Vector3d u,Vector3d v,Vector3d w,float scale) {
+	static public void createMesh(GL3 gl, Vector3d p, Vector3d u, Vector3d v, Vector3d w, double scale) {
 		Matrix4d m = new Matrix4d(
 				u.x,u.y,u.z,p.x,
 				v.x,v.y,v.z,p.y,
 				w.x,w.y,w.z,p.z,
 				0,0,0,1.0
 				);
-		drawMatrix(m,scale);
+		createMesh(m,scale);
 	}
 
 	/**
@@ -866,25 +875,25 @@ public class MatrixHelper {
 		return matrixBuffer;
 	}
 
-	public static float [] matrixToArrayF(Matrix4d m) {
-		float [] list = new float[16];
+	public static double [] matrixToArrayF(Matrix4d m) {
+		double [] list = new double[16];
 
-		list[0] = (float)m.m00;
-		list[1] = (float)m.m01;
-		list[2] = (float)m.m02;
-		list[3] = (float)m.m03;
-		list[4] = (float)m.m10;
-		list[5] = (float)m.m11;
-		list[6] = (float)m.m12;
-		list[7] = (float)m.m13;
-		list[8] = (float)m.m20;
-		list[9] = (float)m.m21;
-		list[10] = (float)m.m22;
-		list[11] = (float)m.m23;
-		list[12] = (float)m.m30;
-		list[13] = (float)m.m31;
-		list[14] = (float)m.m32;
-		list[15] = (float)m.m33;
+		list[0] = (double)m.m00;
+		list[1] = (double)m.m01;
+		list[2] = (double)m.m02;
+		list[3] = (double)m.m03;
+		list[4] = (double)m.m10;
+		list[5] = (double)m.m11;
+		list[6] = (double)m.m12;
+		list[7] = (double)m.m13;
+		list[8] = (double)m.m20;
+		list[9] = (double)m.m21;
+		list[10] = (double)m.m22;
+		list[11] = (double)m.m23;
+		list[12] = (double)m.m30;
+		list[13] = (double)m.m31;
+		list[14] = (double)m.m32;
+		list[15] = (double)m.m33;
 
 		return list;
 	}
