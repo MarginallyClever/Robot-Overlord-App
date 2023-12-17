@@ -12,6 +12,9 @@ import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+/**
+ * Draws each {@link Camera} as a pyramid approximating the perspective view frustum.
+ */
 public class DrawCameras implements RenderPass {
     private int activeStatus = ALWAYS;
     private final Mesh mesh = new Mesh();
@@ -72,17 +75,13 @@ public class DrawCameras implements RenderPass {
         gl3.glDisable(GL3.GL_TEXTURE_2D);
 
         for(Camera camera : Registry.cameras.getList() ) {
-            // draw the frustum of the camera
-
             // set modelView to world
             Matrix4d w = camera.getWorld();
             w.transpose();
-            shader.setMatrix4d(gl3,"modelView",w);
-            // draw the waldo
+            shader.setMatrix4d(gl3,"modelMatrix",w);
             mesh.render(gl3);
         }
 
-        //System.out.println("DrawPoses: "+sum);
         shader.set1f(gl3,"useVertexColor",0);
         shader.set1i(gl3,"useLighting",1);
         gl3.glEnable(GL3.GL_DEPTH_TEST);

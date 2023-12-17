@@ -14,9 +14,12 @@ import javax.vecmath.Matrix4d;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Draw each {@link Pose} as RGB lines from the origin to the X,Y,Z axes.
+ */
 public class DrawPoses implements RenderPass {
     private int activeStatus = ALWAYS;
-    private final Mesh waldo = MatrixHelper.createMesh(1.0);
+    private final Mesh mesh = MatrixHelper.createMesh(1.0);
 
     /**
      * @return NEVER, SOMETIMES, or ALWAYS
@@ -50,8 +53,8 @@ public class DrawPoses implements RenderPass {
         shader.set1i(gl3,"useLighting",0);
         shader.set1i(gl3,"useTexture",0);
         gl3.glDisable(GL3.GL_DEPTH_TEST);
+        gl3.glDisable(GL3.GL_TEXTURE_2D);
 
-        // draw the world pose of every node in the Registry.
         List<Node> toScan = new ArrayList<>();
         toScan.add(Registry.scene);
         while(!toScan.isEmpty()) {
@@ -62,15 +65,14 @@ public class DrawPoses implements RenderPass {
                 // set modelView to world
                 Matrix4d w = pose.getWorld();
                 w.transpose();
-                shader.setMatrix4d(gl3,"modelView",w);
+                shader.setMatrix4d(gl3,"modelMatrix",w);
                 // draw the waldo
-                waldo.render(gl3);
+                mesh.render(gl3);
             }
         }
 
         shader.set1f(gl3,"useVertexColor",0);
         shader.set1i(gl3,"useLighting",1);
-        shader.set1i(gl3,"useTexture",0);
         gl3.glEnable(GL3.GL_DEPTH_TEST);
     }
 }

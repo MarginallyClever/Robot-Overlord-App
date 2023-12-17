@@ -8,6 +8,7 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.MeshInstance;
 import com.marginallyclever.ro3.render.RenderPass;
+import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.slf4j.Logger;
@@ -17,6 +18,10 @@ import javax.vecmath.Matrix4d;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Draw each {@link MeshInstance} as a {@link Mesh}.  If the {@link MeshInstance} has a sibling {@link Material} with
+ * a {@link com.jogamp.opengl.util.texture.Texture} then use it in the {@link ShaderProgram}.
+ */
 public class DrawMeshes implements RenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawMeshes.class);
     private int activeStatus = ALWAYS;
@@ -58,22 +63,21 @@ public class DrawMeshes implements RenderPass {
                 // if they have a mesh, draw it.
                 Mesh mesh = meshInstance.getMesh();
                 if(mesh==null) continue;
-
-                final boolean[] hasTexture = {false};
+/*
+                TextureWithMetadata texture = null;
                 // set the texture to the first sibling that is a material and has a texture
-                meshInstance.getParent().getChildren().stream()
-                        .filter(n -> n instanceof Material)
-                        .map(n -> (Material) n)
-                        .filter(m -> m.getTexture() != null)
-                        .findFirst()
-                        .ifPresent(m -> {
-                            m.getTexture().use(shader);
-                            hasTexture[0] = true;
-                        });
-                if(!hasTexture[0]) {
+                Material material = meshInstance.findFirstSibling(Material.class);
+                if(material!=null) {
+                    if(material.getTexture()!=null) {
+                        texture = material.getTexture();
+                    }
+                }
+                if(texture == null) {
                     gl3.glDisable(GL3.GL_TEXTURE_2D);
                     shader.set1i(gl3,"useTexture",0);
-                }
+                } else {
+                    texture.use(shader);
+                }*/
 
                 // set the model matrix
                 Matrix4d w = meshInstance.getWorld();
