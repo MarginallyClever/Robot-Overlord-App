@@ -194,13 +194,17 @@ public class RO3Frame extends JFrame {
         Docking.dock(renderView, this, DockingRegion.CENTER);
         windows.add(renderView);
 
-        NodeTreeView nodeTreeView = new NodeTreeView("Scene");
-        Docking.dock(nodeTreeView,this, DockingRegion.WEST);
-        windows.add(nodeTreeView);
+        DockingPanel treeView = new DockingPanel("Scene");
+        NodeTreeView nodeTreeView = new NodeTreeView();
+        treeView.add(nodeTreeView, BorderLayout.CENTER);
+        Docking.dock(treeView,this, DockingRegion.WEST);
+        windows.add(treeView);
 
-        NodeDetailView nodeDetailView = new NodeDetailView("Details");
-        Docking.dock(nodeDetailView, nodeTreeView, DockingRegion.SOUTH);
-        windows.add(nodeDetailView);
+        DockingPanel detailView = new DockingPanel("Details");
+        NodeDetailView nodeDetailView = new NodeDetailView();
+        detailView.add(nodeDetailView, BorderLayout.CENTER);
+        Docking.dock(detailView, treeView, DockingRegion.SOUTH);
+        windows.add(detailView);
         nodeTreeView.addSelectionChangeListener(nodeDetailView);
 
         DockingPanel logView = new DockingPanel("Log");

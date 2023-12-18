@@ -26,7 +26,7 @@ import java.util.function.Supplier;
 /**
  * {@link NodeTreeView} is a panel that displays the node tree.
  */
-public class NodeTreeView extends DockingPanel implements NodeAttachListener, NodeDetachListener, NodeRenameListener, SceneChangeListener {
+public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDetachListener, NodeRenameListener, SceneChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(NodeTreeView.class);
     private final JTree tree;
     private final NodeTreeBranch treeModel = new NodeTreeBranch(Registry.getScene());
@@ -35,11 +35,7 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
     JToolBar menuBar = new JToolBar();
 
     public NodeTreeView() {
-        this("Node Tree");
-    }
-
-    public NodeTreeView(String tabText) {
-        super(tabText);
+        super();
         setLayout(new BorderLayout());
 
         tree = new JTree(treeModel);

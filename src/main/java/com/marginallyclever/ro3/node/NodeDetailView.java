@@ -13,14 +13,10 @@ import java.util.List;
 /**
  * {@link NodeDetailView} is a panel that displays the details of a class that implements {@link Node}.
  */
-public class NodeDetailView extends DockingPanel implements SelectionChangeListener {
+public class NodeDetailView extends JPanel implements SelectionChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(NodeDetailView.class);
     public NodeDetailView() {
-        super("Node Detail Viewer");
-    }
-
-    public NodeDetailView(String tabName) {
-        super(tabName);
+        super();
     }
 
     /**
