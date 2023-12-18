@@ -16,6 +16,7 @@ import javax.swing.event.EventListenerList;
 import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.List;
 import java.util.function.Supplier;
@@ -97,15 +98,20 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
 
     /**
      * Scan the tree for existing nodes.
-     * @param parent the node to scan
+     * @param toScan the node to scan
      */
-    public void scanTree(Node parent) {
-        if(parent == null) return;
-        NodeTreeBranch parentBranch = findTreeNode(parent);
-        if(parentBranch == null) return;
+    public void scanTree(Node toScan) {
+        if(toScan == null) throw new InvalidParameterException("node is null");
+        logger.info("Scanning "+toScan.getAbsolutePath());
 
-        for (Node child : parent.getChildren()) {
-            logger.debug("scanTree "+parent.getAbsolutePath()+" has child "+child.getAbsolutePath());
+        NodeTreeBranch parentBranch = findTreeNode(toScan);
+        if(parentBranch == null) {
+            logger.error("node has no branch");
+            return;
+        }
+
+        for (Node child : toScan.getChildren()) {
+            logger.debug("node has child "+child.getAbsolutePath());
             nodeAttached(child);
         }
     }
@@ -249,7 +255,7 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
     public void afterSceneChange(Node newScene) {
         logger.debug("afterSceneChange");
         listenTo(newScene);
-        treeModel.removeAllChildren();
+        treeModel.setUserObject(newScene);
         ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(treeModel.getRoot());
         scanTree(newScene);
     }

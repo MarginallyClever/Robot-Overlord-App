@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class SaveScene extends AbstractAction {
@@ -53,12 +55,8 @@ public class SaveScene extends AbstractAction {
     private void saveScene(String absolutePath) {
         logger.info("Save scene to {}",absolutePath);
 
-        // Create an ObjectMapper instance
-        ObjectMapper mapper = new ObjectMapper();
-
-        try {
-            // Write the Registry.scene to a JSON file
-            mapper.writeValue(new File(absolutePath), Registry.getScene());
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(absolutePath))) {
+            writer.write(Registry.getScene().toJSON().toString());
         } catch (IOException e) {
             logger.error("Error saving scene to JSON", e);
         }

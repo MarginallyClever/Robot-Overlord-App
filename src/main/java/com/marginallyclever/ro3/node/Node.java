@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +45,11 @@ public class Node {
         if(child.children.isEmpty()) {
             fireReadyEvent(child);
             child.onReady();
-        } else {
+        }/* else {
             for(Node grandchild : child.children) {
                 child.addChild(grandchild);
             }
-        }
+        }*/
     }
 
     private void fireReadyEvent(Node child) {
@@ -357,12 +358,16 @@ public class Node {
      * @return the JSON object.
      */
     public JSONObject toJSON() {
-        logger.info("Saving node {}.",getAbsolutePath());
+        logger.info("Saving {}.",getAbsolutePath());
         JSONObject json = new JSONObject();
         json.put("type",getClass().getSimpleName());
         json.put("name",name);
         json.put("nodeID",nodeID.toString());
-        json.put("children",children);
+        JSONArray childrenArray = new JSONArray();
+        for (Node child : this.children) {
+            childrenArray.put(child.toJSON());
+        }
+        json.put("children",childrenArray);
         return json;
     }
 
@@ -374,7 +379,6 @@ public class Node {
      */
     public void fromJSON(JSONObject from) {
         name = from.getString("name");
-        logger.info("Loading node {}.",name);
         nodeID = UUID.fromString(from.getString("nodeID"));
         children.clear();
         for (Object o : from.getJSONArray("children")) {
