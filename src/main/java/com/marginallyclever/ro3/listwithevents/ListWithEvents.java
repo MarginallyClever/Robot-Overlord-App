@@ -51,7 +51,7 @@ public class ListWithEvents<T> {
         }
     }
 
-    public Collection<T> getList() {
+    public List<T> getList() {
         return list;
     }
 }
