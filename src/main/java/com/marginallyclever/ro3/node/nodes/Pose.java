@@ -3,6 +3,8 @@ package com.marginallyclever.ro3.node.nodes;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
@@ -141,5 +143,26 @@ public class Pose extends Node {
         local.m03 = p.x;
         local.m13 = p.y;
         local.m23 = p.z;
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject json = super.toJSON();
+
+        double[] localArray = MatrixHelper.matrix4dToArray(local);
+        json.put("local", new JSONArray(localArray));
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject from) {
+        super.fromJSON(from);
+        JSONArray localArray = from.getJSONArray("local");
+        double[] localData = new double[16];
+        for (int i = 0; i < 16; i++) {
+            localData[i] = localArray.getDouble(i);
+        }
+
+        local.set(localData);
     }
 }

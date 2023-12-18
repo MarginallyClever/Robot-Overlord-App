@@ -5,6 +5,7 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.texture.TextureFactoryPanel;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
+import org.json.JSONObject;
 
 import javax.swing.*;
 import java.awt.*;
@@ -71,5 +72,19 @@ public class Material extends Node {
 
     public TextureWithMetadata getTexture() {
         return texture;
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject json = super.toJSON();
+        json.put("texture",texture.getSource());
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject from) {
+        super.fromJSON(from);
+        String textureSource = from.getString("texture");
+        texture = Registry.textureFactory.load(textureSource);
     }
 }

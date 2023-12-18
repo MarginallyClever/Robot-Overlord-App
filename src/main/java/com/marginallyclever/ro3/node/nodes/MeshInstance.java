@@ -3,6 +3,8 @@ package com.marginallyclever.ro3.node.nodes;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.systems.render.mesh.MeshSmoother;
+import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
+import org.json.JSONObject;
 
 import javax.swing.*;
 import java.awt.*;
@@ -61,5 +63,22 @@ public class MeshInstance extends Pose {
 
     public Mesh getMesh() {
         return mesh;
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject json = super.toJSON();
+        if(mesh!=null) {
+            json.put("mesh", mesh.getSourceName());
+        }
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject from) {
+        super.fromJSON(from);
+        if(from.has("mesh")) {
+            mesh = MeshFactory.load(from.getString("mesh"));
+        }
     }
 }

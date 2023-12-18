@@ -62,10 +62,6 @@ public class Node {
         for(NodeAttachListener listener : listeners.getListeners(NodeAttachListener.class)) {
             listener.nodeAttached(child);
         }
-
-        for(Node grandchild : child.children) {
-            fireAttachEvent(grandchild);
-        }
     }
 
     private void fireDetachEvent(Node child) {

@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +15,7 @@ import java.util.List;
 
 public class DHParameter extends Node {
     private static final Logger logger = LoggerFactory.getLogger(DHParameter.class);
-    double d=0,r=0,alpha=0,theta=0;
+    private transient double d=0,r=0,alpha=0,theta=0;
 
     public DHParameter() {
         super("DH Parameter");
@@ -119,5 +120,15 @@ public class DHParameter extends Node {
         pane.add(toPose);
 
         super.getComponents(list);
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        return super.toJSON();
+    }
+
+    @Override
+    public void fromJSON(JSONObject from) {
+        super.fromJSON(from);
     }
 }

@@ -7,9 +7,7 @@ import ModernDocking.app.RootDockingPanel;
 import ModernDocking.ext.ui.DockingUI;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
-import com.marginallyclever.ro3.actions.LoadScene;
-import com.marginallyclever.ro3.actions.NewScene;
-import com.marginallyclever.ro3.actions.SaveScene;
+import com.marginallyclever.ro3.actions.*;
 import com.marginallyclever.ro3.logpanel.LogPanel;
 import com.marginallyclever.ro3.node.NodeDetailView;
 import com.marginallyclever.ro3.node.nodetreeview.NodeTreeView;
@@ -143,8 +141,12 @@ public class RO3Frame extends JFrame {
     private JMenu buildFileMenu() {
         JMenu menuFile = new JMenu("File");
         menuFile.add(new JMenuItem(new NewScene()));
+        menuFile.add(new JSeparator());
         menuFile.add(new JMenuItem(new LoadScene()));
         menuFile.add(new JMenuItem(new SaveScene()));
+        menuFile.add(new JSeparator());
+        menuFile.add(new JMenuItem(new ImportScene()));
+        menuFile.add(new JMenuItem(new ExportScene()));
         // TODO load recent scene
         menuFile.add(new JSeparator());
         JMenuItem quit = new JMenuItem(new AbstractAction("Quit") {

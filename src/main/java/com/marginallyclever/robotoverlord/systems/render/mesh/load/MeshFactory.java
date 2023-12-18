@@ -38,7 +38,7 @@ public class MeshFactory {
 	 * @return an instance of Mesh.  It may contain nothing.
 	 */
 	public static Mesh load(String filename) {
-		if(filename == null || filename.trim().length()==0) return null;
+		if(filename == null || filename.trim().isEmpty()) return null;
 		
 		Mesh mesh = getMeshFromPool(filename);
 		if(mesh!=null) return mesh;

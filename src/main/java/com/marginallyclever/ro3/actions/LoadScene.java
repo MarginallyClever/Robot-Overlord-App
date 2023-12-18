@@ -18,8 +18,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class LoadScene extends AbstractAction {
-    private static final JFileChooser chooser = new JFileChooser();
     private static final Logger logger = LoggerFactory.getLogger(LoadScene.class);
+    private static final JFileChooser chooser = new JFileChooser();
 
     public LoadScene() {
         super("Load Scene");

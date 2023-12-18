@@ -31,6 +31,11 @@ public class Factory<T> {
             this.supplier = supplier;
         }
 
+        public Category(Supplier<T> supplier) {
+            this.name = supplier.get().getClass().getSimpleName();
+            this.supplier = supplier;
+        }
+
         public void add(Category<T> c) {
             children.add(c);
         }
@@ -51,10 +56,11 @@ public class Factory<T> {
         List<Category<T>> toCheck = new ArrayList<>(root.children);
         while(!toCheck.isEmpty()) {
             Category<T> current = toCheck.remove(0);
+            toCheck.addAll(current.children);
+
             if(current.name.equals(path)) {
                 return current.supplier;
             }
-            toCheck.addAll(current.children);
         }
 
         return null;

@@ -1,7 +1,5 @@
 package com.marginallyclever.ro3.actions;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,17 +7,18 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
-public class SaveScene extends AbstractAction {
+/**
+ * Export the scene to a file for sharing on another computer.  This is not the same as saving the scene.
+ * Exporting the scene will save the scene and all the assets it uses to a single file.
+ */
+public class ExportScene extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(SaveScene.class);
     private static final JFileChooser chooser = new JFileChooser();
 
-    public SaveScene() {
-        super("Save Scene");
+    public ExportScene() {
+        super("Export Scene");
     }
 
     /**
@@ -48,19 +47,12 @@ public class SaveScene extends AbstractAction {
             }
 
             String absolutePath = chooser.getSelectedFile().getAbsolutePath();
-            saveScene(absolutePath);
+            exportScene(absolutePath);
         }
     }
 
-    private void saveScene(String absolutePath) {
-        logger.info("Save scene to {}",absolutePath);
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(absolutePath))) {
-            writer.write(Registry.getScene().toJSON().toString());
-        } catch (IOException e) {
-            logger.error("Error saving scene to JSON", e);
-        }
-
-        logger.info("done.");
+    private void exportScene(String absolutePath) {
+        logger.info("Export scene to {}", absolutePath);
+        logger.error("Not implemented yet.");
     }
 }

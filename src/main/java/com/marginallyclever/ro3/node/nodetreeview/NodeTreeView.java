@@ -45,9 +45,7 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
 
         buildMenuBar();
 
-        JScrollPane scroll = new JScrollPane();
-        scroll.setViewportView(tree);
-        add(scroll, BorderLayout.CENTER);
+        add(tree, BorderLayout.CENTER);
         add(menuBar, BorderLayout.NORTH);
     }
 
@@ -255,6 +253,7 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
     public void afterSceneChange(Node newScene) {
         logger.debug("afterSceneChange");
         listenTo(newScene);
+        treeModel.removeAllChildren();
         treeModel.setUserObject(newScene);
         ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(treeModel.getRoot());
         scanTree(newScene);
