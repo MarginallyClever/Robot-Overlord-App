@@ -53,6 +53,7 @@ public class DrawMeshes implements RenderPass {
     @Override
     public void draw(ShaderProgram shader) {
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
+        shader.use(gl3);
 
         // find all MeshInstance nodes in Registry
         List<Node> toScan = new ArrayList<>(Registry.getScene().getChildren());

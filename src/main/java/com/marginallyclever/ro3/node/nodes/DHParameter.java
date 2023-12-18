@@ -13,9 +13,16 @@ import java.awt.*;
 import java.text.NumberFormat;
 import java.util.List;
 
+/**
+ * <p>{@link DHParameter} is a node that holds the
+ * <a href="https://www.youtube.com/watch?v=rA9tm0gTln8">Denavit-Hartenberg parameters</a> for a joint.</p>
+ * <p>The DH parameters can be derived by finding the common normals between two consecutive Z axes.  The new X axis
+ * points along the common normal.  The intersection point of the two normals may be outside the physical structure
+ * being described.</p>
+ */
 public class DHParameter extends Node {
     private static final Logger logger = LoggerFactory.getLogger(DHParameter.class);
-    private transient double d=0,r=0,alpha=0,theta=0;
+    private transient double d=0, r=0, alpha=0, theta=0;
 
     public DHParameter() {
         super("DH Parameter");
@@ -130,5 +137,21 @@ public class DHParameter extends Node {
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
+    }
+
+    public double getD() {
+        return d;
+    }
+
+    public double getR() {
+        return r;
+    }
+
+    public double getAlpha() {
+        return alpha;
+    }
+
+    public double getTheta() {
+        return theta;
     }
 }

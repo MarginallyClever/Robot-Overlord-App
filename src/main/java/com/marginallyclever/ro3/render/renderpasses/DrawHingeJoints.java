@@ -46,9 +46,8 @@ public class DrawHingeJoints implements RenderPass {
 
     @Override
     public void draw(ShaderProgram shader) {
-
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
-
+        shader.use(gl3);
         shader.set1f(gl3,"useVertexColor",1);
         shader.set1i(gl3,"useLighting",0);
         shader.set1i(gl3,"useTexture",0);

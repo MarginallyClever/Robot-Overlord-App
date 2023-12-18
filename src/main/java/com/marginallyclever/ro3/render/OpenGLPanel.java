@@ -4,6 +4,7 @@ import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
+import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.DockingPanel;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.event.*;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.ArrayList;
@@ -136,9 +138,13 @@ public class OpenGLPanel extends JPanel implements GLEventListener, MouseListene
         gl3.glActiveTexture(GL3.GL_TEXTURE0);
 
         // create the default shader
-        shaderDefault = new ShaderProgram(gl3,
-                readResource("default_330.vert"),
-                readResource("default_330.frag"));
+        try {
+            shaderDefault = new ShaderProgram(gl3,
+                    ResourceHelper.readResource(this.getClass(),"default_330.vert"),
+                    ResourceHelper.readResource(this.getClass(),"default_330.frag"));
+        } catch(IOException e) {
+            logger.error("Failed to create default shader.",e);
+        }
         shaderDefault.use(gl3);
         shaderDefault.setVector3d(gl3,"lightColor",new Vector3d(1,1,1));  // Light color
         shaderDefault.set4f(gl3,"objectColor",1,1,1,1);
@@ -149,19 +155,6 @@ public class OpenGLPanel extends JPanel implements GLEventListener, MouseListene
         shaderDefault.set1i(gl3,"useTexture",0);
         shaderDefault.set1i(gl3,"diffuseTexture",0);
         OpenGLHelper.checkGLError(gl3,logger);
-    }
-
-    protected String [] readResource(String resourceName) {
-        List<String> lines = new ArrayList<>();
-        try(BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(this.getClass().getResourceAsStream(resourceName))))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                lines.add(line+"\n");
-            }
-        } catch (Exception e) {
-            logger.error("Failed to read resource: {}",resourceName,e);
-        }
-        return lines.toArray(new String[0]);
     }
 
     @Override
