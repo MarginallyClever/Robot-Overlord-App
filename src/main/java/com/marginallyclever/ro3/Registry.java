@@ -27,6 +27,7 @@ public class Registry {
         Factory.Category<Node> pose = new Factory.Category<>("Pose", Pose::new);
             pose.add(new Factory.Category<>("MeshInstance", MeshInstance::new ));
             pose.add(new Factory.Category<>("Camera", Camera::new ));
+            pose.add(new Factory.Category<>("HingeJoint", HingeJoint::new ));
         nodule.add(pose);
         nodule.add(new Factory.Category<>("Material", Material::new ));
         nodule.add(new Factory.Category<>("DHParameter", DHParameter::new ));
@@ -38,6 +39,7 @@ public class Registry {
         renderPasses.add(new DrawPoses());
         renderPasses.add(new DrawCameras());
         renderPasses.add(new DrawDHParameters());
+        renderPasses.add(new DrawHingeJoints());
     }
 
     public static void addSceneChangeListener(SceneChangeListener listener) {
