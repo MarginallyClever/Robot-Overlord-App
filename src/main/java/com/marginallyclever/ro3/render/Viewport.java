@@ -12,9 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +30,9 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private final JToolBar toolBar = new JToolBar();
     private final DefaultComboBoxModel<Camera> cameraListModel = new DefaultComboBoxModel<>();
     private final JPopupMenu overlayMenu = new JPopupMenu();
+    private final List<Boolean> buttonPressed = new ArrayList<>();
+    private int mx, my;
+
 
     public Viewport() {
         super();
@@ -34,6 +40,10 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         toolBar.setLayout(new FlowLayout(FlowLayout.LEFT,5,1));
         addCameraSelector();
         addRenderPassSelection();
+
+        for(int i=0;i<MouseInfo.getNumberOfButtons();++i) {
+            buttonPressed.add(false);
+        }
     }
 
     private void addRenderPassSelection() {
@@ -129,7 +139,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         cameraSelector.addItemListener(e -> {
             camera = (Camera) e.getItem();
         });
-        cameraSelector.setSelectedIndex(0);
+        if(cameraListModel.getSize()>0) cameraSelector.setSelectedIndex(0);
         toolBar.add(cameraSelector);
     }
 
@@ -218,4 +228,90 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             toScan.addAll(node.getChildren());
         }
     }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {}
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        buttonPressed.set(e.getButton(),true);
+        mx = e.getX();
+        my = e.getY();
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        buttonPressed.set(e.getButton(),false);
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {}
+
+    @Override
+    public void mouseExited(MouseEvent e) {}
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        int px = e.getX();
+        int dx = px - mx;
+        mx = px;
+
+        int py = e.getY();
+        int dy = py - my;
+        my = py;
+
+        if(buttonPressed.get(MouseEvent.BUTTON1)) {}
+        if(buttonPressed.get(MouseEvent.BUTTON2)) {
+            // middle button
+            Matrix4d local = camera.getLocal();
+            double [] panTiltAngles = getPanTiltFromMatrix(local);
+            double beforePan = (panTiltAngles[0]+360) % 360;
+            double beforeTilt = ((panTiltAngles[1]+90) % 360) -90;
+            panTiltAngles[0] = beforePan + dx;
+            panTiltAngles[1] = beforeTilt + dy;
+            panTiltAngles[1] = Math.max(0,Math.min(180,panTiltAngles[1]));
+            System.out.println("before= "+beforePan+","+beforeTilt+"\tafter=" + panTiltAngles[0] + "," + panTiltAngles[1] + "\tdiff="+dx+","+dy);
+            Matrix3d panTilt = buildPanTiltMatrix(panTiltAngles);
+            Vector3d t = new Vector3d();
+            local.get(t);
+            local.set(panTilt);
+            local.setTranslation(t);
+            camera.setLocal(local);
+        }
+        if(buttonPressed.get(MouseEvent.BUTTON3)) {
+            // right button
+            camera.truck(-dx);
+            camera.dolly(dy);
+        }
+    }
+
+    public double[] getPanTiltFromMatrix(Matrix4d matrix) {
+        Vector3d v = MatrixHelper.matrixToEuler(matrix);
+        double pan = Math.toDegrees(-v.z);
+        double tilt = Math.toDegrees(v.x);
+        return new double[]{ pan, tilt };
+    }
+
+    /**
+     * @param panTiltAngles [0] = pan, [1] = tilt
+     * @return a matrix that rotates the camera by the given pan and tilt angles.
+     */
+    public Matrix3d buildPanTiltMatrix(double [] panTiltAngles) {
+        Matrix3d a = new Matrix3d();
+        a.rotZ(Math.toRadians(panTiltAngles[0]));
+
+        Matrix3d b = new Matrix3d();
+        b.rotX(Math.toRadians(-panTiltAngles[1]));
+
+        Matrix3d c = new Matrix3d();
+        c.mul(b,a);
+        c.transpose();
+        return c;
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {}
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {}
 }
