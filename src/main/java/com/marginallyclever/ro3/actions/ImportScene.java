@@ -58,6 +58,6 @@ public class ImportScene extends AbstractAction {
             logger.error("Error loading scene from JSON", e);
         }
 
-        logger.error("Import scene not implemented yet.");
+        logger.info("done.");
     }
 }
