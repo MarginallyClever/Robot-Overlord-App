@@ -31,11 +31,6 @@ public class Factory<T> {
             this.supplier = supplier;
         }
 
-        public Category(Supplier<T> supplier) {
-            this.name = supplier.get().getClass().getSimpleName();
-            this.supplier = supplier;
-        }
-
         public void add(Category<T> c) {
             children.add(c);
         }

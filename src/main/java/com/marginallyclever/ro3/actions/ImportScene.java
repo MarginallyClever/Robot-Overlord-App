@@ -1,6 +1,6 @@
 package com.marginallyclever.ro3.actions;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.marginallyclever.ro3.RecentFilesMenu;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.robotoverlord.RobotOverlord;
@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.InvalidParameterException;
 
 /**
  * Load a Scene into the existing Scene.
@@ -24,7 +25,11 @@ public class ImportScene extends AbstractAction {
     private static final JFileChooser chooser = new JFileChooser();
 
     public ImportScene() {
-        super("Import Scene");
+        this("Import Scene");
+    }
+
+    public ImportScene(String name) {
+        super(name);
     }
 
     /**
@@ -44,7 +49,14 @@ public class ImportScene extends AbstractAction {
     }
 
     private void loadIntoScene(File selectedFile) {
+        if(selectedFile==null) throw new InvalidParameterException("selectedFile is null");
+
         logger.info("Import scene from {}",selectedFile.getAbsolutePath());
+
+        if( !selectedFile.exists() ) {
+            logger.error("File does not exist.");
+            return;
+        }
 
         try {
             String content = new String(Files.readAllBytes(Paths.get(selectedFile.getAbsolutePath())));
@@ -57,7 +69,6 @@ public class ImportScene extends AbstractAction {
         } catch (IOException e) {
             logger.error("Error loading scene from JSON", e);
         }
-
         logger.info("done.");
     }
 }

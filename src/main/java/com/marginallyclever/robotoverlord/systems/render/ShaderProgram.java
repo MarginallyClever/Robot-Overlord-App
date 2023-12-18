@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
+import java.security.InvalidParameterException;
 
 /**
  * A wrapper for vertex and fragment shader pairs that provides a simple interface for setting uniforms.
@@ -41,11 +42,8 @@ public class ShaderProgram {
     private void showProgramError(GL3 gl, String message) {
         int[] logLength = new int[1];
         gl.glGetProgramiv(programId, GL3.GL_INFO_LOG_LENGTH, logLength, 0);
-
         byte[] log = new byte[logLength[0]];
         gl.glGetProgramInfoLog(programId, logLength[0], null, 0, log, 0);
-
-        System.err.println(message + new String(log));
         logger.error(message + new String(log));
     }
 
@@ -60,7 +58,6 @@ public class ShaderProgram {
             byte[] log = new byte[logLength[0]];
             gl.glGetShaderInfoLog(shaderId, logLength[0], null, 0, log, 0);
 
-            System.err.println("Failed to compile "+name+" shader code: " + new String(log));
             logger.error("Failed to compile "+name+" shader code: " + new String(log));
         }
         return shaderId;
@@ -103,7 +100,7 @@ public class ShaderProgram {
     public int getUniformLocation(GL3 gl, String name) {
         int result = gl.glGetUniformLocation(programId, name);
         if(result==-1) {
-            logger.error("Could not find uniform "+name);
+            throw new InvalidParameterException("Could not find uniform "+name);
         }
         return result;
     }

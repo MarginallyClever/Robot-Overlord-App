@@ -4,6 +4,8 @@ import com.marginallyclever.ro3.DockingPanel;
 import com.marginallyclever.ro3.FactoryPanel;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
+import com.marginallyclever.ro3.actions.AddNode;
+import com.marginallyclever.ro3.actions.RemoveNode;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodeAttachListener;
 import com.marginallyclever.ro3.node.NodeDetachListener;
@@ -109,56 +111,14 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
         }
 
         for (Node child : toScan.getChildren()) {
-            logger.debug("node has child "+child.getAbsolutePath());
+            //logger.debug("node has child "+child.getAbsolutePath());
             nodeAttached(child);
         }
     }
 
     private void buildMenuBar() {
-        menuBar.add(new AbstractAction("+") {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                FactoryPanel<Node> nfd = new FactoryPanel<>(Registry.nodeFactory);
-                int result = JOptionPane.showConfirmDialog(NodeTreeView.this,nfd,"Create Node",JOptionPane.OK_CANCEL_OPTION);
-                if(result != JOptionPane.OK_OPTION) return;
-                if(nfd.getResult() != JOptionPane.OK_OPTION) return;
-                String type = nfd.getSelectedNode();
-                if(type.isEmpty()) return;
-                Supplier<Node> factory = Registry.nodeFactory.getSupplierFor(type);
-                if(factory==null) throw new RuntimeException("NodeTreePanel: no factory for "+type);
-
-                // get the selected nodes, if any.
-                TreePath[] paths = tree.getSelectionPaths();
-                if(paths==null || paths.length==0) {
-                    // no selection, add to root
-                    Registry.getScene().addChild(factory.get());
-                } else {
-                    // add a new node to each selected nodes
-                    for(TreePath path : paths) {
-                        NodeTreeBranch node = (NodeTreeBranch)path.getLastPathComponent();
-                        node.getNode().addChild(factory.get());
-                    }
-                }
-            }
-        });
-        menuBar.add(new AbstractAction("-") {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // remove the selected nodes and all child nodes.
-                TreePath[] paths = tree.getSelectionPaths();
-                if(paths != null) {
-                    // remove all selected nodes
-                    for(TreePath path : paths) {
-                        NodeTreeBranch treeNode = (NodeTreeBranch)path.getLastPathComponent();
-                        Node node = treeNode.getNode();
-                        Node parent = node.getParent();
-                        if(parent!=null) {
-                            parent.removeChild(node);
-                        }
-                    }
-                }
-            }
-        });
+        menuBar.add(new AddNode(this));
+        menuBar.add(new RemoveNode(this));
     }
 
     /**
@@ -257,5 +217,43 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
         treeModel.setUserObject(newScene);
         ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(treeModel.getRoot());
         scanTree(newScene);
+    }
+
+    /**
+     * Add a new node to the selected branches.
+     * @param factory the factory to use to create the new node.
+     */
+    public void addChildrenUsingFactory(Supplier<Node> factory) {
+        if(factory==null) throw new InvalidParameterException("factory is null");
+
+        // get the selected nodes, if any.
+        TreePath[] paths = tree.getSelectionPaths();
+        if(paths==null || paths.length==0) {
+            // no selection, add to root
+            Registry.getScene().addChild(factory.get());
+        } else {
+            // add a new node to each selected nodes
+            for(TreePath path : paths) {
+                NodeTreeBranch node = (NodeTreeBranch)path.getLastPathComponent();
+                node.getNode().addChild(factory.get());
+            }
+        }
+    }
+
+    /**
+     * Remove the selected nodes.
+     */
+    public void removeSelectedNodes() {
+        TreePath[] paths = tree.getSelectionPaths();
+        if(paths == null) return;  // nothing selected
+
+        for(TreePath path : paths) {
+            NodeTreeBranch treeNode = (NodeTreeBranch)path.getLastPathComponent();
+            Node node = treeNode.getNode();
+            Node parent = node.getParent();
+            if(parent!=null) {
+                parent.removeChild(node);
+            } // else root node, can't remove.
+        }
     }
 }

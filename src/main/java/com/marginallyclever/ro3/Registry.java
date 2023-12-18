@@ -25,14 +25,14 @@ public class Registry {
     public static EventListenerList listeners = new EventListenerList();
 
     public static void start() {
-        Factory.Category<Node> nodule = new Factory.Category<>( "Node", null );
+        Factory.Category<Node> nodule = new Factory.Category<>("Node", null);
         nodeFactory.getRoot().add(nodule);
-        Factory.Category<Node> pose = new Factory.Category<>( Pose::new );
-            pose.add(new Factory.Category<>( MeshInstance::new ));
-            pose.add(new Factory.Category<>( Camera::new ));
+        Factory.Category<Node> pose = new Factory.Category<>("Pose", Pose::new);
+            pose.add(new Factory.Category<>("MeshInstance", MeshInstance::new ));
+            pose.add(new Factory.Category<>("Camera", Camera::new ));
         nodule.add(pose);
-        nodule.add(new Factory.Category<>( Material::new ));
-        nodule.add(new Factory.Category<>( DHParameter::new ));
+        nodule.add(new Factory.Category<>("Material", Material::new ));
+        nodule.add(new Factory.Category<>("DHParameter", DHParameter::new ));
 
         cameras.add(new Camera("Camera 1"));
 

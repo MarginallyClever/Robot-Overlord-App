@@ -18,19 +18,21 @@ import com.marginallyclever.robotoverlord.swing.actions.AboutAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.prefs.Preferences;
 
 import static javax.swing.UIManager.setLookAndFeel;
 
 public class RO3Frame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(RO3Frame.class);
-
-    private OpenGLPanel renderPanel;
+    private final OpenGLPanel renderPanel;
     private final RenderPassPanel rpp = new RenderPassPanel();
     private final LogPanel logPanel = new LogPanel();
     private final List<DockingPanel> windows = new ArrayList<>();
@@ -45,6 +47,7 @@ public class RO3Frame extends JFrame {
         setLocationByPlatform(true);
 
         initDocking();
+        renderPanel = new Viewport();
         createPanels();
         createMenus();
         addQuitHandler();
@@ -119,9 +122,14 @@ public class RO3Frame extends JFrame {
 
         JMenu menuWindows = new JMenu("Windows");
         menuBar.add(menuWindows);
+
         // add each panel to the windows menu with a checkbox if the current panel is visible.
+        int index=0;
         for(DockingPanel w : windows) {
-            menuWindows.add(new DockableMenuItem(w.getPersistentID(),w.getTabText()));
+            DockableMenuItem item = new DockableMenuItem(w.getPersistentID(),w.getTabText());
+            menuWindows.add(item);
+            item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1 + index, InputEvent.SHIFT_DOWN_MASK));
+            index++;
         }
 
 
@@ -141,9 +149,13 @@ public class RO3Frame extends JFrame {
     private JMenu buildFileMenu() {
         JMenu menuFile = new JMenu("File");
         menuFile.add(new JMenuItem(new NewScene()));
+
         menuFile.add(new JSeparator());
-        menuFile.add(new JMenuItem(new LoadScene()));
+        RecentFilesMenu loadRecentMenu = new RecentFilesMenu(Preferences.userNodeForPackage(LoadScene.class));
+        menuFile.add(new JMenuItem(new LoadScene(loadRecentMenu)));
+        menuFile.add(loadRecentMenu);
         menuFile.add(new JMenuItem(new SaveScene()));
+
         menuFile.add(new JSeparator());
         menuFile.add(new JMenuItem(new ImportScene()));
         menuFile.add(new JMenuItem(new ExportScene()));
@@ -177,7 +189,6 @@ public class RO3Frame extends JFrame {
     }
 
     private void createPanels() {
-        renderPanel = new Viewport();
         DockingPanel renderView = new DockingPanel("3D view");
         renderView.add(renderPanel, BorderLayout.CENTER);
         Docking.dock(renderView, this, DockingRegion.CENTER);
