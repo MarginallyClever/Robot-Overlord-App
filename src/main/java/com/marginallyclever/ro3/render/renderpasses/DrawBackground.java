@@ -4,9 +4,10 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLContext;
 import com.marginallyclever.convenience.ColorRGB;
+import com.marginallyclever.ro3.render.RenderPass;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 
-public class DrawBackground implements com.marginallyclever.ro3.render.RenderPass {
+public class DrawBackground implements RenderPass {
     private int activeStatus = ALWAYS;
     private final ColorRGB eraseColor = new ColorRGB(64,64,128);
 

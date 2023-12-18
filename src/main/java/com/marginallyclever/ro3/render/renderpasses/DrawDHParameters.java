@@ -5,21 +5,34 @@ import com.jogamp.opengl.GLContext;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.Camera;
+import com.marginallyclever.ro3.node.nodes.DHParameter;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.render.RenderPass;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Draw each {@link Pose} as RGB lines from the origin to the X,Y,Z axes.
+ * Draws each {@link DHParameter} as two lines from the previous joint to
+ * the current joint.
  */
-public class DrawPoses implements RenderPass {
+public class DrawDHParameters implements RenderPass {
     private int activeStatus = ALWAYS;
-    private final Mesh mesh = MatrixHelper.createMesh(1.0);
+    private final Mesh mesh = new Mesh();
+
+    public DrawDHParameters() {
+        // add mesh to a list that can be unloaded and reloaded as needed.
+        mesh.setRenderStyle(GL3.GL_LINES);
+        mesh.addColor(0,0,0,1);        mesh.addVertex(0,0,0);
+        mesh.addColor(0,0,0,1);        mesh.addVertex(0,0,0);
+        mesh.addColor(0,0,0,1);        mesh.addVertex(0,0,0);
+        mesh.addColor(0,0,0,1);        mesh.addVertex(0,0,0);
+    }
 
     /**
      * @return NEVER, SOMETIMES, or ALWAYS
@@ -42,7 +55,7 @@ public class DrawPoses implements RenderPass {
      */
     @Override
     public String getName() {
-        return "Pose";
+        return "DH Parameters";
     }
 
     @Override
@@ -61,8 +74,12 @@ public class DrawPoses implements RenderPass {
             Node node = toScan.remove(0);
             toScan.addAll(node.getChildren());
 
-            if(node instanceof Pose pose) {
-                Matrix4d w = pose.getWorld();
+            if(node instanceof DHParameter parameter) {
+                // set modelView to world
+                Pose parentPose = parameter.findParent(Pose.class);
+                Matrix4d w = (parentPose==null)
+                    ? MatrixHelper.createIdentityMatrix4()
+                    : parentPose.getWorld();
                 w.transpose();
                 shader.setMatrix4d(gl3,"modelMatrix",w);
                 mesh.render(gl3);
