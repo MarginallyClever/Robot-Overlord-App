@@ -213,7 +213,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     }
 
     private void updateAllNodes(double dt) {
-        List<Node> toScan = new ArrayList<>(Registry.scene.getChildren());
+        List<Node> toScan = new ArrayList<>(Registry.getScene().getChildren());
         while(!toScan.isEmpty()) {
             Node node = toScan.remove(0);
             node.update(dt);

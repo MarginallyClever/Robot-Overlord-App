@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodetreeview;
 import com.marginallyclever.ro3.DockingPanel;
 import com.marginallyclever.ro3.FactoryPanel;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodeAttachListener;
 import com.marginallyclever.ro3.node.NodeDetachListener;
@@ -22,10 +23,10 @@ import java.util.function.Supplier;
 /**
  * {@link NodeTreeView} is a panel that displays the node tree.
  */
-public class NodeTreeView extends DockingPanel implements NodeAttachListener, NodeDetachListener, NodeRenameListener {
+public class NodeTreeView extends DockingPanel implements NodeAttachListener, NodeDetachListener, NodeRenameListener, SceneChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(NodeTreeView.class);
     private final JTree tree;
-    private final NodeTreeBranch treeModel = new NodeTreeBranch(Registry.scene);
+    private final NodeTreeBranch treeModel = new NodeTreeBranch(Registry.getScene());
     private final EventListenerList listenerList = new EventListenerList();
 
     JToolBar menuBar = new JToolBar();
@@ -71,17 +72,27 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
     @Override
     public void addNotify() {
         super.addNotify();
-        Registry.scene.addAttachListener(this);
-        Registry.scene.addDetachListener(this);
-        Registry.scene.addRenameListener(this);
+        Registry.addSceneChangeListener(this);
+        listenTo(Registry.getScene());
+    }
+
+    private void listenTo(Node node) {
+        node.addAttachListener(this);
+        node.addDetachListener(this);
+        node.addRenameListener(this);
     }
 
     @Override
     public void removeNotify() {
         super.removeNotify();
-        Registry.scene.removeAttachListener(this);
-        Registry.scene.removeDetachListener(this);
-        Registry.scene.removeRenameListener(this);
+        stopListeningTo(Registry.getScene());
+        Registry.removeSceneChangeListener(this);
+    }
+
+    private void stopListeningTo(Node node) {
+        node.removeAttachListener(this);
+        node.removeDetachListener(this);
+        node.removeRenameListener(this);
     }
 
     /**
@@ -116,7 +127,7 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
                 TreePath[] paths = tree.getSelectionPaths();
                 if(paths==null || paths.length==0) {
                     // no selection, add to root
-                    Registry.scene.addChild(factory.get());
+                    Registry.getScene().addChild(factory.get());
                 } else {
                     // add a new node to each selected nodes
                     for(TreePath path : paths) {
@@ -226,5 +237,20 @@ public class NodeTreeView extends DockingPanel implements NodeAttachListener, No
         if (branch != null) {
             ((DefaultTreeModel) tree.getModel()).nodeChanged(branch);
         }
+    }
+
+    @Override
+    public void beforeSceneChange(Node oldScene) {
+        logger.debug("beforeSceneChange");
+        stopListeningTo(oldScene);
+    }
+
+    @Override
+    public void afterSceneChange(Node newScene) {
+        logger.debug("afterSceneChange");
+        listenTo(newScene);
+        treeModel.removeAllChildren();
+        ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(treeModel.getRoot());
+        scanTree(newScene);
     }
 }

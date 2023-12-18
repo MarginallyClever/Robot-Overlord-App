@@ -10,6 +10,8 @@ import com.marginallyclever.ro3.render.renderpasses.DrawMeshes;
 import com.marginallyclever.ro3.render.renderpasses.DrawPoses;
 import com.marginallyclever.ro3.texture.TextureFactory;
 
+import javax.swing.event.EventListenerList;
+
 /**
  * {@link Registry} is a place to store global variables.
  */
@@ -18,8 +20,9 @@ public class Registry {
     public static final Factory<Node> nodeFactory = new Factory<>(Node.class);
     public static ListWithEvents<RenderPass> renderPasses = new ListWithEvents<>();
 
-    public static Node scene = new Node("Scene");
+    private static Node scene = new Node("Scene");
     public static ListWithEvents<Camera> cameras = new ListWithEvents<>();
+    public static EventListenerList listeners = new EventListenerList();
 
     public static void start() {
         Factory.Category<Node> nodule = new Factory.Category<>("Node", null);
@@ -37,5 +40,25 @@ public class Registry {
         renderPasses.add(new DrawMeshes());
         renderPasses.add(new DrawPoses());
         renderPasses.add(new DrawCameras());
+    }
+
+    public static void addSceneChangeListener(SceneChangeListener listener) {
+        listeners.add(SceneChangeListener.class,listener);
+    }
+
+    public static void removeSceneChangeListener(SceneChangeListener listener) {
+        listeners.remove(SceneChangeListener.class,listener);
+    }
+
+    public static void setScene(Node newScene) {
+        scene = newScene;
+
+        for (SceneChangeListener listener : listeners.getListeners(SceneChangeListener.class)) {
+            listener.afterSceneChange(newScene);
+        }
+    }
+
+    public static Node getScene() {
+        return scene;
     }
 }

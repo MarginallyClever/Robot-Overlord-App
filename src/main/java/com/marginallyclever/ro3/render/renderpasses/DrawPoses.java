@@ -56,7 +56,7 @@ public class DrawPoses implements RenderPass {
         gl3.glDisable(GL3.GL_TEXTURE_2D);
 
         List<Node> toScan = new ArrayList<>();
-        toScan.add(Registry.scene);
+        toScan.add(Registry.getScene());
         while(!toScan.isEmpty()) {
             Node node = toScan.remove(0);
             toScan.addAll(node.getChildren());

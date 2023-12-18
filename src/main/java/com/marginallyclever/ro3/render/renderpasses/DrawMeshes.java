@@ -55,7 +55,7 @@ public class DrawMeshes implements RenderPass {
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
 
         // find all MeshInstance nodes in Registry
-        List<Node> toScan = new ArrayList<>(Registry.scene.getChildren());
+        List<Node> toScan = new ArrayList<>(Registry.getScene().getChildren());
         while(!toScan.isEmpty()) {
             Node node = toScan.remove(0);
 

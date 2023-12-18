@@ -1,10 +1,14 @@
 package com.marginallyclever.ro3.actions;
 
+import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NewScene extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(NewScene.class);
@@ -20,6 +24,17 @@ public class NewScene extends AbstractAction {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
-        logger.error("New Scene not implemented yet.");
+        logger.info("New scene");
+
+        // remove all children of the scene to make sure we're starting fresh.
+        Node oldScene = Registry.getScene();
+        List<Node> children = new ArrayList<>(oldScene.getChildren());
+        for(Node child : children) {
+            oldScene.removeChild(child);
+        }
+        // remove the scene and replace it completely.
+        Registry.setScene(new Node("Scene"));
+
+        logger.info("done.");
     }
 }

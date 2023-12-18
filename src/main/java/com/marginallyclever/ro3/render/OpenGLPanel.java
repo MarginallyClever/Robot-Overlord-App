@@ -167,7 +167,7 @@ public class OpenGLPanel extends JPanel implements GLEventListener {
     }
 
     private void unloadAllMeshes(GL3 gl3) {
-        List<Node> toScan = new ArrayList<>(Registry.scene.getChildren());
+        List<Node> toScan = new ArrayList<>(Registry.getScene().getChildren());
         while(!toScan.isEmpty()) {
             Node node = toScan.remove(0);
 

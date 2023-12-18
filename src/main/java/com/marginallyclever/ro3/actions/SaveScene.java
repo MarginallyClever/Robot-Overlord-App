@@ -1,5 +1,7 @@
 package com.marginallyclever.ro3.actions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
 
 public class SaveScene extends AbstractAction {
     private static final JFileChooser chooser = new JFileChooser();
@@ -49,6 +52,17 @@ public class SaveScene extends AbstractAction {
 
     private void saveScene(String absolutePath) {
         logger.info("Save scene to {}",absolutePath);
-        logger.error("Save Scene not implemented yet.");
+
+        // Create an ObjectMapper instance
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            // Write the Registry.scene to a JSON file
+            mapper.writeValue(new File(absolutePath), Registry.getScene());
+        } catch (IOException e) {
+            logger.error("Error saving scene to JSON", e);
+        }
+
+        logger.info("done.");
     }
 }

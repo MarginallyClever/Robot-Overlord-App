@@ -1,7 +1,11 @@
 package com.marginallyclever.ro3.node;
 
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -15,10 +19,11 @@ import java.util.UUID;
  * A node in a tree.
  */
 public class Node {
+    private static final Logger logger = LoggerFactory.getLogger(Node.class);
     private String name;
     private final List<Node> children = new ArrayList<>();
     private Node parent;
-    private final UUID nodeID;
+    private UUID nodeID;
     private final EventListenerList listeners = new EventListenerList();
 
     public Node() {
@@ -301,6 +306,13 @@ public class Node {
         return false;
     }
 
+    /**
+     * A convenience method to add a label and component to a panel that is expected to be built with
+     * <code>new GridLayout(0, 2)</code>.
+     * @param pane the panel to add to
+     * @param labelText the text for the label
+     * @param component the component to add
+     */
     protected void addLabelAndComponent(JPanel pane, String labelText, JComponent component) {
         JLabel label = new JLabel(labelText);
         label.setLabelFor(component);
@@ -308,6 +320,12 @@ public class Node {
         pane.add(component);
     }
 
+    /**
+     * Find the first child of the given type.
+     * @param type the type of node to find
+     * @return the first sibling of the given type, or null if none found.
+     * @param <T> the type of node to find
+     */
     public <T extends Node> T findFirstChild(Class<T> type) {
         for(Node child : children) {
             if(type.isInstance(child)) {
@@ -317,6 +335,12 @@ public class Node {
         return null;
     }
 
+    /**
+     * Find the first sibling of the given type.
+     * @param type the type of node to find
+     * @return the first sibling of the given type, or null if none found.
+     * @param <T> the type of node to find
+     */
     public <T extends Node> T findFirstSibling(Class<T> type) {
         if(parent==null) return null;
         for(Node child : parent.children) {
@@ -325,5 +349,43 @@ public class Node {
             }
         }
         return null;
+    }
+
+    /**
+     * Serialize this node and its children to a JSON object and its children.
+     * Classes that override this method should call super.toJSON() first, then add to the object returned.
+     * @return the JSON object.
+     */
+    public JSONObject toJSON() {
+        logger.info("Saving node {}.",getAbsolutePath());
+        JSONObject json = new JSONObject();
+        json.put("type",getClass().getSimpleName());
+        json.put("name",name);
+        json.put("nodeID",nodeID.toString());
+        json.put("children",children);
+        return json;
+    }
+
+    /**
+     * Deserialize this node and its children from a JSON object and its children.
+     * Classes that override this method should call super.fromJSON().  When they do it will trigger the creation of
+     * child nodes.  The child nodes will then call their own fromJSON() methods.
+     * @param from the JSON object to read from.
+     */
+    public void fromJSON(JSONObject from) {
+        name = from.getString("name");
+        logger.info("Loading node {}.",name);
+        nodeID = UUID.fromString(from.getString("nodeID"));
+        children.clear();
+        for (Object o : from.getJSONArray("children")) {
+            JSONObject child = (JSONObject) o;
+            Node n = Registry.nodeFactory.create(child.getString("type"));
+            if(n==null) {
+                logger.error("{}: Could not create type {}.",getAbsolutePath(),child.getString("type"));
+                n = new Node();
+            }
+            n.fromJSON(child);
+            addChild(n);
+        }
     }
 }
