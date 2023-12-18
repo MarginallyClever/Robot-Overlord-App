@@ -83,7 +83,6 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     @Override
     public void addNotify() {
         super.addNotify();
-        addGLEventListener(this);
         Registry.cameras.addItemAddedListener(this::addCamera);
         Registry.cameras.addItemRemovedListener(this::removeCamera);
         Registry.renderPasses.addItemAddedListener(this::addOverlay);
@@ -93,7 +92,6 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     @Override
     public void removeNotify() {
         super.removeNotify();
-        removeGLEventListener(this);
         Registry.cameras.removeItemAddedListener(this::addCamera);
         Registry.cameras.removeItemRemovedListener(this::removeCamera);
         Registry.renderPasses.removeItemAddedListener(this::addOverlay);
