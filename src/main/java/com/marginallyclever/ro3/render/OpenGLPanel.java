@@ -14,6 +14,7 @@ import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.Objects;
 /**
  * {@link OpenGLPanel} is a {@link DockingPanel} that contains a {@link GLJPanel} and an {@link FPSAnimator}.
  */
-public class OpenGLPanel extends JPanel implements GLEventListener {
+public class OpenGLPanel extends JPanel implements GLEventListener, MouseListener, MouseMotionListener, MouseWheelListener {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLPanel.class);
     protected GLJPanel glCanvas;
     protected int canvasWidth, canvasHeight;
@@ -54,12 +55,18 @@ public class OpenGLPanel extends JPanel implements GLEventListener {
     public void addNotify() {
         super.addNotify();
         addGLEventListener(this);
+        glCanvas.addMouseListener(this);
+        glCanvas.addMouseMotionListener(this);
+        glCanvas.addMouseWheelListener(this);
     }
 
     @Override
     public void removeNotify() {
         super.removeNotify();
         removeGLEventListener(this);
+        glCanvas.removeMouseListener(this);
+        glCanvas.removeMouseMotionListener(this);
+        glCanvas.removeMouseWheelListener(this);
     }
 
     private GLCapabilities getCapabilities() {
@@ -201,4 +208,28 @@ public class OpenGLPanel extends JPanel implements GLEventListener {
             }
         }
     }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {}
+
+    @Override
+    public void mousePressed(MouseEvent e) {}
+
+    @Override
+    public void mouseReleased(MouseEvent e) {}
+
+    @Override
+    public void mouseEntered(MouseEvent e) {}
+
+    @Override
+    public void mouseExited(MouseEvent e) {}
+
+    @Override
+    public void mouseDragged(MouseEvent e) {}
+
+    @Override
+    public void mouseMoved(MouseEvent e) {}
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {}
 }
