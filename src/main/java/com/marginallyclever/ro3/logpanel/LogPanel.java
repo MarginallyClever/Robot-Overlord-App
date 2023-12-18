@@ -26,7 +26,7 @@ public class LogPanel extends JPanel {
         scroll.setViewportView(logArea);
         add(scroll, BorderLayout.CENTER);
 
-        // add this panel as a logger
+        // append log events to this panel
         LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
         Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         LogPanelAppender appender = new LogPanelAppender(this);
@@ -34,6 +34,10 @@ public class LogPanel extends JPanel {
         logger.addAppender(appender);
         appender.start();
 
+        reportSystemInfo(logger);
+    }
+
+    private void reportSystemInfo(Logger logger) {
         logger.info("------------------------------------------------");
         Properties p = System.getProperties();
         for(String n : p.stringPropertyNames()) {
