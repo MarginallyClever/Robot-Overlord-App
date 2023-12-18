@@ -63,7 +63,7 @@ public class DrawMeshes implements RenderPass {
                 // if they have a mesh, draw it.
                 Mesh mesh = meshInstance.getMesh();
                 if(mesh==null) continue;
-/*
+
                 TextureWithMetadata texture = null;
                 // set the texture to the first sibling that is a material and has a texture
                 Material material = meshInstance.findFirstSibling(Material.class);
@@ -77,7 +77,7 @@ public class DrawMeshes implements RenderPass {
                     shader.set1i(gl3,"useTexture",0);
                 } else {
                     texture.use(shader);
-                }*/
+                }
 
                 // set the model matrix
                 Matrix4d w = meshInstance.getWorld();

@@ -95,4 +95,5 @@ public class Camera extends Pose {
     public double getFarZ() {
         return farZ;
     }
+
 }

@@ -7,6 +7,9 @@ import ModernDocking.app.RootDockingPanel;
 import ModernDocking.ext.ui.DockingUI;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.marginallyclever.ro3.actions.LoadScene;
+import com.marginallyclever.ro3.actions.NewScene;
+import com.marginallyclever.ro3.actions.SaveScene;
 import com.marginallyclever.ro3.logpanel.LogPanel;
 import com.marginallyclever.ro3.node.NodeDetailView;
 import com.marginallyclever.ro3.node.nodetreeview.NodeTreeView;
@@ -114,8 +117,7 @@ public class RO3Frame extends JFrame {
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
-        JMenu menuFile = new JMenu("File");
-        menuBar.add(menuFile);
+        menuBar.add(buildFileMenu());
 
         JMenu menuWindows = new JMenu("Windows");
         menuBar.add(menuWindows);
@@ -136,6 +138,27 @@ public class RO3Frame extends JFrame {
             }
         });
         menuHelp.add(about);
+    }
+
+    private JMenu buildFileMenu() {
+        JMenu menuFile = new JMenu("File");
+        menuFile.add(new JMenuItem(new NewScene()));
+        menuFile.add(new JMenuItem(new LoadScene()));
+        menuFile.add(new JMenuItem(new SaveScene()));
+        // TODO load recent scene
+        menuFile.add(new JSeparator());
+        JMenuItem quit = new JMenuItem(new AbstractAction("Quit") {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                if(confirmClose()) {
+                    setDefaultCloseOperation(EXIT_ON_CLOSE);
+                    RO3Frame.this.dispatchEvent(new WindowEvent(RO3Frame.this, WindowEvent.WINDOW_CLOSING));
+                }
+            }
+        });
+        menuFile.add(quit);
+
+        return menuFile;
     }
 
     public boolean confirmClose() {
