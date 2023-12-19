@@ -66,7 +66,6 @@ public class DHParameter extends Node {
             }
             toScan.addAll(n.getChildren());
         }
-
     }
 
     void fromPose() {

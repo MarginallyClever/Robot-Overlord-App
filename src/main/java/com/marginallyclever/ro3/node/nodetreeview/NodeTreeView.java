@@ -59,6 +59,7 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
         NodeTreeBranchRenderer cellRender = new NodeTreeBranchRenderer();
         tree.setCellRenderer(cellRender);
         tree.setCellEditor(new NodeTreeBranchEditor(tree, cellRender));
+        tree.setTransferHandler(new NodeTreeTransferHandler());
         tree.addTreeSelectionListener((e) ->{
             // single selection
             TreePath path = e.getPath();
