@@ -16,10 +16,10 @@ import java.text.NumberFormat;
 import java.util.List;
 
 public class Camera extends Pose {
+    private boolean drawOrthographic = false;
     private double fovY = 60;
     private double nearZ = 1;
     private double farZ = 1000;
-    private boolean drawOrthographic = false;
 
     public Camera() {
         super("Camera");
@@ -194,5 +194,42 @@ public class Camera extends Pose {
         local.set(viewMatrix);
         local.setTranslation(position);
         this.setLocal(local);
+    }
+
+    public Matrix4d getPerspectiveFrustum(int width,int height) {
+        double nearVal = this.getNearZ();
+        double farVal = this.getFarZ();
+        double aspect = (double)width / (double)height;
+
+        return MatrixHelper.perspectiveMatrix4d(this.getFovY(),aspect,nearVal,farVal);
+    }
+
+    /**
+     * Render the scene in orthographic projection.
+     * @param zoom the zoom factor
+     */
+    public Matrix4d getOrthographicMatrix(double zoom,int width,int height) {
+        double w = width/2.0f;
+        double h = height/2.0f;
+
+        double left = -w/zoom;
+        double right = w/zoom;
+        double bottom = -h/zoom;
+        double top = h/zoom;
+        double nearVal = this.getNearZ();
+        double farVal = this.getFarZ();
+
+        return MatrixHelper.orthographicMatrix4d(left,right,bottom,top,nearVal,farVal);
+    }
+
+    public Matrix4d getChosenProjectionMatrix(int width,int height) {
+        return drawOrthographic ? getOrthographicMatrix(1.0,width,height) : getPerspectiveFrustum(width,height);
+    }
+
+    public Matrix4d getViewMatrix() {
+        Matrix4d inverseCamera = this.getWorld();
+        inverseCamera.invert();
+        inverseCamera.transpose();
+        return inverseCamera;
     }
 }

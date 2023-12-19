@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.render;
 
+import com.jogamp.opengl.GLEventListener;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 
@@ -7,7 +8,7 @@ import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
  * Classes which implement {@link RenderPass} are drawn on top of the 3D scene.  They should be registered to the
  * {@link Registry}, which remembers the order in which they should be drawn.
  */
-public interface RenderPass {
+public interface RenderPass extends GLEventListener {
     int NEVER = 0;
     int SOMETIMES = 1;
     int ALWAYS = 2;
@@ -28,5 +29,5 @@ public interface RenderPass {
      */
     String getName();
 
-    void draw(ShaderProgram shader);
+    void draw();
 }

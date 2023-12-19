@@ -383,13 +383,13 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
 
     private void createShaderPrograms(GL3 gl3) {
         shaderDefault = new ShaderProgram(gl3,
-            readResource("default_330.vert"),
-            readResource("default_330.frag"));
+            readResource("mesh.vert"),
+            readResource("mesh.frag"));
         shaderOutline = new ShaderProgram(gl3,
             readResource("outline_330.vert"),
             readResource("outline_330.frag"));
         shaderHUD = new ShaderProgram(gl3,
-            readResource("default_330.vert"),
+            readResource("mesh.vert"),
             readResource("givenColor_330.frag"));
     }
 

@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.render.renderpasses;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLContext;
 import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.ro3.render.RenderPass;
@@ -36,17 +37,27 @@ public class DrawBackground implements RenderPass {
     }
 
     @Override
-    public void draw(ShaderProgram shader) {
-        GL3 gl = GLContext.getCurrentGL().getGL3();
-        gl.glClearColor(eraseColor.red/255.0f,
+    public void init(GLAutoDrawable glAutoDrawable) {}
+
+    @Override
+    public void dispose(GLAutoDrawable glAutoDrawable) {}
+
+    @Override
+    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {}
+
+    @Override
+    public void display(GLAutoDrawable glAutoDrawable) {}
+
+    @Override
+    public void draw() {
+        GL3 gl3 = GLContext.getCurrentGL().getGL3();
+        gl3.glClearColor(eraseColor.red/255.0f,
                         eraseColor.green/255.0f,
                         eraseColor.blue/255.0f,
                         1);
-
-        gl.glDepthMask(true);
-        gl.glColorMask(true,true,true,true);
-        gl.glStencilMask(0xFF);
-
-        gl.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT | GL.GL_STENCIL_BUFFER_BIT);
+        gl3.glDepthMask(true);
+        gl3.glColorMask(true,true,true,true);
+        gl3.glStencilMask(0xFF);
+        gl3.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT | GL.GL_STENCIL_BUFFER_BIT);
     }
 }

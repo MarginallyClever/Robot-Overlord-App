@@ -1,10 +1,13 @@
 #version 330 core
 
-uniform mat4 modelMatrix;
 uniform float d;
 uniform float theta;
 uniform float r;
 uniform float alpha;
+
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 modelMatrix;
 
 in vec3 position;
 
@@ -19,5 +22,5 @@ void main() {
     newPosition.x += r;
 
     // Apply the world matrix
-    gl_Position = modelMatrix * vec4(newPosition, 1.0);
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(newPosition, 1.0);
 }

@@ -43,7 +43,9 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
 
         buildMenuBar();
 
-        add(tree, BorderLayout.CENTER);
+        JScrollPane scroll = new JScrollPane();
+        scroll.setViewportView(tree);
+        add(scroll, BorderLayout.CENTER);
         add(menuBar, BorderLayout.NORTH);
     }
 

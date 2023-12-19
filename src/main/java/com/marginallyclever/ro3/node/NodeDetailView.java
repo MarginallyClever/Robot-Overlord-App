@@ -15,8 +15,13 @@ import java.util.List;
  */
 public class NodeDetailView extends JPanel implements SelectionChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(NodeDetailView.class);
+    private final JPanel parent = new JPanel(new BorderLayout());
+
     public NodeDetailView() {
         super();
+        JScrollPane scroll = new JScrollPane();
+        scroll.setViewportView(parent);
+        this.add(scroll, BorderLayout.CENTER);
     }
 
     /**
@@ -26,12 +31,7 @@ public class NodeDetailView extends JPanel implements SelectionChangeListener {
      */
     @Override
     public void selectionChanged(List<Node> selectedNodes) {
-        JPanel parent = new JPanel();
-
-        parent.setLayout(new BorderLayout());
         Box vertical = Box.createVerticalBox();
-        parent.add(vertical,BorderLayout.PAGE_START);
-
         List<JComponent> list = new ArrayList<>();
 
         for(Node node : selectedNodes) {
@@ -46,10 +46,8 @@ public class NodeDetailView extends JPanel implements SelectionChangeListener {
             vertical.add(c);
         }
 
-        this.removeAll();
-        JScrollPane scroll = new JScrollPane();
-        scroll.setViewportView(parent);
-        this.add(scroll, BorderLayout.CENTER);
+        parent.removeAll();
+        parent.add(vertical,BorderLayout.NORTH);
         this.revalidate();
         this.repaint();
     }

@@ -44,6 +44,7 @@ public class LoadScene extends AbstractAction {
         File src = (filePath != null)
                 ? new File(filePath)  // use the given filename
                 : runFileDialog((Component) e.getSource());  // ask the user for a filename
+        if( src == null ) return;  // cancelled
         loadAsNewScene(src);
     }
 

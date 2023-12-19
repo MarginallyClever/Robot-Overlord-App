@@ -29,11 +29,10 @@ import java.util.Objects;
 /**
  * {@link OpenGLPanel} is a {@link DockingPanel} that contains a {@link GLJPanel} and an {@link FPSAnimator}.
  */
-public class OpenGLPanel extends JPanel implements GLEventListener, MouseListener, MouseMotionListener, MouseWheelListener {
+public class OpenGLPanel extends JPanel implements GLEventListener, MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLPanel.class);
     protected GLJPanel glCanvas;
     protected int canvasWidth, canvasHeight;
-    protected ShaderProgram shaderDefault;
     private final FPSAnimator animator = new FPSAnimator(GraphicsPreferences.framesPerSecond.get());
     private final List<GLEventListener> listeners = new ArrayList<>();
 
@@ -60,6 +59,7 @@ public class OpenGLPanel extends JPanel implements GLEventListener, MouseListene
         glCanvas.addMouseListener(this);
         glCanvas.addMouseMotionListener(this);
         glCanvas.addMouseWheelListener(this);
+        glCanvas.addKeyListener(this);
     }
 
     @Override
@@ -69,6 +69,7 @@ public class OpenGLPanel extends JPanel implements GLEventListener, MouseListene
         glCanvas.removeMouseListener(this);
         glCanvas.removeMouseMotionListener(this);
         glCanvas.removeMouseWheelListener(this);
+        glCanvas.removeKeyListener(this);
     }
 
     private GLCapabilities getCapabilities() {
@@ -136,32 +137,12 @@ public class OpenGLPanel extends JPanel implements GLEventListener, MouseListene
         gl3.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);
 
         gl3.glActiveTexture(GL3.GL_TEXTURE0);
-
-        // create the default shader
-        try {
-            shaderDefault = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(),"default_330.vert"),
-                    ResourceHelper.readResource(this.getClass(),"default_330.frag"));
-        } catch(IOException e) {
-            logger.error("Failed to create default shader.",e);
-        }
-        shaderDefault.use(gl3);
-        shaderDefault.setVector3d(gl3,"lightColor",new Vector3d(1,1,1));  // Light color
-        shaderDefault.set4f(gl3,"objectColor",1,1,1,1);
-        shaderDefault.setVector3d(gl3,"specularColor",new Vector3d(0.5,0.5,0.5));
-        shaderDefault.setVector3d(gl3,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
-        shaderDefault.set1f(gl3,"useVertexColor",0);
-        shaderDefault.set1i(gl3,"useLighting",1);
-        shaderDefault.set1i(gl3,"useTexture",0);
-        shaderDefault.set1i(gl3,"diffuseTexture",0);
-        OpenGLHelper.checkGLError(gl3,logger);
     }
 
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         logger.info("dispose");
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        shaderDefault.delete(gl3);
         unloadAllMeshes(gl3);
         Registry.textureFactory.unloadAll();
     }
@@ -189,18 +170,7 @@ public class OpenGLPanel extends JPanel implements GLEventListener, MouseListene
     }
 
     @Override
-    public void display(GLAutoDrawable glAutoDrawable) {
-        renderAllPasses();
-    }
-
-    private void renderAllPasses() {
-        // renderPasses that are always on
-        for(RenderPass pass : Registry.renderPasses.getList()) {
-            if(pass.getActiveStatus()==RenderPass.ALWAYS) {
-                pass.draw(shaderDefault);
-            }
-        }
-    }
+    public void display(GLAutoDrawable glAutoDrawable) {}
 
     @Override
     public void mouseClicked(MouseEvent e) {}
@@ -225,4 +195,27 @@ public class OpenGLPanel extends JPanel implements GLEventListener, MouseListene
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {}
+
+    public int getCanvasHeight() {
+        return canvasHeight;
+    }
+
+    public int getCanvasWidth() {
+        return canvasWidth;
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        System.out.println("keyTyped "+e);
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        System.out.println("keyPressed "+e);
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        System.out.println("keyReleased "+e);
+    }
 }
