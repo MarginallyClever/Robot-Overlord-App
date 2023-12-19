@@ -26,7 +26,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private Camera camera;
     private final JToolBar toolBar = new JToolBar();
     private final DefaultComboBoxModel<Camera> cameraListModel = new DefaultComboBoxModel<>();
-    private final JPopupMenu overlayMenu = new JPopupMenu();
+    private final JPopupMenu renderPassMenu = new JPopupMenu();
     private final List<Boolean> buttonPressed = new ArrayList<>();
     private int mx, my;
 
@@ -47,10 +47,10 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         JButton button = new JButton("Render");
         toolBar.add(button);
 
-        overlayMenu.removeAll();
+        renderPassMenu.removeAll();
 
         // Add an ActionListener to the JButton to show the JPopupMenu when clicked
-        button.addActionListener(e -> overlayMenu.show(button, button.getWidth()/2, button.getHeight()/2));
+        button.addActionListener(e -> renderPassMenu.show(button, button.getWidth()/2, button.getHeight()/2));
 
         for(RenderPass renderPass : Registry.renderPasses.getList()) {
             addRenderPass(renderPass);
@@ -86,19 +86,34 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     }
 
     private void addRenderPassInternal(RenderPass renderPass) {
-        JCheckBox checkBox = new JCheckBox(renderPass.getName());
-        checkBox.setSelected(renderPass.getActiveStatus() == RenderPass.ALWAYS);
-        checkBox.addActionListener(e -> {
-            renderPass.setActiveStatus(checkBox.isSelected() ? RenderPass.ALWAYS : RenderPass.NEVER);
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(2,2,0,2));
+        JButton button = new JButton();
+        setRenderPassButtonLabel(button, renderPass.getActiveStatus());
+        button.addActionListener(e -> {
+            renderPass.setActiveStatus((renderPass.getActiveStatus() + 1) % RenderPass.MAX_STATUS );
+            setRenderPassButtonLabel(button, renderPass.getActiveStatus());
         });
-        overlayMenu.add(checkBox);
+        panel.add(button, BorderLayout.WEST);
+        JLabel label = new JLabel(renderPass.getName());
+        label.setBorder(BorderFactory.createEmptyBorder(0,5,0,0));
+        panel.add(label, BorderLayout.CENTER);
+        renderPassMenu.add(panel);
+    }
+
+    void setRenderPassButtonLabel(JButton button, int status) {
+        switch(status) {
+            case RenderPass.NEVER -> button.setText("N");
+            case RenderPass.SOMETIMES -> button.setText("S");
+            case RenderPass.ALWAYS -> button.setText("A");
+        }
     }
 
     private void removeRenderPassInternal(RenderPass renderPass) {
-        for(Component c : overlayMenu.getComponents()) {
+        for(Component c : renderPassMenu.getComponents()) {
             if(c instanceof JCheckBox checkBox) {
                 if(checkBox.getText().equals(renderPass.getName())) {
-                    overlayMenu.remove(c);
+                    renderPassMenu.remove(c);
                     return;
                 }
             }
@@ -133,6 +148,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
 
         cameraSelector.addItemListener(e -> {
             camera = (Camera) e.getItem();
+            Registry.setActiveCamera(camera);
         });
         if(cameraListModel.getSize()>0) cameraSelector.setSelectedIndex(0);
         toolBar.add(cameraSelector);
@@ -212,12 +228,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private void panTiltCamera(int dx, int dy) {
         Matrix4d local = camera.getLocal();
         double [] panTiltAngles = getPanTiltFromMatrix(local);
-        double beforePan = (panTiltAngles[0]+360) % 360;
-        double beforeTilt = ((panTiltAngles[1]+90) % 360) -90;
-        panTiltAngles[0] = beforePan + dx;
-        panTiltAngles[1] = beforeTilt + dy;
-        panTiltAngles[1] = Math.max(0,Math.min(180,panTiltAngles[1]));
-        System.out.println("before= "+beforePan+","+beforeTilt+"\tafter=" + panTiltAngles[0] + "," + panTiltAngles[1] + "\tdiff="+dx+","+dy);
+        panTiltAngles[0] = (panTiltAngles[0] + dx+360) % 360;
+        panTiltAngles[1] = Math.max(0,Math.min(180,panTiltAngles[1] + dy));
         Matrix3d panTilt = buildPanTiltMatrix(panTiltAngles);
         Vector3d t = new Vector3d();
         local.get(t);

@@ -96,11 +96,13 @@ public class DrawDHParameters implements RenderPass {
 
     @Override
     public void draw() {
+        Camera camera = Registry.getActiveCamera();
+        if(camera==null) return;
+
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
         gl3.glDisable(GL3.GL_DEPTH_TEST);
         gl3.glDisable(GL3.GL_TEXTURE_2D);
         shader.use(gl3);
-        Camera camera = Registry.cameras.getList().get(0);
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));
         shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix());
 

@@ -86,9 +86,11 @@ public class DrawMeshes implements RenderPass {
 
     @Override
     public void draw() {
+        Camera camera = Registry.getActiveCamera();
+        if(camera==null) return;
+
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
         shader.use(gl3);
-        Camera camera = Registry.cameras.getList().get(0);
         shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix());
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
