@@ -18,7 +18,7 @@ public class NodeDetailView extends JPanel implements SelectionChangeListener {
     private final JPanel parent = new JPanel(new BorderLayout());
 
     public NodeDetailView() {
-        super();
+        super(new BorderLayout());
         JScrollPane scroll = new JScrollPane();
         scroll.setViewportView(parent);
         this.add(scroll, BorderLayout.CENTER);
@@ -47,7 +47,7 @@ public class NodeDetailView extends JPanel implements SelectionChangeListener {
         }
 
         parent.removeAll();
-        parent.add(vertical,BorderLayout.NORTH);
+        parent.add(vertical, BorderLayout.NORTH);
         this.revalidate();
         this.repaint();
     }
