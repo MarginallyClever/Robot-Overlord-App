@@ -318,14 +318,14 @@ public class Node {
     }
 
     /**
-     * Find the first child of the given type.
+     * Find the first child of the given type.  The type must be an exact match - it will not match subclasses.
      * @param type the type of node to find
      * @return the first sibling of the given type, or null if none found.
      * @param <T> the type of node to find
      */
     public <T extends Node> T findFirstChild(Class<T> type) {
         for(Node child : children) {
-            if(type.isInstance(child)) {
+            if(child.getClass().equals(type)) {
                 return type.cast(child);
             }
         }
@@ -333,19 +333,13 @@ public class Node {
     }
 
     /**
-     * Find the first sibling of the given type.
+     * Find the first sibling of the given type.  The type must be an exact match - it will not match subclasses.
      * @param type the type of node to find
      * @return the first sibling of the given type, or null if none found.
      * @param <T> the type of node to find
      */
     public <T extends Node> T findFirstSibling(Class<T> type) {
-        if(parent==null) return null;
-        for(Node child : parent.children) {
-            if(type.isInstance(child)) {
-                return type.cast(child);
-            }
-        }
-        return null;
+        return (parent==null) ? null : parent.findFirstChild(type);
     }
 
     /**
