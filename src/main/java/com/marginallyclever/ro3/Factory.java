@@ -34,6 +34,12 @@ public class Factory<T> {
         public void add(Category<T> c) {
             children.add(c);
         }
+
+        public Category<T> add(String name,Supplier<T> supplier) {
+            Category<T> item = new Category<>(name,supplier);
+            children.add(item);
+            return item;
+        }
     }
 
     private final Category<T> root = new Category<>("root",null);
