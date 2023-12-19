@@ -11,6 +11,7 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.MeshInstance;
+import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.render.RenderPass;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;

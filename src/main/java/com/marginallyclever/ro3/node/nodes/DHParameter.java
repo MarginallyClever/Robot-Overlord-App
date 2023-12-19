@@ -11,6 +11,7 @@ import javax.swing.text.NumberFormatter;
 import javax.vecmath.Matrix4d;
 import java.awt.*;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,6 +47,26 @@ public class DHParameter extends Node {
         m.m30 = 0;		m.m31 = 0;			m.m32 = 0;			m.m33 = 1;
 
         pose.setLocal(m);
+    }
+
+    void toPoseAndAdjustMeshes() {
+        toPose();
+        adjustMeshes();
+    }
+
+    private void adjustMeshes() {
+        Pose pose = findFirstSibling(Pose.class);
+        if(pose==null) return;
+
+        List<Node> toScan = new ArrayList<>(pose.getChildren());
+        while(!toScan.isEmpty()) {
+            Node n = toScan.remove(0);
+            if(n instanceof MeshInstance mi) {
+                mi.adjustLocal();
+            }
+            toScan.addAll(n.getChildren());
+        }
+
     }
 
     void fromPose() {
@@ -98,7 +119,7 @@ public class DHParameter extends Node {
         });
 
         JButton toPose = new JButton("To Pose");
-        toPose.addActionListener(e -> toPose());
+        toPose.addActionListener(e -> toPoseAndAdjustMeshes());
 
         NumberFormat format = NumberFormat.getNumberInstance();
         NumberFormatter formatter = new NumberFormatter(format);
@@ -119,9 +140,9 @@ public class DHParameter extends Node {
         pane.setLayout(new GridLayout(0,2));
 
         this.addLabelAndComponent(pane,"d",dh_d);
+        this.addLabelAndComponent(pane,"theta",dh_theta);
         this.addLabelAndComponent(pane,"r",dh_r);
         this.addLabelAndComponent(pane,"alpha",dh_alpha);
-        this.addLabelAndComponent(pane,"theta",dh_theta);
 
         pane.add(fromPose);
         pane.add(toPose);
@@ -131,12 +152,21 @@ public class DHParameter extends Node {
 
     @Override
     public JSONObject toJSON() {
-        return super.toJSON();
+        JSONObject json = super.toJSON();
+        json.put("d",d);
+        json.put("theta",theta);
+        json.put("r",r);
+        json.put("alpha",alpha);
+        return json;
     }
 
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
+        if(from.has("d")) d = from.getDouble("d");
+        if(from.has("theta")) theta = from.getDouble("theta");
+        if(from.has("r")) r = from.getDouble("r");
+        if(from.has("alpha")) alpha = from.getDouble("alpha");
     }
 
     public double getD() {

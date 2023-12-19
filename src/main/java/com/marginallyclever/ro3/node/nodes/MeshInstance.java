@@ -1,12 +1,16 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.systems.render.mesh.MeshSmoother;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.swing.*;
+import javax.vecmath.Matrix4d;
 import java.awt.*;
 import java.io.File;
 import java.util.List;
@@ -51,7 +55,11 @@ public class MeshInstance extends Pose {
 
             JButton smooth = new JButton("Smooth");
             smooth.addActionListener(e -> MeshSmoother.smoothNormals(mesh,0.01f,0.25f) );
-            addLabelAndComponent(pane,"Smooth",smooth);
+            addLabelAndComponent(pane,"Normals",smooth);
+
+            JButton adjust = new JButton("Adjust");
+            adjust.addActionListener(e -> adjustLocal());
+            addLabelAndComponent(pane,"Local origin",adjust);
         }
 
         super.getComponents(list);
@@ -80,5 +88,12 @@ public class MeshInstance extends Pose {
         if(from.has("mesh")) {
             mesh = MeshFactory.load(from.getString("mesh"));
         }
+    }
+
+    public void adjustLocal() {
+        Pose pose = findParent(Pose.class);
+        Matrix4d m = (pose==null) ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();
+        m.invert();
+        setLocal(m);
     }
 }

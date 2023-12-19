@@ -157,12 +157,13 @@ public class Pose extends Node {
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        JSONArray localArray = from.getJSONArray("local");
-        double[] localData = new double[16];
-        for (int i = 0; i < 16; i++) {
-            localData[i] = localArray.getDouble(i);
+        if(from.has("local")) {
+            JSONArray localArray = from.getJSONArray("local");
+            double[] localData = new double[16];
+            for (int i = 0; i < 16; i++) {
+                localData[i] = localArray.getDouble(i);
+            }
+            local.set(localData);
         }
-
-        local.set(localData);
     }
 }
