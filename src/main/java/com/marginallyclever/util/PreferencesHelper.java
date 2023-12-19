@@ -70,7 +70,7 @@ public final class PreferencesHelper implements Serializable {
 	static {
 		final Map<MakelangeloPreferenceKey, ? super Preferences> initialMap = new HashMap<MakelangeloPreferenceKey, Preferences>();
 		final Preferences userRootPreferencesNode = MarginallyCleverPreferences.userRoot();
-		//FIXME write unit test/tool to componentpanel import/export machine configurations.
+		// TODO write unit test/tool to import/export machine configurations.
 		//final Preferences makelangeloPreferenceNode = userRootPreferencesNode.node(MAKELANGELO_ROOT_PATH_NAME);
 		//new MarginallyCleverPreferences((AbstractPreferences) userRootPreferencesNode.node(thisPackageName), userRootPreferencesNode.node(thisPackageName).name()); 
 		final Preferences legacyMakelangeloPreferenceNode = userRootPreferencesNode.node(LEGACY_MAKELANGELO_ROOT_PATH_NAME);//new MarginallyCleverPreferences((AbstractPreferences) userRootPreferencesNode.node(LEGACY_MAKELANGELO_ROOT_PATH_NAME), userRootPreferencesNode.node(LEGACY_MAKELANGELO_ROOT_PATH_NAME).name());

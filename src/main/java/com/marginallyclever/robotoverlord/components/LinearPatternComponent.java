@@ -21,6 +21,6 @@ public class LinearPatternComponent extends RenderComponent {
     @Override
     public void render(GL3 gl) {
         // draw each child at each pattern location
-        // TODO finish me!
+        throw new RuntimeException("Not implemented yet.");
     }
 }

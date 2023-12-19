@@ -135,8 +135,7 @@ public class MarginallyCleverPreferences extends AbstractPreferences implements 
   }
 
   /**
-   * FIXME - Pure hack to get around erasure.
-   *
+   * @param abstractPreference preference to check
    * @return true if removed
    * @throws ReflectiveOperationException
    */
