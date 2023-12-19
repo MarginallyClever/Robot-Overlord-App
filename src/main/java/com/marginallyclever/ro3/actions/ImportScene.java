@@ -26,6 +26,7 @@ public class ImportScene extends AbstractAction {
 
     public ImportScene() {
         this("Import Scene");
+        putValue(SHORT_DESCRIPTION,"Load a Scene into the existing Scene.");
     }
 
     public ImportScene(String name) {

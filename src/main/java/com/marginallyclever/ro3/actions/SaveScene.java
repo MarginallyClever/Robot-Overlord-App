@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.actions;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import org.slf4j.Logger;
@@ -14,12 +13,16 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * Save the entire scene to a file.
+ */
 public class SaveScene extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(SaveScene.class);
     private static final JFileChooser chooser = new JFileChooser();
 
     public SaveScene() {
         super("Save Scene");
+        putValue(SHORT_DESCRIPTION,"Save the entire scene to a file.");
     }
 
     /**

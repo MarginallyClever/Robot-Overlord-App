@@ -10,11 +10,15 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Reset the scene to a new empty scene.
+ */
 public class NewScene extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(NewScene.class);
 
     public NewScene() {
         super("New Scene");
+        putValue(SHORT_DESCRIPTION,"Reset the scene to a new empty scene.");
     }
 
     /**

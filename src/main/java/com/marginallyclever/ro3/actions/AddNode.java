@@ -10,12 +10,16 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.function.Supplier;
 
+/**
+ * Add a new instance of a Node to every selected branches of the tree
+ */
 public class AddNode extends AbstractAction {
     private static final FactoryPanel<Node> nfd = new FactoryPanel<>(Registry.nodeFactory);
     private final NodeTreeView treeView;
 
     public AddNode(NodeTreeView treeView) {
         super("Add Node");
+        putValue(SHORT_DESCRIPTION,"Add a new instance of a Node to every selected branches of the tree.");
         this.treeView = treeView;
     }
 

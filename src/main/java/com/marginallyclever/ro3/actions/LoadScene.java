@@ -17,6 +17,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.InvalidParameterException;
 
+/**
+ * Load a scene from a file.  Completely replaces the current Scene.
+ */
 public class LoadScene extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(LoadScene.class);
     private static final JFileChooser chooser = new JFileChooser();
@@ -25,6 +28,7 @@ public class LoadScene extends AbstractAction {
 
     public LoadScene(RecentFilesMenu menu) {
         this(menu,null);
+        putValue(SHORT_DESCRIPTION,"Load a scene from a file.  Completely replaces the current Scene.");
     }
 
     public LoadScene(RecentFilesMenu menu, String filePath) {

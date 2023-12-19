@@ -10,8 +10,8 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 
 /**
- * Export the scene to a file for sharing on another computer.  This is not the same as saving the scene.
- * Exporting the scene will save the scene and all the assets it uses to a single file.
+ * <p>Export the scene and all the assets used to a single file for sharing on another computer.
+ * This is not the same as saving the scene.</p>
  */
 public class ExportScene extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(SaveScene.class);
@@ -19,6 +19,7 @@ public class ExportScene extends AbstractAction {
 
     public ExportScene() {
         super("Export Scene");
+        putValue(SHORT_DESCRIPTION,"Export the scene and all the assets used to a single file.");
     }
 
     /**

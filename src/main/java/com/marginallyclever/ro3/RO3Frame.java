@@ -152,14 +152,13 @@ public class RO3Frame extends JFrame {
         RecentFilesMenu loadRecentMenu = new RecentFilesMenu(Preferences.userNodeForPackage(LoadScene.class));
         menuFile.add(new JMenuItem(new LoadScene(loadRecentMenu)));
         menuFile.add(loadRecentMenu);
+        menuFile.add(new JMenuItem(new ImportScene()));
+
         menuFile.add(new JMenuItem(new SaveScene()));
+        menuFile.add(new JMenuItem(new ExportScene()));
 
         menuFile.add(new JSeparator());
-        menuFile.add(new JMenuItem(new ImportScene()));
-        menuFile.add(new JMenuItem(new ExportScene()));
-        // TODO load recent scene
-        menuFile.add(new JSeparator());
-        JMenuItem quit = new JMenuItem(new AbstractAction("Quit") {
+        menuFile.add(new JMenuItem(new AbstractAction("Quit") {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 if(confirmClose()) {
@@ -167,8 +166,7 @@ public class RO3Frame extends JFrame {
                     RO3Frame.this.dispatchEvent(new WindowEvent(RO3Frame.this, WindowEvent.WINDOW_CLOSING));
                 }
             }
-        });
-        menuFile.add(quit);
+        }));
 
         return menuFile;
     }

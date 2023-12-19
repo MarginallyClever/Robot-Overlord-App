@@ -13,6 +13,7 @@ public class RemoveNode extends AbstractAction {
     private final NodeTreeView nodeTreeView;
     public RemoveNode(NodeTreeView nodeTreeView) {
         super("Remove Node");
+        putValue(SHORT_DESCRIPTION,"Remove the selected node(s).");
         this.nodeTreeView = nodeTreeView;
     }
 
