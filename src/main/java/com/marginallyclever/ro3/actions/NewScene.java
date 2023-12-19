@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.actions;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.Camera;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +37,8 @@ public class NewScene extends AbstractAction {
         for(Node child : children) {
             oldScene.removeChild(child);
         }
-        // remove the scene and replace it completely.
-        Registry.setScene(new Node("Scene"));
+
+        Registry.reset();
 
         logger.info("done.");
     }

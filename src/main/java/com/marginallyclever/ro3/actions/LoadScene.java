@@ -73,9 +73,9 @@ public class LoadScene extends AbstractAction {
 
         try {
             String content = new String(Files.readAllBytes(Paths.get(selectedFile.getAbsolutePath())));
-            JSONObject json = new JSONObject(content);
+            Registry.reset();
             Node loaded = new Node("Scene");
-            loaded.fromJSON(json);
+            loaded.fromJSON(new JSONObject(content));
             Registry.setScene(loaded);
             menu.addPath(selectedFile.getAbsolutePath());
         } catch (IOException e) {

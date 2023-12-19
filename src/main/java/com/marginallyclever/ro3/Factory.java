@@ -77,4 +77,8 @@ public class Factory<T> {
             logger.info("Found " + clazz.getName());
         }
     }
+
+    public void clear() {
+        root.children.clear();
+    }
 }

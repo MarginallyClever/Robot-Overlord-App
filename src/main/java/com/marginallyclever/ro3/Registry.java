@@ -8,6 +8,8 @@ import com.marginallyclever.ro3.render.renderpasses.*;
 import com.marginallyclever.ro3.texture.TextureFactory;
 
 import javax.swing.event.EventListenerList;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * {@link Registry} is a place to store global variables.
@@ -16,23 +18,23 @@ public class Registry {
     public static TextureFactory textureFactory = new TextureFactory();
     public static final Factory<Node> nodeFactory = new Factory<>(Node.class);
     public static ListWithEvents<RenderPass> renderPasses = new ListWithEvents<>();
-
     private static Node scene = new Node("Scene");
     public static ListWithEvents<Camera> cameras = new ListWithEvents<>();
+    private static Camera activeCamera = null;
+
     public static EventListenerList listeners = new EventListenerList();
 
     public static void start() {
+        nodeFactory.clear();
         Factory.Category<Node> nodule = new Factory.Category<>("Node", null);
         nodeFactory.getRoot().add(nodule);
         Factory.Category<Node> pose = new Factory.Category<>("Pose", Pose::new);
-            pose.add(new Factory.Category<>("MeshInstance", MeshInstance::new ));
-            pose.add(new Factory.Category<>("Camera", Camera::new ));
-            pose.add(new Factory.Category<>("HingeJoint", HingeJoint::new ));
+        pose.add(new Factory.Category<>("MeshInstance", MeshInstance::new));
+        pose.add(new Factory.Category<>("Camera", Camera::new));
+        pose.add(new Factory.Category<>("HingeJoint", HingeJoint::new));
         nodule.add(pose);
-        nodule.add(new Factory.Category<>("Material", Material::new ));
-        nodule.add(new Factory.Category<>("DHParameter", DHParameter::new ));
-
-        cameras.add(new Camera("Camera 1"));
+        nodule.add(new Factory.Category<>("Material", Material::new));
+        nodule.add(new Factory.Category<>("DHParameter", DHParameter::new));
 
         renderPasses.add(new DrawBackground());
         renderPasses.add(new DrawMeshes());
@@ -40,6 +42,22 @@ public class Registry {
         renderPasses.add(new DrawCameras());
         renderPasses.add(new DrawDHParameters());
         renderPasses.add(new DrawHingeJoints());
+
+        reset();
+    }
+
+    public static void reset() {
+        // reset camera
+        List<Camera> toRemove = new ArrayList<>(cameras.getList());
+        for(Camera c : toRemove) cameras.remove(c);
+        cameras.add(new Camera("Camera 1"));
+
+        // reset scene
+        List<Node> toRemove2 = new ArrayList<>(scene.getChildren());
+        for(Node n : toRemove2) {
+            scene.removeChild(n);
+        }
+        scene = new Node("Scene");
     }
 
     public static void addSceneChangeListener(SceneChangeListener listener) {
@@ -64,5 +82,14 @@ public class Registry {
 
     public static Node getScene() {
         return scene;
+    }
+
+    public static Camera getActiveCamera() {
+        if(cameras.getList().isEmpty()) return null;
+        return activeCamera;
+    }
+
+    public static void setActiveCamera(Camera camera) {
+        activeCamera = camera;
     }
 }
