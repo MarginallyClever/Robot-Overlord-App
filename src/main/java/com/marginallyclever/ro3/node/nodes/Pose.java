@@ -11,13 +11,12 @@ import javax.swing.text.NumberFormatter;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
 import java.util.List;
 
 public class Pose extends Node {
     private final Matrix4d local = MatrixHelper.createIdentityMatrix4();
+    private MatrixHelper.EulerSequence rotationIndex = MatrixHelper.EulerSequence.YXZ;
 
     public Pose() {
         this("Pose");
@@ -91,24 +90,35 @@ public class Pose extends Node {
         JFormattedTextField ry = new JFormattedTextField(formatter);        ry.setValue(r.y);
         JFormattedTextField rz = new JFormattedTextField(formatter);        rz.setValue(r.z);
 
+        String [] names = new String[MatrixHelper.EulerSequence.values().length];
+        int i=0;
+        for(MatrixHelper.EulerSequence s : MatrixHelper.EulerSequence.values()) {
+            names[i++] = "Euler "+s.toString();
+        }
+        JComboBox<String> rotationType = new JComboBox<>(names);
+        rotationType.setSelectedIndex(rotationIndex.ordinal());
+        rotationType.addPropertyChangeListener("selectedIndex", e -> {
+            rotationIndex = MatrixHelper.EulerSequence.values()[rotationType.getSelectedIndex()];
+        });
+
         rx.addPropertyChangeListener("value", e -> {
             Vector3d r2 = getRotationEuler();
             r2.x = ((Number) rx.getValue()).doubleValue();
-            setRotationEuler(r2);
+            setRotationEuler(r2, rotationIndex);
         });
         ry.addPropertyChangeListener("value", e -> {
             Vector3d r2 = getRotationEuler();
             r2.y = ((Number) ry.getValue()).doubleValue();
-            setRotationEuler(r2);
+            setRotationEuler(r2, rotationIndex);
         });
         rz.addPropertyChangeListener("value", e -> {
             Vector3d r2 = getRotationEuler();
             r2.z = ((Number) rz.getValue()).doubleValue();
-            setRotationEuler(r2);
+            setRotationEuler(r2, rotationIndex);
         });
 
         addLabelAndComponent(pane, "Rotation", new JLabel());
-        addLabelAndComponent(pane, "Type", new JLabel("Euler ZYX"));
+        addLabelAndComponent(pane, "Type", rotationType);
         addLabelAndComponent(pane, "X", rx);
         addLabelAndComponent(pane, "Y", ry);
         addLabelAndComponent(pane, "Z", rz);
@@ -125,13 +135,15 @@ public class Pose extends Node {
 
     /**
      * Set the rotation of this pose using Euler angles.
+     *
      * @param r Euler angles in degrees.
+     * @param orderOfRotation the order of rotation.
      */
-    public void setRotationEuler(Vector3d r) {
+    public void setRotationEuler(Vector3d r, MatrixHelper.EulerSequence orderOfRotation) {
         Vector3d p = getPosition();
         Vector3d rRad = new Vector3d(r);
         rRad.scale(Math.PI/180.0);
-        local.set(MatrixHelper.eulerToMatrix(rRad));
+        local.set(MatrixHelper.eulerToMatrix(rRad, orderOfRotation));
         setPosition(p);
     }
 

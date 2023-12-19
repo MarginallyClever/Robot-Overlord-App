@@ -18,6 +18,16 @@ import java.text.MessageFormat;
 public class MatrixHelper {
 	private static final Logger logger = LoggerFactory.getLogger(MatrixHelper.class);
 
+	public enum EulerSequence {
+		YXZ,
+		YZX,
+		XZY,
+		XYZ,
+		ZYX,
+		ZYZ,
+		ZXY,
+	}
+
 	/**
 	 * See drawMatrix(gl,p,u,v,w,1)
 	 *
@@ -150,25 +160,36 @@ public class MatrixHelper {
 	 * @return Matrix3d resulting matrix
 	 */
 	static public Matrix3d eulerToMatrix(Vector3d v) {
-		double c0 = Math.cos(v.x);		double s0 = Math.sin(v.x);
-		double c1 = Math.cos(v.y);		double s1 = Math.sin(v.y);
-		double c2 = Math.cos(v.z);		double s2 = Math.sin(v.z);
-		
-		Matrix3d rX=new Matrix3d( 1,  0, 0,
-								  0,c0,-s0,
-								  0,s0, c0);
-		Matrix3d rY=new Matrix3d(c1,  0,s1,
-								  0,  1, 0,
-								-s1,  0,c1);
-		Matrix3d rZ=new Matrix3d(c2,-s2, 0,
-				                 s2, c2, 0,
-				                  0,  0, 1);
-
+		Matrix3d rX = new Matrix3d();		rX.rotX(v.x);
+		Matrix3d rY = new Matrix3d();		rY.rotY(v.y);
+		Matrix3d rZ = new Matrix3d();		rZ.rotZ(v.z);
 		Matrix3d result = new Matrix3d();
-		Matrix3d interim = new Matrix3d();
-		interim.mul(rY,rX);
-		result.mul(rZ,interim);
+		result.mul(rY,rX);
+		result.mul(rZ,result);
+		return result;
+	}
 
+	/**
+	 * Converts Euler angles to a rotation matrix based on the specified Euler sequence.
+	 * @param radians radian rotation values
+	 * @param sequenceIndex a {@link EulerSequence} value
+	 * @return resulting matrix
+	 */
+	static public Matrix3d eulerToMatrix(Vector3d radians, EulerSequence sequenceIndex) {
+		Matrix3d rX = new Matrix3d();		rX.rotX(radians.x);
+		Matrix3d rY = new Matrix3d();		rY.rotY(radians.y);
+		Matrix3d rZ = new Matrix3d();		rZ.rotZ(radians.z);
+		Matrix3d result = new Matrix3d();
+		switch (sequenceIndex) {
+			case YXZ:  result.mul(rY, rX);  result.mul(rZ, result);  break;
+			case YZX:  result.mul(rY, rZ);  result.mul(rX, result);  break;
+			case XZY:  result.mul(rX, rZ);  result.mul(rY, result);  break;
+			case XYZ:  result.mul(rX, rY);  result.mul(rZ, result);  break;
+			case ZYX:  result.mul(rZ, rY);  result.mul(rX, result);  break;
+			case ZYZ:  result.mul(rZ, rY);  result.mul(rZ, result);  break;
+			case ZXY:  result.mul(rZ, rX);  result.mul(rY, result);  break;
+			default:  throw new IllegalArgumentException("Invalid Euler sequence");
+		}
 		return result;
 	}
 	

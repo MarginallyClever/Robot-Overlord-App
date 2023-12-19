@@ -109,7 +109,8 @@ public class DrawPoses implements RenderPass {
             Node node = toScan.remove(0);
             toScan.addAll(node.getChildren());
 
-            if(node instanceof Pose pose) {
+            if(node.getClass().equals(Pose.class)) {
+                Pose pose = (Pose)node;
                 Matrix4d w = pose.getWorld();
                 w.transpose();
                 shader.setMatrix4d(gl3,"modelMatrix",w);
