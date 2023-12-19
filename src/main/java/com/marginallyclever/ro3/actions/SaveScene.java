@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.actions;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,27 +33,35 @@ public class SaveScene extends AbstractAction {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
-        chooser.setFileFilter(RobotOverlord.FILE_FILTER);
         Component source = (Component) e.getSource();
+        String destinationPath = askUserForDestinationPath(source);
+        if (destinationPath == null) return;  // cancelled
+        saveScene(destinationPath);
+    }
+
+    private String askUserForDestinationPath(Component source) {
+        chooser.setFileFilter(RobotOverlord.FILE_FILTER);
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
 
-        if (chooser.showSaveDialog(parentFrame) == JFileChooser.APPROVE_OPTION) {
+        int response;
+        do {
+            if (chooser.showSaveDialog(parentFrame) != JFileChooser.APPROVE_OPTION) {
+                return null;  // cancelled
+            }
             // check before overwriting.
+            response = JOptionPane.YES_OPTION;
             File selectedFile = chooser.getSelectedFile();
             if (selectedFile.exists()) {
-                int response = JOptionPane.showConfirmDialog(null,
+                response = JOptionPane.showConfirmDialog(parentFrame,
                         "Do you want to replace the existing file?",
                         "Confirm Overwrite",
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE);
-                if (response == JOptionPane.NO_OPTION) {
-                    return;
-                }
             }
+            // if the user says no, then loop back to the file chooser.
+        } while(response == JOptionPane.NO_OPTION);
 
-            String absolutePath = chooser.getSelectedFile().getAbsolutePath();
-            saveScene(absolutePath);
-        }
+        return chooser.getSelectedFile().getAbsolutePath();
     }
 
     private void saveScene(String absolutePath) {
