@@ -36,6 +36,7 @@ public class Registry {
 
         renderPasses.add(new DrawBackground());
         renderPasses.add(new DrawMeshes());
+        renderPasses.add(new DrawBoundingBoxes());
         renderPasses.add(new DrawPoses());
         renderPasses.add(new DrawCameras());
         renderPasses.add(new DrawDHParameters());
