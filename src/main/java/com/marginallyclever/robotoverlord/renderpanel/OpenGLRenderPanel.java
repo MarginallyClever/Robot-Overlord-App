@@ -383,13 +383,13 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
 
     private void createShaderPrograms(GL3 gl3) {
         shaderDefault = new ShaderProgram(gl3,
-            readResource("mesh.vert"),
-            readResource("mesh.frag"));
+            readResource("default_330.vert"),
+            readResource("default_330.frag"));
         shaderOutline = new ShaderProgram(gl3,
             readResource("outline_330.vert"),
             readResource("outline_330.frag"));
         shaderHUD = new ShaderProgram(gl3,
-            readResource("mesh.vert"),
+            readResource("default_330.vert"),
             readResource("givenColor_330.frag"));
     }
 
@@ -720,6 +720,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
             // if we have a texture assigned, then we might still enable textures.
             texture = material.texture.getTexture();
             if(texture==null) useTexture = false;
+
             // assign the object's overall color.
             double[] diffuseColor = material.getDiffuseColor();
             shaderProgram.set4f(gl,
