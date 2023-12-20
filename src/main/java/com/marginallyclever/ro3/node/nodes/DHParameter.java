@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>{@link DHParameter} is a node that holds the
+ * <p>{@link DHParameter} is a node that translates a sibling {@link Pose} to and from
  * <a href="https://www.youtube.com/watch?v=rA9tm0gTln8">Denavit-Hartenberg parameters</a> for a joint.</p>
  * <p>The DH parameters can be derived by finding the common normals between two consecutive Z axes.  The new X axis
  * points along the common normal.  The intersection point of the two normals may be outside the physical structure

@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Connects a {@link Camera} to an {@link OpenGLPanel}.
+ * {@link Viewport} is an {@link OpenGLPanel} that uses {@link Registry#renderPasses} to draw the
+ * {@link Registry#getScene()} from the perspective of a {@link Registry#getActiveCamera()}.
  */
 public class Viewport extends OpenGLPanel implements GLEventListener {
     private static final Logger logger = LoggerFactory.getLogger(Viewport.class);

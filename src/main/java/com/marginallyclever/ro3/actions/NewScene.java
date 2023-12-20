@@ -33,8 +33,8 @@ public class NewScene extends AbstractAction {
 
         // remove all children of the scene to make sure we're starting fresh.
         Node oldScene = Registry.getScene();
-        List<Node> children = new ArrayList<>(oldScene.getChildren());
-        for(Node child : children) {
+        List<Node> toRemove = new ArrayList<>(oldScene.getChildren());
+        for(Node child : toRemove) {
             oldScene.removeChild(child);
         }
 

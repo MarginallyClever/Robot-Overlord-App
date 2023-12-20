@@ -84,7 +84,7 @@ public class Pose extends Node {
     }
 
     private void addRotationComponents(JPanel pane, NumberFormatter formatter) {
-        Vector3d r = getRotationEuler();
+        Vector3d r = getRotationEuler(rotationIndex);
 
         JFormattedTextField rx = new JFormattedTextField(formatter);        rx.setValue(r.x);
         JFormattedTextField ry = new JFormattedTextField(formatter);        ry.setValue(r.y);
@@ -97,22 +97,22 @@ public class Pose extends Node {
         }
         JComboBox<String> rotationType = new JComboBox<>(names);
         rotationType.setSelectedIndex(rotationIndex.ordinal());
-        rotationType.addPropertyChangeListener("selectedIndex", e -> {
+        rotationType.addActionListener( e -> {
             rotationIndex = MatrixHelper.EulerSequence.values()[rotationType.getSelectedIndex()];
         });
 
         rx.addPropertyChangeListener("value", e -> {
-            Vector3d r2 = getRotationEuler();
+            Vector3d r2 = getRotationEuler(rotationIndex);
             r2.x = ((Number) rx.getValue()).doubleValue();
             setRotationEuler(r2, rotationIndex);
         });
         ry.addPropertyChangeListener("value", e -> {
-            Vector3d r2 = getRotationEuler();
+            Vector3d r2 = getRotationEuler(rotationIndex);
             r2.y = ((Number) ry.getValue()).doubleValue();
             setRotationEuler(r2, rotationIndex);
         });
         rz.addPropertyChangeListener("value", e -> {
-            Vector3d r2 = getRotationEuler();
+            Vector3d r2 = getRotationEuler(rotationIndex);
             r2.z = ((Number) rz.getValue()).doubleValue();
             setRotationEuler(r2, rotationIndex);
         });
@@ -127,8 +127,8 @@ public class Pose extends Node {
     /**
      * @return the rotation of this pose using Euler angles in degrees.
      */
-    public Vector3d getRotationEuler() {
-        Vector3d r = MatrixHelper.matrixToEuler(local);
+    public Vector3d getRotationEuler(MatrixHelper.EulerSequence orderOfRotation) {
+        Vector3d r = MatrixHelper.matrixToEuler(local,orderOfRotation);
         r.scale(180.0/Math.PI);
         return r;
     }
@@ -140,6 +140,7 @@ public class Pose extends Node {
      * @param orderOfRotation the order of rotation.
      */
     public void setRotationEuler(Vector3d r, MatrixHelper.EulerSequence orderOfRotation) {
+        System.out.println("setRotationEuler("+r+","+orderOfRotation+")");
         Vector3d p = getPosition();
         Vector3d rRad = new Vector3d(r);
         rRad.scale(Math.PI/180.0);

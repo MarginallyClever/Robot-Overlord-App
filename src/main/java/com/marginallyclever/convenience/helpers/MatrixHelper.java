@@ -192,6 +192,66 @@ public class MatrixHelper {
 		}
 		return result;
 	}
+
+	public static Vector3d matrixToEuler(Matrix4d mat, EulerSequence sequenceIndex) {
+		Matrix3d m3 = new Matrix3d();
+		mat.get(m3);
+		return matrixToEuler(m3,sequenceIndex);
+	}
+
+	public static Vector3d matrixToEuler(Matrix3d mat, EulerSequence sequenceIndex) {
+		double sy = Math.sqrt(mat.m00 * mat.m00 + mat.m10 * mat.m10);
+
+		boolean singular = sy < 1e-6; // If sy is close to zero, the matrix is singular
+		double x, y, z;
+		if (!singular) {
+			switch (sequenceIndex) {
+				case YXZ:
+					x = Math.atan2(mat.m21, mat.m22);
+					y = Math.atan2(-mat.m20, sy);
+					z = Math.atan2(mat.m10, mat.m00);
+					break;
+				case YZX:
+					x = Math.atan2(-mat.m12, mat.m11);
+					y = Math.atan2(mat.m10, sy);
+					z = Math.atan2(-mat.m20, mat.m00);
+					break;
+				case XZY:
+					x = Math.atan2(-mat.m21, mat.m20);
+					y = Math.atan2(mat.m22, sy);
+					z = Math.atan2(-mat.m01, mat.m00);
+					break;
+				case XYZ:
+					x = Math.atan2(mat.m12, mat.m11);
+					y = Math.atan2(-mat.m10, sy);
+					z = Math.atan2(mat.m20, mat.m00);
+					break;
+				case ZYX:
+					x = Math.atan2(-mat.m01, mat.m00);
+					y = Math.atan2(mat.m02, sy);
+					z = Math.atan2(-mat.m12, mat.m10);
+					break;
+				case ZYZ:
+					x = Math.atan2(mat.m12, -mat.m10);
+					y = Math.atan2(mat.m02, sy);
+					z = Math.atan2(mat.m21, mat.m20);
+					break;
+				case ZXY:
+					x = Math.atan2(mat.m01, mat.m00);
+					y = Math.atan2(-mat.m02, sy);
+					z = Math.atan2(mat.m12, mat.m10);
+					break;
+				default:
+					throw new IllegalArgumentException("Invalid Euler sequence");
+			}
+		} else {
+			// Singular case
+			x = Math.atan2(-mat.m12, mat.m11);
+			y = Math.atan2(-mat.m20, sy);
+			z = 0;
+		}
+		return new Vector3d(x, y, z);
+	}
 	
 	/**
 	 * Interpolate between two 4d matrixes, (end-start)*i + start where i=[0...1]
