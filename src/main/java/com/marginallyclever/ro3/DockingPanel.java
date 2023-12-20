@@ -12,10 +12,11 @@ import java.util.UUID;
  */
 public class DockingPanel extends JPanel implements Dockable {
     private final String tabText;
-    private final String persistentID = UUID.randomUUID().toString();
+    private final String persistentID;
 
-    public DockingPanel(String tabText) {
+    public DockingPanel(String persistentID, String tabText) {
         super(new BorderLayout());
+        this.persistentID = persistentID;
         this.tabText = tabText;
         Docking.registerDockable(this);
     }

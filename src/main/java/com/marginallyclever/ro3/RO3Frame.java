@@ -1,9 +1,11 @@
 package com.marginallyclever.ro3;
 
 import ModernDocking.DockingRegion;
+import ModernDocking.app.AppState;
 import ModernDocking.app.DockableMenuItem;
 import ModernDocking.app.Docking;
 import ModernDocking.app.RootDockingPanel;
+import ModernDocking.exception.DockingLayoutException;
 import ModernDocking.ext.ui.DockingUI;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
@@ -19,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.*;
@@ -66,9 +69,6 @@ public class RO3Frame extends JFrame {
         DockingUI.initialize();
         ModernDocking.settings.Settings.setAlwaysDisplayTabMode(true);
         ModernDocking.settings.Settings.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-
-        RootDockingPanel root = new RootDockingPanel(this);
-        add(root, BorderLayout.CENTER);
     }
 
     private void addQuitHandler() {
@@ -184,26 +184,41 @@ public class RO3Frame extends JFrame {
     }
 
     private void createPanels() {
-        DockingPanel renderView = new DockingPanel("3D view");
+        RootDockingPanel root = new RootDockingPanel(this);
+        add(root, BorderLayout.CENTER);
+
+        DockingPanel renderView = new DockingPanel("8e50154c-a149-4e95-9db5-4611d24cc0cc","3D view");
         renderView.add(renderPanel, BorderLayout.CENTER);
         Docking.dock(renderView, this, DockingRegion.CENTER);
         windows.add(renderView);
 
-        DockingPanel treeView = new DockingPanel("Scene");
+        DockingPanel treeView = new DockingPanel("c6b04902-7e53-42bc-8096-fa5d43289362","Scene");
         NodeTreeView nodeTreeView = new NodeTreeView();
         treeView.add(nodeTreeView, BorderLayout.CENTER);
         Docking.dock(treeView,this, DockingRegion.WEST);
         windows.add(treeView);
 
-        DockingPanel detailView = new DockingPanel("Details");
+        DockingPanel detailView = new DockingPanel("67e45223-79f5-4ce2-b15a-2912228b356f","Details");
         NodeDetailView nodeDetailView = new NodeDetailView();
         detailView.add(nodeDetailView, BorderLayout.CENTER);
         Docking.dock(detailView, treeView, DockingRegion.SOUTH);
         windows.add(detailView);
         nodeTreeView.addSelectionChangeListener(nodeDetailView);
 
-        DockingPanel logView = new DockingPanel("Log");
+        DockingPanel logView = new DockingPanel("5e565f83-9734-4281-9828-92cd711939df","Log");
         logView.add(logPanel, BorderLayout.CENTER);
         windows.add(logView);
+
+        // now that the main frame is set up with the defaults, we can restore the layout
+        AppState.setPersistFile(new File("ro3.layout"));
+
+        try {
+            AppState.restore();
+        } catch (DockingLayoutException e) {
+            // something happened trying to load the layout file, record it here
+            logger.error("Failed to restore docking layout.", e);
+        }
+
+        AppState.setAutoPersist(true);
     }
 }
