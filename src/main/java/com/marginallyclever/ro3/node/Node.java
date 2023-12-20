@@ -37,19 +37,32 @@ public class Node {
         this.name = name;
     }
 
+    /**
+     * Append a child to this node.
+     * @param child the child to add.
+     */
     public void addChild(Node child) {
-        children.add(child);
+        addChild(children.size(),child);
+    }
+
+    /**
+     * Add a child to this node at the given index.
+     * @param index the index to add the child at.
+     * @param child the child to add.
+     */
+    public void addChild(int index,Node child) {
+        if(index<0|| index>children.size()) {
+            throw new IndexOutOfBoundsException("Index "+index+" is out of bounds.");
+        }
+
+        children.add(index,child);
         child.setParent(this);
         fireAttachEvent(child);
         child.onAttach();
         if(child.children.isEmpty()) {
             fireReadyEvent(child);
             child.onReady();
-        }/* else {
-            for(Node grandchild : child.children) {
-                child.addChild(grandchild);
-            }
-        }*/
+        }
     }
 
     private void fireReadyEvent(Node child) {

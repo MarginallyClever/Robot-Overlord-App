@@ -1,11 +1,14 @@
 package com.marginallyclever.ro3.node.nodetreeview;
 import com.marginallyclever.ro3.node.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.tree.*;
 import java.awt.datatransfer.*;
 
 public class NodeTreeTransferHandler extends TransferHandler {
+    private static final Logger logger = LoggerFactory.getLogger(NodeTreeTransferHandler.class);
     @Override
     public int getSourceActions(JComponent c) {
         return MOVE;
@@ -41,26 +44,46 @@ public class NodeTreeTransferHandler extends TransferHandler {
         }
 
         JTree tree = (JTree) support.getComponent();
-        DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
         JTree.DropLocation dl = (JTree.DropLocation) support.getDropLocation();
         TreePath destPath = dl.getPath();
-        Node newParent = ((NodeTreeBranch) destPath.getLastPathComponent()).getNode();
+        NodeTreeBranch newParentBranch = (NodeTreeBranch) destPath.getLastPathComponent();
+        Node newParent = newParentBranch.getNode();
 
         try {
             Transferable transferable = support.getTransferable();
-            Node sourceNode = (Node) transferable.getTransferData(NodeTransferable.nodeFlavor);
+            Node beingMoved = (Node) transferable.getTransferData(NodeTransferable.nodeFlavor);
 
-            // Remove node from its current parent
-            Node oldParent = sourceNode.getParent();
-            if (oldParent != null) {
-                oldParent.removeChild(sourceNode);
+            // Prevent a node from being dragged to itself
+            if (beingMoved == newParent) {
+                return false;
             }
 
-            // Add node to the new parent
-            newParent.addChild(sourceNode);
+            // Remove node from its current parent
+            Node oldParent = beingMoved.getParent();
+            int oldIndex = -1;
+            if (oldParent != null) {
+                oldIndex = oldParent.getChildren().indexOf(beingMoved);
+                oldParent.removeChild(beingMoved);
+                logger.debug("oldIndex: {}", oldIndex);
+            }
+
+            // Get the index at which the source node will be added
+            int newIndex = dl.getChildIndex();
+            logger.debug("newIndex: {}", newIndex);
+            if (newIndex == -1) {
+                // If the drop location is a node, add the node at the end
+                newParent.addChild(beingMoved);
+            } else {
+                // If oldParent and newParent are the same instance, adjust the index accordingly
+                if (oldParent == newParent && oldIndex < newIndex) {
+                    newIndex--;
+                }
+                // If the drop location is an index, add the node at the specified index
+                newParent.addChild(newIndex, beingMoved);
+            }
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("importData", e);
         }
         return false;
     }
