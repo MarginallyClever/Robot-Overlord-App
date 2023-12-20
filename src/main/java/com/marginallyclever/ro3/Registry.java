@@ -28,11 +28,11 @@ public class Registry {
         nodeFactory.clear();
         Factory.Category<Node> nodule = nodeFactory.getRoot().add("Node", null);
         nodule.add("DHParameter", DHParameter::new);
+        nodule.add("HingeJoint", HingeJoint::new);
         nodule.add("Material", Material::new);
         nodule.add("MeshInstance", MeshInstance::new);
         Factory.Category<Node> pose = nodule.add("Pose", Pose::new);
             pose.add("Camera", Camera::new);
-            pose.add("HingeJoint", HingeJoint::new);
 
         renderPasses.add(new DrawBackground());
         renderPasses.add(new DrawMeshes());

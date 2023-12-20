@@ -113,7 +113,7 @@ public class DrawDHParameters implements RenderPass {
         shader.set4f(gl3,"objectColor",1,1,1,1f);
         shader.setVector3d(gl3,"specularColor",new Vector3d(0.5,0.5,0.5));
         shader.setVector3d(gl3,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
-        shader.set1f(gl3,"useVertexColor",1);
+        shader.set1i(gl3,"useVertexColor",1);
         shader.set1i(gl3,"useLighting",0);
         shader.set1i(gl3,"diffuseTexture",0);
         shader.set1i(gl3,"useTexture",0);

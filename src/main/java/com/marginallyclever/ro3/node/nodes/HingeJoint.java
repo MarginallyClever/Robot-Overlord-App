@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 import org.json.JSONObject;
 
@@ -12,8 +13,18 @@ import java.util.List;
 /**
  * {@link HingeJoint} is a joint that can rotate around the local Z axis.
  */
-public class HingeJoint extends Pose {
+public class HingeJoint extends Node {
     private double angle = 0;
+    private double minAngle = 0;
+    private double maxAngle = 180;
+
+    public HingeJoint() {
+        this("HingeJoint");
+    }
+
+    public HingeJoint(String name) {
+        super(name);
+    }
 
     @Override
     public void getComponents(List<JComponent> list) {
@@ -32,9 +43,24 @@ public class HingeJoint extends Pose {
         JFormattedTextField angleField = new JFormattedTextField(formatter);
         angleField.setValue(angle);
         angleField.addPropertyChangeListener("value", (evt) ->{
-            angle = (double)angleField.getValue();
+            angle = ((Number) angleField.getValue()).doubleValue();
         });
+
+        JFormattedTextField maxAngleField = new JFormattedTextField(formatter);
+        maxAngleField.setValue(maxAngle);
+        maxAngleField.addPropertyChangeListener("value", (evt) ->{
+            maxAngle = ((Number) maxAngleField.getValue()).doubleValue();
+        });
+
+        JFormattedTextField minAngleField = new JFormattedTextField(formatter);
+        minAngleField.setValue(minAngle);
+        minAngleField.addPropertyChangeListener("value", (evt) ->{
+            minAngle = ((Number) minAngleField.getValue()).doubleValue();
+        });
+
         addLabelAndComponent(pane, "Angle",angleField);
+        addLabelAndComponent(pane, "Min",minAngleField);
+        addLabelAndComponent(pane, "Max",maxAngleField);
 
         super.getComponents(list);
     }
@@ -43,12 +69,28 @@ public class HingeJoint extends Pose {
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
         json.put("angle",angle);
+        json.put("minAngle",minAngle);
+        json.put("maxAngle",maxAngle);
         return json;
     }
 
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        angle = from.getDouble("angle");
+        if(from.has("angle")) angle = from.getDouble("angle");
+        if(from.has("minAngle")) minAngle = from.getDouble("minAngle");
+        if(from.has("maxAngle")) maxAngle = from.getDouble("maxAngle");
+    }
+
+    public double getAngle() {
+        return angle;
+    }
+
+    public double getMinAngle() {
+        return minAngle;
+    }
+
+    public double getMaxAngle() {
+        return maxAngle;
     }
 }

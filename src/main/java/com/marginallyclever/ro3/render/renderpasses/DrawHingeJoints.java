@@ -9,6 +9,7 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
+import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.render.RenderPass;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
@@ -24,19 +25,27 @@ public class DrawHingeJoints implements RenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawHingeJoints.class);
     private int activeStatus = ALWAYS;
     private final Mesh mesh = new Mesh();
+    private final Mesh circleFan = new Mesh();
     private ShaderProgram shader;
     private int canvasWidth,canvasHeight;
+    private float ringScale = 3;
 
     public DrawHingeJoints() {
         super();
 
         mesh.setRenderStyle(GL3.GL_LINES);
-        mesh.addColor(0,0,0,1);  mesh.addVertex(0,0,0);  // origin
-        mesh.addColor(0,0,0,1);  mesh.addVertex(0,0,0);  // angle unit line
-        //mesh.addColor(0,0,0,1);  mesh.addVertex(0,0,0);  // origin
-        //mesh.addColor(0,0,0,1);  mesh.addVertex(0,0,0);  // min angle?
-        //mesh.addColor(0,0,0,1);  mesh.addVertex(0,0,0);  // origin
-        //mesh.addColor(0,0,0,1);  mesh.addVertex(0,0,0);  // max angle?
+        mesh.addColor(1.0f,1.0f,1.0f,1);  mesh.addVertex(0,0,0);  // origin
+        mesh.addColor(1.0f,1.0f,1.0f,1);  mesh.addVertex(0,0,0);  // angle unit line
+
+        circleFan.setRenderStyle(GL3.GL_TRIANGLE_FAN);
+        circleFan.addColor(1.0f,1.0f,0.0f,0.25f);
+        circleFan.addVertex(0,0,0);  // origin
+        for(int i=0;i<=360;++i) {
+            float x = (float)Math.cos(Math.toRadians(i)) * ringScale;
+            float y = (float)Math.sin(Math.toRadians(i)) * ringScale;
+            circleFan.addColor(1.0f,1.0f,0.0f,0.25f);
+            circleFan.addVertex(x,y,0);
+        }
     }
 
     @Override
@@ -97,11 +106,12 @@ public class DrawHingeJoints implements RenderPass {
         shader.set4f(gl3,"objectColor",1,1,1,1);
         shader.setVector3d(gl3,"specularColor",new Vector3d(0.5,0.5,0.5));
         shader.setVector3d(gl3,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
-        shader.set1f(gl3,"useVertexColor",1);
+        shader.set1i(gl3,"useVertexColor",1);
         shader.set1i(gl3,"useLighting",0);
         shader.set1i(gl3,"diffuseTexture",0);
         gl3.glDisable(GL3.GL_DEPTH_TEST);
         gl3.glDisable(GL3.GL_TEXTURE_2D);
+        gl3.glDisable(GL3.GL_CULL_FACE);
 
         List<Node> toScan = new ArrayList<>();
         toScan.add(Registry.getScene());
@@ -110,13 +120,26 @@ public class DrawHingeJoints implements RenderPass {
             toScan.addAll(node.getChildren());
 
             if(node instanceof HingeJoint joint) {
-                Matrix4d w = joint.getWorld();
+                double angle = joint.getAngle()-joint.getMinAngle();
+                float x = (float)Math.cos(Math.toRadians(angle)) * ringScale;
+                float y = (float)Math.sin(Math.toRadians(angle)) * ringScale;
+                mesh.setVertex(1,x,y,0);
+                mesh.updateVertexBuffers(gl3);
+
+                Pose pose = joint.findParent(Pose.class);
+                Matrix4d w = (pose==null) ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();
+                Matrix4d rZ = new Matrix4d();
+                rZ.rotZ(Math.toRadians(joint.getMinAngle()));
+                w.mul(rZ);
                 w.transpose();
                 shader.setMatrix4d(gl3,"modelMatrix",w);
                 mesh.render(gl3);
+                int range = Math.max(0, (int)(joint.getMaxAngle()-joint.getMinAngle()) );
+                circleFan.render(gl3,1+range,0);
             }
         }
 
         gl3.glEnable(GL3.GL_DEPTH_TEST);
+        gl3.glEnable(GL3.GL_CULL_FACE);
     }
 }

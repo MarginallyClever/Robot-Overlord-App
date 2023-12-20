@@ -184,7 +184,25 @@ public class Mesh {
 		OpenGLHelper.checkGLError(gl,logger);
 	}
 
+	/**
+	 * Render the entire mesh.
+	 * @param gl the OpenGL context
+	 */
 	public void render(GL3 gl) {
+		if (hasIndexes) {
+			render(gl,indexArray.size(),0);
+		} else {
+			render(gl,getNumVertices(),0);
+		}
+	}
+
+	/**
+	 * Render a portion of the mesh.
+	 * @param gl the OpenGL context
+	 * @param count number of vertices to render
+	 * @param startIndex index of the first vertex to render
+	 */
+	public void render(GL3 gl,int count,int startIndex) {
 		if(!isLoaded) {
 			isLoaded=true;
 			isDirty=true;
@@ -207,7 +225,7 @@ public class Mesh {
 		if (hasIndexes) {
 			gl.glDrawElements(renderStyle, indexArray.size(), GL3.GL_UNSIGNED_INT, 0);
 		} else {
-			gl.glDrawArrays(renderStyle, 0, getNumVertices());
+			gl.glDrawArrays(renderStyle, startIndex, count);
 		}
 		OpenGLHelper.checkGLError(gl,logger);
 	}
@@ -224,7 +242,14 @@ public class Mesh {
 		vertexArray.add(y);
 		vertexArray.add(z);
 	}
-	
+
+	/**
+	 * Add a color to the mesh.
+	 * @param r red, 0-1
+	 * @param g green, 0-1
+	 * @param b blue, 0-1
+	 * @param a alpha, 0-1
+	 */
 	public void addColor(float r,float g,float b,float a) {
 		colorArray.add(r);
 		colorArray.add(g);
@@ -233,7 +258,12 @@ public class Mesh {
 		if(a!=1) isTransparent=true;
 		hasColors=true;
 	}
-	
+
+	/**
+	 * Add a texture coordinate to the mesh.
+	 * @param u 0-1
+	 * @param v 0-1
+	 */
 	public void addTexCoord(float u,float v) {
 		textureArray.add(u);
 		textureArray.add(v);
