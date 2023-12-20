@@ -3,11 +3,13 @@ package com.marginallyclever.ro3.render;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless environment")
 public class TestViewport {
     @Test
     public void testPanTiltInverses() {
