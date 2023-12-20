@@ -271,7 +271,10 @@ public class Mesh {
 		AABB.setBounds(boundTop, boundBottom);
 	}
 
-	public AABB getCuboid() {
+	/**
+	 * @return axially-aligned bounding box in the mesh's local space.
+	 */
+	public AABB getBoundingBox() {
 		return AABB;
 	}
 	
@@ -419,4 +422,16 @@ public class Mesh {
 		}
 		return null;
 	}
+
+	public void setVertex(int i, double x, double y, double z) {
+		i*=3;
+		vertexArray.set(i++, (float)x);
+		vertexArray.set(i++, (float)y);
+		vertexArray.set(i++, (float)z);
+	}
+
+    public void updateVertexBuffers(GL3 gl3) {
+		if(VBO==null) return;
+		setupArray(gl3,0,3,getNumVertices(),vertexArray);
+    }
 }
