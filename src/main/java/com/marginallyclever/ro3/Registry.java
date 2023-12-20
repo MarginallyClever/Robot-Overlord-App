@@ -29,6 +29,7 @@ public class Registry {
         Factory.Category<Node> nodule = nodeFactory.getRoot().add("Node", null);
         nodule.add("DHParameter", DHParameter::new);
         nodule.add("HingeJoint", HingeJoint::new);
+        nodule.add("MarlinRobotArm", MarlinRobotArm::new);
         nodule.add("Material", Material::new);
         nodule.add("MeshInstance", MeshInstance::new);
         Factory.Category<Node> pose = nodule.add("Pose", Pose::new);
