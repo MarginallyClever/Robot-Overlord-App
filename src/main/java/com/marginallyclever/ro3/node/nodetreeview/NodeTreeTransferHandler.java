@@ -1,42 +1,94 @@
 package com.marginallyclever.ro3.node.nodetreeview;
+import com.marginallyclever.ro3.node.Node;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
+import javax.swing.tree.*;
+import java.awt.datatransfer.*;
 
 public class NodeTreeTransferHandler extends TransferHandler {
-    @Override
-    protected Transferable createTransferable(JComponent c) {
-        JTree tree = (JTree) c;
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getSelectionPath().getLastPathComponent();
-        return new StringSelection(Integer.toString(node.getParent().getIndex(node)));
-    }
-
-    @Override
-    public boolean canImport(TransferHandler.TransferSupport info) {
-        return info.isDataFlavorSupported(DataFlavor.stringFlavor);
-    }
-
     @Override
     public int getSourceActions(JComponent c) {
         return MOVE;
     }
 
     @Override
-    public boolean importData(TransferHandler.TransferSupport info) {
+    protected Transferable createTransferable(JComponent c) {
+        JTree tree = (JTree) c;
+        TreePath path = tree.getSelectionPath();
+        if (path != null) {
+            Object component = path.getLastPathComponent();
+            if (component instanceof NodeTreeBranch componentNode) {
+                Node node = componentNode.getNode();
+                return new NodeTransferable(node);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean canImport(TransferHandler.TransferSupport support) {
+        if (!support.isDrop() || !support.isDataFlavorSupported(NodeTransferable.nodeFlavor)) {
+            return false;
+        }
+        // Additional checks can be added here if needed
+        return true;
+    }
+
+    @Override
+    public boolean importData(TransferHandler.TransferSupport support) {
+        if (!canImport(support)) {
+            return false;
+        }
+
+        JTree tree = (JTree) support.getComponent();
+        DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
+        JTree.DropLocation dl = (JTree.DropLocation) support.getDropLocation();
+        TreePath destPath = dl.getPath();
+        Node newParent = ((NodeTreeBranch) destPath.getLastPathComponent()).getNode();
+
         try {
-            JTree tree = (JTree) info.getComponent();
-            DefaultMutableTreeNode dropNode = (DefaultMutableTreeNode) tree.getPathForLocation((int) info.getDropLocation().getDropPoint().getX(), (int) info.getDropLocation().getDropPoint().getY()).getLastPathComponent();
-            DefaultMutableTreeNode draggedNode = (DefaultMutableTreeNode) tree.getSelectionPath().getLastPathComponent();
-            draggedNode.removeFromParent();
-            dropNode.insert(draggedNode, 0);
-            ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(dropNode);
+            Transferable transferable = support.getTransferable();
+            Node sourceNode = (Node) transferable.getTransferData(NodeTransferable.nodeFlavor);
+
+            // Remove node from its current parent
+            Node oldParent = sourceNode.getParent();
+            if (oldParent != null) {
+                oldParent.removeChild(sourceNode);
+            }
+
+            // Add node to the new parent
+            newParent.addChild(sourceNode);
             return true;
         } catch (Exception e) {
-            return false;
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private static class NodeTransferable implements Transferable {
+        static DataFlavor nodeFlavor = new DataFlavor(Node.class, "Node");
+        private final Node node;
+
+        public NodeTransferable(Node node) {
+            this.node = node;
+        }
+
+        @Override
+        public DataFlavor[] getTransferDataFlavors() {
+            return new DataFlavor[]{nodeFlavor};
+        }
+
+        @Override
+        public boolean isDataFlavorSupported(DataFlavor flavor) {
+            return nodeFlavor.equals(flavor);
+        }
+
+        @Override
+        public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
+            if (!isDataFlavorSupported(flavor)) {
+                throw new UnsupportedFlavorException(flavor);
+            }
+            return node;
         }
     }
 }
