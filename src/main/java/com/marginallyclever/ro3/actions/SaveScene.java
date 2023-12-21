@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.actions;
 
+import com.marginallyclever.ro3.RecentFilesMenu;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +20,11 @@ import java.io.IOException;
 public class SaveScene extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(SaveScene.class);
     private static final JFileChooser chooser = new JFileChooser();
+    private final RecentFilesMenu menu;
 
-    public SaveScene() {
+    public SaveScene(RecentFilesMenu menu) {
         super("Save Scene");
+        this.menu = menu;
         putValue(SHORT_DESCRIPTION,"Save the entire scene to a file.");
     }
 
@@ -37,6 +39,7 @@ public class SaveScene extends AbstractAction {
         String destinationPath = askUserForDestinationPath(source);
         if (destinationPath == null) return;  // cancelled
         saveScene(destinationPath);
+        menu.addPath(destinationPath);
     }
 
     private String askUserForDestinationPath(Component source) {

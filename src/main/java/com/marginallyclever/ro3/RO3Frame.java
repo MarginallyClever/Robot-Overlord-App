@@ -153,7 +153,7 @@ public class RO3Frame extends JFrame {
         menuFile.add(new JMenuItem(new ImportScene()));
 
         // TODO save vs save-as
-        menuFile.add(new JMenuItem(new SaveScene()));
+        menuFile.add(new JMenuItem(new SaveScene(loadRecentMenu)));
         menuFile.add(new JMenuItem(new ExportScene()));
 
         menuFile.add(new JSeparator());
@@ -184,7 +184,7 @@ public class RO3Frame extends JFrame {
     }
 
     /**
-     * {@link DockingPanel#persistentID}s were generated using <code>UUID.randomUUID().toString()</code>
+     * Persistent IDs were generated using <code>UUID.randomUUID().toString()</code>
      * or <a href="https://www.uuidgenerator.net/">one of many websites</a>.
      */
     private void createPanels() {
