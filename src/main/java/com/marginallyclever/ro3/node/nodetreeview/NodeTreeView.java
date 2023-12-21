@@ -164,7 +164,7 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
 
     @Override
     public void nodeAttached(Node child) {
-        logger.debug("Attached "+child.getAbsolutePath());
+        //logger.debug("Attached "+child.getAbsolutePath());
         Node parent = child.getParent();
         if(parent==null) throw new RuntimeException("source node has no parent");
         NodeTreeBranch branchParent = findTreeNode(parent);
@@ -181,7 +181,7 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
 
     @Override
     public void nodeDetached(Node child) {
-        logger.debug("Detached "+child.getAbsolutePath());
+        //logger.debug("Detached "+child.getAbsolutePath());
 
         stopListeningTo(child);
 
@@ -200,7 +200,7 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
 
     @Override
     public void nodeRenamed(Node source) {
-        logger.debug("Renamed "+source.getAbsolutePath());
+        //logger.debug("Renamed "+source.getAbsolutePath());
         NodeTreeBranch branch = findTreeNode(source);
         if (branch != null) {
             ((DefaultTreeModel) tree.getModel()).nodeChanged(branch);
@@ -209,13 +209,13 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
 
     @Override
     public void beforeSceneChange(Node oldScene) {
-        logger.debug("beforeSceneChange");
+        //logger.debug("beforeSceneChange");
         stopListeningTo(oldScene);
     }
 
     @Override
     public void afterSceneChange(Node newScene) {
-        logger.debug("afterSceneChange");
+        //logger.debug("afterSceneChange");
         listenTo(newScene);
         treeModel.removeAllChildren();
         treeModel.setUserObject(newScene);

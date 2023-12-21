@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.texture;
 
 import com.jogamp.opengl.GLAutoDrawable;
+import com.marginallyclever.convenience.helpers.FileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,13 +33,13 @@ public class TextureFactory {
             }
         }
         TextureWithMetadata t = loadTexture(filename);
-        textures.add(t);
+        if(t!=null) textures.add(t);
         return t;
     }
 
     private TextureWithMetadata loadTexture(String filename) {
         try {
-            BufferedImage image = ImageIO.read(new File(filename));
+            BufferedImage image = ImageIO.read(FileHelper.open(filename));
             return new TextureWithMetadata(image, filename);
         } catch (IOException e) {
             logger.error("Failed to load from "+filename,e);

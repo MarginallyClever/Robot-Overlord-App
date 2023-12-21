@@ -5,8 +5,9 @@ import com.marginallyclever.ro3.node.Node;
 import javax.swing.*;
 
 /**
- * <p>{@link NodeSelector} is a component that allows the user to select a {@link Node}.  Internally it stores the unique ID of the selected node.</p>
- * <p>nodeselector looks like a button.  It displays the name of the selected Node.  If no node is selected,
+ * <p>{@link NodeSelector} is a component that allows the user to select a {@link Node}.  Internally it stores a
+ * reference to the selected node.</p>
+ * <p>{@link NodeSelector} looks like a button.  It displays the name of the selected Node.  If no node is selected,
  * it displays "...".  When the user clicks on the button, a popup menu appears with a
  * {@link JTree} of all available nodes.  When the user selects a node, the button's text is
  * updated to show the name of the selected node.</p>

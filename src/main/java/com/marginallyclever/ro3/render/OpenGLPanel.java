@@ -164,7 +164,7 @@ public class OpenGLPanel extends JPanel implements GLEventListener, MouseListene
 
     @Override
     public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
-        logger.debug("reshape {}x{}",width,height);
+        //logger.debug("reshape {}x{}",width,height);
         canvasWidth = width;
         canvasHeight = height;
     }

@@ -34,7 +34,6 @@ public class DrawBoundingBoxes implements RenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawBoundingBoxes.class);
     private int activeStatus = ALWAYS;
     private ShaderProgram shader;
-
     private final Mesh mesh = new Mesh();
     private int canvasWidth, canvasHeight;
 
