@@ -90,43 +90,82 @@ public class MarlinRobotArm extends Node {
         list.add(panel);
         JPanel pane = panel.getContentPane();
 
-        pane.setLayout(new GridLayout(0, 2));
+        pane.setLayout(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.gridx=0;
+        gbc.gridy=0;
+        gbc.fill = GridBagConstraints.BOTH;
 
         var motorSelector = new NodeSelector[MAX_JOINTS];
         for(int i=0;i<MAX_JOINTS;++i) {
             motorSelector[i] = new NodeSelector<>(Motor.class, motors.get(i));
             int j = i;
             motorSelector[i].addPropertyChangeListener("subject",(e)-> motors.set(j,(Motor)e.getNewValue()));
-            addLabelAndComponent(pane, "Motor "+i, motorSelector[i]);
+            addLabelAndComponent(pane, "Motor "+i, motorSelector[i],gbc);
         }
 
         NodeSelector<Pose> endEffectorSelector = new NodeSelector<>(Pose.class, endEffector);
         endEffectorSelector.addPropertyChangeListener("subject",(e)-> endEffector = (Pose)e.getNewValue());
-        addLabelAndComponent(pane, "End Effector", endEffectorSelector);
+        addLabelAndComponent(pane, "End Effector", endEffectorSelector,gbc);
 
         NodeSelector<Pose> targetSelector = new NodeSelector<>(Pose.class, target);
         targetSelector.addPropertyChangeListener("subject",(e)-> target = (Pose)e.getNewValue());
-        addLabelAndComponent(pane, "Target", targetSelector);
+        addLabelAndComponent(pane, "Target", targetSelector,gbc);
 
         //TODO add a slider to control linear velocity
         JSlider slider = new JSlider(0,20,(int)linearVelocity);
         slider.addChangeListener(e-> linearVelocity = slider.getValue());
-        addLabelAndComponent(pane, "Linear Vel", slider);
+        addLabelAndComponent(pane, "Linear Vel", slider,gbc);
 
-        // Add a text field to send a position to the robot arm.
+        // Add a text field to receive messages from the arm.
+        JPanel outputPanel = new JPanel(new BorderLayout());
+        JLabel outputLabel = new JLabel("Output");
         JTextField output = new JTextField();
         output.setEditable(false);
-        addLabelAndComponent(pane,"Output",output);
+        outputLabel.setLabelFor(output);
+        outputLabel.setBorder(BorderFactory.createEmptyBorder(0,0,0,5));
+        outputPanel.add(output,BorderLayout.CENTER);
+        outputPanel.add(outputLabel,BorderLayout.LINE_START);
+
+        gbc.gridx=0;
+        gbc.gridwidth=2;
+        pane.add(outputPanel,gbc);
+        gbc.gridy++;
 
         // Add a text field that will be sent to the robot arm.
+        JPanel inputPanel = new JPanel(new BorderLayout());
         JTextField input = new JTextField();
-        pane.add(input);
+        inputPanel.add(input,BorderLayout.CENTER);
         // Add a button to send the text field to the robot arm.
         JButton sendButton = new JButton("Send");
         sendButton.addActionListener(e-> output.setText(sendGCode(input.getText())) );
-        pane.add(sendButton);
+
+        inputPanel.add(sendButton,BorderLayout.LINE_END);
+
+        pane.add(inputPanel,gbc);
 
         super.getComponents(list);
+    }
+
+    /**
+     * A convenience method to add a label and component to a panel that is expected to be built with
+     * <code>new GridLayout(0, 2)</code>.
+     * @param pane the panel to add to
+     * @param labelText the text for the label
+     * @param component the component to add
+     * @param gbc the GridBagConstraints to use
+     */
+    protected void addLabelAndComponent(JPanel pane, String labelText, JComponent component, GridBagConstraints gbc) {
+        JLabel label = new JLabel(labelText);
+        label.setLabelFor(component);
+        gbc.gridx=0;
+        pane.add(label,gbc);
+        gbc.gridx=1;
+        pane.add(component,gbc);
+        gbc.gridy++;
     }
 
     /**
