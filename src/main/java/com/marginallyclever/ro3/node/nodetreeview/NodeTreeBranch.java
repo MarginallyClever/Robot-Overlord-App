@@ -21,6 +21,17 @@ public class NodeTreeBranch extends DefaultMutableTreeNode {
     }
 
     @Override
+    public void setUserObject(Object userObject) {
+        if(userObject instanceof Node) {
+            super.setUserObject(userObject);
+            return;
+        }
+        Node node = this.getNode();
+        if(node==null) throw new NullPointerException("Node is null");
+        node.setName(userObject.toString());
+    }
+
+    @Override
     public String toString() {
         return getNode().getName();
     }

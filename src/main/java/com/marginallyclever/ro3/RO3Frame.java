@@ -183,6 +183,10 @@ public class RO3Frame extends JFrame {
         return false;
     }
 
+    /**
+     * {@link DockingPanel#persistentID}s were generated using <code>UUID.randomUUID().toString()</code>
+     * or <a href="https://www.uuidgenerator.net/">one of many websites</a>.
+     */
     private void createPanels() {
         RootDockingPanel root = new RootDockingPanel(this);
         add(root, BorderLayout.CENTER);

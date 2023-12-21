@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 /**
  * Add a new instance of a Node to every selected branches of the tree
  */
-public class AddNode extends AbstractAction {
+public class AddNode<T extends Node> extends AbstractAction {
     private static final FactoryPanel<Node> nfd = new FactoryPanel<>(Registry.nodeFactory);
     private final NodeTreeView treeView;
 

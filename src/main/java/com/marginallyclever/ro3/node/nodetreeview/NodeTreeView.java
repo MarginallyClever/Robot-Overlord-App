@@ -113,7 +113,7 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
     }
 
     private void buildMenuBar() {
-        menuBar.add(new AddNode(this));
+        menuBar.add(new AddNode<>(this));
         menuBar.add(new RemoveNode(this));
     }
 

@@ -1,4 +1,5 @@
 package com.marginallyclever.ro3.node.nodetreeview;
+
 import com.marginallyclever.ro3.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +8,9 @@ import javax.swing.*;
 import javax.swing.tree.*;
 import java.awt.datatransfer.*;
 
+/**
+ * {@link NodeTreeTransferHandler} handles drag and drop operations for the {@link NodeTreeView}.
+ */
 public class NodeTreeTransferHandler extends TransferHandler {
     private static final Logger logger = LoggerFactory.getLogger(NodeTreeTransferHandler.class);
     @Override

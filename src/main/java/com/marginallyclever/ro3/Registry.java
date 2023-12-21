@@ -32,16 +32,17 @@ public class Registry {
         nodule.add("MarlinRobotArm", MarlinRobotArm::new);
         nodule.add("Material", Material::new);
         nodule.add("MeshInstance", MeshInstance::new);
+        nodule.add("Motor", Motor::new);
         Factory.Category<Node> pose = nodule.add("Pose", Pose::new);
             pose.add("Camera", Camera::new);
 
         renderPasses.add(new DrawBackground());
         renderPasses.add(new DrawMeshes());
         renderPasses.add(new DrawBoundingBoxes());
-        renderPasses.add(new DrawPoses());
         renderPasses.add(new DrawCameras());
         renderPasses.add(new DrawDHParameters());
         renderPasses.add(new DrawHingeJoints());
+        renderPasses.add(new DrawPoses());
 
         reset();
     }
@@ -91,5 +92,27 @@ public class Registry {
 
     public static void setActiveCamera(Camera camera) {
         activeCamera = camera;
+    }
+
+    /**
+     * Depth-first search for a node with a matching ID and type.
+     * @param nodeID the ID to search for
+     * @param type the type of node to search for
+     * @return the first node found with a matching ID and type, or null if none found.
+     * @param <T> the type of node to search for
+     */
+    public static <T extends Node> T findNodeByID(String nodeID, Class<T> type) {
+        List<Node> toScan = new ArrayList<>();
+        toScan.add(scene);
+        while(!toScan.isEmpty()) {
+            Node node = toScan.remove(0);
+            if(node.getNodeID().toString().equals(nodeID)) {
+                if(type.equals(node.getClass())) {
+                    return type.cast(node);
+                }
+            }
+            toScan.addAll(node.getChildren());
+        }
+        return null;
     }
 }
