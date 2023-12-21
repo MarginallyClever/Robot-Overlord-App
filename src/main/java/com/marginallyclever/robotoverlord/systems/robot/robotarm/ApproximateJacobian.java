@@ -4,8 +4,8 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 
 /**
- * This class is used to calculate the Jacobian matrix for a robot arm.
- * Each implementation can derive this class and fill in the jacobian matrix.
+ * This class is used to calculate the <a href="https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant">Jacobian
+ * matrix</a> for a robot arm.  Each implementation can derive this class and fill in the jacobian matrix.
  * @author Dan Royer
  */
 public abstract class ApproximateJacobian {

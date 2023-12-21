@@ -117,56 +117,34 @@ public class MatrixHelper {
 	/**
 	 * Convert a matrix to Euler rotations.  There are many valid solutions.
 	 * See also <a href="https://www.learnopencv.com/rotation-matrix-to-euler-angles/">learnOpenCV</a>
-	 * Eulers are using the ZYX convention.
+	 * Eulers are using the YXZ convention.
 	 * @param mat the matrix to convert.
 	 * @return resulting radian rotations.  One possible solution.
 	 */
 	static public Vector3d matrixToEuler(Matrix3d mat) {
-		assert(isRotationMatrix(mat));
-		
-		double sy = Math.sqrt(mat.m00*mat.m00 + mat.m10*mat.m10);
-		boolean singular = sy < 1e-6;
-		double x,y,z;
-		if(!singular) {
-			x = Math.atan2( mat.m21,mat.m22);
-			y = Math.atan2(-mat.m20,sy);
-			z = Math.atan2( mat.m10,mat.m00);
-		} else {
-			x = Math.atan2(-mat.m12, mat.m11);
-			y = Math.atan2(-mat.m20, sy);
-			z = 0;
-		}
-		return new Vector3d(x,y,z);
+		return matrixToEuler(mat,EulerSequence.YXZ);
 	}
 	
 	/**
 	 * Convenience method to call matrixToEuler() with only the rotational component.
 	 * Assumes the rotational component is a valid rotation matrix.
-	 * Eulers are using the ZYX convention.
+	 * Eulers are using the YXZ convention.
 	 * @param mat the Matrix4d to convert.
 	 * @return a valid Euler solution to the matrix.
 	 */
 	static public Vector3d matrixToEuler(Matrix4d mat) {
-		Matrix3d m3 = new Matrix3d();
-		mat.get(m3);
-		return matrixToEuler(m3);
+		return matrixToEuler(mat,EulerSequence.YXZ);
 	}
-	
+
 	/**
 	 * Convert Euler rotations to a matrix.
 	 * See also <a href="https://www.learnopencv.com/rotation-matrix-to-euler-angles/">...</a>
-	 * Eulers are using the ZYX convention.
+	 * Eulers are using the YXZ convention.
 	 * @param v radian rotation values
 	 * @return Matrix3d resulting matrix
 	 */
 	static public Matrix3d eulerToMatrix(Vector3d v) {
-		Matrix3d rX = new Matrix3d();		rX.rotX(v.x);
-		Matrix3d rY = new Matrix3d();		rY.rotY(v.y);
-		Matrix3d rZ = new Matrix3d();		rZ.rotZ(v.z);
-		Matrix3d result = new Matrix3d();
-		result.mul(rY,rX);
-		result.mul(rZ,result);
-		return result;
+		return eulerToMatrix(v,EulerSequence.YXZ);
 	}
 
 	/**

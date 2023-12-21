@@ -95,6 +95,10 @@ public class RecentFilesMenu extends JMenu {
         updateRecentFilesMenu();
     }
 
+    /**
+     * Adds a path to the list of recent files.  If the path already exists in the list, it will be moved to the head of the list.
+     * @param filePath the path to add.
+     */
     public void addPath(String filePath) {
         // remove the path if it already exists so it will be moved to the top of the list.
         recentFiles.remove(filePath);

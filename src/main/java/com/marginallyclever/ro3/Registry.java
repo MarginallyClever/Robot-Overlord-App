@@ -3,6 +3,7 @@ package com.marginallyclever.ro3;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.node.nodes.*;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
 import com.marginallyclever.ro3.render.RenderPass;
 import com.marginallyclever.ro3.render.renderpasses.*;
 import com.marginallyclever.ro3.texture.TextureFactory;

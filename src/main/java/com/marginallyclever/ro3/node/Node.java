@@ -276,7 +276,11 @@ public class Node {
      * Called every frame.
      * @param dt the time since the last frame.
      */
-    public void update(double dt) {}
+    public void update(double dt) {
+        for(Node child : children) {
+            child.update(dt);
+        }
+    }
 
     /**
      * Build a Swing Component that represents this Node.
