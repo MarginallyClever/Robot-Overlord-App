@@ -15,6 +15,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -187,9 +188,10 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     }
 
     private void updateAllNodes(double dt) {
+        // option 1, recursively
         Registry.getScene().update(dt);
         /*
-        // linear way, which is less recursive.
+        // option 2, in a linear way.
         List<Node> toScan = new ArrayList<>(Registry.getScene().getChildren());
         while(!toScan.isEmpty()) {
             Node node = toScan.remove(0);
@@ -227,6 +229,12 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         if(buttonPressed.get(MouseEvent.BUTTON3)) {  // right button
             moveCamera(dx,dy);
         }
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        super.mouseWheelMoved(e);
+        int dz = e.getWheelRotation();
     }
 
     private void panTiltCamera(int dx, int dy) {

@@ -372,7 +372,7 @@ public class MarlinRobotArm extends Node {
         double sum = sumCartesianVelocityComponents(cartesianVelocity);
         if(sum<0.0001) return;
         if(sum <= 1) {
-            moveEndEffectorInCartesianDirectionALittle(cartesianVelocity);
+            setMotorVelocitiesFromCartesianVelocity(cartesianVelocity);
             return;
         }
 
@@ -382,45 +382,21 @@ public class MarlinRobotArm extends Node {
         double[] cartesianVelocityUnit = Arrays.stream(cartesianVelocity)
                 .map(v -> v / total)
                 .toArray();
-        /*
-        // option 1, set joints directly.
-        for (int i = 0; i < total; ++i) {
-            moveEndEffectorInCartesianDirectionALittle(cartesianVelocityUnit);
-        }
-        */
-        // option 2, set joint velocities.
-        setJointVelocitiesFromCartesianVelocity(cartesianVelocityUnit);
+        // set motor velocities.
+        setMotorVelocitiesFromCartesianVelocity(cartesianVelocityUnit);
     }
 
     /**
-     * <p>Attempts to move the robot arm such that the end effector travels in the direction of the cartesian
-     * velocity.</p>
-     * <p>This method will only move the robot arm a small amount.  It is intended to be called repeatedly to move the
-     * arm in an iterative fashion.</p>
+     * <p>Attempts to move the robot arm such that the end effector travels in the cartesian direction.  This is
+     * achieved by setting the velocity of the motors.</p>
      * @param cartesianVelocity three linear forces (mm) and three angular forces (degrees).
      * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
      */
-    private void moveEndEffectorInCartesianDirectionALittle(double[] cartesianVelocity) {
+    private void setMotorVelocitiesFromCartesianVelocity(double[] cartesianVelocity) {
         ApproximateJacobian aj = getJacobian();
         try {
-            double[] jointVelocity = aj.getJointForceFromCartesianForce(cartesianVelocity);  // uses inverse jacobian
-            // do not make moves for impossible velocities
+            double[] jointVelocity = aj.getJointFromCartesian(cartesianVelocity);  // uses inverse jacobian
             if(impossibleVelocity(jointVelocity)) return;  // TODO: throw exception instead?
-
-            double[] angles = getAllJointAngles();  // # dof long
-            for (int i = 0; i < angles.length; ++i) {
-                angles[i] += jointVelocity[i];
-            }
-            setAllJointAngles(angles);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void setJointVelocitiesFromCartesianVelocity(double[] cartesianVelocity) {
-        ApproximateJacobian aj = getJacobian();
-        try {
-            double[] jointVelocity = aj.getJointForceFromCartesianForce(cartesianVelocity);  // uses inverse jacobian
             setAllJointVelocities(jointVelocity);
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -130,8 +130,8 @@ public class ApproximateJacobianTest {
         }
 
         double [] v = new double[] {1,2,3,4,5,6};
-        double [] vFinite = finite.getJointForceFromCartesianForce(v);
-        double [] vScrew = screw.getJointForceFromCartesianForce(v);
+        double [] vFinite = finite.getJointFromCartesian(v);
+        double [] vScrew = screw.getJointFromCartesian(v);
         System.out.println(Arrays.toString(vFinite));
         System.out.println(Arrays.toString(vScrew));
         for(int i=0;i<vFinite.length;++i) {

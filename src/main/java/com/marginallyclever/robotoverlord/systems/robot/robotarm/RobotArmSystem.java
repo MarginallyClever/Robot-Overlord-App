@@ -229,7 +229,7 @@ public class RobotArmSystem implements EntitySystem {
         ApproximateJacobian aj = new ApproximateJacobianFiniteDifferences(robotComponent);
         //ApproximateJacobian aj = new ApproximateJacobianScrewTheory(robotComponent);
         try {
-            double[] jointVelocity = aj.getJointForceFromCartesianForce(cartesianVelocity);  // uses inverse jacobian
+            double[] jointVelocity = aj.getJointFromCartesian(cartesianVelocity);  // uses inverse jacobian
             // do not make moves for impossible velocities
             if(impossibleVelocity(robotComponent,jointVelocity)) return;
 

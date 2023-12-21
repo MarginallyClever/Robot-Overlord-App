@@ -8,14 +8,14 @@ import org.json.JSONObject;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
-import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix4d;
 import java.awt.*;
 import java.text.NumberFormat;
 import java.util.List;
 
 /**
- * {@link HingeJoint} is a joint that can rotate around the local Z axis.
+ * <p>a {@link HingeJoint} is a joint that can rotate around the local Z axis.</p>
+ * <p>a {@link HingeJoint} should be attached to a child {@link Pose} referenced as the axle.  In this way the axle's
+ * parent {@link Pose} can be thought of as the initial pose at zero degrees.  This helps prevent drift over time.</p>
  */
 public class HingeJoint extends Node {
     private double angle = 0;  // degrees
@@ -101,11 +101,7 @@ public class HingeJoint extends Node {
 
         if(axle!=null) {
             // set the axle's location in space.
-            Matrix3d rotZ = new Matrix3d();
-            rotZ.rotZ(Math.toRadians(angle));
-            Matrix4d local = new Matrix4d(axle.getLocal());
-            local.set(rotZ);
-            axle.setLocal(local);
+            axle.getLocal().rotZ(Math.toRadians(angle));
         }
     }
 

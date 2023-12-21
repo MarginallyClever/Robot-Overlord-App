@@ -22,24 +22,6 @@ public abstract class ApproximateJacobian {
     }
 
     /**
-     * Use the jacobian to get the cartesian velocity from the joint velocity.
-     * @param jointForce joint velocity in degrees.
-     * @return 6 doubles containing the XYZ translation and UVW rotation forces on the end effector.
-     */
-    public double[] getCartesianForceFromJointForce(final double[] jointForce) {
-        // vector-matrix multiplication (y = x^T A)
-        double[] cartesianVelocity = new double[DOF];
-        for (int j = 0; j < DOF; ++j) {
-            double sum = 0;
-            for (int k = 0; k < 6; ++k) {
-                sum += jacobian[k][j] * Math.toRadians(jointForce[j]);
-            }
-            cartesianVelocity[j] = sum;
-        }
-        return cartesianVelocity;
-    }
-
-    /**
      * See <a href="https://stackoverflow.com/a/53028167/1159440">5 DOF Inverse kinematics for Jacobian Matrices</a>.
      * @return the inverse Jacobian matrix.
      */
@@ -94,10 +76,11 @@ public abstract class ApproximateJacobian {
     /**
      * Use the Jacobian to get the joint velocity from the cartesian velocity.
      * @param cartesianVelocity 6 doubles - the XYZ translation and UVW rotation forces on the end effector.
-     * @return jointVelocity joint velocity in degrees. Will be filled with the new velocity.
+     *                          The rotation component is in radians.
+     * @return joint velocity in degrees.  Will be filled with the new velocity.
      * @throws Exception if joint velocities have NaN values
      */
-    public double[] getJointForceFromCartesianForce(final double[] cartesianVelocity) throws Exception {
+    public double[] getJointFromCartesian(final double[] cartesianVelocity) throws Exception {
         double[][] inverseJacobian = getInverseJacobian();
         double[] jointVelocity = new double[DOF];
 
@@ -114,6 +97,25 @@ public abstract class ApproximateJacobian {
         }
 
         return jointVelocity;
+    }
+
+    /**
+     * Use the jacobian to convert joint velocity to cartesian velocity.
+     * @param joint joint velocity in degrees.
+     * @return 6 doubles containing the XYZ translation and UVW rotation forces on the end effector.
+     * The rotation component is in radians.
+     */
+    public double[] getCartesianFromJoint(final double[] joint) {
+        // vector-matrix multiplication (y = x^T A)
+        double[] cartesianVelocity = new double[DOF];
+        for (int j = 0; j < DOF; ++j) {
+            double sum = 0;
+            for (int k = 0; k < 6; ++k) {
+                sum += jacobian[k][j] * Math.toRadians(joint[j]);
+            }
+            cartesianVelocity[j] = sum;
+        }
+        return cartesianVelocity;
     }
 
     public double[][] getJacobian() {

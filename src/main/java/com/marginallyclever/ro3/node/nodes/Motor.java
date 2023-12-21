@@ -11,7 +11,8 @@ import java.awt.*;
 import java.util.List;
 
 /**
- * a {@link Motor} is a {@link Node} that can be attached to a {@link HingeJoint}.
+ * A {@link Motor} is a {@link Node} that can be attached to a {@link HingeJoint}.  It will then drive the joint
+ * according to the motor's settings.
  */
 public class Motor extends Node {
     private HingeJoint hinge;
