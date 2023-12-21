@@ -37,7 +37,7 @@ public class RO3Frame extends JFrame {
     private final List<DockingPanel> windows = new ArrayList<>();
 
     public RO3Frame() {
-        super("RO3");
+        super("Robot Overlord 3");
 
         setLookAndFeel();
 

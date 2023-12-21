@@ -20,11 +20,20 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * {@link MarlinRobotArm} converts the state of a robot arm into GCode and back.
+ * <p>{@link MarlinRobotArm} converts the state of a robot arm into GCode and back.</p>
+ * <p>In order to work it requires references to:</p>
+ * <ul>
+ *     <li>five or six {@link Motor}s, with names matching those in Marlin;</li>
+ *     <li>a {@link Pose} end effector to obtain the inverse kinematic pose.  The end effector should be at the end of
+ *     the kinematic chain.</li>
+ *     <li>a {@link Pose} target that the end effector will try to match.  It will only do so when the linear velocity
+ *     is greater than zero.</li>
+ * </ul>
  */
 public class MarlinRobotArm extends Node {
     private static final Logger logger = LoggerFactory.getLogger(MarlinRobotArm.class);
@@ -100,19 +109,14 @@ public class MarlinRobotArm extends Node {
         addLabelAndComponent(pane, "Target", targetSelector);
 
         //TODO add a slider to control linear velocity
-        JSlider slider = new JSlider(0,30,(int)linearVelocity);
+        JSlider slider = new JSlider(0,20,(int)linearVelocity);
         slider.addChangeListener(e-> linearVelocity = slider.getValue());
         addLabelAndComponent(pane, "Linear Vel", slider);
 
         // Add a text field to send a position to the robot arm.
         JTextField output = new JTextField();
         output.setEditable(false);
-        pane.add(output);
-
-        // Add a button that displays gcode to the output.
-        JButton getFKButton = new JButton("Get");
-        getFKButton.addActionListener(e-> output.setText(getFKAsGCode()) );
-        pane.add(getFKButton);
+        addLabelAndComponent(pane,"Output",output);
 
         // Add a text field that will be sent to the robot arm.
         JTextField input = new JTextField();
@@ -133,10 +137,10 @@ public class MarlinRobotArm extends Node {
     public String getFKAsGCode() {
         StringBuilder sb = new StringBuilder("G0");
         for(Motor motor : motors) {
-            if(motor!=null) {
+            if(motor!=null && motor.hasAxle()) {
                 sb.append(" ")
                     .append(motor.getName())
-                    .append(motor.getAxle().getAngle());
+                    .append(StringHelper.formatDouble(motor.getAxle().getAngle()));
             }
         }
         return sb.toString();
@@ -151,19 +155,12 @@ public class MarlinRobotArm extends Node {
         logger.info("heard "+gcode);
 
         if(gcode.startsWith("G0")) {  // fast non-linear move (FK)
-            // parse gcode for motor names and angles
-            String [] parts = gcode.split("\\s+");
-            for(Motor motor : motors) {
-                if(motor!=null) {
-                    for(String p : parts) {
-                        if(p.startsWith(motor.getName())) {
-                            motor.getAxle().setAngle(Double.parseDouble(p.substring(motor.getName().length())));
-                        }
-                    }
-                }
-            }
-            return "Ok";
-        } else if(gcode.equals("pos")) {
+            return parseG0(gcode);
+        } else if(gcode.equals("fk")) {
+            String response = getFKAsGCode();
+            logger.info(response);
+            return "Ok: "+response;
+        } else if(gcode.equals("ik")) {
             if(endEffector==null) {
                 logger.error("no end effector");
                 return "Error: no end effector";
@@ -181,37 +178,69 @@ public class MarlinRobotArm extends Node {
             return "Ok: "+response;
         } else if(gcode.equals("aj")) {
             ApproximateJacobianFiniteDifferences jacobian = new ApproximateJacobianFiniteDifferences(this);
-            logger.debug(jacobian.toString());
+            logger.info(jacobian.toString());
             return "Ok";
-        } else if(gcode.startsWith("G1")) {  // linear move
-            // parse gcode for names and values.  names are XYZ for linear, UVW for angular.
-            // They set the new target position for the end effector.
-            String [] parts = gcode.split("\\s+");
-            double [] cartesian = getCartesianFromWorld(endEffector.getWorld());
-            logger.debug("before: "+cartesian[0]+","+cartesian[1]+","+cartesian[2]+","+cartesian[3]+","+cartesian[4]+","+cartesian[5]);
-            for(String p : parts) {
-                if(p.startsWith("X")) cartesian[0] = Double.parseDouble(p.substring(1));
-                else if(p.startsWith("Y")) cartesian[1] = Double.parseDouble(p.substring(1));
-                else if(p.startsWith("Z")) cartesian[2] = Double.parseDouble(p.substring(1));
-                else if(p.startsWith("U")) cartesian[3] = Double.parseDouble(p.substring(1));
-                else if(p.startsWith("V")) cartesian[4] = Double.parseDouble(p.substring(1));
-                else if(p.startsWith("W")) cartesian[5] = Double.parseDouble(p.substring(1));
-            }
-            logger.debug("after: "+cartesian[0]+","+cartesian[1]+","+cartesian[2]+","+cartesian[3]+","+cartesian[4]+","+cartesian[5]);
-            // set the target position relative to the base of the robot arm
-            if(target==null) {
-                logger.error("no target");
-                return "Error: no target";
-            }
-            target.setLocal(getReverseCartesianFromWorld(cartesian));
-            return "Ok";
+        } else if(gcode.startsWith("G1")) {
+            return parseG1(gcode);
         }
         logger.error("unknown command");
         return "Error: unknown command";
     }
 
     /**
-     *
+     * <p>G0 rapid non-linear move.</p>
+     * <p>Parse gcode for motor names and angles, then set the associated joint values directly.</p>
+     * @param gcode GCode command
+     * @return response from robot arm
+     */
+    private String parseG0(String gcode) {
+        String [] parts = gcode.split("\\s+");
+        for(Motor motor : motors) {
+            if(motor!=null && motor.hasAxle()) {
+                for(String p : parts) {
+                    if(p.startsWith(motor.getName())) {
+                        // TODO check for NaN, Infinity, etc
+                        // TODO check new value is in range.
+                        motor.getAxle().setAngle(Double.parseDouble(p.substring(motor.getName().length())));
+                        break;
+                    }
+                }
+            }
+        }
+        return "Ok";
+    }
+
+    /**
+     * <p>G1 Linear move.</p>
+     * <p>Parse gcode for names and values, then set the new target position.Names are XYZ for linear, UVW for angular.
+     * Angular values should be in degrees.</p>
+     * <p>Movement will occur on {@link #update(double)} provided the {@link #linearVelocity} and the update time are
+     * greater than zero.</p>
+     * @param gcode GCode command
+     * @return response from robot arm
+     */
+    private String parseG1(String gcode) {
+        if(target==null) {
+            logger.error("no target");
+            return "Error: no target";
+        }
+
+        String [] parts = gcode.split("\\s+");
+        double [] cartesian = getCartesianFromWorld(endEffector.getWorld());
+        for(String p : parts) {
+            if(p.startsWith("X")) cartesian[0] = Double.parseDouble(p.substring(1));
+            else if(p.startsWith("Y")) cartesian[1] = Double.parseDouble(p.substring(1));
+            else if(p.startsWith("Z")) cartesian[2] = Double.parseDouble(p.substring(1));
+            else if(p.startsWith("U")) cartesian[3] = Double.parseDouble(p.substring(1));
+            else if(p.startsWith("V")) cartesian[4] = Double.parseDouble(p.substring(1));
+            else if(p.startsWith("W")) cartesian[5] = Double.parseDouble(p.substring(1));
+        }
+        // set the target position relative to the base of the robot arm
+        target.setLocal(getReverseCartesianFromWorld(cartesian));
+        return "Ok";
+    }
+
+    /**
      * @param cartesian XYZ translation and UVW rotation of the end effector.  UVW is in degrees.
      * @return the matrix that represents the given cartesian position.
      */
@@ -243,7 +272,7 @@ public class MarlinRobotArm extends Node {
         return (int)motors.stream().filter(Objects::nonNull).count();
     }
 
-    public double[] getAllJointValues() {
+    public double[] getAllJointAngles() {
         double[] result = new double[getNumJoints()];
         int i=0;
         for(Motor motor : motors) {
@@ -254,7 +283,7 @@ public class MarlinRobotArm extends Node {
         return result;
     }
 
-    public void setAllJointValues(double[] values) {
+    public void setAllJointAngles(double[] values) {
         if(values.length!=getNumJoints()) {
             logger.error("setAllJointValues: one value for every motor");
             return;
@@ -266,6 +295,22 @@ public class MarlinRobotArm extends Node {
                 if(axle!=null) {
                     axle.setAngle(values[i++]);
                     axle.update(0);
+                }
+            }
+        }
+    }
+
+    public void setAllJointVelocities(double[] values) {
+        if(values.length!=getNumJoints()) {
+            logger.error("setAllJointValues: one value for every motor");
+            return;
+        }
+        int i=0;
+        for(Motor motor : motors) {
+            if(motor!=null) {
+                HingeJoint axle = motor.getAxle();
+                if(axle!=null) {
+                    axle.setVelocity(values[i++]);
                 }
             }
         }
@@ -286,11 +331,14 @@ public class MarlinRobotArm extends Node {
     @Override
     public void update(double dt) {
         super.update(dt);
-        if(endEffector==null || target==null || linearVelocity<0.0001) return;
+        moveTowardsTarget(dt);
+    }
 
+    private void moveTowardsTarget(double dt) {
+        if(endEffector==null || target==null || linearVelocity<0.0001) return;
         double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrices(endEffector.getWorld(), target.getWorld());
         capVectorToMagnitude(cartesianVelocity,linearVelocity*dt);
-        applyCartesianForceToEndEffector(cartesianVelocity);
+        moveEndEffectorInCartesianDirection(cartesianVelocity);
     }
 
     /**
@@ -316,53 +364,74 @@ public class MarlinRobotArm extends Node {
     }
 
     /**
-     * Applies a cartesian force to the robot, moving it in the direction of the cartesian force.
+     * Attempts to move the robot arm such that the end effector travels in the direction of the cartesian velocity.
      * @param cartesianVelocity three linear forces (mm) and three angular forces (degrees).
      * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
      */
-    public void applyCartesianForceToEndEffector(double[] cartesianVelocity) {
+    public void moveEndEffectorInCartesianDirection(double[] cartesianVelocity) {
         double sum = sumCartesianVelocityComponents(cartesianVelocity);
         if(sum<0.0001) return;
         if(sum <= 1) {
-            applySmallCartesianForceToEndEffector(cartesianVelocity);
+            moveEndEffectorInCartesianDirectionALittle(cartesianVelocity);
             return;
         }
 
         // split the big move in to smaller moves.
         int total = (int) Math.ceil(sum);
         // allocate a new buffer so that we don't smash the original.
-        double[] cartesianVelocityUnit = new double[cartesianVelocity.length];
-        for (int i = 0; i < cartesianVelocity.length; ++i) {
-            cartesianVelocityUnit[i] = cartesianVelocity[i] / total;
-        }
+        double[] cartesianVelocityUnit = Arrays.stream(cartesianVelocity)
+                .map(v -> v / total)
+                .toArray();
+        /*
+        // option 1, set joints directly.
         for (int i = 0; i < total; ++i) {
-            applySmallCartesianForceToEndEffector(cartesianVelocityUnit);
+            moveEndEffectorInCartesianDirectionALittle(cartesianVelocityUnit);
         }
+        */
+        // option 2, set joint velocities.
+        setJointVelocitiesFromCartesianVelocity(cartesianVelocityUnit);
     }
 
     /**
-     * Applies a cartesian force to the robot, moving it in the direction of the cartesian force.
+     * <p>Attempts to move the robot arm such that the end effector travels in the direction of the cartesian
+     * velocity.</p>
+     * <p>This method will only move the robot arm a small amount.  It is intended to be called repeatedly to move the
+     * arm in an iterative fashion.</p>
      * @param cartesianVelocity three linear forces (mm) and three angular forces (degrees).
      * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
      */
-    private void applySmallCartesianForceToEndEffector(double[] cartesianVelocity) {
-        ApproximateJacobian aj = new ApproximateJacobianFiniteDifferences(this);
-        //ApproximateJacobian aj = new ApproximateJacobianScrewTheory(robotComponent);
+    private void moveEndEffectorInCartesianDirectionALittle(double[] cartesianVelocity) {
+        ApproximateJacobian aj = getJacobian();
         try {
             double[] jointVelocity = aj.getJointForceFromCartesianForce(cartesianVelocity);  // uses inverse jacobian
             // do not make moves for impossible velocities
-            if(impossibleVelocity(jointVelocity)) return;
+            if(impossibleVelocity(jointVelocity)) return;  // TODO: throw exception instead?
 
-            double[] angles = getAllJointValues();  // # dof long
+            double[] angles = getAllJointAngles();  // # dof long
             for (int i = 0; i < angles.length; ++i) {
-                // TODO: set desired velocity in joint motor component, let motor system handle the rest.
-                // TODO: get next derivative and set acceleration?
                 angles[i] += jointVelocity[i];
             }
-            setAllJointValues(angles);
+            setAllJointAngles(angles);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void setJointVelocitiesFromCartesianVelocity(double[] cartesianVelocity) {
+        ApproximateJacobian aj = getJacobian();
+        try {
+            double[] jointVelocity = aj.getJointForceFromCartesianForce(cartesianVelocity);  // uses inverse jacobian
+            setAllJointVelocities(jointVelocity);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private ApproximateJacobian getJacobian() {
+        // option 1, use finite differences
+        return new ApproximateJacobianFiniteDifferences(this);
+        // option 2, use screw theory
+        //ApproximateJacobian aj = new ApproximateJacobianScrewTheory(robotComponent);
     }
 
     /**

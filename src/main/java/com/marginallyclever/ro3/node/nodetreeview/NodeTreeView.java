@@ -104,7 +104,7 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
      */
     public void scanTree(Node toScan) {
         if(toScan == null) throw new InvalidParameterException("node is null");
-        logger.info("Scanning "+toScan.getAbsolutePath());
+        //logger.debug("Scanning "+toScan.getAbsolutePath());
 
         NodeTreeBranch parentBranch = findTreeNode(toScan);
         if(parentBranch == null) {

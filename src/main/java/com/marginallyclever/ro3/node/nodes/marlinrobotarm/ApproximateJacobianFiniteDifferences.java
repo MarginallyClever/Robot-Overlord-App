@@ -20,7 +20,7 @@ public class ApproximateJacobianFiniteDifferences extends ApproximateJacobian {
         Pose endEffector = arm.getEndEffector();
         if(endEffector==null) throw new InvalidParameterException("Robot must have an end effector.");
 
-        double[] jointAnglesOriginal = arm.getAllJointValues();
+        double[] jointAnglesOriginal = arm.getAllJointAngles();
         Matrix4d endEffectorPose = endEffector.getWorld();
         Matrix4d endEffectorDifference = new Matrix4d();
         Matrix3d endEffectorPoseRotation = new Matrix3d();
@@ -31,7 +31,7 @@ public class ApproximateJacobianFiniteDifferences extends ApproximateJacobian {
                 // use anglesB to get the hand matrix after a tiny adjustment on one joint.
                 double[] jointAnglesPlusDelta = Arrays.copyOf(jointAnglesOriginal, jointAnglesOriginal.length);
                 jointAnglesPlusDelta[i] += ANGLE_STEP_SIZE_DEGREES;
-                arm.setAllJointValues(jointAnglesPlusDelta);
+                arm.setAllJointAngles(jointAnglesPlusDelta);
                 Matrix4d endEffectorPosePlusDelta = endEffector.getWorld();
 
                 // use the finite difference in the two matrixes
@@ -59,7 +59,7 @@ public class ApproximateJacobianFiniteDifferences extends ApproximateJacobian {
                 jacobian[5][i] = skewSymmetric.m01;
             }
         } finally {
-            arm.setAllJointValues(jointAnglesOriginal);
+            arm.setAllJointAngles(jointAnglesOriginal);
             arm.update(0);
         }
     }

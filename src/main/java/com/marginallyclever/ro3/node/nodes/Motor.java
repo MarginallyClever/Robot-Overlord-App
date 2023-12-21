@@ -10,6 +10,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
+/**
+ * a {@link Motor} is a {@link Node} that can be attached to a {@link HingeJoint}.
+ */
 public class Motor extends Node {
     private HingeJoint hinge;
 
@@ -75,5 +78,9 @@ public class Motor extends Node {
 
     public void setAxle(HingeJoint hinge) {
         this.hinge = hinge;
+    }
+
+    public boolean hasAxle() {
+        return hinge!=null;
     }
 }
