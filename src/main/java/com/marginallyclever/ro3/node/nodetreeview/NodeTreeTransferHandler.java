@@ -57,9 +57,11 @@ public class NodeTreeTransferHandler extends TransferHandler {
             Transferable transferable = support.getTransferable();
             Node beingMoved = (Node) transferable.getTransferData(NodeTransferable.nodeFlavor);
 
-            // Prevent a node from being dragged to itself
             if (beingMoved == newParent) {
-                return false;
+                return false;  // Prevent a node from being dragged to itself
+            }
+            if( newParent.hasParent(beingMoved) ) {
+                return false;  // i can't become my own grandpa
             }
 
             // Remove node from its current parent

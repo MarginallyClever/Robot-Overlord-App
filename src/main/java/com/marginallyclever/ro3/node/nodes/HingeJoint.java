@@ -18,10 +18,11 @@ import java.util.List;
  * {@link HingeJoint} is a joint that can rotate around the local Z axis.
  */
 public class HingeJoint extends Node {
-    private double angle = 0;
-    private double minAngle = 0;
-    private double maxAngle = 360;
-    private double velocity=0, acceleration=0;
+    private double angle = 0;  // degrees
+    private double minAngle = 0;  // degrees
+    private double maxAngle = 360;  // degrees
+    private double velocity = 0;  // degrees/s
+    private double acceleration = 0;  // degrees/s/s
     private Pose axle;
 
     public HingeJoint() {

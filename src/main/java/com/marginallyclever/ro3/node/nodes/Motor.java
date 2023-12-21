@@ -68,4 +68,12 @@ public class Motor extends Node {
         super.fromJSON(from);
         if(from.has("hinge")) hinge = Registry.findNodeByID(from.getString("hinge"),HingeJoint.class);
     }
+
+    public HingeJoint getAxle() {
+        return hinge;
+    }
+
+    public void setAxle(HingeJoint hinge) {
+        this.hinge = hinge;
+    }
 }

@@ -25,7 +25,7 @@ public class Node {
     private final List<Node> children = new ArrayList<>();
     private Node parent;
     private UUID nodeID;
-    private final EventListenerList listeners = new EventListenerList();
+    protected final EventListenerList listeners = new EventListenerList();
 
     public Node() {
         this("Node");
@@ -391,8 +391,19 @@ public class Node {
                 logger.error("{}: Could not create type {}.",getAbsolutePath(),child.getString("type"));
                 n = new Node();
             }
-            n.fromJSON(child);
             addChild(n);
+            n.fromJSON(child);
         }
+    }
+
+    public boolean hasParent(Node beingMoved) {
+        Node p = parent;
+        while(p != null) {
+            if(p == beingMoved) {
+                return true;
+            }
+            p = p.getParent();
+        }
+        return false;
     }
 }

@@ -106,8 +106,8 @@ public class Registry {
         toScan.add(scene);
         while(!toScan.isEmpty()) {
             Node node = toScan.remove(0);
-            if(node.getNodeID().toString().equals(nodeID)) {
-                if(type.equals(node.getClass())) {
+            if(type.equals(node.getClass())) {
+                if(node.getNodeID().toString().equals(nodeID)) {
                     return type.cast(node);
                 }
             }
