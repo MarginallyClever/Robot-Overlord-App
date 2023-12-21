@@ -15,13 +15,37 @@ import java.util.List;
  */
 public class NodeDetailView extends JPanel implements SelectionChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(NodeDetailView.class);
-    private final JPanel parent = new JPanel(new BorderLayout());
+    private final JScrollPane scroll = new JScrollPane();
 
     public NodeDetailView() {
         super(new BorderLayout());
-        JScrollPane scroll = new JScrollPane();
-        scroll.setViewportView(parent);
         this.add(scroll, BorderLayout.CENTER);
+        selectionChanged(List.of());
+    }
+
+    public static JPanel createPanelFor(List<Node> nodeList) {
+        JPanel parent = new JPanel(new BorderLayout());
+        if(nodeList.isEmpty()) {
+            JLabel label = new JLabel("No nodes selected.");
+            label.setHorizontalAlignment(SwingConstants.CENTER);
+            parent.add(label, BorderLayout.CENTER);
+            return parent;
+        }
+
+        Box vertical = Box.createVerticalBox();
+        List<JComponent> list = new ArrayList<>();
+        for (Node node : nodeList) {
+            try {
+                node.getComponents(list);
+            } catch (Exception e) {
+                logger.error("Error getting components for node {}", node, e);
+            }
+        }
+        for (JComponent c : list) {
+            vertical.add(c);
+        }
+        parent.add(vertical, BorderLayout.NORTH);
+        return parent;
     }
 
     /**
@@ -31,23 +55,7 @@ public class NodeDetailView extends JPanel implements SelectionChangeListener {
      */
     @Override
     public void selectionChanged(List<Node> selectedNodes) {
-        Box vertical = Box.createVerticalBox();
-        List<JComponent> list = new ArrayList<>();
-
-        for(Node node : selectedNodes) {
-            try {
-                node.getComponents(list);
-            } catch(Exception e) {
-                logger.error("Error getting components for node {}",node,e);
-            }
-        }
-
-        for(JComponent c : list) {
-            vertical.add(c);
-        }
-
-        parent.removeAll();
-        parent.add(vertical, BorderLayout.NORTH);
+        scroll.setViewportView(createPanelFor(selectedNodes));
         this.revalidate();
         this.repaint();
     }

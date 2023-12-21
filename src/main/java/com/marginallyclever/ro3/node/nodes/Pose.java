@@ -14,6 +14,9 @@ import java.awt.*;
 import java.text.NumberFormat;
 import java.util.List;
 
+/**
+ * <p>A {@link Pose} is a {@link Node} that has a position and rotation in space.</p>
+ */
 public class Pose extends Node {
     private final Matrix4d local = MatrixHelper.createIdentityMatrix4();
     private MatrixHelper.EulerSequence rotationIndex = MatrixHelper.EulerSequence.YXZ;

@@ -15,6 +15,10 @@ public class NodeSelectionPanel<T extends Node> extends JPanel {
     private final JTree tree = new JTree();
     private T selectedNode;
 
+    public NodeSelectionPanel() {
+        this((Class<T>) Node.class);
+    }
+
     public NodeSelectionPanel(Class<T> type) {
         super(new BorderLayout());
 

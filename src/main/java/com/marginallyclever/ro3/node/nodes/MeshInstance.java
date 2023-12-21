@@ -1,12 +1,11 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.mesh.MeshFactoryDialog;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.systems.render.mesh.MeshSmoother;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -15,6 +14,10 @@ import java.awt.*;
 import java.io.File;
 import java.util.List;
 
+/**
+ * <p>A {@link MeshInstance} is a {@link Pose} containing a {@link Mesh}.</p>
+ * <p>The local {@link Pose} information can be used to adjust the center of rotation.</p>
+ */
 public class MeshInstance extends Pose {
     private Mesh mesh;
 
@@ -40,10 +43,10 @@ public class MeshInstance extends Pose {
         JButton select = new JButton();
         setMeshButtonLabel(select);
         select.addActionListener(e -> {
-            MeshFactoryPanel meshFactoryPanel = new MeshFactoryPanel();
-            int result = meshFactoryPanel.run();
+            MeshFactoryDialog meshFactoryDialog = new MeshFactoryDialog();
+            int result = meshFactoryDialog.run();
             if(result == JFileChooser.APPROVE_OPTION) {
-                mesh = meshFactoryPanel.getMesh();
+                mesh = meshFactoryDialog.getMesh();
                 setMeshButtonLabel(select);
             }
         });

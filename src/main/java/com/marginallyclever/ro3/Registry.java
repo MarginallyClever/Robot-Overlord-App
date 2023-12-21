@@ -71,12 +71,18 @@ public class Registry {
     }
 
     public static void setScene(Node newScene) {
+        fireBeforeSceneChange(newScene);
+        scene = newScene;
+        fireAfterSceneChange(newScene);
+    }
+
+    private static void fireBeforeSceneChange(Node newScene) {
         for (SceneChangeListener listener : listeners.getListeners(SceneChangeListener.class)) {
             listener.beforeSceneChange(newScene);
         }
+    }
 
-        scene = newScene;
-
+    private static void fireAfterSceneChange(Node newScene) {
         for (SceneChangeListener listener : listeners.getListeners(SceneChangeListener.class)) {
             listener.afterSceneChange(newScene);
         }

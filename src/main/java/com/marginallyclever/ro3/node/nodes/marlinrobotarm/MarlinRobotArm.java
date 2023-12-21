@@ -9,7 +9,6 @@ import com.marginallyclever.ro3.node.nodes.Motor;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.node.nodeselector.NodeSelector;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
-import com.marginallyclever.robotoverlord.systems.robot.robotarm.ApproximateJacobian;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;

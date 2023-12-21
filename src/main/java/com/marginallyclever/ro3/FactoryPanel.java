@@ -1,7 +1,5 @@
 package com.marginallyclever.ro3;
 
-import java.util.List;
-import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -14,13 +12,11 @@ import java.awt.*;
  * @param <T> the class of thing to create.
  */
 public class FactoryPanel<T> extends JPanel {
-    private final Factory<T> factory;
     private final JTree tree;
     private final JButton okButton = new JButton("OK");
 
     public FactoryPanel(Factory<T> factory) {
         super();
-        this.factory = factory;
 
         setMinimumSize(new Dimension(400, 300));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -32,8 +28,7 @@ public class FactoryPanel<T> extends JPanel {
         tree.addTreeSelectionListener(e -> {
             TreePath path = tree.getSelectionPath();
             if (path != null) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-                Factory.Category<T> category = (Factory.Category<T>) node.getUserObject();
+                Factory.Category<T> category = getCategory((DefaultMutableTreeNode) path.getLastPathComponent());
                 okButton.setEnabled(category.supplier != null);
             }
         });
@@ -53,8 +48,7 @@ public class FactoryPanel<T> extends JPanel {
         @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
             super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-            Factory.Category<T> category = (Factory.Category<T>) node.getUserObject();
+            Factory.Category<T> category = getCategory((DefaultMutableTreeNode) value);
             if (category.supplier == null) {
                 setForeground(Color.LIGHT_GRAY);
             }
@@ -69,8 +63,7 @@ public class FactoryPanel<T> extends JPanel {
     public int getResult() {
         TreePath path = tree.getSelectionPath();
         if (path != null) {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-            Factory.Category<T> category = (Factory.Category<T>) node.getUserObject();
+            Factory.Category<T> category = getCategory((DefaultMutableTreeNode) path.getLastPathComponent());
             if (category.supplier != null) {
                 return JOptionPane.OK_OPTION;
             }
@@ -81,10 +74,14 @@ public class FactoryPanel<T> extends JPanel {
     public String getSelectedNode() {
         TreePath path = tree.getSelectionPath();
         if (path != null) {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-            Factory.Category<T> category = (Factory.Category<T>) node.getUserObject();
+            Factory.Category<T> category = getCategory((DefaultMutableTreeNode) path.getLastPathComponent());
             return category.name;
         }
         return null;
+    }
+
+    Factory.Category<T> getCategory(DefaultMutableTreeNode node) {
+        Object obj = node.getUserObject();
+        return (Factory.Category<T>)obj;
     }
 }

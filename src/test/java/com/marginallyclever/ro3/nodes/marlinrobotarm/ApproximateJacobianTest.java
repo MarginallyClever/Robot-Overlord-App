@@ -1,11 +1,14 @@
-package com.marginallyclever.robotoverlord.systems.robot.robotarm;
+package com.marginallyclever.ro3.nodes.marlinrobotarm;
 
+import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobian;
+import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobianScrewTheory;
 import com.marginallyclever.robotoverlord.components.ArmEndEffectorComponent;
 import com.marginallyclever.robotoverlord.components.DHComponent;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.robots.Robot;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.ApproximateJacobianFiniteDifferences;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;

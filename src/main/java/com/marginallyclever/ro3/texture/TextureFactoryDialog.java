@@ -1,6 +1,6 @@
-package com.marginallyclever.ro3.node.nodes;
+package com.marginallyclever.ro3.texture;
 
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,16 +10,19 @@ import javax.swing.filechooser.FileFilter;
 import java.util.List;
 
 /**
- * {@link MeshFactoryPanel} is a panel that displays controls to load a mesh from a file.
- * {@link Mesh} are created using the {@link MeshFactory}, which makes sure identical items are not loaded twice.
+ * <p>{@link TextureFactoryDialog} displays controls to load a {@link com.jogamp.opengl.util.texture.Texture} from a
+ * file, wrapped in a {@link TextureWithMetadata}.</p>
+ * <p>{@link TextureWithMetadata} are created using the {@link TextureFactory}, which makes sure identical items
+ * are not loaded twice.</p>
  */
-public class MeshFactoryPanel extends JPanel {
-    private static final Logger logger = LoggerFactory.getLogger(MeshFactoryPanel.class);
+public class TextureFactoryDialog {
+    private static final Logger logger = LoggerFactory.getLogger(TextureFactoryDialog.class);
     private static final JFileChooser chooser = new JFileChooser();
-    private Mesh lastMeshLoaded;
+    private TextureWithMetadata lastTextureLoaded;
 
-    public MeshFactoryPanel() {
+    public TextureFactoryDialog() {
         super();
+        if(Registry.textureFactory==null) throw new RuntimeException("TextureFactoryPanel requires a TextureFactory");
 
         List<FileFilter> filters = MeshFactory.getAllExtensions();
         if (filters.isEmpty()) throw new RuntimeException("No MeshFactory filters found?!");
@@ -40,10 +43,9 @@ public class MeshFactoryPanel extends JPanel {
         int returnVal = chooser.showDialog(SwingUtilities.getWindowAncestor(chooser), "Select");
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             String absPath = chooser.getSelectedFile().getAbsolutePath();
-            try {
-                lastMeshLoaded = MeshFactory.load(absPath);
-            } catch(Exception e) {
-                logger.error("Failed to load from "+absPath,e);
+            lastTextureLoaded = Registry.textureFactory.load(absPath);
+            if(lastTextureLoaded==null) {
+                logger.error("Failed to load from "+absPath);
                 returnVal = JFileChooser.CANCEL_OPTION;
             }
         }
@@ -52,9 +54,9 @@ public class MeshFactoryPanel extends JPanel {
     }
 
     /**
-     * @return the last mesh loaded by this panel.
+     * @return the last texture loaded by this panel.
      */
-    public Mesh getMesh() {
-        return lastMeshLoaded;
+    public TextureWithMetadata getTexture() {
+        return lastTextureLoaded;
     }
 }

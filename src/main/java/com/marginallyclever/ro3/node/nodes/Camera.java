@@ -15,6 +15,11 @@ import java.security.InvalidParameterException;
 import java.text.NumberFormat;
 import java.util.List;
 
+/**
+ * <p>A {@link Camera} is a {@link Pose} that can be used by a {@link com.marginallyclever.ro3.render.Viewport} to
+ * render the scene.</p>
+ * <p>For perspective rendering it has a vertical field of view and a near and far clipping plane.</p>
+ */
 public class Camera extends Pose {
     private boolean drawOrthographic = false;
     private double fovY = 60;

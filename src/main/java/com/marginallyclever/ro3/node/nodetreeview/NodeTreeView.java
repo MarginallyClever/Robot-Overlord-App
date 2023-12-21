@@ -211,6 +211,8 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
     public void beforeSceneChange(Node oldScene) {
         //logger.debug("beforeSceneChange");
         stopListeningTo(oldScene);
+        tree.clearSelection();  // does not trigger selection change event?
+        fireSelectionChangeEvent(List.of());
     }
 
     @Override

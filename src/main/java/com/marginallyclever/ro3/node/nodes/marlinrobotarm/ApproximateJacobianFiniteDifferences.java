@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
 import com.marginallyclever.ro3.node.nodes.Pose;
-import com.marginallyclever.robotoverlord.systems.robot.robotarm.ApproximateJacobian;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;

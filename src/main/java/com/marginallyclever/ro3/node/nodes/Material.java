@@ -2,7 +2,7 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.texture.TextureFactoryPanel;
+import com.marginallyclever.ro3.texture.TextureFactoryDialog;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 import org.json.JSONObject;
@@ -37,10 +37,10 @@ public class Material extends Node {
         JButton button = new JButton();
         setTextureButtonLabel(button);
         button.addActionListener(e -> {
-            TextureFactoryPanel textureFactoryPanel = new TextureFactoryPanel(Registry.textureFactory);
-            int result = textureFactoryPanel.run();
+            TextureFactoryDialog textureFactoryDialog = new TextureFactoryDialog();
+            int result = textureFactoryDialog.run();
             if(result == JFileChooser.APPROVE_OPTION) {
-                texture = textureFactoryPanel.getTexture();
+                texture = textureFactoryDialog.getTexture();
                 setTextureButtonLabel(button);
             }
         });

@@ -39,6 +39,7 @@ public class NewScene extends AbstractAction {
         }
 
         Registry.reset();
+        Registry.setScene(new Node("Scene"));
 
         logger.info("done.");
     }
