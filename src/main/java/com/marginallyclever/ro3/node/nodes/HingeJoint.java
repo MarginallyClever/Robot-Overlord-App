@@ -124,7 +124,9 @@ public class HingeJoint extends Node {
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        if(from.has("axle")) axle = Registry.findNodeByID(from.getString("axle"),Pose.class);
+        if(from.has("axle")) {
+            axle = Registry.findNodeByID(from.getString("axle"),Pose.class);
+        }
         if(from.has("angle")) angle = from.getDouble("angle");
         if(from.has("minAngle")) minAngle = from.getDouble("minAngle");
         if(from.has("maxAngle")) maxAngle = from.getDouble("maxAngle");
@@ -134,6 +136,10 @@ public class HingeJoint extends Node {
 
     public double getAngle() {
         return angle;
+    }
+
+    public void setAngle(double degrees) {
+        angle = degrees;
     }
 
     public double getMinAngle() {

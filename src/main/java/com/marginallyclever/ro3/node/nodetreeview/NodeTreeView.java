@@ -90,6 +90,12 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
         node.removeAttachListener(this);
         node.removeDetachListener(this);
         node.removeRenameListener(this);
+
+        // stop listening to all the children of this node, a reverse of scanTree()
+        List<Node> toRemove = new ArrayList<>(node.getChildren());
+        for(Node progeny : toRemove) {
+            stopListeningTo(progeny);
+        }
     }
 
     /**
@@ -167,10 +173,7 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
         int index = parent.getChildren().indexOf(child);
         branchParent.insert(branchChild,index);
 
-        child.addAttachListener(this);
-        child.addDetachListener(this);
-        child.addRenameListener(this);
-
+        listenTo(child);
         scanTree(child);
 
         ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(branchParent);
@@ -179,9 +182,8 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
     @Override
     public void nodeDetached(Node child) {
         logger.debug("Detached "+child.getAbsolutePath());
-        child.removeAttachListener(this);
-        child.removeDetachListener(this);
-        child.removeRenameListener(this);
+
+        stopListeningTo(child);
 
         Node parent = child.getParent();
         if(parent==null) throw new RuntimeException("Source node has no parent");

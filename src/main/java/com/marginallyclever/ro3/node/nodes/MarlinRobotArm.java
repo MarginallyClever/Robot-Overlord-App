@@ -76,19 +76,29 @@ public class MarlinRobotArm extends Node {
         // Add a text field to send a position to the robot arm.
         JTextField output = new JTextField();
         output.setEditable(false);
-        addLabelAndComponent(pane, "Output", output);
+        pane.add(output);
 
         // Add a button that displays gcode to the output.
-        JButton gcodeButton = new JButton("Get");
-        addLabelAndComponent(pane, "FK as GCode", gcodeButton);
-        gcodeButton.addActionListener(e-> output.setText(getFKAsGCode()) );
+        JButton getFKButton = new JButton("Get");
+        getFKButton.addActionListener(e-> output.setText(getFKAsGCode()) );
+        pane.add(getFKButton);
 
-        // TODO add a text field that will be sent to the robot arm.
+        // Add a text field that will be sent to the robot arm.
+        JTextField input = new JTextField();
+        pane.add(input);
+        // Add a button to send the text field to the robot arm.
+        JButton sendButton = new JButton("Send");
+        sendButton.addActionListener(e-> output.setText(sendGCode(input.getText())) );
+        pane.add(sendButton);
 
         super.getComponents(list);
     }
 
-    // take the current angle of each motor hinge and writes as a GCode command.
+    /**
+     * Build a string from the current angle of each motor hinge, aka the
+     * <a href="https://en.wikipedia.org/wiki/Forward_kinematics">Forward Kinematics</a> of the robot arm.
+     * @return GCode command
+     */
     public String getFKAsGCode() {
         StringBuilder sb = new StringBuilder("G0");
         for(Motor motor : motors) {
@@ -99,5 +109,28 @@ public class MarlinRobotArm extends Node {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * Send gcode to robot arm.
+     * @param gcode GCode command
+     * @return response from robot arm
+     */
+    public String sendGCode(String gcode) {
+        if(gcode.startsWith("G0")) {
+            // parse gcode and set motor angles
+            String [] parts = gcode.split("\\s+");
+            for(Motor motor : motors) {
+                if(motor!=null) {
+                    for(String p : parts) {
+                        if(p.startsWith(motor.getName())) {
+                            motor.getAxle().setAngle(Double.parseDouble(p.substring(motor.getName().length())));
+                        }
+                    }
+                }
+            }
+            return "Ok";
+        }
+        return "Error: unknown command";
     }
 }
