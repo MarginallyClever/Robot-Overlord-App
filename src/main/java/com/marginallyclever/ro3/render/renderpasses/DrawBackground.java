@@ -147,7 +147,6 @@ public class DrawBackground implements RenderPass {
         Camera camera = Registry.getActiveCamera();
         if (camera == null) {
             gl3.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT | GL.GL_STENCIL_BUFFER_BIT);
-            return;
         } else {
             gl3.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL.GL_STENCIL_BUFFER_BIT);
             gl3.glDisable(GL3.GL_DEPTH_TEST);

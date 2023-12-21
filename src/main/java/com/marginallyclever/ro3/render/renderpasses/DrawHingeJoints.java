@@ -28,7 +28,7 @@ public class DrawHingeJoints implements RenderPass {
     private final Mesh circleFan = new Mesh();
     private ShaderProgram shader;
     private int canvasWidth,canvasHeight;
-    private float ringScale = 3;
+    private final float ringScale = 3;
 
     public DrawHingeJoints() {
         super();

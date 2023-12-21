@@ -178,6 +178,45 @@ public class Camera extends Pose {
     }
 
     /**
+     * Rotate relative to camera's current orientation
+     * TODO test
+     * @param delta degrees to rotate.  Positive is left.
+     */
+    public void pan(double delta) {
+        rotate(MatrixHelper.getYAxis(this.getLocal()),delta);
+    }
+
+    /**
+     * Rotate relative to camera's current orientation
+     * TODO test
+     * @param delta degrees to rotate.  Positive is up.
+     */
+    public void tilt(double delta) {
+        rotate(MatrixHelper.getXAxis(this.getLocal()),delta);
+    }
+
+    /**
+     * Rotate relative to camera's current orientation
+     * TODO test
+     * @param delta degrees to rotate.  Positive is counter-clockwise.
+     */
+    public void roll(double delta) {
+        rotate(MatrixHelper.getZAxis(this.getLocal()),delta);
+    }
+
+    /**
+     * Rotate relative to camera's current orientation
+     * @param axis axis to rotate around
+     * @param delta degrees to rotate.  Positive is clockwise.
+     */
+    private void rotate(Vector3d axis,double delta) {
+        Matrix3d m = MatrixHelper.getMatrixFromAxisAndRotation(axis,delta);
+        Matrix4d m4 = new Matrix4d();
+        m4.set(m);
+        getLocal().mul(m4);
+    }
+
+    /**
      * Set the pan and tilt values such that the camera is looking at the target.
      * Set the orbit distance to the distance between the camera and the target.
      * @param target the point to look at.

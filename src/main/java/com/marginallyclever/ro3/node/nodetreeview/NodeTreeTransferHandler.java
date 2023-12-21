@@ -34,11 +34,8 @@ public class NodeTreeTransferHandler extends TransferHandler {
 
     @Override
     public boolean canImport(TransferHandler.TransferSupport support) {
-        if (!support.isDrop() || !support.isDataFlavorSupported(NodeTransferable.nodeFlavor)) {
-            return false;
-        }
+        return support.isDrop() && support.isDataFlavorSupported(NodeTransferable.nodeFlavor);
         // Additional checks can be added here if needed
-        return true;
     }
 
     @Override
