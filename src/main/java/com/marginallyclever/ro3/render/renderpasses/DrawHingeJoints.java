@@ -78,6 +78,8 @@ public class DrawHingeJoints implements RenderPass {
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
+        mesh.unload(gl3);
+        circleFan.unload(gl3);
         shader.delete(gl3);
     }
 

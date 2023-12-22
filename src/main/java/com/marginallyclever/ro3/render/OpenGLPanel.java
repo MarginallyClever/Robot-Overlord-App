@@ -3,28 +3,17 @@ package com.marginallyclever.ro3.render;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
-import com.marginallyclever.convenience.helpers.OpenGLHelper;
-import com.marginallyclever.convenience.helpers.ResourceHelper;
-import com.marginallyclever.ro3.DockingPanel;
+import com.marginallyclever.ro3.apps.DockingPanel;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.MeshInstance;
 import com.marginallyclever.robotoverlord.preferences.GraphicsPreferences;
-import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.*;
-import javax.vecmath.Vector3d;
 import java.awt.*;
-import java.util.Objects;
 
 /**
  * {@link OpenGLPanel} is a {@link DockingPanel} that contains a {@link GLJPanel} and an {@link FPSAnimator}.
@@ -143,23 +132,7 @@ public class OpenGLPanel extends JPanel implements GLEventListener, MouseListene
     public void dispose(GLAutoDrawable glAutoDrawable) {
         logger.info("dispose");
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        unloadAllMeshes(gl3);
         Registry.textureFactory.unloadAll();
-    }
-
-    private void unloadAllMeshes(GL3 gl3) {
-        List<Node> toScan = new ArrayList<>(Registry.getScene().getChildren());
-        while(!toScan.isEmpty()) {
-            Node node = toScan.remove(0);
-
-            if(node instanceof MeshInstance meshInstance) {
-                Mesh mesh = meshInstance.getMesh();
-                if(mesh==null) continue;
-                mesh.unload(gl3);
-            }
-
-            toScan.addAll(node.getChildren());
-        }
     }
 
     @Override

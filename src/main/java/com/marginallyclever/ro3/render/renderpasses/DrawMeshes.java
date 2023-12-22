@@ -73,7 +73,23 @@ public class DrawMeshes implements RenderPass {
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
+        unloadAllMeshes(gl3);
         shader.delete(gl3);
+    }
+
+    private void unloadAllMeshes(GL3 gl3) {
+        List<Node> toScan = new ArrayList<>(Registry.getScene().getChildren());
+        while(!toScan.isEmpty()) {
+            Node node = toScan.remove(0);
+
+            if(node instanceof MeshInstance meshInstance) {
+                Mesh mesh = meshInstance.getMesh();
+                if(mesh==null) continue;
+                mesh.unload(gl3);
+            }
+
+            toScan.addAll(node.getChildren());
+        }
     }
 
     @Override
