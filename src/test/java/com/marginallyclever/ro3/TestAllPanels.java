@@ -1,14 +1,14 @@
 package com.marginallyclever.ro3;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import com.marginallyclever.ro3.apps.DockingPanel;
+import com.marginallyclever.ro3.apps.FactoryPanel;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.NodeDetailView;
-import com.marginallyclever.ro3.node.nodeselector.NodeSelectionPanel;
+import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Array;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.*;

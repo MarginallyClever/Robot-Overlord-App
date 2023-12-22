@@ -2,7 +2,7 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodeselector.NodeSelector;
+import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 import org.json.JSONObject;
 

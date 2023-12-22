@@ -3,12 +3,11 @@ package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.editorpanel.EditorPanel;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Motor;
 import com.marginallyclever.ro3.node.nodes.Pose;
-import com.marginallyclever.ro3.node.nodeselector.NodeSelector;
+import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -19,6 +18,7 @@ import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -99,6 +99,7 @@ public class MarlinRobotArm extends Node {
         gbc.gridy=0;
         gbc.fill = GridBagConstraints.BOTH;
 
+        // add a selector for each motor
         var motorSelector = new NodeSelector[MAX_JOINTS];
         for(int i=0;i<MAX_JOINTS;++i) {
             motorSelector[i] = new NodeSelector<>(Motor.class, motors.get(i));
@@ -107,20 +108,45 @@ public class MarlinRobotArm extends Node {
             addLabelAndComponent(pane, "Motor "+i, motorSelector[i],gbc);
         }
 
+        // add a selector for the end effector
         NodeSelector<Pose> endEffectorSelector = new NodeSelector<>(Pose.class, endEffector);
         endEffectorSelector.addPropertyChangeListener("subject",(e)-> endEffector = (Pose)e.getNewValue());
         addLabelAndComponent(pane, "End Effector", endEffectorSelector,gbc);
 
+        // add a selector for the target
         NodeSelector<Pose> targetSelector = new NodeSelector<>(Pose.class, target);
         targetSelector.addPropertyChangeListener("subject",(e)-> target = (Pose)e.getNewValue());
         addLabelAndComponent(pane, "Target", targetSelector,gbc);
 
-        //TODO add a slider to control linear velocity
+        // add a slider to control linear velocity
         JSlider slider = new JSlider(0,20,(int)linearVelocity);
         slider.addChangeListener(e-> linearVelocity = slider.getValue());
         addLabelAndComponent(pane, "Linear Vel", slider,gbc);
 
-        // Add a text field to receive messages from the arm.
+        gbc.gridx=0;
+        gbc.gridwidth=2;
+        pane.add(getReceiver(),gbc);
+        gbc.gridy++;
+        pane.add(getSender(),gbc);
+
+        super.getComponents(list);
+    }
+
+    // Add a text field that will be sent to the robot arm.
+    private JPanel getSender() {
+        JPanel inputPanel = new JPanel(new BorderLayout());
+        JTextField input = new JTextField();
+        inputPanel.add(input,BorderLayout.CENTER);
+        // Add a button to send the text field to the robot arm.
+        JButton sendButton = new JButton("Send");
+        sendButton.addActionListener(e-> sendGCode(input.getText()) );
+
+        inputPanel.add(sendButton,BorderLayout.LINE_END);
+        return inputPanel;
+    }
+
+    // Add a text field to receive messages from the arm.
+    private JPanel getReceiver() {
         JPanel outputPanel = new JPanel(new BorderLayout());
         JLabel outputLabel = new JLabel("Output");
         JTextField output = new JTextField();
@@ -130,25 +156,7 @@ public class MarlinRobotArm extends Node {
         outputPanel.add(output,BorderLayout.CENTER);
         outputPanel.add(outputLabel,BorderLayout.LINE_START);
         addMarlinListener(output::setText);
-
-        gbc.gridx=0;
-        gbc.gridwidth=2;
-        pane.add(outputPanel,gbc);
-        gbc.gridy++;
-
-        // Add a text field that will be sent to the robot arm.
-        JPanel inputPanel = new JPanel(new BorderLayout());
-        JTextField input = new JTextField();
-        inputPanel.add(input,BorderLayout.CENTER);
-        // Add a button to send the text field to the robot arm.
-        JButton sendButton = new JButton("Send");
-        sendButton.addActionListener(e-> sendGCode(input.getText()) );
-
-        inputPanel.add(sendButton,BorderLayout.LINE_END);
-
-        pane.add(inputPanel,gbc);
-
-        super.getComponents(list);
+        return outputPanel;
     }
 
     /**
@@ -174,8 +182,8 @@ public class MarlinRobotArm extends Node {
      * <a href="https://en.wikipedia.org/wiki/Forward_kinematics">Forward Kinematics</a> of the robot arm.
      * @return GCode command
      */
-    public String getFKAsGCode() {
-        StringBuilder sb = new StringBuilder("G0");
+    public String getM114() {
+        StringBuilder sb = new StringBuilder("M114");
         for(Motor motor : motors) {
             if(motor!=null && motor.hasAxle()) {
                 sb.append(" ")
@@ -197,8 +205,8 @@ public class MarlinRobotArm extends Node {
         if(gcode.startsWith("G0")) {  // fast non-linear move (FK)
             fireMarlinMessage( parseG0(gcode) );
             return;
-        } else if(gcode.equals("fk")) {
-            String response = getFKAsGCode();
+        } else if(gcode.equals("M114")) {
+            String response = getM114();
             fireMarlinMessage( "Ok: "+response );
             return;
         } else if(gcode.equals("ik")) {

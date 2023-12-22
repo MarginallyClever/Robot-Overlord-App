@@ -1,5 +1,7 @@
 package com.marginallyclever.ro3;
 
+import com.marginallyclever.ro3.apps.RO3Frame;
+
 import javax.swing.*;
 import java.awt.*;
 

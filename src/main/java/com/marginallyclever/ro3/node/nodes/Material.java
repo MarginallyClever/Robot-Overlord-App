@@ -2,7 +2,7 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.texture.TextureFactoryDialog;
+import com.marginallyclever.ro3.apps.dialogs.TextureFactoryDialog;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 import org.json.JSONObject;
