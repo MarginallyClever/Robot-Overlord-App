@@ -10,6 +10,7 @@ import ModernDocking.ext.ui.DockingUI;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.marginallyclever.ro3.actions.*;
+import com.marginallyclever.ro3.editorpanel.EditorPanel;
 import com.marginallyclever.ro3.logpanel.LogPanel;
 import com.marginallyclever.ro3.node.NodeDetailView;
 import com.marginallyclever.ro3.node.nodetreeview.NodeTreeView;
@@ -34,6 +35,7 @@ public class RO3Frame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(RO3Frame.class);
     private final OpenGLPanel renderPanel;
     private final LogPanel logPanel = new LogPanel();
+    private final EditorPanel editPanel = new EditorPanel();
     private final List<DockingPanel> windows = new ArrayList<>();
 
     public RO3Frame() {
@@ -212,6 +214,10 @@ public class RO3Frame extends JFrame {
         DockingPanel logView = new DockingPanel("5e565f83-9734-4281-9828-92cd711939df","Log");
         logView.add(logPanel, BorderLayout.CENTER);
         windows.add(logView);
+
+        DockingPanel editorView = new DockingPanel("3f8f54e1-af78-4994-a1c2-21a68ec294c9","Editor");
+        editorView.add(editPanel, BorderLayout.CENTER);
+        windows.add(editorView);
 
         // now that the main frame is set up with the defaults, we can restore the layout
         AppState.setPersistFile(new File("ro3.layout"));

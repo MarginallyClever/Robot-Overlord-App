@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.editorpanel.EditorPanel;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Motor;
@@ -128,6 +129,7 @@ public class MarlinRobotArm extends Node {
         outputLabel.setBorder(BorderFactory.createEmptyBorder(0,0,0,5));
         outputPanel.add(output,BorderLayout.CENTER);
         outputPanel.add(outputLabel,BorderLayout.LINE_START);
+        addMarlinListener(output::setText);
 
         gbc.gridx=0;
         gbc.gridwidth=2;
@@ -140,7 +142,7 @@ public class MarlinRobotArm extends Node {
         inputPanel.add(input,BorderLayout.CENTER);
         // Add a button to send the text field to the robot arm.
         JButton sendButton = new JButton("Send");
-        sendButton.addActionListener(e-> output.setText(sendGCode(input.getText())) );
+        sendButton.addActionListener(e-> sendGCode(input.getText()) );
 
         inputPanel.add(sendButton,BorderLayout.LINE_END);
 
@@ -185,23 +187,24 @@ public class MarlinRobotArm extends Node {
     }
 
     /**
-     * Send gcode to robot arm.
+     * <p>Send a single gcode command to the robot arm.  It will reply by firing a
+     * {@link MarlinListener#messageFromMarlin} event with the String response.</p>
      * @param gcode GCode command
-     * @return response from robot arm
      */
-    public String sendGCode(String gcode) {
-        logger.info("heard "+gcode);
+    public void sendGCode(String gcode) {
+        logger.debug("heard "+gcode);
 
         if(gcode.startsWith("G0")) {  // fast non-linear move (FK)
-            return parseG0(gcode);
+            fireMarlinMessage( parseG0(gcode) );
+            return;
         } else if(gcode.equals("fk")) {
             String response = getFKAsGCode();
-            logger.info(response);
-            return "Ok: "+response;
+            fireMarlinMessage( "Ok: "+response );
+            return;
         } else if(gcode.equals("ik")) {
             if(endEffector==null) {
-                logger.error("no end effector");
-                return "Error: no end effector";
+                fireMarlinMessage( "Error: no end effector" );
+                return;
             }
             double [] cartesian = getCartesianFromWorld(endEffector.getWorld());
             int i=0;
@@ -212,17 +215,17 @@ public class MarlinRobotArm extends Node {
                     +" U"+StringHelper.formatDouble(cartesian[i++])
                     +" V"+StringHelper.formatDouble(cartesian[i++])
                     +" W"+StringHelper.formatDouble(cartesian[i++]);
-            logger.info(response);
-            return "Ok: "+response;
+            fireMarlinMessage( "Ok: "+response );
+            return;
         } else if(gcode.equals("aj")) {
             ApproximateJacobianFiniteDifferences jacobian = new ApproximateJacobianFiniteDifferences(this);
-            logger.info(jacobian.toString());
-            return "Ok";
+            fireMarlinMessage( "Ok: "+jacobian.toString() );
+            return;
         } else if(gcode.startsWith("G1")) {
-            return parseG1(gcode);
+            fireMarlinMessage( parseG1(gcode) );
+            return;
         }
-        logger.error("unknown command");
-        return "Error: unknown command";
+        fireMarlinMessage( "Error: unknown command" );
     }
 
     /**
@@ -466,5 +469,21 @@ public class MarlinRobotArm extends Node {
             sum += Math.abs(v);
         }
         return sum;
+    }
+
+    public void addMarlinListener(MarlinListener editorPanel) {
+        listeners.add(MarlinListener.class,editorPanel);
+    }
+
+    public void removeMarlinListener(MarlinListener editorPanel) {
+        listeners.remove(MarlinListener.class,editorPanel);
+    }
+
+    private void fireMarlinMessage(String message) {
+        //logger.info(message);
+
+        for(MarlinListener listener : listeners.getListeners(MarlinListener.class)) {
+            listener.messageFromMarlin(message);
+        }
     }
 }

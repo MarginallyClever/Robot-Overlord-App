@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A tool to rotate entities in the editor.  It is a combination of three {@link RotateEntityToolOneAxis} tools.
+ * A tool to rotate entities in the editorpanel.  It is a combination of three {@link RotateEntityToolOneAxis} tools.
  *
  * @author Dan Royer
  * @since 2.5.0

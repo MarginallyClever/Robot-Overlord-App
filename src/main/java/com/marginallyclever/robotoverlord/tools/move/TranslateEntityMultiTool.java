@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A tool to translate entities in the editor.  It is a combination of three {@link TranslateEntityToolOneAxis} tools.
+ * A tool to translate entities in the editorpanel.  It is a combination of three {@link TranslateEntityToolOneAxis} tools.
  *
  * @author Dan Royer
  * @since 2.5.0

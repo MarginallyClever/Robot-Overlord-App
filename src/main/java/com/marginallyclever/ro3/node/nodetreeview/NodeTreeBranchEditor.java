@@ -8,7 +8,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.*;
 
 /**
- * {@link NodeTreeBranchEditor} is a cell editor for the {@link NodeTreeView}.
+ * {@link NodeTreeBranchEditor} is a cell editorpanel for the {@link NodeTreeView}.
  */
 public class NodeTreeBranchEditor extends DefaultTreeCellEditor {
     public NodeTreeBranchEditor(JTree tree, DefaultTreeCellRenderer renderer) {
