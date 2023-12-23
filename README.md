@@ -47,7 +47,7 @@ For robot arms, select an arm and then open the control panel.
 
 If you're reading this, make an issue ticket and we will respond to it promptly.
 
-![Preview image](https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/Screenshot%202023-05-04%20154621.png)
+![Preview image](https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/Screenshot 2023-12-23 120520.png)
 
 ## Icons
 
