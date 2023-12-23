@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,5 +54,17 @@ public class TextureFactory {
         for(TextureWithMetadata t : textures) {
             t.unload();
         }
+    }
+
+    /**
+     * @return a list of all the sources used to load textures.
+     */
+    public List<String> getAllSourcesForExport() {
+        List<String> result = new ArrayList<>();
+        for(TextureWithMetadata t : textures) {
+            if(t.isDoNotExport()) continue;
+            result.add(t.getSource());
+        }
+        return result;
     }
 }

@@ -9,10 +9,15 @@ import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 
 import java.awt.image.BufferedImage;
 
+/**
+ * {@link TextureWithMetadata} is an OpenGL {@link Texture} with metadata about where it came from and the source
+ * image.
+ */
 public class TextureWithMetadata {
     private final BufferedImage image;
     private Texture texture;
     private final String source;
+    private boolean doNotExport=false;
 
     public TextureWithMetadata(BufferedImage image,String source) {
         super();
@@ -78,5 +83,13 @@ public class TextureWithMetadata {
     public int getHeight() {
         if(image==null) return 0;
         return image.getHeight();
+    }
+
+    public boolean isDoNotExport() {
+    	return doNotExport;
+    }
+
+    public void setDoNotExport(boolean value) {
+    	doNotExport=value;
     }
 }

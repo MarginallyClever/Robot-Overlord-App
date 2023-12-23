@@ -80,6 +80,7 @@ public class DrawBackground implements RenderPass {
         mesh.addTexCoord(a,f);  mesh.addVertex(-v, -v, -v);
 
         texture = Registry.textureFactory.load("/skybox/skybox.png");
+        texture.setDoNotExport(true);
     }
 
     /**

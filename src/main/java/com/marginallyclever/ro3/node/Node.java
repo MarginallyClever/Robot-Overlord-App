@@ -365,7 +365,7 @@ public class Node {
      * @return the JSON object.
      */
     public JSONObject toJSON() {
-        logger.info("Saving {}.",getAbsolutePath());
+        //logger.debug("Saving {}.",getAbsolutePath());
         JSONObject json = new JSONObject();
         json.put("type",getClass().getSimpleName());
         json.put("name",name);
