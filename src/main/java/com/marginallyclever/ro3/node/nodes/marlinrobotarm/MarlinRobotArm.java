@@ -182,7 +182,7 @@ public class MarlinRobotArm extends Node {
      * <a href="https://en.wikipedia.org/wiki/Forward_kinematics">Forward Kinematics</a> of the robot arm.
      * @return GCode command
      */
-    public String getM114() {
+    private String getM114() {
         StringBuilder sb = new StringBuilder("M114");
         for(Motor motor : motors) {
             if(motor!=null && motor.hasAxle()) {
