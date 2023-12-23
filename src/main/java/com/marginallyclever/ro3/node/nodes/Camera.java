@@ -25,6 +25,7 @@ public class Camera extends Pose {
     private double fovY = 60;
     private double nearZ = 1;
     private double farZ = 1000;
+    private double orbitRadius = 50;
 
     public Camera() {
         super("Camera");

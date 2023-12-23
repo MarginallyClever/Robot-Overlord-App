@@ -32,7 +32,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private final JPopupMenu renderPassMenu = new JPopupMenu();
     private final List<Boolean> buttonPressed = new ArrayList<>();
     private int mx, my;
-    private double orbitRadius = 100;
+    private double orbitRadius = 50;
     private final double orbitChangeFactor = 1.1;  // must always be greater than 1
 
 

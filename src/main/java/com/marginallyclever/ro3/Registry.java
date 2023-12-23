@@ -7,6 +7,7 @@ import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
 import com.marginallyclever.ro3.texture.TextureFactory;
 
 import javax.swing.event.EventListenerList;
+import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +42,12 @@ public class Registry {
         // reset camera
         List<Camera> toRemove = new ArrayList<>(cameras.getList());
         for(Camera c : toRemove) cameras.remove(c);
-        cameras.add(new Camera("Camera 1"));
+        Camera first = new Camera("Camera 1");
+        cameras.add(first);
+        double v = Math.sqrt(Math.pow(50,2)/3d); // match the viewport default orbit distance.
+        first.setPosition(new Vector3d(v,v,v));
+        first.lookAt(new Vector3d(0,0,0));
+
 
         // reset scene
         List<Node> toRemove2 = new ArrayList<>(scene.getChildren());
