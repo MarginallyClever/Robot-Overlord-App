@@ -1,8 +1,7 @@
-package com.marginallyclever.ro3.render;
+package com.marginallyclever.ro3.apps.render;
 
 import com.jogamp.opengl.GLEventListener;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 
 /**
  * Classes which implement {@link RenderPass} are drawn on top of the 3D scene.  They should be registered to the

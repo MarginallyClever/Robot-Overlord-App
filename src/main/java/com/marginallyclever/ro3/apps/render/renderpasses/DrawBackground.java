@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.render.renderpasses;
+package com.marginallyclever.ro3.apps.render.renderpasses;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
@@ -9,8 +9,6 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.Camera;
-import com.marginallyclever.ro3.render.RenderPass;
-import com.marginallyclever.ro3.texture.TextureFactory;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;

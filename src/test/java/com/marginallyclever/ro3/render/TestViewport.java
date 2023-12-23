@@ -1,6 +1,6 @@
 package com.marginallyclever.ro3.render;
 
-import com.marginallyclever.ro3.node.nodes.Camera;
+import com.marginallyclever.ro3.apps.render.Viewport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;

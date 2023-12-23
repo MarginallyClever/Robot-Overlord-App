@@ -1,9 +1,8 @@
-package com.marginallyclever.ro3.render.renderpasses;
+package com.marginallyclever.ro3.apps.render.renderpasses;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLContext;
-import com.marginallyclever.convenience.AABB;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
@@ -12,57 +11,27 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.MeshInstance;
-import com.marginallyclever.ro3.node.nodes.Pose;
-import com.marginallyclever.ro3.render.RenderPass;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
-import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Draw the bounding box of each {@link MeshInstance} in the scene.
+ * Draw each {@link MeshInstance} as a {@link Mesh}.  If the {@link MeshInstance} has a sibling {@link Material} with
+ * a {@link com.jogamp.opengl.util.texture.Texture} then use it in the {@link ShaderProgram}.
  */
-public class DrawBoundingBoxes extends AbstractRenderPass {
-    private static final Logger logger = LoggerFactory.getLogger(DrawBoundingBoxes.class);
+public class DrawMeshes extends AbstractRenderPass {
+    private static final Logger logger = LoggerFactory.getLogger(DrawMeshes.class);
     private ShaderProgram shader;
-    private final Mesh mesh = new Mesh();
 
-    public DrawBoundingBoxes() {
-        super("Bounding Boxes");
-
-        mesh.setRenderStyle(GL3.GL_LINES);
-        // add 8 points of a unit cube centered on the origin
-        mesh.addVertex(-0.5f, 0.5f, 0.5f);
-        mesh.addVertex( 0.5f, 0.5f, 0.5f);
-        mesh.addVertex( 0.5f,-0.5f, 0.5f);
-        mesh.addVertex(-0.5f,-0.5f, 0.5f);
-        mesh.addVertex(-0.5f, 0.5f,-0.5f);
-        mesh.addVertex( 0.5f, 0.5f,-0.5f);
-        mesh.addVertex( 0.5f,-0.5f,-0.5f);
-        mesh.addVertex(-0.5f,-0.5f,-0.5f);
-        // add index values
-        mesh.addIndex(0);        mesh.addIndex(1);
-        mesh.addIndex(1);        mesh.addIndex(2);
-        mesh.addIndex(2);        mesh.addIndex(3);
-        mesh.addIndex(3);        mesh.addIndex(0);
-
-        mesh.addIndex(4);        mesh.addIndex(5);
-        mesh.addIndex(5);        mesh.addIndex(6);
-        mesh.addIndex(6);        mesh.addIndex(7);
-        mesh.addIndex(7);        mesh.addIndex(4);
-
-        mesh.addIndex(0);        mesh.addIndex(4);
-        mesh.addIndex(1);        mesh.addIndex(5);
-        mesh.addIndex(2);        mesh.addIndex(6);
-        mesh.addIndex(3);        mesh.addIndex(7);
+    public DrawMeshes() {
+        super("Meshes");
     }
 
     @Override
@@ -80,8 +49,23 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        mesh.unload(gl3);
+        unloadAllMeshes(gl3);
         shader.delete(gl3);
+    }
+
+    private void unloadAllMeshes(GL3 gl3) {
+        List<Node> toScan = new ArrayList<>(Registry.getScene().getChildren());
+        while(!toScan.isEmpty()) {
+            Node node = toScan.remove(0);
+
+            if(node instanceof MeshInstance meshInstance) {
+                Mesh mesh = meshInstance.getMesh();
+                if(mesh==null) continue;
+                mesh.unload(gl3);
+            }
+
+            toScan.addAll(node.getChildren());
+        }
     }
 
     @Override
@@ -97,16 +81,13 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
         shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
         shader.setVector3d(gl3,"lightColor",new Vector3d(1,1,1));  // Light color
-        shader.set4f(gl3,"objectColor",1,1,1,0.25f);
+        shader.set4f(gl3,"objectColor",1,1,1,1);
         shader.setVector3d(gl3,"specularColor",new Vector3d(0.5,0.5,0.5));
         shader.setVector3d(gl3,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
         shader.set1i(gl3,"useVertexColor",0);
-        shader.set1i(gl3,"useLighting",0);
+        shader.set1i(gl3,"useLighting",1);
         shader.set1i(gl3,"diffuseTexture",0);
-        shader.set1i(gl3,"useTexture",0);
         OpenGLHelper.checkGLError(gl3,logger);
-        gl3.glDisable(GL3.GL_TEXTURE_2D);
-        gl3.glDisable(GL3.GL_DEPTH_TEST);
 
         // find all MeshInstance nodes in Registry
         List<Node> toScan = new ArrayList<>(Registry.getScene().getChildren());
@@ -115,26 +96,25 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
 
             if(node instanceof MeshInstance meshInstance) {
                 // if they have a mesh, draw it.
-                Mesh mesh2 = meshInstance.getMesh();
-                if(mesh2==null) continue;
+                Mesh mesh = meshInstance.getMesh();
+                if(mesh==null) continue;
 
-                AABB boundingBox = mesh2.getBoundingBox();
-                Point3d max = boundingBox.getBoundsTop();
-                Point3d min = boundingBox.getBoundsBottom();
-                mesh.setVertex(0, min.x, max.y, max.z);
-                mesh.setVertex(1, max.x, max.y, max.z);
-                mesh.setVertex(2, max.x, min.y, max.z);
-                mesh.setVertex(3, min.x, min.y, max.z);
-                mesh.setVertex(4, min.x, max.y, min.z);
-                mesh.setVertex(5, max.x, max.y, min.z);
-                mesh.setVertex(6, max.x, min.y, min.z);
-                mesh.setVertex(7, min.x, min.y, min.z);
-                mesh.updateVertexBuffers(gl3);
+                TextureWithMetadata texture = null;
+                // set the texture to the first sibling that is a material and has a texture
+                Material material = meshInstance.findFirstSibling(Material.class);
+                if(material!=null) {
+                    if(material.getTexture()!=null) {
+                        texture = material.getTexture();
+                    }
+                }
+                if(texture == null) {
+                    gl3.glDisable(GL3.GL_TEXTURE_2D);
+                    shader.set1i(gl3,"useTexture",0);
+                } else {
+                    texture.use(shader);
+                }
 
                 // set the model matrix
-                //Pose pose = meshInstance.findParent(Pose.class);
-                //Matrix4d w = (pose==null) ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();
-
                 Matrix4d w = meshInstance.getWorld();
                 w.transpose();
                 shader.setMatrix4d(gl3,"modelMatrix",w);
@@ -146,6 +126,5 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
 
             toScan.addAll(node.getChildren());
         }
-        gl3.glEnable(GL3.GL_DEPTH_TEST);
     }
 }

@@ -4,8 +4,6 @@ import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.node.nodes.*;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
-import com.marginallyclever.ro3.render.RenderPass;
-import com.marginallyclever.ro3.render.renderpasses.*;
 import com.marginallyclever.ro3.texture.TextureFactory;
 
 import javax.swing.event.EventListenerList;
@@ -20,7 +18,6 @@ public class Registry {
     public static EventListenerList listeners = new EventListenerList();
     public static TextureFactory textureFactory = new TextureFactory();
     public static final Factory<Node> nodeFactory = new Factory<>(Node.class);
-    public static ListWithEvents<RenderPass> renderPasses = new ListWithEvents<>();
     private static Node scene = new Node("Scene");
     public static ListWithEvents<Camera> cameras = new ListWithEvents<>();
     private static Camera activeCamera = null;
@@ -36,15 +33,6 @@ public class Registry {
         nodule.add("Motor", Motor::new);
         Factory.Category<Node> pose = nodule.add("Pose", Pose::new);
             pose.add("Camera", Camera::new);
-
-        renderPasses.add(new DrawBackground());
-        renderPasses.add(new DrawGroundPlane());
-        renderPasses.add(new DrawMeshes());
-        renderPasses.add(new DrawBoundingBoxes());
-        renderPasses.add(new DrawCameras());
-        renderPasses.add(new DrawDHParameters());
-        renderPasses.add(new DrawHingeJoints());
-        renderPasses.add(new DrawPoses());
 
         reset();
     }

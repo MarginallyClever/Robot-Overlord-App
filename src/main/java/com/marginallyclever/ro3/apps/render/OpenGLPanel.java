@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.render;
+package com.marginallyclever.ro3.apps.render;
 
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
