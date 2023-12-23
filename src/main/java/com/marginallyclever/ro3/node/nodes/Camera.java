@@ -2,7 +2,7 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.ro3.apps.render.Viewport;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 
 import javax.swing.*;
@@ -16,7 +16,7 @@ import java.text.NumberFormat;
 import java.util.List;
 
 /**
- * <p>A {@link Camera} is a {@link Pose} that can be used by a {@link com.marginallyclever.ro3.render.Viewport} to
+ * <p>A {@link Camera} is a {@link Pose} that can be used by a {@link Viewport} to
  * render the scene.</p>
  * <p>For perspective rendering it has a vertical field of view and a near and far clipping plane.</p>
  */
@@ -25,6 +25,7 @@ public class Camera extends Pose {
     private double fovY = 60;
     private double nearZ = 1;
     private double farZ = 1000;
+    private double orbitRadius = 50;
 
     public Camera() {
         super("Camera");

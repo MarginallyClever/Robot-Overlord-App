@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.render.renderpasses;
+package com.marginallyclever.ro3.apps.render.renderpasses;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -10,12 +10,7 @@ import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
-import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.MeshInstance;
-import com.marginallyclever.ro3.node.nodes.Pose;
-import com.marginallyclever.ro3.render.RenderPass;
-import com.marginallyclever.ro3.texture.TextureWithMetadata;
-import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.slf4j.Logger;
@@ -30,14 +25,14 @@ import java.util.List;
 /**
  * Draw the bounding box of each {@link MeshInstance} in the scene.
  */
-public class DrawBoundingBoxes implements RenderPass {
+public class DrawBoundingBoxes extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawBoundingBoxes.class);
-    private int activeStatus = ALWAYS;
     private ShaderProgram shader;
     private final Mesh mesh = new Mesh();
-    private int canvasWidth, canvasHeight;
 
     public DrawBoundingBoxes() {
+        super("Bounding Boxes");
+
         mesh.setRenderStyle(GL3.GL_LINES);
         // add 8 points of a unit cube centered on the origin
         mesh.addVertex(-0.5f, 0.5f, 0.5f);
@@ -65,30 +60,6 @@ public class DrawBoundingBoxes implements RenderPass {
         mesh.addIndex(3);        mesh.addIndex(7);
     }
 
-    /**
-     * @return NEVER, SOMETIMES, or ALWAYS
-     */
-    @Override
-    public int getActiveStatus() {
-        return activeStatus;
-    }
-
-    /**
-     * @param status NEVER, SOMETIMES, or ALWAYS
-     */
-    @Override
-    public void setActiveStatus(int status) {
-        activeStatus = status;
-    }
-
-    /**
-     * @return the localized name of this overlay
-     */
-    @Override
-    public String getName() {
-        return "Bounding Boxes";
-    }
-
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
@@ -107,15 +78,6 @@ public class DrawBoundingBoxes implements RenderPass {
         mesh.unload(gl3);
         shader.delete(gl3);
     }
-
-    @Override
-    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
-        canvasWidth = width;
-        canvasHeight = height;
-    }
-
-    @Override
-    public void display(GLAutoDrawable glAutoDrawable) {}
 
     @Override
     public void draw() {

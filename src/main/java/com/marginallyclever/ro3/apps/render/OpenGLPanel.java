@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.render;
+package com.marginallyclever.ro3.apps.render;
 
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
@@ -10,20 +10,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.event.*;
-import java.util.List;
-import java.util.ArrayList;
 import javax.swing.*;
 import java.awt.*;
 
 /**
  * {@link OpenGLPanel} is a {@link DockingPanel} that contains a {@link GLJPanel} and an {@link FPSAnimator}.
  */
-public class OpenGLPanel extends JPanel implements GLEventListener, MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
+public class OpenGLPanel extends JPanel implements GLEventListener, MouseListener, MouseMotionListener, MouseWheelListener {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLPanel.class);
     protected GLJPanel glCanvas;
-    protected int canvasWidth, canvasHeight;
     private final FPSAnimator animator = new FPSAnimator(GraphicsPreferences.framesPerSecond.get());
-    private final List<GLEventListener> listeners = new ArrayList<>();
 
     public OpenGLPanel() {
         super(new BorderLayout());
@@ -48,7 +44,6 @@ public class OpenGLPanel extends JPanel implements GLEventListener, MouseListene
         glCanvas.addMouseListener(this);
         glCanvas.addMouseMotionListener(this);
         glCanvas.addMouseWheelListener(this);
-        glCanvas.addKeyListener(this);
     }
 
     @Override
@@ -58,7 +53,6 @@ public class OpenGLPanel extends JPanel implements GLEventListener, MouseListene
         glCanvas.removeMouseListener(this);
         glCanvas.removeMouseMotionListener(this);
         glCanvas.removeMouseWheelListener(this);
-        glCanvas.removeKeyListener(this);
     }
 
     private GLCapabilities getCapabilities() {
@@ -80,21 +74,11 @@ public class OpenGLPanel extends JPanel implements GLEventListener, MouseListene
     }
 
     public void addGLEventListener(GLEventListener listener) {
-        listeners.add(listener);
         glCanvas.addGLEventListener(listener);
     }
 
     public void removeGLEventListener(GLEventListener listener) {
         glCanvas.removeGLEventListener(listener);
-        listeners.remove(listener);
-    }
-
-    public int getGLEventListenersCount() {
-        return listeners.size();
-    }
-
-    public GLEventListener getGLEventListener(int index) {
-        return listeners.get(index);
     }
 
     public void stopAnimationSystem() {
@@ -131,15 +115,12 @@ public class OpenGLPanel extends JPanel implements GLEventListener, MouseListene
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         logger.info("dispose");
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
         Registry.textureFactory.unloadAll();
     }
 
     @Override
     public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
         //logger.debug("reshape {}x{}",width,height);
-        canvasWidth = width;
-        canvasHeight = height;
     }
 
     @Override
@@ -168,27 +149,4 @@ public class OpenGLPanel extends JPanel implements GLEventListener, MouseListene
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {}
-
-    public int getCanvasHeight() {
-        return canvasHeight;
-    }
-
-    public int getCanvasWidth() {
-        return canvasWidth;
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-        System.out.println("keyTyped "+e);
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        System.out.println("keyPressed "+e);
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-        System.out.println("keyReleased "+e);
-    }
 }

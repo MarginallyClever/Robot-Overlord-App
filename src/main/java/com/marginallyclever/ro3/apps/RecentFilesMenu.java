@@ -91,7 +91,7 @@ public class RecentFilesMenu extends JMenu {
 
     public void removePath(String filePath) {
         recentFiles.remove(filePath);
-        updateRecentFilesMenu();
+        saveToPreferences();
     }
 
     /**

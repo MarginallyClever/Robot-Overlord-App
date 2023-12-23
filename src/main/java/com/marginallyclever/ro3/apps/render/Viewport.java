@@ -1,9 +1,11 @@
-package com.marginallyclever.ro3.render;
+package com.marginallyclever.ro3.apps.render;
 
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.render.renderpasses.*;
+import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,18 +21,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link Viewport} is an {@link OpenGLPanel} that uses {@link Registry#renderPasses} to draw the
+ * {@link Viewport} is an {@link OpenGLPanel} that uses a set of {@link RenderPass}es to draw the
  * {@link Registry#getScene()} from the perspective of a {@link Registry#getActiveCamera()}.
  */
 public class Viewport extends OpenGLPanel implements GLEventListener {
-    private static final Logger logger = LoggerFactory.getLogger(Viewport.class);
+    public ListWithEvents<RenderPass> renderPasses = new ListWithEvents<>();
     private Camera camera;
     private final JToolBar toolBar = new JToolBar();
     private final DefaultComboBoxModel<Camera> cameraListModel = new DefaultComboBoxModel<>();
     private final JPopupMenu renderPassMenu = new JPopupMenu();
     private final List<Boolean> buttonPressed = new ArrayList<>();
     private int mx, my;
-    private double orbitRadius = 100;
+    private double orbitRadius = 50;
     private final double orbitChangeFactor = 1.1;  // must always be greater than 1
 
 
@@ -38,12 +40,24 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         super();
         add(toolBar, BorderLayout.NORTH);
         toolBar.setLayout(new FlowLayout(FlowLayout.LEFT,5,1));
+        addRenderPasses();
         addCameraSelector();
         addRenderPassSelection();
 
         for(int i=0;i<MouseInfo.getNumberOfButtons();++i) {
             buttonPressed.add(false);
         }
+    }
+
+    private void addRenderPasses() {
+        renderPasses.add(new DrawBackground());
+        renderPasses.add(new DrawGroundPlane());
+        renderPasses.add(new DrawMeshes());
+        renderPasses.add(new DrawBoundingBoxes());
+        renderPasses.add(new DrawCameras());
+        renderPasses.add(new DrawDHParameters());
+        renderPasses.add(new DrawHingeJoints());
+        renderPasses.add(new DrawPoses());
     }
 
     private void addRenderPassSelection() {
@@ -55,7 +69,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         // Add an ActionListener to the JButton to show the JPopupMenu when clicked
         button.addActionListener(e -> renderPassMenu.show(button, button.getWidth()/2, button.getHeight()/2));
 
-        for(RenderPass renderPass : Registry.renderPasses.getList()) {
+        for(RenderPass renderPass : renderPasses.getList()) {
             addRenderPass(renderPass);
         }
     }
@@ -65,8 +79,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         super.addNotify();
         Registry.cameras.addItemAddedListener(this::addCamera);
         Registry.cameras.addItemRemovedListener(this::removeCamera);
-        Registry.renderPasses.addItemAddedListener(this::addRenderPass);
-        Registry.renderPasses.addItemRemovedListener(this::removeRenderPass);
+        renderPasses.addItemAddedListener(this::addRenderPass);
+        renderPasses.addItemRemovedListener(this::removeRenderPass);
     }
 
     @Override
@@ -74,8 +88,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         super.removeNotify();
         Registry.cameras.removeItemAddedListener(this::addCamera);
         Registry.cameras.removeItemRemovedListener(this::removeCamera);
-        Registry.renderPasses.removeItemAddedListener(this::addRenderPass);
-        Registry.renderPasses.removeItemRemovedListener(this::removeRenderPass);
+        renderPasses.removeItemAddedListener(this::addRenderPass);
+        renderPasses.removeItemRemovedListener(this::removeRenderPass);
     }
 
     private void addRenderPass(RenderPass renderPass) {
@@ -181,7 +195,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
 
     private void renderAllPasses() {
         // renderPasses that are always on
-        for(RenderPass pass : Registry.renderPasses.getList()) {
+        for(RenderPass pass : renderPasses.getList()) {
             if(pass.getActiveStatus()==RenderPass.ALWAYS) {
                 pass.draw();
             }

@@ -19,14 +19,13 @@ public class NodeSelector<T extends Node> extends JButton {
     private T subject;
 
     public NodeSelector(Class<T> type) {
-        super();
-        addActionListener((e)-> runSelectionDialog(type));
-        setButtonLabel();
+        this(type,null);
     }
 
     public NodeSelector(Class<T> type, T subject) {
         super();
         this.subject = subject;
+        setName("selector");
         addActionListener((e)-> runSelectionDialog(type));
         setButtonLabel();
     }
@@ -34,7 +33,7 @@ public class NodeSelector<T extends Node> extends JButton {
     private void runSelectionDialog(Class<T> type) {
         NodeSelectionDialog<T> panel = new NodeSelectionDialog<>(type);
         panel.setSubject(subject);
-        int result = JOptionPane.showConfirmDialog(NodeSelector.this, panel, "Select Node", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        int result = JOptionPane.showConfirmDialog(NodeSelector.this, panel, "Select "+type.getSimpleName(), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
             T oldValue = subject;
             NodeSelector.this.subject = panel.getSelectedNode();

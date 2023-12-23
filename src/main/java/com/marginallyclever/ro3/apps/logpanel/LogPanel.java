@@ -2,12 +2,22 @@ package com.marginallyclever.ro3.apps.logpanel;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.FileAppender;
 import com.marginallyclever.ro3.apps.DockingPanel;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.lang.module.Configuration;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -15,10 +25,16 @@ import java.util.Properties;
  * because it is created before {@link ModernDocking.app.Docking} is initialized.
  */
 public class LogPanel extends JPanel {
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(LogPanel.class);
     private final JTextArea logArea = new JTextArea();
 
     public LogPanel() {
         super(new BorderLayout());
+
+        JToolBar toolbar = new JToolBar();
+        toolbar.setFloatable(false);
+        toolbar.add(new JButton(new OpenLogFileLocation()));
+        add(toolbar, BorderLayout.NORTH);
 
         logArea.setEditable(false);
         JScrollPane scroll = new JScrollPane();
@@ -27,16 +43,16 @@ public class LogPanel extends JPanel {
 
         // append log events to this panel
         LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         LogPanelAppender appender = new LogPanelAppender(this);
         appender.setContext(lc);
-        logger.addAppender(appender);
+        rootLogger.addAppender(appender);
         appender.start();
 
-        reportSystemInfo(logger);
+        reportSystemInfo();
     }
 
-    private void reportSystemInfo(Logger logger) {
+    private void reportSystemInfo() {
         logger.info("------------------------------------------------");
         Properties p = System.getProperties();
         for(String n : p.stringPropertyNames()) {

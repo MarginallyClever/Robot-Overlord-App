@@ -130,4 +130,12 @@ public class MeshFactory {
 		}
 		return null;
 	}
+
+    public static List<String> getAllSourcesForExport() {
+		List<String> result = new ArrayList<>();
+		for( Mesh m : meshPool ) {
+			result.add(m.getSourceName());
+		}
+		return result;
+    }
 }

@@ -20,10 +20,10 @@ public class AddNode<T extends Node> extends AbstractAction {
 
     public AddNode(NodeTreeView treeView) {
         super();
+        this.treeView = treeView;
         putValue(Action.NAME,"Add");
         putValue(SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-add-16.png"))));
         putValue(SHORT_DESCRIPTION,"Add a new instance of a Node to every selected branches of the tree.");
-        this.treeView = treeView;
     }
 
     /**

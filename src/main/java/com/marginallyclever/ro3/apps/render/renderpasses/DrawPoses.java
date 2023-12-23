@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.render.renderpasses;
+package com.marginallyclever.ro3.apps.render.renderpasses;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -9,7 +9,6 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.node.nodes.Pose;
-import com.marginallyclever.ro3.render.RenderPass;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.slf4j.Logger;
@@ -23,35 +22,13 @@ import java.util.List;
 /**
  * Draw each {@link Pose} as RGB lines from the origin to the X,Y,Z axes.
  */
-public class DrawPoses implements RenderPass {
+public class DrawPoses extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawPoses.class);
-    private int activeStatus = ALWAYS;
     private final Mesh mesh = MatrixHelper.createMesh(1.0);
     private ShaderProgram shader;
-    private int canvasWidth,canvasHeight;
 
-    /**
-     * @return NEVER, SOMETIMES, or ALWAYS
-     */
-    @Override
-    public int getActiveStatus() {
-        return activeStatus;
-    }
-
-    /**
-     * @param status NEVER, SOMETIMES, or ALWAYS
-     */
-    @Override
-    public void setActiveStatus(int status) {
-        activeStatus = status;
-    }
-
-    /**
-     * @return the localized name of this overlay
-     */
-    @Override
-    public String getName() {
-        return "Pose";
+    public DrawPoses() {
+        super("Poses");
     }
 
     @Override
@@ -72,15 +49,6 @@ public class DrawPoses implements RenderPass {
         mesh.unload(gl3);
         shader.delete(gl3);
     }
-
-    @Override
-    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
-        canvasWidth = width;
-        canvasHeight = height;
-    }
-
-    @Override
-    public void display(GLAutoDrawable glAutoDrawable) {}
 
     @Override
     public void draw() {

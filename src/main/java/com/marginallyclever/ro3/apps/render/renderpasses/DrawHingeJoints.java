@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.render.renderpasses;
+package com.marginallyclever.ro3.apps.render.renderpasses;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -10,7 +10,6 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Pose;
-import com.marginallyclever.ro3.render.RenderPass;
 import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.slf4j.Logger;
@@ -21,9 +20,8 @@ import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DrawHingeJoints implements RenderPass {
+public class DrawHingeJoints extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawHingeJoints.class);
-    private int activeStatus = ALWAYS;
     private final Mesh mesh = new Mesh();
     private final Mesh circleFan = new Mesh();
     private ShaderProgram shader;
@@ -31,7 +29,7 @@ public class DrawHingeJoints implements RenderPass {
     private final float ringScale = 3;
 
     public DrawHingeJoints() {
-        super();
+        super("Hinge Joints");
 
         mesh.setRenderStyle(GL3.GL_LINES);
         mesh.addColor(1.0f,1.0f,1.0f,1);  mesh.addVertex(0,0,0);  // origin
@@ -46,21 +44,6 @@ public class DrawHingeJoints implements RenderPass {
             circleFan.addColor(1.0f,1.0f,0.0f,0.25f);
             circleFan.addVertex(x,y,0);
         }
-    }
-
-    @Override
-    public int getActiveStatus() {
-        return activeStatus;
-    }
-
-    @Override
-    public void setActiveStatus(int status) {
-        activeStatus = status;
-    }
-
-    @Override
-    public String getName() {
-        return "Hinge joints";
     }
 
     @Override
@@ -82,15 +65,6 @@ public class DrawHingeJoints implements RenderPass {
         circleFan.unload(gl3);
         shader.delete(gl3);
     }
-
-    @Override
-    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height)  {
-        canvasWidth = width;
-        canvasHeight = height;
-    }
-
-    @Override
-    public void display(GLAutoDrawable glAutoDrawable) {}
 
     @Override
     public void draw() {
