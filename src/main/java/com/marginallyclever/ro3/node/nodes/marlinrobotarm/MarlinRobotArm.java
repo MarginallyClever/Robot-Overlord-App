@@ -256,6 +256,8 @@ public class MarlinRobotArm extends Node {
                 }
             }
         }
+        // else ignore unused parts
+
         return "Ok";
     }
 
@@ -277,12 +279,14 @@ public class MarlinRobotArm extends Node {
         String [] parts = gcode.split("\\s+");
         double [] cartesian = getCartesianFromWorld(endEffector.getWorld());
         for(String p : parts) {
+            if(p.startsWith("F")) setLinearVelocity(Double.parseDouble(p.substring(1)));
             if(p.startsWith("X")) cartesian[0] = Double.parseDouble(p.substring(1));
             else if(p.startsWith("Y")) cartesian[1] = Double.parseDouble(p.substring(1));
             else if(p.startsWith("Z")) cartesian[2] = Double.parseDouble(p.substring(1));
             else if(p.startsWith("U")) cartesian[3] = Double.parseDouble(p.substring(1));
             else if(p.startsWith("V")) cartesian[4] = Double.parseDouble(p.substring(1));
             else if(p.startsWith("W")) cartesian[5] = Double.parseDouble(p.substring(1));
+            else logger.warn("unknown G1 command: "+p);
         }
         // set the target position relative to the base of the robot arm
         target.setLocal(getReverseCartesianFromWorld(cartesian));
@@ -493,5 +497,14 @@ public class MarlinRobotArm extends Node {
         for(MarlinListener listener : listeners.getListeners(MarlinListener.class)) {
             listener.messageFromMarlin(message);
         }
+    }
+
+    public double getLinearVelocity() {
+        return linearVelocity;
+    }
+
+    public void setLinearVelocity(double linearVelocity) {
+        if(linearVelocity<0) throw new IllegalArgumentException("linearVelocity must be >= 0");
+        this.linearVelocity = linearVelocity;
     }
 }

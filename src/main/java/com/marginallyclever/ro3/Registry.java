@@ -16,14 +16,14 @@ import java.util.List;
  * {@link Registry} is a place to store global variables.
  */
 public class Registry {
+
+    public static EventListenerList listeners = new EventListenerList();
     public static TextureFactory textureFactory = new TextureFactory();
     public static final Factory<Node> nodeFactory = new Factory<>(Node.class);
     public static ListWithEvents<RenderPass> renderPasses = new ListWithEvents<>();
     private static Node scene = new Node("Scene");
     public static ListWithEvents<Camera> cameras = new ListWithEvents<>();
     private static Camera activeCamera = null;
-
-    public static EventListenerList listeners = new EventListenerList();
 
     public static void start() {
         nodeFactory.clear();
