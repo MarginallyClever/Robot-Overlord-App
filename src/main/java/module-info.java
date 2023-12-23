@@ -14,6 +14,12 @@ module com.marginallyclever.robotoverlord {
 	requires org.eclipse.jgit;
 	requires org.joml;
 	requires jogl.all;
+	requires modern_docking.api;
+	requires modern_docking.single_app;
+	requires modern_docking.ui_ext;
+	requires com.formdev.flatlaf;
+	requires com.github.weisj.jsvg;
+	requires org.reflections;
 	
 	requires vecmath;
 	requires jsch;
@@ -25,8 +31,10 @@ module com.marginallyclever.robotoverlord {
 	requires core;
 	requires flexmark.util.ast;
 	requires webcam.capture;
+    requires ch.qos.logback.classic;
+    requires ch.qos.logback.core;
 
-	// AFAIK this is only needed for the test 'GCodePathLoaderTest'.
+    // AFAIK this is only needed for the test 'GCodePathLoaderTest'.
 	// I don't know why it throws `InaccessibleObjectException` without this.
     opens com.marginallyclever.robotoverlord.systems.render.gcodepath;
 	opens com.marginallyclever.robotoverlord.components;

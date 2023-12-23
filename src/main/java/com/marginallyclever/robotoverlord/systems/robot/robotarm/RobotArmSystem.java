@@ -1,6 +1,7 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobian;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
@@ -229,7 +230,7 @@ public class RobotArmSystem implements EntitySystem {
         ApproximateJacobian aj = new ApproximateJacobianFiniteDifferences(robotComponent);
         //ApproximateJacobian aj = new ApproximateJacobianScrewTheory(robotComponent);
         try {
-            double[] jointVelocity = aj.getJointForceFromCartesianForce(cartesianVelocity);  // uses inverse jacobian
+            double[] jointVelocity = aj.getJointFromCartesian(cartesianVelocity);  // uses inverse jacobian
             // do not make moves for impossible velocities
             if(impossibleVelocity(robotComponent,jointVelocity)) return;
 

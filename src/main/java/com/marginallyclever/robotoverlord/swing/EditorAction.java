@@ -10,7 +10,7 @@ import javax.swing.*;
  */
 public interface EditorAction {
     /**
-     * Called when the editor believes it is time to confirm enable status.
+     * Called when the editorpanel believes it is time to confirm enable status.
      */
     void updateEnableStatus();
 }

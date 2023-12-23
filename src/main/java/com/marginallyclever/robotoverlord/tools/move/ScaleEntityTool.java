@@ -12,7 +12,7 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 /**
- * A tool to scale entities in the editor.
+ * A tool to scale entities in the editorpanel.
  *
  * @author Dan Royer
  * @since 2.5.0

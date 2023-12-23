@@ -50,7 +50,6 @@ public class OriginAdjustSystem implements EntitySystem {
         PoseComponent parentPose = entity.findFirstComponentInParents(PoseComponent.class);
         if(myPose==null || parentPose==null) return;
         Matrix4d parentMat = parentPose.getWorld();
-        Matrix4d mat = myPose.getWorld();
         parentMat.invert();
         myPose.setLocalMatrix4(parentMat);
     }

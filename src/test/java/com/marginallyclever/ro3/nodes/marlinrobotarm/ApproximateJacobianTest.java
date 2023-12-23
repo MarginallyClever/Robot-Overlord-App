@@ -1,11 +1,14 @@
-package com.marginallyclever.robotoverlord.systems.robot.robotarm;
+package com.marginallyclever.ro3.nodes.marlinrobotarm;
 
+import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobian;
+import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobianScrewTheory;
 import com.marginallyclever.robotoverlord.components.ArmEndEffectorComponent;
 import com.marginallyclever.robotoverlord.components.DHComponent;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.robots.Robot;
+import com.marginallyclever.robotoverlord.systems.robot.robotarm.ApproximateJacobianFiniteDifferences;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
@@ -130,8 +133,8 @@ public class ApproximateJacobianTest {
         }
 
         double [] v = new double[] {1,2,3,4,5,6};
-        double [] vFinite = finite.getJointForceFromCartesianForce(v);
-        double [] vScrew = screw.getJointForceFromCartesianForce(v);
+        double [] vFinite = finite.getJointFromCartesian(v);
+        double [] vScrew = screw.getJointFromCartesian(v);
         System.out.println(Arrays.toString(vFinite));
         System.out.println(Arrays.toString(vScrew));
         for(int i=0;i<vFinite.length;++i) {

@@ -51,7 +51,7 @@ public class MeshSmoother {
 	 * @param vertexEpsilon how close should points be to be considered one and the same.  typically ~0.001
 	 * @param normalEpsilon how close should normals be to be merged. 0...2 larger values more smoothing.
 	 */
-	private static void smoothNormals(Mesh model,float vertexEpsilon,float normalEpsilon) {
+	public static void smoothNormals(Mesh model,float vertexEpsilon,float normalEpsilon) {
 		float vertexEpsilonSquared = vertexEpsilon * vertexEpsilon;
 		float normalEpsilonSquared = normalEpsilon * normalEpsilon;
 
@@ -63,8 +63,7 @@ public class MeshSmoother {
 		for(i=0;i<numFaces;++i) {
 			if(skip[i]) continue;
 			
-			logger.info("Smoothing "+i);
-			
+			logger.info("Smoothing "+i+"/"+numFaces);
 
 			// find vertices that are in the same position
 			float p1x = model.vertexArray.get(i*3+0);
@@ -129,7 +128,6 @@ public class MeshSmoother {
 		}
 		model.setDirty(true);
 	}
-
 	
 	private static float lengthDifferenceSquared(float p1x,float p1y,float p1z,float p2x,float p2y,float p2z) {
 		float dx = p2x-p1x;

@@ -20,7 +20,7 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 /**
- * A tool to translate entities in the editor.  It translates in a given plane.
+ * A tool to translate entities in the editorpanel.  It translates in a given plane.
  *
  * @author Dan Royer
  * @since 2.5.0

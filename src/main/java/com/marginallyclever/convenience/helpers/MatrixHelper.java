@@ -18,43 +18,65 @@ import java.text.MessageFormat;
 public class MatrixHelper {
 	private static final Logger logger = LoggerFactory.getLogger(MatrixHelper.class);
 
+	public enum EulerSequence {
+		YXZ,
+		YZX,
+		XZY,
+		XYZ,
+		ZYX,
+		ZYZ,
+		ZXY,
+	}
+
 	/**
 	 * See drawMatrix(gl,p,u,v,w,1)
 	 *
 	 * @param m     matrix to draw
 	 * @param scale scale to draw at
 	 */
-	static public Mesh drawMatrix(Matrix4d m, float scale) {
+	static public Mesh createMesh(Matrix4d m, double scale) {
 		float x = (float)m.m03;
 		float y = (float)m.m13;
 		float z = (float)m.m23;
 
 		Mesh mesh = new Mesh();
 		mesh.setRenderStyle(GL3.GL_LINES);
-		mesh.addColor(1,0,0,1);		mesh.addVertex(x, y, z);
-		mesh.addColor(1,0,0,1);		mesh.addVertex(x+(float)m.m00*scale, y+(float)m.m10*scale, z+(float)m.m20*scale);
-		mesh.addColor(0,1,0,1);		mesh.addVertex(x, y, z);
-		mesh.addColor(0,1,0,1);		mesh.addVertex(x+(float)m.m01*scale, y+(float)m.m11*scale, z+(float)m.m21*scale);
-		mesh.addColor(0,0,1,1);		mesh.addVertex(x, y, z);
-		mesh.addColor(0,0,1,1);		mesh.addVertex(x+(float)m.m02*scale, y+(float)m.m12*scale, z+(float)m.m22*scale);
+		mesh.addColor(1,0,0,1);
+		mesh.addVertex(x, y, z);
+		mesh.addColor(1,0,0,1);
+		mesh.addVertex((float)(x+m.m00*scale),
+						(float)(y+m.m10*scale),
+						(float)(z+m.m20*scale));
+		mesh.addColor(0,1,0,1);
+		mesh.addVertex(x, y, z);
+		mesh.addColor(0,1,0,1);
+		mesh.addVertex((float)(x+m.m01*scale),
+						(float)(y+m.m11*scale),
+						(float)(z+m.m21*scale));
+		mesh.addColor(0,0,1,1);
+		mesh.addVertex(x, y, z);
+		mesh.addColor(0,0,1,1);
+		mesh.addVertex((float)(x+m.m02*scale),
+						(float)(y+m.m12*scale),
+						(float)(z+m.m22*scale));
 		return mesh;
 	}
 
-	static public Mesh drawMatrix(Tuple3d p,float scale) {
+	static public Mesh createMesh(Tuple3d p, double scale) {
 		Matrix4d m = MatrixHelper.createIdentityMatrix4();
 		m.setTranslation(new Vector3d(p.x,p.y,p.z));
-		return MatrixHelper.drawMatrix(m,scale);
+		return MatrixHelper.createMesh(m,scale);
 	}
 
-	static public Mesh drawMatrix(float scale) {
-		return drawMatrix(new Vector3d(),scale);
+	static public Mesh createMesh(double scale) {
+		return createMesh(new Vector3d(),scale);
 	}
 
 	/**
 	 * See drawMatrix(gl,p,u,v,w,1)
 	 */
-	static public void drawMatrix(GL3 gl,Vector3d p,Vector3d u,Vector3d v,Vector3d w) {
-		drawMatrix(gl,p,u,v,w,1);
+	static public void createMesh(GL3 gl, Vector3d p, Vector3d u, Vector3d v, Vector3d w) {
+		createMesh(gl,p,u,v,w,1);
 	}
 	
 	/**
@@ -66,14 +88,14 @@ public class MatrixHelper {
 	 * @param w in magenta (1,0,1)
 	 * @param scale nominally 1
 	 */
-	static public void drawMatrix(GL3 gl,Vector3d p,Vector3d u,Vector3d v,Vector3d w,float scale) {
+	static public void createMesh(GL3 gl, Vector3d p, Vector3d u, Vector3d v, Vector3d w, double scale) {
 		Matrix4d m = new Matrix4d(
 				u.x,u.y,u.z,p.x,
 				v.x,v.y,v.z,p.y,
 				w.x,w.y,w.z,p.z,
 				0,0,0,1.0
 				);
-		drawMatrix(m,scale);
+		createMesh(m,scale);
 	}
 
 	/**
@@ -95,69 +117,118 @@ public class MatrixHelper {
 	/**
 	 * Convert a matrix to Euler rotations.  There are many valid solutions.
 	 * See also <a href="https://www.learnopencv.com/rotation-matrix-to-euler-angles/">learnOpenCV</a>
-	 * Eulers are using the ZYX convention.
+	 * Eulers are using the YXZ convention.
 	 * @param mat the matrix to convert.
 	 * @return resulting radian rotations.  One possible solution.
 	 */
 	static public Vector3d matrixToEuler(Matrix3d mat) {
-		assert(isRotationMatrix(mat));
-		
-		double sy = Math.sqrt(mat.m00*mat.m00 + mat.m10*mat.m10);
-		boolean singular = sy < 1e-6;
-		double x,y,z;
-		if(!singular) {
-			x = Math.atan2( mat.m21,mat.m22);
-			y = Math.atan2(-mat.m20,sy);
-			z = Math.atan2( mat.m10,mat.m00);
-		} else {
-			x = Math.atan2(-mat.m12, mat.m11);
-			y = Math.atan2(-mat.m20, sy);
-			z = 0;
-		}
-		return new Vector3d(x,y,z);
+		return matrixToEuler(mat,EulerSequence.YXZ);
 	}
 	
 	/**
 	 * Convenience method to call matrixToEuler() with only the rotational component.
 	 * Assumes the rotational component is a valid rotation matrix.
-	 * Eulers are using the ZYX convention.
+	 * Eulers are using the YXZ convention.
 	 * @param mat the Matrix4d to convert.
 	 * @return a valid Euler solution to the matrix.
 	 */
 	static public Vector3d matrixToEuler(Matrix4d mat) {
-		Matrix3d m3 = new Matrix3d();
-		mat.get(m3);
-		return matrixToEuler(m3);
+		return matrixToEuler(mat,EulerSequence.YXZ);
 	}
-	
+
 	/**
 	 * Convert Euler rotations to a matrix.
 	 * See also <a href="https://www.learnopencv.com/rotation-matrix-to-euler-angles/">...</a>
-	 * Eulers are using the ZYX convention.
+	 * Eulers are using the YXZ convention.
 	 * @param v radian rotation values
 	 * @return Matrix3d resulting matrix
 	 */
 	static public Matrix3d eulerToMatrix(Vector3d v) {
-		double c0 = Math.cos(v.x);		double s0 = Math.sin(v.x);
-		double c1 = Math.cos(v.y);		double s1 = Math.sin(v.y);
-		double c2 = Math.cos(v.z);		double s2 = Math.sin(v.z);
-		
-		Matrix3d rX=new Matrix3d( 1,  0, 0,
-								  0,c0,-s0,
-								  0,s0, c0);
-		Matrix3d rY=new Matrix3d(c1,  0,s1,
-								  0,  1, 0,
-								-s1,  0,c1);
-		Matrix3d rZ=new Matrix3d(c2,-s2, 0,
-				                 s2, c2, 0,
-				                  0,  0, 1);
+		return eulerToMatrix(v,EulerSequence.YXZ);
+	}
 
+	/**
+	 * Converts Euler angles to a rotation matrix based on the specified Euler sequence.
+	 * @param radians radian rotation values
+	 * @param sequenceIndex a {@link EulerSequence} value
+	 * @return resulting matrix
+	 */
+	static public Matrix3d eulerToMatrix(Vector3d radians, EulerSequence sequenceIndex) {
+		Matrix3d rX = new Matrix3d();		rX.rotX(radians.x);
+		Matrix3d rY = new Matrix3d();		rY.rotY(radians.y);
+		Matrix3d rZ = new Matrix3d();		rZ.rotZ(radians.z);
 		Matrix3d result = new Matrix3d();
-		Matrix3d interim = new Matrix3d();
-		interim.mul(rY,rX);
-		result.mul(rZ,interim);
-
+		switch (sequenceIndex) {
+			case YXZ:  result.mul(rY, rX);  result.mul(rZ, result);  break;
+			case YZX:  result.mul(rY, rZ);  result.mul(rX, result);  break;
+			case XZY:  result.mul(rX, rZ);  result.mul(rY, result);  break;
+			case XYZ:  result.mul(rX, rY);  result.mul(rZ, result);  break;
+			case ZYX:  result.mul(rZ, rY);  result.mul(rX, result);  break;
+			case ZYZ:  result.mul(rZ, rY);  result.mul(rZ, result);  break;
+			case ZXY:  result.mul(rZ, rX);  result.mul(rY, result);  break;
+			default:  throw new IllegalArgumentException("Invalid Euler sequence");
+		}
 		return result;
+	}
+
+	public static Vector3d matrixToEuler(Matrix4d mat, EulerSequence sequenceIndex) {
+		Matrix3d m3 = new Matrix3d();
+		mat.get(m3);
+		return matrixToEuler(m3,sequenceIndex);
+	}
+
+	public static Vector3d matrixToEuler(Matrix3d mat, EulerSequence sequenceIndex) {
+		double sy = Math.sqrt(mat.m00 * mat.m00 + mat.m10 * mat.m10);
+
+		boolean singular = sy < 1e-6; // If sy is close to zero, the matrix is singular
+		double x, y, z;
+		if (!singular) {
+			switch (sequenceIndex) {
+				case YXZ:
+					x = Math.atan2(mat.m21, mat.m22);
+					y = Math.atan2(-mat.m20, sy);
+					z = Math.atan2(mat.m10, mat.m00);
+					break;
+				case YZX:
+					x = Math.atan2(-mat.m12, mat.m11);
+					y = Math.atan2(mat.m10, sy);
+					z = Math.atan2(-mat.m20, mat.m00);
+					break;
+				case XZY:
+					x = Math.atan2(-mat.m21, mat.m20);
+					y = Math.atan2(mat.m22, sy);
+					z = Math.atan2(-mat.m01, mat.m00);
+					break;
+				case XYZ:
+					x = Math.atan2(mat.m12, mat.m11);
+					y = Math.atan2(-mat.m10, sy);
+					z = Math.atan2(mat.m20, mat.m00);
+					break;
+				case ZYX:
+					x = Math.atan2(-mat.m01, mat.m00);
+					y = Math.atan2(mat.m02, sy);
+					z = Math.atan2(-mat.m12, mat.m10);
+					break;
+				case ZYZ:
+					x = Math.atan2(mat.m12, -mat.m10);
+					y = Math.atan2(mat.m02, sy);
+					z = Math.atan2(mat.m21, mat.m20);
+					break;
+				case ZXY:
+					x = Math.atan2(mat.m01, mat.m00);
+					y = Math.atan2(-mat.m02, sy);
+					z = Math.atan2(mat.m12, mat.m10);
+					break;
+				default:
+					throw new IllegalArgumentException("Invalid Euler sequence");
+			}
+		} else {
+			// Singular case
+			x = Math.atan2(-mat.m12, mat.m11);
+			y = Math.atan2(-mat.m20, sy);
+			z = 0;
+		}
+		return new Vector3d(x, y, z);
 	}
 	
 	/**
@@ -246,38 +317,6 @@ public class MatrixHelper {
 	 *
 	 * @return determinant of given matrix
 	 */
-	static public double matrixDeterminant (double[][] matrix) {
-		double [][] temporary;
-		double result = 0;
-
-		if (matrix.length == 1) {
-			result = matrix[0][0];
-			return (result);
-		}
-
-		if (matrix.length == 2) {
-			result = ((matrix[0][0] * matrix[1][1]) - (matrix[0][1] * matrix[1][0]));
-			return (result);
-		}
-
-		for (int i = 0; i < matrix[0].length; i++) {
-			temporary = new double[matrix.length - 1][matrix[0].length - 1];
-
-			for (int j = 1; j < matrix.length; j++) {
-				for (int k = 0; k < matrix[0].length; k++) {
-					if (k < i) {
-						temporary[j - 1][k] = matrix[j][k];
-					} else if (k > i) {
-						temporary[j - 1][k - 1] = matrix[j][k];
-					}
-				}
-			}
-
-			result += matrix[0][i] * Math.pow (-1, (double) i) * matrixDeterminant (temporary);
-		}
-		return (result);
-	}
-
 	static public double determinant(double[][] matrix) {
 		if (matrix.length != matrix[0].length)
 			throw new IllegalStateException("invalid dimensions");
@@ -815,27 +854,28 @@ public class MatrixHelper {
 	}
 
 	/**
-	 * Convert a {@link javax.vecmath.Matrix4d} to an array of doubles.  Matrix4d and OpenGL are column-major.
+	 * Convert a {@link javax.vecmath.Matrix4d} to an array of doubles.  {@link Matrix4d} is row-major and
+	 * OpenGL is column-major.
 	 * @param m the matrix to convert
 	 * @return a double array of length 16
 	 */
 	public static double [] matrix4dToArray(Matrix4d m) {
 		return new double[] {
 			m.m00,
-			m.m10,
-			m.m20,
-			m.m30,
 			m.m01,
-			m.m11,
-			m.m21,
-			m.m31,
 			m.m02,
-			m.m12,
-			m.m22,
-			m.m32,
 			m.m03,
+			m.m10,
+			m.m11,
+			m.m12,
 			m.m13,
+			m.m20,
+			m.m21,
+			m.m22,
 			m.m23,
+			m.m30,
+			m.m31,
+			m.m32,
 			m.m33,
 		};
 	}
@@ -864,29 +904,6 @@ public class MatrixHelper {
 		matrixBuffer.rewind();
 
 		return matrixBuffer;
-	}
-
-	public static float [] matrixToArrayF(Matrix4d m) {
-		float [] list = new float[16];
-
-		list[0] = (float)m.m00;
-		list[1] = (float)m.m01;
-		list[2] = (float)m.m02;
-		list[3] = (float)m.m03;
-		list[4] = (float)m.m10;
-		list[5] = (float)m.m11;
-		list[6] = (float)m.m12;
-		list[7] = (float)m.m13;
-		list[8] = (float)m.m20;
-		list[9] = (float)m.m21;
-		list[10] = (float)m.m22;
-		list[11] = (float)m.m23;
-		list[12] = (float)m.m30;
-		list[13] = (float)m.m31;
-		list[14] = (float)m.m32;
-		list[15] = (float)m.m33;
-
-		return list;
 	}
 
 	/**

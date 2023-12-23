@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
+import java.security.InvalidParameterException;
 
 /**
  * A wrapper for vertex and fragment shader pairs that provides a simple interface for setting uniforms.
@@ -41,11 +42,8 @@ public class ShaderProgram {
     private void showProgramError(GL3 gl, String message) {
         int[] logLength = new int[1];
         gl.glGetProgramiv(programId, GL3.GL_INFO_LOG_LENGTH, logLength, 0);
-
         byte[] log = new byte[logLength[0]];
         gl.glGetProgramInfoLog(programId, logLength[0], null, 0, log, 0);
-
-        System.err.println(message + new String(log));
         logger.error(message + new String(log));
     }
 
@@ -60,7 +58,6 @@ public class ShaderProgram {
             byte[] log = new byte[logLength[0]];
             gl.glGetShaderInfoLog(shaderId, logLength[0], null, 0, log, 0);
 
-            System.err.println("Failed to compile "+name+" shader code: " + new String(log));
             logger.error("Failed to compile "+name+" shader code: " + new String(log));
         }
         return shaderId;
@@ -101,7 +98,11 @@ public class ShaderProgram {
     }
 
     public int getUniformLocation(GL3 gl, String name) {
-        return gl.glGetUniformLocation(programId, name);
+        int result = gl.glGetUniformLocation(programId, name);
+        if(result==-1) {
+            throw new InvalidParameterException("Could not find uniform "+name);
+        }
+        return result;
     }
 
     public void set1f(GL3 gl, String name, float v0) {
@@ -126,24 +127,31 @@ public class ShaderProgram {
         OpenGLHelper.checkGLError(gl,logger);
     }
 
-    public void setVector3d(GL3 gl, String name, Vector3d v) {
+    public void setVector3d(GL3 gl, String name, Vector3d value) {
         int location = getUniformLocation(gl, name);
         if(location==-1) return;
-        gl.glUniform3f(location, (float) v.x, (float) v.y, (float) v.z);
+        gl.glUniform3f(location, (float) value.x, (float) value.y, (float) value.z);
         OpenGLHelper.checkGLError(gl,logger);
     }
 
-    public void setMatrix4d(GL3 gl, String name, Matrix4d matrix4d) {
+    /**
+     * Set a matrix in the shader.  OpenGL uses column-major order, where Java and DirectX use row-major order.
+     * Don't forget to transpose!
+     * @param gl the render context
+     * @param name the name of the uniform variable
+     * @param value the matrix to set
+     */
+    public void setMatrix4d(GL3 gl, String name, Matrix4d value) {
         int location = getUniformLocation(gl, name);
         if(location==-1) return;
-        gl.glUniformMatrix4fv(location, 1, false, MatrixHelper.matrixToFloatBuffer(matrix4d));
+        gl.glUniformMatrix4fv(location, 1, false, MatrixHelper.matrixToFloatBuffer(value));
         OpenGLHelper.checkGLError(gl,logger);
     }
 
-    public void set1i(GL3 gl, String name, int b) {
+    public void set1i(GL3 gl, String name, int value) {
         int location = getUniformLocation(gl, name);
         if(location==-1) return;
-        gl.glUniform1i(location, b);
+        gl.glUniform1i(location, value);
         OpenGLHelper.checkGLError(gl,logger);
     }
 }

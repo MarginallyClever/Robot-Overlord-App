@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class Clipboard {
     /**
-     * The list of entities selected in the editor.  This list is used by Actions.
+     * The list of entities selected in the editorpanel.  This list is used by Actions.
      */
     private static final List<Entity> selectedEntities = new ArrayList<>();
 

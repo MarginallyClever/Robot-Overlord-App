@@ -11,14 +11,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A list of entities selected in the editor.
+ * A list of entities selected in the editorpanel.
  *
  * @author Dan Royer
  * @since 2.5.0
  */
 public class SelectedItems {
     /**
-     * The list of entities selected in the editor.
+     * The list of entities selected in the editorpanel.
      */
     private final List<Entity> entities = new ArrayList<>();
 

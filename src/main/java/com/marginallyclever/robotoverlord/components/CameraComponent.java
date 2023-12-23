@@ -241,7 +241,7 @@ public class CameraComponent extends RenderComponent {
         orbitPointMatrix.setTranslation(getOrbitPoint());
         orbitPointMatrix.mul(inverseCamera,orbitPointMatrix);
 
-        MatrixHelper.drawMatrix(orbitPointMatrix,25);
+        MatrixHelper.createMesh(orbitPointMatrix,25);
     }
 
     public void setCurrentlyMoving(boolean state) {

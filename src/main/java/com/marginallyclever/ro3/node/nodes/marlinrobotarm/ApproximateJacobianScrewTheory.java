@@ -1,6 +1,7 @@
-package com.marginallyclever.robotoverlord.systems.robot.robotarm;
+package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobian;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;
 

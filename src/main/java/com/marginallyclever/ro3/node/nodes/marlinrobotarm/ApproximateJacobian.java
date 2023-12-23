@@ -1,11 +1,11 @@
-package com.marginallyclever.robotoverlord.systems.robot.robotarm;
+package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 
 /**
- * This class is used to calculate the Jacobian matrix for a robot arm.
- * Each implementation can derive this class and fill in the jacobian matrix.
+ * This class is used to calculate the <a href="https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant">Jacobian
+ * matrix</a> for a robot arm.  Each implementation can derive this class and fill in the jacobian matrix.
  * @author Dan Royer
  */
 public abstract class ApproximateJacobian {
@@ -19,24 +19,6 @@ public abstract class ApproximateJacobian {
     protected ApproximateJacobian(int DOF) {
         this.DOF = DOF;
         jacobian = new double[6][DOF];
-    }
-
-    /**
-     * Use the jacobian to get the cartesian velocity from the joint velocity.
-     * @param jointForce joint velocity in degrees.
-     * @return 6 doubles containing the XYZ translation and UVW rotation forces on the end effector.
-     */
-    public double[] getCartesianForceFromJointForce(final double[] jointForce) {
-        // vector-matrix multiplication (y = x^T A)
-        double[] cartesianVelocity = new double[DOF];
-        for (int j = 0; j < DOF; ++j) {
-            double sum = 0;
-            for (int k = 0; k < 6; ++k) {
-                sum += jacobian[k][j] * Math.toRadians(jointForce[j]);
-            }
-            cartesianVelocity[j] = sum;
-        }
-        return cartesianVelocity;
     }
 
     /**
@@ -94,10 +76,11 @@ public abstract class ApproximateJacobian {
     /**
      * Use the Jacobian to get the joint velocity from the cartesian velocity.
      * @param cartesianVelocity 6 doubles - the XYZ translation and UVW rotation forces on the end effector.
-     * @return jointVelocity joint velocity in degrees. Will be filled with the new velocity.
+     *                          The rotation component is in radians.
+     * @return joint velocity in degrees.  Will be filled with the new velocity.
      * @throws Exception if joint velocities have NaN values
      */
-    public double[] getJointForceFromCartesianForce(final double[] cartesianVelocity) throws Exception {
+    public double[] getJointFromCartesian(final double[] cartesianVelocity) throws Exception {
         double[][] inverseJacobian = getInverseJacobian();
         double[] jointVelocity = new double[DOF];
 
@@ -114,6 +97,25 @@ public abstract class ApproximateJacobian {
         }
 
         return jointVelocity;
+    }
+
+    /**
+     * Use the jacobian to convert joint velocity to cartesian velocity.
+     * @param joint joint velocity in degrees.
+     * @return 6 doubles containing the XYZ translation and UVW rotation forces on the end effector.
+     * The rotation component is in radians.
+     */
+    public double[] getCartesianFromJoint(final double[] joint) {
+        // vector-matrix multiplication (y = x^T A)
+        double[] cartesianVelocity = new double[DOF];
+        for (int j = 0; j < DOF; ++j) {
+            double sum = 0;
+            for (int k = 0; k < 6; ++k) {
+                sum += jacobian[k][j] * Math.toRadians(joint[j]);
+            }
+            cartesianVelocity[j] = sum;
+        }
+        return cartesianVelocity;
     }
 
     public double[][] getJacobian() {
