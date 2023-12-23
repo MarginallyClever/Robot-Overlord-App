@@ -21,9 +21,8 @@ import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DrawHingeJoints implements RenderPass {
+public class DrawHingeJoints extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawHingeJoints.class);
-    private int activeStatus = ALWAYS;
     private final Mesh mesh = new Mesh();
     private final Mesh circleFan = new Mesh();
     private ShaderProgram shader;
@@ -31,7 +30,7 @@ public class DrawHingeJoints implements RenderPass {
     private final float ringScale = 3;
 
     public DrawHingeJoints() {
-        super();
+        super("Hinge Joints");
 
         mesh.setRenderStyle(GL3.GL_LINES);
         mesh.addColor(1.0f,1.0f,1.0f,1);  mesh.addVertex(0,0,0);  // origin
@@ -46,21 +45,6 @@ public class DrawHingeJoints implements RenderPass {
             circleFan.addColor(1.0f,1.0f,0.0f,0.25f);
             circleFan.addVertex(x,y,0);
         }
-    }
-
-    @Override
-    public int getActiveStatus() {
-        return activeStatus;
-    }
-
-    @Override
-    public void setActiveStatus(int status) {
-        activeStatus = status;
-    }
-
-    @Override
-    public String getName() {
-        return "Hinge joints";
     }
 
     @Override
@@ -82,15 +66,6 @@ public class DrawHingeJoints implements RenderPass {
         circleFan.unload(gl3);
         shader.delete(gl3);
     }
-
-    @Override
-    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height)  {
-        canvasWidth = width;
-        canvasHeight = height;
-    }
-
-    @Override
-    public void display(GLAutoDrawable glAutoDrawable) {}
 
     @Override
     public void draw() {

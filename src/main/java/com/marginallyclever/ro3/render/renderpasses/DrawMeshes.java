@@ -28,34 +28,12 @@ import java.util.List;
  * Draw each {@link MeshInstance} as a {@link Mesh}.  If the {@link MeshInstance} has a sibling {@link Material} with
  * a {@link com.jogamp.opengl.util.texture.Texture} then use it in the {@link ShaderProgram}.
  */
-public class DrawMeshes implements RenderPass {
+public class DrawMeshes extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawMeshes.class);
-    private int activeStatus = ALWAYS;
     private ShaderProgram shader;
-    private int canvasWidth, canvasHeight;
 
-    /**
-     * @return NEVER, SOMETIMES, or ALWAYS
-     */
-    @Override
-    public int getActiveStatus() {
-        return activeStatus;
-    }
-
-    /**
-     * @param status NEVER, SOMETIMES, or ALWAYS
-     */
-    @Override
-    public void setActiveStatus(int status) {
-        activeStatus = status;
-    }
-
-    /**
-     * @return the localized name of this overlay
-     */
-    @Override
-    public String getName() {
-        return "Meshes";
+    public DrawMeshes() {
+        super("Meshes");
     }
 
     @Override
@@ -91,15 +69,6 @@ public class DrawMeshes implements RenderPass {
             toScan.addAll(node.getChildren());
         }
     }
-
-    @Override
-    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
-        canvasWidth = width;
-        canvasHeight = height;
-    }
-
-    @Override
-    public void display(GLAutoDrawable glAutoDrawable) {}
 
     @Override
     public void draw() {

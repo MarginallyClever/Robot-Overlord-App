@@ -21,15 +21,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Draw each {@link Pose} as RGB lines from the origin to the X,Y,Z axes.
+ * Draw the ground plane.
  */
-public class DrawPoses extends AbstractRenderPass {
-    private static final Logger logger = LoggerFactory.getLogger(DrawPoses.class);
+public class DrawGroundPlane extends AbstractRenderPass {
+    private static final Logger logger = LoggerFactory.getLogger(DrawGroundPlane.class);
     private final Mesh mesh = MatrixHelper.createMesh(1.0);
     private ShaderProgram shader;
 
-    public DrawPoses() {
-        super("Poses");
+    public DrawGroundPlane() {
+        super("Ground plane");
+
+        mesh.setRenderStyle(GL3.GL_LINES);
+        int v = 1000;
+        int stepSize=100;
+        for(int s=-v;s<v;s+=stepSize) {
+            mesh.addVertex(s, -v, 0);
+            mesh.addVertex(s,  v, 0);
+            mesh.addVertex( -v,s, 0);
+            mesh.addVertex(  v,s, 0);
+        }
     }
 
     @Override
@@ -64,29 +74,18 @@ public class DrawPoses extends AbstractRenderPass {
         shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
         shader.setVector3d(gl3,"lightColor",new Vector3d(1,1,1));  // Light color
-        shader.set4f(gl3,"objectColor",1,1,1,1);
+        shader.set4f(gl3,"objectColor",1,1,1,0.125f);
         shader.setVector3d(gl3,"specularColor",new Vector3d(0.5,0.5,0.5));
         shader.setVector3d(gl3,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
-        shader.set1i(gl3,"useVertexColor",1);
+        shader.set1i(gl3,"useVertexColor",0);
         shader.set1i(gl3,"useLighting",0);
         shader.set1i(gl3,"diffuseTexture",0);
-        gl3.glDisable(GL3.GL_DEPTH_TEST);
         gl3.glDisable(GL3.GL_TEXTURE_2D);
 
-        List<Node> toScan = new ArrayList<>();
-        toScan.add(Registry.getScene());
-        while(!toScan.isEmpty()) {
-            Node node = toScan.remove(0);
-            toScan.addAll(node.getChildren());
-
-            if(node.getClass().equals(Pose.class)) {
-                Pose pose = (Pose)node;
-                Matrix4d w = pose.getWorld();
-                w.transpose();
-                shader.setMatrix4d(gl3,"modelMatrix",w);
-                mesh.render(gl3);
-            }
-        }
+        Matrix4d w = MatrixHelper.createIdentityMatrix4();
+        w.transpose();
+        shader.setMatrix4d(gl3,"modelMatrix",w);
+        mesh.render(gl3);
 
         gl3.glEnable(GL3.GL_DEPTH_TEST);
     }

@@ -30,14 +30,14 @@ import java.util.List;
 /**
  * Draw the bounding box of each {@link MeshInstance} in the scene.
  */
-public class DrawBoundingBoxes implements RenderPass {
+public class DrawBoundingBoxes extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawBoundingBoxes.class);
-    private int activeStatus = ALWAYS;
     private ShaderProgram shader;
     private final Mesh mesh = new Mesh();
-    private int canvasWidth, canvasHeight;
 
     public DrawBoundingBoxes() {
+        super("Bounding Boxes");
+
         mesh.setRenderStyle(GL3.GL_LINES);
         // add 8 points of a unit cube centered on the origin
         mesh.addVertex(-0.5f, 0.5f, 0.5f);
@@ -65,30 +65,6 @@ public class DrawBoundingBoxes implements RenderPass {
         mesh.addIndex(3);        mesh.addIndex(7);
     }
 
-    /**
-     * @return NEVER, SOMETIMES, or ALWAYS
-     */
-    @Override
-    public int getActiveStatus() {
-        return activeStatus;
-    }
-
-    /**
-     * @param status NEVER, SOMETIMES, or ALWAYS
-     */
-    @Override
-    public void setActiveStatus(int status) {
-        activeStatus = status;
-    }
-
-    /**
-     * @return the localized name of this overlay
-     */
-    @Override
-    public String getName() {
-        return "Bounding Boxes";
-    }
-
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
@@ -107,15 +83,6 @@ public class DrawBoundingBoxes implements RenderPass {
         mesh.unload(gl3);
         shader.delete(gl3);
     }
-
-    @Override
-    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
-        canvasWidth = width;
-        canvasHeight = height;
-    }
-
-    @Override
-    public void display(GLAutoDrawable glAutoDrawable) {}
 
     @Override
     public void draw() {

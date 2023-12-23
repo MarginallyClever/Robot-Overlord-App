@@ -24,16 +24,16 @@ import javax.vecmath.Vector3d;
  * <p>Draw the background.  This may be a skybox or a solid color.</p>
  * <p>TODO <a href="https://antongerdelan.net/opengl/cubemaps.html">use the OpenGL cube map texture</a>?</p>
  */
-public class DrawBackground implements RenderPass {
+public class DrawBackground extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawBackground.class);
-    private int activeStatus = ALWAYS;
     private final ColorRGB eraseColor = new ColorRGB(64,64,128);
     private ShaderProgram shader;
     private final Mesh mesh = new Mesh();
     private final TextureWithMetadata texture;
-    private int canvasWidth, canvasHeight;
 
     public DrawBackground() {
+        super("Erase/Background");
+
         // build a box
         mesh.setRenderStyle(GL3.GL_QUADS);
 
@@ -84,22 +84,6 @@ public class DrawBackground implements RenderPass {
     }
 
     /**
-     * @return NEVER, SOMETIMES, or ALWAYS
-     */
-    @Override
-    public int getActiveStatus() {
-        return activeStatus;
-    }
-
-    /**
-     * @param status NEVER, SOMETIMES, or ALWAYS
-     */
-    @Override
-    public void setActiveStatus(int status) {
-        activeStatus = status;
-    }
-
-    /**
      * @return the localized name of this overlay
      */
     @Override
@@ -125,15 +109,6 @@ public class DrawBackground implements RenderPass {
         mesh.unload(gl3);
         shader.delete(gl3);
     }
-
-    @Override
-    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
-        canvasWidth = width;
-        canvasHeight = height;
-    }
-
-    @Override
-    public void display(GLAutoDrawable glAutoDrawable) {}
 
     @Override
     public void draw() {

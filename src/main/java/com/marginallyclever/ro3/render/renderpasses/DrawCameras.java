@@ -19,14 +19,14 @@ import javax.vecmath.Vector3d;
 /**
  * Draws each {@link Camera} as a pyramid approximating the perspective view frustum.
  */
-public class DrawCameras implements RenderPass {
+public class DrawCameras extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawCameras.class);
-    private int activeStatus = ALWAYS;
     private final Mesh mesh = new Mesh();
     private ShaderProgram shader;
-    private int canvasWidth,canvasHeight;
 
     public DrawCameras() {
+        super("Cameras");
+
         // add mesh to a list that can be unloaded and reloaded as needed.
         mesh.setRenderStyle(GL3.GL_LINES);
         Vector3d a = new Vector3d(-1,-1,-1);
@@ -47,30 +47,6 @@ public class DrawCameras implements RenderPass {
         mesh.addColor(0,0,0,1);        mesh.addVertex((float)a.x, (float)a.y, (float)a.z);
     }
 
-    /**
-     * @return NEVER, SOMETIMES, or ALWAYS
-     */
-    @Override
-    public int getActiveStatus() {
-        return activeStatus;
-    }
-
-    /**
-     * @param status NEVER, SOMETIMES, or ALWAYS
-     */
-    @Override
-    public void setActiveStatus(int status) {
-        activeStatus = status;
-    }
-
-    /**
-     * @return the localized name of this overlay
-     */
-    @Override
-    public String getName() {
-        return "Cameras";
-    }
-
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
@@ -89,15 +65,6 @@ public class DrawCameras implements RenderPass {
         mesh.unload(gl3);
         shader.delete(gl3);
     }
-
-    @Override
-    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height)  {
-        canvasWidth = width;
-        canvasHeight = height;
-    }
-
-    @Override
-    public void display(GLAutoDrawable glAutoDrawable) {}
 
     @Override
     public void draw() {

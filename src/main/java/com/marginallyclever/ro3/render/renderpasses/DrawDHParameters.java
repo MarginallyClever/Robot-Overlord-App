@@ -26,14 +26,14 @@ import java.util.List;
 /**
  * Draws each {@link DHParameter} as two lines from the previous joint to the current joint.
  */
-public class DrawDHParameters implements RenderPass {
+public class DrawDHParameters extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawDHParameters.class);
-    private int activeStatus = ALWAYS;
     private final Mesh mesh = new Mesh();
     private ShaderProgram shader;
-    private int canvasWidth,canvasHeight;
 
     public DrawDHParameters() {
+        super("DH Parameters");
+
         // add mesh to a list that can be unloaded and reloaded as needed.
         mesh.setRenderStyle(GL3.GL_LINES);
         // line d
@@ -42,30 +42,6 @@ public class DrawDHParameters implements RenderPass {
         // line r
         mesh.addColor(1,0,0,1);        mesh.addVertex(0,0,0);
         mesh.addColor(1,0,0,1);        mesh.addVertex(0,0,0);
-    }
-
-    /**
-     * @return NEVER, SOMETIMES, or ALWAYS
-     */
-    @Override
-    public int getActiveStatus() {
-        return activeStatus;
-    }
-
-    /**
-     * @param status NEVER, SOMETIMES, or ALWAYS
-     */
-    @Override
-    public void setActiveStatus(int status) {
-        activeStatus = status;
-    }
-
-    /**
-     * @return the localized name of this overlay
-     */
-    @Override
-    public String getName() {
-        return "DH Parameters";
     }
 
     @Override
@@ -86,15 +62,6 @@ public class DrawDHParameters implements RenderPass {
         mesh.unload(gl3);
         shader.delete(gl3);
     }
-
-    @Override
-    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height)  {
-        canvasWidth = width;
-        canvasHeight = height;
-    }
-
-    @Override
-    public void display(GLAutoDrawable glAutoDrawable) {}
 
     @Override
     public void draw() {

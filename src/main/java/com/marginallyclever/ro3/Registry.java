@@ -38,6 +38,7 @@ public class Registry {
             pose.add("Camera", Camera::new);
 
         renderPasses.add(new DrawBackground());
+        renderPasses.add(new DrawGroundPlane());
         renderPasses.add(new DrawMeshes());
         renderPasses.add(new DrawBoundingBoxes());
         renderPasses.add(new DrawCameras());
