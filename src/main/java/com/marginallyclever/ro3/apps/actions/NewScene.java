@@ -9,6 +9,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Reset the scene to a new empty scene.
@@ -19,6 +20,7 @@ public class NewScene extends AbstractAction {
     public NewScene() {
         super();
         putValue(Action.NAME,"New");
+        putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-new-16.png"))));
         putValue(SHORT_DESCRIPTION,"Reset the scene to a new empty scene.");
     }
 

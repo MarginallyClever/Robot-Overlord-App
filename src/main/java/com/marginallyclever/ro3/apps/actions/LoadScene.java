@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.InvalidParameterException;
+import java.util.Objects;
 
 /**
  * Load a scene from a file.  Completely replaces the current Scene.
@@ -48,6 +49,7 @@ public class LoadScene extends AbstractAction {
         this.menu = menu;
         this.filePath = filePath;
         putValue(Action.NAME,filePath==null || filePath.isEmpty() ? "Load Scene" : filePath);
+        putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-load-16.png"))));
         putValue(SHORT_DESCRIPTION,"Load a scene from a file.  Completely replaces the current Scene.");
     }
 

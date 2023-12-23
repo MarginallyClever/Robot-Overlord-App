@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.Objects;
 
 /**
  * <p>Export the scene and all the assets used to a single file for sharing on another computer.
@@ -18,7 +19,9 @@ public class ExportScene extends AbstractAction {
     private static final JFileChooser chooser = new JFileChooser();
 
     public ExportScene() {
-        super("Export Scene");
+        super();
+        putValue(Action.NAME,"Export Scene");
+        putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-export-16.png"))));
         putValue(SHORT_DESCRIPTION,"Export the scene and all the assets used to a single file.");
     }
 

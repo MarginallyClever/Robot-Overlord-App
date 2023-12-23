@@ -12,6 +12,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Save the entire scene to a file.
@@ -22,9 +23,11 @@ public class SaveScene extends AbstractAction {
     private final RecentFilesMenu menu;
 
     public SaveScene(RecentFilesMenu menu,JFileChooser chooser) {
-        super("Save Scene");
+        super();
         this.chooser = chooser;
         this.menu = menu;
+        putValue(Action.NAME,"Save Scene");
+        putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-save-16.png"))));
         putValue(SHORT_DESCRIPTION,"Save to a file.");
     }
 

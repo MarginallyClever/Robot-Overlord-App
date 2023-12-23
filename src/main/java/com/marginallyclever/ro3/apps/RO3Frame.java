@@ -15,6 +15,7 @@ import com.marginallyclever.ro3.apps.editorpanel.EditorPanel;
 import com.marginallyclever.ro3.apps.logpanel.LogPanel;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
+import com.marginallyclever.ro3.apps.webcampanel.WebCamPanel;
 import com.marginallyclever.ro3.render.OpenGLPanel;
 import com.marginallyclever.ro3.render.Viewport;
 import com.marginallyclever.robotoverlord.RobotOverlord;
@@ -31,24 +32,26 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Objects;
 import java.util.prefs.Preferences;
 
 public class RO3Frame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(RO3Frame.class);
+    private final List<DockingPanel> windows = new ArrayList<>();
+    private final JFileChooser fileChooser;
     private final OpenGLPanel renderPanel;
     private final LogPanel logPanel;
     private final EditorPanel editPanel;
-    private final List<DockingPanel> windows = new ArrayList<>();
-    private final JFileChooser fileChooser;
+    private final WebCamPanel webCamPanel;
 
     public RO3Frame() {
         super("Robot Overlord 3");
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         setLookAndFeel();
         logPanel = new LogPanel();
         editPanel = new EditorPanel();
         renderPanel = new Viewport();
         fileChooser = new JFileChooser();
+        webCamPanel = new WebCamPanel();
 
         initDocking();
         createLayout();
@@ -82,14 +85,15 @@ public class RO3Frame extends JFrame {
     }
 
     private void addQuitHandler() {
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             // when someone tries to close the app, confirm it.
             @Override
             public void windowClosing(WindowEvent e) {
-                if(confirmClose()) {
-                    setDefaultCloseOperation(EXIT_ON_CLOSE);
-                }
-                super.windowClosing(e);
+            if(confirmClose()) {
+                setDefaultCloseOperation(EXIT_ON_CLOSE);
+            }
+            super.windowClosing(e);
             }
         });
 
@@ -148,13 +152,17 @@ public class RO3Frame extends JFrame {
         menuFile.add(new JMenuItem(new LoadScene(loadRecentMenu,null,fileChooser)));
         menuFile.add(loadRecentMenu);
         menuFile.add(new JMenuItem(new ImportScene(fileChooser)));
-
-        // TODO save vs save-as
         menuFile.add(new JMenuItem(new SaveScene(loadRecentMenu,fileChooser)));
         menuFile.add(new JMenuItem(new ExportScene()));
 
         menuFile.add(new JSeparator());
         menuFile.add(new JMenuItem(new AbstractAction("Quit") {
+            {
+                putValue(Action.NAME, "Quit");
+                putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
+                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-stop-16.png"))));
+                putValue(Action.SHORT_DESCRIPTION, "Quit the application.");
+            }
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 if(confirmClose()) {
@@ -220,6 +228,10 @@ public class RO3Frame extends JFrame {
         DockingPanel aboutView = new DockingPanel("976af87b-90f3-42ce-a5d6-e4ab663fbb15","About");
         aboutView.add(new AboutPanel(), BorderLayout.CENTER);
         windows.add(aboutView);
+
+        DockingPanel webcamView = new DockingPanel("1331fbb0-ceda-4c67-b343-6539d4f939a1","USB Camera");
+        webcamView.add(webCamPanel, BorderLayout.CENTER);
+        windows.add(webcamView);
 
         // now that the main frame is set up with the defaults, we can restore the layout
         AppState.setPersistFile(new File("ro3.layout"));

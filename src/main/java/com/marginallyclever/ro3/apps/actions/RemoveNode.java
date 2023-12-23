@@ -10,10 +10,10 @@ public class RemoveNode extends AbstractAction {
     private final NodeTreeView nodeTreeView;
     public RemoveNode(NodeTreeView nodeTreeView) {
         super();
+        this.nodeTreeView = nodeTreeView;
         putValue(Action.NAME,"Remove");
         putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-delete-16.png"))));
         putValue(SHORT_DESCRIPTION,"Remove the selected node(s).");
-        this.nodeTreeView = nodeTreeView;
     }
 
     @Override
