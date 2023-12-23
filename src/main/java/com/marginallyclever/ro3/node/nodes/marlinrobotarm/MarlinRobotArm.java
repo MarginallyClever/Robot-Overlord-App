@@ -18,7 +18,6 @@ import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -210,24 +209,10 @@ public class MarlinRobotArm extends Node {
             fireMarlinMessage( "Ok: "+response );
             return;
         } else if(gcode.equals("ik")) {
-            if(endEffector==null) {
-                fireMarlinMessage( "Error: no end effector" );
-                return;
-            }
-            double [] cartesian = getCartesianFromWorld(endEffector.getWorld());
-            int i=0;
-            String response = "G1"
-                    +" X"+StringHelper.formatDouble(cartesian[i++])
-                    +" Y"+StringHelper.formatDouble(cartesian[i++])
-                    +" Z"+StringHelper.formatDouble(cartesian[i++])
-                    +" U"+StringHelper.formatDouble(cartesian[i++])
-                    +" V"+StringHelper.formatDouble(cartesian[i++])
-                    +" W"+StringHelper.formatDouble(cartesian[i++]);
-            fireMarlinMessage( "Ok: "+response );
-            return;
+            fireMarlinMessage(getEndEffectorIK());
         } else if(gcode.equals("aj")) {
             ApproximateJacobianFiniteDifferences jacobian = new ApproximateJacobianFiniteDifferences(this);
-            fireMarlinMessage( "Ok: "+jacobian.toString() );
+            fireMarlinMessage( "Ok: "+jacobian );
             return;
         } else if(gcode.startsWith("G1")) {
             fireMarlinMessage( parseG1(gcode) );
@@ -263,8 +248,8 @@ public class MarlinRobotArm extends Node {
 
     /**
      * <p>G1 Linear move.</p>
-     * <p>Parse gcode for names and values, then set the new target position.Names are XYZ for linear, UVW for angular.
-     * Angular values should be in degrees.</p>
+     * <p>Parse gcode for names and values, then set the new target position.  Names are XYZ for linear, UVW for
+     * angular. Angular values should be in degrees.</p>
      * <p>Movement will occur on {@link #update(double)} provided the {@link #linearVelocity} and the update time are
      * greater than zero.</p>
      * @param gcode GCode command
@@ -291,6 +276,23 @@ public class MarlinRobotArm extends Node {
         // set the target position relative to the base of the robot arm
         target.setLocal(getReverseCartesianFromWorld(cartesian));
         return "Ok";
+    }
+
+    private String getEndEffectorIK() {
+        if(endEffector==null) {
+            return ( "Error: no end effector" );
+        }
+        double [] cartesian = getCartesianFromWorld(endEffector.getWorld());
+        int i=0;
+        String response = "G1"
+                +" F"+StringHelper.formatDouble(linearVelocity)
+                +" X"+StringHelper.formatDouble(cartesian[i++])
+                +" Y"+StringHelper.formatDouble(cartesian[i++])
+                +" Z"+StringHelper.formatDouble(cartesian[i++])
+                +" U"+StringHelper.formatDouble(cartesian[i++])
+                +" V"+StringHelper.formatDouble(cartesian[i++])
+                +" W"+StringHelper.formatDouble(cartesian[i++]);
+        return ( "Ok: "+response );
     }
 
     /**
@@ -384,6 +386,7 @@ public class MarlinRobotArm extends Node {
     @Override
     public void update(double dt) {
         super.update(dt);
+        if(dt==0) return;
         moveTowardsTarget(dt);
     }
 
@@ -422,6 +425,7 @@ public class MarlinRobotArm extends Node {
      * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
      */
     public void moveEndEffectorInCartesianDirection(double[] cartesianVelocity) {
+        // is it a really small move?
         double sum = sumCartesianVelocityComponents(cartesianVelocity);
         if(sum<0.0001) return;
         if(sum <= 1) {
