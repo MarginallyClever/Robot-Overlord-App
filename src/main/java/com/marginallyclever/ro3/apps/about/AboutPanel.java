@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.apps.about;
 
+import com.marginallyclever.convenience.helpers.FileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -7,6 +8,8 @@ import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import java.awt.*;
+import java.io.BufferedInputStream;
+import java.io.StringReader;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,6 +41,8 @@ public class AboutPanel extends JPanel {
                     } catch (Exception ex) {
                         logger.error("Failed to browse URL {}.",e.getURL(),ex);
                     }
+                } else {
+                    logger.error("Web browsing is not supported.");
                 }
             }
         });
@@ -45,15 +50,14 @@ public class AboutPanel extends JPanel {
 
     private void loadAboutFile(JEditorPane editorPane) {
         // Get the URL of the "about.html" resource file
-        URL aboutFileURL = getClass().getResource("about.html");
-        try {
-            // Convert the URL to a Path
-            Path aboutFilePath = Paths.get(aboutFileURL.toURI());
+        try(BufferedInputStream stream = new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(("about.html"))))) {
             // Read the file content into a String
-            String aboutFileContent = Files.readString(aboutFilePath);
+            String aboutFileContent = new String(stream.readAllBytes());
+            if(aboutFileContent.isBlank()) throw new Exception("about.html is empty.");
             // Set the text of the editor pane to the file content
             editorPane.setText(aboutFileContent);
         } catch (Exception e) {
+            logger.error("Failed to load about.html.",e);
             editorPane.setText(e.getLocalizedMessage());
         }
     }

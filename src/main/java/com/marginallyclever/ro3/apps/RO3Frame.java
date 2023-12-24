@@ -129,10 +129,31 @@ public class RO3Frame extends JFrame {
         setJMenuBar(menuBar);
 
         menuBar.add(buildFileMenu());
+        menuBar.add(buildWindowsMenu());
+        menuBar.add(buildHelpMenu());
+    }
 
+    private Component buildHelpMenu() {
+        JMenu menuHelp = new JMenu("Help");
+        var openManual = new BrowseURLAction("https://mcr.dozuki.com/c/Robot_Overlord_3");
+        openManual.putValue(Action.NAME, "Read the friendly manual");
+        openManual.putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-open-book-16.png"))));
+        openManual.putValue(Action.SHORT_DESCRIPTION, "Read the friendly manual.  It has pictures and everything!");
+        menuHelp.add(new JMenuItem(openManual));
+
+        var visitForum = new BrowseURLAction("https://discord.gg/VQ82jNvDBP");
+        visitForum.putValue(Action.NAME, "Visit Forums");
+        visitForum.putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-discord-16.png"))));
+        visitForum.putValue(Action.SHORT_DESCRIPTION, "Join us on Discord!");
+        menuHelp.add(new JMenuItem(visitForum));
+
+        menuHelp.add(new JMenuItem(new CheckForUpdateAction()));
+
+        return menuHelp;
+    }
+
+    private JMenu buildWindowsMenu() {
         JMenu menuWindows = new JMenu("Windows");
-        menuBar.add(menuWindows);
-
         // add each panel to the windows menu with a checkbox if the current panel is visible.
         int index=0;
         for(DockingPanel w : windows) {
@@ -141,6 +162,7 @@ public class RO3Frame extends JFrame {
             item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1 + index, InputEvent.SHIFT_DOWN_MASK));
             index++;
         }
+        return menuWindows;
     }
 
     private JMenu buildFileMenu() {

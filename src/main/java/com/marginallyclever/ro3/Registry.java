@@ -16,11 +16,11 @@ import java.util.List;
  */
 public class Registry {
 
-    public static EventListenerList listeners = new EventListenerList();
-    public static TextureFactory textureFactory = new TextureFactory();
+    public static final EventListenerList listeners = new EventListenerList();
+    public static final TextureFactory textureFactory = new TextureFactory();
     public static final Factory<Node> nodeFactory = new Factory<>(Node.class);
     private static Node scene = new Node("Scene");
-    public static ListWithEvents<Camera> cameras = new ListWithEvents<>();
+    public static final ListWithEvents<Camera> cameras = new ListWithEvents<>();
     private static Camera activeCamera = null;
 
     public static void start() {
