@@ -72,6 +72,14 @@ public class MeshInstance extends Pose {
         button.setText((mesh==null) ? "..." : mesh.getSourceName().substring(mesh.getSourceName().lastIndexOf(File.separatorChar)+1));
     }
 
+    /**
+     * Set the mesh for this instance.
+     * @param mesh the mesh to set.
+     */
+    public void setMesh(Mesh mesh) {
+        this.mesh = mesh;
+    }
+
     public Mesh getMesh() {
         return mesh;
     }

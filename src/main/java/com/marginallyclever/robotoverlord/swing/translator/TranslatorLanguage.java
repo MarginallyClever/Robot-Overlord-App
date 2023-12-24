@@ -21,6 +21,7 @@ import java.util.Map;
  * @author Dan Royer
  * @since 1.0.0
  */
+@Deprecated
 public class TranslatorLanguage {
 	private static final Logger logger = LoggerFactory.getLogger(TranslatorLanguage.class);
 	private String name = "";

@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swing.searchBar;
+package com.marginallyclever.ro3.apps.shared;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

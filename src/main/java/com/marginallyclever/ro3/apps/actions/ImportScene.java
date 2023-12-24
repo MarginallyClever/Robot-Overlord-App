@@ -24,6 +24,10 @@ public class ImportScene extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(ImportScene.class);
     private final JFileChooser chooser;
 
+    public ImportScene() {
+        this(null);
+    }
+
     public ImportScene(JFileChooser chooser) {
         super();
         this.chooser = chooser;
@@ -44,19 +48,20 @@ public class ImportScene extends AbstractAction {
         Component source = (Component) e.getSource();
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
         if (chooser.showOpenDialog(parentFrame) == JFileChooser.APPROVE_OPTION) {
-            loadIntoScene(chooser.getSelectedFile());
+            commitImport(chooser.getSelectedFile());
         }
     }
 
-    private void loadIntoScene(File selectedFile) {
-        if(selectedFile==null) throw new InvalidParameterException("selectedFile is null");
+    /**
+     * Load a scene from a file.
+     * @param selectedFile the file to load.
+     * @throws InvalidParameterException if the file is null or does not exist.
+     */
+    public void commitImport(File selectedFile) {
+        if( selectedFile == null ) throw new InvalidParameterException("Selected file is null.");
+        if( !selectedFile.exists() ) throw new InvalidParameterException("File does not exist.");
 
         logger.info("Import scene from {}",selectedFile.getAbsolutePath());
-
-        if( !selectedFile.exists() ) {
-            logger.error("File does not exist.");
-            return;
-        }
 
         try {
             String content = new String(Files.readAllBytes(Paths.get(selectedFile.getAbsolutePath())));

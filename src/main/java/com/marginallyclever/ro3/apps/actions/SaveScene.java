@@ -70,7 +70,7 @@ public class SaveScene extends AbstractAction {
         return chooser.getSelectedFile().getAbsolutePath();
     }
 
-    private void commitSave(String absolutePath) {
+    public void commitSave(String absolutePath) {
         logger.info("Save to {}",absolutePath);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(absolutePath))) {

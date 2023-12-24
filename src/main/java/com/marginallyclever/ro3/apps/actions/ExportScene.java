@@ -78,7 +78,11 @@ public class ExportScene extends AbstractAction {
         }
     }
 
-    private void commitExport(String absolutePath) {
+    /**
+     * Export the scene and all the assets used to a single file for sharing on another computer.
+     * @param absolutePath the path to the file to create.
+     */
+    public void commitExport(String absolutePath) {
         logger.info("Exporting to {}", absolutePath);
 
         JSONObject json = Registry.getScene().toJSON();

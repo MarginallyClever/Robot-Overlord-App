@@ -23,6 +23,7 @@ import com.marginallyclever.robotoverlord.swing.actions.AboutAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.dnd.DropTarget;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -59,11 +60,16 @@ public class RO3Frame extends JFrame {
         addQuitHandler();
         addAboutHandler();
         setupFileChooser();
+        setupDropTarget();
+    }
+
+    private void setupDropTarget() {
+        new DropTarget(this, new RO3FrameDropTarget());
     }
 
     private void setupFileChooser() {
         fileChooser.setFileFilter(RobotOverlord.FILE_FILTER);
-        // TODO: fileChooser.setSelectedFile(most recently opened file?);
+        // TODO: fileChooser.setSelectedFile(most recently touched file?);
     }
 
     private void setLookAndFeel() {

@@ -33,6 +33,7 @@ import java.util.prefs.Preferences;
  *
  * @author Dan Royer
  */
+@Deprecated
 public class RobotOverlord {
 	private static final Logger logger = LoggerFactory.getLogger(RobotOverlord.class);
 
