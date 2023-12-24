@@ -22,8 +22,6 @@ import java.io.Serial;
  *
  */
 public class CartesianDrivePanel extends JPanel {
-	@Serial
-	private static final long serialVersionUID = 1L;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
 	private final JRadioButton x = makeRadioButton(buttonGroup,"X");
 	private final JRadioButton y = makeRadioButton(buttonGroup,"Y");

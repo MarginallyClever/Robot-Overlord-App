@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
+import java.util.Objects;
 
 /**
  * SearchBar is a text field with a magnifying glass icon.
@@ -13,6 +14,7 @@ import java.awt.*;
  */
 public class SearchBar extends JPanel implements DocumentListener {
     private final JTextField match = new JTextField();
+    private final JToggleButton isRegex = new JToggleButton(".*");
 
     public SearchBar() {
         this("");
@@ -22,7 +24,10 @@ public class SearchBar extends JPanel implements DocumentListener {
         super(new BorderLayout());
         setName("SearchBar");
         setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        add(new JLabel(" \uD83D\uDD0E "), BorderLayout.LINE_START);
+        add(isRegex, BorderLayout.LINE_START);
+        var label = new JLabel(new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-search-16.png"))));
+        label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        add(label, BorderLayout.LINE_END);
         add(match, BorderLayout.CENTER);
 
         match.setText(text);
@@ -47,5 +52,13 @@ public class SearchBar extends JPanel implements DocumentListener {
     public void fireTextChange() {
         String newValue = match.getText();
         super.firePropertyChange("match", null, newValue);
+    }
+
+    public boolean isRegex() {
+        return isRegex.isSelected();
+    }
+
+    public void setRegex(boolean regex) {
+        isRegex.setSelected(regex);
     }
 }

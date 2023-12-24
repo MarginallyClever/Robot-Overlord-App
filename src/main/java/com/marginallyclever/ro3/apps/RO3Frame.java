@@ -30,6 +30,7 @@ import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -44,6 +45,8 @@ public class RO3Frame extends JFrame {
     private final LogPanel logPanel;
     private final EditorPanel editPanel;
     private final WebCamPanel webCamPanel;
+
+    public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
 
     public RO3Frame() {
         super("Robot Overlord 3");
@@ -68,7 +71,7 @@ public class RO3Frame extends JFrame {
     }
 
     private void setupFileChooser() {
-        fileChooser.setFileFilter(RobotOverlord.FILE_FILTER);
+        fileChooser.setFileFilter(FILE_FILTER);
         // TODO: fileChooser.setSelectedFile(most recently touched file?);
     }
 

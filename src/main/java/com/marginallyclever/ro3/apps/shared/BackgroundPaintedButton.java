@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swing.componentmanagerpanel;
+package com.marginallyclever.ro3.apps.shared;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;

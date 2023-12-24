@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.parameters.swing;
 
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
 import com.marginallyclever.robotoverlord.swing.UndoSystem;
-import com.marginallyclever.robotoverlord.swing.componentmanagerpanel.BackgroundPaintedButton;
+import com.marginallyclever.ro3.apps.shared.BackgroundPaintedButton;
 import com.marginallyclever.robotoverlord.swing.edits.ColorParameterEdit;
 
 import javax.swing.*;
