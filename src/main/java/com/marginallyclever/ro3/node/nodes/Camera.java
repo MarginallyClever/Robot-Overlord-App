@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.render.Viewport;
+import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 
 import javax.swing.*;
@@ -13,6 +14,7 @@ import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.security.InvalidParameterException;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 /**

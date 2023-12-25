@@ -410,4 +410,18 @@ public class Node {
         }
         return false;
     }
+
+    /**
+     * Everybody in this tree gets a new unique ID.
+     */
+    public void witnessProtection() {
+        logger.debug("Witness Protection for {}.",getAbsolutePath());
+        List<Node> toScan = new ArrayList<>();
+        toScan.add(this);
+        while(!toScan.isEmpty()) {
+            Node n = toScan.remove(0);
+            n.nodeID = UUID.randomUUID();
+            toScan.addAll(n.getChildren());
+        }
+    }
 }

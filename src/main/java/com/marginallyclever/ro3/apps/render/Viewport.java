@@ -15,16 +15,19 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * {@link Viewport} is an {@link OpenGLPanel} that uses a set of {@link RenderPass}es to draw the
  * {@link Registry#getScene()} from the perspective of a {@link Registry#getActiveCamera()}.
  */
 public class Viewport extends OpenGLPanel implements GLEventListener {
+    private static final Logger logger = LoggerFactory.getLogger(Viewport.class);
     public ListWithEvents<RenderPass> renderPasses = new ListWithEvents<>();
     private Camera camera;
     private final JToolBar toolBar = new JToolBar();
@@ -43,10 +46,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         addRenderPasses();
         addCameraSelector();
         addRenderPassSelection();
-
-        for(int i=0;i<MouseInfo.getNumberOfButtons();++i) {
-            buttonPressed.add(false);
-        }
+        addCopyCameraAction();
+        allocateButtonMemory();
     }
 
     private void addRenderPasses() {
@@ -58,6 +59,32 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         renderPasses.add(new DrawDHParameters());
         renderPasses.add(new DrawHingeJoints());
         renderPasses.add(new DrawPoses());
+    }
+
+    private void allocateButtonMemory() {
+        // initialize mouse button states
+        for(int i=0;i<MouseInfo.getNumberOfButtons();++i) {
+            buttonPressed.add(false);
+        }
+    }
+
+    private void addCopyCameraAction() {
+        JButton button = new JButton(new AbstractAction() {
+            {
+                putValue(Action.NAME,"Copy to Scene");
+                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-add-16.png"))));
+                putValue(Action.SHORT_DESCRIPTION,"Copy the current camera to the root of the scene.");
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                logger.debug("copy camera");
+                Camera newCamera = new Camera();
+                newCamera.fromJSON(camera.toJSON());
+                newCamera.witnessProtection();
+                Registry.getScene().addChild(newCamera);
+            }
+        });
+        toolBar.add(button);
     }
 
     private void addRenderPassSelection() {
