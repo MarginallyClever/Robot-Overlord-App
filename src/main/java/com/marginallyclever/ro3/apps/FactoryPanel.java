@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps;
 
 import com.marginallyclever.ro3.Factory;
+import com.marginallyclever.ro3.apps.shared.SearchBar;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -14,6 +15,7 @@ import java.awt.*;
  * @param <T> the class of thing to create.
  */
 public class FactoryPanel<T> extends JPanel {
+    private final SearchBar searchBar = new SearchBar();
     private final JTree tree;
     private final JButton okButton = new JButton("OK");
 
@@ -35,6 +37,7 @@ public class FactoryPanel<T> extends JPanel {
             }
         });
 
+        add(searchBar);
         add(new JScrollPane(tree));
     }
 
