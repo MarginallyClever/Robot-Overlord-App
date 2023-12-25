@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
+import com.marginallyclever.ro3.CollapsiblePanel;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -2,7 +2,7 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.apps.dialogs.MeshFactoryDialog;
-import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
+import com.marginallyclever.ro3.CollapsiblePanel;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import com.marginallyclever.robotoverlord.systems.render.mesh.MeshSmoother;
 import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;

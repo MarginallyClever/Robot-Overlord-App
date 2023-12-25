@@ -1,8 +1,7 @@
 package com.marginallyclever.ro3.node;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.nodes.Pose;
-import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
+import com.marginallyclever.ro3.CollapsiblePanel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -12,7 +11,6 @@ import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 

@@ -28,7 +28,8 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
     private final JTree tree;
     private final NodeTreeBranch treeModel = new NodeTreeBranch(Registry.getScene());
     private final EventListenerList listenerList = new EventListenerList();
-    private final JToolBar menuBar = new JToolBar();
+    private final JToolBar toolBar = new JToolBar();
+    private final RemoveNode removeNode = new RemoveNode(this);
 
     public NodeTreeView() {
         super();
@@ -37,12 +38,12 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
         tree = new JTree(treeModel);
         setupTree();
 
-        buildMenuBar();
+        buildToolBar();
 
         JScrollPane scroll = new JScrollPane();
         scroll.setViewportView(tree);
         add(scroll, BorderLayout.CENTER);
-        add(menuBar, BorderLayout.NORTH);
+        add(toolBar, BorderLayout.NORTH);
     }
 
     private void setupTree() {
@@ -59,9 +60,16 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
         tree.addTreeSelectionListener((e) ->{
             // single selection
             TreePath path = e.getPath();
-            NodeTreeBranch selectedNode = (NodeTreeBranch) path.getLastPathComponent();
-            // Do something with selectedNode
-            fireSelectionChangeEvent(List.of(selectedNode.getNode()));
+            if(path==null) {
+                // no selection
+                removeNode.setEnabled(false);
+                fireSelectionChangeEvent(List.of());
+            } else {
+                NodeTreeBranch selectedNode = (NodeTreeBranch) path.getLastPathComponent();
+                // scene root cannot be deleted.
+                removeNode.setEnabled(selectedNode != treeModel.getRoot());
+                fireSelectionChangeEvent(List.of(selectedNode.getNode()));
+            }
         });
     }
 
@@ -117,9 +125,10 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
         }
     }
 
-    private void buildMenuBar() {
-        menuBar.add(new JButton(new AddNode<>(this)));
-        menuBar.add(new JButton(new RemoveNode(this)));
+    private void buildToolBar() {
+        toolBar.add(new JButton(new AddNode<>(this)));
+        toolBar.add(new JButton(removeNode));
+        removeNode.setEnabled(false);  // nothing selected at first
     }
 
     /**
@@ -212,6 +221,7 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
         stopListeningTo(oldScene);
         tree.clearSelection();  // does not trigger selection change event?
         fireSelectionChangeEvent(List.of());
+        removeNode.setEnabled(false);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.marginallyclever.convenience.helpers;
 
-import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
+import com.marginallyclever.ro3.CollapsiblePanel;
 
 import javax.swing.*;
 import java.awt.*;

@@ -5,12 +5,11 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.parameters.swing.ComponentSwingViewFactory;
-import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
+import com.marginallyclever.ro3.CollapsiblePanel;
 import com.marginallyclever.robotoverlord.swing.actions.ComponentAddAction;
 import com.marginallyclever.robotoverlord.swing.actions.ComponentCopyAction;
 import com.marginallyclever.robotoverlord.swing.actions.ComponentDeleteAction;
 import com.marginallyclever.robotoverlord.swing.actions.ComponentPasteAction;
-import com.marginallyclever.robotoverlord.swing.translator.Translator;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.SystemManager;
 
