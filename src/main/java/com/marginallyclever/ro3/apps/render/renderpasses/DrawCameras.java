@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
+import java.awt.*;
 
 /**
  * Draws each {@link Camera} as a pyramid approximating the perspective view frustum.
@@ -77,10 +78,10 @@ public class DrawCameras extends AbstractRenderPass {
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
-        shader.setVector3d(gl3,"lightColor",new Vector3d(1,1,1));  // Light color
-        shader.set4f(gl3,"objectColor",1,1,1,1);
-        shader.setVector3d(gl3,"specularColor",new Vector3d(0.5,0.5,0.5));
-        shader.setVector3d(gl3,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
+        shader.setColor(gl3,"lightColor", Color.WHITE);
+        shader.setColor(gl3,"objectColor",Color.WHITE);
+        shader.setColor(gl3,"specularColor",Color.DARK_GRAY);
+        shader.setColor(gl3,"ambientLightColor",Color.BLACK);
         shader.set1i(gl3,"useVertexColor",1);
         shader.set1i(gl3,"useLighting",0);
         shader.set1i(gl3,"diffuseTexture",0);

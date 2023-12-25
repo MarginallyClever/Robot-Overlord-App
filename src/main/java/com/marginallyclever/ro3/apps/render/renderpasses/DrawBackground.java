@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
+import java.awt.*;
 
 /**
  * <p>Draw the background.  This may be a skybox or a solid color.</p>
@@ -141,10 +142,10 @@ public class DrawBackground extends AbstractRenderPass {
         Vector3d cameraWorldPos = new Vector3d(0,0,0);
         shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
-        shader.setVector3d(gl3,"lightColor",new Vector3d(1,1,1));  // Light color
-        shader.set4f(gl3,"objectColor",1,1,1,1);
-        shader.setVector3d(gl3,"specularColor",new Vector3d(0,0,0));
-        shader.setVector3d(gl3,"ambientLightColor",new Vector3d(1,1,1));
+        shader.setColor(gl3,"lightColor", Color.WHITE);
+        shader.setColor(gl3,"objectColor",Color.WHITE);
+        shader.setColor(gl3,"specularColor",Color.BLACK);
+        shader.setColor(gl3,"ambientLightColor",Color.BLACK);
         shader.set1i(gl3,"useVertexColor",0);
         shader.set1i(gl3,"useLighting",0);
         shader.set1i(gl3,"diffuseTexture",0);

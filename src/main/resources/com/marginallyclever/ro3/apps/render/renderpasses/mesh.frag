@@ -7,12 +7,12 @@ in vec2 textureCoord;
 
 out vec4 finalColor;
 
-uniform vec3 specularColor = vec3(0.5, 0.5, 0.5);
-uniform vec3 ambientLightColor = vec3(0.2, 0.2, 0.2);
+uniform vec4 specularColor = vec4(0.5, 0.5, 0.5,1);
+uniform vec4 ambientLightColor = vec4(0.2, 0.2, 0.2,1);
 uniform vec3 lightPos; // Light position in world space
 uniform vec3 cameraPos;  // Camera position in world space
 uniform vec4 objectColor;
-uniform vec3 lightColor;
+uniform vec4 lightColor;
 uniform sampler2D diffuseTexture;
 
 uniform bool useTexture;
@@ -24,7 +24,7 @@ void main() {
     if(useVertexColor) diffuseColor *= fragmentColor;
     if(useTexture) diffuseColor *= texture(diffuseTexture, textureCoord);
 
-    vec3 result = vec3(diffuseColor);
+    vec4 result = vec4(diffuseColor);
 
     if(useLighting) {
         vec3 norm = normalize(normalVector);
@@ -32,18 +32,19 @@ void main() {
 
         // Diffuse
         float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuseLight = diff * lightColor;
+        vec4 diffuseLight = diff * lightColor;
 
         // Specular
         vec3 viewDir = normalize(cameraPos - fragmentPosition);
         vec3 reflectDir = reflect(-lightDir, norm);
         float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-        vec3 specularLight = spec * specularColor * lightColor;
+        vec4 specularLight = spec * specularColor * lightColor;
 
         // put it all together.
         result *= ambientLightColor + diffuseLight + specularLight;
     }
 
     //finalColor = vec4(textureCoord.x,textureCoord.y,0,1);  // for testing texture coordinates
-    finalColor = vec4(result, diffuseColor.a);
+    finalColor = result;
+    finalColor.a = diffuseColor.a;
 }

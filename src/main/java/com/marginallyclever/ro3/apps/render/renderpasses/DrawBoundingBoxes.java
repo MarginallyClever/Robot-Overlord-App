@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,10 +92,10 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
-        shader.setVector3d(gl3,"lightColor",new Vector3d(1,1,1));  // Light color
-        shader.set4f(gl3,"objectColor",1,1,1,0.25f);
-        shader.setVector3d(gl3,"specularColor",new Vector3d(0.5,0.5,0.5));
-        shader.setVector3d(gl3,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
+        shader.setColor(gl3,"lightColor", Color.WHITE);
+        shader.setColor(gl3,"objectColor",new Color(255,255,255,64));
+        shader.setColor(gl3,"specularColor",Color.GRAY);
+        shader.setColor(gl3,"ambientLightColor",new Color(255/5,255/5,255/5,255));
         shader.set1i(gl3,"useVertexColor",0);
         shader.set1i(gl3,"useLighting",0);
         shader.set1i(gl3,"diffuseTexture",0);
