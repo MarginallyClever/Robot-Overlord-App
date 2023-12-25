@@ -53,7 +53,7 @@ public class EditorPanel extends JPanel implements MarlinListener {
             if(getButton.isSelected()) {
                 // if there is no arm, deselect the button.
                 MarlinRobotArm arm = armSelector.getSubject();
-                if(arm!=null) {
+                if(arm==null) {
                     getButton.setSelected(false);
                 }
             } else {
@@ -111,7 +111,10 @@ public class EditorPanel extends JPanel implements MarlinListener {
         JToolBar tools = new JToolBar("tools");
         addTools(tools);
         add(tools, BorderLayout.NORTH);
-        add(text, BorderLayout.CENTER);
+
+        var scroll = new JScrollPane();
+        scroll.setViewportView(text);
+        add(scroll, BorderLayout.CENTER);
         addStatusBar();
     }
 
