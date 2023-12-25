@@ -109,7 +109,7 @@ public class Material extends Node {
     @Override
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
-        json.put("texture",texture.getSource());
+        if(texture!=null) json.put("texture",texture.getSource());
         json.put("diffuseColor", diffuseColor.getRGB());
         json.put("specularColor", specularColor.getRGB());
         json.put("ambientColor", ambientColor.getRGB());
@@ -119,8 +119,7 @@ public class Material extends Node {
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        String textureSource = from.getString("texture");
-        texture = Registry.textureFactory.load(textureSource);
+        if(from.has("texture")) texture = Registry.textureFactory.load(from.getString("texture"));
         if(from.has("diffuseColor")) diffuseColor = new Color(from.getInt("diffuseColor"),true);
         if(from.has("specularColor")) specularColor = new Color(from.getInt("specularColor"),true);
         if(from.has("ambientColor")) ambientColor = new Color(from.getInt("ambientColor"),true);

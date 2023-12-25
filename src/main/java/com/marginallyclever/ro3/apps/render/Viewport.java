@@ -57,8 +57,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         renderPasses.add(new DrawBoundingBoxes());
         renderPasses.add(new DrawCameras());
         renderPasses.add(new DrawDHParameters());
-        renderPasses.add(new DrawHingeJoints());
         renderPasses.add(new DrawPoses());
+        renderPasses.add(new DrawHingeJoints());
     }
 
     private void allocateButtonMemory() {
@@ -257,12 +257,16 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     @Override
     public void mouseDragged(MouseEvent e) {
         int px = e.getX();
-        int dx = px - mx;
+        double dx = px - mx;
         mx = px;
 
         int py = e.getY();
-        int dy = py - my;
+        double dy = py - my;
         my = py;
+
+        // scale based on orbit distance - smaller orbits need smaller movements
+        dx *= orbitRadius / 50d;
+        dy *= orbitRadius / 50d;
 
         boolean shift = (e.getModifiersEx() & MouseEvent.SHIFT_DOWN_MASK) != 0;
 
@@ -309,7 +313,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         local.setTranslation(orbitVector);
     }
 
-    private void panTiltCamera(int dx, int dy) {
+    private void panTiltCamera(double dx, double dy) {
         Matrix4d local = camera.getLocal();
         Vector3d t = new Vector3d();
         local.get(t);
@@ -324,10 +328,10 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
 
     /**
      * Orbit the camera around a point orbitRadius ahead of the camera.
-     * @param dx mouse movement in x
-     * @param dy mouse movement in y
+     * @param dx change in x
+     * @param dy change in y
      */
-    void orbitCamera(int dx,int dy) {
+    void orbitCamera(double dx,double dy) {
         Matrix4d local = camera.getLocal();
         Vector3d orbitPoint = getOrbitPoint();
         //logger.debug("before {}",orbitPoint);

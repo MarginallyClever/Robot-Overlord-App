@@ -25,7 +25,6 @@ public class DrawHingeJoints extends AbstractRenderPass {
     private final Mesh mesh = new Mesh();
     private final Mesh circleFan = new Mesh();
     private ShaderProgram shader;
-    private int canvasWidth,canvasHeight;
     private final float ringScale = 3;
 
     public DrawHingeJoints() {

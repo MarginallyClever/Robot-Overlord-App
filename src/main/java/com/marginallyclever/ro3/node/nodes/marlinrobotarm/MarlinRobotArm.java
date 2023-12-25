@@ -41,6 +41,7 @@ public class MarlinRobotArm extends Node {
     private Pose endEffector;
     private Pose target;
     private double linearVelocity=0;
+    private Motor gripperMotor;
 
     public MarlinRobotArm() {
         this("MarlinRobotArm");
@@ -61,6 +62,7 @@ public class MarlinRobotArm extends Node {
         json.put("motors",jointArray);
         if(endEffector!=null) json.put("endEffector",endEffector.getNodeID());
         if(target!=null) json.put("target",target.getNodeID());
+        if(gripperMotor!=null) json.put("gripperMotor",gripperMotor.getNodeID());
         json.put("linearVelocity",linearVelocity);
         return json;
     }
@@ -74,12 +76,14 @@ public class MarlinRobotArm extends Node {
                 if(motorArray.isNull(i)) {
                     motors.set(i,null);
                 } else {
-                    motors.set(i,Registry.findNodeByID(motorArray.getString(i),Motor.class));
+                    motors.set(i,this.getRootNode().findNodeByID(motorArray.getString(i),Motor.class));
                 }
             }
         }
-        if(from.has("endEffector")) endEffector = Registry.findNodeByID(from.getString("endEffector"),Pose.class);
-        if(from.has("target")) target = Registry.findNodeByID(from.getString("target"),Pose.class);
+        Node root = this.getRootNode();
+        if(from.has("endEffector")) endEffector = root.findNodeByID(from.getString("endEffector"),Pose.class);
+        if(from.has("target")) target = root.findNodeByID(from.getString("target"),Pose.class);
+        if(from.has("gripperMotor")) gripperMotor = root.findNodeByID(from.getString("gripperMotor"),Motor.class);
         if(from.has("linearVelocity")) linearVelocity = from.getDouble("linearVelocity");
     }
 
@@ -116,6 +120,11 @@ public class MarlinRobotArm extends Node {
         NodeSelector<Pose> targetSelector = new NodeSelector<>(Pose.class, target);
         targetSelector.addPropertyChangeListener("subject",(e)-> target = (Pose)e.getNewValue());
         addLabelAndComponent(pane, "Target", targetSelector,gbc);
+
+        // add a selector for the target
+        NodeSelector<Motor> gripperMotorSelector = new NodeSelector<>(Motor.class, gripperMotor);
+        gripperMotorSelector.addPropertyChangeListener("subject",(e)-> gripperMotor = (Motor)e.getNewValue());
+        addLabelAndComponent(pane, "Gripper motor", gripperMotorSelector,gbc);
 
         // add a slider to control linear velocity
         JSlider slider = new JSlider(0,20,(int)linearVelocity);
@@ -183,14 +192,26 @@ public class MarlinRobotArm extends Node {
      * @return GCode command
      */
     private String getM114() {
-        StringBuilder sb = new StringBuilder("M114");
+        return "M114"+getMotorsAndFeedrateAsString();
+    }
+
+    private String getMotorsAndFeedrateAsString() {
+        StringBuilder sb = new StringBuilder();
         for(Motor motor : motors) {
             if(motor!=null && motor.hasAxle()) {
                 sb.append(" ")
-                    .append(motor.getName())
-                    .append(StringHelper.formatDouble(motor.getAxle().getAngle()));
+                        .append(motor.getName())
+                        .append(StringHelper.formatDouble(motor.getAxle().getAngle()));
             }
         }
+        // gripper motor
+        if(gripperMotor!=null && gripperMotor.hasAxle()) {
+            sb.append(" ")
+                    .append(gripperMotor.getName())
+                    .append(StringHelper.formatDouble(gripperMotor.getAxle().getAngle()));
+        }
+        // feedrate
+        sb.append(" F").append(StringHelper.formatDouble(linearVelocity));
         return sb.toString();
     }
 
@@ -230,21 +251,35 @@ public class MarlinRobotArm extends Node {
      */
     private String parseG0(String gcode) {
         String [] parts = gcode.split("\\s+");
-        for(Motor motor : motors) {
-            if(motor!=null && motor.hasAxle()) {
-                for(String p : parts) {
-                    if(p.startsWith(motor.getName())) {
-                        // TODO check for NaN, Infinity, etc
+        try {
+            for (Motor motor : motors) {
+                if (motor != null && motor.hasAxle()) {
+                    for (String p : parts) {
+                        if (p.startsWith(motor.getName())) {
+                            // TODO check new value is in range.
+                            motor.getAxle().setAngle(Double.parseDouble(p.substring(motor.getName().length())));
+                            break;
+                        }
+                    }
+                }
+            }
+            // gripper motor
+            if (gripperMotor != null && gripperMotor.hasAxle()) {
+                for (String p : parts) {
+                    if (p.startsWith(gripperMotor.getName())) {
                         // TODO check new value is in range.
-                        motor.getAxle().setAngle(Double.parseDouble(p.substring(motor.getName().length())));
+                        gripperMotor.getAxle().setAngle(Double.parseDouble(p.substring(gripperMotor.getName().length())));
                         break;
                     }
                 }
             }
+            // else ignore unused parts
+        } catch( NumberFormatException e ) {
+            logger.error("Number format exception: "+e.getMessage());
+            return "Error: "+e.getMessage();
         }
-        // else ignore unused parts
 
-        return "Ok";
+        return "Ok: G0"+getMotorsAndFeedrateAsString();
     }
 
     /**

@@ -70,7 +70,7 @@ public class Motor extends Node {
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        if(from.has("hinge")) hinge = Registry.findNodeByID(from.getString("hinge"),HingeJoint.class);
+        if(from.has("hinge")) hinge = this.getRootNode().findNodeByID(from.getString("hinge"),HingeJoint.class);
     }
 
     public HingeJoint getAxle() {
