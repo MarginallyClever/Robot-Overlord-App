@@ -16,10 +16,11 @@ public class WebCamPanel extends JPanel {
         setName("webcam");
 
         webcam = Webcam.getDefault();
-        Dimension size = WebcamResolution.QVGA.getSize();
-        webcam.setViewSize(size);
+        var list = webcam.getViewSizes();
+        webcam.setViewSize(list[list.length-1]);  // probably the biggest
 
-        panel = new WebcamPanel(webcam, size, false);
+        panel = new WebcamPanel(webcam,false);
+        panel.setDrawMode(WebcamPanel.DrawMode.FIT);  // fit, fill, or none
         panel.setFPSDisplayed(true);
         add(panel, BorderLayout.CENTER);
         panel.start();
