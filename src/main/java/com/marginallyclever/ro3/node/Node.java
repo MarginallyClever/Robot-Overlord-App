@@ -424,4 +424,26 @@ public class Node {
             toScan.addAll(n.getChildren());
         }
     }
+
+    /**
+     * Depth-first search for a node with a matching ID and type.
+     * @param nodeID the ID to search for
+     * @param type the type of node to search for
+     * @return the first node found with a matching ID and type, or null if none found.
+     * @param <T> the type of node to search for
+     */
+    public <T extends Node> T findNodeByID(String nodeID, Class<T> type) {
+        List<Node> toScan = new ArrayList<>();
+        toScan.add(this);
+        while(!toScan.isEmpty()) {
+            Node node = toScan.remove(0);
+            if(type.equals(node.getClass())) {
+                if(node.getNodeID().toString().equals(nodeID)) {
+                    return type.cast(node);
+                }
+            }
+            toScan.addAll(node.getChildren());
+        }
+        return null;
+    }
 }
