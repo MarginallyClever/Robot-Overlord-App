@@ -24,11 +24,11 @@ public class SearchBar extends JPanel implements DocumentListener {
         super(new BorderLayout());
         setName("SearchBar");
         setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        add(isRegex, BorderLayout.LINE_START);
         var label = new JLabel(new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-search-16.png"))));
         label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-        add(label, BorderLayout.LINE_END);
+        add(label, BorderLayout.LINE_START);
         add(match, BorderLayout.CENTER);
+        add(isRegex, BorderLayout.LINE_END);
 
         match.setText(text);
         match.getDocument().addDocumentListener(this);

@@ -21,7 +21,6 @@ import java.awt.*;
  * @param <T> the type of node to select
  */
 public class NodeSelectionDialog<T extends Node> extends JPanel {
-    private static final Logger logger = LoggerFactory.getLogger(NodeSelectionDialog.class);
     private final SearchBar searchBar = new SearchBar();
     private final JTree tree = new JTree();
     private T selectedNode;
@@ -35,14 +34,13 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
         super(new BorderLayout());
 
         setupTree(type);
+        setupSearch();
 
         JButton clearButton = new JButton("Clear");
         clearButton.addActionListener(e -> {
             tree.clearSelection();
             selectedNode = null;
         });
-
-        setupSearch();
 
         add(searchBar, BorderLayout.NORTH);
         add(new JScrollPane(tree), BorderLayout.CENTER);
@@ -78,7 +76,7 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
 
                 Node node = branch.getNode();
                 if (!type.equals(node.getClass())) {
-                    setForeground(Color.GRAY);
+                    setForeground(Color.LIGHT_GRAY);
                 } else {
                     setForeground(Color.BLACK);
                 }
@@ -97,12 +95,10 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
     }
 
     private void populateTree(String searchCriteria) {
-        Node rootNode = Registry.getScene();  // Implement this method to get the root node
+        Node rootNode = Registry.getScene();
 
         List<Node> matches = findAllNodesMatching(rootNode, searchCriteria);
-        logger.debug("Found {} matches", matches.size());
         addAllParents(matches);
-        logger.debug("Grown to {} matches", matches.size());
 
         NodeTreeBranch rootTreeNode = new NodeTreeBranch(rootNode);
         addChildren(rootNode, rootTreeNode, matches);
