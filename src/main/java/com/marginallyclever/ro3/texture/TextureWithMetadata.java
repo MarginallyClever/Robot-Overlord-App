@@ -5,7 +5,7 @@ import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
-import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
+import com.marginallyclever.ro3.apps.render.ShaderProgram;
 
 import java.awt.image.BufferedImage;
 

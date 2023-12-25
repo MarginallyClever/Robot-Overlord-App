@@ -7,13 +7,14 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.render.Viewport;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.MeshInstance;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
-import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.apps.render.ShaderProgram;
+import com.marginallyclever.ro3.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +71,7 @@ public class DrawMeshes extends AbstractRenderPass {
     }
 
     @Override
-    public void draw() {
+    public void draw(Viewport viewport) {
         Camera camera = Registry.getActiveCamera();
         if(camera==null) return;
 

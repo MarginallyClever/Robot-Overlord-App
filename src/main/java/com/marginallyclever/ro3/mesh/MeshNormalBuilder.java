@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.systems.render.mesh;
+package com.marginallyclever.ro3.mesh;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +11,6 @@ import javax.vecmath.Vector3d;
  * @author Dan Royer
  * @since 1.7.1
  */
-@Deprecated
 public class MeshNormalBuilder {
 	private static final Logger logger = LoggerFactory.getLogger(MeshNormalBuilder.class);
 
@@ -67,7 +66,7 @@ public class MeshNormalBuilder {
 		}
 	}
 
-	private static Vector3d buildNormalFromThreePoints(Mesh m,int a,int b,int c) {
+	private static Vector3d buildNormalFromThreePoints(Mesh m, int a, int b, int c) {
 		Vector3d vA = m.getVertex(a);
 		Vector3d vB = m.getVertex(b);
 		Vector3d vC = m.getVertex(c);

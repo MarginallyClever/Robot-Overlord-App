@@ -1,6 +1,6 @@
-package com.marginallyclever.robotoverlord.systems.render.mesh.load;
+package com.marginallyclever.ro3.mesh.load;
 
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.Mesh;
 
 import javax.vecmath.Vector3d;
 import java.io.BufferedInputStream;
@@ -15,7 +15,6 @@ import java.util.ArrayList;
  * @author Dan Royer
  * @since 1.6.0
  */
-@Deprecated
 public class LoadOBJ implements MeshLoader {
 	@Override
 	public String getEnglishName() {

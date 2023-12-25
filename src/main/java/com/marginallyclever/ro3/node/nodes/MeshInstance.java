@@ -1,15 +1,20 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.apps.dialogs.MeshFactoryDialog;
 import com.marginallyclever.ro3.CollapsiblePanel;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
-import com.marginallyclever.robotoverlord.systems.render.mesh.MeshSmoother;
-import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
+import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.MeshSmoother;
+import com.marginallyclever.ro3.mesh.load.MeshFactory;
+import com.marginallyclever.ro3.raypicking.RayHit;
+import com.marginallyclever.robotoverlord.components.PoseComponent;
 import org.json.JSONObject;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.io.File;
 import java.util.List;
@@ -110,5 +115,53 @@ public class MeshInstance extends Pose {
         Matrix4d m = (pose==null) ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();
         m.invert();
         setLocal(m);
+    }
+
+    /**
+     * transform the ray into local space and test for intersection.
+     * @param ray the ray in world space
+     * @return the ray hit in world space, or null if no hit.
+     */
+    public RayHit intersect(Ray ray) {
+        if( mesh==null ) return null;
+
+        Ray localRay = transformRayToLocalSpace(ray);
+        RayHit localHit = mesh.intersect(localRay);
+        if(localHit!=null && localHit.distance<Double.MAX_VALUE) {
+            Vector3d normal = transformNormalToWorldSpace(localHit.normal);
+            return new RayHit(this,localHit.distance,normal);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * transform the ray into local space.
+     * @param ray the ray in world space
+     * @return the ray in local space
+     */
+    private Ray transformRayToLocalSpace(Ray ray) {
+        //Pose pose = findParent(Pose.class);
+        //Matrix4d m = pose==null ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();
+        Matrix4d m = getWorld();
+        Point3d o = new Point3d(ray.getOrigin());
+        Vector3d d = new Vector3d(ray.getDirection());
+
+        m.invert();
+        m.transform(o);
+        m.transform(d);
+
+        return new Ray(o,d,ray.getMaxDistance());
+    }
+
+    /**
+     * transform the ray into local space.
+     * @param normal the normal in local space
+     * @return the ray in world space
+     */
+    private Vector3d transformNormalToWorldSpace(Vector3d normal) {
+        Vector3d d = new Vector3d(normal);
+        getWorld().transform(d);
+        return d;
     }
 }

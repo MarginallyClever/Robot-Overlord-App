@@ -90,10 +90,11 @@ public class Viewport extends Entity {
 
 	/**
 	 * Return the ray coming through the viewport in the current projection.
+	 *
 	 * @return the ray coming through the viewport in the current projection.
 	 */
 	public Ray getRayThroughCursor() {
-		return getRayThroughPoint(cursorX,cursorY);
+		return getRayThroughPoint(cursorX, cursorY);
 	}
 
 	/**

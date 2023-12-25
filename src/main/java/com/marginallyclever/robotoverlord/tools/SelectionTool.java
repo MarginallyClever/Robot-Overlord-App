@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.tools;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.convenience.RayHit;
+import com.marginallyclever.robotoverlord.RayHit;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.components.CameraComponent;

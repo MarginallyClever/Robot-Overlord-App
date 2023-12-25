@@ -1,6 +1,6 @@
-package com.marginallyclever.robotoverlord.systems.render.mesh.load;
+package com.marginallyclever.ro3.mesh.load;
 
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.Mesh;
 
 import java.io.BufferedInputStream;
 
@@ -9,7 +9,6 @@ import java.io.BufferedInputStream;
  * @author Dan Royer
  *
  */
-@Deprecated
 public interface MeshLoader {
 	String getEnglishName();
 	String[] getValidExtensions();

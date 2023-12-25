@@ -4,7 +4,7 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.actions.ImportScene;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.MeshInstance;
-import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
+import com.marginallyclever.ro3.mesh.load.MeshFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

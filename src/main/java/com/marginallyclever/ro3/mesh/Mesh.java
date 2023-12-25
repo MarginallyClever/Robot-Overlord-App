@@ -1,11 +1,11 @@
-package com.marginallyclever.robotoverlord.systems.render.mesh;
+package com.marginallyclever.ro3.mesh;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.robotoverlord.RayHit;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
+import com.marginallyclever.ro3.raypicking.RayHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +22,6 @@ import java.util.List;
  * It uses Vertex Buffer Objects to optimize rendering large collections of triangles.
  * @author Dan Royer
  */
-@Deprecated
 public class Mesh {
 	private static final Logger logger = LoggerFactory.getLogger(Mesh.class);
 	public static final int NUM_BUFFERS=5;  // verts, normals, colors, textureCoordinates, index
@@ -418,7 +417,7 @@ public class Mesh {
 	 * @param provider a VertexProvider that will provide the vertices and normals of the triangles to intersect with
 	 * @return null if no intersection, otherwise a RayHit object with the intersection point and normal.
 	 */
-	private RayHit intersect(Ray ray,VertexProvider provider) {
+	private RayHit intersect(Ray ray, VertexProvider provider) {
 		int a=0,b=0,c=0;
 
 		double nearest = Double.MAX_VALUE;

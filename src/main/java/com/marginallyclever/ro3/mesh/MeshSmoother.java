@@ -1,6 +1,6 @@
-package com.marginallyclever.robotoverlord.systems.render.mesh;
+package com.marginallyclever.ro3.mesh;
 
-import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
+import com.marginallyclever.ro3.mesh.load.MeshFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +11,6 @@ import java.util.ArrayList;
  * Smooth STL models and save them back to disk.  Meant for one time processing files.
  * @author dan royer
  */
-@Deprecated
 public class MeshSmoother {
 	private static final Logger logger = LoggerFactory.getLogger(MeshSmoother.class);
 	/*
@@ -52,7 +51,7 @@ public class MeshSmoother {
 	 * @param vertexEpsilon how close should points be to be considered one and the same.  typically ~0.001
 	 * @param normalEpsilon how close should normals be to be merged. 0...2 larger values more smoothing.
 	 */
-	public static void smoothNormals(Mesh model,float vertexEpsilon,float normalEpsilon) {
+	public static void smoothNormals(Mesh model, float vertexEpsilon, float normalEpsilon) {
 		float vertexEpsilonSquared = vertexEpsilon * vertexEpsilon;
 		float normalEpsilonSquared = normalEpsilon * normalEpsilon;
 

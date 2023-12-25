@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.apps.render.renderpasses;
 
 import com.jogamp.opengl.GLAutoDrawable;
 import com.marginallyclever.ro3.apps.render.RenderPass;
+import com.marginallyclever.ro3.apps.render.Viewport;
 
 /**
  * {@link AbstractRenderPass} handles common methods for all {@link RenderPass}.
@@ -47,7 +48,7 @@ public abstract class AbstractRenderPass implements RenderPass {
     }
 
     @Override
-    public void draw() {
+    public void draw(Viewport viewport) {
 
     }
 

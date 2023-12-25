@@ -1,6 +1,6 @@
-package com.marginallyclever.robotoverlord.systems.render.mesh.load;
+package com.marginallyclever.ro3.mesh.load;
 
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -20,7 +20,6 @@ import java.util.ArrayList;
  * @author Dan Royer
  * @since 2.5.0
  */
-@Deprecated
 public class LoadAMF implements MeshLoader {
 	private static final Logger logger = LoggerFactory.getLogger(LoadAMF.class);
 	@Override

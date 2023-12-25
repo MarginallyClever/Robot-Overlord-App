@@ -1,14 +1,13 @@
 package com.marginallyclever.robotoverlord.systems;
 
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.convenience.RayHit;
+import com.marginallyclever.robotoverlord.RayHit;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import com.marginallyclever.robotoverlord.components.shapes.Box;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.vecmath.Point3d;

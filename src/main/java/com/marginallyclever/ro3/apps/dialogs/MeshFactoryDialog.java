@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.apps.dialogs;
 
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
-import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
+import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.load.MeshFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

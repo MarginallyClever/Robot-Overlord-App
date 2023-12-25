@@ -1,6 +1,6 @@
 package com.marginallyclever.convenience.helpers;
 
-import com.marginallyclever.convenience.AABB;
+import com.marginallyclever.robotoverlord.systems.render.mesh.AABB;
 import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.convenience.Ray;

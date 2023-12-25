@@ -8,10 +8,11 @@ import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.render.Viewport;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
-import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.apps.render.ShaderProgram;
+import com.marginallyclever.ro3.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +84,7 @@ public class DrawBackground extends AbstractRenderPass {
     }
 
     /**
-     * @return the localized name of this overlay
+     * @return the localized name
      */
     @Override
     public String getName() {
@@ -110,7 +111,7 @@ public class DrawBackground extends AbstractRenderPass {
     }
 
     @Override
-    public void draw() {
+    public void draw(Viewport viewport) {
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
         gl3.glClearColor(eraseColor.red / 255.0f,
                 eraseColor.green / 255.0f,

@@ -1,7 +1,7 @@
-package com.marginallyclever.robotoverlord.systems.render.mesh.load;
+package com.marginallyclever.ro3.mesh.load;
 
 import com.marginallyclever.convenience.ColorRGB;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.Mesh;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -19,7 +19,6 @@ import java.util.zip.ZipInputStream;
  * https://en.wikipedia.org/wiki/3D_Manufacturing_Format
  * @author Dan Royer
  */
-@Deprecated
 public class Load3MF implements MeshLoader {
 	private class ColorGroup {
 		public int id;
@@ -73,7 +72,7 @@ public class Load3MF implements MeshLoader {
 		return g;
 	}
 
-	private void parseAllObjects(Mesh model,Element modelNode, double scale) throws Exception {
+	private void parseAllObjects(Mesh model, Element modelNode, double scale) throws Exception {
         //logger.info("finding model/resources/object...");
         Element resources = (Element)modelNode.getElementsByTagName("resources").item(0);
         NodeList objects = resources.getElementsByTagName("object");
@@ -119,7 +118,7 @@ public class Load3MF implements MeshLoader {
 	}
 	
 	@SuppressWarnings("unused")
-	private void buildIndexedTriangles(Element mesh, Mesh model,ArrayList<Vector3d> vertexes) {
+	private void buildIndexedTriangles(Element mesh, Mesh model, ArrayList<Vector3d> vertexes) {
 		int n = model.getNumVertices();
 		for( Vector3d vA : vertexes ) {
 			model.addVertex((float)vA.x,(float)vA.y,(float)vA.z);
@@ -136,7 +135,7 @@ public class Load3MF implements MeshLoader {
     	}
 	}
 
-	private void buildTriangles(Element mesh, Mesh model,ArrayList<Vector3d> vertexes,ColorRGB defaultColor) {
+	private void buildTriangles(Element mesh, Mesh model, ArrayList<Vector3d> vertexes, ColorRGB defaultColor) {
 		Vector3d vA;
 		
     	Element triangles = (Element)mesh.getElementsByTagName("triangles").item(0);

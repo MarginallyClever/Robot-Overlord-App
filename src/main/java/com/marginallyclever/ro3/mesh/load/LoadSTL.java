@@ -1,6 +1,6 @@
-package com.marginallyclever.robotoverlord.systems.render.mesh.load;
+package com.marginallyclever.ro3.mesh.load;
 
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.Mesh;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -16,7 +16,6 @@ import java.nio.CharBuffer;
  * @author Dan Royer
  * @since 1.6.0
  */
-@Deprecated
 public class LoadSTL implements MeshLoader {
 	@Override
 	public String getEnglishName() {
@@ -48,7 +47,7 @@ public class LoadSTL implements MeshLoader {
 	}
 
 	// see https://github.com/cpedrinaci/STL-Loader/blob/master/StlFile.java#L345
-	private void loadBinary(BufferedInputStream inputStream,Mesh model) throws IOException {
+	private void loadBinary(BufferedInputStream inputStream, Mesh model) throws IOException {
 		int j;
 
 	    byte[] headerInfo=new byte[80];             // Header data
@@ -96,7 +95,7 @@ public class LoadSTL implements MeshLoader {
 		}
 	}
 	
-	private void loadASCII(BufferedInputStream inputStream,Mesh model) throws IOException {
+	private void loadASCII(BufferedInputStream inputStream, Mesh model) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream,"UTF-8"));
 		
 		String line;

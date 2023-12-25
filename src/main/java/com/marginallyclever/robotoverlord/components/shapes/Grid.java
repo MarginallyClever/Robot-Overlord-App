@@ -19,6 +19,7 @@ import javax.vecmath.Vector3d;
  *
  * @author Dan Royer
  */
+@Deprecated
 public class Grid extends ShapeComponent {
     public final BooleanParameter snap = new BooleanParameter("Snap",false);
     public final IntParameter width = new IntParameter("Width (cm)",100);

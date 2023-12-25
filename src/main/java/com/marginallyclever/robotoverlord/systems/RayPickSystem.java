@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.systems;
 
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.convenience.RayHit;
+import com.marginallyclever.robotoverlord.RayHit;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;

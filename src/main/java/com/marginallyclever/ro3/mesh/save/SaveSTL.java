@@ -1,6 +1,6 @@
-package com.marginallyclever.robotoverlord.systems.render.mesh.save;
+package com.marginallyclever.ro3.mesh.save;
 
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.Mesh;
 
 import javax.vecmath.Vector3d;
 import java.io.OutputStream;
@@ -13,7 +13,6 @@ import java.nio.ByteOrder;
  * @author Dan Royer
  * @since 2.5.0
  */
-@Deprecated
 public class SaveSTL implements MeshSaver {
 	@Override
 	public String getEnglishName() {

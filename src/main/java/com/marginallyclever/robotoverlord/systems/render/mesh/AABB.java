@@ -1,6 +1,6 @@
-package com.marginallyclever.convenience;
+package com.marginallyclever.robotoverlord.systems.render.mesh;
 
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.convenience.BoundingVolume;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;

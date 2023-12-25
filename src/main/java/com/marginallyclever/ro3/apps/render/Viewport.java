@@ -2,22 +2,28 @@ package com.marginallyclever.ro3.apps.render;
 
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
+import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.render.renderpasses.*;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
+import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
+import com.marginallyclever.ro3.raypicking.RayPickSystem;
+import com.marginallyclever.ro3.raypicking.RayHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -36,7 +42,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private final List<Boolean> buttonPressed = new ArrayList<>();
     private int mx, my;
     private double orbitRadius = 50;
-    private final double orbitChangeFactor = 1.1;  // must always be greater than 1
+    private double orbitChangeFactor = 1.1;  // must always be greater than 1
+    private int canvasWidth, canvasHeight;
 
 
     public Viewport() {
@@ -211,6 +218,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     @Override
     public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
         super.reshape(glAutoDrawable,x,y,width,height);
+        canvasWidth = width;
+        canvasHeight = height;
     }
 
     @Override
@@ -224,22 +233,20 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         // renderPasses that are always on
         for(RenderPass pass : renderPasses.getList()) {
             if(pass.getActiveStatus()==RenderPass.ALWAYS) {
-                pass.draw();
+                pass.draw(this);
             }
         }
     }
 
     private void updateAllNodes(double dt) {
-        // option 1, recursively
         Registry.getScene().update(dt);
-        /*
-        // option 2, in a linear way.
-        List<Node> toScan = new ArrayList<>(Registry.getScene().getChildren());
-        while(!toScan.isEmpty()) {
-            Node node = toScan.remove(0);
-            node.update(dt);
-            toScan.addAll(node.getChildren());
-        }*/
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        super.mouseClicked(e);
+        // Ray pick to select node
+        findNodeUnderCursor();
     }
 
     @Override
@@ -383,5 +390,97 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         c.mul(b,a);
         c.transpose();
         return c;
+    }
+
+    public double getOrbitChangeFactor() {
+        return orbitChangeFactor;
+    }
+
+    /**
+     * @param amnt a value greater than one.
+     */
+    public void setOrbitChangeFactor(double amnt) {
+        if( amnt <= 1 ) throw new InvalidParameterException("orbit change factor must be greater than 1.");
+        orbitChangeFactor = amnt;
+    }
+
+    /**
+     * Use ray tracing to find the Entity at the cursor position closest to the camera.
+     * @return the name of the item under the cursor, or -1 if nothing was picked.
+     */
+    private Node findNodeUnderCursor() {
+        if(camera==null) return null;
+
+        Ray ray = getRayThroughCursor();
+        RayPickSystem rayPickSystem = new RayPickSystem();
+        RayHit rayHit = rayPickSystem.getFirstHit(ray);
+        if(rayHit == null || rayHit.target==null) {
+            logger.debug("hit nothing.");
+            return null;
+        }
+
+        logger.debug("hit {}",rayHit.target.getAbsolutePath());
+
+        return rayHit.target;
+    }
+
+    /**
+     * Return the ray coming through the viewport in the current projection.
+     * @return the ray coming through the viewport in the current projection.
+     */
+    public Ray getRayThroughCursor() {
+        return getRayThroughPoint(camera,mx,my);
+    }
+
+    /**
+     * Return the ray coming through the viewport in the current projection.
+     * @param x the cursor position in screen coordinates [-1,1]
+     * @param y the cursor position in screen coordinates [-1,1]
+     * @return the ray coming through the viewport in the current projection.
+     */
+    public Ray getRayThroughPoint(Camera c,double x,double y) {
+        // OpenGL camera: -Z=forward, +X=right, +Y=up
+        // get the ray coming through the viewport in the current projection.
+        Point3d origin;
+        Vector3d direction;
+
+        if(c.getDrawOrthographic()) {
+            // orthographic projection
+            origin = new Point3d(
+                    x*canvasWidth/10,
+                    y*canvasHeight/10,
+                    0);
+            direction = new Vector3d(0,0,-1);
+            Matrix4d m2 = c.getWorld();
+            m2.transform(direction);
+            m2.transform(origin);
+        } else {
+            // perspective projection
+            Vector3d cursorUnitVector = getCursorAsNormalized();
+            double t = Math.tan(Math.toRadians(c.getFovY()/2));
+            direction = new Vector3d((cursorUnitVector.x)*t*getAspectRatio(),
+                                    (cursorUnitVector.y)*t,
+                                    -1);
+            // adjust the ray by the camera world pose.
+            Matrix4d m2 = c.getWorld();
+            m2.transform(direction);
+            origin = new Point3d(c.getPosition());
+            //logger.debug("origin {} direction {}",origin,direction);
+        }
+
+        return new Ray(origin,direction);
+    }
+
+    /**
+     * @return the cursor position as values from -1...1.
+     */
+    public Vector3d getCursorAsNormalized() {
+        return new Vector3d((2.0*mx/canvasWidth)-1.0,
+                            1.0-(2.0*my/canvasHeight),
+                            0);
+    }
+
+    public double getAspectRatio() {
+        return (double)canvasWidth/(double)canvasHeight;
     }
 }

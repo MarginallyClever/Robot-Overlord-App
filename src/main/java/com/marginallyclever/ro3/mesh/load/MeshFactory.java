@@ -1,7 +1,7 @@
-package com.marginallyclever.robotoverlord.systems.render.mesh.load;
+package com.marginallyclever.ro3.mesh.load;
 
 import com.marginallyclever.convenience.helpers.FileHelper;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,6 @@ import java.util.List;
  *
  * @author Dan Royer
  */
-@Deprecated
 public class MeshFactory {
 	private static final Logger logger = LoggerFactory.getLogger(MeshFactory.class);
 	private static final MeshLoader [] loaders = {
@@ -63,7 +62,7 @@ public class MeshFactory {
 		return null;
 	}
 
-	private static void attemptLoad(String filename,Mesh mesh) {
+	private static void attemptLoad(String filename, Mesh mesh) {
 		for( MeshLoader loader : loaders ) {
 			if(isValidExtension(filename,loader)) {
 				loadMeshWithLoader(filename,mesh,loader);

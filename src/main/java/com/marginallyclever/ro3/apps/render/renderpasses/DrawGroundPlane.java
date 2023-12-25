@@ -6,9 +6,10 @@ import com.jogamp.opengl.GLContext;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.render.Viewport;
 import com.marginallyclever.ro3.node.nodes.Camera;
-import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.apps.render.ShaderProgram;
+import com.marginallyclever.ro3.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +59,7 @@ public class DrawGroundPlane extends AbstractRenderPass {
     }
 
     @Override
-    public void draw() {
+    public void draw(Viewport viewport) {
         Camera camera = Registry.getActiveCamera();
         if(camera==null) return;
 

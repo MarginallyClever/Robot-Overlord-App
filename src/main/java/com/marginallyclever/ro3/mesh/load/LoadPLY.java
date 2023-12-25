@@ -1,7 +1,7 @@
-package com.marginallyclever.robotoverlord.systems.render.mesh.load;
+package com.marginallyclever.ro3.mesh.load;
 
 import com.jogamp.opengl.GL3;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.Mesh;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -14,7 +14,6 @@ import java.io.InputStreamReader;
  * @author Dan Royer
  * @since 2.5.0
  */
-@Deprecated
 public class LoadPLY implements MeshLoader {
 	@Override
 	public String getEnglishName() {
