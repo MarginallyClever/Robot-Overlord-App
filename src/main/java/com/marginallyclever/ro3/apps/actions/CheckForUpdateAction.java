@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.swing.translator.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +29,7 @@ public class CheckForUpdateAction extends AbstractAction implements ActionListen
 		super();
 		putValue(Action.NAME,"Check for Update");
 		putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-install-16.png"))));
-        putValue(Action.SHORT_DESCRIPTION, Translator.get("Check if there is a new version of Robot Overlord."));
+        putValue(Action.SHORT_DESCRIPTION, "Check if there is a new version of Robot Overlord.");
 	}
 
 	@Override
