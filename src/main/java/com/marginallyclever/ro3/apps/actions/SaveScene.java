@@ -42,7 +42,15 @@ public class SaveScene extends AbstractAction {
         Component source = (Component) e.getSource();
         String destinationPath = askUserForDestinationPath(source);
         if (destinationPath == null) return;  // cancelled
-        commitSave(destinationPath);
+        try {
+            commitSave(destinationPath);
+        } catch (IOException ioException) {
+            logger.error("Error saving file.  ", ioException);
+            JOptionPane.showMessageDialog(source,
+                    "Error saving file.  " + ioException.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
         menu.addPath(destinationPath);
     }
 
@@ -70,13 +78,11 @@ public class SaveScene extends AbstractAction {
         return chooser.getSelectedFile().getAbsolutePath();
     }
 
-    public void commitSave(String absolutePath) {
+    public void commitSave(String absolutePath) throws IOException {
         logger.info("Save to {}",absolutePath);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(absolutePath))) {
             writer.write(Registry.getScene().toJSON().toString());
-        } catch (IOException e) {
-            logger.error("Error saving file.  ", e);
         }
 
         logger.info("done.");
