@@ -9,6 +9,8 @@ import ModernDocking.exception.DockingLayoutException;
 import ModernDocking.ext.ui.DockingUI;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.marginallyclever.ro3.RO3;
+import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.about.AboutPanel;
 import com.marginallyclever.ro3.apps.actions.*;
 import com.marginallyclever.ro3.apps.editorpanel.EditorPanel;
@@ -18,8 +20,6 @@ import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.webcampanel.WebCamPanel;
 import com.marginallyclever.ro3.apps.render.OpenGLPanel;
 import com.marginallyclever.ro3.apps.render.Viewport;
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.swing.actions.AboutAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +27,8 @@ import java.awt.dnd.DropTarget;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.*;
@@ -35,6 +37,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.prefs.Preferences;
 
 public class RO3Frame extends JFrame {
@@ -47,9 +50,11 @@ public class RO3Frame extends JFrame {
     private final WebCamPanel webCamPanel;
 
     public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
+    public static String VERSION;
 
     public RO3Frame() {
         super("Robot Overlord 3");
+        loadVersion();
         setLookAndFeel();
         logPanel = new LogPanel();
         editPanel = new EditorPanel();
@@ -59,11 +64,22 @@ public class RO3Frame extends JFrame {
 
         initDocking();
         createLayout();
+        UndoSystem.start();
         createMenus();
         addQuitHandler();
         addAboutHandler();
         setupFileChooser();
         setupDropTarget();
+    }
+
+    private void loadVersion() {
+        try(InputStream input = RO3.class.getClassLoader().getResourceAsStream("robotoverlord.properties")) {
+            Properties prop = new Properties();
+            prop.load(input);
+            VERSION = prop.getProperty("robotoverlord.version");
+        } catch(IOException e) {
+            logger.error("Failed to load version number.", e);
+        }
     }
 
     private void setupDropTarget() {
@@ -79,8 +95,8 @@ public class RO3Frame extends JFrame {
         FlatLaf.registerCustomDefaultsSource("docking");
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
-            //UIManager.setLookAndFeel(new FlatDarkLaf());
-            //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            // option 2: UIManager.setLookAndFeel(new FlatDarkLaf());
+            // option 3: UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ignored) {
             logger.error("Failed to set look and feel.");
         }
@@ -126,8 +142,10 @@ public class RO3Frame extends JFrame {
             Desktop desktop = Desktop.getDesktop();
             if (desktop.isSupported(Desktop.Action.APP_ABOUT)) {
                 desktop.setAboutHandler((e) ->{
-                    AboutAction a = new AboutAction(RO3Frame.this);
-                    a.actionPerformed(null);
+                    var panel = new AboutPanel();
+                    JOptionPane.showMessageDialog(this, panel,
+                            "About",
+                            JOptionPane.PLAIN_MESSAGE);
                 });
             }
         }
@@ -138,8 +156,17 @@ public class RO3Frame extends JFrame {
         setJMenuBar(menuBar);
 
         menuBar.add(buildFileMenu());
+        //menuBar.add(buildEditMenu());
         menuBar.add(buildWindowsMenu());
         menuBar.add(buildHelpMenu());
+    }
+
+    private Component buildEditMenu() {
+        JMenu menu = new JMenu("Edit");
+        // TODO turn actions into edits for undo/redo, then add the matching actions back in.
+        menu.add(new JMenuItem(UndoSystem.getCommandUndo()));
+        menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
+        return menu;
     }
 
     private Component buildHelpMenu() {

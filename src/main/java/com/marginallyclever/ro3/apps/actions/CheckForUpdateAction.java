@@ -1,5 +1,7 @@
 package com.marginallyclever.ro3.apps.actions;
 
+import com.marginallyclever.ro3.RO3;
+import com.marginallyclever.ro3.apps.RO3Frame;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +43,8 @@ public class CheckForUpdateAction extends AbstractAction implements ActionListen
 			String latestVersion = getLatestVersionFromGithub();
 
 			logger.info("last release: " + latestVersion);
-			logger.info("your version: " + RobotOverlord.VERSION);
-			if (latestVersion.compareTo(RobotOverlord.VERSION) > 0) {
+			logger.info("your version: " + RO3Frame.VERSION);
+			if (latestVersion.compareTo(RO3Frame.VERSION) > 0) {
 				JOptionPane.showMessageDialog(parentFrame, "A new version of this software is available.\n" +
 						"  The latest version is " + latestVersion + "\n"
 						+ "Please visit http://www.marginallyclever.com/ to get the new hotness.");

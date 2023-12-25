@@ -128,9 +128,6 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
                 mesh.updateVertexBuffers(gl3);
 
                 // set the model matrix
-                //Pose pose = meshInstance.findParent(Pose.class);
-                //Matrix4d w = (pose==null) ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();
-
                 Matrix4d w = meshInstance.getWorld();
                 w.transpose();
                 shader.setMatrix4d(gl3,"modelMatrix",w);

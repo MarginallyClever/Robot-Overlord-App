@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.RO3Frame;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.robotoverlord.RobotOverlord;
 import org.json.JSONObject;
@@ -43,7 +44,7 @@ public class ImportScene extends AbstractAction {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
-        chooser.setFileFilter(RobotOverlord.FILE_FILTER);
+        chooser.setFileFilter(RO3Frame.FILE_FILTER);
         
         Component source = (Component) e.getSource();
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);

@@ -1,7 +1,7 @@
-package com.marginallyclever.robotoverlord.swing;
+package com.marginallyclever.ro3;
 
-import com.marginallyclever.robotoverlord.swing.actions.RedoAction;
-import com.marginallyclever.robotoverlord.swing.actions.UndoAction;
+import com.marginallyclever.ro3.apps.actions.RedoAction;
+import com.marginallyclever.ro3.apps.actions.UndoAction;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoManager;

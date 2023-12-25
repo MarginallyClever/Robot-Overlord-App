@@ -8,14 +8,13 @@ import javax.swing.*;
 import java.awt.*;
 
 public class WebCamPanel extends JPanel {
-    private final Webcam webcam;
     private final WebcamPanel panel;
 
     public WebCamPanel() {
         super(new BorderLayout());
         setName("webcam");
 
-        webcam = Webcam.getDefault();
+        Webcam webcam = Webcam.getDefault();
         var list = webcam.getViewSizes();
         webcam.setViewSize(list[list.length-1]);  // probably the biggest
 
