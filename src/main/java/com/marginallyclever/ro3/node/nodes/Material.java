@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.dialogs.TextureFactoryDialog;
@@ -17,6 +18,9 @@ import java.util.List;
  */
 public class Material extends Node {
     private TextureWithMetadata texture;
+    private Color diffuseColor = new Color(255,255,255);
+    private Color specularColor = new Color(255,255,255);
+    private Color ambientColor = new Color(0,0,0);
 
     public Material() {
         this("Material");
@@ -51,6 +55,34 @@ public class Material extends Node {
             addLabelAndComponent(pane,"Size",new JLabel(texture.getWidth()+"x"+texture.getHeight()));
             addLabelAndComponent(pane,"Preview",new JLabel(new ImageIcon(smaller)));
         }
+
+        // diffuse
+        JButton selectColorDiffuse = new JButton();
+        selectColorDiffuse.setBackground(diffuseColor);
+        selectColorDiffuse.addActionListener(e -> {
+            setDiffuseColor(JColorChooser.showDialog(panel,"Diffuse Color",getDiffuseColor()));
+            selectColorDiffuse.setBackground(diffuseColor);
+        });
+        addLabelAndComponent(pane,"Diffuse",selectColorDiffuse);
+
+        // specular
+        JButton selectColorSpecular = new JButton();
+        selectColorSpecular.setBackground(specularColor);
+        selectColorSpecular.addActionListener(e -> {
+            setSpecularColor(JColorChooser.showDialog(panel,"Specular Color",getSpecularColor()));
+            selectColorSpecular.setBackground(specularColor);
+        });
+        addLabelAndComponent(pane,"Specular",selectColorSpecular);
+
+        // ambient
+        JButton selectColorAmbient = new JButton();
+        selectColorAmbient.setBackground(ambientColor);
+        selectColorAmbient.addActionListener(e -> {
+            setAmbientLightColor(JColorChooser.showDialog(panel,"Ambient Color",getAmbientLightColor()));
+            selectColorAmbient.setBackground(ambientColor);
+        });
+        addLabelAndComponent(pane,"Ambient",selectColorAmbient);
+
         super.getComponents(list);
 
     }
@@ -78,6 +110,9 @@ public class Material extends Node {
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
         json.put("texture",texture.getSource());
+        json.put("diffuseColor", diffuseColor.getRGB());
+        json.put("specularColor", specularColor.getRGB());
+        json.put("ambientColor", ambientColor.getRGB());
         return json;
     }
 
@@ -86,5 +121,32 @@ public class Material extends Node {
         super.fromJSON(from);
         String textureSource = from.getString("texture");
         texture = Registry.textureFactory.load(textureSource);
+        if(from.has("diffuseColor")) diffuseColor = new Color(from.getInt("diffuseColor"),true);
+        if(from.has("specularColor")) specularColor = new Color(from.getInt("specularColor"),true);
+        if(from.has("ambientColor")) ambientColor = new Color(from.getInt("ambientColor"),true);
+    }
+
+    public Color getDiffuseColor() {
+        return diffuseColor;
+    }
+
+    public void setDiffuseColor(Color color) {
+        diffuseColor = color;
+    }
+
+    public Color getSpecularColor() {
+        return specularColor;
+    }
+
+    public void setSpecularColor(Color color) {
+        specularColor = color;
+    }
+
+    public Color getAmbientLightColor() {
+        return ambientColor;
+    }
+
+    public void setAmbientLightColor(Color color) {
+        ambientColor = color;
     }
 }

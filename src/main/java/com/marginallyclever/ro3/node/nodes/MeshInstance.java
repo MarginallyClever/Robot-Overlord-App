@@ -63,6 +63,10 @@ public class MeshInstance extends Pose {
             JButton adjust = new JButton("Adjust");
             adjust.addActionListener(e -> adjustLocal());
             addLabelAndComponent(pane,"Local origin",adjust);
+
+            JButton reload = new JButton("Reload");
+            reload.addActionListener(e-> MeshFactory.reload(mesh) );
+            addLabelAndComponent(pane,"Source",reload);
         }
 
         super.getComponents(list);

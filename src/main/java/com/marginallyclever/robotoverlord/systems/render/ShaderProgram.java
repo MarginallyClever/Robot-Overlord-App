@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
+import java.awt.*;
 import java.security.InvalidParameterException;
 
 /**
@@ -153,5 +154,9 @@ public class ShaderProgram {
         if(location==-1) return;
         gl.glUniform1i(location, value);
         OpenGLHelper.checkGLError(gl,logger);
+    }
+
+    public void setColor(GL3 gl3, String name, Color color) {
+        set4f(gl3,name,color.getRed()/255f,color.getGreen()/255f,color.getBlue()/255f,color.getAlpha()/255f);
     }
 }

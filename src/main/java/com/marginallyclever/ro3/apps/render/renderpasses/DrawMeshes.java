@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,6 +107,13 @@ public class DrawMeshes extends AbstractRenderPass {
                     if(material.getTexture()!=null) {
                         texture = material.getTexture();
                     }
+                    shader.setColor(gl3,"objectColor",material.getDiffuseColor());
+                    shader.setColor(gl3,"specularColor",material.getSpecularColor());
+                    shader.setColor(gl3,"ambientLightColor",material.getAmbientLightColor());
+                } else {
+                    shader.setColor(gl3,"objectColor",Color.WHITE);
+                    shader.setColor(gl3,"specularColor",Color.WHITE);
+                    shader.setColor(gl3,"ambientLightColor",Color.BLACK);
                 }
                 if(texture == null) {
                     gl3.glDisable(GL3.GL_TEXTURE_2D);
