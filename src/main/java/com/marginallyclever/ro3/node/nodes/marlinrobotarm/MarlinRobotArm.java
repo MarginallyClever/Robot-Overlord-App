@@ -135,6 +135,7 @@ public class MarlinRobotArm extends Node {
     private JPanel getSender() {
         JPanel inputPanel = new JPanel(new BorderLayout());
         JTextField input = new JTextField();
+        input.addActionListener(e-> sendGCode(input.getText()) );
         inputPanel.add(input,BorderLayout.CENTER);
         // Add a button to send the text field to the robot arm.
         JButton sendButton = new JButton("Send");
