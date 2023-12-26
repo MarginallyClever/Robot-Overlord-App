@@ -11,8 +11,6 @@ import com.marginallyclever.ro3.apps.render.Viewport;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.apps.render.ShaderProgram;
 import com.marginallyclever.ro3.mesh.Mesh;
-import com.marginallyclever.ro3.node.nodes.HingeJoint;
-import com.marginallyclever.util.MarginallyCleverTranslationXmlFileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,8 +81,8 @@ public class DrawCameras extends AbstractRenderPass implements MouseListener {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         try {
             shader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "mesh.vert"),
-                    ResourceHelper.readResource(this.getClass(), "mesh.frag"));
+                    ResourceHelper.readResource(this.getClass(), "default.vert"),
+                    ResourceHelper.readResource(this.getClass(), "default.frag"));
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }

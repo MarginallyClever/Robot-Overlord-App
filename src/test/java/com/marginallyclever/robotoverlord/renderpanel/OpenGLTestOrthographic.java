@@ -284,13 +284,13 @@ public class OpenGLTestOrthographic implements RenderPanel, GLEventListener, Key
     private void createShaderPrograms(GL3 gl) {
         System.out.println("Create shader programs");
         shaderDefault = new ShaderProgram(gl,
-                readResource("mesh.vert"),
+                readResource("default.vert"),
                 readResource("givenColor_330.frag"));
         shaderNoTransform = new ShaderProgram(gl,
                 readResource("noTransform_330.vert"),
                 readResource("givenColor_330.frag"));
         shaderTransform = new ShaderProgram(gl,
-                readResource("mesh.vert"),
+                readResource("default.vert"),
                 readResource("givenColor_330.frag"));
     }
 

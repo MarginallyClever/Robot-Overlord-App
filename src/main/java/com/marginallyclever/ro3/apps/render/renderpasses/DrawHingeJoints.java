@@ -52,8 +52,8 @@ public class DrawHingeJoints extends AbstractRenderPass {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         try {
             shader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "mesh.vert"),
-                    ResourceHelper.readResource(this.getClass(), "mesh.frag"));
+                    ResourceHelper.readResource(this.getClass(), "default.vert"),
+                    ResourceHelper.readResource(this.getClass(), "default.frag"));
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }
