@@ -42,10 +42,7 @@ public class WebCamPanel extends JPanel {
             }
             @Override
             public void actionPerformed(ActionEvent e) {
-                BufferedImage img = panel.getWebcam().getImage();
-                if(img==null) return;
-                logger.info("Snapshot {}x{}",img.getWidth(),img.getHeight());
-                logger.error("Not implemented yet.");
+                takeSnapshot();
             }
         }));
 
@@ -66,5 +63,12 @@ public class WebCamPanel extends JPanel {
     public void removeNotify() {
         super.removeNotify();
         panel.pause();
+    }
+
+    public void takeSnapshot() {
+        BufferedImage img = panel.getWebcam().getImage();
+        if(img==null) return;
+        logger.info("Snapshot {}x{}",img.getWidth(),img.getHeight());
+        logger.error("Not implemented yet.");
     }
 }
