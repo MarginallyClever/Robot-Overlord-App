@@ -73,7 +73,7 @@ public class DrawGroundPlane extends AbstractRenderPass {
         shader.setColor(gl3,"lightColor", Color.WHITE);
         shader.setColor(gl3,"objectColor",new Color(255,255,255,8));
         shader.setColor(gl3,"specularColor",Color.GRAY);
-        shader.setColor(gl3,"ambientLightColor",new Color(32,32,32,255));
+        shader.setColor(gl3,"ambientColor",new Color(32,32,32,255));
         shader.set1i(gl3,"useVertexColor",0);
         shader.set1i(gl3,"useLighting",0);
         shader.set1i(gl3,"diffuseTexture",0);

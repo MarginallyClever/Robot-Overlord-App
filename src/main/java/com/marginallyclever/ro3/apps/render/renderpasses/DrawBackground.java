@@ -146,7 +146,7 @@ public class DrawBackground extends AbstractRenderPass {
         shader.setColor(gl3,"lightColor", Color.WHITE);
         shader.setColor(gl3,"objectColor",Color.WHITE);
         shader.setColor(gl3,"specularColor",Color.BLACK);
-        shader.setColor(gl3,"ambientLightColor",Color.BLACK);
+        shader.setColor(gl3,"ambientColor",Color.BLACK);
         shader.set1i(gl3,"useVertexColor",0);
         shader.set1i(gl3,"useLighting",0);
         shader.set1i(gl3,"diffuseTexture",0);

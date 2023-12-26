@@ -8,7 +8,7 @@ in vec2 textureCoord;
 out vec4 finalColor;
 
 uniform vec4 specularColor = vec4(0.5, 0.5, 0.5,1);
-uniform vec4 ambientLightColor = vec4(0.2, 0.2, 0.2,1);
+uniform vec4 ambientColor = vec4(0.2, 0.2, 0.2,1);
 uniform vec4 objectColor = vec4(1,1,1,1);
 uniform vec4 lightColor = vec4(1,1,1,1);
 uniform int shininess = 32;
@@ -44,7 +44,7 @@ void main() {
         vec4 specularLight = spec * specularColor * lightColor;
 
         // put it all together.
-        result *= ambientLightColor + diffuseLight + specularLight;
+        result *= ambientColor + diffuseLight + specularLight;
     }
 
     //finalColor = vec4(textureCoord.x,textureCoord.y,0,1);  // for testing texture coordinates

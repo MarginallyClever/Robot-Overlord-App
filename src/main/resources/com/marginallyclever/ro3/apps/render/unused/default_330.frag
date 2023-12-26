@@ -8,7 +8,7 @@ in vec2 textureCoord;
 out vec4 finalColor;
 
 uniform vec3 specularColor = vec3(0.5, 0.5, 0.5);
-uniform vec3 ambientLightColor = vec3(0.2, 0.2, 0.2);
+uniform vec3 ambientColor = vec3(0.2, 0.2, 0.2);
 uniform vec4 objectColor = vec4(1, 1, 1, 1);
 uniform vec3 lightColor = vec3(1, 1, 1);
 uniform vec3 lightPos; // Light position in world space
@@ -42,7 +42,7 @@ void main() {
         vec3 specularLight = spec * specularColor * lightColor;
 
         // put it all together.
-        result *= ambientLightColor + diffuseLight + specularLight;
+        result *= ambientColor + diffuseLight + specularLight;
     }
 
     //finalColor = vec4(textureCoord.x,textureCoord.y,0,1);  // for testing texture coordinates

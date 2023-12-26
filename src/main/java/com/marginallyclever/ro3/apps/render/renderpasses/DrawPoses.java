@@ -67,7 +67,7 @@ public class DrawPoses extends AbstractRenderPass {
         shader.setColor(gl3,"lightColor", Color.WHITE);
         shader.setColor(gl3,"objectColor",Color.WHITE);
         shader.setColor(gl3,"specularColor",Color.DARK_GRAY);
-        shader.setColor(gl3,"ambientLightColor",Color.BLACK);
+        shader.setColor(gl3,"ambientColor",Color.BLACK);
         shader.set1i(gl3,"useVertexColor",1);
         shader.set1i(gl3,"useLighting",0);
         shader.set1i(gl3,"diffuseTexture",0);
