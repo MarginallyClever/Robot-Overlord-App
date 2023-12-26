@@ -11,7 +11,6 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
-import java.io.Serial;
 
 /**
  * {@link CartesianDrivePanel} displays a dial that can adjust one cartesian movement at a time.

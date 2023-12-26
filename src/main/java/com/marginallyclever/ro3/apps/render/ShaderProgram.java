@@ -100,9 +100,7 @@ public class ShaderProgram {
 
     public int getUniformLocation(GL3 gl, String name) {
         int result = gl.glGetUniformLocation(programId, name);
-        if(result==-1) {
-            throw new InvalidParameterException("Could not find uniform "+name);
-        }
+        if(result==-1) throw new InvalidParameterException("Could not find uniform "+name);
         return result;
     }
 
@@ -115,23 +113,17 @@ public class ShaderProgram {
     }
 
     public void set3f(GL3 gl, String name, float v0, float v1, float v2) {
-        int location = getUniformLocation(gl, name);
-        if(location==-1) return;
-        gl.glUniform3f(location, v0, v1, v2);
+        gl.glUniform3f(getUniformLocation(gl, name), v0, v1, v2);
         OpenGLHelper.checkGLError(gl,logger);
     }
 
     public void set4f(GL3 gl, String name, float v0, float v1, float v2, float v3) {
-        int location = getUniformLocation(gl, name);
-        if(location==-1) return;
-        gl.glUniform4f(location, v0, v1, v2, v3);
+        gl.glUniform4f(getUniformLocation(gl, name), v0, v1, v2, v3);
         OpenGLHelper.checkGLError(gl,logger);
     }
 
     public void setVector3d(GL3 gl, String name, Vector3d value) {
-        int location = getUniformLocation(gl, name);
-        if(location==-1) return;
-        gl.glUniform3f(location, (float) value.x, (float) value.y, (float) value.z);
+        gl.glUniform3f(getUniformLocation(gl, name), (float) value.x, (float) value.y, (float) value.z);
         OpenGLHelper.checkGLError(gl,logger);
     }
 
@@ -143,16 +135,12 @@ public class ShaderProgram {
      * @param value the matrix to set
      */
     public void setMatrix4d(GL3 gl, String name, Matrix4d value) {
-        int location = getUniformLocation(gl, name);
-        if(location==-1) return;
-        gl.glUniformMatrix4fv(location, 1, false, MatrixHelper.matrixToFloatBuffer(value));
+        gl.glUniformMatrix4fv(getUniformLocation(gl, name), 1, false, MatrixHelper.matrixToFloatBuffer(value));
         OpenGLHelper.checkGLError(gl,logger);
     }
 
     public void set1i(GL3 gl, String name, int value) {
-        int location = getUniformLocation(gl, name);
-        if(location==-1) return;
-        gl.glUniform1i(location, value);
+        gl.glUniform1i(getUniformLocation(gl, name), value);
         OpenGLHelper.checkGLError(gl,logger);
     }
 
