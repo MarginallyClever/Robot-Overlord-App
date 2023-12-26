@@ -26,7 +26,7 @@ uniform bool useTexture;
 uniform bool useLighting;
 uniform bool useVertexColor;  // per-vertex color
 
-float ShadowCalculation(vec4 fragPosLightSpace) {
+float ShadowCalculation(vec4 fragPosLightSpace,vec3 normal,vec3 lightDir) {
     // perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     // transform to [0,1] range
@@ -35,8 +35,10 @@ float ShadowCalculation(vec4 fragPosLightSpace) {
     float closestDepth = texture(shadowMap, projCoords.xy).r;
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
+
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
     // check whether current frag pos is in shadow
-    float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+    float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
 
     return shadow;
 }
@@ -46,7 +48,7 @@ void main() {
     if(useVertexColor) diffuseColor *= fs_in.fragmentColor;
     if(useTexture) diffuseColor *= texture(diffuseTexture, fs_in.textureCoord);
 
-    vec3 result = vec3(diffuseColor);
+    vec4 result = diffuseColor;
 
     if(useLighting) {
         vec3 norm = normalize(fs_in.normalVector);
@@ -63,13 +65,13 @@ void main() {
         vec4 specularLight = spec * specularColor * lightColor;
 
         // Shadow
-        float shadow = ShadowCalculation(fs_in.fragPosLightSpace);
+        float shadow = ShadowCalculation(fs_in.fragPosLightSpace,norm,lightDir);
 
         // put it all together.
-        result = vec((ambientColor + (diffuseLight + specularLight) * (1.0 - shadow)) * diffuseColor);
+        result *= ambientColor + (diffuseLight + specularLight) * (1.0 - shadow);
     }
 
     //finalColor = vec4(fs_in.textureCoord.x,fs_in.textureCoord.y,0,1);  // for testing texture coordinates
-    finalColor = vec4(result,1.0);
-    //finalColor.a = diffuseColor.a;
+    finalColor = result;
+    finalColor.a = diffuseColor.a;
 }

@@ -31,12 +31,11 @@ public class ShaderProgram {
         gl.glAttachShader(programId, fragmentShaderId);
         gl.glLinkProgram(programId);
         if (!checkStatus(gl, programId, GL3.GL_LINK_STATUS)) {
-            showProgramError(gl, "Failed to link shader program: ");
-        } else {
-            gl.glValidateProgram(programId);
-            if (!checkStatus(gl, programId, GL3.GL_VALIDATE_STATUS)) {
-                showProgramError(gl, "Failed to validate shader program: ");
-            }
+            throw new IllegalStateException("Failed to link shader program.");
+        }
+        gl.glValidateProgram(programId);
+        if (!checkStatus(gl, programId, GL3.GL_VALIDATE_STATUS)) {
+            throw new IllegalStateException("Failed to validate shader program.");
         }
     }
 

@@ -10,7 +10,6 @@ import ModernDocking.ext.ui.DockingUI;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.marginallyclever.communications.application.TextInterfaceToSessionLayer;
-import com.marginallyclever.communications.application.TextInterfaceWithHistory;
 import com.marginallyclever.ro3.RO3;
 import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.about.AboutPanel;
@@ -59,6 +58,8 @@ public class RO3Frame extends JFrame {
         super("Robot Overlord 3");
         loadVersion();
         setLookAndFeel();
+        initDocking();
+
         logPanel = new LogPanel();
         editPanel = new EditorPanel();
         renderPanel = new Viewport();
@@ -66,7 +67,6 @@ public class RO3Frame extends JFrame {
         webCamPanel = new WebCamPanel();
         textInterface = new TextInterfaceToSessionLayer();
 
-        initDocking();
         createLayout();
         UndoSystem.start();
         createMenus();

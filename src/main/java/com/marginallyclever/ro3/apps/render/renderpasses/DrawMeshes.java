@@ -31,14 +31,22 @@ import java.util.List;
 public class DrawMeshes extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawMeshes.class);
     private ShaderProgram meshShader, shadowShader;
-    private int [] shadowFBO = new int[1];  // Frame Buffer Object
-    private int [] depthMap = new int[1];  // texture for the FBO
+    private final Mesh shadowQuad = new Mesh();
+    private final int [] shadowFBO = new int[1];  // Frame Buffer Object
+    private final int [] depthMap = new int[1];  // texture for the FBO
     private final int shadowMapUnit = 1;
     public static final int SHADOW_WIDTH = 1024;
     public static final int SHADOW_HEIGHT = 1024;
 
     public DrawMeshes() {
         super("Meshes");
+
+        shadowQuad.setRenderStyle(GL3.GL_QUADS);
+        float v = 100;
+        shadowQuad.addVertex(-v,-v,0);  shadowQuad.addTexCoord(0,0);
+        shadowQuad.addVertex( v,-v,0);  shadowQuad.addTexCoord(1,0);
+        shadowQuad.addVertex( v, v,0);  shadowQuad.addTexCoord(1,1);
+        shadowQuad.addVertex(-v, v,0);  shadowQuad.addTexCoord(0,1);
     }
 
     @Override
@@ -100,7 +108,11 @@ public class DrawMeshes extends AbstractRenderPass {
         gl3.glCullFace(GL3.GL_FRONT);
         // setup shader and render to depth map
         shadowShader.use(gl3);
-        shadowShader.setMatrix4d(gl3,"lightSpaceMatrix",getLightSpaceMatrix());
+        shadowShader.setMatrix4d(gl3,"projectionMatrix", getLightProjection());
+        var m = getLightView();
+        m.invert();
+        m.transpose();
+        shadowShader.setMatrix4d(gl3,"viewMatrix",m);
 
         for(MeshInstance meshInstance : meshes) {
             Mesh mesh = meshInstance.getMesh();
@@ -116,6 +128,7 @@ public class DrawMeshes extends AbstractRenderPass {
         // bind the shadow map to texture unit 1
         gl3.glActiveTexture(GL3.GL_TEXTURE0 + shadowMapUnit);
         gl3.glBindTexture(GL3.GL_TEXTURE_2D,depthMap[0]);
+        gl3.glActiveTexture(GL3.GL_TEXTURE0);
     }
 
     @Override
@@ -124,6 +137,7 @@ public class DrawMeshes extends AbstractRenderPass {
         unloadAllMeshes(gl3);
         meshShader.delete(gl3);
         shadowShader.delete(gl3);
+        shadowQuad.unload(gl3);
 
         gl3.glDeleteFramebuffers(1, shadowFBO,0);
         gl3.glDeleteTextures(1, depthMap,0);
@@ -153,6 +167,41 @@ public class DrawMeshes extends AbstractRenderPass {
         List<MeshInstance> meshes = collectAllMeshes();
         generateDepthMap(gl3,meshes);
         drawAllMeshes(gl3,meshes,camera);
+        drawShadowQuad(gl3,camera);
+    }
+
+    private void drawShadowQuad(GL3 gl3, Camera camera) {
+        meshShader.use(gl3);
+        meshShader.set1i(gl3,"shadowMap",shadowMapUnit);
+        meshShader.setMatrix4d(gl3, "lightSpaceMatrix", getLightSpaceMatrix());
+
+        meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix());
+        meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
+        Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
+        meshShader.setVector3d(gl3, "cameraPos", cameraWorldPos);  // Camera position in world space
+        meshShader.setVector3d(gl3, "lightPos", cameraWorldPos);  // Light position in world space
+
+        meshShader.setColor(gl3, "lightColor", Color.WHITE);
+        meshShader.setColor(gl3, "objectColor", Color.WHITE);
+        meshShader.setColor(gl3, "specularColor", Color.WHITE);
+        meshShader.setColor(gl3,"ambientColor",Color.BLACK);
+
+        meshShader.set1i(gl3, "useVertexColor", 0);
+        meshShader.set1i(gl3, "useLighting", 0);
+        meshShader.set1i(gl3, "useTexture",1);
+
+        gl3.glActiveTexture(GL3.GL_TEXTURE0 + shadowMapUnit);
+        gl3.glBindTexture(GL3.GL_TEXTURE_2D,0);
+        gl3.glActiveTexture(GL3.GL_TEXTURE0);
+        gl3.glBindTexture(GL3.GL_TEXTURE_2D,depthMap[0]);
+
+
+        Matrix4d w = MatrixHelper.createIdentityMatrix4();
+        //w.rotY(Math.PI/2);
+        w.setTranslation(new Vector3d(0,0,-20));
+        w.transpose();
+        meshShader.setMatrix4d(gl3,"modelMatrix",w);
+        shadowQuad.render(gl3);
     }
 
     // find all MeshInstance nodes in Registry
@@ -177,6 +226,7 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.use(gl3);
         meshShader.set1i(gl3,"shadowMap",shadowMapUnit);
         meshShader.setMatrix4d(gl3, "lightSpaceMatrix", getLightSpaceMatrix());
+
         meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix());
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
@@ -186,12 +236,11 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setColor(gl3, "lightColor", Color.WHITE);
         meshShader.setColor(gl3, "objectColor", Color.WHITE);
         meshShader.setColor(gl3, "specularColor", Color.WHITE);
-        meshShader.setColor(gl3, "ambientColor", Color.BLACK);
+        meshShader.setColor(gl3,"ambientColor",Color.LIGHT_GRAY);
 
         meshShader.set1i(gl3, "useVertexColor", 0);
         meshShader.set1i(gl3, "useLighting", 1);
         meshShader.set1i(gl3, "diffuseTexture", 0);
-        meshShader.setColor(gl3,"ambientColor",Color.LIGHT_GRAY);
         OpenGLHelper.checkGLError(gl3, logger);
 
         for(MeshInstance meshInstance : meshes) {
@@ -232,14 +281,31 @@ public class DrawMeshes extends AbstractRenderPass {
         }
     }
 
+    // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
     private Matrix4d getLightSpaceMatrix() {
-        Matrix4d lightProjection = MatrixHelper.orthographicMatrix4d(-10,10,-10,10,1.0,100.0);
-        Matrix4d lightView = MatrixHelper.lookAt(new Vector3d(-2.0f, 4.0f, -1.0f),
-                new Vector3d(0.0f, 0.0f,  0.0f),
-                new Vector3d(0.0f, 1.0f,  0.0f));
+        //  We take the same lightSpaceMatrix (used to transform vertices to light space in the depth map stage) and
+        //  transform the world-space vertex position to light space for use in the fragment shader.
+        // orthographic projection from the light's point of view
+        Matrix4d lightProjection = getLightProjection();
+        // look at the scene from the light's point of view
+        Matrix4d lightView = getLightView();
+        lightView.invert();
+        // combine the two
         Matrix4d lightSpaceMatrix = new Matrix4d();
-
         lightSpaceMatrix.mul(lightProjection,lightView);
+        lightSpaceMatrix.transpose();
         return lightSpaceMatrix;
+    }
+
+    private Matrix4d getLightProjection() {
+        return MatrixHelper.orthographicMatrix4d(-10,10,-10,10,1.0,100.0);
+    }
+
+    private Matrix4d getLightView() {
+        // look at the scene from the light's point of view
+        Matrix4d m = MatrixHelper.lookAt(new Vector3d(0.0f, 0.0f, 1.0f),  // from
+                new Vector3d(0.0f, 0.0f,  0.0f),  // to
+                new Vector3d(1.0f, 0.0f,  0.0f));  // up
+        return m;
     }
 }
