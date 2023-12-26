@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.node;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.CollapsiblePanel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -284,19 +283,17 @@ public class Node {
      * Build a Swing Component that represents this Node.
      * @param list the list to add components to.
      */
-    public void getComponents(List<JComponent> list) {
-        CollapsiblePanel panel = new CollapsiblePanel(Node.class.getSimpleName());
-        list.add(panel);
-        JPanel pane = panel.getContentPane();
-
-        // custom stuff
-        pane.setLayout(new GridLayout(0,2));
+    public void getComponents(List<JPanel> list) {
+        JPanel pane = new JPanel(new GridLayout(0,2));
+        list.add(pane);
+        pane.setName(Node.class.getSimpleName());
 
         JTextField nameField = new JTextField(getName());
         nameField.addActionListener(e -> {
             // should not be allowed to match siblings?
             setName(nameField.getText());
         });
+        nameField.setEditable(false);
 
         addLabelAndComponent(pane,"Name",nameField);
     }

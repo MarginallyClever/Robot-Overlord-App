@@ -3,11 +3,11 @@ package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Motor;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.CollapsiblePanel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -88,12 +88,10 @@ public class MarlinRobotArm extends Node {
     }
 
     @Override
-    public void getComponents(List<JComponent> list) {
-        CollapsiblePanel panel = new CollapsiblePanel(MarlinRobotArm.class.getSimpleName());
-        list.add(panel);
-        JPanel pane = panel.getContentPane();
-
-        pane.setLayout(new GridBagLayout());
+    public void getComponents(List<JPanel> list) {
+        JPanel pane = new JPanel(new GridBagLayout());
+        list.add(pane);
+        pane.setName(Camera.class.getSimpleName());
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.weightx = 1.0;

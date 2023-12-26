@@ -2,7 +2,6 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.CollapsiblePanel;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -33,12 +32,10 @@ public class HingeJoint extends Node {
     }
 
     @Override
-    public void getComponents(List<JComponent> list) {
-        CollapsiblePanel panel = new CollapsiblePanel(HingeJoint.class.getSimpleName());
-        list.add(panel);
-        JPanel pane = panel.getContentPane();
-
-        pane.setLayout(new GridLayout(0, 2));
+    public void getComponents(List<JPanel> list) {
+        JPanel pane = new JPanel(new GridLayout(0,2));
+        list.add(pane);
+        pane.setName(HingeJoint.class.getSimpleName());
 
         NumberFormat format = NumberFormat.getNumberInstance();
         NumberFormatter formatter = new NumberFormatter(format);

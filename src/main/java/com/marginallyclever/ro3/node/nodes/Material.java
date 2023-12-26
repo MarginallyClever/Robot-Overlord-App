@@ -4,7 +4,6 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.dialogs.TextureFactoryDialog;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
-import com.marginallyclever.ro3.CollapsiblePanel;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -20,6 +19,9 @@ public class Material extends Node {
     private Color diffuseColor = new Color(255,255,255);
     private Color specularColor = new Color(255,255,255);
     private Color ambientColor = new Color(0,0,0);
+    private Color emissionColor = new Color(0,0,0);
+    private int shininess = 10;
+    private boolean isLit = true;
 
     public Material() {
         this("Material");
@@ -30,12 +32,10 @@ public class Material extends Node {
     }
 
     @Override
-    public void getComponents(List<JComponent> list) {
-        CollapsiblePanel panel = new CollapsiblePanel(Material.class.getSimpleName());
-        list.add(panel);
-        JPanel pane = panel.getContentPane();
-
-        pane.setLayout(new GridLayout(0, 2));
+    public void getComponents(List<JPanel> list) {
+        JPanel pane = new JPanel(new GridLayout(0,2));
+        list.add(pane);
+        pane.setName(Material.class.getSimpleName());
 
         JButton button = new JButton();
         setTextureButtonLabel(button);
@@ -59,7 +59,7 @@ public class Material extends Node {
         JButton selectColorDiffuse = new JButton();
         selectColorDiffuse.setBackground(diffuseColor);
         selectColorDiffuse.addActionListener(e -> {
-            setDiffuseColor(JColorChooser.showDialog(panel,"Diffuse Color",getDiffuseColor()));
+            setDiffuseColor(JColorChooser.showDialog(pane,"Diffuse Color",getDiffuseColor()));
             selectColorDiffuse.setBackground(diffuseColor);
         });
         addLabelAndComponent(pane,"Diffuse",selectColorDiffuse);
@@ -68,7 +68,7 @@ public class Material extends Node {
         JButton selectColorSpecular = new JButton();
         selectColorSpecular.setBackground(specularColor);
         selectColorSpecular.addActionListener(e -> {
-            setSpecularColor(JColorChooser.showDialog(panel,"Specular Color",getSpecularColor()));
+            setSpecularColor(JColorChooser.showDialog(pane,"Specular Color",getSpecularColor()));
             selectColorSpecular.setBackground(specularColor);
         });
         addLabelAndComponent(pane,"Specular",selectColorSpecular);
@@ -77,7 +77,7 @@ public class Material extends Node {
         JButton selectColorAmbient = new JButton();
         selectColorAmbient.setBackground(ambientColor);
         selectColorAmbient.addActionListener(e -> {
-            setAmbientLightColor(JColorChooser.showDialog(panel,"Ambient Color",getAmbientLightColor()));
+            setAmbientColor(JColorChooser.showDialog(pane,"Ambient Color", getAmbientColor()));
             selectColorAmbient.setBackground(ambientColor);
         });
         addLabelAndComponent(pane,"Ambient",selectColorAmbient);
@@ -112,6 +112,9 @@ public class Material extends Node {
         json.put("diffuseColor", diffuseColor.getRGB());
         json.put("specularColor", specularColor.getRGB());
         json.put("ambientColor", ambientColor.getRGB());
+        json.put("emissionColor", emissionColor.getRGB());
+        json.put("shininess", shininess);
+        json.put("isLit", isLit);
         return json;
     }
 
@@ -122,6 +125,9 @@ public class Material extends Node {
         if(from.has("diffuseColor")) diffuseColor = new Color(from.getInt("diffuseColor"),true);
         if(from.has("specularColor")) specularColor = new Color(from.getInt("specularColor"),true);
         if(from.has("ambientColor")) ambientColor = new Color(from.getInt("ambientColor"),true);
+        if(from.has("emissionColor")) emissionColor = new Color(from.getInt("emissionColor"),true);
+        if(from.has("shininess")) shininess = from.getInt("shininess");
+        if(from.has("isLit")) isLit = from.getBoolean("isLit");
     }
 
     public Color getDiffuseColor() {
@@ -140,11 +146,35 @@ public class Material extends Node {
         specularColor = color;
     }
 
-    public Color getAmbientLightColor() {
+    public Color getAmbientColor() {
         return ambientColor;
     }
 
-    public void setAmbientLightColor(Color color) {
+    public void setAmbientColor(Color color) {
         ambientColor = color;
+    }
+
+    public Color getEmissionColor() {
+        return emissionColor;
+    }
+
+    public void setEmissionColor(Color color) {
+        emissionColor = color;
+    }
+
+    public void setShininess(int arg0) {
+        shininess = Math.min(Math.max(arg0, 0), 128);
+    }
+
+    public int getShininess() {
+        return shininess;
+    }
+
+    public boolean isLit() {
+        return isLit;
+    }
+
+    public void setLit(boolean isLit) {
+        this.isLit = isLit;
     }
 }

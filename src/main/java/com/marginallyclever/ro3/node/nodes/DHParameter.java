@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.CollapsiblePanel;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,8 @@ import java.util.List;
 
 /**
  * <p>{@link DHParameter} is a node that translates a sibling {@link Pose} to and from
- * <a href="https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters">Denavit-Hartenberg parameters</a> for a joint.</p>
+ * <a href="https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters">Denavit-Hartenberg parameters</a> for a
+ * joint.  It describes the relative pose of the next joint.</p>
  * <p>The DH parameters can be derived by finding the common normals between two consecutive Z axes.  The new X axis
  * points along the common normal.  The intersection point of the two normals may be outside the physical structure
  * being described.</p>
@@ -101,10 +101,10 @@ public class DHParameter extends Node {
     }
 
     @Override
-    public void getComponents(List<JComponent> list) {
-        CollapsiblePanel panel = new CollapsiblePanel(DHParameter.class.getSimpleName());
-        list.add(panel);
-        JPanel pane = panel.getContentPane();
+    public void getComponents(List<JPanel> list) {
+        JPanel pane = new JPanel(new GridLayout(0,2));
+        list.add(pane);
+        pane.setName(DHParameter.class.getSimpleName());
 
         JButton fromPose = new JButton("From Pose");
         fromPose.addActionListener(e -> {

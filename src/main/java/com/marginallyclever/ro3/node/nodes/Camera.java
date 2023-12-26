@@ -3,7 +3,6 @@ package com.marginallyclever.ro3.node.nodes;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.render.Viewport;
-import com.marginallyclever.ro3.CollapsiblePanel;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
@@ -51,11 +50,10 @@ public class Camera extends Pose {
      * Build a Swing Component that represents this Node.
      * @param list the list to add components to.
      */
-    public void getComponents(List<JComponent> list) {
-        CollapsiblePanel panel = new CollapsiblePanel(Camera.class.getSimpleName());
-        list.add(panel);
-        JPanel pane = panel.getContentPane();
-        pane.setLayout(new GridLayout(0, 2));
+    public void getComponents(List<JPanel> list) {
+        JPanel pane = new JPanel(new GridLayout(0,2));
+        list.add(pane);
+        pane.setName(Camera.class.getSimpleName());
 
         SpinnerNumberModel farZModel = new SpinnerNumberModel(farZ, 0, 10000, 1);
         JSpinner farZSpinner = new JSpinner(farZModel);

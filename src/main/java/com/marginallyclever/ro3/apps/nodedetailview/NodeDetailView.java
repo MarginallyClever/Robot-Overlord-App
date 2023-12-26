@@ -25,6 +25,7 @@ public class NodeDetailView extends JPanel implements SelectionChangeListener {
 
     public static JPanel createPanelFor(List<Node> nodeList) {
         JPanel parent = new JPanel(new BorderLayout());
+        // handle no selection.
         if(nodeList.isEmpty()) {
             JLabel label = new JLabel("No nodes selected.");
             label.setHorizontalAlignment(SwingConstants.CENTER);
@@ -32,8 +33,8 @@ public class NodeDetailView extends JPanel implements SelectionChangeListener {
             return parent;
         }
 
-        Box vertical = Box.createVerticalBox();
-        List<JComponent> list = new ArrayList<>();
+        // collect the components from every node
+        List<JPanel> list = new ArrayList<>();
         for (Node node : nodeList) {
             try {
                 node.getComponents(list);
@@ -41,9 +42,14 @@ public class NodeDetailView extends JPanel implements SelectionChangeListener {
                 logger.error("Error getting components for node {}", node, e);
             }
         }
-        for (JComponent c : list) {
-            vertical.add(c);
+        // collate the components
+        Box vertical = Box.createVerticalBox();
+        for (JPanel c : list) {
+            CollapsiblePanel panel = new CollapsiblePanel(c.getName());
+            panel.setContentPane(c);
+            vertical.add(panel);
         }
+        // attach them to the parent
         parent.add(vertical, BorderLayout.NORTH);
         return parent;
     }

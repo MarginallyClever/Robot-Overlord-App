@@ -3,12 +3,10 @@ package com.marginallyclever.ro3.node.nodes;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.apps.dialogs.MeshFactoryDialog;
-import com.marginallyclever.ro3.CollapsiblePanel;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.MeshSmoother;
 import com.marginallyclever.ro3.mesh.load.MeshFactory;
 import com.marginallyclever.ro3.raypicking.RayHit;
-import com.marginallyclever.robotoverlord.components.PoseComponent;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -38,12 +36,10 @@ public class MeshInstance extends Pose {
      * Build a Swing Component that represents this Node.
      * @param list the list to add components to.
      */
-    public void getComponents(List<JComponent> list) {
-        CollapsiblePanel panel = new CollapsiblePanel(MeshInstance.class.getSimpleName());
-        list.add(panel);
-        JPanel pane = panel.getContentPane();
-
-        pane.setLayout(new GridLayout(0,2));
+    public void getComponents(List<JPanel> list) {
+        JPanel pane = new JPanel(new GridLayout(0,2));
+        list.add(pane);
+        pane.setName(MeshInstance.class.getSimpleName());
 
         JButton select = new JButton();
         setMeshButtonLabel(select);
@@ -127,9 +123,9 @@ public class MeshInstance extends Pose {
 
         Ray localRay = transformRayToLocalSpace(ray);
         RayHit localHit = mesh.intersect(localRay);
-        if(localHit!=null && localHit.distance<Double.MAX_VALUE) {
-            Vector3d normal = transformNormalToWorldSpace(localHit.normal);
-            return new RayHit(this,localHit.distance,normal);
+        if(localHit!=null && localHit.distance()<Double.MAX_VALUE) {
+            Vector3d normal = transformNormalToWorldSpace(localHit.normal());
+            return new RayHit(this,localHit.distance(),normal);
         } else {
             return null;
         }
@@ -141,8 +137,6 @@ public class MeshInstance extends Pose {
      * @return the ray in local space
      */
     private Ray transformRayToLocalSpace(Ray ray) {
-        //Pose pose = findParent(Pose.class);
-        //Matrix4d m = pose==null ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();
         Matrix4d m = getWorld();
         Point3d o = new Point3d(ray.getOrigin());
         Vector3d d = new Vector3d(ray.getDirection());
