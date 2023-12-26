@@ -18,7 +18,6 @@ public class Material extends Node {
     private TextureWithMetadata texture;
     private Color diffuseColor = new Color(255,255,255);
     private Color specularColor = new Color(255,255,255);
-    private Color ambientColor = new Color(0,0,0);
     private Color emissionColor = new Color(0,0,0);
     private int shininess = 10;
     private boolean isLit = true;
@@ -73,14 +72,24 @@ public class Material extends Node {
         });
         addLabelAndComponent(pane,"Specular",selectColorSpecular);
 
-        // ambient
-        JButton selectColorAmbient = new JButton();
-        selectColorAmbient.setBackground(ambientColor);
-        selectColorAmbient.addActionListener(e -> {
-            setAmbientColor(JColorChooser.showDialog(pane,"Ambient Color", getAmbientColor()));
-            selectColorAmbient.setBackground(ambientColor);
+        // emissive
+        JButton selectColorEmission = new JButton();
+        selectColorEmission.setBackground(emissionColor);
+        selectColorEmission.addActionListener(e -> {
+            setEmissionColor(JColorChooser.showDialog(pane,"Emissive Color", getEmissionColor()));
+            selectColorEmission.setBackground(emissionColor);
         });
-        addLabelAndComponent(pane,"Ambient",selectColorAmbient);
+        addLabelAndComponent(pane,"Emissive",selectColorEmission);
+
+        // shininess
+        JSlider shininessSlider = new JSlider(0,128,getShininess());
+        shininessSlider.addChangeListener(e -> setShininess(shininessSlider.getValue()));
+        addLabelAndComponent(pane,"Shininess",shininessSlider);
+
+        // lit
+        JToggleButton isLitButton = new JToggleButton("Lit",isLit());
+        isLitButton.addActionListener(e -> setLit(isLitButton.isSelected()));
+        addLabelAndComponent(pane,"Lit",isLitButton);
 
         super.getComponents(list);
 
@@ -111,7 +120,6 @@ public class Material extends Node {
         if(texture!=null) json.put("texture",texture.getSource());
         json.put("diffuseColor", diffuseColor.getRGB());
         json.put("specularColor", specularColor.getRGB());
-        json.put("ambientColor", ambientColor.getRGB());
         json.put("emissionColor", emissionColor.getRGB());
         json.put("shininess", shininess);
         json.put("isLit", isLit);
@@ -124,7 +132,6 @@ public class Material extends Node {
         if(from.has("texture")) texture = Registry.textureFactory.load(from.getString("texture"));
         if(from.has("diffuseColor")) diffuseColor = new Color(from.getInt("diffuseColor"),true);
         if(from.has("specularColor")) specularColor = new Color(from.getInt("specularColor"),true);
-        if(from.has("ambientColor")) ambientColor = new Color(from.getInt("ambientColor"),true);
         if(from.has("emissionColor")) emissionColor = new Color(from.getInt("emissionColor"),true);
         if(from.has("shininess")) shininess = from.getInt("shininess");
         if(from.has("isLit")) isLit = from.getBoolean("isLit");
@@ -144,14 +151,6 @@ public class Material extends Node {
 
     public void setSpecularColor(Color color) {
         specularColor = color;
-    }
-
-    public Color getAmbientColor() {
-        return ambientColor;
-    }
-
-    public void setAmbientColor(Color color) {
-        ambientColor = color;
     }
 
     public Color getEmissionColor() {
