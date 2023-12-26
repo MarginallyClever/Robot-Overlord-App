@@ -9,6 +9,8 @@ import ModernDocking.exception.DockingLayoutException;
 import ModernDocking.ext.ui.DockingUI;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.marginallyclever.communications.application.TextInterfaceToSessionLayer;
+import com.marginallyclever.communications.application.TextInterfaceWithHistory;
 import com.marginallyclever.ro3.RO3;
 import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.about.AboutPanel;
@@ -48,6 +50,7 @@ public class RO3Frame extends JFrame {
     private final LogPanel logPanel;
     private final EditorPanel editPanel;
     private final WebCamPanel webCamPanel;
+    private final TextInterfaceToSessionLayer textInterface;
 
     public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
     public static String VERSION;
@@ -61,6 +64,7 @@ public class RO3Frame extends JFrame {
         renderPanel = new Viewport();
         fileChooser = new JFileChooser();
         webCamPanel = new WebCamPanel();
+        textInterface = new TextInterfaceToSessionLayer();
 
         initDocking();
         createLayout();
@@ -290,6 +294,10 @@ public class RO3Frame extends JFrame {
         DockingPanel webcamView = new DockingPanel("1331fbb0-ceda-4c67-b343-6539d4f939a1","USB Camera");
         webcamView.add(webCamPanel, BorderLayout.CENTER);
         windows.add(webcamView);
+
+        DockingPanel textInterfaceView = new DockingPanel("7796a733-8e33-417a-b363-b28174901e40","Text Interface");
+        textInterfaceView.add(textInterface, BorderLayout.CENTER);
+        windows.add(textInterfaceView);
 
         // now that the main frame is set up with the defaults, we can restore the layout
         AppState.setPersistFile(new File("ro3.layout"));

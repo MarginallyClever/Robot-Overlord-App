@@ -31,6 +31,7 @@ import java.util.Objects;
  *     the kinematic chain.</li>
  *     <li>a {@link Pose} target that the end effector will try to match.  It will only do so when the linear velocity
  *     is greater than zero.</li>
+ *     <li>an optional {@link Motor} for the tool on arm.</li>
  * </ul>
  */
 public class MarlinRobotArm extends Node {

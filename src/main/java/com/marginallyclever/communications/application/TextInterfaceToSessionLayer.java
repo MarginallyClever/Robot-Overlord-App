@@ -17,11 +17,6 @@ import java.util.ArrayList;
  * @author Dan Royer
  */
 public class TextInterfaceToSessionLayer extends JPanel implements SessionLayerListener {
-	/**
-	 * 
-	 */
-	@Serial
-	private static final long serialVersionUID = 1032123255711692874L;
 	private final ChooseConnectionPanel myConnectionChoice = new ChooseConnectionPanel();
 	private final TextInterfaceWithHistory myInterface = new TextInterfaceWithHistory();
 	private SessionLayer mySession;
