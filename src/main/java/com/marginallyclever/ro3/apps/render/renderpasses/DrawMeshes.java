@@ -112,11 +112,15 @@ public class DrawMeshes extends AbstractRenderPass {
                     }
                     shader.setColor(gl3,"objectColor",material.getDiffuseColor());
                     shader.setColor(gl3,"specularColor",material.getSpecularColor());
-                    shader.setColor(gl3,"ambientLightColor",material.getAmbientLightColor());
+                    shader.setColor(gl3,"ambientLightColor",material.getAmbientColor());
+                    shader.set1i(gl3,"useLighting",material.isLit() ? 1 : 0);
+                    shader.set1i(gl3,"shininess",material.getShininess());
                 } else {
                     shader.setColor(gl3,"objectColor",Color.WHITE);
                     shader.setColor(gl3,"specularColor",Color.WHITE);
                     shader.setColor(gl3,"ambientLightColor",Color.BLACK);
+                    shader.set1i(gl3,"useLighting",1);
+                    shader.set1i(gl3,"shininess",32);
                 }
                 if(texture == null) {
                     gl3.glDisable(GL3.GL_TEXTURE_2D);
