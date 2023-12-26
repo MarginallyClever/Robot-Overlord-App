@@ -247,7 +247,6 @@ public class IntersectionHelper {
 		throw new RuntimeException("Not implemented yet.");
 	}
 
-
 	/**
 	 * ray/sphere intersection. see <a href="https://viclw17.github.io/2018/07/16/raytracing-ray-sphere-intersection/">reference</a>.
 	 * @param ray
@@ -275,7 +274,7 @@ public class IntersectionHelper {
 	 * @param ray start and direction
 	 * @param boxMin lower bounds
 	 * @param boxMax upper bounds
-	 * @return &gt;=0 for hit, negative numbers for hits behind camera and no hit.
+	 * @return &gt;=0 for hit, negative numbers for hits behind the ray origin or no hit.
 	 */
 	static public double rayBox(final Ray ray,final Point3d boxMin,final Point3d boxMax) {
 		Vector3d rayDirection = ray.getDirection();

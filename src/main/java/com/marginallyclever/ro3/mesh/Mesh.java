@@ -49,11 +49,11 @@ public class Mesh {
 	private String fileName = null;
 
 	// bounding limits
-	protected final AABB AABB = new AABB();
+	protected final AABB boundingBox = new AABB();
 
 	public Mesh() {
 		super();
-		AABB.setShape(this);
+		boundingBox.setShape(this);
 	}
 
 	public Mesh(int renderStyle) {
@@ -297,14 +297,14 @@ public class Mesh {
 			boundBottom.y = Math.min(y, boundBottom.y);
 			boundBottom.z = Math.min(z, boundBottom.z);
 		}
-		AABB.setBounds(boundTop, boundBottom);
+		boundingBox.setBounds(boundTop, boundBottom);
 	}
 
 	/**
 	 * @return axially-aligned bounding box in the mesh's local space.
 	 */
 	public AABB getBoundingBox() {
-		return AABB;
+		return boundingBox;
 	}
 	
 	public int getNumTriangles() {
@@ -369,10 +369,13 @@ public class Mesh {
 	 * @return The RayHit object containing the intersection point and normal, or null if no intersection.
 	 */
 	public RayHit intersect(Ray ray) {
-
 		if( renderStyle != GL3.GL_TRIANGLES &&
 			renderStyle != GL3.GL_TRIANGLE_FAN &&
 			renderStyle != GL3.GL_TRIANGLE_STRIP) return null;
+
+		if(!boundingBox.intersect(ray)) {
+			return null;  // no hit
+		}
 
 		VertexProvider vp;
 		if (hasIndexes) {

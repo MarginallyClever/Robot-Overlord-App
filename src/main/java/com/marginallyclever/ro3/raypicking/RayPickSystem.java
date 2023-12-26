@@ -31,7 +31,7 @@ public class RayPickSystem {
         //
         List<RayHit> rayHits = findRayIntersections(ray);
         if(rayHits.isEmpty()) return null;
-        rayHits.sort(Comparator.comparingDouble(o -> o.distance));
+        rayHits.sort(Comparator.comparingDouble(RayHit::distance));
         return rayHits.get(0);
     }
 

@@ -246,7 +246,13 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     public void mouseClicked(MouseEvent e) {
         super.mouseClicked(e);
         // Ray pick to select node
-        findNodeUnderCursor();
+
+        Node hit = findNodeUnderCursor();
+        if(hit==null) {
+            logger.debug("hit nothing.");
+        } else {
+            logger.debug("hit {}", hit.getAbsolutePath());
+        }
     }
 
     @Override
@@ -397,11 +403,11 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     }
 
     /**
-     * @param amnt a value greater than one.
+     * @param amount a value greater than one.
      */
-    public void setOrbitChangeFactor(double amnt) {
-        if( amnt <= 1 ) throw new InvalidParameterException("orbit change factor must be greater than 1.");
-        orbitChangeFactor = amnt;
+    public void setOrbitChangeFactor(double amount) {
+        if( amount <= 1 ) throw new InvalidParameterException("orbit change factor must be greater than 1.");
+        orbitChangeFactor = amount;
     }
 
     /**
@@ -414,14 +420,11 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         Ray ray = getRayThroughCursor();
         RayPickSystem rayPickSystem = new RayPickSystem();
         RayHit rayHit = rayPickSystem.getFirstHit(ray);
-        if(rayHit == null || rayHit.target==null) {
-            logger.debug("hit nothing.");
+        if(rayHit == null || rayHit.target()==null) {
             return null;
         }
 
-        logger.debug("hit {}",rayHit.target.getAbsolutePath());
-
-        return rayHit.target;
+        return rayHit.target();
     }
 
     /**
