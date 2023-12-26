@@ -1,40 +1,43 @@
 /**
- * * Copyright (c) 2004 Memorial Sloan-Kettering Cancer Center
- * *
- * * Code written by: Gary Bader
- * * Authors: Gary Bader, Ethan Cerami, Chris Sander
- * *
- * * This library is free software; you can redistribute it and/or modify it
- * * under the terms of the GNU Lesser General Public License as published
- * * by the Free Software Foundation; either version 2.1 of the License, or
- * * any later version.
- * *
- * * This library is distributed in the hope that it will be useful, but
- * * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
- * * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
- * * documentation provided hereunder is on an "as is" basis, and
- * * Memorial Sloan-Kettering Cancer Center
- * * has no obligations to provide maintenance, support,
- * * updates, enhancements or modifications.  In no event shall the
- * * Memorial Sloan-Kettering Cancer Center
- * * be liable to any party for direct, indirect, special,
- * * incidental or consequential damages, including lost profits, arising
- * * out of the use of this software and its documentation, even if
- * * Memorial Sloan-Kettering Cancer Center
- * * has been advised of the possibility of such damage.  See
- * * the GNU Lesser General Public License for more details.
- * *
- * * You should have received a copy of the GNU Lesser General Public License
- * * along with this library; if not, write to the Free Software Foundation,
- * * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ * <p>Copyright (c) 2004 Memorial Sloan-Kettering Cancer Center</p>
  *
- * User: Vuk Pavlovic
- * Date: Nov 29, 2006
- * Time: 5:34:46 PM
- * Description: The user-triggered collapsable panel containing the component (trigger) in the titled border
- * URL: http://chianti.ucsd.edu/svn/csplugins/trunk/soc/jgao/NetworkMerge/src/csplugins/network/merge/ui/CollapsiblePanel.java
+ * <p>Code written by: Gary Bader</p>
+ * <p>Authors: Gary Bader, Ethan Cerami, Chris Sander</p>
+ *
+ * <p>This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * any later version.</p>
+ *
+ * <p>This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall the
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center
+ * has been advised of the possibility of such damage.  See
+ * the GNU Lesser General Public License for more details.</p>
+ *
+ * <p>You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.</p>
+ *
+ * <p>User: Vuk Pavlovic<br/>
+ * Date: Nov 29, 2006<br/>
+ * Time: 5:34:46 PM<br/>
+ * Description: The user-triggered collapsable panel containing the component (trigger) in the titled border<br/>
+ * URL: http://chianti.ucsd.edu/svn/csplugins/trunk/soc/jgao/NetworkMerge/src/csplugins/network/merge/ui/CollapsiblePanel.java</p>
+ * <p>User: Dan Royer<br/>
+ * Date: 2023-12-26
+ * Description: fixed some typos ("collaped")</p>
  */
-package com.marginallyclever.ro3;
+package com.marginallyclever.ro3.apps.nodedetailview;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -76,7 +79,7 @@ public class CollapsiblePanel extends JPanel {
     private final JButton arrow = createArrowButton();
 
     //Content Pane
-    private final JPanel panel = new JPanel();
+    private JPanel panel = new JPanel();
 
     //Container State
     boolean collapsed; // stores current state of the collapsible panel
@@ -127,12 +130,12 @@ public class CollapsiblePanel extends JPanel {
         placeTitleComponent();
     }
 
-    public void addCollapeListener(CollapseListener collapeListener) {
-            this.collapseListeners.add(collapeListener);
+    public void addCollapseListener(CollapseListener collapseListener) {
+            this.collapseListeners.add(collapseListener);
     }
 
-    public boolean removeCollapeListener(CollapseListener collapeListener) {
-        return this.collapseListeners.remove(collapeListener);
+    public boolean removeCollapseListener(CollapseListener collapseListener) {
+        return this.collapseListeners.remove(collapseListener);
     }
 
     /**
@@ -159,6 +162,18 @@ public class CollapsiblePanel extends JPanel {
      */
     public JPanel getContentPane() {
         return panel;
+    }
+
+    public void setContentPane(JPanel panel) {
+        if( panel == null ) {
+            throw new NullPointerException("panel cannot be null");
+        }
+        this.panel = panel;
+        if (collapsed) {
+            remove(panel);
+        } else {
+            add(panel, BorderLayout.CENTER);
+        }
     }
 
     /**
@@ -250,10 +265,6 @@ public class CollapsiblePanel extends JPanel {
      * Handles expanding and collapsing of extra content on the user's click of the titledBorder component.
      */
     private class ExpandAndCollapseAction extends AbstractAction implements ActionListener, ItemListener {
-        /**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
 		@Override
 		public void actionPerformed(ActionEvent e) {
             setCollapsed(!isCollapsed());

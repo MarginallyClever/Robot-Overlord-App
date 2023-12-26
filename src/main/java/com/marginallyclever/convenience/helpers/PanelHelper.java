@@ -1,6 +1,6 @@
 package com.marginallyclever.convenience.helpers;
 
-import com.marginallyclever.ro3.CollapsiblePanel;
+import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 
 import javax.swing.*;
 import java.awt.*;

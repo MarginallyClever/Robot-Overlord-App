@@ -1,11 +1,11 @@
 package com.marginallyclever.robotoverlord.swing.componentmanagerpanel;
 
+import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.parameters.swing.ComponentSwingViewFactory;
-import com.marginallyclever.ro3.CollapsiblePanel;
 import com.marginallyclever.robotoverlord.swing.actions.ComponentAddAction;
 import com.marginallyclever.robotoverlord.swing.actions.ComponentCopyAction;
 import com.marginallyclever.robotoverlord.swing.actions.ComponentDeleteAction;
@@ -116,7 +116,7 @@ public class ComponentManagerPanel extends JPanel {
 		// create the outer CollapsiblePanel
 		CollapsiblePanel outerPanel = new CollapsiblePanel(component.getName());
 		outerPanel.setCollapsed(!component.getExpanded());
-		outerPanel.addCollapeListener(new CollapsiblePanel.CollapseListener() {
+		outerPanel.addCollapseListener(new CollapsiblePanel.CollapseListener() {
 			@Override
 			public void collapsed() {
 				component.setExpanded(!outerPanel.isCollapsed());

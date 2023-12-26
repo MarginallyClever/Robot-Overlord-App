@@ -9,10 +9,13 @@ out vec4 finalColor;
 
 uniform vec4 specularColor = vec4(0.5, 0.5, 0.5,1);
 uniform vec4 ambientLightColor = vec4(0.2, 0.2, 0.2,1);
+uniform vec4 objectColor = vec4(1,1,1,1);
+uniform vec4 lightColor = vec4(1,1,1,1);
+uniform int shininess = 32;
+
 uniform vec3 lightPos; // Light position in world space
 uniform vec3 cameraPos;  // Camera position in world space
-uniform vec4 objectColor;
-uniform vec4 lightColor;
+
 uniform sampler2D diffuseTexture;
 
 uniform bool useTexture;
@@ -37,7 +40,7 @@ void main() {
         // Specular
         vec3 viewDir = normalize(cameraPos - fragmentPosition);
         vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
         vec4 specularLight = spec * specularColor * lightColor;
 
         // put it all together.
