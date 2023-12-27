@@ -91,7 +91,7 @@ public class MarlinRobotArm extends Node {
     public void getComponents(List<JPanel> list) {
         JPanel pane = new JPanel(new GridBagLayout());
         list.add(pane);
-        pane.setName(Camera.class.getSimpleName());
+        pane.setName(MarlinRobotArm.class.getSimpleName());
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.weightx = 1.0;

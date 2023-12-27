@@ -37,6 +37,7 @@ public class DrawMeshes extends AbstractRenderPass {
     private final int shadowMapUnit = 1;
     public static final int SHADOW_WIDTH = 1024;
     public static final int SHADOW_HEIGHT = 1024;
+    public static final Vector3d fromLightUnit = new Vector3d(0,0,-1);
 
     public DrawMeshes() {
         super("Meshes");
@@ -108,11 +109,11 @@ public class DrawMeshes extends AbstractRenderPass {
         gl3.glCullFace(GL3.GL_FRONT);
         // setup shader and render to depth map
         shadowShader.use(gl3);
-        shadowShader.setMatrix4d(gl3,"projectionMatrix", getLightProjection());
-        var m = getLightView();
-        m.invert();
-        m.transpose();
-        shadowShader.setMatrix4d(gl3,"viewMatrix",m);
+        shadowShader.setMatrix4d(gl3,"lightSpaceMatrix", getLightSpaceMatrix());
+        //shadowShader.setMatrix4d(gl3,"projectionMatrix", getLightProjection());
+        //Matrix4d m = getLightView();
+        //m.transpose();
+        //shadowShader.setMatrix4d(gl3,"viewMatrix", m);
 
         for(MeshInstance meshInstance : meshes) {
             Mesh mesh = meshInstance.getMesh();
@@ -167,7 +168,7 @@ public class DrawMeshes extends AbstractRenderPass {
         List<MeshInstance> meshes = collectAllMeshes();
         generateDepthMap(gl3,meshes);
         drawAllMeshes(gl3,meshes,camera);
-        drawShadowQuad(gl3,camera);
+        //drawShadowQuad(gl3,camera);
     }
 
     private void drawShadowQuad(GL3 gl3, Camera camera) {
@@ -283,29 +284,15 @@ public class DrawMeshes extends AbstractRenderPass {
 
     // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
     private Matrix4d getLightSpaceMatrix() {
-        //  We take the same lightSpaceMatrix (used to transform vertices to light space in the depth map stage) and
-        //  transform the world-space vertex position to light space for use in the fragment shader.
         // orthographic projection from the light's point of view
-        Matrix4d lightProjection = getLightProjection();
+        Matrix4d lightProjection = MatrixHelper.orthographicMatrix4d(-10,10,-10,10,1.0,100.0);
         // look at the scene from the light's point of view
-        Matrix4d lightView = getLightView();
-        lightView.invert();
+        Matrix4d lightView = MatrixHelper.lookAt(fromLightUnit,  // from
+                                                new Vector3d(0,0,0),  // to
+                                                new Vector3d(0.0f, 1.0f,  0.0f));  // up
         // combine the two
         Matrix4d lightSpaceMatrix = new Matrix4d();
         lightSpaceMatrix.mul(lightProjection,lightView);
-        lightSpaceMatrix.transpose();
         return lightSpaceMatrix;
-    }
-
-    private Matrix4d getLightProjection() {
-        return MatrixHelper.orthographicMatrix4d(-10,10,-10,10,1.0,100.0);
-    }
-
-    private Matrix4d getLightView() {
-        // look at the scene from the light's point of view
-        Matrix4d m = MatrixHelper.lookAt(new Vector3d(0.0f, 0.0f, 1.0f),  // from
-                new Vector3d(0.0f, 0.0f,  0.0f),  // to
-                new Vector3d(1.0f, 0.0f,  0.0f));  // up
-        return m;
     }
 }
