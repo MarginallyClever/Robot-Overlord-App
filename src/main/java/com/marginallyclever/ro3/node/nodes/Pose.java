@@ -47,6 +47,18 @@ public class Pose extends Node {
         return parentWorld;
     }
 
+    public void setWorld(Matrix4d before) {
+        // search up the tree to find the world transform.
+        Pose p = findParent(Pose.class);
+        if(p==null) {
+            local.set(before);
+            return;
+        }
+        Matrix4d parentWorld = p.getWorld();
+        parentWorld.invert();
+        local.mul(parentWorld,before);
+    }
+
     /**
      * Build a Swing Component that represents this Node.
      * @param list the list to add components to.

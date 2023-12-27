@@ -275,4 +275,98 @@ public class Camera extends Pose {
         inverseCamera.transpose();
         return inverseCamera;
     }
+
+    /**
+     * @return the point that the camera is orbiting around.
+     */
+    public Vector3d getOrbitPoint() {
+        Matrix4d local = getLocal();
+        Vector3d position = MatrixHelper.getPosition(local);
+        // z axis points away from the direction the camera is facing.
+        Vector3d zAxis = MatrixHelper.getZAxis(local);
+        zAxis.scale(-orbitRadius);
+        position.add(zAxis);
+        return position;
+    }
+
+    /**
+     * Change the distance from the camera to the orbit point.  The orbit point does not move.  In effect the camera
+     * is performing a dolly in/out.
+     * @param newRadius new radius.  Must be >=1.
+     */
+    public void setOrbitRadius(double newRadius) {
+        orbitRadius = Math.max(1,orbitRadius);
+        //logger.debug("wheel "+dz + " orbitRadius=" + orbitRadius);
+        Matrix4d local = getLocal();
+        Vector3d orbitVector = MatrixHelper.getZAxis(local);
+        orbitVector.scaleAdd(orbitRadius,getOrbitPoint());
+        local.setTranslation(orbitVector);
+    }
+
+    public double getOrbitRadius() {
+        return orbitRadius;
+    }
+
+    /**
+     * Orbit the camera around a point orbitRadius ahead of the camera.
+     * @param dx change in x
+     * @param dy change in y
+     */
+    public void orbit(double dx,double dy) {
+        Vector3d orbitPoint = getOrbitPoint();
+        //logger.debug("before {}",orbitPoint);
+        double [] panTiltAngles = getPanTiltFromMatrix(getLocal());
+        panTiltAngles[0] = (panTiltAngles[0] + dx+360) % 360;
+        panTiltAngles[1] = Math.max(0,Math.min(180,panTiltAngles[1] + dy));
+        Matrix3d panTilt = buildPanTiltMatrix(panTiltAngles);
+        Matrix4d newLocal = new Matrix4d();
+        newLocal.set(panTilt);
+        Vector3d orbitVector = MatrixHelper.getZAxis(newLocal);
+        orbitVector.scaleAdd(getOrbitRadius(),orbitPoint);
+        newLocal.setTranslation(orbitVector);
+        setLocal(newLocal);
+        //logger.debug("after {}",getOrbitPoint());
+    }
+
+    double[] getPanTiltFromMatrix(Matrix4d matrix) {
+        Vector3d v = MatrixHelper.matrixToEuler(matrix);
+        double pan = Math.toDegrees(-v.z);
+        double tilt = Math.toDegrees(v.x);
+        return new double[]{ pan, tilt };
+    }
+
+    /**
+     * @param panTiltAngles [0] = pan, [1] = tilt
+     * @return a matrix that rotates the camera by the given pan and tilt angles.
+     */
+    Matrix3d buildPanTiltMatrix(double [] panTiltAngles) {
+        Matrix3d a = new Matrix3d();
+        a.rotZ(Math.toRadians(panTiltAngles[0]));
+
+        Matrix3d b = new Matrix3d();
+        b.rotX(Math.toRadians(-panTiltAngles[1]));
+
+        Matrix3d c = new Matrix3d();
+        c.mul(b,a);
+        c.transpose();
+        return c;
+    }
+
+    /**
+     * Combination pan and tilt.
+     * @param panDegrees pan angle in degrees
+     * @param tiltDegrees tilt angle in degrees
+     */
+    public void panTilt(double panDegrees, double tiltDegrees) {
+        Matrix4d local = getLocal();
+        Vector3d t = new Vector3d();
+        local.get(t);
+        double [] panTiltAngles = getPanTiltFromMatrix(local);
+        panTiltAngles[0] = (panTiltAngles[0] + panDegrees+360) % 360;
+        panTiltAngles[1] = Math.max(0,Math.min(180,panTiltAngles[1] + tiltDegrees));
+        Matrix3d panTilt = buildPanTiltMatrix(panTiltAngles);
+        local.set(panTilt);
+        local.setTranslation(t);
+        setLocal(local);
+    }
 }

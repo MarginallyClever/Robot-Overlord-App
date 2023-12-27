@@ -41,7 +41,6 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private final JPopupMenu renderPassMenu = new JPopupMenu();
     private final List<Boolean> buttonPressed = new ArrayList<>();
     private int mx, my;
-    private double orbitRadius = 50;
     private double orbitChangeFactor = 1.1;  // must always be greater than 1
     private int canvasWidth, canvasHeight;
 
@@ -54,7 +53,39 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         addCameraSelector();
         addRenderPassSelection();
         addCopyCameraAction();
+        addViewportTools();
         allocateButtonMemory();
+    }
+
+    private void addViewportTools() {
+        ButtonGroup group = new ButtonGroup();
+        JToggleButton move = new JToggleButton(new AbstractAction() {
+            {
+                putValue(Action.NAME,"Move");
+                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-move-16.png"))));
+                putValue(Action.SHORT_DESCRIPTION,"Move the selected items.");
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                logger.debug("move");
+            }
+        });
+        JToggleButton rotate = new JToggleButton(new AbstractAction() {
+            {
+                putValue(Action.NAME,"Rotate");
+                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-rotate-16.png"))));
+                putValue(Action.SHORT_DESCRIPTION,"Rotate the selected items.");
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                logger.debug("rotate");
+            }
+        });
+        group.add(move);
+        group.add(rotate);
+
+        toolBar.add(move);
+        toolBar.add(rotate);
     }
 
     private void addRenderPasses() {
@@ -278,6 +309,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         my = py;
 
         // scale based on orbit distance - smaller orbits need smaller movements
+        double orbitRadius = camera.getOrbitRadius();
         dx *= orbitRadius / 50d;
         dy *= orbitRadius / 50d;
 
@@ -286,14 +318,14 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         //if(buttonPressed.get(MouseEvent.BUTTON1)) {}
         if(buttonPressed.get(MouseEvent.BUTTON2)) {  // middle button
             if(!shift) {
-                panTiltCamera(dx, dy);
+                camera.panTilt(dx, dy);
             } else {
                 camera.dolly(dy);
             }
         }
         if(buttonPressed.get(MouseEvent.BUTTON3)) {  // right button
             if(!shift) {
-                orbitCamera(dx,dy);
+                camera.orbit(dx,dy);
             } else {
                 camera.truck(-dx);
                 camera.pedestal(dy);
@@ -314,88 +346,9 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
      * @param dz mouse wheel movement
      */
     private void changeOrbitRadius(int dz) {
-        Matrix4d local = camera.getLocal();
-        Vector3d orbitPoint = getOrbitPoint();
-
+        double orbitRadius = camera.getOrbitRadius();
         orbitRadius = dz > 0 ? orbitRadius * orbitChangeFactor : orbitRadius / orbitChangeFactor;
-        orbitRadius = Math.max(1,orbitRadius);
-        //logger.debug("wheel "+dz + " orbitRadius=" + orbitRadius);
-
-        Vector3d orbitVector = MatrixHelper.getZAxis(local);
-        orbitVector.scaleAdd(orbitRadius,orbitPoint);
-        local.setTranslation(orbitVector);
-    }
-
-    private void panTiltCamera(double dx, double dy) {
-        Matrix4d local = camera.getLocal();
-        Vector3d t = new Vector3d();
-        local.get(t);
-        double [] panTiltAngles = getPanTiltFromMatrix(local);
-        panTiltAngles[0] = (panTiltAngles[0] + dx+360) % 360;
-        panTiltAngles[1] = Math.max(0,Math.min(180,panTiltAngles[1] + dy));
-        Matrix3d panTilt = buildPanTiltMatrix(panTiltAngles);
-        local.set(panTilt);
-        local.setTranslation(t);
-        camera.setLocal(local);
-    }
-
-    /**
-     * Orbit the camera around a point orbitRadius ahead of the camera.
-     * @param dx change in x
-     * @param dy change in y
-     */
-    void orbitCamera(double dx,double dy) {
-        Matrix4d local = camera.getLocal();
-        Vector3d orbitPoint = getOrbitPoint();
-        //logger.debug("before {}",orbitPoint);
-        double [] panTiltAngles = getPanTiltFromMatrix(local);
-        panTiltAngles[0] = (panTiltAngles[0] + dx+360) % 360;
-        panTiltAngles[1] = Math.max(0,Math.min(180,panTiltAngles[1] + dy));
-        Matrix3d panTilt = buildPanTiltMatrix(panTiltAngles);
-        Matrix4d newLocal = new Matrix4d();
-        newLocal.set(panTilt);
-        Vector3d orbitVector = MatrixHelper.getZAxis(newLocal);
-        orbitVector.scaleAdd(orbitRadius,orbitPoint);
-        newLocal.setTranslation(orbitVector);
-        camera.setLocal(newLocal);
-        //logger.debug("after {}",getOrbitPoint());
-    }
-
-    /**
-     * @return the point that the camera is orbiting around.
-     */
-    Vector3d getOrbitPoint() {
-        Matrix4d local = camera.getLocal();
-        Vector3d position = MatrixHelper.getPosition(local);
-        // z axis points away from the direction the camera is facing.
-        Vector3d zAxis = MatrixHelper.getZAxis(local);
-        zAxis.scale(-orbitRadius);
-        position.add(zAxis);
-        return position;
-    }
-
-    double[] getPanTiltFromMatrix(Matrix4d matrix) {
-        Vector3d v = MatrixHelper.matrixToEuler(matrix);
-        double pan = Math.toDegrees(-v.z);
-        double tilt = Math.toDegrees(v.x);
-        return new double[]{ pan, tilt };
-    }
-
-    /**
-     * @param panTiltAngles [0] = pan, [1] = tilt
-     * @return a matrix that rotates the camera by the given pan and tilt angles.
-     */
-    Matrix3d buildPanTiltMatrix(double [] panTiltAngles) {
-        Matrix3d a = new Matrix3d();
-        a.rotZ(Math.toRadians(panTiltAngles[0]));
-
-        Matrix3d b = new Matrix3d();
-        b.rotX(Math.toRadians(-panTiltAngles[1]));
-
-        Matrix3d c = new Matrix3d();
-        c.mul(b,a);
-        c.transpose();
-        return c;
+        camera.setOrbitRadius(orbitRadius);
     }
 
     public double getOrbitChangeFactor() {
@@ -411,7 +364,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     }
 
     /**
-     * Use ray tracing to find the Entity at the cursor position closest to the camera.
+     * Use ray tracing to find the closest {@link com.marginallyclever.ro3.mesh.Mesh} at the cursor position.
      * @return the name of the item under the cursor, or -1 if nothing was picked.
      */
     private Node findNodeUnderCursor() {
@@ -436,14 +389,13 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     }
 
     /**
-     * Return the ray coming through the viewport in the current projection.
+     * <p>Return the ray coming through the viewport in the current projection.  Remember that in OpenGL the
+     * camera -Z=forward, +X=right, +Y=up</p>
      * @param x the cursor position in screen coordinates [-1,1]
      * @param y the cursor position in screen coordinates [-1,1]
      * @return the ray coming through the viewport in the current projection.
      */
     public Ray getRayThroughPoint(Camera c,double x,double y) {
-        // OpenGL camera: -Z=forward, +X=right, +Y=up
-        // get the ray coming through the viewport in the current projection.
         Point3d origin;
         Vector3d direction;
 
