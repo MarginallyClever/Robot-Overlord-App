@@ -136,7 +136,7 @@ public class TranslateToolTwoAxis implements ViewportTool {
         translation.sub(currentPoint, startPoint);
 
         // Apply the translation to the selected items
-        for (Node node : selectedItems.getEntities()) {
+        for (Node node : selectedItems.getNodes()) {
             if(node instanceof Pose pose) {
                 Matrix4d before = selectedItems.getWorldPoseAtStart(node);
                 Matrix4d m = new Matrix4d(before);

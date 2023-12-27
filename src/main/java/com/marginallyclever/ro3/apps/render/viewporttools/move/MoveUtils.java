@@ -5,7 +5,6 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.render.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.render.viewporttools.ViewportTool;
 import com.marginallyclever.ro3.node.Node;
@@ -35,7 +34,7 @@ public class MoveUtils {
             return null;
         }
 
-        List<Node> list = selectedItems.getEntities();
+        List<Node> list = selectedItems.getNodes();
         Node lastEntity = null;
         for(Node e : list) {
             if(e instanceof Pose) lastEntity = e;
@@ -64,7 +63,7 @@ public class MoveUtils {
     }
 
     public static void updateUndoState(SelectedItems selectedItems) {
-        for (Node node : selectedItems.getEntities()) {
+        for (Node node : selectedItems.getNodes()) {
             if(node instanceof Pose pose) {
                 Matrix4d before = selectedItems.getWorldPoseAtStart(node);
                 Matrix4d after = selectedItems.getWorldPoseNow(node);

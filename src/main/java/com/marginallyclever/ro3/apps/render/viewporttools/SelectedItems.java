@@ -20,12 +20,12 @@ public class SelectedItems {
     /**
      * The list of entities selected in the editorpanel.
      */
-    private final List<Node> entities = new ArrayList<>();
+    private final List<Node> nodes = new ArrayList<>();
 
     /**
      * The world pose of each node in the selection at the moment it was selected.
      */
-    private final Map<Node, Matrix4d> entityWorldPoses = new HashMap<>();
+    private final Map<Node, Matrix4d> worldPoses = new HashMap<>();
 
     public SelectedItems() {
         super();
@@ -35,32 +35,32 @@ public class SelectedItems {
         super();
 
         for(Node e : list) {
-            addEntity(e);
+            addNode(e);
         }
     }
 
-    public void addEntity(Node node) {
-        entities.add(node);
+    public void addNode(Node node) {
+        nodes.add(node);
         setEntityWorldPose(node);
     }
 
     private void setEntityWorldPose(Node node) {
         if(node instanceof Pose pose) {
-            entityWorldPoses.put(node, pose.getWorld());
+            worldPoses.put(node, pose.getWorld());
         }
     }
 
     public void removeEntity(Node node) {
-        entities.remove(node);
-        entityWorldPoses.remove(node);
+        nodes.remove(node);
+        worldPoses.remove(node);
     }
 
-    public List<Node> getEntities() {
-        return entities;
+    public List<Node> getNodes() {
+        return nodes;
     }
 
     public Matrix4d getWorldPoseAtStart(Node node) {
-        return entityWorldPoses.get(node);
+        return worldPoses.get(node);
     }
 
     public Matrix4d getWorldPoseNow(Node node) {
@@ -71,16 +71,16 @@ public class SelectedItems {
     }
 
     public boolean isEmpty() {
-        return entities.isEmpty();
+        return nodes.isEmpty();
     }
 
     public void clear() {
-        entities.clear();
-        entityWorldPoses.clear();
+        nodes.clear();
+        worldPoses.clear();
     }
 
     public void savePose() {
-        for(Node e : entities) {
+        for(Node e : nodes) {
             setEntityWorldPose(e);
         }
     }

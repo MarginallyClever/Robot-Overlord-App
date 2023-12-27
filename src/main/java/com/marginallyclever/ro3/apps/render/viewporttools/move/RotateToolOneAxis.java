@@ -208,7 +208,7 @@ public class RotateToolOneAxis implements ViewportTool {
         pivotInverse.m23=-pivotTranslation.z;
 
 
-        for (Node node : selectedItems.getEntities()) {
+        for (Node node : selectedItems.getNodes()) {
             if(node instanceof Pose pc) {
                 Matrix4d pose = new Matrix4d(selectedItems.getWorldPoseAtStart(node));
                 Vector3d translation = MatrixHelper.getPosition(pose);

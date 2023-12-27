@@ -152,6 +152,12 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
 
     private void pickItemUnderCursor(boolean isShiftDown) {
         Node hit = findNodeUnderCursor();
+        if(hit!=null) {
+            // most MeshInstances are children of a Pose, unless they are in the root.
+            Node parent = hit.getParent();
+            if(parent instanceof Pose) hit = parent;
+        }
+
         logger.debug((hit==null)?"hit = nothing":"hit = " + hit.getAbsolutePath());
 
         List<Node> selection = new ArrayList<>(Registry.selection.getList());

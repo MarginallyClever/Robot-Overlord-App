@@ -55,6 +55,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         super();
         add(toolBar, BorderLayout.NORTH);
         toolBar.setLayout(new FlowLayout(FlowLayout.LEFT,5,1));
+
         addRenderPasses();
         addCameraSelector();
         addRenderPassSelection();
@@ -83,7 +84,6 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             }
             @Override
             public void actionPerformed(ActionEvent e) {
-                logger.debug("select");
                 setActiveToolIndex(viewportTools.indexOf(selectionTool));
             }
         });
@@ -96,7 +96,6 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             }
             @Override
             public void actionPerformed(ActionEvent e) {
-                logger.debug("move");
                 setActiveToolIndex(viewportTools.indexOf(translateToolMulti));
             }
         });
@@ -109,7 +108,6 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             }
             @Override
             public void actionPerformed(ActionEvent e) {
-                logger.debug("rotate");
                 setActiveToolIndex(viewportTools.indexOf(rotateToolMulti));
             }
         });
@@ -169,6 +167,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
 
         // Add an ActionListener to the JButton to show the JPopupMenu when clicked
         button.addActionListener(e -> renderPassMenu.show(button, button.getWidth()/2, button.getHeight()/2));
+        button.setToolTipText("Select the render passes to use.");
 
         for(RenderPass renderPass : renderPasses.getList()) {
             addRenderPass(renderPass);
@@ -261,6 +260,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
                 return this;
             }
         });
+        cameraSelector.setToolTipText("Select the active camera.");
 
         cameraListModel.addAll(Registry.cameras.getList());
 
