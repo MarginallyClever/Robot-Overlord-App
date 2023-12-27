@@ -110,10 +110,6 @@ public class DrawMeshes extends AbstractRenderPass {
         // setup shader and render to depth map
         shadowShader.use(gl3);
         shadowShader.setMatrix4d(gl3,"lightSpaceMatrix", getLightSpaceMatrix());
-        //shadowShader.setMatrix4d(gl3,"projectionMatrix", getLightProjection());
-        //Matrix4d m = getLightView();
-        //m.transpose();
-        //shadowShader.setMatrix4d(gl3,"viewMatrix", m);
 
         for(MeshInstance meshInstance : meshes) {
             Mesh mesh = meshInstance.getMesh();

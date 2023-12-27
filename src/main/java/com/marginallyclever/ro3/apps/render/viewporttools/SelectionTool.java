@@ -14,25 +14,23 @@ import com.marginallyclever.ro3.apps.render.Viewport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
+import javax.vecmath.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SelectionTool extends MouseAdapter implements ViewportTool {
     private static final Logger logger = LoggerFactory.getLogger(SelectionTool.class);
     public static final String PICK_POINT_NAME = "pick point";
-    private final Viewport viewport;
+    private Viewport viewport;
     private boolean isActive=false;
     private boolean isShiftDown=false;
 
-    public SelectionTool(Viewport viewport) {
+    public SelectionTool() {
         super();
-        this.viewport = viewport;
     }
 
     /**
@@ -66,7 +64,9 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
 
         // if they dragged the cursor around before releasing the mouse button, don't pick.
         if (event.getClickCount() == 1) {  // 2 for double click
-            pickItemUnderCursor();
+            if (event.getID() == MouseEvent.MOUSE_CLICKED) {
+                pickItemUnderCursor(event.isShiftDown());
+            }
         }
     }
 
@@ -112,7 +112,9 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
     public void render(GL3 gl, ShaderProgram shaderProgram) {}
 
     @Override
-    public void setViewport(Viewport viewport) {}
+    public void setViewport(Viewport viewport) {
+        this.viewport = viewport;
+    }
 
     /**
      * Returns true if the tool is active (was clicked correctly and could be dragged)
@@ -148,21 +150,29 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
     @Override
     public void setFrameOfReference(int index) {}
 
-    private void pickItemUnderCursor() {
-        Node found = findNodeUnderCursor();
-        logger.debug((found==null)?"found=null":"found=" + found.getName());
-/*
-        // TODO
-        List<Node> list = new ArrayList<>();
-        // shift + select to grow selection
-        if(isShiftDown) {
-            list.addAll(Registry.getSelection());
+    private void pickItemUnderCursor(boolean isShiftDown) {
+        Node hit = findNodeUnderCursor();
+        logger.debug((hit==null)?"hit = nothing":"hit = " + hit.getAbsolutePath());
+
+        List<Node> selection = new ArrayList<>(Registry.selection.getList());
+
+        // shift + select to grow/shrink selection
+        // aka no shift remove everything except hit
+        if(!isShiftDown) {
+            // remove all except hit
+            for(Node n : selection) {
+                if(n!=hit) Registry.selection.remove(n);
+            }
         }
-        if(!list.contains(found)) {
-            list.add(found);
+        // toggle hit in/out of selection
+        if(selection.contains(hit)) {
+            Registry.selection.remove(hit);
+        } else {
+            if(hit!=null) Registry.selection.add(hit);
         }
-        //UndoSystem.addEvent(new SelectEdit(Clipboard.getSelectedEntities(),list));
-        */
+
+        logger.debug("selection size {}", Registry.selection.getList().size());
+        //TODO UndoSystem.addEvent(new SelectEdit(Clipboard.getSelectedEntities(),selection));
     }
 
     /**
@@ -173,7 +183,8 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
         Camera camera = Registry.getActiveCamera();
         if(camera==null) return null;
 
-        Ray ray = viewport.getRayThroughCursor();
+        Point2d mouse = viewport.getCursorPosition();
+        Ray ray = viewport.getRayThroughPoint(camera,mouse.x,mouse.y);
         RayPickSystem rayPickSystem = new RayPickSystem();
         RayHit rayHit = rayPickSystem.getFirstHit(ray);
         if(rayHit == null) return null;

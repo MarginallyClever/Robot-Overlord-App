@@ -161,7 +161,8 @@ public class RotateToolOneAxis implements ViewportTool {
     private boolean isCursorOverHandle(int x, int y) {
         if(selectedItems==null || selectedItems.isEmpty()) return false;
 
-        Point3d point = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,x, y);
+        var nc = viewport.getCursorAsNormalized();
+        Point3d point = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,nc.x, nc.y);
         if (point == null) return false;
 
         // Check if the point is within the handle's bounds
@@ -316,7 +317,7 @@ public class RotateToolOneAxis implements ViewportTool {
         Vector3d cameraPoint = Registry.getActiveCamera().getPosition();
         Vector3d pivotPoint = MatrixHelper.getPosition(pivotMatrix);
         pivotPoint.sub(cameraPoint);
-        localScale = pivotPoint.length() * InteractionPreferences.toolScale;
+        localScale = pivotPoint.length() * 0.035;  // TODO * InteractionPreferences.toolScale;
     }
 
     /**

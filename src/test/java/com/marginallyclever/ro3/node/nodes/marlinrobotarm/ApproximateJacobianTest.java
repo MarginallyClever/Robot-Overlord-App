@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.nodes.marlinrobotarm;
+package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobian;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobianScrewTheory;

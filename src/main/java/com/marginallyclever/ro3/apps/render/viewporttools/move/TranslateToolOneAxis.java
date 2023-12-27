@@ -14,6 +14,8 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.render.ShaderProgram;
 import com.marginallyclever.ro3.apps.render.Viewport;
 import com.marginallyclever.ro3.mesh.Mesh;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -29,6 +31,7 @@ import java.util.List;
  * @since 2.5.0
  */
 public class TranslateToolOneAxis implements ViewportTool {
+    private static final Logger logger = LoggerFactory.getLogger(TranslateToolOneAxis.class);
     private final double handleLength = 5;
     private final double gripRadius = 0.5;
     private double localScale = 1;
@@ -114,6 +117,7 @@ public class TranslateToolOneAxis implements ViewportTool {
         cursorOverHandle = isCursorOverHandle(event.getX(), event.getY());
     }
 
+    @Override
     public void mousePressed(MouseEvent event) {
         if (isCursorOverHandle(event.getX(), event.getY())) {
             dragging = true;
@@ -123,6 +127,7 @@ public class TranslateToolOneAxis implements ViewportTool {
         }
     }
 
+    @Override
     public void mouseDragged(MouseEvent event) {
         if(!dragging) return;
 
@@ -147,6 +152,7 @@ public class TranslateToolOneAxis implements ViewportTool {
         }
     }
 
+    @Override
     public void mouseReleased(MouseEvent event) {
         if(!dragging) return;
 
@@ -193,7 +199,8 @@ public class TranslateToolOneAxis implements ViewportTool {
     private boolean isCursorOverHandle(int x, int y) {
         if(selectedItems==null || selectedItems.isEmpty()) return false;
 
-        Point3d point = MoveUtils.getPointOnPlaneFromCursor(translationPlane,viewport,x, y);
+        var nc = viewport.getCursorAsNormalized();
+        Point3d point = MoveUtils.getPointOnPlaneFromCursor(translationPlane,viewport,nc.x, nc.y);
         if (point == null) return false;
 
         // Check if the point is within the handle's bounds
@@ -222,7 +229,7 @@ public class TranslateToolOneAxis implements ViewportTool {
             Vector3d cameraPoint = cam.getPosition();
             Vector3d pivotPoint = MatrixHelper.getPosition(pivotMatrix);
             pivotPoint.sub(cameraPoint);
-            localScale = pivotPoint.length() * InteractionPreferences.toolScale;
+            localScale = pivotPoint.length() * 0.035;  // TODO * InteractionPreferences.toolScale;
         }
     }
 

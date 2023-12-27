@@ -189,7 +189,7 @@ public class TranslateToolTwoAxis implements ViewportTool {
         Vector3d cameraPoint = Registry.getActiveCamera().getPosition();
         Vector3d pivotPoint = MatrixHelper.getPosition(pivotMatrix);
         pivotPoint.sub(cameraPoint);
-        localScale = pivotPoint.length() * InteractionPreferences.toolScale;;
+        localScale = pivotPoint.length() * 0.035;  // TODO * InteractionPreferences.toolScale;;
     }
 
     @Override

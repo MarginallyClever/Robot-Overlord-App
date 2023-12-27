@@ -295,11 +295,12 @@ public class Camera extends Pose {
      * @param newRadius new radius.  Must be >=1.
      */
     public void setOrbitRadius(double newRadius) {
-        orbitRadius = Math.max(1,orbitRadius);
-        //logger.debug("wheel "+dz + " orbitRadius=" + orbitRadius);
         Matrix4d local = getLocal();
+        var point = getOrbitPoint();
+        orbitRadius = Math.max(1,newRadius);
+        //logger.debug("wheel "+dz + " orbitRadius=" + orbitRadius);
         Vector3d orbitVector = MatrixHelper.getZAxis(local);
-        orbitVector.scaleAdd(orbitRadius,getOrbitPoint());
+        orbitVector.scaleAdd(orbitRadius,point);
         local.setTranslation(orbitVector);
     }
 

@@ -54,4 +54,10 @@ public class ListWithEvents<T> {
     public List<T> getList() {
         return list;
     }
+
+    public void removeAll() {
+        while(!list.isEmpty()) {
+            remove(list.get(0));
+        }
+    }
 }

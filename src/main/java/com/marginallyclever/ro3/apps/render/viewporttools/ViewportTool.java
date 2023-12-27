@@ -21,8 +21,8 @@ public interface ViewportTool {
     int FRAME_CAMERA = 2;
 
     /**
-     * This method is called when the tool is activated. It receives the SelectedItems object containing the selected
-     * entities and their initial world poses.
+     * This method is called when the tool is activated. It receives a list containing the selected
+     * nodes and their initial world poses.
      *
      * @param list The selected items to be manipulated by the tool.
      */

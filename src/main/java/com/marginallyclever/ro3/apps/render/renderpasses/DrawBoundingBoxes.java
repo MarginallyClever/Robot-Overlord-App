@@ -67,8 +67,8 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         try {
             shader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "default.vert"),
-                    ResourceHelper.readResource(this.getClass(), "default.frag"));
+                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/render/default.vert"),
+                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/render/default.frag"));
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }

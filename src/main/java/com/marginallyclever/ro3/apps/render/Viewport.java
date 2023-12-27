@@ -1,22 +1,25 @@
 package com.marginallyclever.ro3.apps.render;
 
+import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLEventListener;
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.render.renderpasses.*;
+import com.marginallyclever.ro3.apps.render.viewporttools.SelectionTool;
+import com.marginallyclever.ro3.apps.render.viewporttools.ViewportTool;
+import com.marginallyclever.ro3.apps.render.viewporttools.move.RotateToolMulti;
+import com.marginallyclever.ro3.apps.render.viewporttools.move.TranslateToolMulti;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
-import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
-import com.marginallyclever.ro3.raypicking.RayPickSystem;
-import com.marginallyclever.ro3.raypicking.RayHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
@@ -43,6 +46,9 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private int mx, my;
     private double orbitChangeFactor = 1.1;  // must always be greater than 1
     private int canvasWidth, canvasHeight;
+    private final List<ViewportTool> viewportTools = new ArrayList<>();
+    private int activeToolIndex = -1;
+    private ShaderProgram toolShader;
 
 
     public Viewport() {
@@ -58,7 +64,30 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     }
 
     private void addViewportTools() {
-        ButtonGroup group = new ButtonGroup();
+        SelectionTool selectionTool = new SelectionTool();
+        TranslateToolMulti translateToolMulti = new TranslateToolMulti();
+        RotateToolMulti rotateToolMulti = new RotateToolMulti();
+        viewportTools.add(selectionTool);
+        viewportTools.add(translateToolMulti);
+        viewportTools.add(rotateToolMulti);
+
+        for(ViewportTool tool : viewportTools) {
+            tool.setViewport(this);
+        }
+
+        JToggleButton select = new JToggleButton(new AbstractAction() {
+            {
+                putValue(Action.NAME,"Select");
+                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-select-16.png"))));
+                putValue(Action.SHORT_DESCRIPTION,"Select items in the scene.");
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                logger.debug("select");
+                setActiveToolIndex(viewportTools.indexOf(selectionTool));
+            }
+        });
+
         JToggleButton move = new JToggleButton(new AbstractAction() {
             {
                 putValue(Action.NAME,"Move");
@@ -68,8 +97,10 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 logger.debug("move");
+                setActiveToolIndex(viewportTools.indexOf(translateToolMulti));
             }
         });
+
         JToggleButton rotate = new JToggleButton(new AbstractAction() {
             {
                 putValue(Action.NAME,"Rotate");
@@ -79,11 +110,16 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 logger.debug("rotate");
+                setActiveToolIndex(viewportTools.indexOf(rotateToolMulti));
             }
         });
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(select);
         group.add(move);
         group.add(rotate);
 
+        toolBar.add(select);
         toolBar.add(move);
         toolBar.add(rotate);
     }
@@ -239,11 +275,22 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
         super.init(glAutoDrawable);
+        GL3 gl3 = glAutoDrawable.getGL().getGL3();
+        try {
+            toolShader = new ShaderProgram(gl3,
+                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/render/default.vert"),
+                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/render/default.frag"));
+        } catch(Exception e) {
+            logger.error("Failed to load shader", e);
+        }
     }
 
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         super.dispose(glAutoDrawable);
+        GL3 gl3 = glAutoDrawable.getGL().getGL3();
+        toolShader.delete(gl3);
+        // TODO for(ViewportTool tool : viewportTools) tool.dispose(gl3);
     }
 
     @Override
@@ -256,8 +303,17 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
         double dt = 0.03;
+        for(ViewportTool tool : viewportTools) tool.update(dt);
         updateAllNodes(dt);
         renderAllPasses();
+        renderViewportTools();
+    }
+
+    private void renderViewportTools() {
+        GL3 gl3 = GLContext.getCurrentGL().getGL3();
+        gl3.glDisable(GL3.GL_DEPTH_TEST);
+        for(ViewportTool tool : viewportTools) tool.render(gl3,toolShader);
+        gl3.glEnable(GL3.GL_DEPTH_TEST);
     }
 
     private void renderAllPasses() {
@@ -276,30 +332,30 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     @Override
     public void mouseClicked(MouseEvent e) {
         super.mouseClicked(e);
-        // Ray pick to select node
-
-        Node hit = findNodeUnderCursor();
-        if(hit==null) {
-            logger.debug("hit nothing.");
-        } else {
-            logger.debug("hit {}", hit.getAbsolutePath());
-        }
+        for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
+        super.mousePressed(e);
+        for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
+
         buttonPressed.set(e.getButton(),true);
-        mx = e.getX();
-        my = e.getY();
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        super.mouseReleased(e);
+        for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
+
         buttonPressed.set(e.getButton(),false);
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
+        super.mouseDragged(e);
+        for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
+
         int px = e.getX();
         double dx = px - mx;
         mx = px;
@@ -336,8 +392,19 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         super.mouseWheelMoved(e);
+        for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
+
         int dz = e.getWheelRotation();
         changeOrbitRadius(dz);
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        super.mouseMoved(e);
+        mx = e.getX();
+        my = e.getY();
+        //logger.debug("mouse {},{}",e.getX(),e.getY());
+        for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
     }
 
     /**
@@ -347,7 +414,9 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
      */
     private void changeOrbitRadius(int dz) {
         double orbitRadius = camera.getOrbitRadius();
+        double before = orbitRadius;
         orbitRadius = dz > 0 ? orbitRadius * orbitChangeFactor : orbitRadius / orbitChangeFactor;
+        double after = orbitRadius;
         camera.setOrbitRadius(orbitRadius);
     }
 
@@ -363,30 +432,6 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         orbitChangeFactor = amount;
     }
 
-    /**
-     * Use ray tracing to find the closest {@link com.marginallyclever.ro3.mesh.Mesh} at the cursor position.
-     * @return the name of the item under the cursor, or -1 if nothing was picked.
-     */
-    private Node findNodeUnderCursor() {
-        if(camera==null) return null;
-
-        Ray ray = getRayThroughCursor();
-        RayPickSystem rayPickSystem = new RayPickSystem();
-        RayHit rayHit = rayPickSystem.getFirstHit(ray);
-        if(rayHit == null || rayHit.target()==null) {
-            return null;
-        }
-
-        return rayHit.target();
-    }
-
-    /**
-     * Return the ray coming through the viewport in the current projection.
-     * @return the ray coming through the viewport in the current projection.
-     */
-    public Ray getRayThroughCursor() {
-        return getRayThroughPoint(camera,mx,my);
-    }
 
     /**
      * <p>Return the ray coming through the viewport in the current projection.  Remember that in OpenGL the
@@ -395,47 +440,72 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
      * @param y the cursor position in screen coordinates [-1,1]
      * @return the ray coming through the viewport in the current projection.
      */
-    public Ray getRayThroughPoint(Camera c,double x,double y) {
+    public Ray getRayThroughPoint(Camera camera,double x,double y) {
         Point3d origin;
         Vector3d direction;
 
-        if(c.getDrawOrthographic()) {
+        if(camera.getDrawOrthographic()) {
             // orthographic projection
             origin = new Point3d(
                     x*canvasWidth/10,
                     y*canvasHeight/10,
                     0);
             direction = new Vector3d(0,0,-1);
-            Matrix4d m2 = c.getWorld();
+            Matrix4d m2 = camera.getWorld();
             m2.transform(direction);
             m2.transform(origin);
         } else {
             // perspective projection
             Vector3d cursorUnitVector = getCursorAsNormalized();
-            double t = Math.tan(Math.toRadians(c.getFovY()/2));
+            double t = Math.tan(Math.toRadians(camera.getFovY()/2));
             direction = new Vector3d((cursorUnitVector.x)*t*getAspectRatio(),
-                                    (cursorUnitVector.y)*t,
-                                    -1);
+                    (cursorUnitVector.y)*t,
+                    -1);
             // adjust the ray by the camera world pose.
-            Matrix4d m2 = c.getWorld();
+            Matrix4d m2 = camera.getWorld();
             m2.transform(direction);
-            origin = new Point3d(c.getPosition());
+            origin = new Point3d(camera.getPosition());
             //logger.debug("origin {} direction {}",origin,direction);
         }
 
         return new Ray(origin,direction);
     }
-
     /**
      * @return the cursor position as values from -1...1.
      */
     public Vector3d getCursorAsNormalized() {
         return new Vector3d((2.0*mx/canvasWidth)-1.0,
-                            1.0-(2.0*my/canvasHeight),
-                            0);
+                1.0-(2.0*my/canvasHeight),
+                0);
+    }
+
+    public Point2d getCursorPosition() {
+        return new Point2d(mx,my);
     }
 
     public double getAspectRatio() {
         return (double)canvasWidth/(double)canvasHeight;
+    }
+
+    private void deactivateAllTools() {
+        for(ViewportTool tool : viewportTools) {
+            tool.deactivate();
+        }
+    }
+
+    /**
+     * Set the active tool by index.
+     * @param index the index of the tool to activate.
+     */
+    private void setActiveToolIndex(int index) {
+        if(index < 0 || index >= viewportTools.size()) throw new InvalidParameterException("activeToolIndex out of range.");
+
+        deactivateAllTools();
+        // if we reselect the current tool, toggle off.
+        activeToolIndex = (activeToolIndex == index) ? -1 : index;
+
+        if(activeToolIndex >= 0) {
+            viewportTools.get(activeToolIndex).activate(Registry.selection.getList());
+        }
     }
 }

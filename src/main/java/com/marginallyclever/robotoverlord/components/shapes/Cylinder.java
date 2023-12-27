@@ -17,6 +17,7 @@ import java.beans.PropertyChangeListener;
  * A cylinder with a radius of 0.5 and a height of 2. It is centered at the
  * origin.
  */
+@Deprecated
 public class Cylinder extends ShapeComponent implements PropertyChangeListener {
     public static final int RESOLUTION_CIRCULAR = 32;
     public static final int RESOLUTION_LENGTH = 5;

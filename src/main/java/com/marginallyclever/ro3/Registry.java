@@ -9,6 +9,7 @@ import com.marginallyclever.ro3.texture.TextureFactory;
 import javax.swing.event.EventListenerList;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -22,6 +23,7 @@ public class Registry {
     private static Node scene = new Node("Scene");
     public static final ListWithEvents<Camera> cameras = new ListWithEvents<>();
     private static Camera activeCamera = null;
+    public static final ListWithEvents<Node> selection = new ListWithEvents<>();
 
     public static void start() {
         nodeFactory.clear();
@@ -39,6 +41,8 @@ public class Registry {
     }
 
     public static void reset() {
+        selection.removeAll();
+
         // reset camera
         List<Camera> toRemove = new ArrayList<>(cameras.getList());
         for(Camera c : toRemove) cameras.remove(c);
@@ -47,7 +51,6 @@ public class Registry {
         double v = Math.sqrt(Math.pow(50,2)/3d); // match the viewport default orbit distance.
         first.setPosition(new Vector3d(v,v,v));
         first.lookAt(new Vector3d(0,0,0));
-
 
         // reset scene
         List<Node> toRemove2 = new ArrayList<>(scene.getChildren());

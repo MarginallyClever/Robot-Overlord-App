@@ -36,7 +36,10 @@ public class MoveUtils {
         }
 
         List<Node> list = selectedItems.getEntities();
-        Node lastEntity = list.get(list.size() - 1);
+        Node lastEntity = null;
+        for(Node e : list) {
+            if(e instanceof Pose) lastEntity = e;
+        }
         return selectedItems.getWorldPoseNow(lastEntity);
     }
 
@@ -65,8 +68,8 @@ public class MoveUtils {
             if(node instanceof Pose pose) {
                 Matrix4d before = selectedItems.getWorldPoseAtStart(node);
                 Matrix4d after = selectedItems.getWorldPoseNow(node);
-                pose.setWorld(before);
-                UndoSystem.addEvent(new PoseMoveEdit(node, before, after));
+                //TODO pose.setWorld(before);
+                //TODO UndoSystem.addEvent(new PoseMoveEdit(node, before, after));
             }
         }
     }

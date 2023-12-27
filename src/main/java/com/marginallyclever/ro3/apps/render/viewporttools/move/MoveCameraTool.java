@@ -113,13 +113,13 @@ public class MoveCameraTool implements ViewportTool {
     }
 
     public void mouseWheelMoved(MouseWheelEvent e) {
-        Camera cameraComponent = Registry.getActiveCamera();
-        if(cameraComponent==null) return;
+        Camera camera = Registry.getActiveCamera();
+        if(camera==null) return;
 
         if(e.getWheelRotation()>0) {
-            cameraComponent.setOrbitDistance(cameraComponent.getOrbitDistance() / wheelScale);
+            camera.setOrbitRadius(camera.getOrbitRadius() / wheelScale);
         } else {
-            cameraComponent.setOrbitDistance(cameraComponent.getOrbitDistance() * wheelScale);
+            camera.setOrbitRadius(camera.getOrbitRadius() * wheelScale);
         }
     }
 
