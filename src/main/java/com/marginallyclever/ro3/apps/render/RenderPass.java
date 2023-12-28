@@ -24,9 +24,13 @@ public interface RenderPass extends GLEventListener {
     void setActiveStatus(int status);
 
     /**
-     * @return the localized name of this overlay
+     * @return the localized name
      */
     String getName();
 
-    void draw();
+    /**
+     * Draw this render pass.
+     * @param viewport the viewport to draw into
+     */
+    void draw(Viewport viewport);
 }

@@ -101,4 +101,8 @@ public String toString() {
 	  int r = (int) Long.parseLong(arg0, 16);
 	  return new ColorRGB(r);
   }
+
+    public Color toColor() {
+        return new Color(red,green,blue);
+    }
 }

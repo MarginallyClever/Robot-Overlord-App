@@ -8,15 +8,17 @@ import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.render.Viewport;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
-import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.apps.render.ShaderProgram;
+import com.marginallyclever.ro3.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
+import java.awt.*;
 
 /**
  * <p>Draw the background.  This may be a skybox or a solid color.</p>
@@ -82,7 +84,7 @@ public class DrawBackground extends AbstractRenderPass {
     }
 
     /**
-     * @return the localized name of this overlay
+     * @return the localized name
      */
     @Override
     public String getName() {
@@ -94,8 +96,8 @@ public class DrawBackground extends AbstractRenderPass {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         try {
             shader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "mesh.vert"),
-                    ResourceHelper.readResource(this.getClass(), "mesh.frag"));
+                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/render/default.vert"),
+                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/render/default.frag"));
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }
@@ -109,7 +111,7 @@ public class DrawBackground extends AbstractRenderPass {
     }
 
     @Override
-    public void draw() {
+    public void draw(Viewport viewport) {
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
         gl3.glClearColor(eraseColor.red / 255.0f,
                 eraseColor.green / 255.0f,
@@ -141,10 +143,10 @@ public class DrawBackground extends AbstractRenderPass {
         Vector3d cameraWorldPos = new Vector3d(0,0,0);
         shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
-        shader.setVector3d(gl3,"lightColor",new Vector3d(1,1,1));  // Light color
-        shader.set4f(gl3,"objectColor",1,1,1,1);
-        shader.setVector3d(gl3,"specularColor",new Vector3d(0,0,0));
-        shader.setVector3d(gl3,"ambientLightColor",new Vector3d(1,1,1));
+        shader.setColor(gl3,"lightColor", Color.WHITE);
+        shader.setColor(gl3,"objectColor",Color.WHITE);
+        shader.setColor(gl3,"specularColor",Color.BLACK);
+        shader.setColor(gl3,"ambientColor",Color.BLACK);
         shader.set1i(gl3,"useVertexColor",0);
         shader.set1i(gl3,"useLighting",0);
         shader.set1i(gl3,"diffuseTexture",0);

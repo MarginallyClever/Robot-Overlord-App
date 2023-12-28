@@ -16,6 +16,7 @@ import java.nio.CharBuffer;
  * @author Dan Royer
  * @since 1.6.0
  */
+@Deprecated
 public class LoadSTL implements MeshLoader {
 	@Override
 	public String getEnglishName() {

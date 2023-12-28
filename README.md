@@ -1,8 +1,6 @@
 ![workflow](https://github.com/MarginallyClever/Robot-Overlord-App/actions/workflows/main.yml/badge.svg)
-
-![Preview image](https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/Screenshot 2023-12-23 120520.png)
-
 # Robot Overlord #
+![Preview image](Screenshot_2023-12-23_120520.png)
 
 Robot Overlord is 3D control software for robots.  It is intended to be easier than ROS.  It was started by [Marginally Clever Robots, Ltd.](http://www.marginallyclever.com/)
 
@@ -20,6 +18,8 @@ Some of the robots it controls are:
 
 # Why
 
+The short answer?  ROS is too hard for most people.  We want to make it easier.
+
 [Our philosophy about Robot Overlord](https://github.com/MarginallyClever/Robot-Overlord-App/wiki/Why-Robot-Overlord%3F).
 
 ## Get Started!
@@ -33,7 +33,7 @@ Then you should be able to run the application.
 
 ## More
 
-If you're reading this, make an issue ticket and we will respond to it promptly.
+If you're reading this, make an issue ticket, and we will respond to it promptly.
 
 ## Icons
 

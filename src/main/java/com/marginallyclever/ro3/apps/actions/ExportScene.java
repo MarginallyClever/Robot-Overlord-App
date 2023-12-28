@@ -2,7 +2,7 @@ package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
+import com.marginallyclever.ro3.mesh.load.MeshFactory;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +78,11 @@ public class ExportScene extends AbstractAction {
         }
     }
 
-    private void commitExport(String absolutePath) {
+    /**
+     * Export the scene and all the assets used to a single file for sharing on another computer.
+     * @param absolutePath the path to the file to create.
+     */
+    public void commitExport(String absolutePath) {
         logger.info("Exporting to {}", absolutePath);
 
         JSONObject json = Registry.getScene().toJSON();

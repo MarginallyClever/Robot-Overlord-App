@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * RO3 is a robot arm control program.
+ * RO3 (Robot Overlord 3) is a robot simulation and control program.
  */
 public class RO3 {
     public static void main(String[] args) {

@@ -20,6 +20,7 @@ import java.util.ArrayList;
  * @author Dan Royer
  * @since 2.5.0
  */
+@Deprecated
 public class LoadAMF implements MeshLoader {
 	private static final Logger logger = LoggerFactory.getLogger(LoadAMF.class);
 	@Override

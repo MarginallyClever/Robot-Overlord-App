@@ -16,6 +16,7 @@ import java.beans.PropertyChangeListener;
 /**
  * A box with a width, height, and length of 1.  It is centered around the origin.
  */
+@Deprecated
 public class Box extends ShapeComponent implements PropertyChangeListener {
     public final DoubleParameter width = new DoubleParameter("width",1.0);
     public final DoubleParameter height = new DoubleParameter("height",1.0);

@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.swing;
 
 import com.marginallyclever.robotoverlord.components.ComponentFactory;
-import com.marginallyclever.robotoverlord.swing.searchBar.SearchBar;
+import com.marginallyclever.ro3.apps.shared.SearchBar;
 
 import javax.swing.*;
 import java.awt.*;

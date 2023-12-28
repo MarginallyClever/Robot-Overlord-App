@@ -63,10 +63,9 @@ public class ConversationHistoryList extends JPanel {
 					ConversationEvent value, int index, boolean isSelected, boolean cellHasFocus) {
 				Component c = defaultRenderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				
-				if(c instanceof JLabel) {
-					JLabel jc = (JLabel)c;
-					jc.setText(value.toString());
-					if(!value.whoSpoke.contentEquals("You")) {
+				if(c instanceof JLabel jc) {
+                    jc.setText(value.toString());
+					if(!value.whoSpoke().contentEquals("You")) {
 						jc.setForeground(Color.BLUE);
 					}
 				}
@@ -151,7 +150,7 @@ public class ConversationHistoryList extends JPanel {
 		Log.start();
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception e) {}
+		} catch(Exception ignored) {}
 		JFrame frame = new JFrame(ConversationHistoryList.class.getName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new ConversationHistoryList());

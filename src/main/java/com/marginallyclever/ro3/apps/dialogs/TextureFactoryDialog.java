@@ -3,7 +3,7 @@ package com.marginallyclever.ro3.apps.dialogs;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.texture.TextureFactory;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
-import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
+import com.marginallyclever.ro3.mesh.load.MeshFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -19,6 +19,7 @@ import java.util.zip.ZipInputStream;
  * https://en.wikipedia.org/wiki/3D_Manufacturing_Format
  * @author Dan Royer
  */
+@Deprecated
 public class Load3MF implements MeshLoader {
 	private class ColorGroup {
 		public int id;

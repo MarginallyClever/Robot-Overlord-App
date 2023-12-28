@@ -15,6 +15,7 @@ import java.beans.PropertyChangeListener;
 /**
  * A sphere with a radius of 0.5 centered around the local origin.
  */
+@Deprecated
 public class Sphere extends ShapeComponent implements PropertyChangeListener{
     public final DoubleParameter radius = new DoubleParameter("Radius", 0.5f);
     public final IntParameter detail = new IntParameter("Detail", 32);

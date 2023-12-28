@@ -1,7 +1,6 @@
 package com.marginallyclever.convenience;
 
-import com.jogamp.opengl.GL3;
-
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -77,4 +76,16 @@ public class Ray {
 				origin.y+direction.y*t,
 				origin.z+direction.z*t);
 	}
+
+	/**
+	 * Set this ray to be a copy of another ray.  this = matrix.transform(from)
+	 * @param matrix the local transform
+	 * @param from the ray to copy
+	 */
+    public void transform(Matrix4d matrix,Ray from) {
+		this.origin.set(from.origin);
+		this.direction.set(from.direction);
+		matrix.transform(origin);
+		matrix.transform(direction);
+    }
 }

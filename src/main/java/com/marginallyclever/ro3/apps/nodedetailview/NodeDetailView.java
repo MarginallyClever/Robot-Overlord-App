@@ -1,5 +1,8 @@
 package com.marginallyclever.ro3.apps.nodedetailview;
 
+import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
+import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.nodetreeview.SelectionChangeListener;
 import org.slf4j.Logger;
@@ -13,7 +16,8 @@ import java.util.List;
 /**
  * {@link NodeDetailView} is a panel that displays the details of a class that implements {@link Node}.
  */
-public class NodeDetailView extends JPanel implements SelectionChangeListener {
+public class NodeDetailView extends JPanel
+        implements SelectionChangeListener, ItemAddedListener<Node>, ItemRemovedListener<Node> {
     private static final Logger logger = LoggerFactory.getLogger(NodeDetailView.class);
     private final JScrollPane scroll = new JScrollPane();
 
@@ -25,6 +29,7 @@ public class NodeDetailView extends JPanel implements SelectionChangeListener {
 
     public static JPanel createPanelFor(List<Node> nodeList) {
         JPanel parent = new JPanel(new BorderLayout());
+        // handle no selection.
         if(nodeList.isEmpty()) {
             JLabel label = new JLabel("No nodes selected.");
             label.setHorizontalAlignment(SwingConstants.CENTER);
@@ -32,8 +37,8 @@ public class NodeDetailView extends JPanel implements SelectionChangeListener {
             return parent;
         }
 
-        Box vertical = Box.createVerticalBox();
-        List<JComponent> list = new ArrayList<>();
+        // collect the components from every node
+        List<JPanel> list = new ArrayList<>();
         for (Node node : nodeList) {
             try {
                 node.getComponents(list);
@@ -41,9 +46,14 @@ public class NodeDetailView extends JPanel implements SelectionChangeListener {
                 logger.error("Error getting components for node {}", node, e);
             }
         }
-        for (JComponent c : list) {
-            vertical.add(c);
+        // collate the components
+        Box vertical = Box.createVerticalBox();
+        for (JPanel c : list) {
+            CollapsiblePanel panel = new CollapsiblePanel(c.getName());
+            panel.setContentPane(c);
+            vertical.add(panel);
         }
+        // attach them to the parent
         parent.add(vertical, BorderLayout.NORTH);
         return parent;
     }
@@ -58,5 +68,29 @@ public class NodeDetailView extends JPanel implements SelectionChangeListener {
         scroll.setViewportView(createPanelFor(selectedNodes));
         this.revalidate();
         this.repaint();
+    }
+
+    @Override
+    public void addNotify() {
+        super.addNotify();
+        Registry.selection.addItemAddedListener(this);
+        Registry.selection.addItemRemovedListener(this);
+    }
+
+    @Override
+    public void removeNotify() {
+        super.removeNotify();
+        Registry.selection.removeItemAddedListener(this);
+        Registry.selection.removeItemRemovedListener(this);
+    }
+
+    @Override
+    public void itemAdded(Object source,Node item) {
+        selectionChanged(Registry.selection.getList());
+    }
+
+    @Override
+    public void itemRemoved(Object source,Node item) {
+        selectionChanged(Registry.selection.getList());
     }
 }

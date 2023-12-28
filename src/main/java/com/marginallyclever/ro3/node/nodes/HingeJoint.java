@@ -1,9 +1,7 @@
 package com.marginallyclever.ro3.node.nodes;
 
-import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -34,12 +32,10 @@ public class HingeJoint extends Node {
     }
 
     @Override
-    public void getComponents(List<JComponent> list) {
-        CollapsiblePanel panel = new CollapsiblePanel(HingeJoint.class.getSimpleName());
-        list.add(panel);
-        JPanel pane = panel.getContentPane();
-
-        pane.setLayout(new GridLayout(0, 2));
+    public void getComponents(List<JPanel> list) {
+        JPanel pane = new JPanel(new GridLayout(0,2));
+        list.add(pane);
+        pane.setName(HingeJoint.class.getSimpleName());
 
         NumberFormat format = NumberFormat.getNumberInstance();
         NumberFormatter formatter = new NumberFormatter(format);
@@ -121,7 +117,7 @@ public class HingeJoint extends Node {
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
         if(from.has("axle")) {
-            axle = Registry.findNodeByID(from.getString("axle"),Pose.class);
+            axle = this.getRootNode().findNodeByID(from.getString("axle"),Pose.class);
         }
         if(from.has("angle")) angle = from.getDouble("angle");
         if(from.has("minAngle")) minAngle = from.getDouble("minAngle");

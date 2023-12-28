@@ -9,6 +9,10 @@ import ModernDocking.exception.DockingLayoutException;
 import ModernDocking.ext.ui.DockingUI;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.marginallyclever.communications.application.TextInterfaceToSessionLayer;
+import com.marginallyclever.ro3.RO3;
+import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.about.AboutPanel;
 import com.marginallyclever.ro3.apps.actions.*;
 import com.marginallyclever.ro3.apps.editorpanel.EditorPanel;
@@ -18,21 +22,24 @@ import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.webcampanel.WebCamPanel;
 import com.marginallyclever.ro3.apps.render.OpenGLPanel;
 import com.marginallyclever.ro3.apps.render.Viewport;
-import com.marginallyclever.robotoverlord.RobotOverlord;
-import com.marginallyclever.robotoverlord.swing.actions.AboutAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.dnd.DropTarget;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.prefs.Preferences;
 
 public class RO3Frame extends JFrame {
@@ -43,35 +50,58 @@ public class RO3Frame extends JFrame {
     private final LogPanel logPanel;
     private final EditorPanel editPanel;
     private final WebCamPanel webCamPanel;
+    private final TextInterfaceToSessionLayer textInterface;
+
+    public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
+    public static String VERSION;
 
     public RO3Frame() {
         super("Robot Overlord 3");
+        loadVersion();
         setLookAndFeel();
+        initDocking();
+
         logPanel = new LogPanel();
         editPanel = new EditorPanel();
         renderPanel = new Viewport();
         fileChooser = new JFileChooser();
         webCamPanel = new WebCamPanel();
+        textInterface = new TextInterfaceToSessionLayer();
 
-        initDocking();
         createLayout();
+        UndoSystem.start();
         createMenus();
         addQuitHandler();
         addAboutHandler();
         setupFileChooser();
+        setupDropTarget();
+    }
+
+    private void loadVersion() {
+        try(InputStream input = RO3.class.getClassLoader().getResourceAsStream("robotoverlord.properties")) {
+            Properties prop = new Properties();
+            prop.load(input);
+            VERSION = prop.getProperty("robotoverlord.version");
+        } catch(IOException e) {
+            logger.error("Failed to load version number.", e);
+        }
+    }
+
+    private void setupDropTarget() {
+        new DropTarget(this, new RO3FrameDropTarget());
     }
 
     private void setupFileChooser() {
-        fileChooser.setFileFilter(RobotOverlord.FILE_FILTER);
-        // TODO: fileChooser.setSelectedFile(most recently opened file?);
+        fileChooser.setFileFilter(FILE_FILTER);
+        // TODO: fileChooser.setSelectedFile(most recently touched file?);
     }
 
     private void setLookAndFeel() {
         FlatLaf.registerCustomDefaultsSource("docking");
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
-            //UIManager.setLookAndFeel(new FlatDarkLaf());
-            //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            // option 2: UIManager.setLookAndFeel(new FlatDarkLaf());
+            // option 3: UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ignored) {
             logger.error("Failed to set look and feel.");
         }
@@ -117,8 +147,10 @@ public class RO3Frame extends JFrame {
             Desktop desktop = Desktop.getDesktop();
             if (desktop.isSupported(Desktop.Action.APP_ABOUT)) {
                 desktop.setAboutHandler((e) ->{
-                    AboutAction a = new AboutAction(RO3Frame.this);
-                    a.actionPerformed(null);
+                    var panel = new AboutPanel();
+                    JOptionPane.showMessageDialog(this, panel,
+                            "About",
+                            JOptionPane.PLAIN_MESSAGE);
                 });
             }
         }
@@ -129,10 +161,40 @@ public class RO3Frame extends JFrame {
         setJMenuBar(menuBar);
 
         menuBar.add(buildFileMenu());
+        //menuBar.add(buildEditMenu());
+        menuBar.add(buildWindowsMenu());
+        menuBar.add(buildHelpMenu());
+    }
 
+    private Component buildEditMenu() {
+        JMenu menu = new JMenu("Edit");
+        // TODO turn actions into edits for undo/redo, then add the matching actions back in.
+        menu.add(new JMenuItem(UndoSystem.getCommandUndo()));
+        menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
+        return menu;
+    }
+
+    private Component buildHelpMenu() {
+        JMenu menuHelp = new JMenu("Help");
+        var openManual = new BrowseURLAction("https://mcr.dozuki.com/c/Robot_Overlord_3");
+        openManual.putValue(Action.NAME, "Read the friendly manual");
+        openManual.putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-open-book-16.png"))));
+        openManual.putValue(Action.SHORT_DESCRIPTION, "Read the friendly manual.  It has pictures and everything!");
+        menuHelp.add(new JMenuItem(openManual));
+
+        var visitForum = new BrowseURLAction("https://discord.gg/VQ82jNvDBP");
+        visitForum.putValue(Action.NAME, "Visit Forums");
+        visitForum.putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-discord-16.png"))));
+        visitForum.putValue(Action.SHORT_DESCRIPTION, "Join us on Discord!");
+        menuHelp.add(new JMenuItem(visitForum));
+
+        menuHelp.add(new JMenuItem(new CheckForUpdateAction()));
+
+        return menuHelp;
+    }
+
+    private JMenu buildWindowsMenu() {
         JMenu menuWindows = new JMenu("Windows");
-        menuBar.add(menuWindows);
-
         // add each panel to the windows menu with a checkbox if the current panel is visible.
         int index=0;
         for(DockingPanel w : windows) {
@@ -141,6 +203,7 @@ public class RO3Frame extends JFrame {
             item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1 + index, InputEvent.SHIFT_DOWN_MASK));
             index++;
         }
+        return menuWindows;
     }
 
     private JMenu buildFileMenu() {
@@ -215,7 +278,6 @@ public class RO3Frame extends JFrame {
         detailView.add(nodeDetailView, BorderLayout.CENTER);
         Docking.dock(detailView, treeView, DockingRegion.SOUTH);
         windows.add(detailView);
-        nodeTreeView.addSelectionChangeListener(nodeDetailView);
 
         DockingPanel logView = new DockingPanel("5e565f83-9734-4281-9828-92cd711939df","Log");
         logView.add(logPanel, BorderLayout.CENTER);
@@ -232,6 +294,10 @@ public class RO3Frame extends JFrame {
         DockingPanel webcamView = new DockingPanel("1331fbb0-ceda-4c67-b343-6539d4f939a1","USB Camera");
         webcamView.add(webCamPanel, BorderLayout.CENTER);
         windows.add(webcamView);
+
+        DockingPanel textInterfaceView = new DockingPanel("7796a733-8e33-417a-b363-b28174901e40","Text Interface");
+        textInterfaceView.add(textInterface, BorderLayout.CENTER);
+        windows.add(textInterfaceView);
 
         // now that the main frame is set up with the defaults, we can restore the layout
         AppState.setPersistFile(new File("ro3.layout"));

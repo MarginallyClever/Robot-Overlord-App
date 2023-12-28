@@ -11,6 +11,7 @@ import java.util.ArrayList;
  * Smooth STL models and save them back to disk.  Meant for one time processing files.
  * @author dan royer
  */
+@Deprecated
 public class MeshSmoother {
 	private static final Logger logger = LoggerFactory.getLogger(MeshSmoother.class);
 	/*

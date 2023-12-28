@@ -5,7 +5,6 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
-import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 import com.marginallyclever.robotoverlord.preferences.InteractionPreferences;
 import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
@@ -73,7 +72,7 @@ public class Compass3D {
 		modelMatrix.transpose();
 		program.setMatrix4d(gl,"modelMatrix",modelMatrix);
 		program.setVector3d(gl,"lightPos",new Vector3d(w2,h2,10));  // Light position in world space
-		program.setVector3d(gl,"ambientLightColor",new Vector3d(0.6,0.6,0.6));
+		program.setVector3d(gl,"ambientColor",new Vector3d(0.6,0.6,0.6));
 		program.setVector3d(gl,"specularColor",new Vector3d(0,0,0));
 		program.setVector3d(gl,"lightColor",new Vector3d(0.5,0.5,0.5));
 		program.set1f(gl,"useLighting",1);

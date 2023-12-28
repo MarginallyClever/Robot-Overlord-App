@@ -22,9 +22,10 @@ public class Factory<T> {
      * @param <T> The class of object to create.
      */
     public static class Category<T> {
-        public String name;
-        public List<Category<T>> children = new ArrayList<>();
-        public final Supplier<T> supplier;
+        private final String name;
+        private final Supplier<T> supplier;
+        private final List<Category<T>> children = new ArrayList<>();
+        private Category<T> parent=null;
 
         public Category(String name,Supplier<T> supplier) {
             this.name = name;
@@ -33,12 +34,29 @@ public class Factory<T> {
 
         public void add(Category<T> c) {
             children.add(c);
+            c.parent = this;
         }
 
         public Category<T> add(String name,Supplier<T> supplier) {
             Category<T> item = new Category<>(name,supplier);
-            children.add(item);
+            add(item);
             return item;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Category<T> getParent() {
+            return parent;
+        }
+
+        public List<Category<T>> getChildren() {
+            return children;
+        }
+
+        public Supplier<T> getSupplier() {
+            return supplier;
         }
     }
 

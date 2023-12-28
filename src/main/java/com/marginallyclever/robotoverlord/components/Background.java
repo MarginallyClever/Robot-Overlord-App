@@ -109,7 +109,7 @@ public class Background extends Component {
 		program.setVector3d(gl,"lightColor",new Vector3d(1,1,1));  // Light color
 		program.set4f(gl,"objectColor",1,1,1,1);
 		program.setVector3d(gl,"specularColor",new Vector3d(0.5,0.5,0.5));
-		program.setVector3d(gl,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
+		program.setVector3d(gl,"ambientColor",new Vector3d(0.2,0.2,0.2));
 
 		gl.glDepthMask(true);
 		gl.glColorMask(true,true,true,true);

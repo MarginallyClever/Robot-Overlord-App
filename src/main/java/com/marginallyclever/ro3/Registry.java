@@ -9,6 +9,7 @@ import com.marginallyclever.ro3.texture.TextureFactory;
 import javax.swing.event.EventListenerList;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -16,12 +17,13 @@ import java.util.List;
  */
 public class Registry {
 
-    public static EventListenerList listeners = new EventListenerList();
-    public static TextureFactory textureFactory = new TextureFactory();
+    public static final EventListenerList listeners = new EventListenerList();
+    public static final TextureFactory textureFactory = new TextureFactory();
     public static final Factory<Node> nodeFactory = new Factory<>(Node.class);
     private static Node scene = new Node("Scene");
-    public static ListWithEvents<Camera> cameras = new ListWithEvents<>();
+    public static final ListWithEvents<Camera> cameras = new ListWithEvents<>();
     private static Camera activeCamera = null;
+    public static final ListWithEvents<Node> selection = new ListWithEvents<>();
 
     public static void start() {
         nodeFactory.clear();
@@ -39,15 +41,17 @@ public class Registry {
     }
 
     public static void reset() {
+        selection.removeAll();
+
         // reset camera
         List<Camera> toRemove = new ArrayList<>(cameras.getList());
         for(Camera c : toRemove) cameras.remove(c);
         Camera first = new Camera("Camera 1");
         cameras.add(first);
+        setActiveCamera(first);
         double v = Math.sqrt(Math.pow(50,2)/3d); // match the viewport default orbit distance.
         first.setPosition(new Vector3d(v,v,v));
         first.lookAt(new Vector3d(0,0,0));
-
 
         // reset scene
         List<Node> toRemove2 = new ArrayList<>(scene.getChildren());
@@ -94,27 +98,5 @@ public class Registry {
 
     public static void setActiveCamera(Camera camera) {
         activeCamera = camera;
-    }
-
-    /**
-     * Depth-first search for a node with a matching ID and type.
-     * @param nodeID the ID to search for
-     * @param type the type of node to search for
-     * @return the first node found with a matching ID and type, or null if none found.
-     * @param <T> the type of node to search for
-     */
-    public static <T extends Node> T findNodeByID(String nodeID, Class<T> type) {
-        List<Node> toScan = new ArrayList<>();
-        toScan.add(scene);
-        while(!toScan.isEmpty()) {
-            Node node = toScan.remove(0);
-            if(type.equals(node.getClass())) {
-                if(node.getNodeID().toString().equals(nodeID)) {
-                    return type.cast(node);
-                }
-            }
-            toScan.addAll(node.getChildren());
-        }
-        return null;
     }
 }

@@ -13,6 +13,7 @@ import java.nio.ByteOrder;
  * @author Dan Royer
  * @since 2.5.0
  */
+@Deprecated
 public class SaveSTL implements MeshSaver {
 	@Override
 	public String getEnglishName() {

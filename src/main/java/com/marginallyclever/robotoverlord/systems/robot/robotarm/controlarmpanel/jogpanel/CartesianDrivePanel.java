@@ -11,7 +11,6 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
-import java.io.Serial;
 
 /**
  * {@link CartesianDrivePanel} displays a dial that can adjust one cartesian movement at a time.
@@ -22,8 +21,6 @@ import java.io.Serial;
  *
  */
 public class CartesianDrivePanel extends JPanel {
-	@Serial
-	private static final long serialVersionUID = 1L;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
 	private final JRadioButton x = makeRadioButton(buttonGroup,"X");
 	private final JRadioButton y = makeRadioButton(buttonGroup,"Y");

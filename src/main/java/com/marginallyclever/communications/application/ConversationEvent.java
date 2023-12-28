@@ -3,15 +3,7 @@ package com.marginallyclever.communications.application;
 /**
  *
  */
-public class ConversationEvent {
-	public String whoSpoke;
-	public String whatWasSaid;
-	
-	public ConversationEvent(String src,String msg) {
-		whoSpoke=src;
-		whatWasSaid=msg;
-	}
-	
+public record ConversationEvent(String whoSpoke, String whatWasSaid) {
 	@Override
 	public String toString() {
 		return whoSpoke +": "+whatWasSaid;

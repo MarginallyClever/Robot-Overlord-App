@@ -76,16 +76,14 @@ public class LoadScene extends AbstractAction {
         return null;  // cancelled
     }
 
-    private void commitLoad(File selectedFile) {
+    public void commitLoad(File selectedFile) {
         if( selectedFile == null ) throw new InvalidParameterException("selectedFile cannot be null");
+        if( !selectedFile.exists() ) {
+            menu.removePath(selectedFile.getAbsolutePath());
+            throw new InvalidParameterException("selectedFile does not exist");
+        }
 
         logger.info("Load from {}",selectedFile.getAbsolutePath());
-
-        if( !selectedFile.exists() ) {
-            logger.error("File does not exist.");
-            menu.removePath(selectedFile.getAbsolutePath());
-            return;
-        }
 
         try {
             String content = new String(Files.readAllBytes(Paths.get(selectedFile.getAbsolutePath())));

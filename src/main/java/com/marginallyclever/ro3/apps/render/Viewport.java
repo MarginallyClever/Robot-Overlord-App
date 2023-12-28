@@ -1,30 +1,42 @@
 package com.marginallyclever.ro3.apps.render;
 
+import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLEventListener;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.render.renderpasses.*;
+import com.marginallyclever.ro3.apps.render.viewporttools.SelectionTool;
+import com.marginallyclever.ro3.apps.render.viewporttools.ViewportTool;
+import com.marginallyclever.ro3.apps.render.viewporttools.move.RotateToolMulti;
+import com.marginallyclever.ro3.apps.render.viewporttools.move.TranslateToolMulti;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point2d;
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * {@link Viewport} is an {@link OpenGLPanel} that uses a set of {@link RenderPass}es to draw the
  * {@link Registry#getScene()} from the perspective of a {@link Registry#getActiveCamera()}.
  */
 public class Viewport extends OpenGLPanel implements GLEventListener {
+    private static final Logger logger = LoggerFactory.getLogger(Viewport.class);
     public ListWithEvents<RenderPass> renderPasses = new ListWithEvents<>();
     private Camera camera;
     private final JToolBar toolBar = new JToolBar();
@@ -32,21 +44,82 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private final JPopupMenu renderPassMenu = new JPopupMenu();
     private final List<Boolean> buttonPressed = new ArrayList<>();
     private int mx, my;
-    private double orbitRadius = 50;
-    private final double orbitChangeFactor = 1.1;  // must always be greater than 1
+    private double orbitChangeFactor = 1.1;  // must always be greater than 1
+    private int canvasWidth, canvasHeight;
+    private final List<ViewportTool> viewportTools = new ArrayList<>();
+    private int activeToolIndex = -1;
+    private ShaderProgram toolShader;
 
 
     public Viewport() {
         super();
         add(toolBar, BorderLayout.NORTH);
         toolBar.setLayout(new FlowLayout(FlowLayout.LEFT,5,1));
+
         addRenderPasses();
         addCameraSelector();
         addRenderPassSelection();
+        addCopyCameraAction();
+        addViewportTools();
+        allocateButtonMemory();
+    }
 
-        for(int i=0;i<MouseInfo.getNumberOfButtons();++i) {
-            buttonPressed.add(false);
+    private void addViewportTools() {
+        SelectionTool selectionTool = new SelectionTool();
+        TranslateToolMulti translateToolMulti = new TranslateToolMulti();
+        RotateToolMulti rotateToolMulti = new RotateToolMulti();
+        viewportTools.add(selectionTool);
+        viewportTools.add(translateToolMulti);
+        viewportTools.add(rotateToolMulti);
+
+        for(ViewportTool tool : viewportTools) {
+            tool.setViewport(this);
         }
+
+        JToggleButton select = new JToggleButton(new AbstractAction() {
+            {
+                putValue(Action.NAME,"Select");
+                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-select-16.png"))));
+                putValue(Action.SHORT_DESCRIPTION,"Select items in the scene.");
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setActiveToolIndex(viewportTools.indexOf(selectionTool));
+            }
+        });
+
+        JToggleButton move = new JToggleButton(new AbstractAction() {
+            {
+                putValue(Action.NAME,"Move");
+                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-move-16.png"))));
+                putValue(Action.SHORT_DESCRIPTION,"Move the selected items.");
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setActiveToolIndex(viewportTools.indexOf(translateToolMulti));
+            }
+        });
+
+        JToggleButton rotate = new JToggleButton(new AbstractAction() {
+            {
+                putValue(Action.NAME,"Rotate");
+                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-rotate-16.png"))));
+                putValue(Action.SHORT_DESCRIPTION,"Rotate the selected items.");
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setActiveToolIndex(viewportTools.indexOf(rotateToolMulti));
+            }
+        });
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(select);
+        group.add(move);
+        group.add(rotate);
+
+        toolBar.add(select);
+        toolBar.add(move);
+        toolBar.add(rotate);
     }
 
     private void addRenderPasses() {
@@ -56,8 +129,34 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         renderPasses.add(new DrawBoundingBoxes());
         renderPasses.add(new DrawCameras());
         renderPasses.add(new DrawDHParameters());
-        renderPasses.add(new DrawHingeJoints());
         renderPasses.add(new DrawPoses());
+        renderPasses.add(new DrawHingeJoints());
+    }
+
+    private void allocateButtonMemory() {
+        // initialize mouse button states
+        for(int i=0;i<MouseInfo.getNumberOfButtons();++i) {
+            buttonPressed.add(false);
+        }
+    }
+
+    private void addCopyCameraAction() {
+        JButton button = new JButton(new AbstractAction() {
+            {
+                putValue(Action.NAME,"Copy to Scene");
+                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-add-16.png"))));
+                putValue(Action.SHORT_DESCRIPTION,"Copy the current camera to the root of the scene.");
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                logger.debug("copy camera");
+                Camera newCamera = new Camera();
+                newCamera.fromJSON(camera.toJSON());
+                newCamera.witnessProtection();
+                Registry.getScene().addChild(newCamera);
+            }
+        });
+        toolBar.add(button);
     }
 
     private void addRenderPassSelection() {
@@ -68,9 +167,10 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
 
         // Add an ActionListener to the JButton to show the JPopupMenu when clicked
         button.addActionListener(e -> renderPassMenu.show(button, button.getWidth()/2, button.getHeight()/2));
+        button.setToolTipText("Select the render passes to use.");
 
         for(RenderPass renderPass : renderPasses.getList()) {
-            addRenderPass(renderPass);
+            addRenderPass(null,renderPass);
         }
     }
 
@@ -92,12 +192,12 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         renderPasses.removeItemRemovedListener(this::removeRenderPass);
     }
 
-    private void addRenderPass(RenderPass renderPass) {
+    private void addRenderPass(Object source,RenderPass renderPass) {
         addRenderPassInternal(renderPass);
         addGLEventListener(renderPass);
     }
 
-    private void removeRenderPass(RenderPass renderPass) {
+    private void removeRenderPass(Object source,RenderPass renderPass) {
         removeRenderPassInternal(renderPass);
         removeGLEventListener(renderPass);
     }
@@ -137,13 +237,13 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         }
     }
 
-    private void addCamera(Camera camera) {
+    private void addCamera(Object source,Camera camera) {
         if(cameraListModel.getIndexOf(camera) == -1) {
             cameraListModel.addElement(camera);
         }
     }
 
-    private void removeCamera(Camera camera) {
+    private void removeCamera(Object source,Camera camera) {
         cameraListModel.removeElement(camera);
     }
 
@@ -160,6 +260,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
                 return this;
             }
         });
+        cameraSelector.setToolTipText("Select the active camera.");
 
         cameraListModel.addAll(Registry.cameras.getList());
 
@@ -167,89 +268,119 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             camera = (Camera) e.getItem();
             Registry.setActiveCamera(camera);
         });
-        if(cameraListModel.getSize()>0) cameraSelector.setSelectedIndex(0);
         toolBar.add(cameraSelector);
     }
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
         super.init(glAutoDrawable);
+        GL3 gl3 = glAutoDrawable.getGL().getGL3();
+        try {
+            toolShader = new ShaderProgram(gl3,
+                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/render/default.vert"),
+                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/render/default.frag"));
+        } catch(Exception e) {
+            logger.error("Failed to load shader", e);
+        }
     }
 
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         super.dispose(glAutoDrawable);
+        GL3 gl3 = glAutoDrawable.getGL().getGL3();
+        toolShader.delete(gl3);
+        // TODO for(ViewportTool tool : viewportTools) tool.dispose(gl3);
     }
 
     @Override
     public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
         super.reshape(glAutoDrawable,x,y,width,height);
+        canvasWidth = width;
+        canvasHeight = height;
     }
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
         double dt = 0.03;
+        for(ViewportTool tool : viewportTools) tool.update(dt);
         updateAllNodes(dt);
         renderAllPasses();
+        renderViewportTools();
+    }
+
+    private void renderViewportTools() {
+        GL3 gl3 = GLContext.getCurrentGL().getGL3();
+        gl3.glDisable(GL3.GL_DEPTH_TEST);
+        for(ViewportTool tool : viewportTools) tool.render(gl3,toolShader);
+        gl3.glEnable(GL3.GL_DEPTH_TEST);
     }
 
     private void renderAllPasses() {
         // renderPasses that are always on
         for(RenderPass pass : renderPasses.getList()) {
             if(pass.getActiveStatus()==RenderPass.ALWAYS) {
-                pass.draw();
+                pass.draw(this);
             }
         }
     }
 
     private void updateAllNodes(double dt) {
-        // option 1, recursively
         Registry.getScene().update(dt);
-        /*
-        // option 2, in a linear way.
-        List<Node> toScan = new ArrayList<>(Registry.getScene().getChildren());
-        while(!toScan.isEmpty()) {
-            Node node = toScan.remove(0);
-            node.update(dt);
-            toScan.addAll(node.getChildren());
-        }*/
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        super.mouseClicked(e);
+        for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
+        super.mousePressed(e);
+        for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
+
         buttonPressed.set(e.getButton(),true);
-        mx = e.getX();
-        my = e.getY();
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        super.mouseReleased(e);
+        for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
+
         buttonPressed.set(e.getButton(),false);
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
+        super.mouseDragged(e);
+        for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
+
         int px = e.getX();
-        int dx = px - mx;
+        double dx = px - mx;
         mx = px;
 
         int py = e.getY();
-        int dy = py - my;
+        double dy = py - my;
         my = py;
+
+        // scale based on orbit distance - smaller orbits need smaller movements
+        double orbitRadius = camera.getOrbitRadius();
+        dx *= orbitRadius / 50d;
+        dy *= orbitRadius / 50d;
 
         boolean shift = (e.getModifiersEx() & MouseEvent.SHIFT_DOWN_MASK) != 0;
 
         //if(buttonPressed.get(MouseEvent.BUTTON1)) {}
         if(buttonPressed.get(MouseEvent.BUTTON2)) {  // middle button
             if(!shift) {
-                panTiltCamera(dx, dy);
+                camera.panTilt(dx, dy);
             } else {
                 camera.dolly(dy);
             }
         }
         if(buttonPressed.get(MouseEvent.BUTTON3)) {  // right button
             if(!shift) {
-                orbitCamera(dx,dy);
+                camera.orbit(dx,dy);
             } else {
                 camera.truck(-dx);
                 camera.pedestal(dy);
@@ -260,8 +391,19 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         super.mouseWheelMoved(e);
+        for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
+
         int dz = e.getWheelRotation();
         changeOrbitRadius(dz);
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        super.mouseMoved(e);
+        mx = e.getX();
+        my = e.getY();
+        //logger.debug("mouse {},{}",e.getX(),e.getY());
+        for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
     }
 
     /**
@@ -270,87 +412,99 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
      * @param dz mouse wheel movement
      */
     private void changeOrbitRadius(int dz) {
-        Matrix4d local = camera.getLocal();
-        Vector3d orbitPoint = getOrbitPoint();
-
+        double orbitRadius = camera.getOrbitRadius();
+        double before = orbitRadius;
         orbitRadius = dz > 0 ? orbitRadius * orbitChangeFactor : orbitRadius / orbitChangeFactor;
-        orbitRadius = Math.max(1,orbitRadius);
-        //logger.debug("wheel "+dz + " orbitRadius=" + orbitRadius);
-
-        Vector3d orbitVector = MatrixHelper.getZAxis(local);
-        orbitVector.scaleAdd(orbitRadius,orbitPoint);
-        local.setTranslation(orbitVector);
+        double after = orbitRadius;
+        camera.setOrbitRadius(orbitRadius);
     }
 
-    private void panTiltCamera(int dx, int dy) {
-        Matrix4d local = camera.getLocal();
-        Vector3d t = new Vector3d();
-        local.get(t);
-        double [] panTiltAngles = getPanTiltFromMatrix(local);
-        panTiltAngles[0] = (panTiltAngles[0] + dx+360) % 360;
-        panTiltAngles[1] = Math.max(0,Math.min(180,panTiltAngles[1] + dy));
-        Matrix3d panTilt = buildPanTiltMatrix(panTiltAngles);
-        local.set(panTilt);
-        local.setTranslation(t);
-        camera.setLocal(local);
+    public double getOrbitChangeFactor() {
+        return orbitChangeFactor;
     }
 
     /**
-     * Orbit the camera around a point orbitRadius ahead of the camera.
-     * @param dx mouse movement in x
-     * @param dy mouse movement in y
+     * @param amount a value greater than one.
      */
-    void orbitCamera(int dx,int dy) {
-        Matrix4d local = camera.getLocal();
-        Vector3d orbitPoint = getOrbitPoint();
-        //logger.debug("before {}",orbitPoint);
-        double [] panTiltAngles = getPanTiltFromMatrix(local);
-        panTiltAngles[0] = (panTiltAngles[0] + dx+360) % 360;
-        panTiltAngles[1] = Math.max(0,Math.min(180,panTiltAngles[1] + dy));
-        Matrix3d panTilt = buildPanTiltMatrix(panTiltAngles);
-        Matrix4d newLocal = new Matrix4d();
-        newLocal.set(panTilt);
-        Vector3d orbitVector = MatrixHelper.getZAxis(newLocal);
-        orbitVector.scaleAdd(orbitRadius,orbitPoint);
-        newLocal.setTranslation(orbitVector);
-        camera.setLocal(newLocal);
-        //logger.debug("after {}",getOrbitPoint());
+    public void setOrbitChangeFactor(double amount) {
+        if( amount <= 1 ) throw new InvalidParameterException("orbit change factor must be greater than 1.");
+        orbitChangeFactor = amount;
+    }
+
+
+    /**
+     * <p>Return the ray coming through the viewport in the current projection.  Remember that in OpenGL the
+     * camera -Z=forward, +X=right, +Y=up</p>
+     * @param x the cursor position in screen coordinates [-1,1]
+     * @param y the cursor position in screen coordinates [-1,1]
+     * @return the ray coming through the viewport in the current projection.
+     */
+    public Ray getRayThroughPoint(Camera camera,double x,double y) {
+        Point3d origin;
+        Vector3d direction;
+
+        if(camera.getDrawOrthographic()) {
+            // orthographic projection
+            origin = new Point3d(
+                    x*canvasWidth/10,
+                    y*canvasHeight/10,
+                    0);
+            direction = new Vector3d(0,0,-1);
+            Matrix4d m2 = camera.getWorld();
+            m2.transform(direction);
+            m2.transform(origin);
+        } else {
+            // perspective projection
+            Vector3d cursorUnitVector = getCursorAsNormalized();
+            double t = Math.tan(Math.toRadians(camera.getFovY()/2));
+            direction = new Vector3d((cursorUnitVector.x)*t*getAspectRatio(),
+                    (cursorUnitVector.y)*t,
+                    -1);
+            // adjust the ray by the camera world pose.
+            Matrix4d m2 = camera.getWorld();
+            m2.transform(direction);
+            origin = new Point3d(camera.getPosition());
+            //logger.debug("origin {} direction {}",origin,direction);
+        }
+
+        return new Ray(origin,direction);
+    }
+    /**
+     * @return the cursor position as values from -1...1.
+     */
+    public Vector3d getCursorAsNormalized() {
+        return new Vector3d((2.0*mx/canvasWidth)-1.0,
+                1.0-(2.0*my/canvasHeight),
+                0);
+    }
+
+    public Point2d getCursorPosition() {
+        return new Point2d(mx,my);
+    }
+
+    public double getAspectRatio() {
+        return (double)canvasWidth/(double)canvasHeight;
+    }
+
+    private void deactivateAllTools() {
+        for(ViewportTool tool : viewportTools) {
+            tool.deactivate();
+        }
     }
 
     /**
-     * @return the point that the camera is orbiting around.
+     * Set the active tool by index.
+     * @param index the index of the tool to activate.
      */
-    Vector3d getOrbitPoint() {
-        Matrix4d local = camera.getLocal();
-        Vector3d position = MatrixHelper.getPosition(local);
-        // z axis points away from the direction the camera is facing.
-        Vector3d zAxis = MatrixHelper.getZAxis(local);
-        zAxis.scale(-orbitRadius);
-        position.add(zAxis);
-        return position;
-    }
+    private void setActiveToolIndex(int index) {
+        if(index < 0 || index >= viewportTools.size()) throw new InvalidParameterException("activeToolIndex out of range.");
 
-    double[] getPanTiltFromMatrix(Matrix4d matrix) {
-        Vector3d v = MatrixHelper.matrixToEuler(matrix);
-        double pan = Math.toDegrees(-v.z);
-        double tilt = Math.toDegrees(v.x);
-        return new double[]{ pan, tilt };
-    }
+        deactivateAllTools();
+        // if we reselect the current tool, toggle off.
+        activeToolIndex = (activeToolIndex == index) ? -1 : index;
 
-    /**
-     * @param panTiltAngles [0] = pan, [1] = tilt
-     * @return a matrix that rotates the camera by the given pan and tilt angles.
-     */
-    Matrix3d buildPanTiltMatrix(double [] panTiltAngles) {
-        Matrix3d a = new Matrix3d();
-        a.rotZ(Math.toRadians(panTiltAngles[0]));
-
-        Matrix3d b = new Matrix3d();
-        b.rotX(Math.toRadians(-panTiltAngles[1]));
-
-        Matrix3d c = new Matrix3d();
-        c.mul(b,a);
-        c.transpose();
-        return c;
+        if(activeToolIndex >= 0) {
+            viewportTools.get(activeToolIndex).activate(Registry.selection.getList());
+        }
     }
 }

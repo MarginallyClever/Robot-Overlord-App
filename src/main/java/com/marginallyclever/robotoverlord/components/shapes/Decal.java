@@ -19,6 +19,7 @@ import java.beans.PropertyChangeListener;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class Decal extends ShapeComponent implements PropertyChangeListener {
 	public final DoubleParameter height = new DoubleParameter("Height", 0.5f);
 	public final DoubleParameter width = new DoubleParameter("Width", 0.5f);

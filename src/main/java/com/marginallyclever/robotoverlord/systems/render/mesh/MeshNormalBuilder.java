@@ -11,6 +11,7 @@ import javax.vecmath.Vector3d;
  * @author Dan Royer
  * @since 1.7.1
  */
+@Deprecated
 public class MeshNormalBuilder {
 	private static final Logger logger = LoggerFactory.getLogger(MeshNormalBuilder.class);
 

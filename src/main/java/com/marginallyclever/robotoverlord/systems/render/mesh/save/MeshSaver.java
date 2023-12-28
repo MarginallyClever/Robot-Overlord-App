@@ -10,6 +10,7 @@ import java.io.OutputStream;
  * @author Dan Royer
  * @since 2.5.0
  */
+@Deprecated
 public interface MeshSaver {
 	String getEnglishName();
 	String getValidExtensions();

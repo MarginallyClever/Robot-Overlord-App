@@ -2,9 +2,8 @@ package com.marginallyclever.robotoverlord.systems.render.mesh;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
-import com.marginallyclever.convenience.AABB;
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.convenience.RayHit;
+import com.marginallyclever.robotoverlord.RayHit;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import org.slf4j.Logger;
@@ -23,6 +22,7 @@ import java.util.List;
  * It uses Vertex Buffer Objects to optimize rendering large collections of triangles.
  * @author Dan Royer
  */
+@Deprecated
 public class Mesh {
 	private static final Logger logger = LoggerFactory.getLogger(Mesh.class);
 	public static final int NUM_BUFFERS=5;  // verts, normals, colors, textureCoordinates, index

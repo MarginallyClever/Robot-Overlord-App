@@ -2,7 +2,7 @@ package com.marginallyclever.convenience.helpers;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Plane;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

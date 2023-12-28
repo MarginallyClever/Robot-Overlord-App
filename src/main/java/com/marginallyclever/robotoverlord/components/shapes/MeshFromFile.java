@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
  * @since 1.0.0
  */
 @ComponentDependency(components = {MaterialComponent.class})
+@Deprecated
 public class MeshFromFile extends ShapeComponent {
     private static final Logger logger = LoggerFactory.getLogger(MeshFromFile.class);
 

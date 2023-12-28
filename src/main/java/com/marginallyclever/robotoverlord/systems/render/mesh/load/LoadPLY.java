@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
  * @author Dan Royer
  * @since 2.5.0
  */
+@Deprecated
 public class LoadPLY implements MeshLoader {
 	@Override
 	public String getEnglishName() {

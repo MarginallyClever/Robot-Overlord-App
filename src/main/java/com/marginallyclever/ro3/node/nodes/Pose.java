@@ -2,7 +2,6 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -48,16 +47,26 @@ public class Pose extends Node {
         return parentWorld;
     }
 
+    public void setWorld(Matrix4d before) {
+        // search up the tree to find the world transform.
+        Pose p = findParent(Pose.class);
+        if(p==null) {
+            local.set(before);
+            return;
+        }
+        Matrix4d parentWorld = p.getWorld();
+        parentWorld.invert();
+        local.mul(parentWorld,before);
+    }
+
     /**
      * Build a Swing Component that represents this Node.
      * @param list the list to add components to.
      */
-    public void getComponents(List<JComponent> list) {
-        CollapsiblePanel panel = new CollapsiblePanel(Pose.class.getSimpleName());
-        list.add(panel);
-        JPanel pane = panel.getContentPane();
-
-        pane.setLayout(new GridLayout(0, 2));
+    public void getComponents(List<JPanel> list) {
+        JPanel pane = new JPanel(new GridLayout(0,2));
+        list.add(pane);
+        pane.setName(Pose.class.getSimpleName());
 
         NumberFormat format = NumberFormat.getNumberInstance();
         NumberFormatter formatter = new NumberFormatter(format);

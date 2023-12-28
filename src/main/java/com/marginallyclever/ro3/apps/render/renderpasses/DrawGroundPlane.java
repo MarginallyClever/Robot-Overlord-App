@@ -6,14 +6,16 @@ import com.jogamp.opengl.GLContext;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.render.Viewport;
 import com.marginallyclever.ro3.node.nodes.Camera;
-import com.marginallyclever.robotoverlord.systems.render.ShaderProgram;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.apps.render.ShaderProgram;
+import com.marginallyclever.ro3.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
+import java.awt.*;
 
 /**
  * Draw the ground plane.
@@ -42,8 +44,8 @@ public class DrawGroundPlane extends AbstractRenderPass {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         try {
             shader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "mesh.vert"),
-                    ResourceHelper.readResource(this.getClass(), "mesh.frag"));
+                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/render/default.vert"),
+                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/render/default.frag"));
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }
@@ -57,7 +59,7 @@ public class DrawGroundPlane extends AbstractRenderPass {
     }
 
     @Override
-    public void draw() {
+    public void draw(Viewport viewport) {
         Camera camera = Registry.getActiveCamera();
         if(camera==null) return;
 
@@ -68,10 +70,10 @@ public class DrawGroundPlane extends AbstractRenderPass {
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
-        shader.setVector3d(gl3,"lightColor",new Vector3d(1,1,1));  // Light color
-        shader.set4f(gl3,"objectColor",1,1,1,0.125f);
-        shader.setVector3d(gl3,"specularColor",new Vector3d(0.5,0.5,0.5));
-        shader.setVector3d(gl3,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
+        shader.setColor(gl3,"lightColor", Color.WHITE);
+        shader.setColor(gl3,"objectColor",new Color(255,255,255,8));
+        shader.setColor(gl3,"specularColor",Color.GRAY);
+        shader.setColor(gl3,"ambientColor",new Color(32,32,32,255));
         shader.set1i(gl3,"useVertexColor",0);
         shader.set1i(gl3,"useLighting",0);
         shader.set1i(gl3,"diffuseTexture",0);

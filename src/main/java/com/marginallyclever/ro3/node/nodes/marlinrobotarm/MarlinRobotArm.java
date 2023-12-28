@@ -2,13 +2,12 @@ package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
-import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Motor;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -32,6 +31,7 @@ import java.util.Objects;
  *     the kinematic chain.</li>
  *     <li>a {@link Pose} target that the end effector will try to match.  It will only do so when the linear velocity
  *     is greater than zero.</li>
+ *     <li>an optional {@link Motor} for the tool on arm.</li>
  * </ul>
  */
 public class MarlinRobotArm extends Node {
@@ -41,6 +41,7 @@ public class MarlinRobotArm extends Node {
     private Pose endEffector;
     private Pose target;
     private double linearVelocity=0;
+    private Motor gripperMotor;
 
     public MarlinRobotArm() {
         this("MarlinRobotArm");
@@ -61,6 +62,7 @@ public class MarlinRobotArm extends Node {
         json.put("motors",jointArray);
         if(endEffector!=null) json.put("endEffector",endEffector.getNodeID());
         if(target!=null) json.put("target",target.getNodeID());
+        if(gripperMotor!=null) json.put("gripperMotor",gripperMotor.getNodeID());
         json.put("linearVelocity",linearVelocity);
         return json;
     }
@@ -74,22 +76,22 @@ public class MarlinRobotArm extends Node {
                 if(motorArray.isNull(i)) {
                     motors.set(i,null);
                 } else {
-                    motors.set(i,Registry.findNodeByID(motorArray.getString(i),Motor.class));
+                    motors.set(i,this.getRootNode().findNodeByID(motorArray.getString(i),Motor.class));
                 }
             }
         }
-        if(from.has("endEffector")) endEffector = Registry.findNodeByID(from.getString("endEffector"),Pose.class);
-        if(from.has("target")) target = Registry.findNodeByID(from.getString("target"),Pose.class);
+        Node root = this.getRootNode();
+        if(from.has("endEffector")) endEffector = root.findNodeByID(from.getString("endEffector"),Pose.class);
+        if(from.has("target")) target = root.findNodeByID(from.getString("target"),Pose.class);
+        if(from.has("gripperMotor")) gripperMotor = root.findNodeByID(from.getString("gripperMotor"),Motor.class);
         if(from.has("linearVelocity")) linearVelocity = from.getDouble("linearVelocity");
     }
 
     @Override
-    public void getComponents(List<JComponent> list) {
-        CollapsiblePanel panel = new CollapsiblePanel(MarlinRobotArm.class.getSimpleName());
-        list.add(panel);
-        JPanel pane = panel.getContentPane();
-
-        pane.setLayout(new GridBagLayout());
+    public void getComponents(List<JPanel> list) {
+        JPanel pane = new JPanel(new GridBagLayout());
+        list.add(pane);
+        pane.setName(MarlinRobotArm.class.getSimpleName());
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.weightx = 1.0;
@@ -117,6 +119,11 @@ public class MarlinRobotArm extends Node {
         targetSelector.addPropertyChangeListener("subject",(e)-> target = (Pose)e.getNewValue());
         addLabelAndComponent(pane, "Target", targetSelector,gbc);
 
+        // add a selector for the target
+        NodeSelector<Motor> gripperMotorSelector = new NodeSelector<>(Motor.class, gripperMotor);
+        gripperMotorSelector.addPropertyChangeListener("subject",(e)-> gripperMotor = (Motor)e.getNewValue());
+        addLabelAndComponent(pane, "Gripper motor", gripperMotorSelector,gbc);
+
         // add a slider to control linear velocity
         JSlider slider = new JSlider(0,20,(int)linearVelocity);
         slider.addChangeListener(e-> linearVelocity = slider.getValue());
@@ -135,6 +142,7 @@ public class MarlinRobotArm extends Node {
     private JPanel getSender() {
         JPanel inputPanel = new JPanel(new BorderLayout());
         JTextField input = new JTextField();
+        input.addActionListener(e-> sendGCode(input.getText()) );
         inputPanel.add(input,BorderLayout.CENTER);
         // Add a button to send the text field to the robot arm.
         JButton sendButton = new JButton("Send");
@@ -182,14 +190,26 @@ public class MarlinRobotArm extends Node {
      * @return GCode command
      */
     private String getM114() {
-        StringBuilder sb = new StringBuilder("M114");
+        return "M114"+getMotorsAndFeedrateAsString();
+    }
+
+    private String getMotorsAndFeedrateAsString() {
+        StringBuilder sb = new StringBuilder();
         for(Motor motor : motors) {
             if(motor!=null && motor.hasAxle()) {
                 sb.append(" ")
-                    .append(motor.getName())
-                    .append(StringHelper.formatDouble(motor.getAxle().getAngle()));
+                        .append(motor.getName())
+                        .append(StringHelper.formatDouble(motor.getAxle().getAngle()));
             }
         }
+        // gripper motor
+        if(gripperMotor!=null && gripperMotor.hasAxle()) {
+            sb.append(" ")
+                    .append(gripperMotor.getName())
+                    .append(StringHelper.formatDouble(gripperMotor.getAxle().getAngle()));
+        }
+        // feedrate
+        sb.append(" F").append(StringHelper.formatDouble(linearVelocity));
         return sb.toString();
     }
 
@@ -229,21 +249,35 @@ public class MarlinRobotArm extends Node {
      */
     private String parseG0(String gcode) {
         String [] parts = gcode.split("\\s+");
-        for(Motor motor : motors) {
-            if(motor!=null && motor.hasAxle()) {
-                for(String p : parts) {
-                    if(p.startsWith(motor.getName())) {
-                        // TODO check for NaN, Infinity, etc
+        try {
+            for (Motor motor : motors) {
+                if (motor != null && motor.hasAxle()) {
+                    for (String p : parts) {
+                        if (p.startsWith(motor.getName())) {
+                            // TODO check new value is in range.
+                            motor.getAxle().setAngle(Double.parseDouble(p.substring(motor.getName().length())));
+                            break;
+                        }
+                    }
+                }
+            }
+            // gripper motor
+            if (gripperMotor != null && gripperMotor.hasAxle()) {
+                for (String p : parts) {
+                    if (p.startsWith(gripperMotor.getName())) {
                         // TODO check new value is in range.
-                        motor.getAxle().setAngle(Double.parseDouble(p.substring(motor.getName().length())));
+                        gripperMotor.getAxle().setAngle(Double.parseDouble(p.substring(gripperMotor.getName().length())));
                         break;
                     }
                 }
             }
+            // else ignore unused parts
+        } catch( NumberFormatException e ) {
+            logger.error("Number format exception: "+e.getMessage());
+            return "Error: "+e.getMessage();
         }
-        // else ignore unused parts
 
-        return "Ok";
+        return "Ok: G0"+getMotorsAndFeedrateAsString();
     }
 
     /**
@@ -391,7 +425,10 @@ public class MarlinRobotArm extends Node {
     }
 
     private void moveTowardsTarget(double dt) {
-        if(endEffector==null || target==null || linearVelocity<0.0001) return;
+        if(endEffector==null || target==null || linearVelocity<0.0001) {
+            setMotorVelocitiesFromCartesianVelocity(new double[]{0,0,0,0,0,0});
+            return;
+        }
         double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrices(endEffector.getWorld(), target.getWorld());
         capVectorToMagnitude(cartesianVelocity,linearVelocity*dt);
         moveEndEffectorInCartesianDirection(cartesianVelocity);

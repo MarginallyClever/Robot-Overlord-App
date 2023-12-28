@@ -2,7 +2,6 @@ package com.marginallyclever.ro3.listwithevents;
 
 import javax.swing.event.EventListenerList;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -41,17 +40,27 @@ public class ListWithEvents<T> {
 
     protected void fireItemAdded(T item) {
         for (ItemAddedListener<T> l : listenerList.getListeners(ItemAddedListener.class)) {
-            l.itemAdded(item);
+            l.itemAdded(this,item);
         }
     }
 
     protected void fireItemRemoved(T item) {
         for (ItemRemovedListener<T> l : listenerList.getListeners(ItemRemovedListener.class)) {
-            l.itemRemoved(item);
+            l.itemRemoved(this,item);
         }
     }
 
     public List<T> getList() {
         return list;
+    }
+
+    public void removeAll() {
+        while(!list.isEmpty()) {
+            remove(list.get(0));
+        }
+    }
+
+    public int size() {
+        return list.size();
     }
 }

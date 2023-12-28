@@ -9,6 +9,7 @@ import java.io.BufferedInputStream;
  * @author Dan Royer
  *
  */
+@Deprecated
 public interface MeshLoader {
 	String getEnglishName();
 	String[] getValidExtensions();

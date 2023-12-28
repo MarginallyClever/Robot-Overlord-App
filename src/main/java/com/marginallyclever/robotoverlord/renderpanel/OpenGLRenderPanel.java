@@ -505,7 +505,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         shaderDefault.setVector3d(gl,"lightColor",lightColor);  // Light color
         shaderDefault.set4f(gl,"objectColor",1,1,1,1);
         shaderDefault.setVector3d(gl,"specularColor",new Vector3d(0.5,0.5,0.5));
-        shaderDefault.setVector3d(gl,"ambientLightColor",new Vector3d(0.2,0.2,0.2));
+        shaderDefault.setVector3d(gl,"ambientColor",new Vector3d(0.2,0.2,0.2));
         shaderDefault.set1f(gl,"useVertexColor",0);
         shaderDefault.set1i(gl,"diffuseTexture",0);
     }

@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord;
 
-import com.marginallyclever.convenience.AABB;
+import com.marginallyclever.robotoverlord.systems.render.mesh.AABB;
 
 import java.util.ArrayList;
 

@@ -4,7 +4,6 @@ import com.marginallyclever.communications.transport.TransportLayer;
 import com.marginallyclever.communications.transport.TransportLayerPanel;
 import com.marginallyclever.communications.transport.serial.SerialTransportLayer;
 import com.marginallyclever.communications.transport.tcp.TCPTransportLayer;
-import com.marginallyclever.robotoverlord.swing.translator.Translator;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,14 +25,14 @@ public class SessionLayerManager {
 	 */
 	static public SessionLayer requestNewSession(Component parent) {
 		JTabbedPane tabs = new JTabbedPane();
-		tabs.addTab(Translator.get("Local"), serial.getTransportLayerPanel());
-		tabs.addTab(Translator.get("Remote"), tcp.getTransportLayerPanel());
+		tabs.addTab("Local", serial.getTransportLayerPanel());
+		tabs.addTab("Remote", tcp.getTransportLayerPanel());
 		tabs.setSelectedIndex(selectedLayer);
 		
 		JPanel top = new JPanel(new BorderLayout());
 		top.add(tabs,BorderLayout.CENTER);
 
-		int result = JOptionPane.showConfirmDialog(parent, top, Translator.get("MenuConnect"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		int result = JOptionPane.showConfirmDialog(parent, top, "Connect", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
 			Component c = tabs.getSelectedComponent();
 			selectedLayer = tabs.getSelectedIndex();

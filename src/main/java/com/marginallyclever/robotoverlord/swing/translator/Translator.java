@@ -25,6 +25,7 @@ import java.util.stream.Stream;
  * @author Peter Colapietro
  * See <a href="http://www.java-samples.com/showtutorial.php?tutorialid=152">XML and Java - Parsing XML using Java Tutorial</a>
  */
+@Deprecated
 public final class Translator {
 	private static final Logger logger = LoggerFactory.getLogger(Translator.class);
 

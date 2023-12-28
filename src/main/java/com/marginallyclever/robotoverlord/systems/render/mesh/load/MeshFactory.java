@@ -19,6 +19,7 @@ import java.util.List;
  *
  * @author Dan Royer
  */
+@Deprecated
 public class MeshFactory {
 	private static final Logger logger = LoggerFactory.getLogger(MeshFactory.class);
 	private static final MeshLoader [] loaders = {

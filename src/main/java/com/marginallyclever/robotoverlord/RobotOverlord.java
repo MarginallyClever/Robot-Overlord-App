@@ -8,7 +8,7 @@ import com.marginallyclever.robotoverlord.preferences.GraphicsPreferences;
 import com.marginallyclever.robotoverlord.preferences.InteractionPreferences;
 import com.marginallyclever.robotoverlord.renderpanel.OpenGLRenderPanel;
 import com.marginallyclever.robotoverlord.renderpanel.RenderPanel;
-import com.marginallyclever.robotoverlord.swing.UndoSystem;
+import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.robotoverlord.swing.actions.*;
 import com.marginallyclever.robotoverlord.swing.componentmanagerpanel.ComponentManagerPanel;
 import com.marginallyclever.robotoverlord.swing.entitytreepanel.EntityTreePanel;
@@ -33,6 +33,7 @@ import java.util.prefs.Preferences;
  *
  * @author Dan Royer
  */
+@Deprecated
 public class RobotOverlord {
 	private static final Logger logger = LoggerFactory.getLogger(RobotOverlord.class);
 

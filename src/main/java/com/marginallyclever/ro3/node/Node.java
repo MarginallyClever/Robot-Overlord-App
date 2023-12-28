@@ -1,8 +1,6 @@
 package com.marginallyclever.ro3.node;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.nodes.Pose;
-import com.marginallyclever.robotoverlord.swing.CollapsiblePanel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -12,7 +10,6 @@ import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -286,19 +283,17 @@ public class Node {
      * Build a Swing Component that represents this Node.
      * @param list the list to add components to.
      */
-    public void getComponents(List<JComponent> list) {
-        CollapsiblePanel panel = new CollapsiblePanel(Node.class.getSimpleName());
-        list.add(panel);
-        JPanel pane = panel.getContentPane();
-
-        // custom stuff
-        pane.setLayout(new GridLayout(0,2));
+    public void getComponents(List<JPanel> list) {
+        JPanel pane = new JPanel(new GridLayout(0,2));
+        list.add(pane);
+        pane.setName(Node.class.getSimpleName());
 
         JTextField nameField = new JTextField(getName());
         nameField.addActionListener(e -> {
             // should not be allowed to match siblings?
             setName(nameField.getText());
         });
+        nameField.setEditable(false);
 
         addLabelAndComponent(pane,"Name",nameField);
     }
@@ -409,5 +404,41 @@ public class Node {
             p = p.getParent();
         }
         return false;
+    }
+
+    /**
+     * Everybody in this tree gets a new unique ID.
+     */
+    public void witnessProtection() {
+        logger.debug("Witness Protection for {}.",getAbsolutePath());
+        List<Node> toScan = new ArrayList<>();
+        toScan.add(this);
+        while(!toScan.isEmpty()) {
+            Node n = toScan.remove(0);
+            n.nodeID = UUID.randomUUID();
+            toScan.addAll(n.getChildren());
+        }
+    }
+
+    /**
+     * Depth-first search for a node with a matching ID and type.
+     * @param nodeID the ID to search for
+     * @param type the type of node to search for
+     * @return the first node found with a matching ID and type, or null if none found.
+     * @param <T> the type of node to search for
+     */
+    public <T extends Node> T findNodeByID(String nodeID, Class<T> type) {
+        List<Node> toScan = new ArrayList<>();
+        toScan.add(this);
+        while(!toScan.isEmpty()) {
+            Node node = toScan.remove(0);
+            if(type.equals(node.getClass())) {
+                if(node.getNodeID().toString().equals(nodeID)) {
+                    return type.cast(node);
+                }
+            }
+            toScan.addAll(node.getChildren());
+        }
+        return null;
     }
 }

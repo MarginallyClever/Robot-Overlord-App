@@ -31,6 +31,10 @@ public class NewScene extends AbstractAction {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
+        commitNewScene();
+    }
+
+    public void commitNewScene() {
         logger.info("New scene");
 
         // remove all children of the scene to make sure we're starting fresh.
