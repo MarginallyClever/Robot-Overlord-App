@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.tree.*;
 import java.awt.datatransfer.*;
+import java.security.InvalidParameterException;
 
 /**
  * {@link NodeTreeTransferHandler} handles drag and drop operations for the {@link NodeTreeView}.
@@ -44,7 +45,6 @@ public class NodeTreeTransferHandler extends TransferHandler {
             return false;
         }
 
-        JTree tree = (JTree) support.getComponent();
         JTree.DropLocation dl = (JTree.DropLocation) support.getDropLocation();
         TreePath destPath = dl.getPath();
         NodeTreeBranch newParentBranch = (NodeTreeBranch) destPath.getLastPathComponent();
@@ -67,12 +67,10 @@ public class NodeTreeTransferHandler extends TransferHandler {
             if (oldParent != null) {
                 oldIndex = oldParent.getChildren().indexOf(beingMoved);
                 oldParent.removeChild(beingMoved);
-                logger.debug("oldIndex: {}", oldIndex);
             }
 
             // Get the index at which the source node will be added
             int newIndex = dl.getChildIndex();
-            logger.debug("newIndex: {}", newIndex);
             if (newIndex == -1) {
                 // If the drop location is a node, add the node at the end
                 newParent.addChild(beingMoved);
@@ -86,7 +84,7 @@ public class NodeTreeTransferHandler extends TransferHandler {
             }
             return true;
         } catch (Exception e) {
-            logger.error("importData", e);
+            logger.error("import failed.", e);
         }
         return false;
     }

@@ -280,6 +280,7 @@ public class DrawMeshes extends AbstractRenderPass {
 
     // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
     private Matrix4d getLightSpaceMatrix() {
+        fromLightUnit.set(0,0,-1);
         // orthographic projection from the light's point of view
         Matrix4d lightProjection = MatrixHelper.orthographicMatrix4d(-10,10,-10,10,1.0,75);
         // look at the scene from the light's point of view

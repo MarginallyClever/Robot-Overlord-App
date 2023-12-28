@@ -4,7 +4,6 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
 import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.apps.nodetreeview.SelectionChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +16,7 @@ import java.util.List;
  * {@link NodeDetailView} is a panel that displays the details of a class that implements {@link Node}.
  */
 public class NodeDetailView extends JPanel
-        implements SelectionChangeListener, ItemAddedListener<Node>, ItemRemovedListener<Node> {
+        implements ItemAddedListener<Node>, ItemRemovedListener<Node> {
     private static final Logger logger = LoggerFactory.getLogger(NodeDetailView.class);
     private final JScrollPane scroll = new JScrollPane();
 
@@ -63,7 +62,6 @@ public class NodeDetailView extends JPanel
      * See <a href="https://stackoverflow.com/questions/62864625/why-boxlayout-is-taking-extra-space">layout fix</a>
      * @param selectedNodes the list of nodes that are currently selected.
      */
-    @Override
     public void selectionChanged(List<Node> selectedNodes) {
         scroll.setViewportView(createPanelFor(selectedNodes));
         this.revalidate();

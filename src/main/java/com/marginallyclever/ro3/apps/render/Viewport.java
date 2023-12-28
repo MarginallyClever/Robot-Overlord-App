@@ -38,7 +38,6 @@ import java.util.Objects;
 public class Viewport extends OpenGLPanel implements GLEventListener {
     private static final Logger logger = LoggerFactory.getLogger(Viewport.class);
     public ListWithEvents<RenderPass> renderPasses = new ListWithEvents<>();
-    private Camera camera;
     private final JToolBar toolBar = new JToolBar();
     private final DefaultComboBoxModel<Camera> cameraListModel = new DefaultComboBoxModel<>();
     private final JPopupMenu renderPassMenu = new JPopupMenu();
@@ -129,8 +128,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         renderPasses.add(new DrawBoundingBoxes());
         renderPasses.add(new DrawCameras());
         renderPasses.add(new DrawDHParameters());
-        renderPasses.add(new DrawPoses());
         renderPasses.add(new DrawHingeJoints());
+        renderPasses.add(new DrawPoses());
     }
 
     private void allocateButtonMemory() {
@@ -150,8 +149,10 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 logger.debug("copy camera");
+                Camera oldCamera = Registry.getActiveCamera();
+                assert oldCamera != null;
                 Camera newCamera = new Camera();
-                newCamera.fromJSON(camera.toJSON());
+                newCamera.fromJSON(oldCamera.toJSON());
                 newCamera.witnessProtection();
                 Registry.getScene().addChild(newCamera);
             }
@@ -181,6 +182,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         Registry.cameras.addItemRemovedListener(this::removeCamera);
         renderPasses.addItemAddedListener(this::addRenderPass);
         renderPasses.addItemRemovedListener(this::removeRenderPass);
+        Registry.selection.addItemAddedListener(this::selectionChanged);
+        Registry.selection.addItemRemovedListener(this::selectionChanged);
     }
 
     @Override
@@ -190,6 +193,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         Registry.cameras.removeItemRemovedListener(this::removeCamera);
         renderPasses.removeItemAddedListener(this::addRenderPass);
         renderPasses.removeItemRemovedListener(this::removeRenderPass);
+        Registry.selection.removeItemAddedListener(this::selectionChanged);
+        Registry.selection.removeItemRemovedListener(this::selectionChanged);
     }
 
     private void addRenderPass(Object source,RenderPass renderPass) {
@@ -250,6 +255,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private void addCameraSelector() {
         JComboBox<Camera> cameraSelector = new JComboBox<>();
         cameraSelector.setModel(cameraListModel);
+        cameraListModel.addAll(Registry.cameras.getList());
         cameraSelector.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -261,12 +267,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             }
         });
         cameraSelector.setToolTipText("Select the active camera.");
-
-        cameraListModel.addAll(Registry.cameras.getList());
-
         cameraSelector.addItemListener(e -> {
-            camera = (Camera) e.getItem();
-            Registry.setActiveCamera(camera);
+            Registry.setActiveCamera((Camera) e.getItem());
         });
         toolBar.add(cameraSelector);
     }
@@ -353,6 +355,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     @Override
     public void mouseDragged(MouseEvent e) {
         super.mouseDragged(e);
+
         for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
 
         int px = e.getX();
@@ -363,10 +366,13 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         double dy = py - my;
         my = py;
 
+        Camera camera = Registry.getActiveCamera();
+        assert camera != null;
+
         // scale based on orbit distance - smaller orbits need smaller movements
-        double orbitRadius = camera.getOrbitRadius();
-        dx *= orbitRadius / 50d;
-        dy *= orbitRadius / 50d;
+        double scale = camera.getOrbitRadius() / 50d;
+        dx *= scale;
+        dy *= scale;
 
         boolean shift = (e.getModifiersEx() & MouseEvent.SHIFT_DOWN_MASK) != 0;
 
@@ -412,6 +418,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
      * @param dz mouse wheel movement
      */
     private void changeOrbitRadius(int dz) {
+        Camera camera = Registry.getActiveCamera();
+        assert camera != null;
         double orbitRadius = camera.getOrbitRadius();
         double before = orbitRadius;
         orbitRadius = dz > 0 ? orbitRadius * orbitChangeFactor : orbitRadius / orbitChangeFactor;
@@ -430,7 +438,6 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         if( amount <= 1 ) throw new InvalidParameterException("orbit change factor must be greater than 1.");
         orbitChangeFactor = amount;
     }
-
 
     /**
      * <p>Return the ray coming through the viewport in the current projection.  Remember that in OpenGL the
@@ -469,6 +476,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
 
         return new Ray(origin,direction);
     }
+
     /**
      * @return the cursor position as values from -1...1.
      */
@@ -503,6 +511,12 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         // if we reselect the current tool, toggle off.
         activeToolIndex = (activeToolIndex == index) ? -1 : index;
 
+        if(activeToolIndex >= 0) {
+            viewportTools.get(activeToolIndex).activate(Registry.selection.getList());
+        }
+    }
+
+    private void selectionChanged(Object source,Object item) {
         if(activeToolIndex >= 0) {
             viewportTools.get(activeToolIndex).activate(Registry.selection.getList());
         }

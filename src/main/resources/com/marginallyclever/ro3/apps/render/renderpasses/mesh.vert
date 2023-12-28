@@ -19,12 +19,12 @@ out VS_OUT {
 } vs_out;
 
 void main() {
-    vec4 worldPose = modelMatrix * vec4(aPosition, 1.0);
-    gl_Position = projectionMatrix * viewMatrix * worldPose;
+    vec3 worldPose = vec3(modelMatrix * vec4(aPosition, 1.0));
+    gl_Position = projectionMatrix * viewMatrix * vec4(worldPose,1);
 
     vs_out.fragmentColor = aColor;
     vs_out.normalVector = transpose(inverse(mat3(modelMatrix))) * aNormal;
-    vs_out.fragmentPosition = vec3(worldPose);
+    vs_out.fragmentPosition = worldPose;
     vs_out.textureCoord = aTexture;
-    vs_out.fragPosLightSpace = lightSpaceMatrix * worldPose;
+    vs_out.fragPosLightSpace = lightSpaceMatrix * vec4(worldPose,1);
 }
