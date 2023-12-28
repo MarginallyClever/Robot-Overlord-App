@@ -67,8 +67,13 @@ public class NodeTreeView extends JPanel
     }
 
     private void changeSelection(TreeSelectionEvent e) {
+        // if this is an external change, we are being told about a change to Registry.selection.
+        // we don't want to concurrently modify Registry.selection, so ignore this event.
         if(isExternalChange) return;
 
+        // this is an internal change, so we need to tell Registry.selection about it.
+        // TreeSelectionEvent.getPaths() contains the list of all the currently selected rows
+        // in the tree.
         Registry.selection.removeAll();
         removeNode.setEnabled(false);
         // handle many selections
