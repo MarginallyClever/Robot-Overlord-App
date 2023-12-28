@@ -4,6 +4,8 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.apps.actions.AddNode;
 import com.marginallyclever.ro3.apps.actions.RemoveNode;
+import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
+import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodeAttachListener;
 import com.marginallyclever.ro3.node.NodeDetachListener;
@@ -13,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
+import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.*;
 import java.awt.*;
 import java.security.InvalidParameterException;
@@ -23,13 +26,16 @@ import java.util.function.Supplier;
 /**
  * {@link NodeTreeView} is a panel that displays the node tree.
  */
-public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDetachListener, NodeRenameListener, SceneChangeListener {
+public class NodeTreeView extends JPanel
+        implements NodeAttachListener, NodeDetachListener, NodeRenameListener,
+        SceneChangeListener, ItemAddedListener<Node>, ItemRemovedListener<Node> {
     private static final Logger logger = LoggerFactory.getLogger(NodeTreeView.class);
     private final JTree tree;
     private final NodeTreeBranch treeModel = new NodeTreeBranch(Registry.getScene());
     private final EventListenerList listenerList = new EventListenerList();
     private final JToolBar toolBar = new JToolBar();
     private final RemoveNode removeNode = new RemoveNode(this);
+    private boolean isExternalChange = false;
 
     public NodeTreeView() {
         super();
@@ -57,26 +63,31 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
         tree.setCellRenderer(cellRender);
         tree.setCellEditor(new NodeTreeBranchEditor(tree, cellRender));
         tree.setTransferHandler(new NodeTreeTransferHandler());
-        tree.addTreeSelectionListener((e) ->{
-            // single selection
-            TreePath path = e.getPath();
-            if(path==null) {
-                // no selection
-                removeNode.setEnabled(false);
-                fireSelectionChangeEvent(List.of());
-            } else {
-                NodeTreeBranch selectedNode = (NodeTreeBranch) path.getLastPathComponent();
-                // scene root cannot be deleted.
-                removeNode.setEnabled(selectedNode != treeModel.getRoot());
-                fireSelectionChangeEvent(List.of(selectedNode.getNode()));
-            }
-        });
+        tree.addTreeSelectionListener(this::changeSelection);
+    }
+
+    private void changeSelection(TreeSelectionEvent e) {
+        if(isExternalChange) return;
+
+        Registry.selection.removeAll();
+        removeNode.setEnabled(false);
+        // handle many selections
+        for(TreePath path : e.getPaths()) {
+            NodeTreeBranch selectedNode = (NodeTreeBranch) path.getLastPathComponent();
+            // scene root cannot be deleted.
+            removeNode.setEnabled(selectedNode != treeModel.getRoot());
+            Registry.selection.add(selectedNode.getNode());
+        }
     }
 
     @Override
     public void addNotify() {
         super.addNotify();
         Registry.addSceneChangeListener(this);
+        Registry.selection.addItemAddedListener(this);
+        Registry.selection.addItemRemovedListener(this);
+
+
         listenTo(Registry.getScene());
     }
 
@@ -91,6 +102,8 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
         super.removeNotify();
         stopListeningTo(Registry.getScene());
         Registry.removeSceneChangeListener(this);
+        Registry.selection.removeItemAddedListener(this);
+        Registry.selection.removeItemRemovedListener(this);
     }
 
     private void stopListeningTo(Node node) {
@@ -220,7 +233,6 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
         //logger.debug("beforeSceneChange");
         stopListeningTo(oldScene);
         tree.clearSelection();  // does not trigger selection change event?
-        fireSelectionChangeEvent(List.of());
         removeNode.setEnabled(false);
     }
 
@@ -269,6 +281,30 @@ public class NodeTreeView extends JPanel implements NodeAttachListener, NodeDeta
             if(parent!=null) {
                 parent.removeChild(node);
             } // else root node, can't remove.
+        }
+    }
+
+    @Override
+    public void itemAdded(Object source,Node item) {
+        isExternalChange = true;
+        try {
+            var branch = findTreeNode(item);
+            if (branch == null) throw new InvalidParameterException("item not found in tree " + item.getAbsolutePath());
+            tree.addSelectionPath(new TreePath(branch.getPath()));
+        } finally {
+            isExternalChange = false;
+        }
+    }
+
+    @Override
+    public void itemRemoved(Object source,Node item) {
+        isExternalChange = true;
+        try {
+            var branch = findTreeNode(item);
+            if(branch==null) throw new InvalidParameterException("item not found in tree "+item.getAbsolutePath());
+            tree.removeSelectionPath(new TreePath(branch.getPath()));
+        } finally {
+            isExternalChange = false;
         }
     }
 }

@@ -170,7 +170,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         button.setToolTipText("Select the render passes to use.");
 
         for(RenderPass renderPass : renderPasses.getList()) {
-            addRenderPass(renderPass);
+            addRenderPass(null,renderPass);
         }
     }
 
@@ -192,12 +192,12 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         renderPasses.removeItemRemovedListener(this::removeRenderPass);
     }
 
-    private void addRenderPass(RenderPass renderPass) {
+    private void addRenderPass(Object source,RenderPass renderPass) {
         addRenderPassInternal(renderPass);
         addGLEventListener(renderPass);
     }
 
-    private void removeRenderPass(RenderPass renderPass) {
+    private void removeRenderPass(Object source,RenderPass renderPass) {
         removeRenderPassInternal(renderPass);
         removeGLEventListener(renderPass);
     }
@@ -237,13 +237,13 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         }
     }
 
-    private void addCamera(Camera camera) {
+    private void addCamera(Object source,Camera camera) {
         if(cameraListModel.getIndexOf(camera) == -1) {
             cameraListModel.addElement(camera);
         }
     }
 
-    private void removeCamera(Camera camera) {
+    private void removeCamera(Object source,Camera camera) {
         cameraListModel.removeElement(camera);
     }
 

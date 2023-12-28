@@ -11,6 +11,7 @@ import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.marginallyclever.communications.application.TextInterfaceToSessionLayer;
 import com.marginallyclever.ro3.RO3;
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.about.AboutPanel;
 import com.marginallyclever.ro3.apps.actions.*;
@@ -277,7 +278,6 @@ public class RO3Frame extends JFrame {
         detailView.add(nodeDetailView, BorderLayout.CENTER);
         Docking.dock(detailView, treeView, DockingRegion.SOUTH);
         windows.add(detailView);
-        nodeTreeView.addSelectionChangeListener(nodeDetailView);
 
         DockingPanel logView = new DockingPanel("5e565f83-9734-4281-9828-92cd711939df","Log");
         logView.add(logPanel, BorderLayout.CENTER);
