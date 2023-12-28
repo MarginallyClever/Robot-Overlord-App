@@ -48,6 +48,7 @@ public class Registry {
         for(Camera c : toRemove) cameras.remove(c);
         Camera first = new Camera("Camera 1");
         cameras.add(first);
+        setActiveCamera(first);
         double v = Math.sqrt(Math.pow(50,2)/3d); // match the viewport default orbit distance.
         first.setPosition(new Vector3d(v,v,v));
         first.lookAt(new Vector3d(0,0,0));
