@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.*;
 import java.awt.*;
@@ -32,7 +31,6 @@ public class NodeTreeView extends JPanel
     private static final Logger logger = LoggerFactory.getLogger(NodeTreeView.class);
     private final JTree tree;
     private final NodeTreeBranch treeModel = new NodeTreeBranch(Registry.getScene());
-    private final EventListenerList listenerList = new EventListenerList();
     private final JToolBar toolBar = new JToolBar();
     private final RemoveNode removeNode = new RemoveNode(this);
     private boolean isExternalChange = false;
@@ -54,15 +52,18 @@ public class NodeTreeView extends JPanel
 
     private void setupTree() {
         tree.setRootVisible(true);
-        tree.setShowsRootHandles(true);
-        tree.setEditable(true);
-        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
-        tree.setDragEnabled(true);
-        tree.setDropMode(DropMode.ON_OR_INSERT);
+        //tree.setShowsRootHandles(true);
         NodeTreeBranchRenderer cellRender = new NodeTreeBranchRenderer();
         tree.setCellRenderer(cellRender);
+
+        tree.setEditable(true);
         tree.setCellEditor(new NodeTreeBranchEditor(tree, cellRender));
+
+        tree.setDragEnabled(true);
+        tree.setDropMode(DropMode.ON_OR_INSERT);
         tree.setTransferHandler(new NodeTreeTransferHandler());
+
+        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         tree.addTreeSelectionListener(this::changeSelection);
     }
 
@@ -74,15 +75,22 @@ public class NodeTreeView extends JPanel
         // this is an internal change, so we need to tell Registry.selection about it.
         // TreeSelectionEvent.getPaths() contains the list of all the currently selected rows
         // in the tree.
-        Registry.selection.removeAll();
-        removeNode.setEnabled(false);
-        // handle many selections
-        for(TreePath path : e.getPaths()) {
+        TreePath [] paths = e.getPaths();
+        if (paths == null) return;
+
+        // handle all selection changes
+        for(TreePath path : paths) {
             NodeTreeBranch selectedNode = (NodeTreeBranch) path.getLastPathComponent();
-            // scene root cannot be deleted.
-            removeNode.setEnabled(selectedNode != treeModel.getRoot());
-            Registry.selection.add(selectedNode.getNode());
+            Node node = selectedNode.getNode();
+            if(e.isAddedPath(path)) {
+                Registry.selection.add(node);
+            } else {
+                Registry.selection.remove(node);
+            }
         }
+
+        // scene root cannot be deleted.
+        removeNode.setEnabled(!Registry.selection.getList().contains(Registry.getScene()));
     }
 
     @Override
@@ -91,8 +99,6 @@ public class NodeTreeView extends JPanel
         Registry.addSceneChangeListener(this);
         Registry.selection.addItemAddedListener(this);
         Registry.selection.addItemRemovedListener(this);
-
-
         listenTo(Registry.getScene());
     }
 
@@ -172,20 +178,6 @@ public class NodeTreeView extends JPanel
             list.addAll(Collections.list(treeNode.children()));
         }
         return null;
-    }
-
-    public void addSelectionChangeListener(SelectionChangeListener listener) {
-        listenerList.add(SelectionChangeListener.class, listener);
-    }
-
-    public void removeSelectionChangeListener(SelectionChangeListener listener) {
-        listenerList.remove(SelectionChangeListener.class, listener);
-    }
-
-    private void fireSelectionChangeEvent(List<Node> newSelection) {
-        for(SelectionChangeListener listener : listenerList.getListeners(SelectionChangeListener.class)) {
-            listener.selectionChanged(newSelection);
-        }
     }
 
     @Override
@@ -294,7 +286,10 @@ public class NodeTreeView extends JPanel
         isExternalChange = true;
         try {
             var branch = findTreeNode(item);
-            if (branch == null) throw new InvalidParameterException("item not found in tree " + item.getAbsolutePath());
+            if (branch == null) {
+                //throw new InvalidParameterException("item not found in tree "+item.getAbsolutePath());
+                return;
+            }
             tree.addSelectionPath(new TreePath(branch.getPath()));
         } finally {
             isExternalChange = false;
@@ -306,7 +301,10 @@ public class NodeTreeView extends JPanel
         isExternalChange = true;
         try {
             var branch = findTreeNode(item);
-            if(branch==null) throw new InvalidParameterException("item not found in tree "+item.getAbsolutePath());
+            if(branch==null) {
+                //throw new InvalidParameterException("item not found in tree "+item.getAbsolutePath());
+                return;
+            }
             tree.removeSelectionPath(new TreePath(branch.getPath()));
         } finally {
             isExternalChange = false;

@@ -10,7 +10,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.marginallyclever" level="info" />
+    <logger name="com.marginallyclever" level="debug" />
     <root>
         <appender-ref ref="STDOUT" />
     </root>

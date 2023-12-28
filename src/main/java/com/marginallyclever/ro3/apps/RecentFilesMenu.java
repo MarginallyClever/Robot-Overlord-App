@@ -46,8 +46,6 @@ public class RecentFilesMenu extends JMenu {
      * Loads at most {@link RecentFilesMenu#MAX_RECENT_FILES} items.
      */
     public void loadFromPreferences() {
-        logger.info("Loading recent files from preferences.");
-
         int count = preferences.getInt("recentFiles.count", MAX_RECENT_FILES);
         for (int i = 0; i < count; i++) {
             String filePath = preferences.get("recentFiles." + i, "");
@@ -63,8 +61,6 @@ public class RecentFilesMenu extends JMenu {
      * Saves at most {@link RecentFilesMenu#MAX_RECENT_FILES} items.
      */
     public void saveToPreferences() {
-        logger.info("Saving recent files to preferences.");
-
         preferences.putInt("recentFiles.count", recentFiles.size());
         int count = Math.min(recentFiles.size(), MAX_RECENT_FILES);
         for (int i = 0; i < count; i++) {
@@ -78,20 +74,23 @@ public class RecentFilesMenu extends JMenu {
     }
 
     private void updateRecentFilesMenu() {
-        this.removeAll();
+        removeAll();
         int index=0;
         for (String filePath : recentFiles) {
             JMenuItem menuItem = new JMenuItem(new LoadScene(this,filePath));
-            this.add(menuItem);
+            add(menuItem);
             menuItem.setMnemonic(KeyEvent.VK_0 + index);
             ++index;
         }
-        this.setVisible(!recentFiles.isEmpty());
+        setVisible(!recentFiles.isEmpty());
+        revalidate();
+        repaint();
     }
 
     public void removePath(String filePath) {
         recentFiles.remove(filePath);
         saveToPreferences();
+        updateRecentFilesMenu();
     }
 
     /**
@@ -99,10 +98,12 @@ public class RecentFilesMenu extends JMenu {
      * @param filePath the path to add.
      */
     public void addPath(String filePath) {
-        // remove the path if it already exists so it will be moved to the top of the list.
+        // remove the path if it already exists
         recentFiles.remove(filePath);
+        // add to the top of the list.
         recentFiles.add(0,filePath);
         trimList();
+        saveToPreferences();
         updateRecentFilesMenu();
     }
 

@@ -426,7 +426,7 @@ public class MarlinRobotArm extends Node {
 
     private void moveTowardsTarget(double dt) {
         if(endEffector==null || target==null || linearVelocity<0.0001) {
-            setMotorVelocitiesFromCartesianVelocity(new double[]{0,0,0,0,0,0});
+            setAllJointVelocities(new double[]{0,0,0,0,0,0});
             return;
         }
         double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrices(endEffector.getWorld(), target.getWorld());

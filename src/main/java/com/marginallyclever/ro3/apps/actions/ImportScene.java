@@ -70,6 +70,7 @@ public class ImportScene extends AbstractAction {
             // Add the loaded scene to the current scene.
             Registry.getScene().addChild(loaded);
             loaded.fromJSON(new JSONObject(content));
+            loaded.witnessProtection();
         } catch (IOException e) {
             logger.error("Error loading scene from JSON", e);
         }
