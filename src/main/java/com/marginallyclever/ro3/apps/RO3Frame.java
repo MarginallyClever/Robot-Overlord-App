@@ -51,7 +51,6 @@ public class RO3Frame extends JFrame {
     private final EditorPanel editPanel;
     private final WebCamPanel webCamPanel;
     private final TextInterfaceToSessionLayer textInterface;
-
     public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
     public static String VERSION;
 
