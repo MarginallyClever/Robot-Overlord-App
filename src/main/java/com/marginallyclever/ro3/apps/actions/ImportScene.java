@@ -68,9 +68,9 @@ public class ImportScene extends AbstractAction {
             String content = new String(Files.readAllBytes(Paths.get(selectedFile.getAbsolutePath())));
             Node loaded = new Node("Scene");
             // Add the loaded scene to the current scene.
-            Registry.getScene().addChild(loaded);
             loaded.fromJSON(new JSONObject(content));
             loaded.witnessProtection();
+            Registry.getScene().addChild(loaded);
         } catch (IOException e) {
             logger.error("Error loading scene from JSON", e);
         }

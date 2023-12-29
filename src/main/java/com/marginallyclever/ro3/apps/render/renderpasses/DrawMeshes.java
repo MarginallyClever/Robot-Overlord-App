@@ -169,9 +169,6 @@ public class DrawMeshes extends AbstractRenderPass {
 
     private void drawShadowQuad(GL3 gl3, Camera camera) {
         meshShader.use(gl3);
-        meshShader.set1i(gl3,"shadowMap",shadowMapUnit);
-        meshShader.setMatrix4d(gl3, "lightSpaceMatrix", getLightSpaceMatrix());
-
         meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix());
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
@@ -280,16 +277,19 @@ public class DrawMeshes extends AbstractRenderPass {
 
     // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
     private Matrix4d getLightSpaceMatrix() {
-        fromLightUnit.set(0,0,-1);
         // orthographic projection from the light's point of view
-        Matrix4d lightProjection = MatrixHelper.orthographicMatrix4d(-10,10,-10,10,1.0,75);
+        Matrix4d lightProjection = MatrixHelper.orthographicMatrix4d(-50,50,-50,50,1.0,75);
+
         // look at the scene from the light's point of view
         Matrix4d lightView = MatrixHelper.lookAt(fromLightUnit,  // from
                                                 new Vector3d(0,0,0),  // to
                                                 new Vector3d(0.0f, 1.0f,  0.0f));  // up
+        lightView.invert();
+        lightView.transpose();
         // combine the two
         Matrix4d lightSpaceMatrix = new Matrix4d();
         lightSpaceMatrix.mul(lightProjection,lightView);
+
         return lightSpaceMatrix;
     }
 }
