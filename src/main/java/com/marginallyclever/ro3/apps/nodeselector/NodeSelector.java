@@ -4,6 +4,7 @@ import com.marginallyclever.ro3.apps.dialogs.NodeSelectionDialog;
 import com.marginallyclever.ro3.node.Node;
 
 import javax.swing.*;
+import java.awt.dnd.DropTarget;
 
 /**
  * <p>{@link NodeSelector} is a component that allows the user to select a {@link Node}.  Internally it stores a
@@ -28,6 +29,8 @@ public class NodeSelector<T extends Node> extends JButton {
         setName("selector");
         addActionListener((e)-> runSelectionDialog(type));
         setButtonLabel();
+
+        new DropTarget(this,new NodeSelectorDropTarget<>(this,type));
     }
 
     private void runSelectionDialog(Class<T> type) {
@@ -35,11 +38,7 @@ public class NodeSelector<T extends Node> extends JButton {
         panel.setSubject(subject);
         int result = JOptionPane.showConfirmDialog(NodeSelector.this, panel, "Select "+type.getSimpleName(), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
-            T oldValue = subject;
-            NodeSelector.this.subject = panel.getSelectedNode();
-            setButtonLabel();
-
-            firePropertyChange("subject",oldValue,subject);
+            setSubject(panel.getSelectedNode());
         }
     }
 
@@ -49,8 +48,10 @@ public class NodeSelector<T extends Node> extends JButton {
     }
 
     public void setSubject(T subject) {
+        T oldValue = this.subject;
         this.subject = subject;
         setButtonLabel();
+        firePropertyChange("subject",oldValue,subject);
     }
 
     public T getSubject() {

@@ -4,8 +4,6 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.shared.SearchBar;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeBranch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -101,7 +99,7 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
         addAllParents(matches);
 
         NodeTreeBranch rootTreeNode = new NodeTreeBranch(rootNode);
-        addChildren(rootNode, rootTreeNode, matches);
+        addBranches(rootNode, rootTreeNode, matches);
         tree.setModel(new DefaultTreeModel(rootTreeNode));
     }
 
@@ -145,13 +143,13 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
         return matches;
     }
 
-    private void addChildren(Node node, NodeTreeBranch treeNode, List<Node> matches) {
+    private void addBranches(Node node, NodeTreeBranch treeNode, List<Node> matches) {
         for (Node child : node.getChildren()) {
             if(!matches.contains(child)) continue;
 
             NodeTreeBranch childTreeNode = new NodeTreeBranch(child);
             treeNode.add(childTreeNode);
-            addChildren(child, childTreeNode,matches);
+            addBranches(child, childTreeNode,matches);
         }
     }
 
