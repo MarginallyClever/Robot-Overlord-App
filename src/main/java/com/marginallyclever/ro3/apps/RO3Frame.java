@@ -10,8 +10,8 @@ import ModernDocking.ext.ui.DockingUI;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.marginallyclever.communications.application.TextInterfaceToSessionLayer;
+import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.RO3;
-import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.about.AboutPanel;
 import com.marginallyclever.ro3.apps.actions.*;
@@ -68,8 +68,11 @@ public class RO3Frame extends JFrame {
         webCamPanel = new WebCamPanel();
         textInterface = new TextInterfaceToSessionLayer();
 
-        createLayout();
+        createDefaultLayout();
+        saveAndRestoreLayout();
+
         UndoSystem.start();
+
         createMenus();
         addQuitHandler();
         addAboutHandler();
@@ -255,52 +258,58 @@ public class RO3Frame extends JFrame {
      * Persistent IDs were generated using <code>UUID.randomUUID().toString()</code>
      * or <a href="https://www.uuidgenerator.net/">one of many websites</a>.
      */
-    private void createLayout() {
+    private void createDefaultLayout() {
         setSize(800, 600);
         setLocationByPlatform(true);
 
         RootDockingPanel root = new RootDockingPanel(this);
         add(root, BorderLayout.CENTER);
 
-        DockingPanel renderView = new DockingPanel("8e50154c-a149-4e95-9db5-4611d24cc0cc","3D view");
+        DockingPanel renderView = new DockingPanel("8e50154c-a149-4e95-9db5-4611d24cc0cc", "3D view");
         renderView.add(renderPanel, BorderLayout.CENTER);
         Docking.dock(renderView, this, DockingRegion.CENTER);
         windows.add(renderView);
 
-        DockingPanel treeView = new DockingPanel("c6b04902-7e53-42bc-8096-fa5d43289362","Scene");
+        DockingPanel treeView = new DockingPanel("c6b04902-7e53-42bc-8096-fa5d43289362", "Scene");
         NodeTreeView nodeTreeView = new NodeTreeView();
         treeView.add(nodeTreeView, BorderLayout.CENTER);
-        Docking.dock(treeView,this, DockingRegion.WEST);
+        Docking.dock(treeView, this, DockingRegion.WEST);
         windows.add(treeView);
 
-        DockingPanel detailView = new DockingPanel("67e45223-79f5-4ce2-b15a-2912228b356f","Details");
+        DockingPanel detailView = new DockingPanel("67e45223-79f5-4ce2-b15a-2912228b356f", "Details");
         NodeDetailView nodeDetailView = new NodeDetailView();
         detailView.add(nodeDetailView, BorderLayout.CENTER);
         Docking.dock(detailView, treeView, DockingRegion.SOUTH);
         windows.add(detailView);
 
-        DockingPanel logView = new DockingPanel("5e565f83-9734-4281-9828-92cd711939df","Log");
+        DockingPanel logView = new DockingPanel("5e565f83-9734-4281-9828-92cd711939df", "Log");
         logView.add(logPanel, BorderLayout.CENTER);
         windows.add(logView);
 
-        DockingPanel editorView = new DockingPanel("3f8f54e1-af78-4994-a1c2-21a68ec294c9","Editor");
+        DockingPanel editorView = new DockingPanel("3f8f54e1-af78-4994-a1c2-21a68ec294c9", "Editor");
         editorView.add(editPanel, BorderLayout.CENTER);
         windows.add(editorView);
 
-        DockingPanel aboutView = new DockingPanel("976af87b-90f3-42ce-a5d6-e4ab663fbb15","About");
+        DockingPanel aboutView = new DockingPanel("976af87b-90f3-42ce-a5d6-e4ab663fbb15", "About");
         aboutView.add(new AboutPanel(), BorderLayout.CENTER);
+        Docking.dock(aboutView,treeView,DockingRegion.CENTER);
         windows.add(aboutView);
 
-        DockingPanel webcamView = new DockingPanel("1331fbb0-ceda-4c67-b343-6539d4f939a1","USB Camera");
+        DockingPanel webcamView = new DockingPanel("1331fbb0-ceda-4c67-b343-6539d4f939a1", "USB Camera");
         webcamView.add(webCamPanel, BorderLayout.CENTER);
         windows.add(webcamView);
 
-        DockingPanel textInterfaceView = new DockingPanel("7796a733-8e33-417a-b363-b28174901e40","Text Interface");
+        DockingPanel textInterfaceView = new DockingPanel("7796a733-8e33-417a-b363-b28174901e40", "Text Interface");
         textInterfaceView.add(textInterface, BorderLayout.CENTER);
         windows.add(textInterfaceView);
+    }
 
+    private void saveAndRestoreLayout() {
         // now that the main frame is set up with the defaults, we can restore the layout
-        AppState.setPersistFile(new File("ro3.layout"));
+        var path = FileHelper.getUserHome()+File.separator+"RobotOverlord"+File.separator+"ro3.layout";
+        logger.debug(path);
+        AppState.setPersistFile(new File(path));
+        AppState.setAutoPersist(true);
 
         try {
             AppState.restore();
@@ -308,7 +317,5 @@ public class RO3Frame extends JFrame {
             // something happened trying to load the layout file, record it here
             logger.error("Failed to restore docking layout.", e);
         }
-
-        AppState.setAutoPersist(true);
     }
 }
