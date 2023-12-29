@@ -111,8 +111,9 @@ public class MeshFactory {
 	}
 
 	public static boolean canLoad(String absolutePath) {
+		String lowerCasePath = absolutePath.toLowerCase();
 		for( MeshLoader loader : loaders ) {
-			if(Arrays.stream(loader.getValidExtensions()).anyMatch(absolutePath::endsWith)) return true;
+			if(Arrays.stream(loader.getValidExtensions()).anyMatch(ext -> lowerCasePath.endsWith(ext.toLowerCase()))) return true;
 		}
 		return false;
 	}
