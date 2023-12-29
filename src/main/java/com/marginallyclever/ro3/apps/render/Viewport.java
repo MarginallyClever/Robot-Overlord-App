@@ -270,6 +270,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         cameraSelector.addItemListener(e -> {
             Registry.setActiveCamera((Camera) e.getItem());
         });
+        cameraSelector.setSelectedIndex(0);
         toolBar.add(cameraSelector);
     }
 
