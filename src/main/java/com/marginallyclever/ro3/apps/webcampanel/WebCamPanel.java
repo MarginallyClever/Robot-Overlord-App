@@ -19,15 +19,16 @@ import java.util.concurrent.TimeoutException;
 public class WebCamPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(WebCamPanel.class);
     private WebcamPanel panel;
+    private JButton snapshotButton;
 
     public WebCamPanel() {
         super(new BorderLayout());
         setName("webcam");
+        addToolBar();
+    }
 
-        var toolBar = new JToolBar();
-        toolBar.setFloatable(false);
-
-        toolBar.add(new JButton(new AbstractAction() {
+    private void addToolBar() {
+        snapshotButton = new JButton(new AbstractAction() {
             {
                 putValue(NAME, "Snapshot");
                 putValue(SHORT_DESCRIPTION, "Snapshot");
@@ -37,18 +38,21 @@ public class WebCamPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 takeSnapshot();
             }
-        }));
+        });
 
-
+        var toolBar = new JToolBar();
+        toolBar.setFloatable(false);
+        toolBar.add(snapshotButton);
         add(toolBar, BorderLayout.NORTH);
     }
 
     @Override
     public void addNotify() {
         super.addNotify();
-
+        logger.debug("webcam addNotify");
         try {
             Webcam webcam = Webcam.getDefault(1000);
+            if(webcam==null) throw new TimeoutException("Soft timeout.");
             var list = webcam.getViewSizes();
             webcam.setViewSize(list[list.length - 1]);  // probably the biggest
 
@@ -57,9 +61,13 @@ public class WebCamPanel extends JPanel {
             panel.setFPSDisplayed(true);
             add(panel, BorderLayout.CENTER);
             panel.start();
+            snapshotButton.setEnabled(true);
         } catch (TimeoutException e) {
             logger.error("TimeoutException",e);
-            add(new JLabel("No webcam found."), BorderLayout.CENTER);
+            var label=new JLabel("No webcam found.");
+            label.setHorizontalAlignment(SwingConstants.CENTER);
+            add(label, BorderLayout.CENTER);
+            snapshotButton.setEnabled(false);
         }
     }
 
@@ -71,6 +79,7 @@ public class WebCamPanel extends JPanel {
         panel.stop();
         remove(panel);
         panel=null;
+        snapshotButton.setEnabled(false);
     }
 
     public void takeSnapshot() {
