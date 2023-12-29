@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.FlavorEvent;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
@@ -24,7 +25,20 @@ public class PasteNode extends AbstractAction {
         putValue(Action.NAME,"Paste");
         putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-paste-16.png"))));
         putValue(SHORT_DESCRIPTION,"Paste the selected node(s).");
+
+        Registry.clipboard.addFlavorListener(this::clipboardChanged);
+        setEnabled(false);
     }
+
+    private void clipboardChanged(FlavorEvent flavorEvent) {
+        // if the clipboard has changed, update the menu item
+        if(flavorEvent.getSource()==Registry.clipboard) {
+            setEnabled(Registry.clipboard.isDataFlavorAvailable(JSONHelper.JSON_FLAVOR));
+        } else {
+            setEnabled(false);
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         // get the contents of Registry.clipboard if it's a JSON string
