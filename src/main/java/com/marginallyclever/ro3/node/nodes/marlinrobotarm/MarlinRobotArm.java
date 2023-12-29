@@ -373,7 +373,7 @@ public class MarlinRobotArm extends Node {
     }
 
     public void setAllJointAngles(double[] values) {
-        if(values.length!=getNumJoints()) {
+        if(values.length != getNumJoints()) {
             logger.error("setAllJointValues: one value for every motor");
             return;
         }
@@ -426,7 +426,9 @@ public class MarlinRobotArm extends Node {
 
     private void moveTowardsTarget(double dt) {
         if(endEffector==null || target==null || linearVelocity<0.0001) {
-            setAllJointVelocities(new double[]{0,0,0,0,0,0});
+            double[] jointAnglesOriginal = getAllJointAngles();
+            Arrays.fill(jointAnglesOriginal, 0);
+            setAllJointVelocities(jointAnglesOriginal);
             return;
         }
         double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrices(endEffector.getWorld(), target.getWorld());
