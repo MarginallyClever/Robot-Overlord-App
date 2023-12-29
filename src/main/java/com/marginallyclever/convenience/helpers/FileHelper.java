@@ -71,7 +71,11 @@ public class FileHelper {
 	public static String getUserDirectory() {
 		return System.getProperty("user.dir");
 	}
-	
+
+	public static String getUserHome() {
+		return System.getProperty("user.home");
+	}
+
 	public static String getTempDirectory() { 
 		return System.getProperty("java.io.tmpdir");
 	}

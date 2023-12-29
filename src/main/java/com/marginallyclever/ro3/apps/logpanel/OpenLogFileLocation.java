@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
@@ -24,7 +25,7 @@ public class OpenLogFileLocation extends AbstractAction {
     }
 
     @Override
-    public void actionPerformed(java.awt.event.ActionEvent e) {
+    public void actionPerformed(ActionEvent e) {
         String logFileName = getLogFile();
         if(logFileName==null) {
             logger.error("Failed to find log file.");

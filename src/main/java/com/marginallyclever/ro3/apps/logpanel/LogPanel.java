@@ -10,15 +10,13 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.List;
 import java.io.File;
 import java.io.IOException;
 import java.lang.module.Configuration;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * {@link LogPanel} is a read-only panel that contains the log.  It cannot be derived from {@link DockingPanel}
@@ -55,7 +53,8 @@ public class LogPanel extends JPanel {
     private void reportSystemInfo() {
         logger.info("------------------------------------------------");
         Properties p = System.getProperties();
-        for(String n : p.stringPropertyNames()) {
+        TreeSet<String> list = new TreeSet<>(p.stringPropertyNames());
+        for(String n : list) {
             logger.info(n+" = "+p.get(n));
         }
         logger.info("locale = "+ Locale.getDefault());

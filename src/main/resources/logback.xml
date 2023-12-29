@@ -12,12 +12,15 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>log.txt</file>
+        <file>${user.home}/RobotOverlord/log.txt</file>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n</pattern>
         </encoder>
         <append>false</append>
     </appender>
+
+    <!-- make the webcam quietly poll for cameras -->
+    <logger name="c.g.s.w.d.b.WebcamDefaultDriver" level="INFO" />
 
     <!-- <logger name="java.util.prefs" level="off" /> -->
 
