@@ -16,6 +16,7 @@ import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.*;
 import java.awt.*;
+import java.awt.datatransfer.FlavorEvent;
 import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.List;
@@ -159,9 +160,9 @@ public class NodeTreeView extends JPanel
         var copyButton = new JButton(copyNode);
         var pasteButton = new JButton(pasteNode);
         toolBar.add(addButton);
-        toolBar.add(cutButton);
-        toolBar.add(copyButton);
         toolBar.add(pasteButton);
+        toolBar.add(copyButton);
+        toolBar.add(cutButton);
         toolBar.add(removeButton);
         removeNode.setEnabled(false);  // nothing selected at first
     }
