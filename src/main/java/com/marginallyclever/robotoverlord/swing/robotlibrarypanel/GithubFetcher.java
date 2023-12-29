@@ -339,6 +339,10 @@ public class GithubFetcher {
      */
     private static void writeFileToCache(String path,List<String> values) {
         logger.info("Writing cache file "+path);
+        // create the folder if it does not exist
+        File f = new File(path);
+        f.getParentFile().mkdirs();
+
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(path), StandardCharsets.UTF_8)) {
             for (String value : values) {
                 writer.write(value);
