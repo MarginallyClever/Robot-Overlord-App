@@ -32,9 +32,16 @@ public class Material extends Node {
 
     @Override
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridLayout(0,2));
+        JPanel pane = new JPanel(new GridBagLayout());
         list.add(pane);
         pane.setName(Material.class.getSimpleName());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.gridx=0;
+        gbc.gridy=0;
+        gbc.fill = GridBagConstraints.BOTH;
 
         JButton button = new JButton();
         setTextureButtonLabel(button);
@@ -46,50 +53,53 @@ public class Material extends Node {
                 setTextureButtonLabel(button);
             }
         });
-        addLabelAndComponent(pane,"Texture",button);
+        addLabelAndComponent(pane,"Texture",button,gbc);
 
         if(texture!=null) {
             BufferedImage smaller = scaleImage(texture.getImage(),64);
-            addLabelAndComponent(pane,"Size",new JLabel(texture.getWidth()+"x"+texture.getHeight()));
-            addLabelAndComponent(pane,"Preview",new JLabel(new ImageIcon(smaller)));
+            addLabelAndComponent(pane,"Size",new JLabel(texture.getWidth()+"x"+texture.getHeight()),gbc);
+            addLabelAndComponent(pane,"Preview",new JLabel(new ImageIcon(smaller)),gbc);
         }
 
         // diffuse
         JButton selectColorDiffuse = new JButton();
         selectColorDiffuse.setBackground(diffuseColor);
         selectColorDiffuse.addActionListener(e -> {
-            setDiffuseColor(JColorChooser.showDialog(pane,"Diffuse Color",getDiffuseColor()));
+            Color color = JColorChooser.showDialog(pane,"Diffuse Color",getDiffuseColor());
+            if(color!=null) setDiffuseColor(color);
             selectColorDiffuse.setBackground(diffuseColor);
         });
-        addLabelAndComponent(pane,"Diffuse",selectColorDiffuse);
+        addLabelAndComponent(pane,"Diffuse",selectColorDiffuse,gbc);
 
         // specular
         JButton selectColorSpecular = new JButton();
         selectColorSpecular.setBackground(specularColor);
         selectColorSpecular.addActionListener(e -> {
-            setSpecularColor(JColorChooser.showDialog(pane,"Specular Color",getSpecularColor()));
+            Color color = JColorChooser.showDialog(pane,"Specular Color",getSpecularColor());
+            if(color!=null) setSpecularColor(color);
             selectColorSpecular.setBackground(specularColor);
         });
-        addLabelAndComponent(pane,"Specular",selectColorSpecular);
+        addLabelAndComponent(pane,"Specular",selectColorSpecular,gbc);
 
         // emissive
         JButton selectColorEmission = new JButton();
         selectColorEmission.setBackground(emissionColor);
         selectColorEmission.addActionListener(e -> {
-            setEmissionColor(JColorChooser.showDialog(pane,"Emissive Color", getEmissionColor()));
+            Color color = JColorChooser.showDialog(pane,"Emissive Color",getEmissionColor());
+            if(color!=null) setEmissionColor(color);
             selectColorEmission.setBackground(emissionColor);
         });
-        addLabelAndComponent(pane,"Emissive",selectColorEmission);
+        addLabelAndComponent(pane,"Emissive",selectColorEmission,gbc);
 
         // shininess
         JSlider shininessSlider = new JSlider(0,128,getShininess());
         shininessSlider.addChangeListener(e -> setShininess(shininessSlider.getValue()));
-        addLabelAndComponent(pane,"Shininess",shininessSlider);
+        addLabelAndComponent(pane,"Shininess",shininessSlider,gbc);
 
         // lit
         JToggleButton isLitButton = new JToggleButton("Lit",isLit());
         isLitButton.addActionListener(e -> setLit(isLitButton.isSelected()));
-        addLabelAndComponent(pane,"Lit",isLitButton);
+        addLabelAndComponent(pane,"Lit",isLitButton,gbc);
 
         super.getComponents(list);
 

@@ -2,8 +2,7 @@ package com.marginallyclever.ro3.apps.nodetreeview;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
-import com.marginallyclever.ro3.apps.actions.AddNode;
-import com.marginallyclever.ro3.apps.actions.RemoveNode;
+import com.marginallyclever.ro3.apps.actions.*;
 import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
 import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
 import com.marginallyclever.ro3.node.Node;
@@ -32,7 +31,10 @@ public class NodeTreeView extends JPanel
     private final JTree tree;
     private final NodeTreeBranch treeModel = new NodeTreeBranch(Registry.getScene());
     private final JToolBar toolBar = new JToolBar();
-    private final RemoveNode removeNode = new RemoveNode(this);
+    private final CutNode cutNode = new CutNode();
+    private final CopyNode copyNode = new CopyNode();
+    private final PasteNode pasteNode = new PasteNode();
+    private final RemoveNode removeNode = new RemoveNode();
     private boolean isExternalChange = false;
 
     public NodeTreeView() {
@@ -149,10 +151,17 @@ public class NodeTreeView extends JPanel
         }
     }
 
+
     private void buildToolBar() {
         var addButton = new JButton(new AddNode<>(this));
+        var cutButton = new JButton(cutNode);
         var removeButton = new JButton(removeNode);
+        var copyButton = new JButton(copyNode);
+        var pasteButton = new JButton(pasteNode);
         toolBar.add(addButton);
+        toolBar.add(cutButton);
+        toolBar.add(copyButton);
+        toolBar.add(pasteButton);
         toolBar.add(removeButton);
         removeNode.setEnabled(false);  // nothing selected at first
     }

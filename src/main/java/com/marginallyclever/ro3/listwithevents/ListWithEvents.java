@@ -63,4 +63,25 @@ public class ListWithEvents<T> {
     public int size() {
         return list.size();
     }
+
+    public void addAll(ArrayList<T> selection) {
+        for(T item : selection) {
+            add(item);
+        }
+    }
+
+    public void set(ArrayList<T> selection) {
+        // remove only the items that are not in the new selection
+        for(T item : list) {
+            if(!selection.contains(item)) {
+                remove(item);
+            }
+        }
+        // add only the items that are not in the old selection
+        for(T item : selection) {
+            if(!list.contains(item)) {
+                add(item);
+            }
+        }
+    }
 }

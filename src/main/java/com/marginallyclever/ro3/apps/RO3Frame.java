@@ -84,6 +84,7 @@ public class RO3Frame extends JFrame {
             Properties prop = new Properties();
             prop.load(input);
             VERSION = prop.getProperty("robotoverlord.version");
+            logger.info("Robot Overlord version {}",VERSION);
         } catch(IOException e) {
             logger.error("Failed to load version number.", e);
         }

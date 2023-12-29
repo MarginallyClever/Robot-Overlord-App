@@ -3,7 +3,6 @@ package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Motor;
 import com.marginallyclever.ro3.node.nodes.Pose;
@@ -164,24 +163,6 @@ public class MarlinRobotArm extends Node {
         outputPanel.add(outputLabel,BorderLayout.LINE_START);
         addMarlinListener(output::setText);
         return outputPanel;
-    }
-
-    /**
-     * A convenience method to add a label and component to a panel that is expected to be built with
-     * <code>new GridLayout(0, 2)</code>.
-     * @param pane the panel to add to
-     * @param labelText the text for the label
-     * @param component the component to add
-     * @param gbc the GridBagConstraints to use
-     */
-    protected void addLabelAndComponent(JPanel pane, String labelText, JComponent component, GridBagConstraints gbc) {
-        JLabel label = new JLabel(labelText);
-        label.setLabelFor(component);
-        gbc.gridx=0;
-        pane.add(label,gbc);
-        gbc.gridx=1;
-        pane.add(component,gbc);
-        gbc.gridy++;
     }
 
     /**

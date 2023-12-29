@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +24,7 @@ public class Node {
     private Node parent;
     private UUID nodeID;
     protected final EventListenerList listeners = new EventListenerList();
+    public static DataFlavor flavor = new DataFlavor(Node.class, Node.class.getSimpleName());
 
     public Node() {
         this("Node");
@@ -267,6 +269,24 @@ public class Node {
 
     public void removeRenameListener(NodeRenameListener listener) {
         listeners.remove(NodeRenameListener.class,listener);
+    }
+
+    /**
+     * A convenience method to add a label and component to a panel that is expected to be built with
+     * <code>new GridLayout(0, 2)</code>.
+     * @param pane the panel to add to
+     * @param labelText the text for the label
+     * @param component the component to add
+     * @param gbc the GridBagConstraints to use
+     */
+    protected void addLabelAndComponent(JPanel pane, String labelText, JComponent component, GridBagConstraints gbc) {
+        JLabel label = new JLabel(labelText);
+        label.setLabelFor(component);
+        gbc.gridx=0;
+        pane.add(label,gbc);
+        gbc.gridx=1;
+        pane.add(component,gbc);
+        gbc.gridy++;
     }
 
     /**

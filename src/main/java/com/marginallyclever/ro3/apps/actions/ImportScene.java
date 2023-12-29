@@ -3,7 +3,6 @@ package com.marginallyclever.ro3.apps.actions;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.RO3Frame;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.robotoverlord.RobotOverlord;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,14 +66,19 @@ public class ImportScene extends AbstractAction {
 
         try {
             String content = new String(Files.readAllBytes(Paths.get(selectedFile.getAbsolutePath())));
-            Node loaded = new Node("Scene");
             // Add the loaded scene to the current scene.
-            loaded.fromJSON(new JSONObject(content));
-            loaded.witnessProtection();
-            Registry.getScene().addChild(loaded);
+            var jsonObject = new JSONObject(content);
+            Registry.getScene().addChild(createFromJSON(jsonObject));
         } catch (IOException e) {
             logger.error("Error loading scene from JSON", e);
         }
         logger.info("done.");
+    }
+
+    public static Node createFromJSON(JSONObject jsonObject) {
+        Node loaded = Registry.nodeFactory.create(jsonObject.get("type").toString());
+        loaded.fromJSON(jsonObject);
+        loaded.witnessProtection();
+        return loaded;
     }
 }

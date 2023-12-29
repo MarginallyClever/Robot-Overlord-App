@@ -1,16 +1,16 @@
 package com.marginallyclever.ro3.apps.actions;
 
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class RemoveNode extends AbstractAction {
-    private final NodeTreeView nodeTreeView;
-    public RemoveNode(NodeTreeView nodeTreeView) {
+    public RemoveNode() {
         super();
-        this.nodeTreeView = nodeTreeView;
         putValue(Action.NAME,"Remove");
         putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-delete-16.png"))));
         putValue(SHORT_DESCRIPTION,"Remove the selected node(s).");
@@ -18,6 +18,11 @@ public class RemoveNode extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        nodeTreeView.removeSelectedNodes();
+        var selection = new ArrayList<>(Registry.selection.getList());
+        Registry.selection.removeAll();
+        for(var node : selection) {
+            if(node == Registry.getScene()) continue;
+            node.getParent().removeChild(node);
+        }
     }
 }
