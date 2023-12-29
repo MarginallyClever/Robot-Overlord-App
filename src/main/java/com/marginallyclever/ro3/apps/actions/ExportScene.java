@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.RO3Frame;
 import com.marginallyclever.ro3.mesh.load.MeshFactory;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -59,7 +60,8 @@ public class ExportScene extends AbstractAction {
             }
         });
 
-        if (chooser.showSaveDialog(parentFrame) == JFileChooser.APPROVE_OPTION) {
+        chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+        if (chooser.showDialog(parentFrame,"Export") == JFileChooser.APPROVE_OPTION) {
             // check before overwriting.
             File selectedFile = chooser.getSelectedFile();
             if (selectedFile.exists()) {
@@ -92,7 +94,7 @@ public class ExportScene extends AbstractAction {
 
         createZipAndAddAssets(absolutePath, json.toString(), sources);
 
-        logger.error("done.");
+        logger.info("done.");
     }
 
     private void createZipAndAddAssets(String outputZipFile, String json, List<String> sources) {
@@ -100,13 +102,14 @@ public class ExportScene extends AbstractAction {
         Map<String, String> pathMapping = new HashMap<>();
 
         String rootFolderName = nameWithoutExtension(new File(outputZipFile));
-        String sceneName = rootFolderName+ ".ro";
+        String sceneName = rootFolderName+ "." + RO3Frame.FILE_FILTER.getExtensions()[0];  // "ro3" or "r
         String newSceneName = rootFolderName+"/"+sceneName;
         pathMapping.put(sceneName,newSceneName);  // reserve this name
 
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(outputZipFile))) {
             for( String originalPath : sources ) {
                 String newName = rootFolderName + "/" + createUniqueName(originalPath, pathMapping);
+                logger.debug("Adding {} as {}", originalPath, newName);
                 addFileToZip(originalPath, newName, zos);
                 pathMapping.put(originalPath, newName);
             }
@@ -121,7 +124,7 @@ public class ExportScene extends AbstractAction {
         } catch (FileNotFoundException e) {
             logger.error("Could not open ZIP file.", e);
         } catch (IOException e) {
-            logger.error("IO error.", e);
+            logger.error("Write error.", e);
         }
     }
 

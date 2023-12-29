@@ -48,7 +48,8 @@ public class ImportScene extends AbstractAction {
         
         Component source = (Component) e.getSource();
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
-        if (chooser.showOpenDialog(parentFrame) == JFileChooser.APPROVE_OPTION) {
+        chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+        if (chooser.showDialog(parentFrame,"Import") == JFileChooser.APPROVE_OPTION) {
             commitImport(chooser.getSelectedFile());
         }
     }
