@@ -26,6 +26,7 @@ import java.util.List;
  * @author Dan Royer
  * @since 2.5.0
  */
+@Deprecated
 public class GRBLPresentation implements PresentationLayer {
     private static final Logger logger = LoggerFactory.getLogger(GRBLPresentation.class);
 

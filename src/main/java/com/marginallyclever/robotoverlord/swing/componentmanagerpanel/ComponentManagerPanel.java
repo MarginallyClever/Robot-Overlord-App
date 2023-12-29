@@ -21,6 +21,7 @@ import java.util.List;
 /**
  * Collate all the {@link Component}s for selected {@link Entity}s.
  */
+@Deprecated
 public class ComponentManagerPanel extends JPanel {
 	private final EntityManager entityManager;
 	private final JPanel componentList = new JPanel();

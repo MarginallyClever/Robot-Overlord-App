@@ -7,6 +7,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.*;
 
+@Deprecated
 public class FullNameTreeCellRenderer extends DefaultTreeCellRenderer {
     private static final int HORIZONTAL_PADDING = 20; // Additional padding to avoid truncation
     @Override

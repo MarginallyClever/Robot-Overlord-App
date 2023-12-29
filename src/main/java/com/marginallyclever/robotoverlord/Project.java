@@ -16,6 +16,7 @@ import java.nio.file.Paths;
  * A {@link Project} is a collection of Entities that have Components that is stored somewhere on disk.
  *
  */
+@Deprecated
 public class Project {
     private static final Logger logger = LoggerFactory.getLogger(Project.class);
     private final int schemaVerison = 1;

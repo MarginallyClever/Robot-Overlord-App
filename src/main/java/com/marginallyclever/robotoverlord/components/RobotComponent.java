@@ -25,6 +25,7 @@ import java.util.*;
  * @since 2022-09-14
  */
 @ComponentDependency(components = {PoseComponent.class})
+@Deprecated
 public class RobotComponent extends Component implements Robot, ComponentWithReferences {
     private static final Logger logger = LoggerFactory.getLogger(RobotComponent.class);
     public static final String TARGET_NAME = "target";

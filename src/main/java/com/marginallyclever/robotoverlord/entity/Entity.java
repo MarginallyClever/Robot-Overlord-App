@@ -15,6 +15,7 @@ import java.util.*;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class Entity {
 	public static final String PATH_SEPARATOR = "/";
 	public static final String PATH_PREVIOUS = "..";

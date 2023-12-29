@@ -3,6 +3,7 @@ package com.marginallyclever.robotoverlord.entity;
 /**
  * An interface for listening to changes in the {@link EntityManager}.
  */
+@Deprecated
 public class EntityManagerEvent {
     /**
      * When a child is added to a parent.  parent and child will be valid.

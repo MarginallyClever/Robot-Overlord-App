@@ -8,6 +8,7 @@ import java.awt.*;
  * @author Dan Royer
  * @since 2022-03-15
  */
+@Deprecated
 public class UnicodeIcon implements Icon {
     private final static int HEIGHT = 24;
     private final static int WIDTH = 24;

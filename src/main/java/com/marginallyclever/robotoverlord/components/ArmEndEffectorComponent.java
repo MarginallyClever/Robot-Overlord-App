@@ -9,6 +9,7 @@ import javax.vecmath.Matrix4d;
  * @since 2.5.0
  */
 @ComponentDependency(components = {PoseComponent.class})
+@Deprecated
 public class ArmEndEffectorComponent extends Component {
     public Matrix4d getToolCenterPoint() {
         PoseComponent p = getEntity().getComponent(PoseComponent.class);

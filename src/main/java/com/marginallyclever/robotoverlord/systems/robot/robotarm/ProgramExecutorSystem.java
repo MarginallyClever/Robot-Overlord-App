@@ -21,6 +21,7 @@ import javax.vecmath.Matrix4d;
 import java.util.LinkedList;
 import java.util.List;
 
+@Deprecated
 public class ProgramExecutorSystem  implements EntitySystem {
     private static final Logger logger = LoggerFactory.getLogger(ProgramExecutorSystem.class);
     private final EntityManager entityManager;

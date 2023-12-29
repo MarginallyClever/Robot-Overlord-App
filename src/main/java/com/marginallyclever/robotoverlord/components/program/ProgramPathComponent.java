@@ -19,6 +19,7 @@ import java.util.List;
 /**
  * PathComponent may contain an orderd list of children with {@link PoseComponent}.
  */
+@Deprecated
 public class ProgramPathComponent extends ProgramStepComponent {
     public static final String[] MOVE_TYPE_NAMES = {"Rapid","Linear"};  // ,"Bezier"
     public static final int MOVE_RAPID = 0;

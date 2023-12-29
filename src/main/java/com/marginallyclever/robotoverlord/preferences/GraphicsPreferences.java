@@ -11,6 +11,7 @@ import java.util.prefs.Preferences;
  * @since 2.7.0
  * @author Dan Royer
  */
+@Deprecated
 public class GraphicsPreferences {
     public static final String[] FSAA_NAMES = {"off","2","4","8"};
     private static final Preferences preferences = Preferences.userRoot().node("RobotOverlord").node("Graphics");

@@ -18,6 +18,7 @@ import javax.vecmath.Vector3d;
  * @since 2.5.0
  */
 @ComponentDependency(components={PoseComponent.class})
+@Deprecated
 public class CameraComponent extends RenderComponent {
     public final DoubleParameter pan = new DoubleParameter("Pan",0);
     public final DoubleParameter tilt = new DoubleParameter("Tilt",0);

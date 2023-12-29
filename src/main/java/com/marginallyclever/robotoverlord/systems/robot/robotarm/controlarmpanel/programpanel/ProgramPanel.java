@@ -18,6 +18,7 @@ import java.io.*;
 /**
  * A panel that displays a list of {@link ProgramEvent}s for controlling a robot.
  */
+@Deprecated
 public class ProgramPanel extends JPanel {
 	private static final Logger logger = LoggerFactory.getLogger(ProgramPanel.class);
 	private final DefaultListModel<ProgramEvent> listModel = new DefaultListModel<>();

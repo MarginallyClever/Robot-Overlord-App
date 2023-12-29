@@ -13,6 +13,7 @@ import java.util.prefs.BackingStoreException;
  * @since 2.7.0
  * @author Dan Royer
  */
+@Deprecated
 public class InteractionPreferencesPanel extends JPanel {
     public InteractionPreferencesPanel() {
         super(new BorderLayout());

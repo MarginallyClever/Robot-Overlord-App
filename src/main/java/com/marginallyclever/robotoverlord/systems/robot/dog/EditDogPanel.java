@@ -20,6 +20,7 @@ import java.util.List;
  * @author Dan Royer
  * @since 2.5.7
  */
+@Deprecated
 public class EditDogPanel extends JPanel {
     private final EntityManager entityManager;
     private final Entity rootEntity;

@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public class RobotArmComponent extends Component {
     private static final Logger logger = LoggerFactory.getLogger(RobotArmComponent.class);
     public final ListParameter<ReferenceParameter> joints = new ListParameter<>("Joints",new ReferenceParameter());

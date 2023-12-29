@@ -19,6 +19,7 @@ import javax.vecmath.Vector3d;
  * @since 1.6.0
  *
  */
+@Deprecated
 public class Viewport extends Entity {
 	private int canvasWidth, canvasHeight;
 

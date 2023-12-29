@@ -13,6 +13,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 
+@Deprecated
 public class MainMenu extends JMenuBar {
 
     private final RecentFiles recentFiles = new RecentFiles();

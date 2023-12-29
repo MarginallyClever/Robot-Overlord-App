@@ -20,6 +20,7 @@ import java.util.Arrays;
  * @author Dan Royer
  * @since 2022-08-04
  */
+@Deprecated
 public class PoseComponent extends Component implements PropertyChangeListener {
     // pose relative to my parent (aka local pose).
     private final Matrix4d local = new Matrix4d();

@@ -23,6 +23,7 @@ import java.util.List;
  * @author Dan Royer
  * @since 2.5.7
  */
+@Deprecated
 public class MakeCartesian3 extends JPanel {
     private static final int NUM_JOINTS = 6;
     private static final String[] axies = {"X","Y","Z"};

@@ -20,6 +20,7 @@ import javax.vecmath.Vector3d;
  * @author Dan Royer
  */
 @ComponentDependency(components = {PoseComponent.class})
+@Deprecated
 public class Background extends Component {
 	private static final Logger logger = LoggerFactory.getLogger(Background.class);
 	private transient final TextureParameter textureXPos = new TextureParameter("XPos","/skybox/cube-x-pos.png");

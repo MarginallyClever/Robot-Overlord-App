@@ -19,6 +19,7 @@ import javax.vecmath.Vector3d;
  * @since 2.5.0
  */
 @ComponentDependency(components={PoseComponent.class, MaterialComponent.class})
+@Deprecated
 public class ShapeComponent extends RenderComponent {
     // a mesh from the pool of meshes
     protected transient Mesh myMesh;

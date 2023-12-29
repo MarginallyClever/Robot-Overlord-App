@@ -24,6 +24,7 @@ import javax.vecmath.Matrix4d;
  * @since 2.0.0?
  * @author Dan Royer
  */
+@Deprecated
 public class ApproximateJacobianFiniteDifferences extends ApproximateJacobian {
 	public double ANGLE_STEP_SIZE_DEGREES = 0.1; // degrees
 

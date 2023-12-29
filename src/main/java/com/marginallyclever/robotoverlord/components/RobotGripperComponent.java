@@ -21,6 +21,7 @@ import java.util.List;
  * @since 2.6.1
  * @author Dan Royer
  */
+@Deprecated
 public class RobotGripperComponent extends ShapeComponent {
     public static final String [] names = new String[] {
             "Opening",

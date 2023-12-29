@@ -31,6 +31,7 @@ import java.util.List;
  * @author Dan Royer
  * @since 2.5.7
  */
+@Deprecated
 public class EditArmPanel extends JPanel implements PropertyChangeListener {
     public static final int MAX_JOINTS = 6;
     private int numJoints = 1;

@@ -6,6 +6,7 @@ import javax.swing.*;
 import javax.swing.tree.*;
 import java.awt.*;
 
+@Deprecated
 class EntityTreeCellEditor extends DefaultTreeCellEditor {
     public EntityTreeCellEditor(JTree tree, DefaultTreeCellRenderer renderer) {
         super(tree, renderer);

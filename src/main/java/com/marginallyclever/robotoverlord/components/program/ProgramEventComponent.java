@@ -19,6 +19,7 @@ import org.json.JSONObject;
  * @author Dan Royer
  * @since 2.6.0
  */
+@Deprecated
 public class ProgramEventComponent extends ProgramStepComponent {
     public static String [] names = {
             "Home",

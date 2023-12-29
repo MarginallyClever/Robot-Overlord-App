@@ -10,6 +10,7 @@ import java.awt.*;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+@Deprecated
 public class PreferencesViewer extends JPanel {
     private final JTree tree;
     private final JTextArea textArea = new JTextArea();

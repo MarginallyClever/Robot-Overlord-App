@@ -10,6 +10,7 @@ import com.marginallyclever.robotoverlord.parameters.IntParameter;
  * @since 2.6.0
  * @author Dan Royer
  */
+@Deprecated
 public class LinearPatternComponent extends RenderComponent {
     public static final String[] SPACING_TYPE_NAMES = {"Spacing","Distance"};
     public static int SPACING = 0;

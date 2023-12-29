@@ -18,6 +18,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.util.*;
 
+@Deprecated
 class EntityTreeTransferHandler extends TransferHandler {
 
     public class NodesTransferable implements Transferable {

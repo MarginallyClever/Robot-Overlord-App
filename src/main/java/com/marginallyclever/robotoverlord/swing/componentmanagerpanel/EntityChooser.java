@@ -21,6 +21,7 @@ import java.awt.event.ActionListener;
  * @author Dan Royer
  * @since 2.5.6
  */
+@Deprecated
 public class EntityChooser extends JDialog {
     private final JTree tree;
     private final List<Entity> selectedEntities;

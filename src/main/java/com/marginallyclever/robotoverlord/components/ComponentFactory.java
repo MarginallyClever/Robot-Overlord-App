@@ -23,6 +23,7 @@ import java.util.ArrayList;
  * @author Dan Royer
  * @since 2.5.0
  */
+@Deprecated
 public abstract class ComponentFactory {
 	private static final Logger logger = LoggerFactory.getLogger(ComponentFactory.class);
 	private static final Class<?> [] available = {

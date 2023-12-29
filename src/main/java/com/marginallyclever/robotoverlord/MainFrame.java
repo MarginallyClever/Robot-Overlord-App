@@ -14,6 +14,7 @@ import java.util.prefs.Preferences;
 /**
  * A JFrame that remembers its size and position.
  */
+@Deprecated
 public class MainFrame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(MainFrame.class);
     private final Preferences prefs;

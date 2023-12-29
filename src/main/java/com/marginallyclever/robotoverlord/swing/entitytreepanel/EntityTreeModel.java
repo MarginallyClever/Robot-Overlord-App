@@ -4,6 +4,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+@Deprecated
 class EntityTreeModel extends DefaultTreeModel {
     public EntityTreeModel(TreeNode root) {
         super(root);

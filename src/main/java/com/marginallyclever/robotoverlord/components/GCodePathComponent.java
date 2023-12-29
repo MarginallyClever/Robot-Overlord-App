@@ -20,6 +20,7 @@ import javax.vecmath.Point3d;
  * @since 2.5.0
  */
 @ComponentDependency(components = {PoseComponent.class})
+@Deprecated
 public class GCodePathComponent extends ShapeComponent implements WalkablePath<Point3d> {
     public final StringParameter filename = new StringParameter("File","");
     public final IntParameter numCommands = new IntParameter("Commands",0);

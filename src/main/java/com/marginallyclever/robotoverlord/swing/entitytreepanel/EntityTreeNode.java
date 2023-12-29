@@ -9,6 +9,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class EntityTreeNode extends DefaultMutableTreeNode {
 	public EntityTreeNode(Entity obj) {
 		super(obj);

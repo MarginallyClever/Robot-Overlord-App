@@ -10,6 +10,7 @@ import java.awt.*;
 /**
  * Paints the tree cells with the entity name instead of Entity.toString().
  */
+@Deprecated
 public class EntityTreeCellRenderer extends DefaultTreeCellRenderer {
 
     @Override

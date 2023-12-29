@@ -7,6 +7,7 @@ package com.marginallyclever.robotoverlord;
  * @since 2.6.0
  * @author Dan Royer
  */
+@Deprecated
 public class SerializationContext {
     private final String projectAbsPath;
 

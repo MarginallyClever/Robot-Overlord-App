@@ -22,6 +22,7 @@ import java.beans.PropertyChangeListener;
  * @since 2022-08-04
  */
 @ComponentDependency(components={PoseComponent.class})
+@Deprecated
 public class DHComponent extends ShapeComponent implements PropertyChangeListener {
     public final BooleanParameter isRevolute = new BooleanParameter("Revolute",true);
     public final DoubleParameter myD = new DoubleParameter("D",0.0);

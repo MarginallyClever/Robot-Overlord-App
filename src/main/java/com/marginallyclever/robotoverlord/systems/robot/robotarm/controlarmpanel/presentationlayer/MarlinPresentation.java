@@ -28,6 +28,7 @@ import java.util.List;
  * @author Dan Royer
  * @since 2.5.0
  */
+@Deprecated
 public class MarlinPresentation implements PresentationLayer {
 	private static final Logger logger = LoggerFactory.getLogger(MarlinPresentation.class);
 

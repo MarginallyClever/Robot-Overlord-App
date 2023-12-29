@@ -29,6 +29,7 @@ import java.util.Map;
  * @author Dan Royer
  * @since 2.5.5
  */
+@Deprecated
 public class RobotArmSystem implements EntitySystem {
     private static final Logger logger = LoggerFactory.getLogger(RobotArmSystem.class);
     private final EntityManager entityManager;
