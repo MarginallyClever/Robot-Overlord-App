@@ -150,8 +150,10 @@ public class NodeTreeView extends JPanel
     }
 
     private void buildToolBar() {
-        toolBar.add(new JButton(new AddNode<>(this)));
-        toolBar.add(new JButton(removeNode));
+        var addButton = new JButton(new AddNode<>(this));
+        var removeButton = new JButton(removeNode);
+        toolBar.add(addButton);
+        toolBar.add(removeButton);
         removeNode.setEnabled(false);  // nothing selected at first
     }
 

@@ -1,9 +1,7 @@
 package com.marginallyclever.ro3.apps;
 
 import com.marginallyclever.ro3.Factory;
-import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeBranch;
 import com.marginallyclever.ro3.apps.shared.SearchBar;
-import com.marginallyclever.ro3.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,17 +59,17 @@ public class FactoryPanel<T> extends JPanel {
         logger.debug("Grown to {} matches", matches.size());
 
         DefaultMutableTreeNode rootTreeNode = new DefaultMutableTreeNode(root);
-        addChildren(root, rootTreeNode, matches);
+        addBranches(root, rootTreeNode, matches);
         tree.setModel(new DefaultTreeModel(rootTreeNode));
     }
 
-    private void addChildren(Factory.Category<T> node, DefaultMutableTreeNode branch, List<Factory.Category<T>> matches) {
+    private void addBranches(Factory.Category<T> node, DefaultMutableTreeNode branch, List<Factory.Category<T>> matches) {
         for(Factory.Category<T> child : node.getChildren()) {
             if(!matches.contains(child)) continue;
 
             DefaultMutableTreeNode childTreeNode = new DefaultMutableTreeNode(child);
             branch.add(childTreeNode);
-            addChildren(child, childTreeNode,matches);
+            addBranches(child, childTreeNode,matches);
         }
     }
 

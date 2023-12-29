@@ -155,17 +155,6 @@ public class EditorPanel extends JPanel implements MarlinListener {
         tools.add(getButton);
         tools.add(lockButton);
         tools.addSeparator();
-
-        // FIXME set shortcut to ctrl+G?
-        /*
-        getButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("control G"), "get");
-        sendButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("control S"), "send");
-        lockButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("control L"), "lock");
-
-        getButton.getActionMap().put("get", getButton.getAction());
-        sendButton.getActionMap().put("send", sendButton.getAction());
-        lockButton.getActionMap().put("lock", lockButton.getAction());
-         */
     }
 
     /**

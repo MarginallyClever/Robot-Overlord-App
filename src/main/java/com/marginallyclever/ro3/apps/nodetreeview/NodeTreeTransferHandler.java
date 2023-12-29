@@ -1,12 +1,14 @@
 package com.marginallyclever.ro3.apps.nodetreeview;
 
 import com.marginallyclever.ro3.node.Node;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.tree.*;
 import java.awt.datatransfer.*;
+import java.io.IOException;
 import java.security.InvalidParameterException;
 
 /**
@@ -35,8 +37,28 @@ public class NodeTreeTransferHandler extends TransferHandler {
 
     @Override
     public boolean canImport(TransferHandler.TransferSupport support) {
-        return support.isDrop() && support.isDataFlavorSupported(NodeTransferable.nodeFlavor);
-        // Additional checks can be added here if needed
+        if(!support.isDrop()) return false;
+        if(!support.isDataFlavorSupported(NodeTransferable.nodeFlavor)) return false;
+
+        JTree.DropLocation dl = (JTree.DropLocation) support.getDropLocation();
+        TreePath destPath = dl.getPath();
+        NodeTreeBranch newParentBranch = (NodeTreeBranch) destPath.getLastPathComponent();
+        Node newParent = newParentBranch.getNode();
+
+        try {
+            Transferable transferable = support.getTransferable();
+            Node beingMoved = (Node) transferable.getTransferData(NodeTransferable.nodeFlavor);
+            if (beingMoved == newParent) {
+                return false;  // Prevent a node from being dragged to itself
+            }
+            if (newParent.hasParent(beingMoved)) {
+                return false;  // I can't become my own grandpa
+            }
+            return true;
+        } catch (Exception e) {
+            logger.error("canImport failed.", e);
+        }
+        return false;
     }
 
     @Override
@@ -53,13 +75,6 @@ public class NodeTreeTransferHandler extends TransferHandler {
         try {
             Transferable transferable = support.getTransferable();
             Node beingMoved = (Node) transferable.getTransferData(NodeTransferable.nodeFlavor);
-
-            if (beingMoved == newParent) {
-                return false;  // Prevent a node from being dragged to itself
-            }
-            if( newParent.hasParent(beingMoved) ) {
-                return false;  // i can't become my own grandpa
-            }
 
             // Remove node from its current parent
             Node oldParent = beingMoved.getParent();
@@ -89,13 +104,8 @@ public class NodeTreeTransferHandler extends TransferHandler {
         return false;
     }
 
-    private static class NodeTransferable implements Transferable {
-        static DataFlavor nodeFlavor = new DataFlavor(Node.class, "Node");
-        private final Node node;
-
-        public NodeTransferable(Node node) {
-            this.node = node;
-        }
+    private record NodeTransferable(Node node) implements Transferable {
+        static DataFlavor nodeFlavor = new DataFlavor(Node.class, Node.class.getSimpleName());
 
         @Override
         public DataFlavor[] getTransferDataFlavors() {
@@ -108,7 +118,7 @@ public class NodeTreeTransferHandler extends TransferHandler {
         }
 
         @Override
-        public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
+        public @NotNull Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
             if (!isDataFlavorSupported(flavor)) {
                 throw new UnsupportedFlavorException(flavor);
             }
