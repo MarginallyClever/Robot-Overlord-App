@@ -11,25 +11,18 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
+import java.util.concurrent.TimeoutException;
 
 /**
  * A panel that displays the default USB web camera.
  */
 public class WebCamPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(WebCamPanel.class);
-    private final WebcamPanel panel;
+    private WebcamPanel panel;
 
     public WebCamPanel() {
         super(new BorderLayout());
         setName("webcam");
-
-        Webcam webcam = Webcam.getDefault();
-        var list = webcam.getViewSizes();
-        webcam.setViewSize(list[list.length-1]);  // probably the biggest
-
-        panel = new WebcamPanel(webcam,false);
-        panel.setDrawMode(WebcamPanel.DrawMode.FIT);  // fit, fill, or none
-        panel.setFPSDisplayed(true);
 
         var toolBar = new JToolBar();
         toolBar.setFloatable(false);
@@ -48,24 +41,41 @@ public class WebCamPanel extends JPanel {
 
 
         add(toolBar, BorderLayout.NORTH);
-        add(panel, BorderLayout.CENTER);
-        panel.start();
-        panel.pause();
     }
 
     @Override
     public void addNotify() {
         super.addNotify();
-        panel.resume();
+
+        try {
+            Webcam webcam = Webcam.getDefault(1000);
+            var list = webcam.getViewSizes();
+            webcam.setViewSize(list[list.length - 1]);  // probably the biggest
+
+            panel = new WebcamPanel(webcam, false);
+            panel.setDrawMode(WebcamPanel.DrawMode.FIT);  // fit, fill, or none
+            panel.setFPSDisplayed(true);
+            add(panel, BorderLayout.CENTER);
+            panel.start();
+        } catch (TimeoutException e) {
+            logger.error("TimeoutException",e);
+            add(new JLabel("No webcam found."), BorderLayout.CENTER);
+        }
     }
 
     @Override
     public void removeNotify() {
         super.removeNotify();
-        panel.pause();
+        if(panel==null) return;
+
+        panel.stop();
+        remove(panel);
+        panel=null;
     }
 
     public void takeSnapshot() {
+        if(panel==null) return;
+
         BufferedImage img = panel.getWebcam().getImage();
         if(img==null) return;
         logger.info("Snapshot {}x{}",img.getWidth(),img.getHeight());
