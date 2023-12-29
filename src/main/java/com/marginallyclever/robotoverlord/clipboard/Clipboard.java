@@ -11,6 +11,7 @@ import java.util.List;
  * @author Dan Royer
  * @since 2.4.0
  */
+@Deprecated
 public class Clipboard {
     /**
      * The list of entities selected in the editorpanel.  This list is used by Actions.

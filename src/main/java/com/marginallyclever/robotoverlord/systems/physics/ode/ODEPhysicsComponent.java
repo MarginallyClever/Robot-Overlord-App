@@ -18,6 +18,7 @@ import javax.vecmath.Vector3d;
  * @author Dan Royer
  * @since 2.0?
  */
+@Deprecated
 public class ODEPhysicsComponent extends Component {
 	private static final Logger logger = LoggerFactory.getLogger(ODEPhysicsComponent.class);
 	private DGeom geom;

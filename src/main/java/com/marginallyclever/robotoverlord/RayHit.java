@@ -9,6 +9,7 @@ import javax.vecmath.Vector3d;
  * @author Dan Royer
  * @since 2.5.0
  */
+@Deprecated
 public class RayHit {
     public ShapeComponent target;
     public double distance;

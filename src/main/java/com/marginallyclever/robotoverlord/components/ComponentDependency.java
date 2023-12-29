@@ -18,6 +18,7 @@ import java.lang.annotation.Target;
  */
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
+@Deprecated
 public @interface ComponentDependency {
     Class<? extends Component> [] components();
 }

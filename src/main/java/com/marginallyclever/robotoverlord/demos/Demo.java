@@ -8,6 +8,7 @@ import com.marginallyclever.robotoverlord.entity.EntityManager;
  * @author Dan Royer
  * @since 2.5.0
  */
+@Deprecated
 public interface Demo {
 	void execute(EntityManager entityManager);
 

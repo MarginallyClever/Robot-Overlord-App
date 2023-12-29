@@ -20,6 +20,7 @@ import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class RobotGripperSystem implements EntitySystem {
     private static final Logger logger = LoggerFactory.getLogger(RobotGripperSystem.class);
     private final EntityManager entityManager;

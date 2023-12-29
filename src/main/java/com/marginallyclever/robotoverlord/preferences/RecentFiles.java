@@ -13,6 +13,7 @@ import java.util.prefs.Preferences;
  * @author Dan Royer
  * @since 2.5
  */
+@Deprecated
 public class RecentFiles {
 	private static final Logger logger = LoggerFactory.getLogger(RecentFiles.class);
 	public static final int MAX_FILES=10;

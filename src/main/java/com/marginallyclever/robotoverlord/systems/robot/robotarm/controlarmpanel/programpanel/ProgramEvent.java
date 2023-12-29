@@ -11,6 +11,7 @@ import java.util.Arrays;
  * @author Dan Royer
  * @since 2.5.0
  */
+@Deprecated
 public class ProgramEvent implements Serializable {
 	public static final String NAME = "ProgramEvent:";
 	private final double [] angles;

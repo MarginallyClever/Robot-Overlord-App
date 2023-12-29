@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
  * @author Dan Royer
  * @since 2.0?
  */
+@Deprecated
 public class ODEPhysicsEngine {
 	private static final Logger logger = LoggerFactory.getLogger(ODEPhysicsEngine.class);
 	

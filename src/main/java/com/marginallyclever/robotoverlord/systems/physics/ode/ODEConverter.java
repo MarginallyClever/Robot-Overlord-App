@@ -12,6 +12,7 @@ import javax.vecmath.Vector3d;
  * Converts between ODE and Java.vecmath classes
  * @author Dan Royer
  */
+@Deprecated
 public class ODEConverter {
 	/**
 	 * @param in {@link DMatrix3C}

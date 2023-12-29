@@ -25,6 +25,7 @@ import java.util.Stack;
  * @since 2.6.0
  * @author Dan Royer
  */
+@Deprecated
 public class ProgramComponent extends Component implements ComponentWithReferences {
     public static final String[] MODE_NAMES = { "Step", "Run to End", "Loop" };
     public static int RUN_STEP = 0;

@@ -6,6 +6,7 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpane
  *
  * @author Dan Royer
  */
+@Deprecated
 public class NumberedCommand {
 	// for quick retrieval
 	public int lineNumber;

@@ -5,6 +5,7 @@ import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+@Deprecated
 public class StepperMotorComponent extends MotorComponent {
     public static final String [] directionNames = {"Backward","Forward"};
     public static final int DIRECTION_BACKWARD=0;

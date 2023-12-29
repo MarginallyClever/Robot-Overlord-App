@@ -17,6 +17,7 @@ import java.util.Arrays;
  * @author Dan Royer
  * @since 2.5.0
  */
+@Deprecated
 public class MaterialComponent extends Component {
     public final ColorParameter ambient    = new ColorParameter("Ambient" ,1,1,1,1);
     public final ColorParameter diffuse    = new ColorParameter("Diffuse" ,1,1,1,1);

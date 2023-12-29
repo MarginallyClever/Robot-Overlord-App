@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
  * @author Dan Royer
  *
  */
+@Deprecated
 public class HTMLDialogBox {
 	/**
 	 * Turns HTML into a clickable dialog text component.

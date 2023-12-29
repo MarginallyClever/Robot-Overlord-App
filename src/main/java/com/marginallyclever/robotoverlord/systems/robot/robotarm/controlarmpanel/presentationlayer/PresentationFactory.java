@@ -9,6 +9,7 @@ import com.marginallyclever.robotoverlord.robots.Robot;
  * @author Dan Royer
  * @since 2.5.6
  */
+@Deprecated
 public class PresentationFactory {
     public static final String [] AVAILABLE_PRESENTATIONS = {
             "Marlin",

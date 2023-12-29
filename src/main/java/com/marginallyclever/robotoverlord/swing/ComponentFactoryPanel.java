@@ -12,6 +12,7 @@ import java.util.ArrayList;
  * @since 2.7.0
  * @author Dan Royer
  */
+@Deprecated
 public class ComponentFactoryPanel extends JPanel {
     private final JList<String> filteredNames = new JList<>();
     private static String lastSearch = "";

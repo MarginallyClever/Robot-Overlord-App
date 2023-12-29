@@ -15,6 +15,7 @@ import java.beans.PropertyChangeListener;
  * @author Dan Royer
  * @since 2.10.0
  */
+@Deprecated
 public class ProjectorComponent  extends ShapeComponent {
     private BufferedImage image;
     private Texture texture;

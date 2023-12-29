@@ -12,6 +12,7 @@ import org.json.JSONObject;
  * @author Dan Royer
  * @since 2022-08-03
  */
+@Deprecated
 public abstract class Component {
     private Entity myEntity;
 

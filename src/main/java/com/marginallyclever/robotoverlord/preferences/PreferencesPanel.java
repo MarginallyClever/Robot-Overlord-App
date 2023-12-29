@@ -11,6 +11,7 @@ import java.awt.*;
  * @since 2.7.0
  * @author Dan Royer
  */
+@Deprecated
 public class PreferencesPanel extends JPanel {
     private final JTabbedPane tabbedPane = new JTabbedPane();
 

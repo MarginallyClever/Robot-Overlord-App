@@ -8,6 +8,7 @@ import javax.swing.*;
  * @author Dan Royer
  * @since 2022-02-23
  */
+@Deprecated
 public interface EditorAction {
     /**
      * Called when the editorpanel believes it is time to confirm enable status.

@@ -18,6 +18,7 @@ import java.awt.*;
  * @author Dan Royer
  * @since 2023-10-15
  */
+@Deprecated
 public class ComponentViewTest extends JPanel {
     private final EntityManager entityManager = new EntityManager();
     private final SystemManager systems = new SystemManager(entityManager);

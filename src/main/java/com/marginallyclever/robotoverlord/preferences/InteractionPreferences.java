@@ -10,6 +10,7 @@ import java.util.prefs.Preferences;
  * @since 2.7.0
  * @author Dan Royer
  */
+@Deprecated
 public class InteractionPreferences {
     private static final Preferences preferences = Preferences.userRoot().node("RobotOverlord").node("Interaction");
 

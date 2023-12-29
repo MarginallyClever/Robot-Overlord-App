@@ -18,6 +18,7 @@ import java.util.ArrayList;
  * @author Dan Royer
  * @since 2.5.0
  */
+@Deprecated
 public class RenderSystem implements EntitySystem {
     /**
      * Get the Swing view of this component.

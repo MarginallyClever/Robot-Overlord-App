@@ -20,6 +20,7 @@ import java.util.prefs.Preferences;
 /**
  * SoundSystem is a singleton that plays sounds.
  */
+@Deprecated
 public class SoundSystem {
 	private static final Logger logger = LoggerFactory.getLogger(SoundSystem.class);
 	private static final Preferences prefs = PreferencesHelper.getPreferenceNode(PreferencesHelper.MakelangeloPreferenceKey.LEGACY_MAKELANGELO_ROOT);

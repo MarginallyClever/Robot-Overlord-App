@@ -11,6 +11,7 @@ import org.json.JSONObject;
  * @since 2.6.3
  * @author Dan Royer
  */
+@Deprecated
 public class ServoComponent extends MotorComponent {
     public final DoubleParameter desiredAngle = new DoubleParameter("Target angle", 0);
     public final DoubleParameter minAngle = new DoubleParameter("Min angle", -90);

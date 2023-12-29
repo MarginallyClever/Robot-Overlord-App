@@ -11,6 +11,7 @@ import com.marginallyclever.robotoverlord.systems.EntitySystem;
  * @author Dan Royer
  * @since 2.5.0
  */
+@Deprecated
 public class PhysicsSystem implements EntitySystem {
     /**
      * Get the Swing view of this component.

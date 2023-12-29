@@ -9,6 +9,7 @@ import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
  * @author Dan Royer
  * @since 2.5.0
  */
+@Deprecated
 public abstract class RenderComponent extends Component {
     public transient final BooleanParameter isVisible = new BooleanParameter("Visible",true);
 

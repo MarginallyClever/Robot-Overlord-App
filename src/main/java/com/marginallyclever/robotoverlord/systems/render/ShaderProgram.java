@@ -17,6 +17,7 @@ import java.security.InvalidParameterException;
  * @author Dan Royer
  * @since 2.5.9
  */
+@Deprecated
 public class ShaderProgram {
     private static final Logger logger = LoggerFactory.getLogger(ShaderProgram.class);
     private final int programId;

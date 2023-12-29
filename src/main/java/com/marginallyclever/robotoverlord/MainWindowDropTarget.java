@@ -25,6 +25,7 @@ import java.util.List;
  * @since 2.7.0
  * @author Dan Royer
  */
+@Deprecated
 public class MainWindowDropTarget extends DropTargetAdapter {
     private static final Logger logger = LoggerFactory.getLogger(MainWindowDropTarget.class);
     private final JFrame mainFrame;

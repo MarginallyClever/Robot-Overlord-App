@@ -16,6 +16,7 @@ import org.json.JSONObject;
  * @since 2.5.0
  */
 @ComponentDependency(components={PoseComponent.class})
+@Deprecated
 public class LightComponent extends Component {
 
     private final static ColorRGB[] PRESET_BLACK = {

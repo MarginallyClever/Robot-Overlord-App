@@ -8,6 +8,7 @@ import java.util.Map;
  * @author Dan Royer
  * @since 2.6.0
  */
+@Deprecated
 public interface ComponentWithReferences {
     void updateReferences(Map<String,String> oldToNewIDMap);
 }

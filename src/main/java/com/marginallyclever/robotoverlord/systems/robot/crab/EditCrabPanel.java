@@ -19,6 +19,7 @@ import java.util.List;
  * @author Dan Royer
  * @since 2.5.7
  */
+@Deprecated
 public class EditCrabPanel extends JPanel {
     private final EntityManager entityManager;
     private final Entity rootEntity;

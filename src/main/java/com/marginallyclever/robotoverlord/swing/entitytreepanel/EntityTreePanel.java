@@ -22,6 +22,7 @@ import java.util.List;
  * {@link EntityTreePanel} provides a UI to view/edit the contents of an {@link EntityManager}.
  * @author Dan Royer
  */
+@Deprecated
 public class EntityTreePanel extends JPanel {
 	private static final Logger logger = LoggerFactory.getLogger(EntityTreePanel.class);
 	private final JTree tree = new JTree();

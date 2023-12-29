@@ -23,6 +23,7 @@ import java.util.Queue;
  * @author Dan Royer
  * @since 1.6.0
  */
+@Deprecated
 public class EntityManager {
 	private static final Logger logger = LoggerFactory.getLogger(EntityManager.class);
 	private final List<Entity> entities = new ArrayList<>();

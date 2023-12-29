@@ -13,6 +13,7 @@ import java.util.prefs.BackingStoreException;
  * @since 2.7.0
  * @author Dan Royer
  */
+@Deprecated
 public class GraphicsPreferencesPanel extends JPanel {
     public GraphicsPreferencesPanel() {
         super(new BorderLayout());
