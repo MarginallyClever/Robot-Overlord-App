@@ -18,6 +18,7 @@ import java.util.concurrent.TimeoutException;
  */
 public class WebCamPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(WebCamPanel.class);
+    private Webcam webcam;
     private WebcamPanel panel;
     private JButton snapshotButton;
 
@@ -51,7 +52,9 @@ public class WebCamPanel extends JPanel {
         super.addNotify();
         logger.debug("webcam addNotify");
         try {
-            Webcam webcam = Webcam.getDefault(1000);
+            Webcam.getWebcams().forEach(w->logger.debug("Checking {} {}",w.getName(),w.getDevice().isOpen()));
+
+            webcam = Webcam.getDefault(1000);
             if(webcam==null) throw new TimeoutException("Soft timeout.");
             var list = webcam.getViewSizes();
             webcam.setViewSize(list[list.length - 1]);  // probably the biggest
@@ -74,11 +77,15 @@ public class WebCamPanel extends JPanel {
     @Override
     public void removeNotify() {
         super.removeNotify();
-        if(panel==null) return;
-
-        panel.stop();
-        remove(panel);
-        panel=null;
+        if(panel!=null) {
+            panel.stop();
+            remove(panel);
+            panel = null;
+        }
+        if(webcam!=null) {
+            webcam.close();
+            webcam=null;
+        }
         snapshotButton.setEnabled(false);
     }
 
