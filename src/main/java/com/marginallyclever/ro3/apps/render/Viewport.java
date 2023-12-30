@@ -5,6 +5,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLEventListener;
 import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.render.renderpasses.*;
@@ -285,6 +286,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }
+        for(ViewportTool tool : viewportTools) tool.init(gl3);
     }
 
     @Override
@@ -292,7 +294,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         super.dispose(glAutoDrawable);
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         toolShader.delete(gl3);
-        // TODO for(ViewportTool tool : viewportTools) tool.dispose(gl3);
+        // TODO
+        for(ViewportTool tool : viewportTools) tool.dispose(gl3);
     }
 
     @Override
@@ -312,9 +315,30 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     }
 
     private void renderViewportTools() {
+        Camera camera = Registry.getActiveCamera();
+        assert camera != null;
+
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
+        toolShader.use(gl3);
+        toolShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix());
+        toolShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
+        Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
+        toolShader.setVector3d(gl3, "cameraPos", cameraWorldPos);  // Camera position in world space
+        toolShader.setVector3d(gl3, "lightPos", cameraWorldPos);  // Light position in world space
+
+        toolShader.setColor(gl3, "lightColor", Color.WHITE);
+        toolShader.setColor(gl3, "objectColor", Color.WHITE);
+        toolShader.setColor(gl3, "specularColor", Color.WHITE);
+        toolShader.setColor(gl3,"ambientColor",Color.BLACK);
+
+        toolShader.set1i(gl3,"useTexture",0);
+        toolShader.set1i(gl3,"useLighting",0);
+        toolShader.set1i(gl3,"useVertexColor",0);
+
         gl3.glDisable(GL3.GL_DEPTH_TEST);
-        for(ViewportTool tool : viewportTools) tool.render(gl3,toolShader);
+        for(ViewportTool tool : viewportTools) {
+            tool.render(gl3,toolShader);
+        }
         gl3.glEnable(GL3.GL_DEPTH_TEST);
     }
 

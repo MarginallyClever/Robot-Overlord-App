@@ -33,7 +33,7 @@ import java.util.List;
 public class TranslateToolOneAxis implements ViewportTool {
     private static final Logger logger = LoggerFactory.getLogger(TranslateToolOneAxis.class);
     private final double handleLength = 5;
-    private final double gripRadius = 0.5;
+    private final double gripRadius = 0.4;
     private double localScale = 1;
 
     /**
@@ -238,10 +238,6 @@ public class TranslateToolOneAxis implements ViewportTool {
     public void render(GL3 gl, ShaderProgram shaderProgram) {
         if (selectedItems == null || selectedItems.isEmpty()) return;
 
-        shaderProgram.set1i(gl, "useTexture", 0);
-        shaderProgram.set1i(gl, "useLighting", 0);
-        shaderProgram.set1i(gl, "useVertexColor", 0);
-
         float colorScale = cursorOverHandle ? 1:0.5f;
         float red   = color.red   * colorScale / 255f;
         float green = color.green * colorScale / 255f;
@@ -299,5 +295,17 @@ public class TranslateToolOneAxis implements ViewportTool {
 
     private double getGripRadiusScaled() {
         return gripRadius * localScale;
+    }
+
+    @Override
+    public void init(GL3 gl3) {
+        // TODO
+        logger.error("Not finished.");
+    }
+
+    @Override
+    public void dispose(GL3 gl3) {
+        // TODO
+        logger.error("Not finished.");
     }
 }

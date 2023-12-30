@@ -90,4 +90,16 @@ public interface ViewportTool {
      * @param index 0 for world, 1 for local, 2 for camera.
      */
     void setFrameOfReference(int index);
+
+    /**
+     * This is called when the OpenGL context is created.  It should create any resources.
+     * @param gl3 the OpenGL context.
+     */
+    void init(GL3 gl3);
+
+    /**
+     * This is called when the OpenGL context is destroyed.  It should release any resources.
+     * @param gl3 the OpenGL context.
+     */
+    void dispose(GL3 gl3);
 }

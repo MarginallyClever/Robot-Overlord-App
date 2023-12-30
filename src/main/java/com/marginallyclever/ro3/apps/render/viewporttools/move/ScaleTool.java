@@ -5,6 +5,8 @@ import com.marginallyclever.ro3.apps.render.viewporttools.ViewportTool;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.render.ShaderProgram;
 import com.marginallyclever.ro3.apps.render.Viewport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Point3d;
 import java.awt.event.KeyEvent;
@@ -17,7 +19,10 @@ import java.util.List;
  * @author Dan Royer
  * @since 2.5.0
  */
+@Deprecated
 public class ScaleTool implements ViewportTool {
+    private static final Logger logger = LoggerFactory.getLogger(ScaleTool.class);
+
     /**
      * This method is called when the tool is activated. It receives the SelectedItems object containing the selected
      * entities and their initial world poses.
@@ -91,4 +96,16 @@ public class ScaleTool implements ViewportTool {
      */
     @Override
     public void setFrameOfReference(int index) {}
+
+    @Override
+    public void init(GL3 gl3) {
+        // TODO
+        logger.error("Not finished.");
+    }
+
+    @Override
+    public void dispose(GL3 gl3) {
+        // TODO
+        logger.error("Not finished.");
+    }
 }
