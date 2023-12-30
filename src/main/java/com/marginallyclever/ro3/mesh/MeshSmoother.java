@@ -66,11 +66,11 @@ public class MeshSmoother {
 			logger.info("Smoothing "+i+"/"+numFaces);
 
 			// find vertices that are in the same position
-			float p1x = model.vertexArray.get(i*3+0);
+			float p1x = model.vertexArray.get(i * 3);
 			float p1y = model.vertexArray.get(i*3+1);
 			float p1z = model.vertexArray.get(i*3+2);
 
-			float n1x = model.normalArray.get(i*3+0);
+			float n1x = model.normalArray.get(i * 3);
 			float n1y = model.normalArray.get(i*3+1);
 			float n1z = model.normalArray.get(i*3+2);
 
@@ -80,7 +80,7 @@ public class MeshSmoother {
 			for(j=i+1;j<numFaces;++j) {
 				if(skip[j]) continue;
 
-				float p2x = model.vertexArray.get(j*3+0);
+				float p2x = model.vertexArray.get(j * 3);
 				float p2y = model.vertexArray.get(j*3+1);
 				float p2z = model.vertexArray.get(j*3+2);
 				//if(Math.abs(p1x-p2x)>vertexEpsilonSquared) continue;
@@ -89,7 +89,7 @@ public class MeshSmoother {
 				
 				if( lengthDifferenceSquared(p1x,p1y,p1z,p2x,p2y,p2z) <= vertexEpsilonSquared ) {
 
-					float n2x = model.normalArray.get(j*3+0);
+					float n2x = model.normalArray.get(j * 3);
 					float n2y = model.normalArray.get(j*3+1);
 					float n2z = model.normalArray.get(j*3+2);
 					if( lengthDifferenceSquared(n1x,n1y,n1z,n2x,n2y,n2z) <= normalEpsilonSquared ) {
@@ -107,7 +107,7 @@ public class MeshSmoother {
 				int k;
 				for(k=0;k<size;++k) {
 					j = indexList.get(k)*3;
-					n1x += model.normalArray.get(j+0);
+					n1x += model.normalArray.get(j);
 					n1y += model.normalArray.get(j+1);
 					n1z += model.normalArray.get(j+2);
 				}
@@ -120,7 +120,7 @@ public class MeshSmoother {
 					j = indexList.get(k);
 					skip[j]=true;
 					j*=3;
-					model.normalArray.set(j+0, n1x);
+					model.normalArray.set(j, n1x);
 					model.normalArray.set(j+1, n1y);
 					model.normalArray.set(j+2, n1z);
 				}

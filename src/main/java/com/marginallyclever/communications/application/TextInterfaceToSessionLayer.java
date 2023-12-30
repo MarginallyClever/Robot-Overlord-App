@@ -95,7 +95,7 @@ public class TextInterfaceToSessionLayer extends JPanel implements SessionLayerL
 	
 	// OBSERVER PATTERN
 	
-	private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
+	private final ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
 	public void addActionListener(ActionListener a) {
 		listeners.add(a);
 	}

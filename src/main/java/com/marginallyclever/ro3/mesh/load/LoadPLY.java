@@ -6,6 +6,7 @@ import com.marginallyclever.ro3.mesh.Mesh;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Load a mesh from a PLY file.
@@ -29,7 +30,7 @@ public class LoadPLY implements MeshLoader {
 	public void load(BufferedInputStream inputStream, Mesh model) throws Exception {
 		model.setRenderStyle( GL3.GL_POINTS );
 
-		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream,"UTF-8"));
+		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 		String line;
 		// eat the first line that says "X,Y,Z,SIGNAL_STRENGTH"
 		line = br.readLine();

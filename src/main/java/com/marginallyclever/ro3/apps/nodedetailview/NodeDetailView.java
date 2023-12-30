@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.nodedetailview;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
 import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
 import com.marginallyclever.ro3.node.Node;
@@ -15,7 +16,7 @@ import java.util.List;
 /**
  * {@link NodeDetailView} is a panel that displays the details of a class that implements {@link Node}.
  */
-public class NodeDetailView extends JPanel
+public class NodeDetailView extends App
         implements ItemAddedListener<Node>, ItemRemovedListener<Node> {
     private static final Logger logger = LoggerFactory.getLogger(NodeDetailView.class);
     private final JScrollPane scroll = new JScrollPane();

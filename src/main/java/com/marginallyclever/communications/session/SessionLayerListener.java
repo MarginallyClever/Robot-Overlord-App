@@ -5,10 +5,10 @@ package com.marginallyclever.communications.session;
  * @author Dan Royer
  *
  */
-public abstract interface SessionLayerListener {
+public interface SessionLayerListener {
 	/**
 	 * see {@code NetworkSessionEvent} for flags
 	 * @param evt
 	 */
-	public void networkSessionEvent(SessionLayerEvent evt);
+    void networkSessionEvent(SessionLayerEvent evt);
 }

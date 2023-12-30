@@ -51,10 +51,7 @@ public class NodeTreeTransferHandler extends TransferHandler {
             if (beingMoved == newParent) {
                 return false;  // Prevent a node from being dragged to itself
             }
-            if (newParent.hasParent(beingMoved)) {
-                return false;  // I can't become my own grandpa
-            }
-            return true;
+            return !newParent.hasParent(beingMoved);  // I can't become my own grandpa
         } catch (Exception e) {
             logger.error("canImport failed.", e);
         }

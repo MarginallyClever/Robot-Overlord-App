@@ -27,7 +27,7 @@ public class DrawCameras extends AbstractRenderPass {
     private final Mesh mesh = new Mesh();
     private final Mesh rayMesh = new Mesh();
     private ShaderProgram shader;
-    private double cameraConeRatio = 50;
+    private final double cameraConeRatio = 50;
 
     public DrawCameras() {
         super("Cameras");
