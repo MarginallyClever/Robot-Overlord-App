@@ -101,6 +101,11 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
         NodeTreeBranch rootTreeNode = new NodeTreeBranch(rootNode);
         addBranches(rootNode, rootTreeNode, matches);
         tree.setModel(new DefaultTreeModel(rootTreeNode));
+
+        // Select the first match if there are any matches
+        if (!matches.isEmpty()) {
+            selectNodeInTree(matches.get(0));
+        }
     }
 
     /**
@@ -149,7 +154,7 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
 
             NodeTreeBranch childTreeNode = new NodeTreeBranch(child);
             treeNode.add(childTreeNode);
-            addBranches(child, childTreeNode,matches);
+            addBranches(child, childTreeNode, matches);
         }
     }
 
@@ -162,12 +167,12 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
         }
     }
 
-    private TreePath findNodeInTree(NodeTreeBranch root, Node node) {
-        if (root.getNode() == node) {
-            return new TreePath(root.getPath());
+    private TreePath findNodeInTree(NodeTreeBranch branch, Node node) {
+        if (branch.getNode() == node) {
+            return new TreePath(branch.getPath());
         }
-        for (int i = 0; i < root.getChildCount(); i++) {
-            TreePath path = findNodeInTree((NodeTreeBranch) root.getChildAt(i), node);
+        for (int i = 0; i < branch.getChildCount(); i++) {
+            TreePath path = findNodeInTree((NodeTreeBranch) branch.getChildAt(i), node);
             if (path != null) {
                 return path;
             }

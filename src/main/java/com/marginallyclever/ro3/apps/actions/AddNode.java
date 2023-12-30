@@ -40,7 +40,7 @@ public class AddNode<T extends Node> extends AbstractAction {
 
     private Supplier<Node> getFactoryFromUser(Component source) {
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
-        int result = JOptionPane.showConfirmDialog(parentFrame,nfd,"Create Node",JOptionPane.OK_CANCEL_OPTION);
+        int result = JOptionPane.showConfirmDialog(parentFrame,nfd,"Create Node",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
         if(result != JOptionPane.OK_OPTION) return null;  // cancelled
         if(nfd.getResult() != JOptionPane.OK_OPTION) return null;  // cancelled
 
