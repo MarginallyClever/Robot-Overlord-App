@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.apps.actions;
 
+import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.RecentFilesMenu;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
@@ -65,6 +66,7 @@ public class LoadScene extends AbstractAction {
                 : runFileDialog((Component) e.getSource());  // ask the user for a filename
         if( src == null ) return;  // cancelled
         commitLoad(src);
+        UndoSystem.reset();
     }
 
     private File runFileDialog(Component source) {
