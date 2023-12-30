@@ -12,7 +12,10 @@ import com.marginallyclever.ro3.mesh.shapes.Box;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.render.ShaderProgram;
 import com.marginallyclever.ro3.apps.render.Viewport;
+import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.node.nodes.Pose;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -28,6 +31,7 @@ import java.util.List;
  * @since 2.5.0
  */
 public class RotateToolOneAxis implements ViewportTool {
+    private static final Logger logger = LoggerFactory.getLogger(RotateToolOneAxis.class);
     /**
      * visual "tick" marks for snapping.
      */
@@ -312,7 +316,9 @@ public class RotateToolOneAxis implements ViewportTool {
     }
 
     private void updateLocalScale() {
-        Vector3d cameraPoint = Registry.getActiveCamera().getPosition();
+        Camera camera = Registry.getActiveCamera();
+        assert camera!= null;
+        Vector3d cameraPoint = camera.getPosition();
         Vector3d pivotPoint = MatrixHelper.getPosition(pivotMatrix);
         pivotPoint.sub(cameraPoint);
         localScale = pivotPoint.length() * 0.035;  // TODO * InteractionPreferences.toolScale;
@@ -326,10 +332,6 @@ public class RotateToolOneAxis implements ViewportTool {
     @Override
     public void render(GL3 gl, ShaderProgram shaderProgram) {
         if(selectedItems==null || selectedItems.isEmpty()) return;
-
-        shaderProgram.set1i(gl,"useTexture",0);
-        shaderProgram.set1i(gl,"useLighting",0);
-        shaderProgram.set1i(gl,"useVertexColor",0);
 
         drawMainRingAndHandles(gl,shaderProgram);
         if(dragging) {
@@ -471,5 +473,17 @@ public class RotateToolOneAxis implements ViewportTool {
         if(selectedItems!=null) {
             updatePivotMatrix();
         }
+    }
+
+    @Override
+    public void init(GL3 gl3) {
+        // TODO
+        logger.error("Not finished.");
+    }
+
+    @Override
+    public void dispose(GL3 gl3) {
+        // TODO
+        logger.error("Not finished.");
     }
 }

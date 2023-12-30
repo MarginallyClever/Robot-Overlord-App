@@ -23,6 +23,7 @@ import java.util.List;
  * @author Dan Royer
  * @since 2.5.0
  */
+@Deprecated
 public class MoveCameraTool implements ViewportTool {
     private Viewport viewport;
 
@@ -186,4 +187,9 @@ public class MoveCameraTool implements ViewportTool {
     public void setFrameOfReference(int index) {
 
     }
+    @Override
+    public void init(GL3 gl3) {}
+
+    @Override
+    public void dispose(GL3 gl3) {}
 }

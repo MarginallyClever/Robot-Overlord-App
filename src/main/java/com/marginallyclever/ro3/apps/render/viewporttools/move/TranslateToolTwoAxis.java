@@ -12,6 +12,8 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.render.ShaderProgram;
 import com.marginallyclever.ro3.apps.render.Viewport;
 import com.marginallyclever.ro3.mesh.Mesh;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -27,6 +29,7 @@ import java.util.List;
  * @since 2.5.0
  */
 public class TranslateToolTwoAxis implements ViewportTool {
+    private static final Logger logger = LoggerFactory.getLogger(TranslateToolTwoAxis.class);
     private double padSize = 1;
     private double localScale = 1;
 
@@ -197,10 +200,6 @@ public class TranslateToolTwoAxis implements ViewportTool {
         if(selectedItems==null || selectedItems.isEmpty()) return;
 
         // Render the translation pad on the plane
-        shaderProgram.set1i(gl,"useTexture",0);
-        shaderProgram.set1i(gl,"useLighting",0);
-        shaderProgram.set1i(gl,"useVertexColor",0);
-
         Matrix4d m = new Matrix4d(pivotMatrix);
         m.transpose();
         shaderProgram.setMatrix4d(gl,"modelMatrix",m);
@@ -270,5 +269,17 @@ public class TranslateToolTwoAxis implements ViewportTool {
         if(selectedItems!=null) {
             updatePivotMatrix();
         }
+    }
+
+    @Override
+    public void init(GL3 gl3) {
+        // TODO
+        logger.error("Not finished.");
+    }
+
+    @Override
+    public void dispose(GL3 gl3) {
+        // TODO
+        logger.error("Not finished.");
     }
 }

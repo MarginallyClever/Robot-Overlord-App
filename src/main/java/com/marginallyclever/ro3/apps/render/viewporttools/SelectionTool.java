@@ -150,6 +150,12 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
     @Override
     public void setFrameOfReference(int index) {}
 
+    @Override
+    public void init(GL3 gl3) {}
+
+    @Override
+    public void dispose(GL3 gl3) {}
+
     private void pickItemUnderCursor(boolean isShiftDown) {
         Node hit = findNodeUnderCursor();
         if(hit!=null) {
