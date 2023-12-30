@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 
 import javax.swing.*;
@@ -20,9 +21,6 @@ public class RemoveNode extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         var selection = new ArrayList<>(Registry.selection.getList());
         Registry.selection.removeAll();
-        for(var node : selection) {
-            if(node == Registry.getScene()) continue;
-            node.getParent().removeChild(node);
-        }
+        UndoSystem.addEvent(new com.marginallyclever.ro3.apps.commands.RemoveNode(selection));
     }
 }

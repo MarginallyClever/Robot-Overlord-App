@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.apps.editorpanel;
 
+import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinListener;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
@@ -33,7 +34,7 @@ import java.util.Objects;
  * write a text editor, this is just to demonstrate the concept until I find an existing editor I can drop in.</p>
  * <p>TODO add a lock to the `get` button that keeps the get toggle on until further notice.</p>
  */
-public class EditorPanel extends JPanel implements MarlinListener {
+public class EditorPanel extends App implements MarlinListener {
     private static final Logger logger = LoggerFactory.getLogger(EditorPanel.class);
     private final NodeSelector<MarlinRobotArm> armSelector = new NodeSelector<>(MarlinRobotArm.class);
     private final JTextArea text = new JTextArea();
