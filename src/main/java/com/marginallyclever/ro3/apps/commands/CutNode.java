@@ -17,7 +17,7 @@ public class CutNode extends AbstractUndoableEdit {
         super();
         this.copyNode = new CopyNode(selection);
         this.removeNode = new RemoveNode(selection);
-        execute();
+        // copy and remove already call their respective execute() methods.
     }
 
     @Override
