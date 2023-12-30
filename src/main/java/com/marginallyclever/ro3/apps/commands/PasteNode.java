@@ -2,7 +2,6 @@ package com.marginallyclever.ro3.apps.commands;
 
 import com.marginallyclever.convenience.helpers.JSONHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.actions.ImportScene;
 import com.marginallyclever.ro3.node.Node;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -12,9 +11,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotUndoException;
 import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class PasteNode extends AbstractUndoableEdit {
     private final Logger logger = LoggerFactory.getLogger(PasteNode.class);

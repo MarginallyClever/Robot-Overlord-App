@@ -1,8 +1,7 @@
 package com.marginallyclever.ro3.apps;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.actions.ImportScene;
-import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.apps.commands.ImportScene;
 import com.marginallyclever.ro3.node.nodes.MeshInstance;
 import com.marginallyclever.ro3.mesh.load.MeshFactory;
 import org.slf4j.Logger;
@@ -82,8 +81,8 @@ public class RO3FrameDropTarget extends DropTargetAdapter {
     private boolean importScene(File file) {
         logger.debug("drag importScene {}",file);
         try {
-            ImportScene importScene = new ImportScene();
-            importScene.commitImport(file);
+            ImportScene importScene = new ImportScene(file);
+            importScene.execute();
         } catch (Exception e) {
             logger.error("Error importing scene",e);
             return false;
