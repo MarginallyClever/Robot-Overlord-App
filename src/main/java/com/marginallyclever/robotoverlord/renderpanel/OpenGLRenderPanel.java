@@ -383,14 +383,14 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
 
     private void createShaderPrograms(GL3 gl3) {
         shaderDefault = new ShaderProgram(gl3,
-            readResource("default_330.vert"),
-            readResource("default_330.frag"));
+            readResource("/com/marginallyclever/ro3/apps/render/unused/default_330.vert"),
+            readResource("/com/marginallyclever/ro3/apps/render/unused/default_330.frag"));
         shaderOutline = new ShaderProgram(gl3,
-            readResource("outline_330.vert"),
-            readResource("outline_330.frag"));
+            readResource("/com/marginallyclever/ro3/apps/render/unused/outline_330.vert"),
+            readResource("/com/marginallyclever/ro3/apps/render/unused/outline_330.frag"));
         shaderHUD = new ShaderProgram(gl3,
-            readResource("default_330.vert"),
-            readResource("givenColor_330.frag"));
+            readResource("/com/marginallyclever/ro3/apps/render/unused/default_330.vert"),
+            readResource("/com/marginallyclever/ro3/apps/render/unused/givenColor_330.frag"));
     }
 
     private void destroyShaderPrograms(GL3 gl) {
