@@ -18,26 +18,19 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Draws each {@link Camera} as a pyramid approximating the perspective view frustum.
  */
-public class DrawCameras extends AbstractRenderPass implements MouseListener {
+public class DrawCameras extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawCameras.class);
     private final Mesh mesh = new Mesh();
     private final Mesh rayMesh = new Mesh();
     private ShaderProgram shader;
     private double cameraConeRatio = 50;
-    private final List<Boolean> buttonPressed = new ArrayList<>();
-    private int mx, my;
 
     public DrawCameras() {
         super("Cameras");
-        allocateButtonMemory();
         setupMeshCone();
         setupMeshRay();
     }
@@ -67,13 +60,6 @@ public class DrawCameras extends AbstractRenderPass implements MouseListener {
         mesh.addColor(0,0,0,1);        mesh.addVertex((float)d.x, (float)d.y, (float)d.z);
         mesh.addColor(0,0,0,1);        mesh.addVertex((float)d.x, (float)d.y, (float)d.z);
         mesh.addColor(0,0,0,1);        mesh.addVertex((float)a.x, (float)a.y, (float)a.z);
-    }
-
-    private void allocateButtonMemory() {
-        // initialize mouse button states
-        for(int i=0;i<MouseInfo.getNumberOfButtons();++i) {
-            buttonPressed.add(false);
-        }
     }
 
     @Override
@@ -157,25 +143,4 @@ public class DrawCameras extends AbstractRenderPass implements MouseListener {
         rayMesh.setVertex(1,direction.x,direction.y,direction.z);
         rayMesh.updateVertexBuffers(gl3);
     }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {}
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-        buttonPressed.set(e.getButton(),true);
-        mx = e.getX();
-        my = e.getY();
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        buttonPressed.set(e.getButton(),false);
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {}
-
-    @Override
-    public void mouseExited(MouseEvent e) {}
 }
