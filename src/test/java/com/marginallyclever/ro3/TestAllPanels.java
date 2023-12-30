@@ -3,6 +3,7 @@ package com.marginallyclever.ro3;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.marginallyclever.ro3.apps.DockingPanel;
 import com.marginallyclever.ro3.apps.FactoryPanel;
+import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import org.reflections.Reflections;
@@ -43,16 +44,21 @@ public class TestAllPanels {
         // names for combo box
         List<String> names = new ArrayList<>();
 
+        // Don't add these panels because they don't have a default constructor.
+        List<Class<?>> exceptions = List.of(
+                com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel.class,
+                com.marginallyclever.ro3.apps.DockingPanel.class,
+                com.marginallyclever.ro3.apps.FactoryPanel.class
+        );
+
         // first pass, create one of every panel that extends JPanel
         Reflections reflections = new Reflections("com.marginallyclever.ro3");
         Set<Class<? extends JPanel>> allClasses = reflections.getSubTypesOf(JPanel.class);
         for(var panelClass : allClasses) {
             System.out.println("Panel "+panelClass.getName());
             try {
-                JPanel panelInstance;
-                if(panelClass.equals(FactoryPanel.class)) continue;  // skip, no default constructor
-                if(panelClass.equals(DockingPanel.class)) continue;  // skip, no default constructor
-                panelInstance = panelClass.getDeclaredConstructor().newInstance();
+                if(exceptions.contains(panelClass)) continue;  // skip, no default constructor
+                JPanel panelInstance = panelClass.getDeclaredConstructor().newInstance();
                 System.out.println("Adding "+panelClass.getName());
                 cardPanel.add(panelInstance, panelClass.getName());
                 names.add(panelClass.getName());

@@ -54,9 +54,9 @@ public class NodeSelectorDropTarget<T extends Node> implements DropTargetListene
     public void drop(DropTargetDropEvent dtde) {
         try {
             Transferable tr = dtde.getTransferable();
-            DataFlavor nodeFlavor = new DataFlavor(Node.class, Node.class.getSimpleName());
-            if (tr.isDataFlavorSupported(nodeFlavor)) {
-                Node node = (Node)tr.getTransferData(nodeFlavor);
+
+            if (tr.isDataFlavorSupported(Node.flavor)) {
+                Node node = (Node)tr.getTransferData(Node.flavor);
                 if(type.isInstance(node)) {
                     dtde.acceptDrop(DnDConstants.ACTION_LINK);
                     nodeSelector.setSubject(type.cast(node));

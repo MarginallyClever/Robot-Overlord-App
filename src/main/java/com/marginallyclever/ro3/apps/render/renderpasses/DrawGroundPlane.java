@@ -83,7 +83,5 @@ public class DrawGroundPlane extends AbstractRenderPass {
         w.transpose();
         shader.setMatrix4d(gl3,"modelMatrix",w);
         mesh.render(gl3);
-
-        gl3.glEnable(GL3.GL_DEPTH_TEST);
     }
 }
