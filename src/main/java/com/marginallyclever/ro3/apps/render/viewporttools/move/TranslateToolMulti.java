@@ -283,4 +283,14 @@ public class TranslateToolMulti implements ViewportTool {
         for (ViewportTool t : tools) t.setFrameOfReference(index);
         updatePivotMatrix();
     }
+
+    @Override
+    public void init(GL3 gl3) {
+        for (ViewportTool t : tools) t.init(gl3);
+    }
+
+    @Override
+    public void dispose(GL3 gl3) {
+        for (ViewportTool t : tools) t.dispose(gl3);
+    }
 }

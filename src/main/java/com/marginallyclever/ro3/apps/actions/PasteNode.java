@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.FlavorEvent;
 import java.awt.datatransfer.StringSelection;
@@ -33,6 +34,10 @@ public class PasteNode extends AbstractAction {
     private void clipboardChanged(FlavorEvent flavorEvent) {
         // if the clipboard has changed, update the menu item
         if(flavorEvent.getSource()==Registry.clipboard) {
+            if(KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow() == null) {
+                setEnabled(false);
+                return;
+            }
             setEnabled(Registry.clipboard.isDataFlavorAvailable(JSONHelper.JSON_FLAVOR));
         } else {
             setEnabled(false);
