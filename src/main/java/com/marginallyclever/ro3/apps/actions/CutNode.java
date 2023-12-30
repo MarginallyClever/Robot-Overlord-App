@@ -22,6 +22,7 @@ public class CutNode extends AbstractAction {
     }
     @Override
     public void actionPerformed(ActionEvent e) {
+        logger.info("Cutting node(s).");
         // copy the selected nodes using the CopyNode action.
         new CopyNode().actionPerformed(e);
         // remove the selected noes using the RemoveNode action.

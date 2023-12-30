@@ -1,8 +1,6 @@
 package com.marginallyclever.ro3.apps.actions;
 
-import com.marginallyclever.convenience.helpers.JSONHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.node.Node;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -27,9 +25,10 @@ public class CopyNode extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         var selection = Registry.selection.getList();
         if(selection.isEmpty()) return;
+
+        logger.info("Copying {} node(s).",selection.size());
         JSONArray list = new JSONArray();
         for(Node node : selection) {
-            logger.debug("Copying {}",node.getAbsolutePath());
             list.put(node.toJSON());
         }
         JSONObject jsonWrapper = new JSONObject();
