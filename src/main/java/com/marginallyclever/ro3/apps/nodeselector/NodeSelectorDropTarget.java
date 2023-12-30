@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.apps.nodeselector;
 
+import com.marginallyclever.ro3.apps.nodetreeview.TransferableNodeList;
 import com.marginallyclever.ro3.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.*;
+import java.util.List;
 
 /**
  * Allows {@link Node}s to be dropped onto a {@link NodeSelector}.
@@ -27,9 +29,13 @@ public class NodeSelectorDropTarget<T extends Node> implements DropTargetListene
     public void dragEnter(DropTargetDragEvent dtde) {
         try {
             Transferable tr = dtde.getTransferable();
-            DataFlavor nodeFlavor = new DataFlavor(Node.class, Node.class.getSimpleName());
-            if (tr.isDataFlavorSupported(nodeFlavor)) {
-                Node node = (Node)tr.getTransferData(nodeFlavor);
+            if (tr.isDataFlavorSupported(TransferableNodeList.flavor)) {
+                List<?> list = (List<?>)tr.getTransferData(TransferableNodeList.flavor);
+                if(list.size()!=1) {
+                    dtde.rejectDrag();
+                    return;
+                }
+                Node node = (Node)list.get(0);
                 if(type.isInstance(node)) {
                     dtde.acceptDrag(DnDConstants.ACTION_LINK);
                     return;
@@ -55,8 +61,13 @@ public class NodeSelectorDropTarget<T extends Node> implements DropTargetListene
         try {
             Transferable tr = dtde.getTransferable();
 
-            if (tr.isDataFlavorSupported(Node.flavor)) {
-                Node node = (Node)tr.getTransferData(Node.flavor);
+            if (tr.isDataFlavorSupported(TransferableNodeList.flavor)) {
+                List<?> list = (List<?>)tr.getTransferData(TransferableNodeList.flavor);
+                if(list.size()!=1) {
+                    dtde.rejectDrop();
+                    return;
+                }
+                Node node = (Node)list.get(0);
                 if(type.isInstance(node)) {
                     dtde.acceptDrop(DnDConstants.ACTION_LINK);
                     nodeSelector.setSubject(type.cast(node));
