@@ -47,12 +47,10 @@ public class MainWindowDropTarget extends DropTargetAdapter {
                 if (flavor.isFlavorJavaFileListType()) {
                     event.acceptDrop(DnDConstants.ACTION_COPY);
                     Object object = tr.getTransferData(flavor);
-                    if (object instanceof List<?>) {
-                        List<?> list = (List<?>) object;
+                    if (object instanceof List<?> list) {
                         if (list.size() > 0) {
                             object = list.get(0);
-                            if (object instanceof File) {
-                                File file = (File) object;
+                            if (object instanceof File file) {
                                 // drop a mesh
                                 if(importMesh(file.getAbsolutePath())) {
                                     event.dropComplete(true);

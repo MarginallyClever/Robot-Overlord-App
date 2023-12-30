@@ -92,11 +92,8 @@ final class MarginallyCleverPreferencesHelper {
       } catch (NumberFormatException e) {
         logger.error(e.getMessage());
       }
-      boolean isMachineNameAnInteger = false;
-      if (parsedMachineName != null) {
-        isMachineNameAnInteger = true;
-      }
-      if (isMachineNameAnInteger) {
+      boolean isMachineNameAnInteger = parsedMachineName != null;
+        if (isMachineNameAnInteger) {
         //Machine configurations numbered -1 and below should not exist.
         final boolean isMachineNameLessThanZero = parsedMachineName < 0;
         if (isMachineNameLessThanZero) {

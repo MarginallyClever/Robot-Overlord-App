@@ -96,9 +96,8 @@ public class PoseMoveEdit extends AbstractUndoableEdit {
 
 	@Override
 	public boolean addEdit(UndoableEdit anEdit) {
-		if(anEdit instanceof PoseMoveEdit) {
-			PoseMoveEdit moveEdit = (PoseMoveEdit)anEdit;
-			if(new HashSet<>(moveEdit.entities).containsAll(this.entities)) {
+		if(anEdit instanceof PoseMoveEdit moveEdit) {
+            if(new HashSet<>(moveEdit.entities).containsAll(this.entities)) {
 				this.next.set(moveEdit.next);
 				return true;
 			}

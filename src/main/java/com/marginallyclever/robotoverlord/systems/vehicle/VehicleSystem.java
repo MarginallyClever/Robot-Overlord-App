@@ -60,7 +60,7 @@ public class VehicleSystem implements EntitySystem {
     }
 
     private void openDrivePanel(JComponent parent, VehicleComponent car) {
-        DriveVehiclePanel panel = new DriveVehiclePanel(car);;
+        DriveVehiclePanel panel = new DriveVehiclePanel(car);
         EntitySystemUtils.makePanel(panel, parent, "Drive Vehicle");
     }
 

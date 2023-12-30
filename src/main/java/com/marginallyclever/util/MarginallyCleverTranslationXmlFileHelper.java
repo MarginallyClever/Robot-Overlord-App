@@ -126,7 +126,7 @@ public final class MarginallyCleverTranslationXmlFileHelper {
    */
   private static void logMissingKeys(Set<String> expected, Set<String> actual) {
     final Set<String> inANotB = getMissingKeys(expected, actual);
-    logger.error("Missing Keys: " + inANotB.toString());
+    logger.error("Missing Keys: " + inANotB);
   }
 
   /**
@@ -189,11 +189,11 @@ public final class MarginallyCleverTranslationXmlFileHelper {
   private static URL getLanguagesFolderUrl() {
     URL languagesFolderUrl = getLanguagesFolderUrlRelativeToClasspath();
     if( languagesFolderUrl!=null ) {
-    	logger.info("languages relative to classpath: "+languagesFolderUrl.toString());
+    	logger.info("languages relative to classpath: "+ languagesFolderUrl);
     }
     URL languageFolderUsingUserDirectory = getLanguagesFolderUrlFromUserDirectory();
     if( languageFolderUsingUserDirectory!=null ) {
-    	logger.info("languages via user directory: "+languageFolderUsingUserDirectory.toString());
+    	logger.info("languages via user directory: "+ languageFolderUsingUserDirectory);
     }
     if (languagesFolderUrl == null) {
       languagesFolderUrl = languageFolderUsingUserDirectory;

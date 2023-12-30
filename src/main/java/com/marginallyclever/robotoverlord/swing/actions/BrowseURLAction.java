@@ -42,7 +42,7 @@ public class BrowseURLAction extends AbstractAction {
             }
         } catch (IOException ex) {
             logger.warn("Could not open browser.", ex);
-            JOptionPane.showMessageDialog((Component)e.getSource(), Translator.get("BrowseURLAction.fail",new String[]{address}), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog((Component)e.getSource(), Translator.get("BrowseURLAction.fail", address), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

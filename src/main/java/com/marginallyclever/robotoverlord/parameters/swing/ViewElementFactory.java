@@ -40,7 +40,7 @@ public class ViewElementFactory {
 		else if(parameter instanceof ListParameter     ) element = new ViewElementList((ListParameter<?>)parameter, entityManager);
 
 		if(null==element) {
-			throw new InvalidParameterException("unknown parameter "+parameter.getClass().toString());
+			throw new InvalidParameterException("unknown parameter "+ parameter.getClass());
 		}
 
 		return element;

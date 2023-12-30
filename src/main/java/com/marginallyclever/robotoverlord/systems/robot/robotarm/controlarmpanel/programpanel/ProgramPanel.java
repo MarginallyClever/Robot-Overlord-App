@@ -102,9 +102,8 @@ public class ProgramPanel extends JPanel {
 					ProgramEvent value, int index, boolean isSelected, boolean cellHasFocus) {
 				Component c = defaultRenderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				
-				if(c instanceof JLabel) {
-					JLabel jc = (JLabel)c;
-					jc.setText(value.getFormattedDisplay());
+				if(c instanceof JLabel jc) {
+                    jc.setText(value.getFormattedDisplay());
 				}
 				return c;
 			}

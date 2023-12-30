@@ -178,7 +178,7 @@ public class DemoODEPhysics implements Demo {
 		// only collide things with the ground
 		boolean g1 = (o1 == ground || o1 == ramp);
 		boolean g2 = (o2 == ground || o2 == ramp);
-		if (!(g1 ^ g2)) return;
+		if (g1 == g2) return;
 
 		final int N = 10;
 		//dContact contact[N];

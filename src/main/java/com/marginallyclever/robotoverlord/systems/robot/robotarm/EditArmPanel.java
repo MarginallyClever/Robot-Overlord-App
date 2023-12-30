@@ -242,8 +242,7 @@ public class EditArmPanel extends JPanel implements PropertyChangeListener {
             c.weightx=1;
             ShapeComponent shape = findChildShapeComponent(joints.get(i));
             if(shape!=null) {
-                if (shape instanceof MeshFromFile) {
-                    MeshFromFile meshFromFile = (MeshFromFile) shape;
+                if (shape instanceof MeshFromFile meshFromFile) {
                     StringParameter filenameParameter = meshFromFile.filename;
                     ViewElementFilename viewElementFilename = new ViewElementFilename(filenameParameter);
                     viewElementFilename.setLabel("");

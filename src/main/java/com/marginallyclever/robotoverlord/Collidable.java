@@ -14,5 +14,5 @@ public interface Collidable {
 	/**
 	 * @return a list of {@link AABB} relative to the world.
 	 */
-	public ArrayList<AABB> getCuboidList();
+    ArrayList<AABB> getCuboidList();
 }
