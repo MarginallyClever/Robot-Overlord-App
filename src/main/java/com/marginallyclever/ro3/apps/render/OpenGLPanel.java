@@ -21,7 +21,7 @@ public class OpenGLPanel extends App implements GLEventListener, MouseListener, 
     private final boolean hardwareAccelerated = true;
     private final boolean backgroundOpaque = false;
     private final boolean doubleBuffered = true;
-    private final int fsaaSamples = 0;
+    private final int fsaaSamples = 2;
     private final int fps = 30;
     private final FPSAnimator animator = new FPSAnimator(fps);
     private final boolean verticalSync = true;
