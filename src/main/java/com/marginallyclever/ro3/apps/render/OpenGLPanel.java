@@ -6,7 +6,6 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.DockingPanel;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.robotoverlord.preferences.GraphicsPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +18,13 @@ import java.awt.*;
 public class OpenGLPanel extends App implements GLEventListener, MouseListener, MouseMotionListener, MouseWheelListener {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLPanel.class);
     protected GLJPanel glCanvas;
+    private final boolean hardwareAccelerated = true;
+    private final boolean backgroundOpaque = false;
+    private final boolean doubleBuffered = true;
+    private final int fsaaSamples = 0;
     private final int fps = 30;
-    private final FPSAnimator animator = new FPSAnimator(fps);  // TODO move the animator to its own App?
+    private final FPSAnimator animator = new FPSAnimator(fps);
+    private final boolean verticalSync = true;
 
     public OpenGLPanel() {
         super(new BorderLayout());
@@ -59,14 +63,13 @@ public class OpenGLPanel extends App implements GLEventListener, MouseListener, 
     private GLCapabilities getCapabilities() {
         GLProfile profile = GLProfile.getMaxProgrammable(true);
         GLCapabilities capabilities = new GLCapabilities(profile);
-        capabilities.setHardwareAccelerated(GraphicsPreferences.hardwareAccelerated.get());
-        capabilities.setBackgroundOpaque(GraphicsPreferences.backgroundOpaque.get());
-        capabilities.setDoubleBuffered(GraphicsPreferences.doubleBuffered.get());
+        capabilities.setHardwareAccelerated(hardwareAccelerated);
+        capabilities.setBackgroundOpaque(backgroundOpaque);
+        capabilities.setDoubleBuffered(doubleBuffered);
         capabilities.setStencilBits(8);
-        int fsaa = GraphicsPreferences.fsaaSamples.get();
-        if(fsaa>0) {
+        if(fsaaSamples>0) {
             capabilities.setSampleBuffers(true);
-            capabilities.setNumSamples(1<<fsaa);
+            capabilities.setNumSamples(1<<fsaaSamples);
         }
         StringBuilder sb = new StringBuilder();
         capabilities.toString(sb);
@@ -93,7 +96,7 @@ public class OpenGLPanel extends App implements GLEventListener, MouseListener, 
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
 
         // turn on vsync
-        gl3.setSwapInterval(GraphicsPreferences.verticalSync.get() ? 1 : 0);
+        gl3.setSwapInterval(verticalSync?1:0);
 
         // make things pretty
         gl3.glEnable(GL3.GL_LINE_SMOOTH);
