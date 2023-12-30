@@ -732,9 +732,8 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         }
 
         boolean hasMesh = false;
-        if(mmr.renderComponent instanceof ShapeComponent) {
+        if(mmr.renderComponent instanceof ShapeComponent shape) {
             // if this component is a shape
-            ShapeComponent shape = (ShapeComponent)mmr.renderComponent;
             Mesh mesh = shape.getModel();
             if(mesh != null) {
                 hasMesh = true;

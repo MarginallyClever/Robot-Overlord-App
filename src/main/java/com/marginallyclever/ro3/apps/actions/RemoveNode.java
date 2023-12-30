@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +26,6 @@ public class RemoveNode extends AbstractAction {
         logger.info("Removing node(s).");
         var selection = new ArrayList<>(Registry.selection.getList());
         Registry.selection.removeAll();
-        for(var node : selection) {
-            if(node == Registry.getScene()) continue;
-            node.getParent().removeChild(node);
-        }
+        UndoSystem.addEvent(new com.marginallyclever.ro3.apps.commands.RemoveNode(selection));
     }
 }

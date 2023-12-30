@@ -76,7 +76,7 @@ public class ViewElementList extends ViewElement {
     }
 
     public void updateList() {
-        countLabel.setText("("+Integer.toString(list.size())+" items)");
+        countLabel.setText("("+ list.size() +" items)");
 
         interior.removeAll();
         ViewElementFactory factory = new ViewElementFactory(entityManager);

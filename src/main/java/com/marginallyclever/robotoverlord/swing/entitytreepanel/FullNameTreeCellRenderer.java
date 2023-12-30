@@ -17,11 +17,9 @@ public class FullNameTreeCellRenderer extends DefaultTreeCellRenderer {
         JLabel component = (JLabel) super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
         // Get the full name from the node's user object
-        if (value instanceof DefaultMutableTreeNode) {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+        if (value instanceof DefaultMutableTreeNode node) {
             Object userObject = node.getUserObject();
-            if (userObject instanceof Entity) {
-                Entity entity = ((Entity)userObject);
+            if (userObject instanceof Entity entity) {
                 String fullName = entity.getName();
 
                 setText(fullName);

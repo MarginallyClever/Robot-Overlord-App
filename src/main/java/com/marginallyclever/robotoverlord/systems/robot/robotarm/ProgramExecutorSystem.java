@@ -192,12 +192,10 @@ public class ProgramExecutorSystem  implements EntitySystem {
         ProgramStepComponent step = programStep.getComponent(ProgramStepComponent.class);
         Object stackTop = program.peekStack();
 
-        if(stackTop instanceof ProgramEventComponent) {
-            ProgramEventComponent event = (ProgramEventComponent) stackTop;
+        if(stackTop instanceof ProgramEventComponent event) {
             return executeEvent(robot, program, event, programStep, dt);
         }
-        if(stackTop instanceof ProgramPathComponent) {
-            ProgramPathComponent path = (ProgramPathComponent) stackTop;
+        if(stackTop instanceof ProgramPathComponent path) {
             return executePath(robot, program, path, programStep, dt);
         }
         // TODO handle unrecognized component type.

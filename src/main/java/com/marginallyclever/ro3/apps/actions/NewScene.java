@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,7 @@ public class NewScene extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         commitNewScene();
+        UndoSystem.reset();
     }
 
     public void commitNewScene() {

@@ -273,7 +273,7 @@ public class MatrixHelper {
 	 * @param a the matrix to invert.
 	 * @return the result.
 	 */
-	static public double[][] invert(double a[][]) {
+	static public double[][] invert(double[][] a) {
 		double[][] inverse = new double[a.length][a.length];
 
 		// minors and cofactors
@@ -348,9 +348,9 @@ public class MatrixHelper {
 	 * @param a the matrix
 	 * @param index the pivoting order.
 	 */
-	static public void gaussian(double a[][], int index[]) {
+	static public void gaussian(double[][] a, int[] index) {
 		int n = index.length;
-		double c[] = new double[n];
+		double[] c = new double[n];
 
 		// Initialize the index
 		for (int i = 0; i < n; ++i)
@@ -548,7 +548,7 @@ public class MatrixHelper {
 
 		for (int i = 0; i < matrix.length; i++) {
 			for (int j = 0; j < matrix[i].length; j++) {
-				doubleMatrix[i][j] = (double) matrix[i][j];
+				doubleMatrix[i][j] = matrix[i][j];
 			}
 		}
 

@@ -74,7 +74,7 @@ public class Entity {
 			for( Entity c : children) {
 				if( c.getName().equals(name) ) {
 					// matches an existing name.  increment by one and check everybody again.
-					name = rootName+Integer.toString(count++);
+					name = rootName+ count++;
 					foundMatch=true;
 				}
 			}

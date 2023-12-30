@@ -30,7 +30,7 @@ public class Registry {
 
     public static void start() {
         nodeFactory.clear();
-        Factory.Category<Node> nodule = nodeFactory.getRoot().add("Node", null);
+        Factory.Category<Node> nodule = nodeFactory.getRoot().add("Node", Node::new);
         nodule.add("DHParameter", DHParameter::new);
         nodule.add("HingeJoint", HingeJoint::new);
         nodule.add("MarlinRobotArm", MarlinRobotArm::new);

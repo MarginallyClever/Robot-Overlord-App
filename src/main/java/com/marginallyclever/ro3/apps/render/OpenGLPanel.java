@@ -3,26 +3,25 @@ package com.marginallyclever.ro3.apps.render;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
+import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.DockingPanel;
 import com.marginallyclever.ro3.Registry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.event.*;
-import javax.swing.*;
 import java.awt.*;
 
 /**
  * {@link OpenGLPanel} is a {@link DockingPanel} that contains a {@link GLJPanel} and an {@link FPSAnimator}.
  */
-public class OpenGLPanel extends JPanel implements GLEventListener, MouseListener, MouseMotionListener, MouseWheelListener {
+public class OpenGLPanel extends App implements GLEventListener, MouseListener, MouseMotionListener, MouseWheelListener {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLPanel.class);
     protected GLJPanel glCanvas;
-
     private final boolean hardwareAccelerated = true;
     private final boolean backgroundOpaque = false;
     private final boolean doubleBuffered = true;
-    private final int fsaaSamples = 0;
+    private final int fsaaSamples = 2;
     private final int fps = 30;
     private final FPSAnimator animator = new FPSAnimator(fps);
     private final boolean verticalSync = true;

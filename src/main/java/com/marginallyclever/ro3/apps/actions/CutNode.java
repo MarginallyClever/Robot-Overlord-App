@@ -1,18 +1,13 @@
 package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.Node;
-import org.json.JSONArray;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.marginallyclever.ro3.UndoSystem;
 
 import javax.swing.*;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.util.Objects;
 
 public class CutNode extends AbstractAction {
-    private final Logger logger = LoggerFactory.getLogger(CutNode.class);
 
     public CutNode() {
         super();
@@ -22,10 +17,6 @@ public class CutNode extends AbstractAction {
     }
     @Override
     public void actionPerformed(ActionEvent e) {
-        logger.info("Cutting node(s).");
-        // copy the selected nodes using the CopyNode action.
-        new CopyNode().actionPerformed(e);
-        // remove the selected noes using the RemoveNode action.
-        new RemoveNode().actionPerformed(e);
+        UndoSystem.addEvent(new com.marginallyclever.ro3.apps.commands.CutNode(Registry.selection.getList()));
     }
 }

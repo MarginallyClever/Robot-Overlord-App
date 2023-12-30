@@ -1,6 +1,8 @@
 package com.marginallyclever.ro3.apps.nodetreeview;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.commands.MoveNode;
 import com.marginallyclever.ro3.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,31 +84,9 @@ public class NodeTreeTransferHandler extends TransferHandler {
 
         try {
             Transferable transferable = support.getTransferable();
-            List<?> beingMoved = (List<?>)transferable.getTransferData(TransferableNodeList.flavor);
-            for(Object obj : beingMoved) {
-                Node node = (Node)obj;
-                // Remove node from its current parent
-                Node oldParent = node.getParent();
-                int oldIndex = -1;
-                if (oldParent != null) {
-                    oldIndex = oldParent.getChildren().indexOf(node);
-                    oldParent.removeChild(node);
-                }
-
-                // Get the index at which the source node will be added
-                int newIndex = dl.getChildIndex();
-                if (newIndex == -1) {
-                    // If the drop location is a node, add the node at the end
-                    newParent.addChild(node);
-                } else {
-                    // If oldParent and newParent are the same instance, adjust the index accordingly
-                    if (oldParent == newParent && oldIndex < newIndex) {
-                        newIndex--;
-                    }
-                    // If the drop location is an index, add the node at the specified index
-                    newParent.addChild(newIndex, node);
-                }
-            }
+            List<Node> beingMoved = (List<Node>)transferable.getTransferData(TransferableNodeList.flavor);
+            int newIndex = dl.getChildIndex();
+            UndoSystem.addEvent(new MoveNode(beingMoved,newParent,newIndex));
             return true;
         } catch (Exception e) {
             logger.error("import failed.", e);

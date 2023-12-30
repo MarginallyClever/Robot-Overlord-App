@@ -50,9 +50,8 @@ public class ColorParameterEdit extends AbstractUndoableEdit {
 	
 	@Override
 	public boolean addEdit(UndoableEdit anEdit) {
-		if(anEdit instanceof ColorParameterEdit) {
-			ColorParameterEdit APEM = (ColorParameterEdit)anEdit;
-			if(APEM.entity == this.entity) return true;
+		if(anEdit instanceof ColorParameterEdit APEM) {
+            if(APEM.entity == this.entity) return true;
 		}
 		return super.addEdit(anEdit);
 	}

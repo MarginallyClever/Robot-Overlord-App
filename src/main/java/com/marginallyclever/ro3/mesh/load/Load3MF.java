@@ -23,9 +23,9 @@ public class Load3MF implements MeshLoader {
 	private class ColorGroup {
 		public int id;
 		public ArrayList<ColorRGB> colors = new ArrayList<ColorRGB>();
-	};
-	
-	ArrayList<ColorGroup> colorGroups = new ArrayList<ColorGroup>();
+	}
+
+    ArrayList<ColorGroup> colorGroups = new ArrayList<ColorGroup>();
 	
 	@Override
 	public String getEnglishName() {
@@ -192,7 +192,7 @@ public class Load3MF implements MeshLoader {
 		// http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
         doc.getDocumentElement().normalize();
 
-        Element modelNode = (Element)doc.getDocumentElement();
+        Element modelNode = doc.getDocumentElement();
         
 		return modelNode;
 	}

@@ -137,9 +137,8 @@ public class EntityTreePanel extends JPanel {
 		list.add(root);
 		while(!list.isEmpty()) {
 			TreeNode treeNode = list.remove(0);
-			if(treeNode instanceof EntityTreeNode) {
-				EntityTreeNode node = (EntityTreeNode) treeNode;
-				if (e == node.getUserObject()) {
+			if(treeNode instanceof EntityTreeNode node) {
+                if (e == node.getUserObject()) {
 					return node;
 				}
 			} else {

@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.RO3Frame;
 import com.marginallyclever.ro3.node.Node;
 import org.json.JSONObject;
@@ -49,36 +50,7 @@ public class ImportScene extends AbstractAction {
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
         chooser.setDialogType(JFileChooser.OPEN_DIALOG);
         if (chooser.showDialog(parentFrame,"Import") == JFileChooser.APPROVE_OPTION) {
-            commitImport(chooser.getSelectedFile());
+            UndoSystem.addEvent(new com.marginallyclever.ro3.apps.commands.ImportScene(chooser.getSelectedFile()));
         }
-    }
-
-    /**
-     * Load a scene from a file.
-     * @param selectedFile the file to load.
-     * @throws InvalidParameterException if the file is null or does not exist.
-     */
-    public void commitImport(File selectedFile) {
-        if( selectedFile == null ) throw new InvalidParameterException("Selected file is null.");
-        if( !selectedFile.exists() ) throw new InvalidParameterException("File does not exist.");
-
-        logger.info("Import scene from {}",selectedFile.getAbsolutePath());
-
-        try {
-            String content = new String(Files.readAllBytes(Paths.get(selectedFile.getAbsolutePath())));
-            // Add the loaded scene to the current scene.
-            var jsonObject = new JSONObject(content);
-            Registry.getScene().addChild(createFromJSON(jsonObject));
-        } catch (IOException e) {
-            logger.error("Error loading scene from JSON", e);
-        }
-        logger.info("done.");
-    }
-
-    public static Node createFromJSON(JSONObject jsonObject) {
-        Node loaded = Registry.nodeFactory.create(jsonObject.get("type").toString());
-        loaded.fromJSON(jsonObject);
-        loaded.witnessProtection();
-        return loaded;
     }
 }

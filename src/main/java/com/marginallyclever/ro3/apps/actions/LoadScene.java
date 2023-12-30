@@ -1,8 +1,11 @@
 package com.marginallyclever.ro3.apps.actions;
 
+import com.marginallyclever.convenience.helpers.FileHelper;
+import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.RecentFilesMenu;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.texture.TextureFactory;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +68,7 @@ public class LoadScene extends AbstractAction {
                 : runFileDialog((Component) e.getSource());  // ask the user for a filename
         if( src == null ) return;  // cancelled
         commitLoad(src);
+        UndoSystem.reset();
     }
 
     private File runFileDialog(Component source) {
@@ -91,9 +95,16 @@ public class LoadScene extends AbstractAction {
             // if the json is bad, this will throw an exception before removing the previous scene.
             JSONObject json = new JSONObject(content);
             Registry.reset();
+
+            String newCWD = selectedFile.getParent() + File.separator;
+            String oldCWD = System.getProperty("user.dir");
+            System.setProperty("user.dir",newCWD);
+
             Node loaded = new Node("Scene");
-            Registry.setScene(loaded);
             loaded.fromJSON(json);
+            Registry.setScene(loaded);
+
+            System.setProperty("user.dir",oldCWD);
 
             menu.addPath(selectedFile.getAbsolutePath());
         } catch (IOException e) {

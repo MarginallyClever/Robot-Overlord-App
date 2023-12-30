@@ -56,7 +56,7 @@ public class ConversationHistoryList extends JPanel {
 
 	private void createCellRenderingSystem() {
 		listView.setCellRenderer(new ListCellRenderer<ConversationEvent>() {
-			private DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer(); 
+			private final DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
 			
 			@Override
 			public Component getListCellRendererComponent(JList<? extends ConversationEvent> list,

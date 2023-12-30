@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.apps.webcampanel;
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
 import com.github.sarxos.webcam.WebcamResolution;
+import com.marginallyclever.ro3.apps.App;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +17,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * A panel that displays the default USB web camera.
  */
-public class WebCamPanel extends JPanel {
+public class WebCamPanel extends App {
     private static final Logger logger = LoggerFactory.getLogger(WebCamPanel.class);
     private Webcam webcam;
     private WebcamPanel panel;

@@ -34,7 +34,7 @@ public class ProgramComponent extends Component implements ComponentWithReferenc
 
     public ReferenceParameter programEntity = new ReferenceParameter("Program",null);
     public ReferenceParameter stepEntity = new ReferenceParameter("Step",null);
-    private BooleanParameter isRunning = new BooleanParameter("Running",false);
+    private final BooleanParameter isRunning = new BooleanParameter("Running",false);
     public IntParameter mode = new IntParameter("mode",RUN_STEP);
     private final Stack<Object> stack = new Stack<>();
 

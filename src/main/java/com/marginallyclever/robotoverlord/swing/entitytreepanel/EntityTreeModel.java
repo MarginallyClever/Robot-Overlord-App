@@ -12,8 +12,7 @@ class EntityTreeModel extends DefaultTreeModel {
 
     @Override
     public void valueForPathChanged(TreePath path, Object newValue) {
-        if (path != null && path.getLastPathComponent() instanceof EntityTreeNode) {
-            EntityTreeNode node = (EntityTreeNode) path.getLastPathComponent();
+        if (path != null && path.getLastPathComponent() instanceof EntityTreeNode node) {
             //Entity entity = node.getEntity();
             //entity.setName((String) newValue); // Assuming Entity has a setName method
             nodeChanged(node); // Notify listeners that the node has changed
