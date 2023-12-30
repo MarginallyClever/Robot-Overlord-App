@@ -9,8 +9,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * {@link NodeDetailView} is a panel that displays the details of a class that implements {@link Node}.
@@ -20,9 +22,27 @@ public class NodeDetailView extends JPanel
     private static final Logger logger = LoggerFactory.getLogger(NodeDetailView.class);
     private final JScrollPane scroll = new JScrollPane();
 
+    private final JToggleButton lockButton = new JToggleButton(new AbstractAction() {
+        {
+            putValue(Action.NAME, "Lock");
+            putValue(Action.SHORT_DESCRIPTION, "Lock this view to the current selection.");
+            putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/apps/editorpanel/icons8-lock-16.png"))));
+        }
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            logger.debug("Lock button pressed.");
+        }
+    });
+
     public NodeDetailView() {
         super(new BorderLayout());
-        this.add(scroll, BorderLayout.CENTER);
+
+        JToolBar toolbar = new JToolBar();
+        toolbar.add(lockButton);
+        toolbar.setFloatable(false);
+
+        add(toolbar, BorderLayout.NORTH);
+        add(scroll, BorderLayout.CENTER);
         selectionChanged(List.of());
     }
 
@@ -63,6 +83,7 @@ public class NodeDetailView extends JPanel
      * @param selectedNodes the list of nodes that are currently selected.
      */
     public void selectionChanged(List<Node> selectedNodes) {
+        if(lockButton.isSelected()) return;
         scroll.setViewportView(createPanelFor(selectedNodes));
         this.revalidate();
         this.repaint();
