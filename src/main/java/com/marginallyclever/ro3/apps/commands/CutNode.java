@@ -1,8 +1,6 @@
 package com.marginallyclever.ro3.apps.commands;
 
 import com.marginallyclever.ro3.node.Node;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotUndoException;
