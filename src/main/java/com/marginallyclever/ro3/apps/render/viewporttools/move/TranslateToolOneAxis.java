@@ -33,7 +33,7 @@ import java.util.List;
 public class TranslateToolOneAxis implements ViewportTool {
     private static final Logger logger = LoggerFactory.getLogger(TranslateToolOneAxis.class);
     private final double handleLength = 5;
-    private final double gripRadius = 0.4;
+    private final double gripRadius = 0.5;
     private double localScale = 1;
 
     /**
@@ -70,13 +70,22 @@ public class TranslateToolOneAxis implements ViewportTool {
 
     private boolean cursorOverHandle = false;
 
+    private final Mesh handleLineMesh = new Mesh(GL3.GL_LINES);
     private final Sphere handleSphere = new Sphere();
     private int frameOfReference = ViewportTool.FRAME_WORLD;
     private final ColorRGB color;
 
+
     public TranslateToolOneAxis(ColorRGB color) {
         super();
         this.color = color;
+
+        // handle line
+        handleLineMesh.addVertex(0, 0, 0);
+        handleLineMesh.addVertex((float)getHandleLengthScaled(), 0, 0);
+
+        // ball at end of handle
+        handleSphere.radius.set(getGripRadiusScaled());
     }
 
     @Override
@@ -244,27 +253,23 @@ public class TranslateToolOneAxis implements ViewportTool {
         float blue  = color.blue  * colorScale / 255f;
         shaderProgram.set4f(gl,"objectColor",red, green, blue, 1.0f);
 
-        drawHandleOnAxis(gl, shaderProgram);
-    }
+        Matrix4d scale = MatrixHelper.createIdentityMatrix4();
+        scale.m00 = scale.m11 = scale.m22 = localScale;
 
-    private void drawHandleOnAxis(GL3 gl, ShaderProgram shaderProgram) {
+        // handle
         Matrix4d m = new Matrix4d(pivotMatrix);
+        m.mul(m,scale);
         m.transpose();
         shaderProgram.setMatrix4d(gl,"modelMatrix",m);
+        handleLineMesh.render(gl);
 
-        // handle line
-        Mesh mesh = new Mesh(GL3.GL_LINES);
-        mesh.addVertex(0, 0, 0);
-        mesh.addVertex((float)getHandleLengthScaled(), 0, 0);
-        mesh.render(gl);
-
-        // ball at end of handle
+        // sphere at end of handle
         Matrix4d m2 = MatrixHelper.createIdentityMatrix4();
         m2.m03 += getHandleLengthScaled();
         m2.mul(pivotMatrix,m2);
+        m2.mul(m2,scale);
         m2.transpose();
         shaderProgram.setMatrix4d(gl,"modelMatrix",m2);
-        handleSphere.radius.set(getGripRadiusScaled());
         handleSphere.render(gl);
     }
 
@@ -298,14 +303,11 @@ public class TranslateToolOneAxis implements ViewportTool {
     }
 
     @Override
-    public void init(GL3 gl3) {
-        // TODO
-        logger.error("Not finished.");
-    }
+    public void init(GL3 gl3) {}
 
     @Override
     public void dispose(GL3 gl3) {
-        // TODO
-        logger.error("Not finished.");
+        handleSphere.unload(gl3);
+        handleLineMesh.unload(gl3);
     }
 }
