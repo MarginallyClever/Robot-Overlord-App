@@ -119,7 +119,6 @@ public class DrawCameras extends AbstractRenderPass {
 
         // position and draw the ray from the camera.
         Matrix4d w = MatrixHelper.createIdentityMatrix4();
-        w.transpose();
         shader.setMatrix4d(gl3, "modelMatrix", w);
         for(Camera cam : Registry.cameras.getList() ) {
             Ray ray = viewport.getRayThroughPoint(cam,normalizedCoordinates.x,normalizedCoordinates.y);
@@ -130,8 +129,7 @@ public class DrawCameras extends AbstractRenderPass {
         // scale and draw the view cones
         for(Camera cam : Registry.cameras.getList() ) {
             w = cam.getWorld();
-            Matrix4d scale = new Matrix4d();
-            scale.setIdentity();
+            Matrix4d scale = MatrixHelper.createIdentityMatrix4();
             scale.m00 *= canvasWidth * coneScale;
             scale.m11 *= canvasHeight * coneScale;
             scale.m22 *= canvasHeight * coneScale / Math.tan(Math.toRadians(camera.getFovY()) / 2);

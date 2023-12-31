@@ -18,6 +18,13 @@ import java.text.MessageFormat;
 public class MatrixHelper {
 	private static final Logger logger = LoggerFactory.getLogger(MatrixHelper.class);
 
+	public static Matrix4d createScaleMatrix4(double scale) {
+		var m = new Matrix4d();
+		m.m00 = m.m11 = m.m22 = scale;
+		m.m33 = 1;
+		return m;
+	}
+
 	public enum EulerSequence {
 		YXZ,
 		YZX,
