@@ -67,7 +67,6 @@ public class DrawBackground extends AbstractRenderPass {
         mesh.addTexCoord(d,g);  mesh.addVertex( v, -v,  v);
         mesh.addTexCoord(d,f);  mesh.addVertex( v, -v, -v);
         mesh.addTexCoord(e,f);  mesh.addVertex(-v, -v, -v);
-
         // build east face (x+)
         mesh.addTexCoord(d,g);  mesh.addVertex(v, -v,  v);
         mesh.addTexCoord(c,g);  mesh.addVertex(v,  v,  v);

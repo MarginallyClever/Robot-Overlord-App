@@ -22,20 +22,21 @@ import java.awt.*;
  */
 public class DrawGroundPlane extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawGroundPlane.class);
-    private final Mesh mesh = MatrixHelper.createMesh(1.0);
+    private final Mesh worldOriginMesh = MatrixHelper.createMesh(5.0);
+    private final Mesh gridMesh = new Mesh();
     private ShaderProgram shader;
 
     public DrawGroundPlane() {
         super("Ground plane");
 
-        mesh.setRenderStyle(GL3.GL_LINES);
+        gridMesh.setRenderStyle(GL3.GL_LINES);
         int v = 1000;
         int stepSize=100;
         for(int s=-v;s<v;s+=stepSize) {
-            mesh.addVertex(s, -v, 0);
-            mesh.addVertex(s,  v, 0);
-            mesh.addVertex( -v,s, 0);
-            mesh.addVertex(  v,s, 0);
+            gridMesh.addVertex(s, -v, 0);
+            gridMesh.addVertex(s,  v, 0);
+            gridMesh.addVertex( -v,s, 0);
+            gridMesh.addVertex(  v,s, 0);
         }
     }
 
@@ -54,7 +55,8 @@ public class DrawGroundPlane extends AbstractRenderPass {
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        mesh.unload(gl3);
+        gridMesh.unload(gl3);
+        worldOriginMesh.unload(gl3);
         shader.delete(gl3);
     }
 
@@ -71,10 +73,10 @@ public class DrawGroundPlane extends AbstractRenderPass {
         shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
         shader.setColor(gl3,"lightColor", Color.WHITE);
-        shader.setColor(gl3,"objectColor",new Color(255,255,255,8));
+        shader.setColor(gl3,"objectColor",new Color(255,255,255,128));
         shader.setColor(gl3,"specularColor",Color.GRAY);
-        shader.setColor(gl3,"ambientColor",new Color(32,32,32,255));
-        shader.set1i(gl3,"useVertexColor",0);
+        shader.setColor(gl3,"ambientColor",Color.WHITE);
+        shader.set1i(gl3,"useVertexColor",1);
         shader.set1i(gl3,"useLighting",0);
         shader.set1i(gl3,"diffuseTexture",0);
         gl3.glDisable(GL3.GL_TEXTURE_2D);
@@ -82,6 +84,11 @@ public class DrawGroundPlane extends AbstractRenderPass {
         Matrix4d w = MatrixHelper.createIdentityMatrix4();
         w.transpose();
         shader.setMatrix4d(gl3,"modelMatrix",w);
-        mesh.render(gl3);
+        shader.set1i(gl3,"useVertexColor",1);
+        worldOriginMesh.render(gl3);
+
+        shader.set1i(gl3,"useVertexColor",0);
+        shader.setColor(gl3,"objectColor",new Color(255,255,255,8));
+        gridMesh.render(gl3);
     }
 }

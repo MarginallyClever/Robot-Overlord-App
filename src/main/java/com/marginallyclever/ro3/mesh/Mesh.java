@@ -139,6 +139,8 @@ public class Mesh {
 		gl.glBindVertexArray(VAO[0]);
 		OpenGLHelper.checkGLError(gl,logger);
 
+		checkBufferSizes();
+
 		int attribIndex=0;
 		setupArray(gl,0,3,numVertexes,vertexArray);
 		if(hasNormals ) setupArray(gl,1,3,numVertexes,normalArray );
@@ -155,6 +157,22 @@ public class Mesh {
 		}
 
 		gl.glBindVertexArray(0);
+	}
+
+	private void checkBufferSizes() {
+		var va = vertexArray.size();
+		var na = normalArray.size();
+		var ca = colorArray.size();
+		var ta = textureArray.size();
+		if(na>0 && na!=va) {
+			throw new IllegalStateException("normalArray.size() != vertexArray.size()");
+		}
+		if(ca>0 && ca*3!=va*4) {
+			throw new IllegalStateException("colorArray.size() != vertexArray.size()");
+		}
+		if(ta>0 && ta*3!=va*2) {
+			throw new IllegalStateException("textureArray.size() != vertexArray.size()");
+		}
 	}
 
 	private void bindArray(GL3 gl, int attribIndex, int size) {
