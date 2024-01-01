@@ -31,6 +31,7 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.prefs.Preferences;
 
 /**
  * {@link Viewport} is an {@link OpenGLPanel} that uses a set of {@link RenderPass}es to draw the
@@ -133,6 +134,32 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         renderPasses.add(new DrawPoses());
     }
 
+    /**
+     * Load the render pass state from the {@link java.util.prefs.Preferences}.
+     */
+    private void loadRenderPassState() {
+        Preferences pref = Preferences.userNodeForPackage(this.getClass());
+
+        for (RenderPass renderPass : renderPasses.getList()) {
+            String key = renderPass.getClass().getSimpleName();
+            int activeState = pref.getInt(key, RenderPass.ALWAYS);
+            renderPass.setActiveStatus(activeState);
+        }
+    }
+
+    /**
+     * Save the render pass state to the {@link java.util.prefs.Preferences}.
+     */
+    public void saveRenderPassState() {
+        Preferences pref = Preferences.userNodeForPackage(this.getClass());
+
+        for (RenderPass renderPass : renderPasses.getList()) {
+            String key = renderPass.getClass().getSimpleName();
+            int activeState = renderPass.getActiveStatus();
+            pref.putInt(key, activeState);
+        }
+    }
+
     private void allocateButtonMemory() {
         // initialize mouse button states
         for(int i=0;i<MouseInfo.getNumberOfButtons();++i) {
@@ -179,6 +206,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     @Override
     public void addNotify() {
         super.addNotify();
+        loadRenderPassState();
         Registry.cameras.addItemAddedListener(this::addCamera);
         Registry.cameras.addItemRemovedListener(this::removeCamera);
         renderPasses.addItemAddedListener(this::addRenderPass);
@@ -190,6 +218,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     @Override
     public void removeNotify() {
         super.removeNotify();
+        saveRenderPassState();
         Registry.cameras.removeItemAddedListener(this::addCamera);
         Registry.cameras.removeItemRemovedListener(this::removeCamera);
         renderPasses.removeItemAddedListener(this::addRenderPass);
