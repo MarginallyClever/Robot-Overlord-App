@@ -1,11 +1,13 @@
 package com.marginallyclever.ro3.apps;
 
 import com.marginallyclever.ro3.Factory;
+import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeBranch;
 import com.marginallyclever.ro3.apps.shared.SearchBar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -25,19 +27,32 @@ public class FactoryPanel<T> extends JPanel {
     private final JButton okButton = new JButton("OK");
     private final SearchBar searchBar = new SearchBar();
 
-    public FactoryPanel(Factory<T> factory) {
-        super();
-        this.factory = factory;
+    private static class FactoryCategoryCellRenderer extends DefaultTreeCellRenderer {
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+            var branch = (DefaultMutableTreeNode) value;
+            if(branch.getUserObject() instanceof Factory.Category<?> category) {
+                if (category.getSupplier() == null) {
+                    setForeground(Color.LIGHT_GRAY);
+                } else {
+                    setForeground(Color.BLACK);
+                }
+                setText(category.getName());
+            }
+            return this;
+        }
+    }
 
-        setMinimumSize(new Dimension(400, 300));
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+    public FactoryPanel(Factory<T> factory) {
+        super(new BorderLayout());
+        this.factory = factory;
 
         setupTree();
         setupSearch();
 
-        add(new JLabel("Select a node type to create:"));
-        add(searchBar);
-        add(new JScrollPane(tree));
+        add(searchBar, BorderLayout.NORTH);
+        add(new JScrollPane(tree), BorderLayout.CENTER);
 
         populateTree("");
     }
@@ -53,7 +68,7 @@ public class FactoryPanel<T> extends JPanel {
     private void populateTree(String searchCriteria) {
         var root = factory.getRoot();
 
-        List<Factory.Category<T>> matches = findAllTypesMatching(root, searchCriteria);
+        var matches = findAllTypesMatching(root, searchCriteria);
         logger.debug("Found {} matches", matches.size());
         addAllParents(matches);
         logger.debug("Grown to {} matches", matches.size());
@@ -61,6 +76,33 @@ public class FactoryPanel<T> extends JPanel {
         DefaultMutableTreeNode rootTreeNode = new DefaultMutableTreeNode(root);
         addBranches(root, rootTreeNode, matches);
         tree.setModel(new DefaultTreeModel(rootTreeNode));
+
+        // Select the first match if there are any matches
+        if (!matches.isEmpty()) {
+            selectNodeInTree(matches.get(0));
+        }
+    }
+
+    private void selectNodeInTree(Factory.Category<T> node) {
+        var rootNode = (DefaultMutableTreeNode)tree.getModel().getRoot();
+        TreePath path = findNodeInTree(rootNode, node);
+        if (path != null) {
+            tree.setSelectionPath(path);
+            tree.scrollPathToVisible(path);
+        }
+    }
+
+    private TreePath findNodeInTree(DefaultMutableTreeNode branch, Factory.Category<T> node) {
+        if (getCategory(branch) == node) {
+            return new TreePath(branch.getPath());
+        }
+        for (int i = 0; i < branch.getChildCount(); i++) {
+            TreePath path = findNodeInTree((DefaultMutableTreeNode) branch.getChildAt(i), node);
+            if (path != null) {
+                return path;
+            }
+        }
+        return null;
     }
 
     private void addBranches(Factory.Category<T> node, DefaultMutableTreeNode branch, List<Factory.Category<T>> matches) {
@@ -118,24 +160,6 @@ public class FactoryPanel<T> extends JPanel {
                 okButton.setEnabled(category.getSupplier() != null);
             }
         });
-
-    }
-
-    private class FactoryCategoryCellRenderer extends DefaultTreeCellRenderer {
-        @Override
-        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-            var branch = (DefaultMutableTreeNode) value;
-            if(branch.getUserObject() instanceof Factory.Category<?> category) {
-                if (category.getSupplier() == null) {
-                    setForeground(Color.LIGHT_GRAY);
-                } else {
-                    setForeground(Color.BLACK);
-                }
-                setText(category.getName());
-            }
-            return this;
-        }
     }
 
     /**
@@ -161,8 +185,8 @@ public class FactoryPanel<T> extends JPanel {
         return null;
     }
 
-    Factory.Category<T> getCategory(DefaultMutableTreeNode node) {
-        Object obj = node.getUserObject();
+    Factory.Category<T> getCategory(DefaultMutableTreeNode branch) {
+        Object obj = branch.getUserObject();
         return (Factory.Category<T>)obj;
     }
 }
