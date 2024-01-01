@@ -19,12 +19,11 @@ import java.util.List;
 
 /**
  * <p>A tool to translate {@link com.marginallyclever.ro3.node.nodes.Pose} nodes in the {@link Viewport}.  It is a
- * combination of three {@link TranslateToolOneAxis} viewporttools.</p>
+ * combination of three {@link TranslateToolOneAxis}.</p>
  * @author Dan Royer
  * @since 2.5.0
  */
 public class TranslateToolMulti implements ViewportTool {
-    private Viewport viewport;
     private final TranslateToolOneAxis toolX = new TranslateToolOneAxis(new ColorRGB(255,0,0));
     private final TranslateToolOneAxis toolY = new TranslateToolOneAxis(new ColorRGB(0,255,0));
     private final TranslateToolOneAxis toolZ = new TranslateToolOneAxis(new ColorRGB(0,0,255));
@@ -78,6 +77,7 @@ public class TranslateToolMulti implements ViewportTool {
         rot.rotY(Math.toRadians(-90));
         pivotZ.mul(rot);
         toolZ.setPivotMatrix(pivotZ);
+
 
         Matrix4d pivotYZ = new Matrix4d(pivot);
         rot.rotY(Math.toRadians(-90));
@@ -195,7 +195,7 @@ public class TranslateToolMulti implements ViewportTool {
     }
 
     private void updatePivotMatrix() {
-        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,viewport,selectedItems));
+        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,selectedItems));
     }
 
     /**
@@ -218,7 +218,6 @@ public class TranslateToolMulti implements ViewportTool {
 
     @Override
     public void setViewport(Viewport viewport) {
-        this.viewport = viewport;
         for (ViewportTool t : tools) t.setViewport(viewport);
     }
 

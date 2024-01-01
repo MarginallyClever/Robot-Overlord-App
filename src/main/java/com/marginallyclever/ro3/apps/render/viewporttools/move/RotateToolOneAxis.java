@@ -348,7 +348,7 @@ public class RotateToolOneAxis implements ViewportTool {
     }
 
     private void updatePivotMatrix() {
-        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,viewport,selectedItems));
+        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,selectedItems));
     }
 
     private void updateLocalScale() {

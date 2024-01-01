@@ -64,7 +64,7 @@ public class RotateToolMulti implements ViewportTool {
     }
 
     private void updatePivotMatrix() {
-        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,viewport,selectedItems));
+        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,selectedItems));
     }
 
     private void setPivotMatrix(Matrix4d pivot) {

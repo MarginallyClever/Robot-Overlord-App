@@ -73,7 +73,7 @@ public class MoveUtils {
         }
     }
 
-    public static Matrix4d getPivotMatrix(int frameOfReference, Viewport viewport, SelectedItems selectedItems) {
+    public static Matrix4d getPivotMatrix(int frameOfReference, SelectedItems selectedItems) {
         Matrix4d m;
         switch(frameOfReference) {
             case ViewportTool.FRAME_WORLD -> {
