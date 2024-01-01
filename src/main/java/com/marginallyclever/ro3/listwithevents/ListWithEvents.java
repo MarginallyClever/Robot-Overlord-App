@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.listwithevents;
 import javax.swing.event.EventListenerList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A {@link List} that fires events when items are added or removed.
@@ -70,7 +71,7 @@ public class ListWithEvents<T> {
         }
     }
 
-    public void set(ArrayList<T> selection) {
+    public void set(List<T> selection) {
         // remove only the items that are not in the new selection
         for(T item : list) {
             if(!selection.contains(item)) {

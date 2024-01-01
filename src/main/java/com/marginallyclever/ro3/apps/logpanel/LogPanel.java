@@ -5,6 +5,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
+import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.DockingPanel;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,7 @@ import java.util.*;
  * {@link LogPanel} is a read-only panel that contains the log.  It cannot be derived from {@link DockingPanel}
  * because it is created before {@link ModernDocking.app.Docking} is initialized.
  */
-public class LogPanel extends JPanel {
+public class LogPanel extends App {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(LogPanel.class);
     private final JTextArea logArea = new JTextArea();
 

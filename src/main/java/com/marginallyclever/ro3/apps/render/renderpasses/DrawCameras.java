@@ -24,10 +24,10 @@ import java.awt.*;
  */
 public class DrawCameras extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawCameras.class);
-    private final Mesh mesh = new Mesh();
+    private final Mesh pyramidMesh = new Mesh();
     private final Mesh rayMesh = new Mesh();
     private ShaderProgram shader;
-    private double cameraConeRatio = 50;
+    private final double cameraConeRatio = 50;
 
     public DrawCameras() {
         super("Cameras");
@@ -43,23 +43,33 @@ public class DrawCameras extends AbstractRenderPass {
 
     private void setupMeshCone() {
         // add mesh to a list that can be unloaded and reloaded as needed.
-        mesh.setRenderStyle(GL3.GL_LINES);
+        pyramidMesh.setRenderStyle(GL3.GL_LINES);
         Vector3d a = new Vector3d(-1,-1,-1);
         Vector3d b = new Vector3d( 1,-1,-1);
         Vector3d c = new Vector3d( 1, 1,-1);
         Vector3d d = new Vector3d(-1, 1,-1);
-        mesh.addColor(0,0,0,1);        mesh.addVertex(0,0,0);        mesh.addColor(0,0,0,1);        mesh.addVertex((float)a.x, (float)a.y, (float)a.z);
-        mesh.addColor(0,0,0,1);        mesh.addVertex(0,0,0);        mesh.addColor(0,0,0,1);        mesh.addVertex((float)b.x, (float)b.y, (float)b.z);
-        mesh.addColor(0,0,0,1);        mesh.addVertex(0,0,0);        mesh.addColor(0,0,0,1);        mesh.addVertex((float)c.x, (float)c.y, (float)c.z);
-        mesh.addColor(0,0,0,1);        mesh.addVertex(0,0,0);        mesh.addColor(0,0,0,1);        mesh.addVertex((float)d.x, (float)d.y, (float)d.z);
-        mesh.addColor(0,0,0,1);        mesh.addVertex((float)a.x, (float)a.y, (float)a.z);
-        mesh.addColor(0,0,0,1);        mesh.addVertex((float)b.x, (float)b.y, (float)b.z);
-        mesh.addColor(0,0,0,1);        mesh.addVertex((float)b.x, (float)b.y, (float)b.z);
-        mesh.addColor(0,0,0,1);        mesh.addVertex((float)c.x, (float)c.y, (float)c.z);
-        mesh.addColor(0,0,0,1);        mesh.addVertex((float)c.x, (float)c.y, (float)c.z);
-        mesh.addColor(0,0,0,1);        mesh.addVertex((float)d.x, (float)d.y, (float)d.z);
-        mesh.addColor(0,0,0,1);        mesh.addVertex((float)d.x, (float)d.y, (float)d.z);
-        mesh.addColor(0,0,0,1);        mesh.addVertex((float)a.x, (float)a.y, (float)a.z);
+        pyramidMesh.addColor(0,0,0,1);        pyramidMesh.addVertex(0,0,0);
+        pyramidMesh.addColor(0,0,0,1);        pyramidMesh.addVertex((float)a.x, (float)a.y, (float)a.z);
+        pyramidMesh.addColor(0,0,0,1);        pyramidMesh.addVertex((float)b.x, (float)b.y, (float)b.z);
+        pyramidMesh.addColor(0,0,0,1);        pyramidMesh.addVertex((float)c.x, (float)c.y, (float)c.z);
+        pyramidMesh.addColor(0,0,0,1);        pyramidMesh.addVertex((float)d.x, (float)d.y, (float)d.z);
+
+        pyramidMesh.addIndex(0);
+        pyramidMesh.addIndex(1);
+        pyramidMesh.addIndex(0);
+        pyramidMesh.addIndex(2);
+        pyramidMesh.addIndex(0);
+        pyramidMesh.addIndex(3);
+        pyramidMesh.addIndex(0);
+        pyramidMesh.addIndex(4);
+        pyramidMesh.addIndex(1);
+        pyramidMesh.addIndex(2);
+        pyramidMesh.addIndex(2);
+        pyramidMesh.addIndex(3);
+        pyramidMesh.addIndex(3);
+        pyramidMesh.addIndex(4);
+        pyramidMesh.addIndex(4);
+        pyramidMesh.addIndex(1);
     }
 
     @Override
@@ -78,7 +88,7 @@ public class DrawCameras extends AbstractRenderPass {
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         rayMesh.unload(gl3);
-        mesh.unload(gl3);
+        pyramidMesh.unload(gl3);
         shader.delete(gl3);
     }
 
@@ -109,7 +119,6 @@ public class DrawCameras extends AbstractRenderPass {
 
         // position and draw the ray from the camera.
         Matrix4d w = MatrixHelper.createIdentityMatrix4();
-        w.transpose();
         shader.setMatrix4d(gl3, "modelMatrix", w);
         for(Camera cam : Registry.cameras.getList() ) {
             Ray ray = viewport.getRayThroughPoint(cam,normalizedCoordinates.x,normalizedCoordinates.y);
@@ -120,15 +129,14 @@ public class DrawCameras extends AbstractRenderPass {
         // scale and draw the view cones
         for(Camera cam : Registry.cameras.getList() ) {
             w = cam.getWorld();
-            Matrix4d scale = new Matrix4d();
-            scale.setIdentity();
+            Matrix4d scale = MatrixHelper.createIdentityMatrix4();
             scale.m00 *= canvasWidth * coneScale;
             scale.m11 *= canvasHeight * coneScale;
             scale.m22 *= canvasHeight * coneScale / Math.tan(Math.toRadians(camera.getFovY()) / 2);
             w.mul(w, scale);
             w.transpose();
             shader.setMatrix4d(gl3, "modelMatrix", w);
-            mesh.render(gl3);
+            pyramidMesh.render(gl3);
         }
 
         gl3.glEnable(GL3.GL_DEPTH_TEST);

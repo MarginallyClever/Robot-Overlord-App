@@ -7,6 +7,7 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.render.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.render.viewporttools.ViewportTool;
+import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.render.ShaderProgram;
@@ -68,10 +69,16 @@ public class TranslateToolTwoAxis implements ViewportTool {
     private boolean cursorOverHandle = false;
     private int frameOfReference = ViewportTool.FRAME_WORLD;
     private final ColorRGB color;
+    private final Mesh quadMesh = new Mesh();
 
     public TranslateToolTwoAxis(ColorRGB color) {
         super();
         this.color = color;
+
+        quadMesh.addVertex( 0, 0,0);
+        quadMesh.addVertex(1, 0,0);
+        quadMesh.addVertex(1, 1,0);
+        quadMesh.addVertex(0, 1,0);
     }
 
     @Override
@@ -189,10 +196,12 @@ public class TranslateToolTwoAxis implements ViewportTool {
     }
 
     private void updateLocalScale() {
-        Vector3d cameraPoint = Registry.getActiveCamera().getPosition();
+        Camera camera = Registry.getActiveCamera();
+        assert camera != null;
+        Vector3d cameraPoint = camera.getPosition();
         Vector3d pivotPoint = MatrixHelper.getPosition(pivotMatrix);
         pivotPoint.sub(cameraPoint);
-        localScale = pivotPoint.length() * 0.035;  // TODO * InteractionPreferences.toolScale;;
+        localScale = pivotPoint.length() * 0.035;  // TODO * InteractionPreferences.toolScale;
     }
 
     @Override
@@ -201,6 +210,12 @@ public class TranslateToolTwoAxis implements ViewportTool {
 
         // Render the translation pad on the plane
         Matrix4d m = new Matrix4d(pivotMatrix);
+        float ps = (float)getPadSizeScaled();
+        Matrix4d s = new Matrix4d(ps,0,0,0,
+                0,ps,0,0,
+                0,0,ps,0,
+                0,0,0,1);
+        m.mul(m,s);
         m.transpose();
         shaderProgram.setMatrix4d(gl,"modelMatrix",m);
 
@@ -208,30 +223,21 @@ public class TranslateToolTwoAxis implements ViewportTool {
         float red   = color.red   * colorScale / 255f;
         float green = color.green * colorScale / 255f;
         float blue  = color.blue  * colorScale / 255f;
+
+        gl.glDisable(GL3.GL_CULL_FACE);
+
+        // fill
         shaderProgram.set4f(gl, "objectColor", red, green, blue, 0.5f);
-        drawQuad(gl,GL3.GL_TRIANGLE_FAN);
-        shaderProgram.set4f(gl, "objectColor", red, green, blue, 1.0f);
-        drawQuad(gl,GL3.GL_LINE_LOOP);
-    }
+        quadMesh.setRenderStyle(GL3.GL_TRIANGLE_FAN);
+        quadMesh.render(gl);
 
-    private void drawQuad(GL3 gl,int mode) {
-        float ps = (float)getPadSizeScaled();
+        // edge
+        shaderProgram. set4f(gl, "objectColor", red, green, blue, 1.0f);
+        quadMesh.setRenderStyle(GL3.GL_LINE_LOOP);
+        quadMesh.render(gl);
 
-        Mesh mesh = new Mesh();
-        mesh.setRenderStyle(mode);
-        mesh.addVertex( 0, 0,0);
-        mesh.addVertex(ps, 0,0);
-        mesh.addVertex(ps, ps,0);
-        mesh.addVertex(0, ps,0);
-        mesh.render(gl);
+        gl.glEnable(GL3.GL_CULL_FACE);
 
-        mesh = new Mesh();
-        mesh.setRenderStyle(mode);
-        mesh.addVertex( 0, 0,0);
-        mesh.addVertex(0, ps,0);
-        mesh.addVertex(ps, ps,0);
-        mesh.addVertex(ps, 0,0);
-        mesh.render(gl);
     }
 
     @Override
@@ -273,13 +279,10 @@ public class TranslateToolTwoAxis implements ViewportTool {
 
     @Override
     public void init(GL3 gl3) {
-        // TODO
-        logger.error("Not finished.");
     }
 
     @Override
     public void dispose(GL3 gl3) {
-        // TODO
-        logger.error("Not finished.");
+        quadMesh.unload(gl3);
     }
 }

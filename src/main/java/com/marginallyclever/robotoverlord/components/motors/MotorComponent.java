@@ -137,11 +137,11 @@ public abstract class MotorComponent extends Component {
     public String toString() {
         return super.toString()
                 + ", gearRatio=" + gearRatio.get()
-                + ", torqueCurve=" + torqueCurve.toString()
+                + ", torqueCurve=" + torqueCurve
                 + ", currentRPM=" + currentRPM
                 + ", desiredRPM=" + desiredRPM
                 + ", currentAngle=" + currentAngle
-                + ", connectedTo=" + connectedTo.toString()
+                + ", connectedTo=" + connectedTo
                 + ",\n";
     }
 

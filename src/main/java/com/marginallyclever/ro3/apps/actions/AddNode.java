@@ -3,7 +3,7 @@ package com.marginallyclever.ro3.apps.actions;
 import com.marginallyclever.ro3.apps.FactoryPanel;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
+import com.marginallyclever.ro3.UndoSystem;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,11 +16,9 @@ import java.util.function.Supplier;
  */
 public class AddNode<T extends Node> extends AbstractAction {
     private static final FactoryPanel<Node> nfd = new FactoryPanel<>(Registry.nodeFactory);
-    private final NodeTreeView treeView;
 
-    public AddNode(NodeTreeView treeView) {
+    public AddNode() {
         super();
-        this.treeView = treeView;
         putValue(Action.NAME,"Add");
         putValue(SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-add-16.png"))));
         putValue(SHORT_DESCRIPTION,"Add a new instance of a Node to every selected branches of the tree.");
@@ -35,7 +33,7 @@ public class AddNode<T extends Node> extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         Supplier<Node> factory = getFactoryFromUser((Component) e.getSource());
         if(factory==null) return;  // action cancelled
-        treeView.addChildrenUsingFactory(factory);
+        UndoSystem.addEvent(new com.marginallyclever.ro3.apps.commands.AddNode<>(factory));
     }
 
     private Supplier<Node> getFactoryFromUser(Component source) {

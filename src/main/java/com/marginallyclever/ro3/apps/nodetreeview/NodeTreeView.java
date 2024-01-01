@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.apps.nodetreeview;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
+import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.actions.*;
 import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
 import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
@@ -25,7 +26,7 @@ import java.util.function.Supplier;
 /**
  * {@link NodeTreeView} is a panel that displays the node tree.
  */
-public class NodeTreeView extends JPanel
+public class NodeTreeView extends App
         implements NodeAttachListener, NodeDetachListener, NodeRenameListener,
         SceneChangeListener, ItemAddedListener<Node>, ItemRemovedListener<Node> {
     private static final Logger logger = LoggerFactory.getLogger(NodeTreeView.class);
@@ -154,7 +155,7 @@ public class NodeTreeView extends JPanel
 
 
     private void buildToolBar() {
-        var addButton = new JButton(new AddNode<>(this));
+        var addButton = new JButton(new AddNode<>());
         var cutButton = new JButton(cutNode);
         var removeButton = new JButton(removeNode);
         var copyButton = new JButton(copyNode);
@@ -253,27 +254,6 @@ public class NodeTreeView extends JPanel
         treeModel.setUserObject(newScene);
         ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(treeModel.getRoot());
         scanTree(newScene);
-    }
-
-    /**
-     * Add a new node to the selected branches.
-     * @param factory the factory to use to create the new node.
-     */
-    public void addChildrenUsingFactory(Supplier<Node> factory) {
-        if(factory==null) throw new InvalidParameterException("factory is null");
-
-        // get the selected nodes, if any.
-        TreePath[] paths = tree.getSelectionPaths();
-        if(paths==null || paths.length==0) {
-            // no selection, add to root
-            Registry.getScene().addChild(factory.get());
-        } else {
-            // add a new node to each selected nodes
-            for(TreePath path : paths) {
-                NodeTreeBranch node = (NodeTreeBranch)path.getLastPathComponent();
-                node.getNode().addChild(factory.get());
-            }
-        }
     }
 
     /**

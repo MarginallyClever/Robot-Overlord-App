@@ -96,10 +96,7 @@ public class TranslatorLanguage {
 		} catch (ParserConfigurationException e) {
 			logger.error( e.getMessage() );
 		}
-		if(db == null) {
-			return null;
-		}
-		return db;
+        return db;
 	}
 
 	private DocumentBuilderFactory buildDocumentBuilder() {

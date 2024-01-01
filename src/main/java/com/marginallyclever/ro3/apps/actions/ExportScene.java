@@ -106,26 +106,41 @@ public class ExportScene extends AbstractAction {
         String newSceneName = rootFolderName+"/"+sceneName;
         pathMapping.put(sceneName,newSceneName);  // reserve this name
 
-        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(outputZipFile))) {
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(outputZipFile))) {
             for( String originalPath : sources ) {
-                String newName = rootFolderName + "/" + createUniqueName(originalPath, pathMapping);
+                String newName = createUniqueName(originalPath, pathMapping);
                 logger.debug("Adding {} as {}", originalPath, newName);
-                addFileToZip(originalPath, newName, zos);
-                pathMapping.put(originalPath, newName);
+                addFileToZip(originalPath, rootFolderName + "/" + newName, zipOutputStream);
+
+                String safeOriginal = makeSafe(originalPath);
+                String safeReplacement = makeSafe(newName);
+                // store the json version of the string to match later.
+                pathMapping.put(safeOriginal, safeReplacement);
             }
 
             // Modify JSON string
             String modifiedJson = replacePathsInJson(json, pathMapping);
             // Add modified JSON string to zip
-            zos.putNextEntry(new ZipEntry(newSceneName));
+            zipOutputStream.putNextEntry(new ZipEntry(newSceneName));
             byte[] jsonBytes = modifiedJson.getBytes();
-            zos.write(jsonBytes, 0, jsonBytes.length);
-            zos.closeEntry();
+            zipOutputStream.write(jsonBytes, 0, jsonBytes.length);
+            zipOutputStream.closeEntry();
         } catch (FileNotFoundException e) {
             logger.error("Could not open ZIP file.", e);
         } catch (IOException e) {
             logger.error("Write error.", e);
         }
+    }
+
+    private String makeSafe(String originalPath) {
+        JSONObject asset = new JSONObject();
+        final String jsonAssetHead = "{\"path\":\"";
+        final String jsonAssetTail = "\"}";
+        asset.put("path",originalPath);
+        // find the json version of the string
+        String unsafeName = asset.toString();
+        String safeName = unsafeName.substring(jsonAssetHead.length(), unsafeName.length() - jsonAssetTail.length());
+        return safeName;
     }
 
     private void addFileToZip(String filePath, String newName, ZipOutputStream zos) throws IOException {
@@ -160,6 +175,7 @@ public class ExportScene extends AbstractAction {
 
     private String replacePathsInJson(String json, Map<String, String> pathMapping) {
         for (Map.Entry<String, String> entry : pathMapping.entrySet()) {
+            logger.debug("Replacing {} with {}", entry.getKey(), entry.getValue());
             json = json.replace(entry.getKey(), entry.getValue());
         }
         return json;

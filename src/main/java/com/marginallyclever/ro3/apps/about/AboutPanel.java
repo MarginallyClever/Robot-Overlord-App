@@ -1,22 +1,16 @@
 package com.marginallyclever.ro3.apps.about;
 
-import com.marginallyclever.convenience.helpers.FileHelper;
+import com.marginallyclever.ro3.apps.App;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 import java.awt.*;
 import java.io.BufferedInputStream;
-import java.io.StringReader;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 
-public class AboutPanel extends JPanel {
+public class AboutPanel extends App {
     private static final Logger logger = LoggerFactory.getLogger(AboutPanel.class);
 
     public AboutPanel() {

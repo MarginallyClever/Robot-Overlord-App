@@ -46,15 +46,15 @@ public class RotateEntityToolOneAxis implements EditorTool {
     /**
      * The size of the handle and ring.
      */
-    private double ringRadius = 5.0;
-    private double handleLength = 4.89898;
-    private double handleOffsetY = 1.0;
-    private double gripRadius = 0.5;
+    private final double ringRadius = 5.0;
+    private final double handleLength = 4.89898;
+    private final double handleOffsetY = 1.0;
+    private final double gripRadius = 0.5;
 
     /**
      * The number of segments to use when drawing the ring.
      */
-    private int ringResolution = 64;
+    private final int ringResolution = 64;
 
     /**
      * The viewport to which this tool is attached.
@@ -171,9 +171,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
         if( Math.abs(dx-getHandleLengthScaled()) > getGripRadiusScaled() ) return false;
 
         double dy = diff.dot(rotationAxisY);
-        if( Math.abs(Math.abs(dy)-getHandleOffsetYScaled()) > getGripRadiusScaled() ) return false;
-
-        return true;
+        return !(Math.abs(Math.abs(dy) - getHandleOffsetYScaled()) > getGripRadiusScaled());
     }
 
     @Override

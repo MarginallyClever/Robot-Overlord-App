@@ -65,12 +65,11 @@ class ListItemTransferHandler extends TransferHandler {
   @Override
   public boolean importData(TransferSupport info) {
     TransferHandler.DropLocation tdl = info.getDropLocation();
-    if (!canImport(info) || !(tdl instanceof JList.DropLocation)) {
+    if (!canImport(info) || !(tdl instanceof JList.DropLocation dl)) {
       return false;
     }
 
-    JList.DropLocation dl = (JList.DropLocation) tdl;
-    JList<ProgramEvent> target = (JList<ProgramEvent>) info.getComponent();
+      JList<ProgramEvent> target = (JList<ProgramEvent>) info.getComponent();
     DefaultListModel<ProgramEvent> listModel = (DefaultListModel<ProgramEvent>) target.getModel();
     int max = listModel.getSize();
     int index = dl.getIndex();

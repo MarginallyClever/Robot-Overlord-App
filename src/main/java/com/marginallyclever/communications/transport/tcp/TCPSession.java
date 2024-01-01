@@ -26,13 +26,13 @@ public final class TCPSession extends SessionLayer implements Runnable {
     private static final String SHELL_TO_SERIAL_COMMAND = " ~/Robot-Overlord-App/arduino/connect.sh";
 	private static final int DEFAULT_TCP_PORT = 22;
     
-    private JSch jsch=new JSch();
+    private final JSch jsch=new JSch();
     private Session session;
     private ChannelExec channel;
     private BufferedReader inputStream;
     private PrintWriter outputStream;
     
-	private TransportLayer transportLayer;
+	private final TransportLayer transportLayer;
 	private String connectionName = "";
 	private boolean portOpened = false;
 	private Thread thread;
@@ -142,7 +142,7 @@ public final class TCPSession extends SessionLayer implements Runnable {
 		}
 	}
 
-	protected void dataAvailable(int len,String message) {
+	private void dataAvailable(int len, String message) {
 		if( !portOpened || len==0 ) return;
 		
 		inputBuffer += message;

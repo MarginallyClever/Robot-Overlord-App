@@ -27,8 +27,7 @@ public class PreferencesViewer extends JPanel {
                 super.getTreeCellRendererComponent(tree,value,selected,expanded,leaf,row,hasFocus);
 
                 // Get the name from the node's user object
-                if (value instanceof DefaultMutableTreeNode) {
-                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+                if (value instanceof DefaultMutableTreeNode node) {
                     Object userObject = node.getUserObject();
                     if (userObject instanceof Preferences) {
                         this.setText(((Preferences) userObject).name());

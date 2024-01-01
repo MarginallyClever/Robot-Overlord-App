@@ -26,7 +26,7 @@ import java.util.List;
  * @since 2.5.0
  */
 public class TranslateEntityToolTwoAxis implements EditorTool {
-    private double padSize = 1;
+    private final double padSize = 1;
     private double localScale = 1;
 
     /**
@@ -169,9 +169,7 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
         if( dx<0 || dx>=getPadSizeScaled() ) return false;
 
         double dy = diff.dot(translationAxisY);
-        if( dy<0 || dy>=getPadSizeScaled() ) return false;
-
-        return true;
+        return !(dy < 0) && !(dy >= getPadSizeScaled());
     }
 
     @Override
@@ -186,7 +184,7 @@ public class TranslateEntityToolTwoAxis implements EditorTool {
         Vector3d cameraPoint = viewport.getCamera().getPosition();
         Vector3d pivotPoint = MatrixHelper.getPosition(pivotMatrix);
         pivotPoint.sub(cameraPoint);
-        localScale = pivotPoint.length() * InteractionPreferences.toolScale.get();;
+        localScale = pivotPoint.length() * InteractionPreferences.toolScale.get();
     }
 
     @Override

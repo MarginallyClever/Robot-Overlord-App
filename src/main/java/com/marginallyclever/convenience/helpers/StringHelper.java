@@ -103,7 +103,7 @@ public class StringHelper {
 	public static double byteArrayToFloat(byte[] bytes) {
 	    int intBits = 
 	      bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
-	    return (double)Float.intBitsToFloat(intBits);  
+	    return Float.intBitsToFloat(intBits);
 	}
 
 	/**

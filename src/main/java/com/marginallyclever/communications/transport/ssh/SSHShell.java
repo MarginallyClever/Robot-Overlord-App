@@ -102,7 +102,7 @@ public class SSHShell {
 		}
 
 		String passwd;
-		JTextField passwordField = (JTextField) new JPasswordField(20);
+		JTextField passwordField = new JPasswordField(20);
 
 		@Override
 		public String getPassphrase() {

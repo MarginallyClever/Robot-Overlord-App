@@ -164,16 +164,17 @@ public class RO3Frame extends JFrame {
         setJMenuBar(menuBar);
 
         menuBar.add(buildFileMenu());
-        //menuBar.add(buildEditMenu());
+        menuBar.add(buildEditMenu());
         menuBar.add(buildWindowsMenu());
         menuBar.add(buildHelpMenu());
     }
 
     private Component buildEditMenu() {
         JMenu menu = new JMenu("Edit");
-        // TODO turn actions into edits for undo/redo, then add the matching actions back in.
+        // TODO turn actions into commands for undo/redo, then add the matching actions back in.
         menu.add(new JMenuItem(UndoSystem.getCommandUndo()));
         menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
+        //menu.add(new JSeparator());
         return menu;
     }
 

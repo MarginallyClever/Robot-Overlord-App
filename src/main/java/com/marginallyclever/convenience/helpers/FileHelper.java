@@ -23,7 +23,7 @@ public class FileHelper {
 		int index = filename.lastIndexOf(":");
 		int index2 = filename.lastIndexOf(":\\");  // hack for windows file system
 		if(index!=-1 && index!=index2) {
-			return loadFromZip(filename.substring(0, index), filename.substring(index+1,filename.length()));
+			return loadFromZip(filename.substring(0, index), filename.substring(index+1));
 		} else {
 			return new BufferedInputStream(getInputStream(filename));
 		}
@@ -78,5 +78,28 @@ public class FileHelper {
 
 	public static String getTempDirectory() { 
 		return System.getProperty("java.io.tmpdir");
+	}
+
+	/**
+	 * Get the absolute path to a file.  If the file is not found, return the filename.
+	 * The file may be relative to the current working directory (user.dir), absolute, or a resource.
+	 * @param filename the file to find
+	 * @return the absolute path to the file, or the original filename if the file is not found.
+	 */
+	public static String getAbsolutePathOrFilename(String filename) {
+		String absolutePath;
+		// look for the file relative to the current working directory.
+		File pathCheck = new File(System.getProperty("user.dir"),filename);
+		if(pathCheck.exists()) absolutePath = pathCheck.getAbsolutePath();
+		else {
+			// if we don't find the file, maybe it's absolute.
+			pathCheck = new File(filename);
+			if(pathCheck.exists()) absolutePath = pathCheck.getAbsolutePath();
+			else {
+				// maybe it's a resource file?
+				absolutePath = filename;
+			}
+		}
+		return absolutePath;
 	}
 }

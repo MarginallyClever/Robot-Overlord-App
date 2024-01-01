@@ -139,21 +139,19 @@ public class Mesh {
 		gl.glBindVertexArray(VAO[0]);
 		OpenGLHelper.checkGLError(gl,logger);
 
-		disableAllVertexAttribArrays(gl);
+		checkBufferSizes();
 
 		int attribIndex=0;
-		setupArray(gl,attribIndex++,3,numVertexes,vertexArray);
-		if(hasNormals ) setupArray(gl,attribIndex++,3,numVertexes,normalArray );
-		else gl.glDisableVertexAttribArray(attribIndex++);
-		if(hasColors  ) setupArray(gl,attribIndex++,4,numVertexes,colorArray  );
-		else gl.glDisableVertexAttribArray(attribIndex++);
-		if(hasTextures) setupArray(gl,attribIndex++,2,numVertexes,textureArray);
-		else gl.glDisableVertexAttribArray(attribIndex++);
+		setupArray(gl,0,3,numVertexes,vertexArray);
+		if(hasNormals ) setupArray(gl,1,3,numVertexes,normalArray );
+		if(hasColors  ) setupArray(gl,2,4,numVertexes,colorArray  );
+		if(hasTextures) setupArray(gl,3,2,numVertexes,textureArray);
 
 		if(hasIndexes) {
 			IntBuffer data = IntBuffer.allocate(indexArray.size());
 			for (Integer integer : indexArray) data.put(integer);
 			data.rewind();
+
 			gl.glBindBuffer(GL3.GL_ELEMENT_ARRAY_BUFFER, VBO[4]);
 			gl.glBufferData(GL3.GL_ELEMENT_ARRAY_BUFFER, (long) indexArray.size() *BYTES_PER_INT, data, GL3.GL_STATIC_DRAW);
 		}
@@ -161,10 +159,20 @@ public class Mesh {
 		gl.glBindVertexArray(0);
 	}
 
-	private void disableAllVertexAttribArrays(GL3 gl) {
-		int[] maxAttribs = new int[1];
-		gl.glGetIntegerv(GL3.GL_MAX_VERTEX_ATTRIBS, maxAttribs, 0);
-		for(int i=0;i<maxAttribs[0];i++) gl.glDisableVertexAttribArray(i);
+	private void checkBufferSizes() {
+		var va = vertexArray.size();
+		var na = normalArray.size();
+		var ca = colorArray.size();
+		var ta = textureArray.size();
+		if(na>0 && na!=va) {
+			throw new IllegalStateException("normalArray.size() != vertexArray.size()");
+		}
+		if(ca>0 && ca*3!=va*4) {
+			throw new IllegalStateException("colorArray.size() != vertexArray.size()");
+		}
+		if(ta>0 && ta*3!=va*2) {
+			throw new IllegalStateException("textureArray.size() != vertexArray.size()");
+		}
 	}
 
 	private void bindArray(GL3 gl, int attribIndex, int size) {
@@ -215,17 +223,13 @@ public class Mesh {
 		gl.glBindVertexArray(VAO[0]);
 		OpenGLHelper.checkGLError(gl,logger);
 
-		int attribIndex=0;
-		bindArray(gl,attribIndex++,3);
-		if(hasNormals ) bindArray(gl,attribIndex++,3);
-		if(hasColors  ) bindArray(gl,attribIndex++,4);
-		if(hasTextures) bindArray(gl,attribIndex++,2);
-
 		if (hasIndexes) {
 			gl.glDrawElements(renderStyle, indexArray.size(), GL3.GL_UNSIGNED_INT, 0);
 		} else {
 			gl.glDrawArrays(renderStyle, startIndex, count);
 		}
+		OpenGLHelper.checkGLError(gl,logger);
+		gl.glBindVertexArray(0);
 		OpenGLHelper.checkGLError(gl,logger);
 	}
 	

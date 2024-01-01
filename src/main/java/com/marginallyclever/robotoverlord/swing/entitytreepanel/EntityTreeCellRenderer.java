@@ -21,11 +21,9 @@ public class EntityTreeCellRenderer extends DefaultTreeCellRenderer {
         super.getTreeCellRendererComponent(tree, value, selected,
                 expanded, leaf, row, hasFocus);
 
-        if (value instanceof DefaultMutableTreeNode) {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+        if (value instanceof DefaultMutableTreeNode node) {
             Object userObject = node.getUserObject();
-            if (userObject instanceof Entity) {
-                Entity entity = (Entity) userObject;
+            if (userObject instanceof Entity entity) {
                 setText(entity.getName());
             }
         }

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,12 +27,14 @@ public class TextureFactory {
      * @return the texture, or null if the file could not be loaded.
      */
     public TextureWithMetadata load(String filename) {
+        String absolutePath = FileHelper.getAbsolutePathOrFilename(filename);
+
         for(TextureWithMetadata t : textures) {
-            if(t.getSource().equals(filename)) {
+            if(t.getSource().equals(absolutePath)) {
                 return t;
             }
         }
-        TextureWithMetadata t = loadTexture(filename);
+        TextureWithMetadata t = loadTexture(absolutePath);
         if(t!=null) textures.add(t);
         return t;
     }

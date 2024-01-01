@@ -61,7 +61,7 @@ public class ComponentSwingViewFactory {
 		try {
 			element = viewElementFactory.add(parameter);
 		} catch(InvalidParameterException e) {
-			return addStaticText("ViewPanel.add("+parameter.getClass().toString()+")");
+			return addStaticText("ViewPanel.add("+ parameter.getClass() +")");
 		}
 
 		addViewElement(element);

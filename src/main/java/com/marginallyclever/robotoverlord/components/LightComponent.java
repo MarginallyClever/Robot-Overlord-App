@@ -142,16 +142,16 @@ public class LightComponent extends Component {
     @Override
     public String toString() {
         return super.toString()+",\n"
-            +diffuse.toString()+",\n"
-            +ambient.toString()+",\n"
-            +specular.toString()+",\n"
-            +attenuationConstant.toString()+",\n"
-            +attenuationLinear.toString()+",\n"
-            +attenuationQuadratic.toString()+",\n"
-            +isDirectional.toString()+",\n"
-            +cutoff.toString()+",\n"
-            +exponent.toString()+",\n"
-            +preset.toString();
+            + diffuse +",\n"
+            + ambient +",\n"
+            + specular +",\n"
+            + attenuationConstant +",\n"
+            + attenuationLinear +",\n"
+            + attenuationQuadratic +",\n"
+            + isDirectional +",\n"
+            + cutoff +",\n"
+            + exponent +",\n"
+            + preset;
     }
 
     @Override

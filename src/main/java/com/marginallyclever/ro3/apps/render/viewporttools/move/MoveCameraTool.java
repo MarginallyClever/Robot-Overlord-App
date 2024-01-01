@@ -30,17 +30,17 @@ public class MoveCameraTool implements ViewportTool {
     /**
      * Must be greater than or equal to zero.
      */
-    private double snapDeadZone = 100;
+    private final double snapDeadZone = 100;
 
     /**
      * Must be greater than or equal to zero.
      */
-    private double snapDegrees = 45;
+    private final double snapDegrees = 45;
 
     /**
      * Must be greater than one.
      */
-    private double wheelScale = 1.25;
+    private final double wheelScale = 1.25;
 
     private boolean isMoving=false;
     private boolean isControlDown =false;

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -39,12 +40,13 @@ public class MeshFactory {
 	 */
 	public static Mesh load(String filename) {
 		if(filename == null || filename.trim().isEmpty()) return null;
-		
-		Mesh mesh = getMeshFromPool(filename);
+
+		String absolutePath = FileHelper.getAbsolutePathOrFilename(filename);
+		Mesh mesh = getMeshFromPool(absolutePath);
 		if(mesh!=null) return mesh;
 
 		mesh = new Mesh();
-		attemptLoad(filename,mesh);
+		attemptLoad(absolutePath,mesh);
 		meshPool.add(mesh);
 		return mesh;
 	}
