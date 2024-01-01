@@ -82,10 +82,7 @@ public class TranslateToolOneAxis implements ViewportTool {
 
         // handle line
         handleLineMesh.addVertex(0, 0, 0);
-        handleLineMesh.addVertex((float)getHandleLengthScaled(), 0, 0);
-
-        // ball at end of handle
-        handleSphere.radius.set(getGripRadiusScaled());
+        handleLineMesh.addVertex((float)1.0, 0, 0);
     }
 
     @Override
@@ -253,12 +250,9 @@ public class TranslateToolOneAxis implements ViewportTool {
         float blue  = color.blue  * colorScale / 255f;
         shaderProgram.set4f(gl,"objectColor",red, green, blue, 1.0f);
 
-        Matrix4d scale = MatrixHelper.createIdentityMatrix4();
-        scale.m00 = scale.m11 = scale.m22 = localScale;
-
         // handle
         Matrix4d m = new Matrix4d(pivotMatrix);
-        m.mul(m,scale);
+        m.mul(m,MatrixHelper.createScaleMatrix4(getHandleLengthScaled()));
         m.transpose();
         shaderProgram.setMatrix4d(gl,"modelMatrix",m);
         handleLineMesh.render(gl);
@@ -267,7 +261,7 @@ public class TranslateToolOneAxis implements ViewportTool {
         Matrix4d m2 = MatrixHelper.createIdentityMatrix4();
         m2.m03 += getHandleLengthScaled();
         m2.mul(pivotMatrix,m2);
-        m2.mul(m2,scale);
+        m2.mul(m2,MatrixHelper.createScaleMatrix4(getGripRadiusScaled()));
         m2.transpose();
         shaderProgram.setMatrix4d(gl,"modelMatrix",m2);
         handleSphere.render(gl);

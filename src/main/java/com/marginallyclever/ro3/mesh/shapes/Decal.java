@@ -2,36 +2,22 @@ package com.marginallyclever.ro3.mesh.shapes;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MathHelper;
-import com.marginallyclever.robotoverlord.SerializationContext;
-import com.marginallyclever.robotoverlord.components.ShapeComponent;
-import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.marginallyclever.ro3.mesh.Mesh;
 
 import javax.vecmath.Vector3d;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
- * A nearly two dimensional object with a texture on both sides.
- * 
+ * A 1x1 quad texture on both sides. the origin is in the center of the quad.
  * @author Dan Royer
- *
  */
-public class Decal extends ShapeComponent implements PropertyChangeListener {
-	public final DoubleParameter height = new DoubleParameter("Height", 0.5f);
-	public final DoubleParameter width = new DoubleParameter("Width", 0.5f);
+public class Decal extends Mesh {
+	public double height = 1;
+	public double width = 1;
 
 	public Decal() {
 		super();
-
-		myMesh = new Mesh();
+		
 		updateModel();
-		setModel(myMesh);
-
-		height.addPropertyChangeListener(this);
-		width.addPropertyChangeListener(this);
 	}
 
 	/**
@@ -39,12 +25,12 @@ public class Decal extends ShapeComponent implements PropertyChangeListener {
 	 * amount.
 	 */
 	protected void updateModel() {
-		myMesh.clear();
-		myMesh.setRenderStyle(GL3.GL_TRIANGLES);
+		this.clear();
+		this.setRenderStyle(GL3.GL_TRIANGLES);
 		// model.renderStyle=GL3.GL_LINES; // set to see the wireframe
 
-		float w = width.get().floatValue();
-		float h = height.get().floatValue();
+		float w = (float)width;
+		float h = (float)height;
 
 		int wParts = (int) (w / 4f) * 2;
 		int hParts = (int) (h / 4f) * 2;
@@ -114,46 +100,41 @@ public class Decal extends ShapeComponent implements PropertyChangeListener {
 				pG.set(MathHelper.interpolate(pA, pC, (double) (y + 1) / (double) yParts));
 				pH.set(MathHelper.interpolate(pB, pD, (double) (y + 1) / (double) yParts));
 
-				if (myMesh.getRenderStyle() == GL3.GL_TRIANGLES) {
+				if (this.getRenderStyle() == GL3.GL_TRIANGLES) {
 					for (int j = 0; j < 6; ++j) {
-						myMesh.addNormal((float) n.x, (float) n.y, (float) n.z);
-						myMesh.addColor(1, 1, 1, 1);
+						this.addNormal((float) n.x, (float) n.y, (float) n.z);
+						this.addColor(1, 1, 1, 1);
 					}
 
-					myMesh.addVertex((float) pE.x, (float) pE.y, (float) pE.z);
-					myMesh.addVertex((float) pF.x, (float) pF.y, (float) pF.z);
-					myMesh.addVertex((float) pH.x, (float) pH.y, (float) pH.z);
+					this.addVertex((float) pE.x, (float) pE.y, (float) pE.z);
+					this.addVertex((float) pF.x, (float) pF.y, (float) pF.z);
+					this.addVertex((float) pH.x, (float) pH.y, (float) pH.z);
 
-					myMesh.addVertex((float) pE.x, (float) pE.y, (float) pE.z);
-					myMesh.addVertex((float) pH.x, (float) pH.y, (float) pH.z);
-					myMesh.addVertex((float) pG.x, (float) pG.y, (float) pG.z);
-				} else if (myMesh.getRenderStyle() == GL3.GL_LINES) {
+					this.addVertex((float) pE.x, (float) pE.y, (float) pE.z);
+					this.addVertex((float) pH.x, (float) pH.y, (float) pH.z);
+					this.addVertex((float) pG.x, (float) pG.y, (float) pG.z);
+				} else if (this.getRenderStyle() == GL3.GL_LINES) {
 					for (int j = 0; j < 8; ++j) {
-						myMesh.addNormal((float) n.x, (float) n.y, (float) n.z);
-						myMesh.addColor(1, 1, 1, 1);
+						this.addNormal((float) n.x, (float) n.y, (float) n.z);
+						this.addColor(1, 1, 1, 1);
 					}
 
-					myMesh.addVertex((float) pF.x, (float) pF.y, (float) pF.z);
-					myMesh.addVertex((float) pH.x, (float) pH.y, (float) pH.z);
+					this.addVertex((float) pF.x, (float) pF.y, (float) pF.z);
+					this.addVertex((float) pH.x, (float) pH.y, (float) pH.z);
 
-					myMesh.addVertex((float) pH.x, (float) pH.y, (float) pH.z);
-					myMesh.addVertex((float) pE.x, (float) pE.y, (float) pE.z);
+					this.addVertex((float) pH.x, (float) pH.y, (float) pH.z);
+					this.addVertex((float) pE.x, (float) pE.y, (float) pE.z);
 
-					myMesh.addVertex((float) pH.x, (float) pH.y, (float) pH.z);
-					myMesh.addVertex((float) pG.x, (float) pG.y, (float) pG.z);
+					this.addVertex((float) pH.x, (float) pH.y, (float) pH.z);
+					this.addVertex((float) pG.x, (float) pG.y, (float) pG.z);
 
-					myMesh.addVertex((float) pG.x, (float) pG.y, (float) pG.z);
-					myMesh.addVertex((float) pE.x, (float) pE.y, (float) pE.z);
+					this.addVertex((float) pG.x, (float) pG.y, (float) pG.z);
+					this.addVertex((float) pE.x, (float) pE.y, (float) pE.z);
 				}
 			}
 		}
 	}
-
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		updateModel();
-	}
-
+/*
 	@Override
 	public JSONObject toJSON(SerializationContext context) {
 		JSONObject jo = super.toJSON(context);
@@ -169,4 +150,5 @@ public class Decal extends ShapeComponent implements PropertyChangeListener {
 		width.parseJSON(jo.getJSONObject("width"), context);
 		height.parseJSON(jo.getJSONObject("height"), context);
 	}
+ */
 }

@@ -227,8 +227,7 @@ public class RotateToolOneAxis implements ViewportTool {
 
         Point3d currentPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,event.getX(), event.getY());
         if(currentPoint==null) return;
-        currentPoint = snapToTicks(currentPoint);
-        double rotationAngle = getAngleBetweenPoints(currentPoint);
+        double rotationAngle = getAngleBetweenPoints(snapToTicks(currentPoint));
         Matrix4d rot = new Matrix4d();
         switch(rotation) {
             case 0 -> rot.rotX(rotationAngle);
@@ -378,19 +377,23 @@ public class RotateToolOneAxis implements ViewportTool {
     }
 
     private void drawWhileDragging(GL3 gl,ShaderProgram shaderProgram) {
+        Matrix4d scale = MatrixHelper.createScaleMatrix4(localScale);
+
         Matrix4d m = new Matrix4d(startMatrix);
         Matrix4d mt = new Matrix4d(m);
-        Matrix4d scale = MatrixHelper.createScaleMatrix4(localScale);
         mt.mul(m,scale);
         mt.transpose();
         shaderProgram.setMatrix4d(gl,"modelMatrix",mt);
         markerMesh.render(gl);
 
+        // TODO finish me - draw the start and end angle of the movement.
+        //Point3d currentPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,mx,my);
+        //if(currentPoint==null) return;
+        double rotationAngle = getAngleBetweenPoints(snapToTicks(startPoint /* goes here */ ));
         Matrix4d rot = new Matrix4d();
-        rot.rotZ(getAngleBetweenPoints(startPoint));
-        scale = MatrixHelper.createScaleMatrix4(localScale);
-        mt.mul(rot);
-        mt.mul(m,scale);
+        rot.rotZ(rotationAngle);
+        mt.mul(m,rot);
+        mt.mul(mt,scale);
         mt.transpose();
         shaderProgram.setMatrix4d(gl,"modelMatrix",mt);
         angleMesh.render(gl);
@@ -408,12 +411,7 @@ public class RotateToolOneAxis implements ViewportTool {
         shaderProgram.set4f(gl, "objectColor", red, green, blue, 1.0f);
         PrimitiveSolids.drawCircleXY(gl, getRingRadiusScaled(), ringResolution).render(gl);
 
-        double v = getGripRadiusScaled();
-        handleBox.height.set(v);
-        handleBox.width.set(v);
-        handleBox.length.set(v);
-
-        Matrix4d m2 = MatrixHelper.createIdentityMatrix4();
+        Matrix4d m2 = MatrixHelper.createScaleMatrix4(getGripRadiusScaled());
         m2.m03 = getHandleLengthScaled();
         m2.m13 = getHandleOffsetYScaled();
         m2.mul(pivotMatrix,m2);
@@ -421,7 +419,7 @@ public class RotateToolOneAxis implements ViewportTool {
         shaderProgram.setMatrix4d(gl,"modelMatrix",m2);
         handleBox.render(gl);
 
-        m2 = MatrixHelper.createIdentityMatrix4();
+        m2 = MatrixHelper.createScaleMatrix4(getGripRadiusScaled());
         m2.m03 = getHandleLengthScaled();
         m2.m13 = -getHandleOffsetYScaled();
         m2.mul(pivotMatrix,m2);
