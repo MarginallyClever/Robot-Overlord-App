@@ -446,7 +446,7 @@ public class MarlinRobotArm extends Node {
      * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
      */
     public void moveEndEffectorInCartesianDirection(double[] cartesianVelocity) {
-        // is it an extremely small move?
+        // is it a tiny move?
         double sum = sumCartesianVelocityComponents(cartesianVelocity);
         if(sum<0.0001) return;
         if(sum <= 1) {

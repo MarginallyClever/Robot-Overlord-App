@@ -191,26 +191,24 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private void addRenderPassSelection() {
         JButton button = new JButton("Render");
         toolBar.add(button);
-
-        renderPassMenu.removeAll();
-
         // Add an ActionListener to the JButton to show the JPopupMenu when clicked
         button.addActionListener(e -> renderPassMenu.show(button, button.getWidth()/2, button.getHeight()/2));
         button.setToolTipText("Select the render passes to use.");
 
-        for(RenderPass renderPass : renderPasses.getList()) {
-            addRenderPass(null,renderPass);
-        }
+        updateRenderPassMenu();
     }
 
     @Override
     public void addNotify() {
         super.addNotify();
         loadRenderPassState();
+
+        for(RenderPass renderPass : renderPasses.getList()) {
+            addRenderPass(this,renderPass);
+        }
+
         Registry.cameras.addItemAddedListener(this::addCamera);
         Registry.cameras.addItemRemovedListener(this::removeCamera);
-        renderPasses.addItemAddedListener(this::addRenderPass);
-        renderPasses.addItemRemovedListener(this::removeRenderPass);
         Registry.selection.addItemAddedListener(this::selectionChanged);
         Registry.selection.addItemRemovedListener(this::selectionChanged);
     }
@@ -221,23 +219,31 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         saveRenderPassState();
         Registry.cameras.removeItemAddedListener(this::addCamera);
         Registry.cameras.removeItemRemovedListener(this::removeCamera);
-        renderPasses.removeItemAddedListener(this::addRenderPass);
-        renderPasses.removeItemRemovedListener(this::removeRenderPass);
         Registry.selection.removeItemAddedListener(this::selectionChanged);
         Registry.selection.removeItemRemovedListener(this::selectionChanged);
     }
 
     private void addRenderPass(Object source,RenderPass renderPass) {
-        addRenderPassInternal(renderPass);
         addGLEventListener(renderPass);
+        updateRenderPassMenu();
     }
 
     private void removeRenderPass(Object source,RenderPass renderPass) {
-        removeRenderPassInternal(renderPass);
         removeGLEventListener(renderPass);
+        updateRenderPassMenu();
     }
 
-    private void addRenderPassInternal(RenderPass renderPass) {
+    /**
+     * Refreshes the entire contents of the render pass menu.
+     */
+    private void updateRenderPassMenu() {
+        renderPassMenu.removeAll();
+        for(RenderPass renderPass : renderPasses.getList()) {
+            renderPassMenu.add(getRenderPassMenu(renderPass));
+        }
+    }
+
+    private JPanel getRenderPassMenu(RenderPass renderPass) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(2,2,0,2));
         JButton button = new JButton();
@@ -250,7 +256,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         JLabel label = new JLabel(renderPass.getName());
         label.setBorder(BorderFactory.createEmptyBorder(0,5,0,0));
         panel.add(label, BorderLayout.CENTER);
-        renderPassMenu.add(panel);
+        return panel;
     }
 
     void setRenderPassButtonLabel(JButton button, int status) {
