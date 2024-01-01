@@ -51,10 +51,10 @@ public class RotateToolOneAxis implements ViewportTool {
     /**
      * The size of the handle and ring.
      */
-    private double ringRadius = 5.0;
-    private double handleLength = 4.89898;
-    private double handleOffsetY = 1.0;
-    private double gripRadius = 0.5;
+    private final double ringRadius = 5.0;
+    private final double handleLength = 4.89898;
+    private final double handleOffsetY = 1.0;
+    private final double gripRadius = 1.0;
 
     /**
      * The number of segments to use when drawing the ring.
@@ -98,10 +98,51 @@ public class RotateToolOneAxis implements ViewportTool {
     private final Box handleBox = new Box();
     private int frameOfReference = ViewportTool.FRAME_WORLD;
     private final ColorRGB color;
+    private final Mesh markerMesh = new Mesh();
+    private final Mesh angleMesh = new Mesh();
 
     public RotateToolOneAxis(ColorRGB color) {
         super();
         this.color = color;
+        buildMarkerMesh();
+        buildAngleMesh();
+    }
+
+    private void buildAngleMesh() {
+        angleMesh.setRenderStyle(GL3.GL_LINES);
+        angleMesh.addVertex(0,0,0);
+        angleMesh.addVertex(1,0,0);
+    }
+
+    private void buildMarkerMesh() {
+        markerMesh.setRenderStyle(GL3.GL_LINES);
+
+        // major line
+        markerMesh.addVertex(0,0,0);
+        markerMesh.addVertex((float)ringRadius,0,0);
+
+        float d0 = (float)(ringRadius * TICK_RATIO_INSIDE_45);
+        float d1 = (float)(ringRadius * TICK_RATIO_OUTSIDE_45);
+        // 45 degree lines
+        for(int i=45;i<360;i+=45) {
+            Vector3d a = new Vector3d(Math.cos(Math.toRadians(i)),Math.sin(Math.toRadians(i)),0);
+            markerMesh.addVertex( (float)a.x*d0, (float)a.y*d0, (float)a.z*d0);
+            markerMesh.addVertex( (float)a.x*d1, (float)a.y*d1, (float)a.z*d1);
+        }
+
+        // 5 and 10 degree lines
+        for(int i=0;i<360;i+=5) {
+            Vector3d a = new Vector3d(Math.cos(Math.toRadians(i)),Math.sin(Math.toRadians(i)),0);
+            if(i%10==0) {
+                d0 = (float)(ringRadius * TICK_RATIO_INSIDE_10);
+                d1 = (float)(ringRadius * TICK_RATIO_OUTSIDE_10);
+            } else {
+                d0 = (float)(ringRadius * TICK_RATIO_INSIDE_5);
+                d1 = (float)(ringRadius * TICK_RATIO_OUTSIDE_5);
+            }
+            markerMesh.addVertex((float)a.x*d0, (float)a.y*d0, (float)a.z*d0);
+            markerMesh.addVertex((float)a.x*d1, (float)a.y*d1, (float)a.z*d1);
+        }
     }
 
     /**
@@ -188,12 +229,8 @@ public class RotateToolOneAxis implements ViewportTool {
 
         Point3d currentPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,event.getX(), event.getY());
         if(currentPoint==null) return;
-
         currentPoint = snapToTicks(currentPoint);
-
-        double startAngle = 0;//getAngleBetweenPoints(startPoint);
-        double currentAngle = getAngleBetweenPoints(currentPoint);
-        double rotationAngle = currentAngle - startAngle;
+        double rotationAngle = getAngleBetweenPoints(currentPoint);
         Matrix4d rot = new Matrix4d();
         switch(rotation) {
             case 0 -> rot.rotX(rotationAngle);
@@ -344,49 +381,21 @@ public class RotateToolOneAxis implements ViewportTool {
 
     private void drawWhileDragging(GL3 gl,ShaderProgram shaderProgram) {
         Matrix4d m = new Matrix4d(startMatrix);
-        m.transpose();
-        shaderProgram.setMatrix4d(gl,"modelMatrix",m);
+        Matrix4d mt = new Matrix4d(m);
+        Matrix4d scale = MatrixHelper.createScaleMatrix4(localScale);
+        mt.mul(m,scale);
+        mt.transpose();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",mt);
+        markerMesh.render(gl);
 
-        float rr = (float)getRingRadiusScaled();
-
-        Mesh mesh = new Mesh();
-        mesh.setRenderStyle(GL3.GL_LINES);
-        
-        // major line
-        mesh.addVertex(0,0,0);
-        mesh.addVertex(rr,0,0);
-
-        float d0 = rr * (float)TICK_RATIO_INSIDE_45;
-        float d1 = rr * (float)TICK_RATIO_OUTSIDE_45;
-        // 45 degree lines
-        for(int i=45;i<360;i+=45) {
-            Vector3d a = new Vector3d(Math.cos(Math.toRadians(i)),Math.sin(Math.toRadians(i)),0);
-            mesh.addVertex( (float)a.x*d0, (float)a.y*d0, (float)a.z*d0);
-            mesh.addVertex( (float)a.x*d1, (float)a.y*d1, (float)a.z*d1);
-        }
-
-        // 5 and 10 degree lines
-        for(int i=0;i<360;i+=5) {
-            Vector3d a = new Vector3d(Math.cos(Math.toRadians(i)),Math.sin(Math.toRadians(i)),0);
-            if(i%10==0) {
-                d0 = rr * (float)TICK_RATIO_INSIDE_10;
-                d1 = rr * (float)TICK_RATIO_OUTSIDE_10;
-            } else {
-                d0 = rr * (float)TICK_RATIO_INSIDE_5;
-                d1 = rr * (float)TICK_RATIO_OUTSIDE_5;
-            }
-            mesh.addVertex((float)a.x*d0, (float)a.y*d0, (float)a.z*d0);
-            mesh.addVertex((float)a.x*d1, (float)a.y*d1, (float)a.z*d1);
-        }
-
-        // current angle
-        Matrix4d m2 = new Matrix4d(startMatrix);
-        m2.invert();
-        m2.mul(pivotMatrix);
-        mesh.addVertex(0,0,0);
-        mesh.addVertex((float)m.m00*rr, (float)m.m01*rr, (float)m.m02*rr);
-
-        mesh.render(gl);
+        Matrix4d rot = new Matrix4d();
+        rot.rotZ(getAngleBetweenPoints(startPoint));
+        scale = MatrixHelper.createScaleMatrix4(localScale);
+        mt.mul(rot);
+        mt.mul(m,scale);
+        mt.transpose();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",mt);
+        angleMesh.render(gl);
     }
 
     private void drawMainRingAndHandles(GL3 gl,ShaderProgram shaderProgram) {
@@ -479,13 +488,10 @@ public class RotateToolOneAxis implements ViewportTool {
 
     @Override
     public void init(GL3 gl3) {
-        // TODO
-        logger.error("Not finished.");
     }
 
     @Override
     public void dispose(GL3 gl3) {
-        // TODO
-        logger.error("Not finished.");
+        handleBox.unload(gl3);
     }
 }
