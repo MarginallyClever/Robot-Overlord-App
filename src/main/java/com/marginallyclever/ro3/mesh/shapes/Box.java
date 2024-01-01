@@ -2,24 +2,17 @@ package com.marginallyclever.ro3.mesh.shapes;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MathHelper;
-import com.marginallyclever.robotoverlord.SerializationContext;
-import com.marginallyclever.robotoverlord.components.ShapeComponent;
-import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.marginallyclever.ro3.mesh.Mesh;
 
 import javax.vecmath.Vector3d;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  * A box with a width, height, and length of 1.  It is centered around the origin.
  */
-public class Box extends ShapeComponent implements PropertyChangeListener {
-    public final DoubleParameter width = new DoubleParameter("width",1.0);
-    public final DoubleParameter height = new DoubleParameter("height",1.0);
-    public final DoubleParameter length = new DoubleParameter("length",1.0);
+public class Box extends Mesh {
+    public float width = 1.0f;
+    public float height = 1.0f;
+    public float length = 1.0f;
 
     public Box() {
         this(1.0,1.0,1.0);
@@ -34,28 +27,22 @@ public class Box extends ShapeComponent implements PropertyChangeListener {
     public Box(double width,double length,double height) {
         super();
 
-        myMesh = new Mesh();
-
-        this.width.set(width);
-        this.length.set(length);
-        this.height.set(height);
-
-        this.width.addPropertyChangeListener(this);
-        this.length.addPropertyChangeListener(this);
-        this.height.addPropertyChangeListener(this);
+        this.width = (float)width;
+        this.length = (float)length;
+        this.height = (float)height;
 
         updateModel();
     }
 
     // Procedurally generate a list of triangles that form a box, subdivided by some amount.
     private void updateModel() {
-        myMesh.clear();
-        myMesh.setRenderStyle(GL3.GL_TRIANGLES);
+        this.clear();
+        this.setRenderStyle(GL3.GL_TRIANGLES);
         //shape.renderStyle=GL3.GL_LINES;  // set to see the wireframe
 
-        float w = width.get().floatValue()*0.5f;
-        float d = length.get().floatValue()*0.5f;
-        float h = height.get().floatValue()*0.5f;
+        float w = width*0.5f;
+        float d = length*0.5f;
+        float h = height*0.5f;
 
         int wParts = (int)Math.ceil(w);
         int hParts = (int)Math.ceil(h);
@@ -68,7 +55,7 @@ public class Box extends ShapeComponent implements PropertyChangeListener {
         Vector3d p3=new Vector3d();
 
         // top
-        n.set( 0, 0, 1);
+        n.set(0, 0, 1);
         p0.set( w, d,h);
         p1.set(-w, d,h);
         p2.set(-w,-d,h);
@@ -77,28 +64,28 @@ public class Box extends ShapeComponent implements PropertyChangeListener {
 
         // bottom
         n.set( 0, 0,-1);
-        p0.set(-w, d,-h);
-        p1.set( w, d,-h);
-        p2.set( w,-d,-h);
-        p3.set(-w,-d,-h);
+        p0.set( -w, d,-h);
+        p1.set(  w, d,-h);
+        p2.set(  w,-d,-h);
+        p3.set( -w,-d,-h);
         addSubdividedPlane(n,p0,p1,p2,p3,wParts,dParts);
 
         // sides
-        n.set( 0, 1, 0);
+        n.set(0, 1, 0);
         p0.set(-w, d,h);
         p1.set( w, d,h);
         p2.set( w, d,-h);
         p3.set(-w, d,-h);
         addSubdividedPlane(n,p0,p1,p2,p3,wParts,hParts);
 
-        n.set( 0,-1, 0);
+        n.set(0,-1, 0);
         p0.set( w,-d,h);
         p1.set(-w,-d,h);
         p2.set(-w,-d,-h);
         p3.set( w,-d,-h);
         addSubdividedPlane(n,p0,p1,p2,p3,(int)(w/10),hParts);
 
-        n.set( 1, 0, 0);
+        n.set(1, 0, 0);
         p0.set( w, d,-h);
         p1.set( w, d,h);
         p2.set( w,-d,h);
@@ -111,8 +98,6 @@ public class Box extends ShapeComponent implements PropertyChangeListener {
         p2.set(-w, d,-h);
         p3.set(-w,-d,-h);
         addSubdividedPlane(n,p0,p1,p2,p3,dParts,hParts);
-
-        setModel(myMesh);
     }
 
     /**
@@ -148,92 +133,88 @@ public class Box extends ShapeComponent implements PropertyChangeListener {
             float x0 = (float)x/(float)xParts;
             float x1 = (float)(x+1)/(float)xParts;
 
-            pA.set(MathHelper.interpolate(p0, p1, x0));
-            pB.set(MathHelper.interpolate(p0, p1, x1));
-            pC.set(MathHelper.interpolate(p3, p2, x0));
-            pD.set(MathHelper.interpolate(p3, p2, x1));
+            pA = MathHelper.interpolate(p0, p1, x0);
+            pB = MathHelper.interpolate(p0, p1, x1);
+            pC = MathHelper.interpolate(p3, p2, x0);
+            pD = MathHelper.interpolate(p3, p2, x1);
 
             for(int y=0;y<yParts;y++) {
                 float y0 = (float)y/(float)yParts;
                 float y1 = (float)(y+1)/(float)yParts;
 
-                pE.set(MathHelper.interpolate(pA, pC, y0));
-                pF.set(MathHelper.interpolate(pB, pD, y0));
-                pG.set(MathHelper.interpolate(pA, pC, y1));
-                pH.set(MathHelper.interpolate(pB, pD, y1));
+                pE = MathHelper.interpolate(pA, pC, y0);
+                pF = MathHelper.interpolate(pB, pD, y0);
+                pG = MathHelper.interpolate(pA, pC, y1);
+                pH = MathHelper.interpolate(pB, pD, y1);
 
-                if(myMesh.getRenderStyle() == GL3.GL_TRIANGLES) {
+                if(this.getRenderStyle() == GL3.GL_TRIANGLES) {
                     for(int i=0;i<6;++i) {
-                        myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-                        myMesh.addColor(1,1,1,1);
+                        this.addNormal((float)n.x, (float)n.y, (float)n.z);
+                        this.addColor(1,1,1,1);
                     }
-                    myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
-                    myMesh.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
-                    myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
+                    this.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
+                    this.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
+                    this.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
 
-                    myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
-                    myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
-                    myMesh.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
+                    this.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
+                    this.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
+                    this.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
 
-                    myMesh.addTexCoord(0,0);
-                    myMesh.addTexCoord(1,0);
-                    myMesh.addTexCoord(1,1);
+                    this.addTexCoord(0,0);
+                    this.addTexCoord(1,0);
+                    this.addTexCoord(1,1);
 
-                    myMesh.addTexCoord(0,0);
-                    myMesh.addTexCoord(1,1);
-                    myMesh.addTexCoord(0,1);
-                } else if(myMesh.getRenderStyle() == GL3.GL_LINES) {
+                    this.addTexCoord(0,0);
+                    this.addTexCoord(1,1);
+                    this.addTexCoord(0,1);
+                } else if(this.getRenderStyle() == GL3.GL_LINES) {
                     for(int i=0;i<8;++i) {
-                        myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-                        myMesh.addColor(1,1,1,1);
+                        this.addNormal((float)n.x, (float)n.y, (float)n.z);
+                        this.addColor(1,1,1,1);
                     }
-                    myMesh.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
-                    myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
+                    this.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
+                    this.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
 
-                    myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
-                    myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
+                    this.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
+                    this.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
 
-                    myMesh.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
-                    myMesh.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
+                    this.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
+                    this.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
 
-                    myMesh.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
-                    myMesh.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
+                    this.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
+                    this.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
 
-                    myMesh.addTexCoord(x1,y0);//f
-                    myMesh.addTexCoord(x1,y1);//h
+                    this.addTexCoord(x1,y0);//f
+                    this.addTexCoord(x1,y1);//h
 
-                    myMesh.addTexCoord(x1,y1);//h
-                    myMesh.addTexCoord(x0,y0);//e
+                    this.addTexCoord(x1,y1);//h
+                    this.addTexCoord(x0,y0);//e
 
-                    myMesh.addTexCoord(x1,y1);//h
-                    myMesh.addTexCoord(x1,y1);//g
+                    this.addTexCoord(x1,y1);//h
+                    this.addTexCoord(x1,y1);//g
 
-                    myMesh.addTexCoord(x1,y1);//g
-                    myMesh.addTexCoord(x0,y0);//e
+                    this.addTexCoord(x1,y1);//g
+                    this.addTexCoord(x0,y0);//e
                 }
             }
         }
     }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        updateModel();
-    }
-
+/*
     @Override
     public JSONObject toJSON(SerializationContext context) {
         JSONObject json = super.toJSON(context);
-        json.put("width", width.get());
-        json.put("length", length.get());
-        json.put("height", height.get());
+        json.put("width", width);
+        json.put("length", length);
+        json.put("height", height);
         return json;
     }
 
     @Override
     public void parseJSON(JSONObject jo, SerializationContext context) throws JSONException {
         super.parseJSON(jo, context);
-        if(jo.has("width")) width.set(jo.getDouble("width"));
-        if(jo.has("length")) length.set(jo.getDouble("length"));
-        if(jo.has("height")) height.set(jo.getDouble("height"));
+        if(jo.has("width")) width = jo.getDouble("width"));
+        if(jo.has("length")) length = jo.getDouble("length"));
+        if(jo.has("height")) height = jo.getDouble("height"));
     }
+*/
 }

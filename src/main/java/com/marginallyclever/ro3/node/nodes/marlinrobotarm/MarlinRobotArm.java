@@ -413,7 +413,7 @@ public class MarlinRobotArm extends Node {
             return;
         }
         double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrices(endEffector.getWorld(), target.getWorld());
-        capVectorToMagnitude(cartesianVelocity,linearVelocity*dt);
+        scaleVectorToMagnitude(cartesianVelocity,linearVelocity);
         moveEndEffectorInCartesianDirection(cartesianVelocity);
     }
 
@@ -423,17 +423,18 @@ public class MarlinRobotArm extends Node {
      * @param vector the vector to cap
      * @param maxLen the max length of the vector.
      */
-    public static void capVectorToMagnitude(double[] vector, double maxLen) {
+    public static void scaleVectorToMagnitude(double[] vector, double maxLen) {
         // get the length of the vector
         double len = 0;
         for (double v : vector) {
             len += v * v;
         }
-        len = Math.sqrt(len);
-        if(len < maxLen) return;  // already smaller, nothing to do.
 
-        // scale the vector down
-        double scale = maxLen / len;
+        len = Math.sqrt(len);
+        if(maxLen>len) maxLen=len;
+
+        // scale the vector
+        double scale = len==0? 0 : maxLen / len;  // catch len==0
         for(int i=0;i<vector.length;i++) {
             vector[i] *= scale;
         }
@@ -445,7 +446,7 @@ public class MarlinRobotArm extends Node {
      * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
      */
     public void moveEndEffectorInCartesianDirection(double[] cartesianVelocity) {
-        // is it a really small move?
+        // is it an extremely small move?
         double sum = sumCartesianVelocityComponents(cartesianVelocity);
         if(sum<0.0001) return;
         if(sum <= 1) {
@@ -453,14 +454,8 @@ public class MarlinRobotArm extends Node {
             return;
         }
 
-        // split the big move in to smaller moves.
-        int total = (int) Math.ceil(sum);
-        // allocate a new buffer so that we don't smash the original.
-        double[] cartesianVelocityUnit = Arrays.stream(cartesianVelocity)
-                .map(v -> v / total)
-                .toArray();
         // set motor velocities.
-        setMotorVelocitiesFromCartesianVelocity(cartesianVelocityUnit);
+        setMotorVelocitiesFromCartesianVelocity(cartesianVelocity);
     }
 
     /**
