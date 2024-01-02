@@ -192,6 +192,12 @@ public class RO3Frame extends JFrame {
         visitForum.putValue(Action.SHORT_DESCRIPTION, "Join us on Discord!");
         menuHelp.add(new JMenuItem(visitForum));
 
+        var visitIssues = new BrowseURLAction("https://github.com/MarginallyClever/Robot-Overlord-App/issues");
+        visitIssues.putValue(Action.NAME, "Report an Issue");
+        visitIssues.putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-bug-16.png"))));
+        visitIssues.putValue(Action.SHORT_DESCRIPTION, "Report an issue on GitHub");
+        menuHelp.add(new JMenuItem(visitIssues));
+
         menuHelp.add(new JMenuItem(new CheckForUpdateAction()));
 
         return menuHelp;
