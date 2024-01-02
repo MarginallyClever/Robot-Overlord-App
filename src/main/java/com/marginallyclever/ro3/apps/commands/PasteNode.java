@@ -55,6 +55,8 @@ public class PasteNode extends AbstractUndoableEdit {
                 var jsonObject = jsonArray.getJSONObject(i);
                 // import this json as a child of every selected node.
                 for(Node parent : parents) {
+                    // import this json as a child of every selected node.
+                    // guarantees the nodes go through witness protection.
                     Node child = ImportScene.createFromJSON(jsonObject);
                     parent.addChild(child);
                     children.add(child);
