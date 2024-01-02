@@ -20,7 +20,6 @@ public class ConversationHistoryList extends JPanel {
 	private final JList<ConversationEvent> listView = new JList<ConversationEvent>(listModel);
 	private final ConcurrentLinkedQueue<ConversationEvent> inBoundQueue = new ConcurrentLinkedQueue<ConversationEvent>();
 	private final JFileChooser chooser = new JFileChooser();
-
 	private final JButton bClear = new JButton("Clear");
 	private final JButton bSave = new JButton("Save");
 

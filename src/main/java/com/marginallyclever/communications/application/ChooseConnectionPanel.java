@@ -24,7 +24,6 @@ public class ChooseConnectionPanel extends JPanel {
 
 	public static final int CONNECTION_OPENED = 1;
 	public static final int CONNECTION_CLOSED = 2;
-	
 	private final JButton bConnect = new JButton();
 	private final JLabel connectionName = new JLabel("Not connected",JLabel.LEADING);
 	private SessionLayer mySession;
@@ -34,8 +33,7 @@ public class ChooseConnectionPanel extends JPanel {
 
 		bConnect.setText("Connect");
 		bConnect.addActionListener((e)-> onConnectAction() );
-		
-		//this.setBorder(BorderFactory.createTitledBorder(ChooseConnectionPanel.class.getName()));
+
 		this.setLayout(new FlowLayout(FlowLayout.LEADING));
 		this.add(bConnect);
 		this.add(connectionName);
