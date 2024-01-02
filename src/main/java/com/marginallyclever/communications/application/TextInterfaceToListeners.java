@@ -1,29 +1,34 @@
 package com.marginallyclever.communications.application;
 
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.List;
+import java.util.ArrayList;
 import javax.swing.*;
+import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.Serial;
-import java.util.ArrayList;
 
 /**
  * A simple text interface with a send button.  Sends the text to all listeners.
  * @author Dan Royer
  */
-public class TextInterfaceToListeners extends JPanel {
+public class TextInterfaceToListeners extends JPanel implements KeyListener {
+	public static final int MAX_HISTORY_LENGTH = 100;
 	private final JTextField commandLine = new JTextField(60);
-	private final  JButton send = new JButton("Send");
+	private final JButton send = new JButton("Send");
+	private final List<String> history = new ArrayList<>();
+	private int historyIndex = 0;
+	private final EventListenerList listeners = new EventListenerList();
 		
 	public TextInterfaceToListeners() {
-		super();
-		
-		commandLine.addActionListener((e)->sendNow());
-		send.addActionListener((e)->sendNow());
-		
-		//this.setBorder(BorderFactory.createTitledBorder(TextInterfaceToListeners.class.getSimpleName()));
-		setLayout(new GridBagLayout());
-		
+		super(new GridBagLayout());
+
+		commandLine.addKeyListener(this);
+		commandLine.addActionListener(this::sendNow);
+		send.addActionListener(this::sendNow);
+
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx=0;
 		c.gridy=0;
@@ -37,25 +42,17 @@ public class TextInterfaceToListeners extends JPanel {
 		this.add(send,c);
 	}
 
-	public void sendCommand(String str) {
-		notifyListeners(new ActionEvent(this,ActionEvent.ACTION_PERFORMED,str));
+	public void sendCommand(String command) {
+		if(command.isBlank()) return;  // no blank lines!
+		history.add(command);
+		while(history.size()>MAX_HISTORY_LENGTH) history.remove(0);  // limit size to 100 entries.
+		historyIndex = history.size();
+		notifyListeners(new ActionEvent(this,ActionEvent.ACTION_PERFORMED,command));
 	}
 	
-	public void sendNow() {
+	private void sendNow(ActionEvent e) {
 		sendCommand(commandLine.getText());
 		commandLine.setText("");
-	}
-
-	public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception e) {}
-		
-		JFrame frame = new JFrame(TextInterfaceToListeners.class.getName());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new TextInterfaceToListeners());
-		frame.pack();
-		frame.setVisible(true);
 	}
 
 	public void setCommand(String msg) {
@@ -73,20 +70,52 @@ public class TextInterfaceToListeners extends JPanel {
 		send.setEnabled(state);
 	}
 
-	// OBSERVER PATTERN
-
-	private final ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
 	public void addActionListener(ActionListener a) {
-		listeners.add(a);
+		listeners.add(ActionListener.class,a);
 	}
 	
 	public void removeActionListener(ActionListener a) {
-		listeners.remove(a);
+		listeners.remove(ActionListener.class,a);
 	}
 	
 	private void notifyListeners(ActionEvent e) {
-		for( ActionListener a : listeners ) {
+		for( ActionListener a : listeners.getListeners(ActionListener.class) ) {
 			a.actionPerformed(e);
+		}
+	}
+
+	public static void main(String[] args) {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch(Exception ignored) {}
+
+		JFrame frame = new JFrame(TextInterfaceToListeners.class.getName());
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.add(new TextInterfaceToListeners());
+		frame.pack();
+		frame.setVisible(true);
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {}
+
+	@Override
+	public void keyPressed(KeyEvent e) {}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		if( e.getKeyCode()==KeyEvent.VK_UP ) {
+			// go one back in history
+			historyIndex = Math.max(0,historyIndex-1);
+			setCommand(history.get(historyIndex));
+		} else if( e.getKeyCode()==KeyEvent.VK_DOWN ) {
+			// go one forward in history
+			historyIndex = Math.min(history.size(),historyIndex+1);
+			if(historyIndex < history.size()) {
+				setCommand(history.get(historyIndex));
+			} else {
+				setCommand("");
+			}
 		}
 	}
 }
