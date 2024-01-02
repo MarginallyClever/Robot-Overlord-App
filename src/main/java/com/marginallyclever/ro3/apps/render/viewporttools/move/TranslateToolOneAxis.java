@@ -94,6 +94,7 @@ public class TranslateToolOneAxis implements ViewportTool {
         updatePivotMatrix();
     }
 
+
     public void setPivotMatrix(Matrix4d pivot) {
         pivotMatrix.set(pivot);
         translationPlane.set(MatrixHelper.getXYPlane(pivot));
@@ -245,14 +246,8 @@ public class TranslateToolOneAxis implements ViewportTool {
     public void render(GL3 gl, ShaderProgram shaderProgram) {
         if (selectedItems == null || selectedItems.isEmpty()) return;
 
-        Matrix4d m3 = new Matrix4d(pivotMatrix);
-        m3.transpose();
-        shaderProgram.setMatrix4d(gl,"modelMatrix",m3);
 
         shaderProgram.set4f(gl,"objectColor",1,1,1,1);
-        shaderProgram.set1i(gl,"useVertexColor",1);
-        gizmoMesh.render(gl);;
-        shaderProgram.set1i(gl,"useVertexColor",0);
 
         // handle
         float colorScale = cursorOverHandle ? 1:0.5f;
@@ -263,6 +258,7 @@ public class TranslateToolOneAxis implements ViewportTool {
         Matrix4d m = new Matrix4d(pivotMatrix);
         m.mul(m,MatrixHelper.createScaleMatrix4(getHandleLengthScaled()));
         m.transpose();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",m);
         handleLineMesh.render(gl);
 
         // sphere at end of handle

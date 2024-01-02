@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.apps.render.viewporttools.move;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.ColorRGB;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.render.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.render.viewporttools.ViewportTool;
@@ -12,8 +13,10 @@ import com.marginallyclever.ro3.apps.render.Viewport;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,21 +66,19 @@ public class TranslateToolMulti implements ViewportTool {
         updatePivotMatrix();
     }
 
+    /**
+     * Sets the pivot matrix for the tool.
+     * @param pivot The pivot matrix, in world space.
+     */
     private void setPivotMatrix(Matrix4d pivot) {
-        toolX.setPivotMatrix(pivot);
+        Camera camera = Registry.getActiveCamera();
+        assert camera != null;
+
+        toolX.setPivotMatrix(createPivotPlaneMatrix(pivot,0));
+        toolY.setPivotMatrix(createPivotPlaneMatrix(pivot,1));
+        toolZ.setPivotMatrix(createPivotPlaneMatrix(pivot,2));
 
         Matrix4d rot = new Matrix4d();
-
-        Matrix4d pivotY = new Matrix4d(pivot);
-        rot.rotZ(Math.toRadians(90));
-        pivotY.mul(rot);
-        toolY.setPivotMatrix(pivotY);
-
-        Matrix4d pivotZ = new Matrix4d(pivot);
-        rot.rotY(Math.toRadians(-90));
-        pivotZ.mul(rot);
-        toolZ.setPivotMatrix(pivotZ);
-
 
         Matrix4d pivotYZ = new Matrix4d(pivot);
         rot.rotY(Math.toRadians(-90));
@@ -95,6 +96,47 @@ public class TranslateToolMulti implements ViewportTool {
         rot.rotZ(Math.toRadians(-90));
         pivotXZ.mul(rot);
         toolXZ.setPivotMatrix(pivotXZ);
+    }
+
+    /**
+     * Creates a matrix for the pivot plane.  The pivot plane has a major axis that is different in each case.
+     * The Z axis of each plane always faces the active camera.
+     * @param pivot The pivot matrix, in world space.
+     * @param axis 0 for x, 1 for y, 2 for z.
+     * @return The pivot plane matrix.
+     */
+    private Matrix4d createPivotPlaneMatrix(Matrix4d pivot, int axis) {
+        Camera camera = Registry.getActiveCamera();
+        assert camera != null;
+
+        // the pivot plane shares the same origin as pivot.
+        Vector3d o = MatrixHelper.getPosition(pivot);
+        // the pivot plane has a major axis that is different in each case.
+        Vector3d x = switch (axis) {
+            case 0 -> MatrixHelper.getXAxis(pivot);
+            case 1 -> MatrixHelper.getYAxis(pivot);
+            case 2 -> MatrixHelper.getZAxis(pivot);
+            default -> throw new InvalidParameterException("axis must be 0, 1, or 2.");
+        };
+        // the pivot plane has a z axis that points at the camera.
+        Vector3d z = new Vector3d(camera.getPosition());
+        z.sub(o);
+        double diff = z.dot(x);
+        z.x -= x.x * diff;
+        z.y -= x.y * diff;
+        z.z -= x.z * diff;
+        z.normalize();
+        // the pivot plane has a y-axis that is perpendicular to x and z.
+        Vector3d y = new Vector3d();
+        y.cross(z,x);
+        // build the matrix for the pivot plane
+        Matrix4d result = new Matrix4d();
+        result.m00 = x.x;   result.m10 = x.y;   result.m20 = x.z;
+        result.m01 = y.x;   result.m11 = y.y;   result.m21 = y.z;
+        result.m02 = z.x;   result.m12 = z.y;   result.m22 = z.z;
+        result.m03 = o.x;   result.m13 = o.y;   result.m23 = o.z;
+        result.m33 = 1;
+        return result;
     }
 
     /**
