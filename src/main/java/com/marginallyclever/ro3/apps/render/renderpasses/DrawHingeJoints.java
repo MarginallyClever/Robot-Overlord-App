@@ -101,7 +101,7 @@ public class DrawHingeJoints extends AbstractRenderPass {
                 shader.setMatrix4d(gl3,"modelMatrix",w);
                 // draw the range fan
                 int range = Math.max(0, (int)(joint.getMaxAngle()-joint.getMinAngle()) );
-                circleFanMesh.render(gl3,1+range,0);
+                circleFanMesh.render(gl3,0,1+range);
 
                 // draw the current angle line
                 w = (pose==null) ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();
