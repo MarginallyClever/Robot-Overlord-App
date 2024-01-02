@@ -58,6 +58,7 @@ public class RO3Frame extends JFrame {
         super("Robot Overlord 3");
         loadVersion();
         setLookAndFeel();
+        setLocationByPlatform(true);
         initDocking();
 
         logPanel = new LogPanel();
@@ -68,6 +69,7 @@ public class RO3Frame extends JFrame {
         textInterface = new TextInterfaceToSessionLayer();
 
         createDefaultLayout();
+        resetDefaultLayout();
         saveAndRestoreLayout();
 
         UndoSystem.start();
@@ -115,6 +117,9 @@ public class RO3Frame extends JFrame {
         DockingUI.initialize();
         ModernDocking.settings.Settings.setAlwaysDisplayTabMode(true);
         ModernDocking.settings.Settings.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+        // create root panel
+        RootDockingPanel root = new RootDockingPanel(this);
+        add(root, BorderLayout.CENTER);
     }
 
     private void addQuitHandler() {
@@ -192,6 +197,12 @@ public class RO3Frame extends JFrame {
         visitForum.putValue(Action.SHORT_DESCRIPTION, "Join us on Discord!");
         menuHelp.add(new JMenuItem(visitForum));
 
+        var visitIssues = new BrowseURLAction("https://github.com/MarginallyClever/Robot-Overlord-App/issues");
+        visitIssues.putValue(Action.NAME, "Report an Issue");
+        visitIssues.putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-bug-16.png"))));
+        visitIssues.putValue(Action.SHORT_DESCRIPTION, "Report an issue on GitHub");
+        menuHelp.add(new JMenuItem(visitIssues));
+
         menuHelp.add(new JMenuItem(new CheckForUpdateAction()));
 
         return menuHelp;
@@ -207,6 +218,21 @@ public class RO3Frame extends JFrame {
             item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1 + index, InputEvent.SHIFT_DOWN_MASK));
             index++;
         }
+
+        menuWindows.add(new JSeparator());
+        menuWindows.add(new JMenuItem(new AbstractAction("Reset default layout") {
+            {
+                putValue(Action.NAME, "Reset default layout");
+                // no accelerator key.
+                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-reset-16.png"))));
+                putValue(Action.SHORT_DESCRIPTION, "Reset the layout to the default.");
+            }
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                resetDefaultLayout();
+                logger.info("Layout reset.");
+            }
+        }));
         return menuWindows;
     }
 
@@ -260,27 +286,18 @@ public class RO3Frame extends JFrame {
      * or <a href="https://www.uuidgenerator.net/">one of many websites</a>.
      */
     private void createDefaultLayout() {
-        setSize(800, 600);
-        setLocationByPlatform(true);
-
-        RootDockingPanel root = new RootDockingPanel(this);
-        add(root, BorderLayout.CENTER);
-
         DockingPanel renderView = new DockingPanel("8e50154c-a149-4e95-9db5-4611d24cc0cc", "3D view");
         renderView.add(renderPanel, BorderLayout.CENTER);
-        Docking.dock(renderView, this, DockingRegion.CENTER);
         windows.add(renderView);
 
         DockingPanel treeView = new DockingPanel("c6b04902-7e53-42bc-8096-fa5d43289362", "Scene");
         NodeTreeView nodeTreeView = new NodeTreeView();
         treeView.add(nodeTreeView, BorderLayout.CENTER);
-        Docking.dock(treeView, this, DockingRegion.WEST);
         windows.add(treeView);
 
         DockingPanel detailView = new DockingPanel("67e45223-79f5-4ce2-b15a-2912228b356f", "Details");
         NodeDetailView nodeDetailView = new NodeDetailView();
         detailView.add(nodeDetailView, BorderLayout.CENTER);
-        Docking.dock(detailView, treeView, DockingRegion.SOUTH);
         windows.add(detailView);
 
         DockingPanel logView = new DockingPanel("5e565f83-9734-4281-9828-92cd711939df", "Log");
@@ -293,7 +310,6 @@ public class RO3Frame extends JFrame {
 
         DockingPanel aboutView = new DockingPanel("976af87b-90f3-42ce-a5d6-e4ab663fbb15", "About");
         aboutView.add(new AboutPanel(), BorderLayout.CENTER);
-        Docking.dock(aboutView,treeView,DockingRegion.CENTER);
         windows.add(aboutView);
 
         DockingPanel webcamView = new DockingPanel("1331fbb0-ceda-4c67-b343-6539d4f939a1", "USB Camera");
@@ -303,6 +319,25 @@ public class RO3Frame extends JFrame {
         DockingPanel textInterfaceView = new DockingPanel("7796a733-8e33-417a-b363-b28174901e40", "Serial Interface");
         textInterfaceView.add(textInterface, BorderLayout.CENTER);
         windows.add(textInterfaceView);
+    }
+
+    /**
+     * Reset the default layout.  These depend on the order of creation in createDefaultLayout().
+     */
+    private void resetDefaultLayout() {
+        setSize(1000, 700);
+
+        for(DockingPanel w : windows) {
+            Docking.undock(w);
+        }
+        var renderView = windows.get(0);
+        var treeView = windows.get(1);
+        var detailView = windows.get(2);
+        var aboutView = windows.get(5);
+        Docking.dock(renderView, this, DockingRegion.CENTER);
+        Docking.dock(treeView, this, DockingRegion.WEST);
+        Docking.dock(detailView, treeView, DockingRegion.SOUTH);
+        Docking.dock(aboutView, treeView, DockingRegion.CENTER);
     }
 
     private void saveAndRestoreLayout() {
