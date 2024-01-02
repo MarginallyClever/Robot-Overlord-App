@@ -6,7 +6,6 @@ import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.io.Serial;
 
 /**
  * A chat style interface with a history of commands.  The history is a list of commands sent and received.
@@ -17,10 +16,7 @@ public class TextInterfaceWithHistory extends JPanel {
 	private final ConversationHistoryList myHistory = new ConversationHistoryList();
 	
 	public TextInterfaceWithHistory() {
-		super();
-
-		//this.setBorder(BorderFactory.createTitledBorder(TextInterfaceWithHistory.class.getName()));
-		setLayout(new GridBagLayout());
+		super(new GridBagLayout());
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridy++;
@@ -39,7 +35,7 @@ public class TextInterfaceWithHistory extends JPanel {
 		myHistory.addListSelectionListener((e)->{
 			if(e.getValueIsAdjusting()) return;
 			int i = myHistory.getSelectedIndex();
-			if(i!=-1) myInterface.setCommand(myHistory.getSelectedValue());
+			if(i!=-1) myInterface.setCommand(myHistory.getSelectedValue().whatWasSaid());
 		});
 	}
 
@@ -75,10 +71,12 @@ public class TextInterfaceWithHistory extends JPanel {
 
 	public static void main(String[] args) {
 		Log.start();
-		JFrame frame = new JFrame(TextInterfaceWithHistory.class.getName());
+
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception e) {}
+		} catch(Exception ignored) {}
+
+		JFrame frame = new JFrame(TextInterfaceWithHistory.class.getName());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new TextInterfaceWithHistory());
 		frame.pack();

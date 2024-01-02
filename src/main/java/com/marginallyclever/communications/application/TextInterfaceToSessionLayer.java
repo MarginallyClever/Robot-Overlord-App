@@ -22,11 +22,8 @@ public class TextInterfaceToSessionLayer extends JPanel implements SessionLayerL
 	private SessionLayer mySession;
 
 	public TextInterfaceToSessionLayer() {
-		super();
+		super(new BorderLayout());
 
-		//this.setBorder(BorderFactory.createTitledBorder(TextInterfaceToNetworkSession.class.getName()));
-		setLayout(new BorderLayout());
-		
 		add(myConnectionChoice,BorderLayout.NORTH);
 		add(myInterface,BorderLayout.CENTER);
 		
