@@ -39,7 +39,11 @@ public class PasteNode extends AbstractAction {
                 setEnabled(false);
                 return;
             }
-            setEnabled(Registry.clipboard.isDataFlavorAvailable(JSONHelper.JSON_FLAVOR));
+            try {
+                setEnabled(Registry.clipboard.isDataFlavorAvailable(JSONHelper.JSON_FLAVOR));
+            } catch (IllegalStateException ignored) {
+                // if this clipboard is currently unavailable
+            }
         } else {
             setEnabled(false);
         }
