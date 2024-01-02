@@ -13,6 +13,9 @@ import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Paste the copied nodes as children of the parent nodes.
+ */
 public class PasteNode extends AbstractUndoableEdit {
     private final Logger logger = LoggerFactory.getLogger(PasteNode.class);
     Transferable transfer;
