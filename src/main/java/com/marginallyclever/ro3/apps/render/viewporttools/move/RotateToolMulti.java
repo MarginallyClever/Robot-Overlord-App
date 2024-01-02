@@ -25,7 +25,6 @@ import java.util.List;
  * @since 2.5.0
  */
 public class RotateToolMulti implements ViewportTool {
-    private Viewport viewport;
     private final RotateToolOneAxis toolX = new RotateToolOneAxis(new ColorRGB(255,0,0));
     private final RotateToolOneAxis toolY = new RotateToolOneAxis(new ColorRGB(0,255,0));
     private final RotateToolOneAxis toolZ = new RotateToolOneAxis(new ColorRGB(0,0,255));
@@ -64,7 +63,7 @@ public class RotateToolMulti implements ViewportTool {
     }
 
     private void updatePivotMatrix() {
-        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,viewport,selectedItems));
+        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,selectedItems));
     }
 
     private void setPivotMatrix(Matrix4d pivot) {
@@ -209,7 +208,6 @@ public class RotateToolMulti implements ViewportTool {
 
     @Override
     public void setViewport(Viewport viewport) {
-        this.viewport = viewport;
         for(ViewportTool t : tools) t.setViewport(viewport);
     }
 

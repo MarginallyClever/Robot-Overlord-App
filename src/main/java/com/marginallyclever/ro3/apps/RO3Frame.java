@@ -300,7 +300,7 @@ public class RO3Frame extends JFrame {
         webcamView.add(webCamPanel, BorderLayout.CENTER);
         windows.add(webcamView);
 
-        DockingPanel textInterfaceView = new DockingPanel("7796a733-8e33-417a-b363-b28174901e40", "Text Interface");
+        DockingPanel textInterfaceView = new DockingPanel("7796a733-8e33-417a-b363-b28174901e40", "Serial Interface");
         textInterfaceView.add(textInterface, BorderLayout.CENTER);
         windows.add(textInterfaceView);
     }

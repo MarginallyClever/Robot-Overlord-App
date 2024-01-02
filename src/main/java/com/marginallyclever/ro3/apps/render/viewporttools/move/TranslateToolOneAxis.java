@@ -35,6 +35,7 @@ public class TranslateToolOneAxis implements ViewportTool {
     private final double handleLength = 5;
     private final double gripRadius = 0.5;
     private double localScale = 1;
+    private final Mesh gizmoMesh = MatrixHelper.createMesh(5.0);
 
     /**
      * The viewport to which this tool is attached.
@@ -66,7 +67,7 @@ public class TranslateToolOneAxis implements ViewportTool {
      */
     private final Vector3d translationAxis = new Vector3d();
 
-    private Matrix4d pivotMatrix;
+    private final Matrix4d pivotMatrix = MatrixHelper.createIdentityMatrix4();
 
     private boolean cursorOverHandle = false;
 
@@ -93,8 +94,9 @@ public class TranslateToolOneAxis implements ViewportTool {
         updatePivotMatrix();
     }
 
+
     public void setPivotMatrix(Matrix4d pivot) {
-        pivotMatrix = new Matrix4d(pivot);
+        pivotMatrix.set(pivot);
         translationPlane.set(MatrixHelper.getXYPlane(pivot));
         translationAxis.set(MatrixHelper.getXAxis(pivot));
     }
@@ -183,7 +185,7 @@ public class TranslateToolOneAxis implements ViewportTool {
     }
 
     private void updatePivotMatrix() {
-        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,viewport,selectedItems));
+        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,selectedItems));
     }
 
     private Point3d getNearestPointOnAxis(Point3d currentPoint) {
@@ -244,13 +246,15 @@ public class TranslateToolOneAxis implements ViewportTool {
     public void render(GL3 gl, ShaderProgram shaderProgram) {
         if (selectedItems == null || selectedItems.isEmpty()) return;
 
+
+        shaderProgram.set4f(gl,"objectColor",1,1,1,1);
+
+        // handle
         float colorScale = cursorOverHandle ? 1:0.5f;
         float red   = color.red   * colorScale / 255f;
         float green = color.green * colorScale / 255f;
         float blue  = color.blue  * colorScale / 255f;
         shaderProgram.set4f(gl,"objectColor",red, green, blue, 1.0f);
-
-        // handle
         Matrix4d m = new Matrix4d(pivotMatrix);
         m.mul(m,MatrixHelper.createScaleMatrix4(getHandleLengthScaled()));
         m.transpose();

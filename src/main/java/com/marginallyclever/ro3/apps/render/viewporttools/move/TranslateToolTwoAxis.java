@@ -96,7 +96,7 @@ public class TranslateToolTwoAxis implements ViewportTool {
     }
 
     private void updatePivotMatrix() {
-        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,viewport,selectedItems));
+        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,selectedItems));
     }
 
     public void setPivotMatrix(Matrix4d pivot) {

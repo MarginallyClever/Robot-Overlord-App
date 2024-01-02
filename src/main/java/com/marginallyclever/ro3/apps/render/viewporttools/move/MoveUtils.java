@@ -73,7 +73,13 @@ public class MoveUtils {
         }
     }
 
-    public static Matrix4d getPivotMatrix(int frameOfReference, Viewport viewport, SelectedItems selectedItems) {
+    /**
+     * Get the pivot matrix of the selected items.  The matrix should be returned in world space.
+     * @param frameOfReference the frame of reference to use
+     * @param selectedItems the list of selected items
+     * @return the pivot matrix of the selected items, in world space.
+     */
+    public static Matrix4d getPivotMatrix(int frameOfReference, SelectedItems selectedItems) {
         Matrix4d m;
         switch(frameOfReference) {
             case ViewportTool.FRAME_WORLD -> {
