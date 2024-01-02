@@ -13,6 +13,9 @@ import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Paste the copied nodes as children of the parent nodes.
+ */
 public class PasteNode extends AbstractUndoableEdit {
     private final Logger logger = LoggerFactory.getLogger(PasteNode.class);
     Transferable transfer;
@@ -52,6 +55,8 @@ public class PasteNode extends AbstractUndoableEdit {
                 var jsonObject = jsonArray.getJSONObject(i);
                 // import this json as a child of every selected node.
                 for(Node parent : parents) {
+                    // import this json as a child of every selected node.
+                    // guarantees the nodes go through witness protection.
                     Node child = ImportScene.createFromJSON(jsonObject);
                     parent.addChild(child);
                     children.add(child);

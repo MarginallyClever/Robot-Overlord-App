@@ -5,6 +5,7 @@ import com.marginallyclever.ro3.node.Node;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotUndoException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,12 +14,15 @@ import java.util.Map;
  * Remove {@link Node}s from the scene.
  */
 public class RemoveNode extends AbstractUndoableEdit {
-    private final Map<Node,Node> childParentMap = new HashMap<>();
+    private record RemoveNodeEvent(Node parent,Node child, int index) {}
+    private final List<RemoveNodeEvent> childParentMap = new ArrayList<>();
+
     public RemoveNode(List<Node> selection) {
         super();
         selection.remove(Registry.getScene());
-        for(var node : selection) {
-            childParentMap.put(node,node.getParent());
+        for(var child : selection) {
+            Node parent = child.getParent();
+            childParentMap.add(new RemoveNodeEvent(parent,child,parent.getChildren().indexOf(child)));
         }
         execute();
     }
@@ -36,9 +40,9 @@ public class RemoveNode extends AbstractUndoableEdit {
     }
 
     public void execute() {
-        for(Map.Entry<Node, Node> entry : childParentMap.entrySet()) {
-            Node parent = entry.getValue();
-            Node child = entry.getKey();
+        for(RemoveNodeEvent entry : childParentMap) {
+            Node parent = entry.parent();
+            Node child = entry.child();
             parent.removeChild(child);
         }
     }
@@ -50,10 +54,11 @@ public class RemoveNode extends AbstractUndoableEdit {
     }
 
     public void reverse() {
-        for(Map.Entry<Node, Node> entry : childParentMap.entrySet()) {
-            Node parent = entry.getValue();
-            Node child = entry.getKey();
-            parent.addChild(child);
+        for(RemoveNodeEvent entry : childParentMap) {
+            Node parent = entry.parent();
+            Node child = entry.child();
+            int index = entry.index();
+            parent.addChild(index,child);
         }
     }
 }

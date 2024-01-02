@@ -2,21 +2,16 @@ package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.UndoSystem;
-import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
-import com.marginallyclever.ro3.node.Node;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * Copy the selected node(s) to the clipboard.
+ */
 public class CopyNode extends AbstractAction {
-
     public CopyNode() {
         super();
         putValue(Action.NAME,"Copy");

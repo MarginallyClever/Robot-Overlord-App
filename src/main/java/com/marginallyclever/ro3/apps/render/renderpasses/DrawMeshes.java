@@ -89,9 +89,8 @@ public class DrawMeshes extends AbstractRenderPass {
         float [] borderColor = { 1.0f, 1.0f, 1.0f, 1.0f };
         gl3.glTexParameterfv(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_BORDER_COLOR, borderColor,0);
         OpenGLHelper.checkGLError(gl3,logger);
-        logger.debug("Depth map created {}",depthMap[0]);
 
-        logger.debug("Binding depth map to shadow FBO");
+        logger.debug("Binding depth map {} to shadow FBO",depthMap[0]);
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, shadowFBO[0]);
         gl3.glFramebufferTexture2D(GL3.GL_FRAMEBUFFER, GL3.GL_DEPTH_ATTACHMENT, GL3.GL_TEXTURE_2D, depthMap[0], 0);
         gl3.glDrawBuffer(GL3.GL_NONE);

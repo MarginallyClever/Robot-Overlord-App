@@ -69,7 +69,7 @@ public class RO3Frame extends JFrame {
         textInterface = new TextInterfaceToSessionLayer();
 
         createDefaultLayout();
-        resetLayout();
+        resetDefaultLayout();
         saveAndRestoreLayout();
 
         UndoSystem.start();
@@ -229,7 +229,7 @@ public class RO3Frame extends JFrame {
             }
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
-                resetLayout();
+                resetDefaultLayout();
                 logger.info("Layout reset.");
             }
         }));
@@ -324,7 +324,7 @@ public class RO3Frame extends JFrame {
     /**
      * Reset the default layout.  These depend on the order of creation in createDefaultLayout().
      */
-    private void resetLayout() {
+    private void resetDefaultLayout() {
         setSize(1000, 700);
 
         for(DockingPanel w : windows) {
