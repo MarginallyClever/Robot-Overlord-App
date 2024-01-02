@@ -82,49 +82,67 @@ public class Compass3D implements ViewportTool {
         shaderProgram.setColor(gl3,"lightColor", Color.WHITE);
         shaderProgram.setColor(gl3,"specularColor",Color.DARK_GRAY);
         shaderProgram.setColor(gl3,"ambientColor",Color.BLACK);
-        shaderProgram.setColor(gl3,"objectColor",Color.WHITE);
-        shaderProgram.set1i(gl3,"useVertexColor",0);
         shaderProgram.set1i(gl3,"useLighting",0);
         shaderProgram.set1i(gl3,"diffuseTexture",0);
 
+        int compassRadius = 50;
         // set the projection matrix such that the drawing area is the top right corner of the viewport.
         double w = viewport.getWidth()/2d;
         double h = viewport.getHeight()/2d;
-        double px = -w + 50;
-        double py = -h + 50;
+        double px = -w + compassRadius;
+        double py = -h + compassRadius;
         Matrix4d projection = MatrixHelper.orthographicMatrix4d( px-w, px+w, py-h, py+h, -50.0, 50);
         shaderProgram.setMatrix4d(gl3,"projectionMatrix",projection);
 
+        // set the view matrix to be the inverse of the camera matrix and without translation.
         Camera camera = Registry.getActiveCamera();
         assert camera != null;
         Matrix4d view = camera.getWorld();
+        Vector3d z = MatrixHelper.getZAxis(view);
+        z.scale(-20);
+
         view.setTranslation(new Vector3d(0,0,0));
         view.invert();
         view.transpose();
         shaderProgram.setMatrix4d(gl3,"viewMatrix",view);
 
-        Matrix4d model = MatrixHelper.createIdentityMatrix4();
+        // for the background circle, set the model matrix to be the camera matrix so the handle is always facing the camera.
+        Matrix4d model = camera.getWorld();
+        model.setTranslation(z);
+        model.mul(model, MatrixHelper.createScaleMatrix4(handleLength+handleRadius+5));
         model.transpose();
         shaderProgram.setMatrix4d(gl3,"modelMatrix",model);
+        shaderProgram.set1i(gl3,"useVertexColor",0);
+        shaderProgram.setColor(gl3,"objectColor",new Color(255,255,255,64));
+        circleMesh.render(gl3);
 
+        // for the gizmo, set the model matrix to be the identity matrix.
+        model = MatrixHelper.createIdentityMatrix4();
+        model.transpose();
+        shaderProgram.setColor(gl3,"objectColor",Color.WHITE);
+        shaderProgram.setMatrix4d(gl3,"modelMatrix",model);
+        // and use vertex colors.
         shaderProgram.set1i(gl3,"useVertexColor",1);
         gizmoMesh.render(gl3);
+
+        // for the handles, do not use vertex color.
         shaderProgram.set1i(gl3,"useVertexColor",0);
 
+        //gl3.glEnable(GL3.GL_DEPTH_TEST);
         drawHandle(gl3,shaderProgram,new Vector3d( handleLength,0,0),12);  // x+
-        drawHandle(gl3,shaderProgram,new Vector3d(-handleLength,0,0),13);  // x-
+        drawHandle(gl3,shaderProgram,new Vector3d(-handleLength,0,0),13+1);  // x-
         drawHandle(gl3,shaderProgram,new Vector3d(0, handleLength,0),8);  // y+
-        drawHandle(gl3,shaderProgram,new Vector3d(0,-handleLength,0),9);  // y-
+        drawHandle(gl3,shaderProgram,new Vector3d(0,-handleLength,0),9+1);  // y-
         drawHandle(gl3,shaderProgram,new Vector3d(0,0, handleLength),4);  // z+
-        drawHandle(gl3,shaderProgram,new Vector3d(0,0,-handleLength),5);  // z-
+        drawHandle(gl3,shaderProgram,new Vector3d(0,0,-handleLength),5+1);  // z-
     }
 
     private void drawHandle(GL3 gl3, ShaderProgram shaderProgram, Vector3d offset,int index) {
         Camera camera = Registry.getActiveCamera();
         assert camera != null;
 
+        // set the model matrix to be the camera matrix so the handle is always facing the camera.
         Matrix4d model = camera.getWorld();
-        model.setTranslation(new Vector3d(0,0,0));
         model.setTranslation(offset);
         model.mul(model, MatrixHelper.createScaleMatrix4(handleRadius));
         model.transpose();
