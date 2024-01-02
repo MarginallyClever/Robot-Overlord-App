@@ -35,7 +35,7 @@ public class TextInterfaceWithHistory extends JPanel {
 		myHistory.addListSelectionListener((e)->{
 			if(e.getValueIsAdjusting()) return;
 			int i = myHistory.getSelectedIndex();
-			if(i!=-1) myInterface.setCommand(myHistory.getSelectedValue());
+			if(i!=-1) myInterface.setCommand(myHistory.getSelectedValue().whatWasSaid());
 		});
 	}
 
