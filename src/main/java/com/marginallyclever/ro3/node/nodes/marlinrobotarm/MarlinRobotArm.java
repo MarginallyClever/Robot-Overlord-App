@@ -128,6 +128,10 @@ public class MarlinRobotArm extends Node {
         slider.addChangeListener(e-> linearVelocity = slider.getValue());
         addLabelAndComponent(pane, "Linear Vel", slider,gbc);
 
+        JButton M114 = new JButton("M114");
+        M114.addActionListener(e-> sendGCode("M114"));
+        addLabelAndComponent(pane, "Get state", M114,gbc);
+
         gbc.gridx=0;
         gbc.gridwidth=2;
         pane.add(getReceiver(),gbc);
