@@ -75,8 +75,7 @@ public class HingeJoint extends Node {
             acceleration = ((Number) accelerationField.getValue()).doubleValue();
         });
 
-        NodeSelector<Pose> selector = new NodeSelector<>(Pose.class);
-        selector.setSubject(axle.getSubject());
+        NodeSelector<Pose> selector = new NodeSelector<>(Pose.class,axle.getSubject());
         selector.addPropertyChangeListener("subject", (evt) ->{
             axle.setRelativePath(this,selector.getSubject());
         });

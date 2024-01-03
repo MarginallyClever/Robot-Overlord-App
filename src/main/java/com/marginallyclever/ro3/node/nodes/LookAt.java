@@ -36,8 +36,7 @@ public class LookAt extends Pose {
         list.add(pane);
         pane.setName(LookAt.class.getSimpleName());
 
-        NodeSelector<Pose> selector = new NodeSelector<>(Pose.class);
-        selector.setSubject(target.getSubject());
+        NodeSelector<Pose> selector = new NodeSelector<>(Pose.class,target.getSubject());
         selector.addPropertyChangeListener("subject", (evt) -> {
             target.setRelativePath(this,selector.getSubject());
         } );

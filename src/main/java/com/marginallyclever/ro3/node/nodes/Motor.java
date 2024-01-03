@@ -47,8 +47,7 @@ public class Motor extends Node {
         list.add(pane);
         pane.setName(Motor.class.getSimpleName());
 
-        NodeSelector<HingeJoint> selector = new NodeSelector<>(HingeJoint.class);
-        selector.setSubject(hinge.getSubject());
+        NodeSelector<HingeJoint> selector = new NodeSelector<>(HingeJoint.class,hinge.getSubject());
         selector.addPropertyChangeListener("subject", (evt) ->{
             hinge.setRelativePath(this,selector.getSubject());
         });
