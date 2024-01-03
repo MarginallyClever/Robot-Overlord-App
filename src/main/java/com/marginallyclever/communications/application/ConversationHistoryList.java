@@ -16,11 +16,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @since 1.7.1
  */
 public class ConversationHistoryList extends JPanel {
-	private final DefaultListModel<ConversationEvent> listModel = new DefaultListModel<ConversationEvent>();
-	private final JList<ConversationEvent> listView = new JList<ConversationEvent>(listModel);
-	private final ConcurrentLinkedQueue<ConversationEvent> inBoundQueue = new ConcurrentLinkedQueue<ConversationEvent>();
+	private final DefaultListModel<ConversationEvent> listModel = new DefaultListModel<>();
+	private final JList<ConversationEvent> listView = new JList<>(listModel);
+	private final ConcurrentLinkedQueue<ConversationEvent> inBoundQueue = new ConcurrentLinkedQueue<>();
 	private final JFileChooser chooser = new JFileChooser();
-
 	private final JButton bClear = new JButton("Clear");
 	private final JButton bSave = new JButton("Save");
 
@@ -55,7 +54,7 @@ public class ConversationHistoryList extends JPanel {
 	}
 
 	private void createCellRenderingSystem() {
-		listView.setCellRenderer(new ListCellRenderer<ConversationEvent>() {
+		listView.setCellRenderer(new ListCellRenderer<>() {
 			private final DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
 			
 			@Override
@@ -84,21 +83,21 @@ public class ConversationHistoryList extends JPanel {
 			try {
 				saveFile(chooser.getSelectedFile());
 			} catch (IOException e1) {
-				JOptionPane.showMessageDialog(this, e1.getLocalizedMessage(),"runSaveAction error",JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, e1.getLocalizedMessage(),"Save error",JOptionPane.ERROR_MESSAGE);
 				e1.printStackTrace();
 			}
 		}
 	}
 	
 	private void saveFile(File file) throws IOException {
-		BufferedWriter fileWriter = new BufferedWriter(new FileWriter(file));
-		int size=listModel.getSize();
-		for(int i=0;i<size;++i) {
-			String str = listModel.get(i).toString();
-			if(!str.endsWith("\n")) str+="\n";
-			fileWriter.write(str);
+		try(BufferedWriter fileWriter = new BufferedWriter(new FileWriter(file))) {
+			int size = listModel.getSize();
+			for (int i = 0; i < size; ++i) {
+				String str = listModel.get(i).toString();
+				if (!str.endsWith("\n")) str += "\n";
+				fileWriter.write(str);
+			}
 		}
-		fileWriter.close();
 	}
 	
 	public void clear() {
@@ -113,8 +112,8 @@ public class ConversationHistoryList extends JPanel {
 		return listView.getSelectedIndex();
 	}
 
-	public String getSelectedValue() {
-		return listView.getSelectedValue().toString();
+	public ConversationEvent getSelectedValue() {
+		return listView.getSelectedValue();
 	}
 
 	public void addElement(String src,String str) {

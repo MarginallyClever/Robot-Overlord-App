@@ -197,19 +197,19 @@ public class Mesh {
 	 */
 	public void render(GL3 gl) {
 		if (hasIndexes) {
-			render(gl,indexArray.size(),0);
+			render(gl,0,indexArray.size());
 		} else {
-			render(gl,getNumVertices(),0);
+			render(gl,0,getNumVertices());
 		}
 	}
 
 	/**
 	 * Render a portion of the mesh.
 	 * @param gl the OpenGL context
-	 * @param count number of vertices to render
 	 * @param startIndex index of the first vertex to render
+	 * @param count number of vertices to render
 	 */
-	public void render(GL3 gl,int count,int startIndex) {
+	public void render(GL3 gl,int startIndex,int count) {
 		if(!isLoaded) {
 			isLoaded=true;
 			isDirty=true;

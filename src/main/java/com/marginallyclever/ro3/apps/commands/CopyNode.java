@@ -13,6 +13,9 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.util.List;
 
+/**
+ * Copy the selected node(s) to the clipboard.
+ */
 public class CopyNode extends AbstractUndoableEdit {
     private final Logger logger = LoggerFactory.getLogger(com.marginallyclever.ro3.apps.actions.CopyNode.class);
     private final List<Node> selection;

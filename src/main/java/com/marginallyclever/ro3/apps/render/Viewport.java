@@ -9,6 +9,7 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.render.renderpasses.*;
+import com.marginallyclever.ro3.apps.render.viewporttools.Compass3D;
 import com.marginallyclever.ro3.apps.render.viewporttools.SelectionTool;
 import com.marginallyclever.ro3.apps.render.viewporttools.ViewportTool;
 import com.marginallyclever.ro3.apps.render.viewporttools.move.RotateToolMulti;
@@ -66,12 +67,14 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     }
 
     private void addViewportTools() {
-        SelectionTool selectionTool = new SelectionTool();
-        TranslateToolMulti translateToolMulti = new TranslateToolMulti();
-        RotateToolMulti rotateToolMulti = new RotateToolMulti();
+        var selectionTool = new SelectionTool();
+        var translateToolMulti = new TranslateToolMulti();
+        var rotateToolMulti = new RotateToolMulti();
+        var compass3D = new Compass3D();
         viewportTools.add(selectionTool);
         viewportTools.add(translateToolMulti);
         viewportTools.add(rotateToolMulti);
+        viewportTools.add(compass3D);
 
         for(ViewportTool tool : viewportTools) {
             tool.setViewport(this);

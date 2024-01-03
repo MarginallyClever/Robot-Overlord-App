@@ -246,15 +246,13 @@ public class TranslateToolOneAxis implements ViewportTool {
     public void render(GL3 gl, ShaderProgram shaderProgram) {
         if (selectedItems == null || selectedItems.isEmpty()) return;
 
-
-        shaderProgram.set4f(gl,"objectColor",1,1,1,1);
-
-        // handle
         float colorScale = cursorOverHandle ? 1:0.5f;
         float red   = color.red   * colorScale / 255f;
         float green = color.green * colorScale / 255f;
         float blue  = color.blue  * colorScale / 255f;
         shaderProgram.set4f(gl,"objectColor",red, green, blue, 1.0f);
+
+        // handle
         Matrix4d m = new Matrix4d(pivotMatrix);
         m.mul(m,MatrixHelper.createScaleMatrix4(getHandleLengthScaled()));
         m.transpose();
