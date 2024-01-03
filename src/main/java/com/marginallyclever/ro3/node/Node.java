@@ -1,6 +1,8 @@
 package com.marginallyclever.ro3.node;
 
+import com.marginallyclever.convenience.PathCalculator;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.nodes.Pose;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -458,6 +460,40 @@ public class Node {
                 }
             }
             toScan.addAll(node.getChildren());
+        }
+        return null;
+    }
+
+    /**
+     * Find the first node with the given path.  It can be relative or absolute.  Understands ".." to go up one level.
+     * Understands "." to stay at the current level.
+     * @param target the path to the node.
+     * @param type the type of node to search for
+     * @return the first node found with a matching ID and type, or null if none found.
+     * @param <T> the type of node to search for
+     */
+    protected <T extends Node> T findNodeByPath(String target, Class<T> type) {
+        if(target==null) return null;
+
+        String[] parts = target.split("/");
+        Node node = this;
+        if(parts[0].isEmpty()) {
+            node = getRootNode();
+        }
+        for(String part : parts) {
+            if(part.equals("..")) {
+                node = node.getParent();
+            } else if(part.equals(".")) {
+                // do nothing
+            } else {
+                node = node.findChild(part);
+            }
+            if(node == null) {
+                return null;
+            }
+        }
+        if(type.isInstance(node)) {
+            return type.cast(node);
         }
         return null;
     }
