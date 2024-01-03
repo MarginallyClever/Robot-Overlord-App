@@ -3,7 +3,6 @@ package com.marginallyclever.ro3.apps.render.renderpasses;
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLContext;
-import com.jogamp.opengl.glu.GLU;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
@@ -106,12 +105,11 @@ public class DrawMeshes extends AbstractRenderPass {
         // before, set up the shadow FBO
         gl3.glViewport(0,0,SHADOW_WIDTH,SHADOW_HEIGHT);
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, shadowFBO[0]);
+        // setup shader and render to depth map
         gl3.glClear(GL3.GL_DEPTH_BUFFER_BIT);
         gl3.glEnable(GL3.GL_DEPTH_TEST);
         gl3.glCullFace(GL3.GL_FRONT);
-        // setup shader and render to depth map
         shadowShader.use(gl3);
-        //shadowShader.setMatrix4d(gl3,"lightSpaceMatrix", getLightSpaceMatrix());
         shadowShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
         shadowShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
 
@@ -166,11 +164,10 @@ public class DrawMeshes extends AbstractRenderPass {
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
         List<MeshInstance> meshes = collectAllMeshes();
 
-        getLightSpaceMatrix();
-
+        updateLightMatrix();
         generateDepthMap(gl3,meshes);
         drawAllMeshes(gl3,meshes,camera);
-        drawShadowQuad(gl3,camera);
+        //drawShadowQuad(gl3,camera);
     }
 
     private void drawShadowQuad(GL3 gl3, Camera camera) {
@@ -225,7 +222,6 @@ public class DrawMeshes extends AbstractRenderPass {
     private void drawAllMeshes(GL3 gl3, List<MeshInstance> meshes, Camera camera) {
         meshShader.use(gl3);
         meshShader.set1i(gl3,"shadowMap",shadowMapUnit);
-        //meshShader.setMatrix4d(gl3, "lightSpaceMatrix", getLightSpaceMatrix());
         meshShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
         meshShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
 
@@ -284,35 +280,23 @@ public class DrawMeshes extends AbstractRenderPass {
     }
 
     // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
-    private Matrix4d getLightSpaceMatrix() {
+    private void updateLightMatrix() {
         Camera camera = Registry.getActiveCamera();
         assert camera != null;
 
-        double r = 50;//Math.max(50,camera.getOrbitRadius());
-
         // orthographic projection from the light's point of view
+        double r = 50;//Math.max(50,camera.getOrbitRadius());
         lightProjection.set(MatrixHelper.orthographicMatrix4d(-r,r,-r,r,1.0,75));
 
-        fromLightUnit.set(0,0,10);
-        fromLightUnit.normalize();
+        fromLightUnit.set(5,10,35);
 
         Vector3d from = new Vector3d(fromLightUnit);
-        Vector3d to = new Vector3d(0,0,0);
-        //Vector3d to = camera.getOrbitPoint();
+        Vector3d to = camera.getOrbitPoint();
         from.add(to);
         Vector3d up = Math.abs(fromLightUnit.z)>0.99? new Vector3d(0,1,0) : new Vector3d(0,0,1);
 
         // look at the scene from the light's point of view
         lightView.set(lookAt(from, to, up));
-        lightView.invert();
-        lightView.transpose();
-
-        // combine the two
-        Matrix4d lightSpaceMatrix = new Matrix4d();
-        lightSpaceMatrix.mul(lightProjection,lightView);
-
-        lightSpaceMatrix.transpose();
-        return lightSpaceMatrix;
     }
 
     public static Matrix4d lookAt(Vector3d eye, Vector3d center, Vector3d up) {
