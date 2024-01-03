@@ -33,7 +33,7 @@ public class NodePath<T extends Node> {
         return owner.findNodeByPath(path,type);
     }
 
-    public void setRelativePath(T origin, T goal) {
+    public void setRelativePath(Node origin, T goal) {
         setPath(PathCalculator.getRelativePath(origin,goal));
     }
 }
