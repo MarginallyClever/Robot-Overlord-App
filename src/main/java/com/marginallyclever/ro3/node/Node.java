@@ -441,7 +441,7 @@ public class Node {
     }
 
     /**
-     * Depth-first search for a node with a matching ID and type.
+     * Depth-first search for a node with a matching ID and type.  Type match can be any subclass.
      * @param nodeID the ID to search for
      * @param type the type of node to search for
      * @return the first node found with a matching ID and type, or null if none found.
@@ -452,7 +452,7 @@ public class Node {
         toScan.add(this);
         while(!toScan.isEmpty()) {
             Node node = toScan.remove(0);
-            if(type.equals(node.getClass())) {
+            if(type.isInstance(node)) {
                 if(node.getNodeID().toString().equals(nodeID)) {
                     return type.cast(node);
                 }
