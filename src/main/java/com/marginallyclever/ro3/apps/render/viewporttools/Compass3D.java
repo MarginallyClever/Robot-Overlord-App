@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
@@ -106,18 +107,12 @@ public class Compass3D implements ViewportTool {
         view.transpose();
         shaderProgram.setMatrix4d(gl3,"viewMatrix",view);
 
-        // for the background circle, set the model matrix to be the camera matrix so the handle is always facing the camera.
-        Matrix4d model = camera.getWorld();
-        model.setTranslation(z);
-        model.mul(model, MatrixHelper.createScaleMatrix4(handleLength+handleRadius+5));
-        model.transpose();
-        shaderProgram.setMatrix4d(gl3,"modelMatrix",model);
-        shaderProgram.set1i(gl3,"useVertexColor",0);
-        shaderProgram.setColor(gl3,"objectColor",new Color(255,255,255,64));
-        circleMesh.render(gl3);
+        gl3.glClear(GL3.GL_DEPTH_BUFFER_BIT);
+
+        drawWhiteCircle(gl3,shaderProgram,z,compassRadius);
 
         // for the gizmo, set the model matrix to be the identity matrix.
-        model = MatrixHelper.createIdentityMatrix4();
+        Matrix4d model = MatrixHelper.createIdentityMatrix4();
         model.transpose();
         shaderProgram.setColor(gl3,"objectColor",Color.WHITE);
         shaderProgram.setMatrix4d(gl3,"modelMatrix",model);
@@ -128,13 +123,34 @@ public class Compass3D implements ViewportTool {
         // for the handles, do not use vertex color.
         shaderProgram.set1i(gl3,"useVertexColor",0);
 
-        //gl3.glEnable(GL3.GL_DEPTH_TEST);
+        gl3.glEnable(GL3.GL_DEPTH_TEST);
         drawHandle(gl3,shaderProgram,new Vector3d( handleLength,0,0),12);  // x+
         drawHandle(gl3,shaderProgram,new Vector3d(-handleLength,0,0),13+1);  // x-
         drawHandle(gl3,shaderProgram,new Vector3d(0, handleLength,0),8);  // y+
         drawHandle(gl3,shaderProgram,new Vector3d(0,-handleLength,0),9+1);  // y-
         drawHandle(gl3,shaderProgram,new Vector3d(0,0, handleLength),4);  // z+
         drawHandle(gl3,shaderProgram,new Vector3d(0,0,-handleLength),5+1);  // z-
+    }
+
+    private void drawWhiteCircle(GL3 gl3, ShaderProgram shaderProgram, Vector3d z, int compassRadius) {
+        // draw the circle when the cursor is over the compass.
+        Camera camera = Registry.getActiveCamera();
+        assert camera != null;
+
+        double outerRadius = handleLength + handleRadius + 2;
+        Point2d c = viewport.getCursorPosition();
+        Point2d center = new Point2d(viewport.getWidth()-compassRadius,compassRadius);
+        if(center.distanceSquared(c) < outerRadius*outerRadius) {
+            // for the background circle, set the model matrix to be the camera matrix so the handle is always facing the camera.
+            Matrix4d model = camera.getWorld();
+            model.setTranslation(z);
+            model.mul(model, MatrixHelper.createScaleMatrix4(handleLength + handleRadius + 2));
+            model.transpose();
+            shaderProgram.setMatrix4d(gl3, "modelMatrix", model);
+            shaderProgram.set1i(gl3, "useVertexColor", 0);
+            shaderProgram.setColor(gl3, "objectColor", new Color(255, 255, 255, 64));
+            circleMesh.render(gl3);
+        }
     }
 
     private void drawHandle(GL3 gl3, ShaderProgram shaderProgram, Vector3d offset,int index) {
@@ -147,7 +163,6 @@ public class Compass3D implements ViewportTool {
         model.mul(model, MatrixHelper.createScaleMatrix4(handleRadius));
         model.transpose();
         shaderProgram.setMatrix4d(gl3,"modelMatrix",model);
-        circleMesh.render(gl3);
 
         texture.use(shaderProgram);
         quadMesh.render(gl3,index*4,4);
@@ -194,5 +209,6 @@ public class Compass3D implements ViewportTool {
         texture.unload();
         circleMesh.unload(gl3);
         gizmoMesh.unload(gl3);
+        quadMesh.unload(gl3);
     }
 }
