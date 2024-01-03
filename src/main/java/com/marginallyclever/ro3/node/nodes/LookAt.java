@@ -79,13 +79,13 @@ public class LookAt extends Pose {
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
         int version = from.has("version") ? from.getInt("version") : 0;
-        if(version == 1) {
-            if (from.has("target")) {
+        if (from.has("target")) {
+            if(version == 1) {
                 target.setPath(from.getString("target"));
+            } else if(version == 0) {
+                Pose pose = getRootNode().findNodeByID(from.getString("target"),Pose.class);
+                target.setPath( PathCalculator.getRelativePath(this,pose) );
             }
-        } else if(version == 0) {
-            Pose pose = getRootNode().findNodeByID(from.getString("target"),Pose.class);
-            target.setPath( PathCalculator.getRelativePath(this,pose) );
         }
     }
 }

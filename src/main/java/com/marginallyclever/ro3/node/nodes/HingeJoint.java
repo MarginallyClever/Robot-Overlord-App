@@ -127,13 +127,13 @@ public class HingeJoint extends Node {
         if(from.has("acceleration")) acceleration = from.getDouble("acceleration");
 
         int version = from.has("version") ? from.getInt("version") : 0;
-        if(version==1) {
-            if(from.has("axle")) {
+        if(from.has("axle")) {
+            if(version==1) {
                 axle.setPath(from.getString("axle"));
+            } else if(version==0) {
+                Pose pose = this.getRootNode().findNodeByID(from.getString("axle"),Pose.class);
+                axle.setPath( PathCalculator.getRelativePath(this,pose) );
             }
-        } else if(version==0) {
-            Pose pose = this.getRootNode().findNodeByID(from.getString("axle"),Pose.class);
-            axle.setPath( PathCalculator.getRelativePath(this,pose) );
         }
     }
 
