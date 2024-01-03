@@ -236,32 +236,20 @@ public class RotateToolOneAxis implements ViewportTool {
         }
 
         Vector3d pivotTranslation = MatrixHelper.getPosition(startMatrix);
-        Matrix4d pivot = MatrixHelper.createIdentityMatrix4();
-        pivot.m03=pivotTranslation.x;
-        pivot.m13=pivotTranslation.y;
-        pivot.m23=pivotTranslation.z;
-        Matrix4d pivotInverse = MatrixHelper.createIdentityMatrix4();
-        pivotInverse.m03=-pivotTranslation.x;
-        pivotInverse.m13=-pivotTranslation.y;
-        pivotInverse.m23=-pivotTranslation.z;
-
 
         for (Node node : selectedItems.getNodes()) {
-            if(node instanceof Pose pc) {
-                Matrix4d pose = new Matrix4d(selectedItems.getWorldPoseAtStart(node));
-                Vector3d translation = MatrixHelper.getPosition(pose);
-                translation.sub(pivotTranslation);
+            if(!(node instanceof Pose pc)) continue;
+            Matrix4d pose = new Matrix4d(selectedItems.getWorldPoseAtStart(node));
 
-                pose.mul(pivotInverse);
-                pose.mul(rot);
-                pose.mul(pivot);
+            pose.m03 -= pivotTranslation.x;
+            pose.m13 -= pivotTranslation.y;
+            pose.m23 -= pivotTranslation.z;
+            pose.mul(rot);
+            pose.m03 += pivotTranslation.x;
+            pose.m13 += pivotTranslation.y;
+            pose.m23 += pivotTranslation.z;
 
-                pose.transform(translation);
-                translation.add(pivotTranslation);
-                pose.setTranslation(translation);
-
-                pc.setWorld(pose);
-            }
+            pc.setWorld(pose);
         }
     }
 
@@ -489,5 +477,6 @@ public class RotateToolOneAxis implements ViewportTool {
     @Override
     public void dispose(GL3 gl3) {
         handleBox.unload(gl3);
+        markerMesh.unload(gl3);
     }
 }
