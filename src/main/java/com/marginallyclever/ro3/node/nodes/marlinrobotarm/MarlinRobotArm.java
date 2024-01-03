@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Motor;
 import com.marginallyclever.ro3.node.nodes.Pose;
@@ -36,11 +37,11 @@ import java.util.Objects;
 public class MarlinRobotArm extends Node {
     private static final Logger logger = LoggerFactory.getLogger(MarlinRobotArm.class);
     public static final int MAX_JOINTS = 6;
-    private final List<Motor> motors = new ArrayList<>();
-    private Pose endEffector;
-    private Pose target;
+    private final List<NodePath<Motor>> motors = new ArrayList<>();
+    private final NodePath<Motor> gripperMotor = new NodePath<>(this,Motor.class);
+    private final NodePath<Pose> endEffector = new NodePath<>(this,Pose.class);
+    private final NodePath<Pose> target = new NodePath<>(this,Pose.class);
     private double linearVelocity=0;
-    private Motor gripperMotor;
 
     public MarlinRobotArm() {
         this("MarlinRobotArm");
@@ -49,7 +50,7 @@ public class MarlinRobotArm extends Node {
     public MarlinRobotArm(String name) {
         super(name);
         for(int i=0;i<MAX_JOINTS;++i) {
-            motors.add(null);
+            motors.add(new NodePath<>(this,Motor.class));
         }
     }
 
@@ -57,11 +58,15 @@ public class MarlinRobotArm extends Node {
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
         JSONArray jointArray = new JSONArray();
-        for(Motor motor : motors) jointArray.put(motor == null ? JSONObject.NULL : motor.getNodeID());
+        json.put("version",1);
+
+        for(var motor : motors) {
+            jointArray.put(motor == null ? JSONObject.NULL : motor.getPath());
+        }
         json.put("motors",jointArray);
-        if(endEffector!=null) json.put("endEffector",endEffector.getNodeID());
-        if(target!=null) json.put("target",target.getNodeID());
-        if(gripperMotor!=null) json.put("gripperMotor",gripperMotor.getNodeID());
+        if(endEffector.getSubject()!=null) json.put("endEffector",endEffector.getPath());
+        if(target.getSubject()!=null) json.put("target",target.getPath());
+        if(gripperMotor.getSubject()!=null) json.put("gripperMotor",gripperMotor.getPath());
         json.put("linearVelocity",linearVelocity);
         return json;
     }
@@ -69,21 +74,54 @@ public class MarlinRobotArm extends Node {
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
+        int version = from.has("verison") ? from.getInt("version") : 0;
+
         if(from.has("motors")) {
             JSONArray motorArray = from.getJSONArray("motors");
             for(int i=0;i<motorArray.length();++i) {
                 if(motorArray.isNull(i)) {
-                    motors.set(i,null);
+                    motors.get(i).setPath(null);
                 } else {
-                    motors.set(i,this.getRootNode().findNodeByID(motorArray.getString(i),Motor.class));
+                    if(version==1) {
+                        motors.get(i).setPath(motorArray.getString(i));
+                    } else if(version==0) {
+                        Motor motor = this.getRootNode().findNodeByID(motorArray.getString(i), Motor.class);
+                        motors.get(i).setRelativePath(this,motor);
+                    }
                 }
             }
         }
         Node root = this.getRootNode();
-        if(from.has("endEffector")) endEffector = root.findNodeByID(from.getString("endEffector"),Pose.class);
-        if(from.has("target")) target = root.findNodeByID(from.getString("target"),Pose.class);
-        if(from.has("gripperMotor")) gripperMotor = root.findNodeByID(from.getString("gripperMotor"),Motor.class);
-        if(from.has("linearVelocity")) linearVelocity = from.getDouble("linearVelocity");
+        if(from.has("endEffector")) {
+            String s = from.getString("endEffector");
+            if(version==1) {
+                endEffector.setPath(s);
+            } else if(version==0) {
+                Pose goal = root.findNodeByID(s,Pose.class);
+                endEffector.setRelativePath(this,goal);
+            }
+        }
+        if(from.has("target")) {
+            String s = from.getString("target");
+            if(version==1) {
+                target.setPath(s);
+            } else if(version==0) {
+                Pose goal = root.findNodeByID(s,Pose.class);
+                target.setRelativePath(this,goal);
+            }
+        }
+        if(from.has("gripperMotor")) {
+            String s = from.getString("gripperMotor");
+            if(version==1) {
+                gripperMotor.setPath(s);
+            } else if(version==0) {
+                Motor goal = root.findNodeByID(s,Motor.class);
+                gripperMotor.setRelativePath(this,goal);
+            }
+        }
+        if(from.has("linearVelocity")) {
+            linearVelocity = from.getDouble("linearVelocity");
+        }
     }
 
     @Override
@@ -102,31 +140,43 @@ public class MarlinRobotArm extends Node {
         // add a selector for each motor
         var motorSelector = new NodeSelector[MAX_JOINTS];
         for(int i=0;i<MAX_JOINTS;++i) {
-            motorSelector[i] = new NodeSelector<>(Motor.class, motors.get(i));
+            motorSelector[i] = new NodeSelector<>(Motor.class, motors.get(i).getSubject());
             int j = i;
-            motorSelector[i].addPropertyChangeListener("subject",(e)-> motors.set(j,(Motor)e.getNewValue()));
+            motorSelector[i].addPropertyChangeListener("subject",(e)-> {
+                motors.get(j).setRelativePath(this,(Motor)e.getNewValue());
+            });
             addLabelAndComponent(pane, "Motor "+i, motorSelector[i],gbc);
         }
 
         // add a selector for the end effector
-        NodeSelector<Pose> endEffectorSelector = new NodeSelector<>(Pose.class, endEffector);
-        endEffectorSelector.addPropertyChangeListener("subject",(e)-> endEffector = (Pose)e.getNewValue());
+        NodeSelector<Pose> endEffectorSelector = new NodeSelector<>(Pose.class, endEffector.getSubject());
+        endEffectorSelector.addPropertyChangeListener("subject",(e)-> {
+            endEffector.setRelativePath(this, (Pose)e.getNewValue());
+        });
         addLabelAndComponent(pane, "End Effector", endEffectorSelector,gbc);
 
         // add a selector for the target
-        NodeSelector<Pose> targetSelector = new NodeSelector<>(Pose.class, target);
-        targetSelector.addPropertyChangeListener("subject",(e)-> target = (Pose)e.getNewValue());
+        NodeSelector<Pose> targetSelector = new NodeSelector<>(Pose.class, target.getSubject());
+        targetSelector.addPropertyChangeListener("subject",(e)-> {
+            target.setRelativePath(this, (Pose)e.getNewValue());
+        });
         addLabelAndComponent(pane, "Target", targetSelector,gbc);
 
         // add a selector for the target
-        NodeSelector<Motor> gripperMotorSelector = new NodeSelector<>(Motor.class, gripperMotor);
-        gripperMotorSelector.addPropertyChangeListener("subject",(e)-> gripperMotor = (Motor)e.getNewValue());
+        NodeSelector<Motor> gripperMotorSelector = new NodeSelector<>(Motor.class, gripperMotor.getSubject());
+        gripperMotorSelector.addPropertyChangeListener("subject",(e)-> {
+            gripperMotor.setRelativePath(this, (Motor)e.getNewValue());
+        });
         addLabelAndComponent(pane, "Gripper motor", gripperMotorSelector,gbc);
 
         // add a slider to control linear velocity
         JSlider slider = new JSlider(0,20,(int)linearVelocity);
         slider.addChangeListener(e-> linearVelocity = slider.getValue());
         addLabelAndComponent(pane, "Linear Vel", slider,gbc);
+
+        JButton M114 = new JButton("M114");
+        M114.addActionListener(e-> sendGCode("M114"));
+        addLabelAndComponent(pane, "Get state", M114,gbc);
 
         gbc.gridx=0;
         gbc.gridwidth=2;
@@ -176,7 +226,8 @@ public class MarlinRobotArm extends Node {
 
     private String getMotorsAndFeedrateAsString() {
         StringBuilder sb = new StringBuilder();
-        for(Motor motor : motors) {
+        for(NodePath<Motor> paths : this.motors) {
+            Motor motor = paths.getSubject();
             if(motor!=null && motor.hasAxle()) {
                 sb.append(" ")
                         .append(motor.getName())
@@ -184,6 +235,7 @@ public class MarlinRobotArm extends Node {
             }
         }
         // gripper motor
+        Motor gripperMotor = this.gripperMotor.getSubject();
         if(gripperMotor!=null && gripperMotor.hasAxle()) {
             sb.append(" ")
                     .append(gripperMotor.getName())
@@ -231,7 +283,8 @@ public class MarlinRobotArm extends Node {
     private String parseG0(String gcode) {
         String [] parts = gcode.split("\\s+");
         try {
-            for (Motor motor : motors) {
+            for (NodePath<Motor> paths : this.motors) {
+                Motor motor = paths.getSubject();
                 if (motor != null && motor.hasAxle()) {
                     for (String p : parts) {
                         if (p.startsWith(motor.getName())) {
@@ -243,6 +296,7 @@ public class MarlinRobotArm extends Node {
                 }
             }
             // gripper motor
+            Motor gripperMotor = this.gripperMotor.getSubject();
             if (gripperMotor != null && gripperMotor.hasAxle()) {
                 for (String p : parts) {
                     if (p.startsWith(gripperMotor.getName())) {
@@ -271,13 +325,16 @@ public class MarlinRobotArm extends Node {
      * @return response from robot arm
      */
     private String parseG1(String gcode) {
-        if(target==null) {
-            logger.error("no target");
+        if(target.getSubject()==null) {
+            logger.warn("no target");
             return "Error: no target";
         }
-
+        if(endEffector.getSubject()==null) {
+            logger.warn("no end effector");
+            return "Error: no end effector";
+        }
         String [] parts = gcode.split("\\s+");
-        double [] cartesian = getCartesianFromWorld(endEffector.getWorld());
+        double [] cartesian = getCartesianFromWorld(endEffector.getSubject().getWorld());
         for(String p : parts) {
             if(p.startsWith("F")) setLinearVelocity(Double.parseDouble(p.substring(1)));
             if(p.startsWith("X")) cartesian[0] = Double.parseDouble(p.substring(1));
@@ -289,15 +346,15 @@ public class MarlinRobotArm extends Node {
             else logger.warn("unknown G1 command: "+p);
         }
         // set the target position relative to the base of the robot arm
-        target.setLocal(getReverseCartesianFromWorld(cartesian));
+        target.getSubject().setLocal(getReverseCartesianFromWorld(cartesian));
         return "Ok";
     }
 
     private String getEndEffectorIK() {
-        if(endEffector==null) {
+        if(endEffector.getSubject()==null) {
             return ( "Error: no end effector" );
         }
-        double [] cartesian = getCartesianFromWorld(endEffector.getWorld());
+        double [] cartesian = getCartesianFromWorld(endEffector.getSubject().getWorld());
         int i=0;
         String response = "G1"
                 +" F"+StringHelper.formatDouble(linearVelocity)
@@ -345,7 +402,8 @@ public class MarlinRobotArm extends Node {
     public double[] getAllJointAngles() {
         double[] result = new double[getNumJoints()];
         int i=0;
-        for(Motor motor : motors) {
+        for(NodePath<Motor> paths : motors) {
+            Motor motor = paths.getSubject();
             if(motor!=null) {
                 result[i++] = motor.getAxle().getAngle();
             }
@@ -359,7 +417,8 @@ public class MarlinRobotArm extends Node {
             return;
         }
         int i=0;
-        for(Motor motor : motors) {
+        for(NodePath<Motor> paths : motors) {
+            Motor motor = paths.getSubject();
             if(motor!=null) {
                 HingeJoint axle = motor.getAxle();
                 if(axle!=null) {
@@ -376,7 +435,8 @@ public class MarlinRobotArm extends Node {
             return;
         }
         int i=0;
-        for(Motor motor : motors) {
+        for(NodePath<Motor> paths : motors) {
+            Motor motor = paths.getSubject();
             if(motor!=null) {
                 HingeJoint axle = motor.getAxle();
                 if(axle!=null) {
@@ -386,16 +446,22 @@ public class MarlinRobotArm extends Node {
         }
     }
 
+    /**
+     * @return the end effector pose or null if not set.
+     */
     public Pose getEndEffector() {
-        return endEffector;
+        return endEffector.getSubject() == null ? null : endEffector.getSubject();
     }
 
+    /**
+     * @return the target pose or null if not set.
+     */
     public Pose getTarget() {
-        return target;
+        return target.getSubject() == null ? null : target.getSubject();
     }
 
     public void setTarget(Pose target) {
-        this.target = target;
+        this.target.setRelativePath(this,target);
     }
 
     @Override
@@ -406,13 +472,15 @@ public class MarlinRobotArm extends Node {
     }
 
     private void moveTowardsTarget(double dt) {
-        if(endEffector==null || target==null || linearVelocity<0.0001) {
+        if(endEffector.getSubject()==null || target.getSubject()==null || linearVelocity<0.0001) {
             double[] jointAnglesOriginal = getAllJointAngles();
             Arrays.fill(jointAnglesOriginal, 0);
             setAllJointVelocities(jointAnglesOriginal);
             return;
         }
-        double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrices(endEffector.getWorld(), target.getWorld());
+        double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrices(
+                endEffector.getSubject().getWorld(),
+                target.getSubject().getWorld());
         scaleVectorToMagnitude(cartesianVelocity,linearVelocity);
         moveEndEffectorInCartesianDirection(cartesianVelocity);
     }

@@ -47,16 +47,16 @@ public class Pose extends Node {
         return parentWorld;
     }
 
-    public void setWorld(Matrix4d before) {
+    public void setWorld(Matrix4d world) {
         // search up the tree to find the world transform.
-        Pose p = findParent(Pose.class);
-        if(p==null) {
-            local.set(before);
+        Pose parent = findParent(Pose.class);
+        if(parent==null) {
+            local.set(world);
             return;
         }
-        Matrix4d parentWorld = p.getWorld();
+        Matrix4d parentWorld = parent.getWorld();
         parentWorld.invert();
-        local.mul(parentWorld,before);
+        local.mul(parentWorld,world);
     }
 
     /**

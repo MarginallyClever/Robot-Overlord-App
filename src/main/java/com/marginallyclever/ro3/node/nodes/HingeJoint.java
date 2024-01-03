@@ -1,7 +1,9 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.marginallyclever.convenience.PathCalculator;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
+import com.marginallyclever.ro3.node.NodePath;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -21,7 +23,7 @@ public class HingeJoint extends Node {
     private double maxAngle = 360;  // degrees
     private double velocity = 0;  // degrees/s
     private double acceleration = 0;  // degrees/s/s
-    private Pose axle;
+    private final NodePath<Pose> axle = new NodePath<>(this,Pose.class);
 
     public HingeJoint() {
         this("HingeJoint");
@@ -73,10 +75,9 @@ public class HingeJoint extends Node {
             acceleration = ((Number) accelerationField.getValue()).doubleValue();
         });
 
-        NodeSelector<Pose> selector = new NodeSelector<>(Pose.class);
-        selector.setSubject(axle);
+        NodeSelector<Pose> selector = new NodeSelector<>(Pose.class,axle.getSubject());
         selector.addPropertyChangeListener("subject", (evt) ->{
-            axle = selector.getSubject();
+            axle.setRelativePath(this,selector.getSubject());
         });
 
         addLabelAndComponent(pane, "Axle",selector);
@@ -95,9 +96,9 @@ public class HingeJoint extends Node {
         velocity += acceleration * dt;
         angle += velocity * dt;
 
-        if(axle!=null) {
+        if(axle.getSubject()!=null) {
             // set the axle's location in space.
-            axle.getLocal().rotZ(Math.toRadians(angle));
+            axle.getSubject().getLocal().rotZ(Math.toRadians(angle));
         }
     }
 
@@ -107,23 +108,32 @@ public class HingeJoint extends Node {
         json.put("angle",angle);
         json.put("minAngle",minAngle);
         json.put("maxAngle",maxAngle);
-        if(axle!=null) json.put("axle",axle.getNodeID());
         json.put("velocity",velocity);
         json.put("acceleration",acceleration);
+        json.put("version",1);
+        if(axle.getSubject()!=null) json.put("axle",axle.getPath());
+
         return json;
     }
 
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        if(from.has("axle")) {
-            axle = this.getRootNode().findNodeByID(from.getString("axle"),Pose.class);
-        }
         if(from.has("angle")) angle = from.getDouble("angle");
         if(from.has("minAngle")) minAngle = from.getDouble("minAngle");
         if(from.has("maxAngle")) maxAngle = from.getDouble("maxAngle");
         if(from.has("velocity")) velocity = from.getDouble("velocity");
         if(from.has("acceleration")) acceleration = from.getDouble("acceleration");
+
+        int version = from.has("version") ? from.getInt("version") : 0;
+        if(from.has("axle")) {
+            if(version==1) {
+                axle.setPath(from.getString("axle"));
+            } else if(version==0) {
+                Pose pose = this.getRootNode().findNodeByID(from.getString("axle"),Pose.class);
+                axle.setPath( PathCalculator.getRelativePath(this,pose) );
+            }
+        }
     }
 
     public double getAngle() {
