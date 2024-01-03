@@ -39,6 +39,7 @@ public class Registry {
         nodule.add("Motor", Motor::new);
         Factory.Category<Node> pose = nodule.add("Pose", Pose::new);
             pose.add("Camera", Camera::new);
+            pose.add("LookAt", LookAt::new);
 
         reset();
     }

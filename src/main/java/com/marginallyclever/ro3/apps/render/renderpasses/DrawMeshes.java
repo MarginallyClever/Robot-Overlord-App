@@ -38,6 +38,8 @@ public class DrawMeshes extends AbstractRenderPass {
     public static final int SHADOW_WIDTH = 1024;
     public static final int SHADOW_HEIGHT = 1024;
     public static final Vector3d fromLightUnit = new Vector3d(0,0,-1);
+    public static final Matrix4d lightProjection = new Matrix4d();
+    public static final Matrix4d lightView = new Matrix4d();
 
     public DrawMeshes() {
         super("Meshes");
@@ -103,19 +105,19 @@ public class DrawMeshes extends AbstractRenderPass {
         // before, set up the shadow FBO
         gl3.glViewport(0,0,SHADOW_WIDTH,SHADOW_HEIGHT);
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, shadowFBO[0]);
+        // setup shader and render to depth map
         gl3.glClear(GL3.GL_DEPTH_BUFFER_BIT);
         gl3.glEnable(GL3.GL_DEPTH_TEST);
         gl3.glCullFace(GL3.GL_FRONT);
-        // setup shader and render to depth map
         shadowShader.use(gl3);
-        shadowShader.setMatrix4d(gl3,"lightSpaceMatrix", getLightSpaceMatrix());
+        shadowShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
+        shadowShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
 
         for(MeshInstance meshInstance : meshes) {
-            Mesh mesh = meshInstance.getMesh();
             Matrix4d w = meshInstance.getWorld();
             w.transpose();
             shadowShader.setMatrix4d(gl3,"modelMatrix",w);
-            mesh.render(gl3);
+            meshInstance.getMesh().render(gl3);
         }
         // render scene as normal with shadow mapping (using depth map)
         gl3.glCullFace(GL3.GL_BACK);
@@ -161,6 +163,8 @@ public class DrawMeshes extends AbstractRenderPass {
 
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
         List<MeshInstance> meshes = collectAllMeshes();
+
+        updateLightMatrix();
         generateDepthMap(gl3,meshes);
         drawAllMeshes(gl3,meshes,camera);
         //drawShadowQuad(gl3,camera);
@@ -218,7 +222,8 @@ public class DrawMeshes extends AbstractRenderPass {
     private void drawAllMeshes(GL3 gl3, List<MeshInstance> meshes, Camera camera) {
         meshShader.use(gl3);
         meshShader.set1i(gl3,"shadowMap",shadowMapUnit);
-        meshShader.setMatrix4d(gl3, "lightSpaceMatrix", getLightSpaceMatrix());
+        meshShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
+        meshShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
 
         meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix());
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
@@ -275,20 +280,30 @@ public class DrawMeshes extends AbstractRenderPass {
     }
 
     // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
-    private Matrix4d getLightSpaceMatrix() {
+    private void updateLightMatrix() {
+        Camera camera = Registry.getActiveCamera();
+        assert camera != null;
+
         // orthographic projection from the light's point of view
-        Matrix4d lightProjection = MatrixHelper.orthographicMatrix4d(-50,50,-50,50,1.0,75);
+        double r = 50;//Math.max(50,camera.getOrbitRadius());
+        lightProjection.set(MatrixHelper.orthographicMatrix4d(-r,r,-r,r,1.0,75));
+
+        fromLightUnit.set(5,10,35);
+
+        Vector3d from = new Vector3d(fromLightUnit);
+        Vector3d to = camera.getOrbitPoint();
+        from.add(to);
+        Vector3d up = Math.abs(fromLightUnit.z)>0.99? new Vector3d(0,1,0) : new Vector3d(0,0,1);
 
         // look at the scene from the light's point of view
-        Matrix4d lightView = MatrixHelper.lookAt(fromLightUnit,  // from
-                                                new Vector3d(0,0,0),  // to
-                                                new Vector3d(0.0f, 1.0f,  0.0f));  // up
-        lightView.invert();
-        lightView.transpose();
-        // combine the two
-        Matrix4d lightSpaceMatrix = new Matrix4d();
-        lightSpaceMatrix.mul(lightProjection,lightView);
+        lightView.set(lookAt(from, to, up));
+    }
 
-        return lightSpaceMatrix;
+    public static Matrix4d lookAt(Vector3d eye, Vector3d center, Vector3d up) {
+        org.joml.Matrix4d jm = new org.joml.Matrix4d();
+        jm.lookAt(eye.x,eye.y,eye.z,center.x,center.y,center.z,up.x,up.y,up.z);
+        double [] list = new double[16];
+        jm.get(list);
+        return new Matrix4d(list);
     }
 }
