@@ -74,19 +74,42 @@ public class DrawPoses extends AbstractRenderPass {
         gl3.glDisable(GL3.GL_DEPTH_TEST);
         gl3.glDisable(GL3.GL_TEXTURE_2D);
 
-        List<Node> toScan = new ArrayList<>();
+        // collect all poses, separating out the selected ones
+        var collected = new ArrayList<Pose>();
+        var sel = new ArrayList<Pose>();
+
+        var toScan = new ArrayList<Node>();
         toScan.add(Registry.getScene());
         while(!toScan.isEmpty()) {
             Node node = toScan.remove(0);
             toScan.addAll(node.getChildren());
 
-            if(node.getClass().equals(Pose.class)) {
-                Pose pose = (Pose)node;
-                Matrix4d w = pose.getWorld();
-                w.transpose();
-                shader.setMatrix4d(gl3,"modelMatrix",w);
-                mesh.render(gl3);
+            if (node.getClass().equals(Pose.class)) {
+                if(Registry.selection.getList().contains(node)) {
+                    sel.add((Pose) node);
+                } else {
+                    collected.add((Pose) node);
+                }
             }
+        }
+
+        // draw unselected
+        shader.setColor(gl3,"objectColor",Color.GRAY);
+        for(Pose pose : collected) {
+            Matrix4d w = pose.getWorld();
+            w.transpose();
+            shader.setMatrix4d(gl3,"modelMatrix",w);
+            mesh.render(gl3);
+        }
+
+        // draw selected
+        shader.setColor(gl3,"objectColor",Color.WHITE);
+        for(Pose pose : sel) {
+            Matrix4d w = pose.getWorld();
+            w.mul(w,MatrixHelper.createScaleMatrix4(2));
+            w.transpose();
+            shader.setMatrix4d(gl3,"modelMatrix",w);
+            mesh.render(gl3);
         }
 
         gl3.glEnable(GL3.GL_DEPTH_TEST);
