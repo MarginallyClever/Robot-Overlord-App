@@ -1,6 +1,8 @@
 package com.marginallyclever.ro3.apps.render.viewporttools;
 
 import com.jogamp.opengl.GL3;
+import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.render.ShaderProgram;
@@ -10,8 +12,6 @@ import com.marginallyclever.ro3.mesh.shapes.CircleXY;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point2d;
@@ -27,19 +27,32 @@ public class Compass3D implements ViewportTool {
      * The viewport to which this tool is attached.
      */
     private Viewport viewport;
+    private final int compassRadius = 50;
     private final int handleLength = 30;
     private final int handleRadius = 8;
     private final Mesh gizmoMesh = MatrixHelper.createMesh(handleLength);
     private final Mesh circleMesh = new CircleXY();
     private final Mesh quadMesh = new Mesh();
     private final TextureWithMetadata texture;
+    private int handleUnderCursor = -1;
+    private final Point3d [] handleList = new Point3d[] {
+            new Point3d( handleLength,0,0),  // x+
+            new Point3d(-handleLength,0,0),  // x-
+            new Point3d(0, handleLength,0),  // y+
+            new Point3d(0,-handleLength,0),  // y-
+            new Point3d(0,0, handleLength),  // z+
+            new Point3d(0,0,-handleLength)  // z-
+    };
 
     public Compass3D() {
         super();
         texture = Registry.textureFactory.load("/com/marginallyclever/ro3/apps/render/viewporttools/axisLetters.png");
 
-        quadMesh.setRenderStyle(GL3.GL_QUADS);
+        createQuadMesh();
+    }
 
+    private void createQuadMesh() {
+        quadMesh.setRenderStyle(GL3.GL_QUADS);
         int gridSize = 4;
         float step = 1.0f / gridSize;
 
@@ -70,7 +83,17 @@ public class Compass3D implements ViewportTool {
     public void deactivate() {}
 
     @Override
-    public void handleMouseEvent(MouseEvent event) {}
+    public void handleMouseEvent(MouseEvent event) {
+        if (event.getID() == MouseEvent.MOUSE_MOVED) {
+            mouseMoved(event);
+        } else if (event.getID() == MouseEvent.MOUSE_PRESSED) {
+            mousePressed(event);
+        } else if (event.getID() == MouseEvent.MOUSE_DRAGGED) {
+            mouseDragged(event);
+        } else if (event.getID() == MouseEvent.MOUSE_RELEASED) {
+            mouseReleased(event);
+        }
+    }
 
     @Override
     public void handleKeyEvent(KeyEvent event) {}
@@ -86,13 +109,12 @@ public class Compass3D implements ViewportTool {
         shaderProgram.set1i(gl3,"useLighting",0);
         shaderProgram.set1i(gl3,"diffuseTexture",0);
 
-        int compassRadius = 50;
         // set the projection matrix such that the drawing area is the top right corner of the viewport.
         double w = viewport.getWidth()/2d;
         double h = viewport.getHeight()/2d;
         double px = -w + compassRadius;
         double py = -h + compassRadius;
-        Matrix4d projection = MatrixHelper.orthographicMatrix4d( px-w, px+w, py-h, py+h, -50.0, 50);
+        Matrix4d projection = MatrixHelper.orthographicMatrix4d( px-w, px+w, py-h, py+h, -compassRadius*2, compassRadius*2);
         shaderProgram.setMatrix4d(gl3,"projectionMatrix",projection);
 
         // set the view matrix to be the inverse of the camera matrix and without translation.
@@ -100,7 +122,7 @@ public class Compass3D implements ViewportTool {
         assert camera != null;
         Matrix4d view = camera.getWorld();
         Vector3d z = MatrixHelper.getZAxis(view);
-        z.scale(-20);
+        z.scale(-compassRadius*1.5);
 
         view.setTranslation(new Vector3d(0,0,0));
         view.invert();
@@ -108,8 +130,9 @@ public class Compass3D implements ViewportTool {
         shaderProgram.setMatrix4d(gl3,"viewMatrix",view);
 
         gl3.glClear(GL3.GL_DEPTH_BUFFER_BIT);
+        gl3.glEnable(GL3.GL_DEPTH_TEST);
 
-        drawWhiteCircle(gl3,shaderProgram,z,compassRadius);
+        drawWhiteCircle(gl3,shaderProgram,z);
 
         // for the gizmo, set the model matrix to be the identity matrix.
         Matrix4d model = MatrixHelper.createIdentityMatrix4();
@@ -123,16 +146,15 @@ public class Compass3D implements ViewportTool {
         // for the handles, do not use vertex color.
         shaderProgram.set1i(gl3,"useVertexColor",0);
 
-        gl3.glEnable(GL3.GL_DEPTH_TEST);
-        drawHandle(gl3,shaderProgram,new Vector3d( handleLength,0,0),12);  // x+
-        drawHandle(gl3,shaderProgram,new Vector3d(-handleLength,0,0),13+1);  // x-
-        drawHandle(gl3,shaderProgram,new Vector3d(0, handleLength,0),8);  // y+
-        drawHandle(gl3,shaderProgram,new Vector3d(0,-handleLength,0),9+1);  // y-
-        drawHandle(gl3,shaderProgram,new Vector3d(0,0, handleLength),4);  // z+
-        drawHandle(gl3,shaderProgram,new Vector3d(0,0,-handleLength),5+1);  // z-
+        drawHandle(gl3,shaderProgram,new Vector3d( handleLength,0,0),12, 0);  // x+
+        drawHandle(gl3,shaderProgram,new Vector3d(-handleLength,0,0),14, 1);  // x-
+        drawHandle(gl3,shaderProgram,new Vector3d(0, handleLength,0), 8, 2);  // y+
+        drawHandle(gl3,shaderProgram,new Vector3d(0,-handleLength,0),10, 3);  // y-
+        drawHandle(gl3,shaderProgram,new Vector3d(0,0, handleLength), 4, 4);  // z+
+        drawHandle(gl3,shaderProgram,new Vector3d(0,0,-handleLength), 6, 5);  // z-
     }
 
-    private void drawWhiteCircle(GL3 gl3, ShaderProgram shaderProgram, Vector3d z, int compassRadius) {
+    private void drawWhiteCircle(GL3 gl3, ShaderProgram shaderProgram, Vector3d z) {
         // draw the circle when the cursor is over the compass.
         Camera camera = Registry.getActiveCamera();
         assert camera != null;
@@ -153,7 +175,7 @@ public class Compass3D implements ViewportTool {
         }
     }
 
-    private void drawHandle(GL3 gl3, ShaderProgram shaderProgram, Vector3d offset,int index) {
+    private void drawHandle(GL3 gl3, ShaderProgram shaderProgram, Vector3d offset,int tileIndex,int handleIndex) {
         Camera camera = Registry.getActiveCamera();
         assert camera != null;
 
@@ -164,8 +186,10 @@ public class Compass3D implements ViewportTool {
         model.transpose();
         shaderProgram.setMatrix4d(gl3,"modelMatrix",model);
 
+        if(handleUnderCursor==handleIndex) tileIndex++;
+
         texture.use(shaderProgram);
-        quadMesh.render(gl3,index*4,4);
+        quadMesh.render(gl3,tileIndex*4,4);
     }
 
     @Override
@@ -187,7 +211,48 @@ public class Compass3D implements ViewportTool {
     }
 
     @Override
-    public void mouseMoved(MouseEvent event) {}
+    public void mouseMoved(MouseEvent event) {
+        handleUnderCursor = getHandleUnderCursor(event);
+    }
+
+    /**
+     * Test if the cursor is over one of the handles.
+     * @param event the mouse event
+     * @return the index of the handle that the cursor is over, or -1 if none.
+     */
+    private int getHandleUnderCursor(MouseEvent event) {
+        int cx = viewport.getWidth()-compassRadius;
+        int cy = compassRadius;
+
+        var origin = new Point3d(event.getX()-cx,cy-event.getY(),-compassRadius*1.5);
+        var direction = new Vector3d(0,0,1);
+
+        // set the view matrix to be the inverse of the camera matrix and without translation.
+        Camera camera = Registry.getActiveCamera();
+        assert camera != null;
+        Matrix4d view = camera.getWorld();
+        view.setTranslation(new Vector3d(0,0,0));
+        //view.invert();
+        //view.transpose();
+
+        view.transform(origin);
+        view.transform(direction);
+        //System.out.println("origin="+origin+" direction="+direction);
+
+        var ray = new Ray(origin,direction);
+        // there are six spheres to test against.
+        double nearest = Double.MAX_VALUE;
+        int nearestIndex = -1;
+        double d;
+        for(int i=0;i<6;++i) {
+            d = IntersectionHelper.raySphere(ray,handleList[i],handleRadius);
+            if(d>=0 && d<nearest) {
+                nearest = d;
+                nearestIndex = i;
+            }
+        }
+        return nearestIndex;
+    }
 
     @Override
     public void mousePressed(MouseEvent event) {}
