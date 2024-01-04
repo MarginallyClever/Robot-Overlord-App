@@ -26,10 +26,11 @@ import java.util.zip.ZipOutputStream;
 public class ExportScene extends AbstractAction {
     private final Logger logger = LoggerFactory.getLogger(ExportScene.class);
     public static final FileNameExtensionFilter ZIP_FILTER = new FileNameExtensionFilter("ZIP files", "zip");
-    private final JFileChooser chooser = new JFileChooser();
+    private final JFileChooser chooser;
 
-    public ExportScene() {
+    public ExportScene(JFileChooser chooser) {
         super();
+        this.chooser = chooser;
         putValue(Action.NAME,"Export Scene");
         putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-export-16.png"))));
         putValue(SHORT_DESCRIPTION,"Export the scene and all the assets used to a ZIP file.");

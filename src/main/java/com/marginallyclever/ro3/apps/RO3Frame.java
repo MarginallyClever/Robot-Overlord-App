@@ -19,6 +19,7 @@ import com.marginallyclever.ro3.apps.editorpanel.EditorPanel;
 import com.marginallyclever.ro3.apps.logpanel.LogPanel;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
+import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
 import com.marginallyclever.ro3.apps.webcampanel.WebCamPanel;
 import com.marginallyclever.ro3.apps.render.OpenGLPanel;
 import com.marginallyclever.ro3.apps.render.Viewport;
@@ -61,10 +62,10 @@ public class RO3Frame extends JFrame {
         setLocationByPlatform(true);
         initDocking();
 
+        fileChooser = new PersistentJFileChooser();
         logPanel = new LogPanel();
         editPanel = new EditorPanel();
         renderPanel = new Viewport();
-        fileChooser = new JFileChooser();
         webCamPanel = new WebCamPanel();
         textInterface = new TextInterfaceToSessionLayer();
 
@@ -247,7 +248,7 @@ public class RO3Frame extends JFrame {
         menuFile.add(loadRecentMenu);
         menuFile.add(new JMenuItem(new ImportScene(fileChooser)));
         menuFile.add(new JMenuItem(new SaveScene(loadRecentMenu,fileChooser)));
-        menuFile.add(new JMenuItem(new ExportScene()));
+        menuFile.add(new JMenuItem(new ExportScene(fileChooser)));
 
         menuFile.add(new JSeparator());
         menuFile.add(new JMenuItem(new AbstractAction("Quit") {
