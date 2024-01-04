@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.editorpanel;
 
 import com.marginallyclever.ro3.apps.App;
+import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinListener;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
@@ -21,25 +22,21 @@ import java.util.Objects;
  *
  * <p>{@link com.marginallyclever.ro3.node.Node}s build up to form a robot arm in 3d like Pose, Mesh, DH parameter, HingeJoint, Motor, and finally connect
  * it all to a {@link MarlinRobotArm} node (1)  that translates arm state to gcode and back.  With the node selected more info
- * is available in the `details` tab (2).  I can see the last output from the arm in the `output` field because it is
+ * is available in the <b>details</b> tab (2).  I can see the last output from the arm in the <b>output</b> field because it is
  * registered to listen for {@link MarlinListener} events.  The Editor can be assigned an existing MarlinRobotArm (3).
- * While it has one, all `MarlinEvent`s will be written to the status bar (8).</p>
- * <p>If the `get` toggle is on, the next event will be written out at the caret position (7).  You can
- * trigger events:  Send "ik" (6) and the event will contain the cartesian position of the end effector target.
- * Send "fk" (6) and the event will contain the current robot motor angles, in degrees.  Future marlin buttons may
- * create other events such as "find home" or "activate tool".  See MarlinRobotArm for more messages.</p>
- * <p>If the `send` button is pressed, the current line of gcode is transmitted to the robot.  The behavior then
- * follows (6).</p>
- * <p>There is room for more editing tools here like save, load, copy, cut, paste, undo, redo, etc.  I'd rather not
- * write a text editor, this is just to demonstrate the concept until I find an existing editor I can drop in.</p>
- * <p>TODO add a lock to the `get` button that keeps the get toggle on until further notice.</p>
+ * While it has one, all <b>MarlinEvent</b>s will be written to the status bar (8).</p>
+ * <p>If the <b>get</b> toggle is on, the next event from MarlinRobotArm will be written out at the caret position (7).
+ * <p>If the <b>lock</b> toggle is on then <b>get</b> will stay on until further notice.</p>
+ * <p>If the <b>send</b> button is pressed, the current line of gcode is transmitted to the robot.  Any response from
+ * the robot may be written to file, depending on the state of the <b>get</b> toggle.</p>
+ * <p>There is room for more editing tools here like save, load, copy, cut, paste, undo, redo, etc.</p>
  */
 public class EditorPanel extends App implements MarlinListener {
     private static final Logger logger = LoggerFactory.getLogger(EditorPanel.class);
     private final NodeSelector<MarlinRobotArm> armSelector = new NodeSelector<>(MarlinRobotArm.class);
     private final JTextArea text = new JTextArea();
     private final JLabel statusLabel = new JLabel();
-    private static final JFileChooser chooser = new JFileChooser();
+    private static final JFileChooser chooser = new PersistentJFileChooser();
 
     private final JToggleButton getButton = new JToggleButton(new AbstractAction() {
         // constructor
