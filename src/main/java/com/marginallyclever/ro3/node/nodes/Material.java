@@ -172,7 +172,7 @@ public class Material extends Node {
     }
 
     public void setShininess(int arg0) {
-        shininess = Math.min(Math.max(arg0, 0), 128);
+        shininess = Math.max(arg0, 0);
     }
 
     public int getShininess() {

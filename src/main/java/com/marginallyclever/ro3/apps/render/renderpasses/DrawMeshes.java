@@ -37,7 +37,7 @@ public class DrawMeshes extends AbstractRenderPass {
     private final int shadowMapUnit = 1;
     public static final int SHADOW_WIDTH = 1024;
     public static final int SHADOW_HEIGHT = 1024;
-    public static final Vector3d fromLightUnit = new Vector3d(0,0,-1);
+    public static final Vector3d fromLightUnit = new Vector3d(5,15,75);
     public static final Matrix4d lightProjection = new Matrix4d();
     public static final Matrix4d lightView = new Matrix4d();
 
@@ -259,7 +259,7 @@ public class DrawMeshes extends AbstractRenderPass {
                 meshShader.setColor(gl3,"objectColor",Color.WHITE);
                 meshShader.setColor(gl3,"specularColor",Color.WHITE);
                 meshShader.set1i(gl3,"useLighting",1);
-                meshShader.set1i(gl3,"shininess",32);
+                meshShader.set1i(gl3,"shininess",0);
             }
             if(texture == null) {
                 gl3.glDisable(GL3.GL_TEXTURE_2D);
@@ -286,9 +286,7 @@ public class DrawMeshes extends AbstractRenderPass {
 
         // orthographic projection from the light's point of view
         double r = 50;//Math.max(50,camera.getOrbitRadius());
-        lightProjection.set(MatrixHelper.orthographicMatrix4d(-r,r,-r,r,1.0,75));
-
-        fromLightUnit.set(5,10,35);
+        lightProjection.set(MatrixHelper.orthographicMatrix4d(-r,r,-r,r,1.0,150));
 
         Vector3d from = new Vector3d(fromLightUnit);
         Vector3d to = camera.getOrbitPoint();

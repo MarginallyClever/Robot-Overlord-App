@@ -14,7 +14,7 @@ uniform vec4 specularColor = vec4(0, 0, 0, 1);
 uniform vec4 ambientColor = vec4(0, 0, 0, 1);
 uniform vec4 objectColor = vec4(1,1,1,1);
 uniform vec4 lightColor = vec4(1,1,1,1);
-uniform int shininess = 32;
+uniform int shininess = 0;
 
 uniform vec3 lightPos; // Light position in world space
 uniform vec3 cameraPos;  // Camera position in world space
