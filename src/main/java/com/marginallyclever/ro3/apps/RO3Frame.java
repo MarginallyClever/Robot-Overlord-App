@@ -63,6 +63,8 @@ public class RO3Frame extends JFrame {
         initDocking();
 
         fileChooser = new PersistentJFileChooser();
+        setupFileChooser();
+
         logPanel = new LogPanel();
         editPanel = new EditorPanel();
         renderPanel = new Viewport();
@@ -78,7 +80,6 @@ public class RO3Frame extends JFrame {
         createMenus();
         addQuitHandler();
         addAboutHandler();
-        setupFileChooser();
         setupDropTarget();
     }
 
@@ -99,7 +100,6 @@ public class RO3Frame extends JFrame {
 
     private void setupFileChooser() {
         fileChooser.setFileFilter(FILE_FILTER);
-        // TODO: fileChooser.setSelectedFile(most recently touched file?);
     }
 
     private void setLookAndFeel() {
@@ -177,7 +177,6 @@ public class RO3Frame extends JFrame {
 
     private Component buildEditMenu() {
         JMenu menu = new JMenu("Edit");
-        // TODO turn actions into commands for undo/redo, then add the matching actions back in.
         menu.add(new JMenuItem(UndoSystem.getCommandUndo()));
         menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
         //menu.add(new JSeparator());

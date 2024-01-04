@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.apps.dialogs;
 
+import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.load.MeshFactory;
 import org.slf4j.Logger;
@@ -15,7 +16,7 @@ import java.util.List;
  */
 public class MeshFactoryDialog {
     private static final Logger logger = LoggerFactory.getLogger(MeshFactoryDialog.class);
-    private static final JFileChooser chooser = new JFileChooser();
+    private static final JFileChooser chooser = new PersistentJFileChooser();
     private Mesh lastMeshLoaded;
 
     public MeshFactoryDialog() {

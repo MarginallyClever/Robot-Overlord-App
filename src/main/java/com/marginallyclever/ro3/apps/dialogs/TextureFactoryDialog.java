@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.dialogs;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
 import com.marginallyclever.ro3.texture.TextureFactory;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import com.marginallyclever.ro3.mesh.load.MeshFactory;
@@ -19,12 +20,11 @@ import java.util.List;
  */
 public class TextureFactoryDialog {
     private static final Logger logger = LoggerFactory.getLogger(TextureFactoryDialog.class);
-    private static final JFileChooser chooser = new JFileChooser();
+    private static final JFileChooser chooser = new PersistentJFileChooser();
     private TextureWithMetadata lastTextureLoaded;
 
     public TextureFactoryDialog() {
         super();
-        if(Registry.textureFactory==null) throw new RuntimeException("TextureFactoryPanel requires a TextureFactory");
 
         List<FileFilter> filters = MeshFactory.getAllExtensions();
         if (filters.isEmpty()) throw new RuntimeException("No MeshFactory filters found?!");

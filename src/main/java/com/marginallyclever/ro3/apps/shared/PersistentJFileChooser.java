@@ -12,14 +12,11 @@ public class PersistentJFileChooser extends JFileChooser {
     public PersistentJFileChooser() {
         super();
         prefs = Preferences.userNodeForPackage(PersistentJFileChooser.class);
-        String lastDirPath = prefs.get(LAST_USED_DIR, null);
-        if (lastDirPath != null) {
-            setCurrentDirectory(new File(lastDirPath));
-        }
     }
 
     @Override
     public int showOpenDialog(java.awt.Component parent) throws HeadlessException {
+        retrieveLastUsedDirectory();
         int result = super.showOpenDialog(parent);
         updateLastUsedDirectory();
         return result;
@@ -27,9 +24,17 @@ public class PersistentJFileChooser extends JFileChooser {
 
     @Override
     public int showSaveDialog(java.awt.Component parent) throws HeadlessException {
+        retrieveLastUsedDirectory();
         int result = super.showSaveDialog(parent);
         updateLastUsedDirectory();
         return result;
+    }
+
+    private void retrieveLastUsedDirectory() {
+        String lastDirPath = prefs.get(LAST_USED_DIR, null);
+        if (lastDirPath != null) {
+            setCurrentDirectory(new File(lastDirPath));
+        }
     }
 
     private void updateLastUsedDirectory() {
