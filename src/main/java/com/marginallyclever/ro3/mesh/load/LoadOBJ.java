@@ -1,6 +1,8 @@
 package com.marginallyclever.ro3.mesh.load;
 
 import com.marginallyclever.ro3.mesh.Mesh;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Vector3d;
 import java.io.BufferedInputStream;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
  * @since 1.6.0
  */
 public class LoadOBJ implements MeshLoader {
+	private static final Logger logger = LoggerFactory.getLogger(LoadOBJ.class);
 	@Override
 	public String getEnglishName() {
 		return "Wavefront Object File (OBJ)";
@@ -32,10 +35,20 @@ public class LoadOBJ implements MeshLoader {
 		ArrayList<Float> normalArray = new ArrayList<>();
 		ArrayList<Float> texCoordArray = new ArrayList<>();
 
+		int vOffset = 0;
+		int nOffset = 0;
+		int tOffset = 0;
+
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 		String line;
 		while( ( line = br.readLine() ) != null ) {
 			line = line.trim();
+			if(line.startsWith("g ")) {
+				// new body
+				vOffset = vertexArray.size();
+				nOffset = normalArray.size();
+				tOffset = texCoordArray.size();
+			}
 			if(line.startsWith("v ")) {
 				// vertex
 				String[] tokens = line.split("\\s+");
@@ -72,37 +85,37 @@ public class LoadOBJ implements MeshLoader {
 				for(int i=1;i<tokens.length;++i) {
 					String [] subTokens = tokens[i].split("/");
 					// vertex data
-					index = Integer.parseInt(subTokens[0])-1;
+					index = vOffset + Integer.parseInt(subTokens[0])-1;
 					
 					try {
 						model.addVertex(
-								vertexArray.get(index * 3),
+								vertexArray.get(index*3  ),
 								vertexArray.get(index*3+1),
 								vertexArray.get(index*3+2));
 					} catch(Exception e) {
-						e.printStackTrace();
+						logger.error("Error parsing vertex data: "+e.getMessage());
 					}
 					// texture data (if any)
-					if(subTokens.length>1 && subTokens[1].length()>0) {
-						int indexT = Integer.parseInt(subTokens[1])-1;
+					if(subTokens.length>1 && !subTokens[1].isEmpty()) {
+						int indexT = tOffset + Integer.parseInt(subTokens[1])-1;
 						try {
 							model.addTexCoord(
 									texCoordArray.get(indexT * 2),
 									texCoordArray.get(indexT*2+1));
 						} catch(Exception e) {
-							e.printStackTrace();
+							logger.error("Error texture data: "+e.getMessage());
 						}
 					}
 					// normal data (if any)
-					if(subTokens.length>2 && subTokens[2].length()>0) {
-						int indexN = Integer.parseInt(subTokens[2])-1;
+					if(subTokens.length>2 && !subTokens[2].isEmpty()) {
+						int indexN = nOffset + Integer.parseInt(subTokens[2])-1;
 						try {
 							model.addNormal(
 									normalArray.get(indexN * 3),
 									normalArray.get(indexN*3+1),
 									normalArray.get(indexN*3+2));
 						} catch(Exception e) {
-							e.printStackTrace();
+							logger.error("Error normal data: "+e.getMessage());
 						}
 					}
 				}
