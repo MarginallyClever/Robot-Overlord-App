@@ -84,14 +84,9 @@ public class Compass3D implements ViewportTool {
 
     @Override
     public void handleMouseEvent(MouseEvent event) {
-        if (event.getID() == MouseEvent.MOUSE_MOVED) {
-            mouseMoved(event);
-        } else if (event.getID() == MouseEvent.MOUSE_PRESSED) {
-            mousePressed(event);
-        } else if (event.getID() == MouseEvent.MOUSE_DRAGGED) {
-            mouseDragged(event);
-        } else if (event.getID() == MouseEvent.MOUSE_RELEASED) {
-            mouseReleased(event);
+        handleUnderCursor = getHandleUnderCursor(event);
+        if (event.getID() == MouseEvent.MOUSE_CLICKED && event.getClickCount()==1 ) {
+            turnCameraAccordingToHandle();
         }
     }
 
@@ -211,9 +206,7 @@ public class Compass3D implements ViewportTool {
     }
 
     @Override
-    public void mouseMoved(MouseEvent event) {
-        handleUnderCursor = getHandleUnderCursor(event);
-    }
+    public void mouseMoved(MouseEvent event) {}
 
     /**
      * Test if the cursor is over one of the handles.
@@ -262,6 +255,36 @@ public class Compass3D implements ViewportTool {
 
     @Override
     public void mouseReleased(MouseEvent event) {}
+
+    /**
+     * Turn the camera to face the direction of the handle under the cursor.
+     */
+    public void turnCameraAccordingToHandle() {
+        if(handleUnderCursor>=0 && handleUnderCursor<6) {
+            System.out.println("clicked on handle "+handleUnderCursor);
+            Camera camera = Registry.getActiveCamera();
+            assert camera != null;
+            Matrix4d world = camera.getWorld();
+            Vector3d orbit = camera.getOrbitPoint();
+            world.rotX(Math.toRadians(90));
+            Matrix4d rot = new Matrix4d();
+
+            switch(handleUnderCursor) {
+                case 0:  rot.rotZ(Math.toRadians(90));  break;
+                case 1:  rot.rotZ(Math.toRadians(-90)); break;
+                case 2:  rot.rotZ(Math.toRadians(180)); break;
+                case 3:  rot.setIdentity();  break;
+                case 4:  rot.rotX(Math.toRadians(-90)); break;
+                case 5:  rot.rotX(Math.toRadians(90));  break;
+            }
+            world.mul(rot,world);
+
+            Vector3d t = MatrixHelper.getZAxis(world);
+            t.scaleAdd(camera.getOrbitRadius(),orbit);
+            world.setTranslation(t);
+            camera.setWorld(world);
+        }
+    }
 
     @Override
     public void setFrameOfReference(int index) {}
