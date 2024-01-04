@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Objects;
 
 /**
  * Open a URL in the desktop web browser.
@@ -31,8 +30,9 @@ public class BrowseURLAction extends AbstractAction implements ActionListener {
 				logger.error("Error opening URL {}.",url,e1);
 			}
 		} else {
-			// TODO show a dialog box with the URL
-			logger.error("Web browsing is not supported.");
+			String message =  "Web browsing is not supported.  Failed to open "+url;
+			logger.error(message);
+			JOptionPane.showMessageDialog((Component)e.getSource(),message);
 		}
 	}
 }
