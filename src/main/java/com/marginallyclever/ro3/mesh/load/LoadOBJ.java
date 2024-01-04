@@ -35,19 +35,12 @@ public class LoadOBJ implements MeshLoader {
 		ArrayList<Float> normalArray = new ArrayList<>();
 		ArrayList<Float> texCoordArray = new ArrayList<>();
 
-		int vOffset = 0;
-		int nOffset = 0;
-		int tOffset = 0;
-
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 		String line;
 		while( ( line = br.readLine() ) != null ) {
 			line = line.trim();
 			if(line.startsWith("g ")) {
 				// new body
-				vOffset = vertexArray.size();
-				nOffset = normalArray.size();
-				tOffset = texCoordArray.size();
 			}
 			if(line.startsWith("v ")) {
 				// vertex
@@ -85,7 +78,7 @@ public class LoadOBJ implements MeshLoader {
 				for(int i=1;i<tokens.length;++i) {
 					String [] subTokens = tokens[i].split("/");
 					// vertex data
-					index = vOffset + Integer.parseInt(subTokens[0])-1;
+					index = Integer.parseInt(subTokens[0])-1;
 					
 					try {
 						model.addVertex(
@@ -97,7 +90,7 @@ public class LoadOBJ implements MeshLoader {
 					}
 					// texture data (if any)
 					if(subTokens.length>1 && !subTokens[1].isEmpty()) {
-						int indexT = tOffset + Integer.parseInt(subTokens[1])-1;
+						int indexT = Integer.parseInt(subTokens[1])-1;
 						try {
 							model.addTexCoord(
 									texCoordArray.get(indexT * 2),
@@ -108,7 +101,7 @@ public class LoadOBJ implements MeshLoader {
 					}
 					// normal data (if any)
 					if(subTokens.length>2 && !subTokens[2].isEmpty()) {
-						int indexN = nOffset + Integer.parseInt(subTokens[2])-1;
+						int indexN = Integer.parseInt(subTokens[2])-1;
 						try {
 							model.addNormal(
 									normalArray.get(indexN * 3),
