@@ -9,6 +9,7 @@ import java.beans.PropertyChangeListener;
  * @author Dan Royer
  * @since 2022-05-12
  */
+@Deprecated
 public interface Robot {
     int NAME=0;
     int NUM_JOINTS = 1;

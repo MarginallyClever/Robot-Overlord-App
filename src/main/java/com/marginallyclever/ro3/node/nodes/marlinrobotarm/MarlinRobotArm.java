@@ -17,6 +17,7 @@ import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -174,6 +175,23 @@ public class MarlinRobotArm extends Node {
         slider.addChangeListener(e-> linearVelocity = slider.getValue());
         addLabelAndComponent(pane, "Linear Vel", slider,gbc);
 
+        // move target to end effector
+        JButton targetToEE = new JButton(new AbstractAction() {
+            {
+                putValue(Action.NAME,"Move");
+                putValue(Action.SHORT_DESCRIPTION,"Move the Target Pose to the End Effector.");
+                putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource(
+                        "/com/marginallyclever/ro3/apps/shared/icons8-move-16.png"))));
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(target.getSubject()!=null && endEffector.getSubject()!=null) {
+                    target.getSubject().setWorld(endEffector.getSubject().getWorld());
+                }
+            }
+        });
+        addLabelAndComponent(pane, "Target to EE", targetToEE,gbc);
+
         JButton M114 = new JButton("M114");
         M114.addActionListener(e-> sendGCode("M114"));
         addLabelAndComponent(pane, "Get state", M114,gbc);
@@ -183,8 +201,19 @@ public class MarlinRobotArm extends Node {
         pane.add(getReceiver(),gbc);
         gbc.gridy++;
         pane.add(getSender(),gbc);
+        gbc.gridy++;
+        pane.add(new JSeparator(),gbc);
+        gbc.gridy++;
+        pane.add(createEasyDrive(),gbc);
 
         super.getComponents(list);
+    }
+
+    private JComponent createEasyDrive() {
+        var panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        return panel;
     }
 
     // Add a text field that will be sent to the robot arm.
