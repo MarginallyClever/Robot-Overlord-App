@@ -74,7 +74,7 @@ public class MarlinRobotArm extends Node {
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        int version = from.has("verison") ? from.getInt("version") : 0;
+        int version = from.has("version") ? from.getInt("version") : 0;
 
         if(from.has("motors")) {
             JSONArray motorArray = from.getJSONArray("motors");
