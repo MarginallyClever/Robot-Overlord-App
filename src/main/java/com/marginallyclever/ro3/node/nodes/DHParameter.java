@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.node.Node;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -119,11 +120,7 @@ public class DHParameter extends Node {
         JButton toPose = new JButton("To Pose");
         toPose.addActionListener(e -> toPoseAndAdjustMeshes());
 
-        NumberFormat format = NumberFormat.getNumberInstance();
-        NumberFormatter formatter = new NumberFormatter(format);
-        formatter.setValueClass(Double.class);
-        formatter.setAllowsInvalid(true);
-        formatter.setCommitsOnValidEdit(true);
+        var formatter = NumberFormatHelper.getNumberFormatter();
 
         JFormattedTextField dh_d = new JFormattedTextField(formatter);        dh_d.setValue(d);
         JFormattedTextField dh_r = new JFormattedTextField(formatter);        dh_r.setValue(r);

@@ -145,32 +145,55 @@ public class MarlinRobotArm extends Node {
         gbc.gridwidth=1;
         gbc.gridy++;
 
-        // add a selector for the end effector
-        NodeSelector<Pose> endEffectorSelector = new NodeSelector<>(Pose.class, endEffector.getSubject());
-        endEffectorSelector.addPropertyChangeListener("subject",(e)-> {
-            endEffector.setRelativePath(this, (Pose)e.getNewValue());
-        });
-        addLabelAndComponent(pane, "End Effector", endEffectorSelector,gbc);
-
-        // add a selector for the target
-        NodeSelector<Pose> targetSelector = new NodeSelector<>(Pose.class, target.getSubject());
-        targetSelector.addPropertyChangeListener("subject",(e)-> {
-            target.setRelativePath(this, (Pose)e.getNewValue());
-        });
-        addLabelAndComponent(pane, "Target", targetSelector,gbc);
-
-        // add a selector for the gripper
-        NodeSelector<Motor> gripperMotorSelector = new NodeSelector<>(Motor.class, gripperMotor.getSubject());
-        gripperMotorSelector.addPropertyChangeListener("subject",(e)-> {
-            gripperMotor.setRelativePath(this, (Motor)e.getNewValue());
-        });
-        addLabelAndComponent(pane, "Gripper motor", gripperMotorSelector,gbc);
+        addNodeSelector(pane, "End Effector", endEffector, Pose.class, gbc);
+        addNodeSelector(pane, "Target", target, Pose.class, gbc);
+        addNodeSelector(pane, "Gripper motor", gripperMotor, Motor.class, gbc);
 
         // add a slider to control linear velocity
         JSlider slider = new JSlider(0,20,(int)linearVelocity);
         slider.addChangeListener(e-> linearVelocity = slider.getValue());
         addLabelAndComponent(pane, "Linear Vel", slider,gbc);
 
+        addMoveTargetToEndEffector(pane,gbc);
+
+        JButton M114 = new JButton("M114");
+        M114.addActionListener(e-> sendGCode("M114"));
+        addLabelAndComponent(pane, "Get state", M114,gbc);
+
+        addReportInterval(pane,gbc);
+
+        gbc.gridx=0;
+        gbc.gridwidth=2;
+        pane.add(getReceiver(),gbc);
+        gbc.gridy++;
+        pane.add(getSender(),gbc);
+        gbc.gridy++;
+        pane.add(new JSeparator(),gbc);
+        gbc.gridy++;
+        pane.add(createEasyFK(),gbc);
+
+        super.getComponents(list);
+    }
+
+    private void addReportInterval(JPanel pane, GridBagConstraints gbc) {
+        // here i need an input - time interval (positive float, seconds) called "reportInterval"
+        JTextField reportInterval = new JTextField(StringHelper.formatDouble(getReportInterval()));
+        reportInterval.set
+
+        // then a toggle to turn it on and off.
+        // the background of the toggle is a progress bar that fills up over reportInterval seconds.
+        // when the bar fills up, send G0 to the robot arm and reset the bar.
+        // if the toggle is off, the bar is reset.
+
+    }
+
+    private <T extends Node> void addNodeSelector(JPanel pane, String label, NodePath<T> nodePath, Class<T> clazz, GridBagConstraints gbc) {
+        NodeSelector<T> selector = new NodeSelector<>(clazz, nodePath.getSubject());
+        selector.addPropertyChangeListener("subject", (e) -> nodePath.setRelativePath(this, (T) e.getNewValue()));
+        addLabelAndComponent(pane, label, selector, gbc);
+    }
+
+    private void addMoveTargetToEndEffector(JPanel pane,GridBagConstraints gbc) {
         // move target to end effector
         JButton targetToEE = new JButton(new AbstractAction() {
             {
@@ -185,22 +208,6 @@ public class MarlinRobotArm extends Node {
             }
         });
         addLabelAndComponent(pane, "Target to EE", targetToEE,gbc);
-
-        JButton M114 = new JButton("M114");
-        M114.addActionListener(e-> sendGCode("M114"));
-        addLabelAndComponent(pane, "Get state", M114,gbc);
-
-        gbc.gridx=0;
-        gbc.gridwidth=2;
-        pane.add(getReceiver(),gbc);
-        gbc.gridy++;
-        pane.add(getSender(),gbc);
-        gbc.gridy++;
-        pane.add(new JSeparator(),gbc);
-        gbc.gridy++;
-        pane.add(createEasyFK(),gbc);
-
-        super.getComponents(list);
     }
 
     private void setTargetToEndEffector() {
