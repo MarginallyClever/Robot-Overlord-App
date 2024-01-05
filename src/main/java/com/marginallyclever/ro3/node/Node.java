@@ -284,6 +284,7 @@ public class Node {
     protected void addLabelAndComponent(JPanel pane, String labelText, JComponent component, GridBagConstraints gbc) {
         JLabel label = new JLabel(labelText);
         label.setLabelFor(component);
+        gbc.gridwidth=1;
         gbc.gridx=0;
         pane.add(label,gbc);
         gbc.gridx=1;

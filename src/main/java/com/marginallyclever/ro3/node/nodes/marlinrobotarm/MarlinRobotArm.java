@@ -2,6 +2,8 @@ package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
+import com.marginallyclever.convenience.swing.Dial;
+import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
@@ -17,6 +19,7 @@ import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -74,7 +77,7 @@ public class MarlinRobotArm extends Node {
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        int version = from.has("verison") ? from.getInt("version") : 0;
+        int version = from.has("version") ? from.getInt("version") : 0;
 
         if(from.has("motors")) {
             JSONArray motorArray = from.getJSONArray("motors");
@@ -137,16 +140,10 @@ public class MarlinRobotArm extends Node {
         gbc.gridy=0;
         gbc.fill = GridBagConstraints.BOTH;
 
-        // add a selector for each motor
-        var motorSelector = new NodeSelector[MAX_JOINTS];
-        for(int i=0;i<MAX_JOINTS;++i) {
-            motorSelector[i] = new NodeSelector<>(Motor.class, motors.get(i).getSubject());
-            int j = i;
-            motorSelector[i].addPropertyChangeListener("subject",(e)-> {
-                motors.get(j).setRelativePath(this,(Motor)e.getNewValue());
-            });
-            addLabelAndComponent(pane, "Motor "+i, motorSelector[i],gbc);
-        }
+        gbc.gridwidth=2;
+        pane.add(addMotorPanel(),gbc);
+        gbc.gridwidth=1;
+        gbc.gridy++;
 
         // add a selector for the end effector
         NodeSelector<Pose> endEffectorSelector = new NodeSelector<>(Pose.class, endEffector.getSubject());
@@ -162,7 +159,7 @@ public class MarlinRobotArm extends Node {
         });
         addLabelAndComponent(pane, "Target", targetSelector,gbc);
 
-        // add a selector for the target
+        // add a selector for the gripper
         NodeSelector<Motor> gripperMotorSelector = new NodeSelector<>(Motor.class, gripperMotor.getSubject());
         gripperMotorSelector.addPropertyChangeListener("subject",(e)-> {
             gripperMotor.setRelativePath(this, (Motor)e.getNewValue());
@@ -174,6 +171,21 @@ public class MarlinRobotArm extends Node {
         slider.addChangeListener(e-> linearVelocity = slider.getValue());
         addLabelAndComponent(pane, "Linear Vel", slider,gbc);
 
+        // move target to end effector
+        JButton targetToEE = new JButton(new AbstractAction() {
+            {
+                putValue(Action.NAME,"Move");
+                putValue(Action.SHORT_DESCRIPTION,"Move the Target Pose to the End Effector.");
+                putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource(
+                        "/com/marginallyclever/ro3/apps/shared/icons8-move-16.png"))));
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setTargetToEndEffector();
+            }
+        });
+        addLabelAndComponent(pane, "Target to EE", targetToEE,gbc);
+
         JButton M114 = new JButton("M114");
         M114.addActionListener(e-> sendGCode("M114"));
         addLabelAndComponent(pane, "Get state", M114,gbc);
@@ -183,8 +195,78 @@ public class MarlinRobotArm extends Node {
         pane.add(getReceiver(),gbc);
         gbc.gridy++;
         pane.add(getSender(),gbc);
+        gbc.gridy++;
+        pane.add(new JSeparator(),gbc);
+        gbc.gridy++;
+        pane.add(createEasyFK(),gbc);
 
         super.getComponents(list);
+    }
+
+    private void setTargetToEndEffector() {
+        if(target.getSubject()!=null && endEffector.getSubject()!=null) {
+            target.getSubject().setWorld(endEffector.getSubject().getWorld());
+        }
+    }
+
+    private JComponent addMotorPanel() {
+        var containerPanel = new CollapsiblePanel("Motors");
+        var outerPanel = containerPanel.getContentPane();
+        outerPanel.setLayout(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.gridx=0;
+        gbc.gridy=0;
+        gbc.fill = GridBagConstraints.BOTH;
+
+        // add a selector for each motor
+        var motorSelector = new NodeSelector[MAX_JOINTS];
+        for(int i=0;i<MAX_JOINTS;++i) {
+            motorSelector[i] = new NodeSelector<>(Motor.class, motors.get(i).getSubject());
+            int j = i;
+            motorSelector[i].addPropertyChangeListener("subject",(e)-> {
+                motors.get(j).setRelativePath(this,(Motor)e.getNewValue());
+            });
+            addLabelAndComponent(outerPanel, "Motor "+i, motorSelector[i],gbc);
+        }
+        return containerPanel;
+    }
+
+    private JComponent createEasyFK() {
+        var containerPanel = new CollapsiblePanel("Forward Kinematics");
+        var outerPanel = containerPanel.getContentPane();
+        outerPanel.setLayout(new GridLayout(0,3));
+
+        int count=0;
+        for(int i=0;i<getNumJoints();++i) {
+            final Motor motor = motors.get(i).getSubject();
+            if(motor!=null) {
+                JPanel innerPanel = new JPanel(new BorderLayout());
+                Dial dial = new Dial();
+                dial.addActionListener(e -> {
+                    motor.getAxle().setAngle(dial.getValue());
+                });
+                // TODO subscribe to motor.getAxle().getAngle(), then dial.setValue() without triggering an action event.
+
+                JLabel label = new JLabel(motor.getName());
+                label.setLabelFor(dial);
+                label.setHorizontalAlignment(SwingConstants.CENTER);
+                innerPanel.add(label,BorderLayout.PAGE_START);
+                innerPanel.add(dial,BorderLayout.CENTER);
+                dial.setPreferredSize(new Dimension(80,80));
+
+                outerPanel.add(innerPanel);
+                count++;
+            }
+        }
+        count = 3-(count%3);
+        for(int i=0;i<count;++i) {
+            outerPanel.add(new JPanel());
+        }
+
+        return containerPanel;
     }
 
     // Add a text field that will be sent to the robot arm.
