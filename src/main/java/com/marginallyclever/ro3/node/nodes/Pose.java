@@ -54,9 +54,9 @@ public class Pose extends Node {
             local.set(world);
             return;
         }
-        Matrix4d parentWorld = parent.getWorld();
-        parentWorld.invert();
-        local.mul(parentWorld,world);
+        Matrix4d inverseParentWorld = parent.getWorld();
+        inverseParentWorld.invert();
+        local.mul(inverseParentWorld,world);
     }
 
     /**
