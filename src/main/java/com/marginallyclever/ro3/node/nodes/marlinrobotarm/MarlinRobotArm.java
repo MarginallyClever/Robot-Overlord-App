@@ -2,6 +2,8 @@ package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
+import com.marginallyclever.convenience.swing.Dial;
+import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
@@ -138,16 +140,10 @@ public class MarlinRobotArm extends Node {
         gbc.gridy=0;
         gbc.fill = GridBagConstraints.BOTH;
 
-        // add a selector for each motor
-        var motorSelector = new NodeSelector[MAX_JOINTS];
-        for(int i=0;i<MAX_JOINTS;++i) {
-            motorSelector[i] = new NodeSelector<>(Motor.class, motors.get(i).getSubject());
-            int j = i;
-            motorSelector[i].addPropertyChangeListener("subject",(e)-> {
-                motors.get(j).setRelativePath(this,(Motor)e.getNewValue());
-            });
-            addLabelAndComponent(pane, "Motor "+i, motorSelector[i],gbc);
-        }
+        gbc.gridwidth=2;
+        pane.add(addMotorPanel(),gbc);
+        gbc.gridwidth=1;
+        gbc.gridy++;
 
         // add a selector for the end effector
         NodeSelector<Pose> endEffectorSelector = new NodeSelector<>(Pose.class, endEffector.getSubject());
@@ -163,7 +159,7 @@ public class MarlinRobotArm extends Node {
         });
         addLabelAndComponent(pane, "Target", targetSelector,gbc);
 
-        // add a selector for the target
+        // add a selector for the gripper
         NodeSelector<Motor> gripperMotorSelector = new NodeSelector<>(Motor.class, gripperMotor.getSubject());
         gripperMotorSelector.addPropertyChangeListener("subject",(e)-> {
             gripperMotor.setRelativePath(this, (Motor)e.getNewValue());
@@ -204,16 +200,67 @@ public class MarlinRobotArm extends Node {
         gbc.gridy++;
         pane.add(new JSeparator(),gbc);
         gbc.gridy++;
-        pane.add(createEasyDrive(),gbc);
+        pane.add(createEasyFK(),gbc);
 
         super.getComponents(list);
     }
 
-    private JComponent createEasyDrive() {
-        var panel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
+    private JComponent addMotorPanel() {
+        var containerPanel = new CollapsiblePanel("Motors");
+        var outerPanel = containerPanel.getContentPane();
+        outerPanel.setLayout(new GridBagLayout());
 
-        return panel;
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.gridx=0;
+        gbc.gridy=0;
+        gbc.fill = GridBagConstraints.BOTH;
+
+        // add a selector for each motor
+        var motorSelector = new NodeSelector[MAX_JOINTS];
+        for(int i=0;i<MAX_JOINTS;++i) {
+            motorSelector[i] = new NodeSelector<>(Motor.class, motors.get(i).getSubject());
+            int j = i;
+            motorSelector[i].addPropertyChangeListener("subject",(e)-> {
+                motors.get(j).setRelativePath(this,(Motor)e.getNewValue());
+            });
+            addLabelAndComponent(outerPanel, "Motor "+i, motorSelector[i],gbc);
+        }
+        return containerPanel;
+    }
+
+    private JComponent createEasyFK() {
+        var containerPanel = new CollapsiblePanel("Forward Kinematics");
+        var outerPanel = containerPanel.getContentPane();
+        outerPanel.setLayout(new GridLayout(0,3));
+
+        int count=0;
+        for(int i=0;i<getNumJoints();++i) {
+            final Motor motor = motors.get(i).getSubject();
+            if(motor!=null) {
+                JPanel innerPanel = new JPanel(new BorderLayout());
+                Dial dial = new Dial();
+                dial.addActionListener(e -> {
+                    motor.getAxle().setAngle(dial.getValue());
+                });
+                JLabel label = new JLabel(motor.getName());
+                label.setLabelFor(dial);
+                label.setHorizontalAlignment(SwingConstants.CENTER);
+                innerPanel.add(label,BorderLayout.PAGE_START);
+                innerPanel.add(dial,BorderLayout.CENTER);
+                dial.setPreferredSize(new Dimension(80,80));
+
+                outerPanel.add(innerPanel);
+                count++;
+            }
+        }
+        count = 3-(count%3);
+        for(int i=0;i<count;++i) {
+            outerPanel.add(new JPanel());
+        }
+
+        return containerPanel;
     }
 
     // Add a text field that will be sent to the robot arm.
