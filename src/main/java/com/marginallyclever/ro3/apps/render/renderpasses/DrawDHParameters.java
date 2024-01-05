@@ -90,29 +90,33 @@ public class DrawDHParameters extends AbstractRenderPass {
         gl3.glDisable(GL3.GL_TEXTURE_2D);
         gl3.glDisable(GL3.GL_DEPTH_TEST);
 
+        var list = Registry.selection.getList();
+
         List<Node> toScan = new ArrayList<>();
         toScan.add(Registry.getScene());
         while(!toScan.isEmpty()) {
             Node node = toScan.remove(0);
             toScan.addAll(node.getChildren());
 
-            if(node instanceof DHParameter parameter) {
-                double d = parameter.getD();
-                mesh.setVertex(1,0,0,d);
-                mesh.setVertex(2,0,0,d);
-                double s = Math.sin(Math.toRadians(parameter.getTheta()));
-                double c = Math.cos(Math.toRadians(parameter.getTheta()));
-                double r = parameter.getR();
-                mesh.setVertex(3,c*r,s*r,d);
-                mesh.updateVertexBuffers(gl3);
+            if(!(node instanceof DHParameter parameter)) continue;
 
-                // set modelView to world
-                Pose parentPose = parameter.findParent(Pose.class);
-                Matrix4d w = (parentPose==null) ? MatrixHelper.createIdentityMatrix4() : parentPose.getWorld();
-                w.transpose();
-                shader.setMatrix4d(gl3,"modelMatrix",w);
-                mesh.render(gl3);
-            }
+            shader.setColor(gl3,"objectColor",list.contains(parameter) ? Color.WHITE : Color.GRAY);
+
+            double d = parameter.getD();
+            mesh.setVertex(1,0,0,d);
+            mesh.setVertex(2,0,0,d);
+            double s = Math.sin(Math.toRadians(parameter.getTheta()));
+            double c = Math.cos(Math.toRadians(parameter.getTheta()));
+            double r = parameter.getR();
+            mesh.setVertex(3,c*r,s*r,d);
+            mesh.updateVertexBuffers(gl3);
+
+            // set modelView to world
+            Pose parentPose = parameter.findParent(Pose.class);
+            Matrix4d w = (parentPose==null) ? MatrixHelper.createIdentityMatrix4() : parentPose.getWorld();
+            w.transpose();
+            shader.setMatrix4d(gl3,"modelMatrix",w);
+            mesh.render(gl3);
         }
 
         gl3.glEnable(GL3.GL_DEPTH_TEST);

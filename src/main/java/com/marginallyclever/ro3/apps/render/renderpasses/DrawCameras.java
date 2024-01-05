@@ -28,6 +28,8 @@ public class DrawCameras extends AbstractRenderPass {
     private final Mesh rayMesh = new Mesh();
     private ShaderProgram shader;
     private final double cameraConeRatio = 50;
+    private final double coneScale = cameraConeRatio * 0.0001;
+
 
     public DrawCameras() {
         super("Cameras");
@@ -37,8 +39,8 @@ public class DrawCameras extends AbstractRenderPass {
 
     private void setupMeshRay() {
         rayMesh.setRenderStyle(GL3.GL_LINES);
-        rayMesh.addColor(1,1,1,1);        rayMesh.addVertex(0,0,0);
-        rayMesh.addColor(1,1,1,1);        rayMesh.addVertex(0,0,0);
+        rayMesh.addVertex(0,0,0);
+        rayMesh.addVertex(0,0,0);
     }
 
     private void setupMeshCone() {
@@ -48,11 +50,11 @@ public class DrawCameras extends AbstractRenderPass {
         Vector3d b = new Vector3d( 1,-1,-1);
         Vector3d c = new Vector3d( 1, 1,-1);
         Vector3d d = new Vector3d(-1, 1,-1);
-        pyramidMesh.addColor(0,0,0,1);        pyramidMesh.addVertex(0,0,0);
-        pyramidMesh.addColor(0,0,0,1);        pyramidMesh.addVertex((float)a.x, (float)a.y, (float)a.z);
-        pyramidMesh.addColor(0,0,0,1);        pyramidMesh.addVertex((float)b.x, (float)b.y, (float)b.z);
-        pyramidMesh.addColor(0,0,0,1);        pyramidMesh.addVertex((float)c.x, (float)c.y, (float)c.z);
-        pyramidMesh.addColor(0,0,0,1);        pyramidMesh.addVertex((float)d.x, (float)d.y, (float)d.z);
+        pyramidMesh.addVertex(0,0,0);
+        pyramidMesh.addVertex((float)a.x, (float)a.y, (float)a.z);
+        pyramidMesh.addVertex((float)b.x, (float)b.y, (float)b.z);
+        pyramidMesh.addVertex((float)c.x, (float)c.y, (float)c.z);
+        pyramidMesh.addVertex((float)d.x, (float)d.y, (float)d.z);
 
         pyramidMesh.addIndex(0);
         pyramidMesh.addIndex(1);
@@ -105,29 +107,30 @@ public class DrawCameras extends AbstractRenderPass {
         shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
         shader.setColor(gl3,"lightColor", Color.WHITE);
-        shader.setColor(gl3,"objectColor",Color.GREEN);
         shader.setColor(gl3,"specularColor",Color.DARK_GRAY);
         shader.setColor(gl3,"ambientColor",Color.BLACK);
-        shader.set1i(gl3,"useVertexColor",1);
+        shader.set1i(gl3,"useVertexColor",0);
         shader.set1i(gl3,"useLighting",0);
         shader.set1i(gl3,"diffuseTexture",0);
         gl3.glDisable(GL3.GL_DEPTH_TEST);
         gl3.glDisable(GL3.GL_TEXTURE_2D);
 
-        double coneScale = cameraConeRatio *0.0001;
+        var list = Registry.selection.getList();
         var normalizedCoordinates = viewport.getCursorAsNormalized();
 
-        // position and draw the ray from the camera.
-        Matrix4d w = MatrixHelper.createIdentityMatrix4();
-        shader.setMatrix4d(gl3, "modelMatrix", w);
         for(Camera cam : Registry.cameras.getList() ) {
+            boolean selected = list.contains(cam);
+
+            // position and draw the ray from the camera.
+            Matrix4d w = MatrixHelper.createIdentityMatrix4();
+            shader.setMatrix4d(gl3, "modelMatrix", w);
+            shader.setColor(gl3,"objectColor",selected ? Color.GREEN : Color.DARK_GRAY);
             Ray ray = viewport.getRayThroughPoint(cam,normalizedCoordinates.x,normalizedCoordinates.y);
             changeRayMesh(gl3, ray);
             rayMesh.render(gl3);
-        }
 
-        // scale and draw the view cones
-        for(Camera cam : Registry.cameras.getList() ) {
+            // scale and draw the view cones
+            shader.setColor(gl3,"objectColor",selected ? Color.WHITE : Color.BLACK);
             w = cam.getWorld();
             Matrix4d scale = MatrixHelper.createIdentityMatrix4();
             scale.m00 *= canvasWidth * coneScale;

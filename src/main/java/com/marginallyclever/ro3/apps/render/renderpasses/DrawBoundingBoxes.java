@@ -104,6 +104,9 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
         gl3.glDisable(GL3.GL_TEXTURE_2D);
         gl3.glDisable(GL3.GL_DEPTH_TEST);
 
+        Color unselected = new Color(255,255,255,64);
+        Color selected = new Color(226, 115, 42,128);
+
         var list = Registry.selection.getList();
         var toScan = new ArrayList<>(Registry.getScene().getChildren());
         while(!toScan.isEmpty()) {
@@ -134,11 +137,8 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
             w.transpose();
             shader.setMatrix4d(gl3,"modelMatrix",w);
 
-            if(list.contains(meshInstance)) {
-                shader.setColor(gl3,"objectColor",new Color(226, 115, 42,128));
-            } else {
-                shader.setColor(gl3,"objectColor",new Color(255,255,255,64));
-            }
+            // highlight selected items
+            shader.setColor(gl3,"objectColor", list.contains(meshInstance) ? selected : unselected );
 
             // draw it
             mesh.render(gl3);
