@@ -167,4 +167,8 @@ public class HingeJoint extends Node {
     public void setAcceleration(double acceleration) {
         this.acceleration = acceleration;
     }
+
+    public Pose getAxle() {
+        return axle.getSubject();
+    }
 }

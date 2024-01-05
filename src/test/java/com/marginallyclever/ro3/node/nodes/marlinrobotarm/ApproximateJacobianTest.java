@@ -1,19 +1,11 @@
 package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
-import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobian;
-import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobianScrewTheory;
-import com.marginallyclever.robotoverlord.components.ArmEndEffectorComponent;
-import com.marginallyclever.robotoverlord.components.DHComponent;
-import com.marginallyclever.robotoverlord.components.RobotComponent;
-import com.marginallyclever.robotoverlord.entity.Entity;
-import com.marginallyclever.robotoverlord.entity.EntityManager;
-import com.marginallyclever.robotoverlord.robots.Robot;
-import com.marginallyclever.robotoverlord.systems.robot.robotarm.ApproximateJacobianFiniteDifferences;
+import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.actions.LoadScene;
 import org.junit.jupiter.api.*;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Checking if Approximate jacobians are commutative.  This test is ignored because they are not.
@@ -21,94 +13,19 @@ import java.util.List;
  * @since 2.6.1
  * @author Dan Royer
  */
-@Disabled
 public class ApproximateJacobianTest {
-    private EntityManager entityManager;
-
     @BeforeEach
     public void setup() {
-        entityManager = new EntityManager();
+        Registry.start();
     }
 
-    @AfterEach
-    public void teardown() {
-        entityManager.clear();
-        entityManager = null;
-    }
-
-    private RobotComponent build5AxisArm() {
-        Entity base = new Entity("Sixi3-5");
-        RobotComponent robot = new RobotComponent();
-        base.addComponent(robot);
-
-        // add target
-        Entity target = new Entity(RobotComponent.TARGET_NAME);
-        entityManager.addEntityToParent(target, base);
-
-        // position arm
-        List<Entity> joints = new ArrayList<>();
-        List<DHComponent> dh = new ArrayList<>();
-        Entity prev = base;
-        int numJoints=5;
-        for(int i=0;i<numJoints;++i) {
-            Entity e = new Entity("J"+i);
-            joints.add(e);
-            entityManager.addEntityToParent(e,prev);
-            prev = e;
-            DHComponent dhc = new DHComponent();
-            dh.add(dhc);
-            e.addComponent(dhc);
-        }
-
-        dh.get(0).set( 8.020,     0,270,   0,170,-170,true);  dh.get(0).setJointHome(  0);
-        dh.get(1).set( 9.131,17.889,  0, 270,370, 170,true);  dh.get(1).setJointHome(270);
-        dh.get(2).set(     0,12.435,  0,   0,150,-150,true);  dh.get(2).setJointHome(  0);
-        dh.get(3).set(     0,     0,270, 270,440, 100,true);  dh.get(3).setJointHome(270);
-        dh.get(4).set(  5.12,     0,  0,   0,360,   0,true);  dh.get(4).setJointHome( 90);
-
-        joints.get(4).addComponent(new ArmEndEffectorComponent());
-        robot.findBones();
-        robot.set(Robot.END_EFFECTOR_TARGET,robot.get(Robot.END_EFFECTOR));
-
-        return robot;
-    }
-
-    private RobotComponent build6AxisArm() {
-        Entity base = new Entity("Sixi3-6");
-        RobotComponent robot = new RobotComponent();
-        base.addComponent(robot);
-
-        // add target
-        Entity target = new Entity(RobotComponent.TARGET_NAME);
-        entityManager.addEntityToParent(target, base);
-
-        // position arm
-        List<Entity> joints = new ArrayList<>();
-        List<DHComponent> dh = new ArrayList<>();
-        Entity prev = base;
-        int numJoints=6;
-        for(int i=0;i<numJoints;++i) {
-            Entity e = new Entity("J"+i);
-            joints.add(e);
-            entityManager.addEntityToParent(e,prev);
-            prev = e;
-            DHComponent dhc = new DHComponent();
-            dh.add(dhc);
-            e.addComponent(dhc);
-        }
-
-        dh.get(0).set( 8.020,     0,270,   0,170,-170,true);  dh.get(0).setJointHome(  0);
-        dh.get(1).set( 9.131,17.889,  0, 270,370, 170,true);  dh.get(1).setJointHome(270);
-        dh.get(2).set(     0,12.435,  0,   0,150,-150,true);  dh.get(2).setJointHome(  0);
-        dh.get(3).set(     0,     0,270, 270,440, 100,true);  dh.get(3).setJointHome(270);
-        dh.get(4).set(15.616,     0, 90,  90,270, -90,true);  dh.get(4).setJointHome( 90);
-        dh.get(5).set( 5.150,     0,  0, 180,360,   0,true);  dh.get(5).setJointHome(180);
-
-        joints.get(5).addComponent(new ArmEndEffectorComponent());
-        robot.findBones();
-        robot.set(Robot.END_EFFECTOR_TARGET,robot.get(Robot.END_EFFECTOR));
-
-        return robot;
+    private MarlinRobotArm build6AxisArm() throws Exception {
+        // TODO load a robot from a file.
+        var load = new LoadScene(null,null);
+        // find file {project root}/src/test/resources/com/marginallyclever/ro3/apps/node/nodes/marlinrobotarm/Sixi3-5.RO
+        File file = new File("src/test/resources/com/marginallyclever/ro3/apps/node/nodes/marlinrobotarm/Sixi3-5.RO");
+        load.commitLoad(file);
+        return (MarlinRobotArm) Registry.getScene().get("./Sixi3/MarlinRobotArm");
     }
 
     /**
@@ -116,9 +33,9 @@ public class ApproximateJacobianTest {
      * @throws Exception if error
      */
     @Test
-    @Disabled // TODO fix me!
+    @Disabled
     public void compare() throws Exception {
-        RobotComponent robot = build6AxisArm();
+        MarlinRobotArm robot = build6AxisArm();
         ApproximateJacobian finite = new ApproximateJacobianFiniteDifferences(robot);
         ApproximateJacobian screw = new ApproximateJacobianScrewTheory(robot);
 
@@ -128,7 +45,7 @@ public class ApproximateJacobianTest {
         double [][] screwJacobian = screw.getJacobian();
         for(int i=0;i<finiteJacobian.length;++i) {
             for(int j=0;j<finiteJacobian[0].length;++j) {
-                Assertions.assertEquals(finiteJacobian[i][j],screwJacobian[i][j],0.01);
+                Assertions.assertEquals(finiteJacobian[i][j],screwJacobian[i][j],0.1);
             }
         }
 

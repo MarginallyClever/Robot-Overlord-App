@@ -1,6 +1,6 @@
+# Robot Overlord
 ![workflow](https://github.com/MarginallyClever/Robot-Overlord-App/actions/workflows/main.yml/badge.svg)
-# Robot Overlord #
-![Preview image](Screenshot_2023-12-23_120520.png)
+![Preview image](Screenshot.png)
 
 Robot Overlord is 3D control software for robots.  It is intended to be easier than ROS.  It was started by [Marginally Clever Robots, Ltd.](http://www.marginallyclever.com/)
 
@@ -8,32 +8,20 @@ We would love to see your robot run in the app.  Please joint our [Discord chann
 
 Some of the robots it controls are:
 
- - Sixi 2+3, 6DOF arms
- - Arm3, a 3DOF arm
- - Thor, a 5DOF arm
- - Rotary Stewart Platforms, like flight simulators
- - Delta Robot 3, aka a Kossel
- - Spidee, a 6 legged crab-style walker.
- - Dog Robot, a generic 4 legged walker.
+- Sixi 3, AR4, Mecademic Meca500, and other 6DOF arms
+- Rotary Stewart Platforms, like flight simulators
+- Dog robots.
+- Spidee, a 6 legged crab-style walker.
 
-# Why
+## Why
 
-The short answer?  ROS is too hard for most people.  We want to make it easier.
+The short answer?  ROS is too hard.  We want to make it easier.
 
 [Our philosophy about Robot Overlord](https://github.com/MarginallyClever/Robot-Overlord-App/wiki/Why-Robot-Overlord%3F).
 
-## Get Started!
+## Get Started today!
 
-Steps to get started:
-
-1. Install The latest Java
-2. Install Robot Overlord App from [the "Releases" section of the Github repository](https://github.com/MarginallyClever/Robot-Overlord-App/releases)
-
-Then you should be able to run the application.
-
-## More
-
-If you're reading this, make an issue ticket, and we will respond to it promptly.
+[Read our friendly manual](https://mcr.dozuki.com/c/Robot_Overlord_3).  It has pictures with arrows and everything!
 
 ## Icons
 

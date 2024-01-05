@@ -246,7 +246,7 @@ public class MarlinRobotArm extends Node {
                 JPanel innerPanel = new JPanel(new BorderLayout());
                 Dial dial = new Dial();
                 dial.addActionListener(e -> {
-                    motor.getAxle().setAngle(dial.getValue());
+                    motor.getHinge().setAngle(dial.getValue());
                 });
                 // TODO subscribe to motor.getAxle().getAngle(), then dial.setValue() without triggering an action event.
 
@@ -313,7 +313,7 @@ public class MarlinRobotArm extends Node {
             if(motor!=null && motor.hasAxle()) {
                 sb.append(" ")
                         .append(motor.getName())
-                        .append(StringHelper.formatDouble(motor.getAxle().getAngle()));
+                        .append(StringHelper.formatDouble(motor.getHinge().getAngle()));
             }
         }
         // gripper motor
@@ -321,7 +321,7 @@ public class MarlinRobotArm extends Node {
         if(gripperMotor!=null && gripperMotor.hasAxle()) {
             sb.append(" ")
                     .append(gripperMotor.getName())
-                    .append(StringHelper.formatDouble(gripperMotor.getAxle().getAngle()));
+                    .append(StringHelper.formatDouble(gripperMotor.getHinge().getAngle()));
         }
         // feedrate
         sb.append(" F").append(StringHelper.formatDouble(linearVelocity));
@@ -371,7 +371,7 @@ public class MarlinRobotArm extends Node {
                     for (String p : parts) {
                         if (p.startsWith(motor.getName())) {
                             // TODO check new value is in range.
-                            motor.getAxle().setAngle(Double.parseDouble(p.substring(motor.getName().length())));
+                            motor.getHinge().setAngle(Double.parseDouble(p.substring(motor.getName().length())));
                             break;
                         }
                     }
@@ -383,7 +383,7 @@ public class MarlinRobotArm extends Node {
                 for (String p : parts) {
                     if (p.startsWith(gripperMotor.getName())) {
                         // TODO check new value is in range.
-                        gripperMotor.getAxle().setAngle(Double.parseDouble(p.substring(gripperMotor.getName().length())));
+                        gripperMotor.getHinge().setAngle(Double.parseDouble(p.substring(gripperMotor.getName().length())));
                         break;
                     }
                 }
@@ -478,7 +478,16 @@ public class MarlinRobotArm extends Node {
      * @return the number of non-null motors.
      */
     public int getNumJoints() {
-        return (int)motors.stream().filter(Objects::nonNull).count();
+        // count the number of motors such that motors.get(i).getSubject()!=null
+        int count=0;
+        for(NodePath<Motor> paths : motors) {
+            if(paths.getSubject()!=null) count++;
+        }
+        return count;
+    }
+
+    public Motor getJoint(int i) {
+        return motors.get(i).getSubject();
     }
 
     public double[] getAllJointAngles() {
@@ -487,7 +496,7 @@ public class MarlinRobotArm extends Node {
         for(NodePath<Motor> paths : motors) {
             Motor motor = paths.getSubject();
             if(motor!=null) {
-                result[i++] = motor.getAxle().getAngle();
+                result[i++] = motor.getHinge().getAngle();
             }
         }
         return result;
@@ -502,7 +511,7 @@ public class MarlinRobotArm extends Node {
         for(NodePath<Motor> paths : motors) {
             Motor motor = paths.getSubject();
             if(motor!=null) {
-                HingeJoint axle = motor.getAxle();
+                HingeJoint axle = motor.getHinge();
                 if(axle!=null) {
                     axle.setAngle(values[i++]);
                     axle.update(0);
@@ -520,7 +529,7 @@ public class MarlinRobotArm extends Node {
         for(NodePath<Motor> paths : motors) {
             Motor motor = paths.getSubject();
             if(motor!=null) {
-                HingeJoint axle = motor.getAxle();
+                HingeJoint axle = motor.getHinge();
                 if(axle!=null) {
                     axle.setVelocity(values[i++]);
                 }

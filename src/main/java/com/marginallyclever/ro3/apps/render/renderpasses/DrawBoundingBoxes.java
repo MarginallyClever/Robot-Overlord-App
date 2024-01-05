@@ -94,7 +94,6 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
         shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
         shader.setColor(gl3,"lightColor", Color.WHITE);
-        shader.setColor(gl3,"objectColor",new Color(255,255,255,64));
         shader.setColor(gl3,"specularColor",Color.GRAY);
         shader.setColor(gl3,"ambientColor",new Color(255/5,255/5,255/5,255));
         shader.set1i(gl3,"useVertexColor",0);
@@ -105,41 +104,46 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
         gl3.glDisable(GL3.GL_TEXTURE_2D);
         gl3.glDisable(GL3.GL_DEPTH_TEST);
 
-        // find all MeshInstance nodes in Registry
-        List<Node> toScan = new ArrayList<>(Registry.getScene().getChildren());
+        Color unselected = new Color(255,255,255,64);
+        Color selected = new Color(226, 115, 42,128);
+
+        var list = Registry.selection.getList();
+        var toScan = new ArrayList<>(Registry.getScene().getChildren());
         while(!toScan.isEmpty()) {
             Node node = toScan.remove(0);
-
-            if(node instanceof MeshInstance meshInstance) {
-                // if they have a mesh, draw it.
-                Mesh mesh2 = meshInstance.getMesh();
-                if(mesh2==null) continue;
-
-                AABB boundingBox = mesh2.getBoundingBox();
-                Point3d max = boundingBox.getBoundsTop();
-                Point3d min = boundingBox.getBoundsBottom();
-                mesh.setVertex(0, min.x, max.y, max.z);
-                mesh.setVertex(1, max.x, max.y, max.z);
-                mesh.setVertex(2, max.x, min.y, max.z);
-                mesh.setVertex(3, min.x, min.y, max.z);
-                mesh.setVertex(4, min.x, max.y, min.z);
-                mesh.setVertex(5, max.x, max.y, min.z);
-                mesh.setVertex(6, max.x, min.y, min.z);
-                mesh.setVertex(7, min.x, min.y, min.z);
-                mesh.updateVertexBuffers(gl3);
-
-                // set the model matrix
-                Matrix4d w = meshInstance.getWorld();
-                w.transpose();
-                shader.setMatrix4d(gl3,"modelMatrix",w);
-                // draw it
-                mesh.render(gl3);
-
-                OpenGLHelper.checkGLError(gl3,logger);
-            }
-
             toScan.addAll(node.getChildren());
+
+            if(!(node instanceof MeshInstance meshInstance)) continue;
+            if(getActiveStatus()==SOMETIMES && !list.contains(meshInstance)) continue;
+
+            // if they have a mesh, draw it.
+            Mesh mesh2 = meshInstance.getMesh();
+            if(mesh2==null) continue;
+
+            AABB boundingBox = mesh2.getBoundingBox();
+            Point3d max = boundingBox.getBoundsTop();
+            Point3d min = boundingBox.getBoundsBottom();
+            mesh.setVertex(0, min.x, max.y, max.z);
+            mesh.setVertex(1, max.x, max.y, max.z);
+            mesh.setVertex(2, max.x, min.y, max.z);
+            mesh.setVertex(3, min.x, min.y, max.z);
+            mesh.setVertex(4, min.x, max.y, min.z);
+            mesh.setVertex(5, max.x, max.y, min.z);
+            mesh.setVertex(6, max.x, min.y, min.z);
+            mesh.setVertex(7, min.x, min.y, min.z);
+            mesh.updateVertexBuffers(gl3);
+
+            // set the model matrix
+            Matrix4d w = meshInstance.getWorld();
+            w.transpose();
+            shader.setMatrix4d(gl3,"modelMatrix",w);
+
+            // highlight selected items
+            shader.setColor(gl3,"objectColor", list.contains(meshInstance) ? selected : unselected );
+            // draw it
+            mesh.render(gl3);
         }
+
         gl3.glEnable(GL3.GL_DEPTH_TEST);
     }
 }
