@@ -1,8 +1,6 @@
 package com.marginallyclever.ro3.apps.actions;
 
-import com.marginallyclever.ro3.RO3;
 import com.marginallyclever.ro3.apps.RO3Frame;
-import com.marginallyclever.robotoverlord.RobotOverlord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
