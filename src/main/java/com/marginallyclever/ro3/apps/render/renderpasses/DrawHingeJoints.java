@@ -80,39 +80,42 @@ public class DrawHingeJoints extends AbstractRenderPass {
         gl3.glDisable(GL3.GL_TEXTURE_2D);
         gl3.glDisable(GL3.GL_CULL_FACE);
 
-        List<Node> toScan = new ArrayList<>();
-        toScan.add(Registry.getScene());
+        var list = Registry.selection.getList();
+
+        var toScan = new ArrayList<>(Registry.getScene().getChildren());
         while(!toScan.isEmpty()) {
             Node node = toScan.remove(0);
             toScan.addAll(node.getChildren());
 
-            if(node instanceof HingeJoint joint) {
+            if(!(node instanceof HingeJoint joint)) continue;
 
-                // adjust the position of the mesh based on the joint's minimum angle.
-                Pose pose = joint.findParent(Pose.class);
-                Matrix4d w = (pose==null) ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();
+            double scale = ringScale;
+            if(list.contains(joint)) scale*=2;
 
-                Matrix4d rZ = new Matrix4d();
-                rZ.rotZ(Math.toRadians(joint.getMinAngle()));
-                w.mul(rZ);
-                w.mul(w,MatrixHelper.createScaleMatrix4(ringScale));
-                w.transpose();
-                shader.setColor(gl3,"objectColor",new Color(255,255,0,64));
-                shader.setMatrix4d(gl3,"modelMatrix",w);
-                // draw the range fan
-                int range = Math.max(0, (int)(joint.getMaxAngle()-joint.getMinAngle()) );
-                circleFanMesh.render(gl3,0,1+range);
+            // adjust the position of the mesh based on the joint's minimum angle.
+            Pose pose = joint.findParent(Pose.class);
+            Matrix4d w = (pose==null) ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();
 
-                // draw the current angle line
-                w = (pose==null) ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();
-                rZ.rotZ(Math.toRadians(joint.getAngle()));
-                w.mul(rZ);
-                w.mul(w,MatrixHelper.createScaleMatrix4(ringScale));
-                w.transpose();
-                shader.setColor(gl3,"objectColor",Color.WHITE);
-                shader.setMatrix4d(gl3,"modelMatrix",w);
-                currentAngleMesh.render(gl3);
-            }
+            Matrix4d rZ = new Matrix4d();
+            rZ.rotZ(Math.toRadians(joint.getMinAngle()));
+            w.mul(rZ);
+            w.mul(w,MatrixHelper.createScaleMatrix4(scale));
+            w.transpose();
+            shader.setColor(gl3,"objectColor",new Color(255,255,0,64));
+            shader.setMatrix4d(gl3,"modelMatrix",w);
+            // draw the range fan
+            int range = Math.max(0, (int)(joint.getMaxAngle()-joint.getMinAngle()) );
+            circleFanMesh.render(gl3,0,1+range);
+
+            // draw the current angle line
+            w = (pose==null) ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();
+            rZ.rotZ(Math.toRadians(joint.getAngle()));
+            w.mul(rZ);
+            w.mul(w,MatrixHelper.createScaleMatrix4(scale));
+            w.transpose();
+            shader.setColor(gl3,"objectColor",Color.WHITE);
+            shader.setMatrix4d(gl3,"modelMatrix",w);
+            currentAngleMesh.render(gl3);
         }
 
         gl3.glEnable(GL3.GL_DEPTH_TEST);

@@ -104,22 +104,14 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
         gl3.glDisable(GL3.GL_TEXTURE_2D);
         gl3.glDisable(GL3.GL_DEPTH_TEST);
 
-        // find all MeshInstance nodes in Registry
-        var collected = new ArrayList<MeshInstance>();
         var list = Registry.selection.getList();
-
         var toScan = new ArrayList<>(Registry.getScene().getChildren());
         while(!toScan.isEmpty()) {
             Node node = toScan.remove(0);
             toScan.addAll(node.getChildren());
 
-            if (node instanceof MeshInstance meshInstance) {
-                collected.add(meshInstance);
-            }
-        }
+            if(!(node instanceof MeshInstance meshInstance)) continue;
 
-        // draw unselected
-        for(MeshInstance meshInstance : collected) {
             // if they have a mesh, draw it.
             Mesh mesh2 = meshInstance.getMesh();
             if(mesh2==null) continue;
@@ -150,8 +142,6 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
 
             // draw it
             mesh.render(gl3);
-
-            OpenGLHelper.checkGLError(gl3,logger);
         }
 
         gl3.glEnable(GL3.GL_DEPTH_TEST);
