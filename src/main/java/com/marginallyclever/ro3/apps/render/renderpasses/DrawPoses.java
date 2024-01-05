@@ -76,7 +76,8 @@ public class DrawPoses extends AbstractRenderPass {
 
         // collect all poses, separating out the selected ones
         var collected = new ArrayList<Pose>();
-        var sel = new ArrayList<Pose>();
+        var selected = new ArrayList<Pose>();
+        var list = Registry.selection.getList();
 
         var toScan = new ArrayList<Node>();
         toScan.add(Registry.getScene());
@@ -84,11 +85,11 @@ public class DrawPoses extends AbstractRenderPass {
             Node node = toScan.remove(0);
             toScan.addAll(node.getChildren());
 
-            if (node.getClass().equals(Pose.class)) {
-                if(Registry.selection.getList().contains(node)) {
-                    sel.add((Pose) node);
+            if (node instanceof Pose pose) {
+                if(list.contains(pose)) {
+                    selected.add(pose);
                 } else {
-                    collected.add((Pose) node);
+                    collected.add(pose);
                 }
             }
         }
@@ -104,7 +105,7 @@ public class DrawPoses extends AbstractRenderPass {
 
         // draw selected
         shader.setColor(gl3,"objectColor",Color.WHITE);
-        for(Pose pose : sel) {
+        for(Pose pose : selected) {
             Matrix4d w = pose.getWorld();
             w.mul(w,MatrixHelper.createScaleMatrix4(2));
             w.transpose();
