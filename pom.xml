@@ -156,9 +156,9 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.3.1</version>
+				<version>3.6.3</version>
 				<configuration>
-					<source>8</source>
+					<source>${minimum.java.version}</source>
 					<destDir>docs</destDir>
 				</configuration> 
 			</plugin>
@@ -533,7 +533,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<minimum.maven.version>3.8.1</minimum.maven.version>
-		<minimum.java.version>16</minimum.java.version>
+		<minimum.java.version>21</minimum.java.version>
 		<maven-dependency-plugin.ignoreNonCompile>true</maven-dependency-plugin.ignoreNonCompile>
 		<maven.compiler.source>${minimum.java.version}</maven.compiler.source>
 		<maven.compiler.target>${minimum.java.version}</maven.compiler.target>

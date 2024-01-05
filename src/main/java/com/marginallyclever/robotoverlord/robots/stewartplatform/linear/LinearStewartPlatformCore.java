@@ -90,9 +90,9 @@ public class LinearStewartPlatformCore extends RenderComponent {
 	 * end effector points are ordered counter-clockwise, looking down on the machine.
 	 * <pre>
 	 *      1
-	 *  2       0 <-- first
-	 *      x     <-- center
-	 *  3       5 <-- last
+	 *  2       0 &lt;-- first
+	 *      x     &lt;-- center
+	 *  3       5 &lt;-- last
 	 *      4</pre>
 	 */
 	protected void calculateEndEffectorPointsOneTime() {
@@ -125,9 +125,9 @@ public class LinearStewartPlatformCore extends RenderComponent {
 	 * linear slides are ordered counter-clockwise, looking down on the machine.
 	 * <pre>
 	 *     1
-	 *  2     0 <-- first
-	 *     x    <-- center
-	 *  3     5 <-- last
+	 *  2     0 &lt;-- first
+	 *     x    &lt;-- center
+	 *  3     5 &lt;-- last
 	 *     4</pre>
 	 */
 	protected void calculateBasePointsOneTime() {

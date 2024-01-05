@@ -65,7 +65,7 @@ public class Mesh {
 	/**
 	 * Remove all vertexes, normals, colors, texture coordinates, etc.
 	 * on the next call to {@link Mesh#render(GL3)} the mesh will be rebuilt to nothing.
-	 * @See {@link Mesh#unload(GL3)}
+	 * See also {@link Mesh#unload(GL3)}
 	 */
 	public void clear() {
 		vertexArray.clear();
@@ -99,7 +99,7 @@ public class Mesh {
 	/**
 	 * Destroy the optimized rendering buffers for the fixed function pipeline.
 	 * This does not free the memory used by the mesh.
-	 * @See {@link Mesh#clear()}
+	 * See also {@link Mesh#clear()}
 	 * @param gl the OpenGL context
 	 */
 	public void unload(GL3 gl) {

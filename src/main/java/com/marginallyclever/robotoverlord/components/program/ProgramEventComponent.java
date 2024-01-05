@@ -7,7 +7,7 @@ import org.json.JSONObject;
 
 /**
  * <p>A {@link ProgramEventComponent} is a component that can be used to trigger events in a robot program.
- * These events are not part of the robot's state, but are instead used to trigger actions in the robot's program.</p>
+ * These events are not part of the robot's state, but are instead used to trigger actions in the robot's program.
  * They include:</p>
  * <ul>
  *     <li>Home the robot</li>

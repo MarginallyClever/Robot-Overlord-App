@@ -1,7 +1,7 @@
 package com.marginallyclever.convenience.bezier3;
 
 import com.jogamp.opengl.GL3;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.Mesh;
 
 import javax.vecmath.Vector3d;
 
@@ -16,8 +16,7 @@ public class Bezier3ToMesh {
 	public Bezier3 position = new Bezier3();
 	
 	/**
-	 * visualize the line in opengl
-	 * @param gl
+	 * Visualize the line in OpenGL
 	 */
 	public Mesh generate() {
 		Mesh mesh = new Mesh();
