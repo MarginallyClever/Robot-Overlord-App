@@ -181,9 +181,7 @@ public class MarlinRobotArm extends Node {
             }
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(target.getSubject()!=null && endEffector.getSubject()!=null) {
-                    target.getSubject().setWorld(endEffector.getSubject().getWorld());
-                }
+                setTargetToEndEffector();
             }
         });
         addLabelAndComponent(pane, "Target to EE", targetToEE,gbc);
@@ -203,6 +201,12 @@ public class MarlinRobotArm extends Node {
         pane.add(createEasyFK(),gbc);
 
         super.getComponents(list);
+    }
+
+    private void setTargetToEndEffector() {
+        if(target.getSubject()!=null && endEffector.getSubject()!=null) {
+            target.getSubject().setWorld(endEffector.getSubject().getWorld());
+        }
     }
 
     private JComponent addMotorPanel() {
