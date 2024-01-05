@@ -244,6 +244,8 @@ public class MarlinRobotArm extends Node {
                 dial.addActionListener(e -> {
                     motor.getAxle().setAngle(dial.getValue());
                 });
+                // TODO subscribe to motor.getAxle().getAngle(), then dial.setValue() without triggering an action event.
+
                 JLabel label = new JLabel(motor.getName());
                 label.setLabelFor(dial);
                 label.setHorizontalAlignment(SwingConstants.CENTER);
