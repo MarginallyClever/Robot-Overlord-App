@@ -94,8 +94,12 @@ public class LoadScene extends AbstractAction {
 
             // if the json is bad, this will throw an exception before removing the previous scene.
             JSONObject json = new JSONObject(content);
-            Registry.reset();
 
+            // reset everything
+            NewScene newScene = new NewScene();
+            newScene.commitNewScene();
+
+            // do it!
             String newCWD = selectedFile.getParent() + File.separator;
             String oldCWD = System.getProperty("user.dir");
             System.setProperty("user.dir",newCWD);
@@ -106,7 +110,7 @@ public class LoadScene extends AbstractAction {
 
             System.setProperty("user.dir",oldCWD);
 
-            menu.addPath(selectedFile.getAbsolutePath());
+            if(menu!=null) menu.addPath(selectedFile.getAbsolutePath());
         } catch (IOException e) {
             logger.error("Error loading file.", e);
         }

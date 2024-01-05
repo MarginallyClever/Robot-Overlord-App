@@ -1,12 +1,11 @@
 package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobian;
-import com.marginallyclever.robotoverlord.components.RobotComponent;
-import com.marginallyclever.robotoverlord.robots.Robot;
+import com.marginallyclever.ro3.node.nodes.Pose;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
+import java.security.InvalidParameterException;
 
 /**
  * Given the current pose of the robot, find the approximate jacobian, which describe the relationship between joint
@@ -20,26 +19,41 @@ public class ApproximateJacobianScrewTheory extends ApproximateJacobian {
 	 * Given the current pose of the robot, find the approximate jacobian.
 	 * @param arm the robot to analyze.
 	 */
-	public ApproximateJacobianScrewTheory(RobotComponent arm) {
-		super(arm.getNumBones());
+	public ApproximateJacobianScrewTheory(MarlinRobotArm arm) {
+		super(arm.getNumJoints());
 
-		int oldActive = (int)arm.get(Robot.ACTIVE_JOINT);
+		Pose parentPose = arm.findParent(Pose.class);
+		Matrix4d iBaseWorld = parentPose==null ? MatrixHelper.createIdentityMatrix4() : parentPose.getWorld();
+		iBaseWorld.invert();
+
+		var ee = arm.getEndEffector();
+		if(ee==null) throw new InvalidParameterException("Robot has no end effector.");
+
 		// For each joint
 		for (int i = 0; i < DOF; ++i) {
 			// get pose of joint i relative to the robot base
-			arm.set(Robot.ACTIVE_JOINT, i);
-			Matrix4d T = (Matrix4d) arm.get(Robot.JOINT_POSE);
+			var motor = arm.getJoint(i);
+			if(motor==null) throw new InvalidParameterException("joint "+i+" is null.");
+			var hinge = motor.getHinge();
+			if(hinge==null) throw new InvalidParameterException("motor "+i+" has no hinge.");
+			var axle = hinge.getAxle();
+			if(axle==null) throw new InvalidParameterException("hinge "+i+" has no axle.");
 
-			// for revolute joint
-			if (!(boolean) arm.get(Robot.JOINT_PRISMATIC)) {
+			Matrix4d jointPose = axle.getWorld();
+			jointPose.mul(iBaseWorld);
+
+			// TODO if (hinge.isRevolute)
+			{
 				// the screw axis is the rotation axis
-				Vector3d s = MatrixHelper.getZAxis(T);
+				Vector3d s = MatrixHelper.getZAxis(jointPose);
 				// The angular velocity component of the screw is the same as s
 				double[] w = new double[] { s.x,s.y,s.z };
 
 				// Compute the position of the joint origin and end effector
-				Vector3d p = MatrixHelper.getPosition(T);  // position of joint origin
-				Vector3d p_endEffector = MatrixHelper.getPosition((Matrix4d)arm.get(Robot.END_EFFECTOR)); // position of end effector
+				Vector3d p = MatrixHelper.getPosition(jointPose);  // position of joint origin
+				Matrix4d m = ee.getWorld();
+				m.mul(iBaseWorld);
+				Vector3d p_endEffector = MatrixHelper.getPosition(m); // position of end effector
 
 				// Compute the cross product of s and the vector from joint origin to end effector
 				Vector3d r = new Vector3d();
@@ -55,7 +69,9 @@ public class ApproximateJacobianScrewTheory extends ApproximateJacobian {
 				jacobian[3][i] = w[0];
 				jacobian[4][i] = w[1];
 				jacobian[5][i] = w[2];
-			} else {
+			} // TODO else if(hinge.isPrismatic)
+			/*
+			{
 				// for prismatic joint, the screw axis is the direction of translation
 				double[] v = new double[] {T.m02, T.m12, T.m22};
 				double[] w = new double[]{0, 0, 0};
@@ -65,8 +81,7 @@ public class ApproximateJacobianScrewTheory extends ApproximateJacobian {
 					jacobian[j    ][i] = v[j];
 					jacobian[j + 3][i] = w[j];
 				}
-			}
+			}*/
 		}
-		arm.set(Robot.ACTIVE_JOINT, oldActive);
 	}
 }
