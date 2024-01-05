@@ -383,9 +383,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private void renderAllPasses() {
         // renderPasses that are always on
         for(RenderPass pass : renderPasses.getList()) {
-            if(pass.getActiveStatus()==RenderPass.ALWAYS) {
-                pass.draw(this);
-            }
+            if(pass.getActiveStatus()==RenderPass.NEVER) continue;
+            pass.draw(this);
         }
     }
 

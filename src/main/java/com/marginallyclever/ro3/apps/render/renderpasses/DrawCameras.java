@@ -120,6 +120,7 @@ public class DrawCameras extends AbstractRenderPass {
 
         for(Camera cam : Registry.cameras.getList() ) {
             boolean selected = list.contains(cam);
+            if(getActiveStatus()==SOMETIMES && !selected) continue;
 
             // position and draw the ray from the camera.
             Matrix4d w = MatrixHelper.createIdentityMatrix4();

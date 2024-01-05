@@ -99,6 +99,7 @@ public class DrawDHParameters extends AbstractRenderPass {
             toScan.addAll(node.getChildren());
 
             if(!(node instanceof DHParameter parameter)) continue;
+            if(getActiveStatus()==SOMETIMES && !list.contains(parameter)) continue;
 
             shader.setColor(gl3,"objectColor",list.contains(parameter) ? Color.WHITE : Color.GRAY);
 

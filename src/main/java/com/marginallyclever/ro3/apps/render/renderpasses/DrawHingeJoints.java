@@ -88,6 +88,7 @@ public class DrawHingeJoints extends AbstractRenderPass {
             toScan.addAll(node.getChildren());
 
             if(!(node instanceof HingeJoint joint)) continue;
+            if(getActiveStatus()==SOMETIMES && !list.contains(joint)) continue;
 
             // make bigger if selected
             double scale = ringScale;

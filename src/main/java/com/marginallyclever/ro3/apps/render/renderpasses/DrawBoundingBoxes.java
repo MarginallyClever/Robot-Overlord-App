@@ -114,6 +114,7 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
             toScan.addAll(node.getChildren());
 
             if(!(node instanceof MeshInstance meshInstance)) continue;
+            if(getActiveStatus()==SOMETIMES && !list.contains(meshInstance)) continue;
 
             // if they have a mesh, draw it.
             Mesh mesh2 = meshInstance.getMesh();
@@ -139,7 +140,6 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
 
             // highlight selected items
             shader.setColor(gl3,"objectColor", list.contains(meshInstance) ? selected : unselected );
-
             // draw it
             mesh.render(gl3);
         }
