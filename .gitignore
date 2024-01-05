@@ -37,7 +37,7 @@ java/.project
 latex/
 html/
 build/
-docs/
+javadoc/
 
 ## packaging
 packaging/*
