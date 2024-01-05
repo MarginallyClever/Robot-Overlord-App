@@ -187,10 +187,24 @@ public class Node {
      * @return the child, or null if none found.
      */
     public Node findChild(String name) {
+        return findChild(name,1);
+    }
+
+    /**
+     * Find the first child of this node with the given name.
+     * @param name the name to match.
+     * @param maxDepth the maximum depth to search.
+     * @return the child, or null if none found.
+     */
+    public Node findChild(String name, int maxDepth) {
+        if(maxDepth==0) return null;
+
         for(Node child : children) {
             if(child.getName().equals(name)) {
                 return child;
             }
+            Node found = child.findChild(name,maxDepth-1);
+            if(found!=null) return found;
         }
         return null;
     }
@@ -203,13 +217,16 @@ public class Node {
     public Node get(String path) {
         String[] parts = path.split("/");
         Node node = this;
+        int i=0;
         if(parts[0].isEmpty()) {
             node = getRootNode();
+            ++i;
         }
-        for(String part : parts) {
+        for(;i<parts.length;++i) {
+            String part = parts[i];
             if(part.equals("..")) {
                 node = node.getParent();
-            } else {
+            } else if(!part.equals(".")) {
                 node = node.findChild(part);
             }
             if(node == null) {

@@ -78,7 +78,7 @@ public class Motor extends Node {
         }
     }
 
-    public HingeJoint getAxle() {
+    public HingeJoint getHinge() {
         return hinge.getSubject();
     }
 
