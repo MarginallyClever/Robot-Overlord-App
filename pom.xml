@@ -154,6 +154,14 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.6.3</version>
+				<configuration>
+					<source>${minimum.java.version}</source>
+					<destDir>docs</destDir>
+				</configuration>
+			</plugin>
 
 			<!-- Beginning of plugins defined originally only in Super POM -->
 			<plugin>
