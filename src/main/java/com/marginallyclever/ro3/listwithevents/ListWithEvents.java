@@ -1,5 +1,8 @@
 package com.marginallyclever.ro3.listwithevents;
 
+import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.Node;
+
 import javax.swing.event.EventListenerList;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +76,7 @@ public class ListWithEvents<T> {
 
     public void set(List<T> selection) {
         // remove only the items that are not in the new selection
-        for(T item : list) {
+        for(T item : new ArrayList<>(list)) {
             if(!selection.contains(item)) {
                 remove(item);
             }
@@ -83,6 +86,18 @@ public class ListWithEvents<T> {
             if(!list.contains(item)) {
                 add(item);
             }
+        }
+    }
+
+    public void set(T selection) {
+        boolean found=false;
+        for( T node : new ArrayList<>(list) ) {
+            if(!node.equals(selection)) {
+                remove(node);
+            } else found=true;
+        }
+        if(!found && selection!=null) {
+            add(selection);
         }
     }
 }
