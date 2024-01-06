@@ -12,7 +12,7 @@ import java.awt.event.MouseEvent;
  * @since 1.6.0
  *
  */
-public class ViewElement extends JPanel {
+@Deprecated public class ViewElement extends JPanel {
 	public ViewElement() {
 		super();
 

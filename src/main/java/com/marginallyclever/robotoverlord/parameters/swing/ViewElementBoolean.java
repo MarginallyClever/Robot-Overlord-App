@@ -17,7 +17,7 @@ import java.beans.PropertyChangeListener;
  * @author Dan Royer
  *
  */
-public class ViewElementBoolean extends ViewElement implements PropertyChangeListener {
+@Deprecated public class ViewElementBoolean extends ViewElement implements PropertyChangeListener {
 	private final JLabel label;
 	private final JCheckBox field = new JCheckBox();
 	

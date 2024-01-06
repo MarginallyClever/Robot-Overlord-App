@@ -21,7 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Dan Royer
  *
  */
-public class ViewElementDouble extends ViewElement implements DocumentListener, PropertyChangeListener {
+@Deprecated public class ViewElementDouble extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private final JLabel label;
 	private final JTextField field;
 	private final DoubleParameter parameter;

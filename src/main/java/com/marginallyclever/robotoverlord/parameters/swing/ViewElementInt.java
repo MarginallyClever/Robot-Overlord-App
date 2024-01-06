@@ -20,7 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Dan Royer
  *
  */
-public class ViewElementInt extends ViewElement implements DocumentListener, PropertyChangeListener {
+@Deprecated public class ViewElementInt extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private final JTextField field;
 	private final IntParameter parameter;
 	private final ReentrantLock lock = new ReentrantLock();

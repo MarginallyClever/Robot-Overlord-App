@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * @since 1.6.0
  *
  */
-public class ViewElementButton extends ViewElement {
+@Deprecated public class ViewElementButton extends ViewElement {
 	protected JButton field;
 
 	// who is listening to me?
