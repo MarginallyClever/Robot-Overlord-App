@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.PathCalculator;
+import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.node.NodePath;
@@ -39,11 +40,7 @@ public class HingeJoint extends Node {
         list.add(pane);
         pane.setName(HingeJoint.class.getSimpleName());
 
-        NumberFormat format = NumberFormat.getNumberInstance();
-        NumberFormatter formatter = new NumberFormatter(format);
-        formatter.setValueClass(Double.class);
-        formatter.setAllowsInvalid(true);
-        formatter.setCommitsOnValidEdit(true);
+        NumberFormatter formatter = NumberFormatHelper.getNumberFormatter();
 
         JFormattedTextField angleField = new JFormattedTextField(formatter);
         angleField.setValue(angle);
