@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.convenience.swing.Dial;
+import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
@@ -20,6 +21,8 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.HierarchyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -136,23 +139,15 @@ public class MarlinRobotArm extends Node {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.gridx=0;
-        gbc.gridy=0;
         gbc.fill = GridBagConstraints.BOTH;
 
+        gbc.gridx=0;
+        gbc.gridy=0;
         gbc.gridwidth=2;
-        pane.add(addMotorPanel(),gbc);
-        gbc.gridwidth=1;
+        pane.add(createVelocitySlider(),gbc);
+
         gbc.gridy++;
-
-        addNodeSelector(pane, "End Effector", endEffector, Pose.class, gbc);
-        addNodeSelector(pane, "Target", target, Pose.class, gbc);
-        addNodeSelector(pane, "Gripper motor", gripperMotor, Motor.class, gbc);
-
-        // add a slider to control linear velocity
-        JSlider slider = new JSlider(0,20,(int)linearVelocity);
-        slider.addChangeListener(e-> linearVelocity = slider.getValue());
-        addLabelAndComponent(pane, "Linear Vel", slider,gbc);
+        gbc.gridwidth=1;
 
         addMoveTargetToEndEffector(pane,gbc);
 
@@ -160,7 +155,12 @@ public class MarlinRobotArm extends Node {
         M114.addActionListener(e-> sendGCode("M114"));
         addLabelAndComponent(pane, "Get state", M114,gbc);
 
-        addReportInterval(pane,gbc);
+        gbc.gridwidth=1;
+        gbc.gridy++;
+
+        addNodeSelector(pane, "End Effector", endEffector, Pose.class, gbc);
+        addNodeSelector(pane, "Target", target, Pose.class, gbc);
+        addNodeSelector(pane, "Gripper motor", gripperMotor, Motor.class, gbc);
 
         gbc.gridx=0;
         gbc.gridwidth=2;
@@ -168,24 +168,115 @@ public class MarlinRobotArm extends Node {
         gbc.gridy++;
         pane.add(getSender(),gbc);
         gbc.gridy++;
-        pane.add(new JSeparator(),gbc);
+        pane.add(createReportInterval(),gbc);
         gbc.gridy++;
         pane.add(createEasyFK(),gbc);
+        gbc.gridy++;
+
+        gbc.gridwidth=2;
+        pane.add(addMotorPanel(),gbc);
 
         super.getComponents(list);
     }
 
-    private void addReportInterval(JPanel pane, GridBagConstraints gbc) {
-        // here i need an input - time interval (positive float, seconds) called "reportInterval"
-        JTextField reportInterval = new JTextField(StringHelper.formatDouble(getReportInterval()));
-        reportInterval.set
+    private JComponent createVelocitySlider() {
+        JPanel container = new JPanel(new BorderLayout());
+        // add a slider to control linear velocity
+        JSlider slider = new JSlider(0,20,(int)linearVelocity);
+        slider.addChangeListener(e-> linearVelocity = slider.getValue());
+
+        // Make the slider fill the available horizontal space
+        slider.setMaximumSize(new Dimension(Integer.MAX_VALUE, slider.getPreferredSize().height));
+
+        container.add(new JLabel("Linear Vel"), BorderLayout.LINE_START);
+        container.add(slider, BorderLayout.CENTER); // Add slider to the center of the container
+
+
+        return container;
+    }
+
+    private double reportInterval=1.0;
+
+    private JComponent createReportInterval() {
+        var containerPanel = new CollapsiblePanel("Report");
+        var outerPanel = containerPanel.getContentPane();
+        outerPanel.setLayout(new GridBagLayout());
+
+        var label = new JLabel("interval (s)");
+        // here i need an input - time interval (positive float, seconds)
+        var formatter = NumberFormatHelper.getNumberFormatter();
+        var secondsField = new JFormattedTextField(formatter);
+        secondsField.setValue(getReportInterval());
 
         // then a toggle to turn it on and off.
-        // the background of the toggle is a progress bar that fills up over reportInterval seconds.
-        // when the bar fills up, send G0 to the robot arm and reset the bar.
-        // if the toggle is off, the bar is reset.
+        JToggleButton toggle = new JToggleButton("Start");
+        toggle.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/apps/icons8-stopwatch-16.png"))));
+        JProgressBar progressBar = new JProgressBar();
+        progressBar.setMaximum((int) (getReportInterval() * 1000)); // Assuming interval is in seconds
 
+        Timer timer = new Timer(100, null);
+        ActionListener timerAction = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int value = progressBar.getValue() + 100;
+                if (value >= progressBar.getMaximum()) {
+                    value = 0;
+                    sendGCode("G0"); // Send G0 command when progress bar is full
+                }
+                progressBar.setValue(value);
+            }
+        };
+
+        toggle.addActionListener(e -> {
+            if (toggle.isSelected()) {
+                toggle.setText("Stop");
+                timer.addActionListener(timerAction);
+                timer.start();
+            } else {
+                toggle.setText("Start");
+                progressBar.setValue(0); // Reset progress bar when toggle is off
+                timer.stop();
+                timer.removeActionListener(timerAction);
+            }
+        });
+
+        toggle.addHierarchyListener(e -> {
+            if ((HierarchyEvent.SHOWING_CHANGED & e.getChangeFlags()) !=0
+                    && !toggle.isShowing()) {
+                timer.stop();
+                timer.removeActionListener(timerAction);
+            }
+        });
+
+        // Add components to the panel
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.gridx=0;
+        gbc.gridy=0;
+        gbc.fill = GridBagConstraints.BOTH;
+
+        outerPanel.add(label, gbc);
+        gbc.gridx++;
+        outerPanel.add(secondsField, gbc);
+        gbc.gridy++;
+        gbc.gridx=0;
+        outerPanel.add(toggle, gbc);
+        gbc.gridx++;
+        outerPanel.add(progressBar, gbc);
+        gbc.gridy++;
+
+        return containerPanel;
     }
+
+    private double getReportInterval() {
+        return reportInterval;
+    }
+
+    private void setReportInterval(double seconds) {
+        reportInterval = Math.max(0.1,seconds);
+    }
+
 
     private <T extends Node> void addNodeSelector(JPanel pane, String label, NodePath<T> nodePath, Class<T> clazz, GridBagConstraints gbc) {
         NodeSelector<T> selector = new NodeSelector<>(clazz, nodePath.getSubject());
