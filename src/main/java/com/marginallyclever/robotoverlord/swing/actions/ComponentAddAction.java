@@ -7,7 +7,7 @@ import com.marginallyclever.robotoverlord.swing.ComponentFactoryPanel;
 import com.marginallyclever.robotoverlord.swing.UnicodeIcon;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swing.componentmanagerpanel.ComponentManagerPanel;
-import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.UndoSystem;
 import com.marginallyclever.robotoverlord.swing.edits.ComponentAddEdit;
 import com.marginallyclever.robotoverlord.swing.translator.Translator;
 import org.slf4j.Logger;

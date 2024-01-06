@@ -4,7 +4,7 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swing.EditorAction;
-import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.UndoSystem;
 import com.marginallyclever.robotoverlord.swing.edits.EntityRenameEdit;
 import com.marginallyclever.robotoverlord.swing.translator.Translator;
 import org.slf4j.Logger;

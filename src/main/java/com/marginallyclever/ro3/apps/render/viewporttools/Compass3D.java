@@ -22,6 +22,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+/**
+ * <p>Draw a compass to show the orientation of the camera.  If the user clicks on the handles for the compasss,
+ * orbit the camera to face that world axis.</p>
+ */
 public class Compass3D implements ViewportTool {
     /**
      * The viewport to which this tool is attached.

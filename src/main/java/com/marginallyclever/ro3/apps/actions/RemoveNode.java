@@ -1,8 +1,7 @@
 package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.UndoSystem;
-import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
+import com.marginallyclever.ro3.apps.UndoSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +10,9 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * {@link RemoveNode} is an action that removes the selected node(s) from the scene.
+ */
 public class RemoveNode extends AbstractAction {
     private final Logger logger = LoggerFactory.getLogger(RemoveNode.class);
 

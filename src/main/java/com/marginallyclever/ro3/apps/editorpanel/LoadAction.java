@@ -13,6 +13,9 @@ import java.nio.file.Paths;
 import java.security.InvalidParameterException;
 import java.util.Objects;
 
+/**
+ * Load a file into the {@link EditorPanel}
+ */
 public class LoadAction extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(LoadAction.class);
     private final EditorPanel editorPanel;

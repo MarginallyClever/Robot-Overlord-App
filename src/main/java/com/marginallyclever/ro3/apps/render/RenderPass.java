@@ -4,8 +4,9 @@ import com.jogamp.opengl.GLEventListener;
 import com.marginallyclever.ro3.Registry;
 
 /**
- * Classes which implement {@link RenderPass} are drawn on top of the 3D scene.  They should be registered to the
- * {@link Registry}, which remembers the order in which they should be drawn.
+ * <p>Classes which implement {@link RenderPass} are drawn as part of - or on top of - the 3D scene.  They should be
+ * registered to the {@link Registry}.  The order of registration controls the order in which they are rendered.
+ * They are rendered by the {@link Viewport}.</p>
  */
 public interface RenderPass extends GLEventListener {
     int NEVER = 0;

@@ -2,23 +2,20 @@ package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.convenience.helpers.JSONHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.UndoSystem;
-import com.marginallyclever.ro3.node.Node;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.marginallyclever.ro3.apps.UndoSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.FlavorEvent;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * {@link PasteNode} is an action that pastes the selected node(s) from the clipboard.
+ */
 public class PasteNode extends AbstractAction {
     private final Logger logger = LoggerFactory.getLogger(PasteNode.class);
 

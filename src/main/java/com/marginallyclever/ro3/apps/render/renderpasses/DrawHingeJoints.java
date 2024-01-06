@@ -23,6 +23,10 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>Draw a ring around each hinge joint to show the range of motion.</p>
+ * <p>Draw a line to show the current angle.</p>
+ */
 public class DrawHingeJoints extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawHingeJoints.class);
     private final Mesh currentAngleMesh = new Mesh();

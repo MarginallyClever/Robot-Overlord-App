@@ -14,6 +14,9 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Objects;
 
+/**
+ * {@link OpenLogFileLocation} is an {@link AbstractAction} that asks the OS to open the folder containing the log file.
+ */
 public class OpenLogFileLocation extends AbstractAction {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(OpenLogFileLocation.class);
 

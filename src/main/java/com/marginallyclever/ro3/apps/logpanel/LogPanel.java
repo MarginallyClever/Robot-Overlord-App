@@ -20,8 +20,8 @@ import java.nio.file.Paths;
 import java.util.*;
 
 /**
- * {@link LogPanel} is a read-only panel that contains the log.  It cannot be derived from {@link DockingPanel}
- * because it is created before {@link ModernDocking.app.Docking} is initialized.
+ * <p>{@link LogPanel} is a read-only panel that contains the log and a button to open the log file location in the
+ * OS.</p>
  */
 public class LogPanel extends App {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(LogPanel.class);

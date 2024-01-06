@@ -13,7 +13,7 @@ import java.awt.event.*;
 import java.awt.*;
 
 /**
- * {@link OpenGLPanel} is a {@link DockingPanel} that contains a {@link GLJPanel} and an {@link FPSAnimator}.
+ * {@link OpenGLPanel} manages a {@link GLJPanel} and an {@link FPSAnimator}.
  */
 public class OpenGLPanel extends App implements GLEventListener, MouseListener, MouseMotionListener, MouseWheelListener {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLPanel.class);

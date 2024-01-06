@@ -1,12 +1,15 @@
 package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.UndoSystem;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.Objects;
 
+/**
+ * {@link CutNode} is an action that cuts the selected node(s) from the scene.
+ */
 public class CutNode extends AbstractAction {
 
     public CutNode() {

@@ -16,7 +16,7 @@ public class ViewFinder {
         Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(View.class);
 
         return annotatedClasses.stream()
-                .filter(cls -> cls.getAnnotation(View.class).of().equals(targetClass))
+                .filter(cls -> isViewApplicableForClass(cls, targetClass))
                 .filter(ViewProvider.class::isAssignableFrom)
                 .map(cls -> {
                     try {
@@ -27,5 +27,21 @@ public class ViewFinder {
                     }
                 })
                 .collect(Collectors.toSet());
+    }
+
+    private static boolean isViewApplicableForClass(Class<?> viewClass, Class<?> targetClass) {
+        Class<?> viewOfClass = viewClass.getAnnotation(View.class).of();
+        while (targetClass != null) {
+            if (viewOfClass.equals(targetClass)) {
+                return true;
+            }
+            for (Class<?> interfaceClass : targetClass.getInterfaces()) {
+                if (viewOfClass.equals(interfaceClass)) {
+                    return true;
+                }
+            }
+            targetClass = targetClass.getSuperclass();
+        }
+        return false;
     }
 }

@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3;
+package com.marginallyclever.ro3.apps;
 
 import com.marginallyclever.ro3.apps.actions.RedoAction;
 import com.marginallyclever.ro3.apps.actions.UndoAction;

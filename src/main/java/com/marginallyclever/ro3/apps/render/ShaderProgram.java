@@ -12,10 +12,8 @@ import java.awt.*;
 import java.security.InvalidParameterException;
 
 /**
- * A wrapper for vertex and fragment shader pairs that provides a simple interface for setting uniforms.
- *
- * @author Dan Royer
- * @since 2.5.9
+ * <p>{@link ShaderProgram} is a wrapper for vertex and fragment shader programs.  It also provides a simple interface
+ * for setting uniforms.</p>
  */
 public class ShaderProgram {
     private static final Logger logger = LoggerFactory.getLogger(ShaderProgram.class);

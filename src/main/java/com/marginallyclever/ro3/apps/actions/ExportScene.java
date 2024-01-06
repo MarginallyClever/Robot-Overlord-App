@@ -20,7 +20,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * <p>Export the scene and all the assets used to a single file for sharing on another computer.
+ * <p>Export the scene and all the assets used to a single ZIP file for sharing on another computer.
  * This is not the same as saving the scene.</p>
  */
 public class ExportScene extends AbstractAction {

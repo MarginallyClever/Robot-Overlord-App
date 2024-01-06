@@ -12,7 +12,6 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.marginallyclever.communications.application.TextInterfaceToSessionLayer;
 import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.RO3;
-import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.about.AboutPanel;
 import com.marginallyclever.ro3.apps.actions.*;
 import com.marginallyclever.ro3.apps.editorpanel.EditorPanel;
@@ -43,6 +42,9 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.prefs.Preferences;
 
+/**
+ * The main frame for the Robot Overlord 3 application.  It contains the menu bar and docking panels.
+ */
 public class RO3Frame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(RO3Frame.class);
     private final List<DockingPanel> windows = new ArrayList<>();
