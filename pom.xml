@@ -160,6 +160,7 @@
 				<configuration>
 					<source>${minimum.java.version}</source>
 					<destDir>docs</destDir>
+					<excludePackageNames>com.marginallyclever.robotoverlord.*</excludePackageNames>
 				</configuration>
 			</plugin>
 
