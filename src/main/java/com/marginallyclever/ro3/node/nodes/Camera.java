@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.render.Viewport;
 
@@ -95,11 +96,7 @@ public class Camera extends Pose {
     }
 
     private void addLookAtComponents(JPanel pane) {
-        NumberFormat format = NumberFormat.getNumberInstance();
-        NumberFormatter formatter = new NumberFormatter(format);
-        formatter.setValueClass(Double.class);
-        formatter.setAllowsInvalid(true);
-        formatter.setCommitsOnValidEdit(true);
+        var formatter = NumberFormatHelper.getNumberFormatter();
 
         JFormattedTextField tx = new JFormattedTextField(formatter);        tx.setValue(0);
         JFormattedTextField ty = new JFormattedTextField(formatter);        ty.setValue(0);

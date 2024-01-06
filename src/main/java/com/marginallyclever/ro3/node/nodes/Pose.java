@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.node.Node;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -68,12 +69,7 @@ public class Pose extends Node {
         list.add(pane);
         pane.setName(Pose.class.getSimpleName());
 
-        NumberFormat format = NumberFormat.getNumberInstance();
-        NumberFormatter formatter = new NumberFormatter(format);
-        formatter.setValueClass(Double.class);
-        formatter.setAllowsInvalid(true);
-        formatter.setCommitsOnValidEdit(true);
-
+        var formatter = NumberFormatHelper.getNumberFormatter();
         addTranslationComponents(pane,formatter);
         addRotationComponents(pane,formatter);
 
