@@ -68,7 +68,7 @@ public class Pose extends Node {
         JPanel pane = new JPanel(new GridLayout(0,2));
         list.add(pane);
         pane.setName(Pose.class.getSimpleName());
-        
+
         var formatter = NumberFormatHelper.getNumberFormatter();
         addTranslationComponents(pane,formatter);
         addRotationComponents(pane,formatter);
