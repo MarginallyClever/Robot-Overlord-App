@@ -2,10 +2,10 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.dialogs.MeshFactoryDialog;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.MeshSmoother;
-import com.marginallyclever.ro3.mesh.load.MeshFactory;
 import com.marginallyclever.ro3.raypicking.RayHit;
 import org.json.JSONObject;
 
@@ -66,7 +66,7 @@ public class MeshInstance extends Pose {
             addLabelAndComponent(pane,"Local origin",adjust);
 
             JButton reload = new JButton("Reload");
-            reload.addActionListener(e-> MeshFactory.reload(mesh) );
+            reload.addActionListener(e-> Registry.meshFactory.reload(mesh) );
             addLabelAndComponent(pane,"Source",reload);
         }
 
@@ -102,7 +102,7 @@ public class MeshInstance extends Pose {
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
         if(from.has("mesh")) {
-            mesh = MeshFactory.load(from.getString("mesh"));
+            mesh = Registry.meshFactory.load(from.getString("mesh"));
         }
     }
 

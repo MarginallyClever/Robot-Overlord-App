@@ -4,7 +4,6 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
 import com.marginallyclever.ro3.texture.TextureFactory;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
-import com.marginallyclever.ro3.mesh.load.MeshFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +25,7 @@ public class TextureFactoryDialog {
     public TextureFactoryDialog() {
         super();
 
-        List<FileFilter> filters = MeshFactory.getAllExtensions();
+        List<FileFilter> filters = Registry.meshFactory.getAllExtensions();
         if (filters.isEmpty()) throw new RuntimeException("No MeshFactory filters found?!");
         if (filters.size() == 1) {
             chooser.setFileFilter(filters.get(0));

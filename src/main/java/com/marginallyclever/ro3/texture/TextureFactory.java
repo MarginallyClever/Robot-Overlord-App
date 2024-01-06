@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,7 @@ import java.util.List;
  */
 public class TextureFactory {
     private static final Logger logger = LoggerFactory.getLogger(TextureFactory.class);
-    private final List<TextureWithMetadata> textures = new ArrayList<>();
+    private final List<TextureWithMetadata> texturePool = new ArrayList<>();
 
     public TextureFactory() {}
 
@@ -29,13 +28,13 @@ public class TextureFactory {
     public TextureWithMetadata load(String filename) {
         String absolutePath = FileHelper.getAbsolutePathOrFilename(filename);
 
-        for(TextureWithMetadata t : textures) {
+        for(TextureWithMetadata t : texturePool) {
             if(t.getSource().equals(absolutePath)) {
                 return t;
             }
         }
         TextureWithMetadata t = loadTexture(absolutePath);
-        if(t!=null) textures.add(t);
+        if(t!=null) texturePool.add(t);
         return t;
     }
 
@@ -54,7 +53,7 @@ public class TextureFactory {
      * Does not free the underlying {@link BufferedImage} data.
      */
     public void unloadAll() {
-        for(TextureWithMetadata t : textures) {
+        for(TextureWithMetadata t : texturePool) {
             t.unload();
         }
     }
@@ -64,7 +63,7 @@ public class TextureFactory {
      */
     public List<String> getAllSourcesForExport() {
         List<String> result = new ArrayList<>();
-        for(TextureWithMetadata t : textures) {
+        for(TextureWithMetadata t : texturePool) {
             if(t.isDoNotExport()) continue;
             result.add(t.getSource());
         }
