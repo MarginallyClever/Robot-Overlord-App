@@ -17,7 +17,29 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * A node in a tree.
+ * <p>{@link Node} is the base class for all nodes in the scene tree.</p>
+ * <p>Each Node can have a parent and multiple children, forming a tree-like structure. This class provides several
+ * functionalities:</p>
+ * <ul>
+ *  <li>Nodes have a unique IDs and a name.</li>
+ *  <li>Nodes can be attached or detached from their parents.</li>
+ *  <li>Nodes can be renamed.</li>
+ *  <li>Nodes can be serialized to and from JSON format.</li>
+ *  <li>Nodes can be updated every frame, which is useful for animations or game logic.</li>
+ *  <li>Nodes can be searched by their name or type.</li>
+ *  <li>Nodes can be found by their absolute path in the tree.</li>
+ *  <li>Nodes can be checked if their name is used by a sibling.</li>
+ *  <li>Nodes can be found by their unique ID.</li>
+ *  <li>Nodes can be found by their path, which can be relative or absolute.</li>
+ * </ul>
+ * <p>This class also provides several events:</p>
+ * <ul>
+ *     <li>{@link NodeAttachListener}: called when a node is attached to a parent.</li>
+ *     <li>{@link NodeDetachListener}: called when a node is detached from a parent.</li>
+ *     <li>{@link NodeReadyListener}: called when a node is attached and all children are ready.</li>
+ *     <li>{@link NodeRenameListener}: called when a node is renamed.</li>
+ * </ul>
+ * <p>Nodes can be serialized to and from JSON.</p>
  */
 public class Node {
     private static final Logger logger = LoggerFactory.getLogger(Node.class);
@@ -25,8 +47,8 @@ public class Node {
     private final List<Node> children = new ArrayList<>();
     private Node parent;
     private UUID nodeID;
+
     protected final EventListenerList listeners = new EventListenerList();
-    public static DataFlavor flavor = new DataFlavor(Node.class, Node.class.getSimpleName());
 
     public Node() {
         this("Node");

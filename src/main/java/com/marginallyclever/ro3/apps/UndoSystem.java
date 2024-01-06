@@ -7,8 +7,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoManager;
 
 /**
- * A singleton to manage undo/redo actions.
- * @author Dan Royer
+ * {@link UndoSystem} is a singleton to manage the undo/redo history and associated {@link javax.swing.AbstractAction}s.
  */
 public class UndoSystem {
 	private static final UndoManager undoManager = new UndoManager();

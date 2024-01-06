@@ -4,8 +4,7 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.ro3.mesh.Mesh;
 
 /**
- * Procedurally draws a grid on a plane.  If the material for this Grid has lighting turned off then the
- * grid will be transparent at the edges.
+ * <p>{@link Grid} is a {@link Mesh} displaying a grid on the XY plane.  The origin is at the center of the grid.</p>
  *
  * @author Dan Royer
  */

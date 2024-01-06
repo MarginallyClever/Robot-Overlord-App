@@ -18,8 +18,9 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * {@link Mesh} contains the vertex, normal, maybe color, and maybe texture data for a 3D model.
- * It uses Vertex Buffer Objects to optimize rendering large collections of triangles.
+ * <p>{@link Mesh} contains the vertex data for a 3D model.  It may also contain normal, color, and texture data.</p>
+ * <p></p>It uses <a href="https://www.khronos.org/opengl/wiki/Vertex_Specification">Vertex Array Objects and Vertex
+ * Buffer Objects</a> to optimize rendering large collections of triangles.</p>
  * @author Dan Royer
  */
 public class Mesh {

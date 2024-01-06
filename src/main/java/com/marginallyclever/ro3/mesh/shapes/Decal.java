@@ -7,7 +7,8 @@ import com.marginallyclever.ro3.mesh.Mesh;
 import javax.vecmath.Vector3d;
 
 /**
- * A 1x1 quad texture on both sides. the origin is in the center of the quad.
+ * <p>{@link Decal} is a {@link Mesh}. It is a 1x1 quad texture on both sides. The origin is in the center of the
+ * quad.</p>
  * @author Dan Royer
  */
 public class Decal extends Mesh {

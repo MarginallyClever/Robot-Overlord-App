@@ -14,9 +14,8 @@ import java.io.BufferedInputStream;
 import java.util.ArrayList;
 
 /**
- * Load a 3D printing file (AMF).
- * See <a href="https://en.wikipedia.org/wiki/Additive_manufacturing_file_format">Wikipedia</a>.
- *
+ * <p>{@link LoadAMF} is a {@link MeshLoader} that loads an
+ * <a href="https://en.wikipedia.org/wiki/Additive_manufacturing_file_format">AMF</a> into a {@link Mesh}.</p>
  * @author Dan Royer
  * @since 2.5.0
  */

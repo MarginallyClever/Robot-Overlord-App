@@ -43,7 +43,8 @@ import java.util.Properties;
 import java.util.prefs.Preferences;
 
 /**
- * The main frame for the Robot Overlord 3 application.  It contains the menu bar and docking panels.
+ * <p>{@link RO3Frame} is the main frame for the Robot Overlord 3 application.  It contains the menu bar and docking
+ * panels.  It also maintains one instance of each {@link App}.</p>
  */
 public class RO3Frame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(RO3Frame.class);

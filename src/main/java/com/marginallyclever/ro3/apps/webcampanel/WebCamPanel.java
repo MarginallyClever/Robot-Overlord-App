@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
 /**
- * A panel that displays the default USB web camera.
+ * {@link WebCamPanel} uses {@link Webcam} to display the default USB web camera.
  */
 public class WebCamPanel extends App {
     private static final Logger logger = LoggerFactory.getLogger(WebCamPanel.class);

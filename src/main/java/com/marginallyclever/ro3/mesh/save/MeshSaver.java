@@ -5,7 +5,7 @@ import com.marginallyclever.ro3.mesh.Mesh;
 import java.io.OutputStream;
 
 /**
- * A MeshSaver is a script that saves a mesh to a file.
+ * {@link MeshSaver} saves a {@link Mesh} to a file.
  *
  * @author Dan Royer
  * @since 2.5.0

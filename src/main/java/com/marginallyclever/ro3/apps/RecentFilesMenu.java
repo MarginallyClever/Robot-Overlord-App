@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.prefs.Preferences;
 
 /**
- * A menu that keeps track of recently loaded files.
+ * {@link RecentFilesMenu} is a menu that keeps track of recently loaded files.
  */
 public class RecentFilesMenu extends JMenu {
     private static final Logger logger = LoggerFactory.getLogger(RecentFilesMenu.class);

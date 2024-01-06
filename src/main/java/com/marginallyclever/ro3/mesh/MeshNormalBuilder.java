@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import javax.vecmath.Vector3d;
 
 /**
- * A tool to build normals for a mesh.
+ * <p>{@link MeshNormalBuilder} is a tool to build normals for a {@link Mesh}.</p>
  *
  * @author Dan Royer
  * @since 1.7.1
