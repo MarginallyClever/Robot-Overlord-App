@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3;
+package com.marginallyclever.ro3.view;
 
 import java.lang.annotation.*;
 
