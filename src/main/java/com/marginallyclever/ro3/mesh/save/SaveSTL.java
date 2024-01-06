@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Save a mesh as an STL file.
+ * {@link SaveSTL} is a {@link MeshSaver} Save a mesh as an STL file.
  *
  * @author Dan Royer
  * @since 2.5.0

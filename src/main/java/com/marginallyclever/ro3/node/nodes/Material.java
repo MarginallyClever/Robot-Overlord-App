@@ -12,7 +12,19 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 /**
- * {@link Material} contains properties for rendering a surface.  The first use case is to apply a texture to a mesh.
+ * <p>{@link Material} contains properties for rendering a surface.  The first use case is to apply a texture to a
+ * {@link com.marginallyclever.ro3.mesh.Mesh}.</p>
+ *
+ * <p>This class provides several functionalities:</p>
+ * <ul>
+ * <li>It can set and get the texture.</li>
+ * <li>It can set and get the diffuse color.</li>
+ * <li>It can set and get the specular color.</li>
+ * <li>It can set and get the emission color.</li>
+ * <li>It can set and get the shininess.</li>
+ * <li>It can set and get the lit status.</li>
+ * <li>It can serialize and deserialize itself to and from JSON format.</li>
+ * </ul>
  */
 public class Material extends Node {
     private TextureWithMetadata texture;

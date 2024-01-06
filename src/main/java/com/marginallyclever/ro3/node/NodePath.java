@@ -3,7 +3,8 @@ package com.marginallyclever.ro3.node;
 import com.marginallyclever.convenience.PathCalculator;
 
 /**
- * Stores the relative path to a node.  Can be used to find a node in the scene graph.
+ * <p>{@link NodePath} stores the  path to a node.  The path can be relative or absolute.
+ * Can be used to find a node in the scene graph.</p>
  * @param <T> the type of node to find
  */
 public class NodePath<T extends Node> {

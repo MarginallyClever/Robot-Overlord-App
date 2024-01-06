@@ -16,8 +16,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * https://en.wikipedia.org/wiki/3D_Manufacturing_Format
- * @author Dan Royer
+ * <p>{@link Load3MF} is a {@link MeshLoader} that loads a
+ * <a href="https://en.wikipedia.org/wiki/3D_Manufacturing_Format">3MF</a> into a {@link Mesh}.</p>
  */
 public class Load3MF implements MeshLoader {
 	private class ColorGroup {

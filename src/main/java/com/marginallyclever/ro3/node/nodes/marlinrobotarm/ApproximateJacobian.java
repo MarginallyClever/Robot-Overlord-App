@@ -4,8 +4,18 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 
 /**
- * This class is used to calculate the <a href="https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant">Jacobian
- * matrix</a> for a robot arm.  Each implementation can derive this class and fill in the jacobian matrix.
+ * {@link ApproximateJacobian} is used to calculate the
+ * <a href="https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant">Jacobian matrix</a> for a robot arm.
+ * Each implementation can derive this class and fill in the jacobian matrix.
+ * <p>This class provides several functionalities:</p>
+ * <ul>
+ * <li>It can get the inverse Jacobian matrix.</li>
+ * <li>It can get the joint velocity from the Cartesian velocity.</li>
+ * <li>It can get the Cartesian velocity from the joint velocity.</li>
+ * <li>It can get the Jacobian matrix.</li>
+ * <li>It can get the time derivative of the Jacobian matrix.</li>
+ * <li>It can get the Coriolis term.</li>
+ * </ul>
  * @author Dan Royer
  */
 public abstract class ApproximateJacobian {

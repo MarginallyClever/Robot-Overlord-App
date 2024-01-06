@@ -10,6 +10,9 @@ import java.awt.*;
 import java.io.BufferedInputStream;
 import java.util.Objects;
 
+/**
+ * {@link AboutPanel} is a panel that displays the contents of the file "about.html" in the same package.
+ */
 public class AboutPanel extends App {
     private static final Logger logger = LoggerFactory.getLogger(AboutPanel.class);
 

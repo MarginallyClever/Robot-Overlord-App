@@ -4,7 +4,7 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.swing.UnicodeIcon;
 import com.marginallyclever.robotoverlord.clipboard.Clipboard;
 import com.marginallyclever.robotoverlord.swing.EditorAction;
-import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.UndoSystem;
 import com.marginallyclever.robotoverlord.swing.edits.ComponentPasteEdit;
 import com.marginallyclever.robotoverlord.swing.translator.Translator;
 

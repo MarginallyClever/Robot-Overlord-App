@@ -3,6 +3,10 @@ package com.marginallyclever.ro3.mesh.shapes;
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.ro3.mesh.Mesh;
 
+/**
+ * <p>{@link CircleXY} is a {@link Mesh} in the XY plane.  The first vertex is the center so that it can be
+ * drawn as a triangle fan.</p>
+ */
 public class CircleXY extends Mesh {
     public CircleXY() {
         super();

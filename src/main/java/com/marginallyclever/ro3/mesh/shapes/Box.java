@@ -7,7 +7,7 @@ import com.marginallyclever.ro3.mesh.Mesh;
 import javax.vecmath.Vector3d;
 
 /**
- * A box with a width, height, and length of 1.  It is centered around the origin.
+ * {@link Box} is a {@link Mesh} with a width, height, and length of 1.  It is centered around the origin.
  */
 public class Box extends Mesh {
     public float width = 1.0f;

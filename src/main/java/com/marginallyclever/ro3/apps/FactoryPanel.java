@@ -1,13 +1,11 @@
 package com.marginallyclever.ro3.apps;
 
 import com.marginallyclever.ro3.Factory;
-import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeBranch;
 import com.marginallyclever.ro3.apps.shared.SearchBar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -136,7 +134,7 @@ public class FactoryPanel<T> extends JPanel {
      * @return a list of all categories that match the search criteria
      */
     private List<Factory.Category<T>> findAllTypesMatching(Factory.Category<T> root, String searchCriteria) {
-        boolean isRegex = searchBar.isRegex();
+        boolean isRegex = searchBar.getRegex();
         List<Factory.Category<T>> matches = new ArrayList<>();
         List<Factory.Category<T>> toSearch = new ArrayList<>();
         toSearch.add(root);

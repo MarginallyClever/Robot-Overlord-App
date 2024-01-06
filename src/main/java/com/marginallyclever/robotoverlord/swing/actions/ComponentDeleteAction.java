@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.swing.actions;
 import com.marginallyclever.robotoverlord.components.Component;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.swing.UnicodeIcon;
-import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.UndoSystem;
 import com.marginallyclever.robotoverlord.swing.componentmanagerpanel.ComponentManagerPanel;
 import com.marginallyclever.robotoverlord.swing.edits.ComponentDeleteEdit;
 import com.marginallyclever.robotoverlord.swing.translator.Translator;

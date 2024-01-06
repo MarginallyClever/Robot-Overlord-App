@@ -14,10 +14,16 @@ import java.awt.*;
 import java.util.List;
 
 /**
- * <p>{@link LookAt} is a pose that always faces a target.
- * The target is another pose.
- * The target pose is not required to be a child of this pose.
- * The target pose can be anywhere in the scene graph.</p>
+ * <p>{@link LookAt} is a pose that always faces a target.  The target is another {@link Pose}.
+ * The target is not required to be a child of this pose.
+ * The target can be anywhere in the scene graph.</p>
+ *
+ * <p>This class provides several functionalities:</p>
+ * <ul>
+ * <li>It can set and get the target {@link Pose}.</li>
+ * <li>It can update its own location in space based on the target's location.</li>
+ * <li>It can serialize and deserialize itself to and from JSON format.</li>
+ * </ul>
  */
 public class LookAt extends Pose {
     private final NodePath<Pose> target = new NodePath<>(this,Pose.class);

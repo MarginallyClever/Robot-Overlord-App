@@ -1,25 +1,17 @@
 package com.marginallyclever.ro3.apps.actions;
 
-import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.UndoSystem;
 import com.marginallyclever.ro3.apps.RO3Frame;
-import com.marginallyclever.ro3.node.Node;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.InvalidParameterException;
 import java.util.Objects;
 
 /**
- * Load a Scene into the existing Scene.
+ * Load a Scene and insert it into the existing Scene.
  */
 public class ImportScene extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(ImportScene.class);

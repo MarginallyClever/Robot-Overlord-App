@@ -12,6 +12,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Objects;
 
+/**
+ * Save the text area of the {@link EditorPanel} to a file.
+ */
 public class SaveAction extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(SaveAction.class);
     private final EditorPanel editorPanel;

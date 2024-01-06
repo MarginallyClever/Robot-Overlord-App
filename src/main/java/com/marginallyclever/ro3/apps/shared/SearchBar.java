@@ -7,13 +7,12 @@ import java.awt.*;
 import java.util.Objects;
 
 /**
- * SearchBar is a text field with a magnifying glass icon.
- * When the text changes, it fires a property change event for the value "match" with the new text.
- * @since 2.7.0
- * @author Dan Royer
+ * <p>{@link SearchBar} is a text field, a toggle for case-sensitive, and a toggle for regular expressions.</p>
+ * <p>When the text changes, it fires a property change event for the value "match" with the new text.</p>
  */
 public class SearchBar extends JPanel implements DocumentListener {
     private final JTextField match = new JTextField();
+    private final JToggleButton isCaseSensitive = new JToggleButton("Aa");
     private final JToggleButton isRegex = new JToggleButton(".*");
 
     public SearchBar() {
@@ -26,8 +25,11 @@ public class SearchBar extends JPanel implements DocumentListener {
         setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         var label = new JLabel(new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-search-16.png"))));
         label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-        add(label, BorderLayout.LINE_START);
-        add(match, BorderLayout.CENTER);
+        JPanel inner = new JPanel(new BorderLayout());
+        inner.add(label, BorderLayout.LINE_START);
+        inner.add(match, BorderLayout.CENTER);
+        inner.add(isCaseSensitive, BorderLayout.LINE_END);
+        add(inner, BorderLayout.CENTER);
         add(isRegex, BorderLayout.LINE_END);
 
         match.setText(text);
@@ -54,11 +56,19 @@ public class SearchBar extends JPanel implements DocumentListener {
         super.firePropertyChange("match", null, newValue);
     }
 
-    public boolean isRegex() {
+    public boolean getRegex() {
         return isRegex.isSelected();
     }
 
     public void setRegex(boolean regex) {
         isRegex.setSelected(regex);
+    }
+
+    public boolean getCaseSensitive() {
+        return isCaseSensitive.isSelected();
+    }
+
+    public void setCaseSensitive(boolean caseSensitive) {
+        isCaseSensitive.setSelected(caseSensitive);
     }
 }

@@ -7,8 +7,8 @@ import com.marginallyclever.ro3.mesh.Mesh;
 import javax.vecmath.Vector3d;
 
 /**
- * A cylinder with a radius of 0.5 and a height of 2. It is centered at the
- * origin.
+ * <p>{@link Cylinder} is a {@link Mesh}.  It has a diameter of 1 and a height of 1.
+ * The origin is at the center of the cylinder.</p>
  */
 public class Cylinder extends Mesh {
     public static final int RESOLUTION_CIRCULAR = 32;
@@ -16,7 +16,7 @@ public class Cylinder extends Mesh {
 
     public float radius0 = 0.5f;
     public float radius1 = 0.5f;
-    public float height = 2;
+    public float height = 1;
 
     public Cylinder() {
         this(2, 0.5f, 0.5f);

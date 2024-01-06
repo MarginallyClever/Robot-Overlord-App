@@ -1,46 +1,16 @@
 package com.marginallyclever.ro3.mesh;
 
-import com.marginallyclever.ro3.mesh.load.MeshFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Smooth STL models and save them back to disk.  Meant for one time processing files.
- * @author dan royer
+ * {@link MeshSmoother} will smooth the normals of a {@link Mesh}.
+ * @author Dan Royer
  */
 public class MeshSmoother {
 	private static final Logger logger = LoggerFactory.getLogger(MeshSmoother.class);
-	/*
-	public static void main(String[] argv) throws IllegalArgumentException, IOException {
-		float vertexEpsilon = 0.1f;
-		float normalEpsilon = 0.25f;
-		
-		if( argv.length     == 0 ) throw new IllegalArgumentException("not enough parameters");
-		if( argv.length % 2 != 0 ) throw new IllegalArgumentException("not enough parameters");
-		
-		int i;
-		for(i=0;i<argv.length;++i) {
-			String sourceName = argv[i+0];
-			String destName   = argv[i+1];
-			smoothModel(sourceName,destName,vertexEpsilon,normalEpsilon);
-		}
-	}*/
-
-	public static void smoothModel(String inName,String outName,float vertexEpsilon,float normalEpsilon) throws IOException {
-		try {
-			Mesh m = MeshFactory.load(inName);
-			smoothNormals(m,vertexEpsilon,normalEpsilon);
-			
-			//File file = new File(outName);
-			//FileOutputStream fos = new FileOutputStream(file);
-			//m.getModelLoadAndSave().saveToStreamAsBinary(fos);
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
 
 	/**
 	 * Smooth normals.  Find points within vertexEpsilon of each other, sharing normals within normalEpsilon 

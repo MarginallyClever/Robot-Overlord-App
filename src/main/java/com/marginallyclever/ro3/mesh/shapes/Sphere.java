@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.ro3.mesh.Mesh;
 
 /**
- * A sphere with a radius of 1 centered around the local origin.
+ * <p>{@link Sphere} is a {@link Mesh} with a radius of 1.  The origin is at the center of the sphere.</p>
  */
 public class Sphere extends Mesh {
     public float radius = 1.0f;
