@@ -93,6 +93,17 @@ public class EditorPanel extends App implements MarlinListener {
                 String message = getLineAtCaret();
                 if(!message.trim().isEmpty()) {
                     arm.sendGCode(message);
+                    // move down one line in the file.
+                    int caretPosition = text.getCaretPosition();
+                    Element root = text.getDocument().getDefaultRootElement();
+                    int lineNumber = root.getElementIndex(caretPosition);
+                    Element lineElement = root.getElement(lineNumber);
+                    int end = lineElement.getEndOffset();
+                    try {
+                        text.setCaretPosition(Math.min(end, text.getDocument().getLength()));
+                    } catch (Exception exception) {
+                        logger.error("Failed to move caret.",exception);
+                    }
                 }
             }
         }
