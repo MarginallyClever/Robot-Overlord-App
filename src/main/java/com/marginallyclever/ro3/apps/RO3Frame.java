@@ -43,6 +43,9 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.prefs.Preferences;
 
+/**
+ * The main window for the Robot Overlord 3 application.  Handles all the menus and docking panels.
+ */
 public class RO3Frame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(RO3Frame.class);
     private final List<DockingPanel> windows = new ArrayList<>();
