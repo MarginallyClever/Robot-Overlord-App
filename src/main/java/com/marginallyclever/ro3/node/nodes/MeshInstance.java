@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.dialogs.MeshChooserDialog;
 import com.marginallyclever.ro3.apps.dialogs.MeshFactoryDialog;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.MeshSmoother;
@@ -44,10 +45,10 @@ public class MeshInstance extends Pose {
         JButton select = new JButton();
         setMeshButtonLabel(select);
         select.addActionListener(e -> {
-            MeshFactoryDialog meshFactoryDialog = new MeshFactoryDialog();
-            int result = meshFactoryDialog.run();
+            var meshChooserDialog = new MeshChooserDialog();
+            int result = meshChooserDialog.run(pane);
             if(result == JFileChooser.APPROVE_OPTION) {
-                mesh = meshFactoryDialog.getMesh();
+                mesh = meshChooserDialog.getMesh();
                 setMeshButtonLabel(select);
             }
         });

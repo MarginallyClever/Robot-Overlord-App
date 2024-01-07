@@ -140,4 +140,8 @@ public class MeshFactory {
 		}
 		return result;
     }
+
+	public ListWithEvents<Mesh> getMeshPool() {
+		return meshPool;
+	}
 }

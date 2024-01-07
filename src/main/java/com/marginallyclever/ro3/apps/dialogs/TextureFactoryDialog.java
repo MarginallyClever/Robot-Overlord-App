@@ -38,7 +38,7 @@ public class TextureFactoryDialog {
 
     /**
      *
-     * @return JFileChooser.APPROVE_OPTION or return JFileChooser.CANCEL_OPTION
+     * @return JFileChooser.APPROVE_OPTION or JFileChooser.CANCEL_OPTION
      */
     public int run() {
         int returnVal = chooser.showDialog(SwingUtilities.getWindowAncestor(chooser), "Select");
