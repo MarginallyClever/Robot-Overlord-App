@@ -158,6 +158,7 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.6.3</version>
 				<configuration>
+					<doclint>none</doclint>
 					<source>${minimum.java.version}</source>
 					<destDir>docs</destDir>
 					<excludePackageNames>com.marginallyclever.robotoverlord.*</excludePackageNames>

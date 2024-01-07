@@ -5,6 +5,7 @@ import javax.swing.*;
 /**
  * Classes implementing this interface are saying that they can provide a Swing component that can be used to view
  * or manipulate the given object.
+ * @param <T> The type of object to be viewed or manipulated.
  */
 public interface ViewProvider<T> {
     /**

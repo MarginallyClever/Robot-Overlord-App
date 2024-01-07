@@ -5,10 +5,9 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 /**
- * 
+ * {@link Ray} is a starting point and a direction.
  * @author Dan Royer
  * @since 1.6.0
- *
  */
 public class Ray {
 	private final Point3d origin = new Point3d();

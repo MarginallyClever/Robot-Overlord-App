@@ -6,6 +6,9 @@ import javax.vecmath.Vector3d;
 
 /**
  * A ray hit is a record of a ray hitting a {@link MeshInstance} at a certain distance.
+ * @param target the MeshInstance that the {@link com.marginallyclever.convenience.Ray} intersected.
+ * @param distance the distance from the {@link com.marginallyclever.convenience.Ray} origin to the point of contact.
+ * @param normal the normal of the {@link com.marginallyclever.ro3.mesh.Mesh} at the point of contact, in world space.
  * @author Dan Royer
  * @since 2.5.0
  */

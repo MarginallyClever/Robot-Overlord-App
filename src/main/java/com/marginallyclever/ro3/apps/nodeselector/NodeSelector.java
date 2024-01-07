@@ -22,6 +22,7 @@ import java.util.Objects;
  * type T.</p>
  * <p>{@link NodeSelector} also provides a <b>find</b> button.  The find action changes the global selection, which
  * updates any other systems listening to the selection.</p>
+ * @param <T> the type of {@link Node} to select
  */
 public class NodeSelector<T extends Node> extends JPanel {
     private T subject;

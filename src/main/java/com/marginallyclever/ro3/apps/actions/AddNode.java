@@ -12,7 +12,10 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * Add a new instance of a Node to every selected branches of the tree
+ * {@link AddNode} is an {@link AbstractAction} to add a new instance of a {@link Node} to every selected branch of the
+ * tree.  It will ask the user which type of {@link Node} to add, then create an
+ * {@link com.marginallyclever.ro3.apps.commands.AddNode} command to add the new {@link Node}.
+ * @param <T> the type of {@link Node} to add
  */
 public class AddNode<T extends Node> extends AbstractAction {
     private static final FactoryPanel<Node> nfd = new FactoryPanel<>(Registry.nodeFactory);

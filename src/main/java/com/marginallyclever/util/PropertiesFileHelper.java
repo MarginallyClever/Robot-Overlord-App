@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
+ * Helps with accessing the robotoverlord.properties file.
  * @author Peter Colapietro
  * @since 2015-10-05
  */
