@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.node;
 
 import com.marginallyclever.convenience.PathCalculator;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -389,6 +390,12 @@ public class Node {
         label.setLabelFor(component);
         pane.add(label);
         pane.add(component);
+    }
+
+    protected <T extends Node> void addNodeSelector(JPanel pane, String label, NodePath<T> nodePath, Class<T> clazz, GridBagConstraints gbc) {
+        NodeSelector<T> selector = new NodeSelector<>(clazz, nodePath.getSubject());
+        selector.addPropertyChangeListener("subject", (e) -> nodePath.setRelativePath(this, (T) e.getNewValue()));
+        addLabelAndComponent(pane, label, selector, gbc);
     }
 
     /**

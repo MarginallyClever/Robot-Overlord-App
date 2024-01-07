@@ -3,22 +3,19 @@ package com.marginallyclever.ro3.node.nodes;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.render.Viewport;
 
 import javax.swing.*;
-import javax.swing.text.NumberFormatter;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.security.InvalidParameterException;
-import java.text.NumberFormat;
 import java.util.List;
 
 /**
- * <p>The Camera class is a subclass of the Pose class and is used by a Viewport to render the scene in a 3D graphics or game engine. This class provides several functionalities:</p>
+ * <p>The Camera class is a subclass of the Pose class and is used by a Viewport to viewport the scene in a 3D graphics or game engine. This class provides several functionalities:</p>
  * <ul>
- *     <li>It can be set to render in orthographic projection.</li>
+ *     <li>It can be set to viewport in orthographic projection.</li>
  *     <li>It has a vertical field of view, a near and far clipping plane for perspective rendering.</li>
  *     <li>It can translate and rotate relative to its current orientation.</li>
  *     <li>It can look at a specific point in the scene.</li>

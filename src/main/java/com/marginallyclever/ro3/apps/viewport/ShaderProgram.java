@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.systems.render;
+package com.marginallyclever.ro3.apps.viewport;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
@@ -12,12 +12,9 @@ import java.awt.*;
 import java.security.InvalidParameterException;
 
 /**
- * A wrapper for vertex and fragment shader pairs that provides a simple interface for setting uniforms.
- *
- * @author Dan Royer
- * @since 2.5.9
+ * <p>{@link ShaderProgram} is a wrapper for vertex and fragment shader programs.  It also provides a simple interface
+ * for setting uniforms.</p>
  */
-@Deprecated
 public class ShaderProgram {
     private static final Logger logger = LoggerFactory.getLogger(ShaderProgram.class);
     private final int programId;
@@ -32,12 +29,11 @@ public class ShaderProgram {
         gl.glAttachShader(programId, fragmentShaderId);
         gl.glLinkProgram(programId);
         if (!checkStatus(gl, programId, GL3.GL_LINK_STATUS)) {
-            showProgramError(gl, "Failed to link shader program: ");
-        } else {
-            gl.glValidateProgram(programId);
-            if (!checkStatus(gl, programId, GL3.GL_VALIDATE_STATUS)) {
-                showProgramError(gl, "Failed to validate shader program: ");
-            }
+            throw new IllegalStateException("Failed to link shader program.");
+        }
+        gl.glValidateProgram(programId);
+        if (!checkStatus(gl, programId, GL3.GL_VALIDATE_STATUS)) {
+            throw new IllegalStateException("Failed to validate shader program.");
         }
     }
 
@@ -101,9 +97,7 @@ public class ShaderProgram {
 
     public int getUniformLocation(GL3 gl, String name) {
         int result = gl.glGetUniformLocation(programId, name);
-        if(result==-1) {
-            throw new InvalidParameterException("Could not find uniform "+name);
-        }
+        if(result==-1) throw new InvalidParameterException("Could not find uniform "+name);
         return result;
     }
 
@@ -116,23 +110,17 @@ public class ShaderProgram {
     }
 
     public void set3f(GL3 gl, String name, float v0, float v1, float v2) {
-        int location = getUniformLocation(gl, name);
-        if(location==-1) return;
-        gl.glUniform3f(location, v0, v1, v2);
+        gl.glUniform3f(getUniformLocation(gl, name), v0, v1, v2);
         OpenGLHelper.checkGLError(gl,logger);
     }
 
     public void set4f(GL3 gl, String name, float v0, float v1, float v2, float v3) {
-        int location = getUniformLocation(gl, name);
-        if(location==-1) return;
-        gl.glUniform4f(location, v0, v1, v2, v3);
+        gl.glUniform4f(getUniformLocation(gl, name), v0, v1, v2, v3);
         OpenGLHelper.checkGLError(gl,logger);
     }
 
     public void setVector3d(GL3 gl, String name, Vector3d value) {
-        int location = getUniformLocation(gl, name);
-        if(location==-1) return;
-        gl.glUniform3f(location, (float) value.x, (float) value.y, (float) value.z);
+        gl.glUniform3f(getUniformLocation(gl, name), (float) value.x, (float) value.y, (float) value.z);
         OpenGLHelper.checkGLError(gl,logger);
     }
 
@@ -144,16 +132,12 @@ public class ShaderProgram {
      * @param value the matrix to set
      */
     public void setMatrix4d(GL3 gl, String name, Matrix4d value) {
-        int location = getUniformLocation(gl, name);
-        if(location==-1) return;
-        gl.glUniformMatrix4fv(location, 1, false, MatrixHelper.matrixToFloatBuffer(value));
+        gl.glUniformMatrix4fv(getUniformLocation(gl, name), 1, false, MatrixHelper.matrixToFloatBuffer(value));
         OpenGLHelper.checkGLError(gl,logger);
     }
 
     public void set1i(GL3 gl, String name, int value) {
-        int location = getUniformLocation(gl, name);
-        if(location==-1) return;
-        gl.glUniform1i(location, value);
+        gl.glUniform1i(getUniformLocation(gl, name), value);
         OpenGLHelper.checkGLError(gl,logger);
     }
 

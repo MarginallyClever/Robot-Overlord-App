@@ -88,7 +88,7 @@ public class MatrixHelper {
 	
 	/**
 	 * Draw the three vectors of a matrix at a point
-	 * @param gl render context
+	 * @param gl viewport context
 	 * @param p position at which to draw
 	 * @param u in yellow (1,1,0)
 	 * @param v in teal (0,1,1)
@@ -915,7 +915,7 @@ public class MatrixHelper {
 
 	/**
 	 *
-	 * @param gl render context
+	 * @param gl viewport context
 	 * @param type either GL3.GL_MODELVIEW_MATRIX or GL3.GL_PROJECTION_MATRIX
 	 * @return
 	 */
