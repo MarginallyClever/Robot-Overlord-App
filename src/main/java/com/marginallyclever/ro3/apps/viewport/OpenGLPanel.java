@@ -17,13 +17,12 @@ import java.awt.*;
 public class OpenGLPanel extends App implements GLEventListener, MouseListener, MouseMotionListener, MouseWheelListener {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLPanel.class);
     protected GLJPanel glCanvas;
-    private final boolean hardwareAccelerated = true;
-    private final boolean backgroundOpaque = false;
-    private final boolean doubleBuffered = true;
-    private final int fsaaSamples = 2;
+    private boolean hardwareAccelerated = true;
+    private boolean doubleBuffered = true;
+    private int fsaaSamples = 2;
+    private boolean verticalSync = true;
     private final int fps = 30;
     private final FPSAnimator animator = new FPSAnimator(fps);
-    private final boolean verticalSync = true;
 
     public OpenGLPanel() {
         super(new BorderLayout());
@@ -63,7 +62,7 @@ public class OpenGLPanel extends App implements GLEventListener, MouseListener, 
         GLProfile profile = GLProfile.getMaxProgrammable(true);
         GLCapabilities capabilities = new GLCapabilities(profile);
         capabilities.setHardwareAccelerated(hardwareAccelerated);
-        capabilities.setBackgroundOpaque(backgroundOpaque);
+        capabilities.setBackgroundOpaque(true);
         capabilities.setDoubleBuffered(doubleBuffered);
         capabilities.setStencilBits(8);
         if(fsaaSamples>0) {
@@ -152,4 +151,39 @@ public class OpenGLPanel extends App implements GLEventListener, MouseListener, 
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {}
+
+
+    public boolean isHardwareAccelerated() {
+        return hardwareAccelerated;
+    }
+
+    public void setHardwareAccelerated(boolean hardwareAccelerated) {
+        this.hardwareAccelerated = hardwareAccelerated;
+    }
+
+    @Override
+    public boolean isDoubleBuffered() {
+        return doubleBuffered;
+    }
+
+    @Override
+    public void setDoubleBuffered(boolean doubleBuffered) {
+        this.doubleBuffered = doubleBuffered;
+    }
+
+    public int getFsaaSamples() {
+        return fsaaSamples;
+    }
+
+    public void setFsaaSamples(int fsaaSamples) {
+        this.fsaaSamples = fsaaSamples;
+    }
+
+    public boolean isVerticalSync() {
+        return verticalSync;
+    }
+
+    public void setVerticalSync(boolean verticalSync) {
+        this.verticalSync = verticalSync;
+    }
 }
