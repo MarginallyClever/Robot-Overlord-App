@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.parameters.swing;
 
 import com.marginallyclever.robotoverlord.parameters.ColorParameter;
-import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.UndoSystem;
 import com.marginallyclever.ro3.apps.shared.BackgroundPaintedButton;
 import com.marginallyclever.robotoverlord.swing.edits.ColorParameterEdit;
 
@@ -14,7 +14,7 @@ import java.beans.PropertyChangeListener;
  * Panel to alter a color parameter (four float values).
  * @author Dan Royer
  */
-public class ViewElementColor extends ViewElement implements PropertyChangeListener {
+@Deprecated public class ViewElementColor extends ViewElement implements PropertyChangeListener {
 	private final BackgroundPaintedButton chooseButton = new BackgroundPaintedButton("");
 	private final ColorParameter parameter;
 	

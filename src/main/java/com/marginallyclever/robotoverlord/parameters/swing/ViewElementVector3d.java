@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.parameters.swing;
 
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.robotoverlord.parameters.Vector3DParameter;
-import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.UndoSystem;
 import com.marginallyclever.robotoverlord.swing.edits.Vector3dParameterEdit;
 
 import javax.swing.*;
@@ -22,7 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Dan Royer
  *
  */
-public class ViewElementVector3d extends ViewElement implements DocumentListener, PropertyChangeListener {
+@Deprecated public class ViewElementVector3d extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private final JTextField [] fields = new JTextField[3];
 	private final Vector3DParameter parameter;
 	private final ReentrantLock lock = new ReentrantLock();

@@ -1,9 +1,13 @@
 package com.marginallyclever.ro3;
 
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
+import com.marginallyclever.ro3.mesh.MeshFactory;
 import com.marginallyclever.ro3.node.nodes.*;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
+import com.marginallyclever.ro3.node.nodes.pose.Limb;
+import com.marginallyclever.ro3.node.nodes.pose.LookAt;
+import com.marginallyclever.ro3.node.nodes.pose.MeshInstance;
 import com.marginallyclever.ro3.texture.TextureFactory;
 
 import javax.swing.event.EventListenerList;
@@ -11,7 +15,6 @@ import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -21,6 +24,7 @@ public class Registry {
 
     public static final EventListenerList listeners = new EventListenerList();
     public static final TextureFactory textureFactory = new TextureFactory();
+    public static final MeshFactory meshFactory = new MeshFactory();
     public static final Factory<Node> nodeFactory = new Factory<>(Node.class);
     private static Node scene = new Node("Scene");
     public static final ListWithEvents<Camera> cameras = new ListWithEvents<>();
@@ -33,6 +37,7 @@ public class Registry {
         Factory.Category<Node> nodule = nodeFactory.getRoot().add("Node", Node::new);
         nodule.add("DHParameter", DHParameter::new);
         nodule.add("HingeJoint", HingeJoint::new);
+        nodule.add("LimbSolver", LimbSolver::new);
         nodule.add("MarlinRobotArm", MarlinRobotArm::new);
         nodule.add("Material", Material::new);
         nodule.add("MeshInstance", MeshInstance::new);
@@ -40,7 +45,7 @@ public class Registry {
         Factory.Category<Node> pose = nodule.add("Pose", Pose::new);
             pose.add("Camera", Camera::new);
             pose.add("LookAt", LookAt::new);
-
+            pose.add("Limb", Limb::new);
         reset();
     }
 

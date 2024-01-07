@@ -1,11 +1,13 @@
 package com.marginallyclever.ro3.mesh.load;
 
 import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.MeshFactory;
 
 import java.io.BufferedInputStream;
 
 /**
- * {@link MeshLoader} interface for all classes that load a {@link Mesh}.  Call upon by {@link MeshFactory}
+ * <p>{@link MeshLoader} interface for all classes that load a {@link Mesh}.</p>
+ * <p>All {@link MeshLoader} should be registered with the {@link MeshFactory}.</p>
  * @author Dan Royer
  *
  */

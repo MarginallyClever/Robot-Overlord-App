@@ -2,15 +2,14 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.pose.MeshInstance;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.text.NumberFormatter;
 import javax.vecmath.Matrix4d;
 import java.awt.*;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +20,20 @@ import java.util.List;
  * <p>The DH parameters can be derived by finding the common normals between two consecutive Z axes.  The new X axis
  * points along the common normal.  The intersection point of the two normals may be outside the physical structure
  * being described.</p>
+ * <p>This class provides several functionalities:</p>
+ * <ul>
+ * <li>It can convert a Pose to Denavit-Hartenberg parameters.</li>
+ * <li>It can convert Denavit-Hartenberg parameters to a Pose.</li>
+ * <li>It can adjust the local transformations of all MeshInstance siblings.</li>
+ * <li>It can serialize and deserialize itself to and from JSON format.</li>
+ * </ul>
+ * This class also provides several properties:
+ * <ul>
+ * <li><b>d</b>: the distance along the previous z to the common normal.</li>
+ * <li><b>r</b>: the length of the common normal. Assuming a revolute joint, this is the radius about the previous z.</li>
+ * <li><b>alpha</b>: the angle about the common normal to align the previous z to the new z.</li>
+ * <li><b>theta</b>: the angle about the previous z for the common normal.</li>
+ * </ul>
  */
 public class DHParameter extends Node {
     private static final Logger logger = LoggerFactory.getLogger(DHParameter.class);

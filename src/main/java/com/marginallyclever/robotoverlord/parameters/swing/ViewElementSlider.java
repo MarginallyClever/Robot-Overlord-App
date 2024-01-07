@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.parameters.swing;
 
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
-import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.UndoSystem;
 import com.marginallyclever.robotoverlord.swing.edits.IntParameterEdit;
 
 import javax.swing.*;
@@ -15,7 +15,7 @@ import java.beans.PropertyChangeListener;
  * Panel to alter a color parameter (four float values).
  * @author Dan Royer
  */
-public class ViewElementSlider extends ViewElement implements ChangeListener, PropertyChangeListener {
+@Deprecated public class ViewElementSlider extends ViewElement implements ChangeListener, PropertyChangeListener {
 	private final JSlider field = new JSlider();
 	private final JLabel value;
 	private final IntParameter parameter;

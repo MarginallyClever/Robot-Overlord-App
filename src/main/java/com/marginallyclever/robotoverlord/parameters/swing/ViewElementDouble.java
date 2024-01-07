@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.parameters.swing;
 
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.UndoSystem;
 import com.marginallyclever.robotoverlord.swing.edits.DoubleParameterEdit;
 
 import javax.swing.*;
@@ -21,7 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Dan Royer
  *
  */
-public class ViewElementDouble extends ViewElement implements DocumentListener, PropertyChangeListener {
+@Deprecated public class ViewElementDouble extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private final JLabel label;
 	private final JTextField field;
 	private final DoubleParameter parameter;

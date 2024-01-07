@@ -30,6 +30,11 @@ public class DockingPanel extends JPanel implements Dockable {
         return tabText;
     }
 
+    /**
+     * Refuse to wrap this {@link DockingPanel} in a {@link JScrollPane}.  The panel is responsibile for scrolling,
+     * not the docking system.
+     * @return false
+     */
     @Override
     public boolean isWrappableInScrollpane() {
         return false;

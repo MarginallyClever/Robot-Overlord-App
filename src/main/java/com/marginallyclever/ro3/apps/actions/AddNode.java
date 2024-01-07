@@ -3,7 +3,7 @@ package com.marginallyclever.ro3.apps.actions;
 import com.marginallyclever.ro3.apps.FactoryPanel;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.UndoSystem;
 
 import javax.swing.*;
 import java.awt.*;

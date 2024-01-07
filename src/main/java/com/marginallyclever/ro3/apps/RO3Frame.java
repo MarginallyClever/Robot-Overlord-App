@@ -12,7 +12,6 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.marginallyclever.communications.application.TextInterfaceToSessionLayer;
 import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.RO3;
-import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.about.AboutPanel;
 import com.marginallyclever.ro3.apps.actions.*;
 import com.marginallyclever.ro3.apps.editorpanel.EditorPanel;
@@ -21,8 +20,8 @@ import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
 import com.marginallyclever.ro3.apps.webcampanel.WebCamPanel;
-import com.marginallyclever.ro3.apps.render.OpenGLPanel;
-import com.marginallyclever.ro3.apps.render.Viewport;
+import com.marginallyclever.ro3.apps.viewport.OpenGLPanel;
+import com.marginallyclever.ro3.apps.viewport.Viewport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +43,8 @@ import java.util.Properties;
 import java.util.prefs.Preferences;
 
 /**
- * The main window for the Robot Overlord 3 application.  Handles all the menus and docking panels.
+ * <p>{@link RO3Frame} is the main frame for the Robot Overlord 3 application.  It contains the menu bar and docking
+ * panels.  It also maintains one instance of each {@link App}.</p>
  */
 public class RO3Frame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(RO3Frame.class);

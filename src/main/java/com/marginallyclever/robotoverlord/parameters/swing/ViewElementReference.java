@@ -3,7 +3,7 @@ package com.marginallyclever.robotoverlord.parameters.swing;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
-import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.UndoSystem;
 import com.marginallyclever.robotoverlord.swing.componentmanagerpanel.EntityChooser;
 import com.marginallyclever.robotoverlord.swing.edits.StringParameterEdit;
 
@@ -19,7 +19,7 @@ import java.util.List;
  * @author Dan Royer
  * @since 2.5.0
  */
-public class ViewElementReference extends ViewElement implements ActionListener {
+@Deprecated public class ViewElementReference extends ViewElement implements ActionListener {
 	private final JTextField field = new FocusTextField(20);
 	private final ReferenceParameter parameter;
 	private final EntityManager entityManager;

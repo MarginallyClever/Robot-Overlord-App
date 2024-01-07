@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.swing.actions;
 
 import com.marginallyclever.robotoverlord.*;
 import com.marginallyclever.robotoverlord.swing.UnicodeIcon;
-import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.UndoSystem;
 import com.marginallyclever.robotoverlord.swing.translator.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * {@link NodeTreeView} is a panel that displays the node tree.
+ * {@link NodeTreeView} is a panel that displays the tree of nodes in the {@link Registry} scene.
  */
 public class NodeTreeView extends App
         implements NodeAttachListener, NodeDetachListener, NodeRenameListener,

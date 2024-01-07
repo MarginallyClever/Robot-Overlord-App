@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
 import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.Limb;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -13,7 +14,7 @@ import java.util.Arrays;
  */
 public class ApproximateJacobianFiniteDifferences extends ApproximateJacobian {
     public double ANGLE_STEP_SIZE_DEGREES = 0.1; // degrees
-    protected ApproximateJacobianFiniteDifferences(MarlinRobotArm arm) {
+    public ApproximateJacobianFiniteDifferences(Limb arm) {
         super(arm.getNumJoints());
 
         Pose endEffector = arm.getEndEffector();

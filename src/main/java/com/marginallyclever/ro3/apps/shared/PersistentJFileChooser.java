@@ -5,6 +5,10 @@ import java.awt.*;
 import java.util.prefs.Preferences;
 import java.io.File;
 
+/**
+ * <p>{@link PersistentJFileChooser} is a {@link JFileChooser} that uses {@link Preferences} to remember the last
+ * directory used.  All instances share the same memory.</p>
+ */
 public class PersistentJFileChooser extends JFileChooser {
     private static final String LAST_USED_DIR = "lastUsedDirectory";
     private final Preferences prefs;

@@ -3,22 +3,32 @@ package com.marginallyclever.ro3.node.nodes;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.render.Viewport;
 
 import javax.swing.*;
-import javax.swing.text.NumberFormatter;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.security.InvalidParameterException;
-import java.text.NumberFormat;
 import java.util.List;
 
 /**
- * <p>A {@link Camera} is a {@link Pose} that can be used by a {@link Viewport} to
- * render the scene.</p>
- * <p>For perspective rendering it has a vertical field of view and a near and far clipping plane.</p>
+ * <p>The Camera class is a subclass of the Pose class and is used by a Viewport to viewport the scene in a 3D graphics or game engine. This class provides several functionalities:</p>
+ * <ul>
+ *     <li>It can be set to viewport in orthographic projection.</li>
+ *     <li>It has a vertical field of view, a near and far clipping plane for perspective rendering.</li>
+ *     <li>It can translate and rotate relative to its current orientation.</li>
+ *     <li>It can look at a specific point in the scene.</li>
+ *     <li>It can orbit around a point at a certain radius.</li>
+ *     <li>It can get the point it is orbiting around.</li>
+ *     <li>It can change the distance from itself to the orbit point.</li>
+ *     <li>It can get the distance from itself to the orbit point.</li>
+ *     <li>It can get the perspective frustum and orthographic matrix.</li>
+ *     <li>It can get the chosen projection matrix based on whether it is set to draw in orthographic or not.</li>
+ *     <li>It can get the view matrix.</li>
+ *     <li>It can build a Swing Component that represents itself.</li>
+ * </ul>
+ *
  */
 public class Camera extends Pose {
     private boolean drawOrthographic = false;

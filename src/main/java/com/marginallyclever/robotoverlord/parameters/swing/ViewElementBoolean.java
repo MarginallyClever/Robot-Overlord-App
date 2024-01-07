@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.parameters.swing;
 
 import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
-import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.UndoSystem;
 import com.marginallyclever.robotoverlord.swing.edits.BooleanParameterEdit;
 
 import javax.swing.*;
@@ -17,7 +17,7 @@ import java.beans.PropertyChangeListener;
  * @author Dan Royer
  *
  */
-public class ViewElementBoolean extends ViewElement implements PropertyChangeListener {
+@Deprecated public class ViewElementBoolean extends ViewElement implements PropertyChangeListener {
 	private final JLabel label;
 	private final JCheckBox field = new JCheckBox();
 	

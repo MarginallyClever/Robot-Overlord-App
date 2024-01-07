@@ -18,7 +18,7 @@ import java.util.List;
  * @author Dan Royer
  * @since 1.6.0
  */
-public class ComponentSwingViewFactory {
+@Deprecated public class ComponentSwingViewFactory {
 	private final ViewElementFactory viewElementFactory;
 	private final JPanel result = new JPanel();
 	private final GridBagConstraints gbc = new GridBagConstraints();

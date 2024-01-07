@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.parameters.swing;
 
 import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
-import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.UndoSystem;
 import com.marginallyclever.robotoverlord.swing.edits.StringParameterEdit;
 import com.marginallyclever.robotoverlord.swing.translator.Translator;
 
@@ -23,7 +23,7 @@ import java.util.List;
  * @author Dan Royer
  *
  */
-public class ViewElementFilename extends ViewElement implements ActionListener {
+@Deprecated public class ViewElementFilename extends ViewElement implements ActionListener {
 	private static final JFileChooser chooser = new JFileChooser(PathHelper.SCENE_PATH);
 	private final JLabel label;
 	private final JTextField field = new JTextField(15);

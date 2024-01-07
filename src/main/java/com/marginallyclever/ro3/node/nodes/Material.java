@@ -1,8 +1,8 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.dialogs.TextureChooserDialog;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.apps.dialogs.TextureFactoryDialog;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.json.JSONObject;
 
@@ -12,7 +12,19 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 /**
- * {@link Material} contains properties for rendering a surface.  The first use case is to apply a texture to a mesh.
+ * <p>{@link Material} contains properties for rendering a surface.  The first use case is to apply a texture to a
+ * {@link com.marginallyclever.ro3.mesh.Mesh}.</p>
+ *
+ * <p>This class provides several functionalities:</p>
+ * <ul>
+ * <li>It can set and get the texture.</li>
+ * <li>It can set and get the diffuse color.</li>
+ * <li>It can set and get the specular color.</li>
+ * <li>It can set and get the emission color.</li>
+ * <li>It can set and get the shininess.</li>
+ * <li>It can set and get the lit status.</li>
+ * <li>It can serialize and deserialize itself to and from JSON format.</li>
+ * </ul>
  */
 public class Material extends Node {
     private TextureWithMetadata texture;
@@ -46,10 +58,11 @@ public class Material extends Node {
         JButton button = new JButton();
         setTextureButtonLabel(button);
         button.addActionListener(e -> {
-            TextureFactoryDialog textureFactoryDialog = new TextureFactoryDialog();
-            int result = textureFactoryDialog.run();
+            var textureChooserDialog = new TextureChooserDialog();
+            textureChooserDialog.setSelectedItem(texture);
+            int result = textureChooserDialog.run(pane);
             if(result == JFileChooser.APPROVE_OPTION) {
-                texture = textureFactoryDialog.getTexture();
+                texture = textureChooserDialog.getSelectedItem();
                 setTextureButtonLabel(button);
             }
         });
@@ -91,18 +104,35 @@ public class Material extends Node {
         });
         addLabelAndComponent(pane,"Emissive",selectColorEmission,gbc);
 
-        // shininess
-        JSlider shininessSlider = new JSlider(0,128,getShininess());
-        shininessSlider.addChangeListener(e -> setShininess(shininessSlider.getValue()));
-        addLabelAndComponent(pane,"Shininess",shininessSlider,gbc);
-
         // lit
         JToggleButton isLitButton = new JToggleButton("Lit",isLit());
         isLitButton.addActionListener(e -> setLit(isLitButton.isSelected()));
         addLabelAndComponent(pane,"Lit",isLitButton,gbc);
 
+        // shininess
+        gbc.gridx=0;
+        gbc.gridy++;
+        gbc.gridwidth=2;
+        pane.add(createShininessSlider(),gbc);
+
         super.getComponents(list);
 
+    }
+
+    private JComponent createShininessSlider() {
+        JPanel container = new JPanel(new BorderLayout());
+
+        JSlider slider = new JSlider(0,128,getShininess());
+        slider.addChangeListener(e -> setShininess(slider.getValue()));
+
+        // Make the slider fill the available horizontal space
+        slider.setMaximumSize(new Dimension(Integer.MAX_VALUE, slider.getPreferredSize().height));
+        slider.setMinimumSize(new Dimension(50, slider.getPreferredSize().height));
+
+        container.add(new JLabel("Shininess"), BorderLayout.LINE_START);
+        container.add(slider, BorderLayout.CENTER); // Add slider to the center of the container
+
+        return container;
     }
 
     public BufferedImage scaleImage(BufferedImage sourceImage,int size) {

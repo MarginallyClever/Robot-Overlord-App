@@ -4,6 +4,9 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.Objects;
 
+/**
+ * Clear the text area of the {@link EditorPanel}
+ */
 public class NewAction extends AbstractAction {
     private final EditorPanel editorPanel;
 

@@ -8,7 +8,7 @@ import java.awt.event.KeyEvent;
 import java.util.Objects;
 
 /**
- * go back one step in the undo/redo history.
+ * Go back one step in the undo/redo history.
  * @author Dan Royer
  */
 public class UndoAction extends AbstractAction {

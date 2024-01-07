@@ -133,7 +133,7 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
      * @return a list of all nodes matching the search criteria
      */
     private List<Node> findAllNodesMatching(Node rootNode, String searchCriteria) {
-        boolean isRegex = searchBar.isRegex();
+        boolean isRegex = searchBar.getRegex();
         List<Node> matches = new ArrayList<>();
         List<Node> toSearch = new ArrayList<>();
         toSearch.add(rootNode);

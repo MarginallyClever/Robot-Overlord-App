@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.parameters.swing;
 
 import com.marginallyclever.robotoverlord.parameters.StringParameter;
-import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.UndoSystem;
 import com.marginallyclever.robotoverlord.swing.edits.StringParameterEdit;
 
 import javax.swing.*;
@@ -17,7 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Dan Royer
  *
  */
-public class ViewElementString extends ViewElement implements DocumentListener, PropertyChangeListener {
+@Deprecated public class ViewElementString extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private final JTextField field = new FocusTextField(20);
 	private final StringParameter parameter;
 	private final ReentrantLock lock = new ReentrantLock();
