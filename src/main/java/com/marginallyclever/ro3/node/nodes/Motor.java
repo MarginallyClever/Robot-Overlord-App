@@ -87,6 +87,6 @@ public class Motor extends Node {
     }
 
     public boolean hasAxle() {
-        return hinge.getSubject()!=null;
+        return getHinge()!=null;
     }
 }

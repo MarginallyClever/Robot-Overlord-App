@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.Limb;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
@@ -19,7 +20,7 @@ public class ApproximateJacobianScrewTheory extends ApproximateJacobian {
 	 * Given the current pose of the robot, find the approximate jacobian.
 	 * @param arm the robot to analyze.
 	 */
-	public ApproximateJacobianScrewTheory(MarlinRobotArm arm) {
+	public ApproximateJacobianScrewTheory(Limb arm) {
 		super(arm.getNumJoints());
 
 		Pose parentPose = arm.findParent(Pose.class);
