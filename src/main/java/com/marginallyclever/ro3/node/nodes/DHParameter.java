@@ -2,15 +2,14 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.pose.MeshInstance;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.text.NumberFormatter;
 import javax.vecmath.Matrix4d;
 import java.awt.*;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 

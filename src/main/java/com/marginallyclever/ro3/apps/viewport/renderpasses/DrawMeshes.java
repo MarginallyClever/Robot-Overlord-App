@@ -11,7 +11,7 @@ import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.node.nodes.Material;
-import com.marginallyclever.ro3.node.nodes.MeshInstance;
+import com.marginallyclever.ro3.node.nodes.pose.MeshInstance;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.mesh.Mesh;
