@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -74,7 +76,19 @@ public class TextureFactory {
     /**
      * @return a list of all the textures loaded.
      */
-    public ListWithEvents<TextureWithMetadata> getAllTextures() {
+    public ListWithEvents<TextureWithMetadata> getPool() {
         return texturePool;
+    }
+
+    public List<FileFilter> getAllExtensions() {
+        List<FileFilter> result = new ArrayList<>();
+        String[] suffixes = ImageIO.getReaderFileSuffixes();
+
+        for (String suffix : suffixes) {
+            FileFilter filter = new FileNameExtensionFilter(suffix + " files", suffix);
+            result.add(filter);
+        }
+
+        return result;
     }
 }

@@ -1,30 +1,30 @@
 package com.marginallyclever.ro3.apps.dialogs;
 
+import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
+import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
+import com.marginallyclever.ro3.texture.TextureWithMetadata;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.Objects;
 
-import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
-import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
-import com.marginallyclever.ro3.mesh.Mesh;
-import com.marginallyclever.ro3.mesh.MeshFactory;
-
 /**
- * <p>The {@link MeshChooserDialog} class allows for selecting a {@link com.marginallyclever.ro3.mesh.Mesh}
- * that has been previously loaded by the {@link MeshFactory}.
- * This class also provides access to the {@link MeshFactoryDialog} for loading additional meshes.</p>
+ * <p>The {@link TextureChooserDialog} class allows for selecting a {@link com.marginallyclever.ro3.texture.TextureWithMetadata}
+ * that has been previously loaded by the {@link com.marginallyclever.ro3.texture.TextureFactory}.
+ * This class also provides access to the {@link TextureFactoryDialog} for loading additional meshes.</p>
  * <p>TODO In the future it would be nice to count references and unload it when no longer needed.</p>
  */
-public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>, ItemRemovedListener<Mesh> {
-    private final DefaultListModel<Mesh> model = new DefaultListModel<>();
-    private final JList<Mesh> list = new JList<>();
+public class TextureChooserDialog extends JPanel
+        implements ItemAddedListener<TextureWithMetadata>, ItemRemovedListener<TextureWithMetadata> {
+    private final DefaultListModel<TextureWithMetadata> model = new DefaultListModel<>();
+    private final JList<TextureWithMetadata> list = new JList<>();
     private final JToolBar toolBar = new JToolBar();
-    private Mesh selectedItem;
+    private TextureWithMetadata selectedItem;
     private String viewType;
 
-    public MeshChooserDialog() {
+    public TextureChooserDialog() {
         super(new BorderLayout());
 
         setupToolbar();
@@ -38,9 +38,9 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
         add(clearButton, BorderLayout.SOUTH);
     }
 
-    public void setSelectedItem(Mesh mesh) {
+    public void setSelectedItem(TextureWithMetadata mesh) {
         selectedItem = mesh;
-        if(mesh==null) {
+        if (mesh == null) {
             list.clearSelection();
         } else {
             list.setSelectedValue(mesh, true);
@@ -50,18 +50,18 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
     private void setupToolbar() {
         toolBar.add(new JButton(new AbstractAction() {
             {
-                putValue(Action.NAME, "Load Mesh");
-                putValue(Action.SHORT_DESCRIPTION, "Load a mesh from a file.");
+                putValue(Action.NAME, "Load Texture");
+                putValue(Action.SHORT_DESCRIPTION, "Load a texture from a file.");
                 putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource(
                         "/com/marginallyclever/ro3/apps/actions/icons8-load-16.png"))));
             }
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                MeshFactoryDialog meshFactoryDialog = new MeshFactoryDialog();
-                int result = meshFactoryDialog.run();
+                var textureFactoryDialog = new TextureFactoryDialog();
+                int result = textureFactoryDialog.run();
                 if (result == JFileChooser.APPROVE_OPTION) {
-                    Mesh mesh = meshFactoryDialog.getMesh();
+                    TextureWithMetadata mesh = textureFactoryDialog.getTexture();
                     setSelectedItem(mesh);
                 }
             }
@@ -82,13 +82,13 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
         list.setCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                Mesh mesh = (Mesh) value;
-                String text = mesh.getSourceName() + " (" + mesh.getNumVertices() + " vertices)";
+                TextureWithMetadata item = (TextureWithMetadata) value;
+                String text = item.getSource() + " (" + item.getWidth()+"x"+item.getHeight()+")";
                 return super.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
             }
         });
 
-        for (Mesh mesh : Registry.meshFactory.getPool().getList()) {
+        for (TextureWithMetadata mesh : Registry.textureFactory.getPool().getList()) {
             model.addElement(mesh);
         }
         list.setModel(model);
@@ -98,15 +98,15 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
     @Override
     public void addNotify() {
         super.addNotify();
-        Registry.meshFactory.getPool().addItemAddedListener(this);
-        Registry.meshFactory.getPool().addItemRemovedListener(this);
+        Registry.textureFactory.getPool().addItemAddedListener(this);
+        Registry.textureFactory.getPool().addItemRemovedListener(this);
     }
 
     @Override
     public void removeNotify() {
         super.removeNotify();
-        Registry.meshFactory.getPool().removeItemAddedListener(this);
-        Registry.meshFactory.getPool().removeItemRemovedListener(this);
+        Registry.textureFactory.getPool().removeItemAddedListener(this);
+        Registry.textureFactory.getPool().removeItemRemovedListener(this);
     }
 
     private void updateView() {
@@ -115,17 +115,17 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
         // For example, for the "Thumbnail View", you could display a small preview of each mesh
     }
 
-    public Mesh getSelectedItem() {
+    public TextureWithMetadata getSelectedItem() {
         return selectedItem;
     }
 
     @Override
-    public void itemAdded(Object source, Mesh item) {
+    public void itemAdded(Object source, TextureWithMetadata item) {
         model.addElement(item);
     }
 
     @Override
-    public void itemRemoved(Object source, Mesh item) {
+    public void itemRemoved(Object source, TextureWithMetadata item) {
         model.removeElement(item);
     }
 
@@ -143,7 +143,7 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE,
                 new ImageIcon(Objects.requireNonNull(getClass().getResource(
-                        "/com/marginallyclever/ro3/apps/dialogs/icons8-mesh-16.png"))),
+                        "/com/marginallyclever/ro3/apps/dialogs/icons8-texture-16.png"))),
                 null,
                 null);
         if(result == JOptionPane.OK_OPTION) {

@@ -4,7 +4,6 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.dialogs.MeshChooserDialog;
-import com.marginallyclever.ro3.apps.dialogs.MeshFactoryDialog;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.MeshSmoother;
 import com.marginallyclever.ro3.raypicking.RayHit;
@@ -46,9 +45,10 @@ public class MeshInstance extends Pose {
         setMeshButtonLabel(select);
         select.addActionListener(e -> {
             var meshChooserDialog = new MeshChooserDialog();
+            meshChooserDialog.setSelectedItem(mesh);
             int result = meshChooserDialog.run(pane);
             if(result == JFileChooser.APPROVE_OPTION) {
-                mesh = meshChooserDialog.getMesh();
+                mesh = meshChooserDialog.getSelectedItem();
                 setMeshButtonLabel(select);
             }
         });

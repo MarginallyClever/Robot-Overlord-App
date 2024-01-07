@@ -17,14 +17,14 @@ import java.util.List;
  */
 public class MeshFactoryDialog {
     private static final Logger logger = LoggerFactory.getLogger(MeshFactoryDialog.class);
-    private static final JFileChooser chooser = new PersistentJFileChooser();
+    private final PersistentJFileChooser chooser = new PersistentJFileChooser();
     private Mesh lastMeshLoaded;
 
     public MeshFactoryDialog() {
         super();
 
         List<FileFilter> filters = Registry.meshFactory.getAllExtensions();
-        if (filters.isEmpty()) throw new RuntimeException("No MeshFactory filters found?!");
+        if (filters.isEmpty()) throw new RuntimeException("No filters found?!");
         if (filters.size() == 1) {
             chooser.setFileFilter(filters.get(0));
         } else {
@@ -38,7 +38,7 @@ public class MeshFactoryDialog {
      * @return JFileChooser.APPROVE_OPTION or JFileChooser.CANCEL_OPTION
      */
     public int run() {
-        int returnVal = chooser.showDialog(SwingUtilities.getWindowAncestor(chooser), "Select");
+        int returnVal = chooser.showOpenDialog(SwingUtilities.getWindowAncestor(chooser));
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             String absPath = chooser.getSelectedFile().getAbsolutePath();
             try {
