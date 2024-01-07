@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3;
 
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
+import com.marginallyclever.ro3.mesh.MeshFactory;
 import com.marginallyclever.ro3.node.nodes.*;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
@@ -11,7 +12,6 @@ import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -21,6 +21,7 @@ public class Registry {
 
     public static final EventListenerList listeners = new EventListenerList();
     public static final TextureFactory textureFactory = new TextureFactory();
+    public static final MeshFactory meshFactory = new MeshFactory();
     public static final Factory<Node> nodeFactory = new Factory<>(Node.class);
     private static Node scene = new Node("Scene");
     public static final ListWithEvents<Camera> cameras = new ListWithEvents<>();

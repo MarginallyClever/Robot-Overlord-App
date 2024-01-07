@@ -4,7 +4,6 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
 import com.marginallyclever.ro3.texture.TextureFactory;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
-import com.marginallyclever.ro3.mesh.load.MeshFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,14 +19,14 @@ import java.util.List;
  */
 public class TextureFactoryDialog {
     private static final Logger logger = LoggerFactory.getLogger(TextureFactoryDialog.class);
-    private static final JFileChooser chooser = new PersistentJFileChooser();
+    private final PersistentJFileChooser chooser = new PersistentJFileChooser();
     private TextureWithMetadata lastTextureLoaded;
 
     public TextureFactoryDialog() {
         super();
 
-        List<FileFilter> filters = MeshFactory.getAllExtensions();
-        if (filters.isEmpty()) throw new RuntimeException("No MeshFactory filters found?!");
+        List<FileFilter> filters = Registry.textureFactory.getAllExtensions();
+        if (filters.isEmpty()) throw new RuntimeException("No filters found?!");
         if (filters.size() == 1) {
             chooser.setFileFilter(filters.get(0));
         } else {
@@ -39,10 +38,10 @@ public class TextureFactoryDialog {
 
     /**
      *
-     * @return JFileChooser.APPROVE_OPTION or return JFileChooser.CANCEL_OPTION
+     * @return JFileChooser.APPROVE_OPTION or JFileChooser.CANCEL_OPTION
      */
     public int run() {
-        int returnVal = chooser.showDialog(SwingUtilities.getWindowAncestor(chooser), "Select");
+        int returnVal = chooser.showOpenDialog(SwingUtilities.getWindowAncestor(chooser));
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             String absPath = chooser.getSelectedFile().getAbsolutePath();
             lastTextureLoaded = Registry.textureFactory.load(absPath);

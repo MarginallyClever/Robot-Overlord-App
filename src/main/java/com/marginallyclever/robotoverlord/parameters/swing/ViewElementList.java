@@ -15,7 +15,7 @@ import java.util.List;
  * @author Dan Royer
  * @since 2.6.3
  */
-public class ViewElementList extends ViewElement {
+@Deprecated  class ViewElementList extends ViewElement {
     private final ListParameter<?> list;
     private final EntityManager entityManager;
     private final JPanel header = new JPanel(new BorderLayout(2,2));

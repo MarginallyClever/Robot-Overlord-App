@@ -43,14 +43,14 @@ public class ListWithEvents<T> {
     }
 
     protected void fireItemAdded(T item) {
-        for (ItemAddedListener<T> l : listenerList.getListeners(ItemAddedListener.class)) {
-            l.itemAdded(this,item);
+        for (ItemAddedListener<T> listener : listenerList.getListeners(ItemAddedListener.class)) {
+            listener.itemAdded(this,item);
         }
     }
 
     protected void fireItemRemoved(T item) {
-        for (ItemRemovedListener<T> l : listenerList.getListeners(ItemRemovedListener.class)) {
-            l.itemRemoved(this,item);
+        for (ItemRemovedListener<T> listener : listenerList.getListeners(ItemRemovedListener.class)) {
+            listener.itemRemoved(this,item);
         }
     }
 

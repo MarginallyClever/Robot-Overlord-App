@@ -13,7 +13,7 @@ import java.util.List;
  * @author Dan Royer
  * @since 2.6.3
  */
-public class ViewElementFactory {
+@Deprecated public class ViewElementFactory {
 	private final EntityManager entityManager;
 
 	public ViewElementFactory(EntityManager entityManager) {

@@ -187,10 +187,10 @@ public class MarlinRobotArm extends Node {
 
         // Make the slider fill the available horizontal space
         slider.setMaximumSize(new Dimension(Integer.MAX_VALUE, slider.getPreferredSize().height));
+        slider.setMinimumSize(new Dimension(50, slider.getPreferredSize().height));
 
         container.add(new JLabel("Linear Vel"), BorderLayout.LINE_START);
         container.add(slider, BorderLayout.CENTER); // Add slider to the center of the container
-
 
         return container;
     }

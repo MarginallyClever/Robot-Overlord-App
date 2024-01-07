@@ -14,7 +14,7 @@ import java.beans.PropertyChangeListener;
  * Panel to alter a color parameter (four float values).
  * @author Dan Royer
  */
-public class ViewElementColor extends ViewElement implements PropertyChangeListener {
+@Deprecated public class ViewElementColor extends ViewElement implements PropertyChangeListener {
 	private final BackgroundPaintedButton chooseButton = new BackgroundPaintedButton("");
 	private final ColorParameter parameter;
 	

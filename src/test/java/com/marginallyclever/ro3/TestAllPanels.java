@@ -49,7 +49,8 @@ public class TestAllPanels {
                 com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel.class,
                 com.marginallyclever.ro3.apps.DockingPanel.class,
                 com.marginallyclever.ro3.apps.FactoryPanel.class,
-                com.marginallyclever.ro3.apps.App.class
+                com.marginallyclever.ro3.apps.App.class,
+                com.marginallyclever.ro3.apps.nodeselector.NodeSelector.class
         );
 
         // first pass, create one of every panel that extends JPanel

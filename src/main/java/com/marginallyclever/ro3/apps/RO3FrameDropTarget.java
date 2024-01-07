@@ -3,7 +3,6 @@ package com.marginallyclever.ro3.apps;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.commands.ImportScene;
 import com.marginallyclever.ro3.node.nodes.MeshInstance;
-import com.marginallyclever.ro3.mesh.load.MeshFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,13 +67,13 @@ public class RO3FrameDropTarget extends DropTargetAdapter {
 
     private boolean importMesh(String absolutePath) {
         logger.debug("drag importMesh {}",absolutePath);
-        if(!MeshFactory.canLoad(absolutePath)) {
+        if(!Registry.meshFactory.canLoad(absolutePath)) {
             logger.info("can't load file.");
             return false;
         }
 
         MeshInstance meshInstance = new MeshInstance(getFilenameWithoutExtensionFromPath(absolutePath));
-        meshInstance.setMesh(MeshFactory.load(absolutePath));
+        meshInstance.setMesh(Registry.meshFactory.load(absolutePath));
         Registry.getScene().addChild(meshInstance);
         logger.error("done.");
         return true;

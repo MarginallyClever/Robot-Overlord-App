@@ -2,12 +2,14 @@ package com.marginallyclever.ro3.texture;
 
 import com.jogamp.opengl.GLAutoDrawable;
 import com.marginallyclever.convenience.helpers.FileHelper;
+import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +19,7 @@ import java.util.List;
  */
 public class TextureFactory {
     private static final Logger logger = LoggerFactory.getLogger(TextureFactory.class);
-    private final List<TextureWithMetadata> textures = new ArrayList<>();
+    private final ListWithEvents<TextureWithMetadata> texturePool = new ListWithEvents<>();
 
     public TextureFactory() {}
 
@@ -29,13 +31,13 @@ public class TextureFactory {
     public TextureWithMetadata load(String filename) {
         String absolutePath = FileHelper.getAbsolutePathOrFilename(filename);
 
-        for(TextureWithMetadata t : textures) {
+        for(TextureWithMetadata t : texturePool.getList()) {
             if(t.getSource().equals(absolutePath)) {
                 return t;
             }
         }
         TextureWithMetadata t = loadTexture(absolutePath);
-        if(t!=null) textures.add(t);
+        if(t!=null) texturePool.add(t);
         return t;
     }
 
@@ -54,7 +56,7 @@ public class TextureFactory {
      * Does not free the underlying {@link BufferedImage} data.
      */
     public void unloadAll() {
-        for(TextureWithMetadata t : textures) {
+        for(TextureWithMetadata t : texturePool.getList()) {
             t.unload();
         }
     }
@@ -64,10 +66,29 @@ public class TextureFactory {
      */
     public List<String> getAllSourcesForExport() {
         List<String> result = new ArrayList<>();
-        for(TextureWithMetadata t : textures) {
+        for(TextureWithMetadata t : texturePool.getList()) {
             if(t.isDoNotExport()) continue;
             result.add(t.getSource());
         }
+        return result;
+    }
+
+    /**
+     * @return a list of all the textures loaded.
+     */
+    public ListWithEvents<TextureWithMetadata> getPool() {
+        return texturePool;
+    }
+
+    public List<FileFilter> getAllExtensions() {
+        List<FileFilter> result = new ArrayList<>();
+        String[] suffixes = ImageIO.getReaderFileSuffixes();
+
+        for (String suffix : suffixes) {
+            FileFilter filter = new FileNameExtensionFilter(suffix + " files", suffix);
+            result.add(filter);
+        }
+
         return result;
     }
 }

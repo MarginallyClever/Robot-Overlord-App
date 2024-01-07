@@ -18,7 +18,7 @@ import java.beans.PropertyChangeListener;
  * @author Dan Royer
  * @since 2.5.0
  */
-public class ViewElementComboBox extends ViewElement implements ActionListener, PropertyChangeListener {
+@Deprecated public class ViewElementComboBox extends ViewElement implements ActionListener, PropertyChangeListener {
 	private final JComboBox<String> field;
 	private final IntParameter parameter;
 	

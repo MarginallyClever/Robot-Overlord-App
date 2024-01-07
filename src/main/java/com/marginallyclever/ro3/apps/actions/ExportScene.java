@@ -3,7 +3,6 @@ package com.marginallyclever.ro3.apps.actions;
 import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.RO3Frame;
-import com.marginallyclever.ro3.mesh.load.MeshFactory;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +90,7 @@ public class ExportScene extends AbstractAction {
         JSONObject json = Registry.getScene().toJSON();
 
         List<String> sources = Registry.textureFactory.getAllSourcesForExport();
-        sources.addAll(MeshFactory.getAllSourcesForExport());
+        sources.addAll(Registry.meshFactory.getAllSourcesForExport());
 
         createZipAndAddAssets(absolutePath, json.toString(), sources);
 

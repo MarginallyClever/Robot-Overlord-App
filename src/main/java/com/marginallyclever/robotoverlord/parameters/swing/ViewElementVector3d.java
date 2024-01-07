@@ -22,7 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Dan Royer
  *
  */
-public class ViewElementVector3d extends ViewElement implements DocumentListener, PropertyChangeListener {
+@Deprecated public class ViewElementVector3d extends ViewElement implements DocumentListener, PropertyChangeListener {
 	private final JTextField [] fields = new JTextField[3];
 	private final Vector3DParameter parameter;
 	private final ReentrantLock lock = new ReentrantLock();

@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.mesh.load;
 
 import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.MeshFactory;
 
 import java.io.BufferedInputStream;
 
