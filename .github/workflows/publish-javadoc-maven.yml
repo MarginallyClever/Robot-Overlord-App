@@ -15,8 +15,9 @@ jobs:
         uses: MathieuSoysal/Javadoc-publisher.yml@v2.4.0
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          javadoc-branch: javadoc-online
+          javadoc-branch: javadoc
           java-distribution: temurin
           java-version: 21
+          clean: 'true'
           target-folder: docs
           project: maven # or gradle
