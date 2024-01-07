@@ -227,6 +227,7 @@ public class MarlinRobotArm extends Node {
         outputLabel.setBorder(BorderFactory.createEmptyBorder(0,0,0,5));
         outputPanel.add(output,BorderLayout.CENTER);
         outputPanel.add(outputLabel,BorderLayout.LINE_START);
+        output.setMaximumSize(new Dimension(100, output.getPreferredSize().height));
         addMarlinListener(output::setText);
         return outputPanel;
     }
