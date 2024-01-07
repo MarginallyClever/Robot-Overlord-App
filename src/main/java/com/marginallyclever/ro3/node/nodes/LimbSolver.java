@@ -63,6 +63,8 @@ public class LimbSolver extends Node {
 
     private void moveTowardsTarget() {
         if(getLimb()==null || getEndEffector()==null || getTarget()==null || linearVelocity<0.0001) {
+            // no limb, no end effector, no target, or no velocity.  Do nothing.
+            getLimb().setAllJointVelocities(new double[getLimb().getNumJoints()]);
             return;
         }
         double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrices(
