@@ -23,7 +23,7 @@ import java.util.Objects;
  * joint velocities required to move the end effector towards the target in a straight line.
  */
 public class LimbSolver extends Node {
-    private final NodePath<Limb> limb = new NodePath<>(null,Limb.class);
+    private final NodePath<Limb> limb = new NodePath<>(this,Limb.class);
     private final NodePath<Pose> target = new NodePath<>(this,Pose.class);
     private double linearVelocity = 0;
 
