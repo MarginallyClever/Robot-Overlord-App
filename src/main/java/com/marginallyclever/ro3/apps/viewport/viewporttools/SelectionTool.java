@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.render.viewporttools;
+package com.marginallyclever.ro3.apps.viewport.viewporttools;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
@@ -9,13 +9,12 @@ import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.raypicking.RayHit;
 import com.marginallyclever.ro3.raypicking.RayPickSystem;
-import com.marginallyclever.ro3.apps.render.ShaderProgram;
-import com.marginallyclever.ro3.apps.render.Viewport;
+import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
+import com.marginallyclever.ro3.apps.viewport.Viewport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.vecmath.*;
-import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

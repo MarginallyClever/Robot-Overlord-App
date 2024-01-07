@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.render;
+package com.marginallyclever.ro3.apps.viewport;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -8,12 +8,12 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.render.renderpasses.*;
-import com.marginallyclever.ro3.apps.render.viewporttools.Compass3D;
-import com.marginallyclever.ro3.apps.render.viewporttools.SelectionTool;
-import com.marginallyclever.ro3.apps.render.viewporttools.ViewportTool;
-import com.marginallyclever.ro3.apps.render.viewporttools.move.RotateToolMulti;
-import com.marginallyclever.ro3.apps.render.viewporttools.move.TranslateToolMulti;
+import com.marginallyclever.ro3.apps.viewport.renderpasses.*;
+import com.marginallyclever.ro3.apps.viewport.viewporttools.Compass3D;
+import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectionTool;
+import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
+import com.marginallyclever.ro3.apps.viewport.viewporttools.move.RotateToolMulti;
+import com.marginallyclever.ro3.apps.viewport.viewporttools.move.TranslateToolMulti;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import org.slf4j.Logger;
@@ -51,6 +51,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private final List<ViewportTool> viewportTools = new ArrayList<>();
     private int activeToolIndex = -1;
     private ShaderProgram toolShader;
+    private final double userMovementScale = 1.0;
 
 
     public Viewport() {
@@ -138,7 +139,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     }
 
     /**
-     * Load the render pass state from the {@link java.util.prefs.Preferences}.
+     * Load the viewport pass state from the {@link java.util.prefs.Preferences}.
      */
     private void loadRenderPassState() {
         Preferences pref = Preferences.userNodeForPackage(this.getClass());
@@ -151,7 +152,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     }
 
     /**
-     * Save the render pass state to the {@link java.util.prefs.Preferences}.
+     * Save the viewport pass state to the {@link java.util.prefs.Preferences}.
      */
     public void saveRenderPassState() {
         Preferences pref = Preferences.userNodeForPackage(this.getClass());
@@ -196,7 +197,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         toolBar.add(button);
         // Add an ActionListener to the JButton to show the JPopupMenu when clicked
         button.addActionListener(e -> renderPassMenu.show(button, button.getWidth()/2, button.getHeight()/2));
-        button.setToolTipText("Select the render passes to use.");
+        button.setToolTipText("Select the viewport passes to use.");
 
         updateRenderPassMenu();
     }
@@ -237,7 +238,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     }
 
     /**
-     * Refreshes the entire contents of the render pass menu.
+     * Refreshes the entire contents of the viewport pass menu.
      */
     private void updateRenderPassMenu() {
         renderPassMenu.removeAll();
@@ -319,8 +320,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         try {
             toolShader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/render/default.vert"),
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/render/default.frag"));
+                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.vert"),
+                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.frag"));
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }
@@ -432,7 +433,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         assert camera != null;
 
         // scale based on orbit distance - smaller orbits need smaller movements
-        double scale = camera.getOrbitRadius() / 50d;
+        double scale = camera.getOrbitRadius() * userMovementScale / 50d;
         dx *= scale;
         dy *= scale;
 

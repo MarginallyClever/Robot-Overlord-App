@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.render.renderpasses;
+package com.marginallyclever.ro3.apps.viewport.renderpasses;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -6,11 +6,11 @@ import com.jogamp.opengl.GLContext;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.render.Viewport;
+import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.node.nodes.Pose;
-import com.marginallyclever.ro3.apps.render.ShaderProgram;
+import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Draw each {@link Pose} as RGB lines from the origin to the X,Y,Z axes.
@@ -38,8 +37,8 @@ public class DrawPoses extends AbstractRenderPass {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         try {
             shader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/render/default.vert"),
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/render/default.frag"));
+                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.vert"),
+                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.frag"));
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }

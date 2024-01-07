@@ -6,7 +6,7 @@ import com.marginallyclever.robotoverlord.components.RenderComponent;
 import javax.vecmath.Matrix4d;
 
 /**
- * A matrix, a material, and a render component.
+ * A matrix, a material, and a viewport component.
  */
 public class MatrixMaterialRender {
     public Matrix4d matrix = new Matrix4d();

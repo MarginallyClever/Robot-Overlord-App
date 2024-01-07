@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.render;
+package com.marginallyclever.ro3.apps.viewport;
 
 import com.jogamp.opengl.GLEventListener;
 import com.marginallyclever.ro3.Registry;
@@ -30,7 +30,7 @@ public interface RenderPass extends GLEventListener {
     String getName();
 
     /**
-     * Draw this render pass.
+     * Draw this viewport pass.
      * @param viewport the viewport to draw into
      */
     void draw(Viewport viewport);

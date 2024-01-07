@@ -155,7 +155,7 @@ public class OpenGLTestStencil extends OpenGLTestPerspective {
     /**
      * Render the given texture to the screen, for debugging purposes.
      * @param gl3 The OpenGL state
-     * @param textureID The texture to render
+     * @param textureID The texture to viewport
      */
     private void debugTexture(GL3 gl3,int textureID, ShaderProgram program) {
         // Use the debug texture shader

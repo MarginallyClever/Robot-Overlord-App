@@ -5,7 +5,7 @@ import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 
 /**
- * A component that should render a child component in a linear pattern.
+ * A component that should viewport a child component in a linear pattern.
  *
  * @since 2.6.0
  * @author Dan Royer

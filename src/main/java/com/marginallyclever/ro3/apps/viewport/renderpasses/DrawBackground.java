@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.render.renderpasses;
+package com.marginallyclever.ro3.apps.viewport.renderpasses;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
@@ -8,10 +8,10 @@ import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.render.Viewport;
+import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
-import com.marginallyclever.ro3.apps.render.ShaderProgram;
+import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,8 +95,8 @@ public class DrawBackground extends AbstractRenderPass {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         try {
             shader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/render/default.vert"),
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/render/default.frag"));
+                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.vert"),
+                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.frag"));
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }

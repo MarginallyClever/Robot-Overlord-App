@@ -1,15 +1,21 @@
-package com.marginallyclever.ro3.apps.render;
+package com.marginallyclever.ro3.apps.viewport;
 
 import com.marginallyclever.ro3.Registry;
 
-public class OpenGLPanelTest {
+import java.util.List;
+
+public class ViewportTest {
     public static void main(String[] args) {
         Registry.start();
 
-        OpenGLPanel panel = new OpenGLPanel();
+        Viewport panel = new Viewport();
+        List<RenderPass> list = panel.renderPasses.getList();
+        for(RenderPass rp : list) {
+            rp.setActiveStatus(RenderPass.NEVER);
+        }
 
         // create and display a frame
-        javax.swing.JFrame frame = new javax.swing.JFrame("OpenGLPanel Test");
+        javax.swing.JFrame frame = new javax.swing.JFrame("Viewport Test");
         frame.setContentPane(panel);
         frame.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
         frame.setSize(500, 600);

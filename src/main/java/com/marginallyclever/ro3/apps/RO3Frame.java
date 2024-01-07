@@ -20,8 +20,8 @@ import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
 import com.marginallyclever.ro3.apps.webcampanel.WebCamPanel;
-import com.marginallyclever.ro3.apps.render.OpenGLPanel;
-import com.marginallyclever.ro3.apps.render.Viewport;
+import com.marginallyclever.ro3.apps.viewport.OpenGLPanel;
+import com.marginallyclever.ro3.apps.viewport.Viewport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

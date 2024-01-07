@@ -207,8 +207,8 @@ public class Mesh {
 	/**
 	 * Render a portion of the mesh.
 	 * @param gl the OpenGL context
-	 * @param startIndex index of the first vertex to render
-	 * @param count number of vertices to render
+	 * @param startIndex index of the first vertex to viewport
+	 * @param count number of vertices to viewport
 	 */
 	public void render(GL3 gl,int startIndex,int count) {
 		if(!isLoaded) {

@@ -1,12 +1,12 @@
-package com.marginallyclever.ro3.apps.render.viewporttools;
+package com.marginallyclever.ro3.apps.viewport.viewporttools;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.render.ShaderProgram;
-import com.marginallyclever.ro3.apps.render.Viewport;
+import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
+import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.shapes.CircleXY;
 import com.marginallyclever.ro3.node.Node;
@@ -50,7 +50,7 @@ public class Compass3D implements ViewportTool {
 
     public Compass3D() {
         super();
-        texture = Registry.textureFactory.load("/com/marginallyclever/ro3/apps/render/viewporttools/axisLetters.png");
+        texture = Registry.textureFactory.load("/com/marginallyclever/ro3/apps/viewport/viewporttools/axisLetters.png");
 
         createQuadMesh();
     }

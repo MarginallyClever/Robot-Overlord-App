@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.render;
+package com.marginallyclever.ro3.apps.viewport;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
@@ -127,7 +127,7 @@ public class ShaderProgram {
     /**
      * Set a matrix in the shader.  OpenGL uses column-major order, where Java and DirectX use row-major order.
      * Don't forget to transpose!
-     * @param gl the render context
+     * @param gl the viewport context
      * @param name the name of the uniform variable
      * @param value the matrix to set
      */

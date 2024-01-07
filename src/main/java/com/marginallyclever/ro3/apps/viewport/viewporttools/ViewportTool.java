@@ -1,9 +1,9 @@
-package com.marginallyclever.ro3.apps.render.viewporttools;
+package com.marginallyclever.ro3.apps.viewport.viewporttools;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.apps.render.ShaderProgram;
-import com.marginallyclever.ro3.apps.render.Viewport;
+import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
+import com.marginallyclever.ro3.apps.viewport.Viewport;
 
 import javax.vecmath.Point3d;
 import java.awt.event.KeyEvent;

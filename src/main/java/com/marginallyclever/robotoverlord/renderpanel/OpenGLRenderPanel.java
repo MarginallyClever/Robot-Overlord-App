@@ -306,7 +306,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         try {
             renderStep(getGL3(drawable));
         } catch(Exception e) {
-            logger.error("Exception during render",e);
+            logger.error("Exception during viewport",e);
         }
     }
 
@@ -383,14 +383,14 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
 
     private void createShaderPrograms(GL3 gl3) {
         shaderDefault = new ShaderProgram(gl3,
-            readResource("/com/marginallyclever/ro3/apps/render/unused/default_330.vert"),
-            readResource("/com/marginallyclever/ro3/apps/render/unused/default_330.frag"));
+            readResource("/com/marginallyclever/ro3/apps/viewport/unused/default_330.vert"),
+            readResource("/com/marginallyclever/ro3/apps/viewport/unused/default_330.frag"));
         shaderOutline = new ShaderProgram(gl3,
-            readResource("/com/marginallyclever/ro3/apps/render/unused/outline_330.vert"),
-            readResource("/com/marginallyclever/ro3/apps/render/unused/outline_330.frag"));
+            readResource("/com/marginallyclever/ro3/apps/viewport/unused/outline_330.vert"),
+            readResource("/com/marginallyclever/ro3/apps/viewport/unused/outline_330.frag"));
         shaderHUD = new ShaderProgram(gl3,
-            readResource("/com/marginallyclever/ro3/apps/render/unused/default_330.vert"),
-            readResource("/com/marginallyclever/ro3/apps/render/unused/givenColor_330.frag"));
+            readResource("/com/marginallyclever/ro3/apps/viewport/unused/default_330.vert"),
+            readResource("/com/marginallyclever/ro3/apps/viewport/unused/givenColor_330.frag"));
     }
 
     private void destroyShaderPrograms(GL3 gl) {
@@ -668,7 +668,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
     /**
      * Render all the lists in an {@link MatrixMaterialRenderSet} in the correct order.
      * @param gl the OpenGL context
-     * @param mmrSet the set to render
+     * @param mmrSet the set to viewport
      * @param shaderProgram the shader to use
      */
     private void renderMMRSet(GL3 gl, MatrixMaterialRenderSet mmrSet, ShaderProgram shaderProgram) {

@@ -1,10 +1,9 @@
-package com.marginallyclever.ro3.apps.render;
+package com.marginallyclever.ro3.apps.viewport;
 
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.ro3.apps.App;
-import com.marginallyclever.ro3.apps.DockingPanel;
 import com.marginallyclever.ro3.Registry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

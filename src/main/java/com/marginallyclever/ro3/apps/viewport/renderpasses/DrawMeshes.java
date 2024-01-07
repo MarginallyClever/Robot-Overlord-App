@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.render.renderpasses;
+package com.marginallyclever.ro3.apps.viewport.renderpasses;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -7,13 +7,13 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.render.Viewport;
+import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.MeshInstance;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
-import com.marginallyclever.ro3.apps.render.ShaderProgram;
+import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,7 +105,7 @@ public class DrawMeshes extends AbstractRenderPass {
         // before, set up the shadow FBO
         gl3.glViewport(0,0,SHADOW_WIDTH,SHADOW_HEIGHT);
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, shadowFBO[0]);
-        // setup shader and render to depth map
+        // setup shader and viewport to depth map
         gl3.glClear(GL3.GL_DEPTH_BUFFER_BIT);
         gl3.glEnable(GL3.GL_DEPTH_TEST);
         gl3.glCullFace(GL3.GL_FRONT);
@@ -119,7 +119,7 @@ public class DrawMeshes extends AbstractRenderPass {
             shadowShader.setMatrix4d(gl3,"modelMatrix",w);
             meshInstance.getMesh().render(gl3);
         }
-        // render scene as normal with shadow mapping (using depth map)
+        // viewport scene as normal with shadow mapping (using depth map)
         gl3.glCullFace(GL3.GL_BACK);
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER,0);
         gl3.glViewport(0,0,canvasWidth,canvasHeight);

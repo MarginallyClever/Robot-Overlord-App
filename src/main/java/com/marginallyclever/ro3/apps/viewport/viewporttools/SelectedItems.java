@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.render.viewporttools;
+package com.marginallyclever.ro3.apps.viewport.viewporttools;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.node.nodes.Pose;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A list of {@link Node}s selected in the {@link com.marginallyclever.ro3.apps.render.Viewport}.
+ * A list of {@link Node}s selected in the {@link com.marginallyclever.ro3.apps.viewport.Viewport}.
  *
  * @author Dan Royer
  * @since 2.5.0

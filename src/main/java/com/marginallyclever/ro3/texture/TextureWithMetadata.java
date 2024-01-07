@@ -5,7 +5,7 @@ import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
-import com.marginallyclever.ro3.apps.render.ShaderProgram;
+import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 
 import java.awt.image.BufferedImage;
 
@@ -38,7 +38,7 @@ public class TextureWithMetadata {
     }
 
     /**
-     * Must only be called when there is a valid OpenGL render context, likely from within
+     * Must only be called when there is a valid OpenGL viewport context, likely from within
      * a {@link com.jogamp.opengl.GLAutoDrawable}.
      * @param shader the shader to use.
      */
@@ -66,7 +66,7 @@ public class TextureWithMetadata {
     }
 
     /**
-     * Must only be called when there is a valid OpenGL render context, likely from within
+     * Must only be called when there is a valid OpenGL viewport context, likely from within
      * a {@link com.jogamp.opengl.GLAutoDrawable}.
      */
     public void unload() {

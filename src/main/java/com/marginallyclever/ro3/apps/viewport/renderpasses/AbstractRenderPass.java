@@ -1,8 +1,8 @@
-package com.marginallyclever.ro3.apps.render.renderpasses;
+package com.marginallyclever.ro3.apps.viewport.renderpasses;
 
 import com.jogamp.opengl.GLAutoDrawable;
-import com.marginallyclever.ro3.apps.render.RenderPass;
-import com.marginallyclever.ro3.apps.render.Viewport;
+import com.marginallyclever.ro3.apps.viewport.RenderPass;
+import com.marginallyclever.ro3.apps.viewport.Viewport;
 
 /**
  * {@link AbstractRenderPass} handles common methods for all {@link RenderPass}.
