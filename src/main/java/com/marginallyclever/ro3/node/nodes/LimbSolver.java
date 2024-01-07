@@ -23,6 +23,8 @@ import java.util.Objects;
  * joint velocities required to move the end effector towards the target in a straight line.
  */
 public class LimbSolver extends Node {
+    private static final Logger logger = LoggerFactory.getLogger(LimbSolver.class);
+
     private final NodePath<Limb> limb = new NodePath<>(this,Limb.class);
     private final NodePath<Pose> target = new NodePath<>(this,Pose.class);
     private double linearVelocity = 0;
@@ -62,8 +64,12 @@ public class LimbSolver extends Node {
     }
 
     private void moveTowardsTarget() {
-        if(getLimb()==null || getEndEffector()==null || getTarget()==null || linearVelocity<0.0001) {
-            // no limb, no end effector, no target, or no velocity.  Do nothing.
+        if(getLimb()==null || getEndEffector()==null || getTarget()==null ) {
+            // no limb, no end effector, or no target.  Do nothing.
+            return;
+        }
+        if(linearVelocity<0.0001) {
+            // no velocity.  Make sure the arm doesn't drift.
             getLimb().setAllJointVelocities(new double[getLimb().getNumJoints()]);
             return;
         }
@@ -99,13 +105,15 @@ public class LimbSolver extends Node {
      * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
      */
     private void setMotorVelocitiesFromCartesianVelocity(double[] cartesianVelocity) {
+        if(getLimb()==null || getLimb().getNumJoints()==0) return;
+
         ApproximateJacobian aj = getJacobian();
         try {
             double[] jointVelocity = aj.getJointFromCartesian(cartesianVelocity);  // uses inverse jacobian
             if(impossibleVelocity(jointVelocity)) return;  // TODO: throw exception instead?
             getLimb().setAllJointVelocities(jointVelocity);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            logger.error(e.getMessage());
         }
     }
 
@@ -131,10 +139,9 @@ public class LimbSolver extends Node {
     @Override
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
-        JSONArray jointArray = new JSONArray();
-        json.put("version",1);
+        json.put("version",2);
 
-        json.put("motors",jointArray);
+        if(getLimb()!=null) json.put("limb",limb.getPath());
         if(getTarget()!=null) json.put("target",target.getPath());
         json.put("linearVelocity",linearVelocity);
         return json;
@@ -149,7 +156,7 @@ public class LimbSolver extends Node {
 
         if(from.has("target")) {
             String s = from.getString("target");
-            if(version==1) {
+            if(version>0) {
                 target.setPath(s);
             } else if(version==0) {
                 Pose goal = root.findNodeByID(s,Pose.class);
@@ -157,8 +164,13 @@ public class LimbSolver extends Node {
             }
         }
         if(from.has("limb")) {
-            Limb limb = root.findNodeByID(from.getString("limb"),Limb.class);
-            this.limb.setRelativePath(this,limb);
+            String s = from.getString("limb");
+            if(version>=2) {
+                limb.setPath(s);
+            } else {
+                Limb limb = root.findNodeByID(s, Limb.class);
+                this.limb.setRelativePath(this, limb);
+            }
         }
         if(from.has("linearVelocity")) {
             linearVelocity = from.getDouble("linearVelocity");
@@ -247,6 +259,7 @@ public class LimbSolver extends Node {
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridx=0;
         gbc.gridy=0;
+
         gbc.gridwidth=2;
         pane.add(createVelocitySlider(),gbc);
 
@@ -256,6 +269,10 @@ public class LimbSolver extends Node {
 
         gbc.gridy++;
         addNodeSelector(pane, "Target", target, Pose.class, gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth=1;
+        addNodeSelector(pane, "Limb", limb, Limb.class, gbc);
 
         super.getComponents(list);
     }
