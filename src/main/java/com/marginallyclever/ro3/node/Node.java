@@ -464,10 +464,14 @@ public class Node {
         }
     }
 
-    public boolean hasParent(Node beingMoved) {
+    /**
+     * @param subject the node to search for
+     * @return true if the given node is a parent of this node.
+     */
+    public boolean hasParent(Node subject) {
         Node p = parent;
         while(p != null) {
-            if(p == beingMoved) {
+            if(p == subject) {
                 return true;
             }
             p = p.getParent();

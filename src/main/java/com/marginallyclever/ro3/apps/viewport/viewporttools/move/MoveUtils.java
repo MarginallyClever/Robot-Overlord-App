@@ -80,27 +80,26 @@ public class MoveUtils {
      * @return the pivot matrix of the selected items, in world space.
      */
     public static Matrix4d getPivotMatrix(int frameOfReference, SelectedItems selectedItems) {
+        if(selectedItems == null || selectedItems.isEmpty()) {
+            return MatrixHelper.createIdentityMatrix4();
+        }
+
+        Matrix4d lastItemSelectedMatrix = getLastItemSelectedMatrix(selectedItems);
+
         Matrix4d m;
         switch(frameOfReference) {
             case ViewportTool.FRAME_WORLD -> {
                 m = MatrixHelper.createIdentityMatrix4();
-                Matrix4d lis = getLastItemSelectedMatrix(selectedItems);
-                assert lis!=null;
-                m.setTranslation(MatrixHelper.getPosition(lis));
+                m.setTranslation(MatrixHelper.getPosition(lastItemSelectedMatrix));
             }
             case ViewportTool.FRAME_LOCAL -> {
-                Matrix4d lis = getLastItemSelectedMatrix(selectedItems);
-                assert lis!=null;
-                m = lis;
+                m = lastItemSelectedMatrix;
             }
             case ViewportTool.FRAME_CAMERA -> {
                 Camera cam = Registry.getActiveCamera();
                 assert cam != null;
                 m = cam.getViewMatrix();
-                m.invert();
-                Matrix4d lis = getLastItemSelectedMatrix(selectedItems);
-                assert lis!=null;
-                m.setTranslation(MatrixHelper.getPosition(lis));
+                m.setTranslation(MatrixHelper.getPosition(lastItemSelectedMatrix));
             }
             default -> throw new InvalidParameterException("Unknown frame of reference: " + frameOfReference);
         }

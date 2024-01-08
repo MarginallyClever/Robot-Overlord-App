@@ -96,8 +96,8 @@ public class Limb extends Pose {
     }
 
     public void setAllJointVelocities(double[] values) {
-        if(values.length!=getNumJoints()) {
-            throw new IllegalArgumentException("setAllJointValues: one value for every motor");
+        if(values.length != getNumJoints()) {
+            throw new IllegalArgumentException("One value for every motor");
         }
         int i=0;
         for(NodePath<Motor> paths : motors) {
@@ -175,7 +175,7 @@ public class Limb extends Pose {
         gbc.gridx=0;
         gbc.gridwidth=2;
         gbc.gridy++;
-        pane.add(createEasyFK(),gbc);
+        pane.add(createFKDials(),gbc);
 
         gbc.gridy++;
         pane.add(addMotorPanel(),gbc);
@@ -183,7 +183,7 @@ public class Limb extends Pose {
         super.getComponents(list);
     }
 
-    private JComponent createEasyFK() {
+    private JComponent createFKDials() {
         var containerPanel = new CollapsiblePanel("Forward Kinematics");
         var outerPanel = containerPanel.getContentPane();
         outerPanel.setLayout(new GridLayout(0,3));
@@ -192,7 +192,7 @@ public class Limb extends Pose {
         for(int i=0;i<getNumJoints();++i) {
             Motor motor = motors.get(i).getSubject();
             if(motor==null) continue;
-            outerPanel.add(addDialForMotor(motor));
+            outerPanel.add(createOneFKDial(motor));
             count++;
         }
         count = 3-(count%3);
@@ -203,11 +203,11 @@ public class Limb extends Pose {
         return containerPanel;
     }
 
-    private JPanel addDialForMotor(final Motor motor) {
+    private JPanel createOneFKDial(final Motor motor) {
         JPanel panel = new JPanel(new BorderLayout());
         Dial dial = new Dial();
         dial.addActionListener(e -> {
-            if(motor.hasAxle()) {
+            if(motor.hasHinge()) {
                 motor.getHinge().setAngle(dial.getValue());
             }
         });
