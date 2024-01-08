@@ -219,6 +219,9 @@ public class Limb extends Pose {
         panel.add(label,BorderLayout.PAGE_START);
         panel.add(dial,BorderLayout.CENTER);
         dial.setPreferredSize(new Dimension(80,80));
+        if(motor.hasHinge()) {
+            dial.setValue(motor.getHinge().getAngle());
+        }
         return panel;
     }
 
