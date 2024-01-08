@@ -120,6 +120,18 @@ public class AttachmentPoint extends Pose {
         });
         addLabelAndComponent(pane,"Radius",radiusField);
 
+        var attached = buildAttachToggle();
+        addLabelAndComponent(pane,"Action",attached);
+
+        super.getComponents(list);
+    }
+
+    /**
+     * Build the "attach/detach" toggle button.  Public so that it can be included in the control panel of other
+     * nodes like MarlinRobotArm.
+     * @return a new JToggleButton
+     */
+    public JComponent buildAttachToggle() {
         // attach/detach toggle
         var attached = new JToggleButton();
         attached.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(
@@ -133,9 +145,7 @@ public class AttachmentPoint extends Pose {
             else release();
             setAttachedText(attached);
         });
-        addLabelAndComponent(pane,"Action",attached);
-
-        super.getComponents(list);
+        return attached;
     }
 
     private void setAttachedText(JToggleButton attached) {
