@@ -65,25 +65,19 @@ public class EditorUtils {
     }
 
     public static Matrix4d getPivotMatrix(int frameOfReference,Viewport viewport,SelectedItems selectedItems) {
+        Matrix4d lis = getLastItemSelectedMatrix(selectedItems);
+        assert lis!=null;
         Matrix4d m;
         switch(frameOfReference) {
             case EditorTool.FRAME_WORLD -> {
                 m = MatrixHelper.createIdentityMatrix4();
-                Matrix4d lis = getLastItemSelectedMatrix(selectedItems);
-                assert lis!=null;
-                m.setTranslation(MatrixHelper.getPosition(lis));
             }
             case EditorTool.FRAME_LOCAL -> {
-                Matrix4d lis = getLastItemSelectedMatrix(selectedItems);
-                assert lis!=null;
                 m = lis;
             }
             case EditorTool.FRAME_CAMERA -> {
                 m = viewport.getViewMatrix();
                 m.invert();
-                Matrix4d lis = getLastItemSelectedMatrix(selectedItems);
-                assert lis!=null;
-                m.setTranslation(MatrixHelper.getPosition(lis));
             }
             default -> throw new RuntimeException("Unknown frame of reference: " + frameOfReference);
         }
@@ -91,6 +85,7 @@ public class EditorUtils {
         if(m==null) {
             m = MatrixHelper.createIdentityMatrix4();
         }
+        m.setTranslation(MatrixHelper.getPosition(lis));
         return m;
     }
 }
