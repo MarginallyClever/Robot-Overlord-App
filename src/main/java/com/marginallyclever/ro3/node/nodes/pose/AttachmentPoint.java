@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.pose;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Pose;
@@ -11,12 +12,16 @@ import javax.vecmath.Matrix4d;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * </p>{@link AttachmentPoint} is a point on a {@link Pose} that can be used to attach other nodes.</p>
- * <p>It provides a way to attach and release Pose nodes.  Poses that attach become children of the
- * {@link AttachmentPoint}.  When the {@link AttachmentPoint} is released, the attached nodes
- * become children of the scene root.</p>
+ * <p>Users can click the attach button in the control panel.  Developers can use the {@link #attemptAttach()} method.</p>
+ * <p>Things in reach must be {@link Pose} items within {@link #radius} of {@link AttachmentPoint}.  They must also be
+ * immediate children of the Scene root.</p>
+ * <p>The attached item will move from the Scene root and become a child of {@link AttachmentPoint}.  On release all
+ * children of {@link AttachmentPoint} will be moved back to the Scene root.  In both cases their relative pose
+ * will be adjusted so they do not teleport.</p>
  */
 public class AttachmentPoint extends Pose {
     private boolean isAttached = false;
@@ -36,7 +41,8 @@ public class AttachmentPoint extends Pose {
      */
     public void attach(List<Pose> list) {
         for(Pose p : list) {
-            if(p==this || p.hasParent(this)) continue;
+            // don't grab yourself
+            if(p.hasParent(this) || this.hasParent(p)) continue;
 
             Matrix4d world = p.getWorld();
             Node parent = p.getParent();
@@ -68,12 +74,10 @@ public class AttachmentPoint extends Pose {
         double r2 = radius*radius;
 
         var found = new ArrayList<Pose>();
-
-        List<Node> list = Registry.getScene().getChildren();
-        for(Node n : list) {
+        for(Node n : Registry.getScene().getChildren()) {
             if(!(n instanceof Pose p)) continue;
-            if(p==this) continue;
-            if(p.hasParent(this)) continue;
+            // don't grab yourself
+            if(p.hasParent(this) || this.hasParent(p)) continue;
 
             var pos = MatrixHelper.getPosition(p.getWorld());
             pos.sub(myPosition);
@@ -106,16 +110,35 @@ public class AttachmentPoint extends Pose {
         list.add(pane);
         pane.setName(AttachmentPoint.class.getSimpleName());
 
-        var attached = new JCheckBox("",isAttached);
-        addLabelAndComponent(pane,"isAttached",attached);
+        // radius
+        var formatter = NumberFormatHelper.getNumberFormatter();
+        formatter.setMinimum(0.0);  // no negative radius
+        var radiusField = new JFormattedTextField(formatter);
+        radiusField.setValue(radius);
+        radiusField.addPropertyChangeListener("value", e -> {
+            radius = ((Number)radiusField.getValue()).doubleValue();
+        });
+        addLabelAndComponent(pane,"Radius",radiusField);
+
+        // attach/detach toggle
+        var attached = new JToggleButton();
+        attached.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(
+                "/com/marginallyclever/ro3/apps/actions/icons8-disconnect-16.png"))));
+        attached.setSelected(isAttached);  // must come before action listener.
+        setAttachedText(attached);
+
         attached.addActionListener(e -> {
             isAttached = attached.isSelected();
-            if(isAttached) {
-                attemptAttach();
-            } else {
-                release();
-            }
+            if(isAttached) attemptAttach();
+            else release();
+            setAttachedText(attached);
         });
+        addLabelAndComponent(pane,"Action",attached);
+
         super.getComponents(list);
+    }
+
+    private void setAttachedText(JToggleButton attached) {
+        attached.setText(isAttached ? "Release" : "Attach");
     }
 }
