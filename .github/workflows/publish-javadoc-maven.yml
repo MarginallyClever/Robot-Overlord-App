@@ -14,8 +14,10 @@ jobs:
         uses: MathieuSoysal/Javadoc-publisher.yml@v2.4.0
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          java-version: 17
           javadoc-branch: javadoc
           java-distribution: temurin
-          java-version: 21
-          target-folder: docs
-          project: maven # or gradle
+          project: maven
+          # url will be https://<username>.github.io/<repo>/<target-folder>.
+          # update this to the project version number
+          target-folder: 3.0
