@@ -23,7 +23,7 @@ public class AttachmentPoint extends Pose {
     private double radius = 1.0;
 
     public AttachmentPoint() {
-        super("Attachment Point");
+        super("AttachmentPoint");
     }
 
     public AttachmentPoint(String name) {
