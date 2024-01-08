@@ -227,6 +227,7 @@ public class Limb extends Pose {
 
     private JComponent addMotorPanel() {
         var containerPanel = new CollapsiblePanel("Motors");
+        containerPanel.setCollapsed(true);
         var outerPanel = containerPanel.getContentPane();
         outerPanel.setLayout(new GridBagLayout());
 
