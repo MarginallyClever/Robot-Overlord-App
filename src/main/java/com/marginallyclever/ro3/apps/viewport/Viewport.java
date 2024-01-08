@@ -52,6 +52,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private int activeToolIndex = -1;
     private ShaderProgram toolShader;
     private final double userMovementScale = 1.0;
+    private final JButton frameOfReferenceButton = new JButton();
+    private final JPopupMenu frameOfReferenceMenu = new JPopupMenu();
 
 
     public Viewport() {
@@ -125,6 +127,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         toolBar.add(select);
         toolBar.add(move);
         toolBar.add(rotate);
+        toolBar.add(createFrameOfReferenceSelection());
     }
 
     private void addRenderPasses() {
@@ -200,6 +203,71 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         button.setToolTipText("Select the viewport passes to use.");
 
         updateRenderPassMenu();
+    }
+
+    private JButton createFrameOfReferenceSelection() {
+        var world = new JMenuItem(new AbstractAction() {
+            private final ImageIcon icon = new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-world-16.png")));
+
+            {
+                putValue(Action.NAME,"World");
+                putValue(Action.SHORT_DESCRIPTION,"Use the world frame of reference.");
+                putValue(Action.SMALL_ICON, icon);
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setFrameOfReference(ViewportTool.FRAME_WORLD);
+                frameOfReferenceButton.setIcon(icon);
+            }
+        });
+        var camera = new JMenuItem(new AbstractAction() {
+            private final ImageIcon icon = new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-movie-camera-16.png")));
+
+            {
+                putValue(Action.NAME,"Camera");
+                putValue(Action.SHORT_DESCRIPTION,"Use the camera frame of reference.");
+                putValue(Action.SMALL_ICON, icon);
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setFrameOfReference(ViewportTool.FRAME_CAMERA);
+                frameOfReferenceButton.setIcon(icon);
+            }
+        });
+        var local = new JMenuItem(new AbstractAction() {
+            private final ImageIcon icon = new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-eye-16.png")));
+
+            {
+                putValue(Action.NAME,"Local");
+                putValue(Action.SHORT_DESCRIPTION,"Use the local frame of reference.");
+                putValue(Action.SMALL_ICON, icon);
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setFrameOfReference(ViewportTool.FRAME_LOCAL);
+                frameOfReferenceButton.setIcon(icon);
+            }
+        });
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(world);
+        group.add(camera);
+        group.add(local);
+        frameOfReferenceMenu.add(world);
+        frameOfReferenceMenu.add(camera);
+        frameOfReferenceMenu.add(local);
+
+        frameOfReferenceButton.setIcon(world.getIcon());
+        frameOfReferenceButton.addActionListener(e -> frameOfReferenceMenu.show(frameOfReferenceButton, frameOfReferenceButton.getWidth()/2, frameOfReferenceButton.getHeight()/2));
+        frameOfReferenceButton.setToolTipText("Select the frame of reference.");
+        return frameOfReferenceButton;
+    }
+
+    private void setFrameOfReference(int frameOfReference) {
+        if(frameOfReference < 0 || frameOfReference >= ViewportTool.FRAME_COUNT) {
+            throw new InvalidParameterException("frameOfReference out of range.");
+        }
+        for( var t : viewportTools) t.setFrameOfReference(frameOfReference);
     }
 
     @Override

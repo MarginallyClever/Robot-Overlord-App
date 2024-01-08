@@ -82,11 +82,11 @@ public class Motor extends Node {
         return hinge.getSubject();
     }
 
-    public void setAxle(HingeJoint hinge) {
+    public void setHinge(HingeJoint hinge) {
         this.hinge.setRelativePath(this, hinge);
     }
 
-    public boolean hasAxle() {
+    public boolean hasHinge() {
         return getHinge()!=null;
     }
 }

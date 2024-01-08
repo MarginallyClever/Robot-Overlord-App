@@ -6,7 +6,6 @@ import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.Motor;
 import com.marginallyclever.ro3.node.nodes.Pose;
@@ -254,7 +253,7 @@ public class MarlinRobotArm extends Node {
         StringBuilder sb = new StringBuilder();
         for(NodePath<Motor> paths : getLimb().getMotors()) {
             Motor motor = paths.getSubject();
-            if(motor!=null && motor.hasAxle()) {
+            if(motor!=null && motor.hasHinge()) {
                 sb.append(" ")
                         .append(motor.getName())
                         .append(StringHelper.formatDouble(motor.getHinge().getAngle()));
@@ -262,7 +261,7 @@ public class MarlinRobotArm extends Node {
         }
         // gripper motor
         Motor gripperMotor = this.gripperMotor.getSubject();
-        if(gripperMotor!=null && gripperMotor.hasAxle()) {
+        if(gripperMotor!=null && gripperMotor.hasHinge()) {
             sb.append(" ")
                     .append(gripperMotor.getName())
                     .append(StringHelper.formatDouble(gripperMotor.getHinge().getAngle()));
@@ -315,7 +314,7 @@ public class MarlinRobotArm extends Node {
         try {
             for (NodePath<Motor> paths : getLimb().getMotors()) {
                 Motor motor = paths.getSubject();
-                if (motor != null && motor.hasAxle()) {
+                if (motor != null && motor.hasHinge()) {
                     for (String p : parts) {
                         if (p.startsWith(motor.getName())) {
                             // TODO check new value is in range.
@@ -327,7 +326,7 @@ public class MarlinRobotArm extends Node {
             }
             // gripper motor
             Motor gripperMotor = this.gripperMotor.getSubject();
-            if (gripperMotor != null && gripperMotor.hasAxle()) {
+            if (gripperMotor != null && gripperMotor.hasHinge()) {
                 for (String p : parts) {
                     if (p.startsWith(gripperMotor.getName())) {
                         // TODO check new value is in range.

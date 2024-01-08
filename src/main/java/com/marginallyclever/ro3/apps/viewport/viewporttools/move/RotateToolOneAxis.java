@@ -235,19 +235,19 @@ public class RotateToolOneAxis implements ViewportTool {
             case 2 -> rot.rotZ(rotationAngle);
         }
 
-        Vector3d pivotTranslation = MatrixHelper.getPosition(startMatrix);
+        Vector3d position = MatrixHelper.getPosition(startMatrix);
 
         for (Node node : selectedItems.getNodes()) {
             if(!(node instanceof Pose pc)) continue;
             Matrix4d pose = new Matrix4d(selectedItems.getWorldPoseAtStart(node));
 
-            pose.m03 -= pivotTranslation.x;
-            pose.m13 -= pivotTranslation.y;
-            pose.m23 -= pivotTranslation.z;
+            pose.m03 -= position.x;
+            pose.m13 -= position.y;
+            pose.m23 -= position.z;
             pose.mul(rot);
-            pose.m03 += pivotTranslation.x;
-            pose.m13 += pivotTranslation.y;
-            pose.m23 += pivotTranslation.z;
+            pose.m03 += position.x;
+            pose.m13 += position.y;
+            pose.m23 += position.z;
 
             pc.setWorld(pose);
         }
