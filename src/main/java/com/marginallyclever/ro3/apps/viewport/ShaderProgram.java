@@ -10,6 +10,8 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.security.InvalidParameterException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>{@link ShaderProgram} is a wrapper for vertex and fragment shader programs.  It also provides a simple interface
@@ -20,14 +22,19 @@ public class ShaderProgram {
     private final int programId;
     private final int vertexShaderId;
     private final int fragmentShaderId;
+    private final Map<String, Integer> uniformLocations = new HashMap<>();
 
     public ShaderProgram(GL3 gl, String[] vertexCode, String[] fragmentCode) {
         vertexShaderId = loadShader(gl, GL3.GL_VERTEX_SHADER, vertexCode,"vertex");
         fragmentShaderId = loadShader(gl, GL3.GL_FRAGMENT_SHADER, fragmentCode,"fragment");
+
         programId = gl.glCreateProgram();
+
         gl.glAttachShader(programId, vertexShaderId);
         gl.glAttachShader(programId, fragmentShaderId);
+
         gl.glLinkProgram(programId);
+
         if (!checkStatus(gl, programId, GL3.GL_LINK_STATUS)) {
             throw new IllegalStateException("Failed to link shader program.");
         }
@@ -96,8 +103,12 @@ public class ShaderProgram {
     }
 
     public int getUniformLocation(GL3 gl, String name) {
-        int result = gl.glGetUniformLocation(programId, name);
-        if(result==-1) throw new InvalidParameterException("Could not find uniform "+name);
+        Integer result = uniformLocations.get(name);
+        if(result == null) {
+            result = gl.glGetUniformLocation(programId, name);
+            if(result==-1) throw new InvalidParameterException("Could not find uniform "+name);
+            uniformLocations.put(name,result);
+        }
         return result;
     }
 
