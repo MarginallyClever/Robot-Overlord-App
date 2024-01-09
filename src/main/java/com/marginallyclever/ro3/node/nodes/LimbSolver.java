@@ -6,7 +6,6 @@ import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobian;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobianFiniteDifferences;
 import com.marginallyclever.ro3.node.nodes.pose.Limb;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,6 @@ import java.util.Objects;
  */
 public class LimbSolver extends Node {
     private static final Logger logger = LoggerFactory.getLogger(LimbSolver.class);
-
     private final NodePath<Limb> limb = new NodePath<>(this,Limb.class);
     private final NodePath<Pose> target = new NodePath<>(this,Pose.class);
     private double linearVelocity = 0;

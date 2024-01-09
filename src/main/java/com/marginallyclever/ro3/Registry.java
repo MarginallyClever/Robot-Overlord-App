@@ -5,6 +5,7 @@ import com.marginallyclever.ro3.mesh.MeshFactory;
 import com.marginallyclever.ro3.node.nodes.*;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
+import com.marginallyclever.ro3.node.nodes.pose.AttachmentPoint;
 import com.marginallyclever.ro3.node.nodes.pose.Limb;
 import com.marginallyclever.ro3.node.nodes.pose.LookAt;
 import com.marginallyclever.ro3.node.nodes.pose.MeshInstance;
@@ -46,6 +47,7 @@ public class Registry {
             pose.add("Camera", Camera::new);
             pose.add("LookAt", LookAt::new);
             pose.add("Limb", Limb::new);
+            pose.add("AttachmentPoint", AttachmentPoint::new);
         reset();
     }
 

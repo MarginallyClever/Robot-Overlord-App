@@ -59,7 +59,7 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.addTreeSelectionListener(e -> {
             NodeTreeBranch branch = (NodeTreeBranch) tree.getLastSelectedPathComponent();
-            if (branch == null || !type.equals(branch.getNode().getClass())) {
+            if (branch == null || !type.isInstance(branch.getNode())) {
                 branch = null;
             }
             selectedNode = branch == null ? null : type.cast(branch.getNode());
@@ -72,8 +72,7 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
                 super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
                 if(!(value instanceof NodeTreeBranch branch)) return this;
 
-                Node node = branch.getNode();
-                if (!type.equals(node.getClass())) {
+                if (!type.isInstance(branch.getNode())) {
                     setForeground(Color.LIGHT_GRAY);
                 } else {
                     setForeground(Color.BLACK);
@@ -133,6 +132,7 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
      * @return a list of all nodes matching the search criteria
      */
     private List<Node> findAllNodesMatching(Node rootNode, String searchCriteria) {
+        boolean isCase = searchBar.getCaseSensitive();
         boolean isRegex = searchBar.getRegex();
         List<Node> matches = new ArrayList<>();
         List<Node> toSearch = new ArrayList<>();
@@ -140,6 +140,7 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
         while(!toSearch.isEmpty()) {
             Node node = toSearch.remove(0);
             String name = node.getName();
+            if(!isCase) name = name.toLowerCase();
             if((isRegex && name.matches(searchCriteria)) || (!isRegex && name.contains(searchCriteria))) {
                 matches.add(node);
             }

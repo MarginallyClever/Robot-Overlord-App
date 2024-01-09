@@ -134,6 +134,7 @@ public class FactoryPanel<T> extends JPanel {
      * @return a list of all categories that match the search criteria
      */
     private List<Factory.Category<T>> findAllTypesMatching(Factory.Category<T> root, String searchCriteria) {
+        boolean isCase = searchBar.getCaseSensitive();
         boolean isRegex = searchBar.getRegex();
         List<Factory.Category<T>> matches = new ArrayList<>();
         List<Factory.Category<T>> toSearch = new ArrayList<>();
@@ -141,6 +142,7 @@ public class FactoryPanel<T> extends JPanel {
         while(!toSearch.isEmpty()) {
             Factory.Category<T> category = toSearch.remove(0);
             String name = category.getName();
+            if(!isCase) name = name.toLowerCase();
             if((isRegex && name.matches(searchCriteria)) || (!isRegex && name.contains(searchCriteria))) {
                 matches.add(category);
             }
