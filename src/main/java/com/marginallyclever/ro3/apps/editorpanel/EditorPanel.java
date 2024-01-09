@@ -37,6 +37,41 @@ public class EditorPanel extends App implements MarlinListener {
     private final JTextArea text = new JTextArea();
     private final JLabel statusLabel = new JLabel();
     private static final JFileChooser chooser = new PersistentJFileChooser();
+    private final JButton newButton = new JButton(new NewAction(this));
+    private final JButton loadButton = new JButton(new LoadAction(this,chooser));
+    private final JButton saveButton = new JButton(new SaveAction(this,chooser));
+    private final JToolBar tools = new JToolBar("tools");
+
+    private final JButton sendButton = new JButton(new AbstractAction() {
+        // constructor
+        {
+            putValue(Action.NAME, "Send");
+            putValue(Action.SHORT_DESCRIPTION, "Send the current line to the robot.");
+            putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-play-16.png"))));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            MarlinRobotArm arm = armSelector.getSubject();
+            if(arm!=null) {
+                String message = getLineAtCaret();
+                if(!message.trim().isEmpty()) {
+                    arm.sendGCode(message);
+                    // move down one line in the file.
+                    int caretPosition = text.getCaretPosition();
+                    Element root = text.getDocument().getDefaultRootElement();
+                    int lineNumber = root.getElementIndex(caretPosition);
+                    Element lineElement = root.getElement(lineNumber);
+                    int end = lineElement.getEndOffset();
+                    try {
+                        text.setCaretPosition(Math.min(end, text.getDocument().getLength()));
+                    } catch (Exception exception) {
+                        logger.error("Failed to move caret.",exception);
+                    }
+                }
+            }
+        }
+    });
 
     private final JToggleButton getButton = new JToggleButton(new AbstractAction() {
         // constructor
@@ -78,47 +113,11 @@ public class EditorPanel extends App implements MarlinListener {
         }
     });
 
-    private final JButton sendButton = new JButton(new AbstractAction() {
-        // constructor
-        {
-            putValue(Action.NAME, "Send");
-            putValue(Action.SHORT_DESCRIPTION, "Send the current line to the robot.");
-            putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-play-16.png"))));
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            MarlinRobotArm arm = armSelector.getSubject();
-            if(arm!=null) {
-                String message = getLineAtCaret();
-                if(!message.trim().isEmpty()) {
-                    arm.sendGCode(message);
-                    // move down one line in the file.
-                    int caretPosition = text.getCaretPosition();
-                    Element root = text.getDocument().getDefaultRootElement();
-                    int lineNumber = root.getElementIndex(caretPosition);
-                    Element lineElement = root.getElement(lineNumber);
-                    int end = lineElement.getEndOffset();
-                    try {
-                        text.setCaretPosition(Math.min(end, text.getDocument().getLength()));
-                    } catch (Exception exception) {
-                        logger.error("Failed to move caret.",exception);
-                    }
-                }
-            }
-        }
-    });
-
-    private final JButton newButton = new JButton(new NewAction(this));
-    private final JButton loadButton = new JButton(new LoadAction(this,chooser));
-    private final JButton saveButton = new JButton(new SaveAction(this,chooser));
-
     public EditorPanel() {
         super(new BorderLayout());
         text.setName("text");
         statusLabel.setName("status");
-        JToolBar tools = new JToolBar("tools");
-        addTools(tools);
+        addToolBar(tools);
         add(tools, BorderLayout.NORTH);
 
         var scroll = new JScrollPane();
@@ -153,9 +152,9 @@ public class EditorPanel extends App implements MarlinListener {
         statusLabel.setText("No arm selected.");
     }
 
-    private void addTools(JToolBar tools) {
+    private void addToolBar(JToolBar tools) {
+        armSelector.setMaximumSize(new Dimension(150, 24));
         tools.add(armSelector);
-        tools.addSeparator();
         tools.add(newButton);
         tools.add(loadButton);
         tools.add(saveButton);
@@ -163,7 +162,6 @@ public class EditorPanel extends App implements MarlinListener {
         tools.add(sendButton);
         tools.add(getButton);
         tools.add(lockButton);
-        tools.addSeparator();
     }
 
     /**
