@@ -22,8 +22,9 @@ public class DialTest {
         Assertions.assertEquals(5, d.getValue());
         d.setValue(-10);
         Assertions.assertEquals(-15, d.getChange());
-        Assertions.assertEquals(350, d.getValue());
+        Assertions.assertEquals(-10, d.getValue());
         d.setValue(360);
-        Assertions.assertEquals(0, d.getValue());
+        Assertions.assertEquals(370, d.getChange());
+        Assertions.assertEquals(360, d.getValue());
     }
 }
