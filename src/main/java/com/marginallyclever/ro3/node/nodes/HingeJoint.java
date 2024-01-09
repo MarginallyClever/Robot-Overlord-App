@@ -112,7 +112,7 @@ public class HingeJoint extends Node {
     public void update(double dt) {
         super.update(dt);
         velocity += acceleration * dt;
-        angle += velocity * dt;
+        setAngle(angle + velocity * dt);
 
         if(axle.getSubject()!=null) {
             // set the axle's location in space.
@@ -160,6 +160,11 @@ public class HingeJoint extends Node {
 
     public void setAngle(double degrees) {
         angle = degrees;
+
+        if(maxAngle!=360 && minAngle!=0) {
+            if (angle > maxAngle) angle = maxAngle;
+            if (angle < minAngle) angle = minAngle;
+        }
     }
 
     public double getMinAngle() {

@@ -209,6 +209,7 @@ public class Limb extends Pose {
         dial.addActionListener(e -> {
             if(motor.hasHinge()) {
                 motor.getHinge().setAngle(dial.getValue());
+                dial.setValue(motor.getHinge().getAngle());
             }
         });
         // TODO subscribe to motor.getAxle().getAngle(), then dial.setValue() without triggering an action event.

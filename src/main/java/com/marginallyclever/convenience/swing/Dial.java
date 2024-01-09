@@ -5,10 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.event.EventListenerList;
 import javax.vecmath.Vector2d;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
 
 
 /**
@@ -23,7 +23,7 @@ public class Dial extends JComponent {
 	private boolean dragging=false;
 	private int dragPreviousX,dragPreviousY;
 
-	private final ArrayList<ActionListener> listeners = new ArrayList<>();
+	private final EventListenerList listeners = new EventListenerList();
 
 	public Dial() {
 		super();
@@ -36,20 +36,14 @@ public class Dial extends JComponent {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				switch (e.getID()) {
-					case KeyEvent.VK_PLUS -> {
-						onChange(1);
-					}
-					case KeyEvent.VK_MINUS -> {
-						onChange(-1);
-					}
+					case KeyEvent.VK_PLUS -> onChange(1);
+					case KeyEvent.VK_MINUS -> onChange(-1);
 					default -> {}
 				}
 			}
 		});
 
-		addMouseWheelListener((MouseWheelEvent e)->{
-			onChange(-e.getWheelRotation());
-		});
+		addMouseWheelListener( (e) -> onChange(-e.getWheelRotation()) );
 
 		addMouseListener(new MouseAdapter() {
 			@Override
@@ -67,40 +61,40 @@ public class Dial extends JComponent {
 		addMouseMotionListener(new MouseAdapter() {
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				super.mouseDragged(e);
-				if(!dragging) return;
+			super.mouseDragged(e);
+			if(!dragging) return;
 
-				Vector2d center = new Vector2d(getWidth()/2.0,getHeight()/2.0);
+			Vector2d center = new Vector2d(getWidth()/2.0,getHeight()/2.0);
 
-				// find the current mouse position relative to the center of the dial.
-				Vector2d delta = new Vector2d(e.getX(),e.getY());
-				delta.sub(center);
-				delta.normalize();
+			// find the current mouse position relative to the center of the dial.
+			Vector2d delta = new Vector2d(e.getX(),e.getY());
+			delta.sub(center);
+			delta.normalize();
 
-				// find the previous mouse position relative to the center of the dial.
-				Vector2d previous = new Vector2d(dragPreviousX,dragPreviousY);
-				previous.sub(center);
-				previous.normalize();
+			// find the previous mouse position relative to the center of the dial.
+			Vector2d previous = new Vector2d(dragPreviousX,dragPreviousY);
+			previous.sub(center);
+			previous.normalize();
 
-				// find the orthogonal vector to the previous vector
-				Vector2d ortho = new Vector2d(-previous.y,previous.x);
+			// find the orthogonal vector to the previous vector
+			Vector2d ortho = new Vector2d(-previous.y,previous.x);
 
-				// dot product of delta and ortho is the change in angle.
-				double y = delta.dot(ortho);
-				double x = delta.dot(previous);
-				double change = Math.toDegrees(Math.atan2(y,x));
+			// dot product of delta and ortho is the change in angle.
+			double y = delta.dot(ortho);
+			double x = delta.dot(previous);
+			double change = Math.toDegrees(Math.atan2(y,x));
 
-				if(change!=0) onChange(change);
+			if(change!=0) onChange(change);
 
-				// remember the mouse moved.
-				setPrevious(e);
+			// remember the mouse moved.
+			setPrevious(e);
 			}
 		});
 	}
 
 	private void onChange(double amount) {
 		setChange(amount);
-		notifyActionListeners(new ActionEvent(this,ActionEvent.ACTION_PERFORMED,"turn"));
+		fireActionEvent(new ActionEvent(this,ActionEvent.ACTION_PERFORMED,"turn"));
 	}
 
 	private void setPrevious(MouseEvent e) {
@@ -129,12 +123,12 @@ public class Dial extends JComponent {
 	}
 
 	/**
-	 * Set the value of the dial.  The value is clamped to 0..360.  Does not alter the results of getChange().
+	 * Set the value of the dial.  The value is unconstrained.
 	 * @param arg0 the new value
 	 */
 	public void setValue(double arg0) {
-		this.change = arg0-this.value;
-		this.value = (arg0+360)%360;
+		this.change = arg0 - this.value;
+		this.value = arg0;
 		repaint();
 	}
 
@@ -143,15 +137,17 @@ public class Dial extends JComponent {
 	 * @param listener the listener
 	 */
 	public void addActionListener(ActionListener listener) {
-		listeners.add(listener);
+		listeners.add(ActionListener.class,listener);
 	}
 	
 	public void removeActionListener(ActionListener listener) {
-		listeners.remove(listener);
+		listeners.remove(ActionListener.class,listener);
 	}
 	
-	private void notifyActionListeners(ActionEvent ae) {
-		for( ActionListener listener : listeners ) listener.actionPerformed(ae);
+	private void fireActionEvent(ActionEvent ae) {
+		for( ActionListener listener : listeners.getListeners(ActionListener.class) ) {
+			listener.actionPerformed(ae);
+		}
 	}
 
 	@Override
