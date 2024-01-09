@@ -8,7 +8,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -27,7 +26,7 @@ import java.util.Objects;
 public class NodeSelector<T extends Node> extends JPanel {
     private T subject;
     private final JButton chooseButton = new JButton();
-    private final JButton selectButton = new JButton(new AbstractAction() {
+    private final JButton findButton = new JButton(new AbstractAction() {
         {
             putValue(Action.NAME,"");
             putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource(
@@ -55,7 +54,7 @@ public class NodeSelector<T extends Node> extends JPanel {
         setButtonLabel();
 
         add(chooseButton,BorderLayout.CENTER);
-        add(selectButton,BorderLayout.LINE_END);
+        add(findButton,BorderLayout.LINE_END);
 
         new DropTarget(this,new NodeSelectorDropTarget<>(this,type));
     }
