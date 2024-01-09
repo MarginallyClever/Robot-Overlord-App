@@ -3,8 +3,7 @@ name: Deploy Javadoc
 on:
   push:
     branches:
-      - master
-      - main
+      - javadoc
 
 jobs:
   publish:
@@ -18,6 +17,7 @@ jobs:
           javadoc-branch: javadoc
           java-distribution: temurin
           project: maven
+          clean: 'true'
           # url will be https://<username>.github.io/<repo>/<target-folder>.
           # update this to the project version number
           target-folder: 3.0

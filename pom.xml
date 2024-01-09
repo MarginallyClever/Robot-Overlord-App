@@ -160,8 +160,9 @@
 				<configuration>
 					<doclint>none</doclint>
 					<source>${minimum.java.version}</source>
-					<destDir>docs</destDir>
+					<show>public</show>
 					<excludePackageNames>com.marginallyclever.robotoverlord.*</excludePackageNames>
+					<outputDirectory>${basedir}/docs</outputDirectory>
 				</configuration>
 			</plugin>
 
