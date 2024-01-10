@@ -13,8 +13,6 @@ import javax.vecmath.Vector3d;
 /**
  * A robot with six legs.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @ComponentDependency(components = {PoseComponent.class})
 public class CrabRobotComponent extends Component {

@@ -9,6 +9,7 @@ import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.shapes.Box;
+import com.marginallyclever.ro3.mesh.shapes.CircleXY;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
@@ -27,8 +28,6 @@ import java.util.List;
 /**
  * A tool to rotate {@link Pose} nodes in the {@link Viewport}.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class RotateToolOneAxis implements ViewportTool {
     private static final Logger logger = LoggerFactory.getLogger(RotateToolOneAxis.class);
@@ -100,6 +99,7 @@ public class RotateToolOneAxis implements ViewportTool {
     private final ColorRGB color;
     private final Mesh markerMesh = new Mesh();
     private final Mesh angleMesh = new Mesh();
+    private final Mesh ringMesh = new CircleXY();
 
     public RotateToolOneAxis(ColorRGB color) {
         super();
@@ -397,7 +397,7 @@ public class RotateToolOneAxis implements ViewportTool {
         float green = color.green * colorScale / 255f;
         float blue  = color.blue  * colorScale / 255f;
         shaderProgram.set4f(gl, "objectColor", red, green, blue, 1.0f);
-        PrimitiveSolids.drawCircleXY(gl, getRingRadiusScaled(), ringResolution).render(gl);
+        ringMesh.render(gl,1,360);
 
         Matrix4d m2 = MatrixHelper.createScaleMatrix4(getGripRadiusScaled());
         m2.m03 = getHandleLengthScaled();
@@ -478,5 +478,6 @@ public class RotateToolOneAxis implements ViewportTool {
     public void dispose(GL3 gl3) {
         handleBox.unload(gl3);
         markerMesh.unload(gl3);
+        ringMesh.unload(gl3);
     }
 }

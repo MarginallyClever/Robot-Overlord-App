@@ -8,8 +8,6 @@ import java.util.List;
 
 /**
  * A static class that stores {@link Entity} and {@link Component} data for copying and pasting.
- * @author Dan Royer
- * @since 2.4.0
  */
 @Deprecated
 public class Clipboard {

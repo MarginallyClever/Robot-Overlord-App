@@ -15,8 +15,6 @@ import javax.vecmath.Vector3d;
 /**
  * A component that holds a reference to an ODE geometry.
  *
- * @author Dan Royer
- * @since 2.0?
  */
 @Deprecated
 public class ODEPhysicsComponent extends Component {

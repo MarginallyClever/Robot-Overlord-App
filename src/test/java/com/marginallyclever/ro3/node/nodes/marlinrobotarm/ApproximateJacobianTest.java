@@ -11,8 +11,6 @@ import java.util.Arrays;
 /**
  * Checking if Approximate jacobians are commutative.  This test is ignored because they are not.
  *
- * @since 2.6.1
- * @author Dan Royer
  */
 public class ApproximateJacobianTest {
     @BeforeEach

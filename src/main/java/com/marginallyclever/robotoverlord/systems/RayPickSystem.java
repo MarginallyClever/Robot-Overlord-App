@@ -12,8 +12,6 @@ import java.util.*;
  * The {@link RayPickSystem} is separate from {@link com.marginallyclever.convenience.helpers.IntersectionHelper}
  * because it references {@link EntityManager}, which is outside the scope of the Convenience Library.
  *
- * @since 2.6.1
- * @author Dan Royer
  */
 public class RayPickSystem {
     private final EntityManager entityManager;

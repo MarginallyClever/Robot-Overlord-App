@@ -12,8 +12,6 @@ import javax.vecmath.Point3d;
 /**
  * a robot with 4 legs.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @ComponentDependency(components = {PoseComponent.class})
 public class DogRobotComponent extends Component {

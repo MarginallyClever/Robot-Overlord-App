@@ -14,7 +14,6 @@ import java.util.Map;
 
 /**
  * An undoable action to remove an {@link Entity} from the world.
- * @author Dan Royer
  *
  */
 public class EntityDeleteEdit extends AbstractUndoableEdit {

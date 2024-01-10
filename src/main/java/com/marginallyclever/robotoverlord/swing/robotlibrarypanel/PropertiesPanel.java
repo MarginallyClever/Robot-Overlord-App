@@ -14,8 +14,6 @@ import java.util.Map;
 
 /**
  * Displays the properties of a robot as provided by a map of properties.
- * @author Dan Royer
- * @since 2.5.0
  */
 public class PropertiesPanel extends JPanel {
     public PropertiesPanel(Map<String, String> properties) {

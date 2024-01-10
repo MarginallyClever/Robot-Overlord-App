@@ -13,7 +13,6 @@ import java.util.Map;
 
 /**
  * An undoable action to move one or more {@link Entity} from one parent to another.
- * @author Dan Royer
  *
  */
 public class EntityReorganizeEdit extends AbstractUndoableEdit {

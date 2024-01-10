@@ -22,8 +22,6 @@ import java.util.List;
 
 /**
  * This class handles dropping files onto the main window.
- * @since 2.7.0
- * @author Dan Royer
  */
 @Deprecated
 public class MainWindowDropTarget extends DropTargetAdapter {

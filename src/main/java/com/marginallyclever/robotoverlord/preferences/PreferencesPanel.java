@@ -8,8 +8,6 @@ import java.awt.*;
 
 /**
  * Panel to display preferences
- * @since 2.7.0
- * @author Dan Royer
  */
 @Deprecated
 public class PreferencesPanel extends JPanel {

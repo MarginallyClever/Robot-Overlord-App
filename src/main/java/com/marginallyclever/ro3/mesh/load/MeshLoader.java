@@ -8,7 +8,6 @@ import java.io.BufferedInputStream;
 /**
  * <p>{@link MeshLoader} interface for all classes that load a {@link Mesh}.</p>
  * <p>All {@link MeshLoader} should be registered with the {@link MeshFactory}.</p>
- * @author Dan Royer
  *
  */
 public interface MeshLoader {

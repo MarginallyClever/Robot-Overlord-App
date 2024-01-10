@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 
 /**
  * Load a programmed demo.
- * @author Dan Royer
  *
  */
 public class DemoAction extends AbstractAction implements ActionListener {

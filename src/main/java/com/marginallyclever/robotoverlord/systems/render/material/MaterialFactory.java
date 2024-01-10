@@ -14,7 +14,6 @@ import java.util.Arrays;
 /**
  * {@link MaterialFactory} loads a Material from a file using one of many {@link MaterialLoader} classes.
  *
- * @author Dan Royer
  */
 public class MaterialFactory {
 	private static final Logger logger = LoggerFactory.getLogger(MaterialFactory.class);

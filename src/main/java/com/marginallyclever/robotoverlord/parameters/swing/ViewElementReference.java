@@ -16,8 +16,6 @@ import java.util.List;
 /**
  * Panel to alter a {@link ReferenceParameter}.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @Deprecated public class ViewElementReference extends ViewElement implements ActionListener {
 	private final JTextField field = new FocusTextField(20);

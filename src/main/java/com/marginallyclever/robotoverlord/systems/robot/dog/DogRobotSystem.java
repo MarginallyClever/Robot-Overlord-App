@@ -23,8 +23,6 @@ import java.util.List;
 /**
  * A system to manage robot dogs.
  *
- * @author Dan Royer
- * @since 2.5.7
  */
 public class DogRobotSystem implements EntitySystem {
     private final EntityManager entityManager;

@@ -9,7 +9,6 @@ import java.util.Objects;
 
 /**
  * Go back one step in the undo/redo history.
- * @author Dan Royer
  */
 public class UndoAction extends AbstractAction {
 	private final UndoManager undoManager;

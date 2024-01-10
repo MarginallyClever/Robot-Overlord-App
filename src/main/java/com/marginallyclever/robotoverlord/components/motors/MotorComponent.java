@@ -14,8 +14,6 @@ import java.util.*;
 /**
  * A motor {@link Component} that approximates a torque curve.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public abstract class MotorComponent extends Component {
     private final TreeMap<Double, Double> torqueCurve = new TreeMap<>();

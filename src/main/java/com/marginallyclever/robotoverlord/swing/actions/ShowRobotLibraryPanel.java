@@ -10,8 +10,6 @@ import java.awt.event.ActionEvent;
 /**
  * Show the Robot Library panel.
  *
- * @author Dan Royer
- * @since 2.5.7
  */
 public class ShowRobotLibraryPanel extends AbstractAction {
     private final RobotLibraryListener robotLibraryListener;

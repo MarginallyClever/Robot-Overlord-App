@@ -20,8 +20,6 @@ import java.util.List;
 /**
  * Make a cartesian robot like a 3d printer or milling machine.  Every axis is "stacked" on top of the previous axis.
  *
- * @author Dan Royer
- * @since 2.5.7
  */
 @Deprecated
 public class MakeCartesian3 extends JPanel {

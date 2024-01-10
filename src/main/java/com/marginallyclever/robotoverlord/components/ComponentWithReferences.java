@@ -5,8 +5,6 @@ import java.util.Map;
 /**
  * This interface is used to mark components that have reference to an entity.
  *
- * @author Dan Royer
- * @since 2.6.0
  */
 @Deprecated
 public interface ComponentWithReferences {

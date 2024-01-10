@@ -16,8 +16,6 @@ import org.slf4j.LoggerFactory;
 /**
  * A mesh loaded from a file.
  *
- * @author Dan Royer
- * @since 1.0.0
  */
 @ComponentDependency(components = {MaterialComponent.class})
 @Deprecated

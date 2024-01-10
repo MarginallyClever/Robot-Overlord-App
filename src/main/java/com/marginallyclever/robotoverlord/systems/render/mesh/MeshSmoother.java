@@ -9,7 +9,6 @@ import java.util.ArrayList;
 
 /**
  * Smooth STL models and save them back to disk.  Meant for one time processing files.
- * @author dan royer
  */
 @Deprecated
 public class MeshSmoother {

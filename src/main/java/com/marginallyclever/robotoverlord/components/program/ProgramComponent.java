@@ -22,8 +22,6 @@ import java.util.Stack;
  * {@link Component} will allow a ProgramExecutor a robot to a execute {@link ProgramPathComponent}s
  * and {@link ProgramEventComponent}s.
  *
- * @since 2.6.0
- * @author Dan Royer
  */
 @Deprecated
 public class ProgramComponent extends Component implements ComponentWithReferences {

@@ -12,8 +12,6 @@ import java.util.*;
 /**
  * a {@link MatrixMaterialRenderSet} is a set of lists of {@link MatrixMaterialRender} used to sort items prior to
  * rendering.  The lists are opaque, alpha, no material, and finally items that must be on top.
- * @author Dan Royer
- * @since 2.7.1
  */
 public class MatrixMaterialRenderSet {
     // background is always first

@@ -16,8 +16,6 @@ import java.util.List;
 /**
  * This panel is used to edit the dog robot.
  *
- * @author Dan Royer
- * @since 2.5.7
  */
 @Deprecated
 public class EditCrabPanel extends JPanel {

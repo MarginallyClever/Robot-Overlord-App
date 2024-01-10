@@ -17,8 +17,6 @@ import java.io.*;
 /**
  * Load a scene from a file.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class ProjectLoadAction extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(ProjectLoadAction.class);

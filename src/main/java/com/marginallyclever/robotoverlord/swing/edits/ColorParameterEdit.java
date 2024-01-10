@@ -13,7 +13,6 @@ import javax.swing.undo.UndoableEdit;
  * Some {@link Component} have {@link ColorParameter}.
  * This class ensures changing those parameters is undoable.
  *  
- * @author Dan Royer
  *
  */
 public class ColorParameterEdit extends AbstractUndoableEdit {

@@ -13,8 +13,6 @@ import java.awt.geom.Rectangle2D;
 
 /**
  * Displays a history of joint positions in a graph.
- * @author Dan Royer
- * @since 2.10.0
  */
 public class JointHistoryPanel extends JPanel {
     private final MultiLineGraph graph = new MultiLineGraph();

@@ -18,8 +18,6 @@ import java.util.List;
 /**
  * Convenience methods for the rotate and translate tools.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class EditorUtils {
     /**

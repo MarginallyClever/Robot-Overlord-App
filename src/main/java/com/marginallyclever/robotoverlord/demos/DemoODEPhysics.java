@@ -17,7 +17,6 @@ import javax.vecmath.Vector3d;
 
 /**
  * See https://github.com/tzaeschke/ode4j/blob/master/demo/src/main/java/org/ode4j/demo/DemoBuggy.java
- * @author Dan Royer
  *
  */
 @Deprecated

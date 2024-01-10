@@ -5,8 +5,6 @@ import java.awt.*;
 
 /**
  * Creates an Icon based on a Unicode symbol.
- * @author Dan Royer
- * @since 2022-03-15
  */
 @Deprecated
 public class UnicodeIcon implements Icon {

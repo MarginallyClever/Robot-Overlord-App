@@ -13,8 +13,6 @@ import java.util.Map;
 /**
  * A list of entities selected in the editorpanel.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class SelectedItems {
     /**

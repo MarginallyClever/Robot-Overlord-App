@@ -8,7 +8,6 @@ import javax.vecmath.Vector3d;
 
 /**
  * Unit tests for the Plane class.
- * @author Dan Royer
  */
 public class PlaneTest {
     @Test

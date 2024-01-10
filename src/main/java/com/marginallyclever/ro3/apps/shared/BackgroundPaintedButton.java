@@ -6,8 +6,6 @@ import java.awt.*;
 
 /**
  * A {@link JButton} filled with the background color.  Especially useful for color selection dialogs.
- * @author Dan Royer
- * @since 7.31.0
  *
  */
 public class BackgroundPaintedButton extends JButton {

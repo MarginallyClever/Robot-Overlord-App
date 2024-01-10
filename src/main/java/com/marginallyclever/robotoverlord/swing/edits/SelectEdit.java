@@ -12,7 +12,6 @@ import java.util.List;
 /**
  * An undoable action to change the currently selected entity.
  * This is the equivalent to moving the caret in a text document.
- * @author Dan Royer
  *
  */
 public class SelectEdit extends AbstractUndoableEdit {

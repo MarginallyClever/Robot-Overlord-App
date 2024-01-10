@@ -13,7 +13,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 /**
- * @author Dan Royer
  */
 public class EntityDeleteAction extends AbstractAction implements EditorAction {
 	private final EntityManager entityManager;

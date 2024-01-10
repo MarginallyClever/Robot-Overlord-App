@@ -20,8 +20,6 @@ import java.util.List;
 /**
  * Convenience methods for the rotate and translate viewporttools.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class MoveUtils {
     /**

@@ -17,7 +17,6 @@ import java.awt.*;
  * It also displays radio buttons for translation and rotation.
  * It also displays a level of detail combobox to refine movements more than the default (1 mm/deg)
  * When the dial is turned it calls on the Jacobian Newton Raphson iterator to move the arm.
- * @author Dan Royer
  *
  */
 public class CartesianDrivePanel extends JPanel {

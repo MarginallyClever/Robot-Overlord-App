@@ -10,8 +10,6 @@ import java.nio.file.*;
 /**
  * A panel that displays the contents of a log file in a JTable.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class LogPanel3 extends JPanel {
     private final Path logFilePath;

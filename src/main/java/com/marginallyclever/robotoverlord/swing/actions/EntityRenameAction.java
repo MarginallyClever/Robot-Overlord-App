@@ -18,7 +18,6 @@ import java.util.List;
 
 /**
  *  
- * @author Dan Royer
  *
  */
 public class EntityRenameAction extends AbstractAction implements EditorAction {

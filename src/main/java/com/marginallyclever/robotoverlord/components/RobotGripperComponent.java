@@ -18,8 +18,6 @@ import java.util.List;
 /**
  * A gripper is a component that can grab and hold things.
  *
- * @since 2.6.1
- * @author Dan Royer
  */
 @Deprecated
 public class RobotGripperComponent extends ShapeComponent {

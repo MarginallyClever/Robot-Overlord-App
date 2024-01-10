@@ -13,8 +13,6 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 /**
  * Test the {@link ComponentCopyAction} and {@link ComponentPasteAction} classes.
  * Do not run in a headless environment.
- * @author Dan Royer
- * @since 2.4.0
  */
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless environment")
 public class ComponentActionTests {

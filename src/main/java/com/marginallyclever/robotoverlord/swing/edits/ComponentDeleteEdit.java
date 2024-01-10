@@ -11,7 +11,6 @@ import javax.swing.undo.CannotUndoException;
 
 /**
  * An undoable action to add a {@link Component} to an {@link Entity}.
- * @author Dan Royer
  *
  */
 public class ComponentDeleteEdit extends AbstractUndoableEdit {

@@ -17,7 +17,6 @@ import javax.vecmath.Vector3d;
 /**
  * A background component is always rendered first and is always behind everything else.
  * The transform is always adjusted to the active camera.
- * @author Dan Royer
  */
 @ComponentDependency(components = {PoseComponent.class})
 @Deprecated

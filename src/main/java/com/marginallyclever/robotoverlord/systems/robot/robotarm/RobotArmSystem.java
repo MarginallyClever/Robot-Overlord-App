@@ -26,8 +26,6 @@ import java.util.Map;
 /**
  * A system to manage robot arms.
  *
- * @author Dan Royer
- * @since 2.5.5
  */
 @Deprecated
 public class RobotArmSystem implements EntitySystem {

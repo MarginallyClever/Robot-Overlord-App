@@ -12,8 +12,6 @@ import java.beans.PropertyChangeListener;
 
 /**
  * Projects one camera feed into the world on a flat surface.
- * @author Dan Royer
- * @since 2.10.0
  */
 @Deprecated
 public class ProjectorComponent  extends ShapeComponent {

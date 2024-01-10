@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 
 /**
  * Quit the application. This action is not an undoable action.
- * @author Admin
  *
  */
 public class QuitAction extends AbstractAction implements ActionListener {

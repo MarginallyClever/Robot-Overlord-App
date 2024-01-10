@@ -14,8 +14,6 @@ import java.util.LinkedList;
 /**
  * {@link PathFactory} loads a {@link GCodePath} from a file using one of many {@link PathLoader} classes.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class PathFactory {
     private static final Logger logger = LoggerFactory.getLogger(PathFactory.class);

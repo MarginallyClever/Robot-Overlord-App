@@ -12,7 +12,6 @@ import java.util.*;
  * Entities are nodes in a tree of data that can find each other and observe/be
  * observed
  * 
- * @author Dan Royer
  *
  */
 @Deprecated

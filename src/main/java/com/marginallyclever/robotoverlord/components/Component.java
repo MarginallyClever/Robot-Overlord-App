@@ -9,8 +9,6 @@ import org.json.JSONObject;
 /**
  * one or more {@link Component}s are attached to an {@link Entity}.
  *
- * @author Dan Royer
- * @since 2022-08-03
  */
 @Deprecated
 public abstract class Component {

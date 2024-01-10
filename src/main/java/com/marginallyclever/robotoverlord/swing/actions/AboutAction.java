@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 
 /**
  * Display an About dialog box. This action is not undoable.
- * @author Dan Royer
  *
  */
 public class AboutAction extends AbstractAction implements ActionListener {

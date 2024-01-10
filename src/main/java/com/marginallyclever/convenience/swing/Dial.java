@@ -13,7 +13,6 @@ import java.awt.event.*;
 
 /**
  * A dial that can be turned with the mouse wheel, mouse click+drag, or the keyboard +/- keys.
- * @author Dan Royer
  */
 public class Dial extends JComponent {
 	private static final Logger logger = LoggerFactory.getLogger(Dial.class);

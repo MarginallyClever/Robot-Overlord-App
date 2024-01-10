@@ -5,8 +5,6 @@ import java.util.prefs.Preferences;
 
 /**
  * TODO add description
- * @author Peter Colapietro
- * @since v7.1.4
  */
 public interface Ancestryable {
   /**

@@ -14,8 +14,6 @@ import java.nio.file.Path;
 
 /**
  * Import a {@link Project} and add it to the main Project.
- * @author Dan Royer
- * @since 2.0.0
  */
 public class ProjectImportAction extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(ProjectImportAction.class);

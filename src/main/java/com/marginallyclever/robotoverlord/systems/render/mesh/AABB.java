@@ -8,8 +8,6 @@ import java.io.Serializable;
 
 /**
  * Axially-aligned bounding box.  Used for fast sorting and filtering.
- * @author Dan Royer
- * @since 2.1.0
  */
 public class AABB implements BoundingVolume, Serializable {
 

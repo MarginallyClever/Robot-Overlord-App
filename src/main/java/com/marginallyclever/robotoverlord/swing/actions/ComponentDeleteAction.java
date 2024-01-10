@@ -14,8 +14,6 @@ import java.awt.event.ActionEvent;
 /**
  * Delete a {@link Component} from an {@link Entity}.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class ComponentDeleteAction extends AbstractAction {
 	private final ComponentManagerPanel componentManagerPanel;

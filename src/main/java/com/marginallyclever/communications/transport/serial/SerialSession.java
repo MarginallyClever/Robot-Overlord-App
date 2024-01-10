@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Encapsulate all serial receive/transmit at the session layer of the OSI model.
- * @author Peter Colapietro
- * @since v7, 4/12/15.
  */
 public final class SerialSession extends SessionLayer implements SerialPortEventListener {
 	private static final Logger logger = LoggerFactory.getLogger(SerialSession.class);

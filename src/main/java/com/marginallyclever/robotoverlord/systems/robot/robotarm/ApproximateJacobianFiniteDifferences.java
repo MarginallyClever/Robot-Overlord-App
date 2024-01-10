@@ -21,8 +21,6 @@ import javax.vecmath.Matrix4d;
  * See <a href="https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346">Robot
  *      Academy tutorial</a>
  *
- * @since 2.0.0?
- * @author Dan Royer
  */
 @Deprecated
 public class ApproximateJacobianFiniteDifferences extends ApproximateJacobian {

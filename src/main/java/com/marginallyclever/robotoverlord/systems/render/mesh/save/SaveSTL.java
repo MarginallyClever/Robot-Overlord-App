@@ -10,8 +10,6 @@ import java.nio.ByteOrder;
 /**
  * Save a mesh as an STL file.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @Deprecated
 public class SaveSTL implements MeshSaver {

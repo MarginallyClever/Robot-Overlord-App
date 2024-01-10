@@ -12,7 +12,6 @@ import java.awt.event.KeyEvent;
 
 /**
  * go back one step in the undo/redo history.
- * @author Dan Royer
  */
 public class UndoAction extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(UndoAction.class);

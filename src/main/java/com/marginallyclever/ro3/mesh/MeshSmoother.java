@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 /**
  * {@link MeshSmoother} will smooth the normals of a {@link Mesh}.
- * @author Dan Royer
  */
 public class MeshSmoother {
 	private static final Logger logger = LoggerFactory.getLogger(MeshSmoother.class);

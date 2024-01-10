@@ -16,7 +16,6 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Checks online for a new version of Robot Overlord. This action is not undoable.
- * @author Dan Royer
  *
  */
 public class CheckForUpdateAction extends AbstractAction implements ActionListener {

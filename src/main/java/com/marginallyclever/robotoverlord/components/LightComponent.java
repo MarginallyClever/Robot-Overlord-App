@@ -12,8 +12,6 @@ import org.json.JSONObject;
 /**
  * A light {@link Component}.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @ComponentDependency(components={PoseComponent.class})
 @Deprecated

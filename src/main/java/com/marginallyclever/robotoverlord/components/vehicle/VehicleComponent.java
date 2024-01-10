@@ -16,8 +16,6 @@ import org.json.JSONObject;
  * {@link VehicleSystem} uses these to move
  * the {@link com.marginallyclever.robotoverlord.entity.Entity} that owns the CarComponent.
  *
- * @since 2.6.3
- * @author Dan Royer
  */
 public class VehicleComponent extends Component {
     public static final String [] wheelTypeNames = {"Normal","Omni","Mecanum","Traction"};

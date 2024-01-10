@@ -8,8 +8,6 @@ import com.marginallyclever.robotoverlord.systems.EntitySystem;
 /**
  * Decorates {@link PoseComponent} with a position, rotation, and scale.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @Deprecated
 public class PhysicsSystem implements EntitySystem {

@@ -7,8 +7,6 @@ import java.util.prefs.Preferences;
 
 /**
  * Container for interaction preferences
- * @since 2.7.0
- * @author Dan Royer
  */
 @Deprecated
 public class InteractionPreferences {

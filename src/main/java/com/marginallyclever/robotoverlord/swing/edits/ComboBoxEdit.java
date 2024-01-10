@@ -12,7 +12,6 @@ import javax.swing.undo.CannotUndoException;
  * <p>
  * Some Entities have string (text) parameters.  This class ensures changing those parameters is undoable.
  *  
- * @author Dan Royer
  *
  */
 public class ComboBoxEdit extends AbstractUndoableEdit {

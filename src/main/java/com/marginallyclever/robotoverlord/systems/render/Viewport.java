@@ -15,8 +15,6 @@ import javax.vecmath.Vector3d;
 /**
  * Wrapper for all projection matrix stuff at the start of the systems pipeline.
  * OpenGL camera: -Z=forward, +X=right, +Y=up
- * @author Dan Royer
- * @since 1.6.0
  *
  */
 @Deprecated

@@ -16,7 +16,6 @@ import com.marginallyclever.convenience.helpers.StringHelper;
  * <li>It can get the time derivative of the Jacobian matrix.</li>
  * <li>It can get the Coriolis term.</li>
  * </ul>
- * @author Dan Royer
  */
 public abstract class ApproximateJacobian {
     /**

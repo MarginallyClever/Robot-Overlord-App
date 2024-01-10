@@ -12,8 +12,6 @@ import java.util.List;
 
 /**
  * Panel to alter a {@link ListParameter}.
- * @author Dan Royer
- * @since 2.6.3
  */
 @Deprecated  class ViewElementList extends ViewElement {
     private final ListParameter<?> list;

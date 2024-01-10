@@ -33,8 +33,6 @@ import java.util.List;
 /**
  * A 3-arm delta robot.  Each arm is of the rotary style.
  *
- * @author Dan Royer
- * @since before 2.0.0
  */
 @Deprecated
 @ComponentDependency(components = {PoseComponent.class, MaterialComponent.class})

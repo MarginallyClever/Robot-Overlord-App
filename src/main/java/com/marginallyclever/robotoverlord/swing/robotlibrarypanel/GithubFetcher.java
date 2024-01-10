@@ -31,8 +31,6 @@ import java.util.*;
 
 /**
  * Methods for fetching data from <a href="https://www.github.com/">GitHub</a>.
- * @author Dan Royer
- * @since 2.5.0
  */
 public class GithubFetcher {
     private static final Logger logger = LoggerFactory.getLogger(GithubFetcher.class);

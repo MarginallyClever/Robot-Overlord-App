@@ -40,7 +40,6 @@ import java.util.*;
 
 /**
  * Encapsulates the OpenGL rendering.
- * @author Dan Royer
  */
 public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLRenderPanel.class);

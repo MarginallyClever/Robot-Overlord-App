@@ -6,8 +6,6 @@ import java.awt.event.FocusListener;
 
 /**
  * text field that automatically selects all text when it gains focus
- * @author Dan Royer
- * @since 1.6.0
  *
  */
 public class FocusTextField extends JTextField implements FocusListener {

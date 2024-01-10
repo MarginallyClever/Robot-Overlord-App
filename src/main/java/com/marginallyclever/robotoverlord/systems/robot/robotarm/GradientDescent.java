@@ -10,8 +10,6 @@ import javax.vecmath.Matrix4d;
  * Gradient descent is a method of finding a local minimum of a function.  This class uses Gradient Descent to
  * attempt to find the joint angles that will move the end effector closer to the target.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @Deprecated
 public class GradientDescent {

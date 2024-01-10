@@ -22,8 +22,6 @@ import java.util.List;
 /**
  * <p>For motors</p>
  *
- * @author Dan Royer
- * @since 2.6.2
  */
 public class MotorSystem implements EntitySystem {
     private final EntityManager entityManager;

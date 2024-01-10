@@ -28,8 +28,6 @@ import com.marginallyclever.robotoverlord.Log;
 
 /**
  * Helper utility class to aid in loading of language files.
- * @author Peter Colapietro
- * @since v7.1.4
  */
 public final class MarginallyCleverTranslationXmlFileHelper {
 

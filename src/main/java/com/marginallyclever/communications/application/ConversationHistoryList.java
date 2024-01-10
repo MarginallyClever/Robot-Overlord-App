@@ -12,8 +12,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /**
  * a list of all the events that have happened in a conversation.
  *
- * @author Dan Royer
- * @since 1.7.1
  */
 public class ConversationHistoryList extends JPanel {
 	private final DefaultListModel<ConversationEvent> listModel = new DefaultListModel<>();

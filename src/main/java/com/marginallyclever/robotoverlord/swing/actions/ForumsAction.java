@@ -10,7 +10,6 @@ import java.net.URI;
 
 /**
  * Go to the online help forums. This action is not undoable.
- * @author Admin
  *
  */
 public class ForumsAction extends AbstractAction implements ActionListener {

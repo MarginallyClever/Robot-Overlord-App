@@ -16,8 +16,6 @@ import java.io.Serial;
 /**
  * A panel that displays the Jacobian matrix for a robot arm.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class JacobianReportPanel extends JPanel {
 	@Serial

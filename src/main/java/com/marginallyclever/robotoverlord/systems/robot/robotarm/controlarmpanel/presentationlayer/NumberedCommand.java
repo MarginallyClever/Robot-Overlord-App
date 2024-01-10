@@ -4,7 +4,6 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpane
  * A command with a line number and checksum.  Used by {@link PresentationLayer} to send commands to the robot
  * without flooding the serial port.
  *
- * @author Dan Royer
  */
 @Deprecated
 public class NumberedCommand {

@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test the {@link SphericalMap} class.
- * @author Dan Royer
- * @since 2023-10-11
  */
 public class SphericalMapTest {
 

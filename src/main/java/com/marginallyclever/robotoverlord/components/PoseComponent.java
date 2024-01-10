@@ -17,8 +17,6 @@ import java.util.Arrays;
 /**
  * A Pose component contains the local transform of an Entity - its position, rotation, and scale relative to its
  * parent.
- * @author Dan Royer
- * @since 2022-08-04
  */
 @Deprecated
 public class PoseComponent extends Component implements PropertyChangeListener {

@@ -5,8 +5,6 @@ import java.util.EventObject;
 /**
  * Event object for {@link SessionLayer}.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class SessionLayerEvent extends EventObject {
 	// connection has closed

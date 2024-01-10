@@ -23,8 +23,6 @@ import java.util.List;
 /**
  * <p>A tool to translate {@link com.marginallyclever.ro3.node.nodes.Pose} nodes in the {@link Viewport}.  It is a
  * combination of three {@link TranslateToolOneAxis}.</p>
- * @author Dan Royer
- * @since 2.5.0
  */
 public class TranslateToolMulti implements ViewportTool {
     private final TranslateToolOneAxis toolX = new TranslateToolOneAxis(new ColorRGB(255,0,0));

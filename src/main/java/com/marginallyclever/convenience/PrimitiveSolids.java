@@ -1,22 +1,17 @@
 package com.marginallyclever.convenience;
 
 import com.jogamp.opengl.GL3;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.Mesh;
 
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Tuple3d;
-import javax.vecmath.Vector3d;
 
 /**
  * Static methods to help with rendering some simple shapes in OpenGL.
- *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class PrimitiveSolids {
-	static public Mesh drawCircleXY(GL3 gl, double radius, int steps) {
+	@Deprecated
+	static public Mesh drawCircleXY(double radius, int steps) {
 		double stepSize = Math.PI*2 / (double)(steps+1);
 
 		Mesh mesh = new Mesh();

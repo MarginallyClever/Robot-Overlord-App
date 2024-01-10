@@ -14,8 +14,6 @@ import java.util.Map;
  * Combine many {@link PropertiesPanel}s into one panel. Each {@link PropertiesPanel} is a different version of the
  * same library. The user can select which version to use from a {@link JComboBox}.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class MultiVersionPropertiesPanel extends JPanel {
     private final JComboBox<String> tagComboBox;

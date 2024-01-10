@@ -12,8 +12,6 @@ import java.util.List;
 
 /**
  * Interface for {@link Viewport} tools that can be used to visually edit the scene.
- * @since 2.3.0
- * @author Dan Royer
  */
 public interface ViewportTool {
     int FRAME_WORLD = 0;

@@ -16,7 +16,6 @@ import java.util.List;
 /**
  * An undoable command to make a physical entity move.
  *  
- * @author Dan Royer
  *
  */
 public class PoseMoveEdit extends AbstractUndoableEdit {

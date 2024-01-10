@@ -12,7 +12,6 @@ import java.text.MessageFormat;
 
 /**
  * Convenience methods for matrixes
- * @author aggra
  *
  */
 public class MatrixHelper {
@@ -790,7 +789,7 @@ public class MatrixHelper {
 			rot.setElement(j,i, s);		rot.setElement(j,j, c);
 
 			// Apply the rotation
-			//*this = rot * *this * rot.transposed();
+			//*this = rot *this * rot.transposed();
 			Matrix3d rt = new Matrix3d();
 			rt.transpose(rot);
 			Matrix3d temp = new Matrix3d();

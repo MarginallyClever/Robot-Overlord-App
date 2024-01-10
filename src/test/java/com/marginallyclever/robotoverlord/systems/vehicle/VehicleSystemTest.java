@@ -16,8 +16,6 @@ import java.util.List;
 /**
  * Build and drive a variety of vehicles.
  *
- * @since 2.6.3
- * @author Dan Royer
  */
 public class VehicleSystemTest {
     private EntityManager entityManager;

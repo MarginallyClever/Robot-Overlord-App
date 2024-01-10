@@ -12,8 +12,6 @@ import java.security.InvalidParameterException;
  * Given the current pose of the robot, find the approximate jacobian, which describe the relationship between joint
  * velocity and cartesian velocity.  This version uses screw theory.
  *
- * @since 2.6.1
- * @author Dan Royer
  */
 public class ApproximateJacobianScrewTheory extends ApproximateJacobian {
 	/**

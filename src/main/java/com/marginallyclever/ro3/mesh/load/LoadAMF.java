@@ -16,8 +16,6 @@ import java.util.ArrayList;
 /**
  * <p>{@link LoadAMF} is a {@link MeshLoader} that loads an
  * <a href="https://en.wikipedia.org/wiki/Additive_manufacturing_file_format">AMF</a> into a {@link Mesh}.</p>
- * @author Dan Royer
- * @since 2.5.0
  */
 public class LoadAMF implements MeshLoader {
 	private static final Logger logger = LoggerFactory.getLogger(LoadAMF.class);

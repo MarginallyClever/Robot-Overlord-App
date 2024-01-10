@@ -5,8 +5,6 @@ import com.marginallyclever.robotoverlord.entity.EntityManager;
 /**
  * A demo is a script that procedurally generates a scene (creates entities with components).
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @Deprecated
 public interface Demo {

@@ -20,7 +20,6 @@ import java.util.List;
 /**
  * {@link Mesh} contains the vertex, normal, maybe color, and maybe texture data for a 3D model.
  * It uses Vertex Buffer Objects to optimize rendering large collections of triangles.
- * @author Dan Royer
  */
 @Deprecated
 public class Mesh {

@@ -9,8 +9,6 @@ import java.util.ArrayList;
  * In the <a href="https://en.wikipedia.org/wiki/OSI_model">OSI model</a>, the Presentation layer is responsible for
  * translating data between the application layer and the session.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @Deprecated
 public interface PresentationLayer {

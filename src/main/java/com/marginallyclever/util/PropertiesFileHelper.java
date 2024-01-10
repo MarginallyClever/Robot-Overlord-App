@@ -10,8 +10,6 @@ import java.util.Properties;
 
 /**
  * Helps with accessing the robotoverlord.properties file.
- * @author Peter Colapietro
- * @since 2015-10-05
  */
 public final class PropertiesFileHelper {
     private static final Logger logger = LoggerFactory.getLogger(PropertiesFileHelper.class);

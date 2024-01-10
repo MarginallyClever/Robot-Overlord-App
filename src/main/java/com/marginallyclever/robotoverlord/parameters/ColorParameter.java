@@ -8,8 +8,6 @@ import java.util.Arrays;
 
 /**
  * each color component is in the range [0...1]
- * @author Dan Royer
- * @since 1.6.0
  *
  */
 public class ColorParameter extends AbstractParameter<double[]> {

@@ -10,7 +10,6 @@ import java.net.URISyntaxException;
 
 /**
  * Display a message dialog box with HTML inside.
- * @author Dan Royer
  *
  */
 @Deprecated
