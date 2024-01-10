@@ -70,6 +70,10 @@ public class Registry {
         for(Node n : toRemove2) {
             scene.removeChild(n);
         }
+
+        textureFactory.reset();
+        meshFactory.reset();
+
         scene = new Node("Scene");
     }
 

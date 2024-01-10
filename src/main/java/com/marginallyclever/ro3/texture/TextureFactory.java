@@ -91,4 +91,11 @@ public class TextureFactory {
 
         return result;
     }
+
+    /**
+     * Remove all textures from the pool.
+     */
+    public void reset() {
+        texturePool.removeAll();
+    }
 }

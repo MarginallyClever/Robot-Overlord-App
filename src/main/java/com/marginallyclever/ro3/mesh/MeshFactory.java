@@ -144,4 +144,11 @@ public class MeshFactory {
 	public ListWithEvents<Mesh> getPool() {
 		return meshPool;
 	}
+
+	/**
+	 * Clear the pool of all loaded meshes.
+	 */
+    public void reset() {
+		meshPool.removeAll();
+    }
 }
