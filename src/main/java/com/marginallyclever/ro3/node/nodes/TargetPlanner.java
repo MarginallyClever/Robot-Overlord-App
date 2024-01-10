@@ -1,18 +1,14 @@
 package com.marginallyclever.ro3.node.nodes;
 
-import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.HierarchyEvent;
 import java.util.List;
 
 /**
@@ -39,76 +35,11 @@ public class TargetPlanner extends Node implements ActionListener {
 
     @Override
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridBagLayout());
-        list.add(pane);
-        pane.setName(MarlinRobotArm.class.getSimpleName());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.gridx=0;
-        gbc.gridy=0;
-        gbc.gridwidth=1;
-
-        addNodeSelector(pane, "LimbSolver", solver, LimbSolver.class, gbc);
-        gbc.gridy++;
-        addNodeSelector(pane, "Path start", pathStart, Node.class, gbc);
-        gbc.gridy++;
-        var selector = addNodeSelector(pane, "Next goal", nextGoal, Pose.class, gbc);
-        selector.setEditable(false);
-
-        var previousExecutionTimeLabel = new JLabel(StringHelper.formatTime(previousExecutionTime));
-        var executionTimeLabel = new JLabel(StringHelper.formatTime(executionTime));
-        // timer
-        Timer timer = new Timer(100, (e)-> {
-            if (isRunning) {
-                executionTime += 0.1;
-                executionTimeLabel.setText(StringHelper.formatTime(executionTime));
-            }
-        });
-
-        // Run button
-        gbc.gridy++;
-        JToggleButton runButton = new JToggleButton();
-        runButton.addActionListener(e -> {
-            isRunning = runButton.isSelected();
-            if (isRunning) {
-                startRun();
-                previousExecutionTimeLabel.setText(StringHelper.formatTime(previousExecutionTime));
-                timer.start();
-            } else {
-                stopRun();
-                timer.stop();
-            }
-            setRunButtonText(runButton);
-        });
-        setRunButtonText(runButton);
-
-        runButton.addHierarchyListener(e -> {
-            if ((HierarchyEvent.SHOWING_CHANGED & e.getChangeFlags()) !=0
-                    && !runButton.isShowing()) {
-                timer.stop();
-            }
-        });
-
-        gbc.gridx=0;
-        gbc.gridwidth=2;
-        pane.add(runButton,gbc);
-        gbc.gridy++;
-        gbc.gridwidth=1;
-        addLabelAndComponent(pane, "Execution time", executionTimeLabel, gbc);
-        gbc.gridy++;
-        addLabelAndComponent(pane, "Previous time", previousExecutionTimeLabel, gbc);
-
+        list.add(new TargetPlannerPanel(this));
         super.getComponents(list);
     }
 
-    private void setRunButtonText(JToggleButton runButton) {
-        runButton.setText( isRunning ? "Stop" : "Run");
-    }
-
-    private void startRun() {
+    public void startRun() {
         logger.debug("Starting run");
         previousExecutionTime = executionTime;
         executionTime = 0;
@@ -181,7 +112,7 @@ public class TargetPlanner extends Node implements ActionListener {
         nextGoal.setRelativePath(this, (Pose)kids.get(index));
     }
 
-    private void stopRun() {
+    public void stopRun() {
         logger.debug("Stopping run");
         isRunning=false;
         nextGoal.setPath(pathStart.getPath());
@@ -191,7 +122,7 @@ public class TargetPlanner extends Node implements ActionListener {
             mySolver.removeActionListener(this);
         }
 
-        fireActionEvent("arrivedAtGoal");
+        fireActionEvent("finished");
     }
 
     @Override
@@ -229,5 +160,37 @@ public class TargetPlanner extends Node implements ActionListener {
         if(e.getActionCommand().equals("arrivedAtGoal")) {
             onSolverDone();
         }
+    }
+
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    public double getExecutionTime() {
+        return executionTime;
+    }
+
+    public double getPreviousExecutionTime() {
+        return previousExecutionTime;
+    }
+
+    @Override
+    public void update(double dt) {
+        super.update(dt);
+        if (isRunning) {
+            executionTime += dt;
+        }
+    }
+
+    public NodePath<Node> getPathStart() {
+        return pathStart;
+    }
+
+    public NodePath<LimbSolver> getSolver() {
+        return solver;
+    }
+
+    public NodePath<Pose> getNextGoal() {
+        return nextGoal;
     }
 }
