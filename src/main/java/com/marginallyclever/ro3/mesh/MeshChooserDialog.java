@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.dialogs;
+package com.marginallyclever.ro3.mesh;
 
 import javax.swing.*;
 import java.awt.*;
@@ -6,10 +6,9 @@ import java.awt.event.ActionEvent;
 import java.util.Objects;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.dialogs.TextureFactoryDialog;
 import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
 import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
-import com.marginallyclever.ro3.mesh.Mesh;
-import com.marginallyclever.ro3.mesh.MeshFactory;
 
 /**
  * <p>The {@link MeshChooserDialog} class allows for selecting a {@link com.marginallyclever.ro3.mesh.Mesh}

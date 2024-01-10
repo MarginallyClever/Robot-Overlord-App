@@ -1,9 +1,7 @@
-package com.marginallyclever.ro3.apps.dialogs;
+package com.marginallyclever.ro3.mesh;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
-import com.marginallyclever.ro3.mesh.Mesh;
-import com.marginallyclever.ro3.mesh.MeshFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

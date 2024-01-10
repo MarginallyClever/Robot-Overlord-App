@@ -3,7 +3,7 @@ package com.marginallyclever.ro3.node.nodes.pose;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.dialogs.MeshChooserDialog;
+import com.marginallyclever.ro3.mesh.MeshChooserDialog;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.MeshSmoother;
 import com.marginallyclever.ro3.node.NodePanelHelper;
