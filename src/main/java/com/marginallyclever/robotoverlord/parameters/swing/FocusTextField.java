@@ -8,7 +8,7 @@ import java.awt.event.FocusListener;
  * text field that automatically selects all text when it gains focus
  *
  */
-public class FocusTextField extends JTextField implements FocusListener {
+@Deprecated public class FocusTextField extends JTextField implements FocusListener {
 	public FocusTextField(int i) {
 		super(i);
 		addFocusListener(this);

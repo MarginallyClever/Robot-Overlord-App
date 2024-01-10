@@ -14,7 +14,7 @@ import javax.vecmath.Point3d;
  *
  */
 @ComponentDependency(components = {PoseComponent.class})
-public class DogRobotComponent extends Component {
+@Deprecated public class DogRobotComponent extends Component {
     public static final double KINEMATIC_BODY_WIDTH = 8;
     public static final double KINEMATIC_BODY_LENGTH = 8;
     public static final double KINEMATIC_BODY_HEIGHT = 18.5;

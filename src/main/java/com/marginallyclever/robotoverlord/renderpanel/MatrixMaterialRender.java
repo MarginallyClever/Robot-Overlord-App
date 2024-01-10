@@ -8,7 +8,7 @@ import javax.vecmath.Matrix4d;
 /**
  * A matrix, a material, and a viewport component.
  */
-public class MatrixMaterialRender {
+@Deprecated public class MatrixMaterialRender {
     public Matrix4d matrix = new Matrix4d();
     public RenderComponent renderComponent;
     public MaterialComponent materialComponent;

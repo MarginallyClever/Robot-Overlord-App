@@ -15,7 +15,7 @@ import javax.vecmath.Vector3d;
  *
  */
 @ComponentDependency(components = {PoseComponent.class})
-public class CrabRobotComponent extends Component {
+@Deprecated public class CrabRobotComponent extends Component {
     public static final int NUM_LEGS = 6;
     public static final String HIP = "Hip";
     public static final String THIGH = "Thigh";

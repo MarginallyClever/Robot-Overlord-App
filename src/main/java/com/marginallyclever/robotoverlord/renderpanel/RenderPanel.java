@@ -5,7 +5,7 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import javax.swing.*;
 import java.util.List;
 
-public interface RenderPanel {
+@Deprecated public interface RenderPanel {
     JPanel getPanel();
 
     void startAnimationSystem();
