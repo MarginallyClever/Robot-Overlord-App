@@ -98,18 +98,19 @@ public class MarlinRobotArm extends Node {
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
-
         gbc.gridx=0;
         gbc.gridy=0;
         gbc.gridwidth=1;
 
+        addNodeSelector(pane, "Limb", limb, Limb.class, gbc);
+        gbc.gridy++;
+        addNodeSelector(pane, "Solver", solver, LimbSolver.class, gbc);
+        gbc.gridy++;
+        addNodeSelector(pane, "Gripper motor", gripperMotor, Motor.class, gbc);
+        gbc.gridy++;
         JButton M114 = new JButton("M114");
         M114.addActionListener(e-> sendGCode("M114"));
         addLabelAndComponent(pane, "Get state", M114,gbc);
-
-        gbc.gridwidth=1;
-        gbc.gridy++;
-        addNodeSelector(pane, "Gripper motor", gripperMotor, Motor.class, gbc);
 
         gbc.gridx=0;
         gbc.gridwidth=2;

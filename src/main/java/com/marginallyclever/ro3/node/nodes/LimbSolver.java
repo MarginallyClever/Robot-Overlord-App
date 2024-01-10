@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobian;
@@ -13,19 +14,27 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.Objects;
 
 /**
  * {@link LimbSolver} calculates <a href="https://en.wikipedia.org/wiki/Inverse_kinematics">Inverse Kinematics</a> for
  * a {@link Limb}.  Given a target and a linear velocity, {@link LimbSolver} will calculate and apply the
- * joint velocities required to move the end effector towards the target in a straight line.
+ * joint velocities required to move the end effector towards the target in a straight line.  When the end effector
+ * reaches the target (with a margin of error), {@link LimbSolver} will fire an ActionEvent "arrivedAtGoal".
  */
 public class LimbSolver extends Node {
     private static final Logger logger = LoggerFactory.getLogger(LimbSolver.class);
     private final NodePath<Limb> limb = new NodePath<>(this,Limb.class);
     private final NodePath<Pose> target = new NodePath<>(this,Pose.class);
     private double linearVelocity = 0;
+    private double distanceToTarget = 0;
+
+    private double goalMarginOfError = 0.1; // not degrees or mm.  Just a number.
+    private final double[] cartesianDistance = new double[6];  // 3 linear, 3 angular
+    private final double[] cartesianVelocity = new double[cartesianDistance.length];
+    private boolean isAtGoal = false;
 
     public LimbSolver() {
         this("LimbSolver");
@@ -46,6 +55,20 @@ public class LimbSolver extends Node {
     public void update(double dt) {
         if(dt==0) return;
         moveTowardsTarget();
+        areWeThereYet();
+    }
+
+    // are we there yet?
+    private void areWeThereYet() {
+        distanceToTarget = sumCartesianVelocityComponents(cartesianDistance);
+        if(distanceToTarget<goalMarginOfError) {
+            if(!isAtGoal) {
+                isAtGoal = true;
+                fireArrivedAtGoal();
+            }
+        } else {
+            isAtGoal = false;
+        }
     }
 
     public Limb getLimb() {
@@ -71,27 +94,14 @@ public class LimbSolver extends Node {
             getLimb().setAllJointVelocities(new double[getLimb().getNumJoints()]);
             return;
         }
-        double[] cartesianVelocity = MatrixHelper.getCartesianBetweenTwoMatrices(
+        // find direction to move
+        MatrixHelper.getCartesianBetweenTwoMatrices(
                 getEndEffector().getWorld(),
-                getTarget().getWorld());
+                getTarget().getWorld(),
+                cartesianDistance);
+        // theshold the velocity
+        System.arraycopy(cartesianDistance,0,cartesianVelocity,0,cartesianDistance.length);
         scaleVectorToMagnitude(cartesianVelocity,linearVelocity);
-        moveEndEffectorInCartesianDirection(cartesianVelocity);
-    }
-
-    /**
-     * Attempts to move the robot arm such that the end effector travels in the direction of the cartesian velocity.
-     * @param cartesianVelocity three linear forces (mm) and three angular forces (degrees).
-     * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
-     */
-    public void moveEndEffectorInCartesianDirection(double[] cartesianVelocity) {
-        // is it a tiny move?
-        double sum = sumCartesianVelocityComponents(cartesianVelocity);
-        if(sum<0.0001) return;
-        if(sum <= 1) {
-            setMotorVelocitiesFromCartesianVelocity(cartesianVelocity);
-            return;
-        }
-
         // set motor velocities.
         setMotorVelocitiesFromCartesianVelocity(cartesianVelocity);
     }
@@ -182,6 +192,8 @@ public class LimbSolver extends Node {
      * @param maxLen the max length of the vector.
      */
     public static void scaleVectorToMagnitude(double[] vector, double maxLen) {
+        if(maxLen<0) throw new IllegalArgumentException("maxLen must be >= 0");
+
         // get the length of the vector
         double len = 0;
         for (double v : vector) {
@@ -272,6 +284,16 @@ public class LimbSolver extends Node {
         gbc.gridwidth=1;
         addNodeSelector(pane, "Limb", limb, Limb.class, gbc);
 
+        gbc.gridy++;
+        var formatter = NumberFormatHelper.getNumberFormatter();
+        formatter.setMinimum(0.0);
+        JFormattedTextField marginField = new JFormattedTextField(formatter);
+        marginField.setValue(goalMarginOfError);
+        marginField.addPropertyChangeListener("value", evt -> {
+            goalMarginOfError = ((Number) marginField.getValue()).doubleValue();
+        });
+        addLabelAndComponent(pane, "Goal Margin", marginField, gbc);
+
         super.getComponents(list);
     }
 
@@ -286,5 +308,47 @@ public class LimbSolver extends Node {
     public void setLinearVelocity(double linearVelocity) {
         if(linearVelocity<0) throw new IllegalArgumentException("linearVelocity must be >= 0");
         this.linearVelocity = linearVelocity;
+    }
+
+    /**
+     * @return the distance to the target that is a combination of linear and angular distances.
+     */
+    public double getDistanceToTarget() {
+        return distanceToTarget;
+    }
+
+    /**
+     * @return the distance to the target that is a combination of linear and angular distances.
+     */
+    public double getGoalMarginOfError() {
+        return goalMarginOfError;
+    }
+
+    /**
+     * @param goalMarginOfError the distance to the target that is a combination of linear and angular distances.
+     */
+    public void setGoalMarginOfError(double goalMarginOfError) {
+        if(goalMarginOfError<0) throw new IllegalArgumentException("goalMarginOfError must be >= 0");
+        this.goalMarginOfError = goalMarginOfError;
+    }
+
+    public void addActionListener(ActionListener listener) {
+        listeners.add(ActionListener.class,listener);
+    }
+
+    public void removeActionListener(ActionListener listener) {
+        listeners.remove(ActionListener.class,listener);
+    }
+
+    /**
+     * Fire the "arrivedAtGoal" event to any {@link ActionListener} subscribed to this node.
+     */
+    private void fireArrivedAtGoal() {
+        logger.debug("Arrived at goal.");
+        ActionEvent e = new ActionEvent(this,0,"arrivedAtGoal");
+        // Dispatch the event to the listeners
+        for (ActionListener listener : listeners.getListeners(ActionListener.class)) {
+            listener.actionPerformed(e);
+        }
     }
 }

@@ -83,4 +83,9 @@ public class NodeSelector<T extends Node> extends JPanel {
     public T getSubject() {
         return subject;
     }
+
+    public void setEditable(boolean b) {
+        chooseButton.setEnabled(b);
+        findButton.setEnabled(b);
+    }
 }

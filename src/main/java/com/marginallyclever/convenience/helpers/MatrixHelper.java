@@ -814,6 +814,20 @@ public class MatrixHelper {
 	 * @return 6 doubles that will be filled with the XYZ translation and RPY rotation.
 	 */
 	static public double[] getCartesianBetweenTwoMatrices(final Matrix4d mStart, final Matrix4d mEnd) {
+		double [] list = new double[6];
+		getCartesianBetweenTwoMatrices(mStart,mEnd,list);
+		return list;
+	}
+
+	/**
+	 * Use Quaternions to estimate the distance between two matrixes (both linear and rotational).
+	 * @param mStart matrix of start pose
+	 * @param mEnd matrix of end pose
+	 * @param listOut a double[6] to store the result.  Must not be null.
+	 */
+	static public void getCartesianBetweenTwoMatrices(final Matrix4d mStart, final Matrix4d mEnd,double[] listOut) {
+		if(listOut==null || listOut.length!=6) throw new IllegalArgumentException("listOut must be a double[6]");
+
 		// get the linear movement
 		Vector3d diff = new Vector3d(
 				mEnd.m03-mStart.m03,
@@ -829,8 +843,12 @@ public class MatrixHelper {
 		qDiff.mulInverse(qEnd,qStart);
 		// get the radian roll/pitch/yaw
 		double [] rpy = MathHelper.quatToEuler(qDiff);
-		
-		return new double[] { diff.x,diff.y,diff.z, -rpy[0],-rpy[1],-rpy[2] };
+		listOut[0] = diff.x;
+		listOut[1] = diff.y;
+		listOut[2] = diff.z;
+		listOut[3] = -rpy[0];
+		listOut[4] = -rpy[1];
+		listOut[5] = -rpy[2];
 	}
 
 	public static double[][] createMatrix(int rows, int cols) {

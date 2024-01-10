@@ -392,10 +392,11 @@ public class Node {
         pane.add(component);
     }
 
-    protected <T extends Node> void addNodeSelector(JPanel pane, String label, NodePath<T> nodePath, Class<T> clazz, GridBagConstraints gbc) {
+    protected <T extends Node> NodeSelector<T> addNodeSelector(JPanel pane, String label, NodePath<T> nodePath, Class<T> clazz, GridBagConstraints gbc) {
         NodeSelector<T> selector = new NodeSelector<>(clazz, nodePath.getSubject());
         selector.addPropertyChangeListener("subject", (e) -> nodePath.setRelativePath(this, (T) e.getNewValue()));
         addLabelAndComponent(pane, label, selector, gbc);
+        return selector;
     }
 
     /**
