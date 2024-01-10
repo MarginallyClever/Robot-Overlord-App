@@ -401,7 +401,6 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         super.dispose(glAutoDrawable);
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         toolShader.delete(gl3);
-        // TODO
         for(ViewportTool tool : viewportTools) tool.dispose(gl3);
     }
 

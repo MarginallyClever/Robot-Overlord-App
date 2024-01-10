@@ -72,6 +72,7 @@ public class RO3FrameDropTarget extends DropTargetAdapter {
             return false;
         }
 
+        // TODO make this a command that can be undone.
         MeshInstance meshInstance = new MeshInstance(getFilenameWithoutExtensionFromPath(absolutePath));
         meshInstance.setMesh(Registry.meshFactory.load(absolutePath));
         Registry.getScene().addChild(meshInstance);
