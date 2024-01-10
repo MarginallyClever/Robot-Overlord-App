@@ -1,8 +1,10 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.helpers.StringHelper;
+import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePanelHelper;
+import com.marginallyclever.ro3.view.View;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +14,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
 
+/**
+ * <p>{@link TargetPlannerPanel} displays controls to run a {@link TargetPlanner}.</p>
+ */
+@View(of=TargetPlanner.class)
 public class TargetPlannerPanel extends JPanel implements ActionListener {
     private static final Logger logger = LoggerFactory.getLogger(TargetPlannerPanel.class);
     private final TargetPlanner targetPlanner;

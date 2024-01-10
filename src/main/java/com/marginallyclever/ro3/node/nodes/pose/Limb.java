@@ -20,14 +20,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>{@link Limb} represents a linear chain of bones and muscles.  Bones are represented by {@link Pose}s.  Muscles are
- * represented by {@link Motor}s.  The end of the chain is represented by an {@link Pose} called the end effector.</p>
- * <p>Limbs only perform <a href="https://en.wikipedia.org/wiki/Forward_kinematics">Forward Kinematics</a> - given the
- * angle of each joint, they calculate the world space position of the end effector.  For more sophisticated behavior,
- * use a {@link com.marginallyclever.ro3.node.nodes.LimbSolver}.</p>
+ * <p>{@link Limb} is a linear chain of bones, joints, and muscles.  Bones are represented by {@link Pose}s.  Joints are
+ * represented by {@link HingeJoint}s.  Muscles are represented by {@link Motor}s.  The end of the chain is a
+ * {@link Pose} called the <i>end effector</i>.</p>
+ * <p>{@link Limb}s only perform <a href="https://en.wikipedia.org/wiki/Forward_kinematics">Forward Kinematics</a> -
+ * given the angle of each joint, they calculate the world space position of the end effector.  For more sophisticated
+ * behavior, use a {@link com.marginallyclever.ro3.node.nodes.LimbSolver}.</p>
+ * <p>{@link Limb} is designed to handle six joints or less.</p>
  */
 public class Limb extends Pose {
-    private static final Logger logger = LoggerFactory.getLogger(Limb.class);
     public static final int MAX_JOINTS = 6;
     private final List<NodePath<Motor>> motors = new ArrayList<>();
     private final NodePath<Pose> endEffector = new NodePath<>(this,Pose.class);

@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.apps.nodedetailview;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.App;
+import com.marginallyclever.ro3.apps.actions.BrowseURLAction;
 import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
 import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
 import com.marginallyclever.ro3.node.Node;
@@ -10,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -21,34 +21,36 @@ import java.util.Objects;
 public class NodeDetailView extends App
         implements ItemAddedListener<Node>, ItemRemovedListener<Node> {
     private static final Logger logger = LoggerFactory.getLogger(NodeDetailView.class);
+    public static final String DOC_URL = "https://marginallyclever.github.io/Robot-Overlord-App/com.marginallyclever.robotoverlord/";
     private final JScrollPane scroll = new JScrollPane();
-
-    private final JToggleButton lockButton = new JToggleButton(new AbstractAction() {
-        {
-            putValue(Action.NAME, "Lock");
-            putValue(Action.SHORT_DESCRIPTION, "Lock this view to the current selection.");
-            putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/apps/editorpanel/icons8-lock-16.png"))));
-        }
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            logger.debug("Lock button pressed.");
-        }
-    });
+    private final JToggleButton pinButton = new JToggleButton();
+    private final JButton docButton = new JButton();
+    private final ImageIcon bookIcon;
 
     public NodeDetailView() {
         super(new BorderLayout());
 
+        bookIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/apps/icons8-open-book-16.png")));
+
+        pinButton.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/apps/shared/icons8-pin-16.png"))));
+        pinButton.setToolTipText("Pin this selection.");
+
+        docButton.setIcon(bookIcon);
+        docButton.setEnabled(false);
+
         JToolBar toolbar = new JToolBar();
-        toolbar.add(lockButton);
         toolbar.setFloatable(false);
+        toolbar.add(pinButton);
+        toolbar.add(docButton);
 
         add(toolbar, BorderLayout.NORTH);
         add(scroll, BorderLayout.CENTER);
         selectionChanged(List.of());
     }
 
-    public static JPanel createPanelFor(List<Node> nodeList) {
+    private JPanel createPanelFor(List<Node> nodeList) {
         JPanel parent = new JPanel(new BorderLayout());
+
         // handle no selection.
         if(nodeList.isEmpty()) {
             JLabel label = new JLabel("No nodes selected.");
@@ -66,6 +68,19 @@ public class NodeDetailView extends App
                 logger.error("Error getting components for node {}", node, e);
             }
         }
+
+        if(nodeList.size()==1) {
+            // add a documentation button that links to
+            var clazz = nodeList.get(0).getClass();
+            String url = DOC_URL + clazz.getName().replace('.', '/') + ".html";
+            var docAction = new BrowseURLAction(url);
+            docAction.putValue(Action.NAME, "Docs");
+            docAction.putValue(Action.SMALL_ICON, bookIcon);
+            docAction.putValue(Action.SHORT_DESCRIPTION, "Open documentation for "+clazz.getSimpleName());
+            docButton.setAction(docAction);
+        }
+        docButton.setEnabled(nodeList.size()==1);
+
         // collate the components
         Box vertical = Box.createVerticalBox();
         for (JPanel c : list) {
@@ -73,6 +88,7 @@ public class NodeDetailView extends App
             panel.setContentPane(c);
             vertical.add(panel);
         }
+
         // attach them to the parent
         parent.add(vertical, BorderLayout.NORTH);
         return parent;
@@ -84,8 +100,9 @@ public class NodeDetailView extends App
      * @param selectedNodes the list of nodes that are currently selected.
      */
     public void selectionChanged(List<Node> selectedNodes) {
-        if(lockButton.isSelected()) return;
+        if(pinButton.isSelected()) return;
         scroll.setViewportView(createPanelFor(selectedNodes));
+        docButton.setEnabled(!selectedNodes.isEmpty());
         this.revalidate();
         this.repaint();
     }

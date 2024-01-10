@@ -9,5 +9,8 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE) // or any other applicable target
 @Retention(RetentionPolicy.RUNTIME) // or SOURCE or CLASS depending on usage
 public @interface View {
+    /**
+     * @return the class for which this is a view of.
+     */
     Class<?> of();
 }

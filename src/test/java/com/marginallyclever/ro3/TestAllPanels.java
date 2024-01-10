@@ -76,8 +76,9 @@ public class TestAllPanels {
                 Node node = nodeClass.getDeclaredConstructor().newInstance();
                 try {
                     System.out.println("Adding "+node.getName());
-                    JComponent interior = NodeDetailView.createPanelFor(List.of(node));
-                    cardPanel.add(interior, nodeClass.getName());
+                    var view = new NodeDetailView();
+                    view.selectionChanged(List.of(node));
+                    cardPanel.add(view, nodeClass.getName());
                     names.add(nodeClass.getName());
                 } catch(Exception e) {
                     logger.error("Error getting components for node {}",node,e);
