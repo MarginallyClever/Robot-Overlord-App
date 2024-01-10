@@ -30,7 +30,7 @@ public class ExportScene extends AbstractAction {
     public ExportScene(JFileChooser chooser) {
         super();
         this.chooser = chooser;
-        putValue(Action.NAME,"Export Scene");
+        putValue(Action.NAME,"Export...");
         putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-export-16.png"))));
         putValue(SHORT_DESCRIPTION,"Export the scene and all the assets used to a ZIP file.");
     }

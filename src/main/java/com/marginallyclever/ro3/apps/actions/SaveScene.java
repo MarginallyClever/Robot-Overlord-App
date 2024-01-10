@@ -20,14 +20,13 @@ import java.util.Objects;
  */
 public class SaveScene extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(SaveScene.class);
-    private final JFileChooser chooser;
+    private String lastLoadedPath;
     private final RecentFilesMenu menu;
 
-    public SaveScene(RecentFilesMenu menu,JFileChooser chooser) {
+    public SaveScene(RecentFilesMenu menu) {
         super();
-        this.chooser = chooser;
         this.menu = menu;
-        putValue(Action.NAME,"Save Scene");
+        putValue(Action.NAME,"Save");
         putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-save-16.png"))));
         putValue(SHORT_DESCRIPTION,"Save to a file.");
     }
@@ -40,10 +39,9 @@ public class SaveScene extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         Component source = (Component) e.getSource();
-        String destinationPath = askUserForDestinationPath(source);
-        if (destinationPath == null) return;  // cancelled
+        String destinationPath = lastLoadedPath;
         try {
-            commitSave(destinationPath);
+            SaveAsScene.commitSave(destinationPath);
         } catch (IOException ioException) {
             logger.error("Error saving file.  ", ioException);
             JOptionPane.showMessageDialog(source,
@@ -54,37 +52,8 @@ public class SaveScene extends AbstractAction {
         menu.addPath(destinationPath);
     }
 
-    private String askUserForDestinationPath(Component source) {
-        JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
-
-        int response;
-        do {
-            if (chooser.showSaveDialog(parentFrame) != JFileChooser.APPROVE_OPTION) {
-                return null;  // cancelled
-            }
-            // check before overwriting.
-            response = JOptionPane.YES_OPTION;
-            File selectedFile = chooser.getSelectedFile();
-            if (selectedFile.exists()) {
-                response = JOptionPane.showConfirmDialog(parentFrame,
-                        "Do you want to replace the existing file?",
-                        "Confirm Overwrite",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
-            }
-            // if the user says no, then loop back to the file chooser.
-        } while(response == JOptionPane.NO_OPTION);
-
-        return chooser.getSelectedFile().getAbsolutePath();
-    }
-
-    public void commitSave(String absolutePath) throws IOException {
-        logger.info("Save to {}",absolutePath);
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(absolutePath))) {
-            writer.write(Registry.getScene().toJSON().toString());
-        }
-
-        logger.info("done.");
+    public void setPath(String absolutePath) {
+        lastLoadedPath = absolutePath;
+        putValue(Action.SHORT_DESCRIPTION,"Save "+absolutePath);
     }
 }
