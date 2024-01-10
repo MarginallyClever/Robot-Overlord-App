@@ -1,9 +1,9 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.helpers.StringHelper;
-import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePanelHelper;
+import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.view.View;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

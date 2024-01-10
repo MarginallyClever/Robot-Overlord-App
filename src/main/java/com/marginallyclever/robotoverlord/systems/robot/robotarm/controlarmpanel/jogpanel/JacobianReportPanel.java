@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpane
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
-import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobian;
+import com.marginallyclever.ro3.node.nodes.limbsolver.ApproximateJacobian;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.ApproximateJacobianFiniteDifferences;
 
 import javax.swing.*;
