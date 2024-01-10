@@ -82,8 +82,8 @@ public class RO3FrameDropTarget extends DropTargetAdapter {
     private boolean importScene(File file) {
         logger.debug("drag importScene {}",file);
         try {
-            ImportScene importScene = new ImportScene(file);
-            importScene.execute();
+            var imported = new ImportScene(file);
+            UndoSystem.addEvent(imported);
         } catch (Exception e) {
             logger.error("Error importing scene",e);
             return false;
