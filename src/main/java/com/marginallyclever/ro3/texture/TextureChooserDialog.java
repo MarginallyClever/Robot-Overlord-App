@@ -1,10 +1,9 @@
-package com.marginallyclever.ro3.apps.dialogs;
+package com.marginallyclever.ro3.texture;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
 import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
 import com.marginallyclever.ro3.mesh.MeshFactoryDialog;
-import com.marginallyclever.ro3.texture.TextureWithMetadata;
 
 import javax.swing.*;
 import java.awt.*;

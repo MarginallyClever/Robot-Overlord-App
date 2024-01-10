@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.dialogs.TextureChooserDialog;
+import com.marginallyclever.ro3.texture.TextureChooserDialog;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
