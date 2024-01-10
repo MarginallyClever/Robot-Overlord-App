@@ -49,6 +49,7 @@ public class TargetPlanner extends Node implements ActionListener {
 
             // set nextGoal to the first child of type Pose
             nextGoal.setPath(pathStart.getPath());
+            isRunning=true;
             onSolverDone();
         }
     }
@@ -57,15 +58,17 @@ public class TargetPlanner extends Node implements ActionListener {
      * The solver has reached a target, so we need to find the next target.
      */
     private void onSolverDone() {
-        findNextGoalOrStop();
-        if(solver.getSubject()!=null) {
-            LimbSolver mySolver = this.solver.getSubject();
-            mySolver.setTarget(nextGoal.getSubject());
+        setNextGoalOrStop();
+        if(isRunning && solver.getSubject()!=null && nextGoal.getSubject()!=null) {
+            logger.debug("Updating solver to {}",nextGoal.getSubject().getAbsolutePath());
+            solver.getSubject().setTarget(nextGoal.getSubject());
         }
     }
 
-    private void findNextGoalOrStop() {
+    private void setNextGoalOrStop() {
         if(nextGoal.getSubject()==null) return;
+
+        logger.debug("Finding next goal");
 
         // nextGoal has just been reached.  Find the next goal.
         // look in children, first.
@@ -77,7 +80,9 @@ public class TargetPlanner extends Node implements ActionListener {
             }
             if(index<kids.size()) {
                 // set to first viable child.
-                nextGoal.setRelativePath(this, (Pose)kids.get(0));
+                var child = kids.get(0);
+                logger.debug("set to first child {}.",child.getAbsolutePath());
+                setNextGoal((Pose)child);
                 return;
             }
         }
@@ -86,6 +91,7 @@ public class TargetPlanner extends Node implements ActionListener {
         Node parent = nextGoal.getSubject().getParent();
         if(parent==null) {
             // no siblings.  stop!
+            logger.debug("No siblings.");
             stopRun();
             return;
         }
@@ -94,6 +100,7 @@ public class TargetPlanner extends Node implements ActionListener {
         int index = kids.indexOf(nextGoal.getSubject());
         if(index<0 || index>=kids.size()) {
             // nextGoal is not longer a child of parent?  Stop!
+            logger.debug("Orphaned?!");
             stopRun();
             return;
         }
@@ -105,11 +112,20 @@ public class TargetPlanner extends Node implements ActionListener {
         }
         if(index==kids.size()) {
             // no more children of type Pose.  Stop!
+            logger.debug("No valid siblings.");
             stopRun();
             return;
         }
         // done!
-        nextGoal.setRelativePath(this, (Pose)kids.get(index));
+        logger.debug("Sibling found.");
+        setNextGoal((Pose)kids.get(index));
+    }
+
+    private void setNextGoal(Pose pose) {
+        logger.debug("Setting next goal to {}",pose.getAbsolutePath());
+        nextGoal.setRelativePath(this, pose);
+        solver.getSubject().setTarget(nextGoal.getSubject());
+        solver.getSubject().setIsAtGoal(false);
     }
 
     public void stopRun() {
@@ -122,7 +138,7 @@ public class TargetPlanner extends Node implements ActionListener {
             mySolver.removeActionListener(this);
         }
 
-        fireActionEvent("finished");
+        fireFinished();
     }
 
     @Override
@@ -148,8 +164,8 @@ public class TargetPlanner extends Node implements ActionListener {
         listeners.remove(ActionListener.class,l);
     }
 
-    private void fireActionEvent(String name) {
-        var e = new ActionEvent(this,ActionEvent.ACTION_PERFORMED,name);
+    private void fireFinished() {
+        var e = new ActionEvent(this,ActionEvent.ACTION_PERFORMED,"finished");
         for(ActionListener l : listeners.getListeners(ActionListener.class)) {
             l.actionPerformed(e);
         }

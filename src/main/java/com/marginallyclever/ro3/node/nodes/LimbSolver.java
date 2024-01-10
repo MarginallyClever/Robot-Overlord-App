@@ -55,14 +55,10 @@ public class LimbSolver extends Node {
 
     public void update(double dt) {
         if(dt==0) return;
-        moveTowardsTarget();
-        areWeThereYet();
-    }
 
-    // are we there yet?
-    private void areWeThereYet() {
-        distanceToTarget = sumCartesianVelocityComponents(cartesianDistance);
-        if(distanceToTarget<goalMarginOfError) {
+        moveTowardsTarget();
+
+        if(areWeThereYet()) {
             if(!isAtGoal) {
                 isAtGoal = true;
                 fireArrivedAtGoal();
@@ -70,6 +66,12 @@ public class LimbSolver extends Node {
         } else {
             isAtGoal = false;
         }
+    }
+
+    // are we there yet?
+    private boolean areWeThereYet() {
+        distanceToTarget = sumCartesianVelocityComponents(cartesianDistance);
+        return distanceToTarget < goalMarginOfError;
     }
 
     public Limb getLimb() {
@@ -187,8 +189,10 @@ public class LimbSolver extends Node {
     }
 
     /**
-     * Make sure the given vector's length does not exceed maxLen.  It can be less than the given magnitude.
-     * Store the results in the original array.
+     * <p>Make sure the given vector's length does not exceed maxLen.  It can be less than the given magnitude.
+     * If the maxLen is greater than the vector length, the vector is unchanged.  This means as the limb approaches
+     * the target the velocity will slow down.</p>
+     * <p>Store the results in the original array.</p>
      * @param vector the vector to cap
      * @param maxLen the max length of the vector.
      */
@@ -351,5 +355,9 @@ public class LimbSolver extends Node {
         for (ActionListener listener : listeners.getListeners(ActionListener.class)) {
             listener.actionPerformed(e);
         }
+    }
+
+    public void setIsAtGoal(boolean isAtGoal) {
+        this.isAtGoal = isAtGoal;
     }
 }

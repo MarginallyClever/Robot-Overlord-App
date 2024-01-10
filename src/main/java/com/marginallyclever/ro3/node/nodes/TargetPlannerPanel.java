@@ -20,7 +20,6 @@ public class TargetPlannerPanel extends JPanel implements ActionListener {
     private final JLabel previousExecutionTimeLabel = new JLabel();
     private final JLabel executionTimeLabel = new JLabel();
 
-
     public TargetPlannerPanel(TargetPlanner targetPlanner) {
         super(new GridBagLayout());
         this.targetPlanner = targetPlanner;
@@ -49,10 +48,11 @@ public class TargetPlannerPanel extends JPanel implements ActionListener {
             if (!isRunning) {
                 targetPlanner.startRun();
                 previousExecutionTimeLabel.setText(StringHelper.formatTime(targetPlanner.getPreviousExecutionTime()));
+                setRunButtonText();
             } else {
                 targetPlanner.stopRun();
+                setRunButtonText();
             }
-            setRunButtonText();
         });
         setRunButtonText();
 
