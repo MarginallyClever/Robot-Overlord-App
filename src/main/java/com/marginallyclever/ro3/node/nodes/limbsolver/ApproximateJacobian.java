@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
+package com.marginallyclever.ro3.node.nodes.limbsolver;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;

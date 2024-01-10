@@ -9,10 +9,9 @@ import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Motor;
 import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,7 +24,7 @@ import java.util.List;
  * {@link Pose} called the <i>end effector</i>.</p>
  * <p>{@link Limb}s only perform <a href="https://en.wikipedia.org/wiki/Forward_kinematics">Forward Kinematics</a> -
  * given the angle of each joint, they calculate the world space position of the end effector.  For more sophisticated
- * behavior, use a {@link com.marginallyclever.ro3.node.nodes.LimbSolver}.</p>
+ * behavior, use a {@link LimbSolver}.</p>
  * <p>{@link Limb} is designed to handle six joints or less.</p>
  */
 public class Limb extends Pose {
