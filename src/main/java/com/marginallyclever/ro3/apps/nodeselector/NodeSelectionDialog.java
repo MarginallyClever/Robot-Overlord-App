@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.dialogs;
+package com.marginallyclever.ro3.apps.nodeselector;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.shared.SearchBar;

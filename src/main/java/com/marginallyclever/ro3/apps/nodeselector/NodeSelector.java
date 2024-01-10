@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.apps.nodeselector;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.dialogs.NodeSelectionDialog;
 import com.marginallyclever.ro3.node.Node;
 
 import javax.swing.*;
