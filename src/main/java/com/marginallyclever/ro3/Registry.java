@@ -43,6 +43,7 @@ public class Registry {
         nodule.add("Material", Material::new);
         nodule.add("MeshInstance", MeshInstance::new);
         nodule.add("Motor", Motor::new);
+        nodule.add("TargetPlanner", TargetPlanner::new);
         Factory.Category<Node> pose = nodule.add("Pose", Pose::new);
             pose.add("Camera", Camera::new);
             pose.add("LookAt", LookAt::new);
