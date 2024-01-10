@@ -96,6 +96,7 @@ public class TextureFactory {
      * Remove all textures from the pool.
      */
     public void reset() {
+        // FIXME Not calling unload() on each item is probably a video card memory leak.
         texturePool.removeAll();
     }
 }

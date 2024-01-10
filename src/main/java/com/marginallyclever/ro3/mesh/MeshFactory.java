@@ -34,7 +34,7 @@ public class MeshFactory {
 	
 	/**
 	 * Makes sure to only load one instance of each source file.  Loads all the data immediately.
-	 * @param filename file from which to load.  may be filename.ext or zipfile.zip:filename.ext
+	 * @param filename file from which to load.  May be "filename.ext" or "zipfile.zip:filename.ext"
 	 * @return an instance of Mesh.  It may contain nothing.
 	 */
 	public Mesh load(String filename) {
@@ -146,9 +146,10 @@ public class MeshFactory {
 	}
 
 	/**
-	 * Clear the pool of all loaded meshes.
+	 * Remove all meshes from the pool.
 	 */
     public void reset() {
+		// FIXME Not calling unload() on each item is probably a video card memory leak.
 		meshPool.removeAll();
     }
 }
