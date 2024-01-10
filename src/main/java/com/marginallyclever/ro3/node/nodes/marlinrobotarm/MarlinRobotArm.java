@@ -22,6 +22,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -62,10 +63,32 @@ public class MarlinRobotArm extends Node {
         super.fromJSON(from);
         int version = from.has("version") ? from.getInt("version") : 0;
         if(version<2) {
+            var toRemove = new ArrayList<Node>();
+            while(!getChildren().isEmpty()) {
+                removeChild(getChildren().get(0));
+            }
+
+            // limb
             Limb limb1 = new Limb();
-            LimbSolver solver1 = new LimbSolver();
             limb1.fromJSON(from);
+            limb1.getChildren().stream().filter(n -> n.getName().equals("target")).forEach(toRemove::add);
+            for(Node n : toRemove) limb1.removeChild(n);
+            toRemove.clear();
+            limb1.setName("Limb");
+            getParent().addChild(limb1);
+            limb.setRelativePath(this,limb1);
+
+            // solver
+            LimbSolver solver1 = new LimbSolver();
             solver1.fromJSON(from);
+            solver1.getChildren().stream().filter(n -> !n.getName().equals("target")).forEach(toRemove::add);
+            for(Node n : toRemove) solver1.removeChild(n);
+            solver1.setName("LimbSolver");
+            getParent().addChild(solver1);
+            solver.setRelativePath(this,solver1);
+            solver1.setLimb(limb1);
+
+            // gripper
             Node root = this.getRootNode();
             if (from.has("gripperMotor")) {
                 String s = from.getString("gripperMotor");
@@ -77,15 +100,8 @@ public class MarlinRobotArm extends Node {
                 }
             }
 
-            limb1.setName("Limb");
-            getParent().addChild(limb1);
             limb.setRelativePath(this,limb1);
-
-            solver1.setName("LimbSolver");
-            getParent().addChild(solver1);
             solver.setRelativePath(this,solver1);
-
-            solver1.setLimb(limb1);
         }
     }
 
