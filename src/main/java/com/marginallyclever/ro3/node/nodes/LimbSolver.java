@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobian;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobianFiniteDifferences;
@@ -254,7 +255,7 @@ public class LimbSolver extends Node {
                 setTargetToEndEffector();
             }
         });
-        addLabelAndComponent(pane, "Target to EE", targetToEE,gbc);
+        NodePanelHelper.addLabelAndComponent(pane, "Target to EE", targetToEE,gbc);
     }
 
     @Override
@@ -278,11 +279,11 @@ public class LimbSolver extends Node {
         addMoveTargetToEndEffector(pane,gbc);
 
         gbc.gridy++;
-        addNodeSelector(pane, "Target", target, Pose.class, gbc);
+        NodePanelHelper.addNodeSelector(pane, "Target", target, Pose.class, gbc,this);
 
         gbc.gridy++;
         gbc.gridwidth=1;
-        addNodeSelector(pane, "Limb", limb, Limb.class, gbc);
+        NodePanelHelper.addNodeSelector(pane, "Limb", limb, Limb.class, gbc,this);
 
         gbc.gridy++;
         var formatter = NumberFormatHelper.getNumberFormatter();
@@ -292,7 +293,7 @@ public class LimbSolver extends Node {
         marginField.addPropertyChangeListener("value", evt -> {
             goalMarginOfError = ((Number) marginField.getValue()).doubleValue();
         });
-        addLabelAndComponent(pane, "Goal Margin", marginField, gbc);
+        NodePanelHelper.addLabelAndComponent(pane, "Goal Margin", marginField, gbc);
 
         super.getComponents(list);
     }

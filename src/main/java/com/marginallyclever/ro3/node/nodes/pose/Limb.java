@@ -4,6 +4,7 @@ import com.marginallyclever.convenience.swing.Dial;
 import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Motor;
@@ -170,7 +171,7 @@ public class Limb extends Pose {
         gbc.gridx=0;
         gbc.gridy=0;
         gbc.gridwidth=1;
-        addNodeSelector(pane, "End Effector", endEffector, Pose.class, gbc);
+        NodePanelHelper.addNodeSelector(pane, "End Effector", endEffector, Pose.class, gbc,this);
 
         gbc.gridx=0;
         gbc.gridwidth=2;
@@ -247,7 +248,7 @@ public class Limb extends Pose {
             motorSelector[i].addPropertyChangeListener("subject",(e)-> {
                 motors.get(j).setRelativePath(this,(Motor)e.getNewValue());
             });
-            addLabelAndComponent(outerPanel, "Motor "+i, motorSelector[i],gbc);
+            NodePanelHelper.addLabelAndComponent(outerPanel, "Motor "+i, motorSelector[i],gbc);
         }
         return containerPanel;
     }

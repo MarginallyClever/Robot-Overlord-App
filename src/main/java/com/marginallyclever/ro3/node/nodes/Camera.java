@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.NodePanelHelper;
 
 import javax.swing.*;
 import javax.vecmath.Matrix3d;
@@ -95,10 +96,10 @@ public class Camera extends Pose {
             farZ = (double) farZSpinner.getValue();
         });
 
-        addLabelAndComponent(pane,"Orthographic",ortho);
-        addLabelAndComponent(pane,"FOV",fovSpinner);
-        addLabelAndComponent(pane,"Near",nearZSpinner);
-        addLabelAndComponent(pane,"Far",farZSpinner);
+        NodePanelHelper.addLabelAndComponent(pane,"Orthographic",ortho);
+        NodePanelHelper.addLabelAndComponent(pane,"FOV",fovSpinner);
+        NodePanelHelper.addLabelAndComponent(pane,"Near",nearZSpinner);
+        NodePanelHelper.addLabelAndComponent(pane,"Far",farZSpinner);
 
         addLookAtComponents(pane);
 
@@ -126,11 +127,11 @@ public class Camera extends Pose {
             }
         });
 
-        addLabelAndComponent(pane, "Look at", new JLabel());
-        addLabelAndComponent(pane, "X", tx);
-        addLabelAndComponent(pane, "Y", ty);
-        addLabelAndComponent(pane, "Z", tz);
-        addLabelAndComponent(pane, "", button);
+        NodePanelHelper.addLabelAndComponent(pane, "Look at", new JLabel());
+        NodePanelHelper.addLabelAndComponent(pane, "X", tx);
+        NodePanelHelper.addLabelAndComponent(pane, "Y", ty);
+        NodePanelHelper.addLabelAndComponent(pane, "Z", tz);
+        NodePanelHelper.addLabelAndComponent(pane, "", button);
     }
 
     public boolean getDrawOrthographic() {

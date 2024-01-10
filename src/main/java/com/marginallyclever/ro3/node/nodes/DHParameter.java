@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.nodes.pose.MeshInstance;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -147,10 +148,10 @@ public class DHParameter extends Node {
 
         pane.setLayout(new GridLayout(0,2));
 
-        this.addLabelAndComponent(pane,"d",dh_d);
-        this.addLabelAndComponent(pane,"theta",dh_theta);
-        this.addLabelAndComponent(pane,"r",dh_r);
-        this.addLabelAndComponent(pane,"alpha",dh_alpha);
+        NodePanelHelper.addLabelAndComponent(pane,"d",dh_d);
+        NodePanelHelper.addLabelAndComponent(pane,"theta",dh_theta);
+        NodePanelHelper.addLabelAndComponent(pane,"r",dh_r);
+        NodePanelHelper.addLabelAndComponent(pane,"alpha",dh_alpha);
 
         pane.add(fromPose);
         pane.add(toPose);

@@ -4,6 +4,7 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import org.json.JSONObject;
 
@@ -118,10 +119,10 @@ public class AttachmentPoint extends Pose {
         radiusField.addPropertyChangeListener("value", e -> {
             radius = ((Number)radiusField.getValue()).doubleValue();
         });
-        addLabelAndComponent(pane,"Radius",radiusField);
+        NodePanelHelper.addLabelAndComponent(pane,"Radius",radiusField);
 
         var attached = buildAttachToggle();
-        addLabelAndComponent(pane,"Action",attached);
+        NodePanelHelper.addLabelAndComponent(pane,"Action",attached);
 
         super.getComponents(list);
     }

@@ -5,6 +5,7 @@ import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.Motor;
@@ -102,15 +103,15 @@ public class MarlinRobotArm extends Node {
         gbc.gridy=0;
         gbc.gridwidth=1;
 
-        addNodeSelector(pane, "Limb", limb, Limb.class, gbc);
+        NodePanelHelper.addNodeSelector(pane, "Limb", limb, Limb.class, gbc,this);
         gbc.gridy++;
-        addNodeSelector(pane, "Solver", solver, LimbSolver.class, gbc);
+        NodePanelHelper.addNodeSelector(pane, "Solver", solver, LimbSolver.class, gbc,this);
         gbc.gridy++;
-        addNodeSelector(pane, "Gripper motor", gripperMotor, Motor.class, gbc);
+        NodePanelHelper.addNodeSelector(pane, "Gripper motor", gripperMotor, Motor.class, gbc,this);
         gbc.gridy++;
         JButton M114 = new JButton("M114");
         M114.addActionListener(e-> sendGCode("M114"));
-        addLabelAndComponent(pane, "Get state", M114,gbc);
+        NodePanelHelper.addLabelAndComponent(pane, "Get state", M114,gbc);
 
         gbc.gridx=0;
         gbc.gridwidth=2;

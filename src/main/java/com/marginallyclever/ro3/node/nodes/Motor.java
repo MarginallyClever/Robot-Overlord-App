@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
+import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
 import org.json.JSONObject;
 
@@ -51,7 +52,7 @@ public class Motor extends Node {
         selector.addPropertyChangeListener("subject", (evt) ->{
             hinge.setRelativePath(this,selector.getSubject());
         });
-        addLabelAndComponent(pane, "Hinge", selector);
+        NodePanelHelper.addLabelAndComponent(pane, "Hinge", selector);
 
         super.getComponents(list);
     }
