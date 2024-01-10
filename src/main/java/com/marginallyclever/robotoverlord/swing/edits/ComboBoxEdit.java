@@ -14,7 +14,7 @@ import javax.swing.undo.CannotUndoException;
  *  
  *
  */
-public class ComboBoxEdit extends AbstractUndoableEdit {
+@Deprecated public class ComboBoxEdit extends AbstractUndoableEdit {
 	private final IntParameter e;
 	private final int oldValue,newValue;
 	private final String label;

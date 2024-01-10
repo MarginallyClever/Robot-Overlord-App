@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
  * Checks online for a new version of Robot Overlord. This action is not undoable.
  *
  */
-public class CheckForUpdateAction extends AbstractAction implements ActionListener {
+@Deprecated public class CheckForUpdateAction extends AbstractAction implements ActionListener {
 	private static final Logger logger = LoggerFactory.getLogger(CheckForUpdateAction.class);
 
 	public static final String UPDATE_URL = "https://github.com/MarginallyClever/Robot-Overlord-App/releases/latest";

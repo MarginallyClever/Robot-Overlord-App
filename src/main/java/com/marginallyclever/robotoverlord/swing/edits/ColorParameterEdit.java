@@ -15,7 +15,7 @@ import javax.swing.undo.UndoableEdit;
  *  
  *
  */
-public class ColorParameterEdit extends AbstractUndoableEdit {
+@Deprecated public class ColorParameterEdit extends AbstractUndoableEdit {
 	private final ColorParameter entity;
 	private final double [] newValue;
 	private final double [] oldValue;

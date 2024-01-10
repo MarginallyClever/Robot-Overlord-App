@@ -13,7 +13,7 @@ import java.net.URI;
 /**
  * Use the desktop browser to open a URL.
  */
-public class BrowseURLAction extends AbstractAction {
+@Deprecated public class BrowseURLAction extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(BrowseURLAction.class);
 
     private final String address;

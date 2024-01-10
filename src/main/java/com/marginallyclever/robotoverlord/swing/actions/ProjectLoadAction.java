@@ -18,7 +18,7 @@ import java.io.*;
  * Load a scene from a file.
  *
  */
-public class ProjectLoadAction extends AbstractAction {
+@Deprecated public class ProjectLoadAction extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(ProjectLoadAction.class);
     public static final String UP_ARROW_FROM_BAR = "\u21A5";
     private final Project project;

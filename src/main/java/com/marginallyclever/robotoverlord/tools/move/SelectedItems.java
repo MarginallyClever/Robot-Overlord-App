@@ -14,7 +14,7 @@ import java.util.Map;
  * A list of entities selected in the editorpanel.
  *
  */
-public class SelectedItems {
+@Deprecated public class SelectedItems {
     /**
      * The list of entities selected in the editorpanel.
      */

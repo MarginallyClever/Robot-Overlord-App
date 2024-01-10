@@ -11,7 +11,7 @@ import com.marginallyclever.robotoverlord.parameters.swing.ComponentSwingViewFac
  * They are responsible for the logic of one or more {@link Component}s.
  *
  */
-public interface EntitySystem {
+@Deprecated public interface EntitySystem {
     /**
      * Get the Swing view of this component.
      * @param view the factory to use to create the panel

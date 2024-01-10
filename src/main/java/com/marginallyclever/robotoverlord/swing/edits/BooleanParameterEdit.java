@@ -9,7 +9,7 @@ import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
  *  
  *
  */
-public class BooleanParameterEdit extends AbstractParameterEdit<Boolean> {
+@Deprecated public class BooleanParameterEdit extends AbstractParameterEdit<Boolean> {
 	public BooleanParameterEdit(AbstractParameter<Boolean> e, Boolean newValue) {
 		super(e, newValue);
 	}

@@ -20,7 +20,7 @@ import java.util.List;
  * A tool to translate entities in the editorpanel.  It is a combination of three {@link TranslateEntityToolOneAxis} tools.
  *
  */
-public class TranslateEntityMultiTool implements EditorTool {
+@Deprecated public class TranslateEntityMultiTool implements EditorTool {
     private Viewport viewport;
     private final TranslateEntityToolOneAxis toolX = new TranslateEntityToolOneAxis(new ColorRGB(255,0,0));
     private final TranslateEntityToolOneAxis toolY = new TranslateEntityToolOneAxis(new ColorRGB(0,255,0));

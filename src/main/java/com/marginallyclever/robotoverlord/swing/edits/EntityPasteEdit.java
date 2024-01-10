@@ -16,7 +16,7 @@ import java.util.List;
  * Paste the selected entity into the scene.
  *
  */
-public class EntityPasteEdit extends AbstractUndoableEdit {
+@Deprecated public class EntityPasteEdit extends AbstractUndoableEdit {
     private final String name;
     private final EntityManager entityManager;
     private final Entity copiedEntities;

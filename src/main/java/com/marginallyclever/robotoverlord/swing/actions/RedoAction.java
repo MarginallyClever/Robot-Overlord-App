@@ -13,7 +13,7 @@ import java.awt.event.KeyEvent;
 /**
  * go forward one step in the undo/redo history.
  */
-public class RedoAction extends AbstractAction {
+@Deprecated public class RedoAction extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(RedoAction.class);
 	private final UndoManager undoManager;
 	private UndoAction undoAction;

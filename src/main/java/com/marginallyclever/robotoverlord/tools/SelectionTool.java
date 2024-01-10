@@ -27,7 +27,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SelectionTool extends MouseAdapter implements EditorTool {
+@Deprecated public class SelectionTool extends MouseAdapter implements EditorTool {
     private static final Logger logger = LoggerFactory.getLogger(SelectionTool.class);
     public static final String PICK_POINT_NAME = "pick point";
     private final EntityManager entityManager;

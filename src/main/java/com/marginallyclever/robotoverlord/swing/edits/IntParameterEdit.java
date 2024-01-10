@@ -10,7 +10,7 @@ import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
  *  
  *
  */
-public class IntParameterEdit extends AbstractParameterEdit<Integer> {
+@Deprecated public class IntParameterEdit extends AbstractParameterEdit<Integer> {
 	public IntParameterEdit(AbstractParameter<Integer> e, Integer newValue) {
 		super(e, newValue);
 	}

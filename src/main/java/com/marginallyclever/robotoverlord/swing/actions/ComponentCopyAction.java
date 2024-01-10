@@ -14,7 +14,7 @@ import java.awt.event.KeyEvent;
 /**
  * Makes a deep copy of the selected {@link Entity}.
  */
-public class ComponentCopyAction extends AbstractAction implements EditorAction {
+@Deprecated public class ComponentCopyAction extends AbstractAction implements EditorAction {
 	private Component component;
 
 	public ComponentCopyAction() {

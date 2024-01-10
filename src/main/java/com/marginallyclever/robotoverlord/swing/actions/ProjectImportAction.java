@@ -15,7 +15,7 @@ import java.nio.file.Path;
 /**
  * Import a {@link Project} and add it to the main Project.
  */
-public class ProjectImportAction extends AbstractAction {
+@Deprecated public class ProjectImportAction extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(ProjectImportAction.class);
     public static final String UP_ARROW_FROM_BAR = "\u21A5";
 

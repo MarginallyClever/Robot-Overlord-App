@@ -19,7 +19,7 @@ import java.awt.event.KeyEvent;
  * Clear the world and start anew. This action is not an undoable action.
  *
  */
-public class ProjectClearAction extends AbstractAction {
+@Deprecated public class ProjectClearAction extends AbstractAction {
 	private final Project project;
 
 	public ProjectClearAction(Project project) {

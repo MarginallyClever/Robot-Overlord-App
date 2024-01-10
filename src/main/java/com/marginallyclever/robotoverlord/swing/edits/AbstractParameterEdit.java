@@ -13,7 +13,7 @@ import javax.swing.undo.UndoableEdit;
  * Some {@link Component}s have parameters.  This class ensures changing those parameters is undoable.
  *  
  */
-public class AbstractParameterEdit<T> extends AbstractUndoableEdit {
+@Deprecated public class AbstractParameterEdit<T> extends AbstractUndoableEdit {
 	private final AbstractParameter<T> parameter;
 	private final T oldValue, newValue;
 	

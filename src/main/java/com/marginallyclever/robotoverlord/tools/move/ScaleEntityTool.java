@@ -15,7 +15,7 @@ import java.util.List;
  * A tool to scale entities in the editorpanel.
  *
  */
-public class ScaleEntityTool implements EditorTool {
+@Deprecated public class ScaleEntityTool implements EditorTool {
     /**
      * This method is called when the tool is activated. It receives the SelectedItems object containing the selected
      * entities and their initial world poses.

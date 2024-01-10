@@ -19,7 +19,7 @@ import java.io.File;
  * Save the world state to a file.  This action is not an undoable action.
  *
  */
-public class ProjectSaveAction extends AbstractAction implements ActionListener {
+@Deprecated public class ProjectSaveAction extends AbstractAction implements ActionListener {
 	private static final Logger logger = LoggerFactory.getLogger(ProjectSaveAction.class);
 	private final Project project;
 

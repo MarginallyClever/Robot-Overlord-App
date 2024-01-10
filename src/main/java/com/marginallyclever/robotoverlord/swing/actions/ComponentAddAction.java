@@ -22,7 +22,7 @@ import java.util.List;
  * "ok" is pressed, add that Component to the world.
  *
  */
-public class ComponentAddAction extends AbstractAction {
+@Deprecated public class ComponentAddAction extends AbstractAction {
 	private static final Logger logger = LoggerFactory.getLogger(ComponentAddAction.class);
 
 	protected final ComponentManagerPanel componentManagerPanel;

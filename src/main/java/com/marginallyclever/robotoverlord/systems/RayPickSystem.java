@@ -13,7 +13,7 @@ import java.util.*;
  * because it references {@link EntityManager}, which is outside the scope of the Convenience Library.
  *
  */
-public class RayPickSystem {
+@Deprecated public class RayPickSystem {
     private final EntityManager entityManager;
 
     public RayPickSystem(EntityManager entityManager) {

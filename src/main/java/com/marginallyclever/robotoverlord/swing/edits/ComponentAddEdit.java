@@ -16,7 +16,7 @@ import java.util.List;
  * An undoable action to add a {@link Component} to an {@link Entity}.
  *
  */
-public class ComponentAddEdit extends AbstractUndoableEdit {
+@Deprecated public class ComponentAddEdit extends AbstractUndoableEdit {
 	@Serial
 	private static final long serialVersionUID = 1L;
 

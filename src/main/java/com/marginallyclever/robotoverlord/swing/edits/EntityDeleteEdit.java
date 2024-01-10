@@ -16,7 +16,7 @@ import java.util.Map;
  * An undoable action to remove an {@link Entity} from the world.
  *
  */
-public class EntityDeleteEdit extends AbstractUndoableEdit {
+@Deprecated public class EntityDeleteEdit extends AbstractUndoableEdit {
 	private static final Logger logger = LoggerFactory.getLogger(EntityDeleteEdit.class);
 	private final EntityManager entityManager;
 	private final Map<Entity,Entity> childParent = new HashMap<>();

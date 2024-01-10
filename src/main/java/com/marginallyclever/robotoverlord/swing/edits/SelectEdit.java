@@ -14,7 +14,7 @@ import java.util.List;
  * This is the equivalent to moving the caret in a text document.
  *
  */
-public class SelectEdit extends AbstractUndoableEdit {
+@Deprecated public class SelectEdit extends AbstractUndoableEdit {
 	private final List<Entity> next;
 	private final List<Entity> prev;
 

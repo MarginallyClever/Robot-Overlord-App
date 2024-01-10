@@ -20,7 +20,7 @@ import java.util.List;
  * A tool to rotate entities in the editorpanel.  It is a combination of three {@link RotateEntityToolOneAxis} tools.
  *
  */
-public class RotateEntityMultiTool implements EditorTool {
+@Deprecated public class RotateEntityMultiTool implements EditorTool {
     private Viewport viewport;
     private final RotateEntityToolOneAxis toolX = new RotateEntityToolOneAxis(new ColorRGB(255,0,0));
     private final RotateEntityToolOneAxis toolY = new RotateEntityToolOneAxis(new ColorRGB(0,255,0));

@@ -14,7 +14,7 @@ import javax.swing.undo.CannotUndoException;
  * This is the equivalent to moving the caret in a text document.
  *
  */
-public class EntityRenameEdit extends AbstractUndoableEdit {
+@Deprecated public class EntityRenameEdit extends AbstractUndoableEdit {
 	private final Entity entity;
 	private final String oldName;
 	private final String newName;

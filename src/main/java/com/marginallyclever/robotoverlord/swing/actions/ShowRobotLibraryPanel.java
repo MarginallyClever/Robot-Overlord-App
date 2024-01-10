@@ -11,7 +11,7 @@ import java.awt.event.ActionEvent;
  * Show the Robot Library panel.
  *
  */
-public class ShowRobotLibraryPanel extends AbstractAction {
+@Deprecated public class ShowRobotLibraryPanel extends AbstractAction {
     private final RobotLibraryListener robotLibraryListener;
 
     public ShowRobotLibraryPanel(RobotLibraryListener robotLibraryListener) {

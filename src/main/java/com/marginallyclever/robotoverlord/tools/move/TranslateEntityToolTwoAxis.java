@@ -23,7 +23,7 @@ import java.util.List;
  * A tool to translate entities in the editorpanel.  It translates in a given plane.
  *
  */
-public class TranslateEntityToolTwoAxis implements EditorTool {
+@Deprecated public class TranslateEntityToolTwoAxis implements EditorTool {
     private final double padSize = 1;
     private double localScale = 1;
 

@@ -10,7 +10,7 @@ import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
  *  
  *
  */
-public class DoubleParameterEdit extends AbstractParameterEdit<Double> {
+@Deprecated public class DoubleParameterEdit extends AbstractParameterEdit<Double> {
 	public DoubleParameterEdit(AbstractParameter<Double> e, Double newValue) {
 		super(e, newValue);
 	}

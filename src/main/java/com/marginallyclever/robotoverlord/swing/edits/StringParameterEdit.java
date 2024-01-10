@@ -9,7 +9,7 @@ import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
  *  
  *
  */
-public class StringParameterEdit extends AbstractParameterEdit<String> {
+@Deprecated public class StringParameterEdit extends AbstractParameterEdit<String> {
 	public StringParameterEdit(AbstractParameter<String> parameter, String newValue) {
 		super(parameter, newValue);
 	}
