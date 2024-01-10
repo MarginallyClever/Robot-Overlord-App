@@ -19,7 +19,7 @@ import java.awt.*;
  * When the dial is turned it calls on the Jacobian Newton Raphson iterator to move the arm.
  *
  */
-public class CartesianDrivePanel extends JPanel {
+@Deprecated public class CartesianDrivePanel extends JPanel {
 	private final ButtonGroup buttonGroup = new ButtonGroup();
 	private final JRadioButton x = makeRadioButton(buttonGroup,"X");
 	private final JRadioButton y = makeRadioButton(buttonGroup,"Y");

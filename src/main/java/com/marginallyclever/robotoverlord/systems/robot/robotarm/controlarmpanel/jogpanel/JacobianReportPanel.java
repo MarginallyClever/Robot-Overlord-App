@@ -17,7 +17,7 @@ import java.io.Serial;
  * A panel that displays the Jacobian matrix for a robot arm.
  *
  */
-public class JacobianReportPanel extends JPanel {
+@Deprecated public class JacobianReportPanel extends JPanel {
 	@Serial
 	private static final long serialVersionUID = 1L;
 	private final JTable table;

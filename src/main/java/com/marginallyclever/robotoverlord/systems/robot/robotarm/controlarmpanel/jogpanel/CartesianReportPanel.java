@@ -13,7 +13,7 @@ import java.io.Serial;
 /**
  * Displays the values of a {@link Matrix4d}.
  */
-public class CartesianReportPanel extends JPanel {
+@Deprecated public class CartesianReportPanel extends JPanel {
 	@Serial
 	private static final long serialVersionUID = 1L;
 	private final JTable table;

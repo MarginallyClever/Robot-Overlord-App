@@ -11,7 +11,7 @@ import java.io.Serial;
 /**
  * Displays the angle of each robot joint.  To control the angles use {@link AngleDrivePanel}
  */
-public class AngleReportPanel extends JPanel {
+@Deprecated public class AngleReportPanel extends JPanel {
 	@Serial
 	private static final long serialVersionUID = 1L;
 	private final JSlider [] sliders;

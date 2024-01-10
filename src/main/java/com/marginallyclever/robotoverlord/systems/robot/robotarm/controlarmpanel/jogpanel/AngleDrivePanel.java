@@ -13,7 +13,7 @@ import java.io.Serial;
 /**
  * Direct drive robot motors.  To display current robot motor position use {@link AngleReportPanel}.
  */
-public class AngleDrivePanel extends JPanel {
+@Deprecated public class AngleDrivePanel extends JPanel {
 	@Serial
 	private static final long serialVersionUID = 1L;
 	private final JRadioButton [] buttons;
