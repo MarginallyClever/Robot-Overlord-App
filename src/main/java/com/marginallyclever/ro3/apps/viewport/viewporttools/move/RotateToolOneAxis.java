@@ -106,6 +106,7 @@ public class RotateToolOneAxis implements ViewportTool {
         this.color = color;
         buildMarkerMesh();
         buildAngleMesh();
+        ringMesh.setRenderStyle(GL3.GL_LINE_LOOP);
     }
 
     private void buildAngleMesh() {
@@ -389,8 +390,11 @@ public class RotateToolOneAxis implements ViewportTool {
 
     private void drawMainRingAndHandles(GL3 gl,ShaderProgram shaderProgram) {
         Matrix4d m = new Matrix4d(pivotMatrix);
-        m.transpose();
-        shaderProgram.setMatrix4d(gl,"modelMatrix",m);
+
+        Matrix4d scale = MatrixHelper.createScaleMatrix4(getRingRadiusScaled());
+        scale.mul(m,scale);
+        scale.transpose();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",scale);
 
         float colorScale = cursorOverHandle ? 1:0.5f;
         float red   = color.red   * colorScale / 255f;
@@ -398,6 +402,9 @@ public class RotateToolOneAxis implements ViewportTool {
         float blue  = color.blue  * colorScale / 255f;
         shaderProgram.set4f(gl, "objectColor", red, green, blue, 1.0f);
         ringMesh.render(gl,1,360);
+
+        m.transpose();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",m);
 
         Matrix4d m2 = MatrixHelper.createScaleMatrix4(getGripRadiusScaled());
         m2.m03 = getHandleLengthScaled();
