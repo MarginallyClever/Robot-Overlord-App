@@ -48,6 +48,11 @@ public class LimbSolver extends Node {
         return target.getSubject();
     }
 
+    /**
+     * Set the target to move towards.
+     * target must be in the same node tree as this instance.
+     * @param target the target to move towards
+     */
     public void setTarget(Pose target) {
         this.target.setRelativePath(this,target);
     }
@@ -77,6 +82,11 @@ public class LimbSolver extends Node {
         return limb.getSubject();
     }
 
+    /**
+     * Set the limb to be controlled by this instance.
+     * limb must be in the same node tree as this instance.
+     * @param limb the limb to control
+     */
     public void setLimb(Limb limb) {
         this.limb.setRelativePath(this,limb);
     }

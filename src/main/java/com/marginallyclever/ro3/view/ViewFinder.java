@@ -8,11 +8,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Finds all classes annotated with {@link View} that are for the given target class.
+ * Finds all classes annotated with {@link View} that are 'of' the given target class.
  */
 public class ViewFinder {
+    /**
+     * Finds all <code>@View(of=targetClass)</code> classes.
+     * @param targetClass the class to find views for
+     * @return a set of view providers
+     */
     public static Set<ViewProvider<?>> findViews(Class<?> targetClass) {
-        Reflections reflections = new Reflections("com.marginallyclever", Scanners.TypesAnnotated);
+        Reflections reflections = new Reflections("com.marginallyclever.ro3", Scanners.TypesAnnotated);
         Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(View.class);
 
         return annotatedClasses.stream()

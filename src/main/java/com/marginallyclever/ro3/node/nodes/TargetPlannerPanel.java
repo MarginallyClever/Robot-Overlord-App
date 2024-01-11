@@ -17,7 +17,6 @@ import java.awt.event.HierarchyEvent;
 /**
  * <p>{@link TargetPlannerPanel} displays controls to run a {@link TargetPlanner}.</p>
  */
-@View(of=TargetPlanner.class)
 public class TargetPlannerPanel extends JPanel implements ActionListener {
     private static final Logger logger = LoggerFactory.getLogger(TargetPlannerPanel.class);
     private final TargetPlanner targetPlanner;
