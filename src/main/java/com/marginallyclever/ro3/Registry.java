@@ -33,7 +33,6 @@ public class Registry {
     public static final ListWithEvents<Camera> cameras = new ListWithEvents<>();
     private static Camera activeCamera = null;
     public static final ListWithEvents<Node> selection = new ListWithEvents<>();
-    public static final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 
     public static void start() {
         nodeFactory.clear();
