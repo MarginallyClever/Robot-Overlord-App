@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotUndoException;
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +20,10 @@ import java.util.List;
  */
 public class PasteNode extends AbstractUndoableEdit {
     private final Logger logger = LoggerFactory.getLogger(PasteNode.class);
-    Transferable transfer;
     private final List<Node> children = new ArrayList<>();
     private final List<Node> parents;
+    private final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+    private final Transferable transfer;
 
     /**
      * Paste the copied nodes as children of the parent nodes.
@@ -29,7 +32,7 @@ public class PasteNode extends AbstractUndoableEdit {
     public PasteNode(List<Node> parents) {
         super();
         this.parents = parents;
-        transfer = Registry.clipboard.getContents(null);
+        transfer = clipboard.getContents(null);
         execute();
     }
 

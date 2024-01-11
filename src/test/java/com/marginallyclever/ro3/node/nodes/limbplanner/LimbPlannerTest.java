@@ -21,7 +21,6 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless.")
 class LimbPlannerTest {
     private static final Logger logger = LoggerFactory.getLogger(LimbPlannerTest.class);
     Limb limb;
@@ -41,7 +40,7 @@ class LimbPlannerTest {
         try {
             Registry.start();
         } catch(Exception e) {
-            e.printStackTrace();
+            logger.error("Failed to start Registry",e);
         }
         limb = build6AxisArm();
 

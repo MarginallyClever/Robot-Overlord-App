@@ -9,7 +9,6 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless environment")
 public class CameraTest {
     @Test
     public void testPanTiltInverses() {
