@@ -9,6 +9,7 @@ import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.pose.Limb;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,7 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless.")
 class LimbPlannerTest {
     private static final Logger logger = LoggerFactory.getLogger(LimbPlannerTest.class);
     Limb limb;
@@ -36,7 +38,11 @@ class LimbPlannerTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        Registry.start();
+        try {
+            Registry.start();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
         limb = build6AxisArm();
 
         // the Sixi3-5.RO file has a limb named "Sixi3" which has a LimbSolver.
