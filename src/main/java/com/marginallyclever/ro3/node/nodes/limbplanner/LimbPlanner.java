@@ -27,7 +27,7 @@ public class LimbPlanner extends Node implements ActionListener {
     private double previousExecutionTime = 0;
 
     public LimbPlanner() {
-        this("TargetPlanner");
+        this("LimbPlanner");
     }
 
     public LimbPlanner(String name) {
@@ -41,6 +41,9 @@ public class LimbPlanner extends Node implements ActionListener {
     }
 
     public void startRun() {
+        if(solver.getSubject()==null) throw new IllegalArgumentException("Solver is null.");
+        if(pathStart.getSubject()==null) throw new IllegalArgumentException("PathStart is null.");
+
         logger.debug("Starting run");
         previousExecutionTime = executionTime;
         executionTime = 0;
@@ -130,7 +133,11 @@ public class LimbPlanner extends Node implements ActionListener {
     }
 
     public void stopRun() {
-        logger.debug("Stopping run");
+        if(!isRunning) {
+            logger.debug("Already stopped.");
+            return;
+        }
+        logger.debug("Stopping run at "+executionTime+" seconds.");
         isRunning=false;
         nextGoal.setPath(pathStart.getPath());
 
@@ -227,5 +234,11 @@ public class LimbPlanner extends Node implements ActionListener {
      */
     public void setPathStart(Pose pose) {
         pathStart.setRelativePath(this,pose);
+    }
+
+    public void setLinearVelocity(double v) {
+        if(solver.getSubject()!=null) {
+            solver.getSubject().setLinearVelocity(v);
+        }
     }
 }

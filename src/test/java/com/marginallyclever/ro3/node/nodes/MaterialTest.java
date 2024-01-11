@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class MaterialTest {
     @Test
     void testGetTexture() {
-        Registry.start();
         Material material = new Material();
         TextureWithMetadata texture = new TextureWithMetadata(new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB), "test");
         material.setTexture(texture);

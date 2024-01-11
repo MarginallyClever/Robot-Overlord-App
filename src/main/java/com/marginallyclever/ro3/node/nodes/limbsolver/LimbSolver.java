@@ -96,11 +96,18 @@ public class LimbSolver extends Node {
         return limb!=null ? limb.getEndEffector() : null;
     }
 
+    /**
+     * @return true if the solver has a limb, an end effector, and a target.  Does not guarantee that a solution exists.
+     */
+    public boolean readyToSolve() {
+        return getLimb()!=null && getEndEffector()!=null && getTarget()!=null;
+    }
+
     private void moveTowardsTarget() {
-        if(getLimb()==null || getEndEffector()==null || getTarget()==null ) {
-            // no limb, no end effector, or no target.  Do nothing.
+        if(!readyToSolve()) {
             return;
         }
+
         if(linearVelocity<0.0001) {
             // no velocity.  Make sure the arm doesn't drift.
             getLimb().setAllJointVelocities(new double[getLimb().getNumJoints()]);
