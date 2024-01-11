@@ -1,7 +1,8 @@
-package com.marginallyclever.ro3.node.nodes;
+package com.marginallyclever.ro3.node.nodes.limbplanner;
 
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
+import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -13,12 +14,11 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 /**
- * {@link TargetPlanner} knows about a {@link LimbSolver}.  It moves the {@link LimbSolver#target} to a destination.
- * It waits for the LimbSolver to reach the destination before moving on to the next destination (by subscribing to
- * {@link LimbSolver} ActionEvent "arrivedAtGoal".
+ * {@link LimbPlanner} knows about a {@link LimbSolver}.  It moves the {@link LimbSolver#target} to a destination.
+ * It then waits for the {@link ActionEvent} "arrivedAtGoal" before moving on to the next destination.
  */
-public class TargetPlanner extends Node implements ActionListener {
-    private static final Logger logger = LoggerFactory.getLogger(TargetPlanner.class);
+public class LimbPlanner extends Node implements ActionListener {
+    private static final Logger logger = LoggerFactory.getLogger(LimbPlanner.class);
     private final NodePath<LimbSolver> solver = new NodePath<>(this, LimbSolver.class);
     private final NodePath<Node> pathStart = new NodePath<>(this, Node.class);
     private final NodePath<Pose> nextGoal = new NodePath<>(this, Pose.class);  // relative to pathStart
@@ -26,17 +26,17 @@ public class TargetPlanner extends Node implements ActionListener {
     private double executionTime = 0;
     private double previousExecutionTime = 0;
 
-    public TargetPlanner() {
+    public LimbPlanner() {
         this("TargetPlanner");
     }
 
-    public TargetPlanner(String name) {
+    public LimbPlanner(String name) {
         super(name);
     }
 
     @Override
     public void getComponents(List<JPanel> list) {
-        list.add(new TargetPlannerPanel(this));
+        list.add(new LimbPlannerPanel(this));
         super.getComponents(list);
     }
 
@@ -209,5 +209,23 @@ public class TargetPlanner extends Node implements ActionListener {
 
     public NodePath<Pose> getNextGoal() {
         return nextGoal;
+    }
+
+    /**
+     * Set the solver to use.
+     * solver must be in the same node tree as this instance.
+     * @param limbSolver the solver to use.
+     */
+    public void setSolver(LimbSolver limbSolver) {
+        solver.setRelativePath(this,limbSolver);
+    }
+
+    /**
+     * Set the start of the path.
+     * pose must be in the same node tree as this instance.
+     * @param pose the pose to use.
+     */
+    public void setPathStart(Pose pose) {
+        pathStart.setRelativePath(this,pose);
     }
 }

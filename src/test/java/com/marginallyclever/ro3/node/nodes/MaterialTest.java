@@ -4,14 +4,17 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.junit.jupiter.api.Test;
 import java.awt.Color;
+import java.awt.image.BufferedImage;
+
 import static org.junit.jupiter.api.Assertions.*;
+
 
 class MaterialTest {
     @Test
     void testGetTexture() {
         Registry.start();
         Material material = new Material();
-        TextureWithMetadata texture = Registry.textureFactory.load("src/test/resources/com/marginallyclever/ro3/apps/node/nodes/marlinrobotarm/SIXI3_BASE.png");
+        TextureWithMetadata texture = new TextureWithMetadata(new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB), "test");
         material.setTexture(texture);
         assertEquals(texture, material.getTexture());
     }

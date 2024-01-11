@@ -4,6 +4,7 @@ import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.mesh.MeshFactory;
 import com.marginallyclever.ro3.node.nodes.*;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlanner;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
 import com.marginallyclever.ro3.node.nodes.pose.AttachmentPoint;
@@ -44,7 +45,7 @@ public class Registry {
         nodule.add("Material", Material::new);
         nodule.add("MeshInstance", MeshInstance::new);
         nodule.add("Motor", Motor::new);
-        nodule.add("TargetPlanner", TargetPlanner::new);
+        nodule.add("TargetPlanner", LimbPlanner::new);
         Factory.Category<Node> pose = nodule.add("Pose", Pose::new);
             pose.add("Camera", Camera::new);
             pose.add("LookAt", LookAt::new);
