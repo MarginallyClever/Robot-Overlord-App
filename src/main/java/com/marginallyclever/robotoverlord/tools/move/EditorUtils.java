@@ -18,10 +18,8 @@ import java.util.List;
 /**
  * Convenience methods for the rotate and translate tools.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
-public class EditorUtils {
+@Deprecated public class EditorUtils {
     /**
      * Returns the last selected item's world pose, or null if no items are selected.
      * @param selectedItems the list of selected items

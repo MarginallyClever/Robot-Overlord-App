@@ -6,7 +6,6 @@ import com.marginallyclever.ro3.mesh.Mesh;
 /**
  * <p>{@link Grid} is a {@link Mesh} displaying a grid on the XY plane.  The origin is at the center of the grid.</p>
  *
- * @author Dan Royer
  */
 public class Grid extends Mesh {
     private int width = 100;

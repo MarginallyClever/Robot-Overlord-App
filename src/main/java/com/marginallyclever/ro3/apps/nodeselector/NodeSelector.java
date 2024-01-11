@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.apps.nodeselector;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.dialogs.NodeSelectionDialog;
 import com.marginallyclever.ro3.node.Node;
 
 import javax.swing.*;
@@ -82,5 +81,10 @@ public class NodeSelector<T extends Node> extends JPanel {
 
     public T getSubject() {
         return subject;
+    }
+
+    public void setEditable(boolean b) {
+        chooseButton.setEnabled(b);
+        findButton.setEnabled(b);
     }
 }

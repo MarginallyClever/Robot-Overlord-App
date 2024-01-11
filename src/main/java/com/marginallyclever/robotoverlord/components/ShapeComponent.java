@@ -15,8 +15,6 @@ import javax.vecmath.Vector3d;
 /**
  * A shape {@link Component} which can be rendered.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @ComponentDependency(components={PoseComponent.class, MaterialComponent.class})
 @Deprecated

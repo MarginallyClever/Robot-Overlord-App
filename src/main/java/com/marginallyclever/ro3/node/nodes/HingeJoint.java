@@ -4,6 +4,7 @@ import com.marginallyclever.convenience.PathCalculator;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
+import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
 import org.json.JSONObject;
 
@@ -98,12 +99,12 @@ public class HingeJoint extends Node {
             axle.setRelativePath(this,selector.getSubject());
         });
 
-        addLabelAndComponent(pane, "Axle",selector);
-        addLabelAndComponent(pane, "Angle",angleField);
-        addLabelAndComponent(pane, "Min",minAngleField);
-        addLabelAndComponent(pane, "Max",maxAngleField);
-        addLabelAndComponent(pane, "Velocity",velocityField);
-        addLabelAndComponent(pane, "Acceleration",accelerationField);
+        NodePanelHelper.addLabelAndComponent(pane, "Axle",selector);
+        NodePanelHelper.addLabelAndComponent(pane, "Angle",angleField);
+        NodePanelHelper.addLabelAndComponent(pane, "Min",minAngleField);
+        NodePanelHelper.addLabelAndComponent(pane, "Max",maxAngleField);
+        NodePanelHelper.addLabelAndComponent(pane, "Velocity",velocityField);
+        NodePanelHelper.addLabelAndComponent(pane, "Acceleration",accelerationField);
 
         super.getComponents(list);
     }

@@ -14,8 +14,6 @@ import org.json.JSONObject;
  * It is assumed that the local y axis is the left/right direction.
  * It is assumed that the local z axis is the up/down direction.
  *
- * @since 2.6.3
- * @author Dan Royer
  */
 public class WheelComponent extends Component {
     public final DoubleParameter diameter = new DoubleParameter("Diameter", 1);

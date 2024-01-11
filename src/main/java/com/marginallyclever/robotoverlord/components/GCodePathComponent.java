@@ -16,8 +16,6 @@ import javax.vecmath.Point3d;
 
 /**
  * A {@link RenderComponent} that uses a {@link PathWalker} to systems a {@link GCodePath}.
- * @author Dan Royer
- * @since 2.5.0
  */
 @ComponentDependency(components = {PoseComponent.class})
 @Deprecated

@@ -3,9 +3,10 @@ package com.marginallyclever.ro3.node.nodes.pose;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.dialogs.MeshChooserDialog;
+import com.marginallyclever.ro3.mesh.MeshChooserDialog;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.MeshSmoother;
+import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.raypicking.RayHit;
 import org.json.JSONObject;
@@ -53,23 +54,23 @@ public class MeshInstance extends Pose {
                 setMeshButtonLabel(select);
             }
         });
-        addLabelAndComponent(pane,"Mesh",select);
+        NodePanelHelper.addLabelAndComponent(pane,"Mesh",select);
 
         if(mesh!=null) {
-            addLabelAndComponent(pane,"Vertices",new JLabel(""+mesh.getNumVertices()));
-            addLabelAndComponent(pane,"Triangles",new JLabel(""+mesh.getNumTriangles()));
+            NodePanelHelper.addLabelAndComponent(pane,"Vertices",new JLabel(""+mesh.getNumVertices()));
+            NodePanelHelper.addLabelAndComponent(pane,"Triangles",new JLabel(""+mesh.getNumTriangles()));
 
             JButton smooth = new JButton("Smooth");
             smooth.addActionListener(e -> MeshSmoother.smoothNormals(mesh,0.01f,0.25f) );
-            addLabelAndComponent(pane,"Normals",smooth);
+            NodePanelHelper.addLabelAndComponent(pane,"Normals",smooth);
 
             JButton adjust = new JButton("Adjust");
             adjust.addActionListener(e -> adjustLocal());
-            addLabelAndComponent(pane,"Local origin",adjust);
+            NodePanelHelper.addLabelAndComponent(pane,"Local origin",adjust);
 
             JButton reload = new JButton("Reload");
             reload.addActionListener(e-> Registry.meshFactory.reload(mesh) );
-            addLabelAndComponent(pane,"Source",reload);
+            NodePanelHelper.addLabelAndComponent(pane,"Source",reload);
         }
 
         super.getComponents(list);

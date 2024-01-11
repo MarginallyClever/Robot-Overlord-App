@@ -8,8 +8,6 @@ import java.awt.event.MouseEvent;
 
 /**
  * An element in the View
- * @author Dan Royer
- * @since 1.6.0
  *
  */
 @Deprecated public class ViewElement extends JPanel {

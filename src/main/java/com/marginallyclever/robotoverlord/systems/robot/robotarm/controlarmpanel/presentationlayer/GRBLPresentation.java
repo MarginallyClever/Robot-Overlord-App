@@ -23,8 +23,6 @@ import java.util.List;
 /**
  * {@link GRBLPresentation} is a {@link PresentationLayer} for <a href="https://github.com/gnea/grbl">GRBL</a> firmware.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @Deprecated
 public class GRBLPresentation implements PresentationLayer {

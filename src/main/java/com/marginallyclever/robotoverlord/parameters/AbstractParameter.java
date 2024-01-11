@@ -11,8 +11,6 @@ import java.util.List;
 
 /**
  * A convenience class for basic data types
- * @author Dan Royer
- * @since 1.6.0
  */
 public abstract class AbstractParameter<T> {
 	private String name;

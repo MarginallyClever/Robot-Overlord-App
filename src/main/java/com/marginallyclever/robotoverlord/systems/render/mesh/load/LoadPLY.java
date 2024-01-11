@@ -12,8 +12,6 @@ import java.nio.charset.StandardCharsets;
  * Load a mesh from a PLY file.
  * see <a href="https://en.wikipedia.org/wiki/PLY_(file_format)">Wikipedia</a>
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @Deprecated
 public class LoadPLY implements MeshLoader {

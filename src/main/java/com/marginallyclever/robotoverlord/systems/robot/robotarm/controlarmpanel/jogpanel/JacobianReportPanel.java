@@ -2,7 +2,7 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpane
 
 import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
-import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobian;
+import com.marginallyclever.ro3.node.nodes.limbsolver.ApproximateJacobian;
 import com.marginallyclever.robotoverlord.systems.robot.robotarm.ApproximateJacobianFiniteDifferences;
 
 import javax.swing.*;
@@ -16,10 +16,8 @@ import java.io.Serial;
 /**
  * A panel that displays the Jacobian matrix for a robot arm.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
-public class JacobianReportPanel extends JPanel {
+@Deprecated public class JacobianReportPanel extends JPanel {
 	@Serial
 	private static final long serialVersionUID = 1L;
 	private final JTable table;

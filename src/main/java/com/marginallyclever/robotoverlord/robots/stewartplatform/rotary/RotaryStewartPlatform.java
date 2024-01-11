@@ -16,8 +16,6 @@ import javax.vecmath.Vector3d;
 
 /**
  * Generic rotary stewart platform.  6 Rotating biceps move forearms connected to the top plate.
- * @author Dan Royer
- * @since 2015?
  */
 @Deprecated
 public class RotaryStewartPlatform extends Component {

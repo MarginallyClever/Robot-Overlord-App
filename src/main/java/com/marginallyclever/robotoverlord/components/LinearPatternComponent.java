@@ -7,8 +7,6 @@ import com.marginallyclever.robotoverlord.parameters.IntParameter;
 /**
  * A component that should viewport a child component in a linear pattern.
  *
- * @since 2.6.0
- * @author Dan Royer
  */
 @Deprecated
 public class LinearPatternComponent extends RenderComponent {

@@ -20,7 +20,6 @@ import java.util.List;
 
 /**
  * Panel to alter a file parameter.
- * @author Dan Royer
  *
  */
 @Deprecated public class ViewElementFilename extends ViewElement implements ActionListener {

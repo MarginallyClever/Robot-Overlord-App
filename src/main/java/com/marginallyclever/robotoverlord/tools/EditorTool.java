@@ -12,10 +12,8 @@ import java.util.List;
 
 /**
  * Interface for tools that can be used to visually edit the scene.
- * @since 2.3.0
- * @author Dan Royer
  */
-public interface EditorTool {
+@Deprecated public interface EditorTool {
     int FRAME_WORLD = 0;
     int FRAME_LOCAL = 1;
     int FRAME_CAMERA = 2;

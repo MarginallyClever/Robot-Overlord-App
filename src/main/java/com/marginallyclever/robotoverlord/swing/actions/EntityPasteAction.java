@@ -16,7 +16,7 @@ import java.awt.event.KeyEvent;
 /**
  * Makes a deep copy of the selected {@link Entity}.
  */
-public class EntityPasteAction extends AbstractAction implements EditorAction {
+@Deprecated public class EntityPasteAction extends AbstractAction implements EditorAction {
     private final EntityManager entityManager;
 
     public EntityPasteAction(EntityManager entityManager) {

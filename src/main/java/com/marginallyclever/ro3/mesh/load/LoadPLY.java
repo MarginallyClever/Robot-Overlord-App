@@ -11,8 +11,6 @@ import java.nio.charset.StandardCharsets;
 /**
  * <p>{@link LoadPLY} is a {@link MeshLoader} that loads a
  * <a href="https://en.wikipedia.org/wiki/PLY_(file_format)">PLY</a> file into a {@link Mesh}.</p>
- * @author Dan Royer
- * @since 2.5.0
  */
 public class LoadPLY implements MeshLoader {
 	@Override

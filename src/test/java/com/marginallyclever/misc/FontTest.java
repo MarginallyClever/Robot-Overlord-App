@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.awt.*;
 import java.util.Arrays;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless environment")
 public class FontTest {
     private static final Logger logger = LoggerFactory.getLogger(FontTest.class);
 

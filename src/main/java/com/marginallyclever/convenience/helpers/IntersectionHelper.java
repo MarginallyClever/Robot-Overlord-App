@@ -13,7 +13,6 @@ import javax.vecmath.Vector3d;
 
 /**
  * Convenience methods for detecting intersection of various mesh.
- * @author Dan Royer
  */
 public class IntersectionHelper {
 	static final float SMALL_NUM = 0.001f;

@@ -20,8 +20,7 @@ import java.util.ArrayList;
 /**
  * A factory to list and create {@link Component}s.
  *
- * @author Dan Royer
- * @since 2.5.0
+
  */
 @Deprecated
 public abstract class ComponentFactory {

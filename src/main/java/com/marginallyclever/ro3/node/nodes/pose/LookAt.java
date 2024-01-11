@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes.pose;
 import com.marginallyclever.convenience.PathCalculator;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
+import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import org.json.JSONObject;
@@ -46,7 +47,7 @@ public class LookAt extends Pose {
         selector.addPropertyChangeListener("subject", (evt) -> {
             target.setRelativePath(this,selector.getSubject());
         } );
-        addLabelAndComponent(pane,"Target",selector);
+        NodePanelHelper.addLabelAndComponent(pane,"Target",selector);
 
         super.getComponents(list);
     }

@@ -10,8 +10,6 @@ import java.util.prefs.BackingStoreException;
 
 /**
  * Panel to display interaction preferences
- * @since 2.7.0
- * @author Dan Royer
  */
 @Deprecated
 public class InteractionPreferencesPanel extends JPanel {

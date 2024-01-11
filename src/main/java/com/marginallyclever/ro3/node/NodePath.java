@@ -34,6 +34,11 @@ public class NodePath<T extends Node> {
         return owner.findNodeByPath(path,type);
     }
 
+    /**
+     * Set the path to the relative path from origin to goal.
+     * @param origin the node to start from
+     * @param goal the node to find
+     */
     public void setRelativePath(Node origin, T goal) {
         setPath(PathCalculator.getRelativePath(origin,goal));
     }

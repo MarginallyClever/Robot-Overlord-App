@@ -11,7 +11,7 @@
     </appender>
 
     <logger name="com.marginallyclever" level="debug" />
-    <root>
+    <root level="DEBUG">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>

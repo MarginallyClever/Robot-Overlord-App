@@ -14,8 +14,6 @@ import java.util.TreeMap;
 /**
  * A simple line graph.  Assumes at most one y value per x value.  Interpolates between given values.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class SingleLineGraph extends JPanel {
 	private final TreeMap<Double, Double> data = new TreeMap<>();

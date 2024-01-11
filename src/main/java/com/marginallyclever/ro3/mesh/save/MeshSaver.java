@@ -7,8 +7,6 @@ import java.io.OutputStream;
 /**
  * {@link MeshSaver} saves a {@link Mesh} to a file.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public interface MeshSaver {
 	String getEnglishName();

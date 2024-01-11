@@ -107,6 +107,7 @@ public class DrawBackground extends AbstractRenderPass {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         mesh.unload(gl3);
         shader.delete(gl3);
+        texture.unload();
     }
 
     @Override

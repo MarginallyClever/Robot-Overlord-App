@@ -12,10 +12,8 @@ import java.net.URI;
 
 /**
  * Use the desktop browser to open a URL.
- * @author Dan Royer
- * @since 2022-03-14
  */
-public class BrowseURLAction extends AbstractAction {
+@Deprecated public class BrowseURLAction extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(BrowseURLAction.class);
 
     private final String address;

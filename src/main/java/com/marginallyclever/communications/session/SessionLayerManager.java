@@ -10,7 +10,6 @@ import java.awt.*;
 
 /**
  * Handles requests between the UI and the various transport layers 
- * @author Dan Royer
  *
  */
 public class SessionLayerManager {

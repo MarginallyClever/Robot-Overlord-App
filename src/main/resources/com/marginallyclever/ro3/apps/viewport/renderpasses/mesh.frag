@@ -70,7 +70,8 @@ void main() {
         // Specular
         vec3 viewDir = normalize(cameraPos - fs_in.fragmentPosition);
         vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+        float spec = 1.0;
+        if( shininess > 1.0 ) spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
         vec4 specularLight = spec * specularColor * lightColor;
 
         // Shadow

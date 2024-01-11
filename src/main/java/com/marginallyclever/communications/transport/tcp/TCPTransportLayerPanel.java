@@ -9,8 +9,7 @@ import java.awt.*;
 
 /**
  * Opens an SSH connection to another device, then opens a screen to the /dev/ACM0 device on that remote.
- * @author Dan Royer
- * 
+ *
  */
 public class TCPTransportLayerPanel extends TransportLayerPanel {
 	private final TCPTransportLayer layer;

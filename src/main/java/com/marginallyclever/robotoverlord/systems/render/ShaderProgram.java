@@ -14,8 +14,6 @@ import java.security.InvalidParameterException;
 /**
  * A wrapper for vertex and fragment shader pairs that provides a simple interface for setting uniforms.
  *
- * @author Dan Royer
- * @since 2.5.9
  */
 @Deprecated
 public class ShaderProgram {

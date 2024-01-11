@@ -15,7 +15,7 @@ import java.awt.event.KeyEvent;
 /**
  * Makes a deep copy of the selected {@link Entity}.
  */
-public class ComponentPasteAction extends AbstractAction implements EditorAction {
+@Deprecated public class ComponentPasteAction extends AbstractAction implements EditorAction {
 
     public ComponentPasteAction() {
         super(Translator.get("ComponentPasteAction.name"));

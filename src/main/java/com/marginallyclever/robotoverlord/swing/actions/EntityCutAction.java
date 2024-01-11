@@ -12,10 +12,8 @@ import java.awt.event.KeyEvent;
 /**
  * Cut the selected entities to the clipboard.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
-public class EntityCutAction extends AbstractAction implements EditorAction {
+@Deprecated public class EntityCutAction extends AbstractAction implements EditorAction {
     private final EntityDeleteAction entityDeleteAction;
     private final EntityCopyAction entityCopyAction;
 

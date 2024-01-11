@@ -15,8 +15,6 @@ import java.util.prefs.Preferences;
 
 /**
  * Helps with the command line interface for the MarginallyCleverPreferences class.
- * @author Peter Colapietro
- * @since v7.1.4
  */
 final class MarginallyCleverPreferencesHelper {
   private static final Logger logger = LoggerFactory.getLogger(MarginallyCleverPreferencesHelper.class);

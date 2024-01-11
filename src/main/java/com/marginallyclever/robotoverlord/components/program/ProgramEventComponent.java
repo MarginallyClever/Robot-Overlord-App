@@ -16,8 +16,6 @@ import org.json.JSONObject;
  *     <li>Set pin value</li>
  * </ul>
  *
- * @author Dan Royer
- * @since 2.6.0
  */
 @Deprecated
 public class ProgramEventComponent extends ProgramStepComponent {

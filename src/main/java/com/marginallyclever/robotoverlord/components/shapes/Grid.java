@@ -17,7 +17,6 @@ import javax.vecmath.Vector3d;
  * Procedurally draws a grid on a plane.  If the material for this Grid has lighting turned off then the
  * grid will be transparent at the edges.
  *
- * @author Dan Royer
  */
 @Deprecated
 public class Grid extends ShapeComponent {

@@ -23,10 +23,8 @@ import java.util.List;
 /**
  * A tool to rotate entities in the editorpanel.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
-public class RotateEntityToolOneAxis implements EditorTool {
+@Deprecated public class RotateEntityToolOneAxis implements EditorTool {
     /**
      * visual "tick" marks for snapping.
      */
@@ -392,7 +390,7 @@ public class RotateEntityToolOneAxis implements EditorTool {
         float green = color.green * colorScale / 255f;
         float blue  = color.blue  * colorScale / 255f;
         shaderProgram.set4f(gl, "objectColor", red, green, blue, 1.0f);
-        PrimitiveSolids.drawCircleXY(gl, getRingRadiusScaled(), ringResolution).render(gl);
+        PrimitiveSolids.drawCircleXY(getRingRadiusScaled(), ringResolution).render(gl);
 
         double v = getGripRadiusScaled();
         handleBox.height.set(v);

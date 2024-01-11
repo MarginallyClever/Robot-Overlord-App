@@ -12,8 +12,6 @@ import java.util.ArrayList;
 
 /**
  * Loads <a href="https://en.wikipedia.org/wiki/Wavefront_.obj_file">OBJ files</a> into a Mesh.
- * @author Dan Royer
- * @since 1.6.0
  */
 @Deprecated
 public class LoadOBJ implements MeshLoader {

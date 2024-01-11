@@ -17,10 +17,8 @@ import javax.vecmath.Vector3d;
 /**
  * A 3D compass that shows the orientation of the camera.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
-public class Compass3D {
+@Deprecated public class Compass3D {
 	private static final Logger logger = LoggerFactory.getLogger(Compass3D.class);
 	private final MeshFromFile cube = new MeshFromFile("/viewCube.obj");
 	private final MaterialComponent mat = new MaterialComponent();

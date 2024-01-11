@@ -62,7 +62,7 @@ public class NodeTreeTransferHandler extends TransferHandler {
                 if (newParent.hasParent(node)) {
                     return false;  // I can't become my own grandpa
                 }
-                // TODO: prevent a parent and a child being dragged to the same place?
+                // TODO prevent a parent and a child being dragged to the same place?
             }
             return true;
         } catch (Exception e) {

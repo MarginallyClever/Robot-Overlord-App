@@ -6,7 +6,6 @@ import java.io.BufferedInputStream;
 
 /**
  * {@link MeshLoader} interface for all classes that load a {@link Mesh}.  Call upon by {@link MeshFactory}
- * @author Dan Royer
  *
  */
 @Deprecated

@@ -19,7 +19,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Panel to alter a Vector3d parameter (three float values).
- * @author Dan Royer
  *
  */
 @Deprecated public class ViewElementVector3d extends ViewElement implements DocumentListener, PropertyChangeListener {

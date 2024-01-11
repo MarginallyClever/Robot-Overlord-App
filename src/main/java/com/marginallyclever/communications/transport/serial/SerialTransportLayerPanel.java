@@ -10,8 +10,6 @@ import java.awt.*;
 /**
  * A panel for configuring a serial transport layer.
  *
- * @author Dan Royer
- * @since 1.7.1
  */
 public class SerialTransportLayerPanel extends TransportLayerPanel {
 	private final SerialTransportLayer layer;

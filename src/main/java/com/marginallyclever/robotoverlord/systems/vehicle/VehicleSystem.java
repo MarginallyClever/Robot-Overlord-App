@@ -24,8 +24,6 @@ import java.util.List;
 /**
  * A system that manages all vehicles.
  *
- * @since 2.6.3
- * @author Dan Royer
  */
 public class VehicleSystem implements EntitySystem {
     private final EntityManager entityManager;

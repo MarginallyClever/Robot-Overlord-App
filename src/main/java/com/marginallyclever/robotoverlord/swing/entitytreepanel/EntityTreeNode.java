@@ -6,7 +6,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  * This version of DefaultMutableTreeNode exists only to override the toString() method.
- * @author Dan Royer
  *
  */
 @Deprecated

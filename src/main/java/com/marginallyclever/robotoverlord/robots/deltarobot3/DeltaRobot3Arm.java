@@ -5,8 +5,6 @@ import javax.vecmath.Vector3d;
 /**
  * One limb of a rotary-style Delta robot.
  *
- * @author Dan Royer
- * @since 1.7.1
  */
 @Deprecated
 public class DeltaRobot3Arm {

@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
-public class EditPreferencesAction extends AbstractAction implements ActionListener {
+@Deprecated public class EditPreferencesAction extends AbstractAction implements ActionListener {
     private final Component parent;
     private final RobotOverlord app;
 

@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Manages all the {@link EntitySystem}s.
  */
-public class SystemManager {
+@Deprecated public class SystemManager {
 
     private final List<EntitySystem> systems = new ArrayList<>();
     

@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory;
 /**
  * A physics engine that uses ODE.
  *
- * @author Dan Royer
- * @since 2.0?
  */
 @Deprecated
 public class ODEPhysicsEngine {

@@ -26,8 +26,6 @@ import java.util.List;
 /**
  * A tool to translate {@link Pose} nodes in the {@link Viewport}.  It translates in a given plane.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class TranslateToolTwoAxis implements ViewportTool {
     private static final Logger logger = LoggerFactory.getLogger(TranslateToolTwoAxis.class);

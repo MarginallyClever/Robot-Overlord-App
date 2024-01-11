@@ -5,7 +5,6 @@ import javax.vecmath.Vector3d;
 /**
  * 3D Bezier curve implementation.  All points are in the same space - p1 and p2 are not relative to p0 and p3, respectively.
  * See <a href="https://en.wikipedia.org/wiki/B%C3%A9zier_curve">Wikipedia</a>
- * @author Dan Royer
  */
 public class Bezier3 {
 	public Vector3d p0 = new Vector3d();

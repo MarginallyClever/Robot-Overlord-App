@@ -8,8 +8,6 @@ import javax.vecmath.Vector3d;
 /**
  * <p>{@link MeshNormalBuilder} is a tool to build normals for a {@link Mesh}.</p>
  *
- * @author Dan Royer
- * @since 1.7.1
  */
 public class MeshNormalBuilder {
 	private static final Logger logger = LoggerFactory.getLogger(MeshNormalBuilder.class);

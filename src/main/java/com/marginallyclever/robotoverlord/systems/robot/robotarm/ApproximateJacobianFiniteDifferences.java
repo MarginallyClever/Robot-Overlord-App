@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
-import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobian;
+import com.marginallyclever.ro3.node.nodes.limbsolver.ApproximateJacobian;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.robots.Robot;
@@ -21,8 +21,6 @@ import javax.vecmath.Matrix4d;
  * See <a href="https://robotacademy.net.au/masterclass/velocity-kinematics-in-3d/?lesson=346">Robot
  *      Academy tutorial</a>
  *
- * @since 2.0.0?
- * @author Dan Royer
  */
 @Deprecated
 public class ApproximateJacobianFiniteDifferences extends ApproximateJacobian {

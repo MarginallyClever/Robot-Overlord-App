@@ -4,14 +4,14 @@ import com.marginallyclever.convenience.swing.Dial;
 import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Motor;
 import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,14 +19,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>{@link Limb} represents a linear chain of bones and muscles.  Bones are represented by {@link Pose}s.  Muscles are
- * represented by {@link Motor}s.  The end of the chain is represented by an {@link Pose} called the end effector.</p>
- * <p>Limbs only perform <a href="https://en.wikipedia.org/wiki/Forward_kinematics">Forward Kinematics</a> - given the
- * angle of each joint, they calculate the world space position of the end effector.  For more sophisticated behavior,
- * use a {@link com.marginallyclever.ro3.node.nodes.LimbSolver}.</p>
+ * <p>{@link Limb} is a linear chain of bones, joints, and muscles.  Bones are represented by {@link Pose}s.  Joints are
+ * represented by {@link HingeJoint}s.  Muscles are represented by {@link Motor}s.  The end of the chain is a
+ * {@link Pose} called the <i>end effector</i>.</p>
+ * <p>{@link Limb}s only perform <a href="https://en.wikipedia.org/wiki/Forward_kinematics">Forward Kinematics</a> -
+ * given the angle of each joint, they calculate the world space position of the end effector.  For more sophisticated
+ * behavior, use a {@link LimbSolver}.</p>
+ * <p>{@link Limb} is designed to handle six joints or less.</p>
  */
 public class Limb extends Pose {
-    private static final Logger logger = LoggerFactory.getLogger(Limb.class);
     public static final int MAX_JOINTS = 6;
     private final List<NodePath<Motor>> motors = new ArrayList<>();
     private final NodePath<Pose> endEffector = new NodePath<>(this,Pose.class);
@@ -170,7 +171,7 @@ public class Limb extends Pose {
         gbc.gridx=0;
         gbc.gridy=0;
         gbc.gridwidth=1;
-        addNodeSelector(pane, "End Effector", endEffector, Pose.class, gbc);
+        NodePanelHelper.addNodeSelector(pane, "End Effector", endEffector, Pose.class, gbc,this);
 
         gbc.gridx=0;
         gbc.gridwidth=2;
@@ -247,7 +248,7 @@ public class Limb extends Pose {
             motorSelector[i].addPropertyChangeListener("subject",(e)-> {
                 motors.get(j).setRelativePath(this,(Motor)e.getNewValue());
             });
-            addLabelAndComponent(outerPanel, "Motor "+i, motorSelector[i],gbc);
+            NodePanelHelper.addLabelAndComponent(outerPanel, "Motor "+i, motorSelector[i],gbc);
         }
         return containerPanel;
     }

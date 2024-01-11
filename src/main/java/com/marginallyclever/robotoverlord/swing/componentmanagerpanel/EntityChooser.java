@@ -18,8 +18,6 @@ import java.awt.event.ActionListener;
 /**
  * A dialog that allows the user to select one or more entities from the {@link EntityManager} tree.
  *
- * @author Dan Royer
- * @since 2.5.6
  */
 @Deprecated
 public class EntityChooser extends JDialog {

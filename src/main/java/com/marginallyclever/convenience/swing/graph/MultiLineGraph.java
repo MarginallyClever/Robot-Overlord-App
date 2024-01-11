@@ -9,8 +9,6 @@ import java.util.List;
 /**
  * A simple line graph.  Assumes at most one y value per x value.  Interpolates between given values.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class MultiLineGraph extends JPanel {
 	private GraphModel model = new GraphModel();

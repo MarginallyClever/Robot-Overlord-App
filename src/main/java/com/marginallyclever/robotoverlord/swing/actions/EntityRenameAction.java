@@ -18,10 +18,9 @@ import java.util.List;
 
 /**
  *  
- * @author Dan Royer
  *
  */
-public class EntityRenameAction extends AbstractAction implements EditorAction {
+@Deprecated public class EntityRenameAction extends AbstractAction implements EditorAction {
 	private static final Logger logger = LoggerFactory.getLogger(EntityRenameAction.class);
 	private final EntityManager entityManager;
 

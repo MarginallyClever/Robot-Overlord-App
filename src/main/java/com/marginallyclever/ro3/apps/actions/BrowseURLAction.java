@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URI;
+import java.security.InvalidParameterException;
 
 /**
  * Open a URL in the desktop web browser.
@@ -16,8 +17,11 @@ import java.net.URI;
 public class BrowseURLAction extends AbstractAction implements ActionListener {
 	private final Logger logger = LoggerFactory.getLogger(BrowseURLAction.class);
 	private final String url;
+
     public BrowseURLAction(String url) {
 		super("Browse URL");
+		if(url == null || url.isBlank()) throw new InvalidParameterException("URL is null or blank.");
+
 		this.url = url;
 	}
 

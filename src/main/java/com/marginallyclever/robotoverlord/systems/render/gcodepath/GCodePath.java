@@ -6,8 +6,6 @@ import java.util.List;
 /**
  * A path made of GCode commands.
  *
- * @author Dan Royer
- * @since 2.5.6
  */
 public class GCodePath {
     private String sourceName;

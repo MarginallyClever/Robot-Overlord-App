@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.security.InvalidParameterException;
 import java.util.Objects;
 
 /**
@@ -24,7 +25,7 @@ public class ImportScene extends AbstractAction {
     public ImportScene(JFileChooser chooser) {
         super();
         this.chooser = chooser;
-        putValue(Action.NAME,"Import Scene");
+        putValue(Action.NAME,"Import...");
         putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-import-16.png"))));
         putValue(SHORT_DESCRIPTION,"Load a Scene into the existing Scene.");
     }
@@ -36,6 +37,7 @@ public class ImportScene extends AbstractAction {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
+        if( chooser == null ) throw new InvalidParameterException("file chooser cannot be null");
         chooser.setFileFilter(RO3Frame.FILE_FILTER);
         
         Component source = (Component) e.getSource();

@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodePanelHelper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -85,10 +86,10 @@ public class Pose extends Node {
         ty.addPropertyChangeListener("value", e -> local.m13 = ((Number) ty.getValue()).doubleValue() );
         tz.addPropertyChangeListener("value", e -> local.m23 = ((Number) tz.getValue()).doubleValue() );
 
-        addLabelAndComponent(pane, "Translation", new JLabel());
-        addLabelAndComponent(pane, "X", tx);
-        addLabelAndComponent(pane, "Y", ty);
-        addLabelAndComponent(pane, "Z", tz);
+        NodePanelHelper.addLabelAndComponent(pane, "Translation", new JLabel());
+        NodePanelHelper.addLabelAndComponent(pane, "X", tx);
+        NodePanelHelper.addLabelAndComponent(pane, "Y", ty);
+        NodePanelHelper.addLabelAndComponent(pane, "Z", tz);
     }
 
     private void addRotationComponents(JPanel pane, NumberFormatter formatter) {
@@ -125,11 +126,11 @@ public class Pose extends Node {
             setRotationEuler(r2, rotationIndex);
         });
 
-        addLabelAndComponent(pane, "Rotation", new JLabel());
-        addLabelAndComponent(pane, "Type", rotationType);
-        addLabelAndComponent(pane, "X", rx);
-        addLabelAndComponent(pane, "Y", ry);
-        addLabelAndComponent(pane, "Z", rz);
+        NodePanelHelper.addLabelAndComponent(pane, "Rotation", new JLabel());
+        NodePanelHelper.addLabelAndComponent(pane, "Type", rotationType);
+        NodePanelHelper.addLabelAndComponent(pane, "X", rx);
+        NodePanelHelper.addLabelAndComponent(pane, "Y", ry);
+        NodePanelHelper.addLabelAndComponent(pane, "Z", rz);
     }
 
     /**

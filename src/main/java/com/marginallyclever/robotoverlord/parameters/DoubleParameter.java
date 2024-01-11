@@ -6,8 +6,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * @author Dan Royer
- * @since 1.6.0
  *
  */
 public class DoubleParameter extends AbstractParameter<Double> {

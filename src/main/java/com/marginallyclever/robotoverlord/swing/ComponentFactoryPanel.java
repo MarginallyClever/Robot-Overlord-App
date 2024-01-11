@@ -9,8 +9,6 @@ import java.util.ArrayList;
 
 /**
  * Searchable list of all {@link ComponentFactory} names.
- * @since 2.7.0
- * @author Dan Royer
  */
 @Deprecated
 public class ComponentFactoryPanel extends JPanel {

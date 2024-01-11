@@ -10,10 +10,9 @@ import java.net.URI;
 
 /**
  * Go to the online help forums. This action is not undoable.
- * @author Admin
  *
  */
-public class ForumsAction extends AbstractAction implements ActionListener {
+@Deprecated public class ForumsAction extends AbstractAction implements ActionListener {
 	private final String FORUM_URL = "https://discord.gg/p2NRZFxXbh";
 	
 	public ForumsAction() {

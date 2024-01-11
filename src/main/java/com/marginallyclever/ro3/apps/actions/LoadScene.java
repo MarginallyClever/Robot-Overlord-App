@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.apps.actions;
 
+import com.marginallyclever.ro3.apps.RO3Frame;
 import com.marginallyclever.ro3.apps.UndoSystem;
 import com.marginallyclever.ro3.apps.RecentFilesMenu;
 import com.marginallyclever.ro3.Registry;
@@ -25,6 +26,7 @@ public class LoadScene extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(LoadScene.class);
     private final JFileChooser chooser;
     private final String filePath;
+    private SaveScene saveScene;
     private final RecentFilesMenu menu;
 
     /**
@@ -49,9 +51,13 @@ public class LoadScene extends AbstractAction {
         this.chooser = chooser;
         this.menu = menu;
         this.filePath = filePath;
-        putValue(Action.NAME,filePath==null || filePath.isEmpty() ? "Load Scene" : filePath);
+        putValue(Action.NAME,filePath==null || filePath.isEmpty() ? "Load..." : filePath);
         putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-load-16.png"))));
         putValue(SHORT_DESCRIPTION,"Load a scene from a file.  Completely replaces the current Scene.");
+    }
+
+    public void setSaveScene(SaveScene saveScene) {
+        this.saveScene = saveScene;
     }
 
     /**
@@ -71,6 +77,7 @@ public class LoadScene extends AbstractAction {
 
     private File runFileDialog(Component source) {
         if( chooser == null ) throw new InvalidParameterException("file chooser cannot be null");
+        chooser.setFileFilter(RO3Frame.FILE_FILTER);
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
         if (chooser.showOpenDialog(parentFrame) == JFileChooser.APPROVE_OPTION) {
             return chooser.getSelectedFile();
@@ -111,6 +118,11 @@ public class LoadScene extends AbstractAction {
         }
 
         System.setProperty("user.dir",oldCWD);
+
+        if(saveScene!=null) {
+            saveScene.setPath(selectedFile.getAbsolutePath());
+            saveScene.setEnabled(true);
+        }
 
         logger.info("done.");
     }

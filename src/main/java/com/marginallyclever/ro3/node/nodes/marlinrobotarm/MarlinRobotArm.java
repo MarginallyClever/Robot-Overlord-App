@@ -5,8 +5,10 @@ import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.LimbSolver;
+import com.marginallyclever.ro3.node.nodes.limbsolver.ApproximateJacobianFiniteDifferences;
+import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.Motor;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.Limb;
@@ -21,6 +23,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -61,10 +64,32 @@ public class MarlinRobotArm extends Node {
         super.fromJSON(from);
         int version = from.has("version") ? from.getInt("version") : 0;
         if(version<2) {
+            var toRemove = new ArrayList<Node>();
+            while(!getChildren().isEmpty()) {
+                removeChild(getChildren().get(0));
+            }
+
+            // limb
             Limb limb1 = new Limb();
-            LimbSolver solver1 = new LimbSolver();
             limb1.fromJSON(from);
+            limb1.getChildren().stream().filter(n -> n.getName().equals("target")).forEach(toRemove::add);
+            for(Node n : toRemove) limb1.removeChild(n);
+            toRemove.clear();
+            limb1.setName("Limb");
+            getParent().addChild(limb1);
+            limb.setRelativePath(this,limb1);
+
+            // solver
+            LimbSolver solver1 = new LimbSolver();
             solver1.fromJSON(from);
+            solver1.getChildren().stream().filter(n -> !n.getName().equals("target")).forEach(toRemove::add);
+            for(Node n : toRemove) solver1.removeChild(n);
+            solver1.setName("LimbSolver");
+            getParent().addChild(solver1);
+            solver.setRelativePath(this,solver1);
+            solver1.setLimb(limb1);
+
+            // gripper
             Node root = this.getRootNode();
             if (from.has("gripperMotor")) {
                 String s = from.getString("gripperMotor");
@@ -76,15 +101,8 @@ public class MarlinRobotArm extends Node {
                 }
             }
 
-            limb1.setName("Limb");
-            getParent().addChild(limb1);
             limb.setRelativePath(this,limb1);
-
-            solver1.setName("LimbSolver");
-            getParent().addChild(solver1);
             solver.setRelativePath(this,solver1);
-
-            solver1.setLimb(limb1);
         }
     }
 
@@ -98,18 +116,19 @@ public class MarlinRobotArm extends Node {
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
-
         gbc.gridx=0;
         gbc.gridy=0;
         gbc.gridwidth=1;
 
+        NodePanelHelper.addNodeSelector(pane, "Limb", limb, Limb.class, gbc,this);
+        gbc.gridy++;
+        NodePanelHelper.addNodeSelector(pane, "Solver", solver, LimbSolver.class, gbc,this);
+        gbc.gridy++;
+        NodePanelHelper.addNodeSelector(pane, "Gripper motor", gripperMotor, Motor.class, gbc,this);
+        gbc.gridy++;
         JButton M114 = new JButton("M114");
         M114.addActionListener(e-> sendGCode("M114"));
-        addLabelAndComponent(pane, "Get state", M114,gbc);
-
-        gbc.gridwidth=1;
-        gbc.gridy++;
-        addNodeSelector(pane, "Gripper motor", gripperMotor, Motor.class, gbc);
+        NodePanelHelper.addLabelAndComponent(pane, "Get state", M114,gbc);
 
         gbc.gridx=0;
         gbc.gridwidth=2;
@@ -240,11 +259,11 @@ public class MarlinRobotArm extends Node {
         return "M114"+getMotorsAndFeedrateAsString();
     }
 
-    private Limb getLimb() {
+    public Limb getLimb() {
         return limb.getSubject();
     }
 
-    private LimbSolver getSolver() {
+    public LimbSolver getSolver() {
         return solver.getSubject();
     }
 
@@ -463,5 +482,23 @@ public class MarlinRobotArm extends Node {
         for(MarlinListener listener : listeners.getListeners(MarlinListener.class)) {
             listener.messageFromMarlin(message);
         }
+    }
+
+    /**
+     * Set the limb to be controlled by this instance.
+     * limb must be in the same node tree as this instance.
+     * @param limb the limb to control
+     */
+    public void setLimb(Limb limb) {
+        this.limb.setRelativePath(this,limb);
+    }
+
+    /**
+     * Set the solver to be used by this instance.
+     * solver must be in the same node tree as this instance.
+     * @param solver the solver to use
+     */
+    public void setSolver(LimbSolver solver) {
+        this.solver.setRelativePath(this, solver);
     }
 }

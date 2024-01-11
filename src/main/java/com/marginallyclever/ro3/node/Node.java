@@ -314,25 +314,6 @@ public class Node {
     }
 
     /**
-     * A convenience method to add a label and component to a panel that is expected to be built with
-     * <code>new GridLayout(0, 2)</code>.
-     * @param pane the panel to add to
-     * @param labelText the text for the label
-     * @param component the component to add
-     * @param gbc the GridBagConstraints to use
-     */
-    protected void addLabelAndComponent(JPanel pane, String labelText, JComponent component, GridBagConstraints gbc) {
-        JLabel label = new JLabel(labelText);
-        label.setLabelFor(component);
-        gbc.gridwidth=1;
-        gbc.gridx=0;
-        pane.add(label,gbc);
-        gbc.gridx=1;
-        pane.add(component,gbc);
-        gbc.gridy++;
-    }
-
-    /**
      * Called every frame.
      * @param dt the time since the last frame.
      */
@@ -358,7 +339,7 @@ public class Node {
         });
         nameField.setEditable(false);
 
-        addLabelAndComponent(pane,"Name",nameField);
+        NodePanelHelper.addLabelAndComponent(pane,"Name",nameField);
     }
 
     /**
@@ -376,26 +357,6 @@ public class Node {
             }
         }
         return false;
-    }
-
-    /**
-     * A convenience method to add a label and component to a panel that is expected to be built with
-     * <code>new GridLayout(0, 2)</code>.
-     * @param pane the panel to add to
-     * @param labelText the text for the label
-     * @param component the component to add
-     */
-    protected void addLabelAndComponent(JPanel pane, String labelText, JComponent component) {
-        JLabel label = new JLabel(labelText);
-        label.setLabelFor(component);
-        pane.add(label);
-        pane.add(component);
-    }
-
-    protected <T extends Node> void addNodeSelector(JPanel pane, String label, NodePath<T> nodePath, Class<T> clazz, GridBagConstraints gbc) {
-        NodeSelector<T> selector = new NodeSelector<>(clazz, nodePath.getSubject());
-        selector.addPropertyChangeListener("subject", (e) -> nodePath.setRelativePath(this, (T) e.getNewValue()));
-        addLabelAndComponent(pane, label, selector, gbc);
     }
 
     /**

@@ -4,9 +4,7 @@ import java.awt.*;
 import java.security.InvalidParameterException;
 
 /**
- * RGB color class
- * @author Dan Royer
- *
+ * RGB color class.  Values should be 0...255.
  */
 public class ColorRGB {
   public int red = 0;

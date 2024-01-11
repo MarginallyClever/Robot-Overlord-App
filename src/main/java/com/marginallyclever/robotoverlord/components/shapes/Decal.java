@@ -16,7 +16,6 @@ import java.beans.PropertyChangeListener;
 /**
  * A nearly two dimensional object with a texture on both sides.
  * 
- * @author Dan Royer
  *
  */
 @Deprecated

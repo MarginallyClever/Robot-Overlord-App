@@ -6,7 +6,6 @@ import java.util.zip.ZipFile;
 
 /**
  * Methods to make loading files from disk or jar resource easier.
- * @author Dan Royer
  */
 public class FileHelper {
 	/**

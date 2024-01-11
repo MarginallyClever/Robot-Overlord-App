@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 
 /**
  * A chat style interface with a history of commands.  The history is a list of commands sent and received.
- * @author Dan Royer
  */
 public class TextInterfaceWithHistory extends JPanel {
 	private final TextInterfaceToListeners myInterface = new TextInterfaceToListeners();

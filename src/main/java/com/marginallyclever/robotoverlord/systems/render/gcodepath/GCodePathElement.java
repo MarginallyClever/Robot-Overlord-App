@@ -5,8 +5,6 @@ import java.util.regex.Pattern;
 
 /**
  * A single element in a {@link GCodePath}.  For example, a line, arc, or tool change.
- * @author Dan Royer
- * @since 2.5.0
  */
 public class GCodePathElement {
     /**

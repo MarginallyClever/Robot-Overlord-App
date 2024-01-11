@@ -13,8 +13,6 @@ import java.util.List;
  * A two-column sortable table of RPM to torque values for a motor.
  * @see RPMToTorqueTable.DataChangeListener
  *
- * @since 2.6.2
- * @author Dan Royer
  */
 public class RPMToTorqueTable extends JPanel {
     private final JTable table;

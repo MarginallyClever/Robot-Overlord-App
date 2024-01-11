@@ -1,8 +1,9 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.dialogs.TextureChooserDialog;
+import com.marginallyclever.ro3.texture.TextureChooserDialog;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.json.JSONObject;
 
@@ -62,16 +63,16 @@ public class Material extends Node {
             textureChooserDialog.setSelectedItem(texture);
             int result = textureChooserDialog.run(pane);
             if(result == JFileChooser.APPROVE_OPTION) {
-                texture = textureChooserDialog.getSelectedItem();
+                setTexture(textureChooserDialog.getSelectedItem());
                 setTextureButtonLabel(button);
             }
         });
-        addLabelAndComponent(pane,"Texture",button,gbc);
+        NodePanelHelper.addLabelAndComponent(pane,"Texture",button,gbc);
 
         if(texture!=null) {
             BufferedImage smaller = scaleImage(texture.getImage(),64);
-            addLabelAndComponent(pane,"Size",new JLabel(texture.getWidth()+"x"+texture.getHeight()),gbc);
-            addLabelAndComponent(pane,"Preview",new JLabel(new ImageIcon(smaller)),gbc);
+            NodePanelHelper.addLabelAndComponent(pane,"Size",new JLabel(texture.getWidth()+"x"+texture.getHeight()),gbc);
+            NodePanelHelper.addLabelAndComponent(pane,"Preview",new JLabel(new ImageIcon(smaller)),gbc);
         }
 
         // diffuse
@@ -82,7 +83,7 @@ public class Material extends Node {
             if(color!=null) setDiffuseColor(color);
             selectColorDiffuse.setBackground(diffuseColor);
         });
-        addLabelAndComponent(pane,"Diffuse",selectColorDiffuse,gbc);
+        NodePanelHelper.addLabelAndComponent(pane,"Diffuse",selectColorDiffuse,gbc);
 
         // specular
         JButton selectColorSpecular = new JButton();
@@ -92,7 +93,7 @@ public class Material extends Node {
             if(color!=null) setSpecularColor(color);
             selectColorSpecular.setBackground(specularColor);
         });
-        addLabelAndComponent(pane,"Specular",selectColorSpecular,gbc);
+        NodePanelHelper.addLabelAndComponent(pane,"Specular",selectColorSpecular,gbc);
 
         // emissive
         JButton selectColorEmission = new JButton();
@@ -102,12 +103,12 @@ public class Material extends Node {
             if(color!=null) setEmissionColor(color);
             selectColorEmission.setBackground(emissionColor);
         });
-        addLabelAndComponent(pane,"Emissive",selectColorEmission,gbc);
+        NodePanelHelper.addLabelAndComponent(pane,"Emissive",selectColorEmission,gbc);
 
         // lit
         JToggleButton isLitButton = new JToggleButton("Lit",isLit());
         isLitButton.addActionListener(e -> setLit(isLitButton.isSelected()));
-        addLabelAndComponent(pane,"Lit",isLitButton,gbc);
+        NodePanelHelper.addLabelAndComponent(pane,"Lit",isLitButton,gbc);
 
         // shininess
         gbc.gridx=0;
@@ -117,6 +118,10 @@ public class Material extends Node {
 
         super.getComponents(list);
 
+    }
+
+    public void setTexture(TextureWithMetadata selectedItem) {
+        texture = selectedItem;
     }
 
     private JComponent createShininessSlider() {
