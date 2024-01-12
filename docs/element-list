@@ -34,6 +34,7 @@ com.marginallyclever.ro3.mesh.save
 com.marginallyclever.ro3.mesh.shapes
 com.marginallyclever.ro3.node
 com.marginallyclever.ro3.node.nodes
+com.marginallyclever.ro3.node.nodes.limbplanner
 com.marginallyclever.ro3.node.nodes.limbsolver
 com.marginallyclever.ro3.node.nodes.marlinrobotarm
 com.marginallyclever.ro3.node.nodes.pose
