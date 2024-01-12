@@ -1,9 +1,6 @@
 package com.marginallyclever.ro3.node;
 
-import com.marginallyclever.convenience.PathCalculator;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.node.nodes.Pose;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -12,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
-import java.awt.datatransfer.DataFlavor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -150,16 +146,17 @@ public class Node {
     /**
      * @return the unique ID of this node.
      */
-    public UUID getNodeID() {
-        return nodeID;
+    public String getUniqueID() {
+        return nodeID.toString();
     }
 
     /**
      * @param name the new name of this node.
+     * @throws IllegalArgumentException if the new name is already used by a sibling.
      */
     public void setName(String name) {
         if(isNameUsedBySibling(name)) {
-            return;
+            throw new IllegalArgumentException("Name "+name+" is already used by a sibling.");
         }
         this.name = name;
         fireRenameEvent(this);
@@ -467,7 +464,7 @@ public class Node {
         while(!toScan.isEmpty()) {
             Node node = toScan.remove(0);
             if(type.isInstance(node)) {
-                if(node.getNodeID().toString().equals(nodeID)) {
+                if(node.getUniqueID().toString().equals(nodeID)) {
                     return type.cast(node);
                 }
             }
@@ -489,10 +486,13 @@ public class Node {
 
         String[] parts = target.split("/");
         Node node = this;
+        int i=0;
         if(parts[0].isEmpty()) {
             node = getRootNode();
+            ++i;
         }
-        for(String part : parts) {
+        for(;i<parts.length;++i) {
+            String part = parts[i];
             if(part.equals("..")) {
                 node = node.getParent();
             } else if(part.equals(".")) {
