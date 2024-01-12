@@ -63,7 +63,7 @@ public class Material extends Node {
             textureChooserDialog.setSelectedItem(texture);
             int result = textureChooserDialog.run(pane);
             if(result == JFileChooser.APPROVE_OPTION) {
-                texture = textureChooserDialog.getSelectedItem();
+                setTexture(textureChooserDialog.getSelectedItem());
                 setTextureButtonLabel(button);
             }
         });
@@ -118,6 +118,10 @@ public class Material extends Node {
 
         super.getComponents(list);
 
+    }
+
+    public void setTexture(TextureWithMetadata selectedItem) {
+        texture = selectedItem;
     }
 
     private JComponent createShininessSlider() {

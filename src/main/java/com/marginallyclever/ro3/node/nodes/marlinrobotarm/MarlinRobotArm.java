@@ -259,11 +259,11 @@ public class MarlinRobotArm extends Node {
         return "M114"+getMotorsAndFeedrateAsString();
     }
 
-    private Limb getLimb() {
+    public Limb getLimb() {
         return limb.getSubject();
     }
 
-    private LimbSolver getSolver() {
+    public LimbSolver getSolver() {
         return solver.getSubject();
     }
 
@@ -482,5 +482,23 @@ public class MarlinRobotArm extends Node {
         for(MarlinListener listener : listeners.getListeners(MarlinListener.class)) {
             listener.messageFromMarlin(message);
         }
+    }
+
+    /**
+     * Set the limb to be controlled by this instance.
+     * limb must be in the same node tree as this instance.
+     * @param limb the limb to control
+     */
+    public void setLimb(Limb limb) {
+        this.limb.setRelativePath(this,limb);
+    }
+
+    /**
+     * Set the solver to be used by this instance.
+     * solver must be in the same node tree as this instance.
+     * @param solver the solver to use
+     */
+    public void setSolver(LimbSolver solver) {
+        this.solver.setRelativePath(this, solver);
     }
 }

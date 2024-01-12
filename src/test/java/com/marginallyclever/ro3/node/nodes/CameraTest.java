@@ -9,8 +9,7 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless environment")
-public class TestCamera {
+public class CameraTest {
     @Test
     public void testPanTiltInverses() {
         Registry.start();
@@ -22,8 +21,7 @@ public class TestCamera {
                 Matrix3d panTiltMatrix = camera.buildPanTiltMatrix(before);
                 Matrix4d matrix = new Matrix4d(panTiltMatrix, new Vector3d(), 1.0);
                 double[] after = camera.getPanTiltFromMatrix(matrix);
-
-                System.out.println("before="+before[0]+","+before[1]+" after="+after[0]+","+after[1]);
+                //System.out.println("before="+before[0]+","+before[1]+" after="+after[0]+","+after[1]);
                 Assertions.assertArrayEquals(before, after, 0.01);
             }
         }

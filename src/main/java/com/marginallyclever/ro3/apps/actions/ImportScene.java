@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.security.InvalidParameterException;
 import java.util.Objects;
 
 /**
@@ -36,6 +37,7 @@ public class ImportScene extends AbstractAction {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
+        if( chooser == null ) throw new InvalidParameterException("file chooser cannot be null");
         chooser.setFileFilter(RO3Frame.FILE_FILTER);
         
         Component source = (Component) e.getSource();

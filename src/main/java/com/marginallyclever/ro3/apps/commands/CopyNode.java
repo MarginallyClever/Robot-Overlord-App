@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotUndoException;
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.util.List;
@@ -20,10 +22,12 @@ public class CopyNode extends AbstractUndoableEdit {
     private final Logger logger = LoggerFactory.getLogger(com.marginallyclever.ro3.apps.actions.CopyNode.class);
     private final List<Node> selection;
     private final Transferable before;
+    private final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+
     public CopyNode(List<Node> selection) {
         super();
         this.selection = selection;
-        this.before = Registry.clipboard.getContents(null);
+        this.before = clipboard.getContents(null);
         execute();
     }
 
@@ -48,7 +52,7 @@ public class CopyNode extends AbstractUndoableEdit {
         jsonWrapper.put("copied",list);
         // store the json in the clipboard.
         StringSelection stringSelection = new StringSelection(jsonWrapper.toString());
-        Registry.clipboard.setContents(stringSelection, null);
+        clipboard.setContents(stringSelection, null);
     }
 
     @Override
@@ -58,6 +62,6 @@ public class CopyNode extends AbstractUndoableEdit {
     }
 
     public void reverse() {
-        Registry.clipboard.setContents(before, null);
+        clipboard.setContents(before, null);
     }
 }

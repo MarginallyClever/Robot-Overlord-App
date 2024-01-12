@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.RO3Frame;
 import com.marginallyclever.ro3.apps.RecentFilesMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.util.Objects;
 
 /**
@@ -54,6 +56,9 @@ public class SaveAsScene extends AbstractAction {
     }
 
     private String askUserForDestinationPath(Component source) {
+        if( chooser == null ) throw new InvalidParameterException("file chooser cannot be null");
+        chooser.setFileFilter(RO3Frame.FILE_FILTER);
+
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
 
         int response;

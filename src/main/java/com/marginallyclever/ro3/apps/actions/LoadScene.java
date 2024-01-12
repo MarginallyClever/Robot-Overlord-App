@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.apps.actions;
 
+import com.marginallyclever.ro3.apps.RO3Frame;
 import com.marginallyclever.ro3.apps.UndoSystem;
 import com.marginallyclever.ro3.apps.RecentFilesMenu;
 import com.marginallyclever.ro3.Registry;
@@ -76,6 +77,7 @@ public class LoadScene extends AbstractAction {
 
     private File runFileDialog(Component source) {
         if( chooser == null ) throw new InvalidParameterException("file chooser cannot be null");
+        chooser.setFileFilter(RO3Frame.FILE_FILTER);
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
         if (chooser.showOpenDialog(parentFrame) == JFileChooser.APPROVE_OPTION) {
             return chooser.getSelectedFile();

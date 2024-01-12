@@ -48,6 +48,11 @@ public class LimbSolver extends Node {
         return target.getSubject();
     }
 
+    /**
+     * Set the target to move towards.
+     * target must be in the same node tree as this instance.
+     * @param target the target to move towards
+     */
     public void setTarget(Pose target) {
         this.target.setRelativePath(this,target);
     }
@@ -77,6 +82,11 @@ public class LimbSolver extends Node {
         return limb.getSubject();
     }
 
+    /**
+     * Set the limb to be controlled by this instance.
+     * limb must be in the same node tree as this instance.
+     * @param limb the limb to control
+     */
     public void setLimb(Limb limb) {
         this.limb.setRelativePath(this,limb);
     }
@@ -86,11 +96,18 @@ public class LimbSolver extends Node {
         return limb!=null ? limb.getEndEffector() : null;
     }
 
+    /**
+     * @return true if the solver has a limb, an end effector, and a target.  Does not guarantee that a solution exists.
+     */
+    public boolean readyToSolve() {
+        return getLimb()!=null && getEndEffector()!=null && getTarget()!=null;
+    }
+
     private void moveTowardsTarget() {
-        if(getLimb()==null || getEndEffector()==null || getTarget()==null ) {
-            // no limb, no end effector, or no target.  Do nothing.
+        if(!readyToSolve()) {
             return;
         }
+
         if(linearVelocity<0.0001) {
             // no velocity.  Make sure the arm doesn't drift.
             getLimb().setAllJointVelocities(new double[getLimb().getNumJoints()]);

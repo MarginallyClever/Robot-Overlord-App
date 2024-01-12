@@ -178,16 +178,32 @@ public class DHParameter extends Node {
         if(from.has("alpha")) alpha = from.getDouble("alpha");
     }
 
+    public void setD(double d) {
+        this.d = d;
+    }
+
     public double getD() {
         return d;
+    }
+
+    public void setR(double r) {
+        this.r = r;
     }
 
     public double getR() {
         return r;
     }
 
+    public void setAlpha(double alpha) {
+        this.alpha = alpha;
+    }
+
     public double getAlpha() {
         return alpha;
+    }
+
+    public void setTheta(double theta) {
+        this.theta = theta;
     }
 
     public double getTheta() {

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 
 import java.io.*;
+import java.security.InvalidParameterException;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -42,6 +43,7 @@ public class ExportScene extends AbstractAction {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
+        if( chooser == null ) throw new InvalidParameterException("file chooser cannot be null");
         chooser.setFileFilter(ZIP_FILTER);
         Component source = (Component) e.getSource();
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);

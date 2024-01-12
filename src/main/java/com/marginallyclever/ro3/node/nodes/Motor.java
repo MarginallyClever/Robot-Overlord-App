@@ -35,13 +35,6 @@ public class Motor extends Node {
         }
     }
 
-    private HingeJoint addHinge() {
-        HingeJoint hinge = new HingeJoint("Motor Hinge");
-        Node parent = getParent();
-        if(parent!=null) parent.addChild(hinge);
-        return hinge;
-    }
-
     @Override
     public void getComponents(List<JPanel> list) {
         JPanel pane = new JPanel(new GridLayout(0,2));
@@ -83,6 +76,10 @@ public class Motor extends Node {
         return hinge.getSubject();
     }
 
+    /**
+     * Set the hinge this motor will drive.  the hinge must be in the same node tree as this motor.
+     * @param hinge the hinge this motor will drive.
+     */
     public void setHinge(HingeJoint hinge) {
         this.hinge.setRelativePath(this, hinge);
     }
