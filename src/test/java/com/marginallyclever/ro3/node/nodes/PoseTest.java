@@ -17,7 +17,7 @@ class PoseTest {
     }
 
     @Test
-    void testGetSetWorld1() {
+    void testGetSetWorld() {
         Pose a = new Pose();
         Pose b = new Pose();
         a.addChild(b);
@@ -41,6 +41,9 @@ class PoseTest {
         assertEquals(matrix, b.getWorld());
         matrix.setTranslation(new Vector3d(0,0,0));
         assertEquals(matrix, b.getLocal());
+
+        a.setWorld(matrix);
+        assertEquals(matrix,a.getLocal());
     }
 
     @Test
@@ -63,5 +66,19 @@ class PoseTest {
         Assertions.assertEquals(vector.x, result.x,1e-4);
         Assertions.assertEquals(vector.y, result.y,1e-4);
         Assertions.assertEquals(vector.z, result.z,1e-4);
+    }
+
+    @Test
+    public void toAndFromJSON() {
+        Pose pose = new Pose();
+        pose.setName("Test");
+        pose.setPosition(new Vector3d(1,2,3));
+        pose.setRotationEuler(new Vector3d(4,5,6),MatrixHelper.EulerSequence.XYZ);
+        var json = pose.toJSON();
+        Pose pose2 = new Pose();
+        pose2.fromJSON(json);
+        assertEquals(pose.getName(),pose2.getName());
+        assertEquals(pose.getPosition(),pose2.getPosition());
+        assertEquals(pose.getRotationEuler(MatrixHelper.EulerSequence.XYZ),pose2.getRotationEuler(MatrixHelper.EulerSequence.XYZ));
     }
 }
