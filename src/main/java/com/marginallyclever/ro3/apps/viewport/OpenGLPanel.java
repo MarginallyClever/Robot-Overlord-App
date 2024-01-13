@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.event.*;
 import java.awt.*;
+import java.util.prefs.Preferences;
 
 /**
  * {@link OpenGLPanel} manages a {@link GLJPanel} and an {@link FPSAnimator}.
@@ -22,11 +23,13 @@ public class OpenGLPanel extends App implements GLEventListener, MouseListener, 
     private boolean doubleBuffered = true;
     private int fsaaSamples = 2;
     private boolean verticalSync = true;
-    private final int fps = 30;
+    private int fps = 30;
     private final FPSAnimator animator = new FPSAnimator(fps);
 
     public OpenGLPanel() {
         super(new BorderLayout());
+
+        loadPrefs();
 
         try {
             logger.info("availability="+ GLProfile.glAvailabilityToString());
@@ -39,6 +42,24 @@ public class OpenGLPanel extends App implements GLEventListener, MouseListener, 
         add(glCanvas, BorderLayout.CENTER);
         animator.add(glCanvas);
         animator.start();
+    }
+
+    private void loadPrefs() {
+        Preferences pref = Preferences.userNodeForPackage(this.getClass());
+        hardwareAccelerated = pref.getBoolean("hardwareAccelerated",true);
+        doubleBuffered = pref.getBoolean("doubleBuffered",true);
+        fsaaSamples = pref.getInt("fsaaSamples",2);
+        verticalSync = pref.getBoolean("verticalSync",true);
+        fps = pref.getInt("fps",30);
+    }
+
+    public void savePrefs() {
+        Preferences pref = Preferences.userNodeForPackage(this.getClass());
+        pref.putBoolean("hardwareAccelerated",hardwareAccelerated);
+        pref.putBoolean("doubleBuffered",doubleBuffered);
+        pref.putInt("fsaaSamples",fsaaSamples);
+        pref.putBoolean("verticalSync",verticalSync);
+        pref.putInt("fps",fps);
     }
 
     @Override

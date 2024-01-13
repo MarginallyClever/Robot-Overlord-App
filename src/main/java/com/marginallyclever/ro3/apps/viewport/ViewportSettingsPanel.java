@@ -95,6 +95,16 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
         inclination.setPreferredSize(new Dimension(100,100));
     }
 
+    @Override
+    public void removeNotify() {
+        super.removeNotify();
+
+        if(subject!=null) subject.savePrefs();
+
+        var dm = getDrawMeshes();
+        if(dm!=null) dm.savePrefs();
+    }
+
     private void setSunColor(Color color) {
         var dm = getDrawMeshes();
         if(dm==null) return;
