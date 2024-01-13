@@ -12,7 +12,7 @@ class LimbSolverTest {
         Pose pose = new Pose();
         limbSolver.addChild(pose);
         limbSolver.setTarget(pose);
-        assertEquals(pose, limbSolver.getTarget());
+        assertEquals(pose, limbSolver.getTarget().getSubject());
     }
 
     @Test
@@ -28,7 +28,7 @@ class LimbSolverTest {
         Limb limb = new Limb();
         limbSolver.addChild(limb);
         limbSolver.setLimb(limb);
-        assertEquals(limb, limbSolver.getLimb());
+        assertEquals(limb, limbSolver.getLimb().getSubject());
     }
 
     @Test

@@ -43,7 +43,7 @@ class MarlinRobotArmTest {
         limb.addChild(limbSolver);
         marlinRobotArm.setLimb(limb);
         marlinRobotArm.setSolver(limbSolver);
-        assertEquals(limb, marlinRobotArm.getLimb());
-        assertEquals(limbSolver, marlinRobotArm.getSolver());
+        assertEquals(limb, marlinRobotArm.getLimb().getSubject());
+        assertEquals(limbSolver, marlinRobotArm.getSolver().getSubject());
     }
 }

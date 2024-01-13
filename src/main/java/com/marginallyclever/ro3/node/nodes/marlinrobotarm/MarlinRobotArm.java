@@ -129,27 +129,29 @@ public class MarlinRobotArm extends Node {
     }
 
     private String getMotorsAndFeedrateAsString() {
-        if(getLimb()==null) return "";
+        var myLimb = limb.getSubject();
+        if(myLimb==null) return "";
         StringBuilder sb = new StringBuilder();
-        for(NodePath<Motor> paths : getLimb().getSubject().getMotors()) {
+        for(NodePath<Motor> paths : myLimb.getMotors()) {
             Motor motor = paths.getSubject();
             if(motor!=null && motor.hasHinge()) {
                 sb.append(" ")
-                        .append(motor.getName())
-                        .append(StringHelper.formatDouble(motor.getHinge().getAngle()));
+                  .append(motor.getName())
+                  .append(StringHelper.formatDouble(motor.getHinge().getAngle()));
             }
         }
         // gripper motor
         Motor gripperMotor = this.gripperMotor.getSubject();
         if(gripperMotor!=null && gripperMotor.hasHinge()) {
             sb.append(" ")
-                    .append(gripperMotor.getName())
-                    .append(StringHelper.formatDouble(gripperMotor.getHinge().getAngle()));
+              .append(gripperMotor.getName())
+              .append(StringHelper.formatDouble(gripperMotor.getHinge().getAngle()));
         }
 
         if(getSolver()!=null) {
             // feedrate
-            sb.append(" F").append(StringHelper.formatDouble(getSolver().getSubject().getLinearVelocity()));
+            sb.append(" F")
+              .append(StringHelper.formatDouble(getSolver().getSubject().getLinearVelocity()));
         }
 
         return sb.toString();

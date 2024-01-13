@@ -41,4 +41,8 @@ public class NodePath<T extends Node> {
     public T getSubject() {
         return owner.getRootNode().findNodeByID(uniqueID,type);
     }
+
+    public Class<T> getType() {
+        return type;
+    }
 }

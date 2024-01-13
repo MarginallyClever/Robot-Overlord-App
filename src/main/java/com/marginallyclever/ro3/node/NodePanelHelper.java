@@ -54,9 +54,8 @@ public class NodePanelHelper {
     public static <T extends Node> NodeSelector<T> addNodeSelector(JPanel pane,
                                                                    String label,
                                                                    NodePath<T> nodePath,
-                                                                   Class<T> clazz,
                                                                    GridBagConstraints gbc) {
-        NodeSelector<T> selector = new NodeSelector<>(clazz, nodePath.getSubject());
+        NodeSelector<T> selector = new NodeSelector<>(nodePath.getType(), nodePath.getSubject());
         selector.addPropertyChangeListener("subject", (e) -> {
             nodePath.setUniqueIDByNode((T)e.getNewValue());
         });
