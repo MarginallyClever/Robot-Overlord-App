@@ -9,8 +9,6 @@ import java.util.List;
 
 /**
  * A line in a {@link GraphModel}.
- * @author Dan Royer
- * @since 2.10.0
  */
 public class GraphLine {
     private final List<Point2D> points = new ArrayList<>();

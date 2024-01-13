@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Makes a deep copy of the selected {@link Entity}.
  */
-public class EntityCopyAction extends AbstractAction implements EditorAction {
+@Deprecated public class EntityCopyAction extends AbstractAction implements EditorAction {
     private final EntityManager entityManager;
 
     public EntityCopyAction(EntityManager entityManager) {

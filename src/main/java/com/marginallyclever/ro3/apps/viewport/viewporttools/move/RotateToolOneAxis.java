@@ -9,6 +9,7 @@ import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.shapes.Box;
+import com.marginallyclever.ro3.mesh.shapes.CircleXY;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
@@ -27,8 +28,6 @@ import java.util.List;
 /**
  * A tool to rotate {@link Pose} nodes in the {@link Viewport}.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class RotateToolOneAxis implements ViewportTool {
     private static final Logger logger = LoggerFactory.getLogger(RotateToolOneAxis.class);
@@ -100,12 +99,14 @@ public class RotateToolOneAxis implements ViewportTool {
     private final ColorRGB color;
     private final Mesh markerMesh = new Mesh();
     private final Mesh angleMesh = new Mesh();
+    private final Mesh ringMesh = new CircleXY();
 
     public RotateToolOneAxis(ColorRGB color) {
         super();
         this.color = color;
         buildMarkerMesh();
         buildAngleMesh();
+        ringMesh.setRenderStyle(GL3.GL_LINE_LOOP);
     }
 
     private void buildAngleMesh() {
@@ -235,19 +236,19 @@ public class RotateToolOneAxis implements ViewportTool {
             case 2 -> rot.rotZ(rotationAngle);
         }
 
-        Vector3d pivotTranslation = MatrixHelper.getPosition(startMatrix);
+        Vector3d position = MatrixHelper.getPosition(startMatrix);
 
         for (Node node : selectedItems.getNodes()) {
             if(!(node instanceof Pose pc)) continue;
             Matrix4d pose = new Matrix4d(selectedItems.getWorldPoseAtStart(node));
 
-            pose.m03 -= pivotTranslation.x;
-            pose.m13 -= pivotTranslation.y;
-            pose.m23 -= pivotTranslation.z;
+            pose.m03 -= position.x;
+            pose.m13 -= position.y;
+            pose.m23 -= position.z;
             pose.mul(rot);
-            pose.m03 += pivotTranslation.x;
-            pose.m13 += pivotTranslation.y;
-            pose.m23 += pivotTranslation.z;
+            pose.m03 += position.x;
+            pose.m13 += position.y;
+            pose.m23 += position.z;
 
             pc.setWorld(pose);
         }
@@ -389,15 +390,21 @@ public class RotateToolOneAxis implements ViewportTool {
 
     private void drawMainRingAndHandles(GL3 gl,ShaderProgram shaderProgram) {
         Matrix4d m = new Matrix4d(pivotMatrix);
-        m.transpose();
-        shaderProgram.setMatrix4d(gl,"modelMatrix",m);
+
+        Matrix4d scale = MatrixHelper.createScaleMatrix4(getRingRadiusScaled());
+        scale.mul(m,scale);
+        scale.transpose();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",scale);
 
         float colorScale = cursorOverHandle ? 1:0.5f;
         float red   = color.red   * colorScale / 255f;
         float green = color.green * colorScale / 255f;
         float blue  = color.blue  * colorScale / 255f;
         shaderProgram.set4f(gl, "objectColor", red, green, blue, 1.0f);
-        PrimitiveSolids.drawCircleXY(gl, getRingRadiusScaled(), ringResolution).render(gl);
+        ringMesh.render(gl,1,360);
+
+        m.transpose();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",m);
 
         Matrix4d m2 = MatrixHelper.createScaleMatrix4(getGripRadiusScaled());
         m2.m03 = getHandleLengthScaled();
@@ -478,5 +485,6 @@ public class RotateToolOneAxis implements ViewportTool {
     public void dispose(GL3 gl3) {
         handleBox.unload(gl3);
         markerMesh.unload(gl3);
+        ringMesh.unload(gl3);
     }
 }

@@ -8,10 +8,9 @@ import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
  * {@link com.marginallyclever.robotoverlord.parameters.IntParameter}s.  This class ensures changing those parameters
  * is undoable.
  *  
- * @author Dan Royer
  *
  */
-public class IntParameterEdit extends AbstractParameterEdit<Integer> {
+@Deprecated public class IntParameterEdit extends AbstractParameterEdit<Integer> {
 	public IntParameterEdit(AbstractParameter<Integer> e, Integer newValue) {
 		super(e, newValue);
 	}

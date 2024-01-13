@@ -11,8 +11,6 @@ import java.nio.charset.StandardCharsets;
  * Loads MTL Material Format files into {@link MaterialComponent}s.  If more than one material is found, all will
  * be loaded, overwriting each other. See also <a href="http://paulbourke.net/dataformats/mtl/">Paul Bourke</a>.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class LoadMTL implements MaterialLoader {
     @Override

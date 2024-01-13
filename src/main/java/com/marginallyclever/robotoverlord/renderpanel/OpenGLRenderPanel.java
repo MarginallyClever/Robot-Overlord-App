@@ -40,9 +40,8 @@ import java.util.*;
 
 /**
  * Encapsulates the OpenGL rendering.
- * @author Dan Royer
  */
-public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
+@Deprecated public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseListener, MouseMotionListener, MouseWheelListener, KeyListener {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLRenderPanel.class);
 
     private final EntityManager entityManager;
@@ -534,7 +533,7 @@ public class OpenGLRenderPanel implements RenderPanel, GLEventListener, MouseLis
         gl.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL3.GL_STENCIL_BUFFER_BIT);
         useShaderDefault(gl);
         // 3D renderpasses
-        if (showWorldOrigin.get()) MatrixHelper.createMesh(10).render(gl);
+        if (showWorldOrigin.get()) MatrixHelper.createMesh().render(gl);
         for(EditorTool tool : editorTools) tool.render(gl,shaderDefault);
         // 2D renderpasses
         compass3d.render(gl,viewport,shaderDefault);

@@ -9,8 +9,6 @@ import jssc.SerialPortList;
 /**
  * Lists available serial connections and opens a connection of that type
  *
- * @author Dan
- * @since v7.1.0.0
  */
 public class SerialTransportLayer implements TransportLayer {
 	private String[] portsDetected;

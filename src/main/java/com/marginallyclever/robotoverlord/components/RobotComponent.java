@@ -21,8 +21,6 @@ import java.util.*;
  * RobotComponent is attached to the root of a robotic arm.
  * It requires that each link in the arm has a {@link PoseComponent} and a {@link DHComponent}.  The end effector
  * must have an {@link ArmEndEffectorComponent}.
- * @author Dan Royer
- * @since 2022-09-14
  */
 @ComponentDependency(components = {PoseComponent.class})
 @Deprecated

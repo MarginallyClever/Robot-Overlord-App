@@ -6,7 +6,6 @@ import java.util.Iterator;
 
 /**
  * Walks a {@link GCodePath}, breaking arcs into line segments.
- * @author Dan Royer
  */
 public class PathWalker {
     private final Iterator<GCodePathElement> iterator;

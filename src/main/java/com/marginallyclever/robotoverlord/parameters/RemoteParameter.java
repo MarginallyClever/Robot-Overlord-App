@@ -21,8 +21,6 @@ import java.util.LinkedList;
  * 
  * See also https://en.wikipedia.org/wiki/Messaging_pattern
  * 
- * @author Dan Royer
- * @since 1.6.0
  *
  */
 @Deprecated

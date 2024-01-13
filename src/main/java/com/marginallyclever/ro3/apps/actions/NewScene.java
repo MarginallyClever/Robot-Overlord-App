@@ -17,9 +17,15 @@ import java.util.Objects;
  */
 public class NewScene extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(NewScene.class);
+    private final SaveScene saveScene;
 
     public NewScene() {
+        this(null);
+    }
+
+    public NewScene(SaveScene saveScene) {
         super();
+        this.saveScene = saveScene;
         putValue(Action.NAME,"New");
         putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-new-16.png"))));
         putValue(SHORT_DESCRIPTION,"Reset the scene to a new empty scene.");
@@ -48,6 +54,8 @@ public class NewScene extends AbstractAction {
 
         Registry.reset();
         Registry.setScene(new Node("Scene"));
+
+        if(saveScene!=null) saveScene.setEnabled(false);
 
         logger.info("done.");
     }

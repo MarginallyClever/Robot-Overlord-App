@@ -8,10 +8,8 @@ import java.io.Serializable;
 
 /**
  * Axially-aligned bounding box.  Used for fast sorting and filtering.
- * @author Dan Royer
- * @since 2.1.0
  */
-public class AABB implements BoundingVolume, Serializable {
+@Deprecated public class AABB implements BoundingVolume, Serializable {
 
 	// pose of this {@link Cuboid} in the world.
 	protected Matrix4d pose = new Matrix4d();

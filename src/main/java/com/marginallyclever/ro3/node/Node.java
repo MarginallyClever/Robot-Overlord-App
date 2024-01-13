@@ -1,8 +1,6 @@
 package com.marginallyclever.ro3.node;
 
-import com.marginallyclever.convenience.PathCalculator;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.nodes.Pose;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -11,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
-import java.awt.datatransfer.DataFlavor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -149,16 +146,17 @@ public class Node {
     /**
      * @return the unique ID of this node.
      */
-    public UUID getNodeID() {
-        return nodeID;
+    public String getUniqueID() {
+        return nodeID.toString();
     }
 
     /**
      * @param name the new name of this node.
+     * @throws IllegalArgumentException if the new name is already used by a sibling.
      */
     public void setName(String name) {
         if(isNameUsedBySibling(name)) {
-            return;
+            throw new IllegalArgumentException("Name "+name+" is already used by a sibling.");
         }
         this.name = name;
         fireRenameEvent(this);
@@ -231,33 +229,6 @@ public class Node {
         return null;
     }
 
-    /**
-     * Find the node in the tree with the given path.
-     * @param path the path to the node.  can be relative or absolute.  understands ".." to go up one level.
-     * @return the node, or null if none found.
-     */
-    public Node get(String path) {
-        String[] parts = path.split("/");
-        Node node = this;
-        int i=0;
-        if(parts[0].isEmpty()) {
-            node = getRootNode();
-            ++i;
-        }
-        for(;i<parts.length;++i) {
-            String part = parts[i];
-            if(part.equals("..")) {
-                node = node.getParent();
-            } else if(!part.equals(".")) {
-                node = node.findChild(part);
-            }
-            if(node == null) {
-                return null;
-            }
-        }
-        return node;
-    }
-
     public Node getRootNode() {
         Node node = this;
         while(node.getParent() != null) {
@@ -313,25 +284,6 @@ public class Node {
     }
 
     /**
-     * A convenience method to add a label and component to a panel that is expected to be built with
-     * <code>new GridLayout(0, 2)</code>.
-     * @param pane the panel to add to
-     * @param labelText the text for the label
-     * @param component the component to add
-     * @param gbc the GridBagConstraints to use
-     */
-    protected void addLabelAndComponent(JPanel pane, String labelText, JComponent component, GridBagConstraints gbc) {
-        JLabel label = new JLabel(labelText);
-        label.setLabelFor(component);
-        gbc.gridwidth=1;
-        gbc.gridx=0;
-        pane.add(label,gbc);
-        gbc.gridx=1;
-        pane.add(component,gbc);
-        gbc.gridy++;
-    }
-
-    /**
      * Called every frame.
      * @param dt the time since the last frame.
      */
@@ -346,18 +298,7 @@ public class Node {
      * @param list the list to add components to.
      */
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridLayout(0,2));
-        list.add(pane);
-        pane.setName(Node.class.getSimpleName());
-
-        JTextField nameField = new JTextField(getName());
-        nameField.addActionListener(e -> {
-            // should not be allowed to match siblings?
-            setName(nameField.getText());
-        });
-        nameField.setEditable(false);
-
-        addLabelAndComponent(pane,"Name",nameField);
+        list.add(new NodePanel(this));
     }
 
     /**
@@ -375,20 +316,6 @@ public class Node {
             }
         }
         return false;
-    }
-
-    /**
-     * A convenience method to add a label and component to a panel that is expected to be built with
-     * <code>new GridLayout(0, 2)</code>.
-     * @param pane the panel to add to
-     * @param labelText the text for the label
-     * @param component the component to add
-     */
-    protected void addLabelAndComponent(JPanel pane, String labelText, JComponent component) {
-        JLabel label = new JLabel(labelText);
-        label.setLabelFor(component);
-        pane.add(label);
-        pane.add(component);
     }
 
     /**
@@ -457,10 +384,14 @@ public class Node {
         }
     }
 
-    public boolean hasParent(Node beingMoved) {
+    /**
+     * @param subject the node to search for
+     * @return true if the given node is a parent of this node.
+     */
+    public boolean hasParent(Node subject) {
         Node p = parent;
         while(p != null) {
-            if(p == beingMoved) {
+            if(p == subject) {
                 return true;
             }
             p = p.getParent();
@@ -495,7 +426,7 @@ public class Node {
         while(!toScan.isEmpty()) {
             Node node = toScan.remove(0);
             if(type.isInstance(node)) {
-                if(node.getNodeID().toString().equals(nodeID)) {
+                if(node.getUniqueID().toString().equals(nodeID)) {
                     return type.cast(node);
                 }
             }
@@ -517,10 +448,13 @@ public class Node {
 
         String[] parts = target.split("/");
         Node node = this;
+        int i=0;
         if(parts[0].isEmpty()) {
             node = getRootNode();
+            ++i;
         }
-        for(String part : parts) {
+        for(;i<parts.length;++i) {
+            String part = parts[i];
             if(part.equals("..")) {
                 node = node.getParent();
             } else if(part.equals(".")) {
@@ -536,5 +470,14 @@ public class Node {
             return type.cast(node);
         }
         return null;
+    }
+
+    /**
+     * Find the node in the tree with the given path.
+     * @param path the path to the node.  can be relative or absolute.  understands ".." to go up one level.
+     * @return the node, or null if none found.
+     */
+    public Node findByPath(String path) {
+        return findNodeByPath(path,Node.class);
     }
 }

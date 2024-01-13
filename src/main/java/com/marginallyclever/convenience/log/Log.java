@@ -17,7 +17,6 @@ import java.util.Set;
 
 /**
  * static log methods available everywhere
- * @author Dan Royer
  * See org.slf4j.Logger
  */
 public class Log {

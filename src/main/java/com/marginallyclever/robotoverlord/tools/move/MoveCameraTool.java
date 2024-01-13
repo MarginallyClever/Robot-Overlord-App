@@ -21,7 +21,7 @@ import java.util.List;
  * Hold the SHIFT key to move the camera in the XY plane (strafe aka truck/pedestal relative to camera).
  * Hold the CTRL key to move the camera in the Z direction (dolly).
  */
-public class MoveCameraTool implements EditorTool {
+@Deprecated public class MoveCameraTool implements EditorTool {
     private Viewport viewport;
 
     /**

@@ -8,8 +8,6 @@ import javax.vecmath.Vector3d;
 /**
  * A tool to build normals for a mesh.
  *
- * @author Dan Royer
- * @since 1.7.1
  */
 @Deprecated
 public class MeshNormalBuilder {

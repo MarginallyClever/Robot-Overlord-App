@@ -16,8 +16,6 @@ import javax.vecmath.Point3d;
 
 /**
  * A {@link RenderComponent} that uses a {@link PathWalker} to systems a {@link GCodePath}.
- * @author Dan Royer
- * @since 2.5.0
  */
 @ComponentDependency(components = {PoseComponent.class})
 @Deprecated
@@ -44,7 +42,7 @@ public class GCodePathComponent extends ShapeComponent implements WalkablePath<P
         myMesh.render(gl);
 
         if(location!=null) {
-            MatrixHelper.createMesh(location,3).render(gl);
+            MatrixHelper.createMesh().render(gl);
         }
 
         OpenGLHelper.disableTextureEnd(gl,tex);

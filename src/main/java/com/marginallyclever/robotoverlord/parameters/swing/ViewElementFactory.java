@@ -10,8 +10,6 @@ import java.util.List;
 
 /**
  * A factory that translates an {@link AbstractParameter} into a {@link ViewElement}.
- * @author Dan Royer
- * @since 2.6.3
  */
 @Deprecated public class ViewElementFactory {
 	private final EntityManager entityManager;

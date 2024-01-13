@@ -18,8 +18,6 @@ import java.net.URL;
 
 /**
  * SSH TCP/IP connection to a Raspberry Pi and then open a picocom session to /dev/ttyACM0
- * @author Dan Royer 
- * @since 1.6.0 (2020-04-08)
  */
 public final class TCPSession extends SessionLayer implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(TCPSession.class);

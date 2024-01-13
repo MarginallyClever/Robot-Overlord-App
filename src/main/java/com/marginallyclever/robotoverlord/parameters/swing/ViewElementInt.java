@@ -17,7 +17,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Panel to alter a number parameter.  There is no way at present to limit the input options (range, step size, etc)
- * @author Dan Royer
  *
  */
 @Deprecated public class ViewElementInt extends ViewElement implements DocumentListener, PropertyChangeListener {

@@ -15,7 +15,6 @@ import java.util.ArrayList;
 
 /**
  * A connection selection dialog and a {@link TextInterfaceWithHistory} glued to a {@link SessionLayer}.
- * @author Dan Royer
  */
 public class TextInterfaceToSessionLayer extends App implements SessionLayerListener {
 	private final ChooseConnectionPanel myConnectionChoice = new ChooseConnectionPanel();

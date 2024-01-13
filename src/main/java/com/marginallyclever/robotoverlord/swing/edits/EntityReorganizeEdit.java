@@ -13,10 +13,9 @@ import java.util.Map;
 
 /**
  * An undoable action to move one or more {@link Entity} from one parent to another.
- * @author Dan Royer
  *
  */
-public class EntityReorganizeEdit extends AbstractUndoableEdit {
+@Deprecated public class EntityReorganizeEdit extends AbstractUndoableEdit {
 	private final EntityManager entityManager;
 	private final Map<Entity,Entity> childParent = new HashMap<>();
 	private final Entity newParent;

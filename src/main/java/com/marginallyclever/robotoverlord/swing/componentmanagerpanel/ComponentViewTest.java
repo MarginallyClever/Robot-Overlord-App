@@ -15,8 +15,6 @@ import java.awt.*;
 
 /**
  * View a single {@link Component} and any components upon which it depends.
- * @author Dan Royer
- * @since 2023-10-15
  */
 @Deprecated
 public class ComponentViewTest extends JPanel {

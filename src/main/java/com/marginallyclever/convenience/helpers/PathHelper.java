@@ -8,8 +8,6 @@ import java.io.File;
 
 /**
  * Utility functions for working with the local file system.
- * @author Dan Royer
- * @since 2.5.0
  */
 public class PathHelper {
     private static final Logger logger = LoggerFactory.getLogger(PathHelper.class);

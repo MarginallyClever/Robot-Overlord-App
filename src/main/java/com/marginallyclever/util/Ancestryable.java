@@ -4,11 +4,9 @@ import java.util.Map;
 import java.util.prefs.Preferences;
 
 /**
- * @author Peter Colapietro
- * @since v7.1.4
+ * TODO add description
  */
 public interface Ancestryable {
-
   /**
    * @return ??
    */
@@ -18,5 +16,4 @@ public interface Ancestryable {
    * @return ??
    */
   Map<String, String> getRoot();
-
 }

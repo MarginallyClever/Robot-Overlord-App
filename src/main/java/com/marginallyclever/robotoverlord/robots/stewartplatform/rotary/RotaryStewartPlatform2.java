@@ -5,8 +5,6 @@ import com.marginallyclever.robotoverlord.components.shapes.MeshFromFile;
 /**
  * a rotary stewart platform is a 6DOF robot that can move in X, Y, Z, and rotate around X, Y, Z.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @Deprecated
 public class RotaryStewartPlatform2 extends RotaryStewartPlatform {

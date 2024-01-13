@@ -52,15 +52,23 @@ public class ImportScene extends AbstractUndoableEdit {
 
         logger.info("Import scene from {}",selectedFile.getAbsolutePath());
 
+        // do it!
+        String newCWD = selectedFile.getParent() + File.separator;
+        String oldCWD = System.getProperty("user.dir");
+        System.setProperty("user.dir",newCWD);
+
         try {
             String content = new String(Files.readAllBytes(Paths.get(selectedFile.getAbsolutePath())));
-            // Add the loaded scene to the current scene.
+            // if the json is bad, this will throw an exception before removing the previous scene.
             var jsonObject = new JSONObject(content);
+            // Add the loaded scene to the current scene.
             created = createFromJSON(jsonObject);
             Registry.getScene().addChild(created);
         } catch (IOException e) {
             logger.error("Error loading scene from JSON", e);
         }
+
+        System.setProperty("user.dir",oldCWD);
         logger.info("done.");
     }
 

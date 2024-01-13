@@ -6,8 +6,6 @@ import com.marginallyclever.robotoverlord.robots.Robot;
  * A Presentation Layer in the OSI model is responsible for presenting data to the user.
  * This factory creates a Presentation Layer for a specific robot.
  *
- * @author Dan Royer
- * @since 2.5.6
  */
 @Deprecated
 public class PresentationFactory {

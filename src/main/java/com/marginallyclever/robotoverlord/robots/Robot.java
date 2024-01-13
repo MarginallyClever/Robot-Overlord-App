@@ -6,8 +6,6 @@ import java.beans.PropertyChangeListener;
 
 /**
  * An attempt to unify the interface for all robots.
- * @author Dan Royer
- * @since 2022-05-12
  */
 @Deprecated
 public interface Robot {

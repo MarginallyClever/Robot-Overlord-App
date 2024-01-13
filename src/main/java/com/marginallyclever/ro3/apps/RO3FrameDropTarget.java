@@ -2,7 +2,7 @@ package com.marginallyclever.ro3.apps;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.commands.ImportScene;
-import com.marginallyclever.ro3.node.nodes.MeshInstance;
+import com.marginallyclever.ro3.node.nodes.pose.MeshInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,6 +72,7 @@ public class RO3FrameDropTarget extends DropTargetAdapter {
             return false;
         }
 
+        // TODO make this a command that can be undone.
         MeshInstance meshInstance = new MeshInstance(getFilenameWithoutExtensionFromPath(absolutePath));
         meshInstance.setMesh(Registry.meshFactory.load(absolutePath));
         Registry.getScene().addChild(meshInstance);
@@ -82,8 +83,8 @@ public class RO3FrameDropTarget extends DropTargetAdapter {
     private boolean importScene(File file) {
         logger.debug("drag importScene {}",file);
         try {
-            ImportScene importScene = new ImportScene(file);
-            importScene.execute();
+            var imported = new ImportScene(file);
+            UndoSystem.addEvent(imported);
         } catch (Exception e) {
             logger.error("Error importing scene",e);
             return false;

@@ -2,6 +2,10 @@ package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.actions.LoadScene;
+import com.marginallyclever.ro3.node.nodes.limbsolver.ApproximateJacobian;
+import com.marginallyclever.ro3.node.nodes.limbsolver.ApproximateJacobianFiniteDifferences;
+import com.marginallyclever.ro3.node.nodes.limbsolver.ApproximateJacobianScrewTheory;
+import com.marginallyclever.ro3.node.nodes.pose.Limb;
 import org.junit.jupiter.api.*;
 
 import java.io.File;
@@ -10,8 +14,6 @@ import java.util.Arrays;
 /**
  * Checking if Approximate jacobians are commutative.  This test is ignored because they are not.
  *
- * @since 2.6.1
- * @author Dan Royer
  */
 public class ApproximateJacobianTest {
     @BeforeEach
@@ -19,13 +21,11 @@ public class ApproximateJacobianTest {
         Registry.start();
     }
 
-    private MarlinRobotArm build6AxisArm() throws Exception {
-        // TODO load a robot from a file.
+    private Limb build6AxisArm() throws Exception {
         var load = new LoadScene(null,null);
-        // find file {project root}/src/test/resources/com/marginallyclever/ro3/apps/node/nodes/marlinrobotarm/Sixi3-5.RO
         File file = new File("src/test/resources/com/marginallyclever/ro3/apps/node/nodes/marlinrobotarm/Sixi3-5.RO");
         load.commitLoad(file);
-        return (MarlinRobotArm) Registry.getScene().get("./Sixi3/MarlinRobotArm");
+        return (Limb) Registry.getScene().findByPath("./Sixi3/MarlinRobotArm");
     }
 
     /**
@@ -35,7 +35,7 @@ public class ApproximateJacobianTest {
     @Test
     @Disabled
     public void compare() throws Exception {
-        MarlinRobotArm robot = build6AxisArm();
+        Limb robot = build6AxisArm();
         ApproximateJacobian finite = new ApproximateJacobianFiniteDifferences(robot);
         ApproximateJacobian screw = new ApproximateJacobianScrewTheory(robot);
 

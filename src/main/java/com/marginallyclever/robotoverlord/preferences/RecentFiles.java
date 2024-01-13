@@ -10,8 +10,6 @@ import java.util.prefs.Preferences;
 /**
  * Save and load a list of recently opened files to/from Preferences
  *
- * @author Dan Royer
- * @since 2.5
  */
 @Deprecated
 public class RecentFiles {

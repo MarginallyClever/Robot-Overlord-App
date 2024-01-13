@@ -1,12 +1,10 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.node.NodePath;
 import org.json.JSONObject;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.List;
 
 /**
@@ -34,33 +32,17 @@ public class Motor extends Node {
         }
     }
 
-    private HingeJoint addHinge() {
-        HingeJoint hinge = new HingeJoint("Motor Hinge");
-        Node parent = getParent();
-        if(parent!=null) parent.addChild(hinge);
-        return hinge;
-    }
-
     @Override
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridLayout(0,2));
-        list.add(pane);
-        pane.setName(Motor.class.getSimpleName());
-
-        NodeSelector<HingeJoint> selector = new NodeSelector<>(HingeJoint.class,hinge.getSubject());
-        selector.addPropertyChangeListener("subject", (evt) ->{
-            hinge.setRelativePath(this,selector.getSubject());
-        });
-        addLabelAndComponent(pane, "Hinge", selector);
-
+        list.add(new MotorPanel(this));
         super.getComponents(list);
     }
 
     @Override
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
-        json.put("version",1);
-        if(hinge.getSubject()!=null) json.put("hinge",hinge.getPath());
+        json.put("version",2);
+        if(hinge.getSubject()!=null) json.put("hinge",hinge.getUniqueID());
         return json;
     }
 
@@ -69,11 +51,11 @@ public class Motor extends Node {
         super.fromJSON(from);
         int version = from.has("version") ? from.getInt("version") : 0;
         if(from.has("hinge")) {
+            String s = from.getString("hinge");
             if(version==1) {
-                hinge.setPath(from.getString("hinge"));
-            } else if(version==0) {
-                HingeJoint joint = this.getRootNode().findNodeByID(from.getString("hinge"), HingeJoint.class);
-                hinge.setRelativePath(this, joint);
+                hinge.setUniqueIDByNode(this.findNodeByPath(s,HingeJoint.class));
+            } else if(version==0 || version==2) {
+                hinge.setUniqueID(s);
             }
         }
     }
@@ -82,11 +64,15 @@ public class Motor extends Node {
         return hinge.getSubject();
     }
 
-    public void setAxle(HingeJoint hinge) {
-        this.hinge.setRelativePath(this, hinge);
+    /**
+     * Set the hinge this motor will drive.  the hinge must be in the same node tree as this motor.
+     * @param hinge the hinge this motor will drive.
+     */
+    public void setHinge(HingeJoint hinge) {
+        this.hinge.setUniqueIDByNode(hinge);
     }
 
-    public boolean hasAxle() {
-        return hinge.getSubject()!=null;
+    public boolean hasHinge() {
+        return getHinge()!=null;
     }
 }

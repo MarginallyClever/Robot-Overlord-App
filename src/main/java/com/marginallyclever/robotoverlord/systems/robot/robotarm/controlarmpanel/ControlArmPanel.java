@@ -15,7 +15,6 @@ import java.awt.*;
 
 /**
  * Application layer for a robot.  A {@link JogPanel}, a {@link ProgramPanel}, and a {@link PresentationLayer} glued together.
- * @author Dan Royer
  */
 @Deprecated
 public class ControlArmPanel extends JPanel {

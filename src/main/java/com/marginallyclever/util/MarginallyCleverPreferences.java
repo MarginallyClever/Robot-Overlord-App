@@ -12,12 +12,8 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 /**
- * Created on 6/7/15.
- *
- * @author Peter Colapietro
  * See <a href="http://www.davidc.net/programming/java/java-preferences-using-file-backing-store">Java Preferences using a file as the backing store</a>
  * See <a href="http://stackoverflow.com/a/25548386">SO answer to: How to synchronize file access in a Java servlet?</a>
- * @since v7.1.4
  */
 public class MarginallyCleverPreferences extends AbstractPreferences implements Ancestryable {
   private static final Logger logger = LoggerFactory.getLogger(MarginallyCleverPreferences.class);

@@ -19,9 +19,8 @@ import java.util.List;
 
 /**
  * <p>{@link Mesh} contains the vertex data for a 3D model.  It may also contain normal, color, and texture data.</p>
- * <p></p>It uses <a href="https://www.khronos.org/opengl/wiki/Vertex_Specification">Vertex Array Objects and Vertex
+ * <p>It uses <a href="https://www.khronos.org/opengl/wiki/Vertex_Specification">Vertex Array Objects and Vertex
  * Buffer Objects</a> to optimize rendering large collections of triangles.</p>
- * @author Dan Royer
  */
 public class Mesh {
 	private static final Logger logger = LoggerFactory.getLogger(Mesh.class);
@@ -65,7 +64,7 @@ public class Mesh {
 	/**
 	 * Remove all vertexes, normals, colors, texture coordinates, etc.
 	 * on the next call to {@link Mesh#render(GL3)} the mesh will be rebuilt to nothing.
-	 * @See {@link Mesh#unload(GL3)}
+	 * See also {@link Mesh#unload(GL3)}
 	 */
 	public void clear() {
 		vertexArray.clear();
@@ -98,8 +97,7 @@ public class Mesh {
 
 	/**
 	 * Destroy the optimized rendering buffers for the fixed function pipeline.
-	 * This does not free the memory used by the mesh.
-	 * @See {@link Mesh#clear()}
+	 * This does not free the memory used by the mesh.  See also {@link Mesh#clear()}
 	 * @param gl the OpenGL context
 	 */
 	public void unload(GL3 gl) {

@@ -11,10 +11,9 @@ import java.io.Serial;
 
 /**
  * An undoable action to add an {@link Entity} to the world.
- * @author Dan Royer
  *
  */
-public class EntityAddEdit extends AbstractUndoableEdit {
+@Deprecated public class EntityAddEdit extends AbstractUndoableEdit {
 	@Serial
 	private static final long serialVersionUID = 1L;
 	private final EntityManager entityManager;

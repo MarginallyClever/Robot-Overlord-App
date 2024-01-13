@@ -7,8 +7,6 @@ import java.awt.*;
 
 /**
  * A panel that allows the user to drive a vehicle.
- * @since 2.6.4
- * @author Dan Royer
  */
 public class DriveVehiclePanel extends JPanel {
     private final VehicleComponent vehicleComponent;

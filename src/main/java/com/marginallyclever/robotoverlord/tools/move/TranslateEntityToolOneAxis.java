@@ -23,10 +23,8 @@ import java.util.List;
 /**
  * A tool for moving entities along a single axis.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
-public class TranslateEntityToolOneAxis implements EditorTool {
+@Deprecated public class TranslateEntityToolOneAxis implements EditorTool {
     private final double handleLength = 5;
     private final double gripRadius = 0.5;
     private double localScale = 1;

@@ -4,8 +4,6 @@ import javax.vecmath.Vector2d;
 
 /**
  * map from a sphere to a plane and back; map from a cube to a sphere and back.
- * @author Dan Royer
- * @since 2023-10-11
  */
 public class SphericalMap {
     public static class CubeCoordinate {

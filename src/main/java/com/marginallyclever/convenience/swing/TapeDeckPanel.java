@@ -12,7 +12,6 @@ import java.util.ArrayList;
 /**
  * Rewind button, Play button, Stop button, and progress bar from 0...100.
  * Listen for events on each button.
- * @author Dan 
  *
  */
 public class TapeDeckPanel extends JPanel {

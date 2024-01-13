@@ -28,8 +28,6 @@ import java.util.List;
 /**
  * Make an industrial 6 axis robot arm.  Every joint is stacked on the previous joint in a serially-linked design.
  *
- * @author Dan Royer
- * @since 2.5.7
  */
 @Deprecated
 public class EditArmPanel extends JPanel implements PropertyChangeListener {

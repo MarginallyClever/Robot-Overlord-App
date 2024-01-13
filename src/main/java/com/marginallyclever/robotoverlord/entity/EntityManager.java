@@ -20,8 +20,6 @@ import java.util.Queue;
  * {@link EntityManager} is a container for all the {@link Entity} in a project.
  * It also contains the absolute path on disk for the root of the Scene.  All assets are relative to this path.
  *
- * @author Dan Royer
- * @since 1.6.0
  */
 @Deprecated
 public class EntityManager {

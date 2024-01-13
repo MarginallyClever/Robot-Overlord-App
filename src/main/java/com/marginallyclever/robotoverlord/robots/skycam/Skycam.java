@@ -12,8 +12,6 @@ import javax.vecmath.Vector3d;
 /**
  * A skycam robot suspends a gondola inside a box from four cables attached to motors at the top corners of the box.
  *
- * @author Dan Royer
- * @since 1.7.1
  */
 @Deprecated
 public class Skycam extends Component {

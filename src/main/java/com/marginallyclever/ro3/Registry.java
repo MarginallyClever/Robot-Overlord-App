@@ -4,7 +4,13 @@ import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.mesh.MeshFactory;
 import com.marginallyclever.ro3.node.nodes.*;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlanner;
+import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
+import com.marginallyclever.ro3.node.nodes.pose.AttachmentPoint;
+import com.marginallyclever.ro3.node.nodes.pose.Limb;
+import com.marginallyclever.ro3.node.nodes.pose.LookAt;
+import com.marginallyclever.ro3.node.nodes.pose.MeshInstance;
 import com.marginallyclever.ro3.texture.TextureFactory;
 
 import javax.swing.event.EventListenerList;
@@ -27,21 +33,23 @@ public class Registry {
     public static final ListWithEvents<Camera> cameras = new ListWithEvents<>();
     private static Camera activeCamera = null;
     public static final ListWithEvents<Node> selection = new ListWithEvents<>();
-    public static final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 
     public static void start() {
         nodeFactory.clear();
         Factory.Category<Node> nodule = nodeFactory.getRoot().add("Node", Node::new);
         nodule.add("DHParameter", DHParameter::new);
         nodule.add("HingeJoint", HingeJoint::new);
+        nodule.add("LimbSolver", LimbSolver::new);
         nodule.add("MarlinRobotArm", MarlinRobotArm::new);
         nodule.add("Material", Material::new);
         nodule.add("MeshInstance", MeshInstance::new);
         nodule.add("Motor", Motor::new);
+        nodule.add("LimbPlanner", LimbPlanner::new);
         Factory.Category<Node> pose = nodule.add("Pose", Pose::new);
             pose.add("Camera", Camera::new);
             pose.add("LookAt", LookAt::new);
-
+            pose.add("Limb", Limb::new);
+            pose.add("AttachmentPoint", AttachmentPoint::new);
         reset();
     }
 
@@ -63,6 +71,10 @@ public class Registry {
         for(Node n : toRemove2) {
             scene.removeChild(n);
         }
+
+        textureFactory.reset();
+        meshFactory.reset();
+
         scene = new Node("Scene");
     }
 

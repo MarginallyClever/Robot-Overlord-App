@@ -14,8 +14,6 @@ import com.marginallyclever.robotoverlord.Log;
 import com.marginallyclever.makelangelo.PreferencesHelper;
 
 /**
- * @author Peter Colapietro
- * @since v7.1.4
  */
 final class MarginallyCleverPreferencesHelper {
 

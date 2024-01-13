@@ -9,7 +9,10 @@ import org.slf4j.LoggerFactory;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.nio.FloatBuffer;
 import java.security.InvalidParameterException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>{@link ShaderProgram} is a wrapper for vertex and fragment shader programs.  It also provides a simple interface
@@ -20,14 +23,20 @@ public class ShaderProgram {
     private final int programId;
     private final int vertexShaderId;
     private final int fragmentShaderId;
+    private final Map<String, Integer> uniformLocations = new HashMap<>();
+    private final FloatBuffer matrixBuffer = FloatBuffer.allocate(16);
 
     public ShaderProgram(GL3 gl, String[] vertexCode, String[] fragmentCode) {
         vertexShaderId = loadShader(gl, GL3.GL_VERTEX_SHADER, vertexCode,"vertex");
         fragmentShaderId = loadShader(gl, GL3.GL_FRAGMENT_SHADER, fragmentCode,"fragment");
+
         programId = gl.glCreateProgram();
+
         gl.glAttachShader(programId, vertexShaderId);
         gl.glAttachShader(programId, fragmentShaderId);
+
         gl.glLinkProgram(programId);
+
         if (!checkStatus(gl, programId, GL3.GL_LINK_STATUS)) {
             throw new IllegalStateException("Failed to link shader program.");
         }
@@ -96,8 +105,12 @@ public class ShaderProgram {
     }
 
     public int getUniformLocation(GL3 gl, String name) {
-        int result = gl.glGetUniformLocation(programId, name);
-        if(result==-1) throw new InvalidParameterException("Could not find uniform "+name);
+        Integer result = uniformLocations.get(name);
+        if(result == null) {
+            result = gl.glGetUniformLocation(programId, name);
+            if(result==-1) throw new InvalidParameterException("Could not find uniform "+name);
+            uniformLocations.put(name,result);
+        }
         return result;
     }
 
@@ -124,6 +137,30 @@ public class ShaderProgram {
         OpenGLHelper.checkGLError(gl,logger);
     }
 
+    private FloatBuffer matrixToFloatBuffer(Matrix4d m) {
+        matrixBuffer.put( (float)m.m00 );
+        matrixBuffer.put( (float)m.m01 );
+        matrixBuffer.put( (float)m.m02 );
+        matrixBuffer.put( (float)m.m03 );
+
+        matrixBuffer.put( (float)m.m10 );
+        matrixBuffer.put( (float)m.m11 );
+        matrixBuffer.put( (float)m.m12 );
+        matrixBuffer.put( (float)m.m13 );
+
+        matrixBuffer.put( (float)m.m20 );
+        matrixBuffer.put( (float)m.m21 );
+        matrixBuffer.put( (float)m.m22 );
+        matrixBuffer.put( (float)m.m23 );
+
+        matrixBuffer.put( (float)m.m30 );
+        matrixBuffer.put( (float)m.m31 );
+        matrixBuffer.put( (float)m.m32 );
+        matrixBuffer.put( (float)m.m33 );
+        matrixBuffer.rewind();
+
+        return matrixBuffer;
+    }
     /**
      * Set a matrix in the shader.  OpenGL uses column-major order, where Java and DirectX use row-major order.
      * Don't forget to transpose!
@@ -132,7 +169,7 @@ public class ShaderProgram {
      * @param value the matrix to set
      */
     public void setMatrix4d(GL3 gl, String name, Matrix4d value) {
-        gl.glUniformMatrix4fv(getUniformLocation(gl, name), 1, false, MatrixHelper.matrixToFloatBuffer(value));
+        gl.glUniformMatrix4fv(getUniformLocation(gl, name), 1, false, matrixToFloatBuffer(value));
         OpenGLHelper.checkGLError(gl,logger);
     }
 

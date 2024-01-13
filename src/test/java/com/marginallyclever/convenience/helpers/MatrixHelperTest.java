@@ -1,8 +1,5 @@
 package com.marginallyclever.convenience.helpers;
 
-import com.marginallyclever.convenience.log.Log;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -10,21 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 
 public class MatrixHelperTest {
     private static final Logger logger = LoggerFactory.getLogger(MatrixHelperTest.class);
-	@Before
-	public void before() {
-		Log.start();
-	}
-	
-	@After
-	public void after() {
-		Log.end();
-	}
-	
+
     @Test
     public void testEulerMatrix() {
         Vector3d v1 = new Vector3d();
@@ -34,9 +23,9 @@ public class MatrixHelperTest {
             v1.y = Math.random() * Math.PI * 2.0;
             v1.z = Math.random() * Math.PI * 2.0;
 
-            Matrix3d a = MatrixHelper.eulerToMatrix(v1);
-            Vector3d v2 = MatrixHelper.matrixToEuler(a);
-            Matrix3d b = MatrixHelper.eulerToMatrix(v2);
+            Matrix3d a = MatrixHelper.eulerToMatrix(v1, MatrixHelper.EulerSequence.YXZ);
+            Vector3d v2 = MatrixHelper.matrixToEuler(a, MatrixHelper.EulerSequence.YXZ);
+            Matrix3d b = MatrixHelper.eulerToMatrix(v2, MatrixHelper.EulerSequence.YXZ);
 
             boolean test = b.epsilonEquals(a, 1e-6);
             if (!test) {
@@ -68,5 +57,14 @@ public class MatrixHelperTest {
             System.out.println(s+" a="+a+" b="+b);
             Assertions.assertTrue(a.epsilonEquals(b, 1e-3));
         }
+    }
+
+    @Test
+    public void testScaleMatrix() {
+        Matrix4d a = MatrixHelper.createScaleMatrix4(4);
+        Assertions.assertEquals(4,a.m00);
+        Assertions.assertEquals(4,a.m11);
+        Assertions.assertEquals(4,a.m22);
+        Assertions.assertEquals(1,a.m33);
     }
 }

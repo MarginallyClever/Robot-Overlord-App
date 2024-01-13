@@ -11,7 +11,7 @@ import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.node.nodes.Material;
-import com.marginallyclever.ro3.node.nodes.MeshInstance;
+import com.marginallyclever.ro3.node.nodes.pose.MeshInstance;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.mesh.Mesh;
@@ -37,7 +37,7 @@ public class DrawMeshes extends AbstractRenderPass {
     private final int shadowMapUnit = 1;
     public static final int SHADOW_WIDTH = 1024;
     public static final int SHADOW_HEIGHT = 1024;
-    public static final Vector3d fromLightUnit = new Vector3d(5,15,75);
+    public static final Vector3d sunlightSource = new Vector3d(5,15,75);
     public static final Matrix4d lightProjection = new Matrix4d();
     public static final Matrix4d lightView = new Matrix4d();
 
@@ -229,7 +229,7 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         meshShader.setVector3d(gl3, "cameraPos", cameraWorldPos);  // Camera position in world space
-        meshShader.setVector3d(gl3, "lightPos", cameraWorldPos);  // Light position in world space
+        meshShader.setVector3d(gl3, "lightPos", sunlightSource);  // Light position in world space
 
         meshShader.setColor(gl3, "lightColor", Color.WHITE);
         meshShader.setColor(gl3, "objectColor", Color.WHITE);
@@ -288,10 +288,10 @@ public class DrawMeshes extends AbstractRenderPass {
         double r = 50;//Math.max(50,camera.getOrbitRadius());
         lightProjection.set(MatrixHelper.orthographicMatrix4d(-r,r,-r,r,1.0,150));
 
-        Vector3d from = new Vector3d(fromLightUnit);
+        Vector3d from = new Vector3d(sunlightSource);
         Vector3d to = camera.getOrbitPoint();
         from.add(to);
-        Vector3d up = Math.abs(fromLightUnit.z)>0.99? new Vector3d(0,1,0) : new Vector3d(0,0,1);
+        Vector3d up = Math.abs(sunlightSource.z)>0.99? new Vector3d(0,1,0) : new Vector3d(0,0,1);
 
         // look at the scene from the light's point of view
         lightView.set(lookAt(from, to, up));

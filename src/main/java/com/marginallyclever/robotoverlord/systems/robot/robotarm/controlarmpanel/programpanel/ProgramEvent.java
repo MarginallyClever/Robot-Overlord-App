@@ -8,8 +8,6 @@ import java.util.Arrays;
 /**
  * A program event is a single point in time in a program.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @Deprecated
 public class ProgramEvent implements Serializable {

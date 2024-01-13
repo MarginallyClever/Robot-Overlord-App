@@ -242,15 +242,22 @@ public class RO3Frame extends JFrame {
     }
 
     private JMenu buildFileMenu() {
-        JMenu menuFile = new JMenu("File");
-        menuFile.add(new JMenuItem(new NewScene()));
+        // "load", "load recent", and "new" enable/disable save.
+        var loadRecentMenu = new RecentFilesMenu(Preferences.userNodeForPackage(LoadScene.class));
+        var save = new SaveScene(loadRecentMenu);
+        save.setEnabled(false);
+        var load = new LoadScene(loadRecentMenu,null,fileChooser);
+        load.setSaveScene(save);
+        loadRecentMenu.setSaveScene(save);
 
+        JMenu menuFile = new JMenu("File");
+        menuFile.add(new JMenuItem(new NewScene(save)));
         menuFile.add(new JSeparator());
-        RecentFilesMenu loadRecentMenu = new RecentFilesMenu(Preferences.userNodeForPackage(LoadScene.class));
-        menuFile.add(new JMenuItem(new LoadScene(loadRecentMenu,null,fileChooser)));
+        menuFile.add(new JMenuItem(load));
         menuFile.add(loadRecentMenu);
         menuFile.add(new JMenuItem(new ImportScene(fileChooser)));
-        menuFile.add(new JMenuItem(new SaveScene(loadRecentMenu,fileChooser)));
+        menuFile.add(new JMenuItem(save));
+        menuFile.add(new JMenuItem(new SaveAsScene(loadRecentMenu,fileChooser)));
         menuFile.add(new JMenuItem(new ExportScene(fileChooser)));
 
         menuFile.add(new JSeparator());

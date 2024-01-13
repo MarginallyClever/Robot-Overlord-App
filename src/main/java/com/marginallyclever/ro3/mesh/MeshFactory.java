@@ -17,7 +17,6 @@ import java.util.List;
  * {@link MeshFactory} loads a mesh from a file using one of many {@link MeshLoader} classes.  It also keeps a pool of
  * all mesh loaded so that only one instance of each shape is loaded.
  *
- * @author Dan Royer
  */
 public class MeshFactory {
 	private static final Logger logger = LoggerFactory.getLogger(MeshFactory.class);
@@ -34,7 +33,7 @@ public class MeshFactory {
 	
 	/**
 	 * Makes sure to only load one instance of each source file.  Loads all the data immediately.
-	 * @param filename file from which to load.  may be filename.ext or zipfile.zip:filename.ext
+	 * @param filename file from which to load.  May be "filename.ext" or "zipfile.zip:filename.ext"
 	 * @return an instance of Mesh.  It may contain nothing.
 	 */
 	public Mesh load(String filename) {
@@ -144,4 +143,12 @@ public class MeshFactory {
 	public ListWithEvents<Mesh> getPool() {
 		return meshPool;
 	}
+
+	/**
+	 * Remove all meshes from the pool.
+	 */
+    public void reset() {
+		// FIXME Not calling unload() on each item is probably a video card memory leak.
+		meshPool.removeAll();
+    }
 }

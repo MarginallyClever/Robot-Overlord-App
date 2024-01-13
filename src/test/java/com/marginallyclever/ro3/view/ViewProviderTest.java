@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.view;
 
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.slf4j.Logger;
@@ -20,14 +21,14 @@ public class ViewProviderTest {
         for (Class<?> cls : getAllClasses()) {
             count++;
             logger.info("View {}",cls.getSimpleName());
-            assert !ViewProvider.class.isAssignableFrom(cls) :
-                    "Class " + cls.getName() + " must implement ViewProvider";
+            Assertions.assertTrue(ViewProvider.class.isAssignableFrom(cls),
+                    "Class " + cls.getName() + " must implement ViewProvider");
         }
         logger.info("Found {} views.",count);
     }
 
     private Set<Class<?>> getAllClasses() {
-        Reflections reflections = new Reflections("com.marginallyclever", Scanners.TypesAnnotated);
+        Reflections reflections = new Reflections("com.marginallyclever.ro3", Scanners.TypesAnnotated);
         return reflections.getTypesAnnotatedWith(View.class);
     }
 }

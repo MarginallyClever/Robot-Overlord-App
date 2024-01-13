@@ -9,8 +9,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * @author Peter Colapietro
- * @since 2015-10-05
+ * Helps with accessing the robotoverlord.properties file.
  */
 public final class PropertiesFileHelper {
     private static final Logger logger = LoggerFactory.getLogger(PropertiesFileHelper.class);

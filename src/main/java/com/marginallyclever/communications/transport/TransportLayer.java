@@ -7,8 +7,6 @@ import javax.swing.*;
 /**
  * Lists available connections in a medium (serial, TCP/IP, smoke signals, etc) and opens a connection of that type
  *
- * @author Dan
- * @since v7.1.0.0
  */
 public interface TransportLayer {
   /**

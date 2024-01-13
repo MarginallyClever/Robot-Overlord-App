@@ -12,13 +12,12 @@ import java.util.List;
 
 /**
  * Interface for {@link Viewport} tools that can be used to visually edit the scene.
- * @since 2.3.0
- * @author Dan Royer
  */
 public interface ViewportTool {
     int FRAME_WORLD = 0;
     int FRAME_LOCAL = 1;
     int FRAME_CAMERA = 2;
+    int FRAME_COUNT = 3;
 
     /**
      * This method is called when the tool is activated. It receives a list containing the selected

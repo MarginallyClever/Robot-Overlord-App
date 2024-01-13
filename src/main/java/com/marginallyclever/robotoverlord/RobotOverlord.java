@@ -31,7 +31,6 @@ import java.util.prefs.Preferences;
  * It is built around good design patterns.
  * See <a href="https://github.com/MarginallyClever/Robot-Overlord-App">https://github.com/MarginallyClever/Robot-Overlord-App</a>
  *
- * @author Dan Royer
  */
 @Deprecated
 public class RobotOverlord {

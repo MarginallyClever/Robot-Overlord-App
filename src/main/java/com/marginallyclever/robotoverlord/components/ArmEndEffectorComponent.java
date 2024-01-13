@@ -5,8 +5,6 @@ import javax.vecmath.Matrix4d;
 /**
  * An end effector is the tool at the end of a robot arm.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @ComponentDependency(components = {PoseComponent.class})
 @Deprecated

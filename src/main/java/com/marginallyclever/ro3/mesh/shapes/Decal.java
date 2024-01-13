@@ -9,7 +9,6 @@ import javax.vecmath.Vector3d;
 /**
  * <p>{@link Decal} is a {@link Mesh}. It is a 1x1 quad texture on both sides. The origin is in the center of the
  * quad.</p>
- * @author Dan Royer
  */
 public class Decal extends Mesh {
 	public double height = 1;

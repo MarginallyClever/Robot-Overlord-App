@@ -14,8 +14,6 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Loads <a href="https://en.wikipedia.org/wiki/STL_(file_format)">STL files</a> into a Mesh.
- * @author Dan Royer
- * @since 1.6.0
  */
 @Deprecated
 public class LoadSTL implements MeshLoader {

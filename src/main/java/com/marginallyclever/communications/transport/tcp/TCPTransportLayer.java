@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Lists available TCP connections and opens a connection of that type to a robot
  *
- * @author Dan
- * @since v7.1.0.0
  */
 public class TCPTransportLayer implements TransportLayer {
 	private static final Logger logger = LoggerFactory.getLogger(TCPTransportLayer.class);

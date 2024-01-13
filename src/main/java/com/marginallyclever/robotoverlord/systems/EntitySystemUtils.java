@@ -6,10 +6,8 @@ import java.awt.*;
 /**
  * A collection of static methods for working with {@link EntitySystem}s.
  *
- * @author Dan Royer
- * @since 2.5.6
  */
-public class EntitySystemUtils {
+@Deprecated public class EntitySystemUtils {
     public static JDialog makePanel(JPanel panel, Component parent, String title) {
         JFrame parentFrame = (parent instanceof JFrame)
                             ? (JFrame)parent

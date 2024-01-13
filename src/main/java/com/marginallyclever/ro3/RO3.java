@@ -6,7 +6,8 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * RO3 (Robot Overlord 3) is a robot simulation and control program.
+ * <p><b>RO3 (Robot Overlord 3)</b> is a robot simulation and control program.</p>
+ * You can find the friendly user manual at <a href="mcr.dozuki.com">mcr.dozuki.com</a>.
  */
 public class RO3 {
     public static void main(String[] args) {

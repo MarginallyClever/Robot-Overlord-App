@@ -14,7 +14,6 @@ import java.beans.PropertyChangeListener;
 
 /**
  * Panel to alter a boolean parameter.  There is currently no way to limit the length of strings.
- * @author Dan Royer
  *
  */
 @Deprecated public class ViewElementBoolean extends ViewElement implements PropertyChangeListener {

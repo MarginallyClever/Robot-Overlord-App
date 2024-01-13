@@ -14,7 +14,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Panel to alter a string parameter.  There is currently no way to limit the length of strings.
- * @author Dan Royer
  *
  */
 @Deprecated public class ViewElementString extends ViewElement implements DocumentListener, PropertyChangeListener {

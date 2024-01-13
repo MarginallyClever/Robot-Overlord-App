@@ -1,15 +1,11 @@
 package com.marginallyclever.convenience;
 
-import com.jogamp.opengl.GL3;
-
 import javax.vecmath.Point3d;
 import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 
 /**
  * Plane and intersection functions.  A plane is defined by a point and a normal.
- * @author Dan Royer
- *
  */
 public class Plane {
 	public double distance;

@@ -21,8 +21,6 @@ import java.util.List;
 /**
  * <p>A tool to rotate {@link com.marginallyclever.ro3.node.nodes.Pose} noes in the {@link Viewport}.  It is a
  * combination of three {@link RotateToolOneAxis} viewporttools.</p> *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class RotateToolMulti implements ViewportTool {
     private final RotateToolOneAxis toolX = new RotateToolOneAxis(new ColorRGB(255,0,0));

@@ -15,8 +15,6 @@ import java.util.List;
 
 /**
  * {@link ComponentSwingViewFactory} builds Swing elements and collects them in a {@link JPanel}.
- * @author Dan Royer
- * @since 1.6.0
  */
 @Deprecated public class ComponentSwingViewFactory {
 	private final ViewElementFactory viewElementFactory;

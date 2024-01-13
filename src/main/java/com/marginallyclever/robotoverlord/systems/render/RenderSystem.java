@@ -15,8 +15,6 @@ import java.util.ArrayList;
 /**
  * A system that decorates and manages various {@link RenderComponent}s.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @Deprecated
 public class RenderSystem implements EntitySystem {

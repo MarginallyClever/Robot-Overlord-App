@@ -18,8 +18,6 @@ import static com.marginallyclever.util.PreferencesHelper.MakelangeloPreferenceK
 
 /**
  * Helper class to be used when accessing preferences.
- * @author Peter Colapietro
- * @since v7.1.4
  */
 public final class PreferencesHelper implements Serializable {
 	private static final Logger logger = LoggerFactory.getLogger(PreferencesHelper.class);

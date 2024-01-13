@@ -8,8 +8,6 @@ import java.util.regex.Pattern;
 
 /**
  * Loads a Prusa Slic3r GCode file into a {@link GCodePath}.
- * @author Dan Royer
- * @since 2.5.0
  */
 public class Slic3rGCodePathLoader implements PathLoader {
     @Override

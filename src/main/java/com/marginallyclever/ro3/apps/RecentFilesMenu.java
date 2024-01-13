@@ -1,8 +1,7 @@
 package com.marginallyclever.ro3.apps;
 
 import com.marginallyclever.ro3.apps.actions.LoadScene;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.marginallyclever.ro3.apps.actions.SaveScene;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -14,10 +13,10 @@ import java.util.prefs.Preferences;
  * {@link RecentFilesMenu} is a menu that keeps track of recently loaded files.
  */
 public class RecentFilesMenu extends JMenu {
-    private static final Logger logger = LoggerFactory.getLogger(RecentFilesMenu.class);
     private final Preferences preferences;
     private static final int MAX_RECENT_FILES = 10;
     private final List<String> recentFiles = new ArrayList<>();
+    private SaveScene saveScene;
 
     public RecentFilesMenu(Preferences preferences) {
         this(preferences,"Recent Files");
@@ -77,7 +76,9 @@ public class RecentFilesMenu extends JMenu {
         removeAll();
         int index=0;
         for (String filePath : recentFiles) {
-            JMenuItem menuItem = new JMenuItem(new LoadScene(this,filePath));
+            var load = new LoadScene(this,filePath);
+            load.setSaveScene(saveScene);
+            JMenuItem menuItem = new JMenuItem(load);
             add(menuItem);
             menuItem.setMnemonic(KeyEvent.VK_0 + index);
             ++index;
@@ -119,5 +120,13 @@ public class RecentFilesMenu extends JMenu {
     public void clear() {
         recentFiles.clear();
         updateRecentFilesMenu();
+    }
+
+    public String getMostRecentLoad() {
+        return recentFiles.get(0);
+    }
+
+    public void setSaveScene(SaveScene saveScene) {
+        this.saveScene = saveScene;
     }
 }

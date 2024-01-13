@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 /**
  * {@link MeshSmoother} will smooth the normals of a {@link Mesh}.
- * @author Dan Royer
  */
 public class MeshSmoother {
 	private static final Logger logger = LoggerFactory.getLogger(MeshSmoother.class);
@@ -32,8 +31,8 @@ public class MeshSmoother {
 		int i,j;
 		for(i=0;i<numFaces;++i) {
 			if(skip[i]) continue;
-			
-			logger.info("Smoothing "+i+"/"+numFaces);
+
+			if((i%100)==0)  logger.info("Smoothing "+i+"/"+numFaces);
 
 			// find vertices that are in the same position
 			float p1x = model.vertexArray.get(i * 3);

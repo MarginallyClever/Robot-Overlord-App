@@ -14,8 +14,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 /**
- * @author Peter Colapietro
- * @since v7.1.4
+ * Helps with the command line interface for the MarginallyCleverPreferences class.
  */
 final class MarginallyCleverPreferencesHelper {
   private static final Logger logger = LoggerFactory.getLogger(MarginallyCleverPreferencesHelper.class);

@@ -9,13 +9,12 @@ import org.slf4j.LoggerFactory;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.nio.FloatBuffer;
 import java.security.InvalidParameterException;
 
 /**
  * A wrapper for vertex and fragment shader pairs that provides a simple interface for setting uniforms.
  *
- * @author Dan Royer
- * @since 2.5.9
  */
 @Deprecated
 public class ShaderProgram {
@@ -23,6 +22,7 @@ public class ShaderProgram {
     private final int programId;
     private final int vertexShaderId;
     private final int fragmentShaderId;
+    FloatBuffer matrixBuffer = FloatBuffer.allocate(16);
 
     public ShaderProgram(GL3 gl, String[] vertexCode, String[] fragmentCode) {
         vertexShaderId = loadShader(gl, GL3.GL_VERTEX_SHADER, vertexCode,"vertex");
@@ -136,6 +136,32 @@ public class ShaderProgram {
         OpenGLHelper.checkGLError(gl,logger);
     }
 
+    private static FloatBuffer matrixToFloatBuffer(Matrix4d m) {
+        FloatBuffer matrixBuffer = FloatBuffer.allocate(16);
+        matrixBuffer.put( (float)m.m00 );
+        matrixBuffer.put( (float)m.m01 );
+        matrixBuffer.put( (float)m.m02 );
+        matrixBuffer.put( (float)m.m03 );
+
+        matrixBuffer.put( (float)m.m10 );
+        matrixBuffer.put( (float)m.m11 );
+        matrixBuffer.put( (float)m.m12 );
+        matrixBuffer.put( (float)m.m13 );
+
+        matrixBuffer.put( (float)m.m20 );
+        matrixBuffer.put( (float)m.m21 );
+        matrixBuffer.put( (float)m.m22 );
+        matrixBuffer.put( (float)m.m23 );
+
+        matrixBuffer.put( (float)m.m30 );
+        matrixBuffer.put( (float)m.m31 );
+        matrixBuffer.put( (float)m.m32 );
+        matrixBuffer.put( (float)m.m33 );
+        matrixBuffer.rewind();
+
+        return matrixBuffer;
+    }
+
     /**
      * Set a matrix in the shader.  OpenGL uses column-major order, where Java and DirectX use row-major order.
      * Don't forget to transpose!
@@ -146,7 +172,7 @@ public class ShaderProgram {
     public void setMatrix4d(GL3 gl, String name, Matrix4d value) {
         int location = getUniformLocation(gl, name);
         if(location==-1) return;
-        gl.glUniformMatrix4fv(location, 1, false, MatrixHelper.matrixToFloatBuffer(value));
+        gl.glUniformMatrix4fv(location, 1, false, matrixToFloatBuffer(value));
         OpenGLHelper.checkGLError(gl,logger);
     }
 

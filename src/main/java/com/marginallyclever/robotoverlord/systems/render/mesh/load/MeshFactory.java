@@ -17,7 +17,6 @@ import java.util.List;
  * {@link MeshFactory} loads a mesh from a file using one of many {@link MeshLoader} classes.  It also keeps a pool of
  * all mesh loaded so that only one instance of each shape is loaded.
  *
- * @author Dan Royer
  */
 @Deprecated
 public class MeshFactory {

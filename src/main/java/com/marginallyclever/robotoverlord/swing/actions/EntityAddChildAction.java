@@ -17,10 +17,9 @@ import java.util.List;
 
 /**
  * Display an Add Entity dialog box.  If an entity is selected and "ok" is pressed, add that Entity to the world. 
- * @author Dan Royer
  *
  */
-public class EntityAddChildAction extends AbstractAction implements EditorAction {
+@Deprecated public class EntityAddChildAction extends AbstractAction implements EditorAction {
 	private static final Logger logger = LoggerFactory.getLogger(EntityAddChildAction.class);
 	private final EntityManager entityManager;
 

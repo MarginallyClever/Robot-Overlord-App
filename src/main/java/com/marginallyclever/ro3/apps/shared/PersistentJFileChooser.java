@@ -22,7 +22,9 @@ public class PersistentJFileChooser extends JFileChooser {
     public int showOpenDialog(java.awt.Component parent) throws HeadlessException {
         retrieveLastUsedDirectory();
         int result = super.showOpenDialog(parent);
-        updateLastUsedDirectory();
+        if(result==JFileChooser.APPROVE_OPTION) {
+            updateLastUsedDirectory();
+        }
         return result;
     }
 
@@ -30,7 +32,9 @@ public class PersistentJFileChooser extends JFileChooser {
     public int showSaveDialog(java.awt.Component parent) throws HeadlessException {
         retrieveLastUsedDirectory();
         int result = super.showSaveDialog(parent);
-        updateLastUsedDirectory();
+        if(result==JFileChooser.APPROVE_OPTION) {
+            updateLastUsedDirectory();
+        }
         return result;
     }
 

@@ -19,17 +19,4 @@ public class MathHelperTest {
 	public void after() {
 		Log.end();
 	}
-
-    @Test
-    @Disabled
-    @Deprecated
-    public void testWrapDegrees() {
-        logger.info("testWrapDegrees start");
-        for (double i = -360 * 2; i <= 360 * 2; i += 10) {
-            double v = MathHelper.wrapDegrees(i);
-            logger.info(i + "\t" + v);
-            //assert(v>=-180 && v<=180);
-        }
-        logger.info("testWrapDegrees end");
-    }
 }

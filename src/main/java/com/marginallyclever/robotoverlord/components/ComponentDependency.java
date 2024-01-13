@@ -13,8 +13,6 @@ import java.lang.annotation.Target;
  * The {@link EntityManager} uses this Annotation to load those other
  * {@link Component}s at the moment this Component is attached.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)

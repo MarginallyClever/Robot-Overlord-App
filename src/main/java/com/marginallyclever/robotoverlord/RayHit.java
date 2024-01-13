@@ -6,8 +6,6 @@ import javax.vecmath.Vector3d;
 
 /**
  * A ray hit is a record of a ray hitting a {@link ShapeComponent} at a certain distance.
- * @author Dan Royer
- * @since 2.5.0
  */
 @Deprecated
 public class RayHit {

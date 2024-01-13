@@ -8,8 +8,6 @@ import org.json.JSONObject;
 /**
  * A {@link ServoComponent} is a motor that can be set to a specific angle.
  *
- * @since 2.6.3
- * @author Dan Royer
  */
 @Deprecated
 public class ServoComponent extends MotorComponent {

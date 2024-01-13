@@ -11,9 +11,8 @@ import java.util.prefs.Preferences;
 import java.util.prefs.PreferencesFactory;
 
 /**
- * @author Peter Colapietro
  * See <a href="http://www.davidc.net/programming/java/java-preferences-using-file-backing-store">Java Preferences using a file as the backing store</a>
- * @since v7.1.4
+ * @param <A> AbstractPreferences
  */
 public final class MarginallyCleverPreferencesFileFactory<A extends AbstractPreferences> implements PreferencesFactory {
 	private static final Logger logger = LoggerFactory.getLogger(MarginallyCleverPreferencesFileFactory.class);

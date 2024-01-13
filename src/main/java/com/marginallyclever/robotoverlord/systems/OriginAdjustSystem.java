@@ -19,10 +19,8 @@ import java.util.List;
  *
  * <p>This system will adjust the Mesh's {@link PoseComponent} to compensate for Entity A's {@link PoseComponent}.</p>
  *
- * @author Dan Royer
- * @since 2.5.0
  */
-public class OriginAdjustSystem implements EntitySystem {
+@Deprecated public class OriginAdjustSystem implements EntitySystem {
     /**
      * Get the Swing view of this component.
      *

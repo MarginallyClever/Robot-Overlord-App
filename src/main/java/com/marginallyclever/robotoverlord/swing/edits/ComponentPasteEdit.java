@@ -16,10 +16,8 @@ import java.util.List;
 /**
  * Paste a component into a list of entities.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
-public class ComponentPasteEdit extends AbstractUndoableEdit {
+@Deprecated public class ComponentPasteEdit extends AbstractUndoableEdit {
     private final String name;
     private final Component copiedComponent;
     private final List<Entity> parents = new LinkedList<>();

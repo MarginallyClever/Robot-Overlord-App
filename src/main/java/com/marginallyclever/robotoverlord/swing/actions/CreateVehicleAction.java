@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-public class CreateVehicleAction extends AbstractAction {
+@Deprecated public class CreateVehicleAction extends AbstractAction {
     private final EntityManager entityManager;
     private final Component parentComponent;
 

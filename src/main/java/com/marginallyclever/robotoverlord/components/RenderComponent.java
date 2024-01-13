@@ -6,8 +6,7 @@ import com.marginallyclever.robotoverlord.parameters.BooleanParameter;
 /**
  * A RenderComponent is a component that draws something into the 3D scene.
  *
- * @author Dan Royer
- * @since 2.5.0
+ 
  */
 @Deprecated
 public abstract class RenderComponent extends Component {

@@ -13,8 +13,6 @@ import java.util.Map;
 /**
  * A list of {@link Node}s selected in the {@link com.marginallyclever.ro3.apps.viewport.Viewport}.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class SelectedItems {
     /**

@@ -12,10 +12,9 @@ import javax.swing.undo.CannotUndoException;
 /**
  * An undoable action to change the currently selected entity.
  * This is the equivalent to moving the caret in a text document.
- * @author Dan Royer
  *
  */
-public class EntityRenameEdit extends AbstractUndoableEdit {
+@Deprecated public class EntityRenameEdit extends AbstractUndoableEdit {
 	private final Entity entity;
 	private final String oldName;
 	private final String newName;

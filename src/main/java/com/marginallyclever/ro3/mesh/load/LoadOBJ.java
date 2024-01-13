@@ -15,8 +15,6 @@ import java.util.ArrayList;
 /**
  * <p>{@link LoadOBJ} is a {@link MeshLoader} that loads a
  * <a href="https://en.wikipedia.org/wiki/Wavefront_.obj_file">OBJ files</a> into a {@link Mesh}.</p>
- * @author Dan Royer
- * @since 1.6.0
  */
 public class LoadOBJ implements MeshLoader {
 	private static final Logger logger = LoggerFactory.getLogger(LoadOBJ.class);

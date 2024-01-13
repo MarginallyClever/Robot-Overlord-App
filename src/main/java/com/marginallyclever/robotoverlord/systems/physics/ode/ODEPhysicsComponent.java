@@ -15,8 +15,6 @@ import javax.vecmath.Vector3d;
 /**
  * A component that holds a reference to an ODE geometry.
  *
- * @author Dan Royer
- * @since 2.0?
  */
 @Deprecated
 public class ODEPhysicsComponent extends Component {
@@ -72,6 +70,6 @@ public class ODEPhysicsComponent extends Component {
 				ny.x,ny.y,ny.z,p.y,
 				nz.x,nz.y,nz.z,p.z,
 				0,0,0,1);
-		MatrixHelper.createMesh(m,10).render(gl);
+		MatrixHelper.createMesh().render(gl);
 	}
 }

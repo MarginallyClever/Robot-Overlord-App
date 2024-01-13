@@ -16,8 +16,6 @@ import javax.vecmath.Vector3d;
 
 /**
  * Generic rotary stewart platform.  6 Rotating biceps move forearms connected to the top plate.
- * @author Dan Royer
- * @since 2015?
  */
 @Deprecated
 public class RotaryStewartPlatform extends Component {
@@ -86,9 +84,9 @@ public class RotaryStewartPlatform extends Component {
 	 * The points are ordered counter-clockwise, looking down on the machine.
 	 * <pre>
 	 *      1
-	 *  2       0 <-- first
-	 *      x     <-- center
-	 *  3       5 <-- last
+	 *  2       0 &lt;-- first
+	 *      x     &lt;-- center
+	 *  3       5 &lt;-- last
 	 *      4</pre>
 	 */
 	protected void calculateEndEffectorPointsOneTime() {
@@ -120,9 +118,9 @@ public class RotaryStewartPlatform extends Component {
 	 * linear slides are ordered counter-clockwise, looking down on the machine.
 	 * <pre>
 	 *     1
- 	 *  2     0 <-- first
-	 *     x    <-- center
-	 *  3     5 <-- last
+ 	 *  2     0 &lt;-- first
+	 *     x    &lt;-- center
+	 *  3     5 &lt;-- last
 	 *     4</pre>
 	 */
 	protected void calculateMotorAxlePointsOneTime() {

@@ -22,8 +22,6 @@ import java.util.List;
 /**
  * A system to manage robot crabs.
  *
- * @author Dan Royer
- * @since 2.5.7
  */
 public class CrabRobotSystem implements EntitySystem {
     private final EntityManager entityManager;

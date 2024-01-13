@@ -8,8 +8,6 @@ import java.util.ArrayList;
 
 /**
  * an empty element in the componentpanel
- * @author Dan Royer
- * @since 1.6.0
  *
  */
 @Deprecated public class ViewElementButton extends ViewElement {

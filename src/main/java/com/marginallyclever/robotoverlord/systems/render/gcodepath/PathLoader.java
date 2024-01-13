@@ -5,8 +5,6 @@ import java.io.BufferedInputStream;
 /**
  * {@link PathLoader} interface for all classes that load a {@link GCodePath}.  Call upon by {@link PathFactory}
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public interface PathLoader {
 	String getEnglishName();

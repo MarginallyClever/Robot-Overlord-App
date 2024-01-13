@@ -20,10 +20,9 @@ import java.util.List;
 /**
  * Display an `Add Component` dialog box.  If an {@link Component} is selected and
  * "ok" is pressed, add that Component to the world.
- * @author Dan Royer
  *
  */
-public class ComponentAddAction extends AbstractAction {
+@Deprecated public class ComponentAddAction extends AbstractAction {
 	private static final Logger logger = LoggerFactory.getLogger(ComponentAddAction.class);
 
 	protected final ComponentManagerPanel componentManagerPanel;

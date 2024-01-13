@@ -12,8 +12,6 @@ import java.net.URL;
 
 /**
  * Displays the README.md file from a GitHub repository.
- * @author Dan Royer
- * @since 2.5.0
  */
 public class ReadmePanel extends JPanel {
     private static final OkHttpClient client = new OkHttpClient();

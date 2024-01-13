@@ -7,8 +7,6 @@ import java.io.OutputStream;
 /**
  * A MeshSaver is a script that saves a mesh to a file.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @Deprecated
 public interface MeshSaver {

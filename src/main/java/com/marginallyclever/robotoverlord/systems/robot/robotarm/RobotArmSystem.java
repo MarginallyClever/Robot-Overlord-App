@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.ro3.node.nodes.marlinrobotarm.ApproximateJacobian;
+import com.marginallyclever.ro3.node.nodes.limbsolver.ApproximateJacobian;
 import com.marginallyclever.robotoverlord.components.*;
 import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
@@ -26,8 +26,6 @@ import java.util.Map;
 /**
  * A system to manage robot arms.
  *
- * @author Dan Royer
- * @since 2.5.5
  */
 @Deprecated
 public class RobotArmSystem implements EntitySystem {

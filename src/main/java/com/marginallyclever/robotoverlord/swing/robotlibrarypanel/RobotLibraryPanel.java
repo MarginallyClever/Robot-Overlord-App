@@ -11,8 +11,6 @@ import java.util.List;
 
 /**
  * Displays a list of known robots for Robot Overlord and the ability to download and install them.
- * @author Dan Royer
- * @since 2.5.0
  */
 public class RobotLibraryPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(RobotLibraryPanel.class);

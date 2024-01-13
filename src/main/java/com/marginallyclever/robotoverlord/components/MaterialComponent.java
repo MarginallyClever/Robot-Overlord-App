@@ -14,8 +14,6 @@ import java.util.Arrays;
 /**
  * A material is a collection of parameters that describe how a surface should be rendered.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 @Deprecated
 public class MaterialComponent extends Component {

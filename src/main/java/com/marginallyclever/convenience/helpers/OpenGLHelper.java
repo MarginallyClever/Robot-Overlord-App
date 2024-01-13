@@ -13,8 +13,6 @@ import java.nio.IntBuffer;
 /**
  * A collection of static methods to help with OpenGL.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
 public class OpenGLHelper {
 	public static int drawAtopEverythingStart(GL3 gl) {

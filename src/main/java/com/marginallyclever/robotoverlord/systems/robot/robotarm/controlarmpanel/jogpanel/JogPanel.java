@@ -12,10 +12,8 @@ import java.io.Serial;
 /**
  * A panel that allows the user to jog the robot.
  *
- * @author Dan Royer
- * @since 2.5.0
  */
-public class JogPanel extends JPanel {
+@Deprecated public class JogPanel extends JPanel {
 	private final Robot myRobot;
 	private final CartesianReportPanel eeReport, tcpReport;
 

@@ -1,14 +1,12 @@
 package com.marginallyclever.ro3.apps.nodeselector;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.dialogs.NodeSelectionDialog;
 import com.marginallyclever.ro3.node.Node;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -22,11 +20,12 @@ import java.util.Objects;
  * type T.</p>
  * <p>{@link NodeSelector} also provides a <b>find</b> button.  The find action changes the global selection, which
  * updates any other systems listening to the selection.</p>
+ * @param <T> the type of {@link Node} to select
  */
 public class NodeSelector<T extends Node> extends JPanel {
     private T subject;
     private final JButton chooseButton = new JButton();
-    private final JButton selectButton = new JButton(new AbstractAction() {
+    private final JButton findButton = new JButton(new AbstractAction() {
         {
             putValue(Action.NAME,"");
             putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource(
@@ -54,7 +53,7 @@ public class NodeSelector<T extends Node> extends JPanel {
         setButtonLabel();
 
         add(chooseButton,BorderLayout.CENTER);
-        add(selectButton,BorderLayout.LINE_END);
+        add(findButton,BorderLayout.LINE_END);
 
         new DropTarget(this,new NodeSelectorDropTarget<>(this,type));
     }
@@ -82,5 +81,10 @@ public class NodeSelector<T extends Node> extends JPanel {
 
     public T getSubject() {
         return subject;
+    }
+
+    public void setEditable(boolean b) {
+        chooseButton.setEnabled(b);
+        findButton.setEnabled(b);
     }
 }

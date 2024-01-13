@@ -7,8 +7,6 @@ import org.json.JSONObject;
 import javax.vecmath.Vector3d;
 
 /**
- * @author Dan Royer
- * @since 1.6.0
  *
  */
 public class Vector3DParameter extends AbstractParameter<Vector3d> {

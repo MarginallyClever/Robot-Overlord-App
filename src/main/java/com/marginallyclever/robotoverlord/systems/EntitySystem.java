@@ -10,10 +10,8 @@ import com.marginallyclever.robotoverlord.parameters.swing.ComponentSwingViewFac
  *     Model-View-Controller</a> pattern.
  * They are responsible for the logic of one or more {@link Component}s.
  *
- * @author Dan Royer
- * @since 2.5.3
  */
-public interface EntitySystem {
+@Deprecated public interface EntitySystem {
     /**
      * Get the Swing view of this component.
      * @param view the factory to use to create the panel

@@ -12,7 +12,6 @@ import java.awt.event.ActionListener;
 
 /**
  * A simple text interface with a send button.  Sends the text to all listeners.
- * @author Dan Royer
  */
 public class TextInterfaceToListeners extends JPanel implements KeyListener {
 	public static final int MAX_HISTORY_LENGTH = 100;
