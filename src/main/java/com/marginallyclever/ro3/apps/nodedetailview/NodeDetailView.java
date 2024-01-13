@@ -34,6 +34,13 @@ public class NodeDetailView extends App
 
         pinButton.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/apps/shared/icons8-pin-16.png"))));
         pinButton.setToolTipText("Pin this selection.");
+        pinButton.addActionListener(e -> {
+            setPinToolTipText(pinButton);
+            if(!pinButton.isSelected()) {
+                // when pin released, refresh view.
+                selectionChanged();
+            }
+        });
 
         docButton.setIcon(bookIcon);
         docButton.setEnabled(false);
@@ -45,7 +52,15 @@ public class NodeDetailView extends App
 
         add(toolbar, BorderLayout.NORTH);
         add(scroll, BorderLayout.CENTER);
-        selectionChanged(List.of());
+        selectionChanged();
+    }
+
+    private void setPinToolTipText(JToggleButton pinButton) {
+        if(pinButton.isSelected()) {
+            pinButton.setToolTipText("Unpin this selection.");
+        } else {
+            pinButton.setToolTipText("Pin this selection.");
+        }
     }
 
     private JPanel createPanelFor(List<Node> nodeList) {
@@ -99,8 +114,9 @@ public class NodeDetailView extends App
      * See <a href="https://stackoverflow.com/questions/62864625/why-boxlayout-is-taking-extra-space">layout fix</a>
      * @param selectedNodes the list of nodes that are currently selected.
      */
-    public void selectionChanged(List<Node> selectedNodes) {
+    public void selectionChanged() {
         if(pinButton.isSelected()) return;
+        List<Node> selectedNodes = Registry.selection.getList();
         scroll.setViewportView(createPanelFor(selectedNodes));
         docButton.setEnabled(!selectedNodes.isEmpty());
         this.revalidate();
@@ -123,11 +139,11 @@ public class NodeDetailView extends App
 
     @Override
     public void itemAdded(Object source,Node item) {
-        selectionChanged(Registry.selection.getList());
+        selectionChanged();
     }
 
     @Override
     public void itemRemoved(Object source,Node item) {
-        selectionChanged(Registry.selection.getList());
+        selectionChanged();
     }
 }
