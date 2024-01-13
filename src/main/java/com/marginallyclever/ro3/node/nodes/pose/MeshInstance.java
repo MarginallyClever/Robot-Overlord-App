@@ -3,10 +3,7 @@ package com.marginallyclever.ro3.node.nodes.pose;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.mesh.MeshChooserDialog;
 import com.marginallyclever.ro3.mesh.Mesh;
-import com.marginallyclever.ro3.mesh.MeshSmoother;
-import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.raypicking.RayHit;
 import org.json.JSONObject;
@@ -15,8 +12,6 @@ import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
-import java.awt.*;
-import java.io.File;
 import java.util.List;
 
 /**

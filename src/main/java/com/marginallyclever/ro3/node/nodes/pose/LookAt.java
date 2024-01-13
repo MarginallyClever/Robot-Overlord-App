@@ -2,8 +2,6 @@ package com.marginallyclever.ro3.node.nodes.pose;
 
 import com.marginallyclever.convenience.PathCalculator;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import org.json.JSONObject;
@@ -11,7 +9,6 @@ import org.json.JSONObject;
 import javax.swing.*;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
-import java.awt.*;
 import java.util.List;
 
 /**

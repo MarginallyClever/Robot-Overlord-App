@@ -1,15 +1,12 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.NodePanelHelper;
 
 import javax.swing.*;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
-import java.awt.*;
 import java.security.InvalidParameterException;
 import java.util.List;
 
