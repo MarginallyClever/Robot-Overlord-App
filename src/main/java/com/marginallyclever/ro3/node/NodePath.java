@@ -41,13 +41,4 @@ public class NodePath<T extends Node> {
     public T getSubject() {
         return owner.getRootNode().findNodeByID(uniqueID,type);
     }
-
-    /**
-     * Set the path to the relative path from origin to goal.
-     * @param origin the node to start from
-     * @param goal the node to find
-     */
-    public void setRelativePath(Node origin, T goal) {
-        setUniqueID(PathCalculator.getRelativePath(origin,goal));
-    }
 }
