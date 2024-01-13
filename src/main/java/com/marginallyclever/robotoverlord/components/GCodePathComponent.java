@@ -42,7 +42,7 @@ public class GCodePathComponent extends ShapeComponent implements WalkablePath<P
         myMesh.render(gl);
 
         if(location!=null) {
-            MatrixHelper.createMesh(location,3).render(gl);
+            MatrixHelper.createMesh().render(gl);
         }
 
         OpenGLHelper.disableTextureEnd(gl,tex);

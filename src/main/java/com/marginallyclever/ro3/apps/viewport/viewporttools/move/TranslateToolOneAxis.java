@@ -29,11 +29,9 @@ import java.util.List;
  *
  */
 public class TranslateToolOneAxis implements ViewportTool {
-    private static final Logger logger = LoggerFactory.getLogger(TranslateToolOneAxis.class);
     private final double handleLength = 5;
     private final double gripRadius = 0.5;
     private double localScale = 1;
-    private final Mesh gizmoMesh = MatrixHelper.createMesh(5.0);
 
     /**
      * The viewport to which this tool is attached.

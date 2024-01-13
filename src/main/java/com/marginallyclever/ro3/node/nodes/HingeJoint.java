@@ -11,7 +11,6 @@ import org.json.JSONObject;
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
-import java.text.NumberFormat;
 import java.util.List;
 
 /**
@@ -96,7 +95,7 @@ public class HingeJoint extends Node {
 
         NodeSelector<Pose> selector = new NodeSelector<>(Pose.class,axle.getSubject());
         selector.addPropertyChangeListener("subject", (evt) ->{
-            axle.setRelativePath(this,selector.getSubject());
+            axle.setUniqueIDByNode(selector.getSubject());
         });
 
         NodePanelHelper.addLabelAndComponent(pane, "Axle",selector);
@@ -129,8 +128,8 @@ public class HingeJoint extends Node {
         json.put("maxAngle",maxAngle);
         json.put("velocity",velocity);
         json.put("acceleration",acceleration);
-        json.put("version",1);
-        if(axle.getSubject()!=null) json.put("axle",axle.getPath());
+        json.put("version",2);
+        if(axle.getSubject()!=null) json.put("axle",axle.getUniqueID());
 
         return json;
     }
@@ -146,11 +145,11 @@ public class HingeJoint extends Node {
 
         int version = from.has("version") ? from.getInt("version") : 0;
         if(from.has("axle")) {
+            String s = from.getString("axle");
             if(version==1) {
-                axle.setPath(from.getString("axle"));
-            } else if(version==0) {
-                Pose pose = this.getRootNode().findNodeByID(from.getString("axle"),Pose.class);
-                axle.setPath( PathCalculator.getRelativePath(this,pose) );
+                axle.setUniqueIDByNode(this.findNodeByPath(s,Pose.class));
+            } else if(version==0 || version==2) {
+                axle.setUniqueID(s);
             }
         }
     }

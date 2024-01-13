@@ -55,7 +55,7 @@ public class MarlinRobotArm extends Node {
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
         json.put("version",2);
-        if(gripperMotor.getSubject()!=null) json.put("gripperMotor",gripperMotor.getPath());
+        if(gripperMotor.getSubject()!=null) json.put("gripperMotor",gripperMotor.getUniqueID());
         return json;
     }
 
@@ -77,7 +77,7 @@ public class MarlinRobotArm extends Node {
             toRemove.clear();
             limb1.setName("Limb");
             getParent().addChild(limb1);
-            limb.setRelativePath(this,limb1);
+            limb.setUniqueIDByNode(limb1);
 
             // solver
             LimbSolver solver1 = new LimbSolver();
@@ -86,7 +86,7 @@ public class MarlinRobotArm extends Node {
             for(Node n : toRemove) solver1.removeChild(n);
             solver1.setName("LimbSolver");
             getParent().addChild(solver1);
-            solver.setRelativePath(this,solver1);
+            solver.setUniqueIDByNode(solver1);
             solver1.setLimb(limb1);
 
             // gripper
@@ -94,15 +94,14 @@ public class MarlinRobotArm extends Node {
             if (from.has("gripperMotor")) {
                 String s = from.getString("gripperMotor");
                 if (version == 1) {
-                    gripperMotor.setPath(s);
+                    gripperMotor.setUniqueID(s);
                 } else if (version == 0) {
-                    Motor goal = root.findNodeByID(s, Motor.class);
-                    gripperMotor.setRelativePath(this, goal);
+                    gripperMotor.setUniqueID(s);
                 }
             }
 
-            limb.setRelativePath(this,limb1);
-            solver.setRelativePath(this,solver1);
+            limb.setUniqueIDByNode(limb1);
+            solver.setUniqueIDByNode(solver1);
         }
     }
 
@@ -443,7 +442,7 @@ public class MarlinRobotArm extends Node {
         Matrix4d local = new Matrix4d();
         Vector3d rot = new Vector3d(cartesian[3],cartesian[4],cartesian[5]);
         rot.scale(Math.PI/180);
-        local.set(MatrixHelper.eulerToMatrix(rot));
+        local.set(MatrixHelper.eulerToMatrix(rot, MatrixHelper.EulerSequence.YXZ));
         local.setTranslation(new Vector3d(cartesian[0],cartesian[1],cartesian[2]));
         return local;
     }
@@ -453,7 +452,7 @@ public class MarlinRobotArm extends Node {
      * @return the XYZ translation and UVW rotation of the given matrix.  UVW is in degrees.
      */
     private double[] getCartesianFromWorld(Matrix4d world) {
-        Vector3d rotate = MatrixHelper.matrixToEuler(world);
+        Vector3d rotate = MatrixHelper.matrixToEuler(world, MatrixHelper.EulerSequence.YXZ);
         rotate.scale(180/Math.PI);
         Vector3d translate = new Vector3d();
         world.get(translate);
@@ -490,7 +489,7 @@ public class MarlinRobotArm extends Node {
      * @param limb the limb to control
      */
     public void setLimb(Limb limb) {
-        this.limb.setRelativePath(this,limb);
+        this.limb.setUniqueIDByNode(limb);
     }
 
     /**
@@ -499,6 +498,6 @@ public class MarlinRobotArm extends Node {
      * @param solver the solver to use
      */
     public void setSolver(LimbSolver solver) {
-        this.solver.setRelativePath(this, solver);
+        this.solver.setUniqueIDByNode(solver);
     }
 }

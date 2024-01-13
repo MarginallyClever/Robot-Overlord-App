@@ -45,7 +45,7 @@ public class LookAt extends Pose {
 
         NodeSelector<Pose> selector = new NodeSelector<>(Pose.class,target.getSubject());
         selector.addPropertyChangeListener("subject", (evt) -> {
-            target.setRelativePath(this,selector.getSubject());
+            target.setUniqueIDByNode(selector.getSubject());
         } );
         NodePanelHelper.addLabelAndComponent(pane,"Target",selector);
 
@@ -74,9 +74,9 @@ public class LookAt extends Pose {
     @Override
     public JSONObject toJSON() {
         var json = super.toJSON();
-        json.put("version",1);
+        json.put("version",2);
         if(target.getSubject()!=null) {
-            json.put("target", target.getPath());
+            json.put("target", target.getUniqueID());
         }
         return json;
     }
@@ -86,11 +86,11 @@ public class LookAt extends Pose {
         super.fromJSON(from);
         int version = from.has("version") ? from.getInt("version") : 0;
         if (from.has("target")) {
-            if(version == 1) {
-                target.setPath(from.getString("target"));
-            } else if(version == 0) {
-                Pose pose = getRootNode().findNodeByID(from.getString("target"),Pose.class);
-                target.setPath( PathCalculator.getRelativePath(this,pose) );
+            String s = from.getString("target");
+            if(version==1) {
+                target.setUniqueIDByNode( this.findNodeByPath(s,Pose.class) );
+            } else if(version==0 || version==2) {
+                target.setUniqueID(s);
             }
         }
     }

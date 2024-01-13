@@ -37,22 +37,19 @@ class LimbPlannerTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        try {
-            Registry.start();
-        } catch(Exception e) {
-            logger.error("Failed to start Registry",e);
-        }
+        Registry.start();
         limb = build6AxisArm();
 
         // the Sixi3-5.RO file has a limb named "Sixi3" which has a LimbSolver.
-
         limbSolver = limb.findFirstChild(LimbSolver.class);
 
+        // the Sixi3-5.RO file does not have a LimbPlanner.
         limbPlanner = new LimbPlanner();
         limb.addChild(limbPlanner);
         limbPlanner.setSolver(limbSolver);
 
-        pathStart = new Pose();
+        // the Sixi3-5.RO file does not have a path.
+        pathStart = new Pose("path");
         limbPlanner.addChild(pathStart);
         limbPlanner.setPathStart(pathStart);
         limb.addChild(pathStart);
@@ -99,14 +96,18 @@ class LimbPlannerTest {
         double sum=0;
         for(int i=0;i<10;++i) {
             sum+=dt;
-            logger.debug(StringHelper.formatTime(sum)+" Move "+Arrays.toString(limb.getAllJointAngles()));
+            logger.debug(StringHelper.formatTime(sum)
+                    +" Move "+Arrays.toString(limb.getAllJointAngles())
+                    +" " + limbSolver.getDistanceToTarget());
             limb.update(dt);
             if(!limbPlanner.isRunning()) break;
         }
         if(limbPlanner.isRunning()) {
             limbPlanner.stopRun();
         }
-        logger.debug(StringHelper.formatTime(sum)+" End "+Arrays.toString(limb.getAllJointAngles()));
+        logger.debug(StringHelper.formatTime(sum)
+                +" End "+Arrays.toString(limb.getAllJointAngles())
+                +" " + limbSolver.getDistanceToTarget());
 
         // confirm we moved for 1 second.
         assertEquals(1.0, limbPlanner.getExecutionTime(),1e-4);

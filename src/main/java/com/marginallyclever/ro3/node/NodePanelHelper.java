@@ -54,7 +54,7 @@ public class NodePanelHelper {
     public static <T extends Node> NodeSelector<T> addNodeSelector(JPanel pane, String label, NodePath<T> nodePath, Class<T> clazz, GridBagConstraints gbc,Node origin) {
         NodeSelector<T> selector = new NodeSelector<>(clazz, nodePath.getSubject());
         selector.addPropertyChangeListener("subject", (e) -> {
-            nodePath.setRelativePath(origin, (T)e.getNewValue());
+            nodePath.setUniqueIDByNode((T)e.getNewValue());
         });
         NodePanelHelper.addLabelAndComponent(pane, label, selector, gbc);
         return selector;

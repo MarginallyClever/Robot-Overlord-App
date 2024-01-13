@@ -54,7 +54,7 @@ public class LimbSolver extends Node {
      * @param target the target to move towards
      */
     public void setTarget(Pose target) {
-        this.target.setRelativePath(this,target);
+        this.target.setUniqueIDByNode(target);
     }
 
     public void update(double dt) {
@@ -88,7 +88,7 @@ public class LimbSolver extends Node {
      * @param limb the limb to control
      */
     public void setLimb(Limb limb) {
-        this.limb.setRelativePath(this,limb);
+        this.limb.setUniqueIDByNode(limb);
     }
 
     private Pose getEndEffector() {
@@ -166,10 +166,9 @@ public class LimbSolver extends Node {
     @Override
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
-        json.put("version",2);
-
-        if(getLimb()!=null) json.put("limb",limb.getPath());
-        if(getTarget()!=null) json.put("target",target.getPath());
+        json.put("version",3);
+        if(getLimb()!=null) json.put("limb",limb.getUniqueID());
+        if(getTarget()!=null) json.put("target",target.getUniqueID());
         json.put("linearVelocity",linearVelocity);
         return json;
     }
@@ -183,20 +182,18 @@ public class LimbSolver extends Node {
 
         if(from.has("target")) {
             String s = from.getString("target");
-            if(version>0) {
-                target.setPath(s);
-            } else if(version==0) {
-                Pose goal = root.findNodeByID(s,Pose.class);
-                target.setRelativePath(this,goal);
+            if(version==1||version==2) {
+                target.setUniqueIDByNode(this.findNodeByPath(s,Pose.class));
+            } else if(version==0 || version==3) {
+                target.setUniqueID(s);
             }
         }
         if(from.has("limb")) {
             String s = from.getString("limb");
             if(version>=2) {
-                limb.setPath(s);
+                limb.setUniqueIDByNode(this.findNodeByPath(s,Limb.class));
             } else {
-                Limb limb = root.findNodeByID(s, Limb.class);
-                this.limb.setRelativePath(this, limb);
+                this.limb.setUniqueID(s);
             }
         }
         if(from.has("linearVelocity")) {

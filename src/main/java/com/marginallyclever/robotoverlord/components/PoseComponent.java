@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.components;
 
+import com.marginallyclever.convenience.helpers.BigMatrixHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.entity.Entity;
@@ -80,13 +81,13 @@ public class PoseComponent extends Component implements PropertyChangeListener {
     }
 
     public void setLocalMatrix3(Matrix3d mat) {
-        Vector3d euler = MatrixHelper.matrixToEuler(mat);
+        Vector3d euler = MatrixHelper.matrixToEuler(mat, MatrixHelper.EulerSequence.YXZ);
         euler.scale(Math.toDegrees(1));
         setRotation(euler);
     }
 
     public void setLocalMatrix4(Matrix4d m) {
-        Vector3d euler = MatrixHelper.matrixToEuler(m);
+        Vector3d euler = MatrixHelper.matrixToEuler(m, MatrixHelper.EulerSequence.YXZ);
         euler.scale(Math.toDegrees(1));
         setRotation(euler);
         setPosition(MatrixHelper.getPosition(m));
@@ -143,7 +144,7 @@ public class PoseComponent extends Component implements PropertyChangeListener {
         rot.x = Math.toRadians(rot.x);
         rot.y = Math.toRadians(rot.y);
         rot.z = Math.toRadians(rot.z);
-        m4.set(MatrixHelper.eulerToMatrix(rot));
+        m4.set(MatrixHelper.eulerToMatrix(rot, MatrixHelper.EulerSequence.YXZ));
         m4.setTranslation(getPosition());
         Vector3d s = getScale();
         m4.m00 *= s.x;
@@ -154,7 +155,7 @@ public class PoseComponent extends Component implements PropertyChangeListener {
 
     @Override
     public String toString() {
-        return super.toString()+",local="+ Arrays.toString(MatrixHelper.matrix4dToArray(local))+",\n";
+        return super.toString()+",local="+ Arrays.toString(BigMatrixHelper.matrix4dToArray(local))+",\n";
     }
 
     /**

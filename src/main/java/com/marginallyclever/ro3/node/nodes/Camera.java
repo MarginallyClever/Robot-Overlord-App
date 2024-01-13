@@ -338,7 +338,7 @@ public class Camera extends Pose {
     }
 
     double[] getPanTiltFromMatrix(Matrix4d matrix) {
-        Vector3d v = MatrixHelper.matrixToEuler(matrix);
+        Vector3d v = MatrixHelper.matrixToEuler(matrix, MatrixHelper.EulerSequence.YXZ);
         double pan = Math.toDegrees(-v.z);
         double tilt = Math.toDegrees(v.x);
         return new double[]{ pan, tilt };

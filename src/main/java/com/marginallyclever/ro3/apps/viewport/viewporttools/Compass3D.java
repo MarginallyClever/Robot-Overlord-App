@@ -34,7 +34,7 @@ public class Compass3D implements ViewportTool {
     private final int compassRadius = 50;
     private final int handleLength = 30;
     private final int handleRadius = 8;
-    private final Mesh gizmoMesh = MatrixHelper.createMesh(handleLength);
+    private final Mesh gizmoMesh = MatrixHelper.createMesh();
     private final Mesh circleMesh = new CircleXY();
     private final Mesh quadMesh = new Mesh();
     private final TextureWithMetadata texture;

@@ -1,6 +1,6 @@
 package com.marginallyclever.ro3.node.nodes.limbsolver;
 
-import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.helpers.BigMatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 
 /**
@@ -51,10 +51,10 @@ public abstract class ApproximateJacobian {
      * @return the pseudo-inverse of the jacobian matrix.
      */
     private double[][] getPseudoInverseOverdetermined() {
-        double[][] jt = MatrixHelper.transpose(jacobian);
-        double[][] mm = MatrixHelper.multiplyMatrices(jacobian, jt);
-        double[][] ji = MatrixHelper.invert(mm);
-        return MatrixHelper.multiplyMatrices(jt, ji);
+        double[][] jt = BigMatrixHelper.transpose(jacobian);
+        double[][] mm = BigMatrixHelper.multiplyMatrices(jacobian, jt);
+        double[][] ji = BigMatrixHelper.invert(mm);
+        return BigMatrixHelper.multiplyMatrices(jt, ji);
     }
 
     /**
@@ -63,23 +63,23 @@ public abstract class ApproximateJacobian {
      * @return the pseudo-inverse of the jacobian matrix.
      */
     private double[][] getPseudoInverseUnderdetermined() {
-        double[][] jt = MatrixHelper.transpose(jacobian);
-        double[][] mm = MatrixHelper.multiplyMatrices(jt, jacobian);
-        double[][] ji = MatrixHelper.invert(mm);
-        return MatrixHelper.multiplyMatrices(ji, jt);
+        double[][] jt = BigMatrixHelper.transpose(jacobian);
+        double[][] mm = BigMatrixHelper.multiplyMatrices(jt, jacobian);
+        double[][] ji = BigMatrixHelper.invert(mm);
+        return BigMatrixHelper.multiplyMatrices(ji, jt);
     }
 
     private double[][] getInverseDampedLeastSquares(double lambda) {
-        double[][] jt = MatrixHelper.transpose(jacobian);
-        double[][] jjt = MatrixHelper.multiplyMatrices(jacobian, jt);
+        double[][] jt = BigMatrixHelper.transpose(jacobian);
+        double[][] jjt = BigMatrixHelper.multiplyMatrices(jacobian, jt);
 
         // Add lambda^2 * identity matrix to jjt
         for (int i = 0; i < jacobian.length; i++) {
             jjt[i][i] += lambda * lambda;
         }
 
-        double[][] jjt_inv = MatrixHelper.invert(jjt);
-        return MatrixHelper.multiplyMatrices(jt, jjt_inv);
+        double[][] jjt_inv = BigMatrixHelper.invert(jjt);
+        return BigMatrixHelper.multiplyMatrices(jt, jjt_inv);
     }
 
     /**

@@ -1,6 +1,6 @@
 package com.marginallyclever.misc;
 
-import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.helpers.BigMatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.convenience.log.Log;
 import org.junit.After;
@@ -82,8 +82,8 @@ public class MiscTests {
         long start = System.currentTimeMillis();
 
         double[][] m = buildMatrix(t0, tf);
-        double[][] mInv = MatrixHelper.invertMatrix(m);
-        double[] n = MatrixHelper.multiply(mInv, q);
+        double[][] mInv = BigMatrixHelper.invertMatrix(m);
+        double[] n = BigMatrixHelper.multiply(mInv, q);
 
         long end = System.currentTimeMillis();
 

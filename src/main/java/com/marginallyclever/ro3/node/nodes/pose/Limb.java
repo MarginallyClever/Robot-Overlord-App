@@ -73,7 +73,11 @@ public class Limb extends Pose {
         for(NodePath<Motor> paths : motors) {
             Motor motor = paths.getSubject();
             if(motor!=null) {
-                result[i++] = motor.getHinge().getAngle();
+                if(motor.hasHinge()) {
+                    result[i++] = motor.getHinge().getAngle();
+                } else {
+                    result[i++] = 0;
+                }
             }
         }
         return result;
@@ -89,10 +93,11 @@ public class Limb extends Pose {
             if(motor!=null) {
                 HingeJoint axle = motor.getHinge();
                 if(axle!=null) {
-                    axle.setAngle(values[i++]);
+                    axle.setAngle(values[i]);
                     axle.update(0);
                 }
             }
+            i++;
         }
     }
 
@@ -116,13 +121,13 @@ public class Limb extends Pose {
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
         JSONArray jointArray = new JSONArray();
-        json.put("version",1);
+        json.put("version",2);
 
         for(var motor : motors) {
-            jointArray.put(motor == null ? JSONObject.NULL : motor.getPath());
+            jointArray.put(motor == null ? JSONObject.NULL : motor.getUniqueID());
         }
         json.put("motors",jointArray);
-        if(endEffector.getSubject()!=null) json.put("endEffector",endEffector.getPath());
+        if(endEffector.getSubject()!=null) json.put("endEffector",endEffector.getUniqueID());
         return json;
     }
 
@@ -135,13 +140,13 @@ public class Limb extends Pose {
             JSONArray motorArray = from.getJSONArray("motors");
             for(int i=0;i<motorArray.length();++i) {
                 if(motorArray.isNull(i)) {
-                    motors.get(i).setPath(null);
+                    motors.get(i).setUniqueID(null);
                 } else {
+                    String s = motorArray.getString(i);
                     if(version==1) {
-                        motors.get(i).setPath(motorArray.getString(i));
-                    } else if(version==0) {
-                        Motor motor = this.getRootNode().findNodeByID(motorArray.getString(i), Motor.class);
-                        motors.get(i).setRelativePath(this,motor);
+                        motors.get(i).setUniqueIDByNode(this.findNodeByPath(s,Motor.class));
+                    } else if(version==0||version==2) {
+                        motors.get(i).setUniqueID(s);
                     }
                 }
             }
@@ -150,10 +155,9 @@ public class Limb extends Pose {
         if(from.has("endEffector")) {
             String s = from.getString("endEffector");
             if(version==1) {
-                endEffector.setPath(s);
-            } else if(version==0) {
-                Pose goal = root.findNodeByID(s,Pose.class);
-                endEffector.setRelativePath(this,goal);
+                endEffector.setUniqueIDByNode(this.findNodeByPath(s,Pose.class));
+            } else if(version==0||version==2) {
+                endEffector.setUniqueID(s);
             }
         }
     }
@@ -246,7 +250,7 @@ public class Limb extends Pose {
             motorSelector[i] = new NodeSelector<>(Motor.class, motors.get(i).getSubject());
             int j = i;
             motorSelector[i].addPropertyChangeListener("subject",(e)-> {
-                motors.get(j).setRelativePath(this,(Motor)e.getNewValue());
+                motors.get(j).setUniqueIDByNode((Motor)e.getNewValue());
             });
             NodePanelHelper.addLabelAndComponent(outerPanel, "Motor "+i, motorSelector[i],gbc);
         }
