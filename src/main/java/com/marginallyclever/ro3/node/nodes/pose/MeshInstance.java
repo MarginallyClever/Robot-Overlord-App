@@ -39,45 +39,8 @@ public class MeshInstance extends Pose {
      * @param list the list to add components to.
      */
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridLayout(0,2));
-        list.add(pane);
-        pane.setName(MeshInstance.class.getSimpleName());
-
-        JButton select = new JButton();
-        setMeshButtonLabel(select);
-        select.addActionListener(e -> {
-            var meshChooserDialog = new MeshChooserDialog();
-            meshChooserDialog.setSelectedItem(mesh);
-            int result = meshChooserDialog.run(pane);
-            if(result == JFileChooser.APPROVE_OPTION) {
-                mesh = meshChooserDialog.getSelectedItem();
-                setMeshButtonLabel(select);
-            }
-        });
-        NodePanelHelper.addLabelAndComponent(pane,"Mesh",select);
-
-        if(mesh!=null) {
-            NodePanelHelper.addLabelAndComponent(pane,"Vertices",new JLabel(""+mesh.getNumVertices()));
-            NodePanelHelper.addLabelAndComponent(pane,"Triangles",new JLabel(""+mesh.getNumTriangles()));
-
-            JButton smooth = new JButton("Smooth");
-            smooth.addActionListener(e -> MeshSmoother.smoothNormals(mesh,0.01f,0.25f) );
-            NodePanelHelper.addLabelAndComponent(pane,"Normals",smooth);
-
-            JButton adjust = new JButton("Adjust");
-            adjust.addActionListener(e -> adjustLocal());
-            NodePanelHelper.addLabelAndComponent(pane,"Local origin",adjust);
-
-            JButton reload = new JButton("Reload");
-            reload.addActionListener(e-> Registry.meshFactory.reload(mesh) );
-            NodePanelHelper.addLabelAndComponent(pane,"Source",reload);
-        }
-
+        list.add(new MeshInstancePanel(this));
         super.getComponents(list);
-    }
-
-    private void setMeshButtonLabel(JButton button) {
-        button.setText((mesh==null) ? "..." : mesh.getSourceName().substring(mesh.getSourceName().lastIndexOf(File.separatorChar)+1));
     }
 
     /**
