@@ -28,7 +28,6 @@ public class RigidBody3D extends Node {
     @Override
     public void getComponents(List<JPanel> list) {
         list.add(new RigidBody3DPanel(this));
-
         super.getComponents(list);
     }
 

@@ -37,16 +37,7 @@ public class Motor extends Node {
 
     @Override
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridLayout(0,2));
-        list.add(pane);
-        pane.setName(Motor.class.getSimpleName());
-
-        NodeSelector<HingeJoint> selector = new NodeSelector<>(HingeJoint.class,hinge.getSubject());
-        selector.addPropertyChangeListener("subject", (evt) ->{
-            hinge.setRelativePath(this,selector.getSubject());
-        });
-        NodePanelHelper.addLabelAndComponent(pane, "Hinge", selector);
-
+        list.add(new MotorPanel(this));
         super.getComponents(list);
     }
 
