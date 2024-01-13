@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
-import com.marginallyclever.ro3.node.NodePanelHelper;
+import com.marginallyclever.ro3.PanelHelper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,6 +21,6 @@ public class RigidBody3DPanel extends JPanel {
             rigidBody3D.setMass(value.doubleValue());
         });
 
-        NodePanelHelper.addLabelAndComponent(this,"Mass",massField);
+        PanelHelper.addLabelAndComponent(this,"Mass",massField);
     }
 }

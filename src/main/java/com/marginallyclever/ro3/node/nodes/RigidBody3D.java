@@ -1,13 +1,10 @@
 package com.marginallyclever.ro3.node.nodes;
 
-import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.NodePanelHelper;
 import org.json.JSONObject;
 
 import javax.swing.*;
 import javax.vecmath.Matrix3d;
-import java.awt.*;
 import java.util.List;
 
 /**

@@ -2,7 +2,7 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.node.NodePanelHelper;
+import com.marginallyclever.ro3.PanelHelper;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
@@ -52,11 +52,11 @@ public class HingeJointPanel extends JPanel {
             hingeJoint.setAxle(selector.getSubject());
         });
 
-        NodePanelHelper.addLabelAndComponent(this, "Axle",selector);
-        NodePanelHelper.addLabelAndComponent(this, "Angle",angleField);
-        NodePanelHelper.addLabelAndComponent(this, "Min",minAngleField);
-        NodePanelHelper.addLabelAndComponent(this, "Max",maxAngleField);
-        NodePanelHelper.addLabelAndComponent(this, "Velocity",velocityField);
-        NodePanelHelper.addLabelAndComponent(this, "Acceleration",accelerationField);
+        PanelHelper.addLabelAndComponent(this, "Axle",selector);
+        PanelHelper.addLabelAndComponent(this, "Angle",angleField);
+        PanelHelper.addLabelAndComponent(this, "Min",minAngleField);
+        PanelHelper.addLabelAndComponent(this, "Max",maxAngleField);
+        PanelHelper.addLabelAndComponent(this, "Velocity",velocityField);
+        PanelHelper.addLabelAndComponent(this, "Acceleration",accelerationField);
     }
 }

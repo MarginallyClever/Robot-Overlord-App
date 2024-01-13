@@ -2,10 +2,7 @@ package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
-import com.marginallyclever.convenience.swing.NumberFormatHelper;
-import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.limbsolver.ApproximateJacobianFiniteDifferences;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
@@ -19,13 +16,8 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.HierarchyEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * <p>{@link MarlinRobotArm} converts the state of a robot arm into GCode and back.</p>

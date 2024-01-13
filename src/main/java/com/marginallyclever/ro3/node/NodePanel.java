@@ -1,5 +1,7 @@
 package com.marginallyclever.ro3.node;
 
+import com.marginallyclever.ro3.PanelHelper;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -14,6 +16,6 @@ public class NodePanel extends JPanel {
             node.setName(nameField.getText());
         });
         nameField.setEditable(false);
-        NodePanelHelper.addLabelAndComponent(this,"Name",nameField);
+        PanelHelper.addLabelAndComponent(this,"Name",nameField);
     }
 }

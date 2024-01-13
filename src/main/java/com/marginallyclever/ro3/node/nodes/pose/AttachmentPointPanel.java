@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.pose;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
-import com.marginallyclever.ro3.node.NodePanelHelper;
+import com.marginallyclever.ro3.PanelHelper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,10 +23,10 @@ public class AttachmentPointPanel extends JPanel {
         radiusField.addPropertyChangeListener("value", e -> {
             attachmentPoint.setRadius( ((Number)radiusField.getValue()).doubleValue() );
         });
-        NodePanelHelper.addLabelAndComponent(this,"Radius",radiusField);
+        PanelHelper.addLabelAndComponent(this,"Radius",radiusField);
 
         var attached = buildAttachToggle();
-        NodePanelHelper.addLabelAndComponent(this,"Action",attached);
+        PanelHelper.addLabelAndComponent(this,"Action",attached);
     }
 
     /**

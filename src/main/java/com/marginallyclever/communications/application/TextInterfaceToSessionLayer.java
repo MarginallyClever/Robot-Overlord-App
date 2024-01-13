@@ -4,6 +4,7 @@ import com.marginallyclever.communications.session.SessionLayer;
 import com.marginallyclever.communications.session.SessionLayerEvent;
 import com.marginallyclever.communications.session.SessionLayerListener;
 import com.marginallyclever.convenience.log.Log;
+import com.marginallyclever.ro3.apps.App;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 /**
  * A connection selection dialog and a {@link TextInterfaceWithHistory} glued to a {@link SessionLayer}.
  */
-public class TextInterfaceToSessionLayer extends JPanel implements SessionLayerListener {
+public class TextInterfaceToSessionLayer extends App implements SessionLayerListener {
 	private final ChooseConnectionPanel myConnectionChoice = new ChooseConnectionPanel();
 	private final TextInterfaceWithHistory myInterface = new TextInterfaceWithHistory();
 	private SessionLayer mySession;

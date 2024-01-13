@@ -82,7 +82,7 @@ public class MiscTests {
         long start = System.currentTimeMillis();
 
         double[][] m = buildMatrix(t0, tf);
-        double[][] mInv = BigMatrixHelper.invertMatrix(m);
+        double[][] mInv = BigMatrixHelper.invert(m);
         double[] n = BigMatrixHelper.multiply(mInv, q);
 
         long end = System.currentTimeMillis();

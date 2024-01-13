@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
-import com.marginallyclever.ro3.node.NodePanelHelper;
+import com.marginallyclever.ro3.PanelHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,10 +41,10 @@ public class DHParameterPanel extends JPanel {
 
         this.setLayout(new GridLayout(0,2));
 
-        NodePanelHelper.addLabelAndComponent(this,"d",dh_d);
-        NodePanelHelper.addLabelAndComponent(this,"theta",dh_theta);
-        NodePanelHelper.addLabelAndComponent(this,"r",dh_r);
-        NodePanelHelper.addLabelAndComponent(this,"alpha",dh_alpha);
+        PanelHelper.addLabelAndComponent(this,"d",dh_d);
+        PanelHelper.addLabelAndComponent(this,"theta",dh_theta);
+        PanelHelper.addLabelAndComponent(this,"r",dh_r);
+        PanelHelper.addLabelAndComponent(this,"alpha",dh_alpha);
 
         this.add(fromPose);
         this.add(toPose);

@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.node.NodePanelHelper;
+import com.marginallyclever.ro3.PanelHelper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,6 +15,6 @@ public class MotorPanel extends JPanel {
         selector.addPropertyChangeListener("subject", (evt) ->{
             motor.setHinge(selector.getSubject());
         });
-        NodePanelHelper.addLabelAndComponent(this, "Hinge", selector);
+        PanelHelper.addLabelAndComponent(this, "Hinge", selector);
     }
 }

@@ -51,10 +51,9 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private final List<ViewportTool> viewportTools = new ArrayList<>();
     private int activeToolIndex = -1;
     private ShaderProgram toolShader;
-    private final double userMovementScale = 1.0;
+    private double userMovementScale = 1.0;
     private final JButton frameOfReferenceButton = new JButton();
     private final JPopupMenu frameOfReferenceMenu = new JPopupMenu();
-
 
     public Viewport() {
         super();
@@ -650,5 +649,18 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         if(activeToolIndex >= 0) {
             viewportTools.get(activeToolIndex).activate(Registry.selection.getList());
         }
+    }
+
+    public double getUserMovementScale() {
+        return userMovementScale;
+    }
+
+    /**
+     * Set the scale of user movement.  This is used to scale the mouse movement to the camera movement.
+     * @param scale a value greater than zero.
+     */
+    public void setUserMovementScale(double scale) {
+        if(scale<=0) throw new InvalidParameterException("scale must be greater than zero.");
+        userMovementScale=scale;
     }
 }

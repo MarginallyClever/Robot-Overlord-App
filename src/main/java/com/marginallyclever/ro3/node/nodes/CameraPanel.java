@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
-import com.marginallyclever.ro3.node.NodePanelHelper;
+import com.marginallyclever.ro3.PanelHelper;
 
 import javax.swing.*;
 import javax.vecmath.Vector3d;
@@ -29,12 +29,12 @@ public class CameraPanel extends JPanel {
             nearZSpinner.setEnabled(!drawOrthographic);
             fovSpinner.setEnabled(!drawOrthographic);
         });
-        NodePanelHelper.addLabelAndComponent(this,"Orthographic",ortho);
+        PanelHelper.addLabelAndComponent(this,"Orthographic",ortho);
 
         fovSpinner.addChangeListener(e -> {
             camera.setFovY( (double) fovSpinner.getValue() );
         });
-        NodePanelHelper.addLabelAndComponent(this,"FOV",fovSpinner);
+        PanelHelper.addLabelAndComponent(this,"FOV",fovSpinner);
 
         nearZSpinner.addChangeListener(e -> {
             camera.setNearZ( (double)nearZSpinner.getValue() );
@@ -44,12 +44,12 @@ public class CameraPanel extends JPanel {
                 farZSpinner.setValue(nearZ + 1);
             }
         });
-        NodePanelHelper.addLabelAndComponent(this,"Near",nearZSpinner);
+        PanelHelper.addLabelAndComponent(this,"Near",nearZSpinner);
 
         farZSpinner.addChangeListener(e -> {
             camera.setFarZ( (double) farZSpinner.getValue() );
         });
-        NodePanelHelper.addLabelAndComponent(this,"Far",farZSpinner);
+        PanelHelper.addLabelAndComponent(this,"Far",farZSpinner);
 
         addLookAtComponents();
     }
@@ -75,10 +75,10 @@ public class CameraPanel extends JPanel {
             }
         });
 
-        NodePanelHelper.addLabelAndComponent(this, "Look at", new JLabel());
-        NodePanelHelper.addLabelAndComponent(this, "X", tx);
-        NodePanelHelper.addLabelAndComponent(this, "Y", ty);
-        NodePanelHelper.addLabelAndComponent(this, "Z", tz);
-        NodePanelHelper.addLabelAndComponent(this, "", button);
+        PanelHelper.addLabelAndComponent(this, "Look at", new JLabel());
+        PanelHelper.addLabelAndComponent(this, "X", tx);
+        PanelHelper.addLabelAndComponent(this, "Y", ty);
+        PanelHelper.addLabelAndComponent(this, "Z", tz);
+        PanelHelper.addLabelAndComponent(this, "", button);
     }
 }

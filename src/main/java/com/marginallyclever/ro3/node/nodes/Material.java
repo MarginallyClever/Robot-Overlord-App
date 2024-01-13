@@ -1,15 +1,12 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.texture.TextureChooserDialog;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.json.JSONObject;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.List;
 
 /**

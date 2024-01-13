@@ -2,10 +2,7 @@ package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
-import com.marginallyclever.ro3.node.NodePanelHelper;
-import com.marginallyclever.ro3.node.nodes.Motor;
-import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
-import com.marginallyclever.ro3.node.nodes.pose.Limb;
+import com.marginallyclever.ro3.PanelHelper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,15 +26,15 @@ public class MarlinRobotArmPanel extends JPanel {
         gbc.gridy=0;
         gbc.gridwidth=1;
 
-        NodePanelHelper.addNodeSelector(this, "Limb", marlinRobotArm.getLimb(), gbc);
+        PanelHelper.addNodeSelector(this, "Limb", marlinRobotArm.getLimb(), gbc);
         gbc.gridy++;
-        NodePanelHelper.addNodeSelector(this, "Solver", marlinRobotArm.getSolver(), gbc);
+        PanelHelper.addNodeSelector(this, "Solver", marlinRobotArm.getSolver(), gbc);
         gbc.gridy++;
-        NodePanelHelper.addNodeSelector(this, "Gripper motor", marlinRobotArm.getGripperMotor(), gbc);
+        PanelHelper.addNodeSelector(this, "Gripper motor", marlinRobotArm.getGripperMotor(), gbc);
         gbc.gridy++;
         JButton M114 = new JButton("M114");
         M114.addActionListener(e-> marlinRobotArm.sendGCode("M114"));
-        NodePanelHelper.addLabelAndComponent(this, "Get state", M114,gbc);
+        PanelHelper.addLabelAndComponent(this, "Get state", M114,gbc);
 
         gbc.gridx=0;
         gbc.gridwidth=2;

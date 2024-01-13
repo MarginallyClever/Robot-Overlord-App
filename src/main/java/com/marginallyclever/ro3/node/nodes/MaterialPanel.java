@@ -1,6 +1,6 @@
 package com.marginallyclever.ro3.node.nodes;
 
-import com.marginallyclever.ro3.node.NodePanelHelper;
+import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.texture.TextureChooserDialog;
 
 import javax.swing.*;
@@ -36,12 +36,12 @@ public class MaterialPanel extends JPanel {
                 setTextureButtonLabel(button);
             }
         });
-        NodePanelHelper.addLabelAndComponent(this,"Texture",button,gbc);
+        PanelHelper.addLabelAndComponent(this,"Texture",button,gbc);
 
         if(texture!=null) {
             BufferedImage smaller = scaleImage(texture.getImage());
-            NodePanelHelper.addLabelAndComponent(this,"Size",new JLabel(texture.getWidth()+"x"+texture.getHeight()),gbc);
-            NodePanelHelper.addLabelAndComponent(this,"Preview",new JLabel(new ImageIcon(smaller)),gbc);
+            PanelHelper.addLabelAndComponent(this,"Size",new JLabel(texture.getWidth()+"x"+texture.getHeight()),gbc);
+            PanelHelper.addLabelAndComponent(this,"Preview",new JLabel(new ImageIcon(smaller)),gbc);
         }
 
         // diffuse
@@ -53,7 +53,7 @@ public class MaterialPanel extends JPanel {
             if(color!=null) material.setDiffuseColor(color);
             selectColorDiffuse.setBackground(diffuseColor);
         });
-        NodePanelHelper.addLabelAndComponent(this,"Diffuse",selectColorDiffuse,gbc);
+        PanelHelper.addLabelAndComponent(this,"Diffuse",selectColorDiffuse,gbc);
 
         // specular
         var specularColor = material.getSpecularColor();
@@ -64,7 +64,7 @@ public class MaterialPanel extends JPanel {
             if(color!=null) material.setSpecularColor(color);
             selectColorSpecular.setBackground(specularColor);
         });
-        NodePanelHelper.addLabelAndComponent(this,"Specular",selectColorSpecular,gbc);
+        PanelHelper.addLabelAndComponent(this,"Specular",selectColorSpecular,gbc);
 
         // emissive
         var emissionColor = material.getEmissionColor();
@@ -75,12 +75,12 @@ public class MaterialPanel extends JPanel {
             if(color!=null) material.setEmissionColor(color);
             selectColorEmission.setBackground(emissionColor);
         });
-        NodePanelHelper.addLabelAndComponent(this,"Emissive",selectColorEmission,gbc);
+        PanelHelper.addLabelAndComponent(this,"Emissive",selectColorEmission,gbc);
 
         // lit
         JToggleButton isLitButton = new JToggleButton("Lit",material.isLit());
         isLitButton.addActionListener(e -> material.setLit(isLitButton.isSelected()));
-        NodePanelHelper.addLabelAndComponent(this,"Lit",isLitButton,gbc);
+        PanelHelper.addLabelAndComponent(this,"Lit",isLitButton,gbc);
 
         // shininess
         gbc.gridy++;

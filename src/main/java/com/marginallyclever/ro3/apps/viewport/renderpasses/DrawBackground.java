@@ -34,7 +34,25 @@ public class DrawBackground extends AbstractRenderPass {
     public DrawBackground() {
         super("Erase/Background");
 
-        // build a box
+        buildBox();
+
+        texture = Registry.textureFactory.load("/skybox/skybox.png");
+        texture.setDoNotExport(true);
+    }
+
+    /**
+     * Build a box with the given dimensions.
+     * <p>Textures are mapped to the box as follows:</p>
+     * <pre>
+     *     +---+---+---+---+
+     *     |   | Z |   |   |
+     *     +---+---+---+---+
+     *     | X-| Y | X | Y-|
+     *     +---+---+---+---+
+     *     |   | Z-|   |   |
+     *     +---+---+---+---+</pre>
+     */
+    private void buildBox() {
         mesh.setRenderStyle(GL3.GL_QUADS);
 
         float adj = 1f/256f;
@@ -77,9 +95,6 @@ public class DrawBackground extends AbstractRenderPass {
         mesh.addTexCoord(b,g);  mesh.addVertex(-v,  v,  v);
         mesh.addTexCoord(b,f);  mesh.addVertex(-v,  v, -v);
         mesh.addTexCoord(a,f);  mesh.addVertex(-v, -v, -v);
-
-        texture = Registry.textureFactory.load("/skybox/skybox.png");
-        texture.setDoNotExport(true);
     }
 
     /**
@@ -133,6 +148,8 @@ public class DrawBackground extends AbstractRenderPass {
     }
 
     private void drawSkybox(GL3 gl3, Camera camera) {
+        if(texture==null) return;
+
         shader.use(gl3);
         Matrix4d inverseCamera = camera.getWorld();
         inverseCamera.setTranslation(new Vector3d(0,0,0));
@@ -156,9 +173,7 @@ public class DrawBackground extends AbstractRenderPass {
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_T, GL3.GL_CLAMP_TO_EDGE);
 
         shader.setMatrix4d(gl3,"modelMatrix",MatrixHelper.createIdentityMatrix4());
-        if(texture!=null) {
-            texture.use(shader);
-        }
+        texture.use(shader);
         mesh.render(gl3);
 
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_S, GL3.GL_REPEAT);

@@ -5,11 +5,13 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.viewport.renderpasses.DrawMeshes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.event.*;
 import java.awt.*;
+import java.util.prefs.Preferences;
 
 /**
  * {@link OpenGLPanel} manages a {@link GLJPanel} and an {@link FPSAnimator}.
@@ -17,16 +19,17 @@ import java.awt.*;
 public class OpenGLPanel extends App implements GLEventListener, MouseListener, MouseMotionListener, MouseWheelListener {
     private static final Logger logger = LoggerFactory.getLogger(OpenGLPanel.class);
     protected GLJPanel glCanvas;
-    private final boolean hardwareAccelerated = true;
-    private final boolean backgroundOpaque = false;
-    private final boolean doubleBuffered = true;
-    private final int fsaaSamples = 2;
-    private final int fps = 30;
+    private boolean hardwareAccelerated = true;
+    private boolean doubleBuffered = true;
+    private int fsaaSamples = 2;
+    private boolean verticalSync = true;
+    private int fps = 30;
     private final FPSAnimator animator = new FPSAnimator(fps);
-    private final boolean verticalSync = true;
 
     public OpenGLPanel() {
         super(new BorderLayout());
+
+        loadPrefs();
 
         try {
             logger.info("availability="+ GLProfile.glAvailabilityToString());
@@ -39,6 +42,24 @@ public class OpenGLPanel extends App implements GLEventListener, MouseListener, 
         add(glCanvas, BorderLayout.CENTER);
         animator.add(glCanvas);
         animator.start();
+    }
+
+    private void loadPrefs() {
+        Preferences pref = Preferences.userNodeForPackage(this.getClass());
+        hardwareAccelerated = pref.getBoolean("hardwareAccelerated",true);
+        doubleBuffered = pref.getBoolean("doubleBuffered",true);
+        fsaaSamples = pref.getInt("fsaaSamples",2);
+        verticalSync = pref.getBoolean("verticalSync",true);
+        fps = pref.getInt("fps",30);
+    }
+
+    public void savePrefs() {
+        Preferences pref = Preferences.userNodeForPackage(this.getClass());
+        pref.putBoolean("hardwareAccelerated",hardwareAccelerated);
+        pref.putBoolean("doubleBuffered",doubleBuffered);
+        pref.putInt("fsaaSamples",fsaaSamples);
+        pref.putBoolean("verticalSync",verticalSync);
+        pref.putInt("fps",fps);
     }
 
     @Override
@@ -63,7 +84,7 @@ public class OpenGLPanel extends App implements GLEventListener, MouseListener, 
         GLProfile profile = GLProfile.getMaxProgrammable(true);
         GLCapabilities capabilities = new GLCapabilities(profile);
         capabilities.setHardwareAccelerated(hardwareAccelerated);
-        capabilities.setBackgroundOpaque(backgroundOpaque);
+        capabilities.setBackgroundOpaque(true);
         capabilities.setDoubleBuffered(doubleBuffered);
         capabilities.setStencilBits(8);
         if(fsaaSamples>0) {
@@ -152,4 +173,39 @@ public class OpenGLPanel extends App implements GLEventListener, MouseListener, 
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {}
+
+
+    public boolean isHardwareAccelerated() {
+        return hardwareAccelerated;
+    }
+
+    public void setHardwareAccelerated(boolean hardwareAccelerated) {
+        this.hardwareAccelerated = hardwareAccelerated;
+    }
+
+    @Override
+    public boolean isDoubleBuffered() {
+        return doubleBuffered;
+    }
+
+    @Override
+    public void setDoubleBuffered(boolean doubleBuffered) {
+        this.doubleBuffered = doubleBuffered;
+    }
+
+    public int getFsaaSamples() {
+        return fsaaSamples;
+    }
+
+    public void setFsaaSamples(int fsaaSamples) {
+        this.fsaaSamples = fsaaSamples;
+    }
+
+    public boolean isVerticalSync() {
+        return verticalSync;
+    }
+
+    public void setVerticalSync(boolean verticalSync) {
+        this.verticalSync = verticalSync;
+    }
 }

@@ -1,15 +1,19 @@
-package com.marginallyclever.ro3.node;
+package com.marginallyclever.ro3;
 
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
+import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodePath;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class NodePanelHelper {
-
+/**
+ * {@link PanelHelper} is a collection of static methods to help build panels.
+ */
+public class PanelHelper {
     /**
-     * A convenience method to add a label and component to a panel that is expected to be built with
-     * <code>new GridLayout(0, 2)</code>.
+     * <p>A convenience method to add a label and component to a panel that is built with
+     * {@link GridLayout}.</p>
      * @param pane the panel to add to
      * @param labelText the text for the label
      * @param component the component to add
@@ -22,8 +26,8 @@ public class NodePanelHelper {
     }
 
     /**
-     * A convenience method to add a label and component to a panel that is expected to be built with
-     * <code>new GridLayout(0, 2)</code>.
+     * <p>A convenience method to add a label and component to a panel that is built with
+     * {@link GridBagLayout}.</p>
      * @param pane the panel to add to
      * @param labelText the text for the label
      * @param component the component to add
@@ -60,7 +64,7 @@ public class NodePanelHelper {
         selector.addPropertyChangeListener("subject", (e) -> {
             nodePath.setUniqueIDByNode((T)e.getNewValue());
         });
-        NodePanelHelper.addLabelAndComponent(pane, label, selector, gbc);
+        PanelHelper.addLabelAndComponent(pane, label, selector, gbc);
         return selector;
     }
 }

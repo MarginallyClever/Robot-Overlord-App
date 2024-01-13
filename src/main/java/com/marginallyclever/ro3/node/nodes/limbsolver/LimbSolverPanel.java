@@ -1,9 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.limbsolver;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
-import com.marginallyclever.ro3.node.NodePanelHelper;
-import com.marginallyclever.ro3.node.nodes.Pose;
-import com.marginallyclever.ro3.node.nodes.pose.Limb;
+import com.marginallyclever.ro3.PanelHelper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,10 +23,10 @@ public class LimbSolverPanel extends JPanel {
         gbc.gridx=0;
         gbc.gridy=0;
 
-        NodePanelHelper.addNodeSelector(this, "Limb", limbSolver.getLimb(), gbc);
+        PanelHelper.addNodeSelector(this, "Limb", limbSolver.getLimb(), gbc);
 
         gbc.gridy++;
-        NodePanelHelper.addNodeSelector(this, "Target", limbSolver.getTarget(), gbc);
+        PanelHelper.addNodeSelector(this, "Target", limbSolver.getTarget(), gbc);
 
         gbc.gridy++;
         addMoveTargetToEndEffector(this,gbc);
@@ -41,7 +39,7 @@ public class LimbSolverPanel extends JPanel {
         marginField.addPropertyChangeListener("value", evt -> {
             limbSolver.setGoalMarginOfError( ((Number) marginField.getValue()).doubleValue() );
         });
-        NodePanelHelper.addLabelAndComponent(this, "Goal Margin", marginField, gbc);
+        PanelHelper.addLabelAndComponent(this, "Goal Margin", marginField, gbc);
 
         gbc.gridy++;
         gbc.gridwidth=2;
@@ -62,7 +60,7 @@ public class LimbSolverPanel extends JPanel {
                 limbSolver.moveTargetToEndEffector();
             }
         });
-        NodePanelHelper.addLabelAndComponent(pane, "Target to EE", targetToEE,gbc);
+        PanelHelper.addLabelAndComponent(pane, "Target to EE", targetToEE,gbc);
     }
 
     private JComponent createVelocitySlider() {
