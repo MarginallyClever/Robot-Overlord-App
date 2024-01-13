@@ -3,9 +3,8 @@ package com.marginallyclever.ro3.node.nodes.pose;
 import com.marginallyclever.convenience.swing.Dial;
 import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.node.NodePanelHelper;
+import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.node.nodes.Motor;
-import com.marginallyclever.ro3.node.nodes.Pose;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,7 +24,7 @@ public class LimbPanel extends JPanel {
         gbc.gridx=0;
         gbc.gridy=0;
         gbc.gridwidth=1;
-        NodePanelHelper.addNodeSelector(this, "End Effector", limb.getEndEffector(), gbc);
+        PanelHelper.addNodeSelector(this, "End Effector", limb.getEndEffector(), gbc);
 
         gbc.gridx=0;
         gbc.gridwidth=2;
@@ -100,7 +99,7 @@ public class LimbPanel extends JPanel {
             motorSelector[i].addPropertyChangeListener("subject",(e)-> {
                 limb.setJoint(j,(Motor)e.getNewValue());
             });
-            NodePanelHelper.addLabelAndComponent(outerPanel, "Motor "+i, motorSelector[i],gbc);
+            PanelHelper.addLabelAndComponent(outerPanel, "Motor "+i, motorSelector[i],gbc);
         }
         return containerPanel;
     }

@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.pose;
 
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.node.NodePanelHelper;
+import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.node.nodes.Pose;
 
 import javax.swing.*;
@@ -16,6 +16,6 @@ public class LookAtPanel extends JPanel {
         selector.addPropertyChangeListener("subject", (evt) -> {
             lookAt.setTarget(selector.getSubject());
         } );
-        NodePanelHelper.addLabelAndComponent(this,"Target",selector);
+        PanelHelper.addLabelAndComponent(this,"Target",selector);
     }
 }

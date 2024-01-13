@@ -7,11 +7,13 @@ import com.marginallyclever.ro3.node.NodePath;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * {@link PanelHelper} is a collection of static methods to help build panels.
+ */
 public class PanelHelper {
-
     /**
-     * A convenience method to add a label and component to a panel that is expected to be built with
-     * <code>new GridLayout(0, 2)</code>.
+     * <p>A convenience method to add a label and component to a panel that is built with
+     * {@link GridLayout}.</p>
      * @param pane the panel to add to
      * @param labelText the text for the label
      * @param component the component to add
@@ -24,8 +26,8 @@ public class PanelHelper {
     }
 
     /**
-     * A convenience method to add a label and component to a panel that is expected to be built with
-     * <code>new GridLayout(0, 2)</code>.
+     * <p>A convenience method to add a label and component to a panel that is built with
+     * {@link GridBagLayout}.</p>
      * @param pane the panel to add to
      * @param labelText the text for the label
      * @param component the component to add

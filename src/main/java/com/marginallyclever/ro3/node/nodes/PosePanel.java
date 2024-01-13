@@ -2,7 +2,7 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
-import com.marginallyclever.ro3.node.NodePanelHelper;
+import com.marginallyclever.ro3.PanelHelper;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
@@ -32,10 +32,10 @@ public class PosePanel extends JPanel {
         ty.addPropertyChangeListener("value", e -> local.m13 = ((Number) ty.getValue()).doubleValue() );
         tz.addPropertyChangeListener("value", e -> local.m23 = ((Number) tz.getValue()).doubleValue() );
 
-        NodePanelHelper.addLabelAndComponent(this, "Translation", new JLabel());
-        NodePanelHelper.addLabelAndComponent(this, "X", tx);
-        NodePanelHelper.addLabelAndComponent(this, "Y", ty);
-        NodePanelHelper.addLabelAndComponent(this, "Z", tz);
+        PanelHelper.addLabelAndComponent(this, "Translation", new JLabel());
+        PanelHelper.addLabelAndComponent(this, "X", tx);
+        PanelHelper.addLabelAndComponent(this, "Y", ty);
+        PanelHelper.addLabelAndComponent(this, "Z", tz);
     }
 
     private void addRotationComponents(NumberFormatter formatter) {
@@ -73,10 +73,10 @@ public class PosePanel extends JPanel {
             pose.setRotationEuler(r2, rotationIndex);
         });
 
-        NodePanelHelper.addLabelAndComponent(this, "Rotation", new JLabel());
-        NodePanelHelper.addLabelAndComponent(this, "Type", rotationType);
-        NodePanelHelper.addLabelAndComponent(this, "X", rx);
-        NodePanelHelper.addLabelAndComponent(this, "Y", ry);
-        NodePanelHelper.addLabelAndComponent(this, "Z", rz);
+        PanelHelper.addLabelAndComponent(this, "Rotation", new JLabel());
+        PanelHelper.addLabelAndComponent(this, "Type", rotationType);
+        PanelHelper.addLabelAndComponent(this, "X", rx);
+        PanelHelper.addLabelAndComponent(this, "Y", ry);
+        PanelHelper.addLabelAndComponent(this, "Z", rz);
     }
 }
