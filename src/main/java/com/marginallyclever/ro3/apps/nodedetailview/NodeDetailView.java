@@ -109,14 +109,17 @@ public class NodeDetailView extends App
         return parent;
     }
 
+    private void selectionChanged() {
+        selectionChanged(Registry.selection.getList());
+    }
+
     /**
      * Called when the selection changes.
      * See <a href="https://stackoverflow.com/questions/62864625/why-boxlayout-is-taking-extra-space">layout fix</a>
      * @param selectedNodes the list of nodes that are currently selected.
      */
-    public void selectionChanged() {
+    public void selectionChanged(List<Node> selectedNodes) {
         if(pinButton.isSelected()) return;
-        List<Node> selectedNodes = Registry.selection.getList();
         scroll.setViewportView(createPanelFor(selectedNodes));
         docButton.setEnabled(!selectedNodes.isEmpty());
         this.revalidate();
