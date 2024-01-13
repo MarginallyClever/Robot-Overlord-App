@@ -55,7 +55,10 @@ public class MarlinRobotArm extends Node {
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
         json.put("version",2);
+        if(limb.getSubject()!=null) json.put("limb",limb.getUniqueID());
+        if(solver.getSubject()!=null) json.put("solver",solver.getUniqueID());
         if(gripperMotor.getSubject()!=null) json.put("gripperMotor",gripperMotor.getUniqueID());
+        json.put("reportInterval",reportInterval);
         return json;
     }
 
@@ -63,6 +66,20 @@ public class MarlinRobotArm extends Node {
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
         int version = from.has("version") ? from.getInt("version") : 0;
+        if(version==2) {
+            if(from.has("limb")) {
+                limb.setUniqueID(from.getString("limb"));
+            }
+            if(from.has("solver")) {
+                solver.setUniqueID(from.getString("solver"));
+            }
+            if(from.has("gripperMotor")) {
+                gripperMotor.setUniqueID(from.getString("gripperMotor"));
+            }
+            if(from.has("reportInterval")) {
+                reportInterval = from.getDouble("reportInterval");
+            }
+        }
         if(version<2) {
             var toRemove = new ArrayList<Node>();
             while(!getChildren().isEmpty()) {
@@ -90,11 +107,11 @@ public class MarlinRobotArm extends Node {
             solver1.setLimb(limb1);
 
             // gripper
-            Node root = this.getRootNode();
             if (from.has("gripperMotor")) {
                 String s = from.getString("gripperMotor");
                 if (version == 1) {
-                    gripperMotor.setUniqueID(s);
+                    Motor m = this.findNodeByPath(s, Motor.class);
+                    gripperMotor.setUniqueIDByNode(m);
                 } else if (version == 0) {
                     gripperMotor.setUniqueID(s);
                 }

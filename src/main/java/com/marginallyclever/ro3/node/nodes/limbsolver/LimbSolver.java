@@ -170,6 +170,8 @@ public class LimbSolver extends Node {
         if(getLimb()!=null) json.put("limb",limb.getUniqueID());
         if(getTarget()!=null) json.put("target",target.getUniqueID());
         json.put("linearVelocity",linearVelocity);
+        json.put("goalMarginOfError",goalMarginOfError);
+        json.put("isAtGoal",isAtGoal);
         return json;
     }
 
@@ -178,8 +180,14 @@ public class LimbSolver extends Node {
         super.fromJSON(from);
         int version = from.has("version") ? from.getInt("version") : 0;
 
-        Node root = this.getRootNode();
-
+        if(from.has("limb")) {
+            String s = from.getString("limb");
+            if(version==1||version==2) {
+                limb.setUniqueIDByNode(this.findNodeByPath(s,Limb.class));
+            } else if(version==0 || version==3) {
+                this.limb.setUniqueID(s);
+            }
+        }
         if(from.has("target")) {
             String s = from.getString("target");
             if(version==1||version==2) {
@@ -188,16 +196,14 @@ public class LimbSolver extends Node {
                 target.setUniqueID(s);
             }
         }
-        if(from.has("limb")) {
-            String s = from.getString("limb");
-            if(version>=2) {
-                limb.setUniqueIDByNode(this.findNodeByPath(s,Limb.class));
-            } else {
-                this.limb.setUniqueID(s);
-            }
-        }
         if(from.has("linearVelocity")) {
             linearVelocity = from.getDouble("linearVelocity");
+        }
+        if(from.has("goalMarginOfError")) {
+            goalMarginOfError = from.getDouble("goalMarginOfError");
+        }
+        if(from.has("isAtGoal")) {
+            isAtGoal = from.getBoolean("isAtGoal");
         }
     }
 
@@ -305,5 +311,9 @@ public class LimbSolver extends Node {
 
     public void setIsAtGoal(boolean isAtGoal) {
         this.isAtGoal = isAtGoal;
+    }
+
+    public boolean getIsAtGoal() {
+        return isAtGoal;
     }
 }

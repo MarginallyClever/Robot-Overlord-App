@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.Limb;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
@@ -45,5 +46,28 @@ class MarlinRobotArmTest {
         marlinRobotArm.setSolver(limbSolver);
         assertEquals(limb, marlinRobotArm.getLimb().getSubject());
         assertEquals(limbSolver, marlinRobotArm.getSolver().getSubject());
+    }
+
+    @Test
+    public void toFromJSON() {
+        Registry.start();
+
+        var limb = new Limb("a");
+        var solver = new LimbSolver("b");
+
+        MarlinRobotArm mra = new MarlinRobotArm();
+        mra.setReportInterval(mra.getReportInterval()+10);
+        mra.addChild(limb);
+        mra.addChild(solver);
+        mra.setLimb(limb);
+        mra.setSolver(solver);
+
+        var json = mra.toJSON();
+        MarlinRobotArm mra2 = new MarlinRobotArm();
+        mra2.fromJSON(json);
+
+        assertEquals(mra.getReportInterval(),mra2.getReportInterval());
+        assertEquals(mra.getLimb().getSubject().getName(),mra2.getLimb().getSubject().getName());
+        assertEquals(mra.getSolver().getSubject().getName(),mra2.getSolver().getSubject().getName());
     }
 }

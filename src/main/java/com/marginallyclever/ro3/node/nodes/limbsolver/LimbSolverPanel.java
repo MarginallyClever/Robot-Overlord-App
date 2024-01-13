@@ -25,19 +25,13 @@ public class LimbSolverPanel extends JPanel {
         gbc.gridx=0;
         gbc.gridy=0;
 
-        gbc.gridwidth=2;
-        this.add(createVelocitySlider(),gbc);
-
-        gbc.gridy++;
-        gbc.gridwidth=1;
-        addMoveTargetToEndEffector(this,gbc);
+        NodePanelHelper.addNodeSelector(this, "Limb", limbSolver.getLimb(), gbc);
 
         gbc.gridy++;
         NodePanelHelper.addNodeSelector(this, "Target", limbSolver.getTarget(), gbc);
 
         gbc.gridy++;
-        gbc.gridwidth=1;
-        NodePanelHelper.addNodeSelector(this, "Limb", limbSolver.getLimb(), gbc);
+        addMoveTargetToEndEffector(this,gbc);
 
         gbc.gridy++;
         var formatter = NumberFormatHelper.getNumberFormatter();
@@ -48,6 +42,10 @@ public class LimbSolverPanel extends JPanel {
             limbSolver.setGoalMarginOfError( ((Number) marginField.getValue()).doubleValue() );
         });
         NodePanelHelper.addLabelAndComponent(this, "Goal Margin", marginField, gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth=2;
+        add(createVelocitySlider(),gbc);
     }
 
     private void addMoveTargetToEndEffector(JPanel pane,GridBagConstraints gbc) {
