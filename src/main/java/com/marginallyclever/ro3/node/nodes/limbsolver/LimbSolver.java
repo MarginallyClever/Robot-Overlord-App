@@ -1,9 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.limbsolver;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.Limb;
@@ -12,11 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * {@link LimbSolver} calculates <a href="https://en.wikipedia.org/wiki/Inverse_kinematics">Inverse Kinematics</a> for
@@ -78,8 +74,8 @@ public class LimbSolver extends Node {
         return distanceToTarget < goalMarginOfError;
     }
 
-    public Limb getLimb() {
-        return limb.getSubject();
+    public NodePath<Limb> getLimb() {
+        return limb;
     }
 
     /**
@@ -92,10 +88,9 @@ public class LimbSolver extends Node {
     }
 
     private Pose getEndEffector() {
-        var limb = getLimb();
+        var limb = getLimb().getSubject();
         if(limb == null) return null;
-        var ee = limb.getEndEffector();
-        return ee == null ? null : ee.getSubject();
+        return limb.getEndEffector().getSubject();
     }
 
     /**
@@ -110,9 +105,11 @@ public class LimbSolver extends Node {
             return;
         }
 
+        var limb = getLimb().getSubject();
+
         if(linearVelocity<0.0001) {
             // no velocity.  Make sure the arm doesn't drift.
-            getLimb().setAllJointVelocities(new double[getLimb().getNumJoints()]);
+            limb.setAllJointVelocities(new double[limb.getNumJoints()]);
             return;
         }
         // find direction to move
@@ -134,13 +131,14 @@ public class LimbSolver extends Node {
      * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
      */
     private void setMotorVelocitiesFromCartesianVelocity(double[] cartesianVelocity) {
-        if(getLimb()==null || getLimb().getNumJoints()==0) return;
+        var myLimb = getLimb().getSubject();
+        if(myLimb==null || myLimb.getNumJoints()==0) return;
 
         ApproximateJacobian aj = getJacobian();
         try {
             double[] jointVelocity = aj.getJointFromCartesian(cartesianVelocity);  // uses inverse jacobian
             if(impossibleVelocity(jointVelocity)) return;  // TODO: throw exception instead?
-            getLimb().setAllJointVelocities(jointVelocity);
+            myLimb.setAllJointVelocities(jointVelocity);
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
@@ -148,7 +146,7 @@ public class LimbSolver extends Node {
 
     private ApproximateJacobian getJacobian() {
         // option 1, use finite differences
-        return new ApproximateJacobianFiniteDifferences(getLimb());
+        return new ApproximateJacobianFiniteDifferences(limb.getSubject());
         // option 2, use screw theory
         //ApproximateJacobian aj = new ApproximateJacobianScrewTheory(getLimb());
     }
@@ -241,82 +239,15 @@ public class LimbSolver extends Node {
         return sum;
     }
 
-    private JComponent createVelocitySlider() {
-        JPanel container = new JPanel(new BorderLayout());
-        // add a slider to control linear velocity
-        JSlider slider = new JSlider(0,20,(int)linearVelocity);
-        slider.addChangeListener(e-> linearVelocity = slider.getValue());
-
-        // Make the slider fill the available horizontal space
-        slider.setMaximumSize(new Dimension(Integer.MAX_VALUE, slider.getPreferredSize().height));
-        slider.setMinimumSize(new Dimension(50, slider.getPreferredSize().height));
-
-        container.add(new JLabel("Linear Vel"), BorderLayout.LINE_START);
-        container.add(slider, BorderLayout.CENTER); // Add slider to the center of the container
-
-        return container;
-    }
-
-    private void moveTargetToEndEffector() {
+    public void moveTargetToEndEffector() {
         if(getTarget().getSubject()!=null && getEndEffector()!=null) {
             getTarget().getSubject().setWorld(getEndEffector().getWorld());
         }
     }
 
-    private void addMoveTargetToEndEffector(JPanel pane,GridBagConstraints gbc) {
-        // move target to end effector
-        JButton targetToEE = new JButton(new AbstractAction() {
-            {
-                putValue(Action.NAME,"Move");
-                putValue(Action.SHORT_DESCRIPTION,"Move the Target Pose to the End Effector.");
-                putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource(
-                        "/com/marginallyclever/ro3/apps/shared/icons8-move-16.png"))));
-            }
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                moveTargetToEndEffector();
-            }
-        });
-        NodePanelHelper.addLabelAndComponent(pane, "Target to EE", targetToEE,gbc);
-    }
-
     @Override
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridBagLayout());
-        list.add(pane);
-        pane.setName(LimbSolver.class.getSimpleName());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.gridx=0;
-        gbc.gridy=0;
-
-        gbc.gridwidth=2;
-        pane.add(createVelocitySlider(),gbc);
-
-        gbc.gridy++;
-        gbc.gridwidth=1;
-        addMoveTargetToEndEffector(pane,gbc);
-
-        gbc.gridy++;
-        NodePanelHelper.addNodeSelector(pane, "Target", target, Pose.class, gbc,this);
-
-        gbc.gridy++;
-        gbc.gridwidth=1;
-        NodePanelHelper.addNodeSelector(pane, "Limb", limb, Limb.class, gbc,this);
-
-        gbc.gridy++;
-        var formatter = NumberFormatHelper.getNumberFormatter();
-        formatter.setMinimum(0.0);
-        JFormattedTextField marginField = new JFormattedTextField(formatter);
-        marginField.setValue(goalMarginOfError);
-        marginField.addPropertyChangeListener("value", evt -> {
-            goalMarginOfError = ((Number) marginField.getValue()).doubleValue();
-        });
-        NodePanelHelper.addLabelAndComponent(pane, "Goal Margin", marginField, gbc);
-
+        list.add(new LimbSolverPanel(this));
         super.getComponents(list);
     }
 
