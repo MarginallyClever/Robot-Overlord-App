@@ -273,7 +273,7 @@ public class RO3Frame extends JFrame {
                     webCamPanel,
                     textInterface
             ));
-            dialog.run(settingsMenu);
+            dialog.run(this);
         });
 
 

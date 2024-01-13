@@ -48,7 +48,7 @@ public class AppSettingsDialog extends JPanel {
         }
     }
 
-    public void run(JComponent parent) {
+    public void run(Component parent) {
         JOptionPane.showMessageDialog(parent, this, "Settings", JOptionPane.PLAIN_MESSAGE);
     }
 }

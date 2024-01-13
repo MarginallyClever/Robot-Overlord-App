@@ -38,6 +38,7 @@ public class DrawMeshes extends AbstractRenderPass {
     public static final int SHADOW_WIDTH = 1024;
     public static final int SHADOW_HEIGHT = 1024;
     public static final Vector3d sunlightSource = new Vector3d(5,15,75);
+    public static Color sunlightColor = new Color(0xfd,0xfb,0xd3,255);
     public static final Matrix4d lightProjection = new Matrix4d();
     public static final Matrix4d lightView = new Matrix4d();
 
@@ -231,7 +232,7 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setVector3d(gl3, "cameraPos", cameraWorldPos);  // Camera position in world space
         meshShader.setVector3d(gl3, "lightPos", sunlightSource);  // Light position in world space
 
-        meshShader.setColor(gl3, "lightColor", Color.WHITE);
+        meshShader.setColor(gl3, "lightColor", sunlightColor);
         meshShader.setColor(gl3, "objectColor", Color.WHITE);
         meshShader.setColor(gl3, "specularColor", Color.WHITE);
         meshShader.setColor(gl3,"ambientColor",Color.LIGHT_GRAY);
@@ -303,5 +304,21 @@ public class DrawMeshes extends AbstractRenderPass {
         double [] list = new double[16];
         jm.get(list);
         return new Matrix4d(list);
+    }
+
+    public Color getSunlightColor() {
+        return sunlightColor;
+    }
+
+    public void setSunlightColor(Color color) {
+        sunlightColor = color;
+    }
+
+    public Vector3d getSunlightSource() {
+        return sunlightSource;
+    }
+
+    public void setSunlightSource(Vector3d source) {
+        sunlightSource.set(source);
     }
 }
