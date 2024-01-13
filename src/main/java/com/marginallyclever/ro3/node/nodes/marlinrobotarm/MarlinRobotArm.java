@@ -442,7 +442,7 @@ public class MarlinRobotArm extends Node {
         Matrix4d local = new Matrix4d();
         Vector3d rot = new Vector3d(cartesian[3],cartesian[4],cartesian[5]);
         rot.scale(Math.PI/180);
-        local.set(MatrixHelper.eulerToMatrix(rot));
+        local.set(MatrixHelper.eulerToMatrix(rot, MatrixHelper.EulerSequence.YXZ));
         local.setTranslation(new Vector3d(cartesian[0],cartesian[1],cartesian[2]));
         return local;
     }
@@ -452,7 +452,7 @@ public class MarlinRobotArm extends Node {
      * @return the XYZ translation and UVW rotation of the given matrix.  UVW is in degrees.
      */
     private double[] getCartesianFromWorld(Matrix4d world) {
-        Vector3d rotate = MatrixHelper.matrixToEuler(world);
+        Vector3d rotate = MatrixHelper.matrixToEuler(world, MatrixHelper.EulerSequence.YXZ);
         rotate.scale(180/Math.PI);
         Vector3d translate = new Vector3d();
         world.get(translate);

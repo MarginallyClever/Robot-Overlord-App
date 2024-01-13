@@ -93,10 +93,11 @@ public class Limb extends Pose {
             if(motor!=null) {
                 HingeJoint axle = motor.getHinge();
                 if(axle!=null) {
-                    axle.setAngle(values[i++]);
+                    axle.setAngle(values[i]);
                     axle.update(0);
                 }
             }
+            i++;
         }
     }
 
