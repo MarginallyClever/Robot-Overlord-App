@@ -44,8 +44,8 @@ public class LimbSolver extends Node {
         super(name);
     }
 
-    public Pose getTarget() {
-        return target.getSubject();
+    public NodePath<Pose> getTarget() {
+        return target;
     }
 
     /**
@@ -92,8 +92,10 @@ public class LimbSolver extends Node {
     }
 
     private Pose getEndEffector() {
-        Limb limb = getLimb();
-        return limb!=null ? limb.getEndEffector() : null;
+        var limb = getLimb();
+        if(limb == null) return null;
+        var ee = limb.getEndEffector();
+        return ee == null ? null : ee.getSubject();
     }
 
     /**
@@ -116,7 +118,7 @@ public class LimbSolver extends Node {
         // find direction to move
         MatrixHelper.getCartesianBetweenTwoMatrices(
                 getEndEffector().getWorld(),
-                getTarget().getWorld(),
+                getTarget().getSubject().getWorld(),
                 cartesianDistance);
         // theshold the velocity
         System.arraycopy(cartesianDistance,0,cartesianVelocity,0,cartesianDistance.length);
@@ -255,9 +257,9 @@ public class LimbSolver extends Node {
         return container;
     }
 
-    private void setTargetToEndEffector() {
-        if(getTarget()!=null && getEndEffector()!=null) {
-            getTarget().setWorld(getEndEffector().getWorld());
+    private void moveTargetToEndEffector() {
+        if(getTarget().getSubject()!=null && getEndEffector()!=null) {
+            getTarget().getSubject().setWorld(getEndEffector().getWorld());
         }
     }
 
@@ -272,7 +274,7 @@ public class LimbSolver extends Node {
             }
             @Override
             public void actionPerformed(ActionEvent e) {
-                setTargetToEndEffector();
+                moveTargetToEndEffector();
             }
         });
         NodePanelHelper.addLabelAndComponent(pane, "Target to EE", targetToEE,gbc);
