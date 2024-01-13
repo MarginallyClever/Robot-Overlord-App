@@ -25,7 +25,7 @@ import java.util.ArrayList;
  */
 public class DrawPoses extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawPoses.class);
-    private final Mesh mesh = MatrixHelper.createMesh(1.0);
+    private final Mesh mesh = MatrixHelper.createMesh();
     private ShaderProgram shader;
 
     public DrawPoses() {

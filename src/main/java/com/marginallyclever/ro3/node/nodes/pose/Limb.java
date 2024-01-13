@@ -1,10 +1,5 @@
 package com.marginallyclever.ro3.node.nodes.pose;
 
-import com.marginallyclever.convenience.swing.Dial;
-import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
-import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Motor;
@@ -14,7 +9,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,7 +73,11 @@ public class Limb extends Pose {
         for(NodePath<Motor> paths : motors) {
             Motor motor = paths.getSubject();
             if(motor!=null) {
-                result[i++] = motor.getHinge().getAngle();
+                if(motor.hasHinge()) {
+                    result[i++] = motor.getHinge().getAngle();
+                } else {
+                    result[i++] = 0;
+                }
             }
         }
         return result;
@@ -92,7 +90,7 @@ public class Limb extends Pose {
      * @throws IndexOutOfBoundsException if the index is out of range.
      */
     public void setJoint(int index, Motor newValue) {
-        motors.get(index).setRelativePath(this,newValue);
+        motors.get(index).setUniqueIDByNode(newValue);
     }
 
     public void setAllJointAngles(double[] values) {
@@ -105,10 +103,11 @@ public class Limb extends Pose {
             if(motor!=null) {
                 HingeJoint axle = motor.getHinge();
                 if(axle!=null) {
-                    axle.setAngle(values[i++]);
+                    axle.setAngle(values[i]);
                     axle.update(0);
                 }
             }
+            i++;
         }
     }
 
@@ -132,13 +131,13 @@ public class Limb extends Pose {
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
         JSONArray jointArray = new JSONArray();
-        json.put("version",1);
+        json.put("version",2);
 
         for(var motor : motors) {
-            jointArray.put(motor == null ? JSONObject.NULL : motor.getPath());
+            jointArray.put(motor == null ? JSONObject.NULL : motor.getUniqueID());
         }
         json.put("motors",jointArray);
-        if(endEffector.getSubject()!=null) json.put("endEffector",endEffector.getPath());
+        if(endEffector.getSubject()!=null) json.put("endEffector",endEffector.getUniqueID());
         return json;
     }
 
@@ -151,25 +150,24 @@ public class Limb extends Pose {
             JSONArray motorArray = from.getJSONArray("motors");
             for(int i=0;i<motorArray.length();++i) {
                 if(motorArray.isNull(i)) {
-                    motors.get(i).setPath(null);
+                    motors.get(i).setUniqueID(null);
                 } else {
+                    String s = motorArray.getString(i);
                     if(version==1) {
-                        motors.get(i).setPath(motorArray.getString(i));
-                    } else if(version==0) {
-                        Motor motor = this.getRootNode().findNodeByID(motorArray.getString(i), Motor.class);
-                        motors.get(i).setRelativePath(this,motor);
+                        motors.get(i).setUniqueIDByNode(this.findNodeByPath(s,Motor.class));
+                    } else if(version==0||version==2) {
+                        motors.get(i).setUniqueID(s);
                     }
                 }
             }
         }
-        Node root = this.getRootNode();
+
         if(from.has("endEffector")) {
             String s = from.getString("endEffector");
             if(version==1) {
-                endEffector.setPath(s);
-            } else if(version==0) {
-                Pose goal = root.findNodeByID(s,Pose.class);
-                endEffector.setRelativePath(this,goal);
+                endEffector.setUniqueIDByNode(this.findNodeByPath(s,Pose.class));
+            } else if(version==0||version==2) {
+                endEffector.setUniqueID(s);
             }
         }
     }

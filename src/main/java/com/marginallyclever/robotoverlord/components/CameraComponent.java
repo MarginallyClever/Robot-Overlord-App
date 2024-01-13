@@ -94,7 +94,7 @@ public class CameraComponent extends RenderComponent {
     }
 
     public double[] getPanTiltFromMatrix(Matrix3d matrix) {
-        Vector3d v = MatrixHelper.matrixToEuler(matrix);
+        Vector3d v = MatrixHelper.matrixToEuler(matrix, MatrixHelper.EulerSequence.YXZ);
         double pan = Math.toDegrees(-v.z);
         double tilt = Math.toDegrees(v.x);
         return new double[]{ pan, tilt };
@@ -240,7 +240,7 @@ public class CameraComponent extends RenderComponent {
         orbitPointMatrix.setTranslation(getOrbitPoint());
         orbitPointMatrix.mul(inverseCamera,orbitPointMatrix);
 
-        MatrixHelper.createMesh(orbitPointMatrix,25);
+        MatrixHelper.createMesh();
     }
 
     public void setCurrentlyMoving(boolean state) {

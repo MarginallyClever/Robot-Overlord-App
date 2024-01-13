@@ -41,7 +41,7 @@ public class LimbPlannerPanel extends JPanel implements ActionListener {
 
         NodePanelHelper.addNodeSelector(this, "LimbSolver", limbPlanner.getSolver(), LimbSolver.class, gbc, limbPlanner);
         gbc.gridy++;
-        NodePanelHelper.addNodeSelector(this, "Path start", limbPlanner.getPathStart(), Node.class, gbc, limbPlanner);
+        NodePanelHelper.addNodeSelector(this, "Path start", limbPlanner.getPathStart(), Pose.class, gbc, limbPlanner);
         gbc.gridy++;
         var selector = NodePanelHelper.addNodeSelector(this, "Next goal", limbPlanner.getNextGoal(), Pose.class, gbc, limbPlanner);
         selector.setEditable(false);

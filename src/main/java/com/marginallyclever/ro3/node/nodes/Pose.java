@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.marginallyclever.convenience.helpers.BigMatrixHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.node.Node;
@@ -12,7 +13,6 @@ import javax.swing.text.NumberFormatter;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
-import java.text.NumberFormat;
 import java.util.List;
 
 /**
@@ -115,7 +115,7 @@ public class Pose extends Node {
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
 
-        double[] localArray = MatrixHelper.matrix4dToArray(local);
+        double[] localArray = BigMatrixHelper.matrix4dToArray(local);
         json.put("local", new JSONArray(localArray));
         return json;
     }
