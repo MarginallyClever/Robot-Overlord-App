@@ -63,91 +63,40 @@ public class Camera extends Pose {
      * @param list the list to add components to.
      */
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridLayout(0,2));
-        list.add(pane);
-        pane.setName(Camera.class.getSimpleName());
-
-        SpinnerNumberModel farZModel = new SpinnerNumberModel(farZ, 0, 10000, 1);
-        JSpinner farZSpinner = new JSpinner(farZModel);
-        JSpinner nearZSpinner = new JSpinner(new SpinnerNumberModel(nearZ, 0, 10000, 1));
-        JSpinner fovSpinner = new JSpinner(new SpinnerNumberModel(fovY, 1, 180, 1));
-
-        JCheckBox ortho = new JCheckBox();
-        ortho.addActionListener(e -> {
-            drawOrthographic = ortho.isSelected();
-            farZSpinner.setEnabled(!drawOrthographic);
-            nearZSpinner.setEnabled(!drawOrthographic);
-            fovSpinner.setEnabled(!drawOrthographic);
-        });
-
-        fovSpinner.addChangeListener(e -> {
-            fovY = (double) fovSpinner.getValue();
-        });
-
-        nearZSpinner.addChangeListener(e -> {
-            nearZ = (double) nearZSpinner.getValue();
-            farZModel.setMinimum(nearZ + 1);
-            if (farZ <= nearZ) {
-                farZSpinner.setValue(nearZ + 1);
-            }
-        });
-
-        farZSpinner.addChangeListener(e -> {
-            farZ = (double) farZSpinner.getValue();
-        });
-
-        NodePanelHelper.addLabelAndComponent(pane,"Orthographic",ortho);
-        NodePanelHelper.addLabelAndComponent(pane,"FOV",fovSpinner);
-        NodePanelHelper.addLabelAndComponent(pane,"Near",nearZSpinner);
-        NodePanelHelper.addLabelAndComponent(pane,"Far",farZSpinner);
-
-        addLookAtComponents(pane);
-
+        list.add(new CameraPanel(this));
         super.getComponents(list);
-    }
-
-    private void addLookAtComponents(JPanel pane) {
-        var formatter = NumberFormatHelper.getNumberFormatter();
-
-        JFormattedTextField tx = new JFormattedTextField(formatter);        tx.setValue(0);
-        JFormattedTextField ty = new JFormattedTextField(formatter);        ty.setValue(0);
-        JFormattedTextField tz = new JFormattedTextField(formatter);        tz.setValue(0);
-
-        JButton button = new JButton("Set");
-        button.addActionListener(e -> {
-            Vector3d target = new Vector3d(
-                    ((Number) tx.getValue()).doubleValue(),
-                    ((Number) ty.getValue()).doubleValue(),
-                    ((Number) tz.getValue()).doubleValue()
-            );
-            try {
-                lookAt(target);
-            } catch (InvalidParameterException ex) {
-                JOptionPane.showMessageDialog(pane, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
-        NodePanelHelper.addLabelAndComponent(pane, "Look at", new JLabel());
-        NodePanelHelper.addLabelAndComponent(pane, "X", tx);
-        NodePanelHelper.addLabelAndComponent(pane, "Y", ty);
-        NodePanelHelper.addLabelAndComponent(pane, "Z", tz);
-        NodePanelHelper.addLabelAndComponent(pane, "", button);
     }
 
     public boolean getDrawOrthographic() {
         return drawOrthographic;
     }
 
+    public void setDrawOrthographic(boolean selected) {
+        drawOrthographic = selected;
+    }
+
     public double getFovY() {
         return fovY;
+    }
+
+    public void setFovY(double fovY) {
+        this.fovY = fovY;
     }
 
     public double getNearZ() {
         return nearZ;
     }
 
+    public void setNearZ(double nearZ) {
+        this.nearZ = nearZ;
+    }
+
     public double getFarZ() {
         return farZ;
+    }
+
+    public void setFarZ(double farZ) {
+        this.farZ = farZ;
     }
 
     /**
