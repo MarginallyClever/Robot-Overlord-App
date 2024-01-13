@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.viewport;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
+import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.view.View;
 import com.marginallyclever.ro3.view.ViewProvider;
 
@@ -16,35 +17,51 @@ public class ViewportSettings extends JPanel implements ViewProvider<Viewport> {
     private Viewport subject;
     private final NumberFormatter formatter = NumberFormatHelper.getNumberFormatter();
     private final JFormattedTextField movementScale = new JFormattedTextField(formatter);
-    private final JToggleButton hardwareAccelerated = new JToggleButton("Hardware Accelerated");
-    private final JToggleButton doubleBuffered = new JToggleButton("Double Buffered");
-    private final JToggleButton verticalSync = new JToggleButton("Vertical Sync");
+    private final JToggleButton hardwareAccelerated = new JToggleButton();
+    private final JToggleButton doubleBuffered = new JToggleButton();
+    private final JToggleButton verticalSync = new JToggleButton();
     private final JComboBox<Integer> fsaaSamples = new JComboBox<>(new Integer[]{1, 2, 4, 8});
 
     public ViewportSettings() {
         super(new GridLayout(0,2));
         setName("Viewport Settings");
 
-        add(new JLabel("Mouse scale"));
-        add(movementScale);
+        PanelHelper.addLabelAndComponent(this, "Mouse scale", movementScale);
         movementScale.setValue(1.0);
         movementScale.addPropertyChangeListener("value", evt -> setMovementScale((Double) evt.getNewValue()));
 
-        add(new JLabel("Hardware Accelerated"));
-        add(hardwareAccelerated);
-        hardwareAccelerated.addActionListener(evt -> setHardwareAccelerated(hardwareAccelerated.isSelected()));
+        PanelHelper.addLabelAndComponent(this, "Hardware Accelerated", hardwareAccelerated);
+        hardwareAccelerated.addActionListener(evt -> {
+            setHardwareAccelerated(hardwareAccelerated.isSelected());
+            setHardwareAcceleratedLabel();
+        });
 
-        add(new JLabel("Double Buffered"));
-        add(doubleBuffered);
-        doubleBuffered.addActionListener(evt -> setViewportDoubleBuffered(doubleBuffered.isSelected()));
+        PanelHelper.addLabelAndComponent(this, "Double Buffered", doubleBuffered);
+        doubleBuffered.addActionListener(evt -> {
+            setViewportDoubleBuffered(doubleBuffered.isSelected());
+            setViewportDoubleBufferedLabel();
+        });
 
-        add(new JLabel("Vertical Sync"));
-        add(verticalSync);
-        verticalSync.addActionListener(evt -> setVerticalSync(verticalSync.isSelected()));
+        PanelHelper.addLabelAndComponent(this, "Vertical Sync", verticalSync);
+        verticalSync.addActionListener(evt -> {
+            setVerticalSync(verticalSync.isSelected());
+            setVerticalSyncLabel();
+        });
 
-        add(new JLabel("FSAA Samples"));
-        add(fsaaSamples);
+        PanelHelper.addLabelAndComponent(this, "FSAA Samples", fsaaSamples);
         fsaaSamples.addActionListener(evt -> setFsaaSamples((Integer) fsaaSamples.getSelectedItem()));
+    }
+
+    private void setVerticalSyncLabel() {
+        verticalSync.setText( (subject != null && subject.isVerticalSync() ? "On" : "Off") );
+    }
+
+    private void setViewportDoubleBufferedLabel() {
+        doubleBuffered.setText( (subject != null && subject.isDoubleBuffered() ? "On" : "Off") );
+    }
+
+    private void setHardwareAcceleratedLabel() {
+        hardwareAccelerated.setText( (subject != null && subject.isHardwareAccelerated() ? "On" : "Off") );
     }
 
     private void setHardwareAccelerated(boolean selected) {

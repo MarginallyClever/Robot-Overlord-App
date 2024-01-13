@@ -1,11 +1,13 @@
-package com.marginallyclever.ro3.node;
+package com.marginallyclever.ro3;
 
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
+import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodePath;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class NodePanelHelper {
+public class PanelHelper {
 
     /**
      * A convenience method to add a label and component to a panel that is expected to be built with
@@ -60,7 +62,7 @@ public class NodePanelHelper {
         selector.addPropertyChangeListener("subject", (e) -> {
             nodePath.setUniqueIDByNode((T)e.getNewValue());
         });
-        NodePanelHelper.addLabelAndComponent(pane, label, selector, gbc);
+        PanelHelper.addLabelAndComponent(pane, label, selector, gbc);
         return selector;
     }
 }

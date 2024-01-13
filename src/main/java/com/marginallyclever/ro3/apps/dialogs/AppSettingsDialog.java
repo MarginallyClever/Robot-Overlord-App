@@ -35,12 +35,12 @@ public class AppSettingsDialog extends JPanel {
 
             for (Class<?> clazz : annotated) {
                 View viewAnnotation = clazz.getAnnotation(View.class);
-                if (!viewAnnotation.of().equals(appInstance.getClass())) continue;
+                if (!viewAnnotation.of().equals(appClass)) continue;
                 try {
-                    Constructor<?> constructor = clazz.getConstructor();
-                    ViewProvider<?> viewProvider = (ViewProvider<?>) constructor.newInstance();
-                    JPanel viewPanel = viewProvider.setViewSubject(appInstance);
-                    tabbedPane.addTab(appInstance.getClass().getSimpleName(), viewPanel);
+                    ViewProvider<App> viewProvider = (ViewProvider<App>) clazz.getConstructor().newInstance();
+                    viewProvider.setViewSubject(appInstance);
+                    JPanel viewPanel = (JPanel)viewProvider;
+                    tabbedPane.addTab(appClass.getSimpleName(), viewPanel);
                 } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
                     logger.error("Error creating view for app: " + appInstance.getClass().getSimpleName(), e);
                 }
