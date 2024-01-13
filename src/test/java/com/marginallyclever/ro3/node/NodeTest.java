@@ -107,7 +107,7 @@ public class NodeTest {
     @Test
     public void testGet() {
         parentNode.addChild(childNode);
-        assertEquals(childNode, parentNode.get("Child"));
+        assertEquals(childNode, parentNode.findByPath("Child"));
     }
 
     @Test

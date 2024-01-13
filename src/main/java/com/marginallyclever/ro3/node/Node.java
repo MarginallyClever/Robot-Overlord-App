@@ -229,33 +229,6 @@ public class Node {
         return null;
     }
 
-    /**
-     * Find the node in the tree with the given path.
-     * @param path the path to the node.  can be relative or absolute.  understands ".." to go up one level.
-     * @return the node, or null if none found.
-     */
-    public Node get(String path) {
-        String[] parts = path.split("/");
-        Node node = this;
-        int i=0;
-        if(parts[0].isEmpty()) {
-            node = getRootNode();
-            ++i;
-        }
-        for(;i<parts.length;++i) {
-            String part = parts[i];
-            if(part.equals("..")) {
-                node = node.getParent();
-            } else if(!part.equals(".")) {
-                node = node.findChild(part);
-            }
-            if(node == null) {
-                return null;
-            }
-        }
-        return node;
-    }
-
     public Node getRootNode() {
         Node node = this;
         while(node.getParent() != null) {
@@ -325,18 +298,7 @@ public class Node {
      * @param list the list to add components to.
      */
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridLayout(0,2));
-        list.add(pane);
-        pane.setName(Node.class.getSimpleName());
-
-        JTextField nameField = new JTextField(getName());
-        nameField.addActionListener(e -> {
-            // should not be allowed to match siblings?
-            setName(nameField.getText());
-        });
-        nameField.setEditable(false);
-
-        NodePanelHelper.addLabelAndComponent(pane,"Name",nameField);
+        list.add(new NodePanel(this));
     }
 
     /**
@@ -508,5 +470,14 @@ public class Node {
             return type.cast(node);
         }
         return null;
+    }
+
+    /**
+     * Find the node in the tree with the given path.
+     * @param path the path to the node.  can be relative or absolute.  understands ".." to go up one level.
+     * @return the node, or null if none found.
+     */
+    public Node findByPath(String path) {
+        return findNodeByPath(path,Node.class);
     }
 }

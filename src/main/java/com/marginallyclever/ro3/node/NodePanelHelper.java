@@ -38,6 +38,7 @@ public class NodePanelHelper {
         gbc.gridx=1;
         pane.add(component,gbc);
         gbc.gridy++;
+        gbc.gridx=0;
     }
 
     /**

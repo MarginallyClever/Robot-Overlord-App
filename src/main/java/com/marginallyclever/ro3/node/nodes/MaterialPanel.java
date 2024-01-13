@@ -83,7 +83,6 @@ public class MaterialPanel extends JPanel {
         NodePanelHelper.addLabelAndComponent(this,"Lit",isLitButton,gbc);
 
         // shininess
-        gbc.gridx=0;
         gbc.gridy++;
         gbc.gridwidth=2;
         this.add(createShininessSlider(),gbc);

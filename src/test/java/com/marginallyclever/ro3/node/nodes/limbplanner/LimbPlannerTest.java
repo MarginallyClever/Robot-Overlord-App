@@ -3,13 +3,11 @@ package com.marginallyclever.ro3.node.nodes.limbplanner;
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.actions.LoadScene;
-import com.marginallyclever.ro3.apps.commands.ImportScene;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.pose.Limb;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +30,7 @@ class LimbPlannerTest {
         var load = new LoadScene(null,null);
         File file = new File("src/test/resources/com/marginallyclever/ro3/apps/node/nodes/marlinrobotarm/Sixi3-5.RO");
         load.commitLoad(file);
-        return (Limb) Registry.getScene().get("./Sixi3");
+        return (Limb) Registry.getScene().findByPath("./Sixi3");
     }
 
     @BeforeEach
