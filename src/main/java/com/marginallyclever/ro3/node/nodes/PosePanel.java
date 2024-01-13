@@ -11,6 +11,7 @@ import java.awt.*;
 
 public class PosePanel extends JPanel {
     private final Pose pose;
+
     public PosePanel(Pose pose) {
         super(new GridLayout(0,2));
         this.pose = pose;
