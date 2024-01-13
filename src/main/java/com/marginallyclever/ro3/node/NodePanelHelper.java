@@ -38,6 +38,7 @@ public class NodePanelHelper {
         gbc.gridx=1;
         pane.add(component,gbc);
         gbc.gridy++;
+        gbc.gridx=0;
     }
 
     /**
@@ -51,8 +52,11 @@ public class NodePanelHelper {
      * @return the NodeSelector
      * @param <T> the type filter for the {@link NodeSelector}.
      */
-    public static <T extends Node> NodeSelector<T> addNodeSelector(JPanel pane, String label, NodePath<T> nodePath, Class<T> clazz, GridBagConstraints gbc,Node origin) {
-        NodeSelector<T> selector = new NodeSelector<>(clazz, nodePath.getSubject());
+    public static <T extends Node> NodeSelector<T> addNodeSelector(JPanel pane,
+                                                                   String label,
+                                                                   NodePath<T> nodePath,
+                                                                   GridBagConstraints gbc) {
+        NodeSelector<T> selector = new NodeSelector<>(nodePath.getType(), nodePath.getSubject());
         selector.addPropertyChangeListener("subject", (e) -> {
             nodePath.setUniqueIDByNode((T)e.getNewValue());
         });

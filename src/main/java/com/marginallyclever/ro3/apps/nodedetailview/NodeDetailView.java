@@ -34,6 +34,13 @@ public class NodeDetailView extends App
 
         pinButton.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/apps/shared/icons8-pin-16.png"))));
         pinButton.setToolTipText("Pin this selection.");
+        pinButton.addActionListener(e -> {
+            setPinToolTipText(pinButton);
+            if(!pinButton.isSelected()) {
+                // when pin released, refresh view.
+                selectionChanged();
+            }
+        });
 
         docButton.setIcon(bookIcon);
         docButton.setEnabled(false);
@@ -45,7 +52,15 @@ public class NodeDetailView extends App
 
         add(toolbar, BorderLayout.NORTH);
         add(scroll, BorderLayout.CENTER);
-        selectionChanged(List.of());
+        selectionChanged();
+    }
+
+    private void setPinToolTipText(JToggleButton pinButton) {
+        if(pinButton.isSelected()) {
+            pinButton.setToolTipText("Unpin this selection.");
+        } else {
+            pinButton.setToolTipText("Pin this selection.");
+        }
     }
 
     private JPanel createPanelFor(List<Node> nodeList) {
@@ -94,6 +109,10 @@ public class NodeDetailView extends App
         return parent;
     }
 
+    private void selectionChanged() {
+        selectionChanged(Registry.selection.getList());
+    }
+
     /**
      * Called when the selection changes.
      * See <a href="https://stackoverflow.com/questions/62864625/why-boxlayout-is-taking-extra-space">layout fix</a>
@@ -123,11 +142,11 @@ public class NodeDetailView extends App
 
     @Override
     public void itemAdded(Object source,Node item) {
-        selectionChanged(Registry.selection.getList());
+        selectionChanged();
     }
 
     @Override
     public void itemRemoved(Object source,Node item) {
-        selectionChanged(Registry.selection.getList());
+        selectionChanged();
     }
 }

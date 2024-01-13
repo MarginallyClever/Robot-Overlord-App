@@ -1,13 +1,10 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
 import org.json.JSONObject;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.List;
 
 /**
@@ -37,16 +34,7 @@ public class Motor extends Node {
 
     @Override
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridLayout(0,2));
-        list.add(pane);
-        pane.setName(Motor.class.getSimpleName());
-
-        NodeSelector<HingeJoint> selector = new NodeSelector<>(HingeJoint.class,hinge.getSubject());
-        selector.addPropertyChangeListener("subject", (evt) ->{
-            hinge.setUniqueIDByNode(selector.getSubject());
-        });
-        NodePanelHelper.addLabelAndComponent(pane, "Hinge", selector);
-
+        list.add(new MotorPanel(this));
         super.getComponents(list);
     }
 

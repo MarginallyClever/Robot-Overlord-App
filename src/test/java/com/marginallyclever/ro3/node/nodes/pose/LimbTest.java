@@ -16,7 +16,7 @@ public class LimbTest {
         var load = new LoadScene(null,null);
         File file = new File("src/test/resources/com/marginallyclever/ro3/apps/node/nodes/marlinrobotarm/Sixi3-5.RO");
         load.commitLoad(file);
-        return (Limb) Registry.getScene().get("./Sixi3");
+        return (Limb) Registry.getScene().findByPath("./Sixi3");
     }
 
     @BeforeEach

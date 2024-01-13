@@ -39,11 +39,13 @@ public class LimbPlannerPanel extends JPanel implements ActionListener {
         gbc.gridy=0;
         gbc.gridwidth=1;
 
-        NodePanelHelper.addNodeSelector(this, "LimbSolver", limbPlanner.getSolver(), LimbSolver.class, gbc, limbPlanner);
+        NodePanelHelper.addNodeSelector(this, "LimbSolver", limbPlanner.getSolver(), gbc);
+
         gbc.gridy++;
-        NodePanelHelper.addNodeSelector(this, "Path start", limbPlanner.getPathStart(), Pose.class, gbc, limbPlanner);
+        NodePanelHelper.addNodeSelector(this, "Path start", limbPlanner.getPathStart(), gbc);
+
         gbc.gridy++;
-        var selector = NodePanelHelper.addNodeSelector(this, "Next goal", limbPlanner.getNextGoal(), Pose.class, gbc, limbPlanner);
+        var selector = NodePanelHelper.addNodeSelector(this, "Next goal", limbPlanner.getNextGoal(), gbc);
         selector.setEditable(false);
 
         // Run button
@@ -71,10 +73,12 @@ public class LimbPlannerPanel extends JPanel implements ActionListener {
         gbc.gridx=0;
         gbc.gridwidth=2;
         this.add(runButton,gbc);
+
         gbc.gridy++;
         gbc.gridwidth=1;
         executionTimeLabel.setText( StringHelper.formatTime(limbPlanner.getExecutionTime()) );
         NodePanelHelper.addLabelAndComponent(this, "Execution time", executionTimeLabel, gbc);
+
         gbc.gridy++;
         previousExecutionTimeLabel.setText( StringHelper.formatTime(limbPlanner.getPreviousExecutionTime()) );
         NodePanelHelper.addLabelAndComponent(this, "Previous time", previousExecutionTimeLabel, gbc);

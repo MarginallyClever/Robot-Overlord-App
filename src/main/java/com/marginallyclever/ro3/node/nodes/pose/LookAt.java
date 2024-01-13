@@ -2,8 +2,6 @@ package com.marginallyclever.ro3.node.nodes.pose;
 
 import com.marginallyclever.convenience.PathCalculator;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.Pose;
 import org.json.JSONObject;
@@ -11,7 +9,6 @@ import org.json.JSONObject;
 import javax.swing.*;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
-import java.awt.*;
 import java.util.List;
 
 /**
@@ -39,16 +36,7 @@ public class LookAt extends Pose {
 
     @Override
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridLayout(0,2));
-        list.add(pane);
-        pane.setName(LookAt.class.getSimpleName());
-
-        NodeSelector<Pose> selector = new NodeSelector<>(Pose.class,target.getSubject());
-        selector.addPropertyChangeListener("subject", (evt) -> {
-            target.setUniqueIDByNode(selector.getSubject());
-        } );
-        NodePanelHelper.addLabelAndComponent(pane,"Target",selector);
-
+        list.add(new LookAtPanel(this));
         super.getComponents(list);
     }
 
@@ -70,7 +58,6 @@ public class LookAt extends Pose {
 
         }
     }
-
     @Override
     public JSONObject toJSON() {
         var json = super.toJSON();
@@ -80,7 +67,6 @@ public class LookAt extends Pose {
         }
         return json;
     }
-
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
@@ -93,5 +79,13 @@ public class LookAt extends Pose {
                 target.setUniqueID(s);
             }
         }
+    }
+
+    public Pose getTarget() {
+        return target.getSubject();
+    }
+
+    public void setTarget(Pose target) {
+        this.target.setUniqueIDByNode(target);
     }
 }
