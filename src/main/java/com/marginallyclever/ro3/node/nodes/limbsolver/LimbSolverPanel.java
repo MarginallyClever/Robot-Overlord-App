@@ -33,11 +33,11 @@ public class LimbSolverPanel extends JPanel {
         addMoveTargetToEndEffector(this,gbc);
 
         gbc.gridy++;
-        NodePanelHelper.addNodeSelector(this, "Target", limbSolver.getTarget(), Pose.class, gbc,limbSolver);
+        NodePanelHelper.addNodeSelector(this, "Target", limbSolver.getTarget(), Pose.class, gbc);
 
         gbc.gridy++;
         gbc.gridwidth=1;
-        NodePanelHelper.addNodeSelector(this, "Limb", limbSolver.getLimb(), Limb.class, gbc,limbSolver);
+        NodePanelHelper.addNodeSelector(this, "Limb", limbSolver.getLimb(), Limb.class, gbc);
 
         gbc.gridy++;
         var formatter = NumberFormatHelper.getNumberFormatter();

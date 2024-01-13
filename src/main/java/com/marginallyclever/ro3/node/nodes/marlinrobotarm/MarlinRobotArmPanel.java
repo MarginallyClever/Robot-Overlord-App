@@ -29,11 +29,11 @@ public class MarlinRobotArmPanel extends JPanel {
         gbc.gridy=0;
         gbc.gridwidth=1;
 
-        NodePanelHelper.addNodeSelector(this, "Limb", marlinRobotArm.getLimb(), Limb.class, gbc,marlinRobotArm);
+        NodePanelHelper.addNodeSelector(this, "Limb", marlinRobotArm.getLimb(), Limb.class, gbc);
         gbc.gridy++;
-        NodePanelHelper.addNodeSelector(this, "Solver", marlinRobotArm.getSolver(), LimbSolver.class, gbc,marlinRobotArm);
+        NodePanelHelper.addNodeSelector(this, "Solver", marlinRobotArm.getSolver(), LimbSolver.class, gbc);
         gbc.gridy++;
-        NodePanelHelper.addNodeSelector(this, "Gripper motor", marlinRobotArm.getGripperMotor(), Motor.class, gbc,marlinRobotArm);
+        NodePanelHelper.addNodeSelector(this, "Gripper motor", marlinRobotArm.getGripperMotor(), Motor.class, gbc);
         gbc.gridy++;
         JButton M114 = new JButton("M114");
         M114.addActionListener(e-> marlinRobotArm.sendGCode("M114"));

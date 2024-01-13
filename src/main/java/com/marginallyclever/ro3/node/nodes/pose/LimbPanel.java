@@ -25,7 +25,7 @@ public class LimbPanel extends JPanel {
         gbc.gridx=0;
         gbc.gridy=0;
         gbc.gridwidth=1;
-        NodePanelHelper.addNodeSelector(this, "End Effector", limb.getEndEffector(), Pose.class, gbc,limb);
+        NodePanelHelper.addNodeSelector(this, "End Effector", limb.getEndEffector(), Pose.class, gbc);
 
         gbc.gridx=0;
         gbc.gridwidth=2;
