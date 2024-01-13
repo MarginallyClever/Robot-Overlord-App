@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.apps.viewport;
 
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.swing.Dial;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
@@ -9,10 +10,10 @@ import com.marginallyclever.ro3.view.ViewProvider;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
-import java.util.Calendar;
-import java.util.TimeZone;
 
 /**
  * {@link ViewportSettingsPanel} is a {@link View} for {@link Viewport}.
@@ -27,7 +28,7 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
     private final JToggleButton verticalSync = new JToggleButton();
     private final JComboBox<Integer> fsaaSamples = new JComboBox<>(new Integer[]{1, 2, 4, 8});
     private final Dial timeOfDay = new Dial();
-    private final Dial inclination = new Dial();
+    private final Dial declination = new Dial();
     private final JButton selectSunColor = new JButton();
 
     public ViewportSettingsPanel() {
@@ -84,15 +85,19 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
 
         // sun position
         gbc.gridy++;
-        PanelHelper.addLabelAndComponent(this, "Time of day", timeOfDay,gbc);
+        PanelHelper.addLabelAndComponent(this, "Time of day (24h)", timeOfDay,gbc);
         timeOfDay.addActionListener(e->updateSunPosition());
         timeOfDay.setPreferredSize(new Dimension(100,100));
 
         // sun position
         gbc.gridy++;
-        PanelHelper.addLabelAndComponent(this, "Inclination", inclination,gbc);
-        inclination.addActionListener(e->updateSunPosition());
-        inclination.setPreferredSize(new Dimension(100,100));
+        PanelHelper.addLabelAndComponent(this, "Declination (+/-90)", declination,gbc);
+        declination.addActionListener(e->{
+            if(declination.getValue()>90) declination.setValue(90);
+            if(declination.getValue()<-90) declination.setValue(-90);
+            updateSunPosition();
+        });
+        declination.setPreferredSize(new Dimension(100,100));
     }
 
     @Override
@@ -116,9 +121,8 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
         DrawMeshes meshes = getDrawMeshes();
         if(meshes==null) return;
 
-        Vector3d sunPosition = calculateSunPosition();
-        sunPosition.scale(75);
-        meshes.setSunlightSource(sunPosition);
+        meshes.setDeclination(declination.getValue());
+        meshes.setTimeOfDay(timeOfDay.getValue()+90);
     }
 
     private void setVerticalSyncLabel() {
@@ -172,7 +176,8 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
         DrawMeshes meshes = getDrawMeshes();
         if(meshes!=null) {
             setSunColor(meshes.getSunlightColor());
-            setInclinationAndTimeFromSunPosition(meshes.getSunlightSource());
+            timeOfDay.setValue(meshes.getTimeOfDay()-90);
+            declination.setValue(meshes.getDeclination());
         }
     }
 
@@ -185,38 +190,5 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
             }
         }
         return null;
-    }
-
-    private Vector3d calculateSunPosition() {
-        // Convert inclination and timeOfDay from degrees to radians
-        double inclinationRad = Math.toRadians(inclination.getValue() - 180); // Adjusting so 180 is directly overhead
-        double timeOfDayRad = Math.toRadians(timeOfDay.getValue());
-
-        // Calculate unit vector components
-        double x = Math.cos(inclinationRad) * Math.sin(timeOfDayRad);
-        double y = Math.cos(inclinationRad) * Math.cos(timeOfDayRad);
-        double z = Math.sin(inclinationRad);
-
-        return new Vector3d(x, y, z);
-    }
-
-    private void setInclinationAndTimeFromSunPosition(Vector3d sunPosition) {
-        Vector3d sunUnit = new Vector3d(sunPosition);
-        sunUnit.normalize();
-
-        // Calculate inclination and timeOfDay in degrees
-        double inclinationRad = Math.asin(sunUnit.z);
-        double timeOfDayRad = Math.atan2(sunUnit.y, sunUnit.x);
-
-        // Convert from radians to degrees and adjust ranges
-        double inclination = Math.toDegrees(inclinationRad) + 180; // Adjusting so 180 is directly overhead
-        double timeOfDay = Math.toDegrees(timeOfDayRad);
-        if (timeOfDay < 0) {
-            timeOfDay += 360; // Ensure timeOfDay is in the range 0 to 360
-        }
-
-        System.out.println("inclination=" + inclination + " timeOfDay=" + timeOfDay);
-        this.inclination.setValue(inclination);
-        this.timeOfDay.setValue(timeOfDay);
     }
 }
