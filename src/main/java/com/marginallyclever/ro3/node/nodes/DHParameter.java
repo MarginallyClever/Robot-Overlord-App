@@ -37,7 +37,6 @@ import java.util.List;
  * </ul>
  */
 public class DHParameter extends Node {
-    private static final Logger logger = LoggerFactory.getLogger(DHParameter.class);
     private transient double d=0, r=0, alpha=0, theta=0;
 
     public DHParameter() {
@@ -64,7 +63,7 @@ public class DHParameter extends Node {
         return m;
     }
 
-    private void fromPose() {
+    public void fromPose() {
         Pose pose = findFirstSibling(Pose.class);
         if (pose != null) setDHMatrix(pose.getLocal());
     }
@@ -96,7 +95,10 @@ public class DHParameter extends Node {
         alpha = Math.toDegrees(Math.atan2(m21, m22));
     }
 
-    private void toPoseAndAdjustMeshes() {
+    /**
+     * Adjust the local transformations of all {@link MeshInstance} siblings.
+     */
+    public void toPoseAndAdjustMeshes() {
         toPose();
         adjustMeshes();
     }
@@ -117,45 +119,7 @@ public class DHParameter extends Node {
 
     @Override
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridLayout(0,2));
-        list.add(pane);
-        pane.setName(DHParameter.class.getSimpleName());
-
-        JButton fromPose = new JButton("From Pose");
-        fromPose.addActionListener(e -> {
-            try {
-                fromPose();
-            } catch (IllegalArgumentException ex) {
-                JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                logger.error("Error converting pose to DH parameters.", ex);
-            }
-        });
-
-        JButton toPose = new JButton("To Pose");
-        toPose.addActionListener(e -> toPoseAndAdjustMeshes());
-
-        var formatter = NumberFormatHelper.getNumberFormatter();
-
-        JFormattedTextField dh_d = new JFormattedTextField(formatter);        dh_d.setValue(d);
-        JFormattedTextField dh_r = new JFormattedTextField(formatter);        dh_r.setValue(r);
-        JFormattedTextField dh_alpha = new JFormattedTextField(formatter);        dh_alpha.setValue(alpha);
-        JFormattedTextField dh_theta = new JFormattedTextField(formatter);        dh_theta.setValue(theta);
-
-        dh_d.addPropertyChangeListener("value", e -> d = ((Number) dh_d.getValue()).doubleValue() );
-        dh_r.addPropertyChangeListener("value", e -> r = ((Number) dh_r.getValue()).doubleValue() );
-        dh_alpha.addPropertyChangeListener("value", e -> alpha = ((Number) dh_alpha.getValue()).doubleValue() );
-        dh_theta.addPropertyChangeListener("value", e -> theta = ((Number) dh_theta.getValue()).doubleValue() );
-
-        pane.setLayout(new GridLayout(0,2));
-
-        NodePanelHelper.addLabelAndComponent(pane,"d",dh_d);
-        NodePanelHelper.addLabelAndComponent(pane,"theta",dh_theta);
-        NodePanelHelper.addLabelAndComponent(pane,"r",dh_r);
-        NodePanelHelper.addLabelAndComponent(pane,"alpha",dh_alpha);
-
-        pane.add(fromPose);
-        pane.add(toPose);
-
+        list.add(new DHParameterPanel(this));
         super.getComponents(list);
     }
 
