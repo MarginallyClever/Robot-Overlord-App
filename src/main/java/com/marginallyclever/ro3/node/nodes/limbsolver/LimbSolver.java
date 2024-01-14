@@ -97,7 +97,7 @@ public class LimbSolver extends Node {
      * @return true if the solver has a limb, an end effector, and a target.  Does not guarantee that a solution exists.
      */
     public boolean readyToSolve() {
-        return getLimb()!=null && getEndEffector()!=null && getTarget()!=null;
+        return getLimb().getSubject()!=null && getEndEffector()!=null && getTarget().getSubject()!=null;
     }
 
     private void moveTowardsTarget() {
