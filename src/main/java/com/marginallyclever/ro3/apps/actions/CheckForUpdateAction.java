@@ -37,43 +37,61 @@ public class CheckForUpdateAction extends AbstractAction implements ActionListen
 		JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
 
 		try {
-			String latestVersion = getLatestVersionFromGithub();
-
-			logger.info("last release: " + latestVersion);
 			logger.info("your version: " + RO3Frame.VERSION);
-			if (latestVersion.compareTo(RO3Frame.VERSION) > 0) {
-				JOptionPane.showMessageDialog(parentFrame, "A new version of this software is available.\n" +
-						"  The latest version is " + latestVersion + "\n"
-						+ "Please visit http://www.marginallyclever.com/ to get the new hotness.");
+			String latestVersion = getLatestVersionFromGithub();
+			logger.info("last release: " + latestVersion);
+			int result = compareVersions(RO3Frame.VERSION, latestVersion);
+			StringBuilder sb = new StringBuilder("<html><body>"
+				+ "<p>This app is version <b>"+RO3Frame.VERSION+"</b>.</p>"
+				+ "<p>The latest version is <b>"+latestVersion+"</b>.</p>");
+			if(result < 0) {
+				sb.append("<p>Please visit <a href='"+UPDATE_URL+"'>"+UPDATE_URL+"</a></p></body></html>");
+			} else if(result> 0) {
+				sb.append("<p>This version is newer than the latest release.</p>");
 			} else {
-				JOptionPane.showMessageDialog(parentFrame, "This version is up to date.");
+				sb.append("<p>This version is up to date.</p>");
 			}
+			sb.append("</body></html>");
+			JOptionPane.showMessageDialog(parentFrame,sb.toString());
 		} catch (Exception e) {
 			logger.error("Failed to get latest version.",e);
 			JOptionPane.showMessageDialog(parentFrame, "Failed to get latest version.");
 		}
 	}
 
-	public String getLatestVersionFromGithub() throws Exception {
-		String inputLine = null;
+	/**
+	 * Versions are in the form "a.b.c" where a,b,c are integers.
+	 * @param current this verison.
+	 * @param latest the latest version.
+	 * @return 1 if current is newer than latest, 0 if they are the same, -1 if current is older than latest.
+	 */
+	private int compareVersions(String current, String latest) {
+		String[] currentParts = current.split("\\.");
+		String[] latestParts = latest.split("\\.");
 
+		for(int i=0;i<Math.min(currentParts.length, latestParts.length);++i) {
+			int a = Integer.parseInt(currentParts[i]);
+			int b = Integer.parseInt(latestParts[i]);
+			if(a>b) return 1;
+			if(a<b) return -1;
+		}
+
+        return Integer.compare(currentParts.length, latestParts.length);
+    }
+
+	public String getLatestVersionFromGithub() throws Exception {
 		URL github = new URL(UPDATE_URL);
 		HttpURLConnection conn = (HttpURLConnection) github.openConnection();
 		conn.setInstanceFollowRedirects(false);  // you still need to handle redirect manually.
+		conn.setConnectTimeout(5000);
 		HttpURLConnection.setFollowRedirects(false);
-		try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
-			if ((inputLine = in.readLine()) == null) throw new IOException("no data");
-			// parse the URL in the text-only redirect
-			String matchStart = "<a href=\"";
-			String matchEnd = "\">";
-			int start = inputLine.indexOf(matchStart);
-			int end = inputLine.indexOf(matchEnd);
-			if (start != -1 && end != -1) {
-				inputLine = inputLine.substring(start + matchStart.length(), end);
-				// parse the last part of the redirect URL, which contains the release tag (which is the VERSION)
-				inputLine = inputLine.substring(inputLine.lastIndexOf("/") + 1);
-			}
-		}
-		return inputLine;
+		conn.connect();
+		//int responseCode = conn.getResponseCode();
+		String responseMessage = conn.getHeaderField("Location");
+		conn.disconnect();
+
+		// parse the last part of the redirect URL, which contains the
+		// release tag (which is the VERSION)
+		return responseMessage.substring(responseMessage.lastIndexOf("/") + 1);
 	}
 }
