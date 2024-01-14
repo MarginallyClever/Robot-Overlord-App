@@ -9,7 +9,7 @@ import org.json.JSONObject;
  */
 public class KeepRunningUntilFailure extends Decorator {
     public KeepRunningUntilFailure() {
-        this("RetryUntilSuccessful");
+        this("KeepRunningUntilFailure");
     }
 
     public KeepRunningUntilFailure(String name) {

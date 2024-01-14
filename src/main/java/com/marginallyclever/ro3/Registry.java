@@ -48,8 +48,10 @@ public class Registry {
             pose.add("Camera", Camera::new);
             pose.add("LookAt", LookAt::new);
             pose.add("Limb", Limb::new);
-            pose.add("AttachmentPoint", AttachmentPoint::new);
+            pose.add("AttachmentPoint", AttachmentPoint::new);/*
         Factory.Category<Node> behavior = nodule.add("Behavior", null);
+            Factory.Category<Node> action = behavior.add("Action",null);
+            Factory.Category<Node> control = behavior.add("Control",null);
             Factory.Category<Node> decorator = behavior.add("Decorator",null);
                 decorator.add("ForceFailure", ForceFailure::new);
                 decorator.add("ForceSuccess", ForceSuccess::new);
@@ -58,7 +60,7 @@ public class Registry {
                 decorator.add("Repeat", Repeat::new);
                 decorator.add("RetryUntilSuccessful", RetryUntilSuccessful::new);
             behavior.add("Fallback", Fallback::new);
-            behavior.add("Sequence", Sequence::new);
+            behavior.add("Sequence", Sequence::new);*/
         reset();
     }
 
