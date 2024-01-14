@@ -46,7 +46,7 @@ public class CheckForUpdateAction extends AbstractAction implements ActionListen
 				+ "<p>The latest version is <b>"+latestVersion+"</b>.</p>");
 			if(result < 0) {
 				sb.append("<p>Please visit <a href='"+UPDATE_URL+"'>"+UPDATE_URL+"</a></p></body></html>");
-			} else if(result> 0) {
+			} else if(result > 0) {
 				sb.append("<p>This version is newer than the latest release.</p>");
 			} else {
 				sb.append("<p>This version is up to date.</p>");
