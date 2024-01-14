@@ -3,8 +3,7 @@ package com.marginallyclever.convenience;
 import javax.vecmath.Vector3d;
 
 /**
- * A cylinder with a radius and two end points.
- *
+ * A cylinder with a radius and two end points.  Makes a pill shape.
  */
 public class Cylinder implements BoundingVolume {
 	private final Vector3d p1 = new Vector3d(0,0,0);

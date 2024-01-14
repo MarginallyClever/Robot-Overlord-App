@@ -1,10 +1,10 @@
 package com.marginallyclever.convenience.helpers;
 
-import com.marginallyclever.robotoverlord.systems.render.mesh.AABB;
+import com.marginallyclever.ro3.mesh.AABB;
 import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.Mesh;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -14,7 +14,7 @@ import javax.vecmath.Vector3d;
 /**
  * Convenience methods for detecting intersection of various mesh.
  */
-public class IntersectionHelper {
+public abstract class IntersectionHelper {
 	static final float SMALL_NUM = 0.001f;
 	/**
 	 * test intersection of two cylinders.  From http://geomalgorithms.com/a07-_distance.html
@@ -23,17 +23,17 @@ public class IntersectionHelper {
 	 * @return true if intersect
 	 */
 	static public boolean cylinderCylinder(Cylinder cA, Cylinder cB) {
-	    Vector3d   u = new Vector3d(cA.GetP2());  u.sub(cA.GetP1());
-	    Vector3d   v = new Vector3d(cB.GetP2());  v.sub(cB.GetP1());
-	    Vector3d   w = new Vector3d(cA.GetP1());  w.sub(cB.GetP1());
-	    double    a = u.dot(u);         // always >= 0
-	    double    b = u.dot(v);
-	    double    c = v.dot(v);         // always >= 0
-	    double    d = u.dot(w);
-	    double    e = v.dot(w);
-	    double    D = a*c - b*b;        // always >= 0
-	    double    sc, sN, sD = D;       // sc = sN / sD, default sD = D >= 0
-	    double    tc, tN, tD = D;       // tc = tN / tD, default tD = D >= 0
+	    Vector3d u = new Vector3d(cA.GetP2());  u.sub(cA.GetP1());
+	    Vector3d v = new Vector3d(cB.GetP2());  v.sub(cB.GetP1());
+	    Vector3d w = new Vector3d(cA.GetP1());  w.sub(cB.GetP1());
+	    double a = u.dot(u);         // always >= 0
+	    double b = u.dot(v);
+	    double c = v.dot(v);         // always >= 0
+	    double d = u.dot(w);
+	    double e = v.dot(w);
+	    double D = a*c - b*b;        // always >= 0
+	    double sc, sN, sD = D;       // sc = sN / sD, default sD = D >= 0
+	    double tc, tN, tD = D;       // tc = tN / tD, default tD = D >= 0
 
 	    // compute the line parameters of the two closest points
 	    if (D < SMALL_NUM) { // the lines are almost parallel
@@ -41,16 +41,14 @@ public class IntersectionHelper {
 	        sD = 1.0f;         // to prevent possible division by 0.0 later
 	        tN = e;
 	        tD = c;
-	    }
-	    else {                 // get the closest points on the infinite lines
+	    } else {                 // get the closest points on the infinite lines
 	        sN = (b*e - c*d);
 	        tN = (a*e - b*d);
 	        if (sN < 0.0) {        // sc < 0 => the s=0 edge is visible
 	            sN = 0.0f;
 	            tN = e;
 	            tD = c;
-	        }
-	        else if (sN > sD) {  // sc > 1  => the s=1 edge is visible
+	        } else if (sN > sD) {  // sc > 1  => the s=1 edge is visible
 	            sN = sD;
 	            tN = e + b;
 	            tD = c;
@@ -366,6 +364,15 @@ public class IntersectionHelper {
 		return p0;
 	}
 
+	/**
+	 * find the center of the sphere formed by the three points p and the radius.
+	 * see <a href="https://stackoverflow.com/questions/11719168/how-do-i-find-the-sphere-center-from-3-points-and-radius">Stack overflow</a>
+	 * @param a point
+	 * @param b point
+	 * @param c point
+	 * @param r radius
+	 * @return the center of the sphere formed by the three points p and the radius.
+	 */
 	static public Vector3d centerOfCircumscribedSphere(Vector3d a, Vector3d b, Vector3d c,double r) {
 		// find the point between a and b.
 		Vector3d ab = new Vector3d(b);

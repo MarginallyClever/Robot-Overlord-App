@@ -1,6 +1,6 @@
 package com.marginallyclever.robotoverlord.entity;
 
-import com.marginallyclever.robotoverlord.systems.render.mesh.AABB;
+import com.marginallyclever.ro3.mesh.AABB;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.robotoverlord.Collidable;
 import com.marginallyclever.robotoverlord.SerializationContext;
