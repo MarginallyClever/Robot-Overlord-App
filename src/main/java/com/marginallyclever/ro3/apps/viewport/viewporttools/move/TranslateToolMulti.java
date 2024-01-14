@@ -10,6 +10,7 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -21,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>A tool to translate {@link com.marginallyclever.ro3.node.nodes.Pose} nodes in the {@link Viewport}.  It is a
+ * <p>A tool to translate {@link Pose} nodes in the {@link Viewport}.  It is a
  * combination of three {@link TranslateToolOneAxis}.</p>
  */
 public class TranslateToolMulti implements ViewportTool {

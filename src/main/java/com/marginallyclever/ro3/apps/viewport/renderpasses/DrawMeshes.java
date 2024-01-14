@@ -351,9 +351,8 @@ public class DrawMeshes extends AbstractRenderPass {
 
     public void savePrefs() {
         Preferences pref = Preferences.userNodeForPackage(this.getClass());
-        pref.putDouble("sunlightSource.x",sunlightSource.x);
-        pref.putDouble("sunlightSource.y",sunlightSource.y);
-        pref.putDouble("sunlightSource.z",sunlightSource.z);
+        pref.putDouble("declination",declination);
+        pref.putDouble("timeOfDay",timeOfDay);
         pref.putInt("sunlightColor",sunlightColor.getRGB());
     }
 

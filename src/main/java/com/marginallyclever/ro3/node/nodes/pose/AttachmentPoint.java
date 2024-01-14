@@ -3,7 +3,6 @@ package com.marginallyclever.ro3.node.nodes.pose;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.Pose;
 import org.json.JSONObject;
 
 import javax.swing.*;

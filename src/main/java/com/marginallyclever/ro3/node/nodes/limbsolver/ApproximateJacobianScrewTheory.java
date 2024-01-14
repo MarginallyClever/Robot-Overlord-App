@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.limbsolver;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.Limb;
 
 import javax.vecmath.Matrix4d;

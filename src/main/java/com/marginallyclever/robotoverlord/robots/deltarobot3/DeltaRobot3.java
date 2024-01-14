@@ -325,9 +325,6 @@ public class DeltaRobot3 extends Component implements Robot {
 			ortho.scale(r);
 			p[i].sub(ortho);
 		}
-		// find the center of the sphere formed by the three points p and the radius.
-		// see https://stackoverflow.com/questions/11719168/how-do-i-find-the-sphere-center-from-3-points-and-radius
-
 		Vector3d t = IntersectionHelper.centerOfCircumscribedSphere(p[0],p[1],p[2],DeltaRobot3.FOREARM_LENGTH);
 		motionNow.set(t);
 	}

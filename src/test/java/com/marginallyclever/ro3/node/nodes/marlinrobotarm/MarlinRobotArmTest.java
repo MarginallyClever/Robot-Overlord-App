@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.Limb;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import org.junit.jupiter.api.Test;
