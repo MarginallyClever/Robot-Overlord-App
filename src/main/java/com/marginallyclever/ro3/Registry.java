@@ -7,16 +7,11 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlanner;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
-import com.marginallyclever.ro3.node.nodes.pose.AttachmentPoint;
-import com.marginallyclever.ro3.node.nodes.pose.Limb;
-import com.marginallyclever.ro3.node.nodes.pose.LookAt;
-import com.marginallyclever.ro3.node.nodes.pose.MeshInstance;
+import com.marginallyclever.ro3.node.nodes.pose.*;
 import com.marginallyclever.ro3.texture.TextureFactory;
 
 import javax.swing.event.EventListenerList;
 import javax.vecmath.Vector3d;
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
 import java.util.ArrayList;
 import java.util.List;
 

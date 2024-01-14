@@ -2,7 +2,6 @@ package com.marginallyclever.ro3.apps.viewport.viewporttools.move;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.ColorRGB;
-import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
@@ -14,7 +13,7 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.node.nodes.Camera;
-import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

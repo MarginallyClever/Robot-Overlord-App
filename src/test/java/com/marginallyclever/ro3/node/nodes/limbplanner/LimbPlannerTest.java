@@ -3,7 +3,7 @@ package com.marginallyclever.ro3.node.nodes.limbplanner;
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.actions.LoadScene;
-import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.pose.Limb;
 import org.junit.jupiter.api.BeforeEach;

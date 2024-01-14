@@ -2,7 +2,7 @@ package com.marginallyclever.ro3.node.nodes.limbplanner;
 
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import org.json.JSONObject;
 import org.slf4j.Logger;

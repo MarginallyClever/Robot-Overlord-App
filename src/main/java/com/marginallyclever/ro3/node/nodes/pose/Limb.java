@@ -3,7 +3,6 @@ package com.marginallyclever.ro3.node.nodes.pose;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Motor;
-import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import org.json.JSONArray;
 import org.json.JSONObject;

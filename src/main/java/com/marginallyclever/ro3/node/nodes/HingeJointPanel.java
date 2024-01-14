@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.PanelHelper;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;

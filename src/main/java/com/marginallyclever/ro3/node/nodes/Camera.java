@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 
 import javax.swing.*;
 import javax.vecmath.Matrix3d;

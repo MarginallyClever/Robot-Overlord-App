@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes;
+package com.marginallyclever.ro3.node.nodes.pose;
 
 import com.marginallyclever.convenience.helpers.BigMatrixHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;

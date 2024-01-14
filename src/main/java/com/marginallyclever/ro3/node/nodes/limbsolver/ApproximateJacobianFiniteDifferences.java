@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.node.nodes.limbsolver;
 
-import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.Limb;
 
 import javax.vecmath.Matrix3d;

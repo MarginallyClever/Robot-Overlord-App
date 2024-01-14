@@ -7,7 +7,7 @@ import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.limbsolver.ApproximateJacobianFiniteDifferences;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.Motor;
-import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.Limb;
 import org.json.JSONObject;
 import org.slf4j.Logger;
