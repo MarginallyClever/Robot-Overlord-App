@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.security.InvalidParameterException;
 import java.util.*;
@@ -48,37 +49,46 @@ public class ExportScene extends AbstractAction {
         Component source = (Component) e.getSource();
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
 
+        var myListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (JFileChooser.APPROVE_SELECTION.equals(e.getActionCommand())) {
+                    String[] extensions = ZIP_FILTER.getExtensions();
+                    File f = chooser.getSelectedFile();
+                    String fname = f.getName().toLowerCase();
+                    boolean matches = Arrays.stream(extensions).anyMatch((ext) -> fname.toLowerCase().endsWith("." + ext));
+                    if (!matches) {
+                        f = new File(f.getPath() + "." + extensions[0]);  // append the first extension from ZIP_FILTER
+                        chooser.setSelectedFile(f);
+                    }
+                }
+            }
+        };
+
         // make sure to add the extension if the user doesn't
-        chooser.addActionListener((e2) -> {
-            if (JFileChooser.APPROVE_SELECTION.equals(e2.getActionCommand())) {
-                String[] extensions = ZIP_FILTER.getExtensions();
-                File f = chooser.getSelectedFile();
-                String fname = f.getName().toLowerCase();
-                boolean matches = Arrays.stream(extensions).anyMatch((ext) -> fname.toLowerCase().endsWith("." + ext));
-                if (!matches) {
-                    f = new File(f.getPath() + "." + extensions[0]);  // append the first extension from ZIP_FILTER
-                    chooser.setSelectedFile(f);
+        chooser.addActionListener( myListener );
+        try {
+            chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+            if (chooser.showDialog(parentFrame, "Export") == JFileChooser.APPROVE_OPTION) {
+                // check before overwriting.
+                File selectedFile = chooser.getSelectedFile();
+                if (selectedFile.exists()) {
+                    int response = JOptionPane.showConfirmDialog(parentFrame,
+                            "Do you want to replace the existing file?",
+                            "Confirm Overwrite",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.QUESTION_MESSAGE);
+                    if (response == JOptionPane.NO_OPTION) {
+                        return;
+                    }
                 }
-            }
-        });
 
-        chooser.setDialogType(JFileChooser.SAVE_DIALOG);
-        if (chooser.showDialog(parentFrame,"Export") == JFileChooser.APPROVE_OPTION) {
-            // check before overwriting.
-            File selectedFile = chooser.getSelectedFile();
-            if (selectedFile.exists()) {
-                int response = JOptionPane.showConfirmDialog(SwingUtilities.getWindowAncestor(source),
-                        "Do you want to replace the existing file?",
-                        "Confirm Overwrite",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
-                if (response == JOptionPane.NO_OPTION) {
-                    return;
-                }
+                String absolutePath = chooser.getSelectedFile().getAbsolutePath();
+                commitExport(absolutePath);
             }
-
-            String absolutePath = chooser.getSelectedFile().getAbsolutePath();
-            commitExport(absolutePath);
+        }
+        finally {
+            chooser.removeActionListener( myListener );
         }
     }
 
