@@ -4,6 +4,10 @@ import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.mesh.MeshFactory;
 import com.marginallyclever.ro3.node.nodes.*;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.behavior.Behavior;
+import com.marginallyclever.ro3.node.nodes.behavior.Fallback;
+import com.marginallyclever.ro3.node.nodes.behavior.Sequence;
+import com.marginallyclever.ro3.node.nodes.behavior.decorators.*;
 import com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlanner;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
@@ -45,6 +49,16 @@ public class Registry {
             pose.add("LookAt", LookAt::new);
             pose.add("Limb", Limb::new);
             pose.add("AttachmentPoint", AttachmentPoint::new);
+        Factory.Category<Node> behavior = nodule.add("Behavior", null);
+            Factory.Category<Node> decorator = behavior.add("Decorator",null);
+                decorator.add("ForceFailure", ForceFailure::new);
+                decorator.add("ForceSuccess", ForceSuccess::new);
+                decorator.add("Inverter", Inverter::new);
+                decorator.add("KeepRunningUntilFailure", KeepRunningUntilFailure::new);
+                decorator.add("Repeat", Repeat::new);
+                decorator.add("RetryUntilSuccessful", RetryUntilSuccessful::new);
+            behavior.add("Fallback", Fallback::new);
+            behavior.add("Sequence", Sequence::new);
         reset();
     }
 
