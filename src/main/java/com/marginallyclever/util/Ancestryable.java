@@ -6,7 +6,7 @@ import java.util.prefs.Preferences;
 /**
  * TODO add description
  */
-public interface Ancestryable {
+@Deprecated public interface Ancestryable {
   /**
    * @return ??
    */

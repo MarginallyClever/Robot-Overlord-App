@@ -14,28 +14,18 @@ import java.util.prefs.PreferencesFactory;
  * See <a href="http://www.davidc.net/programming/java/java-preferences-using-file-backing-store">Java Preferences using a file as the backing store</a>
  * @param <A> AbstractPreferences
  */
-public final class MarginallyCleverPreferencesFileFactory<A extends AbstractPreferences> implements PreferencesFactory {
+@Deprecated public final class MarginallyCleverPreferencesFileFactory<A extends AbstractPreferences> implements PreferencesFactory {
 	private static final Logger logger = LoggerFactory.getLogger(MarginallyCleverPreferencesFileFactory.class);
 	private static final String PREFERENCES_DIRECTORY_PATH = System.getProperty("user.home") + File.separator + "robotoverlord";
-
-	/**
-	 *
-	 */
 	private A rootPreferences;
-
 	private static final String SYSTEM_PROPERTY_KEY_FOR_XML_FILE =
 			"com.marginallyclever.util.MarginallyCleverJsonFilePreferencesFactory.xmlFile";
-
 	private static final String SYSTEM_PROPERTY_KEY_FOR_PROPERTIES_FILE =
 			"com.marginallyclever.util.MarginallyCleverJsonFilePreferencesFactory.propertiesFile";
-
 	private static final String SYSTEM_PROPERTY_KEY_FOR_JSON_FILE =
 			"com.marginallyclever.util.MarginallyCleverJsonFilePreferencesFactory.jsonFile";
-
 	private static File xmlPreferencesFile;
-
 	private static File propertiesPreferencesFile;
-
 	private static File jsonPreferencesFile;
 
 	@Override
@@ -67,10 +57,6 @@ public final class MarginallyCleverPreferencesFileFactory<A extends AbstractPref
 	 */
 	public synchronized static File getPropertiesPreferencesFile() {
 		return getPreferenceFile(propertiesPreferencesFile, SYSTEM_PROPERTY_KEY_FOR_PROPERTIES_FILE, getDefaultPropertiesPreferenceFilePath());
-	}
-
-	public synchronized static File getJsonPreferencesFile() {
-		return getPreferenceFile(jsonPreferencesFile, SYSTEM_PROPERTY_KEY_FOR_JSON_FILE, getDefaultJsonPreferenceFilePath());
 	}
 
 	private static File getPreferenceFile(File preferencesFile, String systemPropertyKey, String defaultFilePath) {
@@ -107,21 +93,5 @@ public final class MarginallyCleverPreferencesFileFactory<A extends AbstractPref
 	 */
 	private static String getDefaultPropertiesPreferenceFilePath() {
 		return PREFERENCES_DIRECTORY_PATH + ".properties";
-	}
-
-	/**
-	 * @return
-	 */
-	private static String getDefaultJsonPreferenceFilePath() {
-		return PREFERENCES_DIRECTORY_PATH + ".json";
-	}
-
-	/**
-	 * NOOP Constructor
-	 *
-	 * @throws IllegalStateException
-	 */
-	private MarginallyCleverPreferencesFileFactory() throws IllegalStateException {
-		throw new IllegalStateException();
 	}
 }

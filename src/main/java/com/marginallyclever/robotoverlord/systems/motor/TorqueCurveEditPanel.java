@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
-public class TorqueCurveEditPanel extends JPanel {
+@Deprecated public class TorqueCurveEditPanel extends JPanel {
     public TorqueCurveEditPanel(MotorComponent motor) {
         super(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));

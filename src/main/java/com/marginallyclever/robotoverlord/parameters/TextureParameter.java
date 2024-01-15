@@ -18,7 +18,7 @@ import java.util.Set;
 /**
  * A texture file name.  Loads the texture when needed from a pool to reduce duplication.
  */
-public class TextureParameter extends FilenameParameter {
+@Deprecated public class TextureParameter extends FilenameParameter {
 	public static final HashMap<String, Texture> texturePool = new HashMap<>();
 	private static final Logger logger = LoggerFactory.getLogger(TextureParameter.class);
 

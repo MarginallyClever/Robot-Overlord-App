@@ -9,7 +9,7 @@ import javax.vecmath.Vector3d;
 /**
  *
  */
-public class Vector3DParameter extends AbstractParameter<Vector3d> {
+@Deprecated public class Vector3DParameter extends AbstractParameter<Vector3d> {
 	public Vector3DParameter(String name, Vector3d value) {
 		super(name,value);
 	}

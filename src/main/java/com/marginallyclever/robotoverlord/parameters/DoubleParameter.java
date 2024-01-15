@@ -8,7 +8,7 @@ import org.json.JSONObject;
 /**
  *
  */
-public class DoubleParameter extends AbstractParameter<Double> {
+@Deprecated public class DoubleParameter extends AbstractParameter<Double> {
 	public DoubleParameter(String name, double value) {
 		super(name, value);
 	}

@@ -14,7 +14,7 @@ import java.util.List;
  * @see RPMToTorqueTable.DataChangeListener
  *
  */
-public class RPMToTorqueTable extends JPanel {
+@Deprecated public class RPMToTorqueTable extends JPanel {
     private final JTable table;
     private final DefaultTableModel model;
 

@@ -23,8 +23,7 @@ import java.util.LinkedList;
  * 
  *
  */
-@Deprecated
-public class RemoteParameter extends StringParameter implements SessionLayerListener {
+@Deprecated public class RemoteParameter extends StringParameter implements SessionLayerListener {
 	private static final Logger logger = LoggerFactory.getLogger(RemoteParameter.class);
 	
 	// the firmware uses a specific syntax.  these are elements of that syntax

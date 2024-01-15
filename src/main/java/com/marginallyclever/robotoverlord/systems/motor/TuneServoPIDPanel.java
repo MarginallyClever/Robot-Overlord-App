@@ -10,7 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 
-public class TuneServoPIDPanel extends JPanel {
+@Deprecated public class TuneServoPIDPanel extends JPanel {
     private final SingleLineGraph graph = new SingleLineGraph();
     private final ServoComponent servo;
     private final MotorSystem motorSystem;

@@ -4,7 +4,6 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
 import com.marginallyclever.ro3.apps.UndoSystem;
-import com.marginallyclever.robotoverlord.swing.componentmanagerpanel.EntityChooser;
 import com.marginallyclever.robotoverlord.swing.edits.StringParameterEdit;
 
 import javax.swing.*;
@@ -74,9 +73,7 @@ import java.util.List;
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		Component source = (Component) e.getSource();
-		JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
-		List<Entity> chosen = EntityChooser.runDialog(parentFrame, entityManager.getRoot(),true);
+		List<Entity> chosen = null;//EntityChooser.runDialog(parentFrame, entityManager.getRoot(),true);
 		String newFilename = chosen.isEmpty() ? null : chosen.get(0).getUniqueID();
 		UndoSystem.addEvent(new StringParameterEdit(parameter, newFilename));
 	}

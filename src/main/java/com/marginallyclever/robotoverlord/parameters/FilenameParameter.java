@@ -4,7 +4,7 @@ import com.marginallyclever.robotoverlord.SerializationContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class FilenameParameter extends StringParameter {
+@Deprecated public class FilenameParameter extends StringParameter {
     public FilenameParameter(String name, String value) {
         super(name, value);
     }

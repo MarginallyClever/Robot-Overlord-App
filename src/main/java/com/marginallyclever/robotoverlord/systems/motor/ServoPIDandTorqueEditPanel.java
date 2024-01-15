@@ -6,7 +6,7 @@ import com.marginallyclever.robotoverlord.entity.Entity;
 import javax.swing.*;
 import java.awt.*;
 
-public class ServoPIDandTorqueEditPanel extends JPanel {
+@Deprecated public class ServoPIDandTorqueEditPanel extends JPanel {
     public ServoPIDandTorqueEditPanel(ServoComponent servo,MotorSystem motorSystem) {
         super(new BorderLayout());
         JTabbedPane tabbedPane = new JTabbedPane();

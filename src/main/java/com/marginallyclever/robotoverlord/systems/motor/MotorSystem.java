@@ -23,7 +23,7 @@ import java.util.List;
  * <p>For motors</p>
  *
  */
-public class MotorSystem implements EntitySystem {
+@Deprecated public class MotorSystem implements EntitySystem {
     private final EntityManager entityManager;
 
     public MotorSystem(EntityManager entityManager) {

@@ -7,7 +7,7 @@ import org.json.JSONObject;
 /**
  *
  */
-public class BooleanParameter extends AbstractParameter<Boolean> {
+@Deprecated public class BooleanParameter extends AbstractParameter<Boolean> {
 	public BooleanParameter(String name, boolean value) {
 		super(name,value);
 	}

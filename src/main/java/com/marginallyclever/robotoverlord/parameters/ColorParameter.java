@@ -10,7 +10,7 @@ import java.util.Arrays;
  * each color component is in the range [0...1]
  *
  */
-public class ColorParameter extends AbstractParameter<double[]> {
+@Deprecated public class ColorParameter extends AbstractParameter<double[]> {
 
 	public ColorParameter(String name, double r, double g, double b, double a) {
 		super(name,new double[] {r,g,b,a});
