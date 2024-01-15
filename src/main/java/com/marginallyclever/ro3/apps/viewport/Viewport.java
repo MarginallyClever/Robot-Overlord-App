@@ -550,9 +550,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         Camera camera = Registry.getActiveCamera();
         assert camera != null;
         double orbitRadius = camera.getOrbitRadius();
-        double before = orbitRadius;
         orbitRadius = dz > 0 ? orbitRadius * orbitChangeFactor : orbitRadius / orbitChangeFactor;
-        double after = orbitRadius;
         camera.setOrbitRadius(orbitRadius);
     }
 

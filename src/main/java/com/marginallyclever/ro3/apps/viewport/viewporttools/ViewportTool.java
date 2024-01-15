@@ -41,13 +41,6 @@ public interface ViewportTool {
     void handleMouseEvent(MouseEvent event);
 
     /**
-     * Handles keyboard input events for the tool.
-     *
-     * @param event The KeyEvent object representing the input event.
-     */
-    void handleKeyEvent(KeyEvent event);
-
-    /**
      * Updates the tool's internal state, if necessary.
      *
      * @param deltaTime Time elapsed since the last update.

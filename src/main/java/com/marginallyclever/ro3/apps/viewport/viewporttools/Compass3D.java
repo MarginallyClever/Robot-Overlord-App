@@ -96,9 +96,6 @@ public class Compass3D implements ViewportTool {
     }
 
     @Override
-    public void handleKeyEvent(KeyEvent event) {}
-
-    @Override
     public void update(double deltaTime) {}
 
     @Override

@@ -186,9 +186,6 @@ public class TranslateToolTwoAxis implements ViewportTool {
     }
 
     @Override
-    public void handleKeyEvent(KeyEvent event) {}
-
-    @Override
     public void update(double deltaTime) {
         updateLocalScale();
     }

@@ -157,20 +157,6 @@ public class RotateToolMulti implements ViewportTool {
     }
 
     /**
-     * Handles keyboard input events for the tool.
-     *
-     * @param event The KeyEvent object representing the input event.
-     */
-    @Override
-    public void handleKeyEvent(KeyEvent event) {
-        if (selectedItems == null || selectedItems.isEmpty()) return;
-
-        updatePivotMatrix();
-
-        for(ViewportTool t : tools) t.handleKeyEvent(event);
-    }
-
-    /**
      * Updates the tool's internal state, if necessary.
      *
      * @param deltaTime Time elapsed since the last update.

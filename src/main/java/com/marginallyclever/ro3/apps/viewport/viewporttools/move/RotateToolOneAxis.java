@@ -320,9 +320,6 @@ public class RotateToolOneAxis implements ViewportTool {
         return Math.atan2(y,x);
     }
 
-    @Override
-    public void handleKeyEvent(KeyEvent e) {}
-
     /**
      * Updates the tool's internal state, if necessary.
      *

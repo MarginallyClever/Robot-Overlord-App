@@ -30,7 +30,6 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
     public static final String PICK_POINT_NAME = "pick point";
     private Viewport viewport;
     private boolean isActive=false;
-    private boolean isShiftDown=false;
 
     public SelectionTool() {
         super();
@@ -72,31 +71,6 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
             }
         }
     }
-
-    /**
-     * Handles keyboard input events for the tool.
-     *
-     * @param event The KeyEvent object representing the input event.
-     */
-    @Override
-    public void handleKeyEvent(KeyEvent event) {
-        if(event.getID() == KeyEvent.KEY_PRESSED) {
-            handleKeyPressed(event);
-        } else if(event.getID() == KeyEvent.KEY_RELEASED) {
-            handleKeyReleased(event);
-        }
-    }
-
-    private void handleKeyPressed(KeyEvent event) {
-        int keyCode = event.getKeyCode();
-        if(keyCode == KeyEvent.VK_SHIFT) isShiftDown=true;
-    }
-
-    private void handleKeyReleased(KeyEvent event) {
-        int keyCode = event.getKeyCode();
-        if(keyCode == KeyEvent.VK_SHIFT) isShiftDown=false;
-    }
-
 
     /**
      * Updates the tool's internal state, if necessary.

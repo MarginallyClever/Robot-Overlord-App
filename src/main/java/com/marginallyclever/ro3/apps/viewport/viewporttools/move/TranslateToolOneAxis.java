@@ -116,12 +116,12 @@ public class TranslateToolOneAxis implements ViewportTool {
 
     @Override
     public void mouseMoved(MouseEvent event) {
-        cursorOverHandle = isCursorOverHandle(event.getX(), event.getY());
+        cursorOverHandle = isCursorOverHandle();
     }
 
     @Override
     public void mousePressed(MouseEvent event) {
-        if (isCursorOverHandle(event.getX(), event.getY())) {
+        if (isCursorOverHandle()) {
             dragging = true;
             cursorOverHandle = true;
             startPoint = MoveUtils.getPointOnPlaneFromCursor(translationPlane,viewport,event.getX(), event.getY());
@@ -198,7 +198,7 @@ public class TranslateToolOneAxis implements ViewportTool {
         return new Point3d(diff);
     }
 
-    private boolean isCursorOverHandle(int x, int y) {
+    private boolean isCursorOverHandle() {
         if(selectedItems==null || selectedItems.isEmpty()) return false;
 
         var nc = viewport.getCursorAsNormalized();
@@ -210,11 +210,6 @@ public class TranslateToolOneAxis implements ViewportTool {
         diff.scaleAdd(getHandleLengthScaled(), MatrixHelper.getPosition(pivotMatrix));
         diff.sub(point);
         return (diff.lengthSquared() < getGripRadiusScaled()*getGripRadiusScaled());
-    }
-
-    @Override
-    public void handleKeyEvent(KeyEvent event) {
-        // Handle keyboard events, if necessary
     }
 
     @Override
