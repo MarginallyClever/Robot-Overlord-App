@@ -22,20 +22,19 @@ jobs:
         java-version: '17'
         cache: 'maven'
 
-    # from https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
     - name: Build and Test with Maven
       timeout-minutes: 15
       run: ./mvnw -B test
 
     - name: Generate JaCoCo Badge
+      if: github.ref != 'refs/heads/master'
       uses: cicirello/jacoco-badge-generator@v2
       with:
         generate-branches-badge: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Commit and push the badge (if it changed)
-      uses: EndBug/add-and-commit@v7
+      if: github.ref != 'refs/heads/master'
+      uses: EndBug/add-and-commit@v9
       with:
         default_author: github_actions
         message: 'commit badge'
