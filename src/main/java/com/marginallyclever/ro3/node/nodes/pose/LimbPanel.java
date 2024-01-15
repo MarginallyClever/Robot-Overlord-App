@@ -47,9 +47,12 @@ public class LimbPanel extends JPanel {
             outerPanel.add(createOneFKDial(motor));
             count++;
         }
-        count = 3-(count%3);
-        for(int i=0;i<count;++i) {
-            outerPanel.add(new JPanel());
+        count %= 3;
+        if(count != 0) {
+            count = 3 - count;
+            for (int i = 0; i < count; ++i) {
+                outerPanel.add(new JPanel());
+            }
         }
 
         return containerPanel;
