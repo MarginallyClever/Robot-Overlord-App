@@ -31,6 +31,8 @@ jobs:
       uses: cicirello/jacoco-badge-generator@v2
       with:
         generate-branches-badge: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Commit and push the badge (if it changed)
       uses: EndBug/add-and-commit@v7
