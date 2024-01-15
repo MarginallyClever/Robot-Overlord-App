@@ -599,7 +599,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             // adjust the ray by the camera world pose.
             Matrix4d m2 = camera.getWorld();
             m2.transform(direction);
-            origin = new Point3d(camera.getPosition());
+            origin = new Point3d(MatrixHelper.getPosition(m2));
             //logger.debug("origin {} direction {}",origin,direction);
         }
 
