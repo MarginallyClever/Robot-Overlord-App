@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.apps.actions;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.RO3Frame;
 import com.marginallyclever.ro3.apps.RecentFilesMenu;
+import com.marginallyclever.ro3.apps.shared.FilenameExtensionChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,7 @@ public class SaveAsScene extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(SaveAsScene.class);
     private final JFileChooser chooser;
     private final RecentFilesMenu menu;
+    private SaveScene saveScene;
 
     public SaveAsScene(RecentFilesMenu menu, JFileChooser chooser) {
         super();
@@ -33,6 +35,10 @@ public class SaveAsScene extends AbstractAction {
         putValue(Action.NAME,"Save As...");
         putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-save-16.png"))));
         putValue(SHORT_DESCRIPTION,"Save to a file.");
+    }
+
+    public void setSaveScene(SaveScene saveScene) {
+        this.saveScene = saveScene;
     }
 
     /**
@@ -54,7 +60,8 @@ public class SaveAsScene extends AbstractAction {
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
-        menu.addPath(destinationPath);
+        if(saveScene!=null) saveScene.setPath(destinationPath);
+        if(menu!=null) menu.addPath(destinationPath);
     }
 
     private String askUserForDestinationPath(Component source) {
@@ -63,22 +70,7 @@ public class SaveAsScene extends AbstractAction {
 
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
 
-        var myListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (JFileChooser.APPROVE_SELECTION.equals(e.getActionCommand())) {
-                    String[] extensions = RO3Frame.FILE_FILTER.getExtensions();
-                    File f = chooser.getSelectedFile();
-                    String fname = f.getName().toLowerCase();
-                    boolean matches = Arrays.stream(extensions).anyMatch((ext) -> fname.toLowerCase().endsWith("." + ext));
-                    if (!matches) {
-                        f = new File(f.getPath() + "." + extensions[0]);  // append the first extension from ZIP_FILTER
-                        chooser.setSelectedFile(f);
-                    }
-                }
-            }
-        };
-
+        var myListener = new FilenameExtensionChecker(RO3Frame.FILE_FILTER.getExtensions(),chooser);
         chooser.addActionListener(myListener);
         try {
             int response;

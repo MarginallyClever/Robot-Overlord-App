@@ -47,7 +47,6 @@ public class LimbSolverPanel extends JPanel {
     }
 
     private void addMoveTargetToEndEffector(JPanel pane,GridBagConstraints gbc) {
-        // move target to end effector
         JButton targetToEE = new JButton(new AbstractAction() {
             {
                 putValue(Action.NAME,"Move");

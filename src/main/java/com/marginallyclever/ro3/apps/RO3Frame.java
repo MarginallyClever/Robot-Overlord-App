@@ -235,7 +235,6 @@ public class RO3Frame extends JFrame {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 resetDefaultLayout();
-                logger.info("Layout reset.");
             }
         }));
         return menuWindows;
@@ -249,6 +248,8 @@ public class RO3Frame extends JFrame {
         var load = new LoadScene(loadRecentMenu,null,fileChooser);
         load.setSaveScene(save);
         loadRecentMenu.setSaveScene(save);
+        var saveAs = new SaveAsScene(loadRecentMenu,fileChooser);
+        saveAs.setSaveScene(save);
 
         JMenu menuFile = new JMenu("File");
         menuFile.add(new JMenuItem(new NewScene(save)));
@@ -257,7 +258,7 @@ public class RO3Frame extends JFrame {
         menuFile.add(loadRecentMenu);
         menuFile.add(new JMenuItem(new ImportScene(fileChooser)));
         menuFile.add(new JMenuItem(save));
-        menuFile.add(new JMenuItem(new SaveAsScene(loadRecentMenu,fileChooser)));
+        menuFile.add(new JMenuItem(saveAs));
         menuFile.add(new JMenuItem(new ExportScene(fileChooser)));
 
         menuFile.add(new JSeparator());
@@ -354,7 +355,8 @@ public class RO3Frame extends JFrame {
      * Reset the default layout.  These depend on the order of creation in createDefaultLayout().
      */
     private void resetDefaultLayout() {
-        setSize(1000, 700);
+        logger.info("Resetting layout to default.");
+        setSize(1000, 750);
 
         for(DockingPanel w : windows) {
             Docking.undock(w);
@@ -367,6 +369,7 @@ public class RO3Frame extends JFrame {
         Docking.dock(treeView, this, DockingRegion.WEST);
         Docking.dock(detailView, treeView, DockingRegion.SOUTH);
         Docking.dock(aboutView, treeView, DockingRegion.CENTER);
+        logger.info("done.");
     }
 
     private void saveAndRestoreLayout() {

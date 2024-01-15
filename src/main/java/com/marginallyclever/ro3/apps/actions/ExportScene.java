@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.apps.actions;
 import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.RO3Frame;
+import com.marginallyclever.ro3.apps.shared.FilenameExtensionChecker;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,24 +50,9 @@ public class ExportScene extends AbstractAction {
         Component source = (Component) e.getSource();
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
 
-        var myListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (JFileChooser.APPROVE_SELECTION.equals(e.getActionCommand())) {
-                    String[] extensions = ZIP_FILTER.getExtensions();
-                    File f = chooser.getSelectedFile();
-                    String fname = f.getName().toLowerCase();
-                    boolean matches = Arrays.stream(extensions).anyMatch((ext) -> fname.toLowerCase().endsWith("." + ext));
-                    if (!matches) {
-                        f = new File(f.getPath() + "." + extensions[0]);  // append the first extension from ZIP_FILTER
-                        chooser.setSelectedFile(f);
-                    }
-                }
-            }
-        };
-
-        // make sure to add the extension if the user doesn't
+        var myListener = new FilenameExtensionChecker(ZIP_FILTER.getExtensions(),chooser);
         chooser.addActionListener( myListener );
+
         try {
             chooser.setDialogType(JFileChooser.SAVE_DIALOG);
             if (chooser.showDialog(parentFrame, "Export") == JFileChooser.APPROVE_OPTION) {
