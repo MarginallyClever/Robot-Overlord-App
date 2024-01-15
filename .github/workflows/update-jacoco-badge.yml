@@ -1,0 +1,22 @@
+name: Update Jacoco Coverage Badge
+
+on:
+  push:
+    branches:
+      - '*'         # matches every branch that doesn't contain a '/'
+      - '*/*'       # matches every branch containing a single '/'
+      - '**'        # matches every branch
+      - '!master'   # excludes master
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and Test with Maven
+        timeout-minutes: 15
+        run: ./mvnw -B test
+
+      - name: Generate JaCoCo Badge
+        uses: cicirello/jacoco-badge-generator@v2
+        with:
+          generate-branches-badge: true
