@@ -26,6 +26,12 @@ jobs:
       timeout-minutes: 15
       run: ./mvnw -B test
 
+    - name: Generate JaCoCo Badge
+      if: github.ref != 'refs/heads/master'
+      uses: cicirello/jacoco-badge-generator@v2
+      with:
+        generate-branches-badge: true
+
     - name: Commit and push the badge (if it changed)
       if: github.ref != 'refs/heads/master'
       uses: EndBug/add-and-commit@v9
