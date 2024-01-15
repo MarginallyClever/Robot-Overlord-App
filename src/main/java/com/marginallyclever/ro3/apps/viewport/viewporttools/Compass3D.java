@@ -135,7 +135,7 @@ public class Compass3D implements ViewportTool {
         drawWhiteCircle(gl3,shaderProgram,z);
 
         // for the gizmo, set the model matrix to be the identity matrix.
-        Matrix4d model = MatrixHelper.createIdentityMatrix4();
+        Matrix4d model = MatrixHelper.createScaleMatrix4(handleLength-handleRadius);
         model.transpose();
         shaderProgram.setColor(gl3,"objectColor",Color.WHITE);
         shaderProgram.setMatrix4d(gl3,"modelMatrix",model);
