@@ -12,6 +12,14 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3.3.0
+
+      - uses: actions/setup-java@v3.9.0
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
       - name: Build and Test with Maven
         timeout-minutes: 15
         run: ./mvnw -B test
