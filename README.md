@@ -1,6 +1,6 @@
 # Robot Overlord
 ![workflow](https://github.com/MarginallyClever/Robot-Overlord-App/actions/workflows/main.yml/badge.svg)
-![coverage](https://github.com/MarginallyClever/Robot-Overlord-App/blob/test-coverage/.github/badges/jacoco.svg)
+![coverage](https://github.com/MarginallyClever/Robot-Overlord-App/.github/badges/jacoco.svg)
 [![Javadoc](https://img.shields.io/badge/JavaDoc-Online-green)](https://marginallyclever.github.io/Robot-Overlord-App/)
 
 # Robot Overlord #
