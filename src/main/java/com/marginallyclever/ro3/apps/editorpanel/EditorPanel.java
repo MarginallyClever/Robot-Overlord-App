@@ -19,6 +19,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
+import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Objects;
@@ -50,53 +51,21 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
     private final JButton loadButton = new JButton(new LoadAction(this,chooser));
     private final JButton saveButton = new JButton(new SaveAction(this,chooser));
     private final JToolBar toolBar = new JToolBar("tools");
-    private JFormattedTextField secondsField;
-    private final Timer timer = new Timer(TIMER_INTERVAL_MS, null);
-    private final JProgressBar progressBar = new JProgressBar();
-    private final ActionListener timerAction = (e)-> {
-        int value = progressBar.getValue() + TIMER_INTERVAL_MS;
-        if (value >= progressBar.getMaximum()) {
-            value = 0;
-            var arm = robotArm.getSubject();
-            if(arm!=null) {
-                arm.sendGCode("G0"); // Send G0 command when progress bar is full
-            }
-        }
-        progressBar.setValue(value);
-    };
-
-    private final JButton sendButton = new JButton(new AbstractAction() {
+    private final JToggleButton playToggle = new JToggleButton(new AbstractAction() {
         // constructor
         {
-            putValue(Action.NAME, "Send");
+            putValue(Action.NAME, "Play");
             putValue(Action.SHORT_DESCRIPTION, "Send the current line to the robot.");
             putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-play-16.png"))));
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            MarlinRobotArm arm = robotArm.getSubject();
-            if(arm!=null) {
-                String message = getLineAtCaret();
-                if(!message.trim().isEmpty()) {
-                    arm.sendGCode(message);
-                    // move down one line in the file.
-                    int caretPosition = text.getCaretPosition();
-                    Element root = text.getDocument().getDefaultRootElement();
-                    int lineNumber = root.getElementIndex(caretPosition);
-                    Element lineElement = root.getElement(lineNumber);
-                    int end = lineElement.getEndOffset();
-                    try {
-                        text.setCaretPosition(Math.min(end, text.getDocument().getLength()));
-                    } catch (Exception exception) {
-                        logger.error("Failed to move caret.",exception);
-                    }
-                }
-            }
+            recordToggle.setSelected(false);
         }
     });
 
-    private final JToggleButton recordButton = new JToggleButton(new AbstractAction() {
+    private final JToggleButton recordToggle = new JToggleButton(new AbstractAction() {
         // constructor
         {
             putValue(Action.NAME, "Record");
@@ -107,16 +76,22 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if(recordButton.isSelected()) {
-                // if there is no arm, deselect the button.
-                MarlinRobotArm arm = robotArm.getSubject();
-                if(arm==null) {
-                    recordButton.setSelected(false);
-                }
-            }
+            playToggle.setSelected(false);
         }
     });
-    private final JToggleButton recordToggle = new JToggleButton("Start");
+    private JFormattedTextField secondsField;
+    private final JToggleButton runToggle = new JToggleButton("Start");
+    private final JProgressBar progressBar = new JProgressBar();
+    private final Timer timer = new Timer(TIMER_INTERVAL_MS, null);
+    private final ActionListener timerAction = (e)-> {
+        int value = progressBar.getValue() + TIMER_INTERVAL_MS;
+        if (value >= progressBar.getMaximum()) {
+            value = 0;
+            if(playToggle.isSelected()) playOnce();
+            else if(recordToggle.isSelected()) recordOnce();
+        }
+        progressBar.setValue(value);
+    };
 
     public EditorPanel() {
         super(new BorderLayout());
@@ -151,8 +126,8 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
         tools.add(loadButton);
         tools.add(saveButton);
         tools.addSeparator();
-        tools.add(sendButton);
-        tools.add(recordButton);
+        tools.add(playToggle);
+        tools.add(recordToggle);
         tools.addSeparator();
         createReportInterval();
     }
@@ -181,17 +156,17 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
         setSecondsField(secondsField);
 
         // then a toggle to turn it on and off.
-        recordToggle.setToolTipText("Click to start reporting.");
-        recordToggle.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/apps/icons8-stopwatch-16.png"))));
-        recordToggle.addActionListener(e -> {
-            if (recordToggle.isSelected()) {
-                recordToggle.setText("Stop");
-                recordToggle.setToolTipText("Click to stop reporting.");
+        runToggle.setToolTipText("Click to start reporting.");
+        runToggle.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/apps/icons8-stopwatch-16.png"))));
+        runToggle.addActionListener(e -> {
+            if (runToggle.isSelected()) {
+                runToggle.setText("Stop");
+                runToggle.setToolTipText("Click to stop reporting.");
                 timer.addActionListener(timerAction);
                 timer.start();
             } else {
-                recordToggle.setText("Start");
-                recordToggle.setToolTipText("Click to start reporting.");
+                runToggle.setText("Start");
+                runToggle.setToolTipText("Click to start reporting.");
                 progressBar.setValue(0); // Reset progress bar when toggle is off
                 timer.stop();
                 timer.removeActionListener(timerAction);
@@ -200,9 +175,9 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
 
         // if the window closes, stop the timer.
         // TODO keep it going and refresh the window when it re-opens.
-        recordToggle.addHierarchyListener(e -> {
+        runToggle.addHierarchyListener(e -> {
             if ((HierarchyEvent.SHOWING_CHANGED & e.getChangeFlags()) !=0
-                    && !recordToggle.isShowing()) {
+                    && !runToggle.isShowing()) {
                 timer.stop();
                 timer.removeActionListener(timerAction);
             }
@@ -212,7 +187,7 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
 
         // Add components to the toolbar
         toolBar.add(secondsField);
-        toolBar.add(recordToggle);
+        toolBar.add(runToggle);
         toolBar.add(progressBar);
     }
 
@@ -220,15 +195,15 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
         setSecondsField(secondsField);
         var arm = robotArm.getSubject();
         if(arm!=null) {
-            sendButton.setEnabled(true);
-            recordButton.setEnabled(true);
+            playToggle.setEnabled(true);
             recordToggle.setEnabled(true);
+            runToggle.setEnabled(true);
             statusLabel.setText("Selected: " + arm.getName());
             progressBar.setMaximum((int)(arm.getReportInterval() * PROGRESS_BAR_SCALE));
         } else {
-            sendButton.setEnabled(false);
-            recordButton.setEnabled(false);
+            playToggle.setEnabled(false);
             recordToggle.setEnabled(false);
+            runToggle.setEnabled(false);
             statusLabel.setText("No arm selected.");
         }
     }
@@ -261,7 +236,7 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
     @Override
     public void messageFromMarlin(String message) {
         statusLabel.setText(message);
-        if(recordButton.isSelected()) {
+        if(recordToggle.isSelected()) {
             if (!message.startsWith("Error")) {
                 if (message.startsWith("Ok:")) message = message.substring(3);    // remove
                 if (message.startsWith("Ok")) message = message.substring(2);    // remove
@@ -286,7 +261,7 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
 
     public void reset() {
         setText("");
-        recordButton.setSelected(false);
+        recordToggle.setSelected(false);
     }
 
     @Override
@@ -323,5 +298,54 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
             robotArm.setSubject(null);
             updateLabels();
         }
+    }
+
+    private void playOnce() {
+        var arm = robotArm.getSubject();
+        if(arm==null) return;
+
+        // get the next line that is not blank.
+        String message="";
+        do {
+            message = getLineAtCaret();
+            if(!moveCaretDownOneLine()) {
+                return;  // end of document or failed to move.
+            }
+        } while(message.trim().isBlank());
+
+        // not the end and not blank.
+        arm.sendGCode(message);
+    }
+
+    private void recordOnce() {
+        var arm = robotArm.getSubject();
+        if(arm==null) return;
+        arm.sendGCode("G0");
+    }
+
+    /**
+     * Move the caret down one line.
+     * @return true if the caret was moved, false otherwise.
+     */
+    private boolean moveCaretDownOneLine() {
+        int caretPosition = text.getCaretPosition();
+        Element root = text.getDocument().getDefaultRootElement();
+        int lineNumber = root.getElementIndex(caretPosition);
+        Element lineElement = root.getElement(lineNumber);
+        int end = lineElement.getEndOffset();
+        if(end >= text.getDocument().getLength()) {
+            statusLabel.setText("End of document.");
+            return false;
+        }
+        // try to move
+        try {
+            text.setCaretPosition(Math.min(end, text.getDocument().getLength()));
+        } catch (Exception exception) {
+            logger.error("Failed to move caret.",exception);
+            return false;
+        }
+
+        statusLabel.setText("Line "+(lineNumber+1));
+        return true;
     }
 }
