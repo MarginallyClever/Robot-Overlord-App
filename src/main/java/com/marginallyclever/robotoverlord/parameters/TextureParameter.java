@@ -4,7 +4,6 @@ import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.helpers.FileHelper;
-import com.marginallyclever.robotoverlord.renderpanel.TextureFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

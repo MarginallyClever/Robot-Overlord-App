@@ -7,12 +7,11 @@ import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementFactory;
 import com.marginallyclever.ro3.apps.UndoSystem;
-import com.marginallyclever.robotoverlord.swing.edits.EntityAddEdit;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class CreateVehiclePanel extends JPanel {
+@Deprecated public class CreateVehiclePanel extends JPanel {
     private final EntityManager entityManager;
     private final IntParameter vehicleType = new IntParameter("vehicle type",0);
     private final DoubleParameter wheelRadius = new DoubleParameter("wheel radius",2.0);
@@ -62,7 +61,7 @@ public class CreateVehiclePanel extends JPanel {
     private void addNow() {
         Entity carEntity = VehicleFactory.createByID(vehicleType.get(), entityManager);
         entityManager.removeEntityFromParent(carEntity,entityManager.getRoot());
-        UndoSystem.addEvent(new EntityAddEdit(entityManager,entityManager.getRoot(),carEntity));
+        //UndoSystem.addEvent(new EntityAddEdit(entityManager,entityManager.getRoot(),carEntity));
     }
 
     public static void main(String[] args) {

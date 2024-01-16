@@ -21,13 +21,7 @@ import java.util.List;
 @Deprecated
 public class MeshFactory {
 	private static final Logger logger = LoggerFactory.getLogger(MeshFactory.class);
-	private static final MeshLoader [] loaders = {
-			new Load3MF(),
-			new LoadAMF(),
-			new LoadOBJ(),
-			new LoadPLY(),
-			new LoadSTL(),
-	};
+	private static final MeshLoader [] loaders = {};
 	
 	// the pool of all mesh loaded
 	private static final LinkedList<Mesh> meshPool = new LinkedList<>();

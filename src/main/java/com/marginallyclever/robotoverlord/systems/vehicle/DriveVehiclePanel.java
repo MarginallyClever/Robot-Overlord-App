@@ -8,7 +8,7 @@ import java.awt.*;
 /**
  * A panel that allows the user to drive a vehicle.
  */
-public class DriveVehiclePanel extends JPanel {
+@Deprecated public class DriveVehiclePanel extends JPanel {
     private final VehicleComponent vehicleComponent;
     private final JSlider sliderThrottle = new JSlider(-100,100,0);
     private final JSlider sliderStrafe = new JSlider(-100,100,0);

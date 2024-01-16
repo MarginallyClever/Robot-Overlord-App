@@ -25,7 +25,7 @@ import java.util.List;
  * A system that manages all vehicles.
  *
  */
-public class VehicleSystem implements EntitySystem {
+@Deprecated public class VehicleSystem implements EntitySystem {
     private final EntityManager entityManager;
 
     public VehicleSystem(EntityManager entityManager) {

@@ -12,7 +12,7 @@ import com.marginallyclever.robotoverlord.systems.motor.MotorFactory;
 
 import javax.vecmath.Vector3d;
 
-public class VehicleFactory {
+@Deprecated public class VehicleFactory {
     public static final int FWD4 = 0;
     public static final int RWD4 = 1;
     public static final int MOTORCYCLE = 2;
