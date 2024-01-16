@@ -4,10 +4,7 @@ import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.ComponentDependency;
 import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
-import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.FilenameParameter;
-import com.marginallyclever.robotoverlord.systems.render.material.MaterialFactory;
-import com.marginallyclever.robotoverlord.systems.render.mesh.load.MeshFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -36,14 +33,6 @@ public class MeshFromFile extends ShapeComponent {
     @Override
     public void onAttach() {
         super.onAttach();
-        Entity entity = getEntity();
-        String absolutePath = filename.get();
-        if(!absolutePath.trim().isEmpty() && MeshFactory.hasMaterial(absolutePath)) {
-            logger.debug("MeshFromFile: adding material for "+absolutePath);
-            String materialPath = MeshFactory.getMaterialPath(absolutePath);
-            entity.removeComponent(entity.getComponent(MaterialComponent.class));
-            entity.addComponent(MaterialFactory.load(materialPath));
-        }
     }
 
     @Override
@@ -75,10 +64,8 @@ public class MeshFromFile extends ShapeComponent {
     }
 
     public void reload() {
-        MeshFactory.reload(myMesh);
     }
 
     public void load() {
-        setModel(MeshFactory.load(filename.get()));
     }
 }

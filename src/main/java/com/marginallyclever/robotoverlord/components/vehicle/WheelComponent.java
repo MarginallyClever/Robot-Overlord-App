@@ -15,7 +15,7 @@ import org.json.JSONObject;
  * It is assumed that the local z axis is the up/down direction.
  *
  */
-public class WheelComponent extends Component {
+@Deprecated public class WheelComponent extends Component {
     public final DoubleParameter diameter = new DoubleParameter("Diameter", 1);
     public final DoubleParameter width = new DoubleParameter("Width", 1);
     public final ReferenceParameter drive = new ReferenceParameter("Drive motor");

@@ -372,21 +372,4 @@ public class GRBLPresentation implements PresentationLayer {
     public JPanel getPanel() {
         return panel;
     }
-
-    // TEST
-
-    public static void main(String[] args) {
-        Log.start();
-
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {}
-
-        JFrame frame = new JFrame(GRBLPresentation.class.getName());
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        GRBLPresentation presentation = new GRBLPresentation(new RobotComponent());
-        frame.add(presentation.getPanel());
-        frame.pack();
-        frame.setVisible(true);
-    }
 }

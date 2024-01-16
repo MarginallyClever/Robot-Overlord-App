@@ -9,13 +9,11 @@ import java.util.regex.Pattern;
 /**
  * Loads a Prusa Slic3r GCode file into a {@link GCodePath}.
  */
-public class Slic3rGCodePathLoader implements PathLoader {
-    @Override
+public class Slic3rGCodePathLoader  {
     public String getEnglishName() {
         return "Slic3r GCode (gcode)";
     }
 
-    @Override
     public String[] getValidExtensions() {
         return new String[] { "gcode" };
     }

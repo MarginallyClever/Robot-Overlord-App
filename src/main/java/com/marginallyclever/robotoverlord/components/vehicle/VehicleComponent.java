@@ -17,7 +17,7 @@ import org.json.JSONObject;
  * the {@link com.marginallyclever.robotoverlord.entity.Entity} that owns the CarComponent.
  *
  */
-public class VehicleComponent extends Component {
+@Deprecated public class VehicleComponent extends Component {
     public static final String [] wheelTypeNames = {"Normal","Omni","Mecanum","Traction"};
     public static final int WHEEL_NORMAL = 0;
     // omni wheels have rollers at a right angle to the plane of the wheel

@@ -23,7 +23,7 @@ import java.util.List;
  * <p>For motors</p>
  *
  */
-public class MotorSystem implements EntitySystem {
+@Deprecated public class MotorSystem implements EntitySystem {
     private final EntityManager entityManager;
 
     public MotorSystem(EntityManager entityManager) {
@@ -48,7 +48,7 @@ public class MotorSystem implements EntitySystem {
         view.add(stepper.stepPerRevolution);
         view.add(stepper.microStepping);
         view.addComboBox(stepper.direction,StepperMotorComponent.directionNames);
-        view.addButton("Step").addActionEventListener(e -> stepNow(stepper));
+        ((ViewElementButton)view.addButton("Step")).addActionEventListener(e -> stepNow(stepper));
     }
 
     private void stepNow(StepperMotorComponent stepper) {
@@ -61,7 +61,7 @@ public class MotorSystem implements EntitySystem {
     }
 
     private void decorateServo(ComponentSwingViewFactory view, ServoComponent servo) {
-        ViewElementButton bCurve = view.addButton("Tune PID");
+        ViewElementButton bCurve = (ViewElementButton)view.addButton("Tune PID");
         bCurve.addActionEventListener(e -> editPID(bCurve, servo));
         view.add(servo.kP);
         view.add(servo.kI);
@@ -81,7 +81,7 @@ public class MotorSystem implements EntitySystem {
         view.add(motor.gearRatio);
         view.add(motor.connectedTo);
 
-        ViewElementButton bCurve = view.addButton("Torque curve");
+        ViewElementButton bCurve = (ViewElementButton)view.addButton("Torque curve");
         bCurve.addActionEventListener(e -> editCurve(bCurve, motor));
     }
 

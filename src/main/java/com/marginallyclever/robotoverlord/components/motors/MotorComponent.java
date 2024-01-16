@@ -15,7 +15,7 @@ import java.util.*;
  * A motor {@link Component} that approximates a torque curve.
  *
  */
-public abstract class MotorComponent extends Component {
+@Deprecated public abstract class MotorComponent extends Component {
     private final TreeMap<Double, Double> torqueCurve = new TreeMap<>();
     public final DoubleParameter currentRPM = new DoubleParameter("Current Velocity (rpm)",0);  // rpm
     public final DoubleParameter desiredRPM = new DoubleParameter("Desired Velocity (rpm)",0);  // rpm

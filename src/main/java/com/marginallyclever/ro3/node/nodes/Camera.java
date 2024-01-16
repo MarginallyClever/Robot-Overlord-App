@@ -138,7 +138,6 @@ public class Camera extends Pose {
 
     /**
      * Rotate relative to camera's current orientation
-     * TODO test
      * @param delta degrees to rotate.  Positive is left.
      */
     public void pan(double delta) {
@@ -147,7 +146,6 @@ public class Camera extends Pose {
 
     /**
      * Rotate relative to camera's current orientation
-     * TODO test
      * @param delta degrees to rotate.  Positive is up.
      */
     public void tilt(double delta) {
@@ -156,7 +154,6 @@ public class Camera extends Pose {
 
     /**
      * Rotate relative to camera's current orientation
-     * TODO test
      * @param delta degrees to rotate.  Positive is counter-clockwise.
      */
     public void roll(double delta) {

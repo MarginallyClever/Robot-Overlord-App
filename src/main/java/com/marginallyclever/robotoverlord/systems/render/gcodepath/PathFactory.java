@@ -12,12 +12,12 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 /**
- * {@link PathFactory} loads a {@link GCodePath} from a file using one of many {@link PathLoader} classes.
+ * {@link PathFactory} loads a {@link GCodePath} from a file using one of many {@link Slic3rGCodePathLoader} classes.
  *
  */
 public class PathFactory {
     private static final Logger logger = LoggerFactory.getLogger(PathFactory.class);
-    private static final PathLoader[] loaders = {
+    private static final Slic3rGCodePathLoader[] loaders = {
             new Slic3rGCodePathLoader(),
     };
 
@@ -30,7 +30,7 @@ public class PathFactory {
      * @return an instance of TurtlePath.  It may contain nothing.
      */
     public static GCodePath load(String filename) {
-        if(filename == null || filename.trim().length()==0) return null;
+        if(filename == null || filename.trim().isEmpty()) return null;
 
         GCodePath mesh = getTurtlePathFromPool(filename);
         if(mesh!=null) return mesh;
@@ -56,7 +56,7 @@ public class PathFactory {
     }
 
     private static void attemptLoad(String filename, GCodePath mesh) {
-        for( PathLoader loader : loaders ) {
+        for( Slic3rGCodePathLoader loader : loaders ) {
             if(isValidExtension(filename,loader)) {
                 loadTurtlePathWithLoader(filename,mesh,loader);
                 return;
@@ -64,7 +64,7 @@ public class PathFactory {
         }
     }
 
-    private static boolean isValidExtension(String filename, PathLoader loader) {
+    private static boolean isValidExtension(String filename, Slic3rGCodePathLoader loader) {
         filename = filename.toLowerCase();
         String [] extensions = loader.getValidExtensions();
         for( String e : extensions ) {
@@ -73,7 +73,7 @@ public class PathFactory {
         return false;
     }
 
-    private static void loadTurtlePathWithLoader(String filename, GCodePath path, PathLoader loader) {
+    private static void loadTurtlePathWithLoader(String filename, GCodePath path, Slic3rGCodePathLoader loader) {
         logger.info("Loading "+filename+" with "+loader.getEnglishName());
 
         path.setSourceName(filename);
@@ -95,14 +95,14 @@ public class PathFactory {
     public static ArrayList<FileFilter> getAllExtensions() {
         ArrayList<FileFilter> filters = new ArrayList<>();
 
-        for( PathLoader loader : loaders ) {
+        for( Slic3rGCodePathLoader loader : loaders ) {
             filters.add( new FileNameExtensionFilter(loader.getEnglishName(), loader.getValidExtensions()) );
         }
         return filters;
     }
 
     public static boolean canLoad(String absolutePath) {
-        for( PathLoader loader : loaders ) {
+        for( Slic3rGCodePathLoader loader : loaders ) {
             if(Arrays.stream(loader.getValidExtensions()).anyMatch(absolutePath::endsWith)) return true;
         }
         return false;

@@ -9,8 +9,6 @@ import java.io.Serial;
  * 1/2<sup>-x</sup>
  */
 @Deprecated public class ScalePanel extends JPanel {
-	@Serial
-	private static final long serialVersionUID = -6566683128076864855L;
 	private final JSpinner stepScale = new JSpinner(new SpinnerNumberModel(1,1,5,1));
 	
 	public ScalePanel() {

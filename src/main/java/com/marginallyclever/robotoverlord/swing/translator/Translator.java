@@ -1,6 +1,5 @@
 package com.marginallyclever.robotoverlord.swing.translator;
 
-import com.marginallyclever.util.PreferencesHelper;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +42,7 @@ public final class Translator {
 	/**
 	 *
 	 */
-	private static final Preferences languagePreferenceNode = PreferencesHelper.getPreferenceNode(PreferencesHelper.MakelangeloPreferenceKey.LANGUAGE);
+	private static final Preferences languagePreferenceNode = Preferences.userNodeForPackage(Translator.class);
 
 
 	/**

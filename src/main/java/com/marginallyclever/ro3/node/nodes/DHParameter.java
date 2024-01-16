@@ -44,7 +44,7 @@ public class DHParameter extends Node {
         if (pose != null) pose.setLocal(getDHMatrix());
     }
 
-    private Matrix4d getDHMatrix() {
+    Matrix4d getDHMatrix() {
         Matrix4d m = new Matrix4d();
         double rt = Math.toRadians(theta);
         double ra = Math.toRadians(alpha);
@@ -64,7 +64,7 @@ public class DHParameter extends Node {
         if (pose != null) setDHMatrix(pose.getLocal());
     }
 
-    private void setDHMatrix(Matrix4d m) {
+    void setDHMatrix(Matrix4d m) {
         // Extract the elements of the matrix
         double m00 = m.m00;
         double m01 = m.m01;
@@ -80,7 +80,9 @@ public class DHParameter extends Node {
         double m23 = m.m23;
 
         // Check if the pose is DH compatible
-        if (m00 * m10 + m01 * m11 + m02 * m12 != 0 || m20 != 0 || m21 * m21 + m22 * m22 != 1) {
+        if (Math.abs(m00 * m10 + m01 * m11 + m02 * m12)>1e-6 ||
+                Math.abs(m20)>1e-6 ||
+                Math.abs((m21 * m21 + m22 * m22)-1)>1e-6) {
             throw new IllegalArgumentException("The pose is not DH compatible.  pose="+ m);
         }
 

@@ -25,47 +25,7 @@ import java.util.ArrayList;
 @Deprecated
 public abstract class ComponentFactory {
 	private static final Logger logger = LoggerFactory.getLogger(ComponentFactory.class);
-	private static final Class<?> [] available = {
-			PoseComponent.class,
-
-			LightComponent.class,
-			CameraComponent.class,
-			MaterialComponent.class,
-
-			MeshFromFile.class,
-			Box.class,
-			Grid.class,
-			Sphere.class,
-			Decal.class,
-			Cylinder.class,
-
-			Background.class,
-
-			OriginAdjustComponent.class,
-
-			DHComponent.class,
-			RobotComponent.class,
-			//RobotArmComponent.class,
-			ArmEndEffectorComponent.class,
-
-			CrabRobotComponent.class,
-			DogRobotComponent.class,
-
-			GCodePathComponent.class,
-			ProgramPathComponent.class,
-			ProgramComponent.class,
-			ProjectorComponent.class,
-
-			RobotGripperComponent.class,
-			RobotGripperJawComponent.class,
-
-			DCMotorComponent.class,
-			ServoComponent.class,
-			StepperMotorComponent.class,
-
-			VehicleComponent.class,
-			WheelComponent.class,
-	};
+	private static final Class<?> [] available = {};
 	
 	public static ArrayList<String> getAllComponentNames() {
 		ArrayList<String> names = new ArrayList<>();

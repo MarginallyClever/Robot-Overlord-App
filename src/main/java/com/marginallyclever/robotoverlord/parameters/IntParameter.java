@@ -7,7 +7,7 @@ import org.json.JSONObject;
 /**
  *
  */
-public class IntParameter extends AbstractParameter<Integer> {
+@Deprecated public class IntParameter extends AbstractParameter<Integer> {
 	public IntParameter(String name, int value) {
 		super(name,value);
 	}

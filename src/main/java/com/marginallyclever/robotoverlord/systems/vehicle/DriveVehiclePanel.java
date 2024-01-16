@@ -8,7 +8,7 @@ import java.awt.*;
 /**
  * A panel that allows the user to drive a vehicle.
  */
-public class DriveVehiclePanel extends JPanel {
+@Deprecated public class DriveVehiclePanel extends JPanel {
     private final VehicleComponent vehicleComponent;
     private final JSlider sliderThrottle = new JSlider(-100,100,0);
     private final JSlider sliderStrafe = new JSlider(-100,100,0);
@@ -53,15 +53,5 @@ public class DriveVehiclePanel extends JPanel {
         sliderStrafe.addChangeListener(e -> {
             vehicleComponent.strafeVelocity.set((double)sliderStrafe.getValue());
         });
-    }
-
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("DriveVehiclePanel");
-        frame.setContentPane(new DriveVehiclePanel(new VehicleComponent()));
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setPreferredSize(new Dimension(400,200));
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
     }
 }

@@ -7,12 +7,11 @@ import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementFactory;
 import com.marginallyclever.ro3.apps.UndoSystem;
-import com.marginallyclever.robotoverlord.swing.edits.EntityAddEdit;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class CreateVehiclePanel extends JPanel {
+@Deprecated public class CreateVehiclePanel extends JPanel {
     private final EntityManager entityManager;
     private final IntParameter vehicleType = new IntParameter("vehicle type",0);
     private final DoubleParameter wheelRadius = new DoubleParameter("wheel radius",2.0);
@@ -28,7 +27,7 @@ public class CreateVehiclePanel extends JPanel {
         this.entityManager = entityManager;
 
         this.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-        ViewElementFactory factory = new ViewElementFactory(entityManager);
+        ViewElementFactory factory = new ViewElementFactory();
 
         JPanel center = new JPanel();
         center.setLayout(new BoxLayout(center,BoxLayout.Y_AXIS));
@@ -62,19 +61,6 @@ public class CreateVehiclePanel extends JPanel {
     private void addNow() {
         Entity carEntity = VehicleFactory.createByID(vehicleType.get(), entityManager);
         entityManager.removeEntityFromParent(carEntity,entityManager.getRoot());
-        UndoSystem.addEvent(new EntityAddEdit(entityManager,entityManager.getRoot(),carEntity));
-    }
-
-    public static void main(String[] args) {
-        UndoSystem.start();
-        EntityManager entityManager = new EntityManager();
-        CreateVehiclePanel panel = new CreateVehiclePanel(entityManager);
-        JFrame frame = new JFrame("CreateVehiclePanel");
-        frame.setContentPane(panel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setPreferredSize(new Dimension(250,100));
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+        //UndoSystem.addEvent(new EntityAddEdit(entityManager,entityManager.getRoot(),carEntity));
     }
 }

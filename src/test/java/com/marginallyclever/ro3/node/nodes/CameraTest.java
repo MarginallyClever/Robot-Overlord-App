@@ -1,7 +1,11 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.marginallyclever.convenience.helpers.BigMatrixHelper;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
@@ -10,9 +14,13 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 public class CameraTest {
+    @BeforeAll
+    public static void setup() {
+        Registry.start();
+    }
+
     @Test
     public void testPanTiltInverses() {
-        Registry.start();
         Camera camera = Registry.getActiveCamera();
 
         for (int pan = -180; pan <= 180; pan += 10) {
@@ -25,5 +33,170 @@ public class CameraTest {
                 Assertions.assertArrayEquals(before, after, 0.01);
             }
         }
+    }
+
+    @Test
+    public void getSetOrbitRadius() {
+        Camera camera = Registry.getActiveCamera();
+        assert camera != null;
+        camera.setOrbitRadius(1.0);
+        Assertions.assertEquals(1.0, camera.getOrbitRadius(), 0.01);
+        camera.setOrbitRadius(2.0);
+        Assertions.assertEquals(2.0, camera.getOrbitRadius(), 0.01);
+    }
+
+    @Test
+    public void getSetFOVY() {
+        Camera camera = Registry.getActiveCamera();
+        assert camera != null;
+        camera.setFovY(1.0);
+        Assertions.assertEquals(1.0, camera.getFovY(), 0.01);
+        camera.setFovY(2.0);
+        Assertions.assertEquals(2.0, camera.getFovY(), 0.01);
+    }
+
+    @Test
+    public void getSetNearZ() {
+        Camera camera = Registry.getActiveCamera();
+        assert camera != null;
+        camera.setNearZ(1.0);
+        Assertions.assertEquals(1.0, camera.getNearZ(), 0.01);
+        camera.setNearZ(2.0);
+        Assertions.assertEquals(2.0, camera.getNearZ(), 0.01);
+    }
+
+    @Test
+    public void getSetFarZ() {
+        Camera camera = Registry.getActiveCamera();
+        assert camera != null;
+        camera.setFarZ(1.0);
+        Assertions.assertEquals(1.0, camera.getFarZ(), 0.01);
+        camera.setFarZ(2.0);
+        Assertions.assertEquals(2.0, camera.getFarZ(), 0.01);
+    }
+
+    @Test
+    public void pedestal() {
+        Camera camera = new Camera();
+        var p0 = camera.getPosition();
+        camera.pedestal(1.0);
+        var p1 = camera.getPosition();
+        Assertions.assertEquals(p0.x, p1.x, 0.01);
+        Assertions.assertEquals(p0.y + 1.0, p1.y, 0.01);
+        Assertions.assertEquals(p0.z, p1.z, 0.01);
+    }
+
+    @Test
+    public void truck() {
+        Camera camera = new Camera();
+        var p0 = camera.getPosition();
+        camera.truck(1.0);
+        var p1 = camera.getPosition();
+        Assertions.assertEquals(p0.x + 1.0, p1.x, 0.01);
+        Assertions.assertEquals(p0.y, p1.y, 0.01);
+        Assertions.assertEquals(p0.z, p1.z, 0.01);
+    }
+
+    @Test
+    public void dolly() {
+        Camera camera = new Camera();
+        var p0 = camera.getPosition();
+        camera.dolly(1.0);
+        var p1 = camera.getPosition();
+        Assertions.assertEquals(p0.x, p1.x, 0.01);
+        Assertions.assertEquals(p0.y, p1.y, 0.01);
+        Assertions.assertEquals(p0.z + 1.0, p1.z, 0.01);
+    }
+
+    @Test
+    public void tilt() {
+        Camera camera = new Camera();
+        var p0 = camera.getPanTiltFromMatrix(camera.getLocal());
+        camera.tilt(1.0);
+        var p1 = camera.getPanTiltFromMatrix(camera.getLocal());
+        Assertions.assertEquals(p0[0], p1[0], 0.01);
+        Assertions.assertEquals(p0[1] + 1.0, p1[1], 0.01);
+    }
+
+    @Test
+    public void pan() {
+        Camera camera = new Camera();
+        var p0 = camera.getPanTiltFromMatrix(camera.getLocal());
+        camera.tilt(-90.0);
+        camera.pan(90.0);
+        var p1 = camera.getPanTiltFromMatrix(camera.getLocal());
+        Assertions.assertEquals(p0[0], p1[0], 0.01);
+        Assertions.assertEquals(p0[1] - 90, p1[1], 0.01);
+    }
+
+    @Test
+    public void panTilt() {
+        Camera camera = new Camera();
+        camera.panTilt(90.0, 90.0);
+        var p1 = camera.getPanTiltFromMatrix(camera.getLocal());
+        Assertions.assertEquals(90.0, p1[0], 0.01);
+        Assertions.assertEquals(90.0, p1[1], 0.01);
+    }
+
+    @Test
+    public void roll() {
+        Camera camera = new Camera();
+        var p0 = MatrixHelper.getXAxis(camera.getLocal());
+        camera.roll(90.0);
+        var p1 = MatrixHelper.getXAxis(camera.getLocal());
+        Assertions.assertEquals(p0.x-1, p1.x, 0.01);
+        Assertions.assertEquals(p0.y+1, p1.y, 0.01);
+        Assertions.assertEquals(p0.z, p1.z, 0.01);
+    }
+
+    @Test
+    public void orbit() {
+        Camera camera = new Camera();
+        var p0 = camera.getPanTiltFromMatrix(camera.getLocal());
+        camera.getLocal().rotX(Math.toRadians(90));
+        camera.orbit(90.0,-90);
+        var p1 = camera.getPanTiltFromMatrix(camera.getLocal());
+        Assertions.assertEquals(p0[0] + 90.0, p1[0], 0.01);
+        Assertions.assertEquals(p0[1], p1[1], 0.01);
+    }
+
+    @Test
+    public void getViewMatrix() {
+        Camera camera = new Camera();
+        Matrix4d m = camera.getViewMatrix();
+        Assertions.assertArrayEquals(BigMatrixHelper.matrix4dToArray(m),
+                BigMatrixHelper.matrix4dToArray(MatrixHelper.createIdentityMatrix4()), 0.01);
+    }
+
+    @Test
+    public void getProjectionMatrix() {
+        Camera camera = new Camera();
+        Matrix4d m = camera.getChosenProjectionMatrix(800,600);
+        Matrix4d p = new Matrix4d(
+                1.299038105676658, 0.0, 0.0, 0.0,
+                0.0, 1.7320508075688772, 0.0, 0.0,
+                0.0, 0.0, -1.0002000200020002, -1.0,
+                0.0, 0.0, -2.0020002000200020002, 0.0
+        );
+        Assertions.assertArrayEquals(
+                BigMatrixHelper.matrix4dToArray(m),
+                BigMatrixHelper.matrix4dToArray(p), 0.01);
+    }
+
+    @Test
+    public void getOrthographicMatrix() {
+        Camera camera = new Camera();
+        camera.setDrawOrthographic(true);
+        Assertions.assertTrue(camera.getDrawOrthographic());
+        Matrix4d m = camera.getChosenProjectionMatrix(800,600);
+        Matrix4d p = new Matrix4d(
+                0.0025,0.0,0.0,0.0,
+                0.0,0.0033333333333333335,0.0,0.0,
+                0.0,0.0,-0.0020002000200020002,0.0,
+                0.0,0.0,-1.0020002000200020002,1.0
+        );
+        Assertions.assertArrayEquals(
+                BigMatrixHelper.matrix4dToArray(m),
+                BigMatrixHelper.matrix4dToArray(p), 0.01);
     }
 }

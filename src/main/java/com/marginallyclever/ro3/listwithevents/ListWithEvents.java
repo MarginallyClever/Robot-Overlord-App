@@ -1,12 +1,8 @@
 package com.marginallyclever.ro3.listwithevents;
 
-import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.Node;
-
 import javax.swing.event.EventListenerList;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * A {@link List} that fires events when items are added or removed.

@@ -12,11 +12,8 @@ import java.util.List;
  * A factory that translates an {@link AbstractParameter} into a {@link ViewElement}.
  */
 @Deprecated public class ViewElementFactory {
-	private final EntityManager entityManager;
-
-	public ViewElementFactory(EntityManager entityManager) {
+	public ViewElementFactory() {
 		super();
-		this.entityManager = entityManager;
 	}
 
 	/**
@@ -27,15 +24,6 @@ import java.util.List;
 		ViewElement element=null;
 		
 		//logger.debug("Add "+e.getClass().toString());
-		
-			 if(parameter instanceof BooleanParameter  ) element = new ViewElementBoolean((BooleanParameter)parameter);
-		else if(parameter instanceof ColorParameter    ) element = new ViewElementColor((ColorParameter)parameter);
-		else if(parameter instanceof DoubleParameter   ) element = new ViewElementDouble   ((DoubleParameter)parameter);
-		else if(parameter instanceof IntParameter      ) element = new ViewElementInt      ((IntParameter)parameter);
-		else if(parameter instanceof Vector3DParameter ) element = new ViewElementVector3d ((Vector3DParameter)parameter);
-		else if(parameter instanceof ReferenceParameter) element = new ViewElementReference((ReferenceParameter)parameter, entityManager);
-		else if(parameter instanceof StringParameter   ) element = new ViewElementString   ((StringParameter)parameter);
-		else if(parameter instanceof ListParameter     ) element = new ViewElementList((ListParameter<?>)parameter, entityManager);
 
 		if(null==element) {
 			throw new InvalidParameterException("unknown parameter "+ parameter.getClass());
@@ -46,9 +34,7 @@ import java.util.List;
 	
 
 	public ViewElement addStaticText(String text) {
-		ViewElement b = new ViewElement();
-		b.add(new JLabel(text,JLabel.LEADING));
-		return b;
+		return null;
 	}
 
 	/**
@@ -57,8 +43,8 @@ import java.util.List;
 	 * @param labels the labels to use for the combo box
 	 * @return the element
 	 */
-	public ViewElementComboBox addComboBox(IntParameter e, String [] labels) {
-		return new ViewElementComboBox(e,labels);
+	public ViewElement addComboBox(IntParameter e, String [] labels) {
+		return null;
 	}
 
 	/**
@@ -68,8 +54,8 @@ import java.util.List;
 	 * @param bottom the minimum value, inclusive
 	 * @return the element
 	 */
-	public ViewElementSlider addRange(IntParameter e, int top, int bottom) {
-		return new ViewElementSlider(e,top,bottom);
+	public ViewElement addRange(IntParameter e, int top, int bottom) {
+		return null;
 	}
 
 	/**
@@ -79,8 +65,8 @@ import java.util.List;
 	 * @param bottom the minimum value, inclusive
 	 * @return the element
 	 */
-	public ViewElementSliderDouble addRange(DoubleParameter e, int top, int bottom) {
-		return new ViewElementSliderDouble(e,top,bottom);
+	public ViewElement addRange(DoubleParameter e, int top, int bottom) {
+		return null;
 	}
 
 	/**
@@ -89,13 +75,11 @@ import java.util.List;
 	 * @param filters
 	 * @return the element
 	 */
-	public ViewElementFilename addFilename(StringParameter parameter, List<FileFilter> filters) {
-		ViewElementFilename b = new ViewElementFilename(parameter);
-		b.addFileFilters(filters);
-		return b;
+	public ViewElement addFilename(StringParameter parameter, List<FileFilter> filters) {
+		return null;
 	}
 
-	public ViewElementButton addButton(String string) {
-		return new ViewElementButton(string);
+	public ViewElement addButton(String string) {
+		return null;
 	}
 }

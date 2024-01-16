@@ -27,10 +27,10 @@ public class ProgramPathComponent extends ProgramStepComponent {
     //public static final int MOVE_BEZIER = 2;
     public IntParameter moveType = new IntParameter("Move Type",MOVE_RAPID);
     public DoubleParameter moveSpeed = new DoubleParameter("Move Speed",1.0);
+    private final Mesh myMesh = new Mesh();
 
     public ProgramPathComponent() {
         super();
-        myMesh = new Mesh();
     }
 
     @Override
