@@ -94,7 +94,7 @@ public abstract class ApproximateJacobian {
         double[] jointVelocity = new double[DOF];
 
         // vector-matrix multiplication (y = x^T A)
-        for (int j=0; j<DOF; ++j) {
+        for (int j=0; j<jointVelocity.length; ++j) {
             double sum = 0;
             for (int k=0; k<cartesianVelocity.length; ++k) {
                 sum += inverseJacobian[j][k] * cartesianVelocity[k];

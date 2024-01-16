@@ -33,7 +33,7 @@ public class MarlinRobotArm extends Node {
     public final NodePath<Limb> limb = new NodePath<>(this,Limb.class);
     public final NodePath<LimbSolver> solver = new NodePath<>(this,LimbSolver.class);
     private final NodePath<Motor> gripperMotor = new NodePath<>(this,Motor.class);
-    private double reportInterval=1.0;
+    private double reportInterval=1.0;  // seconds
 
     public MarlinRobotArm() {
         this("MarlinRobotArm");
@@ -378,12 +378,19 @@ public class MarlinRobotArm extends Node {
         this.solver.setUniqueIDByNode(solver);
     }
 
+    /**
+     * @return the time between reports in seconds
+     */
     public double getReportInterval() {
         return reportInterval;
     }
 
+    /**
+     * @param seconds the time between reports in seconds.  Must be >= 0.
+     */
     public void setReportInterval(double seconds) {
-        reportInterval = Math.max(0.1,seconds);
+        if(seconds<0) throw new IllegalArgumentException("seconds must be >= 0");
+        reportInterval = seconds;
     }
 
     public NodePath<Motor> getGripperMotor() {
