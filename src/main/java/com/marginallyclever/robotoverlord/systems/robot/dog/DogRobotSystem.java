@@ -24,7 +24,7 @@ import java.util.List;
  * A system to manage robot dogs.
  *
  */
-public class DogRobotSystem implements EntitySystem {
+@Deprecated public class DogRobotSystem implements EntitySystem {
     private final EntityManager entityManager;
 
     public DogRobotSystem(EntityManager entityManager) {

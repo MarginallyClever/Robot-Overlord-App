@@ -23,7 +23,7 @@ import java.util.List;
  * A system to manage robot crabs.
  *
  */
-public class CrabRobotSystem implements EntitySystem {
+@Deprecated public class CrabRobotSystem implements EntitySystem {
     private final EntityManager entityManager;
 
     public CrabRobotSystem(EntityManager entityManager) {

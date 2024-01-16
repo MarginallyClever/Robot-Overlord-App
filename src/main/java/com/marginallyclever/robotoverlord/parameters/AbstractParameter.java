@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord.parameters;
 
 import com.marginallyclever.robotoverlord.SerializationContext;
-import com.marginallyclever.robotoverlord.systems.robot.robotarm.EditArmPanel;
 import org.json.JSONObject;
 
 import java.beans.PropertyChangeEvent;
@@ -58,7 +57,7 @@ public abstract class AbstractParameter<T> {
 		propertyChangeListeners.add(arg0);
 	}
 
-	public void removePropertyChangeListener(EditArmPanel arg0) {
+	public void removePropertyChangeListener(PropertyChangeListener arg0) {
 		propertyChangeListeners.remove(arg0);
 	}
 
