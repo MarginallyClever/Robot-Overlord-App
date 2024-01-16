@@ -73,43 +73,24 @@ public class EditorPanel extends App implements MarlinListener {
         }
     });
 
-    private final JToggleButton getButton = new JToggleButton(new AbstractAction() {
+    private final JToggleButton recordButton = new JToggleButton(new AbstractAction() {
         // constructor
         {
-            putValue(Action.NAME, "Get");
-            putValue(Action.SHORT_DESCRIPTION, "Get the next event from the robot.");
-            putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-record-16.png"))));
+            putValue(Action.NAME, "Record");
+            putValue(Action.SHORT_DESCRIPTION, "Record events from an arm.");
+            putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource(
+                    "icons8-record-16.png"))));
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if(getButton.isSelected()) {
+            if(recordButton.isSelected()) {
                 // if there is no arm, deselect the button.
                 MarlinRobotArm arm = armSelector.getSubject();
                 if(arm==null) {
-                    getButton.setSelected(false);
+                    recordButton.setSelected(false);
                 }
-            } else {
-                // when get is off, lock is off.
-                lockButton.setSelected(false);
             }
-        }
-    });
-
-    private final JToggleButton lockButton = new JToggleButton(new AbstractAction() {
-        // constructor
-        {
-            putValue(Action.NAME, "Lock");
-            putValue(Action.SHORT_DESCRIPTION, "Lock the get button on.");
-            putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-lock-16.png"))));
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if(lockButton.isSelected()) {
-                // press lock also activates get
-                getButton.setSelected(true);
-            } // else lock is off, stay deselected.
         }
     });
 
@@ -145,7 +126,7 @@ public class EditorPanel extends App implements MarlinListener {
                 statusLabel.setText("Selected: " + newArm.getName());
                 newArm.addMarlinListener(EditorPanel.this);
             } else {
-                getButton.setSelected(false);
+                recordButton.setSelected(false);
                 statusLabel.setText("No arm selected.");
             }
         });
@@ -160,8 +141,7 @@ public class EditorPanel extends App implements MarlinListener {
         tools.add(saveButton);
         tools.addSeparator();
         tools.add(sendButton);
-        tools.add(getButton);
-        tools.add(lockButton);
+        tools.add(recordButton);
     }
 
     /**
@@ -186,7 +166,7 @@ public class EditorPanel extends App implements MarlinListener {
     @Override
     public void messageFromMarlin(String message) {
         statusLabel.setText(message);
-        if(getButton.isSelected()) {
+        if(recordButton.isSelected()) {
             if (!message.startsWith("Error")) {
                 if (message.startsWith("Ok:")) message = message.substring(3);    // remove
                 if (message.startsWith("Ok")) message = message.substring(2);    // remove
@@ -198,9 +178,6 @@ public class EditorPanel extends App implements MarlinListener {
                     text.setCaretPosition(Math.min(newCursorPos, text.getDocument().getLength()));
                 }
             }
-            if(!lockButton.isSelected()) {
-                getButton.setSelected(false);
-            } // else lock is on, stay selected.
         }
     }
 
@@ -214,7 +191,6 @@ public class EditorPanel extends App implements MarlinListener {
 
     public void reset() {
         setText("");
-        getButton.setSelected(false);
-        lockButton.setSelected(false);
+        recordButton.setSelected(false);
     }
 }
