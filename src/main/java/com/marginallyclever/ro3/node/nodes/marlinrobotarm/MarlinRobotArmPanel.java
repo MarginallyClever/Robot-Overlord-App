@@ -1,15 +1,9 @@
 package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
-import com.marginallyclever.convenience.swing.NumberFormatHelper;
-import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.ro3.PanelHelper;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.HierarchyEvent;
-import java.util.Objects;
 
 public class MarlinRobotArmPanel extends JPanel {
     private final MarlinRobotArm marlinRobotArm;
@@ -41,80 +35,6 @@ public class MarlinRobotArmPanel extends JPanel {
         this.add(getReceiver(),gbc);
         gbc.gridy++;
         this.add(getSender(),gbc);
-        gbc.gridy++;
-        this.add(createReportInterval(),gbc);
-    }
-
-    private JComponent createReportInterval() {
-        var containerPanel = new CollapsiblePanel("Report");
-        var outerPanel = containerPanel.getContentPane();
-        outerPanel.setLayout(new GridBagLayout());
-
-        var label = new JLabel("interval (s)");
-        // here i need an input - time interval (positive float, seconds)
-        var formatter = NumberFormatHelper.getNumberFormatter();
-        var secondsField = new JFormattedTextField(formatter);
-        secondsField.setValue(marlinRobotArm.getReportInterval());
-
-        // then a toggle to turn it on and off.
-        JToggleButton toggle = new JToggleButton("Start");
-        toggle.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/apps/icons8-stopwatch-16.png"))));
-        JProgressBar progressBar = new JProgressBar();
-        progressBar.setMaximum((int) (marlinRobotArm.getReportInterval() * 1000)); // Assuming interval is in seconds
-
-        Timer timer = new Timer(100, null);
-        ActionListener timerAction = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int value = progressBar.getValue() + 100;
-                if (value >= progressBar.getMaximum()) {
-                    value = 0;
-                    marlinRobotArm.sendGCode("G0"); // Send G0 command when progress bar is full
-                }
-                progressBar.setValue(value);
-            }
-        };
-
-        toggle.addActionListener(e -> {
-            if (toggle.isSelected()) {
-                toggle.setText("Stop");
-                timer.addActionListener(timerAction);
-                timer.start();
-            } else {
-                toggle.setText("Start");
-                progressBar.setValue(0); // Reset progress bar when toggle is off
-                timer.stop();
-                timer.removeActionListener(timerAction);
-            }
-        });
-
-        toggle.addHierarchyListener(e -> {
-            if ((HierarchyEvent.SHOWING_CHANGED & e.getChangeFlags()) !=0
-                    && !toggle.isShowing()) {
-                timer.stop();
-                timer.removeActionListener(timerAction);
-            }
-        });
-
-        // Add components to the panel
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.gridx=0;
-        gbc.gridy=0;
-        gbc.fill = GridBagConstraints.BOTH;
-
-        outerPanel.add(label, gbc);
-        gbc.gridx++;
-        outerPanel.add(secondsField, gbc);
-        gbc.gridy++;
-        gbc.gridx=0;
-        outerPanel.add(toggle, gbc);
-        gbc.gridx++;
-        outerPanel.add(progressBar, gbc);
-        gbc.gridy++;
-
-        return containerPanel;
     }
 
     // Add a text field that will be sent to the robot arm.

@@ -1,7 +1,10 @@
 package com.marginallyclever.ro3.apps.editorpanel;
 
+import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
+import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodeDetachListener;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinListener;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
@@ -14,6 +17,10 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.HierarchyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Objects;
 
 /**
@@ -31,16 +38,32 @@ import java.util.Objects;
  * the robot may be written to file, depending on the state of the <b>get</b> toggle.</p>
  * <p>There is room for more editing tools here like save, load, copy, cut, paste, undo, redo, etc.</p>
  */
-public class EditorPanel extends App implements MarlinListener {
+public class EditorPanel extends App implements MarlinListener, PropertyChangeListener, NodeDetachListener {
     private static final Logger logger = LoggerFactory.getLogger(EditorPanel.class);
-    private final NodeSelector<MarlinRobotArm> armSelector = new NodeSelector<>(MarlinRobotArm.class);
+    private static final double PROGRESS_BAR_SCALE = 1000;
+    private static final int TIMER_INTERVAL_MS = 100;
+    private final NodeSelector<MarlinRobotArm> robotArm = new NodeSelector<>(MarlinRobotArm.class);
     private final JTextArea text = new JTextArea();
     private final JLabel statusLabel = new JLabel();
     private static final JFileChooser chooser = new PersistentJFileChooser();
     private final JButton newButton = new JButton(new NewAction(this));
     private final JButton loadButton = new JButton(new LoadAction(this,chooser));
     private final JButton saveButton = new JButton(new SaveAction(this,chooser));
-    private final JToolBar tools = new JToolBar("tools");
+    private final JToolBar toolBar = new JToolBar("tools");
+    private JFormattedTextField secondsField;
+    private final Timer timer = new Timer(TIMER_INTERVAL_MS, null);
+    private final JProgressBar progressBar = new JProgressBar();
+    private final ActionListener timerAction = (e)-> {
+        int value = progressBar.getValue() + TIMER_INTERVAL_MS;
+        if (value >= progressBar.getMaximum()) {
+            value = 0;
+            var arm = robotArm.getSubject();
+            if(arm!=null) {
+                arm.sendGCode("G0"); // Send G0 command when progress bar is full
+            }
+        }
+        progressBar.setValue(value);
+    };
 
     private final JButton sendButton = new JButton(new AbstractAction() {
         // constructor
@@ -52,7 +75,7 @@ public class EditorPanel extends App implements MarlinListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            MarlinRobotArm arm = armSelector.getSubject();
+            MarlinRobotArm arm = robotArm.getSubject();
             if(arm!=null) {
                 String message = getLineAtCaret();
                 if(!message.trim().isEmpty()) {
@@ -86,20 +109,21 @@ public class EditorPanel extends App implements MarlinListener {
         public void actionPerformed(ActionEvent e) {
             if(recordButton.isSelected()) {
                 // if there is no arm, deselect the button.
-                MarlinRobotArm arm = armSelector.getSubject();
+                MarlinRobotArm arm = robotArm.getSubject();
                 if(arm==null) {
                     recordButton.setSelected(false);
                 }
             }
         }
     });
+    private final JToggleButton recordToggle = new JToggleButton("Start");
 
     public EditorPanel() {
         super(new BorderLayout());
         text.setName("text");
         statusLabel.setName("status");
-        addToolBar(tools);
-        add(tools, BorderLayout.NORTH);
+        addToolBar(toolBar);
+        add(toolBar, BorderLayout.NORTH);
 
         var scroll = new JScrollPane();
         scroll.setViewportView(text);
@@ -117,31 +141,102 @@ public class EditorPanel extends App implements MarlinListener {
         statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
         statusPanel.add(statusLabel);
 
-        armSelector.addPropertyChangeListener("subject",evt -> {
-            MarlinRobotArm oldArm = ((MarlinRobotArm)evt.getOldValue());
-            if(oldArm!=null) oldArm.removeMarlinListener(EditorPanel.this);
-
-            MarlinRobotArm newArm = armSelector.getSubject();
-            if(newArm!=null) {
-                statusLabel.setText("Selected: " + newArm.getName());
-                newArm.addMarlinListener(EditorPanel.this);
-            } else {
-                recordButton.setSelected(false);
-                statusLabel.setText("No arm selected.");
-            }
-        });
         statusLabel.setText("No arm selected.");
     }
 
     private void addToolBar(JToolBar tools) {
-        armSelector.setMaximumSize(new Dimension(150, 24));
-        tools.add(armSelector);
+        robotArm.setMaximumSize(new Dimension(150, 24));
+        tools.add(robotArm);
         tools.add(newButton);
         tools.add(loadButton);
         tools.add(saveButton);
         tools.addSeparator();
         tools.add(sendButton);
         tools.add(recordButton);
+        tools.addSeparator();
+        createReportInterval();
+    }
+
+    @Override
+    public void addNotify() {
+        super.addNotify();
+        robotArm.addPropertyChangeListener("subject", this );
+    }
+
+    @Override
+    public void removeNotify() {
+        super.removeNotify();
+        robotArm.removePropertyChangeListener("subject", this );
+    }
+
+    private void createReportInterval() {
+        var arm = robotArm.getSubject();
+
+        // report interval
+        var formatter = NumberFormatHelper.getNumberFormatter();
+        formatter.setMinimum(0.05);
+        secondsField = new JFormattedTextField(formatter);
+        secondsField.setToolTipText("Time interval in seconds.");
+        secondsField.setMaximumSize(new Dimension(100, 24));
+        setSecondsField(secondsField);
+
+        // then a toggle to turn it on and off.
+        recordToggle.setToolTipText("Click to start reporting.");
+        recordToggle.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/apps/icons8-stopwatch-16.png"))));
+        recordToggle.addActionListener(e -> {
+            if (recordToggle.isSelected()) {
+                recordToggle.setText("Stop");
+                recordToggle.setToolTipText("Click to stop reporting.");
+                timer.addActionListener(timerAction);
+                timer.start();
+            } else {
+                recordToggle.setText("Start");
+                recordToggle.setToolTipText("Click to start reporting.");
+                progressBar.setValue(0); // Reset progress bar when toggle is off
+                timer.stop();
+                timer.removeActionListener(timerAction);
+            }
+        });
+
+        // if the window closes, stop the timer.
+        // TODO keep it going and refresh the window when it re-opens.
+        recordToggle.addHierarchyListener(e -> {
+            if ((HierarchyEvent.SHOWING_CHANGED & e.getChangeFlags()) !=0
+                    && !recordToggle.isShowing()) {
+                timer.stop();
+                timer.removeActionListener(timerAction);
+            }
+        });
+
+        updateLabels();
+
+        // Add components to the toolbar
+        toolBar.add(secondsField);
+        toolBar.add(recordToggle);
+        toolBar.add(progressBar);
+    }
+
+    private void updateLabels() {
+        setSecondsField(secondsField);
+        var arm = robotArm.getSubject();
+        if(arm!=null) {
+            sendButton.setEnabled(true);
+            recordButton.setEnabled(true);
+            recordToggle.setEnabled(true);
+            statusLabel.setText("Selected: " + arm.getName());
+            progressBar.setMaximum((int)(arm.getReportInterval() * PROGRESS_BAR_SCALE));
+        } else {
+            sendButton.setEnabled(false);
+            recordButton.setEnabled(false);
+            recordToggle.setEnabled(false);
+            statusLabel.setText("No arm selected.");
+        }
+    }
+
+    private void setSecondsField(JFormattedTextField secondsField) {
+        MarlinRobotArm arm = robotArm.getSubject();
+        if(arm==null) return;
+        secondsField.setValue(arm.getReportInterval());
     }
 
     /**
@@ -192,5 +287,41 @@ public class EditorPanel extends App implements MarlinListener {
     public void reset() {
         setText("");
         recordButton.setSelected(false);
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if(evt.getSource() != robotArm) return;
+        robotArmHasChanged(evt);
+        updateLabels();
+    }
+
+    private void robotArmHasChanged(PropertyChangeEvent evt) {
+        // make old arm forget me.
+        MarlinRobotArm oldArm = ((MarlinRobotArm)evt.getOldValue());
+        if(oldArm!=null) {
+            oldArm.removeMarlinListener(EditorPanel.this);
+            oldArm.removeDetachListener(this);
+        }
+
+        // make new arm remember me.
+        MarlinRobotArm newArm = robotArm.getSubject();
+        if(newArm!=null) {
+            newArm.addMarlinListener(EditorPanel.this);
+            Node parent = newArm.getParent();
+            if(parent != null) parent.addDetachListener( this );
+        }
+    }
+
+    @Override
+    public void nodeDetached(Node child) {
+        if(robotArm.getSubject() == child) {
+            // robot arm has been removed from the scene tree.
+            // Remove, Cut or Move will cause this to trigger.
+            Node parent = child.getParent();
+            if(parent != null) parent.removeDetachListener( this );
+            robotArm.setSubject(null);
+            updateLabels();
+        }
     }
 }

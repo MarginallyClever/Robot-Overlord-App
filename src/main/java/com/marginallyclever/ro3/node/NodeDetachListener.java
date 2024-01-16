@@ -4,11 +4,12 @@ import java.util.EventListener;
 
 /**
  * {@link NodeDetachListener} is an interface for listening to node detach events.
+ * A detach event fires on a parent when the child is removed.
  */
 public interface NodeDetachListener extends EventListener {
     /**
-     * Called when a node is detached from its parent.
-     * @param child the node that was detached
+     * Called when a parent node has a child removed.
+     * @param child the node that was removed
      */
     void nodeDetached(Node child);
 }
