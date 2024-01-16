@@ -108,16 +108,4 @@ import java.util.List;
     public void addDataChangeListener(DataChangeListener listener) {
         this.listeners.add(listener);
     }
-
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Editable Table");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 300);
-
-        RPMToTorqueTable table = new RPMToTorqueTable();
-
-        frame.setContentPane(table);
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-    }
 }

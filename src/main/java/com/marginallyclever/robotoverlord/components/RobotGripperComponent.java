@@ -40,7 +40,6 @@ public class RobotGripperComponent extends ShapeComponent {
 
     public RobotGripperComponent() {
         super();
-        myMesh = new Mesh();
     }
 
     @Override
@@ -89,22 +88,5 @@ public class RobotGripperComponent extends ShapeComponent {
     }
 
     @Override
-    public void render(GL3 gl) {
-        List<Entity> children = getEntity().getChildren();
-        if(children.size()<2) return;
-
-        myMesh.setRenderStyle(GL3.GL_LINES);
-        myMesh.clear();
-        for(RobotGripperJawComponent jaw : getJaws()) {
-            Matrix4d m = jaw.getEntity().getComponent(PoseComponent.class).getLocal();
-            Vector3d p = MatrixHelper.getPosition(m);
-            Vector3d z = MatrixHelper.getZAxis(m);
-            double d = (openDistance.get() - closeDistance.get());
-            z.scaleAdd(d,z,p);
-
-            myMesh.addColor(1.0f,0.0f,0.5f,1.0f);  myMesh.addVertex((float)p.x,(float)p.y,(float)p.z);
-            myMesh.addColor(1.0f,0.5f,1.0f,1.0f);  myMesh.addVertex((float)z.x,(float)z.y,(float)z.z);
-        }
-        myMesh.render(gl);
-    }
+    public void render(GL3 gl) {}
 }

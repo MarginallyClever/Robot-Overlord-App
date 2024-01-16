@@ -87,16 +87,4 @@ public class RobotLibraryPanel extends JPanel {
             listener.onRobotAdded();
         }
     }
-
-    public static void main(String[] args) {
-        RobotLibraryPanel panel = new RobotLibraryPanel();
-        JFrame frame = new JFrame("Robot Library");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setContentPane(panel);
-        frame.setPreferredSize(new Dimension(450,600));
-        frame.setSize(450,600);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-    }
 }

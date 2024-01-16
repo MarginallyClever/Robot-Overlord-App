@@ -185,20 +185,4 @@ import java.awt.*;
 		m4.m13 += v.y;
 		m4.m23 += v.z;
 	}
-
-	// TEST
-
-	public static void main(String[] args) {
-		Log.start();
-
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception ignored) {}
-
-		JFrame frame = new JFrame(CartesianDrivePanel.class.getSimpleName());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new CartesianDrivePanel(new RobotComponent()));
-		frame.pack();
-		frame.setVisible(true);
-	}
 }

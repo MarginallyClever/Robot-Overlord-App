@@ -56,19 +56,4 @@ import java.util.TreeMap;
         add(graph, BorderLayout.CENTER);
         add(table, BorderLayout.SOUTH);
     }
-
-    public static void main(String[] args) {
-        MotorComponent motor = MotorFactory.createDefaultMotor();
-        Entity entity = new Entity("Motor");
-        entity.addComponent(motor);
-
-        JFrame frame = new JFrame("Torque Curve Editor");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(new TorqueCurveEditPanel(motor));
-        frame.setPreferredSize(new Dimension(300,350));
-        frame.setMinimumSize(new Dimension(300,350));
-        frame.setLocationRelativeTo(null);
-        frame.pack();
-        frame.setVisible(true);
-    }
 }

@@ -36,7 +36,7 @@ public class DrawBackground extends AbstractRenderPass {
 
         buildBox();
 
-        texture = Registry.textureFactory.load("/skybox/skybox.png");
+        texture = Registry.textureFactory.load("/images/skybox.png");
         texture.setDoNotExport(true);
     }
 

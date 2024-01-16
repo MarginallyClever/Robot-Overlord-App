@@ -27,7 +27,7 @@ import java.awt.*;
         this.entityManager = entityManager;
 
         this.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-        ViewElementFactory factory = new ViewElementFactory(entityManager);
+        ViewElementFactory factory = new ViewElementFactory();
 
         JPanel center = new JPanel();
         center.setLayout(new BoxLayout(center,BoxLayout.Y_AXIS));
@@ -62,18 +62,5 @@ import java.awt.*;
         Entity carEntity = VehicleFactory.createByID(vehicleType.get(), entityManager);
         entityManager.removeEntityFromParent(carEntity,entityManager.getRoot());
         //UndoSystem.addEvent(new EntityAddEdit(entityManager,entityManager.getRoot(),carEntity));
-    }
-
-    public static void main(String[] args) {
-        UndoSystem.start();
-        EntityManager entityManager = new EntityManager();
-        CreateVehiclePanel panel = new CreateVehiclePanel(entityManager);
-        JFrame frame = new JFrame("CreateVehiclePanel");
-        frame.setContentPane(panel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setPreferredSize(new Dimension(250,100));
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
     }
 }

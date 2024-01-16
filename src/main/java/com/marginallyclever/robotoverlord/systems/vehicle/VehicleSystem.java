@@ -53,7 +53,7 @@ import java.util.List;
 
         // TODO: how to manage a list?
 
-        ViewElementButton bDrive = view.addButton("Drive");
+        ViewElementButton bDrive = (ViewElementButton)view.addButton("Drive");
         bDrive.addActionEventListener(evt -> openDrivePanel(bDrive,car));
     }
 

@@ -73,20 +73,4 @@ import java.beans.PropertyChangeEvent;
         graph.setBoundsToData();
         graph.repaint();
     }
-
-    public static void main(String[] args) {
-        ServoComponent servo = MotorFactory.createDefaultServo();
-        Entity entity = new Entity("Servo");
-        entity.addComponent(servo);
-        MotorSystem motorSystem = new MotorSystem(null);
-
-        JFrame frame = new JFrame("Tune PID");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(new TuneServoPIDPanel(servo,motorSystem));
-        frame.setPreferredSize(new Dimension(300,350));
-        frame.setMinimumSize(new Dimension(300,350));
-        frame.setLocationRelativeTo(null);
-        frame.pack();
-        frame.setVisible(true);
-    }
 }

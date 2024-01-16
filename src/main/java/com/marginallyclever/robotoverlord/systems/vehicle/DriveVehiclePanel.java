@@ -54,14 +54,4 @@ import java.awt.*;
             vehicleComponent.strafeVelocity.set((double)sliderStrafe.getValue());
         });
     }
-
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("DriveVehiclePanel");
-        frame.setContentPane(new DriveVehiclePanel(new VehicleComponent()));
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setPreferredSize(new Dimension(400,200));
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-    }
 }
