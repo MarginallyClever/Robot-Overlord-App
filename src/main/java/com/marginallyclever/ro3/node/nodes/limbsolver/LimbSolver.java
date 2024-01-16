@@ -135,13 +135,16 @@ public class LimbSolver extends Node {
         if(myLimb==null || myLimb.getNumJoints()==0) return;
 
         ApproximateJacobian aj = getJacobian();
+        double[] jointVelocity = null;
         try {
-            double[] jointVelocity = aj.getJointFromCartesian(cartesianVelocity);  // uses inverse jacobian
-            if(impossibleVelocity(jointVelocity)) return;  // TODO: throw exception instead?
-            myLimb.setAllJointVelocities(jointVelocity);
+            jointVelocity = aj.getJointFromCartesian(cartesianVelocity);  // uses inverse jacobian
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.warn(e.getMessage());
+            // set velocity to zero
+            jointVelocity = new double[myLimb.getNumJoints()];
         }
+        if(impossibleVelocity(jointVelocity)) return;  // TODO: throw exception instead?
+        myLimb.setAllJointVelocities(jointVelocity);
     }
 
     private ApproximateJacobian getJacobian() {
