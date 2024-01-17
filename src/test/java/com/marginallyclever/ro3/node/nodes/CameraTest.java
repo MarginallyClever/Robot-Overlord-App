@@ -199,4 +199,56 @@ public class CameraTest {
                 BigMatrixHelper.matrix4dToArray(m),
                 BigMatrixHelper.matrix4dToArray(p), 0.01);
     }
+
+    @Test
+    public void canRotate() {
+        Camera camera = new Camera();
+        camera.setCanRotate(false);
+        var p0 = camera.getPanTiltFromMatrix(camera.getLocal());
+        camera.panTilt(90,90);
+        var p1 = camera.getPanTiltFromMatrix(camera.getLocal());
+        Assertions.assertEquals(p0[0], p1[0], 0.01);
+        Assertions.assertEquals(p0[1], p1[1], 0.01);
+    }
+
+    @Test
+    public void canTranslate() {
+        Camera camera = new Camera();
+        camera.setCanTranslate(false);
+        var p0 = camera.getPosition();
+        camera.truck(1.0);
+        camera.pedestal(1.0);
+        camera.dolly(1.0);
+        camera.orbit(1.0,1.0);
+        camera.orbitDolly(2.0);
+        var p1 = camera.getPosition();
+        Assertions.assertEquals(p0.x, p1.x, 0.01);
+        Assertions.assertEquals(p0.y, p1.y, 0.01);
+        Assertions.assertEquals(p0.z, p1.z, 0.01);
+    }
+
+    @Test
+    public void json() {
+        Camera a = new Camera();
+        a.setDrawOrthographic(true);
+        a.setNearZ(1.0);
+        a.setFarZ(2.0);
+        a.setFovY(3.0);
+        a.setOrbitRadius(4.0);
+        a.panTilt(5.0,6.0);
+        a.truck(7.0);
+        a.setCanRotate(false);
+        a.setCanTranslate(false);
+        Camera b = new Camera();
+        b.fromJSON(a.toJSON());
+        Assertions.assertEquals(a.getDrawOrthographic(),b.getDrawOrthographic());
+        Assertions.assertEquals(a.getNearZ(),b.getNearZ(),0.01);
+        Assertions.assertEquals(a.getFarZ(),b.getFarZ(),0.01);
+        Assertions.assertEquals(a.getFovY(),b.getFovY(),0.01);
+        Assertions.assertEquals(a.getOrbitRadius(),b.getOrbitRadius(),0.01);
+        Assertions.assertArrayEquals(a.getPanTiltFromMatrix(a.getLocal()),b.getPanTiltFromMatrix(b.getLocal()),0.01);
+        Assertions.assertEquals(a.getPosition(),b.getPosition());
+        Assertions.assertEquals(a.getCanRotate(),b.getCanRotate());
+        Assertions.assertEquals(a.getCanTranslate(),b.getCanTranslate());
+    }
 }
