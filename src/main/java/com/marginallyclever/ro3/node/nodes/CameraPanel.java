@@ -30,9 +30,11 @@ public class CameraPanel extends JPanel {
             nearZSpinner.setEnabled(!drawOrthographic);
             fovSpinner.setEnabled(!drawOrthographic);
         });
+        ortho.setSelected(camera.getDrawOrthographic());
         PanelHelper.addLabelAndComponent(this,"Orthographic",ortho);
 
         // fov
+        fovSpinner.setValue(camera.getFovY());
         fovSpinner.addChangeListener(e -> {
             camera.setFovY( (double) fovSpinner.getValue() );
         });
@@ -47,9 +49,11 @@ public class CameraPanel extends JPanel {
                 farZSpinner.setValue(nearZ + 1);
             }
         });
+        nearZSpinner.setValue(camera.getNearZ());
         PanelHelper.addLabelAndComponent(this,"Near",nearZSpinner);
 
         // far z
+        farZSpinner.setValue(camera.getFarZ());
         farZSpinner.addChangeListener(e -> {
             camera.setFarZ( (double) farZSpinner.getValue() );
         });
@@ -57,25 +61,35 @@ public class CameraPanel extends JPanel {
 
         // can rotate
         JToggleButton canRotate = new JToggleButton("Yes");
-        canRotate.setSelected(camera.getCanRotate());
         canRotate.addActionListener(e -> {
             camera.setCanRotate(canRotate.isSelected());
-            canRotate.setText(camera.getCanRotate() ? "Yes" : "No");
-            canRotate.setToolTipText(camera.getCanRotate() ? "Click to deny" : "Click to allow");
+            updateRotateButton(canRotate);
         });
+        canRotate.setSelected(camera.getCanRotate());
+        updateRotateButton(canRotate);
         PanelHelper.addLabelAndComponent(this,"Can rotate",canRotate);
 
         // can translate
         JToggleButton canTranslate = new JToggleButton("Yes");
-        canTranslate.setSelected(camera.getCanTranslate());
         canTranslate.addActionListener(e -> {
             camera.setCanTranslate(canTranslate.isSelected());
-            canTranslate.setText(camera.getCanTranslate() ? "Yes" : "No");
-            canTranslate.setToolTipText(camera.getCanTranslate() ? "Click to deny" : "Click to allow");
+            updateTranslateButton(canTranslate);
         });
+        canTranslate.setSelected(camera.getCanTranslate());
+        updateTranslateButton(canTranslate);
         PanelHelper.addLabelAndComponent(this,"Can translate",canTranslate);
 
         addLookAtComponents();
+    }
+
+    private void updateTranslateButton(JToggleButton canTranslate) {
+        canTranslate.setText(camera.getCanTranslate() ? "Yes" : "No");
+        canTranslate.setToolTipText(camera.getCanTranslate() ? "Click to deny" : "Click to allow");
+    }
+
+    private void updateRotateButton(JToggleButton canRotate) {
+        canRotate.setText(camera.getCanRotate() ? "Yes" : "No");
+        canRotate.setToolTipText(camera.getCanRotate() ? "Click to deny" : "Click to allow");
     }
 
     private void addLookAtComponents() {
