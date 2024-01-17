@@ -7,6 +7,7 @@ import com.jogamp.opengl.GLEventListener;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
+import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.renderpasses.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.Compass3D;
@@ -215,7 +216,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             }
             @Override
             public void actionPerformed(ActionEvent e) {
-                setFrameOfReference(ViewportTool.FRAME_WORLD);
+                setFrameOfReference(FrameOfReference.WORLD);
                 frameOfReferenceButton.setIcon(icon);
             }
         });
@@ -229,7 +230,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             }
             @Override
             public void actionPerformed(ActionEvent e) {
-                setFrameOfReference(ViewportTool.FRAME_CAMERA);
+                setFrameOfReference(FrameOfReference.CAMERA);
                 frameOfReferenceButton.setIcon(icon);
             }
         });
@@ -243,7 +244,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             }
             @Override
             public void actionPerformed(ActionEvent e) {
-                setFrameOfReference(ViewportTool.FRAME_LOCAL);
+                setFrameOfReference(FrameOfReference.LOCAL);
                 frameOfReferenceButton.setIcon(icon);
             }
         });
@@ -262,10 +263,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         return frameOfReferenceButton;
     }
 
-    private void setFrameOfReference(int frameOfReference) {
-        if(frameOfReference < 0 || frameOfReference >= ViewportTool.FRAME_COUNT) {
-            throw new InvalidParameterException("frameOfReference out of range.");
-        }
+    private void setFrameOfReference(FrameOfReference frameOfReference) {
         for( var t : viewportTools) t.setFrameOfReference(frameOfReference);
     }
 
@@ -549,9 +547,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private void changeOrbitRadius(int dz) {
         Camera camera = Registry.getActiveCamera();
         assert camera != null;
-        double orbitRadius = camera.getOrbitRadius();
-        orbitRadius = dz > 0 ? orbitRadius * orbitChangeFactor : orbitRadius / orbitChangeFactor;
-        camera.setOrbitRadius(orbitRadius);
+        camera.orbitDolly(dz > 0 ? 1.0 * orbitChangeFactor : 1.0 / orbitChangeFactor);
     }
 
     public double getOrbitChangeFactor() {

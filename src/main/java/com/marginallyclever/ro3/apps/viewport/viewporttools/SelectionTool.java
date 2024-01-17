@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.apps.viewport.viewporttools;
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
@@ -125,7 +126,7 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
      * @param index 0 for world, 1 for local, 2 for camera.
      */
     @Override
-    public void setFrameOfReference(int index) {}
+    public void setFrameOfReference(FrameOfReference index) {}
 
     @Override
     public void init(GL3 gl3) {}

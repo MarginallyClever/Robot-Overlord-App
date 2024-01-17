@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.apps.viewport.viewporttools.move;
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
@@ -36,7 +37,7 @@ public class TranslateToolMulti implements ViewportTool {
     private final List<ViewportTool> tools = new ArrayList<>();
 
     private SelectedItems selectedItems;
-    private int frameOfReference = ViewportTool.FRAME_WORLD;
+    private FrameOfReference frameOfReference = FrameOfReference.WORLD;
 
     public TranslateToolMulti() {
         super();
@@ -300,11 +301,10 @@ public class TranslateToolMulti implements ViewportTool {
 
     /**
      * Sets the frame of reference for the tool.
-     *
-     * @param index 0 for world, 1 for local, 2 for camera.
+     * @param index a {@link FrameOfReference}.
      */
     @Override
-    public void setFrameOfReference(int index) {
+    public void setFrameOfReference(FrameOfReference index) {
         frameOfReference = index;
         for (ViewportTool t : tools) t.setFrameOfReference(index);
         updatePivotMatrix();

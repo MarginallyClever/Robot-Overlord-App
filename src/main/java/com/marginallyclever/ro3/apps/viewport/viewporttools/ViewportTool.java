@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.viewport.viewporttools;
 
 import com.jogamp.opengl.GL3;
+import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
@@ -14,10 +15,6 @@ import java.util.List;
  * Interface for {@link Viewport} tools that can be used to visually edit the scene.
  */
 public interface ViewportTool {
-    int FRAME_WORLD = 0;
-    int FRAME_LOCAL = 1;
-    int FRAME_CAMERA = 2;
-    int FRAME_COUNT = 3;
 
     /**
      * This method is called when the tool is activated. It receives a list containing the selected
@@ -81,7 +78,7 @@ public interface ViewportTool {
      * Sets the frame of reference for the tool.
      * @param index 0 for world, 1 for local, 2 for camera.
      */
-    void setFrameOfReference(int index);
+    void setFrameOfReference(FrameOfReference index);
 
     /**
      * This is called when the OpenGL context is created.  It should create any resources.

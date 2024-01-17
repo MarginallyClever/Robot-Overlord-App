@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
@@ -67,7 +68,7 @@ public class TranslateToolOneAxis implements ViewportTool {
 
     private final Mesh handleLineMesh = new Mesh(GL3.GL_LINES);
     private final Sphere handleSphere = new Sphere();
-    private int frameOfReference = ViewportTool.FRAME_WORLD;
+    private FrameOfReference frameOfReference = FrameOfReference.WORLD;
     private final ColorRGB color;
 
 
@@ -171,7 +172,7 @@ public class TranslateToolOneAxis implements ViewportTool {
      * @param index 0 for world, 1 for local, 2 for camera.
      */
     @Override
-    public void setFrameOfReference(int index) {
+    public void setFrameOfReference(FrameOfReference index) {
         frameOfReference = index;
         if(selectedItems!=null) {
             updatePivotMatrix();
