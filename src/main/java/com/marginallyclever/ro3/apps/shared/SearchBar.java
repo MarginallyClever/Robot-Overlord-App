@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.shared;
 
 import javax.swing.*;
+import javax.swing.event.AncestorListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
@@ -40,12 +41,19 @@ public class SearchBar extends JPanel implements DocumentListener {
 
         match.setText(text);
         match.getDocument().addDocumentListener(this);
-    }
 
-    @Override
-    public void addNotify() {
-        super.addNotify();
-        match.requestFocusInWindow();
+        addAncestorListener(new AncestorListener() {
+            @Override
+            public void ancestorAdded(javax.swing.event.AncestorEvent event) {
+                match.requestFocusInWindow();
+            }
+
+            @Override
+            public void ancestorRemoved(javax.swing.event.AncestorEvent event) {}
+
+            @Override
+            public void ancestorMoved(javax.swing.event.AncestorEvent event) {}
+        });
     }
 
     @Override
