@@ -23,8 +23,14 @@ public class SearchBar extends JPanel implements DocumentListener {
         super(new BorderLayout());
         setName("SearchBar");
         setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+
+        match.setToolTipText("Search for this pattern");
+        isCaseSensitive.setToolTipText("Case sensitive search");
+        isRegex.setToolTipText("Regular expression search");
+        
         var label = new JLabel(new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-search-16.png"))));
         label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+
         JPanel inner = new JPanel(new BorderLayout());
         inner.add(label, BorderLayout.LINE_START);
         inner.add(match, BorderLayout.CENTER);
@@ -37,21 +43,27 @@ public class SearchBar extends JPanel implements DocumentListener {
     }
 
     @Override
+    public void addNotify() {
+        super.addNotify();
+        match.requestFocusInWindow();
+    }
+
+    @Override
     public void insertUpdate(DocumentEvent e) {
-        fireTextChange();
+        fireMatchChange();
     }
 
     @Override
     public void removeUpdate(DocumentEvent e) {
-        fireTextChange();
+        fireMatchChange();
     }
 
     @Override
     public void changedUpdate(DocumentEvent e) {
-        fireTextChange();
+        fireMatchChange();
     }
 
-    public void fireTextChange() {
+    public void fireMatchChange() {
         String newValue = match.getText();
         super.firePropertyChange("match", null, newValue);
     }
@@ -62,6 +74,7 @@ public class SearchBar extends JPanel implements DocumentListener {
 
     public void setRegex(boolean regex) {
         isRegex.setSelected(regex);
+        fireMatchChange();
     }
 
     public boolean getCaseSensitive() {
@@ -70,5 +83,6 @@ public class SearchBar extends JPanel implements DocumentListener {
 
     public void setCaseSensitive(boolean caseSensitive) {
         isCaseSensitive.setSelected(caseSensitive);
+        fireMatchChange();
     }
 }

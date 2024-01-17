@@ -32,7 +32,7 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
         super(new BorderLayout());
 
         setupTree(type);
-        setupSearch();
+        setupSearchBar();
 
         JButton clearButton = new JButton("Clear");
         clearButton.addActionListener(e -> {
@@ -47,7 +47,7 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
         populateTree("");
     }
 
-    private void setupSearch() {
+    private void setupSearchBar() {
         searchBar.addPropertyChangeListener("match", e-> {
             String criteria = (String)e.getNewValue();
             if(criteria==null || criteria.isBlank()) criteria = "";
