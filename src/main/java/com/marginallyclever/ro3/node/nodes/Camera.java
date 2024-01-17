@@ -197,33 +197,21 @@ public class Camera extends Pose {
     }
 
     public Matrix4d getPerspectiveFrustum(int width,int height) {
-        double nearVal = this.getNearZ();
-        double farVal = this.getFarZ();
         double aspect = (double)width / (double)height;
-
-        return MatrixHelper.perspectiveMatrix4d(this.getFovY(),aspect,nearVal,farVal);
+        return MatrixHelper.perspectiveMatrix4d(this.getFovY(),aspect,getNearZ(),getFarZ());
     }
 
     /**
      * Render the scene in orthographic projection.
-     * @param zoom the zoom factor
      */
-    public Matrix4d getOrthographicMatrix(double zoom,int width,int height) {
-        double w = width/2.0f;
-        double h = height/2.0f;
-
-        double left = -w/zoom;
-        double right = w/zoom;
-        double bottom = -h/zoom;
-        double top = h/zoom;
-        double nearVal = this.getNearZ();
-        double farVal = this.getFarZ();
-
-        return MatrixHelper.orthographicMatrix4d(left,right,bottom,top,nearVal,farVal);
+    public Matrix4d getOrthographicMatrix(int width,int height) {
+        double h = 5.0;  // why 5?
+        double w = h * (double)width / (double)height;
+        return MatrixHelper.orthographicMatrix4d(-w,w,-h,h,getNearZ(),getFarZ());
     }
 
     public Matrix4d getChosenProjectionMatrix(int width,int height) {
-        return drawOrthographic ? getOrthographicMatrix(1.0,width,height) : getPerspectiveFrustum(width,height);
+        return drawOrthographic ? getOrthographicMatrix(width,height) : getPerspectiveFrustum(width,height);
     }
 
     public Matrix4d getViewMatrix() {
@@ -237,10 +225,10 @@ public class Camera extends Pose {
      * @return the point that the camera is orbiting around.
      */
     public Vector3d getOrbitPoint() {
-        Matrix4d local = getLocal();
-        Vector3d position = MatrixHelper.getPosition(local);
+        Matrix4d m = getWorld();
+        Vector3d position = MatrixHelper.getPosition(m);
         // z axis points away from the direction the camera is facing.
-        Vector3d zAxis = MatrixHelper.getZAxis(local);
+        Vector3d zAxis = MatrixHelper.getZAxis(m);
         zAxis.scale(-orbitRadius);
         position.add(zAxis);
         return position;
