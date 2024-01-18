@@ -4,6 +4,8 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
@@ -20,6 +22,7 @@ import java.util.List;
  * will be adjusted so they do not teleport.</p>
  */
 public class AttachmentPoint extends Pose {
+    private static final Logger logger = LoggerFactory.getLogger(AttachmentPoint.class);
     private boolean isAttached = false;
     private double radius = 1.0;
 
@@ -40,6 +43,7 @@ public class AttachmentPoint extends Pose {
             // don't grab yourself
             if(p.hasParent(this) || this.hasParent(p)) continue;
 
+            logger.debug("attach "+p.getAbsolutePath());
             Matrix4d world = p.getWorld();
             Node parent = p.getParent();
             parent.removeChild(p);
@@ -52,10 +56,12 @@ public class AttachmentPoint extends Pose {
      * Release all attached nodes.  Move them to the scene root and adjust their world transform to compensate.
      */
     public void release() {
-        List<Node> list = this.getChildren();
+        var list = new ArrayList<>(this.getChildren());
+        logger.debug("release "+list.size()+" children");
         for(Node n : list) {
             if(!(n instanceof Pose p)) continue;
 
+            logger.debug("release "+p.getAbsolutePath());
             Matrix4d world = p.getWorld();
             this.removeChild(p);
             Registry.getScene().addChild(p);
@@ -70,15 +76,18 @@ public class AttachmentPoint extends Pose {
         double r2 = radius*radius;
 
         var found = new ArrayList<Pose>();
-        for(Node n : Registry.getScene().getChildren()) {
-            if(!(n instanceof Pose p)) continue;
+        var list = new ArrayList<>(Registry.getScene().getChildren());
+        while(!list.isEmpty()) {
+            var node = list.remove(0);
+            list.addAll(node.getChildren());
+            if(!(node instanceof Pose pose)) continue;
             // don't grab yourself
-            if(p.hasParent(this) || this.hasParent(p)) continue;
-
-            var pos = MatrixHelper.getPosition(p.getWorld());
+            if(pose == this || pose.hasParent(this) || this.hasParent(pose)) continue;
+            logger.debug("check "+pose.getAbsolutePath());
+            var pos = MatrixHelper.getPosition(pose.getWorld());
             pos.sub(myPosition);
             if( pos.lengthSquared() <= r2 ) {
-                found.add(p);
+                found.add(pose);
             }
         }
 

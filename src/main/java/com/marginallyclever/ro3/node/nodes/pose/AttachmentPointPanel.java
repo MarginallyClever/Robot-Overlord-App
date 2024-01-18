@@ -19,6 +19,7 @@ public class AttachmentPointPanel extends JPanel {
         var formatter = NumberFormatHelper.getNumberFormatter();
         formatter.setMinimum(0.0);  // no negative radius
         var radiusField = new JFormattedTextField(formatter);
+        radiusField.setToolTipText("Radius of the attachment point");
         radiusField.setValue(attachmentPoint.getRadius());
         radiusField.addPropertyChangeListener("value", e -> {
             attachmentPoint.setRadius( ((Number)radiusField.getValue()).doubleValue() );
