@@ -8,6 +8,7 @@ import com.marginallyclever.ro3.mesh.Mesh;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
+import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 
 
@@ -17,11 +18,11 @@ import javax.vecmath.Vector3d;
 public abstract class IntersectionHelper {
 	static final float SMALL_NUM = 0.001f;
 	/**
-	 * test intersection of two cylinders.  From http://geomalgorithms.com/a07-_distance.html
-	 * @param cA cylinder A
-	 * @param cB cylinder B
-	 * @return true if intersect
-	 */
+     * test intersection of two cylinders.  From <a href="http://geomalgorithms.com/a07-_distance.html">...</a>
+     * @param cA cylinder A
+     * @param cB cylinder B
+     * @return true if intersect
+     */
 	static public boolean cylinderCylinder(Cylinder cA, Cylinder cB) {
 	    Vector3d u = new Vector3d(cA.GetP2());  u.sub(cA.GetP1());
 	    Vector3d v = new Vector3d(cB.GetP2());  v.sub(cB.GetP1());
@@ -109,29 +110,37 @@ public abstract class IntersectionHelper {
 		if(dv2 < SMALL_NUM) return 0;  // parallel, all times are the same.
 		return -dv.dot(dp) / dv2;
 	}
-	
-	static public double CPADistance(Vector3d a,Vector3d b,Vector3d da,Vector3d db) {
+
+	/**
+	 * find the closest point of approach between two lines
+	 * @param a0 line 1 start
+	 * @param b0 line 2 start
+	 * @param a1 line 1 end
+	 * @param b1 line 2 end
+	 * @return distance between the two lines at the closest point of approach.
+	 */
+	static public double CPADistance(Vector3d a0,Vector3d b0,Vector3d a1,Vector3d b1) {
 		// find CPA time
-		Vector3d dp = new Vector3d(b);
-		dp.sub(a);
-		Vector3d dv = new Vector3d(db);
-		db.sub(da);		
+		Vector3d dp = new Vector3d(b0);
+		dp.sub(a0);
+		Vector3d dv = new Vector3d(b1);
+		b1.sub(a1);
 		double t = CPATime(dp,dv);
 
 		// get both points
-		Vector3d pa = new Vector3d(da);
+		Vector3d pa = new Vector3d(a1);
 		pa.scale(t);
-		pa.add(a);
-		Vector3d pb = new Vector3d(db);
+		pa.add(a0);
+		Vector3d pb = new Vector3d(b1);
 		pb.scale(t);
-		pb.add(b);
+		pb.add(b0);
 		// find difference
 		pb.sub(pa);
 		return pb.length();
 	}
 	
 	/**
-	 * separation of axies theorem used to find intersection of two arbitrary boxes.
+	 * separation of axes theorem used to find intersection of two arbitrary boxes.
 	 * @param a first cuboid
 	 * @param b second cuboid
 	 * @return true if cuboids intersect
@@ -163,22 +172,22 @@ public abstract class IntersectionHelper {
 		a.updatePoints();
 		b.updatePoints();
 
-		for (int i = 0; i < n.length; ++i) {
-			// SATTest the normals of A against the 8 points of box A.
-			// SATTest the normals of A against the 8 points of box B.
-			// points of each box are a combination of the box's top/bottom values.
-			double[] aLim = SATTest(n[i], a.p);
-			double[] bLim = SATTest(n[i], b.p);
-			// logger.info("Lim "+axis[i]+" > "+n[i].x+"\t"+n[i].y+"\t"+n[i].z+" :
-			// "+aLim[0]+","+aLim[1]+" vs "+bLim[0]+","+bLim[1]);
+        for (Vector3d vector3d : n) {
+            // SATTest the normals of A against the 8 points of box A.
+            // SATTest the normals of A against the 8 points of box B.
+            // points of each box are a combination of the box's top/bottom values.
+            double[] aLim = SATTest(vector3d, a.p);
+            double[] bLim = SATTest(vector3d, b.p);
+            // logger.info("Lim "+axis[i]+" > "+n[i].x+"\t"+n[i].y+"\t"+n[i].z+" :
+            // "+aLim[0]+","+aLim[1]+" vs "+bLim[0]+","+bLim[1]);
 
-			// if the two box projections do not overlap then there is no chance of a
-			// collision.
-			if (!overlaps(aLim[0], aLim[1], bLim[0], bLim[1])) {
-				// logger.info("Miss");
-				return false;
-			}
-		}
+            // if the two box projections do not overlap then there is no chance of a
+            // collision.
+            if (!overlaps(aLim[0], aLim[1], bLim[0], bLim[1])) {
+                // logger.info("Miss");
+                return false;
+            }
+        }
 
 		// intersect!
 		// logger.info("Hit");
@@ -198,11 +207,11 @@ public abstract class IntersectionHelper {
 		values[0] =  Double.MAX_VALUE; // min value
 		values[1] = -Double.MAX_VALUE; // max value
 
-		for (int i = 0; i < corners.length; ++i) {
-			double dotProduct = corners[i].x * normal.x + corners[i].y * normal.y + corners[i].z * normal.z;
-			if (values[0] > dotProduct) values[0] = dotProduct;
-			if (values[1] < dotProduct) values[1] = dotProduct;
-		}
+        for (Point3d corner : corners) {
+            double dotProduct = corner.x * normal.x + corner.y * normal.y + corner.z * normal.z;
+            if (values[0] > dotProduct) values[0] = dotProduct;
+            if (values[1] < dotProduct) values[1] = dotProduct;
+        }
 
 		return values;
 	}
@@ -246,9 +255,9 @@ public abstract class IntersectionHelper {
 
 	/**
 	 * ray/sphere intersection. see <a href="https://viclw17.github.io/2018/07/16/raytracing-ray-sphere-intersection/">reference</a>.
-	 * @param ray
-	 * @param center
-	 * @param radius
+	 * @param ray start and direction
+	 * @param center center of sphere
+	 * @param radius radius of sphere
 	 * @return distance to first hit.  negative values for no hit/behind start. 
 	 */
 	static public double raySphere(final Ray ray,final Point3d center,final double radius) {
@@ -493,5 +502,25 @@ public abstract class IntersectionHelper {
 		normal.cross(edge1, edge2);
 		normal.normalize();
 		return normal;
+	}
+
+	/**
+	 * is point within r of box (max,min)?
+	 * @param point the test point
+	 * @param r2 the square of the radius
+	 * @param max the max point of the box
+	 * @param min the min point of the box
+	 * @return true if point is within r of box (max,min)
+	 */
+	public static boolean sphereBox(Tuple3d point, double r2, Tuple3d max, Tuple3d min) {
+		if(r2<=0) throw new IllegalArgumentException("r2 must be >0");
+
+		if (point.x < min.x) r2 -= Math.pow(point.x - min.x, 2);
+		else if (point.x > max.x) r2 -= Math.pow(point.x - max.x, 2);
+		if (point.y < min.y) r2 -= Math.pow(point.y - min.y, 2);
+		else if (point.y > max.y) r2 -= Math.pow(point.y - max.y, 2);
+		if (point.z < min.z) r2 -= Math.pow(point.z - min.z, 2);
+		else if (point.z > max.z) r2 -= Math.pow(point.z - max.z, 2);
+		return r2 > 0;
 	}
 }

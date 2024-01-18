@@ -4,7 +4,9 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class NodeSelectionDialogTest {
     @Test
     public void test() {

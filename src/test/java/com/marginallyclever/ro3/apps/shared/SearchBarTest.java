@@ -3,7 +3,6 @@ package com.marginallyclever.ro3.apps.shared;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
-
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class SearchBarTest {
     @Test

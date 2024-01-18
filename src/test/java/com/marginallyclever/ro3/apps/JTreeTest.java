@@ -1,7 +1,10 @@
 package com.marginallyclever.ro3.apps;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+
 import javax.swing.*;
 import javax.swing.tree.*;
 
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class JTreeTest {
     public static void main(String[] args) {
         // Create a JFrame instance

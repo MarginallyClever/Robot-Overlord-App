@@ -22,12 +22,8 @@ public class MiscTests {
 
         String a = StringHelper.generateChecksum("G0 X0.000 Y-86.789 Z27.498 U0.000 V-30.692 W0.000");
         String b = StringHelper.generateChecksum("G0 X0.000 Y-86.789 Z27.4U0.000 V-30.692 W0.000");
-        logger.info("a=" + a);
-        logger.info("b=" + b);
         assert (a.equals("*78"));
-        logger.info("test a passed");
         assert (b.equals("*111"));
-        logger.info("test b passed");
     }
 
     /**
@@ -179,6 +175,6 @@ public class MiscTests {
         });
         b.rewind();
 
-        Assertions.assertTrue(a.equals(b));
+        assert(a.equals(b));
     }
 }

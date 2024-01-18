@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodes.pose;
 
+import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,18 +82,53 @@ public class AttachmentPoint extends Pose {
         while(!list.isEmpty()) {
             var node = list.remove(0);
             list.addAll(node.getChildren());
-            if(!(node instanceof Pose pose)) continue;
+            if(!(node instanceof Pose pose)) continue;  // grab only Poses
+            if(node instanceof MeshInstance) continue;  // don't grab MeshInstances
             // don't grab yourself
             if(pose == this || pose.hasParent(this) || this.hasParent(pose)) continue;
-            logger.debug("check "+pose.getAbsolutePath());
-            var pos = MatrixHelper.getPosition(pose.getWorld());
-            pos.sub(myPosition);
-            if( pos.lengthSquared() <= r2 ) {
+
+            if(canGrab(pose,myPosition,r2)) {
                 found.add(pose);
             }
         }
 
         attach(found);
+    }
+
+    /**
+     * Check if a {@link Pose} is within reach and has a {@link MeshInstance}.
+     * @param pose the pose to check
+     * @param myPosition the position of this node
+     * @param r2 the square of the radius
+     * @return true if the pose is within reach.
+     */
+    private boolean canGrab(Pose pose, Vector3d myPosition, double r2) {
+        var meshInstance = pose.findFirstChild(MeshInstance.class);
+        if (meshInstance == null) return false;
+        var mesh = meshInstance.getMesh();
+        if (mesh == null) return false;
+
+        logger.debug("canGrab " + pose.getAbsolutePath());
+
+        int version=2;
+        if(version==1) {
+            // version 1, radius test.
+            var pos = MatrixHelper.getPosition(pose.getWorld());
+            pos.sub(myPosition);
+            return pos.lengthSquared() < r2;
+        } else {
+            // version 2, bounding box to radius test.
+            var boundingBox = mesh.getBoundingBox();
+            var max = boundingBox.getBoundsTop();
+            var min = boundingBox.getBoundsBottom();
+            if( IntersectionHelper.sphereBox(myPosition,r2,max,min) ) {
+                // TODO version 3, radius to triangles test.
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -119,7 +156,7 @@ public class AttachmentPoint extends Pose {
     }
 
     public void setRadius(double radius) {
-        if(radius<0) throw new IllegalArgumentException("radius must be >=0");
+        if(radius<=0) throw new IllegalArgumentException("radius must be >0");
         this.radius = radius;
     }
 
