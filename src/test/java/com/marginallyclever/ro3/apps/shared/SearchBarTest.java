@@ -38,4 +38,36 @@ public class SearchBarTest {
         assert(!searchBar.getRegex());
         assert(fired[0]==2);
     }
+
+    @Test
+    public void match() {
+        SearchBar searchBar = new SearchBar();
+        searchBar.setCaseSensitive(false);
+        searchBar.setRegex(false);
+        searchBar.setSearchText("abc");
+        assert(searchBar.getSearchText().equals("abc"));
+        assert(searchBar.matches("abc"));
+        assert(searchBar.matches("ABC"));
+    }
+
+    @Test
+    public void matchCaseSensitive() {
+        SearchBar searchBar = new SearchBar();
+        searchBar.setCaseSensitive(true);
+        searchBar.setRegex(false);
+        searchBar.setSearchText("abc");
+        assert(searchBar.getSearchText().equals("abc"));
+        assert(searchBar.matches("abc"));
+        assert(!searchBar.matches("ABC"));
+    }
+
+    @Test
+    public void matchRegex() {
+        SearchBar searchBar = new SearchBar();
+        searchBar.setCaseSensitive(false);
+        searchBar.setRegex(true);
+        searchBar.setSearchText("^a.*c$");
+        assert(!searchBar.matches("the quick brown fox jumped over the lazy dog"));
+        assert(searchBar.matches("abc"));
+    }
 }
