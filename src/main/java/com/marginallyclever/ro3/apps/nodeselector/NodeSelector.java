@@ -84,8 +84,19 @@ public class NodeSelector<T extends Node> extends JPanel {
         return subject;
     }
 
-    public void setEditable(boolean b) {
-        chooseButton.setEnabled(b);
-        findButton.setEnabled(b);
+    /**
+     * Enable or disable the find button.
+     * @param state true to enable, false to disable
+     */
+    public void setEditable(boolean state) {
+        chooseButton.setEnabled(state);
+    }
+
+    /**
+     * Get the state of the find button.
+     * @return true if enabled, false if disabled
+     */
+    public boolean getEditable() {
+        return chooseButton.isEnabled();
     }
 }
