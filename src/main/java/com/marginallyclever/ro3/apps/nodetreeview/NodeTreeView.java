@@ -151,7 +151,6 @@ public class NodeTreeView extends App
         }
     }
 
-
     private void buildToolBar() {
         var addButton = new JButton(new AddNode<>());
         var cutButton = new JButton(cutNode);
@@ -193,7 +192,7 @@ public class NodeTreeView extends App
 
     @Override
     public void nodeAttached(Node child) {
-        //logger.debug("Attached "+child.getAbsolutePath());
+        logger.debug("Attached "+child.getAbsolutePath());
         Node parent = child.getParent();
         if(parent==null) throw new RuntimeException("source node has no parent");
         NodeTreeBranch branchParent = findTreeNode(parent);
@@ -202,10 +201,14 @@ public class NodeTreeView extends App
         int index = parent.getChildren().indexOf(child);
         branchParent.insert(branchChild,index);
 
-        listenTo(child);
-        scanTree(child);
+        // Notify the JTree model that a new node has been inserted
+        var model = (DefaultTreeModel) tree.getModel();
+        model.nodesWereInserted(branchParent, new int[]{index});
 
-        ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(branchParent);
+        listenTo(child);
+
+        // scan the new node for children
+        scanTree(child);
     }
 
     @Override
@@ -223,8 +226,12 @@ public class NodeTreeView extends App
             logger.warn("No branch for "+child.getAbsolutePath());
             return;
         }
+        int index = parent.getChildren().indexOf(child);
         branchParent.remove(branchChild);
-        ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(branchParent);
+
+        // Notify the JTree model that a new node has been removed
+        var model = (DefaultTreeModel) tree.getModel();
+        model.nodesWereRemoved(branchParent, new int[]{index}, new Object[]{branchChild});
     }
 
     @Override
@@ -250,8 +257,8 @@ public class NodeTreeView extends App
         listenTo(newScene);
         treeModel.removeAllChildren();
         treeModel.setUserObject(newScene);
-        ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(treeModel.getRoot());
         scanTree(newScene);
+        ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(treeModel.getRoot());
     }
 
     /**
