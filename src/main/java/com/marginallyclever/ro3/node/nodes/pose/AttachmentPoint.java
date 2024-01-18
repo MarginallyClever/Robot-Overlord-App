@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ public class AttachmentPoint extends Pose {
     private double radius = 1.0;
 
     public AttachmentPoint() {
-        super("AttachmentPoint");
+        this("AttachmentPoint");
     }
 
     public AttachmentPoint(String name) {
@@ -74,7 +75,7 @@ public class AttachmentPoint extends Pose {
     public void attemptAttach() {
         if(!isAttached) return;
 
-        var myPosition = MatrixHelper.getPosition(getWorld());
+        var center = MatrixHelper.getPosition(getWorld());
         double r2 = radius*radius;
 
         var found = new ArrayList<Pose>();
@@ -83,11 +84,10 @@ public class AttachmentPoint extends Pose {
             var node = list.remove(0);
             list.addAll(node.getChildren());
             if(!(node instanceof Pose pose)) continue;  // grab only Poses
-            if(node instanceof MeshInstance) continue;  // don't grab MeshInstances
             // don't grab yourself
             if(pose == this || pose.hasParent(this) || this.hasParent(pose)) continue;
 
-            if(canGrab(pose,myPosition,r2)) {
+            if(canGrab(pose,center,r2)) {
                 found.add(pose);
             }
         }
@@ -97,33 +97,37 @@ public class AttachmentPoint extends Pose {
 
     /**
      * Check if a {@link Pose} is within reach and has a {@link MeshInstance}.
-     * @param pose the pose to check
-     * @param myPosition the position of this node
-     * @param r2 the square of the radius
+     * @param pose the pose to check.
+     * @param center the center of the sphere.
+     * @param r2 the sphere radius squared.
      * @return true if the pose is within reach.
      */
-    private boolean canGrab(Pose pose, Vector3d myPosition, double r2) {
+    private boolean canGrab(Pose pose, Vector3d center, double r2) {
         var meshInstance = pose.findFirstChild(MeshInstance.class);
         if (meshInstance == null) return false;
         var mesh = meshInstance.getMesh();
         if (mesh == null) return false;
 
-        logger.debug("canGrab " + pose.getAbsolutePath());
-
         int version=2;
         if(version==1) {
             // version 1, radius test.
             var pos = MatrixHelper.getPosition(pose.getWorld());
-            pos.sub(myPosition);
+            pos.sub(center);
             return pos.lengthSquared() < r2;
         } else {
             // version 2, bounding box to radius test.
             var boundingBox = mesh.getBoundingBox();
+            // convert the center to meshInstance space
+            var im = meshInstance.getWorld();
+            im.invert();
+            Point3d center2 = new Point3d(center);
+            im.transform(center2);
+
             var max = boundingBox.getBoundsTop();
             var min = boundingBox.getBoundsBottom();
-            if( IntersectionHelper.sphereBox(myPosition,r2,max,min) ) {
+            if( IntersectionHelper.sphereBox(center2,r2,max,min) ) {
                 // TODO version 3, radius to triangles test.
-
+                logger.debug("canGrab " + pose.getAbsolutePath());
                 return true;
             }
         }
