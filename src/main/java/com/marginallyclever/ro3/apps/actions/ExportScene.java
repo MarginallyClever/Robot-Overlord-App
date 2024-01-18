@@ -8,8 +8,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.security.InvalidParameterException;
 import java.util.*;
@@ -107,7 +105,7 @@ public class ExportScene extends AbstractAction {
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(outputZipFile))) {
             for( String originalPath : sources ) {
                 String newName = createUniqueName(originalPath, pathMapping);
-                logger.debug("Adding {} as {}", originalPath, newName);
+                //logger.debug("Adding {} as {}", originalPath, newName);
                 addFileToZip(originalPath, rootFolderName + "/" + newName, zipOutputStream);
 
                 String safeOriginal = makeSafe(originalPath);
@@ -137,8 +135,7 @@ public class ExportScene extends AbstractAction {
         asset.put("path",originalPath);
         // find the json version of the string
         String unsafeName = asset.toString();
-        String safeName = unsafeName.substring(jsonAssetHead.length(), unsafeName.length() - jsonAssetTail.length());
-        return safeName;
+        return unsafeName.substring(jsonAssetHead.length(), unsafeName.length() - jsonAssetTail.length());
     }
 
     private void addFileToZip(String filePath, String newName, ZipOutputStream zos) throws IOException {
@@ -173,7 +170,7 @@ public class ExportScene extends AbstractAction {
 
     private String replacePathsInJson(String json, Map<String, String> pathMapping) {
         for (Map.Entry<String, String> entry : pathMapping.entrySet()) {
-            logger.debug("Replacing {} with {}", entry.getKey(), entry.getValue());
+            //logger.debug("Replacing {} with {}", entry.getKey(), entry.getValue());
             json = json.replace(entry.getKey(), entry.getValue());
         }
         return json;
