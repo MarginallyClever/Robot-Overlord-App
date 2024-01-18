@@ -40,8 +40,8 @@ public class AttachmentPoint extends Pose {
      */
     public void attach(List<Pose> list) {
         for(Pose p : list) {
-            // don't grab yourself
-            if(p.hasParent(this) || this.hasParent(p)) continue;
+            if(p.hasParent(this) || this.hasParent(p)) continue;  // don't grab yourself
+            if(p.getChildren().isEmpty()) continue;  // don't grab empty nodes
 
             logger.debug("attach "+p.getAbsolutePath());
             Matrix4d world = p.getWorld();
