@@ -39,6 +39,7 @@ public class LimbSolverPanel extends JPanel {
         marginField.addPropertyChangeListener("value", evt -> {
             limbSolver.setGoalMarginOfError( ((Number) marginField.getValue()).doubleValue() );
         });
+        marginField.setToolTipText("The distance between the target and the end effector that is considered 'close enough'.");
         PanelHelper.addLabelAndComponent(this, "Goal Margin", marginField, gbc);
 
         gbc.gridy++;
