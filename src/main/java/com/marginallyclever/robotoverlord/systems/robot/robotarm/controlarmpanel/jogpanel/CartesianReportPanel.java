@@ -1,7 +1,5 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.jogpanel;
 
-import com.marginallyclever.convenience.log.Log;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;

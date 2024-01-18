@@ -1,7 +1,6 @@
 package com.marginallyclever.communications.transport.ssh;
 
 import com.jcraft.jsch.*;
-import com.marginallyclever.convenience.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +21,6 @@ import java.awt.*;
 public class SSHShell {
 	private static final Logger logger = LoggerFactory.getLogger(SSHShell.class);
 	public static void main(String[] arg) {
-		Log.start();
 		try {
 			JSch jsch = new JSch();
 

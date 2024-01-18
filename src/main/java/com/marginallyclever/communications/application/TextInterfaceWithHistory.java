@@ -1,7 +1,5 @@
 package com.marginallyclever.communications.application;
 
-import com.marginallyclever.convenience.log.Log;
-
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
@@ -69,8 +67,6 @@ public class TextInterfaceWithHistory extends JPanel {
 	}
 
 	public static void main(String[] args) {
-		Log.start();
-
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception ignored) {}
