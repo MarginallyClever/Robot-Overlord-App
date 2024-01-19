@@ -2,7 +2,7 @@ package com.marginallyclever.ro3.node.nodes.limbplanner;
 
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -14,13 +14,14 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 /**
- * {@link LimbPlanner} knows about a {@link LimbSolver}.  It moves the {@link LimbSolver#target} to a destination.
+ * {@link LimbPlanner} knows about a {@link LimbSolver}.
+ * It moves the {@link LimbSolver#setTarget(Pose)} to a destination.
  * It then waits for the {@link ActionEvent} "arrivedAtGoal" before moving on to the next destination.
  */
 public class LimbPlanner extends Node implements ActionListener {
     private static final Logger logger = LoggerFactory.getLogger(LimbPlanner.class);
     private final NodePath<LimbSolver> solver = new NodePath<>(this, LimbSolver.class);
-    private final NodePath<Node> pathStart = new NodePath<>(this, Node.class);
+    private final NodePath<Pose> pathStart = new NodePath<>(this, Pose.class);
     private final NodePath<Pose> nextGoal = new NodePath<>(this, Pose.class);  // relative to pathStart
     private boolean isRunning = false;
     private double executionTime = 0;
@@ -48,11 +49,11 @@ public class LimbPlanner extends Node implements ActionListener {
         previousExecutionTime = executionTime;
         executionTime = 0;
         if(solver.getSubject()!=null) {
-            LimbSolver mySolver = this.solver.getSubject();
+            LimbSolver mySolver = solver.getSubject();
             mySolver.addActionListener( this );
 
             // set nextGoal to the first child of type Pose
-            nextGoal.setPath(pathStart.getPath());
+            nextGoal.setUniqueID(pathStart.getUniqueID());
             isRunning=true;
             onSolverDone();
         }
@@ -127,7 +128,7 @@ public class LimbPlanner extends Node implements ActionListener {
 
     private void setNextGoal(Pose pose) {
         logger.debug("Setting next goal to {}",pose.getAbsolutePath());
-        nextGoal.setRelativePath(this, pose);
+        nextGoal.setUniqueIDByNode(pose);
         solver.getSubject().setTarget(nextGoal.getSubject());
         solver.getSubject().setIsAtGoal(false);
     }
@@ -139,7 +140,7 @@ public class LimbPlanner extends Node implements ActionListener {
         }
         logger.debug("Stopping run at "+executionTime+" seconds.");
         isRunning=false;
-        nextGoal.setPath(pathStart.getPath());
+        nextGoal.setUniqueID(pathStart.getUniqueID());
 
         if(solver.getSubject()!=null) {
             LimbSolver mySolver = this.solver.getSubject();
@@ -152,16 +153,16 @@ public class LimbPlanner extends Node implements ActionListener {
     @Override
     public JSONObject toJSON() {
         var json = super.toJSON();
-        if(solver.getSubject()!=null) json.put("solver",solver.getPath());
-        if(pathStart.getSubject()!=null) json.put("pathStart",pathStart.getPath());
+        if(solver.getSubject()!=null) json.put("solver",solver.getUniqueID());
+        if(pathStart.getSubject()!=null) json.put("pathStart",pathStart.getUniqueID());
         return json;
     }
 
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        if(from.has("solver")) solver.setPath(from.getString("solver"));
-        if(from.has("pathStart")) pathStart.setPath(from.getString("pathStart"));
+        if(from.has("solver")) solver.setUniqueID(from.getString("solver"));
+        if(from.has("pathStart")) pathStart.setUniqueID(from.getString("pathStart"));
     }
 
     public void addActionListener(ActionListener l) {
@@ -206,7 +207,7 @@ public class LimbPlanner extends Node implements ActionListener {
         }
     }
 
-    public NodePath<Node> getPathStart() {
+    public NodePath<Pose> getPathStart() {
         return pathStart;
     }
 
@@ -224,7 +225,7 @@ public class LimbPlanner extends Node implements ActionListener {
      * @param limbSolver the solver to use.
      */
     public void setSolver(LimbSolver limbSolver) {
-        solver.setRelativePath(this,limbSolver);
+        solver.setUniqueIDByNode(limbSolver);
     }
 
     /**
@@ -233,7 +234,7 @@ public class LimbPlanner extends Node implements ActionListener {
      * @param pose the pose to use.
      */
     public void setPathStart(Pose pose) {
-        pathStart.setRelativePath(this,pose);
+        pathStart.setUniqueIDByNode(pose);
     }
 
     public void setLinearVelocity(double v) {

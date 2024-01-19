@@ -4,12 +4,12 @@ import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
-import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
-import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 
 import javax.vecmath.Matrix4d;
@@ -73,13 +73,12 @@ public class MoveUtils {
 
     /**
      * Get the pivot matrix of the selected items.  The matrix should be returned in world space.
-     * @param frameOfReference the frame of reference to use.  {@link ViewportTool#FRAME_WORLD},
-     *                         {@link ViewportTool#FRAME_LOCAL}, or {@link ViewportTool#FRAME_CAMERA}.
+     * @param frameOfReference the {@link FrameOfReference} to use.
      * @param selectedItems the list of selected items
      * @return the pivot matrix of the selected items, in world space.  If no items are selected, returns the
      *         identity matrix.
      */
-    public static Matrix4d getPivotMatrix(int frameOfReference, SelectedItems selectedItems) {
+    public static Matrix4d getPivotMatrix(FrameOfReference frameOfReference, SelectedItems selectedItems) {
         if(selectedItems == null || selectedItems.isEmpty()) {
             return MatrixHelper.createIdentityMatrix4();
         }
@@ -88,13 +87,9 @@ public class MoveUtils {
 
         Matrix4d m;
         switch(frameOfReference) {
-            case ViewportTool.FRAME_WORLD -> {
-                m = MatrixHelper.createIdentityMatrix4();
-            }
-            case ViewportTool.FRAME_LOCAL -> {
-                m = lastItemSelectedMatrix;
-            }
-            case ViewportTool.FRAME_CAMERA -> {
+            case WORLD -> m = MatrixHelper.createIdentityMatrix4();
+            case LOCAL -> m = lastItemSelectedMatrix;
+            case CAMERA -> {
                 Camera cam = Registry.getActiveCamera();
                 assert cam != null;
                 m = cam.getWorld();

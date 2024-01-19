@@ -9,7 +9,7 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
-import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.mesh.Mesh;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
  */
 public class DrawPoses extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawPoses.class);
-    private final Mesh mesh = MatrixHelper.createMesh(1.0);
+    private final Mesh mesh = MatrixHelper.createMesh();
     private ShaderProgram shader;
 
     public DrawPoses() {

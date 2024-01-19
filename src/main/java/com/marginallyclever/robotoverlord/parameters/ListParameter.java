@@ -14,7 +14,7 @@ import java.util.function.IntFunction;
  * a list of parameters
  * @param <T> the type of parameter
  */
-public class ListParameter<T extends AbstractParameter<?>> extends AbstractParameter<List<T>> implements List<T> {
+@Deprecated public class ListParameter<T extends AbstractParameter<?>> extends AbstractParameter<List<T>> implements List<T> {
     private static final Logger logger = LoggerFactory.getLogger(ListParameter.class);
     private final T instance;
 

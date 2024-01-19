@@ -4,18 +4,17 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
 import com.marginallyclever.ro3.node.nodes.Camera;
-import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.mesh.shapes.Sphere;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.mesh.Mesh;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -29,11 +28,9 @@ import java.util.List;
  *
  */
 public class TranslateToolOneAxis implements ViewportTool {
-    private static final Logger logger = LoggerFactory.getLogger(TranslateToolOneAxis.class);
     private final double handleLength = 5;
     private final double gripRadius = 0.5;
     private double localScale = 1;
-    private final Mesh gizmoMesh = MatrixHelper.createMesh(5.0);
 
     /**
      * The viewport to which this tool is attached.
@@ -71,7 +68,7 @@ public class TranslateToolOneAxis implements ViewportTool {
 
     private final Mesh handleLineMesh = new Mesh(GL3.GL_LINES);
     private final Sphere handleSphere = new Sphere();
-    private int frameOfReference = ViewportTool.FRAME_WORLD;
+    private FrameOfReference frameOfReference = FrameOfReference.WORLD;
     private final ColorRGB color;
 
 
@@ -120,12 +117,12 @@ public class TranslateToolOneAxis implements ViewportTool {
 
     @Override
     public void mouseMoved(MouseEvent event) {
-        cursorOverHandle = isCursorOverHandle(event.getX(), event.getY());
+        cursorOverHandle = isCursorOverHandle();
     }
 
     @Override
     public void mousePressed(MouseEvent event) {
-        if (isCursorOverHandle(event.getX(), event.getY())) {
+        if (isCursorOverHandle()) {
             dragging = true;
             cursorOverHandle = true;
             startPoint = MoveUtils.getPointOnPlaneFromCursor(translationPlane,viewport,event.getX(), event.getY());
@@ -175,7 +172,7 @@ public class TranslateToolOneAxis implements ViewportTool {
      * @param index 0 for world, 1 for local, 2 for camera.
      */
     @Override
-    public void setFrameOfReference(int index) {
+    public void setFrameOfReference(FrameOfReference index) {
         frameOfReference = index;
         if(selectedItems!=null) {
             updatePivotMatrix();
@@ -202,7 +199,7 @@ public class TranslateToolOneAxis implements ViewportTool {
         return new Point3d(diff);
     }
 
-    private boolean isCursorOverHandle(int x, int y) {
+    private boolean isCursorOverHandle() {
         if(selectedItems==null || selectedItems.isEmpty()) return false;
 
         var nc = viewport.getCursorAsNormalized();
@@ -214,11 +211,6 @@ public class TranslateToolOneAxis implements ViewportTool {
         diff.scaleAdd(getHandleLengthScaled(), MatrixHelper.getPosition(pivotMatrix));
         diff.sub(point);
         return (diff.lengthSquared() < getGripRadiusScaled()*getGripRadiusScaled());
-    }
-
-    @Override
-    public void handleKeyEvent(KeyEvent event) {
-        // Handle keyboard events, if necessary
     }
 
     @Override

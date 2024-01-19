@@ -1,15 +1,12 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.texture.TextureChooserDialog;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.json.JSONObject;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.List;
 
 /**
@@ -45,114 +42,12 @@ public class Material extends Node {
 
     @Override
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridBagLayout());
-        list.add(pane);
-        pane.setName(Material.class.getSimpleName());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.gridx=0;
-        gbc.gridy=0;
-        gbc.fill = GridBagConstraints.BOTH;
-
-        JButton button = new JButton();
-        setTextureButtonLabel(button);
-        button.addActionListener(e -> {
-            var textureChooserDialog = new TextureChooserDialog();
-            textureChooserDialog.setSelectedItem(texture);
-            int result = textureChooserDialog.run(pane);
-            if(result == JFileChooser.APPROVE_OPTION) {
-                setTexture(textureChooserDialog.getSelectedItem());
-                setTextureButtonLabel(button);
-            }
-        });
-        NodePanelHelper.addLabelAndComponent(pane,"Texture",button,gbc);
-
-        if(texture!=null) {
-            BufferedImage smaller = scaleImage(texture.getImage(),64);
-            NodePanelHelper.addLabelAndComponent(pane,"Size",new JLabel(texture.getWidth()+"x"+texture.getHeight()),gbc);
-            NodePanelHelper.addLabelAndComponent(pane,"Preview",new JLabel(new ImageIcon(smaller)),gbc);
-        }
-
-        // diffuse
-        JButton selectColorDiffuse = new JButton();
-        selectColorDiffuse.setBackground(diffuseColor);
-        selectColorDiffuse.addActionListener(e -> {
-            Color color = JColorChooser.showDialog(pane,"Diffuse Color",getDiffuseColor());
-            if(color!=null) setDiffuseColor(color);
-            selectColorDiffuse.setBackground(diffuseColor);
-        });
-        NodePanelHelper.addLabelAndComponent(pane,"Diffuse",selectColorDiffuse,gbc);
-
-        // specular
-        JButton selectColorSpecular = new JButton();
-        selectColorSpecular.setBackground(specularColor);
-        selectColorSpecular.addActionListener(e -> {
-            Color color = JColorChooser.showDialog(pane,"Specular Color",getSpecularColor());
-            if(color!=null) setSpecularColor(color);
-            selectColorSpecular.setBackground(specularColor);
-        });
-        NodePanelHelper.addLabelAndComponent(pane,"Specular",selectColorSpecular,gbc);
-
-        // emissive
-        JButton selectColorEmission = new JButton();
-        selectColorEmission.setBackground(emissionColor);
-        selectColorEmission.addActionListener(e -> {
-            Color color = JColorChooser.showDialog(pane,"Emissive Color",getEmissionColor());
-            if(color!=null) setEmissionColor(color);
-            selectColorEmission.setBackground(emissionColor);
-        });
-        NodePanelHelper.addLabelAndComponent(pane,"Emissive",selectColorEmission,gbc);
-
-        // lit
-        JToggleButton isLitButton = new JToggleButton("Lit",isLit());
-        isLitButton.addActionListener(e -> setLit(isLitButton.isSelected()));
-        NodePanelHelper.addLabelAndComponent(pane,"Lit",isLitButton,gbc);
-
-        // shininess
-        gbc.gridx=0;
-        gbc.gridy++;
-        gbc.gridwidth=2;
-        pane.add(createShininessSlider(),gbc);
-
+        list.add(new MaterialPanel(this));
         super.getComponents(list);
-
     }
 
     public void setTexture(TextureWithMetadata selectedItem) {
         texture = selectedItem;
-    }
-
-    private JComponent createShininessSlider() {
-        JPanel container = new JPanel(new BorderLayout());
-
-        JSlider slider = new JSlider(0,128,getShininess());
-        slider.addChangeListener(e -> setShininess(slider.getValue()));
-
-        // Make the slider fill the available horizontal space
-        slider.setMaximumSize(new Dimension(Integer.MAX_VALUE, slider.getPreferredSize().height));
-        slider.setMinimumSize(new Dimension(50, slider.getPreferredSize().height));
-
-        container.add(new JLabel("Shininess"), BorderLayout.LINE_START);
-        container.add(slider, BorderLayout.CENTER); // Add slider to the center of the container
-
-        return container;
-    }
-
-    public BufferedImage scaleImage(BufferedImage sourceImage,int size) {
-        Image tmp = sourceImage.getScaledInstance(size, size, Image.SCALE_SMOOTH);
-        BufferedImage scaledImage = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-
-        Graphics2D g2d = scaledImage.createGraphics();
-        g2d.drawImage(tmp, 0, 0, null);
-        g2d.dispose();
-
-        return scaledImage;
-    }
-
-    private void setTextureButtonLabel(JButton button) {
-        button.setText((texture==null) ? "..." : texture.getSource().substring(texture.getSource().lastIndexOf(java.io.File.separatorChar)+1));
     }
 
     public TextureWithMetadata getTexture() {

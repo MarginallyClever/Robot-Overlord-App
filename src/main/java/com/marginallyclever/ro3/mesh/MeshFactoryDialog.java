@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+import java.awt.*;
 import java.util.List;
 
 /**
@@ -23,20 +24,19 @@ public class MeshFactoryDialog {
 
         List<FileFilter> filters = Registry.meshFactory.getAllExtensions();
         if (filters.isEmpty()) throw new RuntimeException("No filters found?!");
+        for (FileFilter f : filters) {
+            chooser.addChoosableFileFilter(f);
+        }
         if (filters.size() == 1) {
             chooser.setFileFilter(filters.get(0));
-        } else {
-            for (FileFilter f : filters) {
-                chooser.addChoosableFileFilter(f);
-            }
         }
     }
 
     /**
      * @return JFileChooser.APPROVE_OPTION or JFileChooser.CANCEL_OPTION
      */
-    public int run() {
-        int returnVal = chooser.showOpenDialog(SwingUtilities.getWindowAncestor(chooser));
+    public int run(JComponent parent) {
+        int returnVal = chooser.showOpenDialog(parent);
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             String absPath = chooser.getSelectedFile().getAbsolutePath();
             try {

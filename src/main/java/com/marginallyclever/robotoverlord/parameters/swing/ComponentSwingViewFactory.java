@@ -17,14 +17,12 @@ import java.util.List;
  * {@link ComponentSwingViewFactory} builds Swing elements and collects them in a {@link JPanel}.
  */
 @Deprecated public class ComponentSwingViewFactory {
-	private final ViewElementFactory viewElementFactory;
+	private final ViewElementFactory viewElementFactory = new ViewElementFactory();
 	private final JPanel result = new JPanel();
 	private final GridBagConstraints gbc = new GridBagConstraints();
 
-	public ComponentSwingViewFactory(EntityManager entityManager) {
+	public ComponentSwingViewFactory() {
 		super();
-		viewElementFactory = new ViewElementFactory(entityManager);
-
 		result.setLayout(new GridBagLayout());
 		result.setBorder(new EmptyBorder(1, 1, 1, 1));
 
@@ -68,9 +66,7 @@ import java.util.List;
 	
 
 	public ViewElement addStaticText(String text) {
-		ViewElement b = viewElementFactory.addStaticText(text);
-		addViewElement(b);
-		return b;
+		return null;
 	}
 
 	/**
@@ -80,10 +76,7 @@ import java.util.List;
 	 * @return the element
 	 */
 	public ViewElement addComboBox(IntParameter e, String [] labels) {
-		ViewElement b = viewElementFactory.addComboBox(e,labels);
-		addViewElement(b);
-		return b;
-
+		return null;
 	}
 
 	/**
@@ -94,9 +87,7 @@ import java.util.List;
 	 * @return the element
 	 */
 	public ViewElement addRange(IntParameter e, int top, int bottom) {
-		ViewElement b = viewElementFactory.addRange(e,top,bottom);
-		addViewElement(b);
-		return b;
+		return null;
 	}
 
 	/**
@@ -107,9 +98,7 @@ import java.util.List;
 	 * @return the element
 	 */
 	public ViewElement addRange(DoubleParameter e, int top, int bottom) {
-		ViewElement b = viewElementFactory.addRange(e,top,bottom);
-		addViewElement(b);
-		return b;
+		return null;
 	}
 
 	/**
@@ -118,15 +107,11 @@ import java.util.List;
 	 * @param filters
 	 * @return the element
 	 */
-	public ViewElementFilename addFilename(StringParameter parameter, List<FileFilter> filters) {
-		ViewElementFilename b = viewElementFactory.addFilename(parameter,filters);
-		addViewElement(b);
-		return b;
+	public ViewElement addFilename(StringParameter parameter, List<FileFilter> filters) {
+		return null;
 	}
 
-	public ViewElementButton addButton(String string) {
-		ViewElementButton b = viewElementFactory.addButton(string);
-		addViewElement(b);
-		return b;
+	public ViewElement addButton(String string) {
+		return null;
 	}
 }

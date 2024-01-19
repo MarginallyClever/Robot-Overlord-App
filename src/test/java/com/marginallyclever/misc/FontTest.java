@@ -1,6 +1,5 @@
 package com.marginallyclever.misc;
 
-import com.marginallyclever.convenience.log.Log;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -16,7 +15,6 @@ public class FontTest {
 
     @Test
     public void testCompatibleFonts() {
-    	Log.start();
         String s = "\u23EF";
         Font[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
         logger.info("Total fonts: \t" + fonts.length);

@@ -6,6 +6,7 @@ import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
 import com.marginallyclever.ro3.mesh.MeshFactoryDialog;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.Objects;
@@ -26,6 +27,7 @@ public class TextureChooserDialog extends JPanel
 
     public TextureChooserDialog() {
         super(new BorderLayout());
+        setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 
         setupToolbar();
         setupMeshList();
@@ -59,7 +61,7 @@ public class TextureChooserDialog extends JPanel
             @Override
             public void actionPerformed(ActionEvent e) {
                 var textureFactoryDialog = new TextureFactoryDialog();
-                int result = textureFactoryDialog.run();
+                int result = textureFactoryDialog.run((JComponent)e.getSource());
                 if (result == JFileChooser.APPROVE_OPTION) {
                     TextureWithMetadata mesh = textureFactoryDialog.getTexture();
                     setSelectedItem(mesh);
@@ -142,8 +144,7 @@ public class TextureChooserDialog extends JPanel
                 "Select",
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE,
-                new ImageIcon(Objects.requireNonNull(getClass().getResource(
-                        "/com/marginallyclever/ro3/apps/dialogs/icons8-texture-16.png"))),
+                null,
                 null,
                 null);
         if(result == JOptionPane.OK_OPTION) {

@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.limbsolver;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.Limb;
 
 import javax.vecmath.Matrix4d;
@@ -25,7 +25,7 @@ public class ApproximateJacobianScrewTheory extends ApproximateJacobian {
 		Matrix4d iBaseWorld = parentPose==null ? MatrixHelper.createIdentityMatrix4() : parentPose.getWorld();
 		iBaseWorld.invert();
 
-		var ee = arm.getEndEffector();
+		var ee = arm.getEndEffector().getSubject();
 		if(ee==null) throw new InvalidParameterException("Robot has no end effector.");
 
 		// For each joint

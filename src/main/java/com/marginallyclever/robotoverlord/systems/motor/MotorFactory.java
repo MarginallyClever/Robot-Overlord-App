@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 /**
  * produce common motors in robotics, prefilled with torque curve.
  */
-public class MotorFactory {
+@Deprecated public class MotorFactory {
     private static final Logger logger = LoggerFactory.getLogger(MotorFactory.class);
 
     public static MotorComponent createDefaultMotor() {

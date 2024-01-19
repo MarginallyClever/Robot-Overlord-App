@@ -2,8 +2,8 @@ package com.marginallyclever.ro3.apps.viewport.viewporttools.move;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.ColorRGB;
-import com.marginallyclever.convenience.PrimitiveSolids;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
@@ -14,7 +14,7 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.node.nodes.Camera;
-import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +95,7 @@ public class RotateToolOneAxis implements ViewportTool {
     private int rotation=2;
     private boolean cursorOverHandle = false;
     private final Box handleBox = new Box();
-    private int frameOfReference = ViewportTool.FRAME_WORLD;
+    private FrameOfReference frameOfReference = FrameOfReference.WORLD;
     private final ColorRGB color;
     private final Mesh markerMesh = new Mesh();
     private final Mesh angleMesh = new Mesh();
@@ -321,9 +321,6 @@ public class RotateToolOneAxis implements ViewportTool {
         return Math.atan2(y,x);
     }
 
-    @Override
-    public void handleKeyEvent(KeyEvent e) {}
-
     /**
      * Updates the tool's internal state, if necessary.
      *
@@ -470,7 +467,7 @@ public class RotateToolOneAxis implements ViewportTool {
      * @param index 0 for world, 1 for local, 2 for camera.
      */
     @Override
-    public void setFrameOfReference(int index) {
+    public void setFrameOfReference(FrameOfReference index) {
         frameOfReference = index;
         if(selectedItems!=null) {
             updatePivotMatrix();

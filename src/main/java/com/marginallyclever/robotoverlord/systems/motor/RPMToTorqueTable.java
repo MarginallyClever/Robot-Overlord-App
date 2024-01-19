@@ -14,7 +14,7 @@ import java.util.List;
  * @see RPMToTorqueTable.DataChangeListener
  *
  */
-public class RPMToTorqueTable extends JPanel {
+@Deprecated public class RPMToTorqueTable extends JPanel {
     private final JTable table;
     private final DefaultTableModel model;
 
@@ -107,17 +107,5 @@ public class RPMToTorqueTable extends JPanel {
 
     public void addDataChangeListener(DataChangeListener listener) {
         this.listeners.add(listener);
-    }
-
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Editable Table");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 300);
-
-        RPMToTorqueTable table = new RPMToTorqueTable();
-
-        frame.setContentPane(table);
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
     }
 }

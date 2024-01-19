@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
@@ -34,7 +35,7 @@ public class Compass3D implements ViewportTool {
     private final int compassRadius = 50;
     private final int handleLength = 30;
     private final int handleRadius = 8;
-    private final Mesh gizmoMesh = MatrixHelper.createMesh(handleLength);
+    private final Mesh gizmoMesh = MatrixHelper.createMesh();
     private final Mesh circleMesh = new CircleXY();
     private final Mesh quadMesh = new Mesh();
     private final TextureWithMetadata texture;
@@ -51,6 +52,7 @@ public class Compass3D implements ViewportTool {
     public Compass3D() {
         super();
         texture = Registry.textureFactory.load("/com/marginallyclever/ro3/apps/viewport/viewporttools/axisLetters.png");
+        texture.setDoNotExport(true);
 
         createQuadMesh();
     }
@@ -95,9 +97,6 @@ public class Compass3D implements ViewportTool {
     }
 
     @Override
-    public void handleKeyEvent(KeyEvent event) {}
-
-    @Override
     public void update(double deltaTime) {}
 
     @Override
@@ -134,7 +133,7 @@ public class Compass3D implements ViewportTool {
         drawWhiteCircle(gl3,shaderProgram,z);
 
         // for the gizmo, set the model matrix to be the identity matrix.
-        Matrix4d model = MatrixHelper.createIdentityMatrix4();
+        Matrix4d model = MatrixHelper.createScaleMatrix4(handleLength-handleRadius);
         model.transpose();
         shaderProgram.setColor(gl3,"objectColor",Color.WHITE);
         shaderProgram.setMatrix4d(gl3,"modelMatrix",model);
@@ -291,7 +290,7 @@ public class Compass3D implements ViewportTool {
     }
 
     @Override
-    public void setFrameOfReference(int index) {}
+    public void setFrameOfReference(FrameOfReference index) {}
 
     @Override
     public void init(GL3 gl3) {}

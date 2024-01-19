@@ -3,11 +3,8 @@ package com.marginallyclever.ro3.node.nodes.pose;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.mesh.MeshChooserDialog;
+import com.marginallyclever.ro3.mesh.AABB;
 import com.marginallyclever.ro3.mesh.Mesh;
-import com.marginallyclever.ro3.mesh.MeshSmoother;
-import com.marginallyclever.ro3.node.NodePanelHelper;
-import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.raypicking.RayHit;
 import org.json.JSONObject;
 
@@ -15,8 +12,6 @@ import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
-import java.awt.*;
-import java.io.File;
 import java.util.List;
 
 /**
@@ -39,45 +34,8 @@ public class MeshInstance extends Pose {
      * @param list the list to add components to.
      */
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridLayout(0,2));
-        list.add(pane);
-        pane.setName(MeshInstance.class.getSimpleName());
-
-        JButton select = new JButton();
-        setMeshButtonLabel(select);
-        select.addActionListener(e -> {
-            var meshChooserDialog = new MeshChooserDialog();
-            meshChooserDialog.setSelectedItem(mesh);
-            int result = meshChooserDialog.run(pane);
-            if(result == JFileChooser.APPROVE_OPTION) {
-                mesh = meshChooserDialog.getSelectedItem();
-                setMeshButtonLabel(select);
-            }
-        });
-        NodePanelHelper.addLabelAndComponent(pane,"Mesh",select);
-
-        if(mesh!=null) {
-            NodePanelHelper.addLabelAndComponent(pane,"Vertices",new JLabel(""+mesh.getNumVertices()));
-            NodePanelHelper.addLabelAndComponent(pane,"Triangles",new JLabel(""+mesh.getNumTriangles()));
-
-            JButton smooth = new JButton("Smooth");
-            smooth.addActionListener(e -> MeshSmoother.smoothNormals(mesh,0.01f,0.25f) );
-            NodePanelHelper.addLabelAndComponent(pane,"Normals",smooth);
-
-            JButton adjust = new JButton("Adjust");
-            adjust.addActionListener(e -> adjustLocal());
-            NodePanelHelper.addLabelAndComponent(pane,"Local origin",adjust);
-
-            JButton reload = new JButton("Reload");
-            reload.addActionListener(e-> Registry.meshFactory.reload(mesh) );
-            NodePanelHelper.addLabelAndComponent(pane,"Source",reload);
-        }
-
+        list.add(new MeshInstancePanel(this));
         super.getComponents(list);
-    }
-
-    private void setMeshButtonLabel(JButton button) {
-        button.setText((mesh==null) ? "..." : mesh.getSourceName().substring(mesh.getSourceName().lastIndexOf(File.separatorChar)+1));
     }
 
     /**

@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class RobotLibraryPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(RobotLibraryPanel.class);
-    private final JPanel searchBar = new SearchBar();
+    private final SearchBar searchBar = new SearchBar();
     private final JPanel repositoriesPanel = new JPanel();
     private final List<RobotLibraryListener> listeners = new ArrayList<>();
     private final List<MultiVersionPropertiesPanel> allPanels = new ArrayList<>();
@@ -86,17 +86,5 @@ public class RobotLibraryPanel extends JPanel {
         for(RobotLibraryListener listener : listeners) {
             listener.onRobotAdded();
         }
-    }
-
-    public static void main(String[] args) {
-        RobotLibraryPanel panel = new RobotLibraryPanel();
-        JFrame frame = new JFrame("Robot Library");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setContentPane(panel);
-        frame.setPreferredSize(new Dimension(450,600));
-        frame.setSize(450,600);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
     }
 }

@@ -1,9 +1,7 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.jogpanel;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.log.Log;
 import com.marginallyclever.convenience.swing.Dial;
-import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;
 
 import javax.swing.*;
@@ -184,21 +182,5 @@ import java.awt.*;
 		m4.m03 += v.x;
 		m4.m13 += v.y;
 		m4.m23 += v.z;
-	}
-
-	// TEST
-
-	public static void main(String[] args) {
-		Log.start();
-
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception ignored) {}
-
-		JFrame frame = new JFrame(CartesianDrivePanel.class.getSimpleName());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new CartesianDrivePanel(new RobotComponent()));
-		frame.pack();
-		frame.setVisible(true);
 	}
 }

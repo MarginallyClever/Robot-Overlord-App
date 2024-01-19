@@ -1,16 +1,15 @@
 package com.marginallyclever.ro3.view;
 
-import javax.swing.*;
-
 /**
- * Classes implementing this interface are saying that they can provide a Swing component that can be used to view
- * or manipulate the given object.
+ * <p>Classes implementing {@link ViewProvider} are saying that they can provide Swing components that can be used
+ * to view or manipulate a subject instance.  Each {@link ViewProvider} class should provide a default constructor so
+ * that the components can be inspected without providing an instance of the subject.</p>
  * @param <T> The type of object to be viewed or manipulated.
  */
 public interface ViewProvider<T> {
     /**
-     * @param object The object to be viewed or manipulated.
-     * @return A Swing component that can be used to view or manipulate the given object.
+     * Set the subject of this ViewProvider.
+     * @param subject The subject to be viewed or manipulated.
      */
-    JComponent getView(T object);
+    void setViewSubject(T subject);
 }

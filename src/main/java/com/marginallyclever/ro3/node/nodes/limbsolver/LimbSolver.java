@@ -1,22 +1,18 @@
 package com.marginallyclever.ro3.node.nodes.limbsolver;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.Limb;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * {@link LimbSolver} calculates <a href="https://en.wikipedia.org/wiki/Inverse_kinematics">Inverse Kinematics</a> for
@@ -44,8 +40,8 @@ public class LimbSolver extends Node {
         super(name);
     }
 
-    public Pose getTarget() {
-        return target.getSubject();
+    public NodePath<Pose> getTarget() {
+        return target;
     }
 
     /**
@@ -54,7 +50,7 @@ public class LimbSolver extends Node {
      * @param target the target to move towards
      */
     public void setTarget(Pose target) {
-        this.target.setRelativePath(this,target);
+        this.target.setUniqueIDByNode(target);
     }
 
     public void update(double dt) {
@@ -78,8 +74,8 @@ public class LimbSolver extends Node {
         return distanceToTarget < goalMarginOfError;
     }
 
-    public Limb getLimb() {
-        return limb.getSubject();
+    public NodePath<Limb> getLimb() {
+        return limb;
     }
 
     /**
@@ -88,19 +84,20 @@ public class LimbSolver extends Node {
      * @param limb the limb to control
      */
     public void setLimb(Limb limb) {
-        this.limb.setRelativePath(this,limb);
+        this.limb.setUniqueIDByNode(limb);
     }
 
     private Pose getEndEffector() {
-        Limb limb = getLimb();
-        return limb!=null ? limb.getEndEffector() : null;
+        var limb = getLimb().getSubject();
+        if(limb == null) return null;
+        return limb.getEndEffector().getSubject();
     }
 
     /**
      * @return true if the solver has a limb, an end effector, and a target.  Does not guarantee that a solution exists.
      */
     public boolean readyToSolve() {
-        return getLimb()!=null && getEndEffector()!=null && getTarget()!=null;
+        return getLimb().getSubject()!=null && getEndEffector()!=null && getTarget().getSubject()!=null;
     }
 
     private void moveTowardsTarget() {
@@ -108,15 +105,17 @@ public class LimbSolver extends Node {
             return;
         }
 
+        var limb = getLimb().getSubject();
+
         if(linearVelocity<0.0001) {
             // no velocity.  Make sure the arm doesn't drift.
-            getLimb().setAllJointVelocities(new double[getLimb().getNumJoints()]);
+            limb.setAllJointVelocities(new double[limb.getNumJoints()]);
             return;
         }
         // find direction to move
         MatrixHelper.getCartesianBetweenTwoMatrices(
                 getEndEffector().getWorld(),
-                getTarget().getWorld(),
+                getTarget().getSubject().getWorld(),
                 cartesianDistance);
         // theshold the velocity
         System.arraycopy(cartesianDistance,0,cartesianVelocity,0,cartesianDistance.length);
@@ -132,21 +131,25 @@ public class LimbSolver extends Node {
      * @throws RuntimeException if the robot cannot be moved in the direction of the cartesian force.
      */
     private void setMotorVelocitiesFromCartesianVelocity(double[] cartesianVelocity) {
-        if(getLimb()==null || getLimb().getNumJoints()==0) return;
+        var myLimb = getLimb().getSubject();
+        if(myLimb==null || myLimb.getNumJoints()==0) return;
 
         ApproximateJacobian aj = getJacobian();
+        double[] jointVelocity = null;
         try {
-            double[] jointVelocity = aj.getJointFromCartesian(cartesianVelocity);  // uses inverse jacobian
-            if(impossibleVelocity(jointVelocity)) return;  // TODO: throw exception instead?
-            getLimb().setAllJointVelocities(jointVelocity);
+            jointVelocity = aj.getJointFromCartesian(cartesianVelocity);  // uses inverse jacobian
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.warn(e.getMessage());
+            // set velocity to zero
+            jointVelocity = new double[myLimb.getNumJoints()];
         }
+        if(impossibleVelocity(jointVelocity)) return;  // TODO: throw exception instead?
+        myLimb.setAllJointVelocities(jointVelocity);
     }
 
     private ApproximateJacobian getJacobian() {
         // option 1, use finite differences
-        return new ApproximateJacobianFiniteDifferences(getLimb());
+        return new ApproximateJacobianFiniteDifferences(limb.getSubject());
         // option 2, use screw theory
         //ApproximateJacobian aj = new ApproximateJacobianScrewTheory(getLimb());
     }
@@ -166,11 +169,12 @@ public class LimbSolver extends Node {
     @Override
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
-        json.put("version",2);
-
-        if(getLimb()!=null) json.put("limb",limb.getPath());
-        if(getTarget()!=null) json.put("target",target.getPath());
+        json.put("version",3);
+        if(getLimb()!=null) json.put("limb",limb.getUniqueID());
+        if(getTarget()!=null) json.put("target",target.getUniqueID());
         json.put("linearVelocity",linearVelocity);
+        json.put("goalMarginOfError",goalMarginOfError);
+        json.put("isAtGoal",isAtGoal);
         return json;
     }
 
@@ -179,28 +183,30 @@ public class LimbSolver extends Node {
         super.fromJSON(from);
         int version = from.has("version") ? from.getInt("version") : 0;
 
-        Node root = this.getRootNode();
-
-        if(from.has("target")) {
-            String s = from.getString("target");
-            if(version>0) {
-                target.setPath(s);
-            } else if(version==0) {
-                Pose goal = root.findNodeByID(s,Pose.class);
-                target.setRelativePath(this,goal);
-            }
-        }
         if(from.has("limb")) {
             String s = from.getString("limb");
-            if(version>=2) {
-                limb.setPath(s);
-            } else {
-                Limb limb = root.findNodeByID(s, Limb.class);
-                this.limb.setRelativePath(this, limb);
+            if(version==1||version==2) {
+                limb.setUniqueIDByNode(this.findNodeByPath(s,Limb.class));
+            } else if(version==0 || version==3) {
+                this.limb.setUniqueID(s);
+            }
+        }
+        if(from.has("target")) {
+            String s = from.getString("target");
+            if(version==1||version==2) {
+                target.setUniqueIDByNode(this.findNodeByPath(s,Pose.class));
+            } else if(version==0 || version==3) {
+                target.setUniqueID(s);
             }
         }
         if(from.has("linearVelocity")) {
             linearVelocity = from.getDouble("linearVelocity");
+        }
+        if(from.has("goalMarginOfError")) {
+            goalMarginOfError = from.getDouble("goalMarginOfError");
+        }
+        if(from.has("isAtGoal")) {
+            isAtGoal = from.getBoolean("isAtGoal");
         }
     }
 
@@ -239,82 +245,15 @@ public class LimbSolver extends Node {
         return sum;
     }
 
-    private JComponent createVelocitySlider() {
-        JPanel container = new JPanel(new BorderLayout());
-        // add a slider to control linear velocity
-        JSlider slider = new JSlider(0,20,(int)linearVelocity);
-        slider.addChangeListener(e-> linearVelocity = slider.getValue());
-
-        // Make the slider fill the available horizontal space
-        slider.setMaximumSize(new Dimension(Integer.MAX_VALUE, slider.getPreferredSize().height));
-        slider.setMinimumSize(new Dimension(50, slider.getPreferredSize().height));
-
-        container.add(new JLabel("Linear Vel"), BorderLayout.LINE_START);
-        container.add(slider, BorderLayout.CENTER); // Add slider to the center of the container
-
-        return container;
-    }
-
-    private void setTargetToEndEffector() {
-        if(getTarget()!=null && getEndEffector()!=null) {
-            getTarget().setWorld(getEndEffector().getWorld());
+    public void moveTargetToEndEffector() {
+        if(getTarget().getSubject()!=null && getEndEffector()!=null) {
+            getTarget().getSubject().setWorld(getEndEffector().getWorld());
         }
-    }
-
-    private void addMoveTargetToEndEffector(JPanel pane,GridBagConstraints gbc) {
-        // move target to end effector
-        JButton targetToEE = new JButton(new AbstractAction() {
-            {
-                putValue(Action.NAME,"Move");
-                putValue(Action.SHORT_DESCRIPTION,"Move the Target Pose to the End Effector.");
-                putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource(
-                        "/com/marginallyclever/ro3/apps/shared/icons8-move-16.png"))));
-            }
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setTargetToEndEffector();
-            }
-        });
-        NodePanelHelper.addLabelAndComponent(pane, "Target to EE", targetToEE,gbc);
     }
 
     @Override
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridBagLayout());
-        list.add(pane);
-        pane.setName(LimbSolver.class.getSimpleName());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.gridx=0;
-        gbc.gridy=0;
-
-        gbc.gridwidth=2;
-        pane.add(createVelocitySlider(),gbc);
-
-        gbc.gridy++;
-        gbc.gridwidth=1;
-        addMoveTargetToEndEffector(pane,gbc);
-
-        gbc.gridy++;
-        NodePanelHelper.addNodeSelector(pane, "Target", target, Pose.class, gbc,this);
-
-        gbc.gridy++;
-        gbc.gridwidth=1;
-        NodePanelHelper.addNodeSelector(pane, "Limb", limb, Limb.class, gbc,this);
-
-        gbc.gridy++;
-        var formatter = NumberFormatHelper.getNumberFormatter();
-        formatter.setMinimum(0.0);
-        JFormattedTextField marginField = new JFormattedTextField(formatter);
-        marginField.setValue(goalMarginOfError);
-        marginField.addPropertyChangeListener("value", evt -> {
-            goalMarginOfError = ((Number) marginField.getValue()).doubleValue();
-        });
-        NodePanelHelper.addLabelAndComponent(pane, "Goal Margin", marginField, gbc);
-
+        list.add(new LimbSolverPanel(this));
         super.getComponents(list);
     }
 
@@ -375,5 +314,9 @@ public class LimbSolver extends Node {
 
     public void setIsAtGoal(boolean isAtGoal) {
         this.isAtGoal = isAtGoal;
+    }
+
+    public boolean getIsAtGoal() {
+        return isAtGoal;
     }
 }

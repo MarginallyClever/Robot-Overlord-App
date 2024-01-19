@@ -15,15 +15,15 @@ class NodePathTest {
     void testGetPath() {
         Node owner = new Node();
         NodePath<Node> nodePath = new NodePath<>(owner, Node.class, "/path/to/node");
-        assertEquals("/path/to/node", nodePath.getPath());
+        assertEquals("/path/to/node", nodePath.getUniqueID());
     }
 
     @Test
     void testSetPath() {
         Node owner = new Node();
         NodePath<Node> nodePath = new NodePath<>(owner, Node.class);
-        nodePath.setPath("/new/path/to/node");
-        assertEquals("/new/path/to/node", nodePath.getPath());
+        nodePath.setUniqueID("/new/path/to/node");
+        assertEquals("/new/path/to/node", nodePath.getUniqueID());
     }
 
     @Test
@@ -39,7 +39,7 @@ class NodePathTest {
         Node goal = new Node();
         owner.addChild(goal);
         NodePath<Node> nodePath = new NodePath<>(owner, Node.class);
-        nodePath.setRelativePath(owner, goal);
-        assertEquals(PathCalculator.getRelativePath(owner, goal), nodePath.getPath());
+        nodePath.setUniqueIDByNode(goal);
+        assertEquals(goal.getUniqueID(), nodePath.getUniqueID());
     }
 }

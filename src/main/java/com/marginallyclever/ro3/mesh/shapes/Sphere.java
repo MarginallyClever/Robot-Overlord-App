@@ -7,7 +7,6 @@ import com.marginallyclever.ro3.mesh.Mesh;
  * <p>{@link Sphere} is a {@link Mesh} with a radius of 1.  The origin is at the center of the sphere.</p>
  */
 public class Sphere extends Mesh {
-    public float radius = 1.0f;
     public int detail = 32;  // level of detail
 
     public Sphere() {
@@ -22,7 +21,7 @@ public class Sphere extends Mesh {
         this.setRenderStyle(GL3.GL_TRIANGLES);
 
         int height = detail;
-        int width = height*2;
+        int width = detail*2;
 
         double theta, phi;
         int i, j;
@@ -37,17 +36,17 @@ public class Sphere extends Mesh {
                 float x = (float)( Math.sin(theta) * Math.cos(phi));
                 float y = (float)( Math.cos(theta));
                 float z = (float)(-Math.sin(theta) * Math.sin(phi));
-                this.addVertex(radius*x,radius*y,radius*z);
+
+                this.addVertex(x,y,z);
                 this.addNormal(x,y,z);
                 this.addTexCoord((float)tx, (float)ty);
-
             }
         }
-        this.addVertex(0,radius*1,0);
+        this.addVertex(0,1,0);
         this.addNormal(0,1,0);
         this.addTexCoord(0.5f,0);
 
-        this.addVertex(0,radius*-1,0);
+        this.addVertex(0,-1,0);
         this.addNormal(0,-1,0);
         this.addTexCoord(0.5f,1);
 
@@ -76,18 +75,4 @@ public class Sphere extends Mesh {
     }
 
     public double getDetail() { return detail; }
-/*
-    @Override
-    public JSONObject toJSON(SerializationContext context) {
-        JSONObject jo = super.toJSON(context);
-        jo.put("detail",detail.toJSON(context));
-        return jo;
-    }
-
-    @Override
-    public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
-        super.parseJSON(jo,context);
-        detail.parseJSON(jo.getJSONObject("detail"),context);
-    }
-*/
 }

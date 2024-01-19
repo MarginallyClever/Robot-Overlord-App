@@ -2,15 +2,12 @@ package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
-import com.marginallyclever.convenience.swing.NumberFormatHelper;
-import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.limbsolver.ApproximateJacobianFiniteDifferences;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.Motor;
-import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.Limb;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -19,13 +16,8 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.HierarchyEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * <p>{@link MarlinRobotArm} converts the state of a robot arm into GCode and back.</p>
@@ -41,7 +33,7 @@ public class MarlinRobotArm extends Node {
     public final NodePath<Limb> limb = new NodePath<>(this,Limb.class);
     public final NodePath<LimbSolver> solver = new NodePath<>(this,LimbSolver.class);
     private final NodePath<Motor> gripperMotor = new NodePath<>(this,Motor.class);
-    private double reportInterval=1.0;
+    private double reportInterval=1.0;  // seconds
 
     public MarlinRobotArm() {
         this("MarlinRobotArm");
@@ -55,7 +47,10 @@ public class MarlinRobotArm extends Node {
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
         json.put("version",2);
-        if(gripperMotor.getSubject()!=null) json.put("gripperMotor",gripperMotor.getPath());
+        if(limb.getSubject()!=null) json.put("limb",limb.getUniqueID());
+        if(solver.getSubject()!=null) json.put("solver",solver.getUniqueID());
+        if(gripperMotor.getSubject()!=null) json.put("gripperMotor",gripperMotor.getUniqueID());
+        json.put("reportInterval",reportInterval);
         return json;
     }
 
@@ -63,6 +58,20 @@ public class MarlinRobotArm extends Node {
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
         int version = from.has("version") ? from.getInt("version") : 0;
+        if(version==2) {
+            if(from.has("limb")) {
+                limb.setUniqueID(from.getString("limb"));
+            }
+            if(from.has("solver")) {
+                solver.setUniqueID(from.getString("solver"));
+            }
+            if(from.has("gripperMotor")) {
+                gripperMotor.setUniqueID(from.getString("gripperMotor"));
+            }
+            if(from.has("reportInterval")) {
+                reportInterval = from.getDouble("reportInterval");
+            }
+        }
         if(version<2) {
             var toRemove = new ArrayList<Node>();
             while(!getChildren().isEmpty()) {
@@ -77,7 +86,7 @@ public class MarlinRobotArm extends Node {
             toRemove.clear();
             limb1.setName("Limb");
             getParent().addChild(limb1);
-            limb.setRelativePath(this,limb1);
+            limb.setUniqueIDByNode(limb1);
 
             // solver
             LimbSolver solver1 = new LimbSolver();
@@ -86,168 +95,29 @@ public class MarlinRobotArm extends Node {
             for(Node n : toRemove) solver1.removeChild(n);
             solver1.setName("LimbSolver");
             getParent().addChild(solver1);
-            solver.setRelativePath(this,solver1);
+            solver.setUniqueIDByNode(solver1);
             solver1.setLimb(limb1);
 
             // gripper
-            Node root = this.getRootNode();
             if (from.has("gripperMotor")) {
                 String s = from.getString("gripperMotor");
                 if (version == 1) {
-                    gripperMotor.setPath(s);
+                    Motor m = this.findNodeByPath(s, Motor.class);
+                    gripperMotor.setUniqueIDByNode(m);
                 } else if (version == 0) {
-                    Motor goal = root.findNodeByID(s, Motor.class);
-                    gripperMotor.setRelativePath(this, goal);
+                    gripperMotor.setUniqueID(s);
                 }
             }
 
-            limb.setRelativePath(this,limb1);
-            solver.setRelativePath(this,solver1);
+            limb.setUniqueIDByNode(limb1);
+            solver.setUniqueIDByNode(solver1);
         }
     }
 
     @Override
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridBagLayout());
-        list.add(pane);
-        pane.setName(MarlinRobotArm.class.getSimpleName());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.gridx=0;
-        gbc.gridy=0;
-        gbc.gridwidth=1;
-
-        NodePanelHelper.addNodeSelector(pane, "Limb", limb, Limb.class, gbc,this);
-        gbc.gridy++;
-        NodePanelHelper.addNodeSelector(pane, "Solver", solver, LimbSolver.class, gbc,this);
-        gbc.gridy++;
-        NodePanelHelper.addNodeSelector(pane, "Gripper motor", gripperMotor, Motor.class, gbc,this);
-        gbc.gridy++;
-        JButton M114 = new JButton("M114");
-        M114.addActionListener(e-> sendGCode("M114"));
-        NodePanelHelper.addLabelAndComponent(pane, "Get state", M114,gbc);
-
-        gbc.gridx=0;
-        gbc.gridwidth=2;
-        pane.add(getReceiver(),gbc);
-        gbc.gridy++;
-        pane.add(getSender(),gbc);
-        gbc.gridy++;
-        pane.add(createReportInterval(),gbc);
-
+        list.add(new MarlinRobotArmPanel(this));
         super.getComponents(list);
-    }
-
-    private JComponent createReportInterval() {
-        var containerPanel = new CollapsiblePanel("Report");
-        var outerPanel = containerPanel.getContentPane();
-        outerPanel.setLayout(new GridBagLayout());
-
-        var label = new JLabel("interval (s)");
-        // here i need an input - time interval (positive float, seconds)
-        var formatter = NumberFormatHelper.getNumberFormatter();
-        var secondsField = new JFormattedTextField(formatter);
-        secondsField.setValue(getReportInterval());
-
-        // then a toggle to turn it on and off.
-        JToggleButton toggle = new JToggleButton("Start");
-        toggle.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/apps/icons8-stopwatch-16.png"))));
-        JProgressBar progressBar = new JProgressBar();
-        progressBar.setMaximum((int) (getReportInterval() * 1000)); // Assuming interval is in seconds
-
-        Timer timer = new Timer(100, null);
-        ActionListener timerAction = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int value = progressBar.getValue() + 100;
-                if (value >= progressBar.getMaximum()) {
-                    value = 0;
-                    sendGCode("G0"); // Send G0 command when progress bar is full
-                }
-                progressBar.setValue(value);
-            }
-        };
-
-        toggle.addActionListener(e -> {
-            if (toggle.isSelected()) {
-                toggle.setText("Stop");
-                timer.addActionListener(timerAction);
-                timer.start();
-            } else {
-                toggle.setText("Start");
-                progressBar.setValue(0); // Reset progress bar when toggle is off
-                timer.stop();
-                timer.removeActionListener(timerAction);
-            }
-        });
-
-        toggle.addHierarchyListener(e -> {
-            if ((HierarchyEvent.SHOWING_CHANGED & e.getChangeFlags()) !=0
-                    && !toggle.isShowing()) {
-                timer.stop();
-                timer.removeActionListener(timerAction);
-            }
-        });
-
-        // Add components to the panel
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.gridx=0;
-        gbc.gridy=0;
-        gbc.fill = GridBagConstraints.BOTH;
-
-        outerPanel.add(label, gbc);
-        gbc.gridx++;
-        outerPanel.add(secondsField, gbc);
-        gbc.gridy++;
-        gbc.gridx=0;
-        outerPanel.add(toggle, gbc);
-        gbc.gridx++;
-        outerPanel.add(progressBar, gbc);
-        gbc.gridy++;
-
-        return containerPanel;
-    }
-
-    private double getReportInterval() {
-        return reportInterval;
-    }
-
-    private void setReportInterval(double seconds) {
-        reportInterval = Math.max(0.1,seconds);
-    }
-
-    // Add a text field that will be sent to the robot arm.
-    private JPanel getSender() {
-        JPanel inputPanel = new JPanel(new BorderLayout());
-        JTextField input = new JTextField();
-        input.addActionListener(e-> sendGCode(input.getText()) );
-        inputPanel.add(input,BorderLayout.CENTER);
-        // Add a button to send the text field to the robot arm.
-        JButton sendButton = new JButton("Send");
-        sendButton.addActionListener(e-> sendGCode(input.getText()) );
-
-        inputPanel.add(sendButton,BorderLayout.LINE_END);
-        return inputPanel;
-    }
-
-    // Add a text field to receive messages from the arm.
-    private JPanel getReceiver() {
-        JPanel outputPanel = new JPanel(new BorderLayout());
-        JLabel outputLabel = new JLabel("Output");
-        JTextField output = new JTextField();
-        output.setEditable(false);
-        outputLabel.setLabelFor(output);
-        outputLabel.setBorder(BorderFactory.createEmptyBorder(0,0,0,5));
-        outputPanel.add(output,BorderLayout.CENTER);
-        outputPanel.add(outputLabel,BorderLayout.LINE_START);
-        output.setMaximumSize(new Dimension(100, output.getPreferredSize().height));
-        addMarlinListener(output::setText);
-        return outputPanel;
     }
 
     /**
@@ -259,34 +129,40 @@ public class MarlinRobotArm extends Node {
         return "M114"+getMotorsAndFeedrateAsString();
     }
 
-    public Limb getLimb() {
-        return limb.getSubject();
+    public NodePath<Limb> getLimb() {
+        return limb;
     }
 
-    public LimbSolver getSolver() {
-        return solver.getSubject();
+    public NodePath<LimbSolver> getSolver() {
+        return solver;
     }
 
     private String getMotorsAndFeedrateAsString() {
-        if(getLimb()==null || getSolver()==null) return "";
+        var myLimb = limb.getSubject();
+        if(myLimb==null) return "";
         StringBuilder sb = new StringBuilder();
-        for(NodePath<Motor> paths : getLimb().getMotors()) {
+        for(NodePath<Motor> paths : myLimb.getMotors()) {
             Motor motor = paths.getSubject();
             if(motor!=null && motor.hasHinge()) {
                 sb.append(" ")
-                        .append(motor.getName())
-                        .append(StringHelper.formatDouble(motor.getHinge().getAngle()));
+                  .append(motor.getName())
+                  .append(StringHelper.formatDouble(motor.getHinge().getAngle()));
             }
         }
         // gripper motor
         Motor gripperMotor = this.gripperMotor.getSubject();
         if(gripperMotor!=null && gripperMotor.hasHinge()) {
             sb.append(" ")
-                    .append(gripperMotor.getName())
-                    .append(StringHelper.formatDouble(gripperMotor.getHinge().getAngle()));
+              .append(gripperMotor.getName())
+              .append(StringHelper.formatDouble(gripperMotor.getHinge().getAngle()));
         }
-        // feedrate
-        sb.append(" F").append(StringHelper.formatDouble(getSolver().getLinearVelocity()));
+
+        if(getSolver()!=null) {
+            // feedrate
+            sb.append(" F")
+              .append(StringHelper.formatDouble(getSolver().getSubject().getLinearVelocity()));
+        }
+
         return sb.toString();
     }
 
@@ -308,7 +184,7 @@ public class MarlinRobotArm extends Node {
         } else if(gcode.equals("ik")) {
             fireMarlinMessage(getEndEffectorIK());
         } else if(gcode.equals("aj")) {
-            ApproximateJacobianFiniteDifferences jacobian = new ApproximateJacobianFiniteDifferences(getLimb());
+            ApproximateJacobianFiniteDifferences jacobian = new ApproximateJacobianFiniteDifferences(getLimb().getSubject());
             fireMarlinMessage( "Ok: "+jacobian );
             return;
         } else if(gcode.startsWith("G1")) {
@@ -331,7 +207,7 @@ public class MarlinRobotArm extends Node {
         }
         String [] parts = gcode.split("\\s+");
         try {
-            for (NodePath<Motor> paths : getLimb().getMotors()) {
+            for (NodePath<Motor> paths : getLimb().getSubject().getMotors()) {
                 Motor motor = paths.getSubject();
                 if (motor != null && motor.hasHinge()) {
                     for (String p : parts) {
@@ -373,26 +249,26 @@ public class MarlinRobotArm extends Node {
      * @return response from robot arm
      */
     private String parseG1(String gcode) {
-        Limb myLimb = getLimb();
+        Limb myLimb = getLimb().getSubject();
         if(myLimb==null) {
             logger.warn("no limb");
             return "Error: no limb";
         }
-        LimbSolver mySolver = getSolver();
+        LimbSolver mySolver = getSolver().getSubject();
         if(mySolver==null) {
             logger.warn("no solver");
             return "Error: no solver";
         }
-        if(mySolver.getTarget()==null) {
+        if(mySolver.getTarget().getSubject()==null) {
             logger.warn("no target");
             return "Error: no target";
         }
-        if(myLimb.getEndEffector()==null) {
+        if(myLimb.getEndEffector().getSubject()==null) {
             logger.warn("no end effector");
             return "Error: no end effector";
         }
         String [] parts = gcode.split("\\s+");
-        double [] cartesian = getCartesianFromWorld(myLimb.getEndEffector().getWorld());
+        double [] cartesian = getCartesianFromWorld(myLimb.getEndEffector().getSubject().getWorld());
         for(String p : parts) {
             if(p.startsWith("F")) mySolver.setLinearVelocity(Double.parseDouble(p.substring(1)));
             if(p.startsWith("X")) cartesian[0] = Double.parseDouble(p.substring(1));
@@ -404,17 +280,17 @@ public class MarlinRobotArm extends Node {
             else logger.warn("unknown G1 command: "+p);
         }
         // set the target position relative to the base of the robot arm
-        mySolver.getTarget().setLocal(getReverseCartesianFromWorld(cartesian));
+        mySolver.getTarget().getSubject().setLocal(getReverseCartesianFromWorld(cartesian));
         return "Ok";
     }
 
     private String getEndEffectorIK() {
-        Limb myLimb = getLimb();
+        Limb myLimb = getLimb().getSubject();
         if(myLimb==null) {
             logger.warn("no limb");
             return "Error: no limb";
         }
-        LimbSolver mySolver = getSolver();
+        LimbSolver mySolver = getSolver().getSubject();
         if(mySolver==null) {
             logger.warn("no solver");
             return "Error: no solver";
@@ -422,7 +298,7 @@ public class MarlinRobotArm extends Node {
         if(myLimb.getEndEffector()==null) {
             return ( "Error: no end effector" );
         }
-        double [] cartesian = getCartesianFromWorld(myLimb.getEndEffector().getWorld());
+        double [] cartesian = getCartesianFromWorld(myLimb.getEndEffector().getSubject().getWorld());
         int i=0;
         String response = "G1"
                 +" F"+StringHelper.formatDouble(mySolver.getLinearVelocity())
@@ -443,7 +319,7 @@ public class MarlinRobotArm extends Node {
         Matrix4d local = new Matrix4d();
         Vector3d rot = new Vector3d(cartesian[3],cartesian[4],cartesian[5]);
         rot.scale(Math.PI/180);
-        local.set(MatrixHelper.eulerToMatrix(rot));
+        local.set(MatrixHelper.eulerToMatrix(rot, MatrixHelper.EulerSequence.YXZ));
         local.setTranslation(new Vector3d(cartesian[0],cartesian[1],cartesian[2]));
         return local;
     }
@@ -453,7 +329,7 @@ public class MarlinRobotArm extends Node {
      * @return the XYZ translation and UVW rotation of the given matrix.  UVW is in degrees.
      */
     private double[] getCartesianFromWorld(Matrix4d world) {
-        Vector3d rotate = MatrixHelper.matrixToEuler(world);
+        Vector3d rotate = MatrixHelper.matrixToEuler(world, MatrixHelper.EulerSequence.YXZ);
         rotate.scale(180/Math.PI);
         Vector3d translate = new Vector3d();
         world.get(translate);
@@ -464,8 +340,8 @@ public class MarlinRobotArm extends Node {
      * @return the target pose or null if not set.
      */
     public Pose getTarget() {
-        LimbSolver solver = getSolver();
-        return solver == null ? null : solver.getTarget();
+        LimbSolver solver = getSolver().getSubject();
+        return solver == null ? null : solver.getTarget().getSubject();
     }
 
     public void addMarlinListener(MarlinListener editorPanel) {
@@ -490,7 +366,7 @@ public class MarlinRobotArm extends Node {
      * @param limb the limb to control
      */
     public void setLimb(Limb limb) {
-        this.limb.setRelativePath(this,limb);
+        this.limb.setUniqueIDByNode(limb);
     }
 
     /**
@@ -499,6 +375,25 @@ public class MarlinRobotArm extends Node {
      * @param solver the solver to use
      */
     public void setSolver(LimbSolver solver) {
-        this.solver.setRelativePath(this, solver);
+        this.solver.setUniqueIDByNode(solver);
+    }
+
+    /**
+     * @return the time between reports in seconds
+     */
+    public double getReportInterval() {
+        return reportInterval;
+    }
+
+    /**
+     * @param seconds the time between reports in seconds.  Must be >= 0.
+     */
+    public void setReportInterval(double seconds) {
+        if(seconds<0) throw new IllegalArgumentException("seconds must be >= 0");
+        reportInterval = seconds;
+    }
+
+    public NodePath<Motor> getGripperMotor() {
+        return gripperMotor;
     }
 }

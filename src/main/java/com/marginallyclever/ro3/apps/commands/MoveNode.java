@@ -2,29 +2,44 @@ package com.marginallyclever.ro3.apps.commands;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotUndoException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Move {@link Node}s from their current parent to another parent.
  */
 public class MoveNode extends AbstractUndoableEdit {
-    private final Map<Node,Node> childParentMap = new HashMap<>();
-    private final Node newParent;
-    private final int insertAt;
+    private static final Logger logger = LoggerFactory.getLogger(MoveNode.class);
 
-    public MoveNode(List<Node> selection, Node newParent,int insertAt) {
+    record MoveData(Node child, Node oldParent, int oldIndex) {}
+
+    private final List<MoveData> childParentMap = new ArrayList<>();
+    private final Node newParent;
+    private final int insertStartingAt;
+
+    /**
+     * Move a list of nodes to a new parent.
+     * @param selection the list of nodes to move
+     * @param newParent the new parent
+     * @param insertStartingAt -1 to add to the end, otherwise the index to insert at.
+     */
+    public MoveNode(List<Node> selection, Node newParent,int insertStartingAt) {
         super();
         this.newParent = newParent;
-        this.insertAt = insertAt;
+
+        if(insertStartingAt==-1) insertStartingAt = newParent.getChildren().size();
+        this.insertStartingAt = insertStartingAt;
 
         selection.remove(Registry.getScene());
         for(var node : selection) {
-            childParentMap.put(node,node.getParent());
+            Node oldParent = node.getParent();
+            int oldIndex = oldParent.getChildren().indexOf(node);
+            childParentMap.add(new MoveData(node,oldParent,oldIndex));
         }
         execute();
     }
@@ -42,28 +57,25 @@ public class MoveNode extends AbstractUndoableEdit {
     }
 
     public void execute() {
-        int newIndex = insertAt;
-        for(Node child : childParentMap.keySet()) {
-            // Remove node from its current parent
-            Node oldParent = child.getParent();
-            int oldIndex = -1;
-            if (oldParent != null) {
-                oldIndex = oldParent.getChildren().indexOf(child);
-                oldParent.removeChild(child);
-            }
+        // remove the children from their old parents
+        for(var data : childParentMap) {
+            Node child = data.child;
+            Node oldParent = data.oldParent;
+            logger.debug("take "+child.getAbsolutePath()+" from "+oldParent.getAbsolutePath()+" @ "+data.oldIndex);
+            oldParent.removeChild(child);
+        }
 
-            // Get the index at which the source node will be added
-            if (newIndex == -1) {
-                // If the drop location is a node, add the node at the end
-                newParent.addChild(child);
-            } else {
-                // If oldParent and newParent are the same instance, adjust the index accordingly
-                if (oldParent == newParent && oldIndex < newIndex) {
-                    newIndex--;
-                }
-                // If the drop location is an index, add the node at the specified index
-                newParent.addChild(newIndex, child);
-            }
+        // check if the insert index is valid
+        logger.debug("newIndex before "+insertStartingAt);
+        int newIndex = insertStartingAt;
+        if(newIndex > newParent.getChildren().size()) newIndex = newParent.getChildren().size();
+        logger.debug("newIndex after "+insertStartingAt);
+
+        // add the children to the new parent
+        for(var data : childParentMap) {
+            Node child = data.child;
+            newParent.addChild(newIndex++, child);
+            logger.debug("put "+child.getAbsolutePath()+" @ "+(newIndex-1));
         }
     }
 
@@ -74,11 +86,10 @@ public class MoveNode extends AbstractUndoableEdit {
     }
 
     public void reverse() {
-        for(Map.Entry<Node, Node> entry : childParentMap.entrySet()) {
-            Node parent = entry.getValue();
-            Node child = entry.getKey();
+        for(var data : childParentMap) {
+            Node child = data.child;
             newParent.removeChild(child);
-            parent.addChild(child);
+            data.oldParent.addChild(data.oldIndex,child);
         }
     }
 }

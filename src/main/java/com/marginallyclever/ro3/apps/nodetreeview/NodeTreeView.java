@@ -17,11 +17,9 @@ import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.*;
 import java.awt.*;
-import java.awt.datatransfer.FlavorEvent;
 import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * {@link NodeTreeView} is a panel that displays the tree of nodes in the {@link Registry} scene.
@@ -153,7 +151,6 @@ public class NodeTreeView extends App
         }
     }
 
-
     private void buildToolBar() {
         var addButton = new JButton(new AddNode<>());
         var cutButton = new JButton(cutNode);
@@ -195,7 +192,7 @@ public class NodeTreeView extends App
 
     @Override
     public void nodeAttached(Node child) {
-        //logger.debug("Attached "+child.getAbsolutePath());
+        logger.debug("Attached "+child.getAbsolutePath());
         Node parent = child.getParent();
         if(parent==null) throw new RuntimeException("source node has no parent");
         NodeTreeBranch branchParent = findTreeNode(parent);
@@ -204,10 +201,14 @@ public class NodeTreeView extends App
         int index = parent.getChildren().indexOf(child);
         branchParent.insert(branchChild,index);
 
-        listenTo(child);
-        scanTree(child);
+        // Notify the JTree model that a new node has been inserted
+        var model = (DefaultTreeModel) tree.getModel();
+        model.nodesWereInserted(branchParent, new int[]{index});
 
-        ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(branchParent);
+        listenTo(child);
+
+        // scan the new node for children
+        scanTree(child);
     }
 
     @Override
@@ -225,8 +226,12 @@ public class NodeTreeView extends App
             logger.warn("No branch for "+child.getAbsolutePath());
             return;
         }
+        int index = parent.getChildren().indexOf(child);
         branchParent.remove(branchChild);
-        ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(branchParent);
+
+        // Notify the JTree model that a new node has been removed
+        var model = (DefaultTreeModel) tree.getModel();
+        model.nodesWereRemoved(branchParent, new int[]{index}, new Object[]{branchChild});
     }
 
     @Override
@@ -252,27 +257,15 @@ public class NodeTreeView extends App
         listenTo(newScene);
         treeModel.removeAllChildren();
         treeModel.setUserObject(newScene);
-        ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(treeModel.getRoot());
         scanTree(newScene);
+        ((DefaultTreeModel) tree.getModel()).nodeStructureChanged(treeModel.getRoot());
     }
 
     /**
-     * Remove the selected nodes.
+     * Called when an item is added to the selection.
+     * @param source the list that was modified
+     * @param item the item that was added
      */
-    public void removeSelectedNodes() {
-        TreePath[] paths = tree.getSelectionPaths();
-        if(paths == null) return;  // nothing selected
-
-        for(TreePath path : paths) {
-            NodeTreeBranch treeNode = (NodeTreeBranch)path.getLastPathComponent();
-            Node node = treeNode.getNode();
-            Node parent = node.getParent();
-            if(parent!=null) {
-                parent.removeChild(node);
-            } // else root node, can't remove.
-        }
-    }
-
     @Override
     public void itemAdded(Object source,Node item) {
         isExternalChange = true;
@@ -282,19 +275,27 @@ public class NodeTreeView extends App
                 //throw new InvalidParameterException("item not found in tree "+item.getAbsolutePath());
                 return;
             }
-            tree.addSelectionPath(new TreePath(branch.getPath()));
+            var leaf = new TreePath(branch.getPath());
+            tree.addSelectionPath(leaf);
+            tree.scrollPathToVisible(leaf);
         } finally {
             isExternalChange = false;
         }
     }
 
+    /**
+     * Called when an item is removed from the selection.
+     * @param source the list that was modified
+     * @param item the item that was removed
+     */
     @Override
     public void itemRemoved(Object source,Node item) {
         isExternalChange = true;
         try {
             var branch = findTreeNode(item);
             if(branch==null) {
-                //throw new InvalidParameterException("item not found in tree "+item.getAbsolutePath());
+                // this is not an error.  The node may have been removed from the tree by another means.
+                // throwing new InvalidParameterException is too aggressive.
                 return;
             }
             tree.removeSelectionPath(new TreePath(branch.getPath()));

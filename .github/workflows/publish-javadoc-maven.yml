@@ -17,6 +17,7 @@ jobs:
           javadoc-branch: javadoc
           java-distribution: temurin
           project: maven
-          # url will be https://<username>.github.io/<repo>/<target-folder>.
+          javadoc-source-folder: docs
+          # url will be https://<username>.github.io/<repo>/<target-folder>
           # update this to the project version number
-          target-folder: 3.0
+          target-folder: 3

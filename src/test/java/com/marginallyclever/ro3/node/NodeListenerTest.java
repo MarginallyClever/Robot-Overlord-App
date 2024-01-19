@@ -39,17 +39,20 @@ public class NodeListenerTest {
         parentNode.addChild(childNode);
         parentNode.removeChild(childNode);
         verify(detachListener, times(1)).nodeDetached(childNode);
+        parentNode.removeDetachListener(detachListener);
     }
 
     @Test
     public void testNodeReadyListener() {
         parentNode.addChild(childNode);
         verify(readyListener, times(1)).nodeReady(childNode);
+        parentNode.removeReadyListener(readyListener);
     }
 
     @Test
     public void testNodeRenameListener() {
         parentNode.setName("NewName");
         verify(renameListener, times(1)).nodeRenamed(parentNode);
+        parentNode.removeRenameListener(renameListener);
     }
 }

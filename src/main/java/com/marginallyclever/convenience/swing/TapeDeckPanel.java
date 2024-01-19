@@ -1,6 +1,5 @@
 package com.marginallyclever.convenience.swing;
 
-import com.marginallyclever.convenience.log.Log;
 import org.apache.batik.ext.swing.GridBagConstants;
 
 import javax.swing.*;
@@ -61,7 +60,6 @@ public class TapeDeckPanel extends JPanel {
 	}
 	
 	public static void main(String[] args) {
-		Log.start();
 		JFrame frame = new JFrame("TextInterfaceToNetworkSession");
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

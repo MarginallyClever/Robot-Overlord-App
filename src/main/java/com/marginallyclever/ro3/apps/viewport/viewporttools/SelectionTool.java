@@ -3,10 +3,11 @@ package com.marginallyclever.ro3.apps.viewport.viewporttools;
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
-import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.raypicking.RayHit;
 import com.marginallyclever.ro3.raypicking.RayPickSystem;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
@@ -30,7 +31,6 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
     public static final String PICK_POINT_NAME = "pick point";
     private Viewport viewport;
     private boolean isActive=false;
-    private boolean isShiftDown=false;
 
     public SelectionTool() {
         super();
@@ -72,31 +72,6 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
             }
         }
     }
-
-    /**
-     * Handles keyboard input events for the tool.
-     *
-     * @param event The KeyEvent object representing the input event.
-     */
-    @Override
-    public void handleKeyEvent(KeyEvent event) {
-        if(event.getID() == KeyEvent.KEY_PRESSED) {
-            handleKeyPressed(event);
-        } else if(event.getID() == KeyEvent.KEY_RELEASED) {
-            handleKeyReleased(event);
-        }
-    }
-
-    private void handleKeyPressed(KeyEvent event) {
-        int keyCode = event.getKeyCode();
-        if(keyCode == KeyEvent.VK_SHIFT) isShiftDown=true;
-    }
-
-    private void handleKeyReleased(KeyEvent event) {
-        int keyCode = event.getKeyCode();
-        if(keyCode == KeyEvent.VK_SHIFT) isShiftDown=false;
-    }
-
 
     /**
      * Updates the tool's internal state, if necessary.
@@ -151,7 +126,7 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
      * @param index 0 for world, 1 for local, 2 for camera.
      */
     @Override
-    public void setFrameOfReference(int index) {}
+    public void setFrameOfReference(FrameOfReference index) {}
 
     @Override
     public void init(GL3 gl3) {}

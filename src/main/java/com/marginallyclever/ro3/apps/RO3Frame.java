@@ -14,6 +14,7 @@ import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.RO3;
 import com.marginallyclever.ro3.apps.about.AboutPanel;
 import com.marginallyclever.ro3.apps.actions.*;
+import com.marginallyclever.ro3.apps.dialogs.AppSettingsDialog;
 import com.marginallyclever.ro3.apps.editorpanel.EditorPanel;
 import com.marginallyclever.ro3.apps.logpanel.LogPanel;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
@@ -50,7 +51,7 @@ public class RO3Frame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(RO3Frame.class);
     private final List<DockingPanel> windows = new ArrayList<>();
     private final JFileChooser fileChooser;
-    private final OpenGLPanel renderPanel;
+    private final OpenGLPanel viewportPanel;
     private final LogPanel logPanel;
     private final EditorPanel editPanel;
     private final WebCamPanel webCamPanel;
@@ -70,7 +71,7 @@ public class RO3Frame extends JFrame {
 
         logPanel = new LogPanel();
         editPanel = new EditorPanel();
-        renderPanel = new Viewport();
+        viewportPanel = new Viewport();
         webCamPanel = new WebCamPanel();
         textInterface = new TextInterfaceToSessionLayer();
 
@@ -234,7 +235,6 @@ public class RO3Frame extends JFrame {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 resetDefaultLayout();
-                logger.info("Layout reset.");
             }
         }));
         return menuWindows;
@@ -248,6 +248,8 @@ public class RO3Frame extends JFrame {
         var load = new LoadScene(loadRecentMenu,null,fileChooser);
         load.setSaveScene(save);
         loadRecentMenu.setSaveScene(save);
+        var saveAs = new SaveAsScene(loadRecentMenu,fileChooser);
+        saveAs.setSaveScene(save);
 
         JMenu menuFile = new JMenu("File");
         menuFile.add(new JMenuItem(new NewScene(save)));
@@ -256,8 +258,25 @@ public class RO3Frame extends JFrame {
         menuFile.add(loadRecentMenu);
         menuFile.add(new JMenuItem(new ImportScene(fileChooser)));
         menuFile.add(new JMenuItem(save));
-        menuFile.add(new JMenuItem(new SaveAsScene(loadRecentMenu,fileChooser)));
+        menuFile.add(new JMenuItem(saveAs));
         menuFile.add(new JMenuItem(new ExportScene(fileChooser)));
+
+        menuFile.add(new JSeparator());
+        var settingsMenu = new JMenuItem("Settings");
+        settingsMenu.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(
+                "/com/marginallyclever/ro3/apps/actions/icons8-settings-16.png"))));
+        menuFile.add(settingsMenu);
+        settingsMenu.addActionListener(e -> {
+            var dialog = new AppSettingsDialog(List.of(
+                    viewportPanel,
+                    logPanel,
+                    editPanel,
+                    webCamPanel,
+                    textInterface
+            ));
+            dialog.run(this);
+        });
+
 
         menuFile.add(new JSeparator());
         menuFile.add(new JMenuItem(new AbstractAction("Quit") {
@@ -284,7 +303,7 @@ public class RO3Frame extends JFrame {
         if (result == JOptionPane.YES_OPTION) {
             // Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
             new Thread(() -> {
-                renderPanel.stopAnimationSystem();
+                viewportPanel.stopAnimationSystem();
                 this.dispose();
             }).start();
             return true;
@@ -298,7 +317,7 @@ public class RO3Frame extends JFrame {
      */
     private void createDefaultLayout() {
         DockingPanel renderView = new DockingPanel("8e50154c-a149-4e95-9db5-4611d24cc0cc", "3D view");
-        renderView.add(renderPanel, BorderLayout.CENTER);
+        renderView.add(viewportPanel, BorderLayout.CENTER);
         windows.add(renderView);
 
         DockingPanel treeView = new DockingPanel("c6b04902-7e53-42bc-8096-fa5d43289362", "Scene");
@@ -336,7 +355,8 @@ public class RO3Frame extends JFrame {
      * Reset the default layout.  These depend on the order of creation in createDefaultLayout().
      */
     private void resetDefaultLayout() {
-        setSize(1000, 700);
+        logger.info("Resetting layout to default.");
+        setSize(1000, 750);
 
         for(DockingPanel w : windows) {
             Docking.undock(w);
@@ -349,6 +369,7 @@ public class RO3Frame extends JFrame {
         Docking.dock(treeView, this, DockingRegion.WEST);
         Docking.dock(detailView, treeView, DockingRegion.SOUTH);
         Docking.dock(aboutView, treeView, DockingRegion.CENTER);
+        logger.info("done.");
     }
 
     private void saveAndRestoreLayout() {

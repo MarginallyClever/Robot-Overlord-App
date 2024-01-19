@@ -11,6 +11,7 @@ import javax.swing.*;
 import javax.swing.tree.*;
 import java.awt.datatransfer.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -23,19 +24,43 @@ public class NodeTreeTransferHandler extends TransferHandler {
         return MOVE;
     }
 
+    /**
+     * This is where nodes are being dragged from.
+     * @param c  the component holding the data to be transferred;
+     *              provided to enable sharing of <code>TransferHandler</code>s
+     * @return a representation of the data to be transferred
+     */
     @Override
     protected Transferable createTransferable(JComponent c) {
         JTree tree = (JTree) c;
         TreePath [] paths = tree.getSelectionPaths();
         if (paths != null) {
+            // getSelectionPaths() returns paths in the order they were selected.
+            // Sort the paths to preserve their order in the tree.
+            Arrays.sort(paths, (o1, o2) -> {
+                Node node1 = ((NodeTreeBranch) o1.getLastPathComponent()).getNode();
+                Node node2 = ((NodeTreeBranch) o2.getLastPathComponent()).getNode();
+                Node parent1 = node1.getParent();
+                Node parent2 = node2.getParent();
+                int pathComparison = parent1.getAbsolutePath().compareTo(parent2.getAbsolutePath());
+                if(pathComparison!=0) return pathComparison;
+                var children = parent1.getChildren();
+                int a = children.indexOf(node1);
+                int b = children.indexOf(node2);
+                return a-b;
+            });
+
+            // build a list of nodes to move.  Don't allow the scene root to be moved.
             var list = new ArrayList<Node>();
             for(TreePath path : paths) {
-                if (path.getLastPathComponent() instanceof NodeTreeBranch branch) {
+                if(path.getLastPathComponent() instanceof NodeTreeBranch branch) {
                     Node node = branch.getNode();
                     if(node == Registry.getScene()) continue;
+
                     list.add(node);
                 }
             }
+
             return new TransferableNodeList(list);
         }
         return null;
@@ -71,6 +96,12 @@ public class NodeTreeTransferHandler extends TransferHandler {
         return false;
     }
 
+    /**
+     * This is where nodes are being dropped.
+     * @param support the object containing the details of
+     *        the transfer, not <code>null</code>.
+     * @return <code>true</code> if the data was inserted into the tree.
+     */
     @Override
     public boolean importData(TransferHandler.TransferSupport support) {
         if (!canImport(support)) {

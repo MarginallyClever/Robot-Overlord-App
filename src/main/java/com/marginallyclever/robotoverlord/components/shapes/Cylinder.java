@@ -21,19 +21,13 @@ import java.beans.PropertyChangeListener;
 public class Cylinder extends ShapeComponent implements PropertyChangeListener {
     public static final int RESOLUTION_CIRCULAR = 32;
     public static final int RESOLUTION_LENGTH = 5;
-
     public final DoubleParameter radius0 = new DoubleParameter("R0", 0.5f);
     public final DoubleParameter radius1 = new DoubleParameter("R1", 0.5f);
     public final DoubleParameter height = new DoubleParameter("Height", 2);
-
-    public Cylinder() {
-        this(2, 0.5f, 0.5f);
-    }
+    private final Mesh myMesh = new Mesh();
 
     public Cylinder(double height, double radius0, double radius1) {
         super();
-
-        myMesh = new Mesh();
 
         this.radius0.set(radius0);
         this.radius1.set(radius1);

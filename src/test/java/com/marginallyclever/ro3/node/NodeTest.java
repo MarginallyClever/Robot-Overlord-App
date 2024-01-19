@@ -1,6 +1,8 @@
 package com.marginallyclever.ro3.node;
 
-import com.marginallyclever.ro3.node.nodes.Pose;
+import com.marginallyclever.ro3.node.nodes.Camera;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,6 +28,31 @@ public class NodeTest {
     }
 
     @Test
+    public void testAddChildOutOfBounds() {
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            parentNode.addChild(parentNode.getChildren().size()+1,childNode);
+        });
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            parentNode.addChild(-1,childNode);
+        });
+    }
+
+    @Test
+    public void failToFindMissingParent() {
+        assertNull(childNode.findParent("MissingParent"));
+    }
+
+    @Test
+    public void failToSetNameToMatchingSibling() {
+        parentNode.addChild(childNode);
+        Node siblingNode = new Node("Sibling");
+        parentNode.addChild(siblingNode);
+        assertThrows(IllegalArgumentException.class, () -> {
+            siblingNode.setName("Child");
+        });
+    }
+
+    @Test
     public void testRemoveChild() {
         parentNode.addChild(childNode);
         parentNode.removeChild(childNode);
@@ -46,7 +73,7 @@ public class NodeTest {
 
     @Test
     public void testGetNodeID() {
-        UUID id = parentNode.getNodeID();
+        UUID id = UUID.fromString(parentNode.getUniqueID());
         assertNotNull(id);
     }
 
@@ -80,7 +107,7 @@ public class NodeTest {
     @Test
     public void testGet() {
         parentNode.addChild(childNode);
-        assertEquals(childNode, parentNode.get("Child"));
+        assertEquals(childNode, parentNode.findByPath("Child"));
     }
 
     @Test
@@ -111,6 +138,8 @@ public class NodeTest {
     public void testFindFirstChild() {
         parentNode.addChild(childNode);
         assertEquals(childNode, parentNode.findFirstChild(Node.class));
+        assertNull(childNode.findFirstChild(Node.class));
+        assertNull(parentNode.findFirstChild(Pose.class));
     }
 
     @Test
@@ -119,18 +148,21 @@ public class NodeTest {
         parentNode.addChild(childNode);
         parentNode.addChild(siblingNode);
         assertEquals(siblingNode, childNode.findFirstSibling(Pose.class));
+        assertNull(childNode.findFirstSibling(Camera.class));
     }
 
     @Test
     public void testHasParent() {
         parentNode.addChild(childNode);
         assertTrue(childNode.hasParent(parentNode));
+        assertFalse(childNode.hasParent(childNode));
+        assertFalse(parentNode.hasParent(childNode));
     }
 
     @Test
     public void testFindNodeByID() {
         parentNode.addChild(childNode);
-        String id = childNode.getNodeID().toString();
+        String id = childNode.getUniqueID().toString();
         assertEquals(childNode, parentNode.findNodeByID(id, Node.class));
     }
 
@@ -138,5 +170,33 @@ public class NodeTest {
     public void testFindNodeByPath() {
         parentNode.addChild(childNode);
         assertEquals(childNode, parentNode.findNodeByPath("Child", Node.class));
+        assertEquals(childNode, parentNode.findNodeByPath("./Child", Node.class));
+        assertEquals(childNode, parentNode.findNodeByPath("/Child", Node.class));
+        assertEquals(parentNode, childNode.findNodeByPath("..", Node.class));
+        assertNull(parentNode.findNodeByPath("/does/not/exist", Node.class));
+        assertNull(parentNode.findNodeByPath("Child", Camera.class));
+        Node grandChild = new Node("grandChild");
+        childNode.addChild(grandChild);
+        assertEquals(parentNode, grandChild.findNodeByPath("../..", Node.class));
+        assertNull(grandChild.findNodeByPath("../../..", Node.class));
+        assertNull(grandChild.findNodeByPath("../..", Pose.class));
+    }
+
+    @Test
+    public void testToAndFromJSON() {
+        parentNode.addChild(childNode);
+        JSONObject jsonObject = parentNode.toJSON();
+        String json = jsonObject.toString();
+        assertTrue(json.contains("\"name\":\"Parent\""));
+        assertTrue(json.contains("\"name\":\"Child\""));
+
+        Node newNode = new Node();
+        newNode.fromJSON(jsonObject);
+        assertEquals(parentNode.getUniqueID(), newNode.getUniqueID());
+        assertEquals(parentNode.getName(), newNode.getName());
+        assertEquals(parentNode.getChildren().size(), newNode.getChildren().size());
+
+        newNode.witnessProtection();
+        assertNotEquals(parentNode.getUniqueID(), newNode.getUniqueID());
     }
 }

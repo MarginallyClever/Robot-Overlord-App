@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.node.nodes.limbsolver;
 
-import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.Limb;
 
 import javax.vecmath.Matrix3d;
@@ -14,13 +13,15 @@ import java.util.Arrays;
  */
 public class ApproximateJacobianFiniteDifferences extends ApproximateJacobian {
     public double ANGLE_STEP_SIZE_DEGREES = 0.1; // degrees
-    public ApproximateJacobianFiniteDifferences(Limb arm) {
-        super(arm.getNumJoints());
 
-        Pose endEffector = arm.getEndEffector();
-        if(endEffector==null) throw new InvalidParameterException("Robot must have an end effector.");
+    public ApproximateJacobianFiniteDifferences(Limb limb) {
+        super(limb.getNumJoints());
+        if(limb==null) throw new InvalidParameterException("Limb must not be null.");
 
-        double[] jointAnglesOriginal = arm.getAllJointAngles();
+        var endEffector = limb.getEndEffector().getSubject();
+        if(endEffector == null) throw new InvalidParameterException("Robot must have an end effector.");
+
+        double[] jointAnglesOriginal = limb.getAllJointAngles();
         Matrix4d endEffectorPose = endEffector.getWorld();
         Matrix4d endEffectorDifference = new Matrix4d();
         Matrix3d endEffectorPoseRotation = new Matrix3d();
@@ -31,7 +32,7 @@ public class ApproximateJacobianFiniteDifferences extends ApproximateJacobian {
                 // use anglesB to get the hand matrix after a tiny adjustment on one joint.
                 double[] jointAnglesPlusDelta = Arrays.copyOf(jointAnglesOriginal, jointAnglesOriginal.length);
                 jointAnglesPlusDelta[i] += ANGLE_STEP_SIZE_DEGREES;
-                arm.setAllJointAngles(jointAnglesPlusDelta);
+                limb.setAllJointAngles(jointAnglesPlusDelta);
                 Matrix4d endEffectorPosePlusDelta = endEffector.getWorld();
 
                 // use the finite difference in the two matrixes
@@ -59,8 +60,8 @@ public class ApproximateJacobianFiniteDifferences extends ApproximateJacobian {
                 jacobian[5][i] = skewSymmetric.m01;
             }
         } finally {
-            arm.setAllJointAngles(jointAnglesOriginal);
-            arm.update(0);
+            limb.setAllJointAngles(jointAnglesOriginal);
+            limb.update(0);
         }
     }
 }

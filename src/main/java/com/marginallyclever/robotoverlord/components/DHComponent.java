@@ -34,7 +34,6 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
     @Override
     public void onAttach() {
         refreshLocalMatrix();
-        myMesh = new Mesh();
         MaterialComponent mat = getEntity().getComponent(MaterialComponent.class);
         mat.drawOnTop.set(true);
     }
@@ -213,12 +212,6 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
         return myR.get();
     }
 
-    public void setAlpha(double a) {
-        alpha.set(a);
-    }
-
-    public double getAlpha() { return alpha.get(); }
-
     public void setTheta(double angle) {
         if(isRevolute.get()) {
             setRevoluteWRTLimits(angle);
@@ -231,16 +224,8 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
         return theta.get();
     }
 
-    public void setJointMax(double v) {
-        jointMax.set(v);
-    }
-
     public double getJointMax() {
         return jointMax.get();
-    }
-
-    public void setJointMin(double v) {
-        jointMin.set(v);
     }
 
     public double getJointMin() {
@@ -262,55 +247,7 @@ public class DHComponent extends ShapeComponent implements PropertyChangeListene
             return getD();
     }
 
-    public void setJointValue(double t) {
-        if(isRevolute.get())
-            setTheta(t);
-        else
-            setD(t);
-    }
-
     @Override
-    public void render(GL3 gl) {
-        boolean tex = OpenGLHelper.disableTextureStart(gl);
-        int onTop = OpenGLHelper.drawAtopEverythingStart(gl);
+    public void render(GL3 gl) {    }
 
-        Matrix4d m = getLocal();
-        //m.invert();
-        m.transpose();
-
-        float rt = (float)Math.toRadians(theta.get());
-        float ct = (float)Math.cos(rt);
-        float st = (float)Math.sin(rt);
-        float r = myR.get().floatValue();
-
-        Point3d d = new Point3d(-r*ct, -r*st,0);
-        Point3d dr = new Point3d(-r*ct, -r*st,-myD.get().floatValue());
-        m.transform(d);
-        m.transform(dr);
-
-        myMesh.clear();
-        myMesh.setRenderStyle(GL3.GL_LINES);
-        myMesh.addColor(0,1,1,1);            myMesh.addVertex(0,0,0);
-        myMesh.addColor(0,1,1,1);            myMesh.addVertex((float)d.x,(float)d.y,(float)d.z);
-        myMesh.addColor(1,1,0,1);            myMesh.addVertex((float)d.x,(float)d.y,(float)d.z);
-        myMesh.addColor(1,1,0,1);            myMesh.addVertex((float)dr.x,(float)dr.y,(float)dr.z);
-
-        myMesh.addColor(1,0,0,1); myMesh.addVertex(0,0,0);
-        myMesh.addColor(1,0,0,1); myMesh.addVertex(5,0,0);
-        myMesh.addColor(0,1,0,1); myMesh.addVertex(0,0,0);
-        myMesh.addColor(0,1,0,1); myMesh.addVertex(0,5,0);
-        myMesh.addColor(0,0,1,1); myMesh.addVertex(0,0,0);
-        myMesh.addColor(0,0,1,1); myMesh.addVertex(0,0,5);
-        myMesh.render(gl);
-
-        OpenGLHelper.drawAtopEverythingEnd(gl, onTop);
-        OpenGLHelper.disableTextureEnd(gl, tex);
-    }
-
-    public void setRevolute(boolean b) {
-        isRevolute.set(b);
-    }
-    public boolean isRevolute() {
-        return isRevolute.get();
-    }
 }

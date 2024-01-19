@@ -22,7 +22,7 @@ import java.awt.*;
  */
 public class DrawGroundPlane extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawGroundPlane.class);
-    private final Mesh worldOriginMesh = MatrixHelper.createMesh(5.0);
+    private final Mesh worldOriginMesh = MatrixHelper.createMesh();
     private final Mesh gridMesh = new Mesh();
     private ShaderProgram shader;
 
@@ -82,11 +82,15 @@ public class DrawGroundPlane extends AbstractRenderPass {
         gl3.glDisable(GL3.GL_TEXTURE_2D);
 
         Matrix4d w = MatrixHelper.createIdentityMatrix4();
-        w.transpose();
-        shader.setMatrix4d(gl3,"modelMatrix",w);
+        Matrix4d scale = MatrixHelper.createScaleMatrix4(5);
+        scale.mul(w,scale);
+        scale.transpose();
+        shader.setMatrix4d(gl3,"modelMatrix",scale);
         shader.set1i(gl3,"useVertexColor",1);
         worldOriginMesh.render(gl3);
 
+        w.transpose();
+        shader.setMatrix4d(gl3,"modelMatrix",w);
         shader.set1i(gl3,"useVertexColor",0);
         shader.setColor(gl3,"objectColor",new Color(255,255,255,8));
         gridMesh.render(gl3);

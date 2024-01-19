@@ -1,17 +1,12 @@
 package com.marginallyclever.ro3.node.nodes.pose;
 
-import com.marginallyclever.convenience.PathCalculator;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.Pose;
 import org.json.JSONObject;
 
 import javax.swing.*;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
-import java.awt.*;
 import java.util.List;
 
 /**
@@ -39,16 +34,7 @@ public class LookAt extends Pose {
 
     @Override
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridLayout(0,2));
-        list.add(pane);
-        pane.setName(LookAt.class.getSimpleName());
-
-        NodeSelector<Pose> selector = new NodeSelector<>(Pose.class,target.getSubject());
-        selector.addPropertyChangeListener("subject", (evt) -> {
-            target.setRelativePath(this,selector.getSubject());
-        } );
-        NodePanelHelper.addLabelAndComponent(pane,"Target",selector);
-
+        list.add(new LookAtPanel(this));
         super.getComponents(list);
     }
 
@@ -70,28 +56,34 @@ public class LookAt extends Pose {
 
         }
     }
-
     @Override
     public JSONObject toJSON() {
         var json = super.toJSON();
-        json.put("version",1);
+        json.put("version",2);
         if(target.getSubject()!=null) {
-            json.put("target", target.getPath());
+            json.put("target", target.getUniqueID());
         }
         return json;
     }
-
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
         int version = from.has("version") ? from.getInt("version") : 0;
         if (from.has("target")) {
-            if(version == 1) {
-                target.setPath(from.getString("target"));
-            } else if(version == 0) {
-                Pose pose = getRootNode().findNodeByID(from.getString("target"),Pose.class);
-                target.setPath( PathCalculator.getRelativePath(this,pose) );
+            String s = from.getString("target");
+            if(version==1) {
+                target.setUniqueIDByNode( this.findNodeByPath(s,Pose.class) );
+            } else if(version==0 || version==2) {
+                target.setUniqueID(s);
             }
         }
+    }
+
+    public Pose getTarget() {
+        return target.getSubject();
+    }
+
+    public void setTarget(Pose target) {
+        this.target.setUniqueIDByNode(target);
     }
 }

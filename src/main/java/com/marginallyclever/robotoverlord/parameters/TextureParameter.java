@@ -4,7 +4,6 @@ import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.marginallyclever.convenience.helpers.FileHelper;
-import com.marginallyclever.robotoverlord.renderpanel.TextureFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +17,7 @@ import java.util.Set;
 /**
  * A texture file name.  Loads the texture when needed from a pool to reduce duplication.
  */
-public class TextureParameter extends FilenameParameter {
+@Deprecated public class TextureParameter extends FilenameParameter {
 	public static final HashMap<String, Texture> texturePool = new HashMap<>();
 	private static final Logger logger = LoggerFactory.getLogger(TextureParameter.class);
 

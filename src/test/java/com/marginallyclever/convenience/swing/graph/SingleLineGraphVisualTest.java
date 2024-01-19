@@ -1,15 +1,11 @@
 package com.marginallyclever.convenience.swing.graph;
 
-import com.marginallyclever.convenience.log.Log;
-
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
 
 public class SingleLineGraphVisualTest {
     public static void main(String[] args) {
-        Log.start();
-
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ignored) {}

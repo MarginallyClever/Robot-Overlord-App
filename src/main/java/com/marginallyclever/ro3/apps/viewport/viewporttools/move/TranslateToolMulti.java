@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.apps.viewport.viewporttools.move;
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
@@ -10,6 +11,7 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Camera;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -21,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>A tool to translate {@link com.marginallyclever.ro3.node.nodes.Pose} nodes in the {@link Viewport}.  It is a
+ * <p>A tool to translate {@link Pose} nodes in the {@link Viewport}.  It is a
  * combination of three {@link TranslateToolOneAxis}.</p>
  */
 public class TranslateToolMulti implements ViewportTool {
@@ -35,7 +37,7 @@ public class TranslateToolMulti implements ViewportTool {
     private final List<ViewportTool> tools = new ArrayList<>();
 
     private SelectedItems selectedItems;
-    private int frameOfReference = ViewportTool.FRAME_WORLD;
+    private FrameOfReference frameOfReference = FrameOfReference.WORLD;
 
     public TranslateToolMulti() {
         super();
@@ -207,20 +209,6 @@ public class TranslateToolMulti implements ViewportTool {
     }
 
     /**
-     * Handles keyboard input events for the tool.
-     *
-     * @param event The KeyEvent object representing the input event.
-     */
-    @Override
-    public void handleKeyEvent(KeyEvent event) {
-        if (selectedItems == null || selectedItems.isEmpty()) return;
-
-        updatePivotMatrix();
-
-        for (ViewportTool t : tools) t.handleKeyEvent(event);
-    }
-
-    /**
      * Updates the tool's internal state, if necessary.
      *
      * @param deltaTime Time elapsed since the last update.
@@ -313,11 +301,10 @@ public class TranslateToolMulti implements ViewportTool {
 
     /**
      * Sets the frame of reference for the tool.
-     *
-     * @param index 0 for world, 1 for local, 2 for camera.
+     * @param index a {@link FrameOfReference}.
      */
     @Override
-    public void setFrameOfReference(int index) {
+    public void setFrameOfReference(FrameOfReference index) {
         frameOfReference = index;
         for (ViewportTool t : tools) t.setFrameOfReference(index);
         updatePivotMatrix();

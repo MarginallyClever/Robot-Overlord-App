@@ -142,16 +142,4 @@ public class MultiVersionPropertiesPanel extends JPanel {
         return robotName;
     }
 
-    /**
-     * Launch a test window.
-     * @param args Unused.
-     */
-    public static void main(String[] args) {
-        MultiVersionPropertiesPanel panel = new MultiVersionPropertiesPanel("https://github.com/MarginallyClever/Sixi-");
-        JFrame frame = new JFrame("MultiVersionPropertiesPanel");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setContentPane(panel);
-        frame.pack();
-        frame.setVisible(true);
-    }
 }

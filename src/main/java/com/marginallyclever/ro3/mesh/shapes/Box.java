@@ -10,9 +10,9 @@ import javax.vecmath.Vector3d;
  * {@link Box} is a {@link Mesh} with a width, height, and length of 1.  It is centered around the origin.
  */
 public class Box extends Mesh {
-    public float width = 1.0f;
-    public float height = 1.0f;
-    public float length = 1.0f;
+    public double width;
+    public double height;
+    public double length;
 
     public Box() {
         this(1.0,1.0,1.0);
@@ -20,16 +20,16 @@ public class Box extends Mesh {
 
     /**
      * Create a box with the given dimensions.
-     * @param width
-     * @param length
-     * @param height
+     * @param width width of the box (x)
+     * @param length length of the box (y)
+     * @param height height of the box (z)
      */
     public Box(double width,double length,double height) {
         super();
 
-        this.width = (float)width;
-        this.length = (float)length;
-        this.height = (float)height;
+        this.width = width;
+        this.length = length;
+        this.height = height;
 
         updateModel();
     }
@@ -40,9 +40,9 @@ public class Box extends Mesh {
         this.setRenderStyle(GL3.GL_TRIANGLES);
         //shape.renderStyle=GL3.GL_LINES;  // set to see the wireframe
 
-        float w = width*0.5f;
-        float d = length*0.5f;
-        float h = height*0.5f;
+        double w = width*0.5f;
+        double d = length*0.5f;
+        double h = height*0.5f;
 
         int wParts = (int)Math.ceil(w);
         int hParts = (int)Math.ceil(h);

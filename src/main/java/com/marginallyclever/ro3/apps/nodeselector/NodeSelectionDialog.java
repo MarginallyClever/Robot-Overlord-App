@@ -13,6 +13,8 @@ import javax.swing.tree.TreeSelectionModel;
 import java.util.List;
 import java.util.ArrayList;
 import java.awt.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A dialog that allows the user to select a node from the scene graph.
@@ -32,7 +34,7 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
         super(new BorderLayout());
 
         setupTree(type);
-        setupSearch();
+        setupSearchBar();
 
         JButton clearButton = new JButton("Clear");
         clearButton.addActionListener(e -> {
@@ -44,15 +46,11 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
         add(new JScrollPane(tree), BorderLayout.CENTER);
         add(clearButton, BorderLayout.SOUTH);
 
-        populateTree("");
+        populateTree();
     }
 
-    private void setupSearch() {
-        searchBar.addPropertyChangeListener("match", e-> {
-            String criteria = (String)e.getNewValue();
-            if(criteria==null || criteria.isBlank()) criteria = "";
-            populateTree(criteria);
-        });
+    private void setupSearchBar() {
+        searchBar.addPropertyChangeListener("match", e-> populateTree() );
     }
 
     private void setupTree(Class<T> type) {
@@ -91,10 +89,10 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
         }
     }
 
-    private void populateTree(String searchCriteria) {
+    private void populateTree() {
         Node rootNode = Registry.getScene();
 
-        List<Node> matches = findAllNodesMatching(rootNode, searchCriteria);
+        List<Node> matches = findAllNodesMatching(rootNode);
         addAllParents(matches);
 
         NodeTreeBranch rootTreeNode = new NodeTreeBranch(rootNode);
@@ -131,17 +129,14 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
      * @param searchCriteria a regular expression to match against the node name
      * @return a list of all nodes matching the search criteria
      */
-    private List<Node> findAllNodesMatching(Node rootNode, String searchCriteria) {
-        boolean isCase = searchBar.getCaseSensitive();
-        boolean isRegex = searchBar.getRegex();
+    private List<Node> findAllNodesMatching(Node rootNode) {
         List<Node> matches = new ArrayList<>();
         List<Node> toSearch = new ArrayList<>();
         toSearch.add(rootNode);
         while(!toSearch.isEmpty()) {
             Node node = toSearch.remove(0);
             String name = node.getName();
-            if(!isCase) name = name.toLowerCase();
-            if((isRegex && name.matches(searchCriteria)) || (!isRegex && name.contains(searchCriteria))) {
+            if(searchBar.matches(name)) {
                 matches.add(node);
             }
             toSearch.addAll(node.getChildren());

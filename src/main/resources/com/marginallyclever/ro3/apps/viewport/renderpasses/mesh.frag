@@ -15,6 +15,7 @@ uniform vec4 ambientColor = vec4(0, 0, 0, 1);
 uniform vec4 objectColor = vec4(1,1,1,1);
 uniform vec4 lightColor = vec4(1,1,1,1);
 uniform int shininess = 0;
+uniform float specularStrength = 0.5;
 
 uniform vec3 lightPos; // Light position in world space
 uniform vec3 cameraPos;  // Camera position in world space
@@ -36,7 +37,7 @@ float ShadowCalculation(vec4 fragPosLightSpace,vec3 normal,vec3 lightDir) {
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
 
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+    float bias = max(0.0005 * (1.0 - dot(normal, lightDir)), 0.00005);
     // check whether current frag pos is in shadow
 
     if(projCoords.z > 1.0) return 0;
@@ -70,9 +71,8 @@ void main() {
         // Specular
         vec3 viewDir = normalize(cameraPos - fs_in.fragmentPosition);
         vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = 1.0;
-        if( shininess > 1.0 ) spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-        vec4 specularLight = spec * specularColor * lightColor;
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+        vec4 specularLight = specularStrength * spec * specularColor * lightColor;
 
         // Shadow
         float shadow = ShadowCalculation(fs_in.fragPosLightSpace,norm,lightDir);

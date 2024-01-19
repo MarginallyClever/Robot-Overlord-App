@@ -1,15 +1,14 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.NodePanelHelper;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
+import org.json.JSONObject;
 
 import javax.swing.*;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
-import java.awt.*;
 import java.security.InvalidParameterException;
 import java.util.List;
 
@@ -37,6 +36,8 @@ public class Camera extends Pose {
     private double nearZ = 1;
     private double farZ = 1000;
     private double orbitRadius = 50;
+    private boolean canTranslate = true;
+    private boolean canRotate = true;
 
     public Camera() {
         super("Camera");
@@ -63,95 +64,44 @@ public class Camera extends Pose {
      * @param list the list to add components to.
      */
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridLayout(0,2));
-        list.add(pane);
-        pane.setName(Camera.class.getSimpleName());
-
-        SpinnerNumberModel farZModel = new SpinnerNumberModel(farZ, 0, 10000, 1);
-        JSpinner farZSpinner = new JSpinner(farZModel);
-        JSpinner nearZSpinner = new JSpinner(new SpinnerNumberModel(nearZ, 0, 10000, 1));
-        JSpinner fovSpinner = new JSpinner(new SpinnerNumberModel(fovY, 1, 180, 1));
-
-        JCheckBox ortho = new JCheckBox();
-        ortho.addActionListener(e -> {
-            drawOrthographic = ortho.isSelected();
-            farZSpinner.setEnabled(!drawOrthographic);
-            nearZSpinner.setEnabled(!drawOrthographic);
-            fovSpinner.setEnabled(!drawOrthographic);
-        });
-
-        fovSpinner.addChangeListener(e -> {
-            fovY = (double) fovSpinner.getValue();
-        });
-
-        nearZSpinner.addChangeListener(e -> {
-            nearZ = (double) nearZSpinner.getValue();
-            farZModel.setMinimum(nearZ + 1);
-            if (farZ <= nearZ) {
-                farZSpinner.setValue(nearZ + 1);
-            }
-        });
-
-        farZSpinner.addChangeListener(e -> {
-            farZ = (double) farZSpinner.getValue();
-        });
-
-        NodePanelHelper.addLabelAndComponent(pane,"Orthographic",ortho);
-        NodePanelHelper.addLabelAndComponent(pane,"FOV",fovSpinner);
-        NodePanelHelper.addLabelAndComponent(pane,"Near",nearZSpinner);
-        NodePanelHelper.addLabelAndComponent(pane,"Far",farZSpinner);
-
-        addLookAtComponents(pane);
-
+        list.add(new CameraPanel(this));
         super.getComponents(list);
-    }
-
-    private void addLookAtComponents(JPanel pane) {
-        var formatter = NumberFormatHelper.getNumberFormatter();
-
-        JFormattedTextField tx = new JFormattedTextField(formatter);        tx.setValue(0);
-        JFormattedTextField ty = new JFormattedTextField(formatter);        ty.setValue(0);
-        JFormattedTextField tz = new JFormattedTextField(formatter);        tz.setValue(0);
-
-        JButton button = new JButton("Set");
-        button.addActionListener(e -> {
-            Vector3d target = new Vector3d(
-                    ((Number) tx.getValue()).doubleValue(),
-                    ((Number) ty.getValue()).doubleValue(),
-                    ((Number) tz.getValue()).doubleValue()
-            );
-            try {
-                lookAt(target);
-            } catch (InvalidParameterException ex) {
-                JOptionPane.showMessageDialog(pane, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
-        NodePanelHelper.addLabelAndComponent(pane, "Look at", new JLabel());
-        NodePanelHelper.addLabelAndComponent(pane, "X", tx);
-        NodePanelHelper.addLabelAndComponent(pane, "Y", ty);
-        NodePanelHelper.addLabelAndComponent(pane, "Z", tz);
-        NodePanelHelper.addLabelAndComponent(pane, "", button);
     }
 
     public boolean getDrawOrthographic() {
         return drawOrthographic;
     }
 
+    public void setDrawOrthographic(boolean selected) {
+        drawOrthographic = selected;
+    }
+
     public double getFovY() {
         return fovY;
+    }
+
+    public void setFovY(double fovY) {
+        this.fovY = fovY;
     }
 
     public double getNearZ() {
         return nearZ;
     }
 
+    public void setNearZ(double nearZ) {
+        this.nearZ = nearZ;
+    }
+
     public double getFarZ() {
         return farZ;
     }
 
+    public void setFarZ(double farZ) {
+        this.farZ = farZ;
+    }
+
     /**
-     * Translate relative to camera's current orientation
+     * Translate relative to camera's current orientation if canTranslate is true.
      * @param delta distance to travel.  Positive is up.
      */
     public void pedestal(double delta) {
@@ -159,7 +109,7 @@ public class Camera extends Pose {
     }
 
     /**
-     * Translate relative to camera's current orientation
+     * Translate relative to camera's current orientation if canTranslate is true.
      * @param delta distance to travel.  Positive is right.
      */
     public void truck(double delta) {
@@ -167,7 +117,7 @@ public class Camera extends Pose {
     }
 
     /**
-     * Translate relative to camera's current orientation
+     * Translate relative to camera's current orientation if canTranslate is true.
      * @param delta distance to travel.  Positive is forward.
      */
     public void dolly(double delta) {
@@ -175,11 +125,12 @@ public class Camera extends Pose {
     }
 
     /**
-     * Translate relative to camera's current orientation
+     * Translate relative to camera's current orientation if canTranslate is true.
      * @param direction direction to travel
      * @param delta distance to travel
      */
     private void translate(Vector3d direction,double delta) {
+        if(!canTranslate) return;
         Matrix4d local = this.getLocal();
         Vector3d t = new Vector3d();
         local.get(t);
@@ -190,8 +141,7 @@ public class Camera extends Pose {
     }
 
     /**
-     * Rotate relative to camera's current orientation
-     * TODO test
+     * Rotate relative to camera's current orientation if canRotate is true.
      * @param delta degrees to rotate.  Positive is left.
      */
     public void pan(double delta) {
@@ -199,8 +149,7 @@ public class Camera extends Pose {
     }
 
     /**
-     * Rotate relative to camera's current orientation
-     * TODO test
+     * Rotate relative to camera's current orientation if canRotate is true.
      * @param delta degrees to rotate.  Positive is up.
      */
     public void tilt(double delta) {
@@ -208,8 +157,7 @@ public class Camera extends Pose {
     }
 
     /**
-     * Rotate relative to camera's current orientation
-     * TODO test
+     * Rotate relative to camera's current orientation if canRotate is true.
      * @param delta degrees to rotate.  Positive is counter-clockwise.
      */
     public void roll(double delta) {
@@ -217,11 +165,12 @@ public class Camera extends Pose {
     }
 
     /**
-     * Rotate relative to camera's current orientation
+     * Rotate relative to camera's current orientation if canRotate is true.
      * @param axis axis to rotate around
      * @param delta degrees to rotate.  Positive is clockwise.
      */
     private void rotate(Vector3d axis,double delta) {
+        if(!canRotate) return;
         Matrix3d m = MatrixHelper.getMatrixFromAxisAndRotation(axis,delta);
         Matrix4d m4 = new Matrix4d();
         m4.set(m);
@@ -248,33 +197,21 @@ public class Camera extends Pose {
     }
 
     public Matrix4d getPerspectiveFrustum(int width,int height) {
-        double nearVal = this.getNearZ();
-        double farVal = this.getFarZ();
         double aspect = (double)width / (double)height;
-
-        return MatrixHelper.perspectiveMatrix4d(this.getFovY(),aspect,nearVal,farVal);
+        return MatrixHelper.perspectiveMatrix4d(this.getFovY(),aspect,getNearZ(),getFarZ());
     }
 
     /**
      * Render the scene in orthographic projection.
-     * @param zoom the zoom factor
      */
-    public Matrix4d getOrthographicMatrix(double zoom,int width,int height) {
-        double w = width/2.0f;
-        double h = height/2.0f;
-
-        double left = -w/zoom;
-        double right = w/zoom;
-        double bottom = -h/zoom;
-        double top = h/zoom;
-        double nearVal = this.getNearZ();
-        double farVal = this.getFarZ();
-
-        return MatrixHelper.orthographicMatrix4d(left,right,bottom,top,nearVal,farVal);
+    public Matrix4d getOrthographicMatrix(int width,int height) {
+        double h = 5.0;  // why 5?
+        double w = h * (double)width / (double)height;
+        return MatrixHelper.orthographicMatrix4d(-w,w,-h,h,getNearZ(),getFarZ());
     }
 
     public Matrix4d getChosenProjectionMatrix(int width,int height) {
-        return drawOrthographic ? getOrthographicMatrix(1.0,width,height) : getPerspectiveFrustum(width,height);
+        return drawOrthographic ? getOrthographicMatrix(width,height) : getPerspectiveFrustum(width,height);
     }
 
     public Matrix4d getViewMatrix() {
@@ -288,10 +225,10 @@ public class Camera extends Pose {
      * @return the point that the camera is orbiting around.
      */
     public Vector3d getOrbitPoint() {
-        Matrix4d local = getLocal();
-        Vector3d position = MatrixHelper.getPosition(local);
+        Matrix4d m = getWorld();
+        Vector3d position = MatrixHelper.getPosition(m);
         // z axis points away from the direction the camera is facing.
-        Vector3d zAxis = MatrixHelper.getZAxis(local);
+        Vector3d zAxis = MatrixHelper.getZAxis(m);
         zAxis.scale(-orbitRadius);
         position.add(zAxis);
         return position;
@@ -322,6 +259,7 @@ public class Camera extends Pose {
      * @param dy change in y
      */
     public void orbit(double dx,double dy) {
+        if(!canRotate || !canTranslate) return;
         Vector3d orbitPoint = getOrbitPoint();
         //logger.debug("before {}",orbitPoint);
         double [] panTiltAngles = getPanTiltFromMatrix(getLocal());
@@ -338,7 +276,7 @@ public class Camera extends Pose {
     }
 
     double[] getPanTiltFromMatrix(Matrix4d matrix) {
-        Vector3d v = MatrixHelper.matrixToEuler(matrix);
+        Vector3d v = MatrixHelper.matrixToEuler(matrix, MatrixHelper.EulerSequence.YXZ);
         double pan = Math.toDegrees(-v.z);
         double tilt = Math.toDegrees(v.x);
         return new double[]{ pan, tilt };
@@ -367,6 +305,8 @@ public class Camera extends Pose {
      * @param tiltDegrees tilt angle in degrees
      */
     public void panTilt(double panDegrees, double tiltDegrees) {
+        if(!canRotate) return;
+
         Matrix4d local = getLocal();
         Vector3d t = new Vector3d();
         local.get(t);
@@ -377,5 +317,55 @@ public class Camera extends Pose {
         local.set(panTilt);
         local.setTranslation(t);
         setLocal(local);
+    }
+
+    public boolean getCanTranslate() {
+        return canTranslate;
+    }
+
+    public void setCanTranslate(boolean canTranslate) {
+        this.canTranslate = canTranslate;
+    }
+
+    public boolean getCanRotate() {
+        return canRotate;
+    }
+
+    public void setCanRotate(boolean canRotate) {
+        this.canRotate = canRotate;
+    }
+
+    /**
+     * Move towards or away from the orbit point if canTranslate is true.
+     * @param scale relative to the current orbit distance.
+     */
+    public void orbitDolly(double scale) {
+        if(!canTranslate) return;
+        setOrbitRadius(orbitRadius*scale);
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        var json = super.toJSON();
+        json.put("drawOrthographic",drawOrthographic);
+        json.put("fovY",fovY);
+        json.put("nearZ",nearZ);
+        json.put("farZ",farZ);
+        json.put("orbitRadius",orbitRadius);
+        json.put("canTranslate",canTranslate);
+        json.put("canRotate",canRotate);
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject json) {
+        super.fromJSON(json);
+        drawOrthographic = json.optBoolean("drawOrthographic",drawOrthographic);
+        fovY = json.optDouble("fovY",fovY);
+        nearZ = json.optDouble("nearZ",nearZ);
+        farZ = json.optDouble("farZ",farZ);
+        orbitRadius = json.optDouble("orbitRadius",orbitRadius);
+        canTranslate = json.optBoolean("canTranslate",canTranslate);
+        canRotate = json.optBoolean("canRotate",canRotate);
     }
 }

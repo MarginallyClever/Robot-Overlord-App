@@ -3,12 +3,12 @@ package com.marginallyclever.ro3.node;
 import com.marginallyclever.convenience.PathCalculator;
 
 /**
- * <p>{@link NodePath} stores the  path to a node.  The path can be relative or absolute.
+ * <p>{@link NodePath} stores the uniqueID to a node.
  * Can be used to find a node in the scene graph.</p>
  * @param <T> the type of node to find
  */
 public class NodePath<T extends Node> {
-    private String path;
+    private String uniqueID;
     private final Node owner;
     private final Class<T> type;
 
@@ -16,30 +16,33 @@ public class NodePath<T extends Node> {
         this(owner,type,"");
     }
 
-    public NodePath(Node owner,Class<T> type,String path) {
+    public NodePath(Node owner,Class<T> type,String uniqueID) {
         this.owner = owner;
         this.type = type;
-        this.path = path;
+        this.uniqueID = uniqueID;
     }
 
-    public String getPath() {
-        return path;
+    public String getUniqueID() {
+        return uniqueID;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setUniqueID(String uniqueID) {
+        this.uniqueID = uniqueID;
+    }
+
+    public void setUniqueIDByNode(Node node) {
+        if (node != null) {
+            this.uniqueID = node.getUniqueID().toString();
+        } else {
+            this.uniqueID = "";
+        }
     }
 
     public T getSubject() {
-        return owner.findNodeByPath(path,type);
+        return owner.getRootNode().findNodeByID(uniqueID,type);
     }
 
-    /**
-     * Set the path to the relative path from origin to goal.
-     * @param origin the node to start from
-     * @param goal the node to find
-     */
-    public void setRelativePath(Node origin, T goal) {
-        setPath(PathCalculator.getRelativePath(origin,goal));
+    public Class<T> getType() {
+        return type;
     }
 }

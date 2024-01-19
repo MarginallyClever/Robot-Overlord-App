@@ -6,8 +6,6 @@ import com.marginallyclever.communications.session.SessionLayer;
 import com.marginallyclever.communications.session.SessionLayerEvent;
 import com.marginallyclever.communications.session.SessionLayerListener;
 import com.marginallyclever.convenience.helpers.StringHelper;
-import com.marginallyclever.convenience.log.Log;
-import com.marginallyclever.robotoverlord.components.RobotComponent;
 import com.marginallyclever.robotoverlord.robots.Robot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -358,22 +356,5 @@ public class MarlinPresentation implements PresentationLayer {
 	@Override
 	public JPanel getPanel() {
 		return panel;
-	}
-
-	// TEST
-
-	public static void main(String[] args) {
-		Log.start();
-
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception ignored) {}
-
-		JFrame frame = new JFrame(MarlinPresentation.class.getName());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		MarlinPresentation presentation = new MarlinPresentation(new RobotComponent());
-		frame.add(presentation.getPanel());
-		frame.pack();
-		frame.setVisible(true);
 	}
 }

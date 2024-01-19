@@ -1,7 +1,5 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.jogpanel;
 
-import com.marginallyclever.convenience.log.Log;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
@@ -94,24 +92,5 @@ import java.io.Serial;
 		table.setValueAt(String.format("%.3f", m.m31), 3, 1);
 		table.setValueAt(String.format("%.3f", m.m32), 3, 2);
 		table.setValueAt(String.format("%.3f", m.m33), 3, 3);
-	}
-
-	// TEST
-
-	public static void main(String[] args) {
-		Log.start();
-
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception ignored) {}
-
-		Matrix4d m = new Matrix4d();
-		m.setIdentity();
-		
-		JFrame frame = new JFrame(CartesianReportPanel.class.getSimpleName());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new CartesianReportPanel(m));
-		frame.pack();
-		frame.setVisible(true);
 	}
 }

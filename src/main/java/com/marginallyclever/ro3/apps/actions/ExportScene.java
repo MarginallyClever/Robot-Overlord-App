@@ -3,10 +3,10 @@ package com.marginallyclever.ro3.apps.actions;
 import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.RO3Frame;
+import com.marginallyclever.ro3.apps.shared.FilenameExtensionChecker;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import java.io.*;
 import java.security.InvalidParameterException;
@@ -48,37 +48,31 @@ public class ExportScene extends AbstractAction {
         Component source = (Component) e.getSource();
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
 
-        // make sure to add the extension if the user doesn't
-        chooser.addActionListener((e2) -> {
-            if (JFileChooser.APPROVE_SELECTION.equals(e2.getActionCommand())) {
-                String[] extensions = ZIP_FILTER.getExtensions();
-                File f = chooser.getSelectedFile();
-                String fname = f.getName().toLowerCase();
-                boolean matches = Arrays.stream(extensions).anyMatch((ext) -> fname.toLowerCase().endsWith("." + ext));
-                if (!matches) {
-                    f = new File(f.getPath() + "." + extensions[0]);  // append the first extension from ZIP_FILTER
-                    chooser.setSelectedFile(f);
-                }
-            }
-        });
+        var myListener = new FilenameExtensionChecker(ZIP_FILTER.getExtensions(),chooser);
+        chooser.addActionListener( myListener );
 
-        chooser.setDialogType(JFileChooser.SAVE_DIALOG);
-        if (chooser.showDialog(parentFrame,"Export") == JFileChooser.APPROVE_OPTION) {
-            // check before overwriting.
-            File selectedFile = chooser.getSelectedFile();
-            if (selectedFile.exists()) {
-                int response = JOptionPane.showConfirmDialog(SwingUtilities.getWindowAncestor(source),
-                        "Do you want to replace the existing file?",
-                        "Confirm Overwrite",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
-                if (response == JOptionPane.NO_OPTION) {
-                    return;
+        try {
+            chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+            if (chooser.showDialog(parentFrame, "Export") == JFileChooser.APPROVE_OPTION) {
+                // check before overwriting.
+                File selectedFile = chooser.getSelectedFile();
+                if (selectedFile.exists()) {
+                    int response = JOptionPane.showConfirmDialog(parentFrame,
+                            "Do you want to replace the existing file?",
+                            "Confirm Overwrite",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.QUESTION_MESSAGE);
+                    if (response == JOptionPane.NO_OPTION) {
+                        return;
+                    }
                 }
-            }
 
-            String absolutePath = chooser.getSelectedFile().getAbsolutePath();
-            commitExport(absolutePath);
+                String absolutePath = chooser.getSelectedFile().getAbsolutePath();
+                commitExport(absolutePath);
+            }
+        }
+        finally {
+            chooser.removeActionListener( myListener );
         }
     }
 
@@ -111,7 +105,7 @@ public class ExportScene extends AbstractAction {
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(outputZipFile))) {
             for( String originalPath : sources ) {
                 String newName = createUniqueName(originalPath, pathMapping);
-                logger.debug("Adding {} as {}", originalPath, newName);
+                //logger.debug("Adding {} as {}", originalPath, newName);
                 addFileToZip(originalPath, rootFolderName + "/" + newName, zipOutputStream);
 
                 String safeOriginal = makeSafe(originalPath);
@@ -141,8 +135,7 @@ public class ExportScene extends AbstractAction {
         asset.put("path",originalPath);
         // find the json version of the string
         String unsafeName = asset.toString();
-        String safeName = unsafeName.substring(jsonAssetHead.length(), unsafeName.length() - jsonAssetTail.length());
-        return safeName;
+        return unsafeName.substring(jsonAssetHead.length(), unsafeName.length() - jsonAssetTail.length());
     }
 
     private void addFileToZip(String filePath, String newName, ZipOutputStream zos) throws IOException {
@@ -177,7 +170,7 @@ public class ExportScene extends AbstractAction {
 
     private String replacePathsInJson(String json, Map<String, String> pathMapping) {
         for (Map.Entry<String, String> entry : pathMapping.entrySet()) {
-            logger.debug("Replacing {} with {}", entry.getKey(), entry.getValue());
+            //logger.debug("Replacing {} with {}", entry.getKey(), entry.getValue());
             json = json.replace(entry.getKey(), entry.getValue());
         }
         return json;

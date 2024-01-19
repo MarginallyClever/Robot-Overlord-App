@@ -23,6 +23,7 @@ import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 /**
  * Draw each {@link MeshInstance} as a {@link Mesh}.  If the {@link MeshInstance} has a sibling {@link Material} with
@@ -38,11 +39,16 @@ public class DrawMeshes extends AbstractRenderPass {
     public static final int SHADOW_WIDTH = 1024;
     public static final int SHADOW_HEIGHT = 1024;
     public static final Vector3d sunlightSource = new Vector3d(5,15,75);
+    public static Color sunlightColor = new Color(0xfd,0xfb,0xd3,255);
     public static final Matrix4d lightProjection = new Matrix4d();
     public static final Matrix4d lightView = new Matrix4d();
+    private double declination = 0;  // degrees, +/-90
+    private double timeOfDay = 12;  // 0-24
 
     public DrawMeshes() {
         super("Meshes");
+
+        loadPrefs();
 
         shadowQuad.setRenderStyle(GL3.GL_QUADS);
         float v = 100;
@@ -231,7 +237,7 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setVector3d(gl3, "cameraPos", cameraWorldPos);  // Camera position in world space
         meshShader.setVector3d(gl3, "lightPos", sunlightSource);  // Light position in world space
 
-        meshShader.setColor(gl3, "lightColor", Color.WHITE);
+        meshShader.setColor(gl3, "lightColor", sunlightColor);
         meshShader.setColor(gl3, "objectColor", Color.WHITE);
         meshShader.setColor(gl3, "specularColor", Color.WHITE);
         meshShader.setColor(gl3,"ambientColor",Color.LIGHT_GRAY);
@@ -303,5 +309,69 @@ public class DrawMeshes extends AbstractRenderPass {
         double [] list = new double[16];
         jm.get(list);
         return new Matrix4d(list);
+    }
+
+    public Color getSunlightColor() {
+        return sunlightColor;
+    }
+
+    public void setSunlightColor(Color color) {
+        sunlightColor = color;
+    }
+
+    public Vector3d getSunlightSource() {
+        return sunlightSource;
+    }
+
+    public double getDeclination() {
+        return declination;
+    }
+
+    public void setDeclination(double declination) {
+        this.declination = declination;
+        sunlightSource.set(calculateSunPosition());
+    }
+
+    public double getTimeOfDay() {
+        return timeOfDay;
+    }
+
+    public void setTimeOfDay(double timeOfDay) {
+        this.timeOfDay = timeOfDay;
+        sunlightSource.set(calculateSunPosition());
+    }
+
+    private void loadPrefs() {
+        Preferences pref = Preferences.userNodeForPackage(this.getClass());
+        declination = pref.getDouble("declination",declination);
+        timeOfDay = pref.getDouble("timeOfDay",timeOfDay);
+        sunlightSource.set(calculateSunPosition());
+        sunlightColor = new Color(pref.getInt("sunlightColor",sunlightColor.getRGB()));
+    }
+
+    public void savePrefs() {
+        Preferences pref = Preferences.userNodeForPackage(this.getClass());
+        pref.putDouble("declination",declination);
+        pref.putDouble("timeOfDay",timeOfDay);
+        pref.putInt("sunlightColor",sunlightColor.getRGB());
+    }
+
+    private Vector3d calculateSunPosition() {
+        Matrix4d m = new Matrix4d();
+        m.rotX(Math.toRadians(180-declination));
+        Vector3d vx = MatrixHelper.getXAxis(m);
+        Vector3d vy = MatrixHelper.getZAxis(m);
+
+        double hourAngle = Math.toRadians(timeOfDay); // Convert hours to degrees
+
+        System.out.println("hourAngle="+(timeOfDay%24)+" declination="+declination);
+        var result = new Vector3d();
+        vy.scale(Math.cos(hourAngle));
+        vx.scale(Math.sin(hourAngle));
+        result.add(vx, vy);
+
+        result.scale(75);
+
+        return result;
     }
 }

@@ -7,6 +7,7 @@ import com.jogamp.opengl.GLEventListener;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
+import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.renderpasses.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.Compass3D;
@@ -51,10 +52,9 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private final List<ViewportTool> viewportTools = new ArrayList<>();
     private int activeToolIndex = -1;
     private ShaderProgram toolShader;
-    private final double userMovementScale = 1.0;
+    private double userMovementScale = 1.0;
     private final JButton frameOfReferenceButton = new JButton();
     private final JPopupMenu frameOfReferenceMenu = new JPopupMenu();
-
 
     public Viewport() {
         super();
@@ -216,7 +216,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             }
             @Override
             public void actionPerformed(ActionEvent e) {
-                setFrameOfReference(ViewportTool.FRAME_WORLD);
+                setFrameOfReference(FrameOfReference.WORLD);
                 frameOfReferenceButton.setIcon(icon);
             }
         });
@@ -230,7 +230,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             }
             @Override
             public void actionPerformed(ActionEvent e) {
-                setFrameOfReference(ViewportTool.FRAME_CAMERA);
+                setFrameOfReference(FrameOfReference.CAMERA);
                 frameOfReferenceButton.setIcon(icon);
             }
         });
@@ -244,7 +244,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             }
             @Override
             public void actionPerformed(ActionEvent e) {
-                setFrameOfReference(ViewportTool.FRAME_LOCAL);
+                setFrameOfReference(FrameOfReference.LOCAL);
                 frameOfReferenceButton.setIcon(icon);
             }
         });
@@ -263,10 +263,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         return frameOfReferenceButton;
     }
 
-    private void setFrameOfReference(int frameOfReference) {
-        if(frameOfReference < 0 || frameOfReference >= ViewportTool.FRAME_COUNT) {
-            throw new InvalidParameterException("frameOfReference out of range.");
-        }
+    private void setFrameOfReference(FrameOfReference frameOfReference) {
         for( var t : viewportTools) t.setFrameOfReference(frameOfReference);
     }
 
@@ -550,11 +547,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private void changeOrbitRadius(int dz) {
         Camera camera = Registry.getActiveCamera();
         assert camera != null;
-        double orbitRadius = camera.getOrbitRadius();
-        double before = orbitRadius;
-        orbitRadius = dz > 0 ? orbitRadius * orbitChangeFactor : orbitRadius / orbitChangeFactor;
-        double after = orbitRadius;
-        camera.setOrbitRadius(orbitRadius);
+        camera.orbitDolly(dz > 0 ? 1.0 * orbitChangeFactor : 1.0 / orbitChangeFactor);
     }
 
     public double getOrbitChangeFactor() {
@@ -600,7 +593,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             // adjust the ray by the camera world pose.
             Matrix4d m2 = camera.getWorld();
             m2.transform(direction);
-            origin = new Point3d(camera.getPosition());
+            origin = new Point3d(MatrixHelper.getPosition(m2));
             //logger.debug("origin {} direction {}",origin,direction);
         }
 
@@ -650,5 +643,18 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         if(activeToolIndex >= 0) {
             viewportTools.get(activeToolIndex).activate(Registry.selection.getList());
         }
+    }
+
+    public double getUserMovementScale() {
+        return userMovementScale;
+    }
+
+    /**
+     * Set the scale of user movement.  This is used to scale the mouse movement to the camera movement.
+     * @param scale a value greater than zero.
+     */
+    public void setUserMovementScale(double scale) {
+        if(scale<=0) throw new InvalidParameterException("scale must be greater than zero.");
+        userMovementScale=scale;
     }
 }

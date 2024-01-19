@@ -1,20 +1,13 @@
 package com.marginallyclever.ro3.node.nodes.pose;
 
-import com.marginallyclever.convenience.swing.Dial;
-import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
-import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Motor;
-import com.marginallyclever.ro3.node.nodes.Pose;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,8 +40,8 @@ public class Limb extends Pose {
     /**
      * @return the end effector pose or null if not set.
      */
-    public Pose getEndEffector() {
-        return endEffector.getSubject() == null ? null : endEffector.getSubject();
+    public NodePath<Pose> getEndEffector() {
+        return endEffector;
     }
 
     public List<NodePath<Motor>> getMotors() {
@@ -63,8 +56,14 @@ public class Limb extends Pose {
         return count;
     }
 
-    public Motor getJoint(int i) {
-        return motors.get(i).getSubject();
+    /**
+     * Get the motor at the given index.
+     * @param index the index of the motor to get.
+     * @return the motor at the given index.
+     * @throws IndexOutOfBoundsException if the index is out of range.
+     */
+    public Motor getJoint(int index) {
+        return motors.get(index).getSubject();
     }
 
     public double[] getAllJointAngles() {
@@ -73,10 +72,24 @@ public class Limb extends Pose {
         for(NodePath<Motor> paths : motors) {
             Motor motor = paths.getSubject();
             if(motor!=null) {
-                result[i++] = motor.getHinge().getAngle();
+                if(motor.hasHinge()) {
+                    result[i++] = motor.getHinge().getAngle();
+                } else {
+                    result[i++] = 0;
+                }
             }
         }
         return result;
+    }
+
+    /**
+     * Get the motor at the given index.
+     * @param index the index of the motor to get.
+     * @param newValue the new motor to set.
+     * @throws IndexOutOfBoundsException if the index is out of range.
+     */
+    public void setJoint(int index, Motor newValue) {
+        motors.get(index).setUniqueIDByNode(newValue);
     }
 
     public void setAllJointAngles(double[] values) {
@@ -89,10 +102,11 @@ public class Limb extends Pose {
             if(motor!=null) {
                 HingeJoint axle = motor.getHinge();
                 if(axle!=null) {
-                    axle.setAngle(values[i++]);
+                    axle.setAngle(values[i]);
                     axle.update(0);
                 }
             }
+            i++;
         }
     }
 
@@ -116,13 +130,13 @@ public class Limb extends Pose {
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
         JSONArray jointArray = new JSONArray();
-        json.put("version",1);
+        json.put("version",2);
 
         for(var motor : motors) {
-            jointArray.put(motor == null ? JSONObject.NULL : motor.getPath());
+            jointArray.put(motor == null ? JSONObject.NULL : motor.getUniqueID());
         }
         json.put("motors",jointArray);
-        if(endEffector.getSubject()!=null) json.put("endEffector",endEffector.getPath());
+        if(endEffector.getSubject()!=null) json.put("endEffector",endEffector.getUniqueID());
         return json;
     }
 
@@ -135,121 +149,31 @@ public class Limb extends Pose {
             JSONArray motorArray = from.getJSONArray("motors");
             for(int i=0;i<motorArray.length();++i) {
                 if(motorArray.isNull(i)) {
-                    motors.get(i).setPath(null);
+                    motors.get(i).setUniqueID(null);
                 } else {
+                    String s = motorArray.getString(i);
                     if(version==1) {
-                        motors.get(i).setPath(motorArray.getString(i));
-                    } else if(version==0) {
-                        Motor motor = this.getRootNode().findNodeByID(motorArray.getString(i), Motor.class);
-                        motors.get(i).setRelativePath(this,motor);
+                        motors.get(i).setUniqueIDByNode(this.findNodeByPath(s,Motor.class));
+                    } else if(version==0||version==2) {
+                        motors.get(i).setUniqueID(s);
                     }
                 }
             }
         }
-        Node root = this.getRootNode();
+
         if(from.has("endEffector")) {
             String s = from.getString("endEffector");
             if(version==1) {
-                endEffector.setPath(s);
-            } else if(version==0) {
-                Pose goal = root.findNodeByID(s,Pose.class);
-                endEffector.setRelativePath(this,goal);
+                endEffector.setUniqueIDByNode(this.findNodeByPath(s,Pose.class));
+            } else if(version==0||version==2) {
+                endEffector.setUniqueID(s);
             }
         }
     }
 
     @Override
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridBagLayout());
-        list.add(pane);
-        pane.setName(Limb.class.getSimpleName());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.gridx=0;
-        gbc.gridy=0;
-        gbc.gridwidth=1;
-        NodePanelHelper.addNodeSelector(pane, "End Effector", endEffector, Pose.class, gbc,this);
-
-        gbc.gridx=0;
-        gbc.gridwidth=2;
-        gbc.gridy++;
-        pane.add(createFKDials(),gbc);
-
-        gbc.gridy++;
-        pane.add(addMotorPanel(),gbc);
-
+        list.add(new LimbPanel(this));
         super.getComponents(list);
-    }
-
-    private JComponent createFKDials() {
-        var containerPanel = new CollapsiblePanel("Forward Kinematics");
-        var outerPanel = containerPanel.getContentPane();
-        outerPanel.setLayout(new GridLayout(0,3));
-
-        int count=0;
-        for(int i=0;i<getNumJoints();++i) {
-            Motor motor = motors.get(i).getSubject();
-            if(motor==null) continue;
-            outerPanel.add(createOneFKDial(motor));
-            count++;
-        }
-        count = 3-(count%3);
-        for(int i=0;i<count;++i) {
-            outerPanel.add(new JPanel());
-        }
-
-        return containerPanel;
-    }
-
-    private JPanel createOneFKDial(final Motor motor) {
-        JPanel panel = new JPanel(new BorderLayout());
-        Dial dial = new Dial();
-        dial.addActionListener(e -> {
-            if(motor.hasHinge()) {
-                motor.getHinge().setAngle(dial.getValue());
-                dial.setValue(motor.getHinge().getAngle());
-            }
-        });
-        // TODO subscribe to motor.getAxle().getAngle(), then dial.setValue() without triggering an action event.
-
-        JLabel label = new JLabel(motor.getName());
-        label.setLabelFor(dial);
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-        panel.add(label,BorderLayout.PAGE_START);
-        panel.add(dial,BorderLayout.CENTER);
-        dial.setPreferredSize(new Dimension(80,80));
-        if(motor.hasHinge()) {
-            dial.setValue(motor.getHinge().getAngle());
-        }
-        return panel;
-    }
-
-    private JComponent addMotorPanel() {
-        var containerPanel = new CollapsiblePanel("Motors");
-        containerPanel.setCollapsed(true);
-        var outerPanel = containerPanel.getContentPane();
-        outerPanel.setLayout(new GridBagLayout());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.gridx=0;
-        gbc.gridy=0;
-        gbc.fill = GridBagConstraints.BOTH;
-
-        // add a selector for each motor
-        var motorSelector = new NodeSelector[MAX_JOINTS];
-        for(int i=0;i<MAX_JOINTS;++i) {
-            motorSelector[i] = new NodeSelector<>(Motor.class, motors.get(i).getSubject());
-            int j = i;
-            motorSelector[i].addPropertyChangeListener("subject",(e)-> {
-                motors.get(j).setRelativePath(this,(Motor)e.getNewValue());
-            });
-            NodePanelHelper.addLabelAndComponent(outerPanel, "Motor "+i, motorSelector[i],gbc);
-        }
-        return containerPanel;
     }
 }

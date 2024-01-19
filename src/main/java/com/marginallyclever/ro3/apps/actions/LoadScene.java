@@ -71,7 +71,15 @@ public class LoadScene extends AbstractAction {
                 ? new File(filePath)  // use the given filename
                 : runFileDialog((Component) e.getSource());  // ask the user for a filename
         if( src == null ) return;  // cancelled
-        commitLoad(src);
+        try {
+            commitLoad(src);
+        } catch(Exception ex) {
+            logger.error("Error loading file.  ", ex);
+            JOptionPane.showMessageDialog((Component) e.getSource(),
+                    "Error loading file.  " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
         UndoSystem.reset();
     }
 
@@ -86,10 +94,10 @@ public class LoadScene extends AbstractAction {
     }
 
     public void commitLoad(File selectedFile) {
-        if( selectedFile == null ) throw new InvalidParameterException("selectedFile cannot be null");
+        if( selectedFile == null ) throw new InvalidParameterException("File cannot be null");
         if( !selectedFile.exists() ) {
             menu.removePath(selectedFile.getAbsolutePath());
-            throw new InvalidParameterException("selectedFile does not exist");
+            throw new InvalidParameterException("File does not exist");
         }
 
         logger.info("Load from {}",selectedFile.getAbsolutePath());

@@ -19,7 +19,7 @@ import javax.vecmath.Point3d;
  */
 @ComponentDependency(components = {PoseComponent.class})
 @Deprecated
-public class GCodePathComponent extends ShapeComponent implements WalkablePath<Point3d> {
+public class GCodePathComponent extends ShapeComponent {
     public final StringParameter filename = new StringParameter("File","");
     public final IntParameter numCommands = new IntParameter("Commands",0);
     public final DoubleParameter distanceMeasured = new DoubleParameter("Distance",0);
@@ -35,23 +35,12 @@ public class GCodePathComponent extends ShapeComponent implements WalkablePath<P
 
     @Override
     public void render(GL3 gl) {
-        if(gCodePath==null) return;
-
-        boolean tex = OpenGLHelper.disableTextureStart(gl);
-
-        myMesh.render(gl);
-
-        if(location!=null) {
-            MatrixHelper.createMesh(location,3).render(gl);
-        }
-
-        OpenGLHelper.disableTextureEnd(gl,tex);
     }
 
     private void drawEntirePath() {
         PathWalker pathWalker = new PathWalker(null,gCodePath,maxStepSize);
 
-        if(myMesh==null) myMesh = new Mesh();
+        var myMesh = new Mesh();
         myMesh.clear();
         myMesh.setRenderStyle(GL3.GL_LINE_STRIP);
 
@@ -108,7 +97,6 @@ public class GCodePathComponent extends ShapeComponent implements WalkablePath<P
         return numCommands.get();
     }
 
-    @Override
     public double getDistanceMeasured() {
         return distanceMeasured.get();
     }
@@ -118,7 +106,6 @@ public class GCodePathComponent extends ShapeComponent implements WalkablePath<P
      * @param d how far to travel along the gcodepath, where d is a value between 0 and distanceMeasured.
      * @return position in world at distance d or null if d is out of range.
      */
-    @Override
     public Point3d get(double d) {
         double sum = 0;
         if(gCodePath==null) return null;

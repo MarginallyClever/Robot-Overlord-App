@@ -3,9 +3,6 @@ package com.marginallyclever.misc;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
-import com.marginallyclever.convenience.log.Log;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -24,16 +21,6 @@ public class JSCHTests {
 
     private static final String SHELL_TO_SERIAL_STRING = "picocom -b" + DEFAULT_BAUD + " " + DEFAULT_USB_DEVICE;
 
-	@Before
-	public void before() {
-		Log.start();
-	}
-	
-	@After
-	public void after() {
-		Log.end();
-	}
-	
     @Test
     @Timeout(15)
     public void testConnectAndReadData() throws Exception {

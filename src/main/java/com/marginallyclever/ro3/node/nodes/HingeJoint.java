@@ -1,17 +1,11 @@
 package com.marginallyclever.ro3.node.nodes;
 
-import com.marginallyclever.convenience.PathCalculator;
-import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 
 import javax.swing.*;
-import javax.swing.text.NumberFormatter;
-import java.awt.*;
-import java.text.NumberFormat;
 import java.util.List;
 
 /**
@@ -58,54 +52,7 @@ public class HingeJoint extends Node {
 
     @Override
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridLayout(0,2));
-        list.add(pane);
-        pane.setName(HingeJoint.class.getSimpleName());
-
-        NumberFormatter formatter = NumberFormatHelper.getNumberFormatter();
-
-        JFormattedTextField angleField = new JFormattedTextField(formatter);
-        angleField.setValue(angle);
-        angleField.addPropertyChangeListener("value", (evt) ->{
-            angle = ((Number) angleField.getValue()).doubleValue();
-        });
-
-        JFormattedTextField maxAngleField = new JFormattedTextField(formatter);
-        maxAngleField.setValue(maxAngle);
-        maxAngleField.addPropertyChangeListener("value", (evt) ->{
-            maxAngle = ((Number) maxAngleField.getValue()).doubleValue();
-        });
-
-        JFormattedTextField minAngleField = new JFormattedTextField(formatter);
-        minAngleField.setValue(minAngle);
-        minAngleField.addPropertyChangeListener("value", (evt) ->{
-            minAngle = ((Number) minAngleField.getValue()).doubleValue();
-        });
-
-        JFormattedTextField velocityField = new JFormattedTextField(formatter);
-        velocityField.setValue(velocity);
-        velocityField.addPropertyChangeListener("value", (evt) ->{
-            velocity = ((Number) velocityField.getValue()).doubleValue();
-        });
-
-        JFormattedTextField accelerationField = new JFormattedTextField(formatter);
-        accelerationField.setValue(acceleration);
-        accelerationField.addPropertyChangeListener("value", (evt) ->{
-            acceleration = ((Number) accelerationField.getValue()).doubleValue();
-        });
-
-        NodeSelector<Pose> selector = new NodeSelector<>(Pose.class,axle.getSubject());
-        selector.addPropertyChangeListener("subject", (evt) ->{
-            axle.setRelativePath(this,selector.getSubject());
-        });
-
-        NodePanelHelper.addLabelAndComponent(pane, "Axle",selector);
-        NodePanelHelper.addLabelAndComponent(pane, "Angle",angleField);
-        NodePanelHelper.addLabelAndComponent(pane, "Min",minAngleField);
-        NodePanelHelper.addLabelAndComponent(pane, "Max",maxAngleField);
-        NodePanelHelper.addLabelAndComponent(pane, "Velocity",velocityField);
-        NodePanelHelper.addLabelAndComponent(pane, "Acceleration",accelerationField);
-
+        list.add(new HingeJointPanel(this));
         super.getComponents(list);
     }
 
@@ -129,8 +76,8 @@ public class HingeJoint extends Node {
         json.put("maxAngle",maxAngle);
         json.put("velocity",velocity);
         json.put("acceleration",acceleration);
-        json.put("version",1);
-        if(axle.getSubject()!=null) json.put("axle",axle.getPath());
+        json.put("version",2);
+        if(axle.getSubject()!=null) json.put("axle",axle.getUniqueID());
 
         return json;
     }
@@ -146,11 +93,11 @@ public class HingeJoint extends Node {
 
         int version = from.has("version") ? from.getInt("version") : 0;
         if(from.has("axle")) {
+            String s = from.getString("axle");
             if(version==1) {
-                axle.setPath(from.getString("axle"));
-            } else if(version==0) {
-                Pose pose = this.getRootNode().findNodeByID(from.getString("axle"),Pose.class);
-                axle.setPath( PathCalculator.getRelativePath(this,pose) );
+                axle.setUniqueIDByNode(this.findNodeByPath(s,Pose.class));
+            } else if(version==0 || version==2) {
+                axle.setUniqueID(s);
             }
         }
     }
@@ -172,8 +119,16 @@ public class HingeJoint extends Node {
         return minAngle;
     }
 
+    public void setMinAngle(double v) {
+        minAngle = v;
+    }
+
     public double getMaxAngle() {
         return maxAngle;
+    }
+
+    public void setMaxAngle(double v) {
+        maxAngle = v;
     }
 
     public double getVelocity() {
@@ -194,5 +149,9 @@ public class HingeJoint extends Node {
 
     public Pose getAxle() {
         return axle.getSubject();
+    }
+
+    public void setAxle(Pose subject) {
+        axle.setUniqueIDByNode(subject);
     }
 }

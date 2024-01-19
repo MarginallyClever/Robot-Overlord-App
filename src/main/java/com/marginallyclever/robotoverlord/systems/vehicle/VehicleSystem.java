@@ -25,7 +25,7 @@ import java.util.List;
  * A system that manages all vehicles.
  *
  */
-public class VehicleSystem implements EntitySystem {
+@Deprecated public class VehicleSystem implements EntitySystem {
     private final EntityManager entityManager;
 
     public VehicleSystem(EntityManager entityManager) {
@@ -53,7 +53,7 @@ public class VehicleSystem implements EntitySystem {
 
         // TODO: how to manage a list?
 
-        ViewElementButton bDrive = view.addButton("Drive");
+        ViewElementButton bDrive = (ViewElementButton)view.addButton("Drive");
         bDrive.addActionEventListener(evt -> openDrivePanel(bDrive,car));
     }
 

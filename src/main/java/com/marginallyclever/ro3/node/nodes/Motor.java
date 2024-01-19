@@ -1,13 +1,10 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.node.NodePanelHelper;
 import com.marginallyclever.ro3.node.NodePath;
 import org.json.JSONObject;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.List;
 
 /**
@@ -37,24 +34,15 @@ public class Motor extends Node {
 
     @Override
     public void getComponents(List<JPanel> list) {
-        JPanel pane = new JPanel(new GridLayout(0,2));
-        list.add(pane);
-        pane.setName(Motor.class.getSimpleName());
-
-        NodeSelector<HingeJoint> selector = new NodeSelector<>(HingeJoint.class,hinge.getSubject());
-        selector.addPropertyChangeListener("subject", (evt) ->{
-            hinge.setRelativePath(this,selector.getSubject());
-        });
-        NodePanelHelper.addLabelAndComponent(pane, "Hinge", selector);
-
+        list.add(new MotorPanel(this));
         super.getComponents(list);
     }
 
     @Override
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
-        json.put("version",1);
-        if(hinge.getSubject()!=null) json.put("hinge",hinge.getPath());
+        json.put("version",2);
+        if(hinge.getSubject()!=null) json.put("hinge",hinge.getUniqueID());
         return json;
     }
 
@@ -63,11 +51,11 @@ public class Motor extends Node {
         super.fromJSON(from);
         int version = from.has("version") ? from.getInt("version") : 0;
         if(from.has("hinge")) {
+            String s = from.getString("hinge");
             if(version==1) {
-                hinge.setPath(from.getString("hinge"));
-            } else if(version==0) {
-                HingeJoint joint = this.getRootNode().findNodeByID(from.getString("hinge"), HingeJoint.class);
-                hinge.setRelativePath(this, joint);
+                hinge.setUniqueIDByNode(this.findNodeByPath(s,HingeJoint.class));
+            } else if(version==0 || version==2) {
+                hinge.setUniqueID(s);
             }
         }
     }
@@ -81,7 +69,7 @@ public class Motor extends Node {
      * @param hinge the hinge this motor will drive.
      */
     public void setHinge(HingeJoint hinge) {
-        this.hinge.setRelativePath(this, hinge);
+        this.hinge.setUniqueIDByNode(hinge);
     }
 
     public boolean hasHinge() {
