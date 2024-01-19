@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>{@link LookAt} is a pose that always faces a target.  The target is another {@link Pose}.
@@ -85,5 +86,10 @@ public class LookAt extends Pose {
 
     public void setTarget(Pose target) {
         this.target.setUniqueIDByNode(target);
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/icons8-look-16.png")));
     }
 }

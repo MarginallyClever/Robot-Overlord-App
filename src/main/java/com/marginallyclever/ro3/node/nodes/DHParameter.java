@@ -9,6 +9,7 @@ import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>{@link DHParameter} is a node that translates a sibling {@link Pose} to and from
@@ -170,5 +171,10 @@ public class DHParameter extends Node {
 
     public double getTheta() {
         return theta;
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/icons8-abscissa-16.png")));
     }
 }
