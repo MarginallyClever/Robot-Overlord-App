@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>{@link Limb} is a linear chain of bones, joints, and muscles.  Bones are represented by {@link Pose}s.  Joints are
@@ -175,5 +176,10 @@ public class Limb extends Pose {
     public void getComponents(List<JPanel> list) {
         list.add(new LimbPanel(this));
         super.getComponents(list);
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/icons8-mechanical-arm-16.png")));
     }
 }

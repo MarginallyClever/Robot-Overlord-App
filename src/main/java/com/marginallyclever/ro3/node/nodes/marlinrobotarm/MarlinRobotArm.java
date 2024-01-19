@@ -18,6 +18,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>{@link MarlinRobotArm} converts the state of a robot arm into GCode and back.</p>
@@ -395,5 +396,10 @@ public class MarlinRobotArm extends Node {
 
     public NodePath<Motor> getGripperMotor() {
         return gripperMotor;
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/marlinrobotarm/marlin.png")));
     }
 }

@@ -3,7 +3,6 @@ package com.marginallyclever.ro3.node.nodes.pose;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.mesh.AABB;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.raypicking.RayHit;
 import org.json.JSONObject;
@@ -13,6 +12,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>A {@link MeshInstance} is a {@link Pose} containing a {@link Mesh}.</p>
@@ -118,5 +118,10 @@ public class MeshInstance extends Pose {
         Vector3d d = new Vector3d(normal);
         getWorld().transform(d);
         return d;
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/icons8-mesh-16.png")));
     }
 }

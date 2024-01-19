@@ -10,6 +10,7 @@ import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>A {@link Pose} is a {@link Node} that has a position and rotation in space.</p>
@@ -135,5 +136,10 @@ public class Pose extends Node {
 
     public void setRotationIndex(MatrixHelper.EulerSequence rotationIndex) {
         this.rotationIndex = rotationIndex;
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/icons8-xyz-16.png")));
     }
 }

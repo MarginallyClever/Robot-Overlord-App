@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>{@link Material} contains properties for rendering a surface.  The first use case is to apply a texture to a
@@ -115,5 +116,10 @@ public class Material extends Node {
 
     public void setLit(boolean isLit) {
         this.isLit = isLit;
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/icons8-texture-16.png")));
     }
 }
