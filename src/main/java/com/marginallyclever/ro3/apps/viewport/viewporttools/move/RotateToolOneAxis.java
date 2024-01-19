@@ -353,6 +353,7 @@ public class RotateToolOneAxis implements ViewportTool {
     @Override
     public void render(GL3 gl, ShaderProgram shaderProgram) {
         if(selectedItems==null || selectedItems.isEmpty()) return;
+        if( !MoveUtils.listContainsAPose(selectedItems.getNodes()) ) return;
 
         drawMainRingAndHandles(gl,shaderProgram);
         if(dragging) {

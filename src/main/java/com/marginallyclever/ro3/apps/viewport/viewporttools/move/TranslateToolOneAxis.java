@@ -234,6 +234,7 @@ public class TranslateToolOneAxis implements ViewportTool {
     @Override
     public void render(GL3 gl, ShaderProgram shaderProgram) {
         if (selectedItems == null || selectedItems.isEmpty()) return;
+        if( !MoveUtils.listContainsAPose(selectedItems.getNodes()) ) return;
 
         float colorScale = cursorOverHandle ? 1:0.5f;
         float red   = color.red   * colorScale / 255f;

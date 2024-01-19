@@ -232,7 +232,8 @@ public class TranslateToolMulti implements ViewportTool {
      */
     @Override
     public void render(GL3 gl, ShaderProgram shaderProgram) {
-        if (selectedItems == null || selectedItems.isEmpty()) return;
+        if( selectedItems == null || selectedItems.isEmpty() ) return;
+        if( !MoveUtils.listContainsAPose(selectedItems.getNodes()) ) return;
 
         int i = getIndexInUse();
         if (0 == i || -1 == i) toolX.render(gl,shaderProgram);

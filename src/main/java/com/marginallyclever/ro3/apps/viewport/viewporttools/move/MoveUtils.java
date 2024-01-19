@@ -100,4 +100,14 @@ public class MoveUtils {
 
         return m;
     }
+
+    public static boolean listContainsAPose(List<Node> list) {
+        boolean valid = false;
+        for(Node n : list) {
+            if(n instanceof Pose) {
+                return true;
+            }
+        }
+        return valid;
+    }
 }
