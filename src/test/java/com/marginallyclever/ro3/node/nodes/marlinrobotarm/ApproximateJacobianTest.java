@@ -5,7 +5,7 @@ import com.marginallyclever.ro3.apps.actions.LoadScene;
 import com.marginallyclever.ro3.node.nodes.limbsolver.ApproximateJacobian;
 import com.marginallyclever.ro3.node.nodes.limbsolver.ApproximateJacobianFiniteDifferences;
 import com.marginallyclever.ro3.node.nodes.limbsolver.ApproximateJacobianScrewTheory;
-import com.marginallyclever.ro3.node.nodes.pose.Limb;
+import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import org.junit.jupiter.api.*;
 
 import java.io.File;

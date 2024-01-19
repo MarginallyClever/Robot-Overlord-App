@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.pose;
+package com.marginallyclever.ro3.node.nodes.pose.poses;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.MeshChooserDialog;

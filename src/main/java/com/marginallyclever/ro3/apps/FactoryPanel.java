@@ -153,6 +153,7 @@ public class FactoryPanel<T> extends JPanel {
                 okButton.setEnabled(category.getSupplier() != null);
             }
         });
+        tree.setToolTipText("");
     }
 
     /**

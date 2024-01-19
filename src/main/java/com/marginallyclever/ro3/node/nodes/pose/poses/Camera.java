@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes;
+package com.marginallyclever.ro3.node.nodes.pose.poses;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
@@ -11,6 +11,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.security.InvalidParameterException;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>The Camera class is a subclass of the Pose class and is used by a Viewport to viewport the scene in a 3D graphics or game engine. This class provides several functionalities:</p>
@@ -367,5 +368,10 @@ public class Camera extends Pose {
         orbitRadius = json.optDouble("orbitRadius",orbitRadius);
         canTranslate = json.optBoolean("canTranslate",canTranslate);
         canRotate = json.optBoolean("canRotate",canRotate);
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/poses/icons8-movie-camera-16.png")));
     }
 }

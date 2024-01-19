@@ -1,9 +1,10 @@
-package com.marginallyclever.ro3.node.nodes.pose;
+package com.marginallyclever.ro3.node.nodes.pose.poses;
 
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Motor;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -180,6 +181,6 @@ public class Limb extends Pose {
 
     @Override
     public Icon getIcon() {
-        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/icons8-mechanical-arm-16.png")));
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/poses/icons8-mechanical-arm-16.png")));
     }
 }

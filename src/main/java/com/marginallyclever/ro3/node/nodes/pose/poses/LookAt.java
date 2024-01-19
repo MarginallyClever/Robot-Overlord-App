@@ -1,7 +1,8 @@
-package com.marginallyclever.ro3.node.nodes.pose;
+package com.marginallyclever.ro3.node.nodes.pose.poses;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.node.NodePath;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -90,6 +91,6 @@ public class LookAt extends Pose {
 
     @Override
     public Icon getIcon() {
-        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/icons8-look-16.png")));
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/poses/icons8-look-16.png")));
     }
 }

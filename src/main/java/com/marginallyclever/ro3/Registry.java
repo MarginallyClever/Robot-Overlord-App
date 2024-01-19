@@ -4,14 +4,11 @@ import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.mesh.MeshFactory;
 import com.marginallyclever.ro3.node.nodes.*;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.behavior.Behavior;
-import com.marginallyclever.ro3.node.nodes.behavior.Fallback;
-import com.marginallyclever.ro3.node.nodes.behavior.Sequence;
-import com.marginallyclever.ro3.node.nodes.behavior.decorators.*;
 import com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlanner;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
 import com.marginallyclever.ro3.node.nodes.pose.*;
+import com.marginallyclever.ro3.node.nodes.pose.poses.*;
 import com.marginallyclever.ro3.texture.TextureFactory;
 
 import javax.swing.event.EventListenerList;
