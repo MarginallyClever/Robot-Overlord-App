@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
@@ -289,7 +290,7 @@ public class Compass3D implements ViewportTool {
     }
 
     @Override
-    public void setFrameOfReference(int index) {}
+    public void setFrameOfReference(FrameOfReference index) {}
 
     @Override
     public void init(GL3 gl3) {}

@@ -1,9 +1,11 @@
 package com.marginallyclever.ro3.apps.nodetreeview;
 
 import com.marginallyclever.ro3.Registry;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import javax.swing.*;
 
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class NodeTreeViewTest {
     public static void main(String[] args) {
         Registry.start();

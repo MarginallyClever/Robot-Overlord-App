@@ -52,21 +52,17 @@ public class FactoryPanel<T> extends JPanel {
         add(searchBar, BorderLayout.NORTH);
         add(new JScrollPane(tree), BorderLayout.CENTER);
 
-        populateTree("");
+        populateTree();
     }
 
     private void setupSearch() {
-        searchBar.addPropertyChangeListener("match", e-> {
-            String criteria = (String)e.getNewValue();
-            if(criteria==null || criteria.isBlank()) criteria = "";
-            populateTree(criteria);
-        });
+        searchBar.addPropertyChangeListener("match", e-> populateTree() );
     }
 
-    private void populateTree(String searchCriteria) {
+    private void populateTree() {
         var root = factory.getRoot();
 
-        var matches = findAllTypesMatching(root, searchCriteria);
+        var matches = findAllTypesMatching(root);
         logger.debug("Found {} matches", matches.size());
         addAllParents(matches);
         logger.debug("Grown to {} matches", matches.size());
@@ -133,17 +129,14 @@ public class FactoryPanel<T> extends JPanel {
      * @param searchCriteria the search criteria
      * @return a list of all categories that match the search criteria
      */
-    private List<Factory.Category<T>> findAllTypesMatching(Factory.Category<T> root, String searchCriteria) {
-        boolean isCase = searchBar.getCaseSensitive();
-        boolean isRegex = searchBar.getRegex();
+    private List<Factory.Category<T>> findAllTypesMatching(Factory.Category<T> root) {
         List<Factory.Category<T>> matches = new ArrayList<>();
         List<Factory.Category<T>> toSearch = new ArrayList<>();
         toSearch.add(root);
         while(!toSearch.isEmpty()) {
             Factory.Category<T> category = toSearch.remove(0);
             String name = category.getName();
-            if(!isCase) name = name.toLowerCase();
-            if((isRegex && name.matches(searchCriteria)) || (!isRegex && name.contains(searchCriteria))) {
+            if(searchBar.matches(name)) {
                 matches.add(category);
             }
             toSearch.addAll(category.getChildren());

@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
@@ -65,7 +66,7 @@ public class TranslateToolTwoAxis implements ViewportTool {
     private Matrix4d pivotMatrix;
 
     private boolean cursorOverHandle = false;
-    private int frameOfReference = ViewportTool.FRAME_WORLD;
+    private FrameOfReference frameOfReference = FrameOfReference.WORLD;
     private final ColorRGB color;
     private final Mesh quadMesh = new Mesh();
 
@@ -265,7 +266,7 @@ public class TranslateToolTwoAxis implements ViewportTool {
      * @param index 0 for world, 1 for local, 2 for camera.
      */
     @Override
-    public void setFrameOfReference(int index) {
+    public void setFrameOfReference(FrameOfReference index) {
         frameOfReference = index;
         if(selectedItems!=null) {
             updatePivotMatrix();

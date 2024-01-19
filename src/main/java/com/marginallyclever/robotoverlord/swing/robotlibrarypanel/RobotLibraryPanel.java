@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class RobotLibraryPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(RobotLibraryPanel.class);
-    private final JPanel searchBar = new SearchBar();
+    private final SearchBar searchBar = new SearchBar();
     private final JPanel repositoriesPanel = new JPanel();
     private final List<RobotLibraryListener> listeners = new ArrayList<>();
     private final List<MultiVersionPropertiesPanel> allPanels = new ArrayList<>();

@@ -20,7 +20,7 @@ import java.util.zip.ZipInputStream;
  * <a href="https://en.wikipedia.org/wiki/3D_Manufacturing_Format">3MF</a> into a {@link Mesh}.</p>
  */
 public class Load3MF implements MeshLoader {
-	private class ColorGroup {
+	private static class ColorGroup {
 		public int id;
 		public ArrayList<ColorRGB> colors = new ArrayList<ColorRGB>();
 	}
@@ -60,12 +60,13 @@ public class Load3MF implements MeshLoader {
 
 	private ColorGroup loadColorGroup(Element group) {
     	ColorGroup g = new ColorGroup();
-    	g.id = Integer.valueOf(group.getAttribute("id"));
+    	g.id = Integer.parseInt(group.getAttribute("id"));
         NodeList colorNodes = group.getElementsByTagName("m:color");
         for(int i=0;i<colorNodes.getLength();++i) {
         	Element cn = (Element)colorNodes.item(i);
         	String hex = cn.getAttribute("color");
-        	ColorRGB c = ColorRGB.parse(hex);
+        	ColorRGB c = new ColorRGB();
+			c.parse(hex);
         	g.colors.add(c);
         }
     	
@@ -104,8 +105,8 @@ public class Load3MF implements MeshLoader {
 	}
 
 	private ColorRGB parseObjectColor(Element object) throws Exception {
-		int pid = Integer.valueOf(object.getAttribute("pid"));
-		int pindex = Integer.valueOf(object.getAttribute("pindex"));
+		int pid = Integer.parseInt(object.getAttribute("pid"));
+		int pindex = Integer.parseInt(object.getAttribute("pindex"));
 		return getColor(pid,pindex);
 	}
 
@@ -129,9 +130,9 @@ public class Load3MF implements MeshLoader {
     	//logger.info(allTriangles.getLength() + " indexed triangles found.");
     	for(int t=0;t<allTriangles.getLength();++t) {
     		Element t1 = (Element)allTriangles.item(t);
-    		model.addIndex(n+Integer.valueOf(t1.getAttribute("v1")));
-    		model.addIndex(n+Integer.valueOf(t1.getAttribute("v2")));
-    		model.addIndex(n+Integer.valueOf(t1.getAttribute("v3")));
+    		model.addIndex(n+Integer.parseInt(t1.getAttribute("v1")));
+    		model.addIndex(n+Integer.parseInt(t1.getAttribute("v2")));
+    		model.addIndex(n+Integer.parseInt(t1.getAttribute("v3")));
     	}
 	}
 
@@ -143,17 +144,17 @@ public class Load3MF implements MeshLoader {
     	//logger.info(allTriangles.getLength() + " triangles found.");
     	for(int t=0;t<allTriangles.getLength();++t) {
     		Element t1 = (Element)allTriangles.item(t);
-    		int v1 = Integer.valueOf(t1.getAttribute("v1"));
-    		int v2 = Integer.valueOf(t1.getAttribute("v2"));
-    		int v3 = Integer.valueOf(t1.getAttribute("v3"));
+    		int v1 = Integer.parseInt(t1.getAttribute("v1"));
+    		int v2 = Integer.parseInt(t1.getAttribute("v2"));
+    		int v3 = Integer.parseInt(t1.getAttribute("v3"));
     		vA = vertexes.get(v1);	model.addVertex((float)vA.x,(float)vA.y,(float)vA.z);
     		vA = vertexes.get(v2);	model.addVertex((float)vA.x,(float)vA.y,(float)vA.z);
     		vA = vertexes.get(v3);	model.addVertex((float)vA.x,(float)vA.y,(float)vA.z);
     		
     		ColorRGB myColor;
     		if( t1.hasAttribute("pid") ) {
-    			int pid = Integer.valueOf(t1.getAttribute("pid"));
-    			int p1 = Integer.valueOf("p1");
+    			int pid = Integer.parseInt(t1.getAttribute("pid"));
+    			int p1 = Integer.parseInt(t1.getAttribute("p1"));
     			myColor = getColor(pid,p1);
     		} else myColor = defaultColor;
     		
@@ -173,9 +174,9 @@ public class Load3MF implements MeshLoader {
     	//logger.info(allVertices.getLength() + " vertices found.");
     	for(int v=0;v<allVertices.getLength();++v) {
     		Element v1 = (Element)allVertices.item(v);
-    		double x = scale * Double.valueOf(v1.getAttribute("x"));
-    		double y = scale * Double.valueOf(v1.getAttribute("y"));
-    		double z = scale * Double.valueOf(v1.getAttribute("z"));
+    		double x = scale * Double.parseDouble(v1.getAttribute("x"));
+    		double y = scale * Double.parseDouble(v1.getAttribute("y"));
+    		double z = scale * Double.parseDouble(v1.getAttribute("z"));
     		collectedVertexes.add(new Vector3d(x,y,z));
     	}
 
@@ -192,24 +193,22 @@ public class Load3MF implements MeshLoader {
 		// http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
         doc.getDocumentElement().normalize();
 
-        Element modelNode = doc.getDocumentElement();
-        
-		return modelNode;
+		return doc.getDocumentElement();
 	}
 
 	private double getScale(Element modelNode) {
 		//logger.info("searching for scale...");
         String units = modelNode.getAttribute("units");
         // 3MF format description says "Valid values are micron, millimeter, centimeter, inch, foot, and meter."
-        double scale=1;
-        switch(units) {
-        case "micron": scale=0.001;  break;
-        case "millimeter": scale = 1;  break;
-        case "centimeter": scale = 10;  break;
-        case "inch": scale = 25.4;  break;
-        case "foot": scale = 304.8;  break;
-        case "meter": scale = 1000;  break;
-        } 
+        double scale = switch (units) {
+            case "micron" -> 0.001;
+            case "millimeter" -> 1;
+            case "centimeter" -> 10;
+            case "inch" -> 25.4;
+            case "foot" -> 304.8;
+            case "meter" -> 1000;
+            default -> 1;
+        };
         scale *= 0.1;
         //logger.info("scale is now x"+scale);
 		return scale;
@@ -221,7 +220,7 @@ public class Load3MF implements MeshLoader {
 		
 		while((entry = zipFile.getNextEntry())!=null) {
 	        if( entry.getName().toLowerCase().endsWith(".model") ) {
-	        	File f = readZipIntoTempFile(zipFile,entry,"3dmodel", "model");
+	        	File f = readZipIntoTempFile(zipFile);
                 return new BufferedInputStream(new FileInputStream(f));
 	        }
 		}
@@ -229,10 +228,8 @@ public class Load3MF implements MeshLoader {
 		return null;
 	}
 
-	private File readZipIntoTempFile(ZipInputStream zipFile,ZipEntry entry, String prefix, String suffix) throws IOException {
-        File f = File.createTempFile(prefix,suffix);
-        f.setReadable(true);
-        f.setWritable(true);
+	private File readZipIntoTempFile(ZipInputStream zipFile) throws IOException {
+        File f = File.createTempFile("3dmodel", "model");
         f.deleteOnExit();
         FileOutputStream fos = new FileOutputStream(f);
 		byte[] buffer = new byte[2048];

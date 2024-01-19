@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+import java.awt.*;
 import java.util.List;
 
 /**
@@ -38,8 +39,8 @@ public class TextureFactoryDialog {
      *
      * @return JFileChooser.APPROVE_OPTION or JFileChooser.CANCEL_OPTION
      */
-    public int run() {
-        int returnVal = chooser.showOpenDialog(SwingUtilities.getWindowAncestor(chooser));
+    public int run(JComponent parent) {
+        int returnVal = chooser.showOpenDialog(parent);
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             String absPath = chooser.getSelectedFile().getAbsolutePath();
             lastTextureLoaded = Registry.textureFactory.load(absPath);

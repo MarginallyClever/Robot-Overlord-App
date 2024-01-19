@@ -21,6 +21,7 @@ public class CameraPanel extends JPanel {
         JSpinner nearZSpinner = new JSpinner(new SpinnerNumberModel(camera.getNearZ(), 0, 10000, 1));
         JSpinner fovSpinner = new JSpinner(new SpinnerNumberModel(camera.getFovY(), 1, 180, 1));
 
+        // orthographic?
         JCheckBox ortho = new JCheckBox();
         ortho.addActionListener(e -> {
             camera.setDrawOrthographic(ortho.isSelected());
@@ -29,13 +30,17 @@ public class CameraPanel extends JPanel {
             nearZSpinner.setEnabled(!drawOrthographic);
             fovSpinner.setEnabled(!drawOrthographic);
         });
+        ortho.setSelected(camera.getDrawOrthographic());
         PanelHelper.addLabelAndComponent(this,"Orthographic",ortho);
 
+        // fov
+        fovSpinner.setValue(camera.getFovY());
         fovSpinner.addChangeListener(e -> {
             camera.setFovY( (double) fovSpinner.getValue() );
         });
         PanelHelper.addLabelAndComponent(this,"FOV",fovSpinner);
 
+        // near z
         nearZSpinner.addChangeListener(e -> {
             camera.setNearZ( (double)nearZSpinner.getValue() );
             var nearZ = camera.getNearZ();
@@ -44,14 +49,47 @@ public class CameraPanel extends JPanel {
                 farZSpinner.setValue(nearZ + 1);
             }
         });
+        nearZSpinner.setValue(camera.getNearZ());
         PanelHelper.addLabelAndComponent(this,"Near",nearZSpinner);
 
+        // far z
+        farZSpinner.setValue(camera.getFarZ());
         farZSpinner.addChangeListener(e -> {
             camera.setFarZ( (double) farZSpinner.getValue() );
         });
         PanelHelper.addLabelAndComponent(this,"Far",farZSpinner);
 
+        // can rotate
+        JToggleButton canRotate = new JToggleButton("Yes");
+        canRotate.addActionListener(e -> {
+            camera.setCanRotate(canRotate.isSelected());
+            updateRotateButton(canRotate);
+        });
+        canRotate.setSelected(camera.getCanRotate());
+        updateRotateButton(canRotate);
+        PanelHelper.addLabelAndComponent(this,"Can rotate",canRotate);
+
+        // can translate
+        JToggleButton canTranslate = new JToggleButton("Yes");
+        canTranslate.addActionListener(e -> {
+            camera.setCanTranslate(canTranslate.isSelected());
+            updateTranslateButton(canTranslate);
+        });
+        canTranslate.setSelected(camera.getCanTranslate());
+        updateTranslateButton(canTranslate);
+        PanelHelper.addLabelAndComponent(this,"Can translate",canTranslate);
+
         addLookAtComponents();
+    }
+
+    private void updateTranslateButton(JToggleButton canTranslate) {
+        canTranslate.setText(camera.getCanTranslate() ? "Yes" : "No");
+        canTranslate.setToolTipText(camera.getCanTranslate() ? "Click to deny" : "Click to allow");
+    }
+
+    private void updateRotateButton(JToggleButton canRotate) {
+        canRotate.setText(camera.getCanRotate() ? "Yes" : "No");
+        canRotate.setToolTipText(camera.getCanRotate() ? "Click to deny" : "Click to allow");
     }
 
     private void addLookAtComponents() {

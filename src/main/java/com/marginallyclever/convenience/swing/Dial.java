@@ -1,6 +1,5 @@
 package com.marginallyclever.convenience.swing;
 
-import com.marginallyclever.convenience.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -209,8 +208,6 @@ public class Dial extends JComponent {
 	}
 
 	public static void main(String[] args) {
-		Log.start();
-
         try {
         	UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {

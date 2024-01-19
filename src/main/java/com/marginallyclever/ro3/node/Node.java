@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;

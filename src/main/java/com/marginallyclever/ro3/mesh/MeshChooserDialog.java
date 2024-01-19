@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.mesh;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.Objects;
@@ -21,10 +22,10 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
     private final JList<Mesh> list = new JList<>();
     private final JToolBar toolBar = new JToolBar();
     private Mesh selectedItem;
-    private String viewType;
 
     public MeshChooserDialog() {
         super(new BorderLayout());
+        setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 
         setupToolbar();
         setupMeshList();
@@ -58,7 +59,7 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
             @Override
             public void actionPerformed(ActionEvent e) {
                 MeshFactoryDialog meshFactoryDialog = new MeshFactoryDialog();
-                int result = meshFactoryDialog.run();
+                int result = meshFactoryDialog.run((JComponent)e.getSource());
                 if (result == JFileChooser.APPROVE_OPTION) {
                     Mesh mesh = meshFactoryDialog.getMesh();
                     setSelectedItem(mesh);
@@ -108,12 +109,6 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
         Registry.meshFactory.getPool().removeItemRemovedListener(this);
     }
 
-    private void updateView() {
-        // Update the list of meshes based on the selected view type
-        // This could involve changing the ListCellRenderer of the JList
-        // For example, for the "Thumbnail View", you could display a small preview of each mesh
-    }
-
     public Mesh getSelectedItem() {
         return selectedItem;
     }
@@ -141,8 +136,7 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
                 "Select",
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE,
-                new ImageIcon(Objects.requireNonNull(getClass().getResource(
-                        "/com/marginallyclever/ro3/apps/dialogs/icons8-mesh-16.png"))),
+                null,
                 null,
                 null);
         if(result == JOptionPane.OK_OPTION) {

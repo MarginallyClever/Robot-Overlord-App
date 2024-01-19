@@ -1,7 +1,5 @@
 package com.marginallyclever.communications.application;
 
-import com.marginallyclever.convenience.log.Log;
-
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionListener;
@@ -144,7 +142,6 @@ public class ConversationHistoryList extends JPanel {
 	// TEST
 	
 	public static void main(String[] args) {
-		Log.start();
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception ignored) {}

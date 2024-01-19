@@ -51,7 +51,7 @@ public class MaterialPanel extends JPanel {
         selectColorDiffuse.addActionListener(e -> {
             Color color = JColorChooser.showDialog(this,"Diffuse Color",material.getDiffuseColor());
             if(color!=null) material.setDiffuseColor(color);
-            selectColorDiffuse.setBackground(diffuseColor);
+            selectColorDiffuse.setBackground(material.getDiffuseColor());
         });
         PanelHelper.addLabelAndComponent(this,"Diffuse",selectColorDiffuse,gbc);
 
@@ -62,7 +62,7 @@ public class MaterialPanel extends JPanel {
         selectColorSpecular.addActionListener(e -> {
             Color color = JColorChooser.showDialog(this,"Specular Color",material.getSpecularColor());
             if(color!=null) material.setSpecularColor(color);
-            selectColorSpecular.setBackground(specularColor);
+            selectColorSpecular.setBackground(material.getSpecularColor());
         });
         PanelHelper.addLabelAndComponent(this,"Specular",selectColorSpecular,gbc);
 
@@ -73,7 +73,7 @@ public class MaterialPanel extends JPanel {
         selectColorEmission.addActionListener(e -> {
             Color color = JColorChooser.showDialog(this,"Emissive Color",material.getEmissionColor());
             if(color!=null) material.setEmissionColor(color);
-            selectColorEmission.setBackground(emissionColor);
+            selectColorEmission.setBackground(material.getEmissionColor());
         });
         PanelHelper.addLabelAndComponent(this,"Emissive",selectColorEmission,gbc);
 

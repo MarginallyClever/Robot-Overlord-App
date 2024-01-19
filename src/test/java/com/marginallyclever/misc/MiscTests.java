@@ -2,9 +2,6 @@ package com.marginallyclever.misc;
 
 import com.marginallyclever.convenience.helpers.BigMatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
-import com.marginallyclever.convenience.log.Log;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -17,16 +14,6 @@ public class MiscTests {
     private static final Logger logger = LoggerFactory.getLogger(MiscTests.class);
     static final double ANGLE_STEP_SIZE = 30.0000;
 
-	@Before
-	public void before() {
-		Log.start();
-	}
-	
-	@After
-	public void after() {
-		Log.end();
-	}
-	
     @Test
     public void testChecksums() {
         //>>G0 X0.000 Y-86.789 Z27.498 U0.000 V-30.692 W0.000*78
@@ -35,12 +22,8 @@ public class MiscTests {
 
         String a = StringHelper.generateChecksum("G0 X0.000 Y-86.789 Z27.498 U0.000 V-30.692 W0.000");
         String b = StringHelper.generateChecksum("G0 X0.000 Y-86.789 Z27.4U0.000 V-30.692 W0.000");
-        logger.info("a=" + a);
-        logger.info("b=" + b);
         assert (a.equals("*78"));
-        logger.info("test a passed");
         assert (b.equals("*111"));
-        logger.info("test b passed");
     }
 
     /**
@@ -192,6 +175,6 @@ public class MiscTests {
         });
         b.rewind();
 
-        Assertions.assertTrue(a.equals(b));
+        assert(a.equals(b));
     }
 }
