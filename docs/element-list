@@ -8,7 +8,6 @@ com.marginallyclever.communications.transport.tcp
 com.marginallyclever.convenience
 com.marginallyclever.convenience.bezier3
 com.marginallyclever.convenience.helpers
-com.marginallyclever.convenience.log
 com.marginallyclever.convenience.swing
 com.marginallyclever.convenience.swing.graph
 com.marginallyclever.ro3
@@ -16,6 +15,7 @@ com.marginallyclever.ro3.apps
 com.marginallyclever.ro3.apps.about
 com.marginallyclever.ro3.apps.actions
 com.marginallyclever.ro3.apps.commands
+com.marginallyclever.ro3.apps.dialogs
 com.marginallyclever.ro3.apps.editorpanel
 com.marginallyclever.ro3.apps.logpanel
 com.marginallyclever.ro3.apps.nodedetailview
@@ -34,6 +34,9 @@ com.marginallyclever.ro3.mesh.save
 com.marginallyclever.ro3.mesh.shapes
 com.marginallyclever.ro3.node
 com.marginallyclever.ro3.node.nodes
+com.marginallyclever.ro3.node.nodes.behavior
+com.marginallyclever.ro3.node.nodes.behavior.actions
+com.marginallyclever.ro3.node.nodes.behavior.decorators
 com.marginallyclever.ro3.node.nodes.limbplanner
 com.marginallyclever.ro3.node.nodes.limbsolver
 com.marginallyclever.ro3.node.nodes.marlinrobotarm
@@ -42,4 +45,3 @@ com.marginallyclever.ro3.raypicking
 com.marginallyclever.ro3.texture
 com.marginallyclever.ro3.view
 com.marginallyclever.robotoverlord
-com.marginallyclever.util
