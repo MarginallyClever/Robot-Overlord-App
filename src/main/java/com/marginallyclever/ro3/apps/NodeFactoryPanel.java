@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link FactoryPanel} allows a user to select from a list of things that can be created by a given {@link Factory}.
+ * {@link NodeFactoryPanel} allows a user to select from a list of things that can be created by a given {@link Factory}.
  * @param <T> the class of thing to create.
  */
-public class FactoryPanel<T> extends JPanel {
-    private static final Logger logger = LoggerFactory.getLogger(FactoryPanel.class);
+public class NodeFactoryPanel<T> extends JPanel {
+    private static final Logger logger = LoggerFactory.getLogger(NodeFactoryPanel.class);
     private final JTree tree = new JTree();
     private final Factory<T> factory;
     private final JButton okButton = new JButton("OK");
@@ -42,7 +42,7 @@ public class FactoryPanel<T> extends JPanel {
         }
     }
 
-    public FactoryPanel(Factory<T> factory) {
+    public NodeFactoryPanel(Factory<T> factory) {
         super(new BorderLayout());
         this.factory = factory;
 

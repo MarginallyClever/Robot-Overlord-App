@@ -1,6 +1,6 @@
 package com.marginallyclever.ro3.apps.actions;
 
-import com.marginallyclever.ro3.apps.FactoryPanel;
+import com.marginallyclever.ro3.apps.NodeFactoryPanel;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.UndoSystem;
@@ -18,7 +18,7 @@ import java.util.function.Supplier;
  * @param <T> the type of {@link Node} to add
  */
 public class AddNode<T extends Node> extends AbstractAction {
-    private static final FactoryPanel<Node> nfd = new FactoryPanel<>(Registry.nodeFactory);
+    private static final NodeFactoryPanel<Node> nfd = new NodeFactoryPanel<>(Registry.nodeFactory);
 
     public AddNode() {
         super();

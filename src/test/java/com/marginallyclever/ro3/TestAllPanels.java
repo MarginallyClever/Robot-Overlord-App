@@ -1,9 +1,7 @@
 package com.marginallyclever.ro3;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import com.marginallyclever.ro3.apps.DockingPanel;
-import com.marginallyclever.ro3.apps.FactoryPanel;
-import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
+import com.marginallyclever.ro3.apps.NodeFactoryPanel;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import org.reflections.Reflections;
@@ -49,7 +47,7 @@ public class TestAllPanels {
         List<Class<?>> exceptions = List.of(
                 com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel.class,
                 com.marginallyclever.ro3.apps.DockingPanel.class,
-                com.marginallyclever.ro3.apps.FactoryPanel.class,
+                NodeFactoryPanel.class,
                 com.marginallyclever.ro3.apps.App.class,
                 com.marginallyclever.ro3.apps.nodeselector.NodeSelector.class
         );
