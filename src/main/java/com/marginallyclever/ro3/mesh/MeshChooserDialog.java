@@ -3,7 +3,6 @@ package com.marginallyclever.ro3.mesh;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.util.Objects;
 
 import com.marginallyclever.ro3.Registry;
@@ -28,7 +27,7 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
         setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 
         setupToolbar();
-        setupMeshList();
+        setupList();
 
         add(toolBar, BorderLayout.NORTH);
         add(new JScrollPane(list), BorderLayout.CENTER);
@@ -44,8 +43,8 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
     }
 
     private void setupToolbar() {
-        var loadButton = new JButton("Load Mesh");
-        loadButton.setToolTipText("Load a mesh from a file.");
+        var loadButton = new JButton("Load");
+        loadButton.setToolTipText("Load from a file.");
         loadButton.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(
                 "/com/marginallyclever/ro3/apps/actions/icons8-load-16.png"))));
         loadButton.addActionListener(e-> runFactoryDialog((JComponent)e.getSource()));
@@ -79,7 +78,7 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
         }
     }
 
-    private void setupMeshList() {
+    private void setupList() {
         list.setCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -93,6 +92,7 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
             model.addElement(mesh);
         }
         list.setModel(model);
+        list.setSelectedValue(selectedItem, true);
         list.addListSelectionListener(e -> selectedItem = list.getSelectedValue());
     }
 
