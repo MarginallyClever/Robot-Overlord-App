@@ -24,6 +24,7 @@ import java.util.Set;
  */
 public class TestAllPanels {
     private static final Logger logger = LoggerFactory.getLogger(TestAllPanels.class);
+
     public static void main(String[] args) {
         Registry.start();
 
