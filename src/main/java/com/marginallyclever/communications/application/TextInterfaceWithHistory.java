@@ -65,16 +65,4 @@ public class TextInterfaceWithHistory extends JPanel {
 		super.setEnabled(state);
 		myInterface.setEnabled(state);
 	}
-
-	public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception ignored) {}
-
-		JFrame frame = new JFrame(TextInterfaceWithHistory.class.getName());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new TextInterfaceWithHistory());
-		frame.pack();
-		frame.setVisible(true);
-	}
 }

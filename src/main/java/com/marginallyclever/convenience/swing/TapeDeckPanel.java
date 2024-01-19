@@ -11,7 +11,6 @@ import java.util.ArrayList;
 /**
  * Rewind button, Play button, Stop button, and progress bar from 0...100.
  * Listen for events on each button.
- *
  */
 public class TapeDeckPanel extends JPanel {
 	public static final int ACTION_STOP = 0;
@@ -57,17 +56,6 @@ public class TapeDeckPanel extends JPanel {
 		bRewind.addActionListener((e)->notifyListeners(new ActionEvent(parent,ACTION_REWIND,COMMAND_REWIND)));
 		bPlay.addActionListener((e)->notifyListeners(new ActionEvent(parent,ACTION_PLAY,COMMAND_PLAY)));
 		bStop.addActionListener((e)->notifyListeners(new ActionEvent(parent,ACTION_STOP,COMMAND_STOP)));
-	}
-	
-	public static void main(String[] args) {
-		JFrame frame = new JFrame("TextInterfaceToNetworkSession");
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception ignored) {}
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new TapeDeckPanel());
-		frame.pack();
-		frame.setVisible(true);
 	}
 
 	/**

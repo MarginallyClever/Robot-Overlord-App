@@ -206,35 +206,4 @@ public class Dial extends JComponent {
 		g.setColor(Color.LIGHT_GRAY);
 		g.drawArc(x-r, y-r, x+r*2, y+r*2, 45, 180);
 	}
-
-	public static void main(String[] args) {
-        try {
-        	UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-        	logger.error("Look and feel could not be set: "+e.getMessage());
-        }
-
-		JFrame frame = new JFrame(Dial.class.getSimpleName());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		JPanel p = new JPanel();
-		frame.add(p);
-		Dial dial = new Dial();        
-		p.add(dial);
-		dial.addActionListener((e)->{
-			logger.info(e.getActionCommand()+":"+dial.getChange()+"="+dial.getValue());
-		});
-		
-		p.addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentResized(ComponentEvent e) {
-				Dimension d = new Dimension();
-				p.getSize(d);
-				dial.setPreferredSize(d);
-			}
-		});
-
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
-	}
 }

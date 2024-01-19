@@ -53,10 +53,10 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
 
 
         var clearButton = new JButton("Clear");
-        clearButton.addActionListener(e -> setSelectedItem(null));
         clearButton.setToolTipText("Choose none.");
         clearButton.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(
                 "/com/marginallyclever/ro3/apps/icons8-reset-16.png"))));
+        clearButton.addActionListener(e -> setSelectedItem(null));
         toolBar.add(clearButton);
 
         /*

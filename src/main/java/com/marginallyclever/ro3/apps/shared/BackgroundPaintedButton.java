@@ -11,12 +11,12 @@ import java.awt.*;
 public class BackgroundPaintedButton extends JButton {
 	public BackgroundPaintedButton(String label) {
 		super(label);
-		this.setOpaque(true);
-		this.setMinimumSize(new Dimension(80,20));
-		this.setMaximumSize(this.getMinimumSize());
-		this.setPreferredSize(this.getMinimumSize());
-		this.setSize(this.getMinimumSize());
-		this.setBorder(new LineBorder(Color.BLACK));
+		setOpaque(true);
+		setMinimumSize(new Dimension(80,20));
+		setMaximumSize(this.getMinimumSize());
+		setPreferredSize(this.getMinimumSize());
+		setSize(this.getMinimumSize());
+		setBorder(new LineBorder(Color.BLACK));
 	}
 
 	@Override
