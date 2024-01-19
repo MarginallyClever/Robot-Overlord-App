@@ -24,7 +24,7 @@ public class Registry {
     public static final EventListenerList listeners = new EventListenerList();
     public static final TextureFactory textureFactory = new TextureFactory();
     public static final MeshFactory meshFactory = new MeshFactory();
-    public static final Factory<Node> nodeFactory = new Factory<>(Node.class);
+    public static final NodeFactory<Node> nodeFactory = new NodeFactory<>(Node.class);
     private static Node scene = new Node("Scene");
     public static final ListWithEvents<Camera> cameras = new ListWithEvents<>();
     private static Camera activeCamera = null;
@@ -32,7 +32,7 @@ public class Registry {
 
     public static void start() {
         nodeFactory.clear();
-        Factory.Category<Node> nodule = nodeFactory.getRoot().add("Node", Node::new);
+        NodeFactory.Category<Node> nodule = nodeFactory.getRoot().add("Node", Node::new);
         nodule.add("DHParameter", DHParameter::new);
         nodule.add("HingeJoint", HingeJoint::new);
         nodule.add("LimbSolver", LimbSolver::new);
@@ -41,7 +41,7 @@ public class Registry {
         nodule.add("MeshInstance", MeshInstance::new);
         nodule.add("Motor", Motor::new);
         nodule.add("LimbPlanner", LimbPlanner::new);
-        Factory.Category<Node> pose = nodule.add("Pose", Pose::new);
+        NodeFactory.Category<Node> pose = nodule.add("Pose", Pose::new);
             pose.add("Camera", Camera::new);
             pose.add("LookAt", LookAt::new);
             pose.add("Limb", Limb::new);

@@ -13,8 +13,8 @@ import java.util.function.Supplier;
  * A factory that can be used to create objects.  It does not manage the objects it creates.
  * @param <T> The class of object to create.
  */
-public class Factory<T> {
-    private static final Logger logger = LoggerFactory.getLogger(Factory.class);
+public class NodeFactory<T> {
+    private static final Logger logger = LoggerFactory.getLogger(NodeFactory.class);
     private final Class<T> type;
 
     /**
@@ -62,7 +62,7 @@ public class Factory<T> {
 
     private final Category<T> root = new Category<>("root",null);
 
-    public Factory(Class<T> type) {
+    public NodeFactory(Class<T> type) {
         this.type = type;
         scan();
     }
