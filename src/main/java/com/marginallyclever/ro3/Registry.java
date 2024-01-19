@@ -2,6 +2,7 @@ package com.marginallyclever.ro3;
 
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.mesh.MeshFactory;
+import com.marginallyclever.ro3.node.nodefactory.NodeFactory;
 import com.marginallyclever.ro3.node.nodes.*;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlanner;
@@ -24,7 +25,7 @@ public class Registry {
     public static final EventListenerList listeners = new EventListenerList();
     public static final TextureFactory textureFactory = new TextureFactory();
     public static final MeshFactory meshFactory = new MeshFactory();
-    public static final NodeFactory<Node> nodeFactory = new NodeFactory<>(Node.class);
+    public static final NodeFactory nodeFactory = new NodeFactory();
     private static Node scene = new Node("Scene");
     public static final ListWithEvents<Camera> cameras = new ListWithEvents<>();
     private static Camera activeCamera = null;
@@ -32,24 +33,24 @@ public class Registry {
 
     public static void start() {
         nodeFactory.clear();
-        NodeFactory.Category<Node> nodule = nodeFactory.getRoot().add("Node", Node::new);
-        nodule.add("DHParameter", DHParameter::new);
-        nodule.add("HingeJoint", HingeJoint::new);
-        nodule.add("LimbSolver", LimbSolver::new);
-        nodule.add("MarlinRobotArm", MarlinRobotArm::new);
-        nodule.add("Material", Material::new);
-        nodule.add("MeshInstance", MeshInstance::new);
-        nodule.add("Motor", Motor::new);
-        nodule.add("LimbPlanner", LimbPlanner::new);
-        NodeFactory.Category<Node> pose = nodule.add("Pose", Pose::new);
-            pose.add("Camera", Camera::new);
-            pose.add("LookAt", LookAt::new);
-            pose.add("Limb", Limb::new);
-            pose.add("AttachmentPoint", AttachmentPoint::new);/*
-        Factory.Category<Node> behavior = nodule.add("Behavior", null);
-            Factory.Category<Node> action = behavior.add("Action",null);
-            Factory.Category<Node> control = behavior.add("Control",null);
-            Factory.Category<Node> decorator = behavior.add("Decorator",null);
+        NodeFactory.Category nodule = nodeFactory.getRoot();
+            nodule.add("DHParameter", DHParameter::new);
+            nodule.add("HingeJoint", HingeJoint::new);
+            nodule.add("LimbPlanner", LimbPlanner::new);
+            nodule.add("LimbSolver", LimbSolver::new);
+            nodule.add("MarlinRobotArm", MarlinRobotArm::new);
+            nodule.add("Material", Material::new);
+            nodule.add("MeshInstance", MeshInstance::new);
+            nodule.add("Motor", Motor::new);
+            NodeFactory.Category pose = nodule.add("Pose", Pose::new);
+                pose.add("AttachmentPoint", AttachmentPoint::new);
+                pose.add("Camera", Camera::new);
+                pose.add("Limb", Limb::new);
+                pose.add("LookAt", LookAt::new);/*
+        Factory.Category behavior = nodule.add("Behavior", null);
+            Factory.Category action = behavior.add("Action",null);
+            Factory.Category control = behavior.add("Control",null);
+            Factory.Category decorator = behavior.add("Decorator",null);
                 decorator.add("ForceFailure", ForceFailure::new);
                 decorator.add("ForceSuccess", ForceSuccess::new);
                 decorator.add("Inverter", Inverter::new);

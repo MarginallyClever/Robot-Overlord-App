@@ -6,10 +6,8 @@ import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.actions.*;
 import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
 import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
-import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.NodeAttachListener;
-import com.marginallyclever.ro3.node.NodeDetachListener;
-import com.marginallyclever.ro3.node.NodeRenameListener;
+import com.marginallyclever.ro3.node.*;
+import com.marginallyclever.ro3.node.nodefactory.NodeTreeBranchRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,7 +152,7 @@ public class NodeTreeView extends App
     }
 
     private void buildToolBar() {
-        var addButton = new JButton(new AddNode<>());
+        var addButton = new JButton(new AddNode());
         var cutButton = new JButton(cutNode);
         var removeButton = new JButton(removeNode);
         var copyButton = new JButton(copyNode);

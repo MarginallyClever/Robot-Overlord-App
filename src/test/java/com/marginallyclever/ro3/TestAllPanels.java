@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import com.marginallyclever.ro3.apps.NodeFactoryPanel;
+import com.marginallyclever.ro3.node.nodefactory.NodeFactoryPanel;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import org.reflections.Reflections;

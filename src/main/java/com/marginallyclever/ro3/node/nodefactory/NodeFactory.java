@@ -1,5 +1,6 @@
-package com.marginallyclever.ro3;
+package com.marginallyclever.ro3.node.nodefactory;
 
+import com.marginallyclever.ro3.node.Node;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,35 +11,32 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 /**
- * A factory that can be used to create objects.  It does not manage the objects it creates.
- * @param <T> The class of object to create.
+ * A factory that can be used to create Nodes.  It does not manage the objects it creates.
  */
-public class NodeFactory<T> {
+public class NodeFactory {
     private static final Logger logger = LoggerFactory.getLogger(NodeFactory.class);
-    private final Class<T> type;
 
     /**
-     * A category of objects.  These categories can be nested in a tree.
-     * @param <T> The class of object to create.
+     * Categories of Node types.  These categories can be nested in a tree.
      */
-    public static class Category<T> {
+    public static class Category {
         private final String name;
-        private final Supplier<T> supplier;
-        private final List<Category<T>> children = new ArrayList<>();
-        private Category<T> parent=null;
+        private final Supplier<Node> supplier;
+        private final List<Category> children = new ArrayList<>();
+        private Category parent=null;
 
-        public Category(String name,Supplier<T> supplier) {
+        public Category(String name,Supplier<Node> supplier) {
             this.name = name;
             this.supplier = supplier;
         }
 
-        public void add(Category<T> c) {
+        public void add(Category c) {
             children.add(c);
             c.parent = this;
         }
 
-        public Category<T> add(String name,Supplier<T> supplier) {
-            Category<T> item = new Category<>(name,supplier);
+        public Category add(String name, Supplier<Node> supplier) {
+            Category item = new Category(name,supplier);
             add(item);
             return item;
         }
@@ -47,34 +45,33 @@ public class NodeFactory<T> {
             return name;
         }
 
-        public Category<T> getParent() {
+        public Category getParent() {
             return parent;
         }
 
-        public List<Category<T>> getChildren() {
+        public List<Category> getChildren() {
             return children;
         }
 
-        public Supplier<T> getSupplier() {
+        public Supplier<Node> getSupplier() {
             return supplier;
         }
     }
 
-    private final Category<T> root = new Category<>("root",null);
+    private final Category root = new Category("Node",Node::new);
 
-    public NodeFactory(Class<T> type) {
-        this.type = type;
+    public NodeFactory() {
         scan();
     }
 
-    public Category<T> getRoot() {
+    public Category getRoot() {
         return root;
     }
 
-    public Supplier<T> getSupplierFor(String path) {
-        List<Category<T>> toCheck = new ArrayList<>(root.children);
+    public Supplier<Node> getSupplierFor(String path) {
+        List<Category> toCheck = new ArrayList<>(root.children);
         while(!toCheck.isEmpty()) {
-            Category<T> current = toCheck.remove(0);
+            Category current = toCheck.remove(0);
             toCheck.addAll(current.children);
 
             if(current.name.equals(path)) {
@@ -85,8 +82,8 @@ public class NodeFactory<T> {
         return null;
     }
 
-    public T create(String path) {
-        Supplier<T> supplier = getSupplierFor(path);
+    public Node create(String path) {
+        Supplier<Node> supplier = getSupplierFor(path);
         if(supplier==null) return null;
         return supplier.get();
     }
@@ -95,9 +92,9 @@ public class NodeFactory<T> {
         // Create a new instance of Reflections
         Reflections reflections = new Reflections("com.marginallyclever.ro3");
         // Get all classes that extend T
-        Set<Class<? extends T>> found = reflections.getSubTypesOf(type);
+        Set<Class<? extends Node>> found = reflections.getSubTypesOf(Node.class);
         // Now, classes contains all classes that extend T
-        for (Class<? extends T> clazz : found) {
+        for (Class<? extends Node> clazz : found) {
             logger.info("Found " + clazz.getName());
         }
     }

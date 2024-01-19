@@ -75,9 +75,12 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
                 } else {
                     setForeground(Color.BLACK);
                 }
+                setIcon(branch.getNode().getIcon());
+                setToolTipText(branch.getNode().getClass().getSimpleName());
                 return this;
             }
         });
+        tree.setToolTipText("");
     }
 
     public void setSubject(T subject) {

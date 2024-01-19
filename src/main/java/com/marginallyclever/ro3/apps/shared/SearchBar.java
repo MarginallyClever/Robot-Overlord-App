@@ -44,6 +44,9 @@ public class SearchBar extends JPanel implements DocumentListener {
         match.setText(text);
         match.getDocument().addDocumentListener(this);
 
+        isCaseSensitive.addActionListener(e -> fireMatchChange());
+        isRegex.addActionListener(e -> fireMatchChange());
+
         addAncestorListener(new AncestorListener() {
             @Override
             public void ancestorAdded(javax.swing.event.AncestorEvent event) {
@@ -73,7 +76,7 @@ public class SearchBar extends JPanel implements DocumentListener {
         fireMatchChange();
     }
 
-    public void fireMatchChange() {
+    protected void fireMatchChange() {
         String newValue = match.getText();
         super.firePropertyChange("match", null, newValue);
     }

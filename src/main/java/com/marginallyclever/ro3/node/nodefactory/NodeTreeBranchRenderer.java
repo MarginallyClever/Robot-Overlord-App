@@ -1,5 +1,7 @@
-package com.marginallyclever.ro3.apps.nodetreeview;
+package com.marginallyclever.ro3.node.nodefactory;
 
+import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeBranch;
+import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.node.Node;
 
 import javax.swing.*;

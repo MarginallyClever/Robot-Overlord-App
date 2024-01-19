@@ -1,7 +1,7 @@
-package com.marginallyclever.ro3.apps;
+package com.marginallyclever.ro3.node.nodefactory;
 
-import com.marginallyclever.ro3.NodeFactory;
 import com.marginallyclever.ro3.apps.shared.SearchBar;
+import com.marginallyclever.ro3.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,15 +13,15 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * {@link NodeFactoryPanel} allows a user to select from a list of things that can be created by a given {@link NodeFactory}.
- * @param <T> the class of thing to create.
  */
-public class NodeFactoryPanel<T> extends JPanel {
+public class NodeFactoryPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(NodeFactoryPanel.class);
     private final JTree tree = new JTree();
-    private final NodeFactory<T> factory;
+    private final NodeFactory factory;
     private final JButton okButton = new JButton("OK");
     private final SearchBar searchBar = new SearchBar();
 
@@ -30,19 +30,24 @@ public class NodeFactoryPanel<T> extends JPanel {
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
             super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
             var branch = (DefaultMutableTreeNode) value;
-            if(branch.getUserObject() instanceof NodeFactory.Category<?> category) {
+            if(branch.getUserObject() instanceof NodeFactory.Category category) {
                 if (category.getSupplier() == null) {
                     setForeground(Color.LIGHT_GRAY);
                 } else {
                     setForeground(Color.BLACK);
                 }
                 setText(category.getName());
+                Supplier<Node> supplier = category.getSupplier();
+                if (supplier != null) {
+                    Node node = category.getSupplier().get();
+                    setIcon(node.getIcon());
+                }
             }
             return this;
         }
     }
 
-    public NodeFactoryPanel(NodeFactory<T> factory) {
+    public NodeFactoryPanel(NodeFactory factory) {
         super(new BorderLayout());
         this.factory = factory;
 
@@ -77,7 +82,7 @@ public class NodeFactoryPanel<T> extends JPanel {
         }
     }
 
-    private void selectNodeInTree(NodeFactory.Category<T> node) {
+    private void selectNodeInTree(NodeFactory.Category node) {
         var rootNode = (DefaultMutableTreeNode)tree.getModel().getRoot();
         TreePath path = findNodeInTree(rootNode, node);
         if (path != null) {
@@ -86,7 +91,7 @@ public class NodeFactoryPanel<T> extends JPanel {
         }
     }
 
-    private TreePath findNodeInTree(DefaultMutableTreeNode branch, NodeFactory.Category<T> node) {
+    private TreePath findNodeInTree(DefaultMutableTreeNode branch, NodeFactory.Category node) {
         if (getCategory(branch) == node) {
             return new TreePath(branch.getPath());
         }
@@ -99,8 +104,8 @@ public class NodeFactoryPanel<T> extends JPanel {
         return null;
     }
 
-    private void addBranches(NodeFactory.Category<T> node, DefaultMutableTreeNode branch, List<NodeFactory.Category<T>> matches) {
-        for(NodeFactory.Category<T> child : node.getChildren()) {
+    private void addBranches(NodeFactory.Category node, DefaultMutableTreeNode branch, List<NodeFactory.Category> matches) {
+        for(NodeFactory.Category child : node.getChildren()) {
             if(!matches.contains(child)) continue;
 
             DefaultMutableTreeNode childTreeNode = new DefaultMutableTreeNode(child);
@@ -109,10 +114,10 @@ public class NodeFactoryPanel<T> extends JPanel {
         }
     }
 
-    private void addAllParents(List<NodeFactory.Category<T>> matches) {
-        List<NodeFactory.Category<T>> toAdd = new ArrayList<>();
-        for (NodeFactory.Category<T> node : matches) {
-            NodeFactory.Category<T> parent = node.getParent();
+    private void addAllParents(List<NodeFactory.Category> matches) {
+        List<NodeFactory.Category> toAdd = new ArrayList<>();
+        for (NodeFactory.Category node : matches) {
+            NodeFactory.Category parent = node.getParent();
             while (parent != null) {
                 if(!matches.contains(parent) && !toAdd.contains(parent)) {
                     toAdd.add(parent);
@@ -129,12 +134,12 @@ public class NodeFactoryPanel<T> extends JPanel {
      * @param searchCriteria the search criteria
      * @return a list of all categories that match the search criteria
      */
-    private List<NodeFactory.Category<T>> findAllTypesMatching(NodeFactory.Category<T> root) {
-        List<NodeFactory.Category<T>> matches = new ArrayList<>();
-        List<NodeFactory.Category<T>> toSearch = new ArrayList<>();
+    private List<NodeFactory.Category> findAllTypesMatching(NodeFactory.Category root) {
+        List<NodeFactory.Category> matches = new ArrayList<>();
+        List<NodeFactory.Category> toSearch = new ArrayList<>();
         toSearch.add(root);
         while(!toSearch.isEmpty()) {
-            NodeFactory.Category<T> category = toSearch.remove(0);
+            NodeFactory.Category category = toSearch.remove(0);
             String name = category.getName();
             if(searchBar.matches(name)) {
                 matches.add(category);
@@ -149,7 +154,7 @@ public class NodeFactoryPanel<T> extends JPanel {
         tree.addTreeSelectionListener(e -> {
             TreePath path = tree.getSelectionPath();
             if (path != null) {
-                NodeFactory.Category<T> category = getCategory((DefaultMutableTreeNode) path.getLastPathComponent());
+                NodeFactory.Category category = getCategory((DefaultMutableTreeNode) path.getLastPathComponent());
                 okButton.setEnabled(category.getSupplier() != null);
             }
         });
@@ -162,7 +167,7 @@ public class NodeFactoryPanel<T> extends JPanel {
     public int getResult() {
         TreePath path = tree.getSelectionPath();
         if (path != null) {
-            NodeFactory.Category<T> category = getCategory((DefaultMutableTreeNode) path.getLastPathComponent());
+            NodeFactory.Category category = getCategory((DefaultMutableTreeNode) path.getLastPathComponent());
             if (category.getSupplier() != null) {
                 return JOptionPane.OK_OPTION;
             }
@@ -173,14 +178,14 @@ public class NodeFactoryPanel<T> extends JPanel {
     public String getSelectedNode() {
         TreePath path = tree.getSelectionPath();
         if (path != null) {
-            NodeFactory.Category<T> category = getCategory((DefaultMutableTreeNode) path.getLastPathComponent());
+            NodeFactory.Category category = getCategory((DefaultMutableTreeNode) path.getLastPathComponent());
             return category.getName();
         }
         return null;
     }
 
-    NodeFactory.Category<T> getCategory(DefaultMutableTreeNode branch) {
+    NodeFactory.Category getCategory(DefaultMutableTreeNode branch) {
         Object obj = branch.getUserObject();
-        return (NodeFactory.Category<T>)obj;
+        return (NodeFactory.Category)obj;
     }
 }
