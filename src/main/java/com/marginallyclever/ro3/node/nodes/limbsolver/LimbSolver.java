@@ -108,7 +108,7 @@ public class LimbSolver extends Node {
 
         var limb = getLimb().getSubject();
 
-        if(linearVelocity<0.0001) {
+        if(Math.abs(linearVelocity) < 0.0001) {
             // no velocity.  Make sure the arm doesn't drift.
             limb.setAllJointVelocities(new double[limb.getNumJoints()]);
             return;
@@ -217,11 +217,9 @@ public class LimbSolver extends Node {
      * the target the velocity will slow down.</p>
      * <p>Store the results in the original array.</p>
      * @param vector the vector to cap
-     * @param maxLen the max length of the vector.
+     * @param linearVelocity the max length of the vector.
      */
-    public static void scaleVectorToMagnitude(double[] vector, double maxLen) {
-        if(maxLen<0) throw new IllegalArgumentException("maxLen must be >= 0");
-
+    public static void scaleVectorToMagnitude(double[] vector, double linearVelocity) {
         // get the length of the vector
         double len = 0;
         for (double v : vector) {
@@ -229,10 +227,11 @@ public class LimbSolver extends Node {
         }
 
         len = Math.sqrt(len);
-        if(maxLen>len) maxLen=len;
+        var linearMagnitude = Math.abs(linearVelocity);
+        if(linearMagnitude>len) linearVelocity = Math.signum(linearVelocity) * len;
 
         // scale the vector
-        double scale = len==0? 0 : maxLen / len;  // catch len==0
+        double scale = len==0? 0 : linearVelocity / len;  // catch len==0
         for(int i=0;i<vector.length;i++) {
             vector[i] *= scale;
         }
@@ -267,7 +266,6 @@ public class LimbSolver extends Node {
      * @param linearVelocity must be >= 0
      */
     public void setLinearVelocity(double linearVelocity) {
-        if(linearVelocity<0) throw new IllegalArgumentException("linearVelocity must be >= 0");
         this.linearVelocity = linearVelocity;
     }
 
