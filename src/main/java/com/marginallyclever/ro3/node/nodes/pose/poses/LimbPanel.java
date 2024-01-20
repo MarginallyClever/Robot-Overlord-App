@@ -12,6 +12,10 @@ import java.awt.*;
 public class LimbPanel extends JPanel {
     private final Limb limb;
 
+    public LimbPanel() {
+        this(new Limb());
+    }
+
     public LimbPanel(Limb limb) {
         super(new GridBagLayout());
         this.limb = limb;

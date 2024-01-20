@@ -10,6 +10,10 @@ import java.util.Objects;
 public class AttachmentPointPanel extends JPanel {
     private final AttachmentPoint attachmentPoint;
 
+    public AttachmentPointPanel() {
+        this(new AttachmentPoint());
+    }
+
     public AttachmentPointPanel(AttachmentPoint attachmentPoint) {
         super(new GridLayout(0,2));
         this.attachmentPoint = attachmentPoint;

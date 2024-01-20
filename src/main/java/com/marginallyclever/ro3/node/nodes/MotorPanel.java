@@ -7,6 +7,10 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MotorPanel extends JPanel {
+    public MotorPanel() {
+        this(new Motor());
+    }
+
     public MotorPanel(Motor motor) {
         super(new GridLayout(0,2));
         this.setName(Motor.class.getSimpleName());

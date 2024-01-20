@@ -11,6 +11,10 @@ import java.security.InvalidParameterException;
 public class CameraPanel extends JPanel {
     private final Camera camera;
 
+    private CameraPanel() {
+        this(new Camera());
+    }
+
     public CameraPanel(Camera camera) {
         super(new GridLayout(0,2));
         this.camera = camera;

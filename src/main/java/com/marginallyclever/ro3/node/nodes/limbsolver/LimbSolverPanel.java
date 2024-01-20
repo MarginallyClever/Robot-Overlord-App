@@ -11,6 +11,10 @@ import java.util.Objects;
 public class LimbSolverPanel extends JPanel {
     private final LimbSolver limbSolver;
 
+    public LimbSolverPanel() {
+        this(new LimbSolver());
+    }
+
     public LimbSolverPanel(LimbSolver limbSolver) {
         super(new GridBagLayout());
         this.limbSolver = limbSolver;

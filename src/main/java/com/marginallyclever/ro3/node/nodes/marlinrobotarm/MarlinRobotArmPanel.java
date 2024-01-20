@@ -7,6 +7,11 @@ import java.awt.*;
 
 public class MarlinRobotArmPanel extends JPanel {
     private final MarlinRobotArm marlinRobotArm;
+
+    public MarlinRobotArmPanel() {
+        this(new MarlinRobotArm());
+    }
+
     public MarlinRobotArmPanel(MarlinRobotArm marlinRobotArm) {
         super(new GridBagLayout());
         this.marlinRobotArm = marlinRobotArm;

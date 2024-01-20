@@ -13,6 +13,10 @@ public class MaterialPanel extends JPanel {
     private final JLabel sizeLabel = new JLabel();
     private final JLabel imgLabel = new JLabel();
 
+    public MaterialPanel() {
+        this(new Material());
+    }
+
     public MaterialPanel(Material material) {
         super(new GridBagLayout());
         this.material = material;

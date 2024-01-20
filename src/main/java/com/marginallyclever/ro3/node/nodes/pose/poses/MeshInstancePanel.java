@@ -12,6 +12,10 @@ import java.io.File;
 public class MeshInstancePanel extends JPanel {
     private final MeshInstance meshInstance;
 
+    public MeshInstancePanel() {
+        this(new MeshInstance());
+    }
+
     public MeshInstancePanel(MeshInstance meshInstance) {
         super(new GridLayout(0,2));
         this.meshInstance = meshInstance;

@@ -10,6 +10,11 @@ import java.awt.*;
 
 public class DHParameterPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(DHParameterPanel.class);
+
+    public DHParameterPanel() {
+        this(new DHParameter());
+    }
+
     public DHParameterPanel(DHParameter dhParameter) {
         super(new GridLayout(0,2));
         this.setName(DHParameter.class.getSimpleName());

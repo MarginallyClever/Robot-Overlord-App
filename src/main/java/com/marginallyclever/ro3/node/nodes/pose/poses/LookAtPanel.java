@@ -8,6 +8,10 @@ import javax.swing.*;
 import java.awt.*;
 
 public class LookAtPanel extends JPanel {
+    public LookAtPanel() {
+        this(new LookAt());
+    }
+
     public LookAtPanel(LookAt lookAt) {
         super(new GridLayout(0,2));
         this.setName(LookAt.class.getSimpleName());
