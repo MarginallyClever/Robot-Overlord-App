@@ -1,8 +1,6 @@
 package com.marginallyclever.communications.transport.ssh;
 
 import com.jcraft.jsch.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,67 +17,60 @@ import java.awt.*;
  *
  */
 public class SSHShell {
-	private static final Logger logger = LoggerFactory.getLogger(SSHShell.class);
-	public static void main(String[] arg) {
-		try {
-			JSch jsch = new JSch();
+	public static void main(String[] arg) throws Exception {
+        JSch jsch = new JSch();
 
-			jsch.setKnownHosts("./.ssh/known_hosts");
+        jsch.setKnownHosts("./.ssh/known_hosts");
 
-			String host = null;
-			if (arg.length > 0) {
-				host = arg[0];
-			} else {
-				host = JOptionPane.showInputDialog("Enter username@hostname",
-						System.getProperty("user.name") + "@localhost");
-			}
-			String user = host.substring(0, host.indexOf('@'));
-			host = host.substring(host.indexOf('@') + 1);
+        String host = null;
+        if (arg.length > 0) {
+            host = arg[0];
+        } else {
+            host = JOptionPane.showInputDialog("Enter username@hostname",
+                    System.getProperty("user.name") + "@localhost");
+        }
+        String user = host.substring(0, host.indexOf('@'));
+        host = host.substring(host.indexOf('@') + 1);
 
-			Session session = jsch.getSession(user, host, 22);
+        Session session = jsch.getSession(user, host, 22);
 
-			String passwd = JOptionPane.showInputDialog("Enter password");
-			session.setPassword(passwd);
+        String passwd = JOptionPane.showInputDialog("Enter password");
+        session.setPassword(passwd);
 
-			UserInfo ui = new MyUserInfo();
+        UserInfo ui = new MyUserInfo();
 
-			session.setUserInfo(ui);
+        session.setUserInfo(ui);
 
-			// It must not be recommended, but if you want to skip host-key check,
-			// invoke following,
-			// session.setConfig("StrictHostKeyChecking", "no");
+        // It must not be recommended, but if you want to skip host-key check,
+        // invoke following,
+        // session.setConfig("StrictHostKeyChecking", "no");
 
-			// session.connect();
-			session.connect(30000); // making a connection with timeout.
+        // session.connect();
+        session.connect(30000); // making a connection with timeout.
 
-			Channel channel = session.openChannel("shell");
+        Channel channel = session.openChannel("shell");
 
-			// Enable agent-forwarding.
-			// ((ChannelShell)channel).setAgentForwarding(true);
+        // Enable agent-forwarding.
+        // ((ChannelShell)channel).setAgentForwarding(true);
 
-			channel.setInputStream(System.in);
-			/*
-			 * // a hack for MS-DOS prompt on Windows. channel.setInputStream(new
-			 * FilterInputStream(System.in){ public int read(byte[] b, int off, int
-			 * len)throws IOException{ return in.read(b, off, (len>1024?1024:len)); } });
-			 */
+        channel.setInputStream(System.in);
 
-			channel.setOutputStream(System.out);
+        /*
+         * // a hack for MS-DOS prompt on Windows. channel.setInputStream(new
+         * FilterInputStream(System.in){ public int read(byte[] b, int off, int
+         * len)throws IOException{ return in.read(b, off, (len>1024?1024:len)); } });
+         */
+        channel.setOutputStream(System.out);
 
-			/*
-			 * // Choose the pty-type "vt102". ((ChannelShell)channel).setPtyType("vt102");
-			 */
+        // Choose the pty-type "vt102". ((ChannelShell)channel).setPtyType("vt102");
 
-			/*
-			 * // Set environment variable "LANG" as "ja_JP.eucJP".
-			 * ((ChannelShell)channel).setEnv("LANG", "ja_JP.eucJP");
-			 */
+        /*
+         * // Set environment variable "LANG" as "ja_JP.eucJP".
+         * ((ChannelShell)channel).setEnv("LANG", "ja_JP.eucJP");
+         */
 
-			// channel.connect();
-			channel.connect(3 * 1000);
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
+        // channel.connect();
+        channel.connect(3 * 1000);
 	}
 
 	/**

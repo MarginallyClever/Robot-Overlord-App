@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Point3d;
+import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -334,6 +335,13 @@ public class Mesh {
 		return new Vector3d(x,y,z);
 	}
 
+	public Vector2d getTexCoord(int t) {
+		t*=2;
+		double u = textureArray.get(t++);
+		double v = textureArray.get(t++);
+		return new Vector2d(u,v);
+	}
+
 	public boolean isDirty() {
 		return isDirty;
 	}
@@ -463,6 +471,12 @@ public class Mesh {
 		vertexArray.set(i++, (float)x);
 		vertexArray.set(i++, (float)y);
 		vertexArray.set(i++, (float)z);
+	}
+
+	public void setTexCoord(int i, double u, double v) {
+		i*=2;
+		textureArray.set(i++, (float)u);
+		textureArray.set(i++, (float)v);
 	}
 
     public void updateVertexBuffers(GL3 gl3) {

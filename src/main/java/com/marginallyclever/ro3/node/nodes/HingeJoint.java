@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import javax.swing.*;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>a {@link HingeJoint} is a joint that can rotate around the local Z axis.</p>
@@ -153,5 +154,10 @@ public class HingeJoint extends Node {
 
     public void setAxle(Pose subject) {
         axle.setUniqueIDByNode(subject);
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/hinge-16.png")));
     }
 }

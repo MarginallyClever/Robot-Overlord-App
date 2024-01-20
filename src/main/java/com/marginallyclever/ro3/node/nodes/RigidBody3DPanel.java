@@ -7,6 +7,10 @@ import javax.swing.*;
 import java.awt.*;
 
 public class RigidBody3DPanel extends JPanel {
+    public RigidBody3DPanel() {
+        this(new RigidBody3D());
+    }
+
     public RigidBody3DPanel(RigidBody3D rigidBody3D) {
         super(new GridLayout(0,2));
         this.setName(RigidBody3D.class.getSimpleName());

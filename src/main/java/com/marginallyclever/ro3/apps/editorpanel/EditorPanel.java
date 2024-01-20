@@ -1,6 +1,8 @@
 package com.marginallyclever.ro3.apps.editorpanel;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
+import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
 import com.marginallyclever.ro3.node.Node;
@@ -39,7 +41,7 @@ import java.util.Objects;
  * the robot may be written to file, depending on the state of the <b>get</b> toggle.</p>
  * <p>There is room for more editing tools here like save, load, copy, cut, paste, undo, redo, etc.</p>
  */
-public class EditorPanel extends App implements MarlinListener, PropertyChangeListener, NodeDetachListener {
+public class EditorPanel extends App implements MarlinListener, PropertyChangeListener, NodeDetachListener, SceneChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(EditorPanel.class);
     private static final double PROGRESS_BAR_SCALE = 1000;
     private static final int TIMER_INTERVAL_MS = 100;
@@ -104,6 +106,8 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
         scroll.setViewportView(text);
         add(scroll, BorderLayout.CENTER);
         addStatusBar();
+
+        Registry.addSceneChangeListener(this);
     }
 
     private void addStatusBar() {
@@ -348,4 +352,12 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
         statusLabel.setText("Line "+(lineNumber+1));
         return true;
     }
+
+    @Override
+    public void beforeSceneChange(Node oldScene) {
+        robotArm.setSubject(null);
+    }
+
+    @Override
+    public void afterSceneChange(Node newScene) {}
 }

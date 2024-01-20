@@ -6,6 +6,10 @@ import javax.swing.*;
 import java.awt.*;
 
 public class NodePanel extends JPanel {
+    public NodePanel() {
+        this(new Node());
+    }
+    
     public NodePanel(Node node) {
         super(new GridLayout(0,2));
         this.setName(Node.class.getSimpleName());

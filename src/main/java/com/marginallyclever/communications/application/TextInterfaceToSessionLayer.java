@@ -112,18 +112,4 @@ public class TextInterfaceToSessionLayer extends App implements SessionLayerList
 	public void removeNetworkSessionListener(SessionLayerListener a) {
 		mySession.removeListener(a);
 	}
-
-	// TEST 
-	
-	public static void main(String[] args) {
-		JFrame frame = new JFrame(TextInterfaceToSessionLayer.class.getName());
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception ignore) {}
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setPreferredSize(new Dimension(600, 400));
-		frame.add(new TextInterfaceToSessionLayer());
-		frame.pack();
-		frame.setVisible(true);
-	}
 }

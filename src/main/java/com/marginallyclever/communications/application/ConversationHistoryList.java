@@ -37,16 +37,19 @@ public class ConversationHistoryList extends JPanel {
 	}
 	
 	private JToolBar getToolBar() {
-		JToolBar bar = new JToolBar();
-		bar.setRollover(true);
+		JToolBar toolBar = new JToolBar();
+		toolBar.setRollover(true);
 
-		bar.add(bClear);
-		bar.add(bSave);
-		
+		toolBar.add(bClear);
+		toolBar.add(bSave);
+
+		bClear.setToolTipText("Clear the conversation history.");
+		bSave.setToolTipText("Save the conversation history to a file.");
+
 		bClear.addActionListener( (e) -> runNewAction() );
 		bSave.addActionListener( (e) -> runSaveAction() );
 		
-		return bar;
+		return toolBar;
 	}
 
 	private void createCellRenderingSystem() {
@@ -137,18 +140,5 @@ public class ConversationHistoryList extends JPanel {
 		
 	private void jumpToEnd() {
 		listView.ensureIndexIsVisible(listModel.getSize()-1);
-	}
-	
-	// TEST
-	
-	public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception ignored) {}
-		JFrame frame = new JFrame(ConversationHistoryList.class.getName());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new ConversationHistoryList());
-		frame.pack();
-		frame.setVisible(true);
 	}
 }

@@ -10,6 +10,9 @@ import javax.swing.text.NumberFormatter;
 import java.awt.*;
 
 public class HingeJointPanel extends JPanel {
+    public HingeJointPanel() {
+        this(new HingeJoint());
+    }
 
     public HingeJointPanel(HingeJoint hingeJoint) {
         super(new GridLayout(0,2));

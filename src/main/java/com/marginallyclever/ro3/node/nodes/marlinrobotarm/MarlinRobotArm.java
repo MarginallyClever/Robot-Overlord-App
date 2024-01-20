@@ -8,7 +8,7 @@ import com.marginallyclever.ro3.node.nodes.limbsolver.ApproximateJacobianFiniteD
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.Motor;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
-import com.marginallyclever.ro3.node.nodes.pose.Limb;
+import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +18,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>{@link MarlinRobotArm} converts the state of a robot arm into GCode and back.</p>
@@ -395,5 +396,10 @@ public class MarlinRobotArm extends Node {
 
     public NodePath<Motor> getGripperMotor() {
         return gripperMotor;
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/marlinrobotarm/marlin.png")));
     }
 }

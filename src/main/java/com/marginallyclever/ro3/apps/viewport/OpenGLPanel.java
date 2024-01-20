@@ -5,7 +5,6 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.viewport.renderpasses.DrawMeshes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -207,5 +206,9 @@ public class OpenGLPanel extends App implements GLEventListener, MouseListener, 
 
     public void setVerticalSync(boolean verticalSync) {
         this.verticalSync = verticalSync;
+    }
+
+    public int getFPS() {
+        return fps;
     }
 }

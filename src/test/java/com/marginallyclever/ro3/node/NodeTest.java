@@ -1,6 +1,6 @@
 package com.marginallyclever.ro3.node;
 
-import com.marginallyclever.ro3.node.nodes.Camera;
+import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;

@@ -22,6 +22,10 @@ public class LimbPlannerPanel extends JPanel implements ActionListener {
     private final JLabel previousExecutionTimeLabel = new JLabel();
     private final JLabel executionTimeLabel = new JLabel();
 
+    public LimbPlannerPanel() {
+        this(new LimbPlanner());
+    }
+
     public LimbPlannerPanel(LimbPlanner limbPlanner) {
         super(new GridBagLayout());
         this.limbPlanner = limbPlanner;

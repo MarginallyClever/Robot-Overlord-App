@@ -8,7 +8,7 @@ import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.Camera;
+import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 
@@ -99,5 +99,15 @@ public class MoveUtils {
         m.setTranslation(MatrixHelper.getPosition(lastItemSelectedMatrix));
 
         return m;
+    }
+
+    public static boolean listContainsAPose(List<Node> list) {
+        boolean valid = false;
+        for(Node n : list) {
+            if(n instanceof Pose) {
+                return true;
+            }
+        }
+        return valid;
     }
 }

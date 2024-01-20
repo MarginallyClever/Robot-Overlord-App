@@ -11,6 +11,10 @@ import java.util.Objects;
 public class LimbSolverPanel extends JPanel {
     private final LimbSolver limbSolver;
 
+    public LimbSolverPanel() {
+        this(new LimbSolver());
+    }
+
     public LimbSolverPanel(LimbSolver limbSolver) {
         super(new GridBagLayout());
         this.limbSolver = limbSolver;
@@ -66,12 +70,16 @@ public class LimbSolverPanel extends JPanel {
     private JComponent createVelocitySlider() {
         JPanel container = new JPanel(new BorderLayout());
         // add a slider to control linear velocity
-        JSlider slider = new JSlider(0,20,(int)limbSolver.getLinearVelocity());
+        JSlider slider = new JSlider(-20,20,(int)limbSolver.getLinearVelocity());
         slider.addChangeListener(e-> limbSolver.setLinearVelocity( slider.getValue() ));
 
         // Make the slider fill the available horizontal space
         slider.setMaximumSize(new Dimension(Integer.MAX_VALUE, slider.getPreferredSize().height));
         slider.setMinimumSize(new Dimension(50, slider.getPreferredSize().height));
+        slider.setMajorTickSpacing(10);
+        slider.setMinorTickSpacing(1);
+        slider.setPaintTicks(true);
+        slider.setSnapToTicks(true);
 
         container.add(new JLabel("Linear Vel"), BorderLayout.LINE_START);
         container.add(slider, BorderLayout.CENTER); // Add slider to the center of the container

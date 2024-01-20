@@ -479,4 +479,12 @@ public class Node {
     public Node findByPath(String path) {
         return findNodeByPath(path,Node.class);
     }
+
+    /**
+     * Set a custom icon for this node.
+     * @return the icon, or null if none.
+     */
+    public Icon getIcon() {
+        return null;
+    }
 }

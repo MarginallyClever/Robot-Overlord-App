@@ -8,14 +8,13 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.Camera;
+import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -179,6 +178,7 @@ public class RotateToolMulti implements ViewportTool {
     @Override
     public void render(GL3 gl, ShaderProgram shaderProgram) {
         if (selectedItems == null || selectedItems.isEmpty()) return;
+        if( !MoveUtils.listContainsAPose(selectedItems.getNodes()) ) return;
 
         int i = getIndexInUse();
         if(0==i || -1==i) {

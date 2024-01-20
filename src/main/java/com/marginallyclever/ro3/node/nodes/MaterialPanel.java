@@ -10,6 +10,12 @@ import java.awt.image.BufferedImage;
 public class MaterialPanel extends JPanel {
     private static final int THUMBNAIL_SIZE = 64;
     private final Material material;
+    private final JLabel sizeLabel = new JLabel();
+    private final JLabel imgLabel = new JLabel();
+
+    public MaterialPanel() {
+        this(new Material());
+    }
 
     public MaterialPanel(Material material) {
         super(new GridBagLayout());
@@ -34,15 +40,14 @@ public class MaterialPanel extends JPanel {
             if(result == JFileChooser.APPROVE_OPTION) {
                 material.setTexture(textureChooserDialog.getSelectedItem());
                 setTextureButtonLabel(button);
+                updatePreview();
             }
         });
         PanelHelper.addLabelAndComponent(this,"Texture",button,gbc);
+        PanelHelper.addLabelAndComponent(this,"Size",sizeLabel,gbc);
+        PanelHelper.addLabelAndComponent(this,"Preview",imgLabel,gbc);
 
-        if(texture!=null) {
-            BufferedImage smaller = scaleImage(texture.getImage());
-            PanelHelper.addLabelAndComponent(this,"Size",new JLabel(texture.getWidth()+"x"+texture.getHeight()),gbc);
-            PanelHelper.addLabelAndComponent(this,"Preview",new JLabel(new ImageIcon(smaller)),gbc);
-        }
+        updatePreview();
 
         // diffuse
         var diffuseColor = material.getDiffuseColor();
@@ -86,6 +91,18 @@ public class MaterialPanel extends JPanel {
         gbc.gridy++;
         gbc.gridwidth=2;
         this.add(createShininessSlider(),gbc);
+    }
+
+    private void updatePreview() {
+        var texture = material.getTexture();
+        if(texture!=null) {
+            sizeLabel.setText(texture.getWidth()+"x"+texture.getHeight());
+            imgLabel.setIcon(new ImageIcon(scaleImage(texture.getImage())));
+            imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        } else {
+            sizeLabel.setText("");
+            imgLabel.setIcon(null);
+        }
     }
 
     private JComponent createShininessSlider() {

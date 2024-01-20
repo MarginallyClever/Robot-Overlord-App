@@ -8,19 +8,22 @@ import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
-import com.marginallyclever.ro3.node.nodes.Camera;
+import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.mesh.shapes.Sphere;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.node.nodes.pose.poses.LookAt;
+import com.marginallyclever.ro3.texture.TextureWithMetadata;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
-import java.awt.event.KeyEvent;
+import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 /**
@@ -29,7 +32,7 @@ import java.util.List;
  */
 public class TranslateToolOneAxis implements ViewportTool {
     private final double handleLength = 5;
-    private final double gripRadius = 0.5;
+    private final double gripRadius = 1.0;
     private double localScale = 1;
 
     /**
@@ -61,16 +64,14 @@ public class TranslateToolOneAxis implements ViewportTool {
      * The axis along which the user is translating.
      */
     private final Vector3d translationAxis = new Vector3d();
-
     private final Matrix4d pivotMatrix = MatrixHelper.createIdentityMatrix4();
-
     private boolean cursorOverHandle = false;
-
     private final Mesh handleLineMesh = new Mesh(GL3.GL_LINES);
     private final Sphere handleSphere = new Sphere();
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
     private final ColorRGB color;
-
+    private TextureWithMetadata texture;
+    private Mesh quad = new Mesh(GL3.GL_QUADS);
 
     public TranslateToolOneAxis(ColorRGB color) {
         super();
@@ -79,6 +80,15 @@ public class TranslateToolOneAxis implements ViewportTool {
         // handle line
         handleLineMesh.addVertex(0, 0, 0);
         handleLineMesh.addVertex((float)1.0, 0, 0);
+
+        quad.addVertex(-1, -1, 0);
+        quad.addVertex(1, -1, 0);
+        quad.addVertex(1, 1, 0);
+        quad.addVertex(-1, 1, 0);
+        quad.addTexCoord(0, 0);
+        quad.addTexCoord(1, 0);
+        quad.addTexCoord(1, 1);
+        quad.addTexCoord(0, 1);
     }
 
     @Override
@@ -235,12 +245,16 @@ public class TranslateToolOneAxis implements ViewportTool {
     @Override
     public void render(GL3 gl, ShaderProgram shaderProgram) {
         if (selectedItems == null || selectedItems.isEmpty()) return;
-
+        if( !MoveUtils.listContainsAPose(selectedItems.getNodes()) ) return;
+/*
         float colorScale = cursorOverHandle ? 1:0.5f;
         float red   = color.red   * colorScale / 255f;
         float green = color.green * colorScale / 255f;
         float blue  = color.blue  * colorScale / 255f;
         shaderProgram.set4f(gl,"objectColor",red, green, blue, 1.0f);
+        */
+        shaderProgram.set1i(gl,"useTexture",0);
+        shaderProgram.set4f(gl,"objectColor",0,0,0, 1.0f);
 
         // handle
         Matrix4d m = new Matrix4d(pivotMatrix);
@@ -254,9 +268,28 @@ public class TranslateToolOneAxis implements ViewportTool {
         m2.m03 += getHandleLengthScaled();
         m2.mul(pivotMatrix,m2);
         m2.mul(m2,MatrixHelper.createScaleMatrix4(getGripRadiusScaled()));
-        m2.transpose();
-        shaderProgram.setMatrix4d(gl,"modelMatrix",m2);
+        Matrix4d m2t = new Matrix4d(m2);
+        m2t.transpose();
+        shaderProgram.setMatrix4d(gl,"modelMatrix",m2t);
         handleSphere.render(gl);
+
+        if(texture!=null) {
+            quad.updateVertexBuffers(gl);
+            Camera camera = Registry.getActiveCamera();
+            // set the model matrix to be the camera matrix so the handle is always facing the camera.
+            Matrix4d model = camera.getWorld();
+            model.setTranslation(MatrixHelper.getPosition(m2));
+            model.mul(model, MatrixHelper.createScaleMatrix4(getGripRadiusScaled()));
+            model.transpose();
+            shaderProgram.setMatrix4d(gl,"modelMatrix",model);
+            shaderProgram.set1i(gl,"diffuseTexture",0);
+
+            shaderProgram.set4f(gl,"objectColor",1,1,1, 1.0f);
+            shaderProgram.set1i(gl,"useTexture",1);
+            texture.use(shaderProgram);
+            quad.render(gl);
+            shaderProgram.set1i(gl,"useTexture",0);
+        }
     }
 
     @Override
@@ -295,5 +328,19 @@ public class TranslateToolOneAxis implements ViewportTool {
     public void dispose(GL3 gl3) {
         handleSphere.unload(gl3);
         handleLineMesh.unload(gl3);
+        quad.unload(gl3);
+    }
+
+    public void setTexture(TextureWithMetadata texture, Rectangle2D textureBounds) {
+        this.texture = texture;
+        double u = textureBounds.getX();
+        double v = textureBounds.getY();
+        double w = textureBounds.getWidth();
+        double h = textureBounds.getHeight();
+        // update the quad texture coordinates.
+        quad.setTexCoord(0,u,v);
+        quad.setTexCoord(1,u+w,v);
+        quad.setTexCoord(2,u+w,v+h);
+        quad.setTexCoord(3,u,v+h);
     }
 }

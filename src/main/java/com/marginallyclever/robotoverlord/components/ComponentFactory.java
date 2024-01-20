@@ -1,21 +1,7 @@
 package com.marginallyclever.robotoverlord.components;
 
-import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
-import com.marginallyclever.robotoverlord.components.demo.DogRobotComponent;
-import com.marginallyclever.robotoverlord.components.motors.DCMotorComponent;
-import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
-import com.marginallyclever.robotoverlord.components.motors.StepperMotorComponent;
-import com.marginallyclever.robotoverlord.components.program.ProgramComponent;
-import com.marginallyclever.robotoverlord.components.program.ProgramPathComponent;
-import com.marginallyclever.robotoverlord.components.shapes.*;
-import com.marginallyclever.robotoverlord.components.vehicle.VehicleComponent;
-import com.marginallyclever.robotoverlord.components.vehicle.WheelComponent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 
 /**
  * A factory to list and create {@link Component}s.
@@ -24,16 +10,7 @@ import java.util.ArrayList;
  */
 @Deprecated
 public abstract class ComponentFactory {
-	private static final Logger logger = LoggerFactory.getLogger(ComponentFactory.class);
 	private static final Class<?> [] available = {};
-	
-	public static ArrayList<String> getAllComponentNames() {
-		ArrayList<String> names = new ArrayList<>();
-		for( Class<?> c : available ) {
-			names.add( c.getName() );
-		}
-		return names;
-	}
 
 	public static Class<?> getClassFromName(String name) {
 		for( Class<?> c : available ) {

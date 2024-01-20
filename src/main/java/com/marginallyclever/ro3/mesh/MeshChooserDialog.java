@@ -3,7 +3,6 @@ package com.marginallyclever.ro3.mesh;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.util.Objects;
 
 import com.marginallyclever.ro3.Registry;
@@ -28,14 +27,10 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
         setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 
         setupToolbar();
-        setupMeshList();
-
-        var clearButton = new JButton("Clear");
-        clearButton.addActionListener(e -> setSelectedItem(null));
+        setupList();
 
         add(toolBar, BorderLayout.NORTH);
         add(new JScrollPane(list), BorderLayout.CENTER);
-        add(clearButton, BorderLayout.SOUTH);
     }
 
     public void setSelectedItem(Mesh mesh) {
@@ -48,24 +43,20 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
     }
 
     private void setupToolbar() {
-        toolBar.add(new JButton(new AbstractAction() {
-            {
-                putValue(Action.NAME, "Load Mesh");
-                putValue(Action.SHORT_DESCRIPTION, "Load a mesh from a file.");
-                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource(
-                        "/com/marginallyclever/ro3/apps/actions/icons8-load-16.png"))));
-            }
+        var loadButton = new JButton("Load");
+        loadButton.setToolTipText("Load from a file.");
+        loadButton.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(
+                "/com/marginallyclever/ro3/apps/actions/icons8-load-16.png"))));
+        loadButton.addActionListener(e-> runFactoryDialog((JComponent)e.getSource()));
+        toolBar.add(loadButton);
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                MeshFactoryDialog meshFactoryDialog = new MeshFactoryDialog();
-                int result = meshFactoryDialog.run((JComponent)e.getSource());
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    Mesh mesh = meshFactoryDialog.getMesh();
-                    setSelectedItem(mesh);
-                }
-            }
-        }));
+
+        var clearButton = new JButton("Clear");
+        clearButton.setToolTipText("Choose none.");
+        clearButton.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(
+                "/com/marginallyclever/ro3/apps/icons8-reset-16.png"))));
+        clearButton.addActionListener(e -> setSelectedItem(null));
+        toolBar.add(clearButton);
 
         /*
         String[] viewTypes = {"List View", "Detail View", "Thumbnail View"};
@@ -78,7 +69,16 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
         */
     }
 
-    private void setupMeshList() {
+    private void runFactoryDialog(JComponent parent) {
+        MeshFactoryDialog meshFactoryDialog = new MeshFactoryDialog();
+        int result = meshFactoryDialog.run(parent);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            Mesh mesh = meshFactoryDialog.getMesh();
+            setSelectedItem(mesh);
+        }
+    }
+
+    private void setupList() {
         list.setCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -92,6 +92,7 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
             model.addElement(mesh);
         }
         list.setModel(model);
+        list.setSelectedValue(selectedItem, true);
         list.addListSelectionListener(e -> selectedItem = list.getSelectedValue());
     }
 

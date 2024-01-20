@@ -6,10 +6,8 @@ import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.actions.*;
 import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
 import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
-import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.NodeAttachListener;
-import com.marginallyclever.ro3.node.NodeDetachListener;
-import com.marginallyclever.ro3.node.NodeRenameListener;
+import com.marginallyclever.ro3.node.*;
+import com.marginallyclever.ro3.node.nodefactory.NodeTreeBranchRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +52,7 @@ public class NodeTreeView extends App
 
     private void setupTree() {
         tree.setRootVisible(true);
-        //tree.setShowsRootHandles(true);
+        tree.setShowsRootHandles(true);
         NodeTreeBranchRenderer cellRender = new NodeTreeBranchRenderer();
         tree.setCellRenderer(cellRender);
 
@@ -67,6 +65,8 @@ public class NodeTreeView extends App
 
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         tree.addTreeSelectionListener(this::changeSelection);
+
+        tree.setToolTipText("");
     }
 
     private void changeSelection(TreeSelectionEvent e) {
@@ -152,7 +152,7 @@ public class NodeTreeView extends App
     }
 
     private void buildToolBar() {
-        var addButton = new JButton(new AddNode<>());
+        var addButton = new JButton(new AddNode());
         var cutButton = new JButton(cutNode);
         var removeButton = new JButton(removeNode);
         var copyButton = new JButton(copyNode);
@@ -195,18 +195,17 @@ public class NodeTreeView extends App
         logger.debug("Attached "+child.getAbsolutePath());
         Node parent = child.getParent();
         if(parent==null) throw new RuntimeException("source node has no parent");
+
         NodeTreeBranch branchParent = findTreeNode(parent);
         if(branchParent==null) throw new RuntimeException("parent node has no branch");
+
         NodeTreeBranch branchChild = new NodeTreeBranch(child);
         int index = parent.getChildren().indexOf(child);
-        branchParent.insert(branchChild,index);
 
-        // Notify the JTree model that a new node has been inserted
         var model = (DefaultTreeModel) tree.getModel();
-        model.nodesWereInserted(branchParent, new int[]{index});
+        model.insertNodeInto(branchChild, branchParent, index);
 
         listenTo(child);
-
         // scan the new node for children
         scanTree(child);
     }
@@ -215,32 +214,30 @@ public class NodeTreeView extends App
     public void nodeDetached(Node child) {
         //logger.debug("Detached "+child.getAbsolutePath());
 
+        // remove all children of this node, a reverse of scanTree()
+        List<Node> toRemove = new ArrayList<>(child.getChildren());
+        while(!toRemove.isEmpty()) {
+            Node progeny = toRemove.remove(0);
+            stopListeningTo(progeny);
+            toRemove.addAll(progeny.getChildren());
+        }
+
         stopListeningTo(child);
 
-        Node parent = child.getParent();
-        if(parent==null) throw new RuntimeException("Source node has no parent");
-        NodeTreeBranch branchParent = findTreeNode(parent);
-        if(branchParent==null) throw new RuntimeException("Parent node has no branch");
         NodeTreeBranch branchChild = findTreeNode(child);
-        if(branchChild==null) {
-            logger.warn("No branch for "+child.getAbsolutePath());
-            return;
-        }
-        int index = parent.getChildren().indexOf(child);
-        branchParent.remove(branchChild);
+        if(branchChild==null) throw new RuntimeException("No branch for "+child.getAbsolutePath());
 
-        // Notify the JTree model that a new node has been removed
         var model = (DefaultTreeModel) tree.getModel();
-        model.nodesWereRemoved(branchParent, new int[]{index}, new Object[]{branchChild});
+        model.removeNodeFromParent(branchChild);
     }
 
     @Override
     public void nodeRenamed(Node source) {
         //logger.debug("Renamed "+source.getAbsolutePath());
         NodeTreeBranch branch = findTreeNode(source);
-        if (branch != null) {
-            ((DefaultTreeModel) tree.getModel()).nodeChanged(branch);
-        }
+        if (branch == null) throw new RuntimeException("No branch for " + source.getAbsolutePath());
+
+        ((DefaultTreeModel) tree.getModel()).nodeChanged(branch);
     }
 
     @Override
