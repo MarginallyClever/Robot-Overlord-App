@@ -5,6 +5,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLEventListener;
 import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.FrameOfReference;
@@ -16,6 +17,8 @@ import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.move.RotateToolMulti;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.move.TranslateToolMulti;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
+import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,6 +131,41 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         toolBar.add(move);
         toolBar.add(rotate);
         toolBar.add(createFrameOfReferenceSelection());
+        toolBar.add(new JSeparator());
+
+        var lookAtLastSelected = new JButton(new AbstractAction() {
+            {
+                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/poses/icons8-look-16.png"))));
+                putValue(Action.SHORT_DESCRIPTION,"Look at the last selected Pose.");
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Pose lastFound = null;
+                for(Node node : Registry.selection.getList()) {
+                    if(node instanceof Pose pose) {
+                        lastFound = pose;
+                    }
+                }
+                if(lastFound==null) return;
+
+                // look at the last selected pose
+                Camera camera = Registry.getActiveCamera();
+                Matrix4d m = camera.getWorld();
+                var cameraPosition = MatrixHelper.getPosition(m);
+                var lastFoundPosition = MatrixHelper.getPosition(lastFound.getWorld());
+                var lookAt = MatrixHelper.lookAt(lastFoundPosition,cameraPosition);
+                m.set(lookAt);
+                m.setTranslation(cameraPosition);
+                camera.setWorld(m);
+                // adjust the camera orbit to be the distance from the camera to the last selected pose.
+                Vector3d diff = new Vector3d(cameraPosition);
+                diff.sub(lastFoundPosition);
+                double distance = Math.max(1,diff.length());
+                camera.setOrbitRadius(distance);
+            }
+        });
+
+        toolBar.add(lookAtLastSelected);
     }
 
     private void addRenderPasses() {

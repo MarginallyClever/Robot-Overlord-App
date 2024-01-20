@@ -3,7 +3,6 @@ package com.marginallyclever.ro3.node.nodes.pose.poses;
 import com.marginallyclever.convenience.helpers.BigMatrixHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -38,9 +37,9 @@ public class CameraTest {
     public void getSetOrbitRadius() {
         Camera camera = Registry.getActiveCamera();
         assert camera != null;
-        camera.setOrbitRadius(1.0);
+        camera.moveToNewRadius(1.0);
         Assertions.assertEquals(1.0, camera.getOrbitRadius(), 0.01);
-        camera.setOrbitRadius(2.0);
+        camera.moveToNewRadius(2.0);
         Assertions.assertEquals(2.0, camera.getOrbitRadius(), 0.01);
     }
 
@@ -233,7 +232,7 @@ public class CameraTest {
         a.setNearZ(1.0);
         a.setFarZ(2.0);
         a.setFovY(3.0);
-        a.setOrbitRadius(4.0);
+        a.moveToNewRadius(4.0);
         a.panTilt(5.0,6.0);
         a.truck(7.0);
         a.setCanRotate(false);

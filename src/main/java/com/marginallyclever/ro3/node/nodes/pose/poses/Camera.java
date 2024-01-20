@@ -240,10 +240,11 @@ public class Camera extends Pose {
      * is performing a dolly in/out.
      * @param newRadius new radius.  Must be >=1.
      */
-    public void setOrbitRadius(double newRadius) {
+    public void moveToNewRadius(double newRadius) {
         Matrix4d local = getLocal();
         var point = getOrbitPoint();
         orbitRadius = Math.max(1,newRadius);
+
         //logger.debug("wheel "+dz + " orbitRadius=" + orbitRadius);
         Vector3d orbitVector = MatrixHelper.getZAxis(local);
         orbitVector.scaleAdd(orbitRadius,point);
@@ -276,7 +277,7 @@ public class Camera extends Pose {
         //logger.debug("after {}",getOrbitPoint());
     }
 
-    double[] getPanTiltFromMatrix(Matrix4d matrix) {
+    public double[] getPanTiltFromMatrix(Matrix4d matrix) {
         Vector3d v = MatrixHelper.matrixToEuler(matrix, MatrixHelper.EulerSequence.YXZ);
         double pan = Math.toDegrees(-v.z);
         double tilt = Math.toDegrees(v.x);
@@ -342,7 +343,7 @@ public class Camera extends Pose {
      */
     public void orbitDolly(double scale) {
         if(!canTranslate) return;
-        setOrbitRadius(orbitRadius*scale);
+        moveToNewRadius(orbitRadius*scale);
     }
 
     @Override
@@ -373,5 +374,14 @@ public class Camera extends Pose {
     @Override
     public Icon getIcon() {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/poses/icons8-movie-camera-16.png")));
+    }
+
+    /**
+     * Set the distance from the camera to the orbit point.
+     * @param radius new radius.  Must be >=1.
+     */
+    public void setOrbitRadius(double radius) {
+        if(radius<1) throw new InvalidParameterException("target is too close to camera.");
+        orbitRadius = radius;
     }
 }
