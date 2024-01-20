@@ -410,7 +410,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
-        double dt = 0.03;
+        double dt = 1.0 / (double)this.getFPS();
         for(ViewportTool tool : viewportTools) tool.update(dt);
         updateAllNodes(dt);
         renderAllPasses();
