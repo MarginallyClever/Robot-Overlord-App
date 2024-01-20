@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodefactory;
 
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.shared.SearchBar;
 import com.marginallyclever.ro3.node.Node;
 import org.slf4j.Logger;
@@ -45,6 +46,10 @@ public class NodeFactoryPanel extends JPanel {
             }
             return this;
         }
+    }
+
+    public NodeFactoryPanel() {
+        this(Registry.nodeFactory);
     }
 
     public NodeFactoryPanel(NodeFactory factory) {

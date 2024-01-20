@@ -12,6 +12,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * {@link LimbPlanner} knows about a {@link LimbSolver}.
@@ -241,5 +242,10 @@ public class LimbPlanner extends Node implements ActionListener {
         if(solver.getSubject()!=null) {
             solver.getSubject().setLinearVelocity(v);
         }
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/icons8-plan-16.png")));
     }
 }
