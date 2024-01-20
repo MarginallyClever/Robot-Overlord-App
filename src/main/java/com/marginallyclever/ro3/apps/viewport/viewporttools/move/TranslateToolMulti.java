@@ -350,5 +350,6 @@ public class TranslateToolMulti implements ViewportTool {
     @Override
     public void dispose(GL3 gl3) {
         for (ViewportTool t : tools) t.dispose(gl3);
+        texture.unload();
     }
 }

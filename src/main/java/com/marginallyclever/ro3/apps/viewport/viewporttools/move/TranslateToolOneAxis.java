@@ -329,7 +329,6 @@ public class TranslateToolOneAxis implements ViewportTool {
         handleSphere.unload(gl3);
         handleLineMesh.unload(gl3);
         quad.unload(gl3);
-        texture.unload();
     }
 
     public void setTexture(TextureWithMetadata texture, Rectangle2D textureBounds) {
