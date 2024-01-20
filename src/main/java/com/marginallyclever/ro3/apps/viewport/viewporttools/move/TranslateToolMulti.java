@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.apps.viewport.viewporttools.move;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.ColorRGB;
+import com.marginallyclever.convenience.KSPDirections;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
@@ -12,11 +13,13 @@ import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
+import com.marginallyclever.ro3.texture.TextureWithMetadata;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Rectangle2D;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,26 +29,35 @@ import java.util.List;
  * combination of three {@link TranslateToolOneAxis}.</p>
  */
 public class TranslateToolMulti implements ViewportTool {
-    private final TranslateToolOneAxis toolX = new TranslateToolOneAxis(new ColorRGB(255,0,0));
-    private final TranslateToolOneAxis toolY = new TranslateToolOneAxis(new ColorRGB(0,255,0));
-    private final TranslateToolOneAxis toolZ = new TranslateToolOneAxis(new ColorRGB(0,0,255));
+    private final TranslateToolOneAxis toolRadialIn = new TranslateToolOneAxis(new ColorRGB(255,0,0));
+    private final TranslateToolOneAxis toolNormal = new TranslateToolOneAxis(new ColorRGB(0,255,0));
+    private final TranslateToolOneAxis toolPrograde = new TranslateToolOneAxis(new ColorRGB(0,0,255));
     private final TranslateToolTwoAxis toolXY = new TranslateToolTwoAxis(new ColorRGB(255,255,0));
     private final TranslateToolTwoAxis toolXZ = new TranslateToolTwoAxis(new ColorRGB(255,0,255));
     private final TranslateToolTwoAxis toolYZ = new TranslateToolTwoAxis(new ColorRGB(0,255,255));
-
+    private final TranslateToolOneAxis toolRetrograde = new TranslateToolOneAxis(new ColorRGB(255,0,0));
+    private final TranslateToolOneAxis toolAntiNormal = new TranslateToolOneAxis(new ColorRGB(0,255,0));
+    private final TranslateToolOneAxis toolRadialOut = new TranslateToolOneAxis(new ColorRGB(0,0,255));
     private final List<ViewportTool> tools = new ArrayList<>();
-
     private SelectedItems selectedItems;
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
+    private TextureWithMetadata texture;
 
     public TranslateToolMulti() {
         super();
-        tools.add(toolX);
-        tools.add(toolY);
-        tools.add(toolZ);
+
+        tools.add(toolRadialIn);
+        tools.add(toolNormal);
+        tools.add(toolPrograde);
+        tools.add(toolRetrograde);
+        tools.add(toolAntiNormal);
+        tools.add(toolRadialOut);
         tools.add(toolXY);
         tools.add(toolXZ);
         tools.add(toolYZ);
+
+        texture = Registry.textureFactory.load("/com/marginallyclever/ro3/apps/viewport/renderpasses/navball.png");
+        texture.setDoNotExport(true);
     }
 
     /**
@@ -73,9 +85,13 @@ public class TranslateToolMulti implements ViewportTool {
         Camera camera = Registry.getActiveCamera();
         assert camera != null;
 
-        toolX.setPivotMatrix(createPivotPlaneMatrix(pivot,0));
-        toolY.setPivotMatrix(createPivotPlaneMatrix(pivot,1));
-        toolZ.setPivotMatrix(createPivotPlaneMatrix(pivot,2));
+        toolRadialIn.setPivotMatrix(createPivotPlaneMatrix(pivot,KSPDirections.RADIAL_IN));
+        toolNormal.setPivotMatrix(createPivotPlaneMatrix(pivot,KSPDirections.NORMAL));
+        toolPrograde.setPivotMatrix(createPivotPlaneMatrix(pivot,KSPDirections.PROGRADE));
+
+        toolRetrograde.setPivotMatrix(createPivotPlaneMatrix(pivot,KSPDirections.RETROGRADE));
+        toolAntiNormal.setPivotMatrix(createPivotPlaneMatrix(pivot,KSPDirections.ANTINORMAL));
+        toolRadialOut.setPivotMatrix(createPivotPlaneMatrix(pivot,KSPDirections.RADIAL_OUT));
 
         Matrix4d rot = new Matrix4d();
 
@@ -104,18 +120,22 @@ public class TranslateToolMulti implements ViewportTool {
      * @param axis 0 for x, 1 for y, 2 for z.
      * @return The pivot plane matrix.
      */
-    private Matrix4d createPivotPlaneMatrix(Matrix4d pivot, int axis) {
+    private Matrix4d createPivotPlaneMatrix(Matrix4d pivot, KSPDirections axis) {
         Camera camera = Registry.getActiveCamera();
         assert camera != null;
 
         // the pivot plane shares the same origin as pivot.
         Vector3d o = MatrixHelper.getPosition(pivot);
         // the pivot plane has a major axis that is different in each case.
-        Vector3d x = switch (axis) {
-            case 0 -> MatrixHelper.getXAxis(pivot);
-            case 1 -> MatrixHelper.getYAxis(pivot);
-            case 2 -> MatrixHelper.getZAxis(pivot);
-            default -> throw new InvalidParameterException("axis must be 0, 1, or 2.");
+        Vector3d x;
+        switch (axis) {
+            case RADIAL_IN: x = MatrixHelper.getXAxis(pivot);  break;
+            case NORMAL: x = MatrixHelper.getYAxis(pivot);  break;
+            case PROGRADE: x = MatrixHelper.getZAxis(pivot);  break;
+            case RADIAL_OUT: x = MatrixHelper.getXAxis(pivot);  x.scale(-1);  break;
+            case ANTINORMAL: x = MatrixHelper.getYAxis(pivot);  x.scale(-1);  break;
+            case RETROGRADE: x = MatrixHelper.getZAxis(pivot);  x.scale(-1);  break;
+            default: throw new InvalidParameterException("axis must be 0...5.");
         };
         // the pivot plane has a z axis that points at the camera.
         Vector3d z = new Vector3d(camera.getPosition());
@@ -235,13 +255,25 @@ public class TranslateToolMulti implements ViewportTool {
         if( selectedItems == null || selectedItems.isEmpty() ) return;
         if( !MoveUtils.listContainsAPose(selectedItems.getNodes()) ) return;
 
+        // RADIAL_IN
+        toolRadialIn.setTexture(texture,new Rectangle2D.Double(0.50,0.75,0.25,0.25));
+        // NORMAL
+        toolNormal.setTexture(texture,new Rectangle2D.Double(0,0.25,0.25,0.25));
+        // PROGRADE
+        toolPrograde.setTexture(texture,new Rectangle2D.Double(0,0.75,0.25,0.25));
+
+        toolRetrograde.setTexture(texture, new Rectangle2D.Double(0,0.50,0.25,0.25));
+        toolAntiNormal.setTexture(texture, new Rectangle2D.Double(0,0,0.25,0.25));
+        toolRadialOut.setTexture(texture, new Rectangle2D.Double(0.5,0.5,0.25,0.25));
+
         int i = getIndexInUse();
-        if (0 == i || -1 == i) toolX.render(gl,shaderProgram);
-        if (1 == i || -1 == i) toolY.render(gl,shaderProgram);
-        if (2 == i || -1 == i) toolZ.render(gl,shaderProgram);
-        if (3 == i || -1 == i) toolXY.render(gl,shaderProgram);
-        if (4 == i || -1 == i) toolXZ.render(gl,shaderProgram);
-        if (5 == i || -1 == i) toolYZ.render(gl,shaderProgram);
+        if(-1==i) {
+            for(ViewportTool t : tools) {
+                t.render(gl, shaderProgram);
+            }
+        } else {
+            tools.stream().filter(ViewportTool::isInUse).forEach(t -> t.render(gl, shaderProgram));
+        }
     }
 
     @Override

@@ -118,7 +118,7 @@ public class Registry {
     }
 
     public static Camera getActiveCamera() {
-        if(cameras.getList().isEmpty()) return null;
+        if(cameras.getList().isEmpty()) throw new RuntimeException("No cameras available.");
         return activeCamera;
     }
 

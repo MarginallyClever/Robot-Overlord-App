@@ -46,18 +46,18 @@ public class LookAt extends Pose {
         Pose myTarget = target.getSubject();
         if(myTarget!=null) {
             Pose parent = findParent(Pose.class);
-            Matrix4d parentWorld = parent==null ? MatrixHelper.createIdentityMatrix4() : findParent(Pose.class).getWorld();
-            Matrix4d targetWorld = myTarget.getWorld();
-            Matrix3d lookAt = MatrixHelper.lookAt(MatrixHelper.getPosition(parentWorld),MatrixHelper.getPosition(targetWorld));
+            Matrix4d fromWorld = parent==null ? MatrixHelper.createIdentityMatrix4() : findParent(Pose.class).getWorld();
+            Matrix4d toWorld = myTarget.getWorld();
+
             Matrix4d look = new Matrix4d();
-            look.set(lookAt);
-            parentWorld.invert();
-            look.mul(parentWorld,look);
+            look.set(MatrixHelper.lookAt(MatrixHelper.getPosition(fromWorld),MatrixHelper.getPosition(toWorld)));
+            fromWorld.invert();
+            look.mul(fromWorld,look);
             look.setTranslation(new javax.vecmath.Vector3d());
             getLocal().set(look);
-
         }
     }
+
     @Override
     public JSONObject toJSON() {
         var json = super.toJSON();
