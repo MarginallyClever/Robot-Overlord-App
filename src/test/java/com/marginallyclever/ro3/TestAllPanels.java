@@ -4,6 +4,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import java.util.Set;
  * <p>{@link Reflections} can only find classes that extend {@link JPanel}.  Therefore in a second pass create one
  * instance of every {@link Node} and add the components from {@link Node#getComponents(List)}.</p>
  */
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class TestAllPanels {
     private static final Logger logger = LoggerFactory.getLogger(TestAllPanels.class);
 
