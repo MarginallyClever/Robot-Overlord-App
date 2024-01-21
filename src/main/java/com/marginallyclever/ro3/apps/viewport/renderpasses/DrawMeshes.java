@@ -41,6 +41,7 @@ public class DrawMeshes extends AbstractRenderPass {
     public static final int SHADOW_HEIGHT = 1024;
     public static final Vector3d sunlightSource = new Vector3d(5,15,75);
     public static Color sunlightColor = new Color(0xfd,0xfb,0xd3,255);
+    public static Color ambientColor = new Color(0x20,0x20,0x20,255);
     public static final Matrix4d lightProjection = new Matrix4d();
     public static final Matrix4d lightView = new Matrix4d();
     private double declination = 0;  // degrees, +/-90
@@ -186,10 +187,10 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setVector3d(gl3, "cameraPos", cameraWorldPos);  // Camera position in world space
         meshShader.setVector3d(gl3, "lightPos", cameraWorldPos);  // Light position in world space
 
-        meshShader.setColor(gl3, "lightColor", Color.WHITE);
+        meshShader.setColor(gl3, "lightColor", sunlightColor);
         meshShader.setColor(gl3, "diffuseColor", Color.WHITE);
         meshShader.setColor(gl3, "specularColor", Color.WHITE);
-        meshShader.setColor(gl3,"ambientColor",Color.BLACK);
+        meshShader.setColor(gl3,"ambientColor",ambientColor);
 
         meshShader.set1i(gl3, "useVertexColor", 0);
         meshShader.set1i(gl3, "useLighting", 0);
@@ -253,7 +254,7 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setColor(gl3, "lightColor", sunlightColor);
         meshShader.setColor(gl3, "diffuseColor", Color.WHITE);
         meshShader.setColor(gl3, "specularColor", Color.WHITE);
-        meshShader.setColor(gl3,"ambientColor",Color.LIGHT_GRAY);
+        meshShader.setColor(gl3,"ambientColor",ambientColor);
 
         meshShader.set1i(gl3, "useVertexColor", 0);
         meshShader.set1i(gl3, "useLighting", 1);
@@ -330,6 +331,14 @@ public class DrawMeshes extends AbstractRenderPass {
         sunlightColor = color;
     }
 
+    public Color getAmbientColor() {
+        return ambientColor;
+    }
+
+    public void setAmbientColor(Color color) {
+        ambientColor = color;
+    }
+
     public Vector3d getSunlightSource() {
         return sunlightSource;
     }
@@ -358,6 +367,7 @@ public class DrawMeshes extends AbstractRenderPass {
         timeOfDay = pref.getDouble("timeOfDay",timeOfDay);
         sunlightSource.set(calculateSunPosition());
         sunlightColor = new Color(pref.getInt("sunlightColor",sunlightColor.getRGB()));
+        ambientColor = new Color(pref.getInt("ambientColor",ambientColor.getRGB()));
     }
 
     public void savePrefs() {
@@ -365,6 +375,7 @@ public class DrawMeshes extends AbstractRenderPass {
         pref.putDouble("declination",declination);
         pref.putDouble("timeOfDay",timeOfDay);
         pref.putInt("sunlightColor",sunlightColor.getRGB());
+        pref.putInt("ambientColor",ambientColor.getRGB());
     }
 
     private Vector3d calculateSunPosition() {
