@@ -357,7 +357,7 @@ public class RotateToolOneAxis implements ViewportTool {
 
         drawMainRingAndHandles(gl,shaderProgram);
         if(dragging) {
-            shaderProgram.set4f(gl, "objectColor", 1,1,1,1);
+            shaderProgram.set4f(gl, "diffuseColor", 1,1,1,1);
             drawWhileDragging(gl,shaderProgram);
         }
     }
@@ -397,7 +397,7 @@ public class RotateToolOneAxis implements ViewportTool {
         float red   = color.red   * colorScale / 255f;
         float green = color.green * colorScale / 255f;
         float blue  = color.blue  * colorScale / 255f;
-        shaderProgram.set4f(gl, "objectColor", red, green, blue, 1.0f);
+        shaderProgram.set4f(gl, "diffuseColor", red, green, blue, 1.0f);
         ringMesh.render(gl,1,360);
 
         m.transpose();

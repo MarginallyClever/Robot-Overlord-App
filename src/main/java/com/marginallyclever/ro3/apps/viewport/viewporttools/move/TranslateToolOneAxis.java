@@ -251,10 +251,10 @@ public class TranslateToolOneAxis implements ViewportTool {
         float red   = color.red   * colorScale / 255f;
         float green = color.green * colorScale / 255f;
         float blue  = color.blue  * colorScale / 255f;
-        shaderProgram.set4f(gl,"objectColor",red, green, blue, 1.0f);
+        shaderProgram.set4f(gl,"diffuseColor",red, green, blue, 1.0f);
         */
         shaderProgram.set1i(gl,"useTexture",0);
-        shaderProgram.set4f(gl,"objectColor",0,0,0, 1.0f);
+        shaderProgram.set4f(gl,"diffuseColor",0,0,0, 1.0f);
 
         // handle
         Matrix4d m = new Matrix4d(pivotMatrix);
@@ -284,7 +284,7 @@ public class TranslateToolOneAxis implements ViewportTool {
             shaderProgram.setMatrix4d(gl,"modelMatrix",model);
             shaderProgram.set1i(gl,"diffuseTexture",0);
 
-            shaderProgram.set4f(gl,"objectColor",1,1,1, 1.0f);
+            shaderProgram.set4f(gl,"diffuseColor",1,1,1, 1.0f);
             shaderProgram.set1i(gl,"useTexture",1);
             texture.use(shaderProgram);
             quad.render(gl);

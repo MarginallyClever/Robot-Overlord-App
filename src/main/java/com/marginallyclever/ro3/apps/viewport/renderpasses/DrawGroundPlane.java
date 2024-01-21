@@ -73,7 +73,7 @@ public class DrawGroundPlane extends AbstractRenderPass {
         shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
         shader.setColor(gl3,"lightColor", Color.WHITE);
-        shader.setColor(gl3,"objectColor",new Color(255,255,255,128));
+        shader.setColor(gl3,"diffuseColor",new Color(255,255,255,128));
         shader.setColor(gl3,"specularColor",Color.GRAY);
         shader.setColor(gl3,"ambientColor",Color.WHITE);
         shader.set1i(gl3,"useVertexColor",1);
@@ -92,7 +92,7 @@ public class DrawGroundPlane extends AbstractRenderPass {
         w.transpose();
         shader.setMatrix4d(gl3,"modelMatrix",w);
         shader.set1i(gl3,"useVertexColor",0);
-        shader.setColor(gl3,"objectColor",new Color(255,255,255,8));
+        shader.setColor(gl3,"diffuseColor",new Color(255,255,255,8));
         gridMesh.render(gl3);
     }
 }

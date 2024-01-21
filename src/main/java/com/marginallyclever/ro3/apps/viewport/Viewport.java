@@ -468,7 +468,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         toolShader.setVector3d(gl3, "lightPos", cameraWorldPos);  // Light position in world space
 
         toolShader.setColor(gl3, "lightColor", Color.WHITE);
-        toolShader.setColor(gl3, "objectColor", Color.WHITE);
+        toolShader.setColor(gl3, "diffuseColor", Color.WHITE);
         toolShader.setColor(gl3, "specularColor", Color.WHITE);
         toolShader.setColor(gl3,"ambientColor",Color.BLACK);
 

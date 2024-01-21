@@ -23,6 +23,7 @@ import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.prefs.Preferences;
 
 /**
@@ -107,7 +108,7 @@ public class DrawMeshes extends AbstractRenderPass {
         OpenGLHelper.checkGLError(gl3,logger);
     }
 
-    private void generateDepthMap(GL3 gl3, List<MeshInstance> meshes) {
+    private void generateDepthMap(GL3 gl3, List<MeshMaterial> meshes) {
         // before, set up the shadow FBO
         gl3.glViewport(0,0,SHADOW_WIDTH,SHADOW_HEIGHT);
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, shadowFBO[0]);
@@ -119,7 +120,8 @@ public class DrawMeshes extends AbstractRenderPass {
         shadowShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
         shadowShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
 
-        for(MeshInstance meshInstance : meshes) {
+        for(MeshMaterial meshMaterial : meshes) {
+            MeshInstance meshInstance = meshMaterial.meshInstance();
             Matrix4d w = meshInstance.getWorld();
             w.transpose();
             shadowShader.setMatrix4d(gl3,"modelMatrix",w);
@@ -168,11 +170,11 @@ public class DrawMeshes extends AbstractRenderPass {
         if (camera == null) return;
 
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
-        List<MeshInstance> meshes = collectAllMeshes();
+        var meshMaterial = collectAllMeshes();
 
         updateLightMatrix();
-        generateDepthMap(gl3,meshes);
-        drawAllMeshes(gl3,meshes,camera);
+        generateDepthMap(gl3,meshMaterial);
+        drawAllMeshes(gl3,meshMaterial,camera);
         //drawShadowQuad(gl3,camera);
     }
 
@@ -185,7 +187,7 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setVector3d(gl3, "lightPos", cameraWorldPos);  // Light position in world space
 
         meshShader.setColor(gl3, "lightColor", Color.WHITE);
-        meshShader.setColor(gl3, "objectColor", Color.WHITE);
+        meshShader.setColor(gl3, "diffuseColor", Color.WHITE);
         meshShader.setColor(gl3, "specularColor", Color.WHITE);
         meshShader.setColor(gl3,"ambientColor",Color.BLACK);
 
@@ -207,25 +209,36 @@ public class DrawMeshes extends AbstractRenderPass {
         shadowQuad.render(gl3);
     }
 
-    // find all MeshInstance nodes in Registry
-    private List<MeshInstance> collectAllMeshes() {
-        List<MeshInstance> meshes = new ArrayList<>();
-
-        List<Node> toScan = new ArrayList<>(Registry.getScene().getChildren());
-        while(!toScan.isEmpty()) {
-            Node node = toScan.remove(0);
-            toScan.addAll(node.getChildren());
-
-            if (node instanceof MeshInstance meshInstance) {
-                // if they have a mesh, draw it.
-                Mesh mesh = meshInstance.getMesh();
-                if (mesh != null) meshes.add(meshInstance);
-            }
-        }
-        return meshes;
+    /**
+     * find all MeshInstance nodes in the scene and the Material that is closest to the MeshInstance.
+     * @return a list of MeshInstance and Material pairs.
+     */
+    private List<MeshMaterial> collectAllMeshes() {
+        var meshMaterials = new ArrayList<MeshMaterial>();
+        collAllMeshesRecursively(Registry.getScene(),meshMaterials,new Material());
+        return meshMaterials;
     }
 
-    private void drawAllMeshes(GL3 gl3, List<MeshInstance> meshes, Camera camera) {
+    private void collAllMeshesRecursively(Node node, List<MeshMaterial> meshMaterials, Material lastMaterialSeen) {
+        if (node instanceof MeshInstance meshInstance) {
+            // if they have a mesh, draw it.
+            Mesh mesh = meshInstance.getMesh();
+            if (mesh != null) {
+                meshMaterials.add(new MeshMaterial(meshInstance,lastMaterialSeen));
+            }
+        }
+
+        Material found = node.findFirstChild(Material.class);
+        if(found != null) {
+            lastMaterialSeen = found;
+        }
+
+        for(Node child : node.getChildren()) {
+            collAllMeshesRecursively(child,meshMaterials,lastMaterialSeen);
+        }
+    }
+
+    private void drawAllMeshes(GL3 gl3, List<MeshMaterial> meshes, Camera camera) {
         meshShader.use(gl3);
         meshShader.set1i(gl3,"shadowMap",shadowMapUnit);
         meshShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
@@ -238,7 +251,7 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setVector3d(gl3, "lightPos", sunlightSource);  // Light position in world space
 
         meshShader.setColor(gl3, "lightColor", sunlightColor);
-        meshShader.setColor(gl3, "objectColor", Color.WHITE);
+        meshShader.setColor(gl3, "diffuseColor", Color.WHITE);
         meshShader.setColor(gl3, "specularColor", Color.WHITE);
         meshShader.setColor(gl3,"ambientColor",Color.LIGHT_GRAY);
 
@@ -247,25 +260,23 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.set1i(gl3, "diffuseTexture", 0);
         OpenGLHelper.checkGLError(gl3, logger);
 
-        for(MeshInstance meshInstance : meshes) {
+        Material lastSeen = null;
+        TextureWithMetadata texture = null;
+
+        for(MeshMaterial meshMaterial : meshes) {
+            MeshInstance meshInstance = meshMaterial.meshInstance();
+            Material material = meshMaterial.material();
             Mesh mesh = meshInstance.getMesh();
 
-            TextureWithMetadata texture = null;
             // set the texture to the first sibling that is a material and has a texture
-            Material material = meshInstance.findFirstSibling(Material.class);
-            if(material!=null) {
-                if(material.getTexture()!=null) {
-                    texture = material.getTexture();
-                }
-                meshShader.setColor(gl3,"objectColor",material.getDiffuseColor());
+            if( material != lastSeen ) {
+                lastSeen = material;
+                texture = material.getTexture();
+                meshShader.setColor(gl3,"diffuseColor",material.getDiffuseColor());
                 meshShader.setColor(gl3,"specularColor",material.getSpecularColor());
+                meshShader.setColor(gl3,"emissionColor",material.getEmissionColor());
                 meshShader.set1i(gl3,"useLighting",material.isLit() ? 1 : 0);
                 meshShader.set1i(gl3,"shininess",material.getShininess());
-            } else {
-                meshShader.setColor(gl3,"objectColor",Color.WHITE);
-                meshShader.setColor(gl3,"specularColor",Color.WHITE);
-                meshShader.set1i(gl3,"useLighting",1);
-                meshShader.set1i(gl3,"shininess",0);
             }
             if(texture == null) {
                 gl3.glDisable(GL3.GL_TEXTURE_2D);

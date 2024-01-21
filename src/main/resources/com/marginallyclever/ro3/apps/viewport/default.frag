@@ -9,7 +9,8 @@ out vec4 finalColor;
 
 uniform vec4 specularColor = vec4(0.5, 0.5, 0.5,1);
 uniform vec4 ambientColor = vec4(0.2, 0.2, 0.2,1);
-uniform vec4 objectColor = vec4(1,1,1,1);
+uniform vec4 diffuseColor = vec4(1,1,1,1);
+uniform vec4 emissionColor = vec4(0,0,0,1);
 uniform vec4 lightColor = vec4(1,1,1,1);
 uniform int shininess = 32;
 
@@ -23,11 +24,11 @@ uniform bool useLighting;
 uniform bool useVertexColor;  // per-vertex color
 
 void main() {
-    vec4 diffuseColor = objectColor;
-    if(useVertexColor) diffuseColor *= fragmentColor;
-    if(useTexture) diffuseColor *= texture(diffuseTexture, textureCoord);
+    vec4 myColor = diffuseColor;
+    if(useVertexColor) myColor *= fragmentColor;
+    if(useTexture) myColor *= texture(diffuseTexture, textureCoord);
 
-    vec4 result = vec4(diffuseColor);
+    vec4 result = myColor;
 
     if(useLighting) {
         vec3 norm = normalize(normalVector);
@@ -45,9 +46,10 @@ void main() {
 
         // put it all together.
         result *= ambientColor + diffuseLight + specularLight;
+        result += emissionColor;
     }
 
     //finalColor = vec4(textureCoord.x,textureCoord.y,0,1);  // for testing texture coordinates
     finalColor = result;
-    finalColor.a = diffuseColor.a;
+    finalColor.a = myColor.a;
 }

@@ -161,7 +161,7 @@ public class DrawBackground extends AbstractRenderPass {
         shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
         shader.setColor(gl3,"lightColor", Color.WHITE);
-        shader.setColor(gl3,"objectColor",Color.WHITE);
+        shader.setColor(gl3,"diffuseColor",Color.WHITE);
         shader.setColor(gl3,"specularColor",Color.BLACK);
         shader.setColor(gl3,"ambientColor",Color.BLACK);
         shader.set1i(gl3,"useVertexColor",0);

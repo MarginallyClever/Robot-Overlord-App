@@ -138,7 +138,7 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
             shader.setMatrix4d(gl3,"modelMatrix",w);
 
             // highlight selected items
-            shader.setColor(gl3,"objectColor", list.contains(meshInstance) ? selected : unselected );
+            shader.setColor(gl3,"diffuseColor", list.contains(meshInstance) ? selected : unselected );
             // draw it
             mesh.render(gl3);
         }

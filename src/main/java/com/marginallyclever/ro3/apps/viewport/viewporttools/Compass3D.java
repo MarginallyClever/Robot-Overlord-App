@@ -134,7 +134,7 @@ public class Compass3D implements ViewportTool {
         // for the gizmo, set the model matrix to be the identity matrix.
         Matrix4d model = MatrixHelper.createScaleMatrix4(handleLength-handleRadius);
         model.transpose();
-        shaderProgram.setColor(gl3,"objectColor",Color.WHITE);
+        shaderProgram.setColor(gl3,"diffuseColor",Color.WHITE);
         shaderProgram.setMatrix4d(gl3,"modelMatrix",model);
         // and use vertex colors.
         shaderProgram.set1i(gl3,"useVertexColor",1);
@@ -167,7 +167,7 @@ public class Compass3D implements ViewportTool {
             model.transpose();
             shaderProgram.setMatrix4d(gl3, "modelMatrix", model);
             shaderProgram.set1i(gl3, "useVertexColor", 0);
-            shaderProgram.setColor(gl3, "objectColor", new Color(255, 255, 255, 64));
+            shaderProgram.setColor(gl3, "diffuseColor", new Color(255, 255, 255, 64));
             circleMesh.render(gl3);
         }
     }
