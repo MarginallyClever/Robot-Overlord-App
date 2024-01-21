@@ -10,9 +10,10 @@ in VS_OUT {
     vec4 fragPosLightSpace;
 } fs_in;
 
-uniform vec4 specularColor = vec4(0, 0, 0, 1);
 uniform vec4 ambientColor = vec4(0, 0, 0, 1);
-uniform vec4 objectColor = vec4(1,1,1,1);
+uniform vec4 diffuseColor = vec4(1,1,1,1);
+uniform vec4 emissionColor = vec4(0,0,0,1);
+uniform vec4 specularColor = vec4(0, 0, 0, 1);
 uniform vec4 lightColor = vec4(1,1,1,1);
 uniform int shininess = 0;
 uniform float specularStrength = 0.5;
@@ -54,11 +55,11 @@ float ShadowCalculation(vec4 fragPosLightSpace,vec3 normal,vec3 lightDir) {
 }
 
 void main() {
-    vec4 diffuseColor = objectColor;
-    if(useVertexColor) diffuseColor *= fs_in.fragmentColor;
-    if(useTexture) diffuseColor *= texture(diffuseTexture, fs_in.textureCoord);
+    vec4 myColor = diffuseColor;
+    if(useVertexColor) myColor *= fs_in.fragmentColor;
+    if(useTexture) myColor *= texture(diffuseTexture, fs_in.textureCoord);
 
-    vec4 result = diffuseColor;
+    vec4 result = myColor;
 
     if(useLighting) {
         vec3 norm = normalize(fs_in.normalVector);
@@ -79,6 +80,7 @@ void main() {
 
         // put it all together.
         result *= ambientColor + (diffuseLight + specularLight) * (1.0 - shadow);
+        result += emissionColor;
     }
 
     //finalColor = vec4(fs_in.textureCoord.x,fs_in.textureCoord.y,0,1);  // for testing texture coordinates

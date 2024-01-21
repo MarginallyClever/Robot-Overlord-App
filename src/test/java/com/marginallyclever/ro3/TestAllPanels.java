@@ -46,7 +46,7 @@ public class TestAllPanels {
 
         // version 1, pause for 5 seconds
         try {
-            Thread.sleep(5000);
+            Thread.sleep(500);
         } catch (InterruptedException ignored) {}
 
         frame.dispose();

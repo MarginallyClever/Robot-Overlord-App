@@ -79,7 +79,7 @@ public class DrawDHParameters extends AbstractRenderPass {
         shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
         shader.setColor(gl3,"lightColor", Color.WHITE);
-        shader.setColor(gl3,"objectColor",Color.WHITE);
+        shader.setColor(gl3,"diffuseColor",Color.WHITE);
         shader.setColor(gl3,"specularColor",Color.DARK_GRAY);
         shader.setColor(gl3,"ambientColor",Color.BLACK);
         shader.set1i(gl3,"useVertexColor",1);
@@ -101,7 +101,7 @@ public class DrawDHParameters extends AbstractRenderPass {
             if(!(node instanceof DHParameter parameter)) continue;
             if(getActiveStatus()==SOMETIMES && !list.contains(parameter)) continue;
 
-            shader.setColor(gl3,"objectColor",list.contains(parameter) ? Color.WHITE : Color.GRAY);
+            shader.setColor(gl3,"diffuseColor",list.contains(parameter) ? Color.WHITE : Color.GRAY);
 
             double d = parameter.getD();
             mesh.setVertex(1,0,0,d);

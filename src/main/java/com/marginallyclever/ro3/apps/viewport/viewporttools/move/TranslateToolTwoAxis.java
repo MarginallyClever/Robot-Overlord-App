@@ -222,12 +222,12 @@ public class TranslateToolTwoAxis implements ViewportTool {
         gl.glDisable(GL3.GL_CULL_FACE);
 
         // fill
-        shaderProgram.set4f(gl, "objectColor", red, green, blue, 0.5f);
+        shaderProgram.set4f(gl, "diffuseColor", red, green, blue, 0.5f);
         quadMesh.setRenderStyle(GL3.GL_TRIANGLE_FAN);
         quadMesh.render(gl);
 
         // edge
-        shaderProgram. set4f(gl, "objectColor", red, green, blue, 1.0f);
+        shaderProgram. set4f(gl, "diffuseColor", red, green, blue, 1.0f);
         quadMesh.setRenderStyle(GL3.GL_LINE_LOOP);
         quadMesh.render(gl);
 

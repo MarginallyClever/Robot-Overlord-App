@@ -64,7 +64,7 @@ public class DrawPoses extends AbstractRenderPass {
         shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
         shader.setColor(gl3,"lightColor", Color.WHITE);
-        shader.setColor(gl3,"objectColor",Color.WHITE);
+        shader.setColor(gl3,"diffuseColor",Color.WHITE);
         shader.setColor(gl3,"specularColor",Color.DARK_GRAY);
         shader.setColor(gl3,"ambientColor",Color.BLACK);
         shader.set1i(gl3,"useVertexColor",1);
@@ -86,7 +86,7 @@ public class DrawPoses extends AbstractRenderPass {
             boolean selected = list.contains(pose);
             if (getActiveStatus() == SOMETIMES && !selected) continue;
 
-            shader.setColor(gl3, "objectColor", selected ? Color.WHITE : Color.GRAY);
+            shader.setColor(gl3, "diffuseColor", selected ? Color.WHITE : Color.GRAY);
 
             Matrix4d w = pose.getWorld();
             w.mul(w, MatrixHelper.createScaleMatrix4(selected ? 2 : 1));

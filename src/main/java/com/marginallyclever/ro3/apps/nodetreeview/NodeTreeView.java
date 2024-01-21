@@ -192,7 +192,7 @@ public class NodeTreeView extends App
 
     @Override
     public void nodeAttached(Node child) {
-        logger.debug("Attached "+child.getAbsolutePath());
+        //logger.debug("Attached "+child.getAbsolutePath());
         Node parent = child.getParent();
         if(parent==null) throw new RuntimeException("source node has no parent");
 

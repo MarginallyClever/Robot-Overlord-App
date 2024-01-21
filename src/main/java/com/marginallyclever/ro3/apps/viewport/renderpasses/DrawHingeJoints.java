@@ -106,7 +106,7 @@ public class DrawHingeJoints extends AbstractRenderPass {
             w.mul(rZ);
             w.mul(w,MatrixHelper.createScaleMatrix4(scale));
             w.transpose();
-            shader.setColor(gl3,"objectColor",new Color(255,255,0,64));
+            shader.setColor(gl3,"diffuseColor",new Color(255,255,0,64));
             shader.setMatrix4d(gl3,"modelMatrix",w);
             // draw the range fan
             int range = Math.max(0, (int)(joint.getMaxAngle()-joint.getMinAngle()) );
@@ -118,7 +118,7 @@ public class DrawHingeJoints extends AbstractRenderPass {
             w.mul(rZ);
             w.mul(w,MatrixHelper.createScaleMatrix4(scale));
             w.transpose();
-            shader.setColor(gl3,"objectColor",Color.WHITE);
+            shader.setColor(gl3,"diffuseColor",Color.WHITE);
             shader.setMatrix4d(gl3,"modelMatrix",w);
             currentAngleMesh.render(gl3);
         }

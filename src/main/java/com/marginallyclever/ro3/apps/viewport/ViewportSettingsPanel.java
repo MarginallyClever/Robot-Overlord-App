@@ -30,6 +30,7 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
     private final Dial timeOfDay = new Dial();
     private final Dial declination = new Dial();
     private final JButton selectSunColor = new JButton();
+    private final JButton selectAmbientColor = new JButton();
 
     public ViewportSettingsPanel() {
         super(new GridBagLayout());
@@ -72,6 +73,17 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
         PanelHelper.addLabelAndComponent(this, "FSAA Samples", fsaaSamples,gbc);
         fsaaSamples.addActionListener(evt -> setFSAASamples((Integer) fsaaSamples.getSelectedItem()));
 
+        // ambient color
+        gbc.gridy++;
+        PanelHelper.addLabelAndComponent(this,"Ambient color",selectAmbientColor,gbc);
+        var ambientColor = Color.DARK_GRAY;
+        selectAmbientColor.setBackground(ambientColor);
+        selectAmbientColor.addActionListener(e -> {
+            Color color = JColorChooser.showDialog(this,"Ambient color",ambientColor);
+            if(color!=null) setAmbientColor(color);
+        });
+        selectAmbientColor.setBackground(ambientColor);
+
         // sun color
         gbc.gridy++;
         PanelHelper.addLabelAndComponent(this,"Sun color",selectSunColor,gbc);
@@ -108,6 +120,13 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
 
         var dm = getDrawMeshes();
         if(dm!=null) dm.savePrefs();
+    }
+
+    private void setAmbientColor(Color color) {
+        var dm = getDrawMeshes();
+        if(dm==null) return;
+        dm.setAmbientColor(color);
+        selectAmbientColor.setBackground(color);
     }
 
     private void setSunColor(Color color) {

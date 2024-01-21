@@ -125,13 +125,13 @@ public class DrawCameras extends AbstractRenderPass {
             // position and draw the ray from the camera.
             Matrix4d w = MatrixHelper.createIdentityMatrix4();
             shader.setMatrix4d(gl3, "modelMatrix", w);
-            shader.setColor(gl3,"objectColor",selected ? Color.GREEN : Color.DARK_GRAY);
+            shader.setColor(gl3,"diffuseColor",selected ? Color.GREEN : Color.DARK_GRAY);
             Ray ray = viewport.getRayThroughPoint(cam,normalizedCoordinates.x,normalizedCoordinates.y);
             changeRayMesh(gl3, ray);
             rayMesh.render(gl3);
 
             // scale and draw the view cones
-            shader.setColor(gl3,"objectColor",selected ? Color.WHITE : Color.BLACK);
+            shader.setColor(gl3,"diffuseColor",selected ? Color.WHITE : Color.BLACK);
             w = cam.getWorld();
             Matrix4d scale = MatrixHelper.createIdentityMatrix4();
             scale.m00 *= canvasWidth * coneScale;

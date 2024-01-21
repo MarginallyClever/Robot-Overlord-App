@@ -32,6 +32,7 @@ public class Material extends Node {
     private Color emissionColor = new Color(0,0,0);
     private int shininess = 10;
     private boolean isLit = true;
+    private double specularStrength = 0.5;
 
     public Material() {
         this("Material");
@@ -63,6 +64,7 @@ public class Material extends Node {
         json.put("specularColor", specularColor.getRGB());
         json.put("emissionColor", emissionColor.getRGB());
         json.put("shininess", shininess);
+        json.put("specularStrength", specularStrength);
         json.put("isLit", isLit);
         return json;
     }
@@ -75,6 +77,7 @@ public class Material extends Node {
         if(from.has("specularColor")) specularColor = new Color(from.getInt("specularColor"),true);
         if(from.has("emissionColor")) emissionColor = new Color(from.getInt("emissionColor"),true);
         if(from.has("shininess")) shininess = from.getInt("shininess");
+        if(from.has("specularStrength")) specularStrength = from.getDouble("specularStrength");
         if(from.has("isLit")) isLit = from.getBoolean("isLit");
     }
 
@@ -121,5 +124,13 @@ public class Material extends Node {
     @Override
     public Icon getIcon() {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/icons8-texture-16.png")));
+    }
+
+    public void setSpecularStrength(double specularStrength) {
+        this.specularStrength = specularStrength;
+    }
+
+    public double getSpecularStrength() {
+        return specularStrength;
     }
 }
