@@ -60,7 +60,7 @@ public class MaterialPanel extends JPanel {
         });
         PanelHelper.addLabelAndComponent(this,"Diffuse",selectColorDiffuse,gbc);
 
-        // specular
+        // specular color
         var specularColor = material.getSpecularColor();
         JButton selectColorSpecular = new JButton();
         selectColorSpecular.setBackground(specularColor);
@@ -91,6 +91,8 @@ public class MaterialPanel extends JPanel {
         gbc.gridy++;
         gbc.gridwidth=2;
         this.add(createShininessSlider(),gbc);
+        gbc.gridy++;
+        this.add(createSpecularStrengthSlider(),gbc);
     }
 
     private void updatePreview() {
@@ -116,6 +118,23 @@ public class MaterialPanel extends JPanel {
         slider.setMinimumSize(new Dimension(50, slider.getPreferredSize().height));
 
         container.add(new JLabel("Shininess"), BorderLayout.LINE_START);
+        container.add(slider, BorderLayout.CENTER); // Add slider to the center of the container
+
+        return container;
+    }
+
+    private JComponent createSpecularStrengthSlider() {
+        JPanel container = new JPanel(new BorderLayout());
+
+        var specularStrength = material.getSpecularStrength();
+        JSlider slider = new JSlider(0,100,(int)(specularStrength*100));
+        slider.addChangeListener(e -> material.setSpecularStrength(slider.getValue()/100.0));
+
+        // Make the slider fill the available horizontal space
+        slider.setMaximumSize(new Dimension(Integer.MAX_VALUE, slider.getPreferredSize().height));
+        slider.setMinimumSize(new Dimension(50, slider.getPreferredSize().height));
+
+        container.add(new JLabel("Specular strength"), BorderLayout.LINE_START);
         container.add(slider, BorderLayout.CENTER); // Add slider to the center of the container
 
         return container;

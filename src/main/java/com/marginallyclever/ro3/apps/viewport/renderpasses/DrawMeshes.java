@@ -278,6 +278,7 @@ public class DrawMeshes extends AbstractRenderPass {
                 meshShader.setColor(gl3,"emissionColor",material.getEmissionColor());
                 meshShader.set1i(gl3,"useLighting",material.isLit() ? 1 : 0);
                 meshShader.set1i(gl3,"shininess",material.getShininess());
+                meshShader.set1f(gl3, "specularStrength", (float)material.getSpecularStrength());
             }
             if(texture == null) {
                 gl3.glDisable(GL3.GL_TEXTURE_2D);
