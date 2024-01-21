@@ -5,7 +5,6 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLEventListener;
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.FrameOfReference;
@@ -183,6 +182,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
      * Load the viewport pass state from the {@link java.util.prefs.Preferences}.
      */
     private void loadRenderPassState() {
+        logger.debug("load RenderPass State");
         Preferences pref = Preferences.userNodeForPackage(this.getClass());
 
         for (RenderPass renderPass : renderPasses.getList()) {
@@ -196,6 +196,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
      * Save the viewport pass state to the {@link java.util.prefs.Preferences}.
      */
     public void saveRenderPassState() {
+        logger.debug("save RenderPass State");
         Preferences pref = Preferences.userNodeForPackage(this.getClass());
 
         for (RenderPass renderPass : renderPasses.getList()) {
@@ -241,6 +242,18 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         button.setToolTipText("Select the viewport passes to use.");
 
         updateRenderPassMenu();
+        renderPassMenu.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+            @Override
+            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent e) {}
+
+            @Override
+            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent e) {
+                saveRenderPassState();
+            }
+
+            @Override
+            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent e) {}
+        });
     }
 
     private JButton createFrameOfReferenceSelection() {
@@ -346,11 +359,11 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private void updateRenderPassMenu() {
         renderPassMenu.removeAll();
         for(RenderPass renderPass : renderPasses.getList()) {
-            renderPassMenu.add(getRenderPassMenu(renderPass));
+            renderPassMenu.add(createRenderPassMenuItem(renderPass));
         }
     }
 
-    private JPanel getRenderPassMenu(RenderPass renderPass) {
+    private JPanel createRenderPassMenuItem(RenderPass renderPass) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(2,2,0,2));
         JButton button = new JButton();
@@ -585,7 +598,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     private void changeOrbitRadius(int dz) {
         Camera camera = Registry.getActiveCamera();
         assert camera != null;
-        camera.orbitDolly(dz > 0 ? 1.0 * orbitChangeFactor : 1.0 / orbitChangeFactor);
+        camera.orbitDolly(dz > 0 ? orbitChangeFactor : 1.0 / orbitChangeFactor);
     }
 
     public double getOrbitChangeFactor() {
