@@ -17,16 +17,24 @@ public class PosePanel extends JPanel {
     }
 
     public PosePanel(Pose pose) {
-        super(new GridLayout(0,2));
+        super(new GridBagLayout());
         this.pose = pose;
         this.setName(Pose.class.getSimpleName());
 
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.gridx=0;
+        gbc.gridy=0;
+        gbc.fill = GridBagConstraints.BOTH;
+
         var formatter = NumberFormatHelper.getNumberFormatter();
-        addTranslationComponents(formatter);
-        addRotationComponents(formatter);
+        addTranslationComponents(formatter,gbc);
+        gbc.gridy++;
+        addRotationComponents(formatter,gbc);
     }
 
-    private void addTranslationComponents(NumberFormatter formatter) {
+    private void addTranslationComponents(NumberFormatter formatter,GridBagConstraints gbc) {
         var local = pose.getLocal();
         JFormattedTextField tx = new JFormattedTextField(formatter);        tx.setValue(local.m03);
         JFormattedTextField ty = new JFormattedTextField(formatter);        ty.setValue(local.m13);
@@ -36,13 +44,13 @@ public class PosePanel extends JPanel {
         ty.addPropertyChangeListener("value", e -> local.m13 = ((Number) ty.getValue()).doubleValue() );
         tz.addPropertyChangeListener("value", e -> local.m23 = ((Number) tz.getValue()).doubleValue() );
 
-        PanelHelper.addLabelAndComponent(this, "Translation", new JLabel());
-        PanelHelper.addLabelAndComponent(this, "X", tx);
-        PanelHelper.addLabelAndComponent(this, "Y", ty);
-        PanelHelper.addLabelAndComponent(this, "Z", tz);
+        gbc.gridx=0;        this.add(new JLabel("Translation"),gbc);
+        gbc.gridx=1;        this.add(tx,gbc);
+        gbc.gridx=2;        this.add(ty,gbc);
+        gbc.gridx=3;        this.add(tz,gbc);
     }
 
-    private void addRotationComponents(NumberFormatter formatter) {
+    private void addRotationComponents(NumberFormatter formatter,GridBagConstraints gbc) {
         var rotationIndex = pose.getRotationIndex();
         Vector3d r = pose.getRotationEuler(rotationIndex);
 
@@ -77,10 +85,15 @@ public class PosePanel extends JPanel {
             pose.setRotationEuler(r2, rotationIndex);
         });
 
-        PanelHelper.addLabelAndComponent(this, "Rotation", new JLabel());
-        PanelHelper.addLabelAndComponent(this, "Type", rotationType);
-        PanelHelper.addLabelAndComponent(this, "X", rx);
-        PanelHelper.addLabelAndComponent(this, "Y", ry);
-        PanelHelper.addLabelAndComponent(this, "Z", rz);
+        gbc.gridx=0;        this.add(new JLabel("Rotation"),gbc);
+        gbc.gridx=1;        this.add(rx,gbc);
+        gbc.gridx=2;        this.add(ry,gbc);
+        gbc.gridx=3;        this.add(rz,gbc);
+
+        gbc.gridy++;
+        gbc.gridx=2;        this.add(new JLabel("Type"),gbc);
+        gbc.gridx=3;        this.add(rotationType,gbc);
+
+        gbc.gridx=0;
     }
 }
