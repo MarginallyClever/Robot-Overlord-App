@@ -15,6 +15,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * </p>{@link AttachmentPoint} is a point on a {@link Pose} that can be used to attach other nodes.</p>
@@ -171,5 +172,10 @@ public class AttachmentPoint extends Pose {
 
     public void setIsAttached(boolean isAttached) {
         this.isAttached = isAttached;
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/poses/icons8-connection-16.png")));
     }
 }
