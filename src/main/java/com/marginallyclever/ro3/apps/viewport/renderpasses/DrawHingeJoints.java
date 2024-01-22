@@ -99,39 +99,37 @@ public class DrawHingeJoints extends AbstractRenderPass {
 
             // adjust the position of the mesh based on the joint's minimum angle.
             Pose pose = joint.findParent(Pose.class);
-            Matrix4d w = (pose==null) ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();
+            Matrix4d world = (pose==null) ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();
 
-            Matrix4d rZ = new Matrix4d();
-            rZ.rotZ(Math.toRadians(joint.getMinAngle()));
-            rZ.mul(w,rZ);
-            rZ.mul(rZ,MatrixHelper.createScaleMatrix4(scale));
-            rZ.transpose();
+            Matrix4d modelMatrix = new Matrix4d();
+            modelMatrix.rotZ(Math.toRadians(joint.getMinAngle()));
+            modelMatrix.mul(world,modelMatrix);
+            modelMatrix.mul(modelMatrix,MatrixHelper.createScaleMatrix4(scale));
+            modelMatrix.transpose();
             shader.setColor(gl3,"diffuseColor",new Color(255,255,0,active ? 255 : 64));
-            shader.setMatrix4d(gl3,"modelMatrix",rZ);
+            shader.setMatrix4d(gl3,"modelMatrix",modelMatrix);
             // draw the range fan
             int range = Math.max(0, (int)(joint.getMaxAngle()-joint.getMinAngle()) );
             circleFanMesh.render(gl3,0,1+range);
 
             // draw the current angle line
-            w = (pose==null) ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();
-            rZ.rotZ(Math.toRadians(joint.getAngle()));
-            rZ.mul(w,rZ);
-            rZ.mul(rZ,MatrixHelper.createScaleMatrix4(scale));
-            rZ.transpose();
+            modelMatrix.rotZ(Math.toRadians(joint.getAngle()));
+            modelMatrix.mul(world,modelMatrix);
+            modelMatrix.mul(modelMatrix,MatrixHelper.createScaleMatrix4(scale));
+            modelMatrix.transpose();
             shader.setColor(gl3,"diffuseColor",new Color(255,255,255,active ? 255 : 64));
-            shader.setMatrix4d(gl3,"modelMatrix",rZ);
+            shader.setMatrix4d(gl3,"modelMatrix",modelMatrix);
             currentAngleMesh.render(gl3);
 
             int v = (int)joint.getVelocity();
             if(v!=0) {
                 int vAbs = Math.abs(v);
                 if(v>0) v=0;
-                w = (pose==null) ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();
-                rZ.rotZ(Math.toRadians(joint.getAngle()+v));
-                rZ.mul(w, rZ);
-                rZ.mul(rZ, MatrixHelper.createScaleMatrix4(scale));
-                rZ.transpose();
-                shader.setMatrix4d(gl3,"modelMatrix",rZ);
+                modelMatrix.rotZ(Math.toRadians(joint.getAngle()+v));
+                modelMatrix.mul(world, modelMatrix);
+                modelMatrix.mul(modelMatrix, MatrixHelper.createScaleMatrix4(scale));
+                modelMatrix.transpose();
+                shader.setMatrix4d(gl3,"modelMatrix",modelMatrix);
                 shader.setColor(gl3, "diffuseColor", new Color(255, 0, 0, active ? 255 : 64));
                 circleFanMesh.render(gl3, 0, 1+vAbs);
             }
