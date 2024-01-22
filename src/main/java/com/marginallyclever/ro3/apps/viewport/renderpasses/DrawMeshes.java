@@ -195,19 +195,17 @@ public class DrawMeshes extends AbstractRenderPass {
 
     private void keepOnlySelectedMeshMaterials(List<MeshMaterial> list) {
         // remove from meshMaterial anything that is not in the list Registry.selected
-        var toKeep = new ArrayList<MeshInstance>();
-        Registry.selection.getList().forEach(node -> {
-            if(node instanceof MeshInstance meshInstance) {
-                toKeep.add(meshInstance);
-            }
-        });
-        var toRemove = new ArrayList<MeshMaterial>();
+        var toKeep = new ArrayList<MeshMaterial>();
+        var selected = Registry.selection.getList();
         for(MeshMaterial mm : list) {
-            if(!toKeep.contains(mm.meshInstance())) {
-                toRemove.add(mm);
+            // if node is parent of a meshInstance, keep it.
+            var me = mm.meshInstance();
+            var parent = me.getParent();
+            if(selected.contains(parent) || selected.contains(me)) {
+                toKeep.add(mm);
             }
         }
-        list.removeAll(toRemove);
+        list.retainAll(toKeep);
     }
 
     private void sortMeshMaterialList(List<MeshMaterial> meshMaterial) {
