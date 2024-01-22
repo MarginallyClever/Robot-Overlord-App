@@ -11,7 +11,6 @@ import jssc.SerialPortList;
  *
  */
 public class SerialTransportLayer implements TransportLayer {
-	private String[] portsDetected;
 
 	public SerialTransportLayer() {}
 
@@ -21,7 +20,7 @@ public class SerialTransportLayer implements TransportLayer {
 	 * @return a list of port names
 	 */
 	public String[] listConnections() {
-		portsDetected = SerialPortList.getPortNames();/*
+		String[] portsDetected = SerialPortList.getPortNames();/*
 		String OS = System.getProperty("os.name").toLowerCase();
 
 		if (OS.indexOf("mac") >= 0) {
