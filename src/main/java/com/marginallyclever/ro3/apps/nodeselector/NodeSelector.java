@@ -40,6 +40,11 @@ public class NodeSelector<T extends Node> extends JPanel {
         }
     });
 
+    @SuppressWarnings("unchecked")
+    public NodeSelector() {
+        this((Class<T>) Node.class);
+    }
+
     public NodeSelector(Class<T> type) {
         this(type,null);
     }
