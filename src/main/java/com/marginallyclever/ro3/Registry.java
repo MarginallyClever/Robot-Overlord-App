@@ -16,12 +16,12 @@ import javax.swing.event.EventListenerList;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * {@link Registry} is a place to store global variables.
  */
 public class Registry {
-
     public static final EventListenerList listeners = new EventListenerList();
     public static final TextureFactory textureFactory = new TextureFactory();
     public static final MeshFactory meshFactory = new MeshFactory();
