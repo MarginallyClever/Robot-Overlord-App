@@ -39,6 +39,9 @@ public class PosePanel extends JPanel {
         JFormattedTextField tx = new JFormattedTextField(formatter);        tx.setValue(local.m03);
         JFormattedTextField ty = new JFormattedTextField(formatter);        ty.setValue(local.m13);
         JFormattedTextField tz = new JFormattedTextField(formatter);        tz.setValue(local.m23);
+        tx.setToolTipText("translate x");
+        ty.setToolTipText("translate y");
+        tz.setToolTipText("translate z");
 
         tx.addPropertyChangeListener("value", e -> local.m03 = ((Number) tx.getValue()).doubleValue() );
         ty.addPropertyChangeListener("value", e -> local.m13 = ((Number) ty.getValue()).doubleValue() );
@@ -57,6 +60,9 @@ public class PosePanel extends JPanel {
         JFormattedTextField rx = new JFormattedTextField(formatter);        rx.setValue(r.x);
         JFormattedTextField ry = new JFormattedTextField(formatter);        ry.setValue(r.y);
         JFormattedTextField rz = new JFormattedTextField(formatter);        rz.setValue(r.z);
+        rx.setToolTipText("rotate x");
+        ry.setToolTipText("rotate y");
+        rz.setToolTipText("rotate z");
 
         String [] names = new String[MatrixHelper.EulerSequence.values().length];
         int i=0;
