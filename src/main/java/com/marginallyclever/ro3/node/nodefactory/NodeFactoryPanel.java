@@ -136,7 +136,6 @@ public class NodeFactoryPanel extends JPanel {
     /**
      * Find all categories that match the search criteria.
      * @param root the root of the tree to search
-     * @param searchCriteria the search criteria
      * @return a list of all categories that match the search criteria
      */
     private List<NodeFactory.Category> findAllTypesMatching(NodeFactory.Category root) {

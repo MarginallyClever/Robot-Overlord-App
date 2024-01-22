@@ -50,9 +50,7 @@ public class PanelHelper {
      * @param pane the panel to add to
      * @param label the text for the label
      * @param nodePath the NodePath to use
-     * @param clazz the class of the Node
      * @param gbc the {@link GridBagConstraints} to use
-     * @param origin the origin Node for the relative path.
      * @return the NodeSelector
      * @param <T> the type filter for the {@link NodeSelector}.
      */
