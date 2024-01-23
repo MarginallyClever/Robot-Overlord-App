@@ -674,11 +674,15 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         }
     }
 
+    public int getNumTools() {
+        return viewportTools.size();
+    }
+
     /**
      * Set the active tool by index.
      * @param index the index of the tool to activate.
      */
-    private void setActiveToolIndex(int index) {
+    public void setActiveToolIndex(int index) {
         if(index < 0 || index >= viewportTools.size()) throw new InvalidParameterException("activeToolIndex out of range.");
 
         deactivateAllTools();

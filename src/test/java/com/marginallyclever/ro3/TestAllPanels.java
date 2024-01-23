@@ -9,6 +9,7 @@ import org.reflections.util.ClasspathHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 import javax.swing.*;
 
@@ -41,7 +42,7 @@ public class TestAllPanels {
         AllPanels allPanels = new AllPanels();
         var frame = allPanels.buildFrame();
 
-        // version 1, pause for 5 seconds
+        // version 1, pause for 0.5 seconds
         try {
             Thread.sleep(500);
         } catch (InterruptedException ignored) {}
