@@ -4,6 +4,7 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
+import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.limbsolver.ApproximateJacobianFiniteDifferences;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.Motor;
@@ -60,18 +61,10 @@ public class MarlinRobotArm extends Node {
         super.fromJSON(from);
         int version = from.has("version") ? from.getInt("version") : 0;
         if(version==2) {
-            if(from.has("limb")) {
-                limb.setUniqueID(from.getString("limb"));
-            }
-            if(from.has("solver")) {
-                solver.setUniqueID(from.getString("solver"));
-            }
-            if(from.has("gripperMotor")) {
-                gripperMotor.setUniqueID(from.getString("gripperMotor"));
-            }
-            if(from.has("reportInterval")) {
-                reportInterval = from.getDouble("reportInterval");
-            }
+            if(from.has("limb")) limb.setUniqueID(from.getString("limb"));
+            if(from.has("solver")) solver.setUniqueID(from.getString("solver"));
+            if(from.has("gripperMotor")) gripperMotor.setUniqueID(from.getString("gripperMotor"));
+            if(from.has("reportInterval")) reportInterval = from.getDouble("reportInterval");
         }
         if(version<2) {
             var toRemove = new ArrayList<Node>();
@@ -130,11 +123,11 @@ public class MarlinRobotArm extends Node {
         return "M114"+getMotorsAndFeedrateAsString();
     }
 
-    public NodePath<Limb> getLimb() {
+    NodePath<Limb> getLimb() {
         return limb;
     }
 
-    public NodePath<LimbSolver> getSolver() {
+    NodePath<LimbSolver> getSolver() {
         return solver;
     }
 
@@ -178,18 +171,14 @@ public class MarlinRobotArm extends Node {
         if(gcode.startsWith("G0")) {  // fast non-linear move (FK)
             fireMarlinMessage( parseG0(gcode) );
             return;
+        } else if(gcode.startsWith("G1")) {
+            fireMarlinMessage( parseG1(gcode) );
+            return;
+        } else if(gcode.equals("G28")) {
+            fireMarlinMessage( parseG28(gcode) );
         } else if(gcode.equals("M114")) {
             String response = getM114();
             fireMarlinMessage( "Ok: "+response );
-            return;
-        } else if(gcode.equals("ik")) {
-            fireMarlinMessage(getEndEffectorIK());
-        } else if(gcode.equals("aj")) {
-            ApproximateJacobianFiniteDifferences jacobian = new ApproximateJacobianFiniteDifferences(getLimb().getSubject());
-            fireMarlinMessage( "Ok: "+jacobian );
-            return;
-        } else if(gcode.startsWith("G1")) {
-            fireMarlinMessage( parseG1(gcode) );
             return;
         }
         fireMarlinMessage( "Error: unknown command" );
@@ -255,6 +244,11 @@ public class MarlinRobotArm extends Node {
             logger.warn("no limb");
             return "Error: no limb";
         }
+        if(myLimb.getEndEffector().getSubject()==null) {
+            logger.warn("no end effector");
+            return "Error: no end effector";
+        }
+
         LimbSolver mySolver = getSolver().getSubject();
         if(mySolver==null) {
             logger.warn("no solver");
@@ -264,10 +258,7 @@ public class MarlinRobotArm extends Node {
             logger.warn("no target");
             return "Error: no target";
         }
-        if(myLimb.getEndEffector().getSubject()==null) {
-            logger.warn("no end effector");
-            return "Error: no end effector";
-        }
+
         String [] parts = gcode.split("\\s+");
         double [] cartesian = getCartesianFromWorld(myLimb.getEndEffector().getSubject().getWorld());
         for(String p : parts) {
@@ -285,31 +276,23 @@ public class MarlinRobotArm extends Node {
         return "Ok";
     }
 
-    private String getEndEffectorIK() {
+    private String parseG28(String gcode) {
         Limb myLimb = getLimb().getSubject();
         if(myLimb==null) {
             logger.warn("no limb");
             return "Error: no limb";
         }
-        LimbSolver mySolver = getSolver().getSubject();
-        if(mySolver==null) {
-            logger.warn("no solver");
-            return "Error: no solver";
+
+        for (NodePath<Motor> paths : getLimb().getSubject().getMotors()) {
+            Motor motor = paths.getSubject();
+            if (motor != null && motor.hasHinge()) {
+                HingeJoint hinge = motor.getHinge();
+                var homeAngle = 0;//hinge.getHomeAngle();
+                hinge.setAngle(homeAngle);
+                hinge.setVelocity(0);
+            }
         }
-        if(myLimb.getEndEffector()==null) {
-            return ( "Error: no end effector" );
-        }
-        double [] cartesian = getCartesianFromWorld(myLimb.getEndEffector().getSubject().getWorld());
-        int i=0;
-        String response = "G1"
-                +" F"+StringHelper.formatDouble(mySolver.getLinearVelocity())
-                +" X"+StringHelper.formatDouble(cartesian[i++])
-                +" Y"+StringHelper.formatDouble(cartesian[i++])
-                +" Z"+StringHelper.formatDouble(cartesian[i++])
-                +" U"+StringHelper.formatDouble(cartesian[i++])
-                +" V"+StringHelper.formatDouble(cartesian[i++])
-                +" W"+StringHelper.formatDouble(cartesian[i++]);
-        return ( "Ok: "+response );
+        return "Ok";
     }
 
     /**
