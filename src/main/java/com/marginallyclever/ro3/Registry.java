@@ -38,6 +38,7 @@ public class Registry {
             nodule.add("HingeJoint", HingeJoint::new);
             nodule.add("LimbPlanner", LimbPlanner::new);
             nodule.add("LimbSolver", LimbSolver::new);
+            nodule.add("LinearJoint", LinearJoint::new);
             nodule.add("MarlinRobotArm", MarlinRobotArm::new);
             nodule.add("Material", Material::new);
             nodule.add("MeshInstance", MeshInstance::new);

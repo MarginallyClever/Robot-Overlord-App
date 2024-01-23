@@ -174,7 +174,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         renderPasses.add(new DrawBoundingBoxes());
         renderPasses.add(new DrawCameras());
         renderPasses.add(new DrawDHParameters());
-        renderPasses.add(new DrawHingeJoints());
+        renderPasses.add(new DrawJoints());
         renderPasses.add(new DrawPoses());
     }
 

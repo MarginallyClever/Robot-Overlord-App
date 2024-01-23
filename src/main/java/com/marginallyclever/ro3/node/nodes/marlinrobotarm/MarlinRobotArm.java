@@ -229,6 +229,14 @@ public class MarlinRobotArm extends Node {
         return "Ok: G0"+getMotorsAndFeedrateAsString();
     }
 
+    @Override
+    public void update(double dt) {
+        super.update(dt);
+        // TODO Simulate Marlin behavior here.
+        // Queue up GCode commands and send "Ok" at the appropriate time.
+        // Drive motors using trapezoidal velocity profiles.
+    }
+
     /**
      * <p>G1 Linear move.</p>
      * <p>Parse gcode for names and values, then set the new target position.  Names are XYZ for linear, UVW for
