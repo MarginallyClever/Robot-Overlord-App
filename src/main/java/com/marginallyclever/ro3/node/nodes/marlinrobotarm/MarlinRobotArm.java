@@ -7,10 +7,10 @@ import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.Motor;
-import com.marginallyclever.ro3.node.nodes.marlinsimulation.MarlinCoordinate;
-import com.marginallyclever.ro3.node.nodes.marlinsimulation.MarlinSettings;
-import com.marginallyclever.ro3.node.nodes.marlinsimulation.MarlinSimulation;
-import com.marginallyclever.ro3.node.nodes.marlinsimulation.MarlinSimulationBlock;
+import com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation.MarlinCoordinate;
+import com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation.MarlinSettings;
+import com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation.MarlinSimulation;
+import com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation.MarlinSimulationBlock;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import org.json.JSONObject;
@@ -38,12 +38,11 @@ public class MarlinRobotArm extends Node {
     public final NodePath<Limb> limb = new NodePath<>(this,Limb.class);
     public final NodePath<LimbSolver> solver = new NodePath<>(this,LimbSolver.class);
     private final NodePath<Motor> gripperMotor = new NodePath<>(this,Motor.class);
-    private double reportInterval=1.0;  // seconds
     private final MarlinSettings settings = new MarlinSettings();
-    private final MarlinSimulation simulation = new MarlinSimulation(settings);
+    private MarlinSimulation simulation;
     private MarlinSimulationBlock currentBlock = null;
-    private double feedrate = settings.getDouble(MarlinSettings.MAX_FEEDRATE);
-    private double acceleration = settings.getDouble(MarlinSettings.MAX_ACCELERATION);
+    private double feedrate;
+    private double acceleration;
 
 
     public MarlinRobotArm() {
@@ -52,6 +51,7 @@ public class MarlinRobotArm extends Node {
 
     public MarlinRobotArm(String name) {
         super(name);
+        reset();
     }
 
     @Override
@@ -61,7 +61,6 @@ public class MarlinRobotArm extends Node {
         if(limb.getSubject()!=null) json.put("limb",limb.getUniqueID());
         if(solver.getSubject()!=null) json.put("solver",solver.getUniqueID());
         if(gripperMotor.getSubject()!=null) json.put("gripperMotor",gripperMotor.getUniqueID());
-        json.put("reportInterval",reportInterval);
         return json;
     }
 
@@ -73,7 +72,6 @@ public class MarlinRobotArm extends Node {
             if(from.has("limb")) limb.setUniqueID(from.getString("limb"));
             if(from.has("solver")) solver.setUniqueID(from.getString("solver"));
             if(from.has("gripperMotor")) gripperMotor.setUniqueID(from.getString("gripperMotor"));
-            if(from.has("reportInterval")) reportInterval = from.getDouble("reportInterval");
         }
         if(version<2) {
             var toRemove = new ArrayList<Node>();
@@ -222,6 +220,7 @@ public class MarlinRobotArm extends Node {
                     }
                 }
                 i++;
+                if(i>MarlinCoordinate.SIZE) throw new RuntimeException("too many motors for MarlinSimulation!");
             }
             // gripper motor
             Motor gripperMotor = this.gripperMotor.getSubject();
@@ -235,10 +234,12 @@ public class MarlinRobotArm extends Node {
                     }
                 }
                 i++;
+                if(i>=MarlinCoordinate.SIZE) throw new RuntimeException("too many motors for MarlinSimulation!");
             }
             // else ignore unused parts
-
-            simulation.bufferLine(destination,feedrate,acceleration);
+            var mySolver = getSolver().getSubject();
+            var myFeedrate = mySolver==null ? this.feedrate : mySolver.getLinearVelocity();
+            simulation.bufferLine(destination,myFeedrate,acceleration);
         } catch( NumberFormatException e ) {
             logger.error("Number format exception: "+e.getMessage());
             return "Error: "+e.getMessage();
@@ -278,8 +279,7 @@ public class MarlinRobotArm extends Node {
             double fraction = currentBlock.now_s / currentBlock.end_s;
             if(motor!=null && motor.hasHinge()) {
                 HingeJoint hinge = motor.getHinge();
-                hinge.setAngle(
-                        currentBlock.start.p[i] + currentBlock.delta.p[i] * fraction);
+                hinge.setAngle(currentBlock.start.p[i] + currentBlock.delta.p[i] * fraction);
             }
             ++i;
         }
@@ -298,7 +298,7 @@ public class MarlinRobotArm extends Node {
             }
         }
 
-        // Queue up GCode commands and send "Ok" at the appropriate time.
+        // Queue up gcode commands and send "Ok" at the appropriate time.
     }
 
     private MarlinSimulationBlock findBlock() {
@@ -307,8 +307,8 @@ public class MarlinRobotArm extends Node {
 
     /**
      * <p>G1 Linear move.</p>
-     * <p>Parse gcode for names and values, then set the new target position.  Names are XYZ for linear, UVW for
-     * angular. Angular values should be in degrees.</p>
+     * <p>Parse gcode for names and values, then set the new target world position.  Names are XYZ for linear, UVW for
+     * angular rotations. Angular values should be in degrees.</p>
      * <p>Movement will occur on {@link #update(double)} provided the {@link LimbSolver} linear velocity and the update
      * time are greater than zero.</p>
      * @param gcode GCode command
@@ -338,7 +338,6 @@ public class MarlinRobotArm extends Node {
         String [] parts = gcode.split("\\s+");
         double [] cartesian = getCartesianFromWorld(myLimb.getEndEffector().getSubject().getWorld());
         for(String p : parts) {
-            if(p.startsWith("F")) mySolver.setLinearVelocity(Double.parseDouble(p.substring(1)));
             if(p.startsWith("X")) cartesian[0] = Double.parseDouble(p.substring(1));
             else if(p.startsWith("Y")) cartesian[1] = Double.parseDouble(p.substring(1));
             else if(p.startsWith("Z")) cartesian[2] = Double.parseDouble(p.substring(1));
@@ -347,8 +346,9 @@ public class MarlinRobotArm extends Node {
             else if(p.startsWith("W")) cartesian[5] = Double.parseDouble(p.substring(1));
             else logger.warn("unknown G1 command: "+p);
         }
-        // set the target position relative to the base of the robot arm
-        mySolver.getTarget().getSubject().setLocal(getReverseCartesianFromWorld(cartesian));
+        // set the target position relative to the world.
+        Matrix4d m = getReverseCartesianFromWorld(cartesian);
+        mySolver.getTarget().getSubject().setWorld(m);
         return "Ok";
     }
 
@@ -438,21 +438,6 @@ public class MarlinRobotArm extends Node {
         this.solver.setUniqueIDByNode(solver);
     }
 
-    /**
-     * @return the time between reports in seconds
-     */
-    public double getReportInterval() {
-        return reportInterval;
-    }
-
-    /**
-     * @param seconds the time between reports in seconds.  Must be >= 0.
-     */
-    public void setReportInterval(double seconds) {
-        if(seconds<0) throw new IllegalArgumentException("seconds must be >= 0");
-        reportInterval = seconds;
-    }
-
     public NodePath<Motor> getGripperMotor() {
         return gripperMotor;
     }
@@ -460,5 +445,15 @@ public class MarlinRobotArm extends Node {
     @Override
     public Icon getIcon() {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/marlinrobotarm/marlin.png")));
+    }
+
+    /**
+     * Equivalent to rebooting a Marlin controller.  Should reset the state of the robot and the simulation.
+     */
+    public void reset() {
+        simulation = new MarlinSimulation(settings);
+        currentBlock = null;
+        feedrate = settings.getDouble(MarlinSettings.MAX_FEEDRATE);
+        acceleration = settings.getDouble(MarlinSettings.MAX_ACCELERATION);
     }
 }

@@ -44,6 +44,7 @@ import java.util.Objects;
 public class EditorPanel extends App implements MarlinListener, PropertyChangeListener, NodeDetachListener, SceneChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(EditorPanel.class);
     private static final double PROGRESS_BAR_SCALE = 1000;
+    private double reportInterval = 1.0;
     private static final int TIMER_INTERVAL_MS = 100;
     private final NodeSelector<MarlinRobotArm> robotArm = new NodeSelector<>(MarlinRobotArm.class);
     private final JTextArea text = new JTextArea();
@@ -149,14 +150,17 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
     }
 
     private void createReportInterval() {
-        var arm = robotArm.getSubject();
-
         // report interval
         var formatter = NumberFormatHelper.getNumberFormatter();
         formatter.setMinimum(0.05);
         secondsField = new JFormattedTextField(formatter);
         secondsField.setToolTipText("Time interval in seconds.");
         secondsField.setMaximumSize(new Dimension(100, 24));
+        secondsField.addPropertyChangeListener("value", evt -> {
+            if (evt.getSource() == secondsField) {
+                setReportInterval((double) evt.getNewValue());
+            }
+        });
         setSecondsField(secondsField);
 
         // then a toggle to turn it on and off.
@@ -203,19 +207,33 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
             recordToggle.setEnabled(true);
             runToggle.setEnabled(true);
             statusLabel.setText("Selected: " + arm.getName());
-            progressBar.setMaximum((int)(arm.getReportInterval() * PROGRESS_BAR_SCALE));
         } else {
             playToggle.setEnabled(false);
             recordToggle.setEnabled(false);
             runToggle.setEnabled(false);
             statusLabel.setText("No arm selected.");
         }
+        progressBar.setMaximum((int)(getReportInterval() * PROGRESS_BAR_SCALE));
+    }
+
+    /**
+     * @return the time between reports in seconds.
+     */
+    private double getReportInterval() {
+        return reportInterval;
+    }
+
+    /**
+     * @param seconds the time between reports in seconds.  Must be >= 0.
+     */
+    private void setReportInterval(double seconds) {
+        if(seconds<=0) throw new IllegalArgumentException("seconds must be > 0");
+        reportInterval = seconds;
+        progressBar.setMaximum((int)(getReportInterval() * PROGRESS_BAR_SCALE));
     }
 
     private void setSecondsField(JFormattedTextField secondsField) {
-        MarlinRobotArm arm = robotArm.getSubject();
-        if(arm==null) return;
-        secondsField.setValue(arm.getReportInterval());
+        secondsField.setValue(getReportInterval());
     }
 
     /**

@@ -1,8 +1,11 @@
-package com.marginallyclever.ro3.node.nodes.marlinsimulation;
+package com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation;
 
-import javax.vecmath.Vector3d;
 import java.util.Arrays;
 
+/**
+ * {@link MarlinCoordinate} is a vector used to represent the simultaneous motion of motors in a
+ * {@link MarlinSimulationBlock}.
+ */
 public class MarlinCoordinate {
     public static final int SIZE=6;
     public final double [] p = new double[SIZE];

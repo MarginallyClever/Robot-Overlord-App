@@ -1,10 +1,8 @@
-package com.marginallyclever.ro3.node.nodes.marlinsimulation;
+package com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation;
 
 import com.marginallyclever.convenience.helpers.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.vecmath.Vector3d;
 
 /**
  * {@link MarlinSimulationBlock} is one block in the queue of blocks inside a {@link MarlinSimulation}.

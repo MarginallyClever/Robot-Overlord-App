@@ -1,5 +1,8 @@
-package com.marginallyclever.ro3.node.nodes.marlinsimulation;
+package com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation;
 
+/**
+ * {@link MarlinSettings} is a class that holds the settings for a {@link MarlinSimulation}.
+ */
 public class MarlinSettings {
     public static final int MAX_ACCELERATION = 1;
     public static final int SEGMENTS_PER_SECOND = 2;
@@ -9,6 +12,7 @@ public class MarlinSettings {
     public static final int MINIMUM_PLANNER_SPEED = 6;
     public static final int HANDLE_SMALL_SEGMENTS = 7;
     public static final int MAX_FEEDRATE = 8;
+    public static final int JUNCTION_DEVIATION = 9;
 
     public double getDouble(int key) {
         return switch (key) {
@@ -16,6 +20,7 @@ public class MarlinSettings {
             case MAX_FEEDRATE -> 5;
             case MIN_SEGMENT_LENGTH -> 0.5;
             case MINIMUM_PLANNER_SPEED -> 0.05;
+            case JUNCTION_DEVIATION -> 0.05;
             default -> 0;
         };
     }

@@ -1,46 +1,35 @@
-package com.marginallyclever.ro3.node.nodes.marlinsimulation;
+package com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation;
 
-import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.Motor;
-import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.vecmath.Vector3d;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * <p>{@link MarlinSimulation} is meant to be a 1:1 Java replica of Marlin's 'Planner' and 'Motor' classes.
  * It is used to estimate the time to draw a set of gcode commands by a robot running Marlin 3D printer firmware.</p>
  * <p>Users should call {@link #bufferLine(MarlinCoordinate, double, double)}, which will add to the {@link #queue}.  The queue
- * must not exceed <code>MarlinSettings#getInteger(PlotterSettings.BLOCK_BUFFER_SIZE)</code> items in length.  Consuming
+ * must not exceed <code>MarlinSettings#getInteger(MarlinSettings.BLOCK_BUFFER_SIZE)</code> items in length.  Consuming
  * items from the head of the queue</p>
  */
 public class MarlinSimulation {
-	private static final Logger logger = LoggerFactory.getLogger(MarlinSimulation.class);
-	private final MarlinCoordinate poseNow = new MarlinCoordinate();
-	private final LinkedList<MarlinSimulationBlock> queue = new LinkedList<>();
-	private MarlinCoordinate previousSpeed = new MarlinCoordinate();
-	private double previousSafeSpeed = 0;
-	private final MarlinSettings settings;
-
 	enum JerkType {
 		CLASSIC_JERK,
 		JUNCTION_DEVIATION,
 		DOT_PRODUCT,
 		NONE,
 	};
+
+	private static final Logger logger = LoggerFactory.getLogger(MarlinSimulation.class);
+	private final MarlinCoordinate poseNow = new MarlinCoordinate();
+	private final LinkedList<MarlinSimulationBlock> queue = new LinkedList<>();
+	private final MarlinCoordinate previousSpeed = new MarlinCoordinate();
+	private double previousSafeSpeed = 0;
+	private final MarlinSettings settings;
 	private final JerkType jerkType = JerkType.CLASSIC_JERK;
-
-	// Unit vector of previous path line segment
-	private final MarlinCoordinate previousNormal = new MarlinCoordinate();
-	
-	private double previousNominalSpeed=0;
-	private double junction_deviation = 0.05;
-
+	private final MarlinCoordinate previousNormal = new MarlinCoordinate();	// Unit vector of previous path line segment
+	private double previousNominalSpeed = 0;
 	private final MarlinCoordinate maxJerk = new MarlinCoordinate();
 	
 	public MarlinSimulation(MarlinSettings settings) {
@@ -188,7 +177,7 @@ public class MarlinSimulation {
 					// Trig half angle identity. Always positive.
 					final double sin_theta_d2 = Math.sqrt(0.5 * (1.0 - junction_cos_theta));
 
-					vmax_junction = junction_acceleration * junction_deviation * sin_theta_d2 / (1.0f - sin_theta_d2);
+					vmax_junction = junction_acceleration * settings.getDouble(MarlinSettings.JUNCTION_DEVIATION) * sin_theta_d2 / (1.0f - sin_theta_d2);
 
 					if (settings.getBoolean(MarlinSettings.HANDLE_SMALL_SEGMENTS)) {
 						// For small moves with >135° junction (octagon) find speed for approximate arc

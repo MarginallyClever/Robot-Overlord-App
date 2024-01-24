@@ -8,6 +8,7 @@ import java.awt.*;
 public class MarlinRobotArmPanel extends JPanel {
     private final MarlinRobotArm marlinRobotArm;
 
+    @SuppressWarnings("unused")
     public MarlinRobotArmPanel() {
         this(new MarlinRobotArm());
     }
