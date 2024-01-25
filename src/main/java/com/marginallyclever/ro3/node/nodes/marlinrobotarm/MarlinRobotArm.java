@@ -307,8 +307,8 @@ public class MarlinRobotArm extends Node {
 
     /**
      * <p>G1 Linear move.</p>
-     * <p>Parse gcode for names and values, then set the new target world position.  Names are XYZ for linear, UVW for
-     * angular rotations. Angular values should be in degrees.</p>
+     * <p>Parse gcode for names and values, then set the new target world position.  [letter][position] where letter is
+     * the name of the {@link Motor} known to the {@link Limb} and position is the new angle in degrees.</p>
      * <p>Movement will occur on {@link #update(double)} provided the {@link LimbSolver} linear velocity and the update
      * time are greater than zero.</p>
      * @param gcode GCode command
@@ -336,19 +336,33 @@ public class MarlinRobotArm extends Node {
         }
 
         String [] parts = gcode.split("\\s+");
-        double [] cartesian = getCartesianFromWorld(myLimb.getEndEffector().getSubject().getWorld());
-        for(String p : parts) {
-            if(p.startsWith("X")) cartesian[0] = Double.parseDouble(p.substring(1));
-            else if(p.startsWith("Y")) cartesian[1] = Double.parseDouble(p.substring(1));
-            else if(p.startsWith("Z")) cartesian[2] = Double.parseDouble(p.substring(1));
-            else if(p.startsWith("U")) cartesian[3] = Double.parseDouble(p.substring(1));
-            else if(p.startsWith("V")) cartesian[4] = Double.parseDouble(p.substring(1));
-            else if(p.startsWith("W")) cartesian[5] = Double.parseDouble(p.substring(1));
-            else logger.warn("unknown G1 command: "+p);
+        double [] jointAnglesOriginal = myLimb.getAllJointAngles();
+        double [] jointAngles = jointAnglesOriginal.clone();
+
+        int i=0;
+        for (NodePath<Motor> paths : getLimb().getSubject().getMotors()) {
+            Motor motor = paths.getSubject();
+            if (motor != null && motor.hasHinge()) {
+                String motorName = motor.getName();
+                for (String p : parts) {
+                    if (p.startsWith(motorName)) {
+                        // TODO check new value is in range.
+                        jointAngles[i] = Double.parseDouble(p.substring(motor.getName().length()));
+                        break;
+                    }
+                }
+            }
+            i++;
+            if(i>MarlinCoordinate.SIZE) throw new RuntimeException("too many motors for MarlinSimulation!");
         }
-        // set the target position relative to the world.
-        Matrix4d m = getReverseCartesianFromWorld(cartesian);
+        // The above method cannot detect if a part went unused.  it could return a warning message.
+
+        // Use the joint angles to calculate the new world position.  This is the FK.
+        myLimb.setAllJointAngles(jointAngles);
+        Matrix4d m = myLimb.getEndEffector().getSubject().getWorld();
+        myLimb.setAllJointAngles(jointAnglesOriginal);
         mySolver.getTarget().getSubject().setWorld(m);
+        // If solver has non zero linear velocity, then the robot will move on the next update().
         return "Ok";
     }
 
