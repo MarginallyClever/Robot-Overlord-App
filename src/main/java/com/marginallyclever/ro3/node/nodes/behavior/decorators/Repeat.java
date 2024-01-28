@@ -3,6 +3,9 @@ package com.marginallyclever.ro3.node.nodes.behavior.decorators;
 import com.marginallyclever.ro3.node.nodes.behavior.Decorator;
 import org.json.JSONObject;
 
+import javax.swing.*;
+import java.util.Objects;
+
 /**
  * <p>{@link Repeat} is a {@link Decorator} that repeats its child a fixed number of times.</p>
  * <p>Tick the child up to {@link #count} times (within one of its tick), as long as the child returns SUCCESS.
@@ -45,5 +48,11 @@ public class Repeat extends Decorator {
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
         count = from.getInt("count");
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource(
+                "/com/marginallyclever/ro3/node/nodes/behavior/decorators/icons8-repeat-16.png")));
     }
 }

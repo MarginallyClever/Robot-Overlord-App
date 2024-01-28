@@ -28,6 +28,6 @@ public class Decorator extends Behavior {
     @Override
     public Icon getIcon() {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource(
-                "com/marginallyclever/ro3/node/nodes/behavior/icons8-paintbrush-16.png")));
+                "/com/marginallyclever/ro3/node/nodes/behavior/icons8-paintbrush-16.png")));
     }
 }
