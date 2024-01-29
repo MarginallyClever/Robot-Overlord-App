@@ -325,7 +325,7 @@ public class Node {
      */
     public <T extends Node> T findFirstChild(Class<T> type) {
         for(Node child : children) {
-            if(child.getClass().equals(type)) {
+            if(type.isInstance(child)) {
                 return type.cast(child);
             }
         }
