@@ -36,4 +36,13 @@ public abstract class Behavior extends Node {
     }
 
     public abstract Status tick();
+
+    /**
+     * reset the internal state of the {@link Behavior}.
+     */
+    public void reset() {
+        for(Node n : getChildren()) {
+            if(n instanceof Behavior b) b.reset();
+        }
+    }
 }
