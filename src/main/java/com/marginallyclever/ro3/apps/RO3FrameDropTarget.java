@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.commands.ImportMesh;
 import com.marginallyclever.ro3.apps.commands.ImportScene;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.slf4j.Logger;
@@ -68,33 +69,28 @@ public class RO3FrameDropTarget extends DropTargetAdapter {
     private boolean importMesh(String absolutePath) {
         logger.debug("drag importMesh {}",absolutePath);
         if(!Registry.meshFactory.canLoad(absolutePath)) {
-            logger.info("can't load file.");
+            logger.error("can't load file.");
             return false;
         }
-
-        // TODO make this a command that can be undone.
-        MeshInstance meshInstance = new MeshInstance(getFilenameWithoutExtensionFromPath(absolutePath));
-        meshInstance.setMesh(Registry.meshFactory.load(absolutePath));
-        Registry.getScene().addChild(meshInstance);
-        logger.error("done.");
+        try {
+            UndoSystem.addEvent(new ImportMesh(new File(absolutePath)));
+        } catch (Exception e) {
+            logger.error("Error importing mesh",e);
+            return false;
+        }
+        logger.info("done.");
         return true;
     }
 
     private boolean importScene(File file) {
         logger.debug("drag importScene {}",file);
         try {
-            var imported = new ImportScene(file);
-            UndoSystem.addEvent(imported);
+            UndoSystem.addEvent(new ImportScene(file));
         } catch (Exception e) {
             logger.error("Error importing scene",e);
             return false;
         }
+        logger.info("done.");
         return true;
-    }
-
-    private String getFilenameWithoutExtensionFromPath(String absolutePath) {
-        File f = new File(absolutePath);
-        String fullName = f.getName();
-        return fullName.substring(0,fullName.lastIndexOf('.'));
     }
 }
