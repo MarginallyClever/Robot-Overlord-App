@@ -182,7 +182,7 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
         });
 
         // if the window closes, stop the timer.
-        // TODO keep it going and refresh the window when it re-opens.
+        // TODO version 2 keep it going?
         runToggle.addHierarchyListener(e -> {
             if ((HierarchyEvent.SHOWING_CHANGED & e.getChangeFlags()) !=0
                     && !runToggle.isShowing()) {

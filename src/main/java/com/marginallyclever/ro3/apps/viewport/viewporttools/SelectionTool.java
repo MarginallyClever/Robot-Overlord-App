@@ -23,7 +23,6 @@ import java.util.List;
 
 /**
  * <p>A selection tool allows the user to click on the 3D view and change the current {@link Registry#selection}.</p>
- * TODO add shift+ and ctrl+ modifiers to add/remove from selection.
  */
 public class SelectionTool extends MouseAdapter implements ViewportTool {
     private static final Logger logger = LoggerFactory.getLogger(SelectionTool.class);

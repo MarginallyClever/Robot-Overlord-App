@@ -46,7 +46,6 @@ public class EntityManager {
 	 * @return true if any cuboid in {@code listA} intersects any {@link AABB} in the world.
 	 */
 	@Deprecated
-	// TODO does not belong here!
 	public boolean collisionTest(ArrayList<AABB> listA) {
 		// check all children
 		for( Entity b : entities) {
