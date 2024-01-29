@@ -5,6 +5,7 @@ import com.marginallyclever.ro3.mesh.MeshFactory;
 import com.marginallyclever.ro3.node.nodefactory.NodeFactory;
 import com.marginallyclever.ro3.node.nodes.*;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.behavior.BehaviorTreeRunner;
 import com.marginallyclever.ro3.node.nodes.behavior.Fallback;
 import com.marginallyclever.ro3.node.nodes.behavior.Sequence;
 import com.marginallyclever.ro3.node.nodes.behavior.actions.LimbMoveToTarget;
@@ -39,6 +40,26 @@ public class Registry {
         nodeFactory.clear();
         NodeFactory.Category node = nodeFactory.getRoot();
         {
+            NodeFactory.Category behavior = node.add("Behavior", null);
+            {
+                NodeFactory.Category action = behavior.add("Action", null);
+                {
+                    action.add("LimbMoveToTarget", LimbMoveToTarget::new);
+                }
+                NodeFactory.Category control = behavior.add("Control", null);
+                NodeFactory.Category decorator = behavior.add("Decorator", null);
+                {
+                    decorator.add("ForceFailure", ForceFailure::new);
+                    decorator.add("ForceSuccess", ForceSuccess::new);
+                    decorator.add("Inverter", Inverter::new);
+                    decorator.add("KeepRunningUntilFailure", KeepRunningUntilFailure::new);
+                    decorator.add("Repeat", Repeat::new);
+                    decorator.add("RetryUntilSuccessful", RetryUntilSuccessful::new);
+                }
+                behavior.add("Fallback", Fallback::new);
+                behavior.add("Sequence", Sequence::new);
+            }
+            node.add("BehaviorTreeRunner", BehaviorTreeRunner::new);
             node.add("DHParameter", DHParameter::new);
             node.add("HingeJoint", HingeJoint::new);
             node.add("LimbPlanner", LimbPlanner::new);
@@ -55,23 +76,6 @@ public class Registry {
                 pose.add("LookAt", LookAt::new);
                 pose.add("MeshInstance", MeshInstance::new);
             }
-            NodeFactory.Category behavior = node.add("Behavior", null);
-            NodeFactory.Category action = behavior.add("Action", null);
-            {
-                action.add("LimbMoveToTarget", LimbMoveToTarget::new);
-            }
-            NodeFactory.Category control = behavior.add("Control", null);
-            NodeFactory.Category decorator = behavior.add("Decorator", null);
-            {
-                decorator.add("ForceFailure", ForceFailure::new);
-                decorator.add("ForceSuccess", ForceSuccess::new);
-                decorator.add("Inverter", Inverter::new);
-                decorator.add("KeepRunningUntilFailure", KeepRunningUntilFailure::new);
-                decorator.add("Repeat", Repeat::new);
-                decorator.add("RetryUntilSuccessful", RetryUntilSuccessful::new);
-            }
-            behavior.add("Fallback", Fallback::new);
-            behavior.add("Sequence", Sequence::new);
         }
         reset();
     }
