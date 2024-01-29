@@ -55,6 +55,7 @@ public class LimbSolver extends Node {
     }
 
     public void update(double dt) {
+        super.update(dt);
         if(dt==0) return;
 
         moveTowardsTarget();
