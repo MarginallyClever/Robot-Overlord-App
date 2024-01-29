@@ -528,17 +528,17 @@
 		<dependency>
 			<groupId>io.github.andrewauclair</groupId>
 			<artifactId>modern-docking-api</artifactId>
-			<version>0.11.0-SNAPSHOT</version>
+			<version>0.11.1</version>
 		</dependency>
 		<dependency>
 			<groupId>io.github.andrewauclair</groupId>
 			<artifactId>modern-docking-single-app</artifactId>
-			<version>0.11.0-SNAPSHOT</version>
+			<version>0.11.1</version>
 		</dependency>
 		<dependency>
 			<groupId>io.github.andrewauclair</groupId>
 			<artifactId>modern-docking-ui</artifactId>
-			<version>0.11.0-SNAPSHOT</version>
+			<version>0.11.1</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.formdev/flatlaf -->
 		<dependency>
