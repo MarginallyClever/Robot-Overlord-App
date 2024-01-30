@@ -6,6 +6,10 @@ import javax.swing.*;
 import java.awt.*;
 
 public class RepeatPanel extends JPanel {
+    public RepeatPanel() {
+        this(new Repeat());
+    }
+
     public RepeatPanel(Repeat repeat) {
         super(new GridLayout(0,2));
 

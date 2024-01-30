@@ -61,7 +61,8 @@ public class NodeFactory {
     private final Category root = new Category("Node",Node::new);
 
     public NodeFactory() {
-        scan();
+        super();
+        //scan();
     }
 
     public Category getRoot() {
@@ -69,7 +70,8 @@ public class NodeFactory {
     }
 
     public Supplier<Node> getSupplierFor(String path) {
-        List<Category> toCheck = new ArrayList<>(root.children);
+        List<Category> toCheck = new ArrayList<>();
+        toCheck.add(root);
         while(!toCheck.isEmpty()) {
             Category current = toCheck.remove(0);
             toCheck.addAll(current.children);

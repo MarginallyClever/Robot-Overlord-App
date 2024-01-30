@@ -1,8 +1,10 @@
 package com.marginallyclever.ro3.node;
 
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +15,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class NodeTest {
     private Node parentNode;
     private Node childNode;
+
+    @BeforeAll
+    public static void beforeAll() {
+        Registry.start();
+    }
 
     @BeforeEach
     public void setup() {
