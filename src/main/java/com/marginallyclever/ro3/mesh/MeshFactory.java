@@ -81,7 +81,7 @@ public class MeshFactory {
 	}
 
 	private void loadMeshWithLoader(String filename, Mesh mesh, MeshLoader loader) {
-		logger.info("Loading "+filename+" with "+loader.getEnglishName());
+		//logger.info("Loading "+filename+" with "+loader.getEnglishName());
 
 		mesh.setSourceName(filename);
 		mesh.setDirty(true);
@@ -149,6 +149,7 @@ public class MeshFactory {
 	 */
     public void reset() {
 		// FIXME Not calling unload() on each item is probably a video card memory leak.
+		// FIXME but unload can only be called from the GL thread.
 		meshPool.removeAll();
     }
 }

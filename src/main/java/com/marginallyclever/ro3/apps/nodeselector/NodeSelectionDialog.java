@@ -129,7 +129,6 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
     /**
      * find all nodes matching the search criteria
      * @param rootNode the root node of the tree to search
-     * @param searchCriteria a regular expression to match against the node name
      * @return a list of all nodes matching the search criteria
      */
     private List<Node> findAllNodesMatching(Node rootNode) {

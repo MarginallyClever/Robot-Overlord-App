@@ -2,7 +2,6 @@ package com.marginallyclever.ro3;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.reflections.Reflections;
@@ -10,11 +9,9 @@ import org.reflections.util.ClasspathHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.ArrayList;
 import javax.swing.*;
-import java.awt.*;
-import java.util.Set;
 
 /**
  * <p>Display a card layout of all the {@link JPanel}s in the project.  This would be handy for translators to see all
@@ -42,9 +39,10 @@ public class TestAllPanels {
             logger.error("Failed to set look and feel.");
         }
 
-        var frame = AllPanels.showAllPanels();
+        AllPanels allPanels = new AllPanels();
+        var frame = allPanels.buildFrame();
 
-        // version 1, pause for 5 seconds
+        // version 1, pause for 0.5 seconds
         try {
             Thread.sleep(500);
         } catch (InterruptedException ignored) {}

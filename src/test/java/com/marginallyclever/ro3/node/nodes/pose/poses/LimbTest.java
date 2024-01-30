@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes.pose.poses;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.actions.LoadScene;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,17 +12,17 @@ import java.io.File;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LimbTest {
-    Limb limb;
+    static Limb limb;
 
-    private Limb build6AxisArm() throws Exception {
+    private static Limb build6AxisArm() {
         var load = new LoadScene(null,null);
         File file = new File("src/test/resources/com/marginallyclever/ro3/apps/node/nodes/marlinrobotarm/Sixi3-5.RO");
         load.commitLoad(file);
         return (Limb) Registry.getScene().findByPath("./Sixi3");
     }
 
-    @BeforeEach
-    void setUp() throws Exception {
+    @BeforeAll
+    public static void setUp() {
         Registry.start();
         limb = build6AxisArm();
     }

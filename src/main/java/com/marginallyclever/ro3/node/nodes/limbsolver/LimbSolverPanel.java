@@ -2,6 +2,9 @@ package com.marginallyclever.ro3.node.nodes.limbsolver;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
+import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,12 +31,12 @@ public class LimbSolverPanel extends JPanel {
         gbc.gridy=0;
 
         PanelHelper.addNodeSelector(this, "Limb", limbSolver.getLimb(), gbc);
-
         gbc.gridy++;
         PanelHelper.addNodeSelector(this, "Target", limbSolver.getTarget(), gbc);
-
         gbc.gridy++;
         addMoveTargetToEndEffector(this,gbc);
+        gbc.gridy++;
+        addMoveTargetToFirstSelected(this,gbc);
 
         gbc.gridy++;
         var formatter = NumberFormatHelper.getNumberFormatter();
@@ -51,13 +54,34 @@ public class LimbSolverPanel extends JPanel {
         add(createVelocitySlider(),gbc);
     }
 
+    private void addMoveTargetToFirstSelected(LimbSolverPanel limbSolverPanel, GridBagConstraints gbc) {
+        JButton targetToFirstSelected = new JButton(new AbstractAction() {
+            {
+                putValue(Action.NAME,"Move");
+                putValue(Action.SHORT_DESCRIPTION,"Move the Target Pose to the first selected Pose.");
+                putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource(
+                        "/com/marginallyclever/ro3/apps/shared/icons8-move-16.png"))));
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for(Node node : Registry.selection.getList()) {
+                    if(node instanceof Pose pose) {
+                        limbSolver.getTarget().getSubject().setWorld(pose.getWorld());
+                        break;
+                    }
+                }
+            }
+        });
+        PanelHelper.addLabelAndComponent(limbSolverPanel, "Target to First Selected", targetToFirstSelected,gbc);
+    }
+
     private void addMoveTargetToEndEffector(JPanel pane,GridBagConstraints gbc) {
         JButton targetToEE = new JButton(new AbstractAction() {
             {
-                putValue(Action.NAME,"Move");
+                putValue(Action.NAME,"Freeze!");
                 putValue(Action.SHORT_DESCRIPTION,"Move the Target Pose to the End Effector.");
                 putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource(
-                        "/com/marginallyclever/ro3/apps/shared/icons8-move-16.png"))));
+                        "/com/marginallyclever/ro3/apps/shared/icons8-snowflake-16.png"))));
             }
             @Override
             public void actionPerformed(ActionEvent e) {

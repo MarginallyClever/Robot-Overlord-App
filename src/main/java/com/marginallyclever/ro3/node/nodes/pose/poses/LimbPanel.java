@@ -71,7 +71,8 @@ public class LimbPanel extends JPanel {
                 dial.setValue(motor.getHinge().getAngle());
             }
         });
-        // TODO subscribe to motor.getAxle().getAngle(), then dial.setValue() without triggering an action event.
+        // TODO subscribe to motor.getAxle().getAngle() so the dial matches reality.
+        // TODO but also dial.setValue() without triggering an action event, because that's a feedback loop.
 
         JLabel label = new JLabel(motor.getName());
         label.setLabelFor(dial);

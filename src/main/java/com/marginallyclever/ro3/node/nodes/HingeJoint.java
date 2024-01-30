@@ -12,28 +12,7 @@ import java.util.Objects;
 /**
  * <p>a {@link HingeJoint} is a joint that can rotate around the local Z axis.</p>
  * <p>a {@link HingeJoint} should be attached to a child {@link Pose} referenced as the axle.  In this way the axle's
- * parent {@link Pose} can be thought of as the initial pose at zero degrees.  This helps prevent drift over time.</p>
- *
- * <p>This class provides several functionalities:</p>
- * <ul>
- * <li>It can set and get the angle of rotation.</li>
- * <li>It can set and get the minimum and maximum angles of rotation.</li>
- * <li>It can set and get the velocity of rotation.</li>
- * <li>It can set and get the acceleration of rotation.</li>
- * <li>It can set and get the axle {@link Pose}.</li>
- * <li>It can update the axle's location in space based on the angle of rotation.</li>
- * <li>It can serialize and deserialize itself to and from JSON format.</li>
- * </ul>
- *
- * <p>This class also provides several properties:</p>
- * <ul>
- * <li>{@code angle}: the angle of rotation in degrees.</li>
- * <li>{@code minAngle}: the minimum angle of rotation in degrees.</li>
- * <li>{@code maxAngle}: the maximum angle of rotation in degrees.</li>
- * <li>{@code velocity}: the velocity of rotation in degrees per second.</li>
- * <li>{@code acceleration}: the acceleration of rotation in degrees per second squared.</li>
- * <li>{@code axle}: the {@link Pose} that the {@link HingeJoint} is attached to.</li>
- * </ul>
+ * parent {@link Pose} can be thought of as the initial pose.  This helps prevent drift over time.</p>
  */
 public class HingeJoint extends Node {
     private double angle = 0;  // degrees

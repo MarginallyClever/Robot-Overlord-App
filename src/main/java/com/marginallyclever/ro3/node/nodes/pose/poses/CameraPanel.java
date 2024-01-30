@@ -11,7 +11,7 @@ import java.security.InvalidParameterException;
 public class CameraPanel extends JPanel {
     private final Camera camera;
 
-    private CameraPanel() {
+    public CameraPanel() {
         this(new Camera());
     }
 
@@ -42,6 +42,7 @@ public class CameraPanel extends JPanel {
         fovSpinner.addChangeListener(e -> {
             camera.setFovY( (double) fovSpinner.getValue() );
         });
+        fovSpinner.setToolTipText("degrees");
         PanelHelper.addLabelAndComponent(this,"FOV",fovSpinner);
 
         // near z
@@ -54,6 +55,7 @@ public class CameraPanel extends JPanel {
             }
         });
         nearZSpinner.setValue(camera.getNearZ());
+        nearZSpinner.setToolTipText("cm");
         PanelHelper.addLabelAndComponent(this,"Near",nearZSpinner);
 
         // far z
@@ -61,6 +63,7 @@ public class CameraPanel extends JPanel {
         farZSpinner.addChangeListener(e -> {
             camera.setFarZ( (double) farZSpinner.getValue() );
         });
+        farZSpinner.setToolTipText("cm");
         PanelHelper.addLabelAndComponent(this,"Far",farZSpinner);
 
         // can rotate
@@ -102,6 +105,10 @@ public class CameraPanel extends JPanel {
         JFormattedTextField tx = new JFormattedTextField(formatter);        tx.setValue(0);
         JFormattedTextField ty = new JFormattedTextField(formatter);        ty.setValue(0);
         JFormattedTextField tz = new JFormattedTextField(formatter);        tz.setValue(0);
+        tx.setToolTipText("x");
+        ty.setToolTipText("y");
+        tz.setToolTipText("z");
+
 
         JButton button = new JButton("Set");
         button.addActionListener(e -> {

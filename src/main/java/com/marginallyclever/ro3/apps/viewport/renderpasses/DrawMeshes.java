@@ -23,7 +23,6 @@ import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 import java.util.prefs.Preferences;
 
 /**
@@ -32,8 +31,9 @@ import java.util.prefs.Preferences;
  */
 public class DrawMeshes extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawMeshes.class);
-    private ShaderProgram meshShader, shadowShader;
+    private ShaderProgram meshShader, shadowShader, outlineShader;
     private final Mesh shadowQuad = new Mesh();
+    private int outlineThickness = 5;
     private final int [] shadowFBO = new int[1];  // Frame Buffer Object
     private final int [] depthMap = new int[1];  // texture for the FBO
     private final int shadowMapUnit = 1;
@@ -69,7 +69,7 @@ public class DrawMeshes extends AbstractRenderPass {
                     ResourceHelper.readResource(this.getClass(), "mesh.vert"),
                     ResourceHelper.readResource(this.getClass(), "mesh.frag"));
         } catch (Exception e) {
-            logger.error("Failed to load shader", e);
+            logger.error("Failed to load mesh shader", e);
         }
 
         try {
@@ -77,7 +77,15 @@ public class DrawMeshes extends AbstractRenderPass {
                     ResourceHelper.readResource(this.getClass(), "shadow.vert"),
                     ResourceHelper.readResource(this.getClass(), "shadow.frag"));
         } catch (Exception e) {
-            logger.error("Failed to load shader", e);
+            logger.error("Failed to load shadow shader", e);
+        }
+
+        try {
+            outlineShader = new ShaderProgram(gl3,
+                    ResourceHelper.readResource(this.getClass(), "outline_330.vert"),
+                    ResourceHelper.readResource(this.getClass(), "outline_330.frag"));
+        } catch (Exception e) {
+            logger.error("Failed to load outline shader", e);
         }
 
         createShadowFBOandDepthMap(gl3);
@@ -144,6 +152,7 @@ public class DrawMeshes extends AbstractRenderPass {
         unloadAllMeshes(gl3);
         meshShader.delete(gl3);
         shadowShader.delete(gl3);
+        outlineShader.delete(gl3);
         shadowQuad.unload(gl3);
 
         gl3.glDeleteFramebuffers(1, shadowFBO,0);
@@ -172,11 +181,46 @@ public class DrawMeshes extends AbstractRenderPass {
 
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
         var meshMaterial = collectAllMeshes();
+        sortMeshMaterialList(meshMaterial);
 
         updateLightMatrix();
         generateDepthMap(gl3,meshMaterial);
+
         drawAllMeshes(gl3,meshMaterial,camera);
         //drawShadowQuad(gl3,camera);
+
+        keepOnlySelectedMeshMaterials(meshMaterial);
+        outlineSelectedMeshes(gl3,meshMaterial,camera);
+    }
+
+    private void keepOnlySelectedMeshMaterials(List<MeshMaterial> list) {
+        // remove from meshMaterial anything that is not in the list Registry.selected
+        var toKeep = new ArrayList<MeshMaterial>();
+        var selected = Registry.selection.getList();
+        for(MeshMaterial mm : list) {
+            // if node is parent of a meshInstance, keep it.
+            var me = mm.meshInstance();
+            var parent = me.getParent();
+            if(selected.contains(parent) || selected.contains(me)) {
+                toKeep.add(mm);
+            }
+        }
+        list.retainAll(toKeep);
+    }
+
+    private void sortMeshMaterialList(List<MeshMaterial> meshMaterial) {
+        // sort meshMaterial list by material
+        meshMaterial.sort((o1, o2) -> {
+            Material m1 = o1.material();
+            Material m2 = o2.material();
+            if(m1==null && m2==null) return 0;
+            if(m1==null) return -1;
+            if(m2==null) return 1;
+
+            // TODO sort opaque materials first
+            // TODO sort transparent materials by distance from camera
+            return m1.getUniqueID().compareTo(m2.getUniqueID());
+        });
     }
 
     private void drawShadowQuad(GL3 gl3, Camera camera) {
@@ -200,7 +244,6 @@ public class DrawMeshes extends AbstractRenderPass {
         gl3.glBindTexture(GL3.GL_TEXTURE_2D,0);
         gl3.glActiveTexture(GL3.GL_TEXTURE0);
         gl3.glBindTexture(GL3.GL_TEXTURE_2D,depthMap[0]);
-
 
         Matrix4d w = MatrixHelper.createIdentityMatrix4();
         //w.rotY(Math.PI/2);
@@ -239,9 +282,9 @@ public class DrawMeshes extends AbstractRenderPass {
         }
     }
 
-    private void drawAllMeshes(GL3 gl3, List<MeshMaterial> meshes, Camera camera) {
+    private void drawAllMeshes(GL3 gl3, List<MeshMaterial> meshMaterials, Camera camera) {
         meshShader.use(gl3);
-        meshShader.set1i(gl3,"shadowMap",shadowMapUnit);
+        meshShader.set1i(gl3, "shadowMap", shadowMapUnit);
         meshShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
         meshShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
 
@@ -254,7 +297,7 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setColor(gl3, "lightColor", sunlightColor);
         meshShader.setColor(gl3, "diffuseColor", Color.WHITE);
         meshShader.setColor(gl3, "specularColor", Color.WHITE);
-        meshShader.setColor(gl3,"ambientColor",ambientColor);
+        meshShader.setColor(gl3, "ambientColor", ambientColor);
 
         meshShader.set1i(gl3, "useVertexColor", 0);
         meshShader.set1i(gl3, "useLighting", 1);
@@ -264,7 +307,7 @@ public class DrawMeshes extends AbstractRenderPass {
         Material lastSeen = null;
         TextureWithMetadata texture = null;
 
-        for(MeshMaterial meshMaterial : meshes) {
+        for(MeshMaterial meshMaterial : meshMaterials) {
             MeshInstance meshInstance = meshMaterial.meshInstance();
             Material material = meshMaterial.material();
             Mesh mesh = meshInstance.getMesh();
@@ -293,9 +336,74 @@ public class DrawMeshes extends AbstractRenderPass {
             meshShader.setMatrix4d(gl3,"modelMatrix",w);
             // draw it
             mesh.render(gl3);
-
             OpenGLHelper.checkGLError(gl3,logger);
         }
+    }
+
+    private void outlineSelectedMeshes(GL3 gl3, List<MeshMaterial> meshMaterials, Camera camera) {
+        gl3.glEnable(GL3.GL_STENCIL_TEST);
+
+        // we're working with stencil and depth buffers.  clear them.
+        gl3.glClear(GL3.GL_STENCIL_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT);
+        // do not change the color buffer, only the stencil and depth buffers.
+        gl3.glColorMask(false,false,false,false);
+        gl3.glDepthMask(true);
+        gl3.glStencilMask(0xFF);
+
+        // update the stencil buffer only when stencil and depth tests pass
+        gl3.glStencilFunc(GL3.GL_ALWAYS,1,0xFF);
+        gl3.glStencilOp(GL3.GL_KEEP,GL3.GL_KEEP,GL3.GL_REPLACE);
+
+        drawAllMeshes(gl3,meshMaterials,camera);
+
+        // resume editing the color buffer, do not change the depth mask or the stencil buffer.
+        gl3.glColorMask(true,true,true,true);
+        gl3.glDepthMask(false);
+        gl3.glStencilMask(0x00);
+
+        // only draw where the stencil buffer is not 1
+        gl3.glStencilFunc(GL3.GL_NOTEQUAL,1,0xFF);
+        gl3.glStencilOp(GL3.GL_KEEP,GL3.GL_KEEP,GL3.GL_KEEP);
+        // draw the outlines of things, without depth testing or face culling.
+        gl3.glDisable(GL3.GL_CULL_FACE);
+        gl3.glPolygonMode(GL3.GL_FRONT_AND_BACK,GL3.GL_LINE);
+
+        // give it a thick line effect
+        gl3.glLineWidth(outlineThickness);
+
+        // use the outline shader
+        outlineShader.use(gl3);
+        // tell the shader some important information
+        outlineShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix());
+        outlineShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
+        outlineShader.setColor(gl3, "outlineColor", Color.GREEN);
+        outlineShader.set1f(gl3,"outlineSize",0.0f);
+
+        // render the set
+        for(MeshMaterial meshMaterial : meshMaterials) {
+            MeshInstance meshInstance = meshMaterial.meshInstance();
+            Mesh mesh = meshInstance.getMesh();
+
+            // set the model matrix
+            Matrix4d w = meshInstance.getWorld();
+            w.transpose();
+            outlineShader.setMatrix4d(gl3,"modelMatrix",w);
+            // draw it
+            mesh.render(gl3);
+            OpenGLHelper.checkGLError(gl3,logger);
+        }
+
+        // restore settings
+        gl3.glPolygonMode(GL3.GL_FRONT_AND_BACK,GL3.GL_FILL);
+        gl3.glEnable(GL3.GL_CULL_FACE);
+        gl3.glLineWidth(1);
+        gl3.glDepthMask(true);
+
+        // turn off stencil testing
+        gl3.glStencilFunc(GL3.GL_ALWAYS,1,0xFF);
+        gl3.glStencilOp(GL3.GL_KEEP, GL3.GL_KEEP, GL3.GL_REPLACE);
+
+        gl3.glDisable(GL3.GL_STENCIL_TEST);
     }
 
     // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
@@ -313,6 +421,7 @@ public class DrawMeshes extends AbstractRenderPass {
         Vector3d up = Math.abs(sunlightSource.z)>0.99? new Vector3d(0,1,0) : new Vector3d(0,0,1);
 
         // look at the scene from the light's point of view
+        // not the same as MatrixHelper.lookAt().
         lightView.set(lookAt(from, to, up));
     }
 

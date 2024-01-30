@@ -56,7 +56,6 @@ class MarlinRobotArmTest {
         var solver = new LimbSolver("b");
 
         MarlinRobotArm mra = new MarlinRobotArm();
-        mra.setReportInterval(mra.getReportInterval()+10);
         mra.addChild(limb);
         mra.addChild(solver);
         mra.setLimb(limb);
@@ -66,7 +65,6 @@ class MarlinRobotArmTest {
         MarlinRobotArm mra2 = new MarlinRobotArm();
         mra2.fromJSON(json);
 
-        assertEquals(mra.getReportInterval(),mra2.getReportInterval());
         assertEquals(mra.getLimb().getSubject().getName(),mra2.getLimb().getSubject().getName());
         assertEquals(mra.getSolver().getSubject().getName(),mra2.getSolver().getSubject().getName());
     }

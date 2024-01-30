@@ -8,6 +8,7 @@ import java.awt.*;
 public class MarlinRobotArmPanel extends JPanel {
     private final MarlinRobotArm marlinRobotArm;
 
+    @SuppressWarnings("unused")
     public MarlinRobotArmPanel() {
         this(new MarlinRobotArm());
     }
@@ -30,10 +31,18 @@ public class MarlinRobotArmPanel extends JPanel {
         PanelHelper.addNodeSelector(this, "Solver", marlinRobotArm.getSolver(), gbc);
         gbc.gridy++;
         PanelHelper.addNodeSelector(this, "Gripper motor", marlinRobotArm.getGripperMotor(), gbc);
+
         gbc.gridy++;
         JButton M114 = new JButton("M114");
         M114.addActionListener(e-> marlinRobotArm.sendGCode("M114"));
         PanelHelper.addLabelAndComponent(this, "Get state", M114,gbc);
+        M114.setToolTipText("Get the current position of the robot arm.");
+
+        gbc.gridy++;
+        JButton G28 = new JButton("G28");
+        G28.addActionListener(e-> marlinRobotArm.sendGCode("G28"));
+        PanelHelper.addLabelAndComponent(this, "Home", G28, gbc);
+        G28.setToolTipText("Move all motors to their home position.");
 
         gbc.gridx=0;
         gbc.gridwidth=2;

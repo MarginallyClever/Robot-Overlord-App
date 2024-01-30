@@ -4,9 +4,13 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.limbsolver.ApproximateJacobianFiniteDifferences;
+import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.Motor;
+import com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation.MarlinCoordinate;
+import com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation.MarlinSettings;
+import com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation.MarlinSimulation;
+import com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation.MarlinSimulationBlock;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import org.json.JSONObject;
@@ -34,7 +38,12 @@ public class MarlinRobotArm extends Node {
     public final NodePath<Limb> limb = new NodePath<>(this,Limb.class);
     public final NodePath<LimbSolver> solver = new NodePath<>(this,LimbSolver.class);
     private final NodePath<Motor> gripperMotor = new NodePath<>(this,Motor.class);
-    private double reportInterval=1.0;  // seconds
+    private final MarlinSettings settings = new MarlinSettings();
+    private MarlinSimulation simulation;
+    private MarlinSimulationBlock currentBlock = null;
+    private double feedrate;
+    private double acceleration;
+
 
     public MarlinRobotArm() {
         this("MarlinRobotArm");
@@ -42,6 +51,7 @@ public class MarlinRobotArm extends Node {
 
     public MarlinRobotArm(String name) {
         super(name);
+        reset();
     }
 
     @Override
@@ -51,7 +61,6 @@ public class MarlinRobotArm extends Node {
         if(limb.getSubject()!=null) json.put("limb",limb.getUniqueID());
         if(solver.getSubject()!=null) json.put("solver",solver.getUniqueID());
         if(gripperMotor.getSubject()!=null) json.put("gripperMotor",gripperMotor.getUniqueID());
-        json.put("reportInterval",reportInterval);
         return json;
     }
 
@@ -60,18 +69,9 @@ public class MarlinRobotArm extends Node {
         super.fromJSON(from);
         int version = from.has("version") ? from.getInt("version") : 0;
         if(version==2) {
-            if(from.has("limb")) {
-                limb.setUniqueID(from.getString("limb"));
-            }
-            if(from.has("solver")) {
-                solver.setUniqueID(from.getString("solver"));
-            }
-            if(from.has("gripperMotor")) {
-                gripperMotor.setUniqueID(from.getString("gripperMotor"));
-            }
-            if(from.has("reportInterval")) {
-                reportInterval = from.getDouble("reportInterval");
-            }
+            if(from.has("limb")) limb.setUniqueID(from.getString("limb"));
+            if(from.has("solver")) solver.setUniqueID(from.getString("solver"));
+            if(from.has("gripperMotor")) gripperMotor.setUniqueID(from.getString("gripperMotor"));
         }
         if(version<2) {
             var toRemove = new ArrayList<Node>();
@@ -130,11 +130,11 @@ public class MarlinRobotArm extends Node {
         return "M114"+getMotorsAndFeedrateAsString();
     }
 
-    public NodePath<Limb> getLimb() {
+    NodePath<Limb> getLimb() {
         return limb;
     }
 
-    public NodePath<LimbSolver> getSolver() {
+    NodePath<LimbSolver> getSolver() {
         return solver;
     }
 
@@ -178,18 +178,14 @@ public class MarlinRobotArm extends Node {
         if(gcode.startsWith("G0")) {  // fast non-linear move (FK)
             fireMarlinMessage( parseG0(gcode) );
             return;
+        } else if(gcode.startsWith("G1")) {
+            fireMarlinMessage( parseG1(gcode) );
+            return;
+        } else if(gcode.equals("G28")) {
+            fireMarlinMessage( parseG28(gcode) );
         } else if(gcode.equals("M114")) {
             String response = getM114();
             fireMarlinMessage( "Ok: "+response );
-            return;
-        } else if(gcode.equals("ik")) {
-            fireMarlinMessage(getEndEffectorIK());
-        } else if(gcode.equals("aj")) {
-            ApproximateJacobianFiniteDifferences jacobian = new ApproximateJacobianFiniteDifferences(getLimb().getSubject());
-            fireMarlinMessage( "Ok: "+jacobian );
-            return;
-        } else if(gcode.startsWith("G1")) {
-            fireMarlinMessage( parseG1(gcode) );
             return;
         }
         fireMarlinMessage( "Error: unknown command" );
@@ -208,30 +204,42 @@ public class MarlinRobotArm extends Node {
         }
         String [] parts = gcode.split("\\s+");
         try {
+            var destination = new MarlinCoordinate();
+
+            int i=0;
             for (NodePath<Motor> paths : getLimb().getSubject().getMotors()) {
                 Motor motor = paths.getSubject();
                 if (motor != null && motor.hasHinge()) {
+                    String motorName = motor.getName();
                     for (String p : parts) {
-                        if (p.startsWith(motor.getName())) {
+                        if (p.startsWith(motorName)) {
                             // TODO check new value is in range.
-                            motor.getHinge().setAngle(Double.parseDouble(p.substring(motor.getName().length())));
+                            destination.p[i] = Double.parseDouble(p.substring(motor.getName().length()));
                             break;
                         }
                     }
                 }
+                i++;
+                if(i>MarlinCoordinate.SIZE) throw new RuntimeException("too many motors for MarlinSimulation!");
             }
             // gripper motor
             Motor gripperMotor = this.gripperMotor.getSubject();
             if (gripperMotor != null && gripperMotor.hasHinge()) {
+                String motorName = gripperMotor.getName();
                 for (String p : parts) {
-                    if (p.startsWith(gripperMotor.getName())) {
+                    if (p.startsWith(motorName)) {
                         // TODO check new value is in range.
-                        gripperMotor.getHinge().setAngle(Double.parseDouble(p.substring(gripperMotor.getName().length())));
+                        destination.p[i] = Double.parseDouble(p.substring(gripperMotor.getName().length()));
                         break;
                     }
                 }
+                i++;
+                if(i>=MarlinCoordinate.SIZE) throw new RuntimeException("too many motors for MarlinSimulation!");
             }
             // else ignore unused parts
+            var mySolver = getSolver().getSubject();
+            var myFeedrate = mySolver==null ? this.feedrate : mySolver.getLinearVelocity();
+            simulation.bufferLine(destination,myFeedrate,acceleration);
         } catch( NumberFormatException e ) {
             logger.error("Number format exception: "+e.getMessage());
             return "Error: "+e.getMessage();
@@ -240,10 +248,67 @@ public class MarlinRobotArm extends Node {
         return "Ok: G0"+getMotorsAndFeedrateAsString();
     }
 
+    @Override
+    public void update(double dt) {
+        super.update(dt);
+
+        // Simulate Marlin behavior.
+        if(currentBlock==null) {
+            currentBlock = findBlock();
+            if(currentBlock!=null) {
+                logger.debug("starting block " + currentBlock.id);
+                currentBlock.busy = true;
+            }
+        }
+        if(currentBlock==null) return;
+
+        // advance time in the block
+        currentBlock.now_s += dt;
+        double extra = currentBlock.now_s - currentBlock.end_s;
+        if (currentBlock.now_s >= currentBlock.end_s) {
+            // no overflow!
+            currentBlock.now_s = currentBlock.end_s;
+        }
+
+        // Drive motors using trapezoidal velocity profiles.
+        // update motors according to currentBlock
+        logger.debug("working block " + currentBlock.id);
+        int i=0;
+        for(NodePath<Motor> paths : getLimb().getSubject().getMotors()) {
+            Motor motor = paths.getSubject();
+            double fraction = currentBlock.now_s / currentBlock.end_s;
+            if(motor!=null && motor.hasHinge()) {
+                HingeJoint hinge = motor.getHinge();
+                hinge.setAngle(currentBlock.start.p[i] + currentBlock.delta.p[i] * fraction);
+            }
+            ++i;
+        }
+
+        // is block done?
+        if (currentBlock.now_s >= currentBlock.end_s) {
+            logger.debug("ending block " + currentBlock.id);
+            currentBlock.busy = false;
+            simulation.getQueue().remove(currentBlock);
+
+            currentBlock = findBlock();
+            if(currentBlock!=null) {
+                logger.debug("starting block " + currentBlock.id);
+                currentBlock.busy = true;
+                currentBlock.now_s = extra;
+            }
+        }
+
+        // Queue up gcode commands and send "Ok" at the appropriate time.
+    }
+
+    private MarlinSimulationBlock findBlock() {
+        return (simulation.getQueue().isEmpty()) ? null : simulation.getQueue().peek();
+    }
+
     /**
      * <p>G1 Linear move.</p>
-     * <p>Parse gcode for names and values, then set the new target position.  Names are XYZ for linear, UVW for
-     * angular. Angular values should be in degrees.</p>
+     * <p>Parse gcode for names and values, then set the new target world position.  [letter][position] where letter is
+     * the name of the {@link Motor} known to the {@link Limb} and position is the new angle in degrees.</p>
      * <p>Movement will occur on {@link #update(double)} provided the {@link LimbSolver} linear velocity and the update
      * time are greater than zero.</p>
      * @param gcode GCode command
@@ -255,6 +320,11 @@ public class MarlinRobotArm extends Node {
             logger.warn("no limb");
             return "Error: no limb";
         }
+        if(myLimb.getEndEffector().getSubject()==null) {
+            logger.warn("no end effector");
+            return "Error: no end effector";
+        }
+
         LimbSolver mySolver = getSolver().getSubject();
         if(mySolver==null) {
             logger.warn("no solver");
@@ -264,52 +334,55 @@ public class MarlinRobotArm extends Node {
             logger.warn("no target");
             return "Error: no target";
         }
-        if(myLimb.getEndEffector().getSubject()==null) {
-            logger.warn("no end effector");
-            return "Error: no end effector";
-        }
+
         String [] parts = gcode.split("\\s+");
-        double [] cartesian = getCartesianFromWorld(myLimb.getEndEffector().getSubject().getWorld());
-        for(String p : parts) {
-            if(p.startsWith("F")) mySolver.setLinearVelocity(Double.parseDouble(p.substring(1)));
-            if(p.startsWith("X")) cartesian[0] = Double.parseDouble(p.substring(1));
-            else if(p.startsWith("Y")) cartesian[1] = Double.parseDouble(p.substring(1));
-            else if(p.startsWith("Z")) cartesian[2] = Double.parseDouble(p.substring(1));
-            else if(p.startsWith("U")) cartesian[3] = Double.parseDouble(p.substring(1));
-            else if(p.startsWith("V")) cartesian[4] = Double.parseDouble(p.substring(1));
-            else if(p.startsWith("W")) cartesian[5] = Double.parseDouble(p.substring(1));
-            else logger.warn("unknown G1 command: "+p);
+        double [] jointAnglesOriginal = myLimb.getAllJointAngles();
+        double [] jointAngles = jointAnglesOriginal.clone();
+
+        int i=0;
+        for (NodePath<Motor> paths : getLimb().getSubject().getMotors()) {
+            Motor motor = paths.getSubject();
+            if (motor != null && motor.hasHinge()) {
+                String motorName = motor.getName();
+                for (String p : parts) {
+                    if (p.startsWith(motorName)) {
+                        // TODO check new value is in range.
+                        jointAngles[i] = Double.parseDouble(p.substring(motor.getName().length()));
+                        break;
+                    }
+                }
+            }
+            i++;
+            if(i>MarlinCoordinate.SIZE) throw new RuntimeException("too many motors for MarlinSimulation!");
         }
-        // set the target position relative to the base of the robot arm
-        mySolver.getTarget().getSubject().setLocal(getReverseCartesianFromWorld(cartesian));
+        // The above method cannot detect if a part went unused.  it could return a warning message.
+
+        // Use the joint angles to calculate the new world position.  This is the FK.
+        myLimb.setAllJointAngles(jointAngles);
+        Matrix4d m = myLimb.getEndEffector().getSubject().getWorld();
+        myLimb.setAllJointAngles(jointAnglesOriginal);
+        mySolver.getTarget().getSubject().setWorld(m);
+        // If solver has non zero linear velocity, then the robot will move on the next update().
         return "Ok";
     }
 
-    private String getEndEffectorIK() {
+    private String parseG28(String gcode) {
         Limb myLimb = getLimb().getSubject();
         if(myLimb==null) {
             logger.warn("no limb");
             return "Error: no limb";
         }
-        LimbSolver mySolver = getSolver().getSubject();
-        if(mySolver==null) {
-            logger.warn("no solver");
-            return "Error: no solver";
+
+        for (NodePath<Motor> paths : getLimb().getSubject().getMotors()) {
+            Motor motor = paths.getSubject();
+            if (motor != null && motor.hasHinge()) {
+                HingeJoint hinge = motor.getHinge();
+                var homeAngle = 0;//hinge.getHomeAngle();
+                hinge.setAngle(homeAngle);
+                hinge.setVelocity(0);
+            }
         }
-        if(myLimb.getEndEffector()==null) {
-            return ( "Error: no end effector" );
-        }
-        double [] cartesian = getCartesianFromWorld(myLimb.getEndEffector().getSubject().getWorld());
-        int i=0;
-        String response = "G1"
-                +" F"+StringHelper.formatDouble(mySolver.getLinearVelocity())
-                +" X"+StringHelper.formatDouble(cartesian[i++])
-                +" Y"+StringHelper.formatDouble(cartesian[i++])
-                +" Z"+StringHelper.formatDouble(cartesian[i++])
-                +" U"+StringHelper.formatDouble(cartesian[i++])
-                +" V"+StringHelper.formatDouble(cartesian[i++])
-                +" W"+StringHelper.formatDouble(cartesian[i++]);
-        return ( "Ok: "+response );
+        return "Ok";
     }
 
     /**
@@ -379,21 +452,6 @@ public class MarlinRobotArm extends Node {
         this.solver.setUniqueIDByNode(solver);
     }
 
-    /**
-     * @return the time between reports in seconds
-     */
-    public double getReportInterval() {
-        return reportInterval;
-    }
-
-    /**
-     * @param seconds the time between reports in seconds.  Must be >= 0.
-     */
-    public void setReportInterval(double seconds) {
-        if(seconds<0) throw new IllegalArgumentException("seconds must be >= 0");
-        reportInterval = seconds;
-    }
-
     public NodePath<Motor> getGripperMotor() {
         return gripperMotor;
     }
@@ -401,5 +459,15 @@ public class MarlinRobotArm extends Node {
     @Override
     public Icon getIcon() {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/marlinrobotarm/marlin.png")));
+    }
+
+    /**
+     * Equivalent to rebooting a Marlin controller.  Should reset the state of the robot and the simulation.
+     */
+    public void reset() {
+        simulation = new MarlinSimulation(settings);
+        currentBlock = null;
+        feedrate = settings.getDouble(MarlinSettings.MAX_FEEDRATE);
+        acceleration = settings.getDouble(MarlinSettings.MAX_ACCELERATION);
     }
 }

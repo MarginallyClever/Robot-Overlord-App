@@ -21,5 +21,15 @@ public class NodePanel extends JPanel {
         });
         nameField.setEditable(false);
         PanelHelper.addLabelAndComponent(this,"Name",nameField);
+
+        JTextField pathField = new JTextField(node.getAbsolutePath());
+        pathField.setEditable(false);
+        var dim = pathField.getMaximumSize();
+        var pref = pathField.getPreferredSize();
+        dim.width = 150;
+        pref.width = 150;
+        pathField.setPreferredSize(pref);
+        pathField.setMaximumSize(dim);
+        PanelHelper.addLabelAndComponent(this,"Path",pathField);
     }
 }

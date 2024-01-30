@@ -2,6 +2,9 @@ package com.marginallyclever.ro3.node.nodes.behavior;
 
 import com.marginallyclever.ro3.node.Node;
 
+import javax.swing.*;
+import java.util.Objects;
+
 /**
  * <p>{@link Behavior} is a {@link com.marginallyclever.ro3.node.Node} that can be used to control
  * the behavior of a robot.
@@ -33,4 +36,13 @@ public abstract class Behavior extends Node {
     }
 
     public abstract Status tick();
+
+    /**
+     * reset the internal state of the {@link Behavior}.
+     */
+    public void reset() {
+        for(Node n : getChildren()) {
+            if(n instanceof Behavior b) b.reset();
+        }
+    }
 }
