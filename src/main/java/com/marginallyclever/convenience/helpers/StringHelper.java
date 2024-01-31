@@ -5,6 +5,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -20,34 +21,8 @@ public class StringHelper {
 		return s;
 	}
 	
-	static public String formatFloat(float arg0) {
-		//return Float.toString(roundOff(arg0));
-		return shortenNumber(String.format("%.3f", arg0));
-	}
-	
 	static public String formatDouble(double arg0) {
-		//return Float.toString(roundOff(arg0));
-		return shortenNumber(String.format("%.3f", arg0));
-	}
-
-	/**
-	 * Parse a number sent from a US format system
-	 * @param str
-	 * @return
-	 */
-	static public double parseNumber(String str) {
-		double d=0;
-		
-		try {
-			NumberFormat nf = NumberFormat.getInstance(Locale.US);
-			Number n = nf.parse(str);
-			d = n.doubleValue();
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		return d;
+		return shortenNumber(String.format(Locale.ROOT,"%.3f", arg0));
 	}
 
 	// @return "*"+ the binary XOR of every byte in the msg.
