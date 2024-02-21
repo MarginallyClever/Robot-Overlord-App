@@ -240,7 +240,7 @@ public class LimbPlanner extends Node implements ActionListener {
 
     public void setLinearVelocity(double v) {
         if(solver.getSubject()!=null) {
-            solver.getSubject().setLinearVelocity(v);
+            solver.getSubject().setLinearVelocityMax(v);
         }
     }
 

@@ -161,7 +161,7 @@ public class MarlinRobotArm extends Node {
         if(getSolver()!=null) {
             // feedrate
             sb.append(" F")
-              .append(StringHelper.formatDouble(getSolver().getSubject().getLinearVelocity()));
+              .append(StringHelper.formatDouble(getSolver().getSubject().getLinearVelocityMax()));
         }
 
         return sb.toString();
@@ -238,7 +238,7 @@ public class MarlinRobotArm extends Node {
             }
             // else ignore unused parts
             var mySolver = getSolver().getSubject();
-            var myFeedrate = mySolver==null ? this.feedrate : mySolver.getLinearVelocity();
+            var myFeedrate = mySolver==null ? this.feedrate : mySolver.getLinearVelocityMax();
             simulation.bufferLine(destination,myFeedrate,acceleration);
         } catch( NumberFormatException e ) {
             logger.error("Number format exception: "+e.getMessage());

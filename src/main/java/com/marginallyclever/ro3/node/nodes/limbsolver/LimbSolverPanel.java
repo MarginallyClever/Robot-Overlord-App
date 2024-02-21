@@ -51,7 +51,9 @@ public class LimbSolverPanel extends JPanel {
 
         gbc.gridy++;
         gbc.gridwidth=2;
-        add(createVelocitySlider(),gbc);
+        add(createVelocitySliderMax(),gbc);
+        gbc.gridy++;
+        add(createVelocitySliderMin(),gbc);
     }
 
     private void addMoveTargetToFirstSelected(LimbSolverPanel limbSolverPanel, GridBagConstraints gbc) {
@@ -91,11 +93,11 @@ public class LimbSolverPanel extends JPanel {
         PanelHelper.addLabelAndComponent(pane, "Target to EE", targetToEE,gbc);
     }
 
-    private JComponent createVelocitySlider() {
+    private JComponent createVelocitySliderMax() {
         JPanel container = new JPanel(new BorderLayout());
         // add a slider to control linear velocity
-        JSlider slider = new JSlider(-20,20,(int)limbSolver.getLinearVelocity());
-        slider.addChangeListener(e-> limbSolver.setLinearVelocity( slider.getValue() ));
+        JSlider slider = new JSlider(-20,20,(int)limbSolver.getLinearVelocityMax());
+        slider.addChangeListener(e-> limbSolver.setLinearVelocityMax( slider.getValue() ));
 
         // Make the slider fill the available horizontal space
         slider.setMaximumSize(new Dimension(Integer.MAX_VALUE, slider.getPreferredSize().height));
@@ -104,8 +106,30 @@ public class LimbSolverPanel extends JPanel {
         slider.setMinorTickSpacing(1);
         slider.setPaintTicks(true);
         slider.setSnapToTicks(true);
+        slider.setToolTipText("The maximum linear velocity of the limb.");
 
-        container.add(new JLabel("Linear Vel"), BorderLayout.LINE_START);
+        container.add(new JLabel("Linear Vel Max"), BorderLayout.LINE_START);
+        container.add(slider, BorderLayout.CENTER); // Add slider to the center of the container
+
+        return container;
+    }
+
+    private JComponent createVelocitySliderMin() {
+        JPanel container = new JPanel(new BorderLayout());
+        // add a slider to control linear velocity
+        JSlider slider = new JSlider(-20,20,(int)limbSolver.getLinearVelocityMin());
+        slider.addChangeListener(e-> limbSolver.setLinearVelocityMin( slider.getValue() ));
+
+        // Make the slider fill the available horizontal space
+        slider.setMaximumSize(new Dimension(Integer.MAX_VALUE, slider.getPreferredSize().height));
+        slider.setMinimumSize(new Dimension(50, slider.getPreferredSize().height));
+        slider.setMajorTickSpacing(10);
+        slider.setMinorTickSpacing(1);
+        slider.setPaintTicks(true);
+        slider.setSnapToTicks(true);
+        slider.setToolTipText("The minimum linear velocity of the limb.");
+
+        container.add(new JLabel("Linear Vel Min"), BorderLayout.LINE_START);
         container.add(slider, BorderLayout.CENTER); // Add slider to the center of the container
 
         return container;

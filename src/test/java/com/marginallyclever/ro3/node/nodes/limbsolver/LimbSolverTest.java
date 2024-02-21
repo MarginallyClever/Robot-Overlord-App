@@ -35,8 +35,8 @@ class LimbSolverTest {
     @Test
     void testGetSetLinearVelocity() {
         LimbSolver limbSolver = new LimbSolver();
-        limbSolver.setLinearVelocity(10.0);
-        assertEquals(10.0, limbSolver.getLinearVelocity());
+        limbSolver.setLinearVelocityMax(10.0);
+        assertEquals(10.0, limbSolver.getLinearVelocityMax());
     }
 
     @Test
@@ -60,7 +60,7 @@ class LimbSolverTest {
         var target = new Pose("b");
 
         LimbSolver ls = new LimbSolver();
-        ls.setLinearVelocity(ls.getLinearVelocity()+10);
+        ls.setLinearVelocityMax(ls.getLinearVelocityMax()+10);
         ls.setGoalMarginOfError(ls.getGoalMarginOfError()+10);
         ls.setIsAtGoal(!ls.getIsAtGoal());
         ls.addChild(limb);
@@ -72,7 +72,7 @@ class LimbSolverTest {
         LimbSolver ls2 = new LimbSolver();
         ls2.fromJSON(json);
 
-        assertEquals(ls.getLinearVelocity(),ls2.getLinearVelocity());
+        assertEquals(ls.getLinearVelocityMax(),ls2.getLinearVelocityMax());
         assertEquals(ls.getGoalMarginOfError(),ls2.getGoalMarginOfError());
         assertEquals(ls.getIsAtGoal(),ls2.getIsAtGoal());
         assertEquals(ls.getLimb().getSubject().getName(),ls2.getLimb().getSubject().getName());

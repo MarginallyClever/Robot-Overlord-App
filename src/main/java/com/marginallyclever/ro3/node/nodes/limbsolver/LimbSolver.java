@@ -25,7 +25,9 @@ public class LimbSolver extends Node {
     private static final Logger logger = LoggerFactory.getLogger(LimbSolver.class);
     private final NodePath<Limb> limb = new NodePath<>(this,Limb.class);
     private final NodePath<Pose> target = new NodePath<>(this,Pose.class);
-    private double linearVelocity = 0;
+    private double linearVelocityMax = 0;
+
+    private double linearVelocityMin = 1.0;
     private double distanceToTarget = 0;
 
     private double goalMarginOfError = 0.1; // not degrees or mm.  Just a number.
@@ -98,18 +100,16 @@ public class LimbSolver extends Node {
     /**
      * @return true if the solver has a limb, an end effector, and a target.  Does not guarantee that a solution exists.
      */
-    public boolean readyToSolve() {
+    public boolean isReadyToSolve() {
         return getLimb().getSubject()!=null && getEndEffector()!=null && getTarget().getSubject()!=null;
     }
 
     private void moveTowardsTarget() {
-        if(!readyToSolve()) {
-            return;
-        }
+        if(!isReadyToSolve()) return;
 
         var limb = getLimb().getSubject();
 
-        if(Math.abs(linearVelocity) < 0.0001) {
+        if(Math.abs(linearVelocityMax) < 0.0001) {
             // no velocity.  Make sure the arm doesn't drift.
             limb.setAllJointVelocities(new double[limb.getNumJoints()]);
             return;
@@ -121,7 +121,7 @@ public class LimbSolver extends Node {
                 cartesianDistance);
         // limit the velocity
         System.arraycopy(cartesianDistance,0,cartesianVelocity,0,cartesianDistance.length);
-        scaleVectorToMagnitude(cartesianVelocity,linearVelocity);
+        scaleVectorToMagnitude(cartesianVelocity);
         // set motor velocities.
         setMotorVelocitiesFromCartesianVelocity(cartesianVelocity);
     }
@@ -174,7 +174,7 @@ public class LimbSolver extends Node {
         json.put("version",3);
         if(getLimb()!=null) json.put("limb",limb.getUniqueID());
         if(getTarget()!=null) json.put("target",target.getUniqueID());
-        json.put("linearVelocity",linearVelocity);
+        json.put("linearVelocity", linearVelocityMax);
         json.put("goalMarginOfError",goalMarginOfError);
         json.put("isAtGoal",isAtGoal);
         return json;
@@ -202,7 +202,7 @@ public class LimbSolver extends Node {
             }
         }
         if(from.has("linearVelocity")) {
-            linearVelocity = from.getDouble("linearVelocity");
+            linearVelocityMax = from.getDouble("linearVelocity");
         }
         if(from.has("goalMarginOfError")) {
             goalMarginOfError = from.getDouble("goalMarginOfError");
@@ -213,28 +213,35 @@ public class LimbSolver extends Node {
     }
 
     /**
-     * <p>Make sure the given vector's length does not exceed linearVelocity.  This means as the limb approaches the
-     * target the velocity will slow down.</p>
-     * <p>Store the results in the original array.</p>
+     * Make sure the given vector's length does not exceed some maximum.  Store the results in the original array.
      * @param vector the vector to cap
-     * @param maxLen the max length of the vector.
      */
-    public static void scaleVectorToMagnitude(double[] vector, double maxLen) {
-        // get the length of the vector
+    public void scaleVectorToMagnitude(double[] vector) {
+        double len = getVectorLength(vector);
+
+        double maxLen = linearVelocityMax;
+        if(maxLen < linearVelocityMin) {
+            maxLen = linearVelocityMin;
+        } else if(maxLen>len) {
+            maxLen = len;
+        }
+
+        double scale = (len == 0) ? 0 : maxLen / len;
+        scaleVector(vector, scale);
+    }
+
+    private void scaleVector(double[] vector, double scale) {
+        for(int i=0;i<vector.length;i++) {
+            vector[i] *= scale;
+        }
+    }
+
+    private double getVectorLength(double[] vector) {
         double len = 0;
         for (double v : vector) {
             len += v * v;
         }
-        len = Math.sqrt(len);
-
-        var linearMagnitude = Math.abs(maxLen);
-        if(linearMagnitude>len) maxLen = Math.signum(maxLen) * len;
-
-        // scale the vector
-        double scale = (len == 0) ? 0 : maxLen / len;  // catch len==0
-        for(int i=0;i<vector.length;i++) {
-            vector[i] *= scale;
-        }
+        return Math.sqrt(len);
     }
 
     private double sumCartesianVelocityComponents(double [] cartesianVelocity) {
@@ -257,16 +264,28 @@ public class LimbSolver extends Node {
         super.getComponents(list);
     }
 
-    public double getLinearVelocity() {
-        return linearVelocity;
+    public double getLinearVelocityMax() {
+        return linearVelocityMax;
     }
 
     /**
      * Set the linear velocity of the end effector in cm/s.
-     * @param linearVelocity must be >= 0
+     * @param linearVelocityMax must be >= 0
      */
-    public void setLinearVelocity(double linearVelocity) {
-        this.linearVelocity = linearVelocity;
+    public void setLinearVelocityMax(double linearVelocityMax) {
+        this.linearVelocityMax = linearVelocityMax;
+    }
+
+    public double getLinearVelocityMin() {
+        return linearVelocityMin;
+    }
+
+    /**
+     * Set the minimum linear velocity of the end effector in cm/s.
+     * @param linearVelocityMin must be >= 0
+     */
+    public void setLinearVelocityMin(double linearVelocityMin) {
+        this.linearVelocityMin = linearVelocityMin;
     }
 
     /**
