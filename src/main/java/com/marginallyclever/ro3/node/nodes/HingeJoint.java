@@ -75,7 +75,7 @@ public class HingeJoint extends Node {
         if(from.has("axle")) {
             String s = from.getString("axle");
             if(version==1) {
-                axle.setUniqueIDByNode(this.findNodeByPath(s,Pose.class));
+                axle.setSubject(this.findNodeByPath(s,Pose.class));
             } else if(version==0 || version==2) {
                 axle.setUniqueID(s);
             }
@@ -132,7 +132,7 @@ public class HingeJoint extends Node {
     }
 
     public void setAxle(Pose subject) {
-        axle.setUniqueIDByNode(subject);
+        axle.setSubject(subject);
     }
 
     @Override

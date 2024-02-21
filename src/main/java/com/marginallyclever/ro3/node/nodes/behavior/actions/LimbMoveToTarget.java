@@ -2,7 +2,6 @@ package com.marginallyclever.ro3.node.nodes.behavior.actions;
 
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.behavior.Action;
-import com.marginallyclever.ro3.node.nodes.behavior.BehaviorTreeRunnerPanel;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
@@ -63,7 +62,7 @@ public class LimbMoveToTarget extends Action implements ActionListener {
     protected void onAttach() {
         super.onAttach();
         // look in the parents for a LimbSolver
-        solver.setUniqueIDByNode(findParent(LimbSolver.class));
+        solver.setSubject(findParent(LimbSolver.class));
     }
 
     @Override
@@ -119,7 +118,7 @@ public class LimbMoveToTarget extends Action implements ActionListener {
     }
 
     public void setTarget(Pose subject) {
-        target.setUniqueIDByNode(subject);
+        target.setSubject(subject);
     }
 
     public LimbSolver getSolver() {
@@ -127,6 +126,6 @@ public class LimbMoveToTarget extends Action implements ActionListener {
     }
 
     public void setSolver(LimbSolver subject) {
-        solver.setUniqueIDByNode(subject);
+        solver.setSubject(subject);
     }
 }

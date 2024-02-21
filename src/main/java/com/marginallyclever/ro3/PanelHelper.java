@@ -60,7 +60,7 @@ public class PanelHelper {
                                                                    GridBagConstraints gbc) {
         NodeSelector<T> selector = new NodeSelector<>(nodePath.getType(), nodePath.getSubject());
         selector.addPropertyChangeListener("subject", (e) -> {
-            nodePath.setUniqueIDByNode((T)e.getNewValue());
+            nodePath.setSubject((T)e.getNewValue());
         });
         PanelHelper.addLabelAndComponent(pane, label, selector, gbc);
         return selector;

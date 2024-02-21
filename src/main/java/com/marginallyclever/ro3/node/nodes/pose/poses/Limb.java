@@ -91,7 +91,7 @@ public class Limb extends Pose {
      * @throws IndexOutOfBoundsException if the index is out of range.
      */
     public void setJoint(int index, Motor newValue) {
-        motors.get(index).setUniqueIDByNode(newValue);
+        motors.get(index).setSubject(newValue);
     }
 
     public void setAllJointAngles(double[] values) {
@@ -155,7 +155,7 @@ public class Limb extends Pose {
                 } else {
                     String s = motorArray.getString(i);
                     if(version==1) {
-                        motors.get(i).setUniqueIDByNode(this.findNodeByPath(s,Motor.class));
+                        motors.get(i).setSubject(this.findNodeByPath(s,Motor.class));
                     } else if(version==0||version==2) {
                         motors.get(i).setUniqueID(s);
                     }
@@ -166,7 +166,7 @@ public class Limb extends Pose {
         if(from.has("endEffector")) {
             String s = from.getString("endEffector");
             if(version==1) {
-                endEffector.setUniqueIDByNode(this.findNodeByPath(s,Pose.class));
+                endEffector.setSubject(this.findNodeByPath(s,Pose.class));
             } else if(version==0||version==2) {
                 endEffector.setUniqueID(s);
             }

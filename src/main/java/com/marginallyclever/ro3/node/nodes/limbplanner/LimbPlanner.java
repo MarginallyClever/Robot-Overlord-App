@@ -129,7 +129,7 @@ public class LimbPlanner extends Node implements ActionListener {
 
     private void setNextGoal(Pose pose) {
         logger.debug("Setting next goal to {}",pose.getAbsolutePath());
-        nextGoal.setUniqueIDByNode(pose);
+        nextGoal.setSubject(pose);
         solver.getSubject().setTarget(nextGoal.getSubject());
         solver.getSubject().setIsAtGoal(false);
     }
@@ -226,7 +226,7 @@ public class LimbPlanner extends Node implements ActionListener {
      * @param limbSolver the solver to use.
      */
     public void setSolver(LimbSolver limbSolver) {
-        solver.setUniqueIDByNode(limbSolver);
+        solver.setSubject(limbSolver);
     }
 
     /**
@@ -235,7 +235,7 @@ public class LimbPlanner extends Node implements ActionListener {
      * @param pose the pose to use.
      */
     public void setPathStart(Pose pose) {
-        pathStart.setUniqueIDByNode(pose);
+        pathStart.setSubject(pose);
     }
 
     public void setLinearVelocity(double v) {

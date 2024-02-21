@@ -1,5 +1,4 @@
 package com.marginallyclever.ro3.node;
-import com.marginallyclever.convenience.PathCalculator;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,7 +38,7 @@ class NodePathTest {
         Node goal = new Node();
         owner.addChild(goal);
         NodePath<Node> nodePath = new NodePath<>(owner, Node.class);
-        nodePath.setUniqueIDByNode(goal);
+        nodePath.setSubject(goal);
         assertEquals(goal.getUniqueID(), nodePath.getUniqueID());
     }
 }

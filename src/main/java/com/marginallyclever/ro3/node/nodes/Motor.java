@@ -54,7 +54,7 @@ public class Motor extends Node {
         if(from.has("hinge")) {
             String s = from.getString("hinge");
             if(version==1) {
-                hinge.setUniqueIDByNode(this.findNodeByPath(s,HingeJoint.class));
+                hinge.setSubject(this.findNodeByPath(s,HingeJoint.class));
             } else if(version==0 || version==2) {
                 hinge.setUniqueID(s);
             }
@@ -70,7 +70,7 @@ public class Motor extends Node {
      * @param hinge the hinge this motor will drive.
      */
     public void setHinge(HingeJoint hinge) {
-        this.hinge.setUniqueIDByNode(hinge);
+        this.hinge.setSubject(hinge);
     }
 
     public boolean hasHinge() {

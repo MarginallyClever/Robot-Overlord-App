@@ -87,7 +87,7 @@ public class MarlinRobotArm extends Node {
             toRemove.clear();
             limb1.setName("Limb");
             getParent().addChild(limb1);
-            limb.setUniqueIDByNode(limb1);
+            limb.setSubject(limb1);
 
             // solver
             LimbSolver solver1 = new LimbSolver();
@@ -96,7 +96,7 @@ public class MarlinRobotArm extends Node {
             for(Node n : toRemove) solver1.removeChild(n);
             solver1.setName("LimbSolver");
             getParent().addChild(solver1);
-            solver.setUniqueIDByNode(solver1);
+            solver.setSubject(solver1);
             solver1.setLimb(limb1);
 
             // gripper
@@ -104,14 +104,14 @@ public class MarlinRobotArm extends Node {
                 String s = from.getString("gripperMotor");
                 if (version == 1) {
                     Motor m = this.findNodeByPath(s, Motor.class);
-                    gripperMotor.setUniqueIDByNode(m);
+                    gripperMotor.setSubject(m);
                 } else if (version == 0) {
                     gripperMotor.setUniqueID(s);
                 }
             }
 
-            limb.setUniqueIDByNode(limb1);
-            solver.setUniqueIDByNode(solver1);
+            limb.setSubject(limb1);
+            solver.setSubject(solver1);
         }
     }
 
@@ -440,7 +440,7 @@ public class MarlinRobotArm extends Node {
      * @param limb the limb to control
      */
     public void setLimb(Limb limb) {
-        this.limb.setUniqueIDByNode(limb);
+        this.limb.setSubject(limb);
     }
 
     /**
@@ -449,7 +449,7 @@ public class MarlinRobotArm extends Node {
      * @param solver the solver to use
      */
     public void setSolver(LimbSolver solver) {
-        this.solver.setUniqueIDByNode(solver);
+        this.solver.setSubject(solver);
     }
 
     public NodePath<Motor> getGripperMotor() {

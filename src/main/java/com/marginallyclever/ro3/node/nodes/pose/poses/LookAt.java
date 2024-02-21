@@ -6,7 +6,6 @@ import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 
 import javax.swing.*;
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import java.util.List;
 import java.util.Objects;
@@ -74,7 +73,7 @@ public class LookAt extends Pose {
         if (from.has("target")) {
             String s = from.getString("target");
             if(version==1) {
-                target.setUniqueIDByNode( this.findNodeByPath(s,Pose.class) );
+                target.setSubject( this.findNodeByPath(s,Pose.class) );
             } else if(version==0 || version==2) {
                 target.setUniqueID(s);
             }
@@ -86,7 +85,7 @@ public class LookAt extends Pose {
     }
 
     public void setTarget(Pose target) {
-        this.target.setUniqueIDByNode(target);
+        this.target.setSubject(target);
     }
 
     @Override

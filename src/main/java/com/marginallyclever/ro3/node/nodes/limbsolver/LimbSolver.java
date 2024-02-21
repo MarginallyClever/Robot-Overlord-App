@@ -51,7 +51,7 @@ public class LimbSolver extends Node {
      * @param target the target to move towards
      */
     public void setTarget(Pose target) {
-        this.target.setUniqueIDByNode(target);
+        this.target.setSubject(target);
     }
 
     public void update(double dt) {
@@ -86,7 +86,7 @@ public class LimbSolver extends Node {
      * @param limb the limb to control
      */
     public void setLimb(Limb limb) {
-        this.limb.setUniqueIDByNode(limb);
+        this.limb.setSubject(limb);
     }
 
     private Pose getEndEffector() {
@@ -188,7 +188,7 @@ public class LimbSolver extends Node {
         if(from.has("limb")) {
             String s = from.getString("limb");
             if(version==1||version==2) {
-                limb.setUniqueIDByNode(this.findNodeByPath(s,Limb.class));
+                limb.setSubject(this.findNodeByPath(s,Limb.class));
             } else if(version==0 || version==3) {
                 this.limb.setUniqueID(s);
             }
@@ -196,7 +196,7 @@ public class LimbSolver extends Node {
         if(from.has("target")) {
             String s = from.getString("target");
             if(version==1||version==2) {
-                target.setUniqueIDByNode(this.findNodeByPath(s,Pose.class));
+                target.setSubject(this.findNodeByPath(s,Pose.class));
             } else if(version==0 || version==3) {
                 target.setUniqueID(s);
             }
