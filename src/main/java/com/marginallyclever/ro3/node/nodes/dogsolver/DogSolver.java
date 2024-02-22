@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodes.dogsolver;
 
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
@@ -10,6 +11,7 @@ import org.json.JSONObject;
 import javax.swing.*;
 import javax.vecmath.Vector3d;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A DogSolver is a Node that controls the movement of a dog by coordinating the movement of the legs.
@@ -18,10 +20,9 @@ import java.util.List;
  */
 public class DogSolver extends Node {
     private final NodePath<Pose> torso = new NodePath<>(this, Pose.class);
-    private final NodePath<LimbSolver> legFR = new NodePath<>(this, LimbSolver.class);
-    private final NodePath<LimbSolver> legFL = new NodePath<>(this, LimbSolver.class);
-    private final NodePath<LimbSolver> legBL = new NodePath<>(this, LimbSolver.class);
-    private final NodePath<LimbSolver> legBR = new NodePath<>(this, LimbSolver.class);
+
+    public final static int NUM_LEGS = 4;
+    private final LimbState[] legs = new LimbState[NUM_LEGS];
     private GaitStyle gaitStyle = GaitStyle.NONE;
     private double strideHeight = 2.0;  // cm
     private double forwardSpeed = 5.0;  // cm/s
@@ -32,11 +33,15 @@ public class DogSolver extends Node {
 
 
     public DogSolver() {
-        super("DogSolver");
+        this("DogSolver");
     }
 
     public DogSolver(String name) {
         super(name);
+        legs[0] = new LimbState(this,"Front right");
+        legs[1] = new LimbState(this,"Front left");
+        legs[2] = new LimbState(this,"Back left");
+        legs[3] = new LimbState(this,"Back right");
     }
 
     @Override
@@ -48,31 +53,18 @@ public class DogSolver extends Node {
     public NodePath<Pose> getTorso() {
         return torso;
     }
-
-    public NodePath<LimbSolver> getLegFR() {
-        return legFR;
-    }
-
-    public NodePath<LimbSolver> getLegFL() {
-        return legFL;
-    }
-
-    public NodePath<LimbSolver> getLegBL() {
-        return legBL;
-    }
-
-    public NodePath<LimbSolver> getLegBR() {
-        return legBR;
+    public LimbState getLeg(int i) {
+        return legs[i];
     }
 
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
         if(from.has("torso")) torso.setUniqueID(from.getString("torso"));
-        if(from.has("legFR")) legFR.setUniqueID(from.getString("legFR"));
-        if(from.has("legFL")) legFL.setUniqueID(from.getString("legFL"));
-        if(from.has("legBL")) legBL.setUniqueID(from.getString("legBL"));
-        if(from.has("legBR")) legBR.setUniqueID(from.getString("legBR"));
+        if(from.has("legFR")) legs[0].limb.setUniqueID(from.getString("legFR"));
+        if(from.has("legFL")) legs[1].limb.setUniqueID(from.getString("legFL"));
+        if(from.has("legBL")) legs[2].limb.setUniqueID(from.getString("legBL"));
+        if(from.has("legBR")) legs[3].limb.setUniqueID(from.getString("legBR"));
         if(from.has("gaitStyle")) gaitStyle = GaitStyle.valueOf(from.getString("gaitStyle"));
         if(from.has("strideHeight")) strideHeight = from.getDouble("strideHeight");
         if(from.has("forwardSpeed")) forwardSpeed = from.getDouble("forwardSpeed");
@@ -87,10 +79,10 @@ public class DogSolver extends Node {
         var json = super.toJSON();
 
         json.put("torso",torso.getUniqueID());
-        json.put("legFR",legFR.getUniqueID());
-        json.put("legFL",legFL.getUniqueID());
-        json.put("legBL",legBL.getUniqueID());
-        json.put("legBR",legBR.getUniqueID());
+        json.put("legFR",legs[0].limb.getUniqueID());
+        json.put("legFL",legs[1].limb.getUniqueID());
+        json.put("legBL",legs[2].limb.getUniqueID());
+        json.put("legBR",legs[3].limb.getUniqueID());
         json.put("gaitStyle",gaitStyle.toString());
         json.put("strideHeight",strideHeight);
         json.put("forwardSpeed",forwardSpeed);
@@ -113,8 +105,7 @@ public class DogSolver extends Node {
     @Override
     public void update(double dt) {
         super.update(dt);
-        // refuse to update if the legs are not connected
-        if(legFR.getSubject()==null || legFL.getSubject()==null || legBL.getSubject()==null || legBR.getSubject()==null) return;
+        if(!isReadyToSolve()) return;
 
         switch(gaitStyle) {
             case STAND -> updateStand(dt);
@@ -130,11 +121,23 @@ public class DogSolver extends Node {
         }
     }
 
+    private boolean isReadyToSolve() {
+        // refuse to update if the legs are not connected
+        if(torso.getSubject()==null) return false;
+
+        if(legs[0].limb.getSubject()==null || !legs[0].limb.getSubject().isReadyToSolve()) return false;
+        if(legs[1].limb.getSubject()==null || !legs[1].limb.getSubject().isReadyToSolve()) return false;
+        if(legs[2].limb.getSubject()==null || !legs[2].limb.getSubject().isReadyToSolve()) return false;
+        if(legs[3].limb.getSubject()==null || !legs[3].limb.getSubject().isReadyToSolve()) return false;
+
+        return true;
+    }
+
     private void putAllFeetDown() {
-        putOneFootDown(legFR.getSubject());
-        putOneFootDown(legFL.getSubject());
-        putOneFootDown(legBL.getSubject());
-        putOneFootDown(legBR.getSubject());
+        putOneFootDown(legs[0].limb.getSubject());
+        putOneFootDown(legs[1].limb.getSubject());
+        putOneFootDown(legs[2].limb.getSubject());
+        putOneFootDown(legs[3].limb.getSubject());
     }
 
     private void putOneFootDown(LimbSolver leg) {
@@ -150,10 +153,10 @@ public class DogSolver extends Node {
     }
 
     private boolean allFeetAreOnFloor() {
-        return isLegOnFloor(legFR.getSubject()) &&
-               isLegOnFloor(legFL.getSubject()) &&
-               isLegOnFloor(legBL.getSubject()) &&
-               isLegOnFloor(legBR.getSubject());
+        return isLegOnFloor(legs[0].limb.getSubject()) &&
+               isLegOnFloor(legs[1].limb.getSubject()) &&
+               isLegOnFloor(legs[2].limb.getSubject()) &&
+               isLegOnFloor(legs[3].limb.getSubject());
     }
 
     private boolean isLegOnFloor(LimbSolver leg) {
@@ -211,9 +214,111 @@ public class DogSolver extends Node {
     }
 
     private void updateWalk(double dt) {
-        // move the legs targets in arcs.
 
-        // move the torso
+        // move a leg target.
+        moveLegTarget(0);
+        moveLegTarget(1);
+        moveLegTarget(2);
+        moveLegTarget(3);
+
+        moveTorso(dt);
+    }
+
+    private void moveLegTarget(int legIndex) {
+        var leg = legs[legIndex];
+        switch (leg.action) {
+            case NONE -> {
+                updateLastFloorContact(leg);
+                leg.action = LegAction.RISING;
+            }
+            case RISING -> {
+                var destination = getLegDestination(leg, new Vector3d(forwardSpeed / 2, strafeSpeed / 2, strideHeight));
+                setLegTarget(leg, destination);
+                if (legAtDestination(leg.limb.getSubject(), destination)) {
+                    leg.action = LegAction.FALLING;
+                }
+            }
+            case FALLING -> {
+                var destination = getLegDestination(leg, new Vector3d(forwardSpeed, strafeSpeed, 0));
+                setLegTarget(leg, destination);
+                if (legAtDestination(leg.limb.getSubject(), destination)) {
+                    leg.action = LegAction.RISING;
+                }
+            }
+        }
+    }
+
+    private void moveTorso(double dt) {
+        var torso = this.torso.getSubject();
+        var tw = torso.getWorld();
+        var forward = MatrixHelper.getZAxis(tw);
+        var strafe = MatrixHelper.getYAxis(tw);
+        var destination = MatrixHelper.getPosition(tw);
+        // add body forward vector * forwardSpeed
+        forward.scale(forwardSpeed/4);
+        destination.add(forward);
+        // add body strafe vector * strafeSpeed
+        strafe.scale(strafeSpeed/4);
+        destination.add(strafe);
+
+        tw.setTranslation(destination);
+        torso.setWorld(tw);
+    }
+
+    private void updateLastFloorContact(LimbState leg) {
+        var limb = leg.limb.getSubject();
+        var w = limb.getLimb().getSubject().getWorld();
+        var p = MatrixHelper.getPosition(w);
+        p.z = 0;
+        leg.lastFloorContact.set(p);
+    }
+
+    /**
+     * @param limb the leg to check
+     * @param destination the point to compare against
+     * @return true if the leg is at the destination
+     */
+    private boolean legAtDestination(LimbSolver limb, Vector3d destination) {
+        var ew = limb.getLimb().getSubject().getEndEffector().getSubject().getWorld();
+        var ep = MatrixHelper.getPosition(ew);
+        ep.sub(destination);
+        return ep.lengthSquared()<1e-1;
+    }
+
+    /**
+     * Set the target of a leg to a new position.
+     * @param leg the leg to move
+     * @param destination the new position
+     */
+    private void setLegTarget(LimbState leg,Vector3d destination) {
+        var limb = leg.limb.getSubject();
+        var w = limb.getTarget().getSubject();
+        var p = w.getWorld();
+        p.setTranslation(destination);
+        w.setWorld(p);
+    }
+
+    /**
+     * Get the destination of a leg based on the direction the dog is moving.
+     * @param leg the leg to move
+     * @param direction the direction the dog is moving relative to the torso.
+     * @return the destination of the leg
+     */
+    public Vector3d getLegDestination(LimbState leg,Vector3d direction) {
+        var tw = torso.getSubject().getWorld();
+        var forward = MatrixHelper.getZAxis(tw);
+        var strafe = MatrixHelper.getYAxis(tw);
+        var destination = leg.lastFloorContact;
+        // add stride height
+        destination.z = direction.z;
+        // add body forward vector * forwardSpeed
+        forward.scale(forwardSpeed);
+        destination.add(forward);
+        // add body strafe vector * strafeSpeed
+        strafe.scale(strafeSpeed);
+        destination.add(strafe);
+        // done
+        return destination;
     }
 
     public double getStrideHeight() {
@@ -262,5 +367,10 @@ public class DogSolver extends Node {
 
     public void setTorsoLyingHeight(double torsoLyingHeight) {
         this.torsoLyingHeight = torsoLyingHeight;
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-dog-16.png")));
     }
 }

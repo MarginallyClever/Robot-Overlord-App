@@ -20,18 +20,16 @@ public class DogSolverPanel extends JPanel {
         gbc.gridx=0;
         gbc.gridy=0;
 
-        // legs
-
+        // torso
         PanelHelper.addNodeSelector(this, "Torso", dogSolver.getTorso(), gbc);
         gbc.gridy++;
-        PanelHelper.addNodeSelector(this, "Front Right", dogSolver.getLegFR(), gbc);
-        gbc.gridy++;
-        PanelHelper.addNodeSelector(this, "Front Left", dogSolver.getLegFL(), gbc);
-        gbc.gridy++;
-        PanelHelper.addNodeSelector(this, "Back Left", dogSolver.getLegBL(), gbc);
-        gbc.gridy++;
-        PanelHelper.addNodeSelector(this, "Back Right", dogSolver.getLegBR(), gbc);
-        gbc.gridy++;
+
+        // legs
+        for(int i=0;i<DogSolver.NUM_LEGS;++i) {
+            var leg = dogSolver.getLeg(i);
+            PanelHelper.addNodeSelector(this, leg.name, leg.limb, gbc);
+            gbc.gridy++;
+        }
 
         // gait style
         gbc.gridx=0;
