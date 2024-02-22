@@ -245,7 +245,18 @@ public class LimbSolver extends Node {
     }
 
     private double sumCartesianVelocityComponents(double [] cartesianVelocity) {
+        if(cartesianVelocity==null) throw new IllegalArgumentException("cartesianVelocity cannot be null");
         double sum = 0;
+        int len = Math.min(cartesianVelocity.length,3);
+        for(int i=0;i<len;++i) {
+            sum += Math.abs(cartesianVelocity[i]);
+        }
+        if(cartesianVelocity.length>3) {
+            len = Math.min(cartesianVelocity.length,6);
+            for(int i=3;i<len;i++) {
+                sum += Math.abs(Math.toDegrees(cartesianVelocity[i]));
+            }
+        }
         for (double v : cartesianVelocity) {
             sum += Math.abs(v);
         }
@@ -269,8 +280,8 @@ public class LimbSolver extends Node {
     }
 
     /**
-     * Set the linear velocity of the end effector in cm/s.
-     * @param linearVelocityMax must be >= 0
+     * Set the linear velocity of the end effector.
+     * @param linearVelocityMax cm/s
      */
     public void setLinearVelocityMax(double linearVelocityMax) {
         this.linearVelocityMax = linearVelocityMax;
@@ -281,8 +292,8 @@ public class LimbSolver extends Node {
     }
 
     /**
-     * Set the minimum linear velocity of the end effector in cm/s.
-     * @param linearVelocityMin must be >= 0
+     * Set the minimum linear velocity of the end effector.
+     * @param linearVelocityMin cm/s
      */
     public void setLinearVelocityMin(double linearVelocityMin) {
         this.linearVelocityMin = linearVelocityMin;
