@@ -1,7 +1,7 @@
 open module com.marginallyclever.robotoverlord {
-	requires transitive java.desktop;
-	requires transitive java.prefs;
-	requires transitive java.logging;
+	requires java.desktop;
+	requires java.prefs;
+	requires java.logging;
 	requires org.apache.commons.io;
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.annotation;
@@ -20,6 +20,7 @@ open module com.marginallyclever.robotoverlord {
 	requires com.formdev.flatlaf;
 	requires com.github.weisj.jsvg;
 	requires org.reflections;
+	requires opencv;
 	
 	requires vecmath;
 	requires jsch;
