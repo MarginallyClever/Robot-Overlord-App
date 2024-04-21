@@ -60,6 +60,7 @@ public class Registry {
                 behavior.add("Sequence", Sequence::new);
             }
             node.add("BehaviorTreeRunner", BehaviorTreeRunner::new);
+            node.add("BoundingBallDemo", BouncingBallDemo::new);
             node.add("DHParameter", DHParameter::new);
             node.add("HingeJoint", HingeJoint::new);
             node.add("LimbPlanner", LimbPlanner::new);

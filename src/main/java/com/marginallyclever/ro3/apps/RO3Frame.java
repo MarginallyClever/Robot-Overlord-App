@@ -19,6 +19,7 @@ import com.marginallyclever.ro3.apps.editorpanel.EditorPanel;
 import com.marginallyclever.ro3.apps.logpanel.LogPanel;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
+import com.marginallyclever.ro3.apps.ode4j.ODE4JPanel;
 import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
 import com.marginallyclever.ro3.apps.webcampanel.WebCamPanel;
 import com.marginallyclever.ro3.apps.viewport.OpenGLPanel;
@@ -56,6 +57,7 @@ public class RO3Frame extends JFrame {
     private final EditorPanel editPanel;
     private final WebCamPanel webCamPanel;
     private final TextInterfaceToSessionLayer textInterface;
+    private final ODE4JPanel ode4jPanel;
     public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
     public static String VERSION;
 
@@ -74,6 +76,7 @@ public class RO3Frame extends JFrame {
         viewportPanel = new Viewport();
         webCamPanel = new WebCamPanel();
         textInterface = new TextInterfaceToSessionLayer();
+        ode4jPanel = new ODE4JPanel();
 
         createDefaultLayout();
         resetDefaultLayout();
@@ -272,7 +275,8 @@ public class RO3Frame extends JFrame {
                     logPanel,
                     editPanel,
                     webCamPanel,
-                    textInterface
+                    textInterface,
+                    ode4jPanel
             ));
             dialog.run(this);
         });
@@ -345,6 +349,10 @@ public class RO3Frame extends JFrame {
         DockingPanel webcamView = new DockingPanel("1331fbb0-ceda-4c67-b343-6539d4f939a1", "USB Camera");
         webcamView.add(webCamPanel, BorderLayout.CENTER);
         windows.add(webcamView);
+
+        DockingPanel ode4jView = new DockingPanel("801706cf-c346-4229-a39e-b3665e5a0d94", "ODE4J");
+        ode4jView.add(ode4jPanel, BorderLayout.CENTER);
+        windows.add(ode4jView);
 
         DockingPanel textInterfaceView = new DockingPanel("7796a733-8e33-417a-b363-b28174901e40", "Serial Interface");
         textInterfaceView.add(textInterface, BorderLayout.CENTER);

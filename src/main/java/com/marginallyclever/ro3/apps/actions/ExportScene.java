@@ -98,7 +98,7 @@ public class ExportScene extends AbstractAction {
         Map<String, String> pathMapping = new HashMap<>();
 
         String rootFolderName = nameWithoutExtension(new File(outputZipFile));
-        String sceneName = rootFolderName+ "." + RO3Frame.FILE_FILTER.getExtensions()[0];  // "ro3" or "r
+        String sceneName = rootFolderName+ "." + RO3Frame.FILE_FILTER.getExtensions()[0];  // "RO"
         String newSceneName = rootFolderName+"/"+sceneName;
         pathMapping.put(sceneName,newSceneName);  // reserve this name
 
