@@ -1,12 +1,20 @@
 package com.marginallyclever.ro3.node.nodes.ode4j;
 
+import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.ode4j.math.DMatrix3;
 import org.ode4j.math.DMatrix3C;
 import org.ode4j.math.DVector3C;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
 
+/**
+ * Shared methods for working with ODE4J physics.
+ */
 public class ODE4JHelper {
+    private static final Logger logger = LoggerFactory.getLogger(ODE4JHelper.class);
 
     /**
      * Convert an ODE4J translation/rotation pair to a Java3D matrix.
@@ -48,5 +56,23 @@ public class ODE4JHelper {
                 mat.m20, mat.m21, mat.m22
         );
         return rotation;
+    }
+
+    public static void guaranteeFloor(ODEWorldSpace physics) {
+        MeshInstance floorNode = (MeshInstance) Registry.getScene().findChild("Floor");
+        if(floorNode==null) {
+            logger.debug("Creating floor");
+            Registry.getScene().addChild(new ODEPlane());
+        }
+    }
+
+    public static ODEWorldSpace guaranteePhysicsWorld() {
+        ODEWorldSpace physics = Registry.getScene().findFirstChild(ODEWorldSpace.class);
+        if (physics == null) {
+            logger.debug("Creating PhysicsWorld");
+            physics = new ODEWorldSpace();
+            Registry.getScene().addChild(physics);
+        }
+        return physics;
     }
 }

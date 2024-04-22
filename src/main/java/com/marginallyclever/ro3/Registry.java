@@ -13,7 +13,10 @@ import com.marginallyclever.ro3.node.nodes.behavior.decorators.*;
 import com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlanner;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
-import com.marginallyclever.ro3.node.nodes.ode4j.BouncingBallDemo;
+import com.marginallyclever.ro3.node.nodes.ode4j.ODEBox;
+import com.marginallyclever.ro3.node.nodes.ode4j.ODEPlane;
+import com.marginallyclever.ro3.node.nodes.ode4j.ODESphere;
+import com.marginallyclever.ro3.node.nodes.ode4j.ODEWorldSpace;
 import com.marginallyclever.ro3.node.nodes.pose.*;
 import com.marginallyclever.ro3.node.nodes.pose.poses.*;
 import com.marginallyclever.ro3.texture.TextureFactory;
@@ -60,7 +63,6 @@ public class Registry {
                 behavior.add("Sequence", Sequence::new);
             }
             node.add("BehaviorTreeRunner", BehaviorTreeRunner::new);
-            node.add("BoundingBallDemo", BouncingBallDemo::new);
             node.add("DHParameter", DHParameter::new);
             node.add("HingeJoint", HingeJoint::new);
             node.add("LimbPlanner", LimbPlanner::new);
@@ -76,6 +78,13 @@ public class Registry {
                 pose.add("Limb", Limb::new);
                 pose.add("LookAt", LookAt::new);
                 pose.add("MeshInstance", MeshInstance::new);
+            }
+            NodeFactory.Category physics = node.add("Physics", null);
+            {
+                physics.add("ODEWorldSpace", ODEWorldSpace::new);
+                physics.add("ODEBox", ODEBox::new);
+                physics.add("ODEPlane", ODEPlane::new);
+                physics.add("ODESphere", ODESphere::new);
             }
         }
         reset();
