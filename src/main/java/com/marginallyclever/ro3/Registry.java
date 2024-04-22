@@ -13,6 +13,7 @@ import com.marginallyclever.ro3.node.nodes.behavior.decorators.*;
 import com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlanner;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
+import com.marginallyclever.ro3.node.nodes.ode4j.BouncingBallDemo;
 import com.marginallyclever.ro3.node.nodes.pose.*;
 import com.marginallyclever.ro3.node.nodes.pose.poses.*;
 import com.marginallyclever.ro3.texture.TextureFactory;
@@ -21,7 +22,6 @@ import javax.swing.event.EventListenerList;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * {@link Registry} is a place to store global variables.

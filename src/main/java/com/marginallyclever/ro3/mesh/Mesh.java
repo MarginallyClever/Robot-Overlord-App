@@ -47,7 +47,7 @@ public class Mesh {
 	private transient int[] VBO;
 
 	public int renderStyle = GL3.GL_TRIANGLES;
-	private String fileName = null;
+	private String fileName = "";
 
 	// bounding limits
 	protected final AABB boundingBox = new AABB();

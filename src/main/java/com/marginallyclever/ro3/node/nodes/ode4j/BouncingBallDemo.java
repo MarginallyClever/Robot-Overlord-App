@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes;
+package com.marginallyclever.ro3.node.nodes.ode4j;
 
 import com.marginallyclever.ro3.mesh.shapes.Grid;
 import com.marginallyclever.ro3.mesh.shapes.Sphere;
@@ -18,9 +18,12 @@ import java.util.List;
 import static org.ode4j.ode.OdeConstants.*;
 import static org.ode4j.ode.OdeHelper.*;
 
+/**
+ * ODE4J Bouncing Ball Demo.
+ */
 public class BouncingBallDemo extends Node {
-    private static final double BALL_RADIUS = 0.2;
-    private static final double BALL_MASS = 1.0;
+    private static final double BALL_RADIUS = 5.0;
+    private static final double BALL_MASS = 23.0;
     private static final int ITERS = 20;
     private final int N = 4;
     private final DContactBuffer contacts = new DContactBuffer(N);
@@ -34,7 +37,7 @@ public class BouncingBallDemo extends Node {
     private Pose ballNode;
 
     public BouncingBallDemo() {
-        super("ODE4J");
+        super("Bouncing Ball");
     }
 
     public BouncingBallDemo(String name) {
@@ -99,7 +102,7 @@ public class BouncingBallDemo extends Node {
         m.setSphereTotal(BALL_MASS, BALL_RADIUS);
         ballBody.setMass(m);
 
-        ballBody.setPosition(0, 0, 2);
+        ballBody.setPosition(0, 0, BALL_RADIUS*3);
 
         OdeHelper.createPlane (space,0,0,1,0);
     }
@@ -196,26 +199,9 @@ public class BouncingBallDemo extends Node {
         // adjust the position of the ballNode to match the ballBody.
         if(ballNode==null || ballBody==null) return;
 
-        Matrix4d m = new Matrix4d();
         DVector3C translation = ballBody.getPosition();
         DMatrix3C rotation = ballBody.getRotation();
-        // assemble matrix from translation and rotation.
-        m.m00 = rotation.get00();
-        m.m01 = rotation.get01();
-        m.m02 = rotation.get02();
-        m.m03 = translation.get0();
-        m.m10 = rotation.get10();
-        m.m11 = rotation.get11();
-        m.m12 = rotation.get12();
-        m.m13 = translation.get1();
-        m.m20 = rotation.get20();
-        m.m21 = rotation.get21();
-        m.m22 = rotation.get22();
-        m.m23 = translation.get2();
-        m.m30 = 0;
-        m.m31 = 0;
-        m.m32 = 0;
-        m.m33 = 1;
+        Matrix4d m = ODE4JHelper.assembleMatrix(translation, rotation);
         ballNode.setWorld(m);
     }
 }
