@@ -7,8 +7,9 @@ import com.marginallyclever.ro3.mesh.Mesh;
 import javax.vecmath.Vector3d;
 
 /**
- * <p>{@link Decal} is a {@link Mesh}. It is a 1x1 quad texture on both sides. The origin is in the center of the
- * quad.</p>
+ * <p>{@link Decal} is a {@link Mesh}. It is a width x height quad in the XY plane centered on the local origin.
+ * The one-sided version only faces +Z.
+ * </p>
  */
 public class Decal extends Mesh {
 	public double height = 1;
@@ -24,16 +25,38 @@ public class Decal extends Mesh {
 	 * Procedurally generate a list of triangles that form a box, subdivided by some
 	 * amount.
 	 */
-	protected void updateModel() {
-		this.clear();
-		this.setRenderStyle(GL3.GL_TRIANGLES);
-		// model.renderStyle=GL3.GL_LINES; // set to see the wireframe
+	public void updateModel() {
+		clear();
+		setRenderStyle(GL3.GL_TRIANGLES);
+		//createTwoSidedDecal();
+		createOneSidedDecal();
+	}
 
-		float w = (float)width;
-		float h = (float)height;
+	/**
+	 * Create a rectangle in the XY plane, facing +Z.
+	 */
+	private void createOneSidedDecal() {
+		int wParts = (int) (width );
+		int hParts = (int) (height);
 
-		int wParts = (int) (w / 4f) * 2;
-		int hParts = (int) (h / 4f) * 2;
+		Vector3d n = new Vector3d();
+		Vector3d p0 = new Vector3d();
+		Vector3d p1 = new Vector3d();
+		Vector3d p2 = new Vector3d();
+		Vector3d p3 = new Vector3d();
+
+		// face
+		n.set(0, 0, 1);
+		p0.set( width/2.0f,  height/2.0f, 0);
+		p1.set(-width/2.0f,  height/2.0f, 0);
+		p2.set(-width/2.0f, -height/2.0f, 0);
+		p3.set( width/2.0f, -height/2.0f, 0);
+		addSubdividedPlane(n, p0, p1, p2, p3, wParts, hParts);
+	}
+
+	private void createTwoSidedDecal() {
+		int wParts = (int) (width);
+		int hParts = (int) (height);
 
 		Vector3d n = new Vector3d();
 		Vector3d p0 = new Vector3d();
@@ -43,18 +66,18 @@ public class Decal extends Mesh {
 
 		// bottom
 		n.set(0, 0, -1);
-		p0.set(-w, h, -0.01);
-		p1.set(w, h, -0.01);
-		p2.set(w, -h, -0.01);
-		p3.set(-w, -h, -0.01);
+		p0.set(-width/2.0f,  height/2.0f, -0.01);
+		p1.set( width/2.0f,  height/2.0f, -0.01);
+		p2.set( width/2.0f, -height/2.0f, -0.01);
+		p3.set(-width/2.0f, -height/2.0f, -0.01);
 		addSubdividedPlane(n, p0, p1, p2, p3, wParts, hParts);
 
 		// top
 		n.set(0, 0, 1);
-		p0.set(w, h, 0.01);
-		p1.set(-w, h, 0.01);
-		p2.set(-w, -h, 0.01);
-		p3.set(w, -h, 0.01);
+		p0.set( width/2.0f,  height/2.0f, 0.01);
+		p1.set(-width/2.0f,  height/2.0f, 0.01);
+		p2.set(-width/2.0f, -height/2.0f, 0.01);
+		p3.set( width/2.0f, -height/2.0f, 0.01);
 		addSubdividedPlane(n, p0, p1, p2, p3, wParts, hParts);
 	}
 
@@ -100,38 +123,26 @@ public class Decal extends Mesh {
 				pG.set(MathHelper.interpolate(pA, pC, (double) (y + 1) / (double) yParts));
 				pH.set(MathHelper.interpolate(pB, pD, (double) (y + 1) / (double) yParts));
 
-				if (this.getRenderStyle() == GL3.GL_TRIANGLES) {
-					for (int j = 0; j < 6; ++j) {
-						this.addNormal((float) n.x, (float) n.y, (float) n.z);
-						this.addColor(1, 1, 1, 1);
-					}
+				if (getRenderStyle() == GL3.GL_TRIANGLES) {
+					addVertex((float) pE.x, (float) pE.y, (float) pE.z);
+					addVertex((float) pF.x, (float) pF.y, (float) pF.z);
+					addVertex((float) pH.x, (float) pH.y, (float) pH.z);
 
-					this.addVertex((float) pE.x, (float) pE.y, (float) pE.z);
-					this.addVertex((float) pF.x, (float) pF.y, (float) pF.z);
-					this.addVertex((float) pH.x, (float) pH.y, (float) pH.z);
-
-					this.addVertex((float) pE.x, (float) pE.y, (float) pE.z);
-					this.addVertex((float) pH.x, (float) pH.y, (float) pH.z);
-					this.addVertex((float) pG.x, (float) pG.y, (float) pG.z);
-				} else if (this.getRenderStyle() == GL3.GL_LINES) {
-					for (int j = 0; j < 8; ++j) {
-						this.addNormal((float) n.x, (float) n.y, (float) n.z);
-						this.addColor(1, 1, 1, 1);
-					}
-
-					this.addVertex((float) pF.x, (float) pF.y, (float) pF.z);
-					this.addVertex((float) pH.x, (float) pH.y, (float) pH.z);
-
-					this.addVertex((float) pH.x, (float) pH.y, (float) pH.z);
-					this.addVertex((float) pE.x, (float) pE.y, (float) pE.z);
-
-					this.addVertex((float) pH.x, (float) pH.y, (float) pH.z);
-					this.addVertex((float) pG.x, (float) pG.y, (float) pG.z);
-
-					this.addVertex((float) pG.x, (float) pG.y, (float) pG.z);
-					this.addVertex((float) pE.x, (float) pE.y, (float) pE.z);
+					addVertex((float) pE.x, (float) pE.y, (float) pE.z);
+					addVertex((float) pH.x, (float) pH.y, (float) pH.z);
+					addVertex((float) pG.x, (float) pG.y, (float) pG.z);
 				}
 			}
+		}
+
+		for(int i=0;i<getNumVertices();++i) {
+			addNormal((float) n.x, (float) n.y, (float) n.z);
+			addColor(1, 1, 1, 1);
+			Vector3d v = getVertex(i);
+			// texture coordinates are based on the distance from the top left corner
+			float x = (float) (v.x - p2.x);
+			float y = (float) (v.y - p2.y);
+			addTexCoord(x/3, y/3);
 		}
 	}
 /*
@@ -150,5 +161,5 @@ public class Decal extends Mesh {
 		width.parseJSON(jo.getJSONObject("width"), context);
 		height.parseJSON(jo.getJSONObject("height"), context);
 	}
- */
+*/
 }

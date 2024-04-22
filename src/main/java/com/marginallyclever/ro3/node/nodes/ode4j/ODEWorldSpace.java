@@ -2,11 +2,13 @@ package com.marginallyclever.ro3.node.nodes.ode4j;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.MaterialPanel;
 import org.ode4j.ode.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.util.List;
 import java.util.Objects;
 
 import static org.ode4j.ode.OdeConstants.*;
@@ -29,6 +31,7 @@ public class ODEWorldSpace extends Node {
     private DSpace space;
     private DContactBuffer contacts;
     private DJointGroup contactGroup;
+    private boolean isPaused = true;
 
     public ODEWorldSpace() {
         this("PhysicsWorld");
@@ -36,6 +39,12 @@ public class ODEWorldSpace extends Node {
 
     public ODEWorldSpace(String name) {
         super(name);
+    }
+
+    @Override
+    public void getComponents(List<JPanel> list) {
+        list.add(new ODEWorldSpacePanel(this));
+        super.getComponents(list);
     }
 
     @Override
@@ -110,6 +119,8 @@ public class ODEWorldSpace extends Node {
     public void update(double dt) {
         super.update(dt);
 
+        if(isPaused) return;
+
         try {
             OdeHelper.spaceCollide(getODESpace(), null, this::nearCallback);
             world.step(dt);
@@ -155,5 +166,13 @@ public class ODEWorldSpace extends Node {
     @Override
     public Icon getIcon() {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/ode4j/icons8-mechanics-16.png")));
+    }
+
+    public boolean isPaused() {
+        return isPaused;
+    }
+
+    public void setPaused(boolean state) {
+        isPaused = state;
     }
 }

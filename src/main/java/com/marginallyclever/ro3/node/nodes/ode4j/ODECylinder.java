@@ -1,37 +1,39 @@
 package com.marginallyclever.ro3.node.nodes.ode4j;
 
-import com.marginallyclever.ro3.mesh.shapes.Box;
+import com.marginallyclever.ro3.mesh.shapes.Cylinder;
+import com.marginallyclever.ro3.mesh.shapes.Sphere;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.ode4j.math.DMatrix3C;
 import org.ode4j.math.DVector3;
 import org.ode4j.math.DVector3C;
-import org.ode4j.ode.*;
+import org.ode4j.ode.DBody;
+import org.ode4j.ode.DGeom;
+import org.ode4j.ode.DMass;
+import org.ode4j.ode.OdeHelper;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
-
 import java.awt.*;
 import java.util.Objects;
 
-import static org.ode4j.ode.OdeHelper.*;
-
 /**
- * Wrapper for a ODE4J Box.
+ * Wrapper for a ODE4J cylinder.
  */
-public class ODEBox extends Pose {
-    private static final double CUBE_SIDE_LENGTH = 5.0;
-    private static final double CUBE_MASS = Math.sqrt(CUBE_SIDE_LENGTH*CUBE_SIDE_LENGTH*CUBE_SIDE_LENGTH);
+public class ODECylinder extends Pose {
+    private static final double CYLINDER_RADIUS = 2.5;
+    private static final double CYLINDER_LENGTH = 5.0;
+    private static final double CYLINDER_MASS = Math.PI*CYLINDER_RADIUS*CYLINDER_RADIUS*CYLINDER_LENGTH;
 
     private DBody body;
     private DGeom geom;
 
-    public ODEBox() {
-        this("ODE Box");
+    public ODECylinder() {
+        this("ODE Cylinder");
     }
 
-    public ODEBox(String name) {
+    public ODECylinder(String name) {
         super(name);
     }
 
@@ -40,15 +42,14 @@ public class ODEBox extends Pose {
         super.onAttach();
 
         ODEWorldSpace physics = ODE4JHelper.guaranteePhysicsWorld();
-        // add scene elements
         body = OdeHelper.createBody(physics.getODEWorld());
-        geom = createBox(physics.getODESpace(), CUBE_SIDE_LENGTH, CUBE_SIDE_LENGTH, CUBE_SIDE_LENGTH);
+        geom = OdeHelper.createCylinder(physics.getODESpace(),CYLINDER_RADIUS, CYLINDER_LENGTH);
         geom.setBody(body);
 
         DMass mass = OdeHelper.createMass();
-        mass.setBoxTotal(CUBE_MASS, CUBE_SIDE_LENGTH, CUBE_SIDE_LENGTH, CUBE_SIDE_LENGTH);
+        mass.setCylinderTotal(CYLINDER_MASS, 3, CYLINDER_RADIUS, CYLINDER_LENGTH);
         body.setMass(mass);
-        body.setPosition(0, 0, CUBE_SIDE_LENGTH * 5);
+        body.setPosition(0, 0, CYLINDER_LENGTH * 5);
 
         // set a random orientation
         Matrix4d rx = new Matrix4d();
@@ -59,13 +60,10 @@ public class ODEBox extends Pose {
         mat.mul(ry, rx);
         body.setRotation(ODE4JHelper.convertRotationToODE(mat));
 
-        // add a Node with a MeshInstance to represent the cube.
+        // add a Node with a MeshInstance to represent the ball.
         MeshInstance meshInstance = new MeshInstance();
+        meshInstance.setMesh(new Cylinder(CYLINDER_LENGTH, CYLINDER_RADIUS, CYLINDER_RADIUS));
         addChild(meshInstance);
-        meshInstance.setMesh(new Box());
-        mat = meshInstance.getLocal();
-        mat.setScale(CUBE_SIDE_LENGTH);
-        meshInstance.setLocal(mat);
 
         // add a Material with random diffuse color
         Material material = new Material();

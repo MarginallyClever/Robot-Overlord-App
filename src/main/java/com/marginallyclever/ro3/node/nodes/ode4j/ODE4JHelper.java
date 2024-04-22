@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.ode4j;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.ode4j.math.DMatrix3;
 import org.ode4j.math.DMatrix3C;
@@ -50,20 +51,11 @@ public class ODE4JHelper {
      * @return the rotation component.
      */
     public static DMatrix3C convertRotationToODE(Matrix4d mat) {
-        DMatrix3C rotation = new DMatrix3(
+        return new DMatrix3(
                 mat.m00, mat.m01, mat.m02,
                 mat.m10, mat.m11, mat.m12,
                 mat.m20, mat.m21, mat.m22
         );
-        return rotation;
-    }
-
-    public static void guaranteeFloor(ODEWorldSpace physics) {
-        MeshInstance floorNode = (MeshInstance) Registry.getScene().findChild("Floor");
-        if(floorNode==null) {
-            logger.debug("Creating floor");
-            Registry.getScene().addChild(new ODEPlane());
-        }
     }
 
     public static ODEWorldSpace guaranteePhysicsWorld() {

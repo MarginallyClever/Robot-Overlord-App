@@ -1,10 +1,13 @@
 package com.marginallyclever.ro3.node.nodes.ode4j;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.mesh.shapes.Decal;
 import com.marginallyclever.ro3.mesh.shapes.Grid;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
+import com.marginallyclever.ro3.texture.TextureFactory;
 import org.ode4j.ode.DPlane;
 import org.ode4j.ode.OdeHelper;
 
@@ -38,9 +41,15 @@ public class ODEPlane extends Pose {
         // add a Node with a MeshInstance to represent the floor.
         MeshInstance mesh = new MeshInstance();
         addChild(mesh);
-        mesh.setMesh(new Grid());
+        Decal decal = new Decal();
+        decal.width = 100;
+        decal.height = 100;
+        decal.updateModel();
+        mesh.setMesh(decal);
 
-        addChild(new Material());
+        Material material = new Material();
+        addChild(material);
+        material.setTexture(Registry.textureFactory.load("/com/marginallyclever/ro3/shared/checkerboard.png"));
     }
 
     @Override

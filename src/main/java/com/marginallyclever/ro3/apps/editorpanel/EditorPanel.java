@@ -59,7 +59,7 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
         {
             putValue(Action.NAME, "Play");
             putValue(Action.SHORT_DESCRIPTION, "Send the current line to the robot.");
-            putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-play-16.png"))));
+            putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/shared/icons8-play-16.png"))));
         }
 
         @Override

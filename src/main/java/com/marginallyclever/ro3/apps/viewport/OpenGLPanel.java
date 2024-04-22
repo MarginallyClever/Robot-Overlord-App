@@ -121,6 +121,7 @@ public class OpenGLPanel extends App implements GLEventListener, MouseListener, 
         gl3.glEnable(GL3.GL_LINE_SMOOTH);
         gl3.glEnable(GL3.GL_POLYGON_SMOOTH);
         gl3.glHint(GL3.GL_POLYGON_SMOOTH_HINT, GL3.GL_NICEST);
+        gl3.glEnable(GL3.GL_MULTISAMPLE);
         // depth testing and culling options
         gl3.glEnable(GL3.GL_DEPTH_TEST);
         gl3.glDepthFunc(GL3.GL_LESS);

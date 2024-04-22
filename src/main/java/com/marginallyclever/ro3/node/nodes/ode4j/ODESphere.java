@@ -22,8 +22,8 @@ import static org.ode4j.ode.OdeHelper.*;
  * Wrapper for a ODE4J Sphere.
  */
 public class ODESphere extends Pose {
-    private static final double BALL_RADIUS = 3.0;
-    private static final double BALL_MASS = 23.0;
+    private static final double BALL_RADIUS = 2.5;
+    private static final double BALL_MASS = BALL_RADIUS*5;
 
     private DBody body;
     private DGeom geom;
@@ -48,15 +48,15 @@ public class ODESphere extends Pose {
         DMass mass = OdeHelper.createMass();
         mass.setSphereTotal(BALL_MASS, BALL_RADIUS);
         body.setMass(mass);
-        body.setPosition(0, 0, BALL_RADIUS * 5);
+        body.setPosition(0, 0, BALL_RADIUS * 2 * 5);
 
         // add a Node with a MeshInstance to represent the ball.
-        MeshInstance ballMesh = new MeshInstance();
-        addChild(ballMesh);
-        ballMesh.setMesh(new Sphere());
-        Matrix4d m = ballMesh.getLocal();
+        MeshInstance meshInstance = new MeshInstance();
+        addChild(meshInstance);
+        meshInstance.setMesh(new Sphere());
+        Matrix4d m = meshInstance.getLocal();
         m.setScale(BALL_RADIUS);
-        ballMesh.setLocal(m);
+        meshInstance.setLocal(m);
 
         // add a Material with random diffuse color
         Material material = new Material();

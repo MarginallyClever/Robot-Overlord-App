@@ -481,7 +481,7 @@
 		<dependency>
 		    <groupId>org.ode4j</groupId>
 		    <artifactId>core</artifactId>
-		    <version>0.5.3-SNAPSHOT</version>
+		    <version>0.5.3a-SNAPSHOT</version>
 		</dependency>
 
 		<!-- for making http requests -->
