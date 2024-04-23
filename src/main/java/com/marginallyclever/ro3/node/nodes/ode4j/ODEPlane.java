@@ -56,7 +56,9 @@ public class ODEPlane extends Pose {
     protected void onDetach() {
         super.onDetach();
         if(plane!=null) {
-            plane.destroy();
+            try {
+                plane.destroy();
+            } catch(Exception ignored) {}  // if the worldspace is destroyed first, this will throw an exception.
             plane = null;
         }
     }

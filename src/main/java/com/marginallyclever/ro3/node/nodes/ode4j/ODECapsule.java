@@ -99,7 +99,9 @@ public class ODECapsule extends Pose {
     protected void onDetach() {
         super.onDetach();
         if(body != null) {
-            body.destroy();
+            try {
+                body.destroy();
+            } catch(Exception ignored) {}  // if the worldspace is destroyed first, this will throw an exception.
             body = null;
         }
         if(geom != null) {
