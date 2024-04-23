@@ -1,8 +1,6 @@
 package com.marginallyclever.ro3.node.nodes.ode4j;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.ode4j.math.DMatrix3;
 import org.ode4j.math.DMatrix3C;
 import org.ode4j.math.DVector3C;

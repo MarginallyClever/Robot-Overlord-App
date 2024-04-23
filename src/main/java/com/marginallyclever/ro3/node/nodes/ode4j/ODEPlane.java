@@ -3,11 +3,9 @@ package com.marginallyclever.ro3.node.nodes.ode4j;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.shapes.Decal;
-import com.marginallyclever.ro3.mesh.shapes.Grid;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
-import com.marginallyclever.ro3.texture.TextureFactory;
 import org.ode4j.ode.DPlane;
 import org.ode4j.ode.OdeHelper;
 

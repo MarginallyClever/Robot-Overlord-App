@@ -1,23 +1,14 @@
 package com.marginallyclever.ro3.node.nodes.ode4j;
 
 import com.marginallyclever.ro3.mesh.shapes.Box;
-import com.marginallyclever.ro3.mesh.shapes.Sphere;
 import com.marginallyclever.ro3.node.nodes.Material;
-import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
-import org.ode4j.math.DMatrix3C;
-import org.ode4j.math.DVector3;
-import org.ode4j.math.DVector3C;
-import org.ode4j.ode.*;
+import org.ode4j.ode.DBox;
 
 import javax.swing.*;
-import javax.vecmath.Matrix4d;
-
-import java.awt.*;
 import java.util.List;
-import java.util.Objects;
 
-import static org.ode4j.ode.OdeHelper.*;
+import static org.ode4j.ode.OdeHelper.createBox;
 
 /**
  * Wrapper for a ODE4J Box.
