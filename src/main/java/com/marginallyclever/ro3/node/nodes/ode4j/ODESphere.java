@@ -41,7 +41,7 @@ public class ODESphere extends ODEBody {
 
         addChild(new MeshInstance());
         addChild(new Material());
-        setRadius(radius);
+        updateSize();
     }
 
     public double getRadius() {
@@ -49,9 +49,12 @@ public class ODESphere extends ODEBody {
     }
 
     public void setRadius(double radius) {
-        if(radius<=0) throw new IllegalArgumentException("Radius must be greater than zero.");
+        if (radius <= 0) throw new IllegalArgumentException("Radius must be greater than zero.");
         this.radius = radius;
+        updateSize();
+    }
 
+    private void updateSize() {
         ((DSphere)geom).setRadius(radius);
         geom.setBody(body);
 
