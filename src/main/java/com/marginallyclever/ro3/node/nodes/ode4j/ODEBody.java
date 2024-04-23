@@ -11,6 +11,7 @@ import org.ode4j.ode.OdeHelper;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
+import java.util.List;
 import java.util.Objects;
 
 public abstract class ODEBody extends Pose {
@@ -25,6 +26,12 @@ public abstract class ODEBody extends Pose {
 
     public ODEBody(String name) {
         super(name);
+    }
+
+    @Override
+    public void getComponents(List<JPanel> list) {
+        list.add(new ODEBodyPanel(this));
+        super.getComponents(list);
     }
 
     @Override
@@ -77,5 +84,19 @@ public abstract class ODEBody extends Pose {
     @Override
     public Icon getIcon() {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/ode4j/icons8-mechanics-16.png")));
+    }
+
+    public double getMassQty() {
+        return mass.getMass();
+    }
+
+    /**
+     *
+     * @param massQty must be >= 0
+     */
+    public void setMassQty(double massQty) {
+        if(massQty<0) throw new IllegalArgumentException("Mass must be greater than zero.");
+        mass.setMass(massQty);
+        body.setMass(mass);
     }
 }
