@@ -2,7 +2,6 @@ package com.marginallyclever.ro3.node.nodes.ode4j;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.MaterialPanel;
 import org.ode4j.ode.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +20,11 @@ import static org.ode4j.ode.OdeHelper.createWorld;
 public class ODEWorldSpace extends Node {
     private static final Logger logger = LoggerFactory.getLogger(ODEWorldSpace.class);
 
-    public static final double WORLD_CFM = 1e-5;
-    public static final double WORLD_ERP = 0.8;
-    public static final double WORLD_GRAVITY = -9.81;
-    private static final int ITERS = 20;
-    private final int N = 4;
+    public double WORLD_CFM = 1e-5;
+    public double WORLD_ERP = 0.8;
+    public double WORLD_GRAVITY = -9.81;
+    private int ITERS = 20;
+    private final int CONTACT_BUFFER_SIZE = 4;
 
     private DWorld world;
     private DSpace space;
@@ -34,7 +33,7 @@ public class ODEWorldSpace extends Node {
     private boolean isPaused = true;
 
     public ODEWorldSpace() {
-        this("PhysicsWorld");
+        this("ODEWorldSpace");
     }
 
     public ODEWorldSpace(String name) {
@@ -81,7 +80,7 @@ public class ODEWorldSpace extends Node {
         space = OdeHelper.createSapSpace( null, DSapSpace.AXES.XYZ );
         //space = OdeHelper.createSimpleSpace();
 
-        contacts = new DContactBuffer(N);
+        contacts = new DContactBuffer(CONTACT_BUFFER_SIZE);
 
         if(contactGroup == null) {
             contactGroup = OdeHelper.createJointGroup();
@@ -141,19 +140,19 @@ public class ODEWorldSpace extends Node {
         try {
             ODEWorldSpace physics = Registry.getScene().findFirstChild(ODEWorldSpace.class);
 
-            int n = OdeHelper.collide(o1, o2, N, contacts.getGeomBuffer());
+            int n = OdeHelper.collide(o1, o2, CONTACT_BUFFER_SIZE, contacts.getGeomBuffer());
             if (n > 0) {
                 for (int i = 0; i < n; i++) {
                     DContact contact = contacts.get(i);
                     contact.surface.mode = dContactSlip1 | dContactSlip2 | dContactSoftERP | dContactSoftCFM | dContactApprox1;
 
-                    contact.surface.mu = 0.5;
-                    contact.surface.slip1 = 0.0;
-                    contact.surface.slip2 = 0.0;
-                    contact.surface.soft_erp = 0.8;
-                    contact.surface.soft_cfm = 0.01;
-                    contact.surface.bounce = 0.9;
-                    contact.surface.bounce_vel = 0.5;
+                    contact.surface.mu = 0.5;  // friction
+                    contact.surface.slip1 = 0.0;  // how much the contact surfaces can slide
+                    contact.surface.slip2 = 0.0;  // how much the contact surfaces can slide
+                    contact.surface.soft_erp = 0.8;  // how spongy the contact is
+                    contact.surface.soft_cfm = 0.001;  // how soft to make the contact
+                    contact.surface.bounce = 0.9;  // how much the contact surfaces can bounce
+                    contact.surface.bounce_vel = 0.5;  // how fast the contact surfaces can bounce
                     DJoint contactJoint = OdeHelper.createContactJoint(physics.getODEWorld(), contactGroup, contact);
                     contactJoint.attach(o1.getBody(), o2.getBody());
                 }

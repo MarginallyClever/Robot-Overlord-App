@@ -1,10 +1,15 @@
 package com.marginallyclever.ro3.apps.ode4j;
 
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.App;
+import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.ode4j.*;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 
 import javax.swing.*;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.Objects;
@@ -37,23 +42,47 @@ public class ODE4JPanel extends App {
 
         addButtonByNameAndCallback(toolbar, "+Sphere", (e)->{
             ODE4JHelper.guaranteePhysicsWorld();
-            Registry.getScene().addChild(new ODESphere());
+            add(new ODESphere());
         });
 
         addButtonByNameAndCallback(toolbar, "+Box", (e)->{
             ODE4JHelper.guaranteePhysicsWorld();
-            Registry.getScene().addChild(new ODEBox());
+            add(new ODEBox());
         });
 
         addButtonByNameAndCallback(toolbar, "+Cylinder", (e)->{
             ODE4JHelper.guaranteePhysicsWorld();
-            Registry.getScene().addChild(new ODECylinder());
+            add(new ODECylinder());
         });
 
         addButtonByNameAndCallback(toolbar, "+Capsule", (e)->{
             ODE4JHelper.guaranteePhysicsWorld();
-            Registry.getScene().addChild(new ODECapsule());
+            add(new ODECapsule());
         });
+    }
+
+    private void add(ODEBody body) {
+        Registry.getScene().addChild(body);
+        placeBodyAbovePlane(body);
+    }
+
+    private void placeBodyAbovePlane(Pose body) {
+        // set a random orientation
+        double x = Math.random()*90;
+        double y = Math.random()*90;
+        double z = Math.random()*90;
+        Matrix4d m = new Matrix4d();
+        m.set(MatrixHelper.eulerToMatrix(new Vector3d(x,y,z), MatrixHelper.EulerSequence.XYZ));
+        m.setTranslation(new Vector3d(0, 0, 15));
+        body.setWorld(m);
+
+        Material material = body.findFirstChild(Material.class);
+        if(material!=null) {
+            material.setDiffuseColor(new Color(
+                    (int) (Math.random() * 255.0),
+                    (int) (Math.random() * 255.0),
+                    (int) (Math.random() * 255.0)));
+        }
     }
 
     private JButton addButtonByNameAndCallback(JToolBar toolbar, String title, ActionListener actionListener) {

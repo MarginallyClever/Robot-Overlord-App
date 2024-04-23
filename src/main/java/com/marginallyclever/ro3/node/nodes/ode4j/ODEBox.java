@@ -20,12 +20,9 @@ import static org.ode4j.ode.OdeHelper.*;
 /**
  * Wrapper for a ODE4J Box.
  */
-public class ODEBox extends Pose {
-    private static final double CUBE_SIDE_LENGTH = 5.0;
-    private static final double CUBE_MASS = Math.sqrt(CUBE_SIDE_LENGTH*CUBE_SIDE_LENGTH*CUBE_SIDE_LENGTH);
-
-    private DBody body;
-    private DGeom geom;
+public class ODEBox extends ODEBody {
+    private double sizeX=5.0, sizeY=5.0, sizeZ=5.0;
+    private double massQty = Math.sqrt(sizeX*sizeY*sizeZ);
 
     public ODEBox() {
         this("ODE Box");
@@ -41,82 +38,17 @@ public class ODEBox extends Pose {
 
         ODEWorldSpace physics = ODE4JHelper.guaranteePhysicsWorld();
         // add scene elements
-        body = OdeHelper.createBody(physics.getODEWorld());
-        geom = createBox(physics.getODESpace(), CUBE_SIDE_LENGTH, CUBE_SIDE_LENGTH, CUBE_SIDE_LENGTH);
+        geom = createBox(physics.getODESpace(), sizeX, sizeY, sizeZ);
         geom.setBody(body);
 
-        DMass mass = OdeHelper.createMass();
-        mass.setBoxTotal(CUBE_MASS, CUBE_SIDE_LENGTH, CUBE_SIDE_LENGTH, CUBE_SIDE_LENGTH);
+        mass.setBoxTotal(massQty, sizeX, sizeY, sizeZ);
         body.setMass(mass);
-        body.setPosition(0, 0, CUBE_SIDE_LENGTH * 5);
-
-        // set a random orientation
-        Matrix4d rx = new Matrix4d();
-        Matrix4d ry = new Matrix4d();
-        rx.rotX(Math.toRadians(Math.random()*90));
-        ry.rotY(Math.toRadians(Math.random()*90));
-        Matrix4d mat = new Matrix4d();
-        mat.mul(ry, rx);
-        body.setRotation(ODE4JHelper.convertRotationToODE(mat));
 
         // add a Node with a MeshInstance to represent the cube.
         MeshInstance meshInstance = new MeshInstance();
+        meshInstance.setMesh(new Box(sizeX,sizeY,sizeZ));
         addChild(meshInstance);
-        meshInstance.setMesh(new Box());
-        mat = meshInstance.getLocal();
-        mat.setScale(CUBE_SIDE_LENGTH);
-        meshInstance.setLocal(mat);
 
-        // add a Material with random diffuse color
-        Material material = new Material();
-        material.setDiffuseColor(new Color(
-                (int)(Math.random()*255.0),
-                (int)(Math.random()*255.0),
-                (int)(Math.random()*255.0)));
-        addChild(material);
-    }
-
-    @Override
-    protected void onDetach() {
-        super.onDetach();
-        if(body != null) {
-            try {
-                body.destroy();
-            } catch(Exception ignored) {}  // if the worldspace is destroyed first, this will throw an exception.
-            body = null;
-        }
-        if(geom != null) {
-            geom.destroy();
-            geom = null;
-        }
-    }
-
-    @Override
-    public void update(double dt) {
-        super.update(dt);
-
-        // adjust the position of the Node to match the body.
-        if(body == null) return;
-
-        DVector3C translation = body.getPosition();
-        DMatrix3C rotation = body.getRotation();
-        super.setWorld(ODE4JHelper.assembleMatrix(translation, rotation));
-    }
-
-    @Override
-    public void setWorld(Matrix4d world) {
-        super.setWorld(world);
-        if(body == null) return;
-
-        body.setPosition(world.m03, world.m13, world.m23);
-        body.setRotation(ODE4JHelper.convertRotationToODE(world));
-        // stop movement so object does not fight user.
-        body.setAngularVel(new DVector3(0, 0, 0));
-        body.setLinearVel(new DVector3(0, 0, 0));
-    }
-
-    @Override
-    public Icon getIcon() {
-        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/ode4j/icons8-mechanics-16.png")));
+        addChild(new Material());
     }
 }
