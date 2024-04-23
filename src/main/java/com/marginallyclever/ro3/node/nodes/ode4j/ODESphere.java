@@ -56,11 +56,11 @@ public class ODESphere extends ODEBody {
         if(radius<=0) throw new IllegalArgumentException("Radius must be greater than zero.");
         this.radius = radius;
 
-        mass.setSphereTotal(massQty, radius);
-        body.setMass(mass);
-
         ((DSphere)geom).setRadius(radius);
         geom.setBody(body);
+
+        mass.setSphereTotal(massQty, radius);
+        body.setMass(mass);
 
         var meshInstance = findFirstChild(MeshInstance.class);
         if(meshInstance!=null) {
