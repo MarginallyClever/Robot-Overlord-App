@@ -5,6 +5,7 @@ import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODE4JHelper;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODEWorldSpace;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
+import org.json.JSONObject;
 import org.ode4j.ode.DSphere;
 
 import javax.swing.*;
@@ -40,7 +41,7 @@ public class ODESphere extends ODEBody {
         geom = createSphere(physics.getODESpace(), radius);
         geom.setBody(body);
 
-        mass.setSphereTotal(Math.PI * radius*radius*radius * 4.0/3.0, radius);
+        mass.setSphereTotal(ODE4JHelper.volumeSphere(radius), radius);
         body.setMass(mass);
 
         addChild(new MeshInstance());
@@ -69,5 +70,19 @@ public class ODESphere extends ODEBody {
         if(meshInstance!=null) {
             meshInstance.setMesh(new Sphere((float) radius));
         }
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        var json= super.toJSON();
+        json.put("radius", radius);
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject json) {
+        super.fromJSON(json);
+        if(json.has("radius")) radius = json.getDouble("radius");
+        updateSize();
     }
 }

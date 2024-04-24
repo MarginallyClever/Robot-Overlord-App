@@ -1,8 +1,10 @@
 package com.marginallyclever.ro3.node.nodes.ode4j;
 
 import com.marginallyclever.ro3.Registry;
+import org.json.JSONObject;
 import org.ode4j.math.DMatrix3;
 import org.ode4j.math.DMatrix3C;
+import org.ode4j.math.DVector3;
 import org.ode4j.math.DVector3C;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,5 +66,36 @@ public class ODE4JHelper {
             Registry.getScene().addChild(physics);
         }
         return physics;
+    }
+
+    public static double volumeCylinder(double radius, double length) {
+        return Math.PI * radius * radius * length;
+    }
+
+    public static double volumeCapsule(double radius, double length) {
+        return volumeCylinder(radius,length) + volumeSphere(radius);
+    }
+
+    public static double volumeBox(double x, double y, double z) {
+        return x * y * z;
+    }
+
+    public static double volumeSphere(double radius) {
+        return 4.0 / 3.0 * Math.PI * radius * radius * radius;
+    }
+
+    public static JSONObject vector3ToJSON(DVector3C vector) {
+        JSONObject json = new JSONObject();
+        json.put("x", vector.get0());
+        json.put("y", vector.get1());
+        json.put("z", vector.get2());
+        return json;
+    }
+
+    public static DVector3C jsonToVector3(JSONObject vector) {
+        return new DVector3(
+                vector.getDouble("x"),
+                vector.getDouble("y"),
+                vector.getDouble("z"));
     }
 }

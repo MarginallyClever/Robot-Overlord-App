@@ -85,10 +85,11 @@ public class ODEPlane extends Pose {
     }
 
     @Override
-    public void setWorld(Matrix4d world) {
-        super.setWorld(world);
+    public void setLocal(Matrix4d m) {
+        super.setLocal(m);
         if(plane==null) return;
 
+        var world = getWorld();
         Vector3d normal = MatrixHelper.getZAxis(world);
         Vector3d position = MatrixHelper.getPosition(world);
         double depth = normal.dot(position);

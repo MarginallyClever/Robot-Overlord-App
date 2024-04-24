@@ -54,7 +54,7 @@ public class LookAt extends Pose {
             fromWorld.invert();
             look.mul(fromWorld,look);
             look.setTranslation(new javax.vecmath.Vector3d());
-            getLocal().set(look);
+            this.setLocal(look);
         }
     }
 

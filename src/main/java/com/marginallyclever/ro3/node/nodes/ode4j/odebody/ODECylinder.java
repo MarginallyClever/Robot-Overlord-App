@@ -5,6 +5,7 @@ import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODE4JHelper;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODEWorldSpace;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
+import org.json.JSONObject;
 import org.ode4j.ode.DCylinder;
 import org.ode4j.ode.OdeHelper;
 
@@ -40,7 +41,7 @@ public class ODECylinder extends ODEBody {
         geom = OdeHelper.createCylinder(physics.getODESpace(), radius, length);
         geom.setBody(body);
 
-        mass.setCylinderTotal(mass.getMass(), 3, radius, length);
+        mass.setCylinderTotal(ODE4JHelper.volumeCylinder(radius,length), 3, radius, length);
         body.setMass(mass);
 
         addChild(new MeshInstance());
@@ -79,5 +80,21 @@ public class ODECylinder extends ODEBody {
         if(meshInstance!=null) {
             meshInstance.setMesh(new Cylinder(length, radius, radius));
         }
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        var json= super.toJSON();
+        json.put("radius", radius);
+        json.put("length", length);
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject json) {
+        super.fromJSON(json);
+        if(json.has("radius")) radius = json.getDouble("radius");
+        if(json.has("length")) length = json.getDouble("length");
+        updateSize();
     }
 }

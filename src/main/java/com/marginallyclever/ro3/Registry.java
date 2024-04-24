@@ -13,8 +13,11 @@ import com.marginallyclever.ro3.node.nodes.behavior.decorators.*;
 import com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlanner;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
+import com.marginallyclever.ro3.node.nodes.ode4j.ODEHinge;
 import com.marginallyclever.ro3.node.nodes.ode4j.odebody.ODEBox;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODEPlane;
+import com.marginallyclever.ro3.node.nodes.ode4j.odebody.ODECapsule;
+import com.marginallyclever.ro3.node.nodes.ode4j.odebody.ODECylinder;
 import com.marginallyclever.ro3.node.nodes.ode4j.odebody.ODESphere;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODEWorldSpace;
 import com.marginallyclever.ro3.node.nodes.pose.*;
@@ -83,6 +86,9 @@ public class Registry {
             {
                 physics.add("ODEWorldSpace", ODEWorldSpace::new);
                 physics.add("ODEBox", ODEBox::new);
+                physics.add("ODECapsule", ODECapsule::new);
+                physics.add("ODECylinder", ODECylinder::new);
+                physics.add("ODEHinge", ODEHinge::new);
                 physics.add("ODEPlane", ODEPlane::new);
                 physics.add("ODESphere", ODESphere::new);
             }

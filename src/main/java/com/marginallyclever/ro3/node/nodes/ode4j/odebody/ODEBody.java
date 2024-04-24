@@ -4,6 +4,7 @@ import com.marginallyclever.ro3.node.nodes.ode4j.ODE4JHelper;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODEBodyPanel;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODEWorldSpace;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
+import org.json.JSONObject;
 import org.ode4j.math.DMatrix3C;
 import org.ode4j.math.DVector3;
 import org.ode4j.math.DVector3C;
@@ -73,15 +74,13 @@ public abstract class ODEBody extends Pose {
     }
 
     @Override
-    public void setWorld(Matrix4d world) {
-        super.setWorld(world);
+    public void setLocal(Matrix4d m) {
+        super.setLocal(m);
         if(body == null) return;
 
+        var world = getWorld();
         body.setPosition(world.m03, world.m13, world.m23);
         body.setRotation(ODE4JHelper.convertRotationToODE(world));
-        // stop movement so object does not fight user.
-        body.setAngularVel(new DVector3(0, 0, 0));
-        body.setLinearVel(new DVector3(0, 0, 0));
     }
 
     @Override
@@ -105,5 +104,23 @@ public abstract class ODEBody extends Pose {
 
     public DBody getODEBody() {
         return body;
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        var json = super.toJSON();
+        json.put("mass", getMassQty());
+        json.put("avel", ODE4JHelper.vector3ToJSON(body.getAngularVel()));
+        json.put("lvel", ODE4JHelper.vector3ToJSON(body.getLinearVel()));
+        return json;
+
+    }
+
+    @Override
+    public void fromJSON(JSONObject from) {
+        super.fromJSON(from);
+        if(from.has("mass")) setMassQty(from.getDouble("mass"));
+        if(from.has("avel")) body.setAngularVel(ODE4JHelper.jsonToVector3(from.getJSONObject("avel")));
+        if(from.has("lvel")) body.setLinearVel(ODE4JHelper.jsonToVector3(from.getJSONObject("lvel")));
     }
 }

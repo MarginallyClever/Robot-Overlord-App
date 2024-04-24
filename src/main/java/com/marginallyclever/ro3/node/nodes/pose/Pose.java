@@ -27,37 +27,6 @@ public class Pose extends Node {
         super(name);
     }
 
-    public Matrix4d getLocal() {
-        return local;
-    }
-
-    public void setLocal(Matrix4d m) {
-        local.set(m);
-    }
-
-    public Matrix4d getWorld() {
-        // search up the tree to find the world transform.
-        Pose p = findParent(Pose.class);
-        if(p==null) {
-            return new Matrix4d(local);
-        }
-        Matrix4d parentWorld = p.getWorld();
-        parentWorld.mul(local);
-        return parentWorld;
-    }
-
-    public void setWorld(Matrix4d world) {
-        // search up the tree to find the world transform.
-        Pose parent = findParent(Pose.class);
-        if(parent==null) {
-            local.set(world);
-            return;
-        }
-        Matrix4d inverseParentWorld = parent.getWorld();
-        inverseParentWorld.invert();
-        local.mul(inverseParentWorld,world);
-    }
-
     /**
      * Build a Swing Component that represents this Node.
      * @param list the list to add components to.
@@ -65,6 +34,51 @@ public class Pose extends Node {
     public void getComponents(List<JPanel> list) {
         list.add(new PosePanel(this));
         super.getComponents(list);
+    }
+
+    public Matrix4d getLocal() {
+        return new Matrix4d(local);
+    }
+
+    /**
+     * Set the local transform of this pose.  This is the best method to override if you want to
+     * capture changes to the local OR world transform.
+     * @param m the new local transform.
+     */
+    public void setLocal(Matrix4d m) {
+        local.set(m);
+    }
+
+    /**
+     * @return the world transform of this pose.
+     */
+    public Matrix4d getWorld() {
+        // search up the tree to find the world transform.
+        Pose p = findParent(Pose.class);
+        if(p==null) {
+            return getLocal();
+        }
+        Matrix4d result = p.getWorld();
+        result.mul(getLocal());
+        return result;
+    }
+
+    /**
+     * Set the world transform of this pose.  All cases call {@link #setLocal(Matrix4d)}.
+     * @param m the new world transform.
+     */
+    public void setWorld(Matrix4d m) {
+        // search up the tree to find the world transform.
+        Pose parent = findParent(Pose.class);
+        if(parent==null) {
+            setLocal(m);
+            return;
+        }
+        // Changing m could have unintended side effects, so use a temp variable.
+        Matrix4d temp = parent.getWorld();
+        temp.invert();
+        temp.mul(m);
+        setLocal(temp);
     }
 
     /**
@@ -84,12 +98,15 @@ public class Pose extends Node {
      * @param orderOfRotation the order of rotation.
      */
     public void setRotationEuler(Vector3d r, MatrixHelper.EulerSequence orderOfRotation) {
-        System.out.println("setRotationEuler("+r+","+orderOfRotation+")");
+        //System.out.println("setRotationEuler("+r+","+orderOfRotation+")");
         Vector3d p = getPosition();
         Vector3d rRad = new Vector3d(r);
         rRad.scale(Math.PI/180.0);
-        local.set(MatrixHelper.eulerToMatrix(rRad, orderOfRotation));
-        setPosition(p);
+
+        var m4 = new Matrix4d();
+        m4.set(MatrixHelper.eulerToMatrix(rRad, orderOfRotation));
+        m4.setTranslation(p);
+        setLocal(m4);
     }
 
     /**
@@ -104,9 +121,9 @@ public class Pose extends Node {
      * @param p the new position.
      */
     public void setPosition(Vector3d p) {
-        local.m03 = p.x;
-        local.m13 = p.y;
-        local.m23 = p.z;
+        var m4 = getLocal();
+        MatrixHelper.setPosition(m4, p);
+        setLocal(m4);
     }
 
     @Override

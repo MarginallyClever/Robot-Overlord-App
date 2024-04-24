@@ -44,7 +44,10 @@ public class LinearJoint extends Node {
 
         if(car.getSubject()!=null) {
             // set the axle's location in space.
-            car.getSubject().getLocal().m23 = position;
+            var subject = car.getSubject();
+            var m = subject.getLocal();
+            m.m23 = position;
+            subject.setLocal(m);
         }
     }
 

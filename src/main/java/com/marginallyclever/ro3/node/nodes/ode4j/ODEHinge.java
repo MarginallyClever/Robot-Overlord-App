@@ -96,8 +96,8 @@ public class ODEHinge extends Pose {
     }
 
     @Override
-    public void setWorld(Matrix4d world) {
-        super.setWorld(world);
+    public void setLocal(Matrix4d m) {
+        super.setLocal(m);
         updateHingePose();
     }
 
@@ -122,7 +122,7 @@ public class ODEHinge extends Pose {
             // if the physics simulation is running then the hinge will behave as normal.
             DVector3 anchor = new DVector3();
             DVector3 axis = new DVector3();
-            hinge.getAnchor2(anchor);
+            hinge.getAnchor(anchor);
             hinge.getAxis(axis);
             // use axis and anchor to set the world matrix.
             Matrix3d m3 = MatrixHelper.lookAt(

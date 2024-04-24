@@ -175,7 +175,9 @@ public class Camera extends Pose {
         Matrix3d m = MatrixHelper.getMatrixFromAxisAndRotation(axis,delta);
         Matrix4d m4 = new Matrix4d();
         m4.set(m);
-        getLocal().mul(m4);
+        var local = getLocal();
+        local.mul(m4);
+        setLocal(local);
     }
 
     /**
@@ -241,7 +243,7 @@ public class Camera extends Pose {
      * @param newRadius new radius.  Must be >=1.
      */
     public void moveToNewRadius(double newRadius) {
-        Matrix4d local = getLocal();
+        Matrix4d local = this.getLocal();
         var point = getOrbitPoint();
         orbitRadius = Math.max(1,newRadius);
 
@@ -249,6 +251,7 @@ public class Camera extends Pose {
         Vector3d orbitVector = MatrixHelper.getZAxis(local);
         orbitVector.scaleAdd(orbitRadius,point);
         local.setTranslation(orbitVector);
+        this.setLocal(local);
     }
 
     public double getOrbitRadius() {

@@ -4,8 +4,10 @@ import com.marginallyclever.ro3.mesh.shapes.Capsule;
 import com.marginallyclever.ro3.mesh.shapes.Sphere;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODE4JHelper;
+import com.marginallyclever.ro3.node.nodes.ode4j.ODEHinge;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODEWorldSpace;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
+import org.json.JSONObject;
 import org.ode4j.ode.DCapsule;
 import org.ode4j.ode.OdeHelper;
 
@@ -42,7 +44,7 @@ public class ODECapsule extends ODEBody {
         geom = OdeHelper.createCapsule(physics.getODESpace(), radius, length);
         geom.setBody(body);
 
-        mass.setCapsuleTotal(Math.PI * radius * radius * length, 3, radius, length);
+        mass.setCapsuleTotal(ODE4JHelper.volumeCapsule(radius,length), 3, radius, length);
         body.setMass(mass);
 
         addChild(new MeshInstance());
@@ -94,5 +96,21 @@ public class ODECapsule extends ODEBody {
             b2.setMesh(new Sphere((float) radius));
             b2.setPosition(new Vector3d(0, 0, -(float) length /2));
         }
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        var json= super.toJSON();
+        json.put("radius", radius);
+        json.put("length", length);
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject json) {
+        super.fromJSON(json);
+        if(json.has("radius")) radius = json.getDouble("radius");
+        if(json.has("length")) length = json.getDouble("length");
+        updateSize();
     }
 }

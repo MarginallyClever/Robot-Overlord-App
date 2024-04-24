@@ -5,6 +5,7 @@ import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODE4JHelper;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODEWorldSpace;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
+import org.json.JSONObject;
 import org.ode4j.ode.DBox;
 
 import javax.swing.*;
@@ -40,7 +41,7 @@ public class ODEBox extends ODEBody {
         geom = createBox(physics.getODESpace(), sizeX, sizeY, sizeZ);
         geom.setBody(body);
 
-        mass.setBoxTotal(Math.sqrt(sizeX*sizeY*sizeZ), sizeX, sizeY, sizeZ);
+        mass.setBoxTotal(ODE4JHelper.volumeBox(sizeX,sizeY,sizeZ), sizeX, sizeY, sizeZ);
         body.setMass(mass);
 
         addChild(new MeshInstance());
@@ -90,5 +91,23 @@ public class ODEBox extends ODEBody {
         if(meshInstance!=null) {
             meshInstance.setMesh(new Box(sizeX,sizeY,sizeZ));
         }
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        var json= super.toJSON();
+        json.put("sizeX", sizeX);
+        json.put("sizeY", sizeY);
+        json.put("sizeZ", sizeZ);
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject json) {
+        super.fromJSON(json);
+        if(json.has("sizeX")) sizeX = json.getDouble("sizeX");
+        if(json.has("sizeY")) sizeY = json.getDouble("sizeY");
+        if(json.has("sizeZ")) sizeZ = json.getDouble("sizeZ");
+        updateSize();
     }
 }
