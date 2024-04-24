@@ -1,7 +1,9 @@
-package com.marginallyclever.ro3.node.nodes.ode4j;
+package com.marginallyclever.ro3.node.nodes.ode4j.odebody;
 
 import com.marginallyclever.ro3.mesh.shapes.Cylinder;
 import com.marginallyclever.ro3.node.nodes.Material;
+import com.marginallyclever.ro3.node.nodes.ode4j.ODE4JHelper;
+import com.marginallyclever.ro3.node.nodes.ode4j.ODEWorldSpace;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.ode4j.ode.DCylinder;
 import org.ode4j.ode.OdeHelper;
@@ -15,7 +17,6 @@ import java.util.List;
 public class ODECylinder extends ODEBody {
     private double radius = 2.5;
     private double length = 5.0;
-    private double massQty = Math.PI * radius * radius * length;
 
     public ODECylinder() {
         this("ODE Cylinder");
@@ -39,7 +40,7 @@ public class ODECylinder extends ODEBody {
         geom = OdeHelper.createCylinder(physics.getODESpace(), radius, length);
         geom.setBody(body);
 
-        mass.setCylinderTotal(massQty, 3, radius, length);
+        mass.setCylinderTotal(mass.getMass(), 3, radius, length);
         body.setMass(mass);
 
         addChild(new MeshInstance());
@@ -71,7 +72,7 @@ public class ODECylinder extends ODEBody {
         ((DCylinder)geom).setParams(radius, length);
         geom.setBody(body);
 
-        mass.setCylinderTotal(massQty, 3, radius, length);
+        mass.setCylinderTotal(mass.getMass(), 3, radius, length);
         body.setMass(mass);
 
         MeshInstance meshInstance = findFirstChild(MeshInstance.class);

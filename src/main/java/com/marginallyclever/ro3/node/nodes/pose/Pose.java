@@ -68,7 +68,8 @@ public class Pose extends Node {
     }
 
     /**
-     * @return the rotation of this pose using Euler angles in degrees.
+     * @param orderOfRotation the order of rotation.
+     * @return the local rotation of this pose using Euler angles in degrees.
      */
     public Vector3d getRotationEuler(MatrixHelper.EulerSequence orderOfRotation) {
         Vector3d r = MatrixHelper.matrixToEuler(local,orderOfRotation);
@@ -77,7 +78,7 @@ public class Pose extends Node {
     }
 
     /**
-     * Set the rotation of this pose using Euler angles.
+     * Set the local rotation of this pose using Euler angles.
      *
      * @param r Euler angles in degrees.
      * @param orderOfRotation the order of rotation.
@@ -99,7 +100,7 @@ public class Pose extends Node {
     }
 
     /**
-     * set the local position of this pose.
+     * Set the local position of this pose.
      * @param p the new position.
      */
     public void setPosition(Vector3d p) {

@@ -23,7 +23,7 @@ public class ODEWorldSpace extends Node {
     public double WORLD_CFM = 1e-5;
     public double WORLD_ERP = 0.8;
     public double WORLD_GRAVITY = -9.81;
-    private int ITERS = 20;
+    private final int ITERS = 20;
     private final int CONTACT_BUFFER_SIZE = 4;
 
     private DWorld world;
@@ -61,11 +61,6 @@ public class ODEWorldSpace extends Node {
         stopPhysics();
     }
 
-    public void resetPhysics() {
-        stopPhysics();
-        startPhysics();
-    }
-
     private void startPhysics() {
         logger.info("Starting Physics");
 
@@ -90,9 +85,10 @@ public class ODEWorldSpace extends Node {
     private void stopPhysics() {
         logger.info("Stopping Physics");
 
-        if(world!=null) {
-            world.destroy();
-            world=null;
+        if(contactGroup!=null) {
+            contactGroup.empty();
+            contactGroup.destroy();
+            contactGroup=null;
         }
 
         if(space!=null) {
@@ -100,9 +96,9 @@ public class ODEWorldSpace extends Node {
             space=null;
         }
 
-        if(contactGroup!=null) {
-            contactGroup.destroy();
-            contactGroup=null;
+        if(world!=null) {
+            world.destroy();
+            world=null;
         }
     }
 

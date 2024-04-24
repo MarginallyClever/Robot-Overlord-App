@@ -21,7 +21,7 @@ public class ODE4JHelper {
      * @param rotation the rotation matrix
      * @return the Java3D matrix.
      */
-    static Matrix4d assembleMatrix(DVector3C translation, DMatrix3C rotation) {
+    public static Matrix4d assembleMatrix(DVector3C translation, DMatrix3C rotation) {
         // assemble matrix from translation and rotation.
         Matrix4d m = new Matrix4d();
         m.m00 = rotation.get00();

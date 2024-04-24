@@ -1,9 +1,10 @@
-package com.marginallyclever.ro3.node.nodes.ode4j;
+package com.marginallyclever.ro3.node.nodes.ode4j.odebody;
 
-import com.marginallyclever.ro3.mesh.shapes.Cylinder;
+import com.marginallyclever.ro3.mesh.shapes.Capsule;
 import com.marginallyclever.ro3.mesh.shapes.Sphere;
 import com.marginallyclever.ro3.node.nodes.Material;
-import com.marginallyclever.ro3.node.nodes.pose.Pose;
+import com.marginallyclever.ro3.node.nodes.ode4j.ODE4JHelper;
+import com.marginallyclever.ro3.node.nodes.ode4j.ODEWorldSpace;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.ode4j.ode.DCapsule;
 import org.ode4j.ode.OdeHelper;
@@ -17,8 +18,7 @@ import java.util.List;
  */
 public class ODECapsule extends ODEBody {
     private double radius = 2.5;
-    private double length = 5.0;
-    private double massQty = Math.PI * radius * radius * length;
+    private double length = 10.0;
 
     public ODECapsule() {
         this("ODE Capsule");
@@ -42,26 +42,11 @@ public class ODECapsule extends ODEBody {
         geom = OdeHelper.createCapsule(physics.getODESpace(), radius, length);
         geom.setBody(body);
 
-        mass.setCapsuleTotal(massQty, 3, radius, length);
+        mass.setCapsuleTotal(Math.PI * radius * radius * length, 3, radius, length);
         body.setMass(mass);
 
-        // add a Node with a MeshInstance to represent the ball.
-        MeshInstance meshInstance = new MeshInstance();
-        meshInstance.setMesh(new Cylinder(length, radius, radius));
-        addChild(meshInstance);
-
-        Pose b1 = new Pose("Ball1");
-        addChild(b1);
-        b1.addChild(new MeshInstance());
-
-        Pose b2 = new Pose("Ball2");
-        addChild(b2);
-        b2.addChild(new MeshInstance());
-
-        Material material = new Material();
-        addChild(material);
-        b1.addChild(material);
-        b2.addChild(material);
+        addChild(new MeshInstance());
+        addChild(new Material());
 
         updateSize();
     }
@@ -90,12 +75,12 @@ public class ODECapsule extends ODEBody {
         ((DCapsule)geom).setParams(radius, length);
         geom.setBody(body);
 
-        mass.setCapsuleTotal(massQty, 3, radius, length);
+        mass.setCapsuleTotal(mass.getMass(), 3, radius, length);
         body.setMass(mass);
 
         MeshInstance meshInstance = findFirstChild(MeshInstance.class);
         if(null != meshInstance) {
-            meshInstance.setMesh(new Cylinder(length, radius, radius));
+            meshInstance.setMesh(new Capsule(length, radius));
         }
 
         MeshInstance b1 = findNodeByPath("Ball1/MeshInstance",MeshInstance.class);

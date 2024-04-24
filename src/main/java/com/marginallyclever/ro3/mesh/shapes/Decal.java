@@ -12,8 +12,11 @@ import javax.vecmath.Vector3d;
  * </p>
  */
 public class Decal extends Mesh {
-	public double height = 1;
-	public double width = 1;
+	public float height = 1;
+	public float width = 1;
+	public int wParts = 1;
+	public int hParts = 1;
+	public float textureScale = 1;
 
 	public Decal() {
 		super();
@@ -36,8 +39,6 @@ public class Decal extends Mesh {
 	 * Create a rectangle in the XY plane, facing +Z.
 	 */
 	private void createOneSidedDecal() {
-		int wParts = (int) (width );
-		int hParts = (int) (height);
 
 		Vector3d n = new Vector3d();
 		Vector3d p0 = new Vector3d();
@@ -142,7 +143,7 @@ public class Decal extends Mesh {
 			// texture coordinates are based on the distance from the top left corner
 			float x = (float) (v.x - p2.x);
 			float y = (float) (v.y - p2.y);
-			addTexCoord(x/3, y/3);
+			addTexCoord(x/textureScale, y/textureScale);
 		}
 	}
 /*

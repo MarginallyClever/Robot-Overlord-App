@@ -40,8 +40,11 @@ public class ODEPlane extends Pose {
         MeshInstance mesh = new MeshInstance();
         addChild(mesh);
         Decal decal = new Decal();
-        decal.width = 100;
-        decal.height = 100;
+        decal.width = 1000;
+        decal.height = 1000;
+        decal.wParts = 20;
+        decal.hParts = 20;
+        decal.textureScale = 10;
         decal.updateModel();
         mesh.setMesh(decal);
 

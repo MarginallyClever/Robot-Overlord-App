@@ -1,5 +1,8 @@
-package com.marginallyclever.ro3.node.nodes.ode4j;
+package com.marginallyclever.ro3.node.nodes.ode4j.odebody;
 
+import com.marginallyclever.ro3.node.nodes.ode4j.ODE4JHelper;
+import com.marginallyclever.ro3.node.nodes.ode4j.ODEBodyPanel;
+import com.marginallyclever.ro3.node.nodes.ode4j.ODEWorldSpace;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.ode4j.math.DMatrix3C;
 import org.ode4j.math.DVector3;
@@ -98,5 +101,9 @@ public abstract class ODEBody extends Pose {
         if(massQty<0) throw new IllegalArgumentException("Mass must be greater than zero.");
         mass.setMass(massQty);
         body.setMass(mass);
+    }
+
+    public DBody getODEBody() {
+        return body;
     }
 }

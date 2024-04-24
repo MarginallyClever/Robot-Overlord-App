@@ -1,7 +1,9 @@
-package com.marginallyclever.ro3.node.nodes.ode4j;
+package com.marginallyclever.ro3.node.nodes.ode4j.odebody;
 
 import com.marginallyclever.ro3.mesh.shapes.Box;
 import com.marginallyclever.ro3.node.nodes.Material;
+import com.marginallyclever.ro3.node.nodes.ode4j.ODE4JHelper;
+import com.marginallyclever.ro3.node.nodes.ode4j.ODEWorldSpace;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.ode4j.ode.DBox;
 
@@ -15,7 +17,6 @@ import static org.ode4j.ode.OdeHelper.createBox;
  */
 public class ODEBox extends ODEBody {
     private double sizeX=5.0, sizeY=5.0, sizeZ=5.0;
-    private double massQty = Math.sqrt(sizeX*sizeY*sizeZ);
 
     public ODEBox() {
         this("ODE Box");
@@ -39,7 +40,7 @@ public class ODEBox extends ODEBody {
         geom = createBox(physics.getODESpace(), sizeX, sizeY, sizeZ);
         geom.setBody(body);
 
-        mass.setBoxTotal(massQty, sizeX, sizeY, sizeZ);
+        mass.setBoxTotal(Math.sqrt(sizeX*sizeY*sizeZ), sizeX, sizeY, sizeZ);
         body.setMass(mass);
 
         addChild(new MeshInstance());
@@ -81,7 +82,7 @@ public class ODEBox extends ODEBody {
         ((DBox)geom).setLengths(sizeX, sizeY, sizeZ);
         geom.setBody(body);
 
-        mass.setBoxTotal(massQty, sizeX, sizeY, sizeZ);
+        mass.setBoxTotal(mass.getMass(), sizeX, sizeY, sizeZ);
         body.setMass(mass);
 
 

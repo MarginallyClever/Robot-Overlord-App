@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.ode4j;
+package com.marginallyclever.ro3.node.nodes.ode4j.odebody;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
@@ -7,14 +7,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.function.DoubleConsumer;
 
-public class ODECylinderPanel extends JPanel {
-    public ODECylinderPanel() {
-        this(new ODECylinder());
+public class ODECapsulePanel extends JPanel {
+    public ODECapsulePanel() {
+        this(new ODECapsule());
     }
-
-    public ODECylinderPanel(ODECylinder body) {
+    public ODECapsulePanel(ODECapsule body) {
         super(new GridLayout(0,2));
-        this.setName(ODECylinder.class.getSimpleName());
+        this.setName(ODECapsule.class.getSimpleName());
 
         addField("Radius", body.getRadius(), body::setRadius);
         addField("Length", body.getLength(), body::setLength);
