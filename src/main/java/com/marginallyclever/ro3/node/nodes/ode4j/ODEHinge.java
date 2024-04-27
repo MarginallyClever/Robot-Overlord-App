@@ -4,10 +4,13 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.ode4j.odebody.ODEBody;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
+import org.json.JSONObject;
 import org.ode4j.math.DVector3;
 import org.ode4j.ode.DBody;
 import org.ode4j.ode.DHingeJoint;
 import org.ode4j.ode.OdeHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix3d;
@@ -17,11 +20,12 @@ import java.util.List;
 
 /**
  * <p>Wrapper for a hinge joint in ODE4J.  If one side of the hinge is null then it is attached to the world.</p>
- * <p>If the physics simulation is paused then then moving this Pose node will adjust the position and orientation
+ * <p>If the physics simulation is paused then then moving this {@link Pose} will adjust the position and orientation
  * of the hinge, as well as it's relation to the attached parts.  If the simulation is NOT paused then the hinge
  * will behave as normal.</p>
  */
-public class ODEHinge extends Pose {
+public class ODEHinge extends ODENode {
+    private static final Logger logger = LoggerFactory.getLogger(ODEHinge.class);
     private DHingeJoint hinge;
     private final NodePath<ODEBody> partA = new NodePath<>(this,ODEBody.class);
     private final NodePath<ODEBody> partB = new NodePath<>(this,ODEBody.class);
@@ -40,18 +44,20 @@ public class ODEHinge extends Pose {
         super.getComponents(list);
     }
 
+    /**
+     * Called once at the start of the first {@link #update(double)}
+     */
     @Override
-    protected void onAttach() {
-        super.onAttach();
+    protected void onFirstUpdate() {
+        super.onFirstUpdate();
         var physics = ODE4JHelper.guaranteePhysicsWorld();
-        hinge = OdeHelper.createHingeJoint (physics.getODEWorld(),null);
+        hinge = OdeHelper.createHingeJoint(physics.getODEWorld(), null);
+        connect();
+    }
 
-        DBody a = partA.getSubject() == null? null : partA.getSubject().getODEBody();
-        DBody b = partB.getSubject() == null? null : partB.getSubject().getODEBody();
-        hinge.attach (a,b);
-
-        hinge.setAnchor (0,0,1);
-        hinge.setAxis (1,-1,1.41421356);
+    @Override
+    protected void onReady() {
+        super.onReady();
     }
 
     @Override
@@ -61,6 +67,7 @@ public class ODEHinge extends Pose {
             try {
                 hinge.destroy();
             } catch(Exception ignored) {} // if physics is already destroyed, this will throw an exception.
+            hinge = null;
         }
     }
 
@@ -78,21 +85,27 @@ public class ODEHinge extends Pose {
 
     public void setPartA(ODEBody subject) {
         partA.setUniqueIDByNode(subject);
-        updateHinge();
+        connect();
     }
 
     public void setPartB(ODEBody subject) {
         partB.setUniqueIDByNode(subject);
-        updateHinge();
+        connect();
     }
 
     /**
      * Tell the physics engine who is connected to this hinge.
      */
-    private void updateHinge() {
-        DBody a = partA.getSubject() == null ? null : partA.getSubject().getODEBody();
-        DBody b = partB.getSubject() == null ? null : partB.getSubject().getODEBody();
+    private void connect() {
+        if(hinge==null) return;
+
+        var as = partA.getSubject();
+        var bs = partB.getSubject();
+        DBody a = as == null ? null : as.getODEBody();
+        DBody b = bs == null ? null : bs.getODEBody();
+        logger.debug(this.getName()+" connect "+(as==null?"null":as.getName())+" to "+(bs==null?"null":bs.getName()));
         hinge.attach(a, b);
+        updatePhysicsFromWorld();
     }
 
     @Override
@@ -106,12 +119,21 @@ public class ODEHinge extends Pose {
         // only let the user move the hinge if the physics simulation is paused.
         if(physics.isPaused()) {
             // set the hinge reference point and axis.
-            var mat = getWorld();
-            var pos = MatrixHelper.getPosition(mat);
-            hinge.setAnchor(pos.x, pos.y, pos.z);
-            var axis = MatrixHelper.getZAxis(mat);
-            hinge.setAxis(axis.x, axis.y, axis.z);
+            updatePhysicsFromWorld();
         }
+    }
+
+    private void updatePhysicsFromWorld() {
+        if(hinge==null) return;
+
+        var mat = getWorld();
+        var pos = MatrixHelper.getPosition(mat);
+        hinge.setAnchor(pos.x, pos.y, pos.z);
+        var axis = MatrixHelper.getZAxis(mat);
+        if(axis.length()<0.001) {
+            logger.error("Hinge axis zero length?");
+        }
+        hinge.setAxis(axis.x, axis.y, axis.z);
     }
 
     @Override
@@ -134,5 +156,23 @@ public class ODEHinge extends Pose {
             m4.setTranslation(new Vector3d(anchor.get0(),anchor.get1(),anchor.get2()));
             setWorld(m4);
         }
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        var json = super.toJSON();
+        json.put("partA",partA.getUniqueID());
+        json.put("partB",partB.getUniqueID());
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject from) {
+        super.fromJSON(from);
+        if(from.has("partA")) partA.setUniqueID(from.getString("partA"));
+        if(from.has("partB")) partB.setUniqueID(from.getString("partB"));
+        updatePhysicsFromWorld();
+        connect();
+        updateHingePose();
     }
 }

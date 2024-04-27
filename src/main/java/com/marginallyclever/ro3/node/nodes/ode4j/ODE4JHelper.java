@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 
 /**
  * Shared methods for working with ODE4J physics.
@@ -58,6 +59,10 @@ public class ODE4JHelper {
         );
     }
 
+    /**
+     * Gurantee there is exactly one {@link ODEWorldSpace} in the scene.
+     * @return the {@link ODEWorldSpace}.
+     */
     public static ODEWorldSpace guaranteePhysicsWorld() {
         ODEWorldSpace physics = Registry.getScene().findFirstChild(ODEWorldSpace.class);
         if (physics == null) {
@@ -92,8 +97,8 @@ public class ODE4JHelper {
         return json;
     }
 
-    public static DVector3C jsonToVector3(JSONObject vector) {
-        return new DVector3(
+    public static Vector3d jsonToVector3(JSONObject vector) {
+        return new Vector3d(
                 vector.getDouble("x"),
                 vector.getDouble("y"),
                 vector.getDouble("z"));

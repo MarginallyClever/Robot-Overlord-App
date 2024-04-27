@@ -34,8 +34,8 @@ public class ODESphere extends ODEBody {
     }
 
     @Override
-    protected void onAttach() {
-        super.onAttach();
+    protected void onFirstUpdate() {
+        super.onFirstUpdate();
 
         ODEWorldSpace physics = ODE4JHelper.guaranteePhysicsWorld();
         geom = createSphere(physics.getODESpace(), radius);
@@ -44,8 +44,8 @@ public class ODESphere extends ODEBody {
         mass.setSphereTotal(ODE4JHelper.volumeSphere(radius), radius);
         body.setMass(mass);
 
-        addChild(new MeshInstance());
-        addChild(new Material());
+        if(findFirstChild(MeshInstance.class)==null) addChild(new MeshInstance());
+        if(findFirstChild(Material.class)==null) addChild(new Material());
         updateSize();
     }
 
@@ -60,6 +60,8 @@ public class ODESphere extends ODEBody {
     }
 
     private void updateSize() {
+        if(geom==null) return;
+
         ((DSphere)geom).setRadius(radius);
         geom.setBody(body);
 

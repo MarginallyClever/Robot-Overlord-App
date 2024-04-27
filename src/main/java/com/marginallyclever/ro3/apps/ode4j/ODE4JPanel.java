@@ -53,39 +53,16 @@ public class ODE4JPanel extends App {
         pauseButton.setToolTipText("Play");
         pauseButton.setIcon( new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/shared/icons8-play-16.png"))) );
 
-
-        addButtonByNameAndCallback(container, "+Floor", (e)->{
-            ODE4JHelper.guaranteePhysicsWorld();
-            Registry.getScene().addChild(new ODEPlane());
-        });
-
-        addButtonByNameAndCallback(container, "+Sphere", (e)->{
-            ODE4JHelper.guaranteePhysicsWorld();
-            add(new ODESphere());
-        });
-
-        addButtonByNameAndCallback(container, "+Box", (e)->{
-            ODE4JHelper.guaranteePhysicsWorld();
-            add(new ODEBox());
-        });
-
-        addButtonByNameAndCallback(container, "+Cylinder", (e)->{
-            ODE4JHelper.guaranteePhysicsWorld();
-            add(new ODECylinder());
-        });
-
-        addButtonByNameAndCallback(container, "+Capsule", (e)->{
-            ODE4JHelper.guaranteePhysicsWorld();
-            add(new ODECapsule());
-        });
-
-        addButtonByNameAndCallback(container, "+Hinge", (e)->{
-            ODE4JHelper.guaranteePhysicsWorld();
-            add(new ODEHinge());
-        });
+        addButtonByNameAndCallback(container, "+Floor", (e)-> Registry.getScene().addChild(new ODEPlane()) );
+        addButtonByNameAndCallback(container, "+Sphere", (e)-> add(new ODESphere()) );
+        addButtonByNameAndCallback(container, "+Box", (e)-> add(new ODEBox()) );
+        addButtonByNameAndCallback(container, "+Cylinder", (e)-> add(new ODECylinder()) );
+        addButtonByNameAndCallback(container, "+Capsule", (e)->add(new ODECapsule()) );
+        addButtonByNameAndCallback(container, "+Hinge", (e)-> add(new ODEHinge()) );
     }
 
     private void add(Pose body) {
+        ODE4JHelper.guaranteePhysicsWorld();
         Registry.getScene().addChild(body);
         placeBodyAbovePlane(body);
         if(randomColor) giveRandomColor(body);

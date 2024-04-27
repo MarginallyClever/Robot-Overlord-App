@@ -34,8 +34,8 @@ public class ODEBox extends ODEBody {
     }
 
     @Override
-    protected void onAttach() {
-        super.onAttach();
+    protected void onFirstUpdate() {
+        super.onFirstUpdate();
 
         ODEWorldSpace physics = ODE4JHelper.guaranteePhysicsWorld();
         geom = createBox(physics.getODESpace(), sizeX, sizeY, sizeZ);
@@ -44,8 +44,8 @@ public class ODEBox extends ODEBody {
         mass.setBoxTotal(ODE4JHelper.volumeBox(sizeX,sizeY,sizeZ), sizeX, sizeY, sizeZ);
         body.setMass(mass);
 
-        addChild(new MeshInstance());
-        addChild(new Material());
+        if(findFirstChild(MeshInstance.class)==null) addChild(new MeshInstance());
+        if(findFirstChild(Material.class)==null) addChild(new Material());
         updateSize();
     }
 
@@ -80,12 +80,13 @@ public class ODEBox extends ODEBody {
     }
 
     private void updateSize() {
+        if(geom==null) return;
+
         ((DBox)geom).setLengths(sizeX, sizeY, sizeZ);
         geom.setBody(body);
 
         mass.setBoxTotal(mass.getMass(), sizeX, sizeY, sizeZ);
         body.setMass(mass);
-
 
         var meshInstance = findFirstChild(MeshInstance.class);
         if(meshInstance!=null) {

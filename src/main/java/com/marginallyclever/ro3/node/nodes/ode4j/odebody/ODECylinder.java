@@ -34,8 +34,8 @@ public class ODECylinder extends ODEBody {
     }
 
     @Override
-    protected void onAttach() {
-        super.onAttach();
+    protected void onFirstUpdate() {
+        super.onFirstUpdate();
 
         ODEWorldSpace physics = ODE4JHelper.guaranteePhysicsWorld();
         geom = OdeHelper.createCylinder(physics.getODESpace(), radius, length);
@@ -44,8 +44,8 @@ public class ODECylinder extends ODEBody {
         mass.setCylinderTotal(ODE4JHelper.volumeCylinder(radius,length), 3, radius, length);
         body.setMass(mass);
 
-        addChild(new MeshInstance());
-        addChild(new Material());
+        if(findFirstChild(MeshInstance.class)==null) addChild(new MeshInstance());
+        if(findFirstChild(Material.class)==null) addChild(new Material());
         updateSize();
     }
 
@@ -70,6 +70,8 @@ public class ODECylinder extends ODEBody {
     }
 
     private void updateSize() {
+        if(geom==null) return;
+
         ((DCylinder)geom).setParams(radius, length);
         geom.setBody(body);
 

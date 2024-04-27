@@ -37,8 +37,8 @@ public class ODECapsule extends ODEBody {
     }
 
     @Override
-    protected void onAttach() {
-        super.onAttach();
+    protected void onFirstUpdate() {
+        super.onFirstUpdate();
 
         ODEWorldSpace physics = ODE4JHelper.guaranteePhysicsWorld();
         geom = OdeHelper.createCapsule(physics.getODESpace(), radius, length);
@@ -47,9 +47,8 @@ public class ODECapsule extends ODEBody {
         mass.setCapsuleTotal(ODE4JHelper.volumeCapsule(radius,length), 3, radius, length);
         body.setMass(mass);
 
-        addChild(new MeshInstance());
-        addChild(new Material());
-
+        if(findFirstChild(MeshInstance.class)==null) addChild(new MeshInstance());
+        if(findFirstChild(Material.class)==null) addChild(new Material());
         updateSize();
     }
 
@@ -74,6 +73,8 @@ public class ODECapsule extends ODEBody {
     }
 
     private void updateSize() {
+        if(geom==null) return;
+
         ((DCapsule)geom).setParams(radius, length);
         geom.setBody(body);
 

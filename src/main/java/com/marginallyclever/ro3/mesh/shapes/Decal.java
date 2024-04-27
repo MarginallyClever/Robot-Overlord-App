@@ -20,7 +20,6 @@ public class Decal extends Mesh {
 
 	public Decal() {
 		super();
-		
 		updateModel();
 	}
 
@@ -39,7 +38,6 @@ public class Decal extends Mesh {
 	 * Create a rectangle in the XY plane, facing +Z.
 	 */
 	private void createOneSidedDecal() {
-
 		Vector3d n = new Vector3d();
 		Vector3d p0 = new Vector3d();
 		Vector3d p1 = new Vector3d();

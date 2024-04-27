@@ -65,17 +65,23 @@ public class ODEWorldSpace extends Node {
         logger.info("Starting Physics");
 
         // build the world
-        world = createWorld();
-        world.setGravity(0, 0, WORLD_GRAVITY);
-        world.setCFM (WORLD_CFM);
-        world.setERP (WORLD_ERP);
-        world.setQuickStepNumIterations (ITERS);
+        if(world == null) {
+            world = createWorld();
+            world.setGravity(0, 0, WORLD_GRAVITY);
+            world.setCFM(WORLD_CFM);
+            world.setERP(WORLD_ERP);
+            world.setQuickStepNumIterations(ITERS);
+        }
 
         // setup a space in the world
-        space = OdeHelper.createSapSpace( null, DSapSpace.AXES.XYZ );
-        //space = OdeHelper.createSimpleSpace();
+        if(space == null) {
+            space = OdeHelper.createSapSpace(null, DSapSpace.AXES.XYZ);
+            //space = OdeHelper.createSimpleSpace();
+        }
 
-        contacts = new DContactBuffer(CONTACT_BUFFER_SIZE);
+        if(contacts == null) {
+            contacts = new DContactBuffer(CONTACT_BUFFER_SIZE);
+        }
 
         if(contactGroup == null) {
             contactGroup = OdeHelper.createJointGroup();
