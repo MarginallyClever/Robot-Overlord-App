@@ -6,6 +6,9 @@ import com.marginallyclever.ro3.PanelHelper;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * A panel for editing an ODESphere.
+ */
 public class ODESpherePanel extends JPanel {
     public ODESpherePanel() {
         this(new ODESphere());

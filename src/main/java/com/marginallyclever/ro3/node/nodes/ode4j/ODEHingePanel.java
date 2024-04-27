@@ -11,6 +11,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.function.Consumer;
 
+/**
+ * A panel for editing an ODEHinge.
+ */
 public class ODEHingePanel extends JPanel {
     public ODEHingePanel() {
         this(new ODEHinge());

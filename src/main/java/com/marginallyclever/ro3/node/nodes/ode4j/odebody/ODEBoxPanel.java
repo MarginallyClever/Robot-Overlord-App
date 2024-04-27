@@ -7,6 +7,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.function.DoubleConsumer;
 
+/**
+ * A panel for editing an ODEBox.
+ */
 public class ODEBoxPanel extends JPanel {
     public ODEBoxPanel() {
         this(new ODEBox());

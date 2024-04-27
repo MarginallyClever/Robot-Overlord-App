@@ -18,13 +18,19 @@ import javax.vecmath.Vector3d;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * <p>An {@link ODENode} that represents a body with a geometry in the ODE physics engine.  This node is responsible
+ * for the {@link DBody}, {@link DMass}, and {@link DGeom}.  Classes which extend this class are responsible for the
+ * visual and physical representation of the shape.</p>
+ * <p>TODO: They should not be responsible for the visual representation because physical and visual shape don't always match.</p>
+ */
 public abstract class ODEBody extends ODENode {
     protected DBody body;
     protected DGeom geom;
     protected DMass mass;
     private double massQty=1;
-    private Vector3d angularVel = new Vector3d();
-    private Vector3d linearVel = new Vector3d();
+    private final Vector3d angularVel = new Vector3d();
+    private final Vector3d linearVel = new Vector3d();
 
     public ODEBody() {
         this("ODE Body");

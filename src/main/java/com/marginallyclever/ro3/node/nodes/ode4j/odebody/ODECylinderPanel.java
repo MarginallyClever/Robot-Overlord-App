@@ -7,6 +7,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.function.DoubleConsumer;
 
+/**
+ * A panel for editing an ODEBox.
+ */
 public class ODECylinderPanel extends JPanel {
     public ODECylinderPanel() {
         this(new ODECylinder());
