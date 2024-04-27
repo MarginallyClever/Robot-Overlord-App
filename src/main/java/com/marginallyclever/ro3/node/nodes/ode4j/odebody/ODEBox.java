@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import org.ode4j.ode.DBox;
 
 import javax.swing.*;
+import javax.vecmath.Vector3d;
 import java.util.List;
 
 import static org.ode4j.ode.OdeHelper.createBox;
@@ -17,7 +18,7 @@ import static org.ode4j.ode.OdeHelper.createBox;
  * Wrapper for a ODE4J Box.
  */
 public class ODEBox extends ODEBody {
-    private double sizeX=5.0, sizeY=5.0, sizeZ=5.0;
+    private final Vector3d size = new Vector3d(5,5,5);
 
     public ODEBox() {
         this("ODE Box");
@@ -38,10 +39,10 @@ public class ODEBox extends ODEBody {
         super.onFirstUpdate();
 
         ODEWorldSpace physics = ODE4JHelper.guaranteePhysicsWorld();
-        geom = createBox(physics.getODESpace(), sizeX, sizeY, sizeZ);
+        geom = createBox(physics.getODESpace(), size.x, size.y, size.z);
         geom.setBody(body);
 
-        mass.setBoxTotal(ODE4JHelper.volumeBox(sizeX,sizeY,sizeZ), sizeX, sizeY, sizeZ);
+        mass.setBoxTotal(ODE4JHelper.volumeBox(size.x,size.y,size.z), size.x, size.y, size.z);
         body.setMass(mass);
 
         if(findFirstChild(MeshInstance.class)==null) addChild(new MeshInstance());
@@ -50,65 +51,65 @@ public class ODEBox extends ODEBody {
     }
 
     public double getSizeX() {
-        return sizeX;
+        return size.x;
     }
 
     public double getSizeY() {
-        return sizeY;
+        return size.y;
     }
 
     public double getSizeZ() {
-        return sizeZ;
+        return size.z;
     }
 
     public void setSizeX(double size) {
         if(size<=0) throw new IllegalArgumentException("Size must be greater than zero.");
-        this.sizeX = size;
+        this.size.x = size;
         updateSize();
     }
 
     public void setSizeY(double size) {
         if(size<=0) throw new IllegalArgumentException("Size must be greater than zero.");
-        this.sizeY = size;
+        this.size.y = size;
         updateSize();
     }
 
     public void setSizeZ(double size) {
         if(size<=0) throw new IllegalArgumentException("Size must be greater than zero.");
-        this.sizeZ = size;
+        this.size.z = size;
         updateSize();
     }
 
     private void updateSize() {
         if(geom==null) return;
 
-        ((DBox)geom).setLengths(sizeX, sizeY, sizeZ);
+        ((DBox)geom).setLengths(size.x, size.y, size.z);
         geom.setBody(body);
 
-        mass.setBoxTotal(mass.getMass(), sizeX, sizeY, sizeZ);
+        mass.setBoxTotal(mass.getMass(), size.x, size.y, size.z);
         body.setMass(mass);
 
         var meshInstance = findFirstChild(MeshInstance.class);
         if(meshInstance!=null) {
-            meshInstance.setMesh(new Box(sizeX,sizeY,sizeZ));
+            meshInstance.setMesh(new Box(size.x,size.y,size.z));
         }
     }
 
     @Override
     public JSONObject toJSON() {
         var json= super.toJSON();
-        json.put("sizeX", sizeX);
-        json.put("sizeY", sizeY);
-        json.put("sizeZ", sizeZ);
+        json.put("sizeX", size.x);
+        json.put("sizeY", size.y);
+        json.put("sizeZ", size.z);
         return json;
     }
 
     @Override
     public void fromJSON(JSONObject json) {
         super.fromJSON(json);
-        if(json.has("sizeX")) sizeX = json.getDouble("sizeX");
-        if(json.has("sizeY")) sizeY = json.getDouble("sizeY");
-        if(json.has("sizeZ")) sizeZ = json.getDouble("sizeZ");
+        if(json.has("sizeX")) size.x = json.getDouble("sizeX");
+        if(json.has("sizeY")) size.y = json.getDouble("sizeY");
+        if(json.has("sizeZ")) size.z = json.getDouble("sizeZ");
         updateSize();
     }
 }

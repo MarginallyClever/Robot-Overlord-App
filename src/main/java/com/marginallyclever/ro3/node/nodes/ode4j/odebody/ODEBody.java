@@ -133,10 +133,8 @@ public abstract class ODEBody extends ODENode {
     public JSONObject toJSON() {
         var json = super.toJSON();
         json.put("mass", getMassQty());
-        if(body!=null) {
-            json.put("avel", ODE4JHelper.vector3ToJSON(body.getAngularVel()));
-            json.put("lvel", ODE4JHelper.vector3ToJSON(body.getLinearVel()));
-        }
+        json.put("avel", ODE4JHelper.vector3ToJSON(angularVel));
+        json.put("lvel", ODE4JHelper.vector3ToJSON(linearVel));
         return json;
 
     }

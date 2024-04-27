@@ -89,11 +89,11 @@ public class ODE4JHelper {
         return 4.0 / 3.0 * Math.PI * radius * radius * radius;
     }
 
-    public static JSONObject vector3ToJSON(DVector3C vector) {
+    public static JSONObject vector3ToJSON(Vector3d vector) {
         JSONObject json = new JSONObject();
-        json.put("x", vector.get0());
-        json.put("y", vector.get1());
-        json.put("z", vector.get2());
+        json.put("x", vector.x);
+        json.put("y", vector.y);
+        json.put("z", vector.z);
         return json;
     }
 
