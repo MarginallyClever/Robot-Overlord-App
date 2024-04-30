@@ -45,15 +45,7 @@ public class NewScene extends AbstractAction {
     public void commitNewScene() {
         logger.info("New scene");
 
-        // remove all children of the scene to make sure we're starting fresh.
-        Node oldScene = Registry.getScene();
-        List<Node> toRemove = new ArrayList<>(oldScene.getChildren());
-        for(Node child : toRemove) {
-            oldScene.removeChild(child);
-        }
-
         Registry.reset();
-        Registry.setScene(new Node("Scene"));
 
         if(saveScene!=null) saveScene.setEnabled(false);
 
