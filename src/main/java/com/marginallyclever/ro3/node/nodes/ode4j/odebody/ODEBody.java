@@ -13,7 +13,6 @@ import org.ode4j.ode.DMass;
 import org.ode4j.ode.OdeHelper;
 
 import javax.swing.*;
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.util.List;
 import java.util.Objects;
@@ -49,12 +48,18 @@ public abstract class ODEBody extends ODENode {
     @Override
     protected void onDetach() {
         super.onDetach();
+        destroyBody();
+        destroyGeom();
+    }
+
+    protected void destroyBody() {
         if(body != null) {
-            try {
-                body.destroy();
-            } catch(Exception ignored) {}  // if the worldspace is destroyed first, this will throw an exception.
+            body.destroy();
             body = null;
         }
+    }
+
+    protected void destroyGeom() {
         if(geom != null) {
             geom.destroy();
             geom = null;
@@ -68,15 +73,21 @@ public abstract class ODEBody extends ODENode {
         ODEWorldSpace physics = ODE4JHelper.guaranteePhysicsWorld();
         body = OdeHelper.createBody(physics.getODEWorld());
         mass = OdeHelper.createMass();
+        mass.setZero();
         updateMass();
-        updatePoseFromPhysics();
+        updatePhysicsFromPose();
     }
 
     @Override
     public void update(double dt) {
         super.update(dt);
 
-        // adjust the position of the Node to match the body.
+        updatePoseFromPhysics();
+    }
+
+    protected void updatePoseFromPhysics() {
+        // adjust the position of the Node to match the body.  This will
+        // cause the visual representation to match the physics representation.
         if(body == null) return;
         DVector3C translation = body.getPosition();
         DMatrix3C rotation = body.getRotation();
@@ -84,12 +95,13 @@ public abstract class ODEBody extends ODENode {
     }
 
     @Override
-    public void setLocal(Matrix4d m) {
-        super.setLocal(m);
-        updatePoseFromPhysics();
+    protected void updateChildPose() {
+        super.updateChildPose();
+        // update the physics body to match the new pose.
+        updatePhysicsFromPose();
     }
 
-    protected void updatePoseFromPhysics() {
+    protected void updatePhysicsFromPose() {
         if (body == null) return;
         var world = getWorld();
         body.setPosition(world.m03, world.m13, world.m23);
@@ -106,7 +118,6 @@ public abstract class ODEBody extends ODENode {
     }
 
     /**
-     *
      * @param massQty must be >= 0
      */
     public void setMassQty(double massQty) {
@@ -118,7 +129,7 @@ public abstract class ODEBody extends ODENode {
     private void updateMass() {
         if(mass==null || body==null) return;
         mass.setMass(massQty);
-        if(mass.check()) {
+        if(massQty>0 && mass.check()) {
             body.setMass(mass);
             body.setAngularVel(angularVel.x, angularVel.y, angularVel.z);
             body.setLinearVel(linearVel.x, linearVel.y, linearVel.z);
@@ -145,7 +156,7 @@ public abstract class ODEBody extends ODENode {
         if(from.has("mass")) setMassQty(from.getDouble("mass"));
         if(from.has("avel")) setAngularVel(ODE4JHelper.jsonToVector3(from.getJSONObject("avel")));
         if(from.has("lvel")) setLinearVel(ODE4JHelper.jsonToVector3(from.getJSONObject("lvel")));
-        updatePoseFromPhysics();
+        updatePhysicsFromPose();
     }
 
     public void setAngularVel(Vector3d angularVel) {
