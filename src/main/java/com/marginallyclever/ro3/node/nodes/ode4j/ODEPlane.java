@@ -57,15 +57,19 @@ public class ODEPlane extends ODENode {
             addChild(material);
         }
         material.setTexture(Registry.textureFactory.load("/com/marginallyclever/ro3/shared/checkerboard.png"));
+
+        updatePhysicsFromPose();
     }
 
     @Override
     protected void onDetach() {
         super.onDetach();
+        destroyPlane();
+    }
+
+    private void destroyPlane() {
         if(plane!=null) {
-            try {
-                plane.destroy();
-            } catch(Exception ignored) {}  // if the worldspace is destroyed first, this will throw an exception.
+            plane.destroy();
             plane = null;
         }
     }
@@ -93,13 +97,7 @@ public class ODEPlane extends ODENode {
     @Override
     public void setLocal(Matrix4d m) {
         super.setLocal(m);
-        if(plane==null) return;
-
-        var world = getWorld();
-        Vector3d normal = MatrixHelper.getZAxis(world);
-        Vector3d position = MatrixHelper.getPosition(world);
-        double depth = normal.dot(position);
-        plane.setParams(normal.x, normal.y, normal.z, depth);
+        updatePhysicsFromPose();
     }
 
     @Override
@@ -115,9 +113,16 @@ public class ODEPlane extends ODENode {
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
+        updatePhysicsFromPose();
+    }
 
-        if(findFirstChild(MeshInstance.class)==null) addChild(new MeshInstance());
-        MeshInstance mesh = findFirstChild(MeshInstance.class);
-        mesh.setMesh(decal);
+    protected void updatePhysicsFromPose() {
+        if (plane == null) return;
+
+        var world = getWorld();
+        Vector3d normal = MatrixHelper.getZAxis(world);
+        Vector3d position = MatrixHelper.getPosition(world);
+        double depth = normal.dot(position);
+        plane.setParams(normal.x, normal.y, normal.z, depth);
     }
 }
