@@ -50,9 +50,7 @@ public class ODEHinge extends ODENode {
     @Override
     protected void onFirstUpdate() {
         super.onFirstUpdate();
-        var physics = ODE4JHelper.guaranteePhysicsWorld();
-        hinge = OdeHelper.createHingeJoint(physics.getODEWorld(), null);
-        connect();
+        createHinge();
     }
 
     @Override
@@ -63,6 +61,16 @@ public class ODEHinge extends ODENode {
     @Override
     protected void onDetach() {
         super.onDetach();
+        destroyHinge();
+    }
+
+    private void createHinge() {
+        var physics = ODE4JHelper.guaranteePhysicsWorld();
+        hinge = OdeHelper.createHingeJoint(physics.getODEWorld(), null);
+        connect();
+    }
+
+    private void destroyHinge() {
         if(hinge!=null) {
             try {
                 hinge.destroy();

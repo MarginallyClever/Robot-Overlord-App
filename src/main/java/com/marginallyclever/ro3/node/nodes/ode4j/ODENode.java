@@ -10,7 +10,7 @@ import org.json.JSONObject;
  * after loading.</p>
  * <p>This class is responsible for calling {@link #onFirstUpdate()} once at the start of the first
  * {@link #update(double)}.  No physics calculations should be done in the constructor or in {@link #onAttach()}.</p>
- * <p>the flag to run #onFirstUpdate again will be reset if:</p>
+ * <p>the flag to run {@link #onFirstUpdate()} again will be reset if:</p>
  * <ul>
  *     <li>the node is detached</li>
  *     <li>the node is deserialized</li>
