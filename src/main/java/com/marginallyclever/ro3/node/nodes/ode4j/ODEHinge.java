@@ -183,4 +183,12 @@ public class ODEHinge extends ODENode {
         connect();
         updateHingePose();
     }
+
+    public void addTorque(double value) {
+        if(hinge==null) return;
+        var physics = ODE4JHelper.guaranteePhysicsWorld();
+        if(!physics.isPaused()) {
+            hinge.addTorque(value);
+        }
+    }
 }
