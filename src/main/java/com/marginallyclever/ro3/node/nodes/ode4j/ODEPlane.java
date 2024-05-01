@@ -95,12 +95,6 @@ public class ODEPlane extends ODENode {
     }
 
     @Override
-    public void setLocal(Matrix4d m) {
-        super.setLocal(m);
-        updatePhysicsFromPose();
-    }
-
-    @Override
     public Icon getIcon() {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/ode4j/icons8-mechanics-16.png")));
     }

@@ -4,7 +4,6 @@ import com.marginallyclever.ro3.Registry;
 import org.json.JSONObject;
 import org.ode4j.math.DMatrix3;
 import org.ode4j.math.DMatrix3C;
-import org.ode4j.math.DVector3;
 import org.ode4j.math.DVector3C;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,7 @@ public class ODE4JHelper {
      * @param rotation the rotation matrix
      * @return the Java3D matrix.
      */
-    public static Matrix4d assembleMatrix(DVector3C translation, DMatrix3C rotation) {
+    public static Matrix4d convertODEtoMatrix(DVector3C translation, DMatrix3C rotation) {
         // assemble matrix from translation and rotation.
         Matrix4d m = new Matrix4d();
         m.m00 = rotation.get00();
@@ -49,7 +48,7 @@ public class ODE4JHelper {
     /**
      * receive a 4x4 matrix.  extract the rotation component and store it in a DMatrix3C.
      * @param mat the 4x4 matrix.
-     * @return the rotation component.
+     * @return the rotation component as a 3x3 matrix.
      */
     public static DMatrix3C convertRotationToODE(Matrix4d mat) {
         return new DMatrix3(

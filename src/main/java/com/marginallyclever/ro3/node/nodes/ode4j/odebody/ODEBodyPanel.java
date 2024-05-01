@@ -1,9 +1,7 @@
-package com.marginallyclever.ro3.node.nodes.ode4j;
+package com.marginallyclever.ro3.node.nodes.ode4j.odebody;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
-import com.marginallyclever.ro3.node.nodes.ode4j.odebody.ODEBody;
-import com.marginallyclever.ro3.node.nodes.ode4j.odebody.ODESphere;
 
 import javax.swing.*;
 import java.awt.*;

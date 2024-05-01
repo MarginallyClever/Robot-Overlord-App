@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.node.nodes.ode4j.odebody;
 
 import com.marginallyclever.ro3.node.nodes.ode4j.ODE4JHelper;
-import com.marginallyclever.ro3.node.nodes.ode4j.ODEBodyPanel;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODENode;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODEWorldSpace;
 import org.json.JSONObject;
@@ -85,22 +84,21 @@ public abstract class ODEBody extends ODENode {
         updatePoseFromPhysics();
     }
 
+    /**
+     * Adjust the position of the Node to match the body.  This will cause the visual representation to match the
+     * physics representation.
+     */
     protected void updatePoseFromPhysics() {
-        // adjust the position of the Node to match the body.  This will
-        // cause the visual representation to match the physics representation.
         if(body == null) return;
         DVector3C translation = body.getPosition();
         DMatrix3C rotation = body.getRotation();
-        super.setWorld(ODE4JHelper.assembleMatrix(translation, rotation));
+        super.setWorld(ODE4JHelper.convertODEtoMatrix(translation, rotation));
     }
 
-    @Override
-    protected void updateChildPose() {
-        super.updateChildPose();
-        // update the physics body to match the new pose.
-        updatePhysicsFromPose();
-    }
-
+    /**
+     * Update the physics body to match the Pose.  This will cause the physics representation to match the visual
+     * representation.
+     */
     protected void updatePhysicsFromPose() {
         if (body == null) return;
         var world = getWorld();
