@@ -13,6 +13,7 @@ public class ODEHingeTest {
     public void test() {
         Registry.start();
         Node scene = Registry.getScene();
+        ODE4JHelper.guaranteePhysicsWorld();
         ODEBox box1 = new ODEBox("b1");
         scene.addChild(box1);
         ODEBox box2 = new ODEBox("b2");
@@ -21,11 +22,11 @@ public class ODEHingeTest {
         scene.addChild(hinge1);
         ODEHinge hinge2 = new ODEHinge("h2");
         scene.addChild(hinge2);
+        scene.update(0);
 
         hinge1.setPartB(box1);
         hinge2.setPartA(box1);
         hinge2.setPartB(box2);
-
         assertOneWorldSpaceInScene(scene);
 
         // make a deep copy to/from json and confirm the links are still attached.
