@@ -162,7 +162,7 @@ public class Node {
     }
 
     /**
-     * @return an iterator so that calling class cannot modify the list.
+     * @return the original list.  This is not a copy.  This is dangerous!
      */
     public List<Node> getChildren() {
         return children;

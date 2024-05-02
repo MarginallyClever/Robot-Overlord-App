@@ -5,6 +5,7 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.shapes.Decal;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
+import com.marginallyclever.ro3.physics.ODEPhysics;
 import org.json.JSONObject;
 import org.ode4j.ode.DPlane;
 import org.ode4j.ode.OdeHelper;
@@ -41,7 +42,7 @@ public class ODEPlane extends ODENode {
     protected void onFirstUpdate() {
         super.onFirstUpdate();
 
-        ODEWorldSpace physics = ODE4JHelper.guaranteePhysicsWorld();
+        ODEPhysics physics = ODE4JHelper.guaranteePhysicsWorld();
         plane = OdeHelper.createPlane(physics.getODESpace(), 0, 0, 1, 0);
 
         MeshInstance mesh = findFirstChild(MeshInstance.class);

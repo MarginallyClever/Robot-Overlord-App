@@ -1,12 +1,14 @@
-package com.marginallyclever.ro3.node.nodes.ode4j;
+package com.marginallyclever.ro3.physics;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.ode4j.CollisionListener;
 import org.ode4j.ode.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.event.EventListenerList;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,8 +19,8 @@ import static org.ode4j.ode.OdeHelper.createWorld;
  * Manages the ODE4J physics world, space, and contact handling.  There must be exactly one of these in the scene
  * for physics to work.
  */
-public class ODEWorldSpace extends Node {
-    private static final Logger logger = LoggerFactory.getLogger(ODEWorldSpace.class);
+public class ODEPhysics extends Node {
+    private static final Logger logger = LoggerFactory.getLogger(ODEPhysics.class);
 
     public double WORLD_CFM = 1e-5;
     public double WORLD_ERP = 0.8;
@@ -32,11 +34,13 @@ public class ODEWorldSpace extends Node {
     private DJointGroup contactGroup;
     private boolean isPaused = true;
 
-    public ODEWorldSpace() {
+    protected final EventListenerList listeners = new EventListenerList();
+
+    public ODEPhysics() {
         this("ODEWorldSpace");
     }
 
-    public ODEWorldSpace(String name) {
+    public ODEPhysics(String name) {
         super(name);
     }
 
@@ -131,8 +135,12 @@ public class ODEWorldSpace extends Node {
         }
     }
 
-    // this is called by dSpaceCollide when two objects in space are
-    // potentially colliding.
+    /**
+     * This is called by ODE4J's dSpaceCollide when two objects in space are potentially colliding.
+     * @param data user data
+     * @param o1 the first object
+     * @param o2 the second object
+     */
     private void nearCallback(Object data, DGeom o1, DGeom o2) {
         DBody b1 = o1.getBody();
         DBody b2 = o2.getBody();
@@ -140,28 +148,51 @@ public class ODEWorldSpace extends Node {
             return;
 
         try {
-            ODEWorldSpace physics = Registry.getScene().findFirstChild(ODEWorldSpace.class);
+            ODEPhysics physics = Registry.getScene().findFirstChild(ODEPhysics.class);
 
             int n = OdeHelper.collide(o1, o2, CONTACT_BUFFER_SIZE, contacts.getGeomBuffer());
-            if (n > 0) {
-                for (int i = 0; i < n; i++) {
-                    DContact contact = contacts.get(i);
-                    contact.surface.mode = dContactSlip1 | dContactSlip2 | dContactSoftERP | dContactSoftCFM | dContactApprox1;
+            for (int i = 0; i < n; ++i) {
+                DContact contact = contacts.get(i);
+                contact.surface.mode = dContactSlip1 | dContactSlip2 | dContactSoftERP | dContactSoftCFM | dContactApprox1;
 
-                    contact.surface.mu = 0.5;  // friction
-                    contact.surface.slip1 = 0.0;  // how much the contact surfaces can slide
-                    contact.surface.slip2 = 0.0;  // how much the contact surfaces can slide
-                    contact.surface.soft_erp = 0.8;  // how spongy the contact is
-                    contact.surface.soft_cfm = 0.001;  // how soft to make the contact
-                    contact.surface.bounce = 0.9;  // how much the contact surfaces can bounce
-                    contact.surface.bounce_vel = 0.5;  // how fast the contact surfaces can bounce
-                    DJoint contactJoint = OdeHelper.createContactJoint(physics.getODEWorld(), contactGroup, contact);
-                    contactJoint.attach(o1.getBody(), o2.getBody());
-                }
+                contact.surface.mu = 0.5;  // friction
+                contact.surface.slip1 = 0.0;  // how much the contact surfaces can slide
+                contact.surface.slip2 = 0.0;  // how much the contact surfaces can slide
+                contact.surface.soft_erp = 0.8;  // how spongy the contact is
+                contact.surface.soft_cfm = 0.001;  // how soft to make the contact
+                contact.surface.bounce = 0.9;  // how much the contact surfaces can bounce
+                contact.surface.bounce_vel = 0.5;  // how fast the contact surfaces can bounce
+
+                DJoint contactJoint = OdeHelper.createContactJoint(physics.getODEWorld(), contactGroup, contact);
+                contactJoint.attach(o1.getBody(), o2.getBody());
+
+                // inform any listeners that a collision has occurred.  Use the DGeom to find the associated ODENode
+                // and use teh ODENode in the notification.
+                fireCollisionEvent(o1,o2,contact);
             }
         } catch (Exception e) {
             logger.error("collision failed.", e);
         }
+    }
+
+    /**
+     * Notify all listeners that a collision has occurred.
+     * @param g1 the first object
+     * @param g2 the second object
+     * @param contact the contact information
+     */
+    private void fireCollisionEvent(DGeom g1,DGeom g2,DContact contact) {
+        for(CollisionListener listener : listeners.getListeners(CollisionListener.class)) {
+            listener.onCollision(g1,g2,contact);
+        }
+    }
+
+    public void addCollisionListener(CollisionListener listener) {
+        listeners.add(CollisionListener.class, listener);
+    }
+
+    public void removeCollisionListener(CollisionListener listener) {
+        listeners.remove(CollisionListener.class, listener);
     }
 
     @Override
@@ -175,5 +206,8 @@ public class ODEWorldSpace extends Node {
 
     public void setPaused(boolean state) {
         isPaused = state;
+    }
+
+    public void reset() {
     }
 }

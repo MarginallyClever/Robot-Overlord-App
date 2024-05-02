@@ -13,13 +13,14 @@ import com.marginallyclever.ro3.node.nodes.behavior.decorators.*;
 import com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlanner;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
+import com.marginallyclever.ro3.node.nodes.ode4j.CreatureController;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODEHinge;
 import com.marginallyclever.ro3.node.nodes.ode4j.odebody.ODEBox;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODEPlane;
 import com.marginallyclever.ro3.node.nodes.ode4j.odebody.ODECapsule;
 import com.marginallyclever.ro3.node.nodes.ode4j.odebody.ODECylinder;
 import com.marginallyclever.ro3.node.nodes.ode4j.odebody.ODESphere;
-import com.marginallyclever.ro3.node.nodes.ode4j.ODEWorldSpace;
+import com.marginallyclever.ro3.physics.ODEPhysics;
 import com.marginallyclever.ro3.node.nodes.pose.*;
 import com.marginallyclever.ro3.node.nodes.pose.poses.*;
 import com.marginallyclever.ro3.texture.TextureFactory;
@@ -41,6 +42,7 @@ public class Registry {
     public static final ListWithEvents<Camera> cameras = new ListWithEvents<>();
     private static Camera activeCamera = null;
     public static final ListWithEvents<Node> selection = new ListWithEvents<>();
+    public static final ODEPhysics physics = new ODEPhysics();
 
     public static void start() {
         nodeFactory.clear();
@@ -84,7 +86,8 @@ public class Registry {
             }
             NodeFactory.Category physics = node.add("Physics", null);
             {
-                physics.add("ODEWorldSpace", ODEWorldSpace::new);
+                physics.add("CreatureController", CreatureController::new);
+                physics.add("ODEWorldSpace", ODEPhysics::new);
                 physics.add("ODEBox", ODEBox::new);
                 physics.add("ODECapsule", ODECapsule::new);
                 physics.add("ODECylinder", ODECylinder::new);
@@ -117,6 +120,7 @@ public class Registry {
 
         textureFactory.reset();
         meshFactory.reset();
+        physics.reset();
 
         scene = new Node("Scene");
     }

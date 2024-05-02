@@ -2,10 +2,8 @@ package com.marginallyclever.ro3.node.nodes.ode4j.odebody;
 
 import com.marginallyclever.ro3.mesh.shapes.Capsule;
 import com.marginallyclever.ro3.mesh.shapes.Sphere;
-import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODE4JHelper;
-import com.marginallyclever.ro3.node.nodes.ode4j.ODEHinge;
-import com.marginallyclever.ro3.node.nodes.ode4j.ODEWorldSpace;
+import com.marginallyclever.ro3.physics.ODEPhysics;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONObject;
 import org.ode4j.ode.DCapsule;
@@ -40,15 +38,13 @@ public class ODECapsule extends ODEBody {
     protected void onFirstUpdate() {
         super.onFirstUpdate();
 
-        ODEWorldSpace physics = ODE4JHelper.guaranteePhysicsWorld();
+        ODEPhysics physics = ODE4JHelper.guaranteePhysicsWorld();
         geom = OdeHelper.createCapsule(physics.getODESpace(), radius, length);
         geom.setBody(body);
 
         mass.setCapsuleTotal(ODE4JHelper.volumeCapsule(radius,length), 3, radius, length);
         body.setMass(mass);
 
-        if(findFirstChild(MeshInstance.class)==null) addChild(new MeshInstance());
-        if(findFirstChild(Material.class)==null) addChild(new Material());
         updateSize();
     }
 

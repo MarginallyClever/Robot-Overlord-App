@@ -3,10 +3,12 @@ package com.marginallyclever.ro3.apps.ode4j;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.App;
+import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.ode4j.*;
 import com.marginallyclever.ro3.node.nodes.ode4j.odebody.*;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
+import com.marginallyclever.ro3.physics.ODEPhysics;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
@@ -32,7 +34,7 @@ public class ODE4JPanel extends App {
         add(container, BorderLayout.CENTER);
 
         JButton pauseButton = addButtonByNameAndCallback(toolbar, "", (e)->{
-            ODEWorldSpace physics = ODE4JHelper.guaranteePhysicsWorld();
+            ODEPhysics physics = ODE4JHelper.guaranteePhysicsWorld();
             physics.setPaused(!physics.isPaused());
             updatePauseButton((JButton)e.getSource(), physics);
         });
@@ -59,13 +61,18 @@ public class ODE4JPanel extends App {
         addButtonByNameAndCallback(container, "+Cylinder", (e)-> add(new ODECylinder()) );
         addButtonByNameAndCallback(container, "+Capsule", (e)->add(new ODECapsule()) );
         addButtonByNameAndCallback(container, "+Hinge", (e)-> add(new ODEHinge()) );
+        addButtonByNameAndCallback(container, "+Creature controller", (e)-> add(new CreatureController()) );
     }
 
-    private void add(Pose body) {
-        ODE4JHelper.guaranteePhysicsWorld();
-        Registry.getScene().addChild(body);
-        placeBodyAbovePlane(body);
-        if(randomColor) giveRandomColor(body);
+    private void add(Node node) {
+        if(node instanceof Pose body) {
+            ODE4JHelper.guaranteePhysicsWorld();
+            Registry.getScene().addChild(body);
+            placeBodyAbovePlane(body);
+            if(randomColor) giveRandomColor(body);
+        } else {
+            Registry.getScene().addChild(node);
+        }
     }
 
     private void placeBodyAbovePlane(Pose body) {
@@ -103,7 +110,7 @@ public class ODE4JPanel extends App {
         return button;
     }
 
-    private void updatePauseButton(JButton pauseButton, ODEWorldSpace worldSpace) {
+    private void updatePauseButton(JButton pauseButton, ODEPhysics worldSpace) {
         if (worldSpace.isPaused()) {
             pauseButton.setToolTipText("Unpause");
             pauseButton.setIcon( new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/shared/icons8-play-16.png"))));

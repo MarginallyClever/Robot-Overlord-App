@@ -53,7 +53,8 @@ public class ODENode extends Pose {
     }
 
     /**
-     * Called once at the start of the first {@link #update(double)}
+     * Called once at the start of the first {@link #update(double)}.
+     * Override this to do any setup that requires all subjects to be present.
      */
     protected void onFirstUpdate() {
         // override me

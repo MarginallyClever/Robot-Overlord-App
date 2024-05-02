@@ -1,8 +1,8 @@
 package com.marginallyclever.ro3;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import com.marginallyclever.ro3.physics.ODEWorldSpacePanel;
 import org.reflections.Reflections;
-import org.reflections.util.ClasspathHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +102,7 @@ public class AllPanels {
             com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlannerPanel.class,
             com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolverPanel.class,
             com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArmPanel.class,
-            com.marginallyclever.ro3.node.nodes.ode4j.ODEWorldSpacePanel.class,
+            ODEWorldSpacePanel.class,
             com.marginallyclever.ro3.node.nodes.pose.PosePanel.class,
             com.marginallyclever.ro3.node.nodes.pose.poses.AttachmentPointPanel.class,
             com.marginallyclever.ro3.node.nodes.pose.poses.CameraPanel.class,

@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.ode4j;
+package com.marginallyclever.ro3.physics;
 
 import com.marginallyclever.ro3.PanelHelper;
 import org.slf4j.Logger;
@@ -16,12 +16,12 @@ public class ODEWorldSpacePanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(ODEWorldSpacePanel.class);
 
     public ODEWorldSpacePanel() {
-        this(new ODEWorldSpace());
+        this(new ODEPhysics());
     }
 
-    public ODEWorldSpacePanel(ODEWorldSpace worldSpace) {
+    public ODEWorldSpacePanel(ODEPhysics worldSpace) {
         super(new GridLayout(0,2));
-        this.setName(ODEWorldSpace.class.getSimpleName());
+        this.setName(ODEPhysics.class.getSimpleName());
 
         // toggle button to pause/unpause the simulation
         JButton pauseButton = new JButton();
@@ -34,7 +34,7 @@ public class ODEWorldSpacePanel extends JPanel {
         PanelHelper.addLabelAndComponent(this,"Active",pauseButton);
     }
 
-    private void updatePauseButton(JButton pauseButton, ODEWorldSpace worldSpace) {
+    private void updatePauseButton(JButton pauseButton, ODEPhysics worldSpace) {
         if (worldSpace.isPaused()) {
             pauseButton.setToolTipText("Play");
             pauseButton.setIcon( new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/shared/icons8-play-16.png"))));

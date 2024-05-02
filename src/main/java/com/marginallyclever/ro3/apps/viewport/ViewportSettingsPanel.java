@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.apps.viewport;
 
-import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.swing.Dial;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
@@ -10,9 +9,6 @@ import com.marginallyclever.ro3.view.ViewProvider;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
-import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
 import java.awt.*;
 
 /**

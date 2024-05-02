@@ -3,10 +3,10 @@ package com.marginallyclever.ro3.node.nodes.ode4j;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.ode4j.odebody.ODEBox;
+import com.marginallyclever.ro3.physics.ODEPhysics;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.ode4j.ode.OdeHelper;
 
 public class ODEHingeTest {
     @Test
@@ -42,7 +42,7 @@ public class ODEHingeTest {
         // count the instances of ODEWorldSpace in scene.
         int count = 0;
         for(Node n : scene.getChildren()) {
-            if(n instanceof ODEWorldSpace) {
+            if(n instanceof ODEPhysics) {
                 count++;
             }
         }
