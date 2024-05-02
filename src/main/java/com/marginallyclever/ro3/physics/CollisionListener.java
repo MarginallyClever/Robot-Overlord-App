@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.ode4j;
+package com.marginallyclever.ro3.physics;
 
 import org.ode4j.ode.DContact;
 import org.ode4j.ode.DGeom;

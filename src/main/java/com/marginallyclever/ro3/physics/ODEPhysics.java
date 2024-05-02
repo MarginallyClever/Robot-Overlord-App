@@ -1,16 +1,10 @@
 package com.marginallyclever.ro3.physics;
 
-import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.ode4j.CollisionListener;
 import org.ode4j.ode.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
 import javax.swing.event.EventListenerList;
-import java.util.List;
-import java.util.Objects;
 
 import static org.ode4j.ode.OdeConstants.*;
 import static org.ode4j.ode.OdeHelper.createWorld;

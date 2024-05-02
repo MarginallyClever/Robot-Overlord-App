@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes.ode4j;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.ode4j.odebody.ODEBody;
+import com.marginallyclever.ro3.physics.CollisionListener;
 import org.ode4j.ode.DContact;
 import org.ode4j.ode.DGeom;
 
