@@ -1,9 +1,8 @@
-package com.marginallyclever.ro3.node.nodes.ode4j;
+package com.marginallyclever.ro3.node.nodes.odenode;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.ode4j.odebody.ODEBox;
-import com.marginallyclever.ro3.physics.ODEPhysics;
+import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODEBox;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

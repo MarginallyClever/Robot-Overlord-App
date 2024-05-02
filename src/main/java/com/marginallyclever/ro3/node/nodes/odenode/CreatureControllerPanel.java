@@ -1,9 +1,7 @@
-package com.marginallyclever.ro3.node.nodes.ode4j;
+package com.marginallyclever.ro3.node.nodes.odenode;
 
 import com.marginallyclever.ro3.PanelHelper;
-import com.marginallyclever.ro3.node.Node;
 
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 import java.awt.*;

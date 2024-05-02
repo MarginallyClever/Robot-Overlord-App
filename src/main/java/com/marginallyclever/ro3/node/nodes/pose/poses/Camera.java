@@ -280,7 +280,7 @@ public class Camera extends Pose {
         //logger.debug("after {}",getOrbitPoint());
     }
 
-    public double[] getPanTiltFromMatrix(Matrix4d matrix) {
+    public static double[] getPanTiltFromMatrix(Matrix4d matrix) {
         Vector3d v = MatrixHelper.matrixToEuler(matrix, MatrixHelper.EulerSequence.YXZ);
         double pan = Math.toDegrees(-v.z);
         double tilt = Math.toDegrees(v.x);
@@ -291,7 +291,7 @@ public class Camera extends Pose {
      * @param panTiltAngles [0] = pan, [1] = tilt
      * @return a matrix that rotates the camera by the given pan and tilt angles.
      */
-    Matrix3d buildPanTiltMatrix(double [] panTiltAngles) {
+    public static Matrix3d buildPanTiltMatrix(double [] panTiltAngles) {
         Matrix3d a = new Matrix3d();
         a.rotZ(Math.toRadians(panTiltAngles[0]));
 

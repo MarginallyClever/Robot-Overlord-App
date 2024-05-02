@@ -24,9 +24,9 @@ public class CameraTest {
         for (int pan = -180; pan <= 180; pan += 10) {
             for (int tilt = -90; tilt <= 90; tilt += 10) {
                 double[] before = new double[]{pan, tilt};
-                Matrix3d panTiltMatrix = camera.buildPanTiltMatrix(before);
+                Matrix3d panTiltMatrix = Camera.buildPanTiltMatrix(before);
                 Matrix4d matrix = new Matrix4d(panTiltMatrix, new Vector3d(), 1.0);
-                double[] after = camera.getPanTiltFromMatrix(matrix);
+                double[] after = Camera.getPanTiltFromMatrix(matrix);
                 //System.out.println("before="+before[0]+","+before[1]+" after="+after[0]+","+after[1]);
                 Assertions.assertArrayEquals(before, after, 0.01);
             }
@@ -109,9 +109,9 @@ public class CameraTest {
     @Test
     public void tilt() {
         Camera camera = new Camera();
-        var p0 = camera.getPanTiltFromMatrix(camera.getLocal());
+        var p0 = Camera.getPanTiltFromMatrix(camera.getLocal());
         camera.tilt(1.0);
-        var p1 = camera.getPanTiltFromMatrix(camera.getLocal());
+        var p1 = Camera.getPanTiltFromMatrix(camera.getLocal());
         Assertions.assertEquals(p0[0], p1[0], 0.01);
         Assertions.assertEquals(p0[1] + 1.0, p1[1], 0.01);
     }
@@ -119,10 +119,10 @@ public class CameraTest {
     @Test
     public void pan() {
         Camera camera = new Camera();
-        var p0 = camera.getPanTiltFromMatrix(camera.getLocal());
+        var p0 = Camera.getPanTiltFromMatrix(camera.getLocal());
         camera.tilt(-90.0);
         camera.pan(90.0);
-        var p1 = camera.getPanTiltFromMatrix(camera.getLocal());
+        var p1 = Camera.getPanTiltFromMatrix(camera.getLocal());
         Assertions.assertEquals(p0[0], p1[0], 0.01);
         Assertions.assertEquals(p0[1] - 90, p1[1], 0.01);
     }
@@ -131,7 +131,7 @@ public class CameraTest {
     public void panTilt() {
         Camera camera = new Camera();
         camera.panTilt(90.0, 90.0);
-        var p1 = camera.getPanTiltFromMatrix(camera.getLocal());
+        var p1 = Camera.getPanTiltFromMatrix(camera.getLocal());
         Assertions.assertEquals(90.0, p1[0], 0.01);
         Assertions.assertEquals(90.0, p1[1], 0.01);
     }
@@ -150,10 +150,10 @@ public class CameraTest {
     @Test
     public void orbit() {
         Camera camera = new Camera();
-        var p0 = camera.getPanTiltFromMatrix(camera.getLocal());
+        var p0 = Camera.getPanTiltFromMatrix(camera.getLocal());
         camera.getLocal().rotX(Math.toRadians(90));
         camera.orbit(90.0,-90);
-        var p1 = camera.getPanTiltFromMatrix(camera.getLocal());
+        var p1 = Camera.getPanTiltFromMatrix(camera.getLocal());
         Assertions.assertEquals(p0[0] + 90.0, p1[0], 0.01);
         Assertions.assertEquals(p0[1], p1[1], 0.01);
     }
@@ -202,9 +202,9 @@ public class CameraTest {
     public void canRotate() {
         Camera camera = new Camera();
         camera.setCanRotate(false);
-        var p0 = camera.getPanTiltFromMatrix(camera.getLocal());
+        var p0 = Camera.getPanTiltFromMatrix(camera.getLocal());
         camera.panTilt(90,90);
-        var p1 = camera.getPanTiltFromMatrix(camera.getLocal());
+        var p1 = Camera.getPanTiltFromMatrix(camera.getLocal());
         Assertions.assertEquals(p0[0], p1[0], 0.01);
         Assertions.assertEquals(p0[1], p1[1], 0.01);
     }
@@ -244,7 +244,7 @@ public class CameraTest {
         Assertions.assertEquals(a.getFarZ(),b.getFarZ(),0.01);
         Assertions.assertEquals(a.getFovY(),b.getFovY(),0.01);
         Assertions.assertEquals(a.getOrbitRadius(),b.getOrbitRadius(),0.01);
-        Assertions.assertArrayEquals(a.getPanTiltFromMatrix(a.getLocal()),b.getPanTiltFromMatrix(b.getLocal()),0.01);
+        Assertions.assertArrayEquals(Camera.getPanTiltFromMatrix(a.getLocal()),Camera.getPanTiltFromMatrix(b.getLocal()),0.01);
         Assertions.assertEquals(a.getPosition(),b.getPosition());
         Assertions.assertEquals(a.getCanRotate(),b.getCanRotate());
         Assertions.assertEquals(a.getCanTranslate(),b.getCanTranslate());

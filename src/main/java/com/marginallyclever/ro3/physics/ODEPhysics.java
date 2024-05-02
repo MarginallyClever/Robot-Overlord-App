@@ -32,7 +32,7 @@ public class ODEPhysics {
 
     public ODEPhysics() {
         super();
-        OdeHelper.initODE2(0);
+        startPhysics();
     }
 
     public void reset() {
@@ -42,6 +42,8 @@ public class ODEPhysics {
 
     private void startPhysics() {
         logger.info("Starting Physics");
+
+        OdeHelper.initODE2(0);
 
         // build the world
         if(world == null) {

@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.ode4j;
+package com.marginallyclever.ro3.node.nodes.odenode;
 
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;

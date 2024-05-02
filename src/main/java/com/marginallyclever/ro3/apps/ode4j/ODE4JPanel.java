@@ -5,8 +5,11 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
-import com.marginallyclever.ro3.node.nodes.ode4j.*;
-import com.marginallyclever.ro3.node.nodes.ode4j.odebody.*;
+import com.marginallyclever.ro3.node.nodes.odenode.*;
+import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODEBox;
+import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODECapsule;
+import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODECylinder;
+import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODESphere;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.physics.ODEPhysics;
 

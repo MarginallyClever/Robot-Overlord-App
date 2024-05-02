@@ -1,9 +1,9 @@
-package com.marginallyclever.ro3.node.nodes.ode4j.odebody;
+package com.marginallyclever.ro3.node.nodes.odenode.odebody;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.physics.ODE4JHelper;
-import com.marginallyclever.ro3.node.nodes.ode4j.ODENode;
+import com.marginallyclever.ro3.node.nodes.odenode.ODENode;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONObject;
 import org.ode4j.math.DMatrix3C;
@@ -116,7 +116,7 @@ public abstract class ODEBody extends ODENode {
 
     @Override
     public Icon getIcon() {
-        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/ode4j/icons8-mechanics-16.png")));
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/odenode/icons8-mechanics-16.png")));
     }
 
     public double getMassQty() {

@@ -1,11 +1,10 @@
-package com.marginallyclever.ro3.node.nodes.ode4j;
+package com.marginallyclever.ro3.node.nodes.odenode;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.shapes.Decal;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
-import com.marginallyclever.ro3.physics.ODEPhysics;
 import org.json.JSONObject;
 import org.ode4j.ode.DPlane;
 import org.ode4j.ode.OdeHelper;
@@ -96,7 +95,7 @@ public class ODEPlane extends ODENode {
 
     @Override
     public Icon getIcon() {
-        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/ode4j/icons8-mechanics-16.png")));
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/odenode/icons8-mechanics-16.png")));
     }
 
     @Override

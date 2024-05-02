@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.ode4j.odebody;
+package com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
@@ -10,18 +10,16 @@ import java.util.function.DoubleConsumer;
 /**
  * A panel for editing an ODEBox.
  */
-public class ODEBoxPanel extends JPanel {
-    public ODEBoxPanel() {
-        this(new ODEBox());
+public class ODECapsulePanel extends JPanel {
+    public ODECapsulePanel() {
+        this(new ODECapsule());
     }
-
-    public ODEBoxPanel(ODEBox body) {
+    public ODECapsulePanel(ODECapsule body) {
         super(new GridLayout(0,2));
-        this.setName(ODEBox.class.getSimpleName());
+        this.setName(ODECapsule.class.getSimpleName());
 
-        addField("Size X", body.getSizeX(), body::setSizeX);
-        addField("Size Y", body.getSizeY(), body::setSizeY);
-        addField("Size Z", body.getSizeZ(), body::setSizeZ);
+        addField("Radius", body.getRadius(), body::setRadius);
+        addField("Length", body.getLength(), body::setLength);
     }
 
     private void addField(String label, double originalValue, DoubleConsumer setSize) {

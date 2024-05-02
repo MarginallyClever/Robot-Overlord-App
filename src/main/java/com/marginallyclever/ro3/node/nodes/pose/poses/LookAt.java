@@ -6,7 +6,6 @@ import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 
 import javax.swing.*;
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import java.util.List;
 import java.util.Objects;
