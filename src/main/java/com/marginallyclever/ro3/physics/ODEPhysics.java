@@ -19,7 +19,7 @@ import static org.ode4j.ode.OdeHelper.createWorld;
  * Manages the ODE4J physics world, space, and contact handling.  There must be exactly one of these in the scene
  * for physics to work.
  */
-public class ODEPhysics extends Node {
+public class ODEPhysics {
     private static final Logger logger = LoggerFactory.getLogger(ODEPhysics.class);
 
     public double WORLD_CFM = 1e-5;
@@ -37,32 +37,13 @@ public class ODEPhysics extends Node {
     protected final EventListenerList listeners = new EventListenerList();
 
     public ODEPhysics() {
-        this("ODEWorldSpace");
-    }
-
-    public ODEPhysics(String name) {
-        super(name);
-    }
-
-    @Override
-    public void getComponents(List<JPanel> list) {
-        list.add(new ODEWorldSpacePanel(this));
-        super.getComponents(list);
-    }
-
-    @Override
-    protected void onAttach() {
-        super.onAttach();
-
+        super();
         OdeHelper.initODE2(0);
-
-        startPhysics();
     }
 
-    @Override
-    protected void onDetach() {
-        super.onDetach();
+    public void reset() {
         stopPhysics();
+        startPhysics();
     }
 
     private void startPhysics() {
@@ -120,10 +101,7 @@ public class ODEPhysics extends Node {
         return space;
     }
 
-    @Override
     public void update(double dt) {
-        super.update(dt);
-
         if(isPaused) return;
 
         try {
@@ -148,8 +126,6 @@ public class ODEPhysics extends Node {
             return;
 
         try {
-            ODEPhysics physics = Registry.getScene().findFirstChild(ODEPhysics.class);
-
             int n = OdeHelper.collide(o1, o2, CONTACT_BUFFER_SIZE, contacts.getGeomBuffer());
             for (int i = 0; i < n; ++i) {
                 DContact contact = contacts.get(i);
@@ -163,7 +139,7 @@ public class ODEPhysics extends Node {
                 contact.surface.bounce = 0.9;  // how much the contact surfaces can bounce
                 contact.surface.bounce_vel = 0.5;  // how fast the contact surfaces can bounce
 
-                DJoint contactJoint = OdeHelper.createContactJoint(physics.getODEWorld(), contactGroup, contact);
+                DJoint contactJoint = OdeHelper.createContactJoint(world, contactGroup, contact);
                 contactJoint.attach(o1.getBody(), o2.getBody());
 
                 // inform any listeners that a collision has occurred.  Use the DGeom to find the associated ODENode
@@ -195,19 +171,11 @@ public class ODEPhysics extends Node {
         listeners.remove(CollisionListener.class, listener);
     }
 
-    @Override
-    public Icon getIcon() {
-        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/ode4j/icons8-mechanics-16.png")));
-    }
-
     public boolean isPaused() {
         return isPaused;
     }
 
     public void setPaused(boolean state) {
         isPaused = state;
-    }
-
-    public void reset() {
     }
 }

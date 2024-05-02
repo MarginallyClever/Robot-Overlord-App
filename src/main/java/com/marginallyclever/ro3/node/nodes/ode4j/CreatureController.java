@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodes.ode4j;
 
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.ode4j.odebody.ODEBody;
 import org.ode4j.ode.DContact;
@@ -51,7 +52,7 @@ public class CreatureController extends Node implements CollisionListener {
     @Override
     protected void onDetach() {
         super.onDetach();
-        ODE4JHelper.guaranteePhysicsWorld().removeCollisionListener(this);
+        Registry.getPhysics().removeCollisionListener(this);
     }
 
     /**

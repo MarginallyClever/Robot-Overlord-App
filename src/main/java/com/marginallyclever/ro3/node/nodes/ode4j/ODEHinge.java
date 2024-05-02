@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.ode4j;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.ode4j.odebody.ODEBody;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
@@ -65,8 +66,7 @@ public class ODEHinge extends ODENode {
     }
 
     private void createHinge() {
-        var physics = ODE4JHelper.guaranteePhysicsWorld();
-        hinge = OdeHelper.createHingeJoint(physics.getODEWorld(), null);
+        hinge = OdeHelper.createHingeJoint(Registry.getPhysics().getODEWorld(), null);
         connect();
     }
 
@@ -111,6 +111,10 @@ public class ODEHinge extends ODENode {
         var bs = partB.getSubject();
         DBody a = as == null ? null : as.getODEBody();
         DBody b = bs == null ? null : bs.getODEBody();
+        if(a==null) {
+            a=b;
+            b=null;
+        }
         logger.debug(this.getName()+" connect "+(as==null?"null":as.getName())+" to "+(bs==null?"null":bs.getName()));
         hinge.attach(a, b);
         updatePhysicsFromWorld();
@@ -123,9 +127,8 @@ public class ODEHinge extends ODENode {
     }
 
     private void updateHingePose() {
-        var physics = ODE4JHelper.guaranteePhysicsWorld();
         // only let the user move the hinge if the physics simulation is paused.
-        if(physics.isPaused()) {
+        if(Registry.getPhysics().isPaused()) {
             // set the hinge reference point and axis.
             updatePhysicsFromWorld();
         }
@@ -147,8 +150,7 @@ public class ODEHinge extends ODENode {
     @Override
     public void update(double dt) {
         super.update(dt);
-        var physics = ODE4JHelper.guaranteePhysicsWorld();
-        if(!physics.isPaused()) {
+        if(!Registry.getPhysics().isPaused()) {
             // if the physics simulation is running then the hinge will behave as normal.
             DVector3 anchor = new DVector3();
             DVector3 axis = new DVector3();
@@ -186,8 +188,7 @@ public class ODEHinge extends ODENode {
 
     public void addTorque(double value) {
         if(hinge==null) return;
-        var physics = ODE4JHelper.guaranteePhysicsWorld();
-        if(!physics.isPaused()) {
+        if(!Registry.getPhysics().isPaused()) {
             hinge.addTorque(value);
         }
     }

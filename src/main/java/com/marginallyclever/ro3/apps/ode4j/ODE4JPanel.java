@@ -34,7 +34,7 @@ public class ODE4JPanel extends App {
         add(container, BorderLayout.CENTER);
 
         JButton pauseButton = addButtonByNameAndCallback(toolbar, "", (e)->{
-            ODEPhysics physics = ODE4JHelper.guaranteePhysicsWorld();
+            ODEPhysics physics = Registry.getPhysics();
             physics.setPaused(!physics.isPaused());
             updatePauseButton((JButton)e.getSource(), physics);
         });
@@ -66,7 +66,6 @@ public class ODE4JPanel extends App {
 
     private void add(Node node) {
         if(node instanceof Pose body) {
-            ODE4JHelper.guaranteePhysicsWorld();
             Registry.getScene().addChild(body);
             placeBodyAbovePlane(body);
             if(randomColor) giveRandomColor(body);

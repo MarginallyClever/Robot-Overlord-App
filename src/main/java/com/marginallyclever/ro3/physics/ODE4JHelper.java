@@ -1,7 +1,5 @@
-package com.marginallyclever.ro3.node.nodes.ode4j;
+package com.marginallyclever.ro3.physics;
 
-import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.physics.ODEPhysics;
 import org.json.JSONObject;
 import org.ode4j.math.DMatrix3;
 import org.ode4j.math.DMatrix3C;
@@ -57,20 +55,6 @@ public class ODE4JHelper {
                 mat.m10, mat.m11, mat.m12,
                 mat.m20, mat.m21, mat.m22
         );
-    }
-
-    /**
-     * Gurantee there is exactly one {@link ODEPhysics} in the scene.
-     * @return the {@link ODEPhysics}.
-     */
-    public static ODEPhysics guaranteePhysicsWorld() {
-        ODEPhysics physics = Registry.getScene().findFirstChild(ODEPhysics.class);
-        if (physics == null) {
-            logger.debug("Creating PhysicsWorld");
-            physics = new ODEPhysics();
-            Registry.getScene().addChild(physics);
-        }
-        return physics;
     }
 
     public static double volumeCylinder(double radius, double length) {

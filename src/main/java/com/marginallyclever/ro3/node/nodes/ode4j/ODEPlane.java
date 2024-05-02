@@ -42,8 +42,7 @@ public class ODEPlane extends ODENode {
     protected void onFirstUpdate() {
         super.onFirstUpdate();
 
-        ODEPhysics physics = ODE4JHelper.guaranteePhysicsWorld();
-        plane = OdeHelper.createPlane(physics.getODESpace(), 0, 0, 1, 0);
+        plane = OdeHelper.createPlane(Registry.getPhysics().getODESpace(), 0, 0, 1, 0);
 
         MeshInstance mesh = findFirstChild(MeshInstance.class);
         if(mesh==null) {

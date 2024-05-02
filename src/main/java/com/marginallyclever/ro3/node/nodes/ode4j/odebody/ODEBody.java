@@ -1,9 +1,9 @@
 package com.marginallyclever.ro3.node.nodes.ode4j.odebody;
 
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.Material;
-import com.marginallyclever.ro3.node.nodes.ode4j.ODE4JHelper;
+import com.marginallyclever.ro3.physics.ODE4JHelper;
 import com.marginallyclever.ro3.node.nodes.ode4j.ODENode;
-import com.marginallyclever.ro3.physics.ODEPhysics;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONObject;
 import org.ode4j.math.DMatrix3C;
@@ -78,8 +78,7 @@ public abstract class ODEBody extends ODENode {
      * Called once at the start of the first {@link #update(double)}
      */
     protected void onFirstUpdate() {
-        ODEPhysics physics = ODE4JHelper.guaranteePhysicsWorld();
-        body = OdeHelper.createBody(physics.getODEWorld());
+        body = OdeHelper.createBody(Registry.getPhysics().getODEWorld());
         mass = OdeHelper.createMass();
         mass.setZero();
         updateMass();

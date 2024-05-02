@@ -12,40 +12,43 @@ public class ODEHingeTest {
     @Test
     public void test() {
         Registry.start();
-        Node scene = Registry.getScene();
-        ODE4JHelper.guaranteePhysicsWorld();
+        Node before = Registry.getScene();
         ODEBox box1 = new ODEBox("b1");
-        scene.addChild(box1);
+        before.addChild(box1);
         ODEBox box2 = new ODEBox("b2");
-        scene.addChild(box2);
+        before.addChild(box2);
         ODEHinge hinge1 = new ODEHinge("h1");
-        scene.addChild(hinge1);
+        before.addChild(hinge1);
         ODEHinge hinge2 = new ODEHinge("h2");
-        scene.addChild(hinge2);
-        scene.update(0);
+        before.addChild(hinge2);
+
+        Registry.getPhysics().update(0);
+        // make sure everyone calls onFirstUpdate()
+        before.update(0);
 
         hinge1.setPartB(box1);
         hinge2.setPartA(box1);
         hinge2.setPartB(box2);
-        assertOneWorldSpaceInScene(scene);
 
-        // make a deep copy to/from json and confirm the links are still attached.
-        JSONObject json = scene.toJSON();
+        Assertions.assertNotNull(hinge1.getHinge().getBody(0));
+        Assertions.assertNotNull(hinge2.getHinge().getBody(0));
+        Assertions.assertNotNull(hinge2.getHinge().getBody(1));
+
+
+        // make a deep copy to/from json
+        JSONObject json = before.toJSON();
         Node after = Registry.nodeFactory.create(json.getString("type"));
         after.fromJSON(json);
 
-        assertOneWorldSpaceInScene(scene);
-//        var physics = ODE4JHelper.guaranteePhysicsWorld();
-    }
+        // confirm the hinges are still attached.
+        ODEHinge afterHinge1 = (ODEHinge) after.findChild("h1");
+        ODEHinge afterHinge2 = (ODEHinge) after.findChild("h2");
 
-    private void assertOneWorldSpaceInScene(Node scene) {
-        // count the instances of ODEWorldSpace in scene.
-        int count = 0;
-        for(Node n : scene.getChildren()) {
-            if(n instanceof ODEPhysics) {
-                count++;
-            }
-        }
-        Assertions.assertEquals(1,count);
+        // make sure everyone calls onFirstUpdate()
+        after.update(0);
+
+        Assertions.assertNotNull(afterHinge1.getHinge().getBody(0));
+        Assertions.assertNotNull(afterHinge2.getHinge().getBody(0));
+        Assertions.assertNotNull(afterHinge2.getHinge().getBody(1));
     }
 }

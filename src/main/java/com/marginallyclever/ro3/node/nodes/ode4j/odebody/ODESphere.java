@@ -1,8 +1,8 @@
 package com.marginallyclever.ro3.node.nodes.ode4j.odebody;
 
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.shapes.Sphere;
-import com.marginallyclever.ro3.node.nodes.ode4j.ODE4JHelper;
-import com.marginallyclever.ro3.physics.ODEPhysics;
+import com.marginallyclever.ro3.physics.ODE4JHelper;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONObject;
 import org.ode4j.ode.DSphere;
@@ -36,8 +36,7 @@ public class ODESphere extends ODEBody {
     protected void onFirstUpdate() {
         super.onFirstUpdate();
 
-        ODEPhysics physics = ODE4JHelper.guaranteePhysicsWorld();
-        geom = createSphere(physics.getODESpace(), radius);
+        geom = createSphere(Registry.getPhysics().getODESpace(), radius);
         geom.setBody(body);
 
         mass.setSphereTotal(ODE4JHelper.volumeSphere(radius), radius);

@@ -1,8 +1,8 @@
 package com.marginallyclever.ro3.node.nodes.ode4j.odebody;
 
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.shapes.Cylinder;
-import com.marginallyclever.ro3.node.nodes.ode4j.ODE4JHelper;
-import com.marginallyclever.ro3.physics.ODEPhysics;
+import com.marginallyclever.ro3.physics.ODE4JHelper;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONObject;
 import org.ode4j.ode.DCylinder;
@@ -36,8 +36,7 @@ public class ODECylinder extends ODEBody {
     protected void onFirstUpdate() {
         super.onFirstUpdate();
 
-        ODEPhysics physics = ODE4JHelper.guaranteePhysicsWorld();
-        geom = OdeHelper.createCylinder(physics.getODESpace(), radius, length);
+        geom = OdeHelper.createCylinder(Registry.getPhysics().getODESpace(), radius, length);
         geom.setBody(body);
 
         mass.setCylinderTotal(ODE4JHelper.volumeCylinder(radius,length), 3, radius, length);

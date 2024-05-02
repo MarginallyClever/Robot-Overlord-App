@@ -42,7 +42,7 @@ public class Registry {
     public static final ListWithEvents<Camera> cameras = new ListWithEvents<>();
     private static Camera activeCamera = null;
     public static final ListWithEvents<Node> selection = new ListWithEvents<>();
-    public static final ODEPhysics physics = new ODEPhysics();
+    private static final ODEPhysics physics = new ODEPhysics();
 
     public static void start() {
         nodeFactory.clear();
@@ -87,7 +87,6 @@ public class Registry {
             NodeFactory.Category physics = node.add("Physics", null);
             {
                 physics.add("CreatureController", CreatureController::new);
-                physics.add("ODEWorldSpace", ODEPhysics::new);
                 physics.add("ODEBox", ODEBox::new);
                 physics.add("ODECapsule", ODECapsule::new);
                 physics.add("ODECylinder", ODECylinder::new);
@@ -162,5 +161,9 @@ public class Registry {
 
     public static void setActiveCamera(Camera camera) {
         activeCamera = camera;
+    }
+
+    public static ODEPhysics getPhysics() {
+        return physics;
     }
 }
