@@ -70,11 +70,11 @@ public class Brain {
         updateImage();
         // write new data to the top row.
         writeInputsToTopLineOfImage();
-
+/*
         // run the neural network
         for(Neuron n : neurons) {
             n.update(dt);
-        }
+        }*/
     }
 
     private void writeInputsToTopLineOfImage() {
