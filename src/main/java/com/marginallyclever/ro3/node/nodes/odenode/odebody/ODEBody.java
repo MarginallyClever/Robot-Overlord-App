@@ -31,6 +31,7 @@ public abstract class ODEBody extends ODENode {
     private double massQty=1;
     private final Vector3d angularVel = new Vector3d();
     private final Vector3d linearVel = new Vector3d();
+    private boolean isTouchingSomething = false;
 
     public ODEBody() {
         this("ODE Body");
@@ -177,5 +178,13 @@ public abstract class ODEBody extends ODENode {
 
     public DGeom getGeom() {
         return geom;
+    }
+
+    public boolean isTouchingSomething() {
+        return isTouchingSomething;
+    }
+
+    public void setTouchingSomething(boolean isTouchingSomething) {
+        this.isTouchingSomething = isTouchingSomething;
     }
 }
