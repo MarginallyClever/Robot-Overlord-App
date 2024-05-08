@@ -14,7 +14,7 @@ public class FileHelper {
 	 *  - The file may be a resource inside a jar file.
 	 *  - The file may be on disk.
 	 *     
-	 * @param filename The file to open
+	 * @param filename The file to open.  May be "filename.ext" or "zipfile.zip:filename.ext"
 	 * @return BufferedInputStream to the file contents
 	 * @throws IOException file open failure
 	 */
