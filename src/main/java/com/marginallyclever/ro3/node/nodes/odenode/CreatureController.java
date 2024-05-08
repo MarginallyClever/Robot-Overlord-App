@@ -6,8 +6,11 @@ import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
 import com.marginallyclever.ro3.physics.CollisionListener;
 import org.ode4j.ode.DContact;
 import org.ode4j.ode.DGeom;
+import org.ode4j.ode.DJoint;
 
 import javax.swing.*;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -22,6 +25,10 @@ public class CreatureController extends ODENode implements CollisionListener {
     private final List<ODEHinge> hinges = new ArrayList<>();
     private final List<ODEBody> bodies = new ArrayList<>();
     private final Brain brain = new Brain();
+    // max experienced during simulation
+    private double maxForce = 0;
+    // max experienced during simulation
+    private double maxTorque = 0;
 
     public CreatureController() {
         super("CreatureController");
@@ -99,49 +106,111 @@ public class CreatureController extends ODENode implements CollisionListener {
         hinges.addAll(findHinges());
         bodies.clear();
         bodies.addAll(findBodies());
-        brain.setNumInputs(bodies.size()+1);
+        brain.setNumInputs(bodies.size()+hinges.size()+1);
+
+        // add feedback to hinges
+        for(ODEHinge h : hinges) {
+            h.getHinge().setFeedback(new DJoint.DJointFeedback());
+        }
     }
 
     @Override
     public void update(double dt) {
         super.update(dt);
 
-        // any bodies that are marked isTouching must be because onCollision says so.
+        sendSensoryInputToBrain(dt);
 
-        // get the matrix for the torso, probably always bodies[0]?  Not guaranteed.
-        var torsoMatrix = bodies.get(0).getWorld();
-        torsoMatrix.invert();
-        // multiply all brain matrices by the inverse of torsoMatrix
-        int i=0;
-        for (ODEBody b : bodies) {
-            // I'm concerned this is not the correct matrix.
-            // the translation values are not normalized.
-            var m = b.getWorld();
-            m.mul(torsoMatrix);
-            brain.setMatrix(i,m);
-            brain.setTouching(i,b.isTouchingSomething());
-            System.out.print(b.isTouchingSomething()?"1":"0");
-            ++i;
-        }
-        System.out.println();
-
-        brain.setMatrix(i,torsoMatrix);
-
-        // I have all the input for the robot dog, normalized.
-        // some magic happens here
+        // perform magic
         brain.update(dt);
 
-        // I want the system to output torque values for each hinge.
-        i=0;
-        for (ODEHinge h : hinges) {
-            h.addTorque(brain.getOutput(i));
-            ++i;
-        }
+        sendBrainOutputToHinges();
 
         // reset the isTouching flag on all bodies
         for (ODEBody b : bodies) {
             b.setTouchingSomething(false);
         }
+    }
+
+    private void sendSensoryInputToBrain(double dt) {
+        // get the matrix for the torso, probably always bodies[0]?  Not guaranteed.
+        var torsoMatrix = bodies.get(0).getWorld();
+        var iTorso = new Matrix4d();
+        iTorso.invert(torsoMatrix);
+        // multiply all brain matrices by the inverse of torsoMatrix
+        var t = new Vector3d();
+        int i=0;
+        for (ODEBody b : bodies) {
+            var m = b.getWorld();
+            // normalize rotation.
+            m.mul(iTorso);
+            // normalize translation
+            m.get(t);
+            t.scale(0.1);
+            m.setTranslation(t);
+            // set to brain
+            brain.setMatrix(i++, m);
+        }
+
+        // any bodies that are marked isTouching must be because onCollision says so.
+        // onCollision happens before update, so this is the right place to check the flag.
+        // add the isTouching flag to the brain sensory input
+        i=0;
+        for (ODEBody b : bodies) {
+            brain.setTouching(i++,b.isTouchingSomething());
+        }
+
+        // add the hinge feedback to the brain sensory input
+        Matrix4d hm = new Matrix4d();
+        for( ODEHinge hinge : hinges) {
+            var internalHinge = hinge.getHinge();
+            if(internalHinge==null) {
+                hm.setIdentity();
+            } else {
+                convertHingeFeedbackToMatrix(internalHinge.getFeedback(),hm);
+            }
+            brain.setMatrix(i++,hm);
+        }
+
+        // add the torso matrix.  Good for world up, world north, height above flat ground.
+        brain.setMatrix(i,torsoMatrix);
+
+        //System.out.println("f"+fmax+" t"+tmax);
+    }
+
+    private void convertHingeFeedbackToMatrix(DJoint.DJointFeedback feedback, Matrix4d hm) {
+        hm.m00 = calcMaxF(feedback.f1.get0());
+        hm.m10 = calcMaxF(feedback.f1.get1());
+        hm.m20 = calcMaxF(feedback.f1.get2());
+        hm.m01 = calcMaxT(feedback.t1.get0());
+        hm.m11 = calcMaxT(feedback.t1.get1());
+        hm.m21 = calcMaxT(feedback.t1.get2());
+        hm.m02 = calcMaxF(feedback.f2.get0());
+        hm.m12 = calcMaxF(feedback.f2.get1());
+        hm.m22 = calcMaxF(feedback.f2.get2());
+        hm.m03 = calcMaxT(feedback.t2.get0());
+        hm.m13 = calcMaxT(feedback.t2.get1());
+        hm.m23 = calcMaxT(feedback.t2.get2());
+    }
+
+    private double calcMaxF(double f22) {
+        maxForce = Math.max(maxForce,Math.abs(f22));
+        return maxForce >0 ? (f22/ maxForce) : f22;
+    }
+
+    private double calcMaxT(double t22) {
+        maxTorque = Math.max(maxTorque,Math.abs(t22));
+        return maxTorque >0 ? (t22/ maxTorque) : t22;
+    }
+
+    private void sendBrainOutputToHinges() {
+        // I want the system to output torque values for each hinge.
+        int i=0;
+        for (ODEHinge h : hinges) {
+            var force = brain.getOutput(i++);
+            //System.out.print(force+"\t");
+            h.addTorque(force * maxTorque);  // 2.5e5 = 250k
+        }
+        //System.out.println();
     }
 
     public List<ODEHinge> getHinges() {
