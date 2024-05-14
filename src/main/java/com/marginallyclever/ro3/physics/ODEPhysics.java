@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.physics;
 
+import org.ode4j.math.DVector3;
 import org.ode4j.ode.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import javax.swing.event.EventListenerList;
 
 import static org.ode4j.ode.OdeConstants.*;
+import static org.ode4j.ode.OdeHelper.createSapSpace;
 import static org.ode4j.ode.OdeHelper.createWorld;
 
 /**
@@ -16,11 +18,13 @@ import static org.ode4j.ode.OdeHelper.createWorld;
 public class ODEPhysics {
     private static final Logger logger = LoggerFactory.getLogger(ODEPhysics.class);
 
-    public double WORLD_CFM = 1e-5;
-    public double WORLD_ERP = 0.8;
-    public double WORLD_GRAVITY = -9.81;
+    private double WORLD_CFM = 1e-5;
+    private double WORLD_ERP = 0.8;
+    private double WORLD_GRAVITY = -9.81;
     private final int ITERS = 20;
     private final int CONTACT_BUFFER_SIZE = 4;
+
+    private int spaceType = 0;
 
     private DWorld world;
     private DSpace space;
@@ -54,10 +58,14 @@ public class ODEPhysics {
             world.setQuickStepNumIterations(ITERS);
         }
 
-        // setup a space in the world
+        // create a space in the world
         if(space == null) {
-            space = OdeHelper.createSapSpace(null, DSapSpace.AXES.XYZ);
-            //space = OdeHelper.createSimpleSpace();
+            space = switch(spaceType) {
+                case 1 -> OdeHelper.createHashSpace(null);
+                case 2 -> OdeHelper.createSapSpace(null, DSapSpace.AXES.XYZ);
+                //case 3 -> OdeHelper.createQuadTreeSpace(null, new DVector3(0, 0, 0), new DVector3(100, 100, 100), 0);
+                default -> OdeHelper.createSimpleSpace();
+            };
         }
 
         if(contacts == null) {
@@ -174,4 +182,32 @@ public class ODEPhysics {
     public void setPaused(boolean state) {
         isPaused = state;
     }
+
+    public double getCFM() {
+        return WORLD_CFM;
+    }
+
+    public void setCFM(double WORLD_CFM) {
+        this.WORLD_CFM = WORLD_CFM;
+        if(world!=null) world.setCFM(WORLD_CFM);
+    }
+
+    public double getERP() {
+        return WORLD_ERP;
+    }
+
+    public void setERP(double WORLD_ERP) {
+        this.WORLD_ERP = WORLD_ERP;
+        if(world!=null) world.setERP(WORLD_ERP);
+    }
+
+    public double getGravity() {
+        return WORLD_GRAVITY;
+    }
+
+    public void setGravity(double WORLD_GRAVITY) {
+        this.WORLD_GRAVITY = WORLD_GRAVITY;
+        if(world!=null) world.setGravity(0, 0, WORLD_GRAVITY);
+    }
+
 }

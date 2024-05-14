@@ -30,7 +30,7 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
 
     public ViewportSettingsPanel() {
         super(new GridBagLayout());
-        setName("Viewport Settings");
+        setName("Viewport");
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.weightx = 1.0;
@@ -188,6 +188,8 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
         setVerticalSync(subject.isVerticalSync());
         setFSAASamples(subject.getFsaaSamples());
 
+        // this only allows parameters from one render pass.
+        // TODO: add other passes?
         DrawMeshes meshes = getDrawMeshes();
         if(meshes!=null) {
             setSunColor(meshes.getSunlightColor());
