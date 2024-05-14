@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.node.nodes.odenode;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.odenode.brain.BrainManager;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
 import com.marginallyclever.ro3.physics.CollisionListener;
 import org.ode4j.ode.DContact;
@@ -24,7 +25,7 @@ import java.util.Set;
 public class CreatureController extends ODENode implements CollisionListener {
     private final List<ODEHinge> hinges = new ArrayList<>();
     private final List<ODEBody> bodies = new ArrayList<>();
-    private final Brain brain = new Brain();
+    private final BrainManager brainManager = new BrainManager();
     // max experienced during simulation
     private double maxForce = 0;
     // max experienced during simulation
@@ -106,7 +107,7 @@ public class CreatureController extends ODENode implements CollisionListener {
         hinges.addAll(findHinges());
         bodies.clear();
         bodies.addAll(findBodies());
-        brain.setNumInputs(bodies.size()+hinges.size()+1);
+        brainManager.setNumInputs(bodies.size()+hinges.size()+1);
 
         // add feedback to hinges
         for(ODEHinge h : hinges) {
@@ -121,7 +122,7 @@ public class CreatureController extends ODENode implements CollisionListener {
         sendSensoryInputToBrain(dt);
 
         // perform magic
-        brain.update(dt);
+        brainManager.update(dt);
 
         sendBrainOutputToHinges();
 
@@ -148,7 +149,7 @@ public class CreatureController extends ODENode implements CollisionListener {
             t.scale(0.1);
             m.setTranslation(t);
             // set to brain
-            brain.setMatrix(i++, m);
+            brainManager.setMatrix(i++, m);
         }
 
         // any bodies that are marked isTouching must be because onCollision says so.
@@ -156,7 +157,7 @@ public class CreatureController extends ODENode implements CollisionListener {
         // add the isTouching flag to the brain sensory input
         i=0;
         for (ODEBody b : bodies) {
-            brain.setTouching(i++,b.isTouchingSomething());
+            brainManager.setTouching(i++,b.isTouchingSomething());
         }
 
         // add the hinge feedback to the brain sensory input
@@ -168,11 +169,11 @@ public class CreatureController extends ODENode implements CollisionListener {
             } else {
                 convertHingeFeedbackToMatrix(internalHinge.getFeedback(),hm);
             }
-            brain.setMatrix(i++,hm);
+            brainManager.setMatrix(i++,hm);
         }
 
         // add the torso matrix.  Good for world up, world north, height above flat ground.
-        brain.setMatrix(i,torsoMatrix);
+        brainManager.setMatrix(i,torsoMatrix);
 
         //System.out.println("f"+fmax+" t"+tmax);
     }
@@ -206,7 +207,7 @@ public class CreatureController extends ODENode implements CollisionListener {
         // I want the system to output torque values for each hinge.
         int i=0;
         for (ODEHinge h : hinges) {
-            var force = brain.getOutput(i++);
+            var force = brainManager.getOutput(i++);
             //System.out.print(force+"\t");
             h.addTorque(force * maxTorque);  // 2.5e5 = 250k
         }
@@ -220,7 +221,7 @@ public class CreatureController extends ODENode implements CollisionListener {
         return bodies;
     }
 
-    public Brain getBrain() {
-        return brain;
+    public BrainManager getBrain() {
+        return brainManager;
     }
 }

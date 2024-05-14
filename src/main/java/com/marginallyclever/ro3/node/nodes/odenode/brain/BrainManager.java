@@ -1,6 +1,7 @@
-package com.marginallyclever.ro3.node.nodes.odenode;
+package com.marginallyclever.ro3.node.nodes.odenode.brain;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.nodes.odenode.brain.v2.Brain;
 
 import javax.vecmath.Matrix4d;
 import java.awt.*;
@@ -8,7 +9,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Brain {
+public class BrainManager {
     // build a list of all body pose matrices, relative to the world
     private final List<Matrix4d> matrices = new ArrayList<>();
     // build a list of contacts for each body
@@ -17,11 +18,11 @@ public class Brain {
     public static int MEMORY_SECONDS = 3;
     private final static int MEMORY_FRAMES = FPS * MEMORY_SECONDS;  // fps * seconds
     private int k=0;
+    private Brain brain;
 
-    private final List<Neuron> neurons = new ArrayList<>();
     private BufferedImage image;
 
-    public Brain() {
+    public BrainManager() {
         // create a list of neurons
         // create a list of synapses
     }
@@ -63,18 +64,16 @@ public class Brain {
         return 0;
     }
 
-    void update(double dt) {
+    public void update(double dt) {
         if(Registry.getPhysics().isPaused()) return;
 
         // move every row of the image down one.
         updateImage();
         // write new data to the top row.
         writeInputsToTopLineOfImage();
-/*
-        // run the neural network
-        for(Neuron n : neurons) {
-            n.update(dt);
-        }*/
+
+        // update brain
+
     }
 
     private void writeInputsToTopLineOfImage() {
