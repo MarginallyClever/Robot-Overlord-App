@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import org.ode4j.math.DVector3;
 import org.ode4j.ode.DBody;
 import org.ode4j.ode.DHingeJoint;
+import org.ode4j.ode.DJoint;
 import org.ode4j.ode.OdeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,8 @@ public class ODEHinge extends ODENode {
     private DHingeJoint hinge;
     private final NodePath<ODEBody> partA = new NodePath<>(this,ODEBody.class);
     private final NodePath<ODEBody> partB = new NodePath<>(this,ODEBody.class);
+    double top = Double.POSITIVE_INFINITY;
+    double bottom = Double.NEGATIVE_INFINITY;
 
     public ODEHinge() {
         this("ODE Hinge");
@@ -68,6 +71,8 @@ public class ODEHinge extends ODENode {
     private void createHinge() {
         hinge = OdeHelper.createHingeJoint(Registry.getPhysics().getODEWorld(), null);
         connect();
+        setAngleMax(top);
+        setAngleMin(bottom);
     }
 
     private void destroyHinge() {
@@ -173,6 +178,14 @@ public class ODEHinge extends ODENode {
         var json = super.toJSON();
         json.put("partA",partA.getUniqueID());
         json.put("partB",partB.getUniqueID());
+        double v = getAngleMax();
+        if(!Double.isInfinite(v)) {
+            json.put("hiStop1",v);
+        }
+        v = getAngleMin();
+        if(!Double.isInfinite(v)) {
+            json.put("loStop1",v);
+        }
         return json;
     }
 
@@ -181,6 +194,12 @@ public class ODEHinge extends ODENode {
         super.fromJSON(from);
         if(from.has("partA")) partA.setUniqueID(from.getString("partA"));
         if(from.has("partB")) partB.setUniqueID(from.getString("partB"));
+        if(from.has("hiStop1")) {
+            setAngleMax(from.getDouble("hiStop1"));
+        }
+        if(from.has("loStop1")) {
+            setAngleMin(from.getDouble("loStop1"));
+        }
         updatePhysicsFromWorld();
         connect();
         updateHingePose();
@@ -191,5 +210,39 @@ public class ODEHinge extends ODENode {
         if(!Registry.getPhysics().isPaused()) {
             hinge.addTorque(value);
         }
+    }
+
+    /**
+     * @return angle in degrees
+     */
+    public double getAngleMax() {
+        if(hinge==null) return 0;
+        return Math.toDegrees(hinge.getParam(DJoint.PARAM_N.dParamHiStop1));
+    }
+
+    /**
+     * @return angle in degrees
+     */
+    public double getAngleMin() {
+        if(hinge==null) return 0;
+        return Math.toDegrees(hinge.getParam(DJoint.PARAM_N.dParamLoStop1));
+    }
+
+    /**
+     * @param angle in degrees
+     */
+    public void setAngleMax(double angle) {
+        top = angle;
+        if(hinge==null) return;
+        hinge.setParamHiStop(Math.toRadians(angle));
+    }
+
+    /**
+     * @param angle in degrees
+     */
+    public void setAngleMin(double angle) {
+        bottom = angle;
+        if(hinge==null) return;
+        hinge.setParamLoStop(Math.toRadians(angle));
     }
 }

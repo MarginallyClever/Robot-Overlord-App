@@ -1,35 +1,49 @@
 package com.marginallyclever.ro3.node.nodes.odenode.brain.v2;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Brain {
     private List<Neuron> inputNeurons = new ArrayList<>();
     private List<Neuron> outputNeurons = new ArrayList<>();
-    private List<Neuron> hiddenNeurons = new ArrayList<>();
+    private List<Neuron> neurons = new ArrayList<>();
     private List<Connection> connections = new ArrayList<>();
     private final DopamineSimulator dopamineSimulator;
     private final CortisolSimulator cortisolSimulator;
 
-    public Brain(int numInputs, int numOutputs, DopamineSimulator dopamineSimulator, CortisolSimulator cortisolSimulator) {
+    public Brain(DopamineSimulator dopamineSimulator, CortisolSimulator cortisolSimulator) {
         super();
         this.dopamineSimulator = dopamineSimulator;
         this.cortisolSimulator = cortisolSimulator;
+    }
 
+    public void setNumInputs(int numInputs) {
         // Initialize input neurons on the x=0 plane
         for (int i = 0; i < numInputs; i++) {
-            inputNeurons.add(new Neuron(0, i, 0));
+            var n = new Neuron(neurons.size()+i,0, i, 0);
+            inputNeurons.add(n);
+            neurons.add(n);
         }
+    }
 
+    public void setNumOutputs(int numOutputs) {
         // Initialize output neurons on the y=0 plane
         for (int i = 0; i < numOutputs; i++) {
-            outputNeurons.add(new Neuron(i, 0, 0));
+            var n = new Neuron(neurons.size()+i, i,0, 0);
+            outputNeurons.add(n);
+            neurons.add(n);
         }
+    }
 
+    public void createInitialConnections() {
         // Create initial connections between input and output neurons
         for (Neuron inputNeuron : inputNeurons) {
             for (Neuron outputNeuron : outputNeurons) {
-                Connection connection = new Connection(inputNeuron, outputNeuron, Math.random() * 0.2 - 0.1);
+                Connection connection = new Connection(inputNeuron, outputNeuron, 0.000001);
                 addConnection(connection);
             }
         }
@@ -51,43 +65,43 @@ public class Brain {
      * @param expectedOutputs List of expected output values
      */
     public void train(List<Double> inputs, List<Double> expectedOutputs) {
+        resetConnections();
         setInputs(inputs);
-
         propagate();
 
+        // Evaluate the network's output based on the input
         if(expectedOutputs.size() != outputNeurons.size()) {
             throw new IllegalArgumentException("Number of expected outputs must match the number of output neurons");
         }
-        double[] output = getOutputs();
+        double totalError = measureTotalError(expectedOutputs);
+
+        // what happens here?
+
+    }
+
+    private double measureTotalError(List<Double> expectedOutputs) {
+        double totalError = 0;
         for (int i = 0; i < expectedOutputs.size(); i++) {
-            double d = outputNeurons.get(i).getOutputValue();
-            double error = expectedOutputs.get(i) - d;
-
-            // what happens here?
+            double error = expectedOutputs.get(i) - getOutput(i);
+            totalError += Math.abs(error);
         }
+        return totalError;
     }
 
-    private void propagate() {
+    public void propagate() {
         // Activate input neurons
-        for (Neuron neuron : inputNeurons) {
+        for (Neuron neuron : neurons) {
             neuron.activate();
         }
-        // Activate hidden and output neurons
-        for (Neuron neuron : hiddenNeurons) {
-            neuron.activate();
-        }
-        for (Neuron neuron : outputNeurons) {
-            neuron.activate();
+
+        // Propagate the output value to outgoing connections
+        for (Connection connection : connections) {
+            connection.propagate();
         }
     }
 
-    public double[] getOutputs() {
-        // Evaluate the network's output based on the input
-        double[] output = new double[outputNeurons.size()];
-        for (int i = 0; i < outputNeurons.size(); i++) {
-            output[i] = outputNeurons.get(i).getOutputValue();
-        }
-        return output;
+    public double getOutput(int index) {
+        return outputNeurons.get(index).getOutputValue();
     }
 
     public List<Connection> findActiveConnections() {
@@ -101,22 +115,24 @@ public class Brain {
     }
 
     public void resetNetwork() {
-        for (Neuron neuron : inputNeurons) {
+        resetNeurons();
+        resetConnections();
+    }
+
+    public void resetNeurons() {
+        for (Neuron neuron : neurons) {
             neuron.reset();
         }
-        for (Neuron neuron : hiddenNeurons) {
-            neuron.reset();
-        }
-        for (Neuron neuron : outputNeurons) {
-            neuron.reset();
-        }
+    }
+
+    public void resetConnections() {
         for (Connection connection : connections) {
             connection.reset();
         }
     }
 
     public void addNeuron(Neuron neuron) {
-        hiddenNeurons.add(neuron);
+        neurons.add(neuron);
     }
 
     public void addConnection(Connection connection) {
@@ -134,6 +150,79 @@ public class Brain {
 
     public List<Connection> getConnections() {
         return connections;
+    }
+
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("neurons", getNeuronsAsJSON(neurons));
+        json.put("connections", getConnectionsAsJSON(connections));
+        json.put("inputNeurons", getNeuronListAsJSON(inputNeurons));
+        json.put("outputNeurons", getNeuronListAsJSON(outputNeurons));
+        return json;
+    }
+
+    private JSONArray getNeuronListAsJSON(List<Neuron> neurons) {
+        JSONArray json = new JSONArray();
+        for (Neuron neuron : neurons) {
+            json.put(neuron.getID());
+        }
+        return json;
+    }
+
+    private JSONArray getConnectionsAsJSON(List<Connection> connections) {
+        JSONArray json = new JSONArray();
+        for (int i = 0; i < connections.size(); i++) {
+            Connection connection = connections.get(i);
+            JSONObject connectionJSON = new JSONObject();
+            connectionJSON.put("fromNeuron", connection.getFromNeuron().getID());
+            connectionJSON.put("toNeuron", connection.getToNeuron().getID());
+            connectionJSON.put("weight", connection.getWeight());
+            json.put(connectionJSON);
+        }
+        return json;
+    }
+
+    private JSONArray getNeuronsAsJSON(List<Neuron> neurons) {
+        JSONArray json = new JSONArray();
+        for (Neuron neuron : neurons) {
+            json.put(neuron.toJSON());
+        }
+        return json;
+    }
+
+    public void setInput(int i, double value) {
+        inputNeurons.get(i).setInputValue(value);
+    }
+
+    public void fromJSON(JSONObject json) {
+        JSONArray neuronList = json.getJSONArray("neurons");
+        for (int i = 0; i < neuronList.length(); i++) {
+            Neuron neuron = new Neuron(i,0,0,0);
+            neurons.add(neuron);
+            neuron.fromJSON(neuronList.getJSONObject(i));
+        }
+
+        JSONArray connectionsJSON = json.getJSONArray("connections");
+        for (int i = 0; i < connectionsJSON.length(); i++) {
+            JSONObject conn = connectionsJSON.getJSONObject(i);
+            int fromNeuronID = conn.getInt("fromNeuron");
+            int toNeuronID = conn.getInt("toNeuron");
+            double weight = conn.getDouble("weight");
+            Connection connection = new Connection(neurons.get(fromNeuronID), neurons.get(toNeuronID), weight);
+            connections.add(connection);
+        }
+
+        JSONArray inputNeuronIDs = json.getJSONArray("inputNeurons");
+        for (int i = 0; i < inputNeuronIDs.length(); i++) {
+            int id = inputNeuronIDs.getInt(i);
+            inputNeurons.add(neurons.get(id));
+        }
+
+        JSONArray outputNeuronIDs = json.getJSONArray("outputNeurons");
+        for (int i = 0; i < outputNeuronIDs.length(); i++) {
+            int id = outputNeuronIDs.getInt(i);
+            outputNeurons.add(neurons.get(id));
+        }
     }
 }
 

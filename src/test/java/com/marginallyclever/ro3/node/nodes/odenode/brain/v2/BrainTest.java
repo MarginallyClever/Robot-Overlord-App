@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodes.odenode.brain.v2;
 
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,7 +12,10 @@ public class BrainTest {
     public void testBrainInitialization() {
         DopamineSimulator dopamineSimulator = new DopamineSimulator();
         CortisolSimulator cortisolSimulator = new CortisolSimulator();
-        Brain brain = new Brain(3, 2, dopamineSimulator, cortisolSimulator);
+        Brain brain = new Brain( dopamineSimulator, cortisolSimulator);
+        brain.setNumInputs(3);
+        brain.setNumOutputs(2);
+        brain.createInitialConnections();
 
         assertEquals(3, brain.getInputNeurons().size());
         assertEquals(2, brain.getOutputNeurons().size());
@@ -22,7 +26,10 @@ public class BrainTest {
     public void testTrain() {
         DopamineSimulator dopamineSimulator = new DopamineSimulator();
         CortisolSimulator cortisolSimulator = new CortisolSimulator();
-        Brain brain = new Brain(3, 2, dopamineSimulator, cortisolSimulator);
+        Brain brain = new Brain(dopamineSimulator, cortisolSimulator);
+        brain.setNumInputs(3);
+        brain.setNumOutputs(2);
+        brain.createInitialConnections();
 
         List<Double> inputs = new ArrayList<>(List.of(new Double[]{0.5, -0.5, 0.1}));
         List<Double> expectedOutputs = new ArrayList<>(List.of(new Double[]{0.3, -0.1}));
@@ -41,7 +48,9 @@ public class BrainTest {
     public void testResetNetwork() {
         DopamineSimulator dopamineSimulator = new DopamineSimulator();
         CortisolSimulator cortisolSimulator = new CortisolSimulator();
-        Brain brain = new Brain(3, 2, dopamineSimulator, cortisolSimulator);
+        Brain brain = new Brain(dopamineSimulator, cortisolSimulator);
+        brain.setNumInputs(3);
+        brain.setNumOutputs(2);
 
         brain.resetNetwork();
 
@@ -58,6 +67,24 @@ public class BrainTest {
         for (Connection connection : brain.getConnections()) {
             assertFalse(connection.isActive());
         }
+    }
+
+    @Test
+    public void testJSON() {
+        DopamineSimulator dopamineSimulator = new DopamineSimulator();
+        CortisolSimulator cortisolSimulator = new CortisolSimulator();
+        Brain before = new Brain(dopamineSimulator, cortisolSimulator);
+        before.setNumInputs(3);
+        before.setNumOutputs(2);
+        before.createInitialConnections();
+
+        JSONObject json = before.toJSON();
+        Brain after = new Brain(dopamineSimulator,cortisolSimulator);
+        after.fromJSON(json);
+
+        assertEquals(before.getInputNeurons().size(), after.getInputNeurons().size());
+        assertEquals(before.getOutputNeurons().size(), after.getOutputNeurons().size());
+        assertEquals(before.getConnections().size(), after.getConnections().size());
     }
 }
 

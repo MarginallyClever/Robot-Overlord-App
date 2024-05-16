@@ -1,5 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.odenode.brain.v2;
 
+import org.json.JSONObject;
+
 /**
  * Positive weights will act as excitatory connections.
  * Negative weights will act as inhibitory connections.
@@ -18,6 +20,8 @@ public class Connection {
     }
 
     public void propagate() {
+        if(weight==0) return;
+
         double propagatedValue = fromNeuron.getOutputValue() * weight;
         toNeuron.addInputValue(propagatedValue);
         active = true;

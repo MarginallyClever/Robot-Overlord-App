@@ -24,6 +24,30 @@ public class ODEHingePanel extends JPanel {
         addSelector("part A",hinge.getPartA(),hinge::setPartA);
         addSelector("part B",hinge.getPartB(),hinge::setPartB);
         addAction("Torque",hinge);
+        addLimit("Angle Max",hinge.getAngleMax(),hinge::setAngleMax,Double.POSITIVE_INFINITY);
+        addLimit("Angle Min",hinge.getAngleMin(),hinge::setAngleMin,Double.NEGATIVE_INFINITY);
+    }
+
+    private void addLimit(String label, double value, Consumer<Double> consumer, double infinite) {
+        JCheckBox limitCheckBox = new JCheckBox("Has Limit", !Double.isInfinite(value));
+        SpinnerNumberModel model = new SpinnerNumberModel(Double.isInfinite(value) ? 0 : value, -180, 180, 0.1);
+        JSpinner spinner = new JSpinner(model);
+
+        limitCheckBox.addActionListener(e -> enableLimit(limitCheckBox.isSelected(),spinner,consumer,infinite) );
+        spinner.addChangeListener(e -> {
+            if (limitCheckBox.isSelected()) {
+                consumer.accept((Double) spinner.getValue());
+            }
+        });
+        enableLimit(!Double.isInfinite(value),spinner,consumer,infinite);
+
+        PanelHelper.addLabelAndComponent(this, label, limitCheckBox);
+        PanelHelper.addLabelAndComponent(this, "Value", spinner);
+    }
+
+    private void enableLimit(boolean isSelected, JSpinner spinner, Consumer<Double> consumer,double infinite) {
+        spinner.setEnabled(isSelected);
+        consumer.accept( (!isSelected) ? infinite : (Double)spinner.getValue() );
     }
 
     private void addSelector(String label, NodePath<ODEBody> originalValue, Consumer<ODEBody> setPartA) {

@@ -2,6 +2,8 @@ package com.marginallyclever.ro3.node.nodes.odenode.brain;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.odenode.brain.v2.Brain;
+import com.marginallyclever.ro3.node.nodes.odenode.brain.v2.CortisolSimulator;
+import com.marginallyclever.ro3.node.nodes.odenode.brain.v2.DopamineSimulator;
 
 import javax.vecmath.Matrix4d;
 import java.awt.*;
@@ -18,7 +20,8 @@ public class BrainManager {
     public static int MEMORY_SECONDS = 3;
     private final static int MEMORY_FRAMES = FPS * MEMORY_SECONDS;  // fps * seconds
     private int k=0;
-    private Brain brain;
+    private final Brain brain = new Brain(new DopamineSimulator(),new CortisolSimulator());
+    private int inputIndex=0;
 
     private BufferedImage image;
 
@@ -42,6 +45,11 @@ public class BrainManager {
         // force data from the hinges is 1 matrix each.
         image = new BufferedImage(size * 5, MEMORY_FRAMES, BufferedImage.TYPE_INT_RGB);
         eraseBrainScan();
+        brain.setNumInputs(size * 12 + size);
+    }
+
+    public void setNumOutputs(int size) {
+        brain.setNumOutputs(size);
     }
 
     private void eraseBrainScan() {
@@ -61,7 +69,7 @@ public class BrainManager {
     }
 
     public double getOutput(int i) {
-        return 0;
+        return brain.getOutput(i);
     }
 
     public void update(double dt) {
@@ -73,7 +81,10 @@ public class BrainManager {
         writeInputsToTopLineOfImage();
 
         // update brain
+        brain.propagate();
 
+        inputIndex=0;
+        brain.resetConnections();
     }
 
     private void writeInputsToTopLineOfImage() {
@@ -88,7 +99,9 @@ public class BrainManager {
         }
 
         for(int i=0; i<matrices.size();++i) {
-            image.setRGB(k++, 0, isTouching.get(i++) ? 0xff0000:0 );
+            var touching = isTouching.get(i++);
+            image.setRGB(k++, 0, touching ? 0xff0000:0 );
+            brain.setInput(inputIndex++,touching?1:0);
         }
     }
 
@@ -98,6 +111,9 @@ public class BrainManager {
         int g = (int)( (Math.max(Math.min(y,max),min) - min) * f );
         int b = (int)( (Math.max(Math.min(z,max),min) - min) * f );
         image.setRGB(k++, 0, (r << 16) | (g << 8) | b);
+        brain.setInput(inputIndex++,r);
+        brain.setInput(inputIndex++,g);
+        brain.setInput(inputIndex++,b);
     }
 
     public BufferedImage getImage() {
@@ -112,5 +128,9 @@ public class BrainManager {
                 image.setRGB(x,y,image.getRGB(x,y-1));
             }
         }
+    }
+
+    public void createInitialConnections() {
+        brain.createInitialConnections();
     }
 }

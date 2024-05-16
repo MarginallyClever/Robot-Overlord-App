@@ -30,6 +30,7 @@ public class CreatureController extends ODENode implements CollisionListener {
     private double maxForce = 0;
     // max experienced during simulation
     private double maxTorque = 0;
+    private double maxOutputTorque = 150000;  // magic numbers are fun!
 
     public CreatureController() {
         super("CreatureController");
@@ -108,6 +109,8 @@ public class CreatureController extends ODENode implements CollisionListener {
         bodies.clear();
         bodies.addAll(findBodies());
         brainManager.setNumInputs(bodies.size()+hinges.size()+1);
+        brainManager.setNumOutputs(hinges.size());
+        brainManager.createInitialConnections();
 
         // add feedback to hinges
         for(ODEHinge h : hinges) {
@@ -195,12 +198,12 @@ public class CreatureController extends ODENode implements CollisionListener {
 
     private double calcMaxF(double f22) {
         maxForce = Math.max(maxForce,Math.abs(f22));
-        return maxForce >0 ? (f22/ maxForce) : f22;
+        return maxForce >0 ? (f22 / maxForce) : f22;
     }
 
     private double calcMaxT(double t22) {
         maxTorque = Math.max(maxTorque,Math.abs(t22));
-        return maxTorque >0 ? (t22/ maxTorque) : t22;
+        return maxTorque >0 ? (t22 / maxTorque) : t22;
     }
 
     private void sendBrainOutputToHinges() {
@@ -209,7 +212,7 @@ public class CreatureController extends ODENode implements CollisionListener {
         for (ODEHinge h : hinges) {
             var force = brainManager.getOutput(i++);
             //System.out.print(force+"\t");
-            h.addTorque(force * maxTorque);  // 2.5e5 = 250k
+            h.addTorque(force * maxOutputTorque);
         }
         //System.out.println();
     }
