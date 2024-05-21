@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
+import com.marginallyclever.ro3.physics.ODE4JHelper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,6 +23,12 @@ public class ODEBoxPanel extends JPanel {
         addField("Size X", body.getSizeX(), body::setSizeX);
         addField("Size Y", body.getSizeY(), body::setSizeY);
         addField("Size Z", body.getSizeZ(), body::setSizeZ);
+
+        JButton setMassByVolume = new JButton("Set");
+        setMassByVolume.addActionListener(e -> {
+            body.setMassQty(ODE4JHelper.volumeBox(body.getSizeX(),body.getSizeY(),body.getSizeZ()));
+        });
+        PanelHelper.addLabelAndComponent(this,"Mass by Volume",setMassByVolume);
     }
 
     private void addField(String label, double originalValue, DoubleConsumer setSize) {
@@ -32,5 +39,6 @@ public class ODEBoxPanel extends JPanel {
         field.setValue(originalValue);
         field.addPropertyChangeListener("value", e -> setSize.accept( ((Number)field.getValue()).doubleValue() ));
         PanelHelper.addLabelAndComponent(this,label,field);
+
     }
 }

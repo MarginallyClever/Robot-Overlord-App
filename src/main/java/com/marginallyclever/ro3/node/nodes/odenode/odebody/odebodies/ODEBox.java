@@ -41,7 +41,7 @@ public class ODEBox extends ODEBody {
         geom = createBox(Registry.getPhysics().getODESpace(), size.x, size.y, size.z);
         geom.setBody(body);
 
-        mass.setBoxTotal(ODE4JHelper.volumeBox(size.x,size.y,size.z), size.x, size.y, size.z);
+        mass.setBoxTotal(getMassQty(), size.x, size.y, size.z);
         body.setMass(mass);
         updateSize();
     }
@@ -82,7 +82,7 @@ public class ODEBox extends ODEBody {
         ((DBox)geom).setLengths(size.x, size.y, size.z);
         geom.setBody(body);
 
-        mass.setBoxTotal(mass.getMass(), size.x, size.y, size.z);
+        mass.setBoxTotal(getMassQty(), size.x, size.y, size.z);
         body.setMass(mass);
 
         var meshInstance = findFirstChild(MeshInstance.class);

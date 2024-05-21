@@ -40,7 +40,7 @@ public class ODESphere extends ODEBody {
         geom = createSphere(Registry.getPhysics().getODESpace(), radius);
         geom.setBody(body);
 
-        mass.setSphereTotal(ODE4JHelper.volumeSphere(radius), radius);
+        mass.setSphereTotal(getMassQty(), radius);
         body.setMass(mass);
 
         updateSize();
@@ -62,7 +62,7 @@ public class ODESphere extends ODEBody {
         ((DSphere)geom).setRadius(radius);
         geom.setBody(body);
 
-        mass.setSphereTotal(mass.getMass(), radius);
+        mass.setSphereTotal(getMassQty(), radius);
         body.setMass(mass);
 
         var meshInstance = findFirstChild(MeshInstance.class);

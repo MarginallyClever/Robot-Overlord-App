@@ -40,7 +40,7 @@ public class ODECylinder extends ODEBody {
         geom = OdeHelper.createCylinder(Registry.getPhysics().getODESpace(), radius, length);
         geom.setBody(body);
 
-        mass.setCylinderTotal(ODE4JHelper.volumeCylinder(radius,length), 3, radius, length);
+        mass.setCylinderTotal(getMassQty(), 3, radius, length);
         body.setMass(mass);
 
         updateSize();
@@ -72,7 +72,7 @@ public class ODECylinder extends ODEBody {
         ((DCylinder)geom).setParams(radius, length);
         geom.setBody(body);
 
-        mass.setCylinderTotal(mass.getMass(), 3, radius, length);
+        mass.setCylinderTotal(getMassQty(), 3, radius, length);
         body.setMass(mass);
 
         MeshInstance meshInstance = findFirstChild(MeshInstance.class);

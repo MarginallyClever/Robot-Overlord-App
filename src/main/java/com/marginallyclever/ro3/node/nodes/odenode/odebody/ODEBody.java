@@ -121,7 +121,7 @@ public abstract class ODEBody extends ODENode {
     }
 
     public double getMassQty() {
-        return mass.getMass();
+        return massQty;
     }
 
     /**

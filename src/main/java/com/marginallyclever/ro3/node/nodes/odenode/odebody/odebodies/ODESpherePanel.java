@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
+import com.marginallyclever.ro3.physics.ODE4JHelper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +15,7 @@ public class ODESpherePanel extends JPanel {
         this(new ODESphere());
     }
 
-    public ODESpherePanel(ODESphere sphere) {
+    public ODESpherePanel(ODESphere body) {
         super(new GridLayout(0,2));
         this.setName(ODESphere.class.getSimpleName());
 
@@ -22,8 +23,14 @@ public class ODESpherePanel extends JPanel {
         formatter.setMinimum(0.001);
 
         JFormattedTextField radiusValue = new JFormattedTextField(formatter);
-        radiusValue.setValue(sphere.getRadius());
-        radiusValue.addPropertyChangeListener("value", e -> sphere.setRadius( ((Number)radiusValue.getValue()).doubleValue() ));
+        radiusValue.setValue(body.getRadius());
+        radiusValue.addPropertyChangeListener("value", e -> body.setRadius( ((Number)radiusValue.getValue()).doubleValue() ));
         PanelHelper.addLabelAndComponent(this,"Radius",radiusValue);
+
+        JButton setMassByVolume = new JButton("Set");
+        setMassByVolume.addActionListener(e -> {
+            body.setMassQty(ODE4JHelper.volumeSphere(body.getRadius()));
+        });
+        PanelHelper.addLabelAndComponent(this,"Mass by Volume",setMassByVolume);
     }
 }

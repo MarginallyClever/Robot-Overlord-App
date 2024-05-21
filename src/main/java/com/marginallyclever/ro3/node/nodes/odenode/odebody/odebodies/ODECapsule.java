@@ -42,7 +42,7 @@ public class ODECapsule extends ODEBody {
         geom = OdeHelper.createCapsule(Registry.getPhysics().getODESpace(), radius, length);
         geom.setBody(body);
 
-        mass.setCapsuleTotal(ODE4JHelper.volumeCapsule(radius,length), 3, radius, length);
+        mass.setCapsuleTotal(getMassQty(), 3, radius, length);
         body.setMass(mass);
 
         updateSize();
@@ -74,7 +74,7 @@ public class ODECapsule extends ODEBody {
         ((DCapsule)geom).setParams(radius, length);
         geom.setBody(body);
 
-        mass.setCapsuleTotal(mass.getMass(), 3, radius, length);
+        mass.setCapsuleTotal(getMassQty(), 3, radius, length);
         body.setMass(mass);
 
         MeshInstance meshInstance = findFirstChild(MeshInstance.class);
