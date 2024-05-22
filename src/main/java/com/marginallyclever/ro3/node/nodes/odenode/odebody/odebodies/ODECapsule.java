@@ -79,7 +79,10 @@ public class ODECapsule extends ODEBody {
 
         MeshInstance meshInstance = findFirstChild(MeshInstance.class);
         if(null != meshInstance) {
-            meshInstance.setMesh(new Capsule(length, radius));
+            var mesh = meshInstance.getMesh();
+            if(mesh==null || mesh instanceof Capsule) {
+                meshInstance.setMesh(new Capsule(length, radius));
+            }
         }
 
         MeshInstance b1 = findNodeByPath("Ball1/MeshInstance",MeshInstance.class);

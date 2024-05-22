@@ -67,7 +67,10 @@ public class ODESphere extends ODEBody {
 
         var meshInstance = findFirstChild(MeshInstance.class);
         if(meshInstance!=null) {
-            meshInstance.setMesh(new Sphere((float) radius));
+            var mesh = meshInstance.getMesh();
+            if(mesh==null || mesh instanceof Sphere) {
+                meshInstance.setMesh(new Sphere((float) radius));
+            }
         }
     }
 

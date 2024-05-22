@@ -76,8 +76,11 @@ public class ODECylinder extends ODEBody {
         body.setMass(mass);
 
         MeshInstance meshInstance = findFirstChild(MeshInstance.class);
-        if(meshInstance!=null) {
-            meshInstance.setMesh(new Cylinder(length, radius, radius));
+        if(null != meshInstance) {
+            var mesh = meshInstance.getMesh();
+            if(mesh==null || mesh instanceof Cylinder) {
+                meshInstance.setMesh(new Cylinder(length, radius, radius));
+            }
         }
     }
 
