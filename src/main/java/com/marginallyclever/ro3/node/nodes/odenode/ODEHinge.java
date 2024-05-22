@@ -216,16 +216,14 @@ public class ODEHinge extends ODENode {
      * @return angle in degrees
      */
     public double getAngleMax() {
-        if(hinge==null) return 0;
-        return Math.toDegrees(hinge.getParam(DJoint.PARAM_N.dParamHiStop1));
+        return top;
     }
 
     /**
      * @return angle in degrees
      */
     public double getAngleMin() {
-        if(hinge==null) return 0;
-        return Math.toDegrees(hinge.getParam(DJoint.PARAM_N.dParamLoStop1));
+        return bottom;
     }
 
     /**

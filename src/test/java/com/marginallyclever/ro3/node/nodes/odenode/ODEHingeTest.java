@@ -50,4 +50,27 @@ public class ODEHingeTest {
         Assertions.assertNotNull(afterHinge2.getHinge().getBody(0));
         Assertions.assertNotNull(afterHinge2.getHinge().getBody(1));
     }
+
+    // test that serializing with infinite limits works, and with non-infinite limits works.
+    @Test
+    public void testLimits() {
+        Registry.start();
+
+        ODEHinge before = new ODEHinge();
+        before.setAngleMax(Double.POSITIVE_INFINITY);
+        before.setAngleMin(Double.NEGATIVE_INFINITY);
+        JSONObject json = before.toJSON();
+        ODEHinge after = new ODEHinge();
+        after.fromJSON(json);
+        Assertions.assertEquals(Double.POSITIVE_INFINITY,after.getAngleMax());
+        Assertions.assertEquals(Double.NEGATIVE_INFINITY,after.getAngleMin());
+
+        before.setAngleMax(90);
+        before.setAngleMin(-90);
+        json = before.toJSON();
+        after = new ODEHinge();
+        after.fromJSON(json);
+        Assertions.assertEquals(90,after.getAngleMax());
+        Assertions.assertEquals(-90,after.getAngleMin());
+    }
 }
