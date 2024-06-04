@@ -2,7 +2,6 @@ package com.marginallyclever.ro3.apps;
 
 import ModernDocking.DockingRegion;
 import ModernDocking.app.AppState;
-import ModernDocking.app.DockableMenuItem;
 import ModernDocking.app.Docking;
 import ModernDocking.app.RootDockingPanel;
 import ModernDocking.exception.DockingLayoutException;
@@ -13,14 +12,12 @@ import com.marginallyclever.communications.application.TextInterfaceToSessionLay
 import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.RO3;
 import com.marginallyclever.ro3.apps.about.AboutPanel;
-import com.marginallyclever.ro3.apps.actions.*;
 import com.marginallyclever.ro3.apps.dialogs.AppSettingsDialog;
 import com.marginallyclever.ro3.apps.editorpanel.EditorPanel;
 import com.marginallyclever.ro3.apps.logpanel.LogPanel;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.ode4j.ODE4JPanel;
-import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
 import com.marginallyclever.ro3.apps.webcampanel.WebCamPanel;
 import com.marginallyclever.ro3.apps.viewport.OpenGLPanel;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
@@ -28,21 +25,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.dnd.DropTarget;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.prefs.Preferences;
+import java.util.List;
 
 /**
  * <p>{@link RO3Frame} is the main frame for the Robot Overlord 3 application.  It contains the menu bar and docking
@@ -51,7 +43,6 @@ import java.util.prefs.Preferences;
 public class RO3Frame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(RO3Frame.class);
     private final List<DockingPanel> windows = new ArrayList<>();
-    private final JFileChooser fileChooser;
     private final OpenGLPanel viewportPanel;
     private final LogPanel logPanel;
     private final EditorPanel editPanel;
@@ -64,12 +55,9 @@ public class RO3Frame extends JFrame {
     public RO3Frame() {
         super("Robot Overlord 3");
         loadVersion();
-        setLookAndFeel();
+
         setLocationByPlatform(true);
         initDocking();
-
-        fileChooser = new PersistentJFileChooser();
-        setupFileChooser();
 
         logPanel = new LogPanel();
         editPanel = new EditorPanel();
@@ -84,7 +72,8 @@ public class RO3Frame extends JFrame {
 
         UndoSystem.start();
 
-        createMenus();
+        setJMenuBar(new MainMenu(this));
+
         addQuitHandler();
         addAboutHandler();
         setupDropTarget();
@@ -103,21 +92,6 @@ public class RO3Frame extends JFrame {
 
     private void setupDropTarget() {
         new DropTarget(this, new RO3FrameDropTarget());
-    }
-
-    private void setupFileChooser() {
-        fileChooser.setFileFilter(FILE_FILTER);
-    }
-
-    private void setLookAndFeel() {
-        FlatLaf.registerCustomDefaultsSource("docking");
-        try {
-            UIManager.setLookAndFeel(new FlatLightLaf());
-            // option 2: UIManager.setLookAndFeel(new FlatDarkLaf());
-            // option 3: UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {
-            logger.error("Failed to set look and feel.");
-        }
     }
 
     private void initDocking() {
@@ -162,7 +136,7 @@ public class RO3Frame extends JFrame {
         if (Desktop.isDesktopSupported()) {
             Desktop desktop = Desktop.getDesktop();
             if (desktop.isSupported(Desktop.Action.APP_ABOUT)) {
-                desktop.setAboutHandler((e) ->{
+                desktop.setAboutHandler((e) -> {
                     var panel = new AboutPanel();
                     JOptionPane.showMessageDialog(this, panel,
                             "About",
@@ -170,136 +144,6 @@ public class RO3Frame extends JFrame {
                 });
             }
         }
-    }
-
-    private void createMenus() {
-        JMenuBar menuBar = new JMenuBar();
-        setJMenuBar(menuBar);
-
-        menuBar.add(buildFileMenu());
-        menuBar.add(buildEditMenu());
-        menuBar.add(buildWindowsMenu());
-        menuBar.add(buildHelpMenu());
-    }
-
-    private Component buildEditMenu() {
-        JMenu menu = new JMenu("Edit");
-        menu.add(new JMenuItem(UndoSystem.getCommandUndo()));
-        menu.add(new JMenuItem(UndoSystem.getCommandRedo()));
-        //menu.add(new JSeparator());
-        return menu;
-    }
-
-    private Component buildHelpMenu() {
-        JMenu menuHelp = new JMenu("Help");
-        var openManual = new BrowseURLAction("https://mcr.dozuki.com/c/Robot_Overlord_3");
-        openManual.putValue(Action.NAME, "Read the friendly manual");
-        openManual.putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-open-book-16.png"))));
-        openManual.putValue(Action.SHORT_DESCRIPTION, "Read the friendly manual.  It has pictures and everything!");
-        menuHelp.add(new JMenuItem(openManual));
-
-        var visitForum = new BrowseURLAction("https://discord.gg/VQ82jNvDBP");
-        visitForum.putValue(Action.NAME, "Visit Forums");
-        visitForum.putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-discord-16.png"))));
-        visitForum.putValue(Action.SHORT_DESCRIPTION, "Join us on Discord!");
-        menuHelp.add(new JMenuItem(visitForum));
-
-        var visitIssues = new BrowseURLAction("https://github.com/MarginallyClever/Robot-Overlord-App/issues");
-        visitIssues.putValue(Action.NAME, "Report an Issue");
-        visitIssues.putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-bug-16.png"))));
-        visitIssues.putValue(Action.SHORT_DESCRIPTION, "Report an issue on GitHub");
-        menuHelp.add(new JMenuItem(visitIssues));
-
-        menuHelp.add(new JMenuItem(new CheckForUpdateAction()));
-
-        return menuHelp;
-    }
-
-    private JMenu buildWindowsMenu() {
-        JMenu menuWindows = new JMenu("Windows");
-        // add each panel to the windows menu with a checkbox if the current panel is visible.
-        int index=0;
-        for(DockingPanel w : windows) {
-            DockableMenuItem item = new DockableMenuItem(w.getPersistentID(),w.getTabText());
-            menuWindows.add(item);
-            item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1 + index, InputEvent.SHIFT_DOWN_MASK));
-            index++;
-        }
-
-        menuWindows.add(new JSeparator());
-        menuWindows.add(new JMenuItem(new AbstractAction() {
-            {
-                putValue(Action.NAME, "Reset default layout");
-                // no accelerator key.
-                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-reset-16.png"))));
-                putValue(Action.SHORT_DESCRIPTION, "Reset the layout to the default.");
-            }
-
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                resetDefaultLayout();
-            }
-        }));
-        return menuWindows;
-    }
-
-    private JMenu buildFileMenu() {
-        // "load", "load recent", and "new" enable/disable save.
-        var loadRecentMenu = new RecentFilesMenu(Preferences.userNodeForPackage(LoadScene.class));
-        var save = new SaveScene(loadRecentMenu);
-        save.setEnabled(false);
-        var load = new LoadScene(loadRecentMenu,null,fileChooser);
-        load.setSaveScene(save);
-        loadRecentMenu.setSaveScene(save);
-        var saveAs = new SaveAsScene(loadRecentMenu,fileChooser);
-        saveAs.setSaveScene(save);
-
-        JMenu menuFile = new JMenu("File");
-        menuFile.add(new JMenuItem(new NewScene(save)));
-        menuFile.add(new JSeparator());
-        menuFile.add(new JMenuItem(load));
-        menuFile.add(loadRecentMenu);
-        menuFile.add(new JMenuItem(new ImportScene(fileChooser)));
-        menuFile.add(new JMenuItem(save));
-        menuFile.add(new JMenuItem(saveAs));
-        menuFile.add(new JMenuItem(new ExportScene(fileChooser)));
-
-        menuFile.add(new JSeparator());
-        var settingsMenu = new JMenuItem("Settings");
-        settingsMenu.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(
-                "/com/marginallyclever/ro3/apps/actions/icons8-settings-16.png"))));
-        menuFile.add(settingsMenu);
-        settingsMenu.addActionListener(e -> {
-            var dialog = new AppSettingsDialog(List.of(
-                    viewportPanel,
-                    logPanel,
-                    editPanel,
-                    webCamPanel,
-                    textInterface,
-                    ode4jPanel
-            ));
-            dialog.run(this);
-        });
-
-
-        menuFile.add(new JSeparator());
-        menuFile.add(new JMenuItem(new AbstractAction("Quit") {
-            {
-                putValue(Action.NAME, "Quit");
-                putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
-                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-stop-16.png"))));
-                putValue(Action.SHORT_DESCRIPTION, "Quit the application.");
-            }
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                if(confirmClose()) {
-                    setDefaultCloseOperation(EXIT_ON_CLOSE);
-                    RO3Frame.this.dispatchEvent(new WindowEvent(RO3Frame.this, WindowEvent.WINDOW_CLOSING));
-                }
-            }
-        }));
-
-        return menuFile;
     }
 
     public boolean confirmClose() {
@@ -362,7 +206,7 @@ public class RO3Frame extends JFrame {
     /**
      * Reset the default layout.  These depend on the order of creation in createDefaultLayout().
      */
-    private void resetDefaultLayout() {
+    public void resetDefaultLayout() {
         logger.info("Resetting layout to default.");
         setSize(1000, 750);
 
@@ -393,5 +237,21 @@ public class RO3Frame extends JFrame {
             // something happened trying to load the layout file, record it here
             logger.error("Failed to restore docking layout.", e);
         }
+    }
+
+    public List<DockingPanel> getDockingPanels() {
+        return windows;
+    }
+
+    public void runAppSettingsDialog() {
+        var dialog = new AppSettingsDialog(List.of(
+                viewportPanel,
+                logPanel,
+                editPanel,
+                webCamPanel,
+                textInterface,
+                ode4jPanel
+        ));
+        dialog.run(this);
     }
 }
