@@ -15,7 +15,6 @@ import java.util.Objects;
  * Load a Scene and insert it into the existing Scene.
  */
 public class ImportScene extends AbstractAction {
-    private static final Logger logger = LoggerFactory.getLogger(ImportScene.class);
     private final JFileChooser chooser;
 
     public ImportScene() {

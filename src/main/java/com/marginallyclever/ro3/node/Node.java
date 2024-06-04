@@ -109,7 +109,7 @@ public class Node {
     }
 
     /**
-     * Called after this node is added to its parent.
+     * Called after this {@link Node} is added to a new parent {@link Node}.
      */
     protected void onAttach() {}
 
@@ -121,7 +121,7 @@ public class Node {
     }
 
     /**
-     * Called after this node is removed from its parent.
+     * Called after this {@link Node} is removed from its parent {@link Node}.
      */
     protected void onDetach() {}
 
@@ -162,7 +162,7 @@ public class Node {
     }
 
     /**
-     * @return an iterator so that calling class cannot modify the list.
+     * @return the original list.  This is not a copy.  This is dangerous!
      */
     public List<Node> getChildren() {
         return children;

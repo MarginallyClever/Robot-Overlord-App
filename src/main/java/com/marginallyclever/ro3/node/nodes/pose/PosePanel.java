@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.text.NumberFormatter;
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.beans.PropertyChangeListener;
 
 public class PosePanel extends JPanel {
     private final Pose pose;
@@ -28,24 +29,29 @@ public class PosePanel extends JPanel {
         gbc.gridy=0;
         gbc.fill = GridBagConstraints.BOTH;
 
-        var formatter = NumberFormatHelper.getNumberFormatter();
-        addTranslationComponents(formatter,gbc);
+        addTranslationComponents(gbc);
         gbc.gridy++;
-        addRotationComponents(formatter,gbc);
+        addRotationComponents(gbc);
     }
 
-    private void addTranslationComponents(NumberFormatter formatter,GridBagConstraints gbc) {
-        var local = pose.getLocal();
-        JFormattedTextField tx = new JFormattedTextField(formatter);        tx.setValue(local.m03);
-        JFormattedTextField ty = new JFormattedTextField(formatter);        ty.setValue(local.m13);
-        JFormattedTextField tz = new JFormattedTextField(formatter);        tz.setValue(local.m23);
-        tx.setToolTipText("translate x");
-        ty.setToolTipText("translate y");
-        tz.setToolTipText("translate z");
+    private void addTranslationComponents(GridBagConstraints gbc) {
+        var local = pose.getPosition();
 
-        tx.addPropertyChangeListener("value", e -> local.m03 = ((Number) tx.getValue()).doubleValue() );
-        ty.addPropertyChangeListener("value", e -> local.m13 = ((Number) ty.getValue()).doubleValue() );
-        tz.addPropertyChangeListener("value", e -> local.m23 = ((Number) tz.getValue()).doubleValue() );
+        JFormattedTextField tx = addTranslateField("translate x",local.x, (e)-> {
+            var p = pose.getPosition();
+            p.x = ((Number) e.getNewValue()).doubleValue();
+            pose.setPosition(p);
+        });
+        JFormattedTextField ty = addTranslateField("translate y",local.y, (e)-> {
+            var p = pose.getPosition();
+            p.y = ((Number) e.getNewValue()).doubleValue();
+            pose.setPosition(p);
+        });
+        JFormattedTextField tz = addTranslateField("translate z",local.z, (e)-> {
+            var p = pose.getPosition();
+            p.z = ((Number) e.getNewValue()).doubleValue();
+            pose.setPosition(p);
+        });
 
         gbc.gridx=0;        this.add(new JLabel("Translation"),gbc);
         gbc.gridx=1;        this.add(tx,gbc);
@@ -53,16 +59,19 @@ public class PosePanel extends JPanel {
         gbc.gridx=3;        this.add(tz,gbc);
     }
 
-    private void addRotationComponents(NumberFormatter formatter,GridBagConstraints gbc) {
+    private JFormattedTextField addTranslateField(String label, double value, PropertyChangeListener listener) {
+        var formatter = NumberFormatHelper.getNumberFormatter();
+        JFormattedTextField field = new JFormattedTextField(formatter);
+        field.setValue(value);
+        field.setToolTipText(label);
+        field.addPropertyChangeListener("value", listener );
+
+        return field;
+    }
+
+    private void addRotationComponents(GridBagConstraints gbc) {
         var rotationIndex = pose.getRotationIndex();
         Vector3d r = pose.getRotationEuler(rotationIndex);
-
-        JFormattedTextField rx = new JFormattedTextField(formatter);        rx.setValue(r.x);
-        JFormattedTextField ry = new JFormattedTextField(formatter);        ry.setValue(r.y);
-        JFormattedTextField rz = new JFormattedTextField(formatter);        rz.setValue(r.z);
-        rx.setToolTipText("rotate x");
-        ry.setToolTipText("rotate y");
-        rz.setToolTipText("rotate z");
 
         String [] names = new String[MatrixHelper.EulerSequence.values().length];
         int i=0;
@@ -72,34 +81,41 @@ public class PosePanel extends JPanel {
         JComboBox<String> rotationType = new JComboBox<>(names);
         rotationType.setSelectedIndex(rotationIndex.ordinal());
         rotationType.addActionListener( e -> {
-            pose.setRotationIndex( MatrixHelper.EulerSequence.values()[rotationType.getSelectedIndex()] );;
+            pose.setRotationIndex( MatrixHelper.EulerSequence.values()[rotationType.getSelectedIndex()] );
         });
 
-        rx.addPropertyChangeListener("value", e -> {
-            Vector3d r2 = pose.getRotationEuler(rotationIndex);
-            r2.x = ((Number) rx.getValue()).doubleValue();
-            pose.setRotationEuler(r2, rotationIndex);
-        });
-        ry.addPropertyChangeListener("value", e -> {
-            Vector3d r2 = pose.getRotationEuler(rotationIndex);
-            r2.y = ((Number) ry.getValue()).doubleValue();
-            pose.setRotationEuler(r2, rotationIndex);
-        });
-        rz.addPropertyChangeListener("value", e -> {
-            Vector3d r2 = pose.getRotationEuler(rotationIndex);
-            r2.z = ((Number) rz.getValue()).doubleValue();
-            pose.setRotationEuler(r2, rotationIndex);
-        });
+        JFormattedTextField rx = addRotation("rotate x",r.x);
+        JFormattedTextField ry = addRotation("rotate y",r.y);
+        JFormattedTextField rz = addRotation("rotate z",r.z);
+
+        rx.addPropertyChangeListener((e)->updateRotation(rx,ry,rz));
+        ry.addPropertyChangeListener((e)->updateRotation(rx,ry,rz));
+        rz.addPropertyChangeListener((e)->updateRotation(rx,ry,rz));
 
         gbc.gridx=0;        this.add(new JLabel("Rotation"),gbc);
         gbc.gridx=1;        this.add(rx,gbc);
         gbc.gridx=2;        this.add(ry,gbc);
         gbc.gridx=3;        this.add(rz,gbc);
-
         gbc.gridy++;
         gbc.gridx=2;        this.add(new JLabel("Type"),gbc);
         gbc.gridx=3;        this.add(rotationType,gbc);
 
         gbc.gridx=0;
+    }
+
+    private void updateRotation(JFormattedTextField rx, JFormattedTextField ry, JFormattedTextField rz) {
+        Vector3d r = pose.getRotationEuler(pose.getRotationIndex());
+        r.x = ((Number)rx.getValue()).doubleValue();
+        r.y = ((Number)ry.getValue()).doubleValue();
+        r.z = ((Number)rz.getValue()).doubleValue();
+        pose.setRotationEuler(r, pose.getRotationIndex());
+    }
+
+    private JFormattedTextField addRotation(String label, double value) {
+        var formatter = NumberFormatHelper.getNumberFormatter();
+        JFormattedTextField field = new JFormattedTextField(formatter);
+        field.setValue(value);
+        field.setToolTipText(label);
+        return field;
     }
 }

@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.apps.viewport;
 
-import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.swing.Dial;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
@@ -10,9 +9,6 @@ import com.marginallyclever.ro3.view.ViewProvider;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
-import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
 import java.awt.*;
 
 /**
@@ -34,7 +30,7 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
 
     public ViewportSettingsPanel() {
         super(new GridBagLayout());
-        setName("Viewport Settings");
+        setName("Viewport");
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.weightx = 1.0;
@@ -192,6 +188,8 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
         setVerticalSync(subject.isVerticalSync());
         setFSAASamples(subject.getFsaaSamples());
 
+        // this only allows parameters from one render pass.
+        // TODO: add other passes?
         DrawMeshes meshes = getDrawMeshes();
         if(meshes!=null) {
             setSunColor(meshes.getSunlightColor());

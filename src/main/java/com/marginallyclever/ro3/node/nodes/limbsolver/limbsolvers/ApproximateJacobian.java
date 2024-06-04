@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.limbsolver;
+package com.marginallyclever.ro3.node.nodes.limbsolver.limbsolvers;
 
 import com.marginallyclever.convenience.helpers.BigMatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;

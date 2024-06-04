@@ -39,7 +39,9 @@ public class DrawMeshes extends AbstractRenderPass {
     private final int shadowMapUnit = 1;
     public static final int SHADOW_WIDTH = 1024;
     public static final int SHADOW_HEIGHT = 1024;
-    public static final Vector3d sunlightSource = new Vector3d(5,15,75);
+    public static final double SUN_DISTANCE = 200;
+    public static final double DEPTH_BUFFER_LIMIT = SUN_DISTANCE*1.5;
+    public static final Vector3d sunlightSource = new Vector3d(50,150,750);
     public static Color sunlightColor = new Color(0xfd,0xfb,0xd3,255);
     public static Color ambientColor = new Color(0x20,0x20,0x20,255);
     public static final Matrix4d lightProjection = new Matrix4d();
@@ -208,8 +210,8 @@ public class DrawMeshes extends AbstractRenderPass {
         list.retainAll(toKeep);
     }
 
+    // sort meshMaterial list by material
     private void sortMeshMaterialList(List<MeshMaterial> meshMaterial) {
-        // sort meshMaterial list by material
         meshMaterial.sort((o1, o2) -> {
             Material m1 = o1.material();
             Material m2 = o2.material();
@@ -223,6 +225,7 @@ public class DrawMeshes extends AbstractRenderPass {
         });
     }
 
+    // draw the shadow quad into the world for debugging.
     private void drawShadowQuad(GL3 gl3, Camera camera) {
         meshShader.use(gl3);
         meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix());
@@ -265,7 +268,7 @@ public class DrawMeshes extends AbstractRenderPass {
 
     private void collAllMeshesRecursively(Node node, List<MeshMaterial> meshMaterials, Material lastMaterialSeen) {
         if (node instanceof MeshInstance meshInstance) {
-            // if they have a mesh, draw it.
+            // if they have a mesh, collect it.
             Mesh mesh = meshInstance.getMesh();
             if (mesh != null) {
                 meshMaterials.add(new MeshMaterial(meshInstance,lastMaterialSeen));
@@ -413,7 +416,7 @@ public class DrawMeshes extends AbstractRenderPass {
 
         // orthographic projection from the light's point of view
         double r = 50;//Math.max(50,camera.getOrbitRadius());
-        lightProjection.set(MatrixHelper.orthographicMatrix4d(-r,r,-r,r,1.0,150));
+        lightProjection.set(MatrixHelper.orthographicMatrix4d(-r,r,-r,r,1.0,DEPTH_BUFFER_LIMIT));
 
         Vector3d from = new Vector3d(sunlightSource);
         Vector3d to = camera.getOrbitPoint();
@@ -421,10 +424,10 @@ public class DrawMeshes extends AbstractRenderPass {
         Vector3d up = Math.abs(sunlightSource.z)>0.99? new Vector3d(0,1,0) : new Vector3d(0,0,1);
 
         // look at the scene from the light's point of view
-        // not the same as MatrixHelper.lookAt().
         lightView.set(lookAt(from, to, up));
     }
 
+    // not the same as MatrixHelper.lookAt().  This is for the light source.
     public static Matrix4d lookAt(Vector3d eye, Vector3d center, Vector3d up) {
         org.joml.Matrix4d jm = new org.joml.Matrix4d();
         jm.lookAt(eye.x,eye.y,eye.z,center.x,center.y,center.z,up.x,up.y,up.z);
@@ -502,7 +505,7 @@ public class DrawMeshes extends AbstractRenderPass {
         vx.scale(Math.sin(hourAngle));
         result.add(vx, vy);
 
-        result.scale(75);
+        result.scale(SUN_DISTANCE);
 
         return result;
     }

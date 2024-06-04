@@ -40,7 +40,9 @@ public class AppSettingsDialog extends JPanel {
                     ViewProvider<App> viewProvider = (ViewProvider<App>) clazz.getConstructor().newInstance();
                     viewProvider.setViewSubject(appInstance);
                     JPanel viewPanel = (JPanel)viewProvider;
-                    tabbedPane.addTab(appClass.getSimpleName(), viewPanel);
+                    JPanel container = new JPanel(new BorderLayout());
+                    container.add(viewPanel, BorderLayout.NORTH);
+                    tabbedPane.addTab(((JPanel) viewProvider).getName(), container);
                 } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
                     logger.error("Error creating view for app: " + appInstance.getClass().getSimpleName(), e);
                 }
@@ -49,6 +51,7 @@ public class AppSettingsDialog extends JPanel {
     }
 
     public void run(Component parent) {
+        // show message dialog is the reason the dialog cannot be resized.
         JOptionPane.showMessageDialog(parent, this, "Settings", JOptionPane.PLAIN_MESSAGE);
     }
 }

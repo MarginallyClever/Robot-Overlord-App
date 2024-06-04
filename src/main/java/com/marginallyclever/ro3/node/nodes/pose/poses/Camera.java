@@ -175,7 +175,9 @@ public class Camera extends Pose {
         Matrix3d m = MatrixHelper.getMatrixFromAxisAndRotation(axis,delta);
         Matrix4d m4 = new Matrix4d();
         m4.set(m);
-        getLocal().mul(m4);
+        var local = getLocal();
+        local.mul(m4);
+        setLocal(local);
     }
 
     /**
@@ -241,7 +243,7 @@ public class Camera extends Pose {
      * @param newRadius new radius.  Must be >=1.
      */
     public void moveToNewRadius(double newRadius) {
-        Matrix4d local = getLocal();
+        Matrix4d local = this.getLocal();
         var point = getOrbitPoint();
         orbitRadius = Math.max(1,newRadius);
 
@@ -249,6 +251,7 @@ public class Camera extends Pose {
         Vector3d orbitVector = MatrixHelper.getZAxis(local);
         orbitVector.scaleAdd(orbitRadius,point);
         local.setTranslation(orbitVector);
+        this.setLocal(local);
     }
 
     public double getOrbitRadius() {
@@ -277,7 +280,7 @@ public class Camera extends Pose {
         //logger.debug("after {}",getOrbitPoint());
     }
 
-    public double[] getPanTiltFromMatrix(Matrix4d matrix) {
+    public static double[] getPanTiltFromMatrix(Matrix4d matrix) {
         Vector3d v = MatrixHelper.matrixToEuler(matrix, MatrixHelper.EulerSequence.YXZ);
         double pan = Math.toDegrees(-v.z);
         double tilt = Math.toDegrees(v.x);
@@ -288,7 +291,7 @@ public class Camera extends Pose {
      * @param panTiltAngles [0] = pan, [1] = tilt
      * @return a matrix that rotates the camera by the given pan and tilt angles.
      */
-    Matrix3d buildPanTiltMatrix(double [] panTiltAngles) {
+    public static Matrix3d buildPanTiltMatrix(double [] panTiltAngles) {
         Matrix3d a = new Matrix3d();
         a.rotZ(Math.toRadians(panTiltAngles[0]));
 

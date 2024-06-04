@@ -1,6 +1,5 @@
  package com.marginallyclever.ro3.node.nodes;
 
-import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
@@ -45,7 +44,10 @@ public class LinearJoint extends Node {
 
         if(car.getSubject()!=null) {
             // set the axle's location in space.
-            car.getSubject().getLocal().m23 = position;
+            var subject = car.getSubject();
+            var m = subject.getLocal();
+            m.m23 = position;
+            subject.setLocal(m);
         }
     }
 

@@ -505,6 +505,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     }
 
     private void updateAllNodes(double dt) {
+        Registry.getPhysics().update(dt);
         Registry.getScene().update(dt);
     }
 

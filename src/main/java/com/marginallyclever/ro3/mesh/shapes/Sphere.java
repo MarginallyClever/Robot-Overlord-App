@@ -8,10 +8,16 @@ import com.marginallyclever.ro3.mesh.Mesh;
  */
 public class Sphere extends Mesh {
     public int detail = 32;  // level of detail
+    public float radius = 1;
 
     public Sphere() {
-        super();
+        this(1);
+    }
 
+    public Sphere(float radius) {
+        super();
+        if(radius<=0) throw new IllegalArgumentException("Sphere radius must be greater than zero.");
+        this.radius = radius;
         updateModel();
     }
 
@@ -37,16 +43,16 @@ public class Sphere extends Mesh {
                 float y = (float)( Math.cos(theta));
                 float z = (float)(-Math.sin(theta) * Math.sin(phi));
 
-                this.addVertex(x,y,z);
+                this.addVertex(x*radius,y*radius,z*radius);
                 this.addNormal(x,y,z);
                 this.addTexCoord((float)tx, (float)ty);
             }
         }
-        this.addVertex(0,1,0);
+        this.addVertex(0,1*radius,0);
         this.addNormal(0,1,0);
         this.addTexCoord(0.5f,0);
 
-        this.addVertex(0,-1,0);
+        this.addVertex(0,-1*radius,0);
         this.addNormal(0,-1,0);
         this.addTexCoord(0.5f,1);
 

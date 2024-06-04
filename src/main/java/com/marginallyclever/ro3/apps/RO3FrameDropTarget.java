@@ -3,7 +3,6 @@ package com.marginallyclever.ro3.apps;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.commands.ImportMesh;
 import com.marginallyclever.ro3.apps.commands.ImportScene;
-import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

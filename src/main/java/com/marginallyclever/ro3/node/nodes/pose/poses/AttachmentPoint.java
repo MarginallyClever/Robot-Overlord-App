@@ -18,8 +18,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * </p>{@link AttachmentPoint} is a point on a {@link Pose} that can be used to attach other nodes.</p>
- * <p>Users can click the attach button in the control panel.  Developers can use the {@link #attemptAttach()} method.</p>
+ * </p>{@link AttachmentPoint} is a point on a {@link Pose} that can be used to attach other {@link Pose}s.</p>
+ * <p>Users can click the attach button in the control panel.  Developers can use the {@link #attemptAttach()} method.
+ * If this AttachmentPoint finds another Pose within radius, it will move the other Pose to be a child of this
+ * AttachmentPoint.</p>
  * <p>Things in reach must be {@link Pose} items within {@link #radius} of {@link AttachmentPoint}.  They must also be
  * immediate children of the Scene root.</p>
  * <p>The attached item will move from the Scene root and become a child of {@link AttachmentPoint}.  On release all

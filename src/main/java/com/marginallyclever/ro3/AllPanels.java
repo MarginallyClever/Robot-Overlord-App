@@ -1,8 +1,9 @@
 package com.marginallyclever.ro3;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import com.marginallyclever.ro3.node.nodes.pose.poses.*;
+import com.marginallyclever.ro3.apps.ode4j.ODEPhysicsSettingsPanel;
 import org.reflections.Reflections;
-import org.reflections.util.ClasspathHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +14,10 @@ import java.util.Set;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * This class should be in tests but cannot because {@link Reflections} does not work across the
+ * production/test boundary.
+ */
 public class AllPanels {
     private static final Logger logger = LoggerFactory.getLogger(AllPanels.class);
 
@@ -96,19 +101,19 @@ public class AllPanels {
             com.marginallyclever.ro3.node.nodes.LinearJointPanel.class,
             com.marginallyclever.ro3.node.nodes.MaterialPanel.class,
             com.marginallyclever.ro3.node.nodes.MotorPanel.class,
-            com.marginallyclever.ro3.node.nodes.RigidBody3DPanel.class,
             com.marginallyclever.ro3.node.nodes.behavior.BehaviorTreeRunnerPanel.class,
             com.marginallyclever.ro3.node.nodes.behavior.actions.LimbMoveToTargetPanel.class,
             com.marginallyclever.ro3.node.nodes.behavior.decorators.RepeatPanel.class,
             com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlannerPanel.class,
             com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolverPanel.class,
             com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArmPanel.class,
+            ODEPhysicsSettingsPanel.class,
             com.marginallyclever.ro3.node.nodes.pose.PosePanel.class,
-            com.marginallyclever.ro3.node.nodes.pose.poses.AttachmentPointPanel.class,
-            com.marginallyclever.ro3.node.nodes.pose.poses.CameraPanel.class,
-            com.marginallyclever.ro3.node.nodes.pose.poses.LimbPanel.class,
-            com.marginallyclever.ro3.node.nodes.pose.poses.LookAtPanel.class,
-            com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstancePanel.class,
+            AttachmentPointPanel.class,
+            CameraPanel.class,
+            LimbPanel.class,
+            LookAtPanel.class,
+            MeshInstancePanel.class,
             com.marginallyclever.ro3.texture.TextureChooserDialog.class
         ));
     }

@@ -28,9 +28,10 @@ open module com.marginallyclever.robotoverlord {
 	requires batik.all;
 	requires xml.apis.ext;
 	requires java.datatransfer;
-	requires core;
+	//requires org.ode4j.ode;
 	requires flexmark.util.ast;
 	requires webcam.capture;
     requires ch.qos.logback.classic;
     requires ch.qos.logback.core;
+    requires core;
 }

@@ -44,7 +44,10 @@ public class HingeJoint extends Node {
 
         if(axle.getSubject()!=null) {
             // set the axle's location in space.
-            axle.getSubject().getLocal().rotZ(Math.toRadians(angle));
+            var subject = axle.getSubject();
+            var m = subject.getLocal();
+            m.rotZ(Math.toRadians(angle));
+            subject.setLocal(m);
         }
     }
 

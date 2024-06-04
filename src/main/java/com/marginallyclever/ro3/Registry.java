@@ -13,15 +13,22 @@ import com.marginallyclever.ro3.node.nodes.behavior.decorators.*;
 import com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlanner;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
-import com.marginallyclever.ro3.node.nodes.pose.*;
+import com.marginallyclever.ro3.node.nodes.odenode.CreatureController;
+import com.marginallyclever.ro3.node.nodes.odenode.ODEHinge;
+import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODEBox;
+import com.marginallyclever.ro3.node.nodes.odenode.ODEPlane;
+import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODECapsule;
+import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODECylinder;
+import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODESphere;
 import com.marginallyclever.ro3.node.nodes.pose.poses.*;
+import com.marginallyclever.ro3.physics.ODEPhysics;
+import com.marginallyclever.ro3.node.nodes.pose.*;
 import com.marginallyclever.ro3.texture.TextureFactory;
 
 import javax.swing.event.EventListenerList;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * {@link Registry} is a place to store global variables.
@@ -35,6 +42,7 @@ public class Registry {
     public static final ListWithEvents<Camera> cameras = new ListWithEvents<>();
     private static Camera activeCamera = null;
     public static final ListWithEvents<Node> selection = new ListWithEvents<>();
+    private static final ODEPhysics physics = new ODEPhysics();
 
     public static void start() {
         nodeFactory.clear();
@@ -76,6 +84,16 @@ public class Registry {
                 pose.add("LookAt", LookAt::new);
                 pose.add("MeshInstance", MeshInstance::new);
             }
+            NodeFactory.Category physics = node.add("Physics", null);
+            {
+                physics.add("CreatureController", CreatureController::new);
+                physics.add("ODEBox", ODEBox::new);
+                physics.add("ODECapsule", ODECapsule::new);
+                physics.add("ODECylinder", ODECylinder::new);
+                physics.add("ODEHinge", ODEHinge::new);
+                physics.add("ODEPlane", ODEPlane::new);
+                physics.add("ODESphere", ODESphere::new);
+            }
         }
         reset();
     }
@@ -101,6 +119,7 @@ public class Registry {
 
         textureFactory.reset();
         meshFactory.reset();
+        physics.reset();
 
         scene = new Node("Scene");
     }
@@ -142,5 +161,9 @@ public class Registry {
 
     public static void setActiveCamera(Camera camera) {
         activeCamera = camera;
+    }
+
+    public static ODEPhysics getPhysics() {
+        return physics;
     }
 }

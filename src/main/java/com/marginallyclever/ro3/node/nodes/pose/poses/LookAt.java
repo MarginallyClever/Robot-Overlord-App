@@ -6,7 +6,6 @@ import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 
 import javax.swing.*;
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import java.util.List;
 import java.util.Objects;
@@ -54,7 +53,7 @@ public class LookAt extends Pose {
             fromWorld.invert();
             look.mul(fromWorld,look);
             look.setTranslation(new javax.vecmath.Vector3d());
-            getLocal().set(look);
+            this.setLocal(look);
         }
     }
 
