@@ -498,8 +498,8 @@ public class DrawMeshes extends AbstractRenderPass {
         Vector3d vy = MatrixHelper.getZAxis(m);
 
         double hourAngle = Math.toRadians(timeOfDay); // Convert hours to degrees
+        //System.out.println("hourAngle="+(timeOfDay%24)+" declination="+declination);
 
-        System.out.println("hourAngle="+(timeOfDay%24)+" declination="+declination);
         var result = new Vector3d();
         vy.scale(Math.cos(hourAngle));
         vx.scale(Math.sin(hourAngle));
