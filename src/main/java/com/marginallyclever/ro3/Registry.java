@@ -104,6 +104,7 @@ public class Registry {
         // reset camera
         List<Camera> toRemove = new ArrayList<>(cameras.getList());
         for(Camera c : toRemove) cameras.remove(c);
+
         Camera first = new Camera("Camera 1");
         cameras.add(first);
         setActiveCamera(first);

@@ -2,7 +2,6 @@ package com.marginallyclever.ro3.apps;
 
 import ModernDocking.app.DockableMenuItem;
 import com.marginallyclever.ro3.apps.actions.*;
-import com.marginallyclever.ro3.apps.dialogs.AppSettingsDialog;
 import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
 
 import javax.swing.*;
@@ -10,7 +9,6 @@ import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.prefs.Preferences;
@@ -137,6 +135,7 @@ public class MainMenu extends JMenuBar {
 
     private Component buildHelpMenu() {
         JMenu menuHelp = new JMenu("Help");
+
         var openManual = new BrowseURLAction("https://mcr.dozuki.com/c/Robot_Overlord_3");
         openManual.putValue(Action.NAME, "Read the friendly manual");
         openManual.putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-open-book-16.png"))));
@@ -159,5 +158,4 @@ public class MainMenu extends JMenuBar {
 
         return menuHelp;
     }
-
 }
