@@ -49,38 +49,9 @@ public class MaterialPanel extends JPanel {
 
         updatePreview();
 
-        // diffuse
-        var diffuseColor = material.getDiffuseColor();
-        JButton selectColorDiffuse = new JButton();
-        selectColorDiffuse.setBackground(diffuseColor);
-        selectColorDiffuse.addActionListener(e -> {
-            Color color = JColorChooser.showDialog(this,"Diffuse Color",material.getDiffuseColor());
-            if(color!=null) material.setDiffuseColor(color);
-            selectColorDiffuse.setBackground(material.getDiffuseColor());
-        });
-        PanelHelper.addLabelAndComponent(this,"Diffuse",selectColorDiffuse,gbc);
-
-        // specular color
-        var specularColor = material.getSpecularColor();
-        JButton selectColorSpecular = new JButton();
-        selectColorSpecular.setBackground(specularColor);
-        selectColorSpecular.addActionListener(e -> {
-            Color color = JColorChooser.showDialog(this,"Specular Color",material.getSpecularColor());
-            if(color!=null) material.setSpecularColor(color);
-            selectColorSpecular.setBackground(material.getSpecularColor());
-        });
-        PanelHelper.addLabelAndComponent(this,"Specular",selectColorSpecular,gbc);
-
-        // emissive
-        var emissionColor = material.getEmissionColor();
-        JButton selectColorEmission = new JButton();
-        selectColorEmission.setBackground(emissionColor);
-        selectColorEmission.addActionListener(e -> {
-            Color color = JColorChooser.showDialog(this,"Emissive Color",material.getEmissionColor());
-            if(color!=null) material.setEmissionColor(color);
-            selectColorEmission.setBackground(material.getEmissionColor());
-        });
-        PanelHelper.addLabelAndComponent(this,"Emissive",selectColorEmission,gbc);
+        PanelHelper.addColorChooser(this,"Diffuse",material.getDiffuseColor(),material::setDiffuseColor,gbc);
+        PanelHelper.addColorChooser(this,"Specular",material.getSpecularColor(),material::setSpecularColor,gbc);
+        PanelHelper.addColorChooser(this,"Emissive",material.getEmissionColor(),material::setEmissionColor,gbc);
 
         // lit
         JToggleButton isLitButton = new JToggleButton("Lit",material.isLit());

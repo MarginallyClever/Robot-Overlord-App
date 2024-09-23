@@ -3,9 +3,11 @@ package com.marginallyclever.ro3;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
+import com.marginallyclever.ro3.node.nodes.MaterialPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.function.Consumer;
 
 /**
  * {@link PanelHelper} is a collection of static methods to help build panels.
@@ -64,5 +66,16 @@ public class PanelHelper {
         });
         PanelHelper.addLabelAndComponent(pane, label, selector, gbc);
         return selector;
+    }
+
+    public static void addColorChooser(JPanel parent, String title, Color startColor, Consumer<Color> consumer, GridBagConstraints gbc) {
+        JButton button = new JButton();
+        button.setBackground(startColor);
+        button.addActionListener(e -> {
+            Color color = JColorChooser.showDialog(parent,title,startColor);
+            if(color!=null) consumer.accept(color);
+            button.setBackground(color);
+        });
+        PanelHelper.addLabelAndComponent(parent,title,button,gbc);
     }
 }

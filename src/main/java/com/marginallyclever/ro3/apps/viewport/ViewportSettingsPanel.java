@@ -70,26 +70,9 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
         fsaaSamples.addActionListener(evt -> setFSAASamples((Integer) fsaaSamples.getSelectedItem()));
 
         // ambient color
-        gbc.gridy++;
-        PanelHelper.addLabelAndComponent(this,"Ambient color",selectAmbientColor,gbc);
-        var ambientColor = Color.DARK_GRAY;
-        selectAmbientColor.setBackground(ambientColor);
-        selectAmbientColor.addActionListener(e -> {
-            Color color = JColorChooser.showDialog(this,"Ambient color",ambientColor);
-            if(color!=null) setAmbientColor(color);
-        });
-        selectAmbientColor.setBackground(ambientColor);
-
+        PanelHelper.addColorChooser(this,"Ambient",Color.DARK_GRAY,this::setAmbientColor,gbc);
         // sun color
-        gbc.gridy++;
-        PanelHelper.addLabelAndComponent(this,"Sun color",selectSunColor,gbc);
-        var sunColor = Color.WHITE;
-        selectSunColor.setBackground(sunColor);
-        selectSunColor.addActionListener(e -> {
-            Color color = JColorChooser.showDialog(this,"Sun color",sunColor);
-            if(color!=null) setSunColor(color);
-        });
-        selectSunColor.setBackground(sunColor);
+        PanelHelper.addColorChooser(this,"Sun color",Color.WHITE,this::setSunColor,gbc);
 
         // sun position
         gbc.gridy++;
