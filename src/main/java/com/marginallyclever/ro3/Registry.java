@@ -13,10 +13,8 @@ import com.marginallyclever.ro3.node.nodes.behavior.decorators.*;
 import com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlanner;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
-import com.marginallyclever.ro3.node.nodes.odenode.CreatureController;
-import com.marginallyclever.ro3.node.nodes.odenode.ODEHinge;
+import com.marginallyclever.ro3.node.nodes.odenode.*;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODEBox;
-import com.marginallyclever.ro3.node.nodes.odenode.ODEPlane;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODECapsule;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODECylinder;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODESphere;
@@ -87,11 +85,13 @@ public class Registry {
             NodeFactory.Category physics = node.add("Physics", null);
             {
                 physics.add("CreatureController", CreatureController::new);
+                physics.add("ODEBallSocket", ODEBallSocket::new);
                 physics.add("ODEBox", ODEBox::new);
                 physics.add("ODECapsule", ODECapsule::new);
                 physics.add("ODECylinder", ODECylinder::new);
                 physics.add("ODEHinge", ODEHinge::new);
                 physics.add("ODEPlane", ODEPlane::new);
+                physics.add("ODESlider", ODESlider::new);
                 physics.add("ODESphere", ODESphere::new);
             }
         }

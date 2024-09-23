@@ -9,7 +9,7 @@ import org.json.JSONObject;
 import org.ode4j.math.DVector3;
 import org.ode4j.ode.DBody;
 import org.ode4j.ode.DHingeJoint;
-import org.ode4j.ode.DJoint;
+import org.ode4j.ode.DSliderJoint;
 import org.ode4j.ode.OdeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,30 +22,30 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * <p>Wrapper for a hinge joint in ODE4J.  If one side of the hinge is null then it is attached to the world.</p>
+ * <p>Wrapper for a slider joint in ODE4J.  If one side of the hinge is null then it is attached to the world.</p>
  * <p>If the physics simulation is paused then then moving this {@link Pose} will adjust the position and orientation
  * of the hinge, as well as it's relation to the attached parts.  If the simulation is NOT paused then the hinge
  * will behave as normal.</p>
  */
-public class ODEHinge extends ODENode {
-    private static final Logger logger = LoggerFactory.getLogger(ODEHinge.class);
-    private DHingeJoint hinge;
+public class ODESlider extends ODENode {
+    private static final Logger logger = LoggerFactory.getLogger(ODESlider.class);
+    private DSliderJoint sliderJoint;
     private final NodePath<ODEBody> partA = new NodePath<>(this,ODEBody.class);
     private final NodePath<ODEBody> partB = new NodePath<>(this,ODEBody.class);
     double top = Double.POSITIVE_INFINITY;
     double bottom = Double.NEGATIVE_INFINITY;
 
-    public ODEHinge() {
-        this("ODE Hinge");
+    public ODESlider() {
+        this("ODE Slider Joint");
     }
 
-    public ODEHinge(String name) {
+    public ODESlider(String name) {
         super(name);
     }
 
     @Override
     public void getComponents(List<JPanel> list) {
-        list.add(new ODEHingePanel(this));
+        list.add(new ODESliderPanel(this));
         super.getComponents(list);
     }
 
@@ -70,18 +70,18 @@ public class ODEHinge extends ODENode {
     }
 
     private void createHinge() {
-        hinge = OdeHelper.createHingeJoint(Registry.getPhysics().getODEWorld(), null);
+        sliderJoint = OdeHelper.createSliderJoint(Registry.getPhysics().getODEWorld(), null);
         connect();
-        setAngleMax(top);
-        setAngleMin(bottom);
+        setDistanceMax(top);
+        setDistanceMin(bottom);
     }
 
     private void destroyHinge() {
-        if(hinge!=null) {
+        if(sliderJoint !=null) {
             try {
-                hinge.destroy();
+                sliderJoint.destroy();
             } catch(Exception ignored) {} // if physics is already destroyed, this will throw an exception.
-            hinge = null;
+            sliderJoint = null;
         }
     }
 
@@ -93,8 +93,8 @@ public class ODEHinge extends ODENode {
         return partB;
     }
 
-    public DHingeJoint getHinge() {
-        return hinge;
+    public DSliderJoint getSliderJoint() {
+        return sliderJoint;
     }
 
     public void setPartA(ODEBody subject) {
@@ -111,7 +111,7 @@ public class ODEHinge extends ODENode {
      * Tell the physics engine who is connected to this hinge.
      */
     private void connect() {
-        if(hinge==null) return;
+        if(sliderJoint ==null) return;
 
         var as = partA.getSubject();
         var bs = partB.getSubject();
@@ -122,7 +122,7 @@ public class ODEHinge extends ODENode {
             b=null;
         }
         logger.debug(this.getName()+" connect "+(as==null?"null":as.getName())+" to "+(bs==null?"null":bs.getName()));
-        hinge.attach(a, b);
+        sliderJoint.attach(a, b);
         updatePhysicsFromWorld();
     }
 
@@ -141,16 +141,14 @@ public class ODEHinge extends ODENode {
     }
 
     private void updatePhysicsFromWorld() {
-        if(hinge==null) return;
+        if(sliderJoint ==null) return;
 
         var mat = getWorld();
-        var pos = MatrixHelper.getPosition(mat);
-        hinge.setAnchor(pos.x, pos.y, pos.z);
         var axis = MatrixHelper.getZAxis(mat);
         if(axis.length()<0.001) {
-            logger.error("Hinge axis zero length?");
+            logger.error("Slider axis zero length?");
         }
-        hinge.setAxis(axis.x, axis.y, axis.z);
+        sliderJoint.setAxis(axis.x, axis.y, axis.z);
     }
 
     @Override
@@ -160,8 +158,7 @@ public class ODEHinge extends ODENode {
             // if the physics simulation is running then the hinge will behave as normal.
             DVector3 anchor = new DVector3();
             DVector3 axis = new DVector3();
-            hinge.getAnchor(anchor);
-            hinge.getAxis(axis);
+            sliderJoint.getAxis(axis);
             // use axis and anchor to set the world matrix.
             Matrix3d m3 = MatrixHelper.lookAt(
                     new Vector3d(0,0,0),
@@ -179,11 +176,11 @@ public class ODEHinge extends ODENode {
         var json = super.toJSON();
         json.put("partA",partA.getUniqueID());
         json.put("partB",partB.getUniqueID());
-        double v = getAngleMax();
+        double v = getDistanceMax();
         if(!Double.isInfinite(v)) {
             json.put("hiStop1",v);
         }
-        v = getAngleMin();
+        v = getDistanceMin();
         if(!Double.isInfinite(v)) {
             json.put("loStop1",v);
         }
@@ -196,57 +193,50 @@ public class ODEHinge extends ODENode {
         if(from.has("partA")) partA.setUniqueID(from.getString("partA"));
         if(from.has("partB")) partB.setUniqueID(from.getString("partB"));
         if(from.has("hiStop1")) {
-            setAngleMax(from.getDouble("hiStop1"));
+            setDistanceMax(from.getDouble("hiStop1"));
         }
         if(from.has("loStop1")) {
-            setAngleMin(from.getDouble("loStop1"));
+            setDistanceMin(from.getDouble("loStop1"));
         }
         updatePhysicsFromWorld();
         connect();
         updateHingePose();
     }
 
-    public void addTorque(double value) {
-        if(hinge==null) return;
-        if(!Registry.getPhysics().isPaused()) {
-            hinge.addTorque(value);
-        }
-    }
-
     /**
-     * @return angle in degrees
+     * @return distance.  can be +infinity.
      */
-    public double getAngleMax() {
+    public double getDistanceMax() {
         return top;
     }
 
     /**
-     * @return angle in degrees
+     * @return distance.  can be -infinity.
      */
-    public double getAngleMin() {
+    public double getDistanceMin() {
         return bottom;
     }
 
     /**
-     * @param angle in degrees
+     * @param distance can be +infinity.
      */
-    public void setAngleMax(double angle) {
-        top = angle;
-        if(hinge==null) return;
-        hinge.setParamHiStop(Math.toRadians(angle));
+    public void setDistanceMax(double distance) {
+        top = distance;
+        if(sliderJoint ==null) return;
+        sliderJoint.setParamHiStop(distance);
     }
 
     /**
-     * @param angle in degrees
+     * @param distance can be -infinity.
      */
-    public void setAngleMin(double angle) {
-        bottom = angle;
-        if(hinge==null) return;
-        hinge.setParamLoStop(Math.toRadians(angle));
+    public void setDistanceMin(double distance) {
+        bottom = distance;
+        if(sliderJoint ==null) return;
+        sliderJoint.setParamLoStop(distance);
     }
 
     @Override
     public Icon getIcon() {
-        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/odenode/icons8-angle-16.png")));
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/odenode/icons8-slider-16.png")));
     }
 }
