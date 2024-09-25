@@ -153,10 +153,10 @@ public class Dial extends JComponent {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
-		Rectangle rect = this.getBounds();
+		var rect = this.getSize();
 		
 		g.translate(rect.width/2, rect.height/2);
-		int radius = Math.min(rect.width, rect.height) /2;
+		int radius = (Math.min(rect.width, rect.height) / 2) -2;
 
 		Graphics2D g2 = (Graphics2D)g.create();
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -164,6 +164,7 @@ public class Dial extends JComponent {
 		drawEdge(g2,radius);
 		drawTurnIndicator(g2,radius);
 		drawLabels(g2,radius);
+		g2.dispose();
 	}
 	
 	private void drawLabels(Graphics2D g2, int radius) {
@@ -193,19 +194,15 @@ public class Dial extends JComponent {
 	}
 
 	private void drawEdge(Graphics2D g2,int r) {
-		int x=0;
-		int y=-2;
 		g2.setStroke(new BasicStroke(2));
 		// outline
 		g2.setColor(Color.GRAY);
-		g2.drawArc(x-r, y-r, x+r*2, y+r*2, 180+45, 180);
-		g2.setColor(Color.GRAY);
-		g2.drawArc(x-r, y-r, x+r*2, y+r*2, 45, 180);
+		g2.drawArc(-r, -r, r*2, r*2, 0, 360);
 		// raised
 		r-=1;
 		g2.setColor(Color.DARK_GRAY);
-		g2.drawArc(x-r, y-r, x+r*2, y+r*2, 180+45, 180);
+		g2.drawArc(-r, -r, r*2, r*2, 180+45, 180);
 		g2.setColor(Color.LIGHT_GRAY);
-		g2.drawArc(x-r, y-r, x+r*2, y+r*2, 45, 180);
+		g2.drawArc(-r, -r, r*2, r*2, 45, 180);
 	}
 }
