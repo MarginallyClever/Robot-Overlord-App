@@ -94,8 +94,8 @@ public abstract class ODEBody extends ODENode {
     }
 
     /**
-     * Adjust the position of the Node to match the body.  This will cause the visual representation to match the
-     * physics representation.
+     * Adjust the position of the {@link com.marginallyclever.ro3.node.nodes.pose.Pose} to match the {@link ODEBody}.
+     * This will cause the visual representation to match the physics representation.
      */
     protected void updatePoseFromPhysics() {
         if(body == null) return;
@@ -105,8 +105,8 @@ public abstract class ODEBody extends ODENode {
     }
 
     /**
-     * Update the physics body to match the Pose.  This will cause the physics representation to match the visual
-     * representation.
+     * Update the {@link ODEBody} to match the {@link com.marginallyclever.ro3.node.nodes.pose.Pose}.  This will
+     * cause the physics representation to match the visual representation.
      */
     protected void updatePhysicsFromPose() {
         if (body == null) return;

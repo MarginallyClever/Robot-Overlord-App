@@ -34,6 +34,7 @@ public class MeshInstance extends Pose {
      * Build a Swing Component that represents this Node.
      * @param list the list to add components to.
      */
+    @Override
     public void getComponents(List<JPanel> list) {
         list.add(new MeshInstancePanel(this));
         super.getComponents(list);

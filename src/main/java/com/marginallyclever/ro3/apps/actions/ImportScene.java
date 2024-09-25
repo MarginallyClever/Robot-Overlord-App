@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.security.InvalidParameterException;
 import java.util.Objects;
 
@@ -43,7 +44,14 @@ public class ImportScene extends AbstractAction {
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
         chooser.setDialogType(JFileChooser.OPEN_DIALOG);
         if (chooser.showDialog(parentFrame,"Import") == JFileChooser.APPROVE_OPTION) {
-            UndoSystem.addEvent(new com.marginallyclever.ro3.apps.commands.ImportScene(chooser.getSelectedFile()));
+            commitImport(chooser.getSelectedFile());
         }
+    }
+
+    public void commitImport(File selectedFile) {
+        if( selectedFile == null ) throw new InvalidParameterException("File cannot be null");
+        if( !selectedFile.exists() ) throw new InvalidParameterException("File does not exist");
+
+        UndoSystem.addEvent(new com.marginallyclever.ro3.apps.commands.ImportScene(selectedFile));
     }
 }

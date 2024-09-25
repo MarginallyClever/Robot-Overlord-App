@@ -39,6 +39,5 @@ public class ODEBoxPanel extends JPanel {
         field.setValue(originalValue);
         field.addPropertyChangeListener("value", e -> setSize.accept( ((Number)field.getValue()).doubleValue() ));
         PanelHelper.addLabelAndComponent(this,label,field);
-
     }
 }
