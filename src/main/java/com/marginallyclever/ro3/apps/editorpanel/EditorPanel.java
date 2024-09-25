@@ -7,8 +7,9 @@ import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodeDetachListener;
-import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinListener;
-import com.marginallyclever.ro3.node.nodes.marlinrobotarm.MarlinRobotArm;
+import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinListener;
+import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinRobot;
+import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.MarlinRobotArm;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
-import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Objects;
@@ -46,7 +46,7 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
     private static final double PROGRESS_BAR_SCALE = 1000;
     private double reportInterval = 1.0;
     private static final int TIMER_INTERVAL_MS = 100;
-    private final NodeSelector<MarlinRobotArm> robotArm = new NodeSelector<>(MarlinRobotArm.class);
+    private final NodeSelector<MarlinRobot> robotArm = new NodeSelector<>(MarlinRobot.class);
     private final JTextArea text = new JTextArea();
     private final JLabel statusLabel = new JLabel();
     private static final JFileChooser chooser = new PersistentJFileChooser();
@@ -302,7 +302,7 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
         }
 
         // make new arm remember me.
-        MarlinRobotArm newArm = robotArm.getSubject();
+        MarlinRobot newArm = robotArm.getSubject();
         if(newArm!=null) {
             newArm.addMarlinListener(EditorPanel.this);
             Node parent = newArm.getParent();
