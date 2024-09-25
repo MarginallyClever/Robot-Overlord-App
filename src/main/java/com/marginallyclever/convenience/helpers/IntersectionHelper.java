@@ -260,7 +260,7 @@ public abstract class IntersectionHelper {
 	 * @param radius radius of sphere
 	 * @return distance to first hit.  negative values for no hit/behind start. 
 	 */
-	static public double raySphere(final Ray ray,final Point3d center,final double radius) {
+	static public double raySphere(final Ray ray,final Tuple3d center,final double radius) {
 		Vector3d oc = new Vector3d();
 		oc.sub(ray.getOrigin(),center);
 	    double a = ray.getDirection().dot(ray.getDirection());
