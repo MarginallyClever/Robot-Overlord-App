@@ -70,6 +70,7 @@ public class Registry {
             node.add("HingeJoint", HingeJoint::new);
             node.add("LimbPlanner", LimbPlanner::new);
             node.add("LimbSolver", LimbSolver::new);
+            node.add("LinearStewartPlatform", LinearStewartPlatform::new);
             node.add("LinearJoint", LinearJoint::new);
             node.add("MarlinRobotArm", MarlinRobotArm::new);
             node.add("Material", Material::new);
