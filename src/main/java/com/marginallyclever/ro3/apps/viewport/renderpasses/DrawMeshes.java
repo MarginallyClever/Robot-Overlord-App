@@ -219,8 +219,16 @@ public class DrawMeshes extends AbstractRenderPass {
             if(m1==null) return -1;
             if(m2==null) return 1;
 
-            // TODO sort opaque materials first
+            // sort opaque materials first
+            var a1 = m1.getDiffuseColor().getAlpha();
+            var a2 = m2.getDiffuseColor().getAlpha();
+            if(a1!=255 || a2!=255) {
+                return a2-a1;
+            }
+
             // TODO sort transparent materials by distance from camera
+
+            // sort by UniqueID so there's a consistent order
             return m1.getUniqueID().compareTo(m2.getUniqueID());
         });
     }
