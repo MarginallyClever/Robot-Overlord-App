@@ -5,6 +5,7 @@ import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.MarlinRobo
 
 import javax.swing.*;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * {@link MarlinRobot} represents a robot with Marlin firmware installed.
@@ -46,5 +47,10 @@ public class MarlinRobot extends Node {
      */
     public void sendGCode(String gcode) {
         fireMarlinMessage( "Error: unknown command "+gcode );
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/marlinrobot/marlin.png")));
     }
 }

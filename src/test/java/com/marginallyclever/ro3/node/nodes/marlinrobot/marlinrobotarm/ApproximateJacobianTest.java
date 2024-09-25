@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
+package com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.actions.LoadScene;

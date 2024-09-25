@@ -1,12 +1,17 @@
-package com.marginallyclever.ro3.node.nodes.pose.poses;
+package com.marginallyclever.ro3.node.nodes.marlinrobot.linearstewartplatform;
 
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
+import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinListener;
+import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinRobot;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.poses.LookAt;
+import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,13 +28,13 @@ import java.util.List;
  * When it attaches to the scene, it loads in "C:\Users\aggra\Desktop\RO3 test scenes\sp-linear\sp-linear2.ro"
  * which is a scene file that contains the Linear Stewart Platform.
  */
-public class LinearStewartPlatform extends Pose {
+public class LinearStewartPlatform extends MarlinRobot {
     private final Logger logger = LoggerFactory.getLogger(LinearStewartPlatform.class);
 
-    private static final String RESOURCE_BASE = "/com/marginallyclever/ro3/node/nodes/pose/poses/linearstewartplatform/001 stewart platform linear v12.obj";
-    private static final String RESOURCE_ARM = "/com/marginallyclever/ro3/node/nodes/pose/poses/linearstewartplatform/arm assembly v4.obj";
-    private static final String RESOURCE_EE ="/com/marginallyclever/ro3/node/nodes/pose/poses/linearstewartplatform/end effector with magnets v1.obj";
-    private static final String RESOURCE_CAR = "/com/marginallyclever/ro3/node/nodes/pose/poses/linearstewartplatform/car.obj";
+    private static final String RESOURCE_BASE = "/com/marginallyclever/ro3/node/nodes/marlinrobot/linearstewartplatform/001 stewart platform linear v12.obj";
+    private static final String RESOURCE_ARM = "/com/marginallyclever/ro3/node/nodes/marlinrobot/linearstewartplatform/arm assembly v4.obj";
+    private static final String RESOURCE_EE = "/com/marginallyclever/ro3/node/nodes/marlinrobot/linearstewartplatform/end effector with magnets v1.obj";
+    private static final String RESOURCE_CAR = "/com/marginallyclever/ro3/node/nodes/marlinrobot/linearstewartplatform/car.obj";
 
     private static final double ARM_LENGTH = 11.340;  //cm
     private static final String [] namesBase = {"X","C","Z","Y","B","A"};
@@ -40,7 +45,11 @@ public class LinearStewartPlatform extends Pose {
     private final List<Ray> rays = new ArrayList<>();
 
     public LinearStewartPlatform() {
-        super("Linear Stewart Platform");
+        this("Linear Stewart Platform");
+    }
+
+    public LinearStewartPlatform(String name) {
+        super(name);
     }
 
     /**
@@ -122,7 +131,7 @@ public class LinearStewartPlatform extends Pose {
         }
     }
 
-    private Material makeSureHasMaterial(Pose p) {
+    private Material makeSureHasMaterial(Node p) {
         Material m = (Material)p.findChild("Material");
         if(m==null) {
             m = new Material();
@@ -195,11 +204,10 @@ public class LinearStewartPlatform extends Pose {
         super.update(dt);
 
         updateCarPositions();
-        var result = generateGCodes();
         //logger.debug(result);
     }
 
-    private String generateGCodes() {
+    private String generateGCode() {
         StringBuilder gcode = new StringBuilder("G0");
 
         // for each car,
@@ -269,5 +277,25 @@ public class LinearStewartPlatform extends Pose {
             }
         }
         return true;
+    }
+
+    /**
+     * <p>Send a single gcode command to the robot.  It will reply by firing a
+     * {@link MarlinListener#messageFromMarlin} event with the String response.</p>
+     * @param gcode GCode command
+     */
+    @Override
+    public void sendGCode(String gcode) {
+        if (gcode.startsWith("G0")) fireMarlinMessage(parseG0(gcode));
+        else if(gcode.startsWith("M114")) fireMarlinMessage(parseM114());
+        else super.sendGCode(gcode);
+    }
+
+    private String parseG0(String gcode) {
+        return "Error: Forward Kinematics not implemented.";
+    }
+
+    private String parseM114() {
+        return "Ok: "+generateGCode();
     }
 }

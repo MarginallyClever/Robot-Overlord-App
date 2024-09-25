@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation;
+package com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation;
 
 /**
  * {@link MarlinSettings} is a class that holds the settings for a {@link MarlinSimulation}.

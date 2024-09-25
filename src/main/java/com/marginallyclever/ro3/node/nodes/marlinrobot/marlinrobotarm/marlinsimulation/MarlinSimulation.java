@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation;
+package com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

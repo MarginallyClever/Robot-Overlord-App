@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
+package com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
@@ -7,10 +7,12 @@ import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.Motor;
-import com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation.MarlinCoordinate;
-import com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation.MarlinSettings;
-import com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation.MarlinSimulation;
-import com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation.MarlinSimulationBlock;
+import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinListener;
+import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinRobot;
+import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation.MarlinSimulationBlock;
+import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation.MarlinCoordinate;
+import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation.MarlinSettings;
+import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation.MarlinSimulation;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import org.json.JSONObject;
@@ -33,7 +35,7 @@ import java.util.Objects;
  *     <li>an optional {@link Motor} for the tool on arm.</li>
  * </ul>
  */
-public class MarlinRobotArm extends Node {
+public class MarlinRobotArm extends MarlinRobot {
     private static final Logger logger = LoggerFactory.getLogger(MarlinRobotArm.class);
     public final NodePath<Limb> limb = new NodePath<>(this,Limb.class);
     public final NodePath<LimbSolver> solver = new NodePath<>(this,LimbSolver.class);
@@ -168,10 +170,11 @@ public class MarlinRobotArm extends Node {
     }
 
     /**
-     * <p>Send a single gcode command to the robot arm.  It will reply by firing a
+     * <p>Send a single gcode command to the robot.  It will reply by firing a
      * {@link MarlinListener#messageFromMarlin} event with the String response.</p>
      * @param gcode GCode command
      */
+    @Override
     public void sendGCode(String gcode) {
         logger.debug("heard "+gcode);
 
@@ -188,7 +191,7 @@ public class MarlinRobotArm extends Node {
             fireMarlinMessage( "Ok: "+response );
             return;
         }
-        fireMarlinMessage( "Error: unknown command" );
+        super.sendGCode(gcode);
     }
 
     /**
@@ -418,22 +421,6 @@ public class MarlinRobotArm extends Node {
         return solver == null ? null : solver.getTarget().getSubject();
     }
 
-    public void addMarlinListener(MarlinListener editorPanel) {
-        listeners.add(MarlinListener.class,editorPanel);
-    }
-
-    public void removeMarlinListener(MarlinListener editorPanel) {
-        listeners.remove(MarlinListener.class,editorPanel);
-    }
-
-    private void fireMarlinMessage(String message) {
-        //logger.info(message);
-
-        for(MarlinListener listener : listeners.getListeners(MarlinListener.class)) {
-            listener.messageFromMarlin(message);
-        }
-    }
-
     /**
      * Set the limb to be controlled by this instance.
      * limb must be in the same node tree as this instance.
@@ -454,11 +441,6 @@ public class MarlinRobotArm extends Node {
 
     public NodePath<Motor> getGripperMotor() {
         return gripperMotor;
-    }
-
-    @Override
-    public Icon getIcon() {
-        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/marlinrobotarm/marlin.png")));
     }
 
     /**

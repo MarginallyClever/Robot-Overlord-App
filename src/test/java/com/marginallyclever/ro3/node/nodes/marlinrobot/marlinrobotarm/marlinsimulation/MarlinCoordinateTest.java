@@ -1,5 +1,6 @@
-package com.marginallyclever.ro3.node.nodes.marlinrobotarm.marlinsimulation;
+package com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation;
 
+import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation.MarlinCoordinate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

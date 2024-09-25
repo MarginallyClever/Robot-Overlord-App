@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.pose.poses;
+package com.marginallyclever.ro3.node.nodes.marlinrobot.linearstewartplatform;
 
 import javax.swing.*;
 import java.awt.*;

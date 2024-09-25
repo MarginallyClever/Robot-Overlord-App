@@ -1,4 +1,6 @@
-package com.marginallyclever.ro3.node.nodes.marlinrobotarm;
+package com.marginallyclever.ro3.node.nodes.marlinrobot;
+
+import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.MarlinRobotArm;
 
 import java.util.EventListener;
 
