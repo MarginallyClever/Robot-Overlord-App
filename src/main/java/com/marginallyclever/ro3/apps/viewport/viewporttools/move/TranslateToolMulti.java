@@ -127,30 +127,30 @@ public class TranslateToolMulti implements ViewportTool {
         // the pivot plane shares the same origin as pivot.
         Vector3d o = MatrixHelper.getPosition(pivot);
         // the pivot plane has a major axis that is different in each case.
-        Vector3d x;
+        Vector3d v;
         switch (axis) {
-            case RADIAL_IN: x = MatrixHelper.getXAxis(pivot);  break;
-            case NORMAL: x = MatrixHelper.getYAxis(pivot);  break;
-            case PROGRADE: x = MatrixHelper.getZAxis(pivot);  break;
-            case RADIAL_OUT: x = MatrixHelper.getXAxis(pivot);  x.scale(-1);  break;
-            case ANTINORMAL: x = MatrixHelper.getYAxis(pivot);  x.scale(-1);  break;
-            case RETROGRADE: x = MatrixHelper.getZAxis(pivot);  x.scale(-1);  break;
+            case RADIAL_IN: v = MatrixHelper.getXAxis(pivot);  break;
+            case NORMAL: v = MatrixHelper.getYAxis(pivot);  break;
+            case PROGRADE: v = MatrixHelper.getZAxis(pivot);  break;
+            case RADIAL_OUT: v = MatrixHelper.getXAxis(pivot);  v.scale(-1);  break;
+            case ANTINORMAL: v = MatrixHelper.getYAxis(pivot);  v.scale(-1);  break;
+            case RETROGRADE: v = MatrixHelper.getZAxis(pivot);  v.scale(-1);  break;
             default: throw new InvalidParameterException("axis must be 0...5.");
         };
         // the pivot plane has a z axis that points at the camera.
         Vector3d z = new Vector3d(camera.getPosition());
         z.sub(o);
-        double diff = z.dot(x);
-        z.x -= x.x * diff;
-        z.y -= x.y * diff;
-        z.z -= x.z * diff;
+        double diff = z.dot(v);
+        z.x -= v.x * diff;
+        z.y -= v.y * diff;
+        z.z -= v.z * diff;
         z.normalize();
-        // the pivot plane has a y-axis that is perpendicular to x and z.
+        // the pivot plane has a y-axis that is perpendicular to v and z.
         Vector3d y = new Vector3d();
-        y.cross(z,x);
+        y.cross(z,v);
         // build the matrix for the pivot plane
         Matrix4d result = new Matrix4d();
-        result.m00 = x.x;   result.m10 = x.y;   result.m20 = x.z;
+        result.m00 = v.x;   result.m10 = v.y;   result.m20 = v.z;
         result.m01 = y.x;   result.m11 = y.y;   result.m21 = y.z;
         result.m02 = z.x;   result.m12 = z.y;   result.m22 = z.z;
         result.m03 = o.x;   result.m13 = o.y;   result.m23 = o.z;

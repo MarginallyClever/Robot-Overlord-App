@@ -30,11 +30,11 @@ import java.util.List;
  */
 public class LinearStewartPlatform extends MarlinRobot {
     private final Logger logger = LoggerFactory.getLogger(LinearStewartPlatform.class);
-
-    private static final String RESOURCE_BASE = "/com/marginallyclever/ro3/node/nodes/marlinrobot/linearstewartplatform/001 stewart platform linear v12.obj";
-    private static final String RESOURCE_ARM = "/com/marginallyclever/ro3/node/nodes/marlinrobot/linearstewartplatform/arm assembly v4.obj";
-    private static final String RESOURCE_EE = "/com/marginallyclever/ro3/node/nodes/marlinrobot/linearstewartplatform/end effector with magnets v1.obj";
-    private static final String RESOURCE_CAR = "/com/marginallyclever/ro3/node/nodes/marlinrobot/linearstewartplatform/car.obj";
+    private static final String RESOURCE_PATH = "/com/marginallyclever/ro3/node/nodes/marlinrobot/linearstewartplatform/";
+    private static final String RESOURCE_BASE = RESOURCE_PATH + "001 stewart platform linear v12.obj";
+    private static final String RESOURCE_ARM  = RESOURCE_PATH + "arm assembly v4.obj";
+    private static final String RESOURCE_EE   = RESOURCE_PATH + "end effector with magnets v1.obj";
+    private static final String RESOURCE_CAR  = RESOURCE_PATH + "car.obj";
 
     private static final double ARM_LENGTH = 11.340;  //cm
     private static final String [] namesBase = {"X","C","Z","Y","B","A"};
@@ -288,7 +288,12 @@ public class LinearStewartPlatform extends MarlinRobot {
     public void sendGCode(String gcode) {
         if (gcode.startsWith("G0")) fireMarlinMessage(parseG0(gcode));
         else if(gcode.startsWith("M114")) fireMarlinMessage(parseM114());
+        else if(gcode.startsWith("G28")) fireMarlinMessage(parseG28());
         else super.sendGCode(gcode);
+    }
+
+    private String parseG28() {
+        return "Error: Find home not implemented.";
     }
 
     private String parseG0(String gcode) {

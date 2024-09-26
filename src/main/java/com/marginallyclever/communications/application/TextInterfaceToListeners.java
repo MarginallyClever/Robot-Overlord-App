@@ -20,7 +20,7 @@ public class TextInterfaceToListeners extends JPanel implements KeyListener {
 	private final List<String> history = new ArrayList<>();
 	private int historyIndex = 0;
 	private final EventListenerList listeners = new EventListenerList();
-		
+
 	public TextInterfaceToListeners() {
 		super(new GridBagLayout());
 
