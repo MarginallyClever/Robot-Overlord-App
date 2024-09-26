@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.node.nodes.marlinrobot;
 
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.MarlinRobotArmPanel;
 
 import javax.swing.*;
 import java.util.List;

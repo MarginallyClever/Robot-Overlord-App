@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.limbsolver.limbsolvers;
+package com.marginallyclever.ro3.node.nodes.limbsolver.approximatejacobian;
 
 import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 

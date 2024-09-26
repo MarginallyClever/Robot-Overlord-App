@@ -2,9 +2,9 @@ package com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.actions.LoadScene;
-import com.marginallyclever.ro3.node.nodes.limbsolver.limbsolvers.ApproximateJacobian;
-import com.marginallyclever.ro3.node.nodes.limbsolver.limbsolvers.ApproximateJacobianFiniteDifferences;
-import com.marginallyclever.ro3.node.nodes.limbsolver.limbsolvers.ApproximateJacobianScrewTheory;
+import com.marginallyclever.ro3.node.nodes.limbsolver.approximatejacobian.ApproximateJacobian;
+import com.marginallyclever.ro3.node.nodes.limbsolver.approximatejacobian.ApproximateJacobianFiniteDifferences;
+import com.marginallyclever.ro3.node.nodes.limbsolver.approximatejacobian.ApproximateJacobianScrewTheory;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import org.junit.jupiter.api.*;
 
