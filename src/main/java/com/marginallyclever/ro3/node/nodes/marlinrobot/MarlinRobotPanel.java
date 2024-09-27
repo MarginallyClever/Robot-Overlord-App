@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.node.nodes.marlinrobot;
 
 import com.marginallyclever.ro3.PanelHelper;
-import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.MarlinRobotArm;
 
 import javax.swing.*;
 import java.awt.*;
@@ -57,7 +56,9 @@ public class MarlinRobotPanel extends JPanel {
         inputPanel.add(input,BorderLayout.CENTER);
         // Add a button to send the text field to the robot arm.
         JButton sendButton = new JButton("Send");
-        sendButton.addActionListener(e-> marlinRobot.sendGCode(input.getText()) );
+        sendButton.addActionListener(e-> {
+            marlinRobot.sendGCode(input.getText());
+        } );
 
         inputPanel.add(sendButton,BorderLayout.LINE_END);
         return inputPanel;

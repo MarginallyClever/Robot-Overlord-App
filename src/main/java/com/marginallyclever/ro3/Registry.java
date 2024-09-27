@@ -14,6 +14,7 @@ import com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlanner;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.linearstewartplatform.LinearStewartPlatform;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.MarlinRobotArm;
+import com.marginallyclever.ro3.node.nodes.networksession.NetworkSession;
 import com.marginallyclever.ro3.node.nodes.odenode.*;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODEBox;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODECapsule;
@@ -76,6 +77,7 @@ public class Registry {
             node.add("MarlinRobotArm", MarlinRobotArm::new);
             node.add("Material", Material::new);
             node.add("Motor", Motor::new);
+            node.add("NetworkSession", NetworkSession::new);
             NodeFactory.Category pose = node.add("Pose", Pose::new);
             {
                 pose.add("AttachmentPoint", AttachmentPoint::new);

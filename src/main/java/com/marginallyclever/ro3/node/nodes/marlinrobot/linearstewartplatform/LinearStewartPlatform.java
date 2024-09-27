@@ -30,6 +30,7 @@ import java.util.List;
  */
 public class LinearStewartPlatform extends MarlinRobot {
     private final Logger logger = LoggerFactory.getLogger(LinearStewartPlatform.class);
+
     private static final String RESOURCE_PATH = "/com/marginallyclever/ro3/node/nodes/marlinrobot/linearstewartplatform/";
     private static final String RESOURCE_BASE = RESOURCE_PATH + "001 stewart platform linear v12.obj";
     private static final String RESOURCE_ARM  = RESOURCE_PATH + "arm assembly v4.obj";
@@ -40,7 +41,6 @@ public class LinearStewartPlatform extends MarlinRobot {
     private static final String [] namesBase = {"X","C","Z","Y","B","A"};
     private static final String [] namesEE = {"X","Y","Z","A","B","C"};
     private Pose ee;
-    private final List<Pose> eeTargets = new ArrayList<>();
     private final List<Pose> cars = new ArrayList<>();
     private final List<Ray> rays = new ArrayList<>();
 
@@ -108,7 +108,6 @@ public class LinearStewartPlatform extends MarlinRobot {
         ee.setRotationEuler(new Vector3d(0,0,60-90),MatrixHelper.EulerSequence.XYZ);
 
         // add six children to EE named
-        eeTargets.clear();
         int i=0;
         for(String key : namesEE) {
             Pose p = (Pose)ee.findChild(key);
@@ -116,7 +115,6 @@ public class LinearStewartPlatform extends MarlinRobot {
                 p = new Pose(key);
                 ee.addChild(p);
             }
-            eeTargets.add(p);
 
             p.setPosition(new Vector3d(0.75 * ((i%2==0)?1:-1),3.6742,-2.4));
 
@@ -204,7 +202,6 @@ public class LinearStewartPlatform extends MarlinRobot {
         super.update(dt);
 
         updateCarPositions();
-        //logger.debug(result);
     }
 
     private String generateGCode() {
@@ -286,10 +283,12 @@ public class LinearStewartPlatform extends MarlinRobot {
      */
     @Override
     public void sendGCode(String gcode) {
-        if (gcode.startsWith("G0")) fireMarlinMessage(parseG0(gcode));
-        else if(gcode.startsWith("M114")) fireMarlinMessage(parseM114());
-        else if(gcode.startsWith("G28")) fireMarlinMessage(parseG28());
-        else super.sendGCode(gcode);
+        if(!super.isConnected()) {
+            if (gcode.startsWith("G0")) fireMarlinMessage(parseG0(gcode));
+            else if(gcode.startsWith("M114")) fireMarlinMessage(parseM114());
+            else if(gcode.startsWith("G28")) fireMarlinMessage(parseG28());
+        }
+        super.sendGCode(gcode);
     }
 
     private String parseG28() {
@@ -297,6 +296,7 @@ public class LinearStewartPlatform extends MarlinRobot {
     }
 
     private String parseG0(String gcode) {
+
         return "Error: Forward Kinematics not implemented.";
     }
 

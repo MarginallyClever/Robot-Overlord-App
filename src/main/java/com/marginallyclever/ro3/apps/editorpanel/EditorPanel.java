@@ -46,7 +46,7 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
     private static final double PROGRESS_BAR_SCALE = 1000;
     private double reportInterval = 1.0;
     private static final int TIMER_INTERVAL_MS = 100;
-    private final NodeSelector<MarlinRobot> robotArm = new NodeSelector<>(MarlinRobot.class);
+    private final NodeSelector<MarlinRobot> marlinRobot = new NodeSelector<>(MarlinRobot.class);
     private final JTextArea text = new JTextArea();
     private final JLabel statusLabel = new JLabel();
     private static final JFileChooser chooser = new PersistentJFileChooser();
@@ -125,8 +125,8 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
     }
 
     private void addToolBar(JToolBar tools) {
-        robotArm.setMaximumSize(new Dimension(150, 24));
-        tools.add(robotArm);
+        marlinRobot.setMaximumSize(new Dimension(150, 24));
+        tools.add(marlinRobot);
         tools.add(newButton);
         tools.add(loadButton);
         tools.add(saveButton);
@@ -140,13 +140,13 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
     @Override
     public void addNotify() {
         super.addNotify();
-        robotArm.addPropertyChangeListener("subject", this );
+        marlinRobot.addPropertyChangeListener("subject", this );
     }
 
     @Override
     public void removeNotify() {
         super.removeNotify();
-        robotArm.removePropertyChangeListener("subject", this );
+        marlinRobot.removePropertyChangeListener("subject", this );
     }
 
     private void createReportInterval() {
@@ -201,7 +201,7 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
 
     private void updateLabels() {
         setSecondsField(secondsField);
-        var arm = robotArm.getSubject();
+        var arm = marlinRobot.getSubject();
         if(arm!=null) {
             playToggle.setEnabled(true);
             recordToggle.setEnabled(true);
@@ -211,7 +211,7 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
             playToggle.setEnabled(false);
             recordToggle.setEnabled(false);
             runToggle.setEnabled(false);
-            statusLabel.setText("No arm selected.");
+            statusLabel.setText("No robot selected.");
         }
         progressBar.setMaximum((int)(getReportInterval() * PROGRESS_BAR_SCALE));
     }
@@ -288,42 +288,42 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if(evt.getSource() != robotArm) return;
-        robotArmHasChanged(evt);
+        if(evt.getSource() != marlinRobot) return;
+        robotHasChanged(evt);
         updateLabels();
     }
 
-    private void robotArmHasChanged(PropertyChangeEvent evt) {
+    private void robotHasChanged(PropertyChangeEvent evt) {
         // make old arm forget me.
-        MarlinRobotArm oldArm = ((MarlinRobotArm)evt.getOldValue());
-        if(oldArm!=null) {
-            oldArm.removeMarlinListener(EditorPanel.this);
-            oldArm.removeDetachListener(this);
+        MarlinRobot oldRobot = ((MarlinRobot)evt.getOldValue());
+        if(oldRobot!=null) {
+            oldRobot.removeMarlinListener(EditorPanel.this);
+            oldRobot.removeDetachListener(this);
         }
 
         // make new arm remember me.
-        MarlinRobot newArm = robotArm.getSubject();
-        if(newArm!=null) {
-            newArm.addMarlinListener(EditorPanel.this);
-            Node parent = newArm.getParent();
+        MarlinRobot newRobot = marlinRobot.getSubject();
+        if(newRobot!=null) {
+            newRobot.addMarlinListener(EditorPanel.this);
+            Node parent = newRobot.getParent();
             if(parent != null) parent.addDetachListener( this );
         }
     }
 
     @Override
     public void nodeDetached(Node child) {
-        if(robotArm.getSubject() == child) {
+        if(marlinRobot.getSubject() == child) {
             // robot arm has been removed from the scene tree.
             // Remove, Cut or Move will cause this to trigger.
             Node parent = child.getParent();
             if(parent != null) parent.removeDetachListener( this );
-            robotArm.setSubject(null);
+            marlinRobot.setSubject(null);
             updateLabels();
         }
     }
 
     private void playOnce() {
-        var arm = robotArm.getSubject();
+        var arm = marlinRobot.getSubject();
         if(arm==null) return;
 
         // get the next line that is not blank.
@@ -340,7 +340,7 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
     }
 
     private void recordOnce() {
-        var arm = robotArm.getSubject();
+        var arm = marlinRobot.getSubject();
         if(arm==null) return;
         arm.sendGCode("G0");
     }
@@ -373,7 +373,7 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
 
     @Override
     public void beforeSceneChange(Node oldScene) {
-        robotArm.setSubject(null);
+        marlinRobot.setSubject(null);
     }
 
     @Override

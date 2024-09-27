@@ -24,7 +24,5 @@ public class LinearStewartPlatformPanel extends JPanel {
         gbc.gridx=0;
         gbc.gridy=0;
         gbc.fill = GridBagConstraints.BOTH;
-
-
     }
 }
