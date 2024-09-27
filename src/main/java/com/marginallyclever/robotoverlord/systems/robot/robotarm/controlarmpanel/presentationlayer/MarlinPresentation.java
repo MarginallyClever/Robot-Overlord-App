@@ -15,7 +15,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,8 +27,6 @@ import java.util.List;
 public class MarlinPresentation implements PresentationLayer {
 	private static final Logger logger = LoggerFactory.getLogger(MarlinPresentation.class);
 
-	@Serial
-	private static final long serialVersionUID = -6388563393882327725L;
 	// number of commands we'll hold on to in case there's a resend.
 	private static final int HISTORY_BUFFER_LIMIT = 250;
 	// Marlin can buffer this many commands from serial, before processing.
@@ -177,14 +174,14 @@ public class MarlinPresentation implements PresentationLayer {
 	}
 
 	private void clearOldHistory() {
-		while(myHistory.size()>0 && myHistory.get(0).lineNumber<lineNumberAdded-HISTORY_BUFFER_LIMIT) {
+		while(!myHistory.isEmpty() && myHistory.get(0).lineNumber<lineNumberAdded-HISTORY_BUFFER_LIMIT) {
 			myHistory.remove(0);
 		}
 	}
 
 	public void queueAndSendCommand(String str) {
 		if(!chatInterface.getIsConnected()) return;
-		if(str.trim().length()==0) return;
+		if(str.trim().isEmpty()) return;
 		
 		lineNumberAdded++;
 		String withLineNumber = "N"+lineNumberAdded+" "+str;
@@ -197,7 +194,7 @@ public class MarlinPresentation implements PresentationLayer {
 	private void sendQueuedCommand() {
 		clearOldHistory();
 		
-		if(myHistory.size()==0) return;
+		if(myHistory.isEmpty()) return;
 		
 		int smallest = Integer.MAX_VALUE;
 		for( NumberedCommand mc : myHistory ) {

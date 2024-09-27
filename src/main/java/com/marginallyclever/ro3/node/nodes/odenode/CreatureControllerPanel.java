@@ -104,8 +104,11 @@ public class CreatureControllerPanel extends JPanel {
 
     private void updateBrainImage() {
         // update the brain image
-        brainLabel.setIcon(new ImageIcon(creatureController.getBrain().getImage()));
-        brainLabel.repaint();
+        var image = creatureController.getBrain().getImage();
+        if(image!=null) {
+            brainLabel.setIcon(new ImageIcon(image));
+            brainLabel.repaint();
+        }
     }
 
     private void addAction(String label,ODEHinge hinge,GridBagConstraints gbc) {

@@ -42,7 +42,7 @@ public class AllPanels {
             com.marginallyclever.ro3.apps.dialogs.AppSettingsDialog.class
         );
 
-        Reflections reflections = new Reflections("com.marginallyclever.ro3");
+        Reflections reflections = new Reflections("com.marginallyclever");
         collectAllJPanels(reflections, cardPanel, names, exceptions);
 
         // build the combo box
@@ -68,17 +68,18 @@ public class AllPanels {
             try {
                 if(exceptions.contains(panelClass)) continue;  // skip
                 JPanel panelInstance = panelClass.getDeclaredConstructor().newInstance();
-                logger.debug("Adding "+panelClass.getName());
+                logger.debug("Adding {}", panelClass.getName());
                 cardPanel.add(panelInstance, panelClass.getName());
                 names.add(panelClass.getName());
             } catch (Exception e) {
-                logger.warn("Failed to create instance of "+panelClass.getName(),e);
+                logger.warn("Failed to create instance of {}", panelClass.getName(), e);
             }
         }
     }
 
     private Collection<Class<? extends JPanel>> getHandmadeList() {
         return new ArrayList<>(List.of(
+                com.marginallyclever.communications.application.TextInterfaceToSessionLayer.class,
                 com.marginallyclever.ro3.apps.about.AboutPanel.class,
                 com.marginallyclever.ro3.apps.editorpanel.EditorPanel.class,
                 com.marginallyclever.ro3.apps.logpanel.LogPanel.class,

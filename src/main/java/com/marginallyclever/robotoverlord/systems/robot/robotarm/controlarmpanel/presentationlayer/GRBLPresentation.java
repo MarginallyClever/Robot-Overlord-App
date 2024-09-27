@@ -187,14 +187,14 @@ public class GRBLPresentation implements PresentationLayer {
     }
 
     private void clearOldHistory() {
-        while(myHistory.size()>0 && myHistory.get(0).lineNumber<lineNumberAdded-HISTORY_BUFFER_LIMIT) {
+        while(!myHistory.isEmpty() && myHistory.get(0).lineNumber<lineNumberAdded-HISTORY_BUFFER_LIMIT) {
             myHistory.remove(0);
         }
     }
 
     public void queueAndSendCommand(String str) {
         if(!chatInterface.getIsConnected()) return;
-        if(str.trim().length()==0) return;
+        if(str.trim().isEmpty()) return;
 
         lineNumberAdded++;
         // Line number and checksum would go here, but as far as I know GRBL does not support it.
@@ -206,7 +206,7 @@ public class GRBLPresentation implements PresentationLayer {
     private void sendQueuedCommand() {
         clearOldHistory();
 
-        if(myHistory.size()==0) return;
+        if(myHistory.isEmpty()) return;
 
         int smallest = Integer.MAX_VALUE;
         for( NumberedCommand mc : myHistory ) {
@@ -222,9 +222,9 @@ public class GRBLPresentation implements PresentationLayer {
 
         if(smallest>lineNumberToSend) {
             // history no longer contains the line?!
-            logger.info("did not find "+lineNumberToSend);
+            logger.info("did not find {}", lineNumberToSend);
             for( NumberedCommand mc : myHistory ) {
-                logger.info("..."+mc.lineNumber+": "+mc.command);
+                logger.info("...{}: {}", mc.lineNumber, mc.command);
             }
         }
     }

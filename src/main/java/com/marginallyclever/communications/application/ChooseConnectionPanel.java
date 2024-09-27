@@ -11,11 +11,9 @@ import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 /**
  * A panel that allows the user to open and close a connection to a {@link SessionLayer}.
- *
  */
 public class ChooseConnectionPanel extends JPanel {
 	private static final Logger logger = LoggerFactory.getLogger(ChooseConnectionPanel.class);
@@ -25,7 +23,7 @@ public class ChooseConnectionPanel extends JPanel {
 	private final JButton bConnect = new JButton();
 	private final JLabel connectionName = new JLabel("Not connected",JLabel.LEADING);
 	private SessionLayer mySession;
-	
+
 	public ChooseConnectionPanel() {
 		super();
 
