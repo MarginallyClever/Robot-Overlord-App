@@ -90,7 +90,7 @@ public class TextInterfaceToSessionLayer extends App implements SessionLayerList
 	
 	// OBSERVER PATTERN
 	
-	private final ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
+	private final ArrayList<ActionListener> listeners = new ArrayList<>();
 	public void addActionListener(ActionListener a) {
 		listeners.add(a);
 	}
@@ -111,5 +111,17 @@ public class TextInterfaceToSessionLayer extends App implements SessionLayerList
 	
 	public void removeNetworkSessionListener(SessionLayerListener a) {
 		mySession.removeListener(a);
+	}
+
+	/**
+	 * For testing
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		JFrame frame = new JFrame("TextInterfaceToSessionLayer");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(800, 600);
+		frame.add(new TextInterfaceToSessionLayer());
+		frame.setVisible(true);
 	}
 }
