@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.limbsolver.approximatejacobian;
+package com.marginallyclever.convenience.approximatejacobian;
 
 import com.marginallyclever.convenience.helpers.BigMatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;

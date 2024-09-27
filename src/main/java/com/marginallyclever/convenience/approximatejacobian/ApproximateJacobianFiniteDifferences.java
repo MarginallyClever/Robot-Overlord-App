@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.limbsolver.approximatejacobian;
+package com.marginallyclever.convenience.approximatejacobian;
 
 import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 
@@ -16,7 +16,6 @@ public class ApproximateJacobianFiniteDifferences extends ApproximateJacobian {
 
     public ApproximateJacobianFiniteDifferences(Limb limb) {
         super(limb.getNumJoints());
-        if(limb==null) throw new InvalidParameterException("Limb must not be null.");
 
         var endEffector = limb.getEndEffector().getSubject();
         if(endEffector == null) throw new InvalidParameterException("Robot must have an end effector.");

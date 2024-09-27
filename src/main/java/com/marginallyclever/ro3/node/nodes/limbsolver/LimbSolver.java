@@ -3,8 +3,8 @@ package com.marginallyclever.ro3.node.nodes.limbsolver;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.limbsolver.approximatejacobian.ApproximateJacobian;
-import com.marginallyclever.ro3.node.nodes.limbsolver.approximatejacobian.ApproximateJacobianFiniteDifferences;
+import com.marginallyclever.convenience.approximatejacobian.ApproximateJacobian;
+import com.marginallyclever.convenience.approximatejacobian.ApproximateJacobianFiniteDifferences;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import org.json.JSONObject;
@@ -25,11 +25,11 @@ import java.util.Objects;
  */
 public class LimbSolver extends Node {
     private static final Logger logger = LoggerFactory.getLogger(LimbSolver.class);
+
     private final NodePath<Limb> limb = new NodePath<>(this,Limb.class);
     private final NodePath<Pose> target = new NodePath<>(this,Pose.class);
     private double linearVelocity = 0;
     private double distanceToTarget = 0;
-
     private double goalMarginOfError = 0.1; // not degrees or mm.  Just a number.
     private final double[] cartesianDistance = new double[6];  // 3 linear, 3 angular
     private final double[] cartesianVelocity = new double[cartesianDistance.length];
