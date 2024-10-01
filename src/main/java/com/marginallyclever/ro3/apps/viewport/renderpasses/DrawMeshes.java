@@ -102,10 +102,12 @@ public class DrawMeshes extends AbstractRenderPass {
         gl3.glGenTextures(1, depthMap,0);
         gl3.glBindTexture(GL3.GL_TEXTURE_2D, depthMap[0]);
         gl3.glTexImage2D(GL3.GL_TEXTURE_2D,0,GL3.GL_DEPTH_COMPONENT,SHADOW_WIDTH,SHADOW_HEIGHT,0,GL3.GL_DEPTH_COMPONENT,GL3.GL_FLOAT,null);
+
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MIN_FILTER,GL3.GL_NEAREST);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MAG_FILTER,GL3.GL_NEAREST);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_S,GL3.GL_CLAMP_TO_BORDER);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_T,GL3.GL_CLAMP_TO_BORDER);
+
         float [] borderColor = { 1.0f, 1.0f, 1.0f, 1.0f };
         gl3.glTexParameterfv(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_BORDER_COLOR, borderColor,0);
         OpenGLHelper.checkGLError(gl3,logger);
@@ -253,6 +255,7 @@ public class DrawMeshes extends AbstractRenderPass {
 
         gl3.glActiveTexture(GL3.GL_TEXTURE0 + shadowMapUnit);
         gl3.glBindTexture(GL3.GL_TEXTURE_2D,0);
+
         gl3.glActiveTexture(GL3.GL_TEXTURE0);
         gl3.glBindTexture(GL3.GL_TEXTURE_2D,depthMap[0]);
 
@@ -333,6 +336,11 @@ public class DrawMeshes extends AbstractRenderPass {
                 meshShader.set1i(gl3,"useLighting",material.isLit() ? 1 : 0);
                 meshShader.set1i(gl3,"shininess",material.getShininess());
                 meshShader.set1f(gl3, "specularStrength", (float)material.getSpecularStrength());
+                // TODO add material settings for texture filters and apply them here.
+                gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MIN_FILTER,GL3.GL_LINEAR);
+                gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MAG_FILTER,GL3.GL_LINEAR);
+                gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_S,GL3.GL_CLAMP_TO_BORDER);
+                gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_T,GL3.GL_CLAMP_TO_BORDER);
             }
             if(texture == null) {
                 gl3.glDisable(GL3.GL_TEXTURE_2D);
