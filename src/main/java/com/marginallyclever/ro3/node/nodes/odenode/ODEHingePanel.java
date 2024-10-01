@@ -57,7 +57,7 @@ public class ODEHingePanel extends JPanel {
     }
 
     private void addAction(String label,ODEHinge hinge) {
-        JPanel panel = new JPanel(new FlowLayout());
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING,0,0));
 
         JButton selector = new JButton("+");
         selector.addActionListener((e)-> hinge.addTorque(250000));
