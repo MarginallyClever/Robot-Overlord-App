@@ -82,7 +82,7 @@ public class Decal extends Mesh {
 
 	/**
 	 * Subdivide a plane into triangles.
-	 * 
+	 *
 	 * @param n      plane normal
 	 * @param p0     northwest corner
 	 * @param p1     northeast corner
@@ -92,56 +92,49 @@ public class Decal extends Mesh {
 	 * @param yParts north/south divisions
 	 */
 	protected void addSubdividedPlane(Vector3d n,
-			Vector3d p0,
-			Vector3d p1,
-			Vector3d p2,
-			Vector3d p3,
-			int xParts,
-			int yParts) {
+									  Vector3d p0,
+									  Vector3d p1,
+									  Vector3d p2,
+									  Vector3d p3,
+									  int xParts,
+									  int yParts) {
 		xParts = Math.max(xParts, 1);
 		yParts = Math.max(yParts, 1);
 
-		Vector3d pA = new Vector3d();
-		Vector3d pB = new Vector3d();
-		Vector3d pC = new Vector3d();
-		Vector3d pD = new Vector3d();
-		Vector3d pE = new Vector3d();
-		Vector3d pF = new Vector3d();
-		Vector3d pG = new Vector3d();
-		Vector3d pH = new Vector3d();
-
-		for (int x = 0; x < xParts; x++) {
-			pA.set(MathHelper.interpolate(p0, p1, (double) (x) / (double) xParts));
-			pB.set(MathHelper.interpolate(p0, p1, (double) (x + 1) / (double) xParts));
-			pC.set(MathHelper.interpolate(p3, p2, (double) (x) / (double) xParts));
-			pD.set(MathHelper.interpolate(p3, p2, (double) (x + 1) / (double) xParts));
-
-			for (int y = 0; y < yParts; y++) {
-				pE.set(MathHelper.interpolate(pA, pC, (double) (y) / (double) yParts));
-				pF.set(MathHelper.interpolate(pB, pD, (double) (y) / (double) yParts));
-				pG.set(MathHelper.interpolate(pA, pC, (double) (y + 1) / (double) yParts));
-				pH.set(MathHelper.interpolate(pB, pD, (double) (y + 1) / (double) yParts));
-
-				if (getRenderStyle() == GL3.GL_TRIANGLES) {
-					addVertex((float) pE.x, (float) pE.y, (float) pE.z);
-					addVertex((float) pF.x, (float) pF.y, (float) pF.z);
-					addVertex((float) pH.x, (float) pH.y, (float) pH.z);
-
-					addVertex((float) pE.x, (float) pE.y, (float) pE.z);
-					addVertex((float) pH.x, (float) pH.y, (float) pH.z);
-					addVertex((float) pG.x, (float) pG.y, (float) pG.z);
-				}
+		// Calculate all points on the subdivided plane
+		for (int x = 0; x <= xParts; x++) {
+			double xFraction = (double) x / xParts;
+			Vector3d a = MathHelper.interpolate(p0, p1, xFraction);
+			Vector3d b = MathHelper.interpolate(p3, p2, xFraction);
+			for (int y = 0; y <= yParts; y++) {
+				var v = MathHelper.interpolate(a, b, (double) y / yParts);
+				addVertex((float) v.x, (float) v.y, (float) v.z);
+				addNormal((float) n.x, (float) n.y, (float) n.z);
+				addColor(1, 1, 1, 1);
+				addTexCoord(
+						(float) (v.x - p2.x) / textureScale,
+						(float) (v.y - p2.y) / textureScale
+				);
 			}
 		}
 
-		for(int i=0;i<getNumVertices();++i) {
-			addNormal((float) n.x, (float) n.y, (float) n.z);
-			addColor(1, 1, 1, 1);
-			Vector3d v = getVertex(i);
-			// texture coordinates are based on the distance from the top left corner
-			float x = (float) (v.x - p2.x);
-			float y = (float) (v.y - p2.y);
-			addTexCoord(x/textureScale, y/textureScale);
+		// Connect points with triangles
+		int height = yParts + 1;
+		for (int x = 0; x < xParts; x++) {
+			for (int y = 0; y < yParts; y++) {
+				int a = (x    ) * height + (y    );
+				int b = (x + 1) * height + (y    );
+				int c = (x    ) * height + (y + 1);
+				int d = (x + 1) * height + (y + 1);
+
+				addIndex(a);
+				addIndex(b);
+				addIndex(d);
+
+				addIndex(a);
+				addIndex(d);
+				addIndex(c);
+			}
 		}
 	}
 /*

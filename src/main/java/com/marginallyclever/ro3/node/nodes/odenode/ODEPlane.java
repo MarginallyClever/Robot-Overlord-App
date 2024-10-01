@@ -31,9 +31,9 @@ public class ODEPlane extends ODENode {
         // setup decal
         decal.width = 1000;
         decal.height = 1000;
-        decal.wParts = 20;
-        decal.hParts = 20;
-        decal.textureScale = 10;
+        decal.wParts = 8;
+        decal.hParts = 8;
+        decal.textureScale = 2;
         decal.updateModel();
     }
 
