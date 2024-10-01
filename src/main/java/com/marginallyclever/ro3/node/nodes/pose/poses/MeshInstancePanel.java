@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodes.pose.poses;
 
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.MeshChooserDialog;
@@ -18,6 +19,9 @@ import java.io.File;
  * GUI for a {@link MeshInstance}.
  */
 public class MeshInstancePanel extends JPanel {
+    // matching the values sent to glDrawArrays and glDrawElements.
+    public final static String [] renderStyleNames = { "Points", "Line strip", "Line loop", "Lines", "Triangle strip", "Triangle fan", "Triangles", "Quad strip", "Quads", "Polygon" };
+
     private final JPanel sourceContainer = new JPanel(new GridLayout(0,2));
     private final MeshInstance meshInstance;
 
@@ -48,6 +52,12 @@ public class MeshInstancePanel extends JPanel {
             PanelHelper.addLabelAndComponent(this,"Triangles",new JLabel(""+mesh.getNumTriangles()),gbc);
 
             gbc.gridy++;
+            JComboBox<String> renderStyle = new JComboBox<>(renderStyleNames);
+            setRenderStyleComboBox(mesh, renderStyle);
+            renderStyle.addActionListener(e->updateMeshStyle(mesh, renderStyle));
+            PanelHelper.addLabelAndComponent(this,"Style",renderStyle,gbc);
+
+            gbc.gridy++;
             JButton smooth = new JButton("Smooth");
             smooth.addActionListener(e -> MeshSmoother.smoothNormals(mesh,0.01f,0.25f) );
             PanelHelper.addLabelAndComponent(this,"Normals",smooth,gbc);
@@ -62,6 +72,38 @@ public class MeshInstancePanel extends JPanel {
             reload.addActionListener(e-> Registry.meshFactory.reload(mesh) );
             PanelHelper.addLabelAndComponent(this,"Source",reload,gbc);
         }
+    }
+
+    private void updateMeshStyle(Mesh mesh, JComboBox<String> renderStyle) {
+        mesh.setRenderStyle(switch(renderStyle.getSelectedIndex()) {
+            case 0 -> GL3.GL_POINTS;
+            case 1 -> GL3.GL_LINE_STRIP;
+            case 2 -> GL3.GL_LINE_LOOP;
+            case 3 -> GL3.GL_LINES;
+            case 4 -> GL3.GL_TRIANGLE_STRIP;
+            case 5 -> GL3.GL_TRIANGLE_FAN;
+            case 6 -> GL3.GL_TRIANGLES;
+            //case 7 -> GL3.GL_QUAD_STRIP;
+            case 8 -> GL3.GL_QUADS;
+            //case 9 -> GL3.GL_POLYGON;
+            default -> GL3.GL_TRIANGLES;
+        });
+    }
+
+    private void setRenderStyleComboBox(Mesh mesh, JComboBox<String> renderStyle) {
+        renderStyle.setSelectedIndex(switch(mesh.getRenderStyle()) {
+            case GL3.GL_POINTS -> 0;
+            case GL3.GL_LINE_STRIP -> 1;
+            case GL3.GL_LINE_LOOP -> 2;
+            case GL3.GL_LINES -> 3;
+            case GL3.GL_TRIANGLE_STRIP -> 4;
+            case GL3.GL_TRIANGLE_FAN -> 5;
+            case GL3.GL_TRIANGLES -> 6;
+            //case GL3.GL_QUAD_STRIP -> 7;
+            case GL3.GL_QUADS -> 8;
+            //case GL3.GL_POLYGON -> 9;
+            default -> 0;
+        });
     }
 
     private void addMeshSource(GridBagConstraints gbc) {
