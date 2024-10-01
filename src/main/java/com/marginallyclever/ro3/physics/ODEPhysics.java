@@ -126,7 +126,7 @@ public class ODEPhysics {
     private void nearCallback(Object data, DGeom o1, DGeom o2) {
         DBody b1 = o1.getBody();
         DBody b2 = o2.getBody();
-        if (b1 != null && b2 != null && OdeHelper.areConnected(b1, b2))
+        if (b1 == null || b2 == null)
             return;
 
         try {
