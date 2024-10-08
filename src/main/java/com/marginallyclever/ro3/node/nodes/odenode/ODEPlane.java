@@ -6,6 +6,8 @@ import com.marginallyclever.ro3.mesh.shapes.Decal;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONObject;
+import org.ode4j.math.DMatrix3;
+import org.ode4j.math.DMatrix3C;
 import org.ode4j.ode.DPlane;
 import org.ode4j.ode.OdeHelper;
 
@@ -35,6 +37,15 @@ public class ODEPlane extends ODENode {
         decal.hParts = 8;
         decal.textureScale = 2;
         decal.updateModel();
+    }
+
+    @Override
+    public void setLocal(Matrix4d m) {
+        super.setLocal(m);
+
+        if(plane!=null)  return;
+
+        updatePhysicsFromPose();
     }
 
     @Override
@@ -76,7 +87,7 @@ public class ODEPlane extends ODENode {
     @Override
     public void update(double dt) {
         super.update(dt);
-
+/*
         // adjust the position of the Node to match the body.
         if(plane == null) return;
 
@@ -90,7 +101,7 @@ public class ODEPlane extends ODENode {
         // set translation along normal
         normal.scale(distance);
         m4.setTranslation(normal);
-        super.setWorld(m4);
+        super.setWorld(m4);*/
     }
 
     @Override
@@ -112,6 +123,7 @@ public class ODEPlane extends ODENode {
     protected void updatePhysicsFromPose() {
         if (plane == null) return;
 
+        // adjust the ODE plane to match the Node
         var world = getWorld();
         Vector3d normal = MatrixHelper.getZAxis(world);
         Vector3d position = MatrixHelper.getPosition(world);

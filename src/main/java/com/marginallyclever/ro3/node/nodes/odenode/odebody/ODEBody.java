@@ -1,11 +1,13 @@
 package com.marginallyclever.ro3.node.nodes.odenode.odebody;
 
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.physics.ODE4JHelper;
 import com.marginallyclever.ro3.node.nodes.odenode.ODENode;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONObject;
+import org.ode4j.math.DMatrix3;
 import org.ode4j.math.DMatrix3C;
 import org.ode4j.math.DVector3C;
 import org.ode4j.ode.DBody;
@@ -14,6 +16,7 @@ import org.ode4j.ode.DMass;
 import org.ode4j.ode.OdeHelper;
 
 import javax.swing.*;
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.util.List;
 import java.util.Objects;
@@ -186,5 +189,29 @@ public abstract class ODEBody extends ODENode {
 
     public void setTouchingSomething(boolean isTouchingSomething) {
         this.isTouchingSomething = isTouchingSomething;
+    }
+
+
+    @Override
+    public void setLocal(Matrix4d m) {
+        super.setLocal(m);
+
+        // only allow while paused.
+        if(Registry.getPhysics().isPaused()) return;
+
+        var w = getWorld();
+
+        // set position part
+        var p = MatrixHelper.getPosition(w);
+        body.setPosition(p.x,p.y,p.z);
+
+        // set rotation part
+        DMatrix3 rotation = new DMatrix3();
+        for(int i=0;i<3;++i) {
+            for(int j=0;j<3;++j) {
+                rotation.set(i,j,w.getElement(i,j));
+            }
+        }
+        body.setRotation(rotation);
     }
 }

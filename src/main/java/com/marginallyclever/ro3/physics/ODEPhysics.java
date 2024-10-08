@@ -110,7 +110,7 @@ public class ODEPhysics {
 
         try {
             OdeHelper.spaceCollide(getODESpace(), null, this::nearCallback);
-            world.step(dt);
+            world.quickStep(dt);  // advance the simulation.  reportedly better than using step().
             contactGroup.empty();
         } catch(Exception e) {
             logger.error("update failed.", e);
@@ -124,11 +124,6 @@ public class ODEPhysics {
      * @param o2 the second object
      */
     private void nearCallback(Object data, DGeom o1, DGeom o2) {
-        DBody b1 = o1.getBody();
-        DBody b2 = o2.getBody();
-        if (b1 == null || b2 == null)
-            return;
-
         try {
             int n = OdeHelper.collide(o1, o2, CONTACT_BUFFER_SIZE, contacts.getGeomBuffer());
             for (int i = 0; i < n; ++i) {

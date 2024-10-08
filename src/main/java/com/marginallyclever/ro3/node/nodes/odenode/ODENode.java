@@ -3,6 +3,8 @@ package com.marginallyclever.ro3.node.nodes.odenode;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 
+import javax.vecmath.Matrix4d;
+
 /**
  * <p>Base class for all {@link com.marginallyclever.ro3.node.Node} that implement ODE4J.</p>
  * <p>ODE Nodes like {@link ODEHinge} need to be able to find the subject nodes to which the hinge connects.  These
