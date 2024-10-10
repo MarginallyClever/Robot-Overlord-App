@@ -19,8 +19,6 @@ import java.util.Map;
 public class LoadOBJ implements MeshLoader {
 	private static final Logger logger = LoggerFactory.getLogger(LoadOBJ.class);
 
-	private final Map<String,OBJMaterial> materials = new HashMap<>();
-
 	@Override
 	public String getEnglishName() {
 		return "Wavefront Object File (OBJ)";
@@ -36,6 +34,7 @@ public class LoadOBJ implements MeshLoader {
 		ArrayList<Float> vertexArray = new ArrayList<>();
 		ArrayList<Float> normalArray = new ArrayList<>();
 		ArrayList<Float> texCoordArray = new ArrayList<>();
+		Map<String,OBJMaterial> materials = new HashMap<>();
 		OBJMaterial currentMaterial = null;
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
@@ -49,7 +48,7 @@ public class LoadOBJ implements MeshLoader {
 					// get the path from model.getSourceName() aka remove the filename at the end.
 					String path = model.getSourceName();
 					path = path.substring(0,path.lastIndexOf(File.separator)+1) + line.substring(7);
-					loadMaterialLibrary(path);
+					materials.putAll(loadMaterialLibrary(path));
 				} catch(Exception e) {
 					logger.error("Error loading material: "+e.getMessage());
 				}
@@ -113,7 +112,7 @@ public class LoadOBJ implements MeshLoader {
 									1);
 						}
 					} catch(Exception e) {
-						logger.error("Error parsing vertex data: "+e.getMessage());
+                        logger.error("Error parsing vertex data: {}", e.getMessage());
 					}
 					// texture data (if any)
 					if(subTokens.length>1 && !subTokens[1].isEmpty()) {
@@ -123,7 +122,7 @@ public class LoadOBJ implements MeshLoader {
 									texCoordArray.get(indexT*2  ),
 									texCoordArray.get(indexT*2+1));
 						} catch(Exception e) {
-							logger.error("Error texture data: "+e.getMessage());
+                            logger.error("Error texture data: {}", e.getMessage());
 						}
 					}
 					// normal data (if any)
@@ -143,10 +142,11 @@ public class LoadOBJ implements MeshLoader {
 		}
 	}
 
-	private void loadMaterialLibrary(String filename) throws IOException {
+	Map<String,OBJMaterial> loadMaterialLibrary(String filename) throws IOException {
 		InputStream inputStream = FileHelper.open(filename);
 		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 		OBJMaterial mat = null;
+		Map<String,OBJMaterial> map = new HashMap<>();
 
 		String line;
 		while ((line = br.readLine()) != null) {
@@ -155,7 +155,7 @@ public class LoadOBJ implements MeshLoader {
 				// name
 				mat = new OBJMaterial();
 				mat.name = line.substring(7);
-				materials.put(mat.name,mat);
+				map.put(mat.name,mat);
 			}
 
 			if(mat==null) continue;
@@ -198,6 +198,7 @@ public class LoadOBJ implements MeshLoader {
 			else if (line.startsWith("illum ")) {}  // illumination model
 			*/
 		}
+		return map;
 	}
 
 	/**
