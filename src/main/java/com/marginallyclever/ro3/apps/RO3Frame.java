@@ -6,19 +6,18 @@ import ModernDocking.app.Docking;
 import ModernDocking.app.RootDockingPanel;
 import ModernDocking.exception.DockingLayoutException;
 import ModernDocking.ext.ui.DockingUI;
-import com.formdev.flatlaf.FlatLaf;
-import com.formdev.flatlaf.FlatLightLaf;
 import com.marginallyclever.communications.application.TextInterfaceToSessionLayer;
 import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.RO3;
 import com.marginallyclever.ro3.apps.about.AboutPanel;
-import com.marginallyclever.ro3.apps.dialogs.AppSettingsDialog;
-import com.marginallyclever.ro3.apps.editorpanel.EditorPanel;
-import com.marginallyclever.ro3.apps.logpanel.LogPanel;
+import com.marginallyclever.ro3.apps.appsettings.AppSettingsDialog;
+import com.marginallyclever.ro3.apps.editor.EditorPanel;
+import com.marginallyclever.ro3.apps.log.LogPanel;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.ode4j.ODE4JPanel;
-import com.marginallyclever.ro3.apps.webcampanel.WebCamPanel;
+import com.marginallyclever.ro3.apps.viewport.ViewportSettingsPanel;
+import com.marginallyclever.ro3.apps.webcam.WebCamPanel;
 import com.marginallyclever.ro3.apps.viewport.OpenGLPanel;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import org.slf4j.Logger;
@@ -49,6 +48,7 @@ public class RO3Frame extends JFrame {
     private final WebCamPanel webCamPanel;
     private final TextInterfaceToSessionLayer textInterface;
     private final ODE4JPanel ode4jPanel;
+    private final ViewportSettingsPanel viewportSettingsPanel;
     public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
     public static String VERSION;
 
@@ -65,6 +65,7 @@ public class RO3Frame extends JFrame {
         webCamPanel = new WebCamPanel();
         textInterface = new TextInterfaceToSessionLayer();
         ode4jPanel = new ODE4JPanel();
+        viewportSettingsPanel = new ViewportSettingsPanel();
 
         createDefaultLayout();
         resetDefaultLayout();
@@ -201,6 +202,10 @@ public class RO3Frame extends JFrame {
         DockingPanel textInterfaceView = new DockingPanel("7796a733-8e33-417a-b363-b28174901e40", "Serial Interface");
         textInterfaceView.add(textInterface, BorderLayout.CENTER);
         windows.add(textInterfaceView);
+
+        DockingPanel viewportSettingsView = new DockingPanel("c0651f5b-d5f0-49ab-88f9-66ae4a8c095e", "Viewport Settings");
+        viewportSettingsView.add(viewportSettingsPanel, BorderLayout.CENTER);
+        windows.add(viewportSettingsView);
     }
 
     /**

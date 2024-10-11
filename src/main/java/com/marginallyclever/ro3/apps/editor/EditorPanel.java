@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.editorpanel;
+package com.marginallyclever.ro3.apps.editor;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.Registry;

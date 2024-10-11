@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import com.marginallyclever.ro3.apps.appsettings.AppSettingsDialog;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class AllPanels {
             com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel.class,
             com.marginallyclever.ro3.apps.DockingPanel.class,
             com.marginallyclever.ro3.apps.App.class,  // abstract
-            com.marginallyclever.ro3.apps.dialogs.AppSettingsDialog.class
+            AppSettingsDialog.class
         );
 
         Reflections reflections = new Reflections("com.marginallyclever");
@@ -81,8 +82,8 @@ public class AllPanels {
         return new ArrayList<>(List.of(
                 com.marginallyclever.communications.application.TextInterfaceToSessionLayer.class,
                 com.marginallyclever.ro3.apps.about.AboutPanel.class,
-                com.marginallyclever.ro3.apps.editorpanel.EditorPanel.class,
-                com.marginallyclever.ro3.apps.logpanel.LogPanel.class,
+                com.marginallyclever.ro3.apps.editor.EditorPanel.class,
+                com.marginallyclever.ro3.apps.log.LogPanel.class,
                 com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView.class,
                 com.marginallyclever.ro3.apps.nodeselector.NodeSelectionDialog.class,
                 com.marginallyclever.ro3.apps.nodeselector.NodeSelector.class,
@@ -91,7 +92,7 @@ public class AllPanels {
                 com.marginallyclever.ro3.apps.viewport.OpenGLPanel.class,
                 com.marginallyclever.ro3.apps.viewport.Viewport.class,
                 com.marginallyclever.ro3.apps.viewport.ViewportSettingsPanel.class,
-                com.marginallyclever.ro3.apps.webcampanel.WebCamPanel.class,
+                com.marginallyclever.ro3.apps.webcam.WebCamPanel.class,
                 com.marginallyclever.ro3.mesh.MeshChooserDialog.class,
                 com.marginallyclever.ro3.node.NodePanel.class,
                 com.marginallyclever.ro3.node.nodefactory.NodeFactoryPanel.class,
@@ -106,7 +107,6 @@ public class AllPanels {
                 com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlannerPanel.class,
                 com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolverPanel.class,
                 com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.MarlinRobotArmPanel.class,
-                com.marginallyclever.ro3.apps.ode4j.ODEPhysicsSettingsPanel.class,
                 com.marginallyclever.ro3.node.nodes.pose.PosePanel.class,
                 com.marginallyclever.ro3.node.nodes.pose.poses.AttachmentPointPanel.class,
                 com.marginallyclever.ro3.node.nodes.pose.poses.CameraPanel.class,

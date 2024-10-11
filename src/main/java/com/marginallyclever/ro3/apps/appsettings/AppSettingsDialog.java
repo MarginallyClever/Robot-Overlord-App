@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.dialogs;
+package com.marginallyclever.ro3.apps.appsettings;
 
 import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.view.View;
@@ -10,16 +10,15 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import javax.swing.*;
 import java.awt.*;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Set;
 
 /**
  * {@link AppSettingsDialog} is a {@link JPanel} that displays the {@link com.marginallyclever.ro3.view.View}
  * for every {@link com.marginallyclever.ro3.apps.App}.
  */
-public class AppSettingsDialog extends JPanel {
+@Deprecated
+public class AppSettingsDialog extends App {
     private static final Logger logger = LoggerFactory.getLogger(AppSettingsDialog.class);
 
     public AppSettingsDialog(List<App> apps) {

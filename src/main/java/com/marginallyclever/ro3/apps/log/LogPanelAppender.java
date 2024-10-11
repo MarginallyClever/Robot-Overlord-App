@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.logpanel;
+package com.marginallyclever.ro3.apps.log;
 
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.classic.spi.ILoggingEvent;

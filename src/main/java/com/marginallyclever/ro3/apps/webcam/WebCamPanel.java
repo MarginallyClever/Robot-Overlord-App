@@ -1,8 +1,7 @@
-package com.marginallyclever.ro3.apps.webcampanel;
+package com.marginallyclever.ro3.apps.webcam;
 
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
-import com.github.sarxos.webcam.WebcamResolution;
 import com.marginallyclever.ro3.apps.App;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

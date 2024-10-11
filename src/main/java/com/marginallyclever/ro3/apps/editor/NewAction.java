@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.editorpanel;
+package com.marginallyclever.ro3.apps.editor;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

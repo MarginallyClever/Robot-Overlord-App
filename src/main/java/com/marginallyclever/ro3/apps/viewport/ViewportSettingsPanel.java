@@ -14,7 +14,6 @@ import java.awt.*;
 /**
  * {@link ViewportSettingsPanel} is a {@link View} for {@link Viewport}.
  */
-@View(of=Viewport.class)
 public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewport> {
     private Viewport subject;
     private final NumberFormatter formatter = NumberFormatHelper.getNumberFormatter();
@@ -34,7 +33,7 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
+        gbc.weighty = 0.0;
         gbc.gridx=0;
         gbc.gridy=0;
         gbc.fill = GridBagConstraints.BOTH;
@@ -69,11 +68,13 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
         PanelHelper.addLabelAndComponent(this, "FSAA Samples", fsaaSamples,gbc);
         fsaaSamples.addActionListener(evt -> setFSAASamples((Integer) fsaaSamples.getSelectedItem()));
 
+        // TODO the lighting settings below here should be per-scene.
         // ambient color
         PanelHelper.addColorChooser(this,"Ambient",Color.DARK_GRAY,this::setAmbientColor,gbc);
         // sun color
         PanelHelper.addColorChooser(this,"Sun color",Color.WHITE,this::setSunColor,gbc);
 
+        gbc.weighty = 1.0;
         // sun position
         gbc.gridy++;
         PanelHelper.addLabelAndComponent(this, "Time of day (24h)", timeOfDay,gbc);

@@ -66,13 +66,7 @@ public class MainMenu extends JMenuBar {
         menuFile.add(new JMenuItem(saveAs));
         menuFile.add(new JMenuItem(new ExportScene(fileChooser)));
 
-        menuFile.add(new JSeparator());
-        var settingsMenu = new JMenuItem("Settings");
-        settingsMenu.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(
-                "/com/marginallyclever/ro3/apps/actions/icons8-settings-16.png"))));
-        menuFile.add(settingsMenu);
-
-        settingsMenu.addActionListener( e -> frame.runAppSettingsDialog() );
+        //addSettingsMenu(menuFile);
 
         if(!isMacOS) {
             menuFile.add(new JSeparator());
@@ -95,6 +89,15 @@ public class MainMenu extends JMenuBar {
         }
 
         return menuFile;
+    }
+
+    private void addSettingsMenu(JMenu menuFile) {
+        menuFile.add(new JSeparator());
+        var settingsMenu = new JMenuItem("Settings");
+        settingsMenu.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(
+                "/com/marginallyclever/ro3/apps/actions/icons8-settings-16.png"))));
+        menuFile.add(settingsMenu);
+        settingsMenu.addActionListener( e -> frame.runAppSettingsDialog() );
     }
 
     private JMenu buildWindowsMenu() {

@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.editorpanel;
+package com.marginallyclever.ro3.apps.editor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
