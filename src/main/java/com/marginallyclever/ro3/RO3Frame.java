@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps;
+package com.marginallyclever.ro3;
 
 import ModernDocking.DockingRegion;
 import ModernDocking.app.AppState;
@@ -8,9 +8,8 @@ import ModernDocking.exception.DockingLayoutException;
 import ModernDocking.ext.ui.DockingUI;
 import com.marginallyclever.communications.application.TextInterfaceToSessionLayer;
 import com.marginallyclever.convenience.helpers.FileHelper;
-import com.marginallyclever.ro3.RO3;
+import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.about.AboutPanel;
-import com.marginallyclever.ro3.apps.appsettings.AppSettingsDialog;
 import com.marginallyclever.ro3.apps.editor.EditorPanel;
 import com.marginallyclever.ro3.apps.log.LogPanel;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
@@ -246,17 +245,5 @@ public class RO3Frame extends JFrame {
 
     public List<DockingPanel> getDockingPanels() {
         return windows;
-    }
-
-    public void runAppSettingsDialog() {
-        var dialog = new AppSettingsDialog(List.of(
-                viewportPanel,
-                logPanel,
-                editPanel,
-                webCamPanel,
-                textInterface,
-                ode4jPanel
-        ));
-        dialog.run(this);
     }
 }

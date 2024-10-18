@@ -2,7 +2,7 @@ package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.RO3Frame;
+import com.marginallyclever.ro3.RO3Frame;
 import com.marginallyclever.ro3.apps.shared.FilenameExtensionChecker;
 import org.json.JSONObject;
 import org.slf4j.Logger;

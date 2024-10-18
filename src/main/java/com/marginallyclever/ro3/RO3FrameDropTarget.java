@@ -1,6 +1,5 @@
-package com.marginallyclever.ro3.apps;
+package com.marginallyclever.ro3;
 
-import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.commands.ImportMesh;
 import com.marginallyclever.ro3.apps.commands.ImportScene;
 import org.slf4j.Logger;

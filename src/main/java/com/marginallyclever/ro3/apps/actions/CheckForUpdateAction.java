@@ -1,6 +1,6 @@
 package com.marginallyclever.ro3.apps.actions;
 
-import com.marginallyclever.ro3.apps.RO3Frame;
+import com.marginallyclever.ro3.RO3Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,12 +8,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**

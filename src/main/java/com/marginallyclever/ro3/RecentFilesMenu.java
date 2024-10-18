@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps;
+package com.marginallyclever.ro3;
 
 import com.marginallyclever.ro3.apps.actions.LoadScene;
 import com.marginallyclever.ro3.apps.actions.SaveScene;

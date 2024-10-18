@@ -3,19 +3,18 @@ package com.marginallyclever.ro3.apps.viewport;
 import com.marginallyclever.convenience.swing.Dial;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
+import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.viewport.renderpasses.DrawMeshes;
-import com.marginallyclever.ro3.view.View;
-import com.marginallyclever.ro3.view.ViewProvider;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
 
 /**
- * {@link ViewportSettingsPanel} is a {@link View} for {@link Viewport}.
+ * {@link ViewportSettingsPanel} adjusts settings for a {@link Viewport}.
  */
-public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewport> {
-    private Viewport subject;
+public class ViewportSettingsPanel extends App {
+    private final Viewport subject;
     private final NumberFormatter formatter = NumberFormatHelper.getNumberFormatter();
     private final JFormattedTextField movementScale = new JFormattedTextField(formatter);
     private final JToggleButton hardwareAccelerated = new JToggleButton();
@@ -28,8 +27,27 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
     private final JButton selectAmbientColor = new JButton();
 
     public ViewportSettingsPanel() {
+        this(new Viewport());
+    }
+    public ViewportSettingsPanel(Viewport subject) {
         super(new GridBagLayout());
         setName("Viewport");
+
+        this.subject = subject;
+        setMovementScale(subject.getUserMovementScale());
+        setHardwareAccelerated(subject.isHardwareAccelerated());
+        setViewportDoubleBuffered(subject.isDoubleBuffered());
+        setVerticalSync(subject.isVerticalSync());
+        setFSAASamples(subject.getFsaaSamples());
+
+        // this only allows parameters from one render pass.
+        // TODO: add other passes?
+        DrawMeshes meshes = getDrawMeshes();
+        if(meshes!=null) {
+            setSunColor(meshes.getSunlightColor());
+            timeOfDay.setValue(meshes.getTimeOfDay()-90);
+            declination.setValue(meshes.getDeclination());
+        }
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.weightx = 1.0;
@@ -161,25 +179,6 @@ public class ViewportSettingsPanel extends JPanel implements ViewProvider<Viewpo
 
     private void setMovementScale(double v) {
         if (subject != null) subject.setUserMovementScale(v);
-    }
-
-    @Override
-    public void setViewSubject(Viewport subject) {
-        this.subject = subject;
-        setMovementScale(subject.getUserMovementScale());
-        setHardwareAccelerated(subject.isHardwareAccelerated());
-        setViewportDoubleBuffered(subject.isDoubleBuffered());
-        setVerticalSync(subject.isVerticalSync());
-        setFSAASamples(subject.getFsaaSamples());
-
-        // this only allows parameters from one render pass.
-        // TODO: add other passes?
-        DrawMeshes meshes = getDrawMeshes();
-        if(meshes!=null) {
-            setSunColor(meshes.getSunlightColor());
-            timeOfDay.setValue(meshes.getTimeOfDay()-90);
-            declination.setValue(meshes.getDeclination());
-        }
     }
 
     private DrawMeshes getDrawMeshes() {

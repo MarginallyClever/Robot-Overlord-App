@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps;
+package com.marginallyclever.ro3;
 
 import ModernDocking.Dockable;
 import ModernDocking.app.Docking;

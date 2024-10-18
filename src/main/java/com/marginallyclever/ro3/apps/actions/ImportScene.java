@@ -1,9 +1,7 @@
 package com.marginallyclever.ro3.apps.actions;
 
-import com.marginallyclever.ro3.apps.UndoSystem;
-import com.marginallyclever.ro3.apps.RO3Frame;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.RO3Frame;
 
 import javax.swing.*;
 import java.awt.*;

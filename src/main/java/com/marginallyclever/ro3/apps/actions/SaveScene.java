@@ -1,18 +1,13 @@
 package com.marginallyclever.ro3.apps.actions;
 
-import com.marginallyclever.ro3.apps.RecentFilesMenu;
-import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.RecentFilesMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Objects;
 
 /**

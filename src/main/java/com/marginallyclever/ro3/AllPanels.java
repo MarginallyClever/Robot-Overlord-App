@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import com.marginallyclever.ro3.apps.appsettings.AppSettingsDialog;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +37,8 @@ public class AllPanels {
         // Don't add these panels because they don't have a default constructor.
         List<Class<?>> exceptions = List.of(
             com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel.class,
-            com.marginallyclever.ro3.apps.DockingPanel.class,
-            com.marginallyclever.ro3.apps.App.class,  // abstract
-            AppSettingsDialog.class
+            DockingPanel.class,
+            com.marginallyclever.ro3.apps.App.class  // abstract
         );
 
         Reflections reflections = new Reflections("com.marginallyclever");

@@ -2,7 +2,6 @@ package com.marginallyclever.ro3;
 
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
-import com.marginallyclever.ro3.apps.RO3Frame;
 
 import javax.swing.*;
 import java.awt.*;

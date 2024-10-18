@@ -6,7 +6,6 @@ import com.marginallyclever.robotoverlord.parameters.AbstractParameter;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.IntParameter;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementFactory;
-import com.marginallyclever.ro3.apps.UndoSystem;
 
 import javax.swing.*;
 import java.awt.*;

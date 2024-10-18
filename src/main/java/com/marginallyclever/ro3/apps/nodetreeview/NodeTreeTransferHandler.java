@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.apps.nodetreeview;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.UndoSystem;
+import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.commands.MoveNode;
 import com.marginallyclever.ro3.node.Node;
 import org.slf4j.Logger;
