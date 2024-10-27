@@ -10,6 +10,7 @@ import com.marginallyclever.communications.application.TextInterfaceToSessionLay
 import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.about.AboutPanel;
+import com.marginallyclever.ro3.apps.donatello.Donatello;
 import com.marginallyclever.ro3.apps.editor.EditorPanel;
 import com.marginallyclever.ro3.apps.log.LogPanel;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
@@ -48,6 +49,7 @@ public class RO3Frame extends JFrame {
     private final TextInterfaceToSessionLayer textInterface;
     private final ODE4JPanel ode4jPanel;
     private final ViewportSettingsPanel viewportSettingsPanel;
+    private final Donatello donatello;
     public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
     public static String VERSION;
 
@@ -64,6 +66,7 @@ public class RO3Frame extends JFrame {
         webCamPanel = new WebCamPanel();
         textInterface = new TextInterfaceToSessionLayer();
         ode4jPanel = new ODE4JPanel();
+        donatello = new Donatello();
         viewportSettingsPanel = new ViewportSettingsPanel();
 
         createDefaultLayout();
@@ -205,6 +208,11 @@ public class RO3Frame extends JFrame {
         DockingPanel viewportSettingsView = new DockingPanel("c0651f5b-d5f0-49ab-88f9-66ae4a8c095e", "Viewport Settings");
         viewportSettingsView.add(viewportSettingsPanel, BorderLayout.CENTER);
         windows.add(viewportSettingsView);
+
+        // TODO all persistentIDs should match the name of the class.  Then the class can recreate the view from AppState.
+        DockingPanel donatelloView = new DockingPanel("donatello", "Donatello");
+        donatelloView.add(donatello, BorderLayout.CENTER);
+        windows.add(donatelloView);
     }
 
     /**
