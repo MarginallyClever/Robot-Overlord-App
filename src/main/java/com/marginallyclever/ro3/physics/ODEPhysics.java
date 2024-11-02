@@ -110,7 +110,7 @@ public class ODEPhysics {
 
         try {
             OdeHelper.spaceCollide(getODESpace(), null, this::nearCallback);
-            world.quickStep(dt);  // advance the simulation.  reportedly better than using step().
+            if(dt>0) world.quickStep(dt);  // advance the simulation.  reportedly better than using step().
             contactGroup.empty();
         } catch(Exception e) {
             logger.error("update failed.", e);

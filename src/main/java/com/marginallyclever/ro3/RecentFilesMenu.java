@@ -4,6 +4,7 @@ import com.marginallyclever.ro3.apps.actions.LoadScene;
 import com.marginallyclever.ro3.apps.actions.SaveScene;
 
 import javax.swing.*;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +81,8 @@ public class RecentFilesMenu extends JMenu {
             load.setSaveScene(saveScene);
             JMenuItem menuItem = new JMenuItem(load);
             add(menuItem);
-            menuItem.setMnemonic(KeyEvent.VK_0 + index);
+            menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0 + index, InputEvent.CTRL_DOWN_MASK));
+
             ++index;
         }
         setVisible(!recentFiles.isEmpty());

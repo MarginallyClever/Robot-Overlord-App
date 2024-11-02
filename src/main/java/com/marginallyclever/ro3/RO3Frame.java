@@ -54,9 +54,10 @@ public class RO3Frame extends JFrame {
     public static String VERSION;
 
     public RO3Frame() {
-        super("Robot Overlord 3");
+        super();
         loadVersion();
 
+        setTitleWithVersion();
         setLocationByPlatform(true);
         initDocking();
 
@@ -80,6 +81,15 @@ public class RO3Frame extends JFrame {
         addQuitHandler();
         addAboutHandler();
         setupDropTarget();
+    }
+
+    private void setTitleWithVersion() {
+        // Retrieve the version from the manifest
+        String version = this.getClass().getPackage().getImplementationVersion();
+        if (version == null) {
+            version = "Development Version"; // Fallback if version is not set
+        }
+        setTitle("Robot Overlord "+version);
     }
 
     private void loadVersion() {

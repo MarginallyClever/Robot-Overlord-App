@@ -6,7 +6,7 @@
 
 	<groupId>com.marginallyclever</groupId>
 	<artifactId>RobotOverlord</artifactId>
-	<version>2.113.0</version>
+	<version>3.113.0</version>
 	<name>Robot Overlord</name>
 	<description>A friendly 3D user interface for controlling robots.</description>
 	<url>https://www.marginallyclever.com/</url>
@@ -192,6 +192,7 @@
 					<archive>
 						<manifestEntries>
 							<SplashScreen-Image>splash.png</SplashScreen-Image>
+							<Implementation-Version>${project.version}</Implementation-Version>
 						</manifestEntries>
 						<manifest>
 							<mainClass>com.marginallyclever.ro3.RO3</mainClass>

@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -54,6 +56,7 @@ public class LoadScene extends AbstractAction {
         putValue(Action.NAME,filePath==null || filePath.isEmpty() ? "Load..." : filePath);
         putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-load-16.png"))));
         putValue(SHORT_DESCRIPTION,"Load a scene from a file.  Completely replaces the current Scene.");
+        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK));
     }
 
     public void setSaveScene(SaveScene saveScene) {
