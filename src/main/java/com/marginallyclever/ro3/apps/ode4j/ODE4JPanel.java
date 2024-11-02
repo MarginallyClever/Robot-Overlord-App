@@ -27,12 +27,26 @@ import java.util.Objects;
  * Actions in this window will control the contents of the {@link com.marginallyclever.ro3.Registry#scene}.
  */
 public class ODE4JPanel extends App {
-    boolean randomColor = true;
-    boolean randomOrientation = false;
+    private boolean randomColor = true;
+    private boolean randomOrientation = false;
+    private final JButton pauseButton;
+    private final ODEPhysics physics;
 
     public ODE4JPanel() {
         super(new BorderLayout());
         setName("Physics");
+
+        physics = Registry.getPhysics();
+
+        pauseButton = addButtonByNameAndCallback("", (e)->{
+            ODEPhysics physics = Registry.getPhysics();
+            physics.setPaused(!physics.isPaused());
+        });
+
+        physics.addActionListener(e->{
+            if(e.getActionCommand().equals("Physics Paused")) updatePauseButton();
+            if(e.getActionCommand().equals("Physics Running")) updatePauseButton();
+        });
 
         JToolBar toolbar = createToolBar();
         add(toolbar, BorderLayout.NORTH);
@@ -66,7 +80,6 @@ public class ODE4JPanel extends App {
         gbc.gridwidth=1;
 
         NumberFormatter formatter = NumberFormatHelper.getNumberFormatter();
-        var physics = Registry.getPhysics();
 
         // cfm
         JFormattedTextField cfm = new JFormattedTextField(formatter);
@@ -92,11 +105,6 @@ public class ODE4JPanel extends App {
     private JToolBar createToolBar() {
         var toolbar = new JToolBar();
 
-        JButton pauseButton = addButtonByNameAndCallback("", (e)->{
-            ODEPhysics physics = Registry.getPhysics();
-            physics.setPaused(!physics.isPaused());
-            updatePauseButton((JButton)e.getSource(), physics);
-        });
         toolbar.add(pauseButton);
         // I want to call this next line, but the physics engine might not have been created yet.
         // updatePauseButton(pauseButton, ODE4JHelper.guaranteePhysicsWorld());
@@ -162,8 +170,8 @@ public class ODE4JPanel extends App {
         return button;
     }
 
-    private void updatePauseButton(JButton pauseButton, ODEPhysics worldSpace) {
-        if (worldSpace.isPaused()) {
+    private void updatePauseButton() {
+        if (physics.isPaused()) {
             pauseButton.setToolTipText("Unpause");
             pauseButton.setIcon( new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/shared/icons8-play-16.png"))));
         } else {
@@ -173,17 +181,14 @@ public class ODE4JPanel extends App {
     }
 
     public void setCFM(double cfm) {
-        var physics = Registry.getPhysics();
         physics.setCFM(cfm);
     }
 
     public void setERP(double erp) {
-        var physics = Registry.getPhysics();
         physics.setERP(erp);
     }
 
     public void setGravity(double gravity) {
-        var physics = Registry.getPhysics();
         physics.setGravity(gravity);
     }
 }

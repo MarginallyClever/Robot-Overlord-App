@@ -7,10 +7,7 @@ import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 import org.ode4j.math.DVector3;
-import org.ode4j.ode.DBody;
-import org.ode4j.ode.DHingeJoint;
-import org.ode4j.ode.DSliderJoint;
-import org.ode4j.ode.OdeHelper;
+import org.ode4j.ode.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +32,9 @@ public class ODESlider extends ODENode {
     private DSliderJoint sliderJoint;
     private final NodePath<ODEBody> partA = new NodePath<>(this,ODEBody.class);
     private final NodePath<ODEBody> partB = new NodePath<>(this,ODEBody.class);
-    double top = Double.POSITIVE_INFINITY;
-    double bottom = Double.NEGATIVE_INFINITY;
+    private double top = Double.POSITIVE_INFINITY;
+    private double bottom = Double.NEGATIVE_INFINITY;
+    private boolean virgin=true;
 
     public ODESlider() {
         this("ODE Slider Joint");
@@ -126,6 +124,9 @@ public class ODESlider extends ODENode {
         }
         logger.debug(this.getName()+" connect "+(as==null?"null":as.getName())+" to "+(bs==null?"null":bs.getName()));
         sliderJoint.attach(a, b);
+        setDistanceMax(top);
+        setDistanceMin(bottom);
+
         updatePhysicsFromWorld();
     }
 
@@ -219,13 +220,9 @@ public class ODESlider extends ODENode {
         json.put("partA",partA.getUniqueID());
         json.put("partB",partB.getUniqueID());
         double v = getDistanceMax();
-        if(!Double.isInfinite(v)) {
-            json.put("hiStop1",v);
-        }
+        if(!Double.isInfinite(v)) json.put("hiStop1",v);
         v = getDistanceMin();
-        if(!Double.isInfinite(v)) {
-            json.put("loStop1",v);
-        }
+        if(!Double.isInfinite(v)) json.put("loStop1",v);
         return json;
     }
 
@@ -234,12 +231,8 @@ public class ODESlider extends ODENode {
         super.fromJSON(from);
         if(from.has("partA")) partA.setUniqueID(from.getString("partA"));
         if(from.has("partB")) partB.setUniqueID(from.getString("partB"));
-        if(from.has("hiStop1")) {
-            setDistanceMax(from.getDouble("hiStop1"));
-        }
-        if(from.has("loStop1")) {
-            setDistanceMin(from.getDouble("loStop1"));
-        }
+        if(from.has("hiStop1")) setDistanceMax(from.getDouble("hiStop1"));
+        if(from.has("loStop1")) setDistanceMin(from.getDouble("loStop1"));
         updatePhysicsFromWorld();
         connect();
         updateHingePose();
@@ -269,7 +262,7 @@ public class ODESlider extends ODENode {
      */
     public void setDistanceMax(double distance) {
         top = distance;
-        if(sliderJoint ==null) return;
+        if(sliderJoint == null) return;
         sliderJoint.setParamHiStop(distance);
     }
 
