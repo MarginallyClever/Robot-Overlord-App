@@ -59,11 +59,6 @@ public class ODEHinge extends ODENode {
     }
 
     @Override
-    protected void onReady() {
-        super.onReady();
-    }
-
-    @Override
     protected void onDetach() {
         super.onDetach();
         destroyHinge();
