@@ -484,17 +484,6 @@
 		    <artifactId>core</artifactId>
 		    <version>0.5.3</version>
 		</dependency>
-		<dependency>
-			<groupId>org.ode4j</groupId>
-			<artifactId>demo</artifactId>
-			<version>0.5.3</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-simple</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
 
 		<!-- for making http requests -->
 		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
