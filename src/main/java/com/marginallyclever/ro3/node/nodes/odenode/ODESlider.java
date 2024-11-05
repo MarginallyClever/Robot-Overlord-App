@@ -30,7 +30,6 @@ public class ODESlider extends ODELink {
     private DSliderJoint sliderJoint;
     private double top = Double.POSITIVE_INFINITY;
     private double bottom = Double.NEGATIVE_INFINITY;
-    private boolean virgin=true;
 
     public ODESlider() {
         this("ODE Slider Joint");
