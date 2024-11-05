@@ -2,15 +2,12 @@ package com.marginallyclever.ro3.node.nodes.odenode;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 import org.ode4j.math.DVector3;
 import org.ode4j.math.DVector3C;
 import org.ode4j.ode.DAMotorJoint;
 import org.ode4j.ode.DBody;
-import org.ode4j.ode.DJoint;
 import org.ode4j.ode.OdeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,11 +26,9 @@ import java.util.Objects;
  * will behave as normal.</p>
  * <p>The motor applies force on its local Z axis.</p>
  */
-public class ODEAngularMotor extends ODENode {
+public class ODEAngularMotor extends ODELink {
     private static final Logger logger = LoggerFactory.getLogger(ODEAngularMotor.class);
     private DAMotorJoint motor;
-    private final NodePath<ODEBody> partA = new NodePath<>(this,ODEBody.class);
-    private final NodePath<ODEBody> partB = new NodePath<>(this,ODEBody.class);
     private double top = Double.POSITIVE_INFINITY;
     private double bottom = Double.NEGATIVE_INFINITY;
     private double forceMax = Double.POSITIVE_INFINITY;
@@ -85,32 +80,15 @@ public class ODEAngularMotor extends ODENode {
         }
     }
 
-    public NodePath<ODEBody> getPartA() {
-        return partA;
-    }
-
-    public NodePath<ODEBody> getPartB() {
-        return partB;
-    }
-
     public DAMotorJoint getMotor() {
         return motor;
-    }
-
-    public void setPartA(ODEBody subject) {
-        partA.setUniqueIDByNode(subject);
-        connect();
-    }
-
-    public void setPartB(ODEBody subject) {
-        partB.setUniqueIDByNode(subject);
-        connect();
     }
 
     /**
      * Tell the physics engine who is connected to this motor.
      */
-    private void connect() {
+    @Override
+    protected void connect() {
         if(motor==null) return;
 
         var as = partA.getSubject();
@@ -254,7 +232,7 @@ public class ODEAngularMotor extends ODENode {
     public void addTorque(double qty) {
         if(motor==null) return;
         System.out.println("addTorque "+qty);
-        motor.addTorques(0,0,qty);
-        //motor.setParamVel3(qty+motor.getParamVel3());
+        //motor.addTorques(0,0,qty);
+        motor.setParamVel3(qty+motor.getParamVel3());
     }
 }

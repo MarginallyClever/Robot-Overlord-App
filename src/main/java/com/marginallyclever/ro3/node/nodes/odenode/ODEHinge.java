@@ -2,14 +2,11 @@ package com.marginallyclever.ro3.node.nodes.odenode;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 import org.ode4j.math.DVector3;
 import org.ode4j.ode.DBody;
 import org.ode4j.ode.DHingeJoint;
-import org.ode4j.ode.DJoint;
 import org.ode4j.ode.OdeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +25,9 @@ import java.util.Objects;
  * will behave as normal.</p>
  * <p>The hinge pivots on its local Z axis.</p>
  */
-public class ODEHinge extends ODENode {
+public class ODEHinge extends ODELink {
     private static final Logger logger = LoggerFactory.getLogger(ODEHinge.class);
     private DHingeJoint hinge;
-    private final NodePath<ODEBody> partA = new NodePath<>(this,ODEBody.class);
-    private final NodePath<ODEBody> partB = new NodePath<>(this,ODEBody.class);
     double top = Double.POSITIVE_INFINITY;
     double bottom = Double.NEGATIVE_INFINITY;
 
@@ -70,6 +65,7 @@ public class ODEHinge extends ODENode {
         connect();
         setAngleMax(top);
         setAngleMin(bottom);
+        updatePhysicsFromWorld();
     }
 
     private void destroyHinge() {
@@ -81,32 +77,15 @@ public class ODEHinge extends ODENode {
         }
     }
 
-    public NodePath<ODEBody> getPartA() {
-        return partA;
-    }
-
-    public NodePath<ODEBody> getPartB() {
-        return partB;
-    }
-
     public DHingeJoint getHinge() {
         return hinge;
-    }
-
-    public void setPartA(ODEBody subject) {
-        partA.setUniqueIDByNode(subject);
-        connect();
-    }
-
-    public void setPartB(ODEBody subject) {
-        partB.setUniqueIDByNode(subject);
-        connect();
     }
 
     /**
      * Tell the physics engine who is connected to this hinge.
      */
-    private void connect() {
+    @Override
+    protected void connect() {
         if(hinge==null) return;
 
         var as = partA.getSubject();
@@ -119,7 +98,6 @@ public class ODEHinge extends ODENode {
         }
         logger.debug(this.getName()+" connect "+(as==null?"null":as.getName())+" to "+(bs==null?"null":bs.getName()));
         hinge.attach(a, b);
-        updatePhysicsFromWorld();
     }
 
     @Override

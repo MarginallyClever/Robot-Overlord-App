@@ -2,8 +2,6 @@ package com.marginallyclever.ro3.node.nodes.odenode;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 import org.ode4j.math.DVector3;
@@ -27,11 +25,9 @@ import java.util.Objects;
  * <p>If only one of the two parts is connected then the slider joint will allow the connected part to move freely
  * along the specified axis while the other end remains fixed.</p>
  */
-public class ODESlider extends ODENode {
+public class ODESlider extends ODELink {
     private static final Logger logger = LoggerFactory.getLogger(ODESlider.class);
     private DSliderJoint sliderJoint;
-    private final NodePath<ODEBody> partA = new NodePath<>(this,ODEBody.class);
-    private final NodePath<ODEBody> partB = new NodePath<>(this,ODEBody.class);
     private double top = Double.POSITIVE_INFINITY;
     private double bottom = Double.NEGATIVE_INFINITY;
     private boolean virgin=true;
@@ -86,33 +82,17 @@ public class ODESlider extends ODENode {
         }
     }
 
-    public NodePath<ODEBody> getPartA() {
-        return partA;
-    }
-
-    public NodePath<ODEBody> getPartB() {
-        return partB;
-    }
-
     public DSliderJoint getSliderJoint() {
         return sliderJoint;
-    }
-
-    public void setPartA(ODEBody subject) {
-        partA.setUniqueIDByNode(subject);
-        connect();
-    }
-
-    public void setPartB(ODEBody subject) {
-        partB.setUniqueIDByNode(subject);
-        connect();
     }
 
     /**
      * Tell the physics engine who is connected to this hinge.
      */
-    private void connect() {
-        if(sliderJoint ==null) return;
+    @Override
+    protected void connect() {
+        logger.debug(this.getName()+" connect");
+        if(sliderJoint == null) return;
 
         var as = partA.getSubject();
         var bs = partB.getSubject();
@@ -133,10 +113,10 @@ public class ODESlider extends ODENode {
     @Override
     public void setLocal(Matrix4d m) {
         super.setLocal(m);
-        updateHingePose();
+        updateSliderPose();
     }
 
-    private void updateHingePose() {
+    private void updateSliderPose() {
         // only let the user move the hinge if the physics simulation is paused.
         if(Registry.getPhysics().isPaused()) {
             // set the hinge reference point and axis.
@@ -235,7 +215,7 @@ public class ODESlider extends ODENode {
         if(from.has("loStop1")) setDistanceMin(from.getDouble("loStop1"));
         updatePhysicsFromWorld();
         connect();
-        updateHingePose();
+        updateSliderPose();
     }
 
     /**

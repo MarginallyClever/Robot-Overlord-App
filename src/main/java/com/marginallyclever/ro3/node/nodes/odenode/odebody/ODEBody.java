@@ -92,7 +92,7 @@ public abstract class ODEBody extends ODENode {
     @Override
     public void update(double dt) {
         super.update(dt);
-        if(Registry.getPhysics().isPaused()) {
+        if(!Registry.getPhysics().isPaused()) {
             updatePoseFromPhysics();
         }
     }

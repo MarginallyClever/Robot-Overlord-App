@@ -16,7 +16,7 @@ public class ODEAngularMotorPanel extends JPanel {
 
     public ODEAngularMotorPanel(ODEAngularMotor motor) {
         super(new GridLayout(0,2));
-        this.setName(ODEHinge.class.getSimpleName());
+        this.setName(ODEAngularMotor.class.getSimpleName());
 
         addSelector("part A",motor.getPartA(),motor::setPartA);
         addSelector("part B",motor.getPartB(),motor::setPartB);
@@ -54,15 +54,15 @@ public class ODEAngularMotorPanel extends JPanel {
         PanelHelper.addLabelAndComponent(this, label,selector);
     }
 
-    private void addAction(String label,ODEAngularMotor hinge) {
+    private void addAction(String label,ODEAngularMotor motor) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING,0,0));
 
         JButton selector = new JButton("+");
-        selector.addActionListener((e)-> hinge.addTorque(1));
+        selector.addActionListener((e)-> motor.addTorque(1));
         panel.add(selector);
 
         JButton selector2 = new JButton("-");
-        selector2.addActionListener((e)-> hinge.addTorque(-10));
+        selector2.addActionListener((e)-> motor.addTorque(-1));
         panel.add(selector2);
 
         PanelHelper.addLabelAndComponent(this, label, panel);
