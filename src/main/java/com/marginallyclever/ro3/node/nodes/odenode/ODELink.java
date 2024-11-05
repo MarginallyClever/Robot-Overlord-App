@@ -15,7 +15,7 @@ public class ODELink extends ODENode {
     protected final NodePath<ODEBody> partB = new NodePath<>(this,ODEBody.class);
 
     public ODELink() {
-        this("ODELink");
+        this(ODELink.class.getSimpleName());
     }
 
     public ODELink(String name) {

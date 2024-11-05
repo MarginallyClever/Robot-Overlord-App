@@ -25,7 +25,7 @@ public class ODEPlane extends ODENode {
     private final Decal decal = new Decal();
 
     public ODEPlane() {
-        this("ODE Plane");
+        this(ODEPlane.class.getSimpleName());
     }
 
     public ODEPlane(String name) {

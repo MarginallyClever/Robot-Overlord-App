@@ -25,7 +25,7 @@ public class ODENode extends Pose {
     private boolean runFirstUpdate=true;
 
     public ODENode() {
-        this("ODE Node");
+        this(ODENode.class.getSimpleName());
     }
 
     public ODENode(String name) {
