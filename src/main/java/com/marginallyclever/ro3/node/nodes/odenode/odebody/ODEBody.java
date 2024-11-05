@@ -92,8 +92,9 @@ public abstract class ODEBody extends ODENode {
     @Override
     public void update(double dt) {
         super.update(dt);
-
-        updatePoseFromPhysics();
+        if(Registry.getPhysics().isPaused()) {
+            updatePoseFromPhysics();
+        }
     }
 
     /**
@@ -195,9 +196,18 @@ public abstract class ODEBody extends ODENode {
     @Override
     public void setLocal(Matrix4d m) {
         super.setLocal(m);
+        updateBodyPose();
+    }
 
+    private void updateBodyPose() {
         // only allow while paused.
-        if(Registry.getPhysics().isPaused()) return;
+        if (Registry.getPhysics().isPaused()) {
+            updatePhysicsFromWorld();
+        }
+    }
+
+    private void updatePhysicsFromWorld() {
+        if(body==null) return;
 
         var w = getWorld();
 
