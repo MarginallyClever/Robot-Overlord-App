@@ -28,33 +28,33 @@ public class ODELink extends ODENode {
     }
 
     public void setPartA(ODEBody subject) {
-        var s = partA.getSubject();
-        if(s!=null) {
-            s.removeDetachListener(e->connect());
-            s.removeAttachListener(e->connect());
-        }
+        stopListeningTo(partA);
         partA.setUniqueIDByNode(subject);
-        s = partA.getSubject();
-        if(s!=null) {
-            s.addDetachListener(e->connect());
-            s.addAttachListener(e->connect());
-        }
+        listenTo(partA);
         connect();
     }
 
     public void setPartB(ODEBody subject) {
-        var s = partB.getSubject();
+        stopListeningTo(partB);
+        partB.setUniqueIDByNode(subject);
+        listenTo(partB);
+        connect();
+    }
+
+    private void stopListeningTo(NodePath<ODEBody> path) {
+        var s = path.getSubject();
         if(s!=null) {
             s.removeDetachListener(e->connect());
             s.removeAttachListener(e->connect());
         }
-        partB.setUniqueIDByNode(subject);
-        s = partB.getSubject();
+    }
+
+    private void listenTo(NodePath<ODEBody> path) {
+        var s = path.getSubject();
         if(s!=null) {
             s.addDetachListener(e->connect());
             s.addAttachListener(e->connect());
         }
-        connect();
     }
 
     @Override
@@ -70,6 +70,8 @@ public class ODELink extends ODENode {
         super.fromJSON(from);
         if(from.has("partA")) partA.setUniqueID(from.getString("partA"));
         if(from.has("partB")) partB.setUniqueID(from.getString("partB"));
+        listenTo(partA);
+        listenTo(partB);
         connect();
     }
 
