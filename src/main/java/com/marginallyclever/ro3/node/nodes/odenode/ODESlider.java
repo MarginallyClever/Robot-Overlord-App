@@ -32,7 +32,7 @@ public class ODESlider extends ODELink {
     private double bottom = Double.NEGATIVE_INFINITY;
 
     public ODESlider() {
-        this("ODE Slider Joint");
+        this(ODESlider.class.getSimpleName());
     }
 
     public ODESlider(String name) {
@@ -45,18 +45,10 @@ public class ODESlider extends ODELink {
         super.getComponents(list);
     }
 
-    /**
-     * Called once at the start of the first {@link #update(double)}
-     */
     @Override
     protected void onFirstUpdate() {
         super.onFirstUpdate();
         createHinge();
-    }
-
-    @Override
-    protected void onReady() {
-        super.onReady();
     }
 
     @Override
@@ -66,6 +58,7 @@ public class ODESlider extends ODELink {
     }
 
     private void createHinge() {
+        logger.debug(this.getName()+" createHinge");
         sliderJoint = OdeHelper.createSliderJoint(Registry.getPhysics().getODEWorld(), null);
         connect();
         setDistanceMax(top);
@@ -73,6 +66,7 @@ public class ODESlider extends ODELink {
     }
 
     private void destroyHinge() {
+        logger.debug(this.getName()+" destroyHinge");
         if(sliderJoint !=null) {
             try {
                 sliderJoint.destroy();
@@ -90,18 +84,18 @@ public class ODESlider extends ODELink {
      */
     @Override
     protected void connect() {
-        logger.debug(this.getName()+" connect");
         if(sliderJoint == null) return;
 
         var as = partA.getSubject();
         var bs = partB.getSubject();
-        DBody a = as == null ? null : as.getODEBody();
-        DBody b = bs == null ? null : bs.getODEBody();
-        if(a==null) {
-            a=b;
-            b=null;
+        if(as==null && bs==null) return;
+        if(as==null) {
+            as=bs;
+            bs=null;
         }
-        logger.debug(this.getName()+" connect "+(as==null?"null":as.getName())+" to "+(bs==null?"null":bs.getName()));
+        DBody a = as.getODEBody();
+        DBody b = bs == null ? null : bs.getODEBody();
+        logger.debug(this.getName()+" connect "+ as.getName() +" to "+(bs == null ?"null":bs.getName()));
         sliderJoint.attach(a, b);
         setDistanceMax(top);
         setDistanceMin(bottom);
@@ -169,7 +163,7 @@ public class ODESlider extends ODELink {
             p.setWorld(pOldWorld);
             var compare = sliderJoint.getPosition();
             // the distance should be very close to compare.
-            logger.debug("swizzle complete.  distance="+distance+" compare="+compare);
+            logger.debug("swizzle complete.  diff="+(distance-compare));
         }
     }
 
@@ -196,8 +190,6 @@ public class ODESlider extends ODELink {
     @Override
     public JSONObject toJSON() {
         var json = super.toJSON();
-        json.put("partA",partA.getUniqueID());
-        json.put("partB",partB.getUniqueID());
         double v = getDistanceMax();
         if(!Double.isInfinite(v)) json.put("hiStop1",v);
         v = getDistanceMin();
@@ -208,8 +200,6 @@ public class ODESlider extends ODELink {
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        if(from.has("partA")) partA.setUniqueID(from.getString("partA"));
-        if(from.has("partB")) partB.setUniqueID(from.getString("partB"));
         if(from.has("hiStop1")) setDistanceMax(from.getDouble("hiStop1"));
         if(from.has("loStop1")) setDistanceMin(from.getDouble("loStop1"));
         updatePhysicsFromWorld();

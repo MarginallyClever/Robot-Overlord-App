@@ -34,7 +34,7 @@ public class ODEAngularMotor extends ODELink {
     private double forceMax = Double.POSITIVE_INFINITY;
 
     public ODEAngularMotor() {
-        this("ODEAngularMotor");
+        this(ODEAngularMotor.class.getSimpleName());
     }
 
     public ODEAngularMotor(String name) {
@@ -47,9 +47,6 @@ public class ODEAngularMotor extends ODELink {
         super.getComponents(list);
     }
 
-    /**
-     * Called once at the start of the first {@link #update(double)}
-     */
     @Override
     protected void onFirstUpdate() {
         super.onFirstUpdate();
@@ -93,13 +90,14 @@ public class ODEAngularMotor extends ODELink {
 
         var as = partA.getSubject();
         var bs = partB.getSubject();
-        DBody a = as == null ? null : as.getODEBody();
-        DBody b = bs == null ? null : bs.getODEBody();
-        if(a==null) {
-            a=b;
-            b=null;
+        if(as==null && bs==null) return;
+        if(as==null) {
+            as=bs;
+            bs=null;
         }
-        logger.debug(this.getName()+" connect "+(as==null?"null":as.getName())+" to "+(bs==null?"null":bs.getName()));
+        DBody a = as.getODEBody();
+        DBody b = bs == null ? null : bs.getODEBody();
+        logger.debug(this.getName()+" connect "+ as.getName() +" to "+(bs == null ?"null":bs.getName()));
         motor.attach(a, b);
         updatePhysicsFromWorld();
     }
@@ -154,8 +152,6 @@ public class ODEAngularMotor extends ODELink {
     @Override
     public JSONObject toJSON() {
         var json = super.toJSON();
-        json.put("partA",partA.getUniqueID());
-        json.put("partB",partB.getUniqueID());
         double v = getAngleMax();        if(!Double.isInfinite(v)) json.put("hiStop1",v);
         v = getAngleMin();               if(!Double.isInfinite(v)) json.put("loStop1",v);
         v = getForceMax();               if(!Double.isInfinite(v)) json.put("fMax",v);
@@ -165,8 +161,6 @@ public class ODEAngularMotor extends ODELink {
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        if(from.has("partA")) partA.setUniqueID(from.getString("partA"));
-        if(from.has("partB")) partB.setUniqueID(from.getString("partB"));
         if(from.has("hiStop1")) setAngleMax(from.getDouble("hiStop1"));
         if(from.has("loStop1")) setAngleMin(from.getDouble("loStop1"));
         if(from.has("fMax")) setForceMax(from.getDouble("fMax"));
