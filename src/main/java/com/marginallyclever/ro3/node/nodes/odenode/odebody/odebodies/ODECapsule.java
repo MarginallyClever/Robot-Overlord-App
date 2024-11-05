@@ -22,7 +22,7 @@ public class ODECapsule extends ODEBody {
     private double length = 10.0;
 
     public ODECapsule() {
-        this("ODE Capsule");
+        this(ODECapsule.class.getSimpleName());
     }
 
     public ODECapsule(String name) {
@@ -36,9 +36,7 @@ public class ODECapsule extends ODEBody {
     }
 
     @Override
-    protected void onFirstUpdate() {
-        super.onFirstUpdate();
-
+    protected void createGeom() {
         geom = OdeHelper.createCapsule(Registry.getPhysics().getODESpace(), radius, length);
         geom.setBody(body);
 

@@ -20,7 +20,7 @@ public class ODECylinder extends ODEBody {
     private double length = 5.0;
 
     public ODECylinder() {
-        this("ODE Cylinder");
+        this(ODECylinder.class.getSimpleName());
     }
 
     public ODECylinder(String name) {
@@ -34,9 +34,7 @@ public class ODECylinder extends ODEBody {
     }
 
     @Override
-    protected void onFirstUpdate() {
-        super.onFirstUpdate();
-
+    protected void createGeom() {
         geom = OdeHelper.createCylinder(Registry.getPhysics().getODESpace(), radius, length);
         geom.setBody(body);
 

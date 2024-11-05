@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes.odenode.odebody;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.Material;
+import com.marginallyclever.ro3.node.nodes.odenode.ODESlider;
 import com.marginallyclever.ro3.physics.ODE4JHelper;
 import com.marginallyclever.ro3.node.nodes.odenode.ODENode;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
@@ -14,6 +15,8 @@ import org.ode4j.ode.DBody;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DMass;
 import org.ode4j.ode.OdeHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
@@ -28,6 +31,7 @@ import java.util.Objects;
  * <p>TODO: They should not be responsible for the visual representation because physical and visual shape don't always match.</p>
  */
 public abstract class ODEBody extends ODENode {
+    private static final Logger logger = LoggerFactory.getLogger(ODEBody.class);
     protected DBody body;
     protected DGeom geom;
     protected DMass mass;
@@ -37,7 +41,7 @@ public abstract class ODEBody extends ODENode {
     private boolean isTouchingSomething = false;
 
     public ODEBody() {
-        this("ODE Body");
+        this(ODEBody.class.getSimpleName());
     }
 
     public ODEBody(String name) {
@@ -52,29 +56,49 @@ public abstract class ODEBody extends ODENode {
 
     @Override
     protected void onAttach() {
-        super.onAttach();
         if(findFirstChild(MeshInstance.class)==null) addChild(new MeshInstance());
         if(findFirstChild(Material.class)==null) addChild(new Material());
+        createBody();
+        createGeom();
+        super.onAttach();
+    }
+
+    /**
+     * Override this method to create the {@link DGeom} and {@link DMass} for this {@link ODEBody}.
+     */
+    protected void createGeom() {
+        // TODO throw exception if we get here?
+        throw new RuntimeException("createGeom() not implemented.");
     }
 
     @Override
     protected void onDetach() {
-        super.onDetach();
         destroyBody();
         destroyGeom();
+        super.onDetach();
     }
 
-    protected void destroyBody() {
+    private void destroyBody() {
         if(body != null) {
             body.destroy();
             body = null;
         }
     }
 
-    protected void destroyGeom() {
+    private void destroyGeom() {
         if(geom != null) {
             geom.destroy();
             geom = null;
+        }
+    }
+
+    private void createBody() {
+        if(body==null) {
+            body = OdeHelper.createBody(Registry.getPhysics().getODEWorld());
+        }
+        if(mass==null) {
+            mass = OdeHelper.createMass();
+            mass.setZero();
         }
     }
 
@@ -82,9 +106,9 @@ public abstract class ODEBody extends ODENode {
      * Called once at the start of the first {@link #update(double)}
      */
     protected void onFirstUpdate() {
-        body = OdeHelper.createBody(Registry.getPhysics().getODEWorld());
-        mass = OdeHelper.createMass();
-        mass.setZero();
+        super.onFirstUpdate();
+        // if the body has not been attached to a geom then it will produce
+        // a warning "ODE Message 2: inertia must be positive definite"
         updateMass();
         updatePhysicsFromPose();
     }
@@ -140,10 +164,12 @@ public abstract class ODEBody extends ODENode {
     private void updateMass() {
         if(mass==null || body==null) return;
         mass.setMass(massQty);
-        if(massQty>0 && mass.check()) {
+        if(massQty>0) {
             body.setMass(mass);
-            body.setAngularVel(angularVel.x, angularVel.y, angularVel.z);
-            body.setLinearVel(linearVel.x, linearVel.y, linearVel.z);
+            if(mass.check()) {
+                body.setAngularVel(angularVel.x, angularVel.y, angularVel.z);
+                body.setLinearVel(linearVel.x, linearVel.y, linearVel.z);
+            }
         }
     }
 

@@ -21,7 +21,7 @@ public class ODEBox extends ODEBody {
     private final Vector3d size = new Vector3d(5,5,5);
 
     public ODEBox() {
-        this("ODE Box");
+        this(ODEBox.class.getSimpleName());
     }
 
     public ODEBox(String name) {
@@ -35,9 +35,7 @@ public class ODEBox extends ODEBody {
     }
 
     @Override
-    protected void onFirstUpdate() {
-        super.onFirstUpdate();
-
+    protected void createGeom() {
         geom = createBox(Registry.getPhysics().getODESpace(), size.x, size.y, size.z);
         geom.setBody(body);
 

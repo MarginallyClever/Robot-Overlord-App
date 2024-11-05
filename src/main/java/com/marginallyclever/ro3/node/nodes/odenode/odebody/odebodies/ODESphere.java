@@ -20,7 +20,7 @@ public class ODESphere extends ODEBody {
     private double radius = 2.5;
 
     public ODESphere() {
-        this("ODE Sphere");
+        this(ODESphere.class.getSimpleName());
     }
 
     public ODESphere(String name) {
@@ -34,9 +34,7 @@ public class ODESphere extends ODEBody {
     }
 
     @Override
-    protected void onFirstUpdate() {
-        super.onFirstUpdate();
-
+    protected void createGeom() {
         geom = createSphere(Registry.getPhysics().getODESpace(), radius);
         geom.setBody(body);
 
