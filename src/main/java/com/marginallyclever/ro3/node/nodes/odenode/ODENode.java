@@ -33,9 +33,16 @@ public class ODENode extends Pose {
     }
 
     @Override
+    protected void onAttach() {
+        super.onAttach();
+        runFirstUpdate=true;
+        fireODEAttach();
+    }
+
+    @Override
     protected void onDetach() {
         super.onDetach();
-        runFirstUpdate=true;
+        fireODEDetach();
     }
 
     @Override
@@ -71,5 +78,39 @@ public class ODENode extends Pose {
      */
     void setRunFirstUpdate(boolean runFirstUpdate) {
         this.runFirstUpdate=runFirstUpdate;
+    }
+
+    /**
+     * Fired after an ODENode is attached to the scene.
+     */
+    private void fireODEAttach() {
+        for(ODELinkAttachListener listener : listeners.getListeners(ODELinkAttachListener.class)) {
+            listener.linkAttached(this);
+        }
+    }
+
+    /**
+     * Fired after an ODENode is detached from the scene.
+     */
+    private void fireODEDetach() {
+        for(ODELinkDetachListener listener : listeners.getListeners(ODELinkDetachListener.class)) {
+            listener.linkDetached(this);
+        }
+    }
+
+    public void addODEDetachListener(ODELinkDetachListener o) {
+        listeners.add(ODELinkDetachListener.class,o);
+    }
+
+    public void removeODEDetachListener(ODELinkDetachListener o) {
+        listeners.remove(ODELinkDetachListener.class,o);
+    }
+
+    public void addODEAttachListener(ODELinkAttachListener o) {
+        listeners.add(ODELinkAttachListener.class,o);
+    }
+
+    public void removeODEAttachListener(ODELinkAttachListener o) {
+        listeners.remove(ODELinkAttachListener.class,o);
     }
 }
