@@ -3,11 +3,14 @@ package com.marginallyclever.ro3.node.nodes.odenode;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A link between two ODEBodies such as a joint or motor.
  */
 public class ODELink extends ODENode {
+    private static final Logger logger = LoggerFactory.getLogger(ODELink.class);
     protected final NodePath<ODEBody> partA = new NodePath<>(this,ODEBody.class);
     protected final NodePath<ODEBody> partB = new NodePath<>(this,ODEBody.class);
 
@@ -44,16 +47,18 @@ public class ODELink extends ODENode {
     private void stopListeningTo(NodePath<ODEBody> path) {
         var s = path.getSubject();
         if(s!=null) {
-            s.removeDetachListener(e->connect());
-            s.removeAttachListener(e->connect());
+            logger.debug(this.getName()+" ignore "+s.getName());
+            s.removeODEDetachListener(e->connect());
+            s.removeODEAttachListener(e->connect());
         }
     }
 
     private void listenTo(NodePath<ODEBody> path) {
         var s = path.getSubject();
         if(s!=null) {
-            s.addDetachListener(e->connect());
-            s.addAttachListener(e->connect());
+            logger.debug(this.getName()+" listen to "+s.getName());
+            s.addODEDetachListener(e->connect());
+            s.addODEAttachListener(e->connect());
         }
     }
 
