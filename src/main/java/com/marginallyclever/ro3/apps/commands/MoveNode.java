@@ -74,10 +74,8 @@ public class MoveNode extends AbstractUndoableEdit {
         }
 
         // check if the insert index is valid
-        logger.debug("newIndex before "+insertStartingAt);
         int newIndex = insertStartingAt;
         if(newIndex > newParent.getChildren().size()) newIndex = newParent.getChildren().size();
-        logger.debug("newIndex after "+insertStartingAt);
 
         // add the children to the new parent
         int i=0;
