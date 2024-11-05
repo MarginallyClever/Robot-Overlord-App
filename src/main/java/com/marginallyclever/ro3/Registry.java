@@ -89,6 +89,7 @@ public class Registry {
             NodeFactory.Category physics = node.add("Physics", null);
             {
                 physics.add("CreatureController", CreatureController::new);
+                physics.add("ODEAngularMotor", ODEAngularMotor::new);
                 physics.add("ODEBallSocket", ODEBallSocket::new);
                 physics.add("ODEBox", ODEBox::new);
                 physics.add("ODECapsule", ODECapsule::new);
