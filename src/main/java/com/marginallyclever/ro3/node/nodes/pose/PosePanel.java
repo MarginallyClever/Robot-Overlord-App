@@ -88,10 +88,6 @@ public class PosePanel extends JPanel {
         JFormattedTextField ry = addRotation("rotate y",r.y);
         JFormattedTextField rz = addRotation("rotate z",r.z);
 
-        rx.addPropertyChangeListener((e)->updateRotation(rx,ry,rz));
-        ry.addPropertyChangeListener((e)->updateRotation(rx,ry,rz));
-        rz.addPropertyChangeListener((e)->updateRotation(rx,ry,rz));
-
         gbc.gridx=0;        this.add(new JLabel("Rotation"),gbc);
         gbc.gridx=1;        this.add(rx,gbc);
         gbc.gridx=2;        this.add(ry,gbc);
@@ -101,6 +97,10 @@ public class PosePanel extends JPanel {
         gbc.gridx=3;        this.add(rotationType,gbc);
 
         gbc.gridx=0;
+
+        rx.addPropertyChangeListener("value",(e)->updateRotation(rx,ry,rz));
+        ry.addPropertyChangeListener("value",(e)->updateRotation(rx,ry,rz));
+        rz.addPropertyChangeListener("value",(e)->updateRotation(rx,ry,rz));
     }
 
     private void updateRotation(JFormattedTextField rx, JFormattedTextField ry, JFormattedTextField rz) {
