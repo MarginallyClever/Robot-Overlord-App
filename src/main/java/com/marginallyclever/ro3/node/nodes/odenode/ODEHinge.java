@@ -24,8 +24,9 @@ import java.util.Objects;
 /**
  * <p>Wrapper for a hinge joint in ODE4J.  If one side of the hinge is null then it is attached to the world.</p>
  * <p>If the physics simulation is paused then then moving this {@link Pose} will adjust the position and orientation
- * of the hinge, as well as it's relation to the attached parts.  If the simulation is NOT paused then the hinge
+ * as well as its relation to the attached parts.  If the simulation is NOT paused then the hinge
  * will behave as normal.</p>
+ * <p>The hinge pivots on its local Z axis.</p>
  */
 public class ODEHinge extends ODENode {
     private static final Logger logger = LoggerFactory.getLogger(ODEHinge.class);
@@ -36,7 +37,7 @@ public class ODEHinge extends ODENode {
     double bottom = Double.NEGATIVE_INFINITY;
 
     public ODEHinge() {
-        this("ODE Hinge");
+        this("ODEHinge");
     }
 
     public ODEHinge(String name) {
@@ -152,22 +153,29 @@ public class ODEHinge extends ODENode {
     public void update(double dt) {
         super.update(dt);
         if(!Registry.getPhysics().isPaused()) {
-            // if the physics simulation is running then the hinge will behave as normal.
-            DVector3 anchor = new DVector3();
-            DVector3 axis = new DVector3();
-            hinge.getAnchor(anchor);
-            hinge.getAxis(axis);
-            // use axis and anchor to set the world matrix.
-            Matrix3d m3 = MatrixHelper.lookAt(
-                    new Vector3d(0,0,0),
-                    new Vector3d(axis.get0(),axis.get1(),axis.get2())
-            );
-            Matrix4d m4 = new Matrix4d();
-            m4.set(m3);
-            m4.setTranslation(new Vector3d(anchor.get0(),anchor.get1(),anchor.get2()));
-            setWorld(m4);
+            updatePoseFromPhysics();
         }
     }
+
+    private void updatePoseFromPhysics() {
+        if(hinge==null) return;
+
+        // if the physics simulation is running then the hinge will behave as normal.
+        DVector3 anchor = new DVector3();
+        DVector3 axis = new DVector3();
+        hinge.getAnchor(anchor);
+        hinge.getAxis(axis);
+        // use axis and anchor to set the world matrix.
+        Matrix3d m3 = MatrixHelper.lookAt(
+                new Vector3d(0,0,0),
+                new Vector3d(axis.get0(),axis.get1(),axis.get2())
+        );
+        Matrix4d m4 = new Matrix4d();
+        m4.set(m3);
+        m4.setTranslation(new Vector3d(anchor.get0(),anchor.get1(),anchor.get2()));
+        setWorld(m4);
+    }
+
 
     @Override
     public JSONObject toJSON() {
