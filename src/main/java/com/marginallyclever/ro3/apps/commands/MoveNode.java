@@ -77,17 +77,18 @@ public class MoveNode extends AbstractUndoableEdit {
         int newIndex = insertStartingAt;
         if(newIndex > newParent.getChildren().size()) newIndex = newParent.getChildren().size();
 
-        // add the children to the new parent
+        // add the children to the new parent while preserving their world pose
         int i=0;
         for(var data : childParentMap) {
             Node child = data.child;
-            newParent.addChild(newIndex++, child);
 
             // restore the world pose
             Matrix4d m = transforms.get(i++);
             if(child instanceof Pose pose) {
                 pose.setWorld(m);
             }
+            // attach the child to the new parent
+            newParent.addChild(newIndex++, child);
 
             logger.debug("put "+child.getAbsolutePath()+" @ "+(newIndex-1));
         }

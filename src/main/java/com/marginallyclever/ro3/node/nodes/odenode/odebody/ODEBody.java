@@ -1,14 +1,11 @@
 package com.marginallyclever.ro3.node.nodes.odenode.odebody;
 
-import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.Material;
-import com.marginallyclever.ro3.node.nodes.odenode.ODESlider;
 import com.marginallyclever.ro3.physics.ODE4JHelper;
 import com.marginallyclever.ro3.node.nodes.odenode.ODENode;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONObject;
-import org.ode4j.math.DMatrix3;
 import org.ode4j.math.DMatrix3C;
 import org.ode4j.math.DVector3C;
 import org.ode4j.ode.DBody;
@@ -60,6 +57,7 @@ public abstract class ODEBody extends ODENode {
         if(findFirstChild(Material.class)==null) addChild(new Material());
         createBody();
         createGeom();
+        updatePhysicsFromWorld();
         super.onAttach();
     }
 
@@ -110,14 +108,14 @@ public abstract class ODEBody extends ODENode {
         // if the body has not been attached to a geom then it will produce
         // a warning "ODE Message 2: inertia must be positive definite"
         updateMass();
-        updatePhysicsFromPose();
+        updatePhysicsFromWorld();
     }
 
     @Override
     public void update(double dt) {
         super.update(dt);
         if(!Registry.getPhysics().isPaused()) {
-            updatePoseFromPhysics();
+            updateWorldFromPhysics();
         }
     }
 
@@ -125,7 +123,7 @@ public abstract class ODEBody extends ODENode {
      * Adjust the position of the {@link com.marginallyclever.ro3.node.nodes.pose.Pose} to match the {@link ODEBody}.
      * This will cause the visual representation to match the physics representation.
      */
-    protected void updatePoseFromPhysics() {
+    protected void updateWorldFromPhysics() {
         if(body == null) return;
         DVector3C translation = body.getPosition();
         DMatrix3C rotation = body.getRotation();
@@ -136,7 +134,7 @@ public abstract class ODEBody extends ODENode {
      * Update the {@link ODEBody} to match the {@link com.marginallyclever.ro3.node.nodes.pose.Pose}.  This will
      * cause the physics representation to match the visual representation.
      */
-    protected void updatePhysicsFromPose() {
+    protected void updatePhysicsFromWorld() {
         if (body == null) return;
         var world = getWorld();
         body.setPosition(world.m03, world.m13, world.m23);
@@ -193,7 +191,7 @@ public abstract class ODEBody extends ODENode {
         if(from.has("mass")) setMassQty(from.getDouble("mass"));
         if(from.has("avel")) setAngularVel(ODE4JHelper.jsonToVector3(from.getJSONObject("avel")));
         if(from.has("lvel")) setLinearVel(ODE4JHelper.jsonToVector3(from.getJSONObject("lvel")));
-        updatePhysicsFromPose();
+        updatePhysicsFromWorld();
     }
 
     public void setAngularVel(Vector3d angularVel) {
@@ -230,24 +228,5 @@ public abstract class ODEBody extends ODENode {
         if (Registry.getPhysics().isPaused()) {
             updatePhysicsFromWorld();
         }
-    }
-
-    private void updatePhysicsFromWorld() {
-        if(body==null) return;
-
-        var w = getWorld();
-
-        // set position part
-        var p = MatrixHelper.getPosition(w);
-        body.setPosition(p.x,p.y,p.z);
-
-        // set rotation part
-        DMatrix3 rotation = new DMatrix3();
-        for(int i=0;i<3;++i) {
-            for(int j=0;j<3;++j) {
-                rotation.set(i,j,w.getElement(i,j));
-            }
-        }
-        body.setRotation(rotation);
     }
 }

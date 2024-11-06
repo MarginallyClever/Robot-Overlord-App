@@ -48,16 +48,16 @@ public class ODESlider extends ODELink {
     @Override
     protected void onFirstUpdate() {
         super.onFirstUpdate();
-        createHinge();
+        createSlider();
     }
 
     @Override
     protected void onDetach() {
         super.onDetach();
-        destroyHinge();
+        destroySlider();
     }
 
-    private void createHinge() {
+    private void createSlider() {
         logger.debug(this.getName()+" createHinge");
         sliderJoint = OdeHelper.createSliderJoint(Registry.getPhysics().getODEWorld(), null);
         connect();
@@ -65,18 +65,14 @@ public class ODESlider extends ODELink {
         setDistanceMin(bottom);
     }
 
-    private void destroyHinge() {
-        logger.debug(this.getName()+" destroyHinge");
+    private void destroySlider() {
+        logger.debug(this.getName()+" destroySlider");
         if(sliderJoint !=null) {
             try {
                 sliderJoint.destroy();
             } catch(Exception ignored) {} // if physics is already destroyed, this will throw an exception.
             sliderJoint = null;
         }
-    }
-
-    public DSliderJoint getSliderJoint() {
-        return sliderJoint;
     }
 
     /**
@@ -95,6 +91,7 @@ public class ODESlider extends ODELink {
         }
         DBody a = as.getODEBody();
         DBody b = bs == null ? null : bs.getODEBody();
+        a.getPosition();
         logger.debug(this.getName()+" connect "+ as.getName() +" to "+(bs == null ?"null":bs.getName()));
         sliderJoint.attach(a, b);
         setDistanceMax(top);
@@ -122,49 +119,7 @@ public class ODESlider extends ODELink {
 
         var mat = getWorld();
         var zAxis = MatrixHelper.getZAxis(mat);
-        if(zAxis.length()<0.001) {
-            logger.error("Slider zAxis zero length?");
-        }
-        // When the zAxis is set, the current position of the attached bodies is considered the new zero position.
-        // there is no sliderJoint.setPosition().  This attempts to trick the system by fiddling with the position of
-        // the bodies to make the distance between them zero as setAxis is being called.
-        // first we measure the distance between this.Pose and the car along zAxis.
-        double distance = 0;
-        Pose p = partA.getSubject();
-        Matrix4d pOldWorld = null;
-        if(p==null) p = partB.getSubject();
-        if(p!=null) {
-            logger.debug("swizzling position to set zero distance.");
-            // p position
-            var pWorld = p.getWorld();
-            // a copy of p position
-            pOldWorld = new Matrix4d(pWorld);
-            // the distance between p and this.pose along zAxis
-            var pPos = MatrixHelper.getPosition(pWorld);
-            var worldPos = MatrixHelper.getPosition(mat);
-            pPos.sub(worldPos);
-            distance = pPos.dot(zAxis);
-            // set the p.position to this.pose so that the distance is zero.
-            pWorld.setTranslation(worldPos);
-            p.setWorld(pWorld);
-        }
-        // now we adjust the axis
         sliderJoint.setAxis(zAxis.x, zAxis.y, zAxis.z);
-
-        // make an update(0) to make the physics engine aware of the new position of the bodies.
-        var physics = Registry.getPhysics();
-        var paused = physics.isPaused();
-        physics.setPaused(false);
-        physics.update(0);
-        physics.setPaused(paused);
-
-        if(p!=null) {
-            // move p to its old position like nothing happened.
-            p.setWorld(pOldWorld);
-            var compare = sliderJoint.getPosition();
-            // the distance should be very close to compare.
-            logger.debug("swizzle complete.  diff="+(distance-compare));
-        }
     }
 
     @Override

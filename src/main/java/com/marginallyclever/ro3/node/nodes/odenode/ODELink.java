@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A link between two ODEBodies such as a joint or motor.
  */
-public class ODELink extends ODENode {
+public class ODELink extends ODENode implements ODELinkDetachListener, ODELinkAttachListener {
     private static final Logger logger = LoggerFactory.getLogger(ODELink.class);
     protected final NodePath<ODEBody> partA = new NodePath<>(this,ODEBody.class);
     protected final NodePath<ODEBody> partB = new NodePath<>(this,ODEBody.class);
@@ -47,18 +47,18 @@ public class ODELink extends ODENode {
     private void stopListeningTo(NodePath<ODEBody> path) {
         var s = path.getSubject();
         if(s!=null) {
-            logger.debug(this.getName()+" ignore "+s.getName());
-            s.removeODEDetachListener(e->connect());
-            s.removeODEAttachListener(e->connect());
+            logger.debug("{} ignore {}", this.getName(), s.getName());
+            s.removeODEDetachListener(this);
+            s.removeODEAttachListener(this);
         }
     }
 
     private void listenTo(NodePath<ODEBody> path) {
         var s = path.getSubject();
         if(s!=null) {
-            logger.debug(this.getName()+" listen to "+s.getName());
-            s.addODEDetachListener(e->connect());
-            s.addODEAttachListener(e->connect());
+            logger.debug("{} listen to {}", this.getName(), s.getName());
+            s.addODEDetachListener(this);
+            s.addODEAttachListener(this);
         }
     }
 
@@ -84,4 +84,14 @@ public class ODELink extends ODENode {
      * Override this method to handle connecting the two parts.
      */
     protected void connect() {}
+
+    @Override
+    public void linkAttached(ODENode body) {
+        connect();
+    }
+
+    @Override
+    public void linkDetached(ODENode body) {
+        connect();
+    }
 }
