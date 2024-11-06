@@ -2,10 +2,8 @@ package com.marginallyclever.ro3.node.nodes.pose;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
-import com.marginallyclever.ro3.PanelHelper;
 
 import javax.swing.*;
-import javax.swing.text.NumberFormatter;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
@@ -37,36 +35,20 @@ public class PosePanel extends JPanel {
     private void addTranslationComponents(GridBagConstraints gbc) {
         var local = pose.getPosition();
 
-        JFormattedTextField tx = addTranslateField("translate x",local.x, (e)-> {
-            var p = pose.getPosition();
-            p.x = ((Number) e.getNewValue()).doubleValue();
-            pose.setPosition(p);
-        });
-        JFormattedTextField ty = addTranslateField("translate y",local.y, (e)-> {
-            var p = pose.getPosition();
-            p.y = ((Number) e.getNewValue()).doubleValue();
-            pose.setPosition(p);
-        });
-        JFormattedTextField tz = addTranslateField("translate z",local.z, (e)-> {
-            var p = pose.getPosition();
-            p.z = ((Number) e.getNewValue()).doubleValue();
-            pose.setPosition(p);
-        });
+        JFormattedTextField tx = addNumberField("translate x",local.x);
+        JFormattedTextField ty = addNumberField("translate y",local.y);
+        JFormattedTextField tz = addNumberField("translate z",local.z);
 
         gbc.gridx=0;        this.add(new JLabel("Translation"),gbc);
         gbc.gridx=1;        this.add(tx,gbc);
         gbc.gridx=2;        this.add(ty,gbc);
         gbc.gridx=3;        this.add(tz,gbc);
-    }
 
-    private JFormattedTextField addTranslateField(String label, double value, PropertyChangeListener listener) {
-        var formatter = NumberFormatHelper.getNumberFormatter();
-        JFormattedTextField field = new JFormattedTextField(formatter);
-        field.setValue(value);
-        field.setToolTipText(label);
-        field.addPropertyChangeListener("value", listener );
-
-        return field;
+        // these have to be after creating the fields because they reference each other,
+        // and should be after adding the panel to reduce the number of property change calls.
+        tx.addPropertyChangeListener("value",(e)->updateTranslation(tx,ty,tz));
+        ty.addPropertyChangeListener("value",(e)->updateTranslation(tx,ty,tz));
+        tz.addPropertyChangeListener("value",(e)->updateTranslation(tx,ty,tz));
     }
 
     private void addRotationComponents(GridBagConstraints gbc) {
@@ -84,23 +66,34 @@ public class PosePanel extends JPanel {
             pose.setRotationIndex( MatrixHelper.EulerSequence.values()[rotationType.getSelectedIndex()] );
         });
 
-        JFormattedTextField rx = addRotation("rotate x",r.x);
-        JFormattedTextField ry = addRotation("rotate y",r.y);
-        JFormattedTextField rz = addRotation("rotate z",r.z);
+        JFormattedTextField rx = addNumberField("rotate x",r.x);
+        JFormattedTextField ry = addNumberField("rotate y",r.y);
+        JFormattedTextField rz = addNumberField("rotate z",r.z);
 
         gbc.gridx=0;        this.add(new JLabel("Rotation"),gbc);
         gbc.gridx=1;        this.add(rx,gbc);
         gbc.gridx=2;        this.add(ry,gbc);
         gbc.gridx=3;        this.add(rz,gbc);
         gbc.gridy++;
-        gbc.gridx=2;        this.add(new JLabel("Type"),gbc);
-        gbc.gridx=3;        this.add(rotationType,gbc);
-
+        gbc.gridx=0;        this.add(new JLabel("Type"),gbc);
+        gbc.gridwidth=3;
+        gbc.gridx=1;        this.add(rotationType,gbc);
+        gbc.gridwidth=1;
         gbc.gridx=0;
 
+        // these have to be after creating the fields because they reference each other,
+        // and should be after adding the panel to reduce the number of property change calls.
         rx.addPropertyChangeListener("value",(e)->updateRotation(rx,ry,rz));
         ry.addPropertyChangeListener("value",(e)->updateRotation(rx,ry,rz));
         rz.addPropertyChangeListener("value",(e)->updateRotation(rx,ry,rz));
+    }
+
+    private void updateTranslation(JFormattedTextField tx, JFormattedTextField ty, JFormattedTextField tz) {
+        var p = pose.getPosition();
+        p.x = ((Number)tx.getValue()).doubleValue();
+        p.y = ((Number)ty.getValue()).doubleValue();
+        p.z = ((Number)tz.getValue()).doubleValue();
+        pose.setPosition(p);
     }
 
     private void updateRotation(JFormattedTextField rx, JFormattedTextField ry, JFormattedTextField rz) {
@@ -111,11 +104,13 @@ public class PosePanel extends JPanel {
         pose.setRotationEuler(r, pose.getRotationIndex());
     }
 
-    private JFormattedTextField addRotation(String label, double value) {
+    private JFormattedTextField addNumberField(String label, double value) {
         var formatter = NumberFormatHelper.getNumberFormatter();
         JFormattedTextField field = new JFormattedTextField(formatter);
         field.setValue(value);
         field.setToolTipText(label);
+        field.setColumns(1);
+        field.setMinimumSize(new Dimension(0,20));
         return field;
     }
 }

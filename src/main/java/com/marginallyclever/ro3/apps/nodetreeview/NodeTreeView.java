@@ -150,16 +150,11 @@ public class NodeTreeView extends App
     }
 
     private void buildToolBar() {
-        var addButton = new JButton(new AddNode());
-        var cutButton = new JButton(cutNode);
-        var removeButton = new JButton(removeNode);
-        var copyButton = new JButton(copyNode);
-        var pasteButton = new JButton(pasteNode);
-        toolBar.add(addButton);
-        toolBar.add(pasteButton);
-        toolBar.add(copyButton);
-        toolBar.add(cutButton);
-        toolBar.add(removeButton);
+        toolBar.add(new JButton(new AddNode()));
+        toolBar.add(new JButton(cutNode));
+        toolBar.add(new JButton(removeNode));
+        toolBar.add(new JButton(copyNode));
+        toolBar.add(new JButton(pasteNode));
         removeNode.setEnabled(false);  // nothing selected at first
     }
 

@@ -5,6 +5,9 @@ import com.marginallyclever.ro3.PanelHelper;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * A panel that displays a {@link Node}.
+ */
 public class NodePanel extends JPanel {
     public NodePanel() {
         this(new Node());
@@ -24,12 +27,6 @@ public class NodePanel extends JPanel {
 
         JTextField pathField = new JTextField(node.getAbsolutePath());
         pathField.setEditable(false);
-        var dim = pathField.getMaximumSize();
-        var pref = pathField.getPreferredSize();
-        dim.width = 150;
-        pref.width = 150;
-        pathField.setPreferredSize(pref);
-        pathField.setMaximumSize(dim);
         PanelHelper.addLabelAndComponent(this,"Path",pathField);
     }
 }
