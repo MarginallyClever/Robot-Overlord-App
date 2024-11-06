@@ -22,7 +22,7 @@ public class RO3 {
         }
     }
 
-    private static void setLookAndFeel() {
+    public static void setLookAndFeel() {
         logger.info("Setting look and feel...");
         FlatLaf.registerCustomDefaultsSource( "com.marginallyclever.ro3" );
         //FlatLaf.registerCustomDefaultsSource("docking");

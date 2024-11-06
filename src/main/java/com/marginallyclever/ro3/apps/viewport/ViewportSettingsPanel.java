@@ -30,10 +30,17 @@ public class ViewportSettingsPanel extends App {
         this(new Viewport());
     }
     public ViewportSettingsPanel(Viewport subject) {
-        super(new GridBagLayout());
+        super(new BorderLayout());
         setName("Viewport");
 
         this.subject = subject;
+        JPanel container = buildPanel();
+        add(new JScrollPane(container),BorderLayout.CENTER);
+    }
+
+    private JPanel buildPanel() {
+        var container = new JPanel(new GridBagLayout());
+
         setMovementScale(subject.getUserMovementScale());
         setHardwareAccelerated(subject.isHardwareAccelerated());
         setViewportDoubleBuffered(subject.isDoubleBuffered());
@@ -56,58 +63,60 @@ public class ViewportSettingsPanel extends App {
         gbc.gridy=0;
         gbc.fill = GridBagConstraints.BOTH;
 
-        PanelHelper.addLabelAndComponent(this, "Mouse scale", movementScale,gbc);
+        PanelHelper.addLabelAndComponent(container, "Mouse scale", movementScale,gbc);
         formatter.setMinimum(0.001);
         movementScale.setValue(1.0);
         movementScale.addPropertyChangeListener("value", evt -> setMovementScale((Double) evt.getNewValue()));
 
         gbc.gridy++;
-        PanelHelper.addLabelAndComponent(this, "Hardware Accelerated", hardwareAccelerated,gbc);
+        PanelHelper.addLabelAndComponent(container, "Hardware Accelerated", hardwareAccelerated,gbc);
         hardwareAccelerated.addActionListener(evt -> {
             setHardwareAccelerated(hardwareAccelerated.isSelected());
         });
         setHardwareAcceleratedLabel();
 
         gbc.gridy++;
-        PanelHelper.addLabelAndComponent(this, "Double Buffered", doubleBuffered,gbc);
+        PanelHelper.addLabelAndComponent(container, "Double Buffered", doubleBuffered,gbc);
         doubleBuffered.addActionListener(evt -> {
             setViewportDoubleBuffered(doubleBuffered.isSelected());
         });
         setViewportDoubleBufferedLabel();
 
         gbc.gridy++;
-        PanelHelper.addLabelAndComponent(this, "Vertical Sync", verticalSync,gbc);
+        PanelHelper.addLabelAndComponent(container, "Vertical Sync", verticalSync,gbc);
         verticalSync.addActionListener(evt -> {
             setVerticalSync(verticalSync.isSelected());
         });
         setVerticalSyncLabel();
 
         gbc.gridy++;
-        PanelHelper.addLabelAndComponent(this, "FSAA Samples", fsaaSamples,gbc);
+        PanelHelper.addLabelAndComponent(container, "FSAA Samples", fsaaSamples,gbc);
         fsaaSamples.addActionListener(evt -> setFSAASamples((Integer) fsaaSamples.getSelectedItem()));
 
         // TODO the lighting settings below here should be per-scene.
         // ambient color
-        PanelHelper.addColorChooser(this,"Ambient",Color.DARK_GRAY,this::setAmbientColor,gbc);
+        PanelHelper.addColorChooser(container,"Ambient",Color.DARK_GRAY,this::setAmbientColor,gbc);
         // sun color
-        PanelHelper.addColorChooser(this,"Sun color",Color.WHITE,this::setSunColor,gbc);
+        PanelHelper.addColorChooser(container,"Sun color",Color.WHITE,this::setSunColor,gbc);
 
         gbc.weighty = 1.0;
         // sun position
         gbc.gridy++;
-        PanelHelper.addLabelAndComponent(this, "Time of day (24h)", timeOfDay,gbc);
+        PanelHelper.addLabelAndComponent(container, "Time of day (24h)", timeOfDay,gbc);
         timeOfDay.addActionListener(e->updateSunPosition());
         timeOfDay.setPreferredSize(new Dimension(100,100));
 
         // sun position
         gbc.gridy++;
-        PanelHelper.addLabelAndComponent(this, "Declination (+/-90)", declination,gbc);
+        PanelHelper.addLabelAndComponent(container, "Declination (+/-90)", declination,gbc);
         declination.addActionListener(e->{
             if(declination.getValue()>90) declination.setValue(90);
             if(declination.getValue()<-90) declination.setValue(-90);
             updateSunPosition();
         });
         declination.setPreferredSize(new Dimension(100,100));
+
+        return container;
     }
 
     @Override

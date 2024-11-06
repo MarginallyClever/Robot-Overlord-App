@@ -152,9 +152,9 @@ public class ODEAngularMotor extends ODELink {
     @Override
     public JSONObject toJSON() {
         var json = super.toJSON();
-        double v = getAngleMax();        if(!Double.isInfinite(v)) json.put("hiStop1",v);
-        v = getAngleMin();               if(!Double.isInfinite(v)) json.put("loStop1",v);
-        v = getForceMax();               if(!Double.isInfinite(v)) json.put("fMax",v);
+        double v = getAngleMax();   if(!Double.isInfinite(v)) json.put("hiStop1",v);
+        v = getAngleMin();          if(!Double.isInfinite(v)) json.put("loStop1",v);
+        v = getForceMax();          if(!Double.isInfinite(v)) json.put("fMax",v);
         return json;
     }
 
@@ -202,8 +202,8 @@ public class ODEAngularMotor extends ODELink {
     public void setAngleMax(double angle) {
         top = angle;
         if(motor==null) return;
-        motor.setParamHiStop(Math.toRadians(angle));
-        motor.setParamHiStop2(Math.toRadians(angle));
+        //motor.setParamHiStop(Math.toRadians(angle));
+        //motor.setParamHiStop2(Math.toRadians(angle));
         motor.setParamHiStop3(Math.toRadians(angle));
     }
 
@@ -213,8 +213,8 @@ public class ODEAngularMotor extends ODELink {
     public void setAngleMin(double angle) {
         bottom = angle;
         if(motor==null) return;
-        motor.setParamLoStop(Math.toRadians(angle));
-        motor.setParamLoStop2(Math.toRadians(angle));
+        //motor.setParamLoStop(Math.toRadians(angle));
+        //motor.setParamLoStop2(Math.toRadians(angle));
         motor.setParamLoStop3(Math.toRadians(angle));
     }
 

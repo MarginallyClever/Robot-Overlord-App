@@ -47,7 +47,7 @@ public class ODELink extends ODENode implements ODELinkDetachListener, ODELinkAt
     private void stopListeningTo(NodePath<ODEBody> path) {
         var s = path.getSubject();
         if(s!=null) {
-            logger.debug("{} ignore {}", this.getName(), s.getName());
+            //logger.debug("{} ignore {}", this.getName(), s.getName());
             s.removeODEDetachListener(this);
             s.removeODEAttachListener(this);
         }
@@ -56,7 +56,7 @@ public class ODELink extends ODENode implements ODELinkDetachListener, ODELinkAt
     private void listenTo(NodePath<ODEBody> path) {
         var s = path.getSubject();
         if(s!=null) {
-            logger.debug("{} listen to {}", this.getName(), s.getName());
+            //logger.debug("{} listen to {}", this.getName(), s.getName());
             s.addODEDetachListener(this);
             s.addODEAttachListener(this);
         }

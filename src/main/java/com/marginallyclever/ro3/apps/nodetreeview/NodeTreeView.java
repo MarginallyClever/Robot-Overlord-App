@@ -44,9 +44,7 @@ public class NodeTreeView extends App
 
         buildToolBar();
 
-        JScrollPane scroll = new JScrollPane();
-        scroll.setViewportView(tree);
-        add(scroll, BorderLayout.CENTER);
+        add(new JScrollPane(tree), BorderLayout.CENTER);
         add(toolBar, BorderLayout.NORTH);
     }
 

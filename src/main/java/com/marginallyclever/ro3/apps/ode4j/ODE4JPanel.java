@@ -52,7 +52,7 @@ public class ODE4JPanel extends App {
         add(toolbar, BorderLayout.NORTH);
 
         JPanel container = new JPanel(new GridBagLayout());
-        add(container, BorderLayout.CENTER);
+        add(new JScrollPane(container), BorderLayout.CENTER);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.weightx = 1.0;
