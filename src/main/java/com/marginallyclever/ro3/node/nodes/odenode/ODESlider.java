@@ -58,15 +58,13 @@ public class ODESlider extends ODELink {
     }
 
     private void createSlider() {
-        logger.debug(this.getName()+" createHinge");
         sliderJoint = OdeHelper.createSliderJoint(Registry.getPhysics().getODEWorld(), null);
-        connect();
+        connectInternal();
         setDistanceMax(top);
         setDistanceMin(bottom);
     }
 
     private void destroySlider() {
-        logger.debug(this.getName()+" destroySlider");
         if(sliderJoint !=null) {
             try {
                 sliderJoint.destroy();
@@ -79,24 +77,11 @@ public class ODESlider extends ODELink {
      * Tell the physics engine who is connected to this hinge.
      */
     @Override
-    protected void connect() {
+    protected void connect(DBody a, DBody b) {
         if(sliderJoint == null) return;
-
-        var as = partA.getSubject();
-        var bs = partB.getSubject();
-        if(as==null && bs==null) return;
-        if(as==null) {
-            as=bs;
-            bs=null;
-        }
-        DBody a = as.getODEBody();
-        DBody b = bs == null ? null : bs.getODEBody();
-        a.getPosition();
-        logger.debug(this.getName()+" connect "+ as.getName() +" to "+(bs == null ?"null":bs.getName()));
         sliderJoint.attach(a, b);
         setDistanceMax(top);
         setDistanceMin(bottom);
-
         updatePhysicsFromWorld();
     }
 
@@ -158,7 +143,7 @@ public class ODESlider extends ODELink {
         if(from.has("hiStop1")) setDistanceMax(from.getDouble("hiStop1"));
         if(from.has("loStop1")) setDistanceMin(from.getDouble("loStop1"));
         updatePhysicsFromWorld();
-        connect();
+        connectInternal();
         updateSliderPose();
     }
 

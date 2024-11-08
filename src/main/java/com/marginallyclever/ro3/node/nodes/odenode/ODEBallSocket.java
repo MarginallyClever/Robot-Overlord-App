@@ -64,7 +64,7 @@ public class ODEBallSocket extends ODELink {
 
     private void createHinge() {
         ballJoint = OdeHelper.createBallJoint(Registry.getPhysics().getODEWorld(), null);
-        connect();
+        connectInternal();
     }
 
     private void destroyHinge() {
@@ -84,19 +84,8 @@ public class ODEBallSocket extends ODELink {
      * Tell the physics engine who is connected to this hinge.
      */
     @Override
-    protected void connect() {
+    protected void connect(DBody a, DBody b) {
         if(ballJoint ==null) return;
-
-        var as = partA.getSubject();
-        var bs = partB.getSubject();
-        if(as==null && bs==null) return;
-        if(as==null) {
-            as=bs;
-            bs=null;
-        }
-        DBody a = as.getODEBody();
-        DBody b = bs == null ? null : bs.getODEBody();
-        logger.debug(this.getName()+" connect "+ as.getName() +" to "+(bs == null ?"null":bs.getName()));
         ballJoint.attach(a, b);
         updatePhysicsFromWorld();
     }
@@ -148,7 +137,7 @@ public class ODEBallSocket extends ODELink {
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
         updatePhysicsFromWorld();
-        connect();
+        connectInternal();
         updateHingePose();
     }
 }

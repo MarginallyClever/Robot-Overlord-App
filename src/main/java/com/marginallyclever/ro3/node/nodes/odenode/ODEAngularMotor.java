@@ -61,7 +61,7 @@ public class ODEAngularMotor extends ODELink {
 
     private void createMotor() {
         motor = OdeHelper.createAMotorJoint(Registry.getPhysics().getODEWorld(), null);
-        connect();
+        connectInternal();
         motor.setNumAxes(3);
         setAngleMax(top);
         setAngleMin(bottom);
@@ -85,19 +85,8 @@ public class ODEAngularMotor extends ODELink {
      * Tell the physics engine who is connected to this motor.
      */
     @Override
-    protected void connect() {
+    protected void connect(DBody a, DBody b) {
         if(motor==null) return;
-
-        var as = partA.getSubject();
-        var bs = partB.getSubject();
-        if(as==null && bs==null) return;
-        if(as==null) {
-            as=bs;
-            bs=null;
-        }
-        DBody a = as.getODEBody();
-        DBody b = bs == null ? null : bs.getODEBody();
-        logger.debug(this.getName()+" connect "+ as.getName() +" to "+(bs == null ?"null":bs.getName()));
         motor.attach(a, b);
         updatePhysicsFromWorld();
     }
@@ -120,9 +109,10 @@ public class ODEAngularMotor extends ODELink {
         if(motor==null) return;
 
         var mat = getWorld();
-        var xAxis = MatrixHelper.getXAxis(mat);        motor.setAxis(0,0,xAxis.x, xAxis.y, xAxis.z);
-        var yAxis = MatrixHelper.getYAxis(mat);        motor.setAxis(1,0,yAxis.x, yAxis.y, yAxis.z);
-        var zAxis = MatrixHelper.getZAxis(mat);        motor.setAxis(2,0,zAxis.x, zAxis.y, zAxis.z);
+        int rel = 0;  // world space
+        var xAxis = MatrixHelper.getXAxis(mat);        motor.setAxis(0,rel,xAxis.x, xAxis.y, xAxis.z);
+        var yAxis = MatrixHelper.getYAxis(mat);        motor.setAxis(1,rel,yAxis.x, yAxis.y, yAxis.z);
+        var zAxis = MatrixHelper.getZAxis(mat);        motor.setAxis(2,rel,zAxis.x, zAxis.y, zAxis.z);
     }
 
     @Override
@@ -164,9 +154,7 @@ public class ODEAngularMotor extends ODELink {
         if(from.has("hiStop1")) setAngleMax(from.getDouble("hiStop1"));
         if(from.has("loStop1")) setAngleMin(from.getDouble("loStop1"));
         if(from.has("fMax")) setForceMax(from.getDouble("fMax"));
-        updatePhysicsFromWorld();
-        connect();
-        updateMotorPose();
+        connectInternal();
     }
 
     /**

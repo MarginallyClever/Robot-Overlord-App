@@ -59,7 +59,7 @@ public class ODEHinge extends ODELink {
 
     private void createHinge() {
         hinge = OdeHelper.createHingeJoint(Registry.getPhysics().getODEWorld(), null);
-        connect();
+        connectInternal();
         setAngleMax(top);
         setAngleMin(bottom);
         updatePhysicsFromWorld();
@@ -82,20 +82,12 @@ public class ODEHinge extends ODELink {
      * Tell the physics engine who is connected to this hinge.
      */
     @Override
-    protected void connect() {
+    protected void connect(DBody a, DBody b) {
         if(hinge==null) return;
-
-        var as = partA.getSubject();
-        var bs = partB.getSubject();
-        if(as==null && bs==null) return;
-        if(as==null) {
-            as=bs;
-            bs=null;
-        }
-        DBody a = as.getODEBody();
-        DBody b = bs == null ? null : bs.getODEBody();
-        logger.debug(this.getName()+" connect "+ as.getName() +" to "+(bs == null ?"null":bs.getName()));
         hinge.attach(a, b);
+        setAngleMax(top);
+        setAngleMin(bottom);
+        updatePhysicsFromWorld();
     }
 
     @Override
@@ -177,7 +169,7 @@ public class ODEHinge extends ODELink {
             setAngleMin(from.getDouble("loStop1"));
         }
         updatePhysicsFromWorld();
-        connect();
+        connectInternal();
         updateHingePose();
     }
 

@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes.odenode;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
 import org.json.JSONObject;
+import org.ode4j.ode.DBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,20 +35,19 @@ public class ODELink extends ODENode implements ODELinkDetachListener, ODELinkAt
         stopListeningTo(partA);
         partA.setUniqueIDByNode(subject);
         listenTo(partA);
-        connect();
+        connectInternal();
     }
 
     public void setPartB(ODEBody subject) {
         stopListeningTo(partB);
         partB.setUniqueIDByNode(subject);
         listenTo(partB);
-        connect();
+        connectInternal();
     }
 
     private void stopListeningTo(NodePath<ODEBody> path) {
         var s = path.getSubject();
         if(s!=null) {
-            //logger.debug("{} ignore {}", this.getName(), s.getName());
             s.removeODEDetachListener(this);
             s.removeODEAttachListener(this);
         }
@@ -56,7 +56,6 @@ public class ODELink extends ODENode implements ODELinkDetachListener, ODELinkAt
     private void listenTo(NodePath<ODEBody> path) {
         var s = path.getSubject();
         if(s!=null) {
-            //logger.debug("{} listen to {}", this.getName(), s.getName());
             s.addODEDetachListener(this);
             s.addODEAttachListener(this);
         }
@@ -77,21 +76,45 @@ public class ODELink extends ODENode implements ODELinkDetachListener, ODELinkAt
         if(from.has("partB")) partB.setUniqueID(from.getString("partB"));
         listenTo(partA);
         listenTo(partB);
-        connect();
+        connectInternal();
     }
-
-    /**
-     * Override this method to handle connecting the two parts.
-     */
-    protected void connect() {}
 
     @Override
     public void linkAttached(ODENode body) {
-        connect();
+        connectInternal();
     }
 
     @Override
     public void linkDetached(ODENode body) {
-        connect();
+        connectInternal();
     }
+
+    /**
+     * Examines the bodies of this link and connects them if possible.
+     */
+    protected void connectInternal() {
+        var as = partA.getSubject();
+        var bs = partB.getSubject();
+        if(as==null && bs==null) {
+            connect(null,null);
+            return;
+        }
+        if(as==null) {
+            as=bs;
+            bs=null;
+        }
+        DBody a = as.getODEBody();
+        DBody b = bs == null ? null : bs.getODEBody();
+
+        //logger.debug(this.getName()+" connect "+ as.getName() +" to "+(bs == null ?"null":bs.getName()));
+        connect(a,b);
+    }
+
+    /**
+     * <p>Override this method to handle connecting the two parts.  if only one body exists it will be guaranteed to be
+     * body a.</p>
+     * <p>This method should not be called directly. Instead, call {@link #connectInternal()}.</p>
+     */
+    protected void connect(DBody a, DBody b) {}
+
 }
