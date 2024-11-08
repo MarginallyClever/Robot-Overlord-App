@@ -59,38 +59,32 @@ public class MoveNode extends AbstractUndoableEdit {
 
     public void execute() {
         // save the transforms of the children in world space
-        List<Matrix4d> transforms = new ArrayList<>();
+        Matrix4d m = null;
 
         // remove the children from their old parents
         for(var data : childParentMap) {
+            // check if the insert index is valid
+            int newIndex = insertStartingAt;
+            if(newIndex > newParent.getChildren().size()) newIndex = newParent.getChildren().size();
+
             Node child = data.child;
             Node oldParent = data.oldParent;
 
             // capture the world pose
-            transforms.add((child instanceof Pose pose) ? pose.getWorld() : null);
+            if (child instanceof Pose pose) {
+                m = pose.getWorld();
+            }
 
             logger.debug("take "+child.getAbsolutePath()+" from "+oldParent.getAbsolutePath()+" @ "+data.oldIndex);
             oldParent.removeChild(child);
-        }
 
-        // check if the insert index is valid
-        int newIndex = insertStartingAt;
-        if(newIndex > newParent.getChildren().size()) newIndex = newParent.getChildren().size();
-
-        // add the children to the new parent while preserving their world pose
-        int i=0;
-        for(var data : childParentMap) {
-            Node child = data.child;
-
+            logger.debug("put "+child.getAbsolutePath()+" @ "+(newIndex-1));
+            // attach the child to the new parent
+            newParent.addChild(newIndex++, child);
             // restore the world pose
-            Matrix4d m = transforms.get(i++);
             if(child instanceof Pose pose) {
                 pose.setWorld(m);
             }
-            // attach the child to the new parent
-            newParent.addChild(newIndex++, child);
-
-            logger.debug("put "+child.getAbsolutePath()+" @ "+(newIndex-1));
         }
     }
 
@@ -101,7 +95,7 @@ public class MoveNode extends AbstractUndoableEdit {
     }
 
     public void reverse() {
-        Matrix4d m = new Matrix4d();
+        Matrix4d m = null;
         for(var data : childParentMap) {
             Node child = data.child;
             if (child instanceof Pose pose) {
