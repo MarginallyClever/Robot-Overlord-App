@@ -2,6 +2,8 @@ package com.marginallyclever.ro3.node.nodes.odenode.odebody;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.Material;
+import com.marginallyclever.ro3.node.nodes.odenode.ODELinkAttachListener;
+import com.marginallyclever.ro3.node.nodes.odenode.ODELinkDetachListener;
 import com.marginallyclever.ro3.physics.ODE4JHelper;
 import com.marginallyclever.ro3.node.nodes.odenode.ODENode;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
@@ -53,12 +55,14 @@ public abstract class ODEBody extends ODENode {
 
     @Override
     protected void onAttach() {
+        super.onAttach();
         if(findFirstChild(MeshInstance.class)==null) addChild(new MeshInstance());
         if(findFirstChild(Material.class)==null) addChild(new Material());
         createBody();
         createGeom();
+        updateMass();
         updatePhysicsFromWorld();
-        super.onAttach();
+        fireODEAttach();
     }
 
     /**
@@ -71,9 +75,10 @@ public abstract class ODEBody extends ODENode {
 
     @Override
     protected void onDetach() {
+        super.onDetach();
         destroyBody();
         destroyGeom();
-        super.onDetach();
+        fireODEDetach();
     }
 
     private void destroyBody() {
@@ -107,7 +112,6 @@ public abstract class ODEBody extends ODENode {
         super.onFirstUpdate();
         // if the body has not been attached to a geom then it will produce
         // a warning "ODE Message 2: inertia must be positive definite"
-        updateMass();
         updatePhysicsFromWorld();
     }
 
@@ -127,18 +131,19 @@ public abstract class ODEBody extends ODENode {
         if(body == null) return;
         DVector3C translation = body.getPosition();
         DMatrix3C rotation = body.getRotation();
-        super.setWorld(ODE4JHelper.convertODEtoMatrix(translation, rotation));
+        setWorld(ODE4JHelper.convertODEtoMatrix(translation, rotation));
     }
 
     /**
      * Update the {@link ODEBody} to match the {@link com.marginallyclever.ro3.node.nodes.pose.Pose}.  This will
      * cause the physics representation to match the visual representation.
      */
-    protected void updatePhysicsFromWorld() {
+    private void updatePhysicsFromWorld() {
         if (body == null) return;
         var world = getWorld();
         body.setPosition(world.m03, world.m13, world.m23);
         body.setRotation(ODE4JHelper.convertRotationToODE(world));
+        fireODEAttach();
     }
 
     @Override
@@ -216,7 +221,6 @@ public abstract class ODEBody extends ODENode {
         this.isTouchingSomething = isTouchingSomething;
     }
 
-
     @Override
     public void setLocal(Matrix4d m) {
         super.setLocal(m);
@@ -228,5 +232,38 @@ public abstract class ODEBody extends ODENode {
         if (Registry.getPhysics().isPaused()) {
             updatePhysicsFromWorld();
         }
+    }
+    /**
+     * Fired after an ODENode is attached to the scene.
+     */
+    public void fireODEAttach() {
+        for(ODELinkAttachListener listener : listeners.getListeners(ODELinkAttachListener.class)) {
+            listener.linkAttached(this);
+        }
+    }
+
+    /**
+     * Fired after an ODENode is detached from the scene.
+     */
+    public void fireODEDetach() {
+        for(ODELinkDetachListener listener : listeners.getListeners(ODELinkDetachListener.class)) {
+            listener.linkDetached(this);
+        }
+    }
+
+    public void addODEDetachListener(ODELinkDetachListener o) {
+        listeners.add(ODELinkDetachListener.class,o);
+    }
+
+    public void removeODEDetachListener(ODELinkDetachListener o) {
+        listeners.remove(ODELinkDetachListener.class,o);
+    }
+
+    public void addODEAttachListener(ODELinkAttachListener o) {
+        listeners.add(ODELinkAttachListener.class,o);
+    }
+
+    public void removeODEAttachListener(ODELinkAttachListener o) {
+        listeners.remove(ODELinkAttachListener.class,o);
     }
 }
