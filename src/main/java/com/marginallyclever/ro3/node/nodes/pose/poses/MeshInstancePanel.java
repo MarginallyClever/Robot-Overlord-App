@@ -19,8 +19,24 @@ import java.io.File;
  * GUI for a {@link MeshInstance}.
  */
 public class MeshInstancePanel extends JPanel {
+    public static final String[] meshSources = {
+            "Procedural",
+            "File"
+    };
+
     // matching the values sent to glDrawArrays and glDrawElements.
-    public final static String [] renderStyleNames = { "Points", "Line strip", "Line loop", "Lines", "Triangle strip", "Triangle fan", "Triangles", "Quad strip", "Quads", "Polygon" };
+    public static final String [] renderStyleNames = {
+            "Points",
+            "Line strip",
+            "Line loop",
+            "Lines",
+            "Triangle strip",
+            "Triangle fan",
+            "Triangles",
+            "Quad strip",
+            "Quads",
+            "Polygon"
+    };
 
     private final JPanel sourceContainer = new JPanel(new GridLayout(0,2));
     private final MeshInstance meshInstance;
@@ -108,9 +124,9 @@ public class MeshInstancePanel extends JPanel {
 
     private void addMeshSource(GridBagConstraints gbc) {
         // Create a list of available mesh sources
-        String[] meshSources = { "Procedural", "File" }; // replace with actual mesh sources
         JComboBox<String> meshSourceComboBox = new JComboBox<>(meshSources);
-        meshSourceComboBox.setSelectedItem("Procedural");
+        var filename = meshInstance.getMesh().getSourceName();
+        meshSourceComboBox.setSelectedItem((filename!=null && !filename.isEmpty())?"File":"Procedural");
         meshSourceComboBox.addActionListener(e -> changeMeshSource(meshSourceComboBox));
         changeMeshSource(meshSourceComboBox);
 
