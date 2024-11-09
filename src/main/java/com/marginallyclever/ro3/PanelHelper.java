@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3;
 
+import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
@@ -77,5 +78,15 @@ public class PanelHelper {
             button.setBackground(color);
         });
         PanelHelper.addLabelAndComponent(parent,title,button,gbc);
+    }
+
+    public static JFormattedTextField addNumberField(String label, double value) {
+        var formatter = NumberFormatHelper.getNumberFormatter();
+        JFormattedTextField field = new JFormattedTextField(formatter);
+        field.setValue(value);
+        field.setToolTipText(label);
+        field.setColumns(1);
+        field.setMinimumSize(new Dimension(0,20));
+        return field;
     }
 }

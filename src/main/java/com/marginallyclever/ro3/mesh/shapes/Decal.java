@@ -11,7 +11,7 @@ import javax.vecmath.Vector3d;
  * The one-sided version only faces +Z.
  * </p>
  */
-public class Decal extends Mesh {
+public class Decal extends ProceduralMesh {
 	public float height = 1;
 	public float width = 1;
 	public int wParts = 1;
@@ -23,15 +23,19 @@ public class Decal extends Mesh {
 		updateModel();
 	}
 
-	/**
-	 * Procedurally generate a list of triangles that form a box, subdivided by some
-	 * amount.
-	 */
+	@Override
+	public String getEnglishName() {
+		return "Decal";
+	}
+
+	@Override
 	public void updateModel() {
 		clear();
 		setRenderStyle(GL3.GL_TRIANGLES);
 		//createTwoSidedDecal();
 		createOneSidedDecal();
+
+		fireMeshChanged();
 	}
 
 	/**

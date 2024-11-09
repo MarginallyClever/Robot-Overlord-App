@@ -86,8 +86,13 @@ public class ODEBox extends ODEBody {
         var meshInstance = findFirstChild(MeshInstance.class);
         if(meshInstance!=null) {
             var mesh = meshInstance.getMesh();
-            if(mesh==null || mesh instanceof Box) {
+            if(mesh==null) {
                 meshInstance.setMesh(new Box(size.x, size.y, size.z));
+            } else if(mesh instanceof Box b) {
+                b.width = size.x;
+                b.length = size.y;
+                b.height = size.z;
+                b.updateModel();
             }
         }
     }

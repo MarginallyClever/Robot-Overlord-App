@@ -10,7 +10,7 @@ import javax.vecmath.Vector3d;
  * <p>{@link Cylinder} is a {@link Mesh}.  It has a diameter of 1 and a height of 1.
  * The origin is at the center of the cylinder.</p>
  */
-public class Cylinder extends Mesh {
+public class Cylinder extends ProceduralMesh {
     public static final int RESOLUTION_CIRCULAR = 32;
     public static final int RESOLUTION_LENGTH = 5;
 
@@ -31,10 +31,18 @@ public class Cylinder extends Mesh {
         updateModel();
     }
 
-    private void updateModel() {
+    @Override
+    public String getEnglishName() {
+        return "Cylinder";
+    }
+
+    @Override
+    public void updateModel() {
         this.clear();
         this.setRenderStyle(GL3.GL_TRIANGLES);
         addCylinder(height, radius0, radius1);
+
+        fireMeshChanged();
     }
 
     private void addCylinder(float height, float radius0,float radius1) {

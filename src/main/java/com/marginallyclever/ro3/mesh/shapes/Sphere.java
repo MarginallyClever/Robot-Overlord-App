@@ -6,7 +6,7 @@ import com.marginallyclever.ro3.mesh.Mesh;
 /**
  * <p>{@link Sphere} is a {@link Mesh} with a radius of 1.  The origin is at the center of the sphere.</p>
  */
-public class Sphere extends Mesh {
+public class Sphere extends ProceduralMesh {
     public int detail = 32;  // level of detail
     public float radius = 1;
 
@@ -16,13 +16,20 @@ public class Sphere extends Mesh {
 
     public Sphere(float radius) {
         super();
-        if(radius<=0) throw new IllegalArgumentException("Sphere radius must be greater than zero.");
         this.radius = radius;
         updateModel();
     }
 
+    @Override
+    public String getEnglishName() {
+        return "Sphere";
+    }
+
     // Procedurally generate a list of triangles that form a sphere subdivided by some amount.
-    private void updateModel() {
+    @Override
+    public void updateModel() {
+        if(radius<=0) throw new IllegalArgumentException("Sphere radius must be greater than zero.");
+
         this.clear();
         this.setRenderStyle(GL3.GL_TRIANGLES);
 
@@ -74,6 +81,8 @@ public class Sphere extends Mesh {
             this.addIndex( (height-3)*width + i+1 );
             this.addIndex( (height-3)*width + i );
         }
+
+        fireMeshChanged();
     }
 
     public void setDetail(int v) {

@@ -9,7 +9,7 @@ import javax.vecmath.Vector3d;
 /**
  * {@link Box} is a {@link Mesh} with a width, height, and length of 1.  It is centered around the origin.
  */
-public class Box extends Mesh {
+public class Box extends ProceduralMesh {
     public double width;
     public double height;
     public double length;
@@ -34,8 +34,13 @@ public class Box extends Mesh {
         updateModel();
     }
 
-    // Procedurally generate a list of triangles that form a box, subdivided by some amount.
-    private void updateModel() {
+    @Override
+    public String getEnglishName() {
+        return "Box";
+    }
+
+    @Override
+    public void updateModel() {
         this.clear();
         this.setRenderStyle(GL3.GL_TRIANGLES);
         //shape.renderStyle=GL3.GL_LINES;  // set to see the wireframe
@@ -98,6 +103,8 @@ public class Box extends Mesh {
         p2.set(-w, d,-h);
         p3.set(-w,-d,-h);
         addSubdividedPlane(n,p0,p1,p2,p3,dParts,hParts);
+
+        fireMeshChanged();
     }
 
     /**

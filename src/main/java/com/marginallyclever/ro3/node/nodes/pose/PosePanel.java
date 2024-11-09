@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.node.nodes.pose;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
+import com.marginallyclever.ro3.PanelHelper;
 
 import javax.swing.*;
 import javax.vecmath.Vector3d;
@@ -35,9 +36,9 @@ public class PosePanel extends JPanel {
     private void addTranslationComponents(GridBagConstraints gbc) {
         var local = pose.getPosition();
 
-        JFormattedTextField tx = addNumberField("translate x",local.x);
-        JFormattedTextField ty = addNumberField("translate y",local.y);
-        JFormattedTextField tz = addNumberField("translate z",local.z);
+        JFormattedTextField tx = PanelHelper.addNumberField("translate x",local.x);
+        JFormattedTextField ty = PanelHelper.addNumberField("translate y",local.y);
+        JFormattedTextField tz = PanelHelper.addNumberField("translate z",local.z);
 
         gbc.gridx=0;        this.add(new JLabel("Translation"),gbc);
         gbc.gridx=1;        this.add(tx,gbc);
@@ -66,9 +67,9 @@ public class PosePanel extends JPanel {
             pose.setRotationIndex( MatrixHelper.EulerSequence.values()[rotationType.getSelectedIndex()] );
         });
 
-        JFormattedTextField rx = addNumberField("rotate x",r.x);
-        JFormattedTextField ry = addNumberField("rotate y",r.y);
-        JFormattedTextField rz = addNumberField("rotate z",r.z);
+        JFormattedTextField rx = PanelHelper.addNumberField("rotate x",r.x);
+        JFormattedTextField ry = PanelHelper.addNumberField("rotate y",r.y);
+        JFormattedTextField rz = PanelHelper.addNumberField("rotate z",r.z);
 
         gbc.gridx=0;        this.add(new JLabel("Rotation"),gbc);
         gbc.gridx=1;        this.add(rx,gbc);
@@ -102,15 +103,5 @@ public class PosePanel extends JPanel {
         r.y = ((Number)ry.getValue()).doubleValue();
         r.z = ((Number)rz.getValue()).doubleValue();
         pose.setRotationEuler(r, pose.getRotationIndex());
-    }
-
-    private JFormattedTextField addNumberField(String label, double value) {
-        var formatter = NumberFormatHelper.getNumberFormatter();
-        JFormattedTextField field = new JFormattedTextField(formatter);
-        field.setValue(value);
-        field.setToolTipText(label);
-        field.setColumns(1);
-        field.setMinimumSize(new Dimension(0,20));
-        return field;
     }
 }

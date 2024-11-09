@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * <p>{@link Capsule} is a {@link Mesh}.  It is a cylinder with rounded ends.</p>
  */
-public class Capsule extends Mesh {
+public class Capsule extends ProceduralMesh {
     public static final int RESOLUTION_CIRCULAR = 16;
     public static final int RESOLUTION_LENGTH = 4;
     public static final int RESOLUTION_DOME = 8;
@@ -32,13 +32,16 @@ public class Capsule extends Mesh {
         updateModel();
     }
 
-    private void updateModel() {
-        this.clear();
-        this.setRenderStyle(GL3.GL_TRIANGLES);
-        addCapsule(height, radius);
+    @Override
+    public String getEnglishName() {
+        return "Capsule";
     }
 
-    private void addCapsule(float height, float radius) {
+    @Override
+    public void updateModel() {
+        this.clear();
+        this.setRenderStyle(GL3.GL_TRIANGLES);
+
         float h = height - radius*2;
         float h2=h/2;
 
@@ -127,6 +130,7 @@ public class Capsule extends Mesh {
             }
         }
 
+        fireMeshChanged();
     }
 /*
     @Override

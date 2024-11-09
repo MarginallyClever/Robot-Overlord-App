@@ -39,6 +39,7 @@ public class GraphViewPanel extends JPanel {
 
     public GraphViewPanel() {
         super();
+        setLayout(null);
 
         addMouseListener(new MouseAdapter() {
             @Override
