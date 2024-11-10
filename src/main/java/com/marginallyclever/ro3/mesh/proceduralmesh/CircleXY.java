@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.mesh.shapes;
+package com.marginallyclever.ro3.mesh.proceduralmesh;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.ro3.mesh.Mesh;

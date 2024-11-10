@@ -4,6 +4,8 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMesh;
+import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.raypicking.RayHit;
 import org.json.JSONObject;
@@ -60,23 +62,6 @@ public class MeshInstance extends Pose {
 
     public Mesh getMesh() {
         return mesh;
-    }
-
-    @Override
-    public JSONObject toJSON() {
-        JSONObject json = super.toJSON();
-        if(mesh!=null) {
-            json.put("mesh", mesh.getSourceName());
-        }
-        return json;
-    }
-
-    @Override
-    public void fromJSON(JSONObject from) {
-        super.fromJSON(from);
-        if(from.has("mesh")) {
-            mesh = Registry.meshFactory.load(from.getString("mesh"));
-        }
     }
 
     public void adjustLocal() {
@@ -150,6 +135,35 @@ public class MeshInstance extends Pose {
         for( var v : listeners.getListeners(PropertyChangeListener.class)) {
             if(p==null) p = new PropertyChangeEvent(this,"mesh",null,mesh);
             v.propertyChange(p);
+        }
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject json = super.toJSON();
+        if(mesh!=null) {
+            if(mesh instanceof ProceduralMesh p) {
+                JSONObject pJSON = p.toJSON();
+                json.put("proceduralMesh", pJSON);
+            } else {
+                json.put("mesh", mesh.getSourceName());
+            }
+        }
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject from) {
+        super.fromJSON(from);
+        if(from.has("mesh")) {
+            mesh = Registry.meshFactory.load(from.getString("mesh"));
+        } else if(from.has("proceduralMesh")) {
+            var procMesh = from.getJSONObject("proceduralMesh");
+            var pmesh = ProceduralMeshFactory.createMesh(procMesh.getString("type"));
+            if(pmesh!=null) {
+                pmesh.fromJSON(procMesh);
+                this.setMesh(pmesh);
+            }
         }
     }
 }

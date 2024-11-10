@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.mesh.shapes;
+package com.marginallyclever.ro3.mesh.proceduralmesh;
 
 import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.RO3;
@@ -6,7 +6,6 @@ import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 
 /**

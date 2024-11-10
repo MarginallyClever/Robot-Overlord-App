@@ -1,7 +1,8 @@
-package com.marginallyclever.ro3.mesh.shapes;
+package com.marginallyclever.ro3.mesh.proceduralmesh;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.ro3.mesh.Mesh;
+import org.json.JSONObject;
 
 /**
  * <p>{@link Grid} is a {@link Mesh} displaying a grid on the XY plane.  The origin is at the center of the grid.</p>
@@ -59,29 +60,30 @@ public class Grid extends ProceduralMesh {
 
         fireMeshChanged();
     }
-/*
-    @Override
-    public JSONObject toJSON(SerializationContext context) {
-        JSONObject jo = super.toJSON(context);
-        jo.put("width",width.toJSON(context));
-        jo.put("length",length.toJSON(context));
-        jo.put("snap",snap.toJSON(context));
-        return jo;
-    }
 
-    @Override
-    public void parseJSON(JSONObject jo,SerializationContext context) throws JSONException {
-        super.parseJSON(jo,context);
-        width.parseJSON(jo.getJSONObject("width"),context);
-        length.parseJSON(jo.getJSONObject("length"),context);
-        snap.parseJSON(jo.getJSONObject("snap"),context);
-    }
-*/
     public void setWidth(int width) {
         this.width = width;
     }
 
     public void setLength(int length) {
         this.length = length;
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        var json = super.toJSON();
+        json.put("length", length);
+        json.put("width", width);
+        json.put("spacing", spacing);
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject from) {
+        super.fromJSON(from);
+        if(from.has("width")) width = from.getDouble("width");
+        if(from.has("length")) length = from.getDouble("length");
+        if(from.has("spacing")) spacing = from.getDouble("spacing");
+        updateModel();
     }
 }

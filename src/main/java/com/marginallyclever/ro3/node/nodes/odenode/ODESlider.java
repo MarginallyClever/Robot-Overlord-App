@@ -111,20 +111,30 @@ public class ODESlider extends ODELink {
     public void update(double dt) {
         super.update(dt);
         if(!Registry.getPhysics().isPaused()) {
-            // if the physics simulation is running then the hinge will behave as normal.
-            DVector3 anchor = new DVector3();
-            DVector3 axis = new DVector3();
-            sliderJoint.getAxis(axis);
-            // use axis and anchor to set the world matrix.
-            Matrix3d m3 = MatrixHelper.lookAt(
-                    new Vector3d(0,0,0),
-                    new Vector3d(axis.get0(),axis.get1(),axis.get2())
-            );
-            Matrix4d m4 = new Matrix4d();
-            m4.set(m3);
-            m4.setTranslation(new Vector3d(anchor.get0(),anchor.get1(),anchor.get2()));
-            setWorld(m4);
+            updateWorldFromPhysics();
         }
+    }
+
+    private void updateWorldFromPhysics() {
+        if(sliderJoint==null) return;
+
+        // if the physics simulation is running then the hinge will behave as normal.
+        var w = getWorld();
+        var pos = MatrixHelper.getPosition(w);
+        DVector3 axis = new DVector3();
+        sliderJoint.getAxis(axis);
+        // use axis and anchor to set the world matrix.
+        Matrix3d m3 = MatrixHelper.lookAt(
+                pos,
+                new Vector3d(pos.x+axis.get0(),
+                        pos.y+axis.get1(),
+                        pos.z+axis.get2())
+        );
+
+        Matrix4d m4 = new Matrix4d();
+        m4.set(m3);
+        m4.setTranslation(pos);
+        setWorld(m4);
     }
 
     @Override

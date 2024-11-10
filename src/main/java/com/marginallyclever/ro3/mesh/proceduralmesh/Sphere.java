@@ -1,7 +1,8 @@
-package com.marginallyclever.ro3.mesh.shapes;
+package com.marginallyclever.ro3.mesh.proceduralmesh;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.ro3.mesh.Mesh;
+import org.json.JSONObject;
 
 /**
  * <p>{@link Sphere} is a {@link Mesh} with a radius of 1.  The origin is at the center of the sphere.</p>
@@ -90,4 +91,20 @@ public class Sphere extends ProceduralMesh {
     }
 
     public double getDetail() { return detail; }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject json = super.toJSON();
+        json.put("radius", radius);
+        json.put("detail", detail);
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject jo) {
+        super.fromJSON(jo);
+        if(jo.has("radius")) radius = jo.getFloat("radius");
+        if(jo.has("detail")) detail = jo.getInt("detail");
+        updateModel();
+    }
 }

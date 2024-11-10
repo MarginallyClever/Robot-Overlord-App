@@ -6,11 +6,10 @@ import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.MeshChooserDialog;
 import com.marginallyclever.ro3.mesh.MeshSmoother;
 import com.marginallyclever.ro3.PanelHelper;
-import com.marginallyclever.ro3.mesh.shapes.*;
+import com.marginallyclever.ro3.mesh.proceduralmesh.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;

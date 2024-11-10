@@ -177,10 +177,9 @@ public class MatrixHelper {
 	}
 
 	/**
-	 * Build a "look at" matrix.  The X+ axis is pointing (to-from) normalized.
-	 * The Z+ starts as pointing up.  Y+ is cross product of X and Z.  Z is then
-	 * recalculated based on the correct X and Y.
-	 * This will fail if to-from is parallel to up.
+	 * <p>Build a "look at" matrix.  The X+ axis is pointing (to-from) normalized. The Z+ starts as pointing up.
+	 * Y+ is cross product of X and Z.  Z is then recalculated based on the correct X and Y.</p>
+	 * <p>This will fail if to-from is parallel to up.</p>
 	 *  
 	 * @param from where i'm at
 	 * @param to what I'm looking at
@@ -193,9 +192,9 @@ public class MatrixHelper {
 		
 		forward.sub(to,from);
 		forward.normalize();
-		if(forward.z==1) {
+		if(forward.z>1-1e-6) {
 			up.set(0,1,0);
-		} else if(forward.z==-1) {
+		} else if(forward.z<-1+1e-6) {
 			up.set(0,-1,0);
 		} else {
 			up.set(0,0,1);

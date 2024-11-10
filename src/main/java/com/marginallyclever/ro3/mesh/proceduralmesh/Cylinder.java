@@ -1,8 +1,9 @@
-package com.marginallyclever.ro3.mesh.shapes;
+package com.marginallyclever.ro3.mesh.proceduralmesh;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.ro3.mesh.Mesh;
+import org.json.JSONObject;
 
 import javax.vecmath.Vector3d;
 
@@ -114,27 +115,22 @@ public class Cylinder extends ProceduralMesh {
         this.addTexCoord(0.5f+x*0.5f,0.5f+y*0.5f);
         this.addNormal((float)n.x, (float)n.y, (float)n.z);
     }
-/*
+
     @Override
-    public JSONObject toJSON(SerializationContext context) {
-        JSONObject json = super.toJSON(context);
+    public JSONObject toJSON() {
+        JSONObject json = super.toJSON();
+        json.put("height", height);
         json.put("radius0", radius0);
         json.put("radius1", radius1);
-        json.put("height", height);
         return json;
     }
 
     @Override
-    public void parseJSON(JSONObject jo, SerializationContext context) throws JSONException {
-        super.parseJSON(jo, context);
-        if(jo.has("radius")) {
-            radius0 = (jo.getDouble("radius"));
-            radius1 = (jo.getDouble("radius"));
-        } else {
-            if(jo.has("radius0")) radius0 = (jo.getDouble("radius0"));
-            if(jo.has("radius1")) radius1 = (jo.getDouble("radius1"));
-        }
-        if(jo.has("height")) height = (jo.getDouble("height"));
+    public void fromJSON(JSONObject jo) {
+        super.fromJSON(jo);
+        if(jo.has("height")) height = jo.getFloat("height");
+        if(jo.has("radius0")) radius0 = jo.getFloat("radius0");
+        if(jo.has("radius1")) radius1 = jo.getFloat("radius1");
+        updateModel();
     }
-*/
 }

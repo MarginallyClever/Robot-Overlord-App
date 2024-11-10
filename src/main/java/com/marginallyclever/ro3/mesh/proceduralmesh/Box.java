@@ -1,8 +1,9 @@
-package com.marginallyclever.ro3.mesh.shapes;
+package com.marginallyclever.ro3.mesh.proceduralmesh;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.ro3.mesh.Mesh;
+import org.json.JSONObject;
 
 import javax.vecmath.Vector3d;
 
@@ -206,10 +207,10 @@ public class Box extends ProceduralMesh {
             }
         }
     }
-/*
+
     @Override
-    public JSONObject toJSON(SerializationContext context) {
-        JSONObject json = super.toJSON(context);
+    public JSONObject toJSON() {
+        JSONObject json = super.toJSON();
         json.put("width", width);
         json.put("length", length);
         json.put("height", height);
@@ -217,11 +218,11 @@ public class Box extends ProceduralMesh {
     }
 
     @Override
-    public void parseJSON(JSONObject jo, SerializationContext context) throws JSONException {
-        super.parseJSON(jo, context);
-        if(jo.has("width")) width = jo.getDouble("width"));
-        if(jo.has("length")) length = jo.getDouble("length"));
-        if(jo.has("height")) height = jo.getDouble("height"));
+    public void fromJSON(JSONObject from) {
+        super.fromJSON(from);
+        if(from.has("width")) width = from.getDouble("width");
+        if(from.has("length")) length = from.getDouble("length");
+        if(from.has("height")) height = from.getDouble("height");
+        updateModel();
     }
-*/
 }

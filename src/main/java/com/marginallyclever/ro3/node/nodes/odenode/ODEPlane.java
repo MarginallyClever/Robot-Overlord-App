@@ -2,17 +2,14 @@ package com.marginallyclever.ro3.node.nodes.odenode;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.mesh.shapes.Decal;
+import com.marginallyclever.ro3.mesh.proceduralmesh.Decal;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONObject;
-import org.ode4j.math.DMatrix3;
-import org.ode4j.math.DMatrix3C;
 import org.ode4j.ode.DPlane;
 import org.ode4j.ode.OdeHelper;
 
 import javax.swing.*;
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.util.Objects;
