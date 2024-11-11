@@ -15,48 +15,24 @@ public class ODEAngularMotorPanel extends JPanel {
     }
 
     public ODEAngularMotorPanel(ODEAngularMotor motor) {
-        super(new GridLayout(0,2));
+        super(new GridBagLayout());
         this.setName(ODEAngularMotor.class.getSimpleName());
 
-        addSelector("part A",motor.getPartA(),motor::setPartA);
-        addSelector("part B",motor.getPartB(),motor::setPartB);
-        addAction("Torque",motor);
-        addLimit("Angle Max",motor.getAngleMax(),motor::setAngleMax,Double.POSITIVE_INFINITY);
-        addLimit("Angle Min",motor.getAngleMin(),motor::setAngleMin,Double.NEGATIVE_INFINITY);
-        addLimit("Force Max",motor.getForceMax(),motor::setForceMax,Double.POSITIVE_INFINITY);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.weightx=1;
+        gbc.fill=GridBagConstraints.HORIZONTAL;
+
+        PanelHelper.addSelector(this,gbc,"part A",motor.getPartA(),motor::setPartA);
+        PanelHelper.addSelector(this,gbc,"part B",motor.getPartB(),motor::setPartB);
+        addAction(gbc,"Torque",motor);
+        PanelHelper.addLimit(this,gbc,"Force Max",motor.getForceMax(),motor::setForceMax,Double.POSITIVE_INFINITY);
+        PanelHelper.addLimit(this,gbc,"Angle Max",motor.getAngleMax(),motor::setAngleMax,Double.POSITIVE_INFINITY);
+        PanelHelper.addLimit(this,gbc,"Angle Min",motor.getAngleMin(),motor::setAngleMin,Double.NEGATIVE_INFINITY);
     }
 
-    private void addLimit(String label, double value, Consumer<Double> consumer, double infinite) {
-        JCheckBox limitCheckBox = new JCheckBox("Has Limit", !Double.isInfinite(value));
-        SpinnerNumberModel model = new SpinnerNumberModel(Double.isInfinite(value) ? 0 : value, -180, 180, 0.1);
-        JSpinner spinner = new JSpinner(model);
-
-        limitCheckBox.addActionListener(e -> enableLimit(limitCheckBox.isSelected(),spinner,consumer,infinite) );
-        spinner.addChangeListener(e -> {
-            if (limitCheckBox.isSelected()) {
-                consumer.accept((Double) spinner.getValue());
-            }
-        });
-        enableLimit(!Double.isInfinite(value),spinner,consumer,infinite);
-
-        PanelHelper.addLabelAndComponent(this, label, limitCheckBox);
-        PanelHelper.addLabelAndComponent(this, "Value", spinner);
-    }
-
-    private void enableLimit(boolean isSelected, JSpinner spinner, Consumer<Double> consumer,double infinite) {
-        spinner.setEnabled(isSelected);
-        consumer.accept( (!isSelected) ? infinite : (Double)spinner.getValue() );
-    }
-
-    private void addSelector(String label, NodePath<ODEBody> originalValue, Consumer<ODEBody> setPartA) {
-        NodeSelector<ODEBody> selector = new NodeSelector<>(ODEBody.class,originalValue.getSubject());
-        selector.addPropertyChangeListener("subject", (evt) ->setPartA.accept((ODEBody)evt.getNewValue()));
-        PanelHelper.addLabelAndComponent(this, label,selector);
-    }
-
-    private void addAction(String label,ODEAngularMotor motor) {
+    private void addAction(GridBagConstraints gbc,String label,ODEAngularMotor motor) {
+        /*
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING,0,0));
-
         JButton selector = new JButton("+");
         selector.addActionListener((e)-> motor.addTorque(1));
         panel.add(selector);
@@ -64,7 +40,14 @@ public class ODEAngularMotorPanel extends JPanel {
         JButton selector2 = new JButton("-");
         selector2.addActionListener((e)-> motor.addTorque(-1));
         panel.add(selector2);
-
-        PanelHelper.addLabelAndComponent(this, label, panel);
+        */
+        JSlider slider = new JSlider(-100,100,0);
+        slider.addChangeListener((e)-> motor.addTorque(slider.getValue()/50.0));
+        slider.setMajorTickSpacing(50);
+        slider.setMinorTickSpacing(10);
+        slider.setPaintTicks(true);
+        slider.setSnapToTicks(true);
+        PanelHelper.addLabelAndComponent(this, label, slider,gbc);
+        gbc.gridy++;
     }
 }

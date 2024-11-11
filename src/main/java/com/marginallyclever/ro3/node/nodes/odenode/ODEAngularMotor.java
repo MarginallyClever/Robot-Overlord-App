@@ -215,6 +215,6 @@ public class ODEAngularMotor extends ODELink {
         if(motor==null) return;
         System.out.println("addTorque "+qty);
         //motor.addTorques(0,0,qty);
-        motor.setParamVel3(qty+motor.getParamVel3());
+        motor.setParamVel3(qty);//+motor.getParamVel3());
     }
 }
