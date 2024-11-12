@@ -40,7 +40,6 @@ public class ODEPhysics {
 
     public ODEPhysics() {
         super();
-        startPhysics();
     }
 
     public void reset() {
