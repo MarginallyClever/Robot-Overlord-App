@@ -98,13 +98,14 @@ public class RotateToolOneAxis implements ViewportTool {
     private final ColorRGB color;
     private final Mesh markerMesh = new Mesh();
     private final Mesh angleMesh = new Mesh();
-    private final Mesh ringMesh = new CircleXY();
+    private final CircleXY ringMesh = new CircleXY();
 
     public RotateToolOneAxis(ColorRGB color) {
         super();
         this.color = color;
         buildMarkerMesh();
         buildAngleMesh();
+        ringMesh.updateModel();
         ringMesh.setRenderStyle(GL3.GL_LINE_LOOP);
     }
 
@@ -143,6 +144,8 @@ public class RotateToolOneAxis implements ViewportTool {
             markerMesh.addVertex((float)a.x*d0, (float)a.y*d0, (float)a.z*d0);
             markerMesh.addVertex((float)a.x*d1, (float)a.y*d1, (float)a.z*d1);
         }
+
+        markerMesh.fireMeshChanged();
     }
 
     /**
