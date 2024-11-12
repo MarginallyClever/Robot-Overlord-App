@@ -19,6 +19,7 @@ import java.util.Queue;
 public class Pose extends Node {
     private final Matrix4d local = MatrixHelper.createIdentityMatrix4();
     private MatrixHelper.EulerSequence rotationIndex = MatrixHelper.EulerSequence.YXZ;
+    private Pose parentPose;
 
     public Pose() {
         this("Pose");
@@ -26,6 +27,41 @@ public class Pose extends Node {
 
     public Pose(String name) {
         super(name);
+    }
+
+    public void addPoseChangeListener(PoseChangeListener listener) {
+        listeners.add(PoseChangeListener.class, listener);
+    }
+
+    public void removePoseChangeListener(PoseChangeListener listener) {
+        listeners.remove(PoseChangeListener.class, listener);
+    }
+
+    @Override
+    protected void onAttach() {
+        super.onAttach();
+        // if we have a parent that is a panel, register to receive pose update events.
+        parentPose = findParent(Pose.class);
+        if(parentPose!=null) {
+            parentPose.addPoseChangeListener(this::onParentPoseChanged);
+        }
+        firePoseChange();
+    }
+
+    @Override
+    protected void onDetach() {
+        super.onDetach();
+        if(parentPose!=null) {
+            parentPose.removePoseChangeListener(this::onParentPoseChanged);
+        }
+    }
+
+    /**
+     * Override this method to receive pose change events from the parent.
+     * @param pose the parent pose that has changed.
+     */
+    protected void onParentPoseChanged(Pose pose) {
+        firePoseChange();
     }
 
     /**
@@ -47,7 +83,15 @@ public class Pose extends Node {
      * @param m the new local transform.
      */
     public void setLocal(Matrix4d m) {
+        if(local.equals(m)) return;
         local.set(m);
+        firePoseChange();
+    }
+
+    private void firePoseChange() {
+        for(var listener : listeners.getListeners(PoseChangeListener.class)) {
+            listener.onPoseChange(this);
+        }
     }
 
     /**
@@ -55,11 +99,10 @@ public class Pose extends Node {
      */
     public Matrix4d getWorld() {
         // search up the tree to find the world transform.
-        Pose p = findParent(Pose.class);
-        if(p==null) {
+        if(parentPose==null) {
             return getLocal();
         }
-        Matrix4d result = p.getWorld();
+        Matrix4d result = parentPose.getWorld();
         result.mul(getLocal());
         return result;
     }
@@ -70,13 +113,12 @@ public class Pose extends Node {
      */
     public void setWorld(Matrix4d m) {
         // search up the tree to find the world transform.
-        Pose parent = findParent(Pose.class);
-        if(parent==null) {
+        if(parentPose==null) {
             setLocal(m);
             return;
         }
         // Changing m could have unintended side effects, so use a temp variable.
-        Matrix4d temp = parent.getWorld();
+        Matrix4d temp = parentPose.getWorld();
         temp.invert();
         temp.mul(m);
         setLocal(temp);
