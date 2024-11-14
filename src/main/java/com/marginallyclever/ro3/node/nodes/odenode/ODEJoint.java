@@ -7,20 +7,29 @@ import org.ode4j.ode.DBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
+import java.util.List;
+
 /**
- * A link between two ODEBodies such as a joint or motor.
+ * A joint between one or two {@link ODEBody}.  If only one body is connected then the joint is attached to the world.
  */
-public class ODELink extends ODENode implements ODELinkDetachListener, ODELinkAttachListener {
-    private static final Logger logger = LoggerFactory.getLogger(ODELink.class);
+public class ODEJoint extends ODENode implements ODELinkDetachListener, ODELinkAttachListener {
+    private static final Logger logger = LoggerFactory.getLogger(ODEJoint.class);
     protected final NodePath<ODEBody> partA = new NodePath<>(this,ODEBody.class);
     protected final NodePath<ODEBody> partB = new NodePath<>(this,ODEBody.class);
 
-    public ODELink() {
-        this(ODELink.class.getSimpleName());
+    public ODEJoint() {
+        this(ODEJoint.class.getSimpleName());
     }
 
-    public ODELink(String name) {
+    public ODEJoint(String name) {
         super(name);
+    }
+
+    @Override
+    public void getComponents(List<JPanel> list) {
+        list.add(new ODEJointPanel(this));
+        super.getComponents(list);
     }
 
     public NodePath<ODEBody> getPartA() {
@@ -45,17 +54,27 @@ public class ODELink extends ODENode implements ODELinkDetachListener, ODELinkAt
         connectInternal();
     }
 
+    /**
+     * Stop listening to changes in the body.
+     * @param path the path to the ODEBody
+     */
     private void stopListeningTo(NodePath<ODEBody> path) {
         var s = path.getSubject();
         if(s!=null) {
+            //logger.debug(getAbsolutePath()+" ignore "+s.getName());
             s.removeODEDetachListener(this);
             s.removeODEAttachListener(this);
         }
     }
 
+    /**
+     * Listen to changes in the body.  If the ODEBody does not yet exist the listener will not be added.
+     * @param path the path to the ODEBody
+     */
     private void listenTo(NodePath<ODEBody> path) {
         var s = path.getSubject();
         if(s!=null) {
+            //logger.debug(getAbsolutePath()+" listenTo "+s.getName());
             s.addODEDetachListener(this);
             s.addODEAttachListener(this);
         }
@@ -72,8 +91,13 @@ public class ODELink extends ODENode implements ODELinkDetachListener, ODELinkAt
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        if(from.has("partA")) partA.setUniqueID(from.getString("partA"));
-        if(from.has("partB")) partB.setUniqueID(from.getString("partB"));
+        if (from.has("partA")) partA.setUniqueID(from.getString("partA"));
+        if (from.has("partB")) partB.setUniqueID(from.getString("partB"));
+    }
+
+    @Override
+    protected void onReady() {
+        super.onReady();
         listenTo(partA);
         listenTo(partB);
         connectInternal();
@@ -93,6 +117,7 @@ public class ODELink extends ODENode implements ODELinkDetachListener, ODELinkAt
      * Examines the bodies of this link and connects them if possible.
      */
     protected void connectInternal() {
+        //logger.debug(getAbsolutePath()+" connectInternal");
         var as = partA.getSubject();
         var bs = partB.getSubject();
         if(as==null && bs==null) {
