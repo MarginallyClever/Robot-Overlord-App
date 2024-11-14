@@ -6,11 +6,11 @@ import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
-import com.marginallyclever.ro3.apps.viewport.Viewport;
+import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;

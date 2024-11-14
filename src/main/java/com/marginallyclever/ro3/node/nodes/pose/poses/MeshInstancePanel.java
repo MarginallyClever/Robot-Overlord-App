@@ -1,12 +1,12 @@
 package com.marginallyclever.ro3.node.nodes.pose.poses;
 
 import com.jogamp.opengl.GL3;
+import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.MeshChooserDialog;
 import com.marginallyclever.ro3.mesh.MeshSmoother;
-import com.marginallyclever.ro3.PanelHelper;
-import com.marginallyclever.ro3.mesh.proceduralmesh.*;
+import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactoryPanel;
 
 import javax.swing.*;
 import java.awt.*;

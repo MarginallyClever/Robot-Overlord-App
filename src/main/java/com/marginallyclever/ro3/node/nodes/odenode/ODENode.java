@@ -5,8 +5,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.vecmath.Matrix4d;
-
 /**
  * <p>Base class for all {@link com.marginallyclever.ro3.node.Node} that implement ODE4J.</p>
  * <p>ODE Nodes like {@link ODEHinge} need to be able to find the subject nodes to which the hinge connects.  These

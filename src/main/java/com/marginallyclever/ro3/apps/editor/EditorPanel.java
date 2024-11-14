@@ -4,13 +4,13 @@ import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.apps.App;
+import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodeDetachListener;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinListener;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinRobot;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.MarlinRobotArm;
-import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,23 +1,18 @@
 package com.marginallyclever.ro3.physics;
 
-import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.odenode.ODEJoint;
-import org.ode4j.math.DVector3;
 import org.ode4j.ode.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
 import javax.swing.event.EventListenerList;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import java.util.Queue;
 
 import static org.ode4j.ode.OdeConstants.*;
-import static org.ode4j.ode.OdeHelper.createSapSpace;
 import static org.ode4j.ode.OdeHelper.createWorld;
 
 /**

@@ -1,13 +1,9 @@
 package com.marginallyclever.ro3.node.nodes.odenode;
 
 import com.marginallyclever.ro3.PanelHelper;
-import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.function.Consumer;
 
 public class ODEAngularMotorPanel extends JPanel {
     public ODEAngularMotorPanel() {

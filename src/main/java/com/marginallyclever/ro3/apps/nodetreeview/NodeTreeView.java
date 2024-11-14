@@ -6,17 +6,24 @@ import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.actions.*;
 import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
 import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
-import com.marginallyclever.ro3.node.*;
+import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodeAttachListener;
+import com.marginallyclever.ro3.node.NodeDetachListener;
+import com.marginallyclever.ro3.node.NodeRenameListener;
 import com.marginallyclever.ro3.node.nodefactory.NodeTreeBranchRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.security.InvalidParameterException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**

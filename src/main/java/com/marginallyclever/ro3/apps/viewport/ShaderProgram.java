@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.apps.viewport;
 
 import com.jogamp.opengl.GL3;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,8 +1,8 @@
 package com.marginallyclever.ro3.apps.viewport.viewporttools;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 
 import javax.vecmath.Matrix4d;
 import java.util.ArrayList;

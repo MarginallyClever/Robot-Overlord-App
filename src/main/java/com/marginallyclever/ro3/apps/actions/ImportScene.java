@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.apps.actions;
 
-import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.RO3Frame;
+import com.marginallyclever.ro3.UndoSystem;
 
 import javax.swing.*;
 import java.awt.*;

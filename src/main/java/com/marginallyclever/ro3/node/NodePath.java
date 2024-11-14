@@ -1,7 +1,5 @@
 package com.marginallyclever.ro3.node;
 
-import com.marginallyclever.convenience.PathCalculator;
-
 /**
  * <p>{@link NodePath} stores the uniqueID to a node.  It can be used to find a node in the scene graph.</p>
  * <p>This is made visible to the user as {@link com.marginallyclever.ro3.apps.nodeselector.NodeSelector} and

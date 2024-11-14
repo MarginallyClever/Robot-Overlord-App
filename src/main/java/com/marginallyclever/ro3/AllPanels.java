@@ -5,12 +5,12 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import javax.swing.*;
-import java.awt.*;
 
 /**
  * This class should be in tests but cannot because {@link Reflections} does not work across the

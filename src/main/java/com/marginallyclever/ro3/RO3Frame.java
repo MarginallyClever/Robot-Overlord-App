@@ -16,24 +16,25 @@ import com.marginallyclever.ro3.apps.log.LogPanel;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.ode4j.ODE4JPanel;
-import com.marginallyclever.ro3.apps.viewport.ViewportSettingsPanel;
-import com.marginallyclever.ro3.apps.webcam.WebCamPanel;
 import com.marginallyclever.ro3.apps.viewport.OpenGLPanel;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
+import com.marginallyclever.ro3.apps.viewport.ViewportSettingsPanel;
+import com.marginallyclever.ro3.apps.webcam.WebCamPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.dnd.DropTarget;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.dnd.DropTarget;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * <p>{@link RO3Frame} is the main frame for the Robot Overlord 3 application.  It contains the menu bar and docking

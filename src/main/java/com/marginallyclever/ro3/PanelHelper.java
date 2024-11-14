@@ -4,7 +4,6 @@ import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.MaterialPanel;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
 
 import javax.swing.*;

@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.node.nodes;
 
-import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.PanelHelper;
+import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 
 import javax.swing.*;
 import java.awt.*;

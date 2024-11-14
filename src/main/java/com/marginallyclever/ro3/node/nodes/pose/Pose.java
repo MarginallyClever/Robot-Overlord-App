@@ -11,7 +11,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.util.List;
 import java.util.Objects;
-import java.util.Queue;
 
 /**
  * <p>A {@link Pose} is a {@link Node} that has a position and rotation in space.</p>

@@ -2,7 +2,6 @@ package com.marginallyclever.ro3.node.nodes.behavior.decorators;
 
 import com.marginallyclever.ro3.node.nodes.behavior.Behavior;
 import com.marginallyclever.ro3.node.nodes.behavior.Decorator;
-import com.marginallyclever.ro3.node.nodes.behavior.actions.LimbMoveToTargetPanel;
 import org.json.JSONObject;
 
 import javax.swing.*;

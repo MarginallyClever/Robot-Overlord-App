@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.node.nodes.behavior.decorators;
 
 import com.marginallyclever.ro3.node.nodes.behavior.Decorator;
-import org.json.JSONObject;
 
 /**
  * <p>{@link KeepRunningUntilFailure} is a {@link Decorator} that repeats until its child returns

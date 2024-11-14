@@ -1,10 +1,10 @@
 package com.marginallyclever.ro3.node.nodes.limbsolver;
 
+import com.marginallyclever.convenience.approximatejacobian.ApproximateJacobian;
+import com.marginallyclever.convenience.approximatejacobian.ApproximateJacobianFiniteDifferences;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.convenience.approximatejacobian.ApproximateJacobian;
-import com.marginallyclever.convenience.approximatejacobian.ApproximateJacobianFiniteDifferences;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import org.json.JSONObject;

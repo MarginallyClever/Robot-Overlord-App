@@ -2,8 +2,8 @@ package com.marginallyclever.ro3.apps.shared;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.prefs.Preferences;
 import java.io.File;
+import java.util.prefs.Preferences;
 
 /**
  * <p>{@link PersistentJFileChooser} is a {@link JFileChooser} that uses {@link Preferences} to remember the last

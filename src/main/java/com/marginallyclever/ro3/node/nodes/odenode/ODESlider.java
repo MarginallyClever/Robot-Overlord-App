@@ -5,7 +5,9 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 import org.ode4j.math.DVector3;
-import org.ode4j.ode.*;
+import org.ode4j.ode.DBody;
+import org.ode4j.ode.DSliderJoint;
+import org.ode4j.ode.OdeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

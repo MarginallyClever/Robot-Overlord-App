@@ -1,13 +1,11 @@
 package com.marginallyclever.ro3.node.nodes.pose;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
 
 import javax.swing.*;
 import javax.vecmath.Vector3d;
 import java.awt.*;
-import java.beans.PropertyChangeListener;
 
 public class PosePanel extends JPanel {
     private final Pose pose;

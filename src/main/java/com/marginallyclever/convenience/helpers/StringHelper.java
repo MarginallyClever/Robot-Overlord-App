@@ -5,8 +5,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Locale;
 
 /**

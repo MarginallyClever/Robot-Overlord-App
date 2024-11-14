@@ -3,7 +3,6 @@ package com.marginallyclever.ro3.node.nodes.odenode.brain.v2;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
 

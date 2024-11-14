@@ -138,7 +138,6 @@ public class DonatelloNode {
         // layout the list of panels.
         for(var v : list) {
             v.validate();
-
         }
     }
 }

@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.TreeSet;
 
 /**
  * <p>{@link LogPanel} is a read-only panel that contains the log and a button to open the log file location in the

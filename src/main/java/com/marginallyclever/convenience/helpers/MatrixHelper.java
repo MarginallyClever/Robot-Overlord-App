@@ -4,8 +4,10 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.ro3.mesh.Mesh;
 
-import javax.vecmath.*;
-import java.nio.FloatBuffer;
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Quat4d;
+import javax.vecmath.Vector3d;
 
 /**
  * Convenience methods for matrixes
