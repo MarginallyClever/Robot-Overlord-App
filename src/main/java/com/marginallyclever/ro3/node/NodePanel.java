@@ -27,11 +27,13 @@ public class NodePanel extends JPanel {
             node.setName(nameField.getText());
         });
         nameField.setEditable(false);
+        nameField.setColumns(10);
         PanelHelper.addLabelAndComponent(this,"Name",nameField,gbc);
         gbc.gridy++;
 
         JTextField pathField = new JTextField(node.getAbsolutePath());
         pathField.setEditable(false);
+        pathField.setColumns(10);
         PanelHelper.addLabelAndComponent(this,"Path",pathField,gbc);
     }
 }
