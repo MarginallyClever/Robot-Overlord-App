@@ -63,10 +63,6 @@ public class MoveNode extends AbstractUndoableEdit {
 
         // remove the children from their old parents
         for(var data : childParentMap) {
-            // check if the insert index is valid
-            int newIndex = insertStartingAt;
-            if(newIndex > newParent.getChildren().size()) newIndex = newParent.getChildren().size();
-
             Node child = data.child;
             Node oldParent = data.oldParent;
 
@@ -77,6 +73,10 @@ public class MoveNode extends AbstractUndoableEdit {
 
             logger.debug("take "+child.getAbsolutePath()+" from "+oldParent.getAbsolutePath()+" @ "+data.oldIndex);
             oldParent.removeChild(child);
+
+            // check if the insert index is valid
+            int newIndex = insertStartingAt;
+            if(newIndex > newParent.getChildren().size()) newIndex = newParent.getChildren().size();
 
             logger.debug("put "+child.getAbsolutePath()+" @ "+(newIndex-1));
             // attach the child to the new parent
