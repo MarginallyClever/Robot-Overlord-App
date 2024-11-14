@@ -102,10 +102,9 @@ public class ODESlider extends ODEJoint {
 
     private void updatePhysicsFromWorld() {
         if(sliderJoint==null) return;
-
-        var mat = getWorld();
-        var zAxis = MatrixHelper.getZAxis(mat);
+        var zAxis = MatrixHelper.getZAxis(getWorld());
         sliderJoint.setAxis(zAxis.x, zAxis.y, zAxis.z);
+        logger.debug("{} setAxis {}",getAbsolutePath(),zAxis);
     }
 
     @Override
@@ -119,23 +118,13 @@ public class ODESlider extends ODEJoint {
     private void updateWorldFromPhysics() {
         if(sliderJoint==null) return;
 
-        // if the physics simulation is running then the hinge will behave as normal.
-        var w = getWorld();
-        var pos = MatrixHelper.getPosition(w);
         DVector3 axis = new DVector3();
         sliderJoint.getAxis(axis);
-        // use axis and anchor to set the world matrix.
         Matrix3d m3 = MatrixHelper.lookAt(
-                pos,
-                new Vector3d(pos.x+axis.get0(),
-                        pos.y+axis.get1(),
-                        pos.z+axis.get2())
+                new Vector3d(),  // from
+                new Vector3d(axis.get0(), axis.get1(), axis.get2())  // to
         );
-
-        Matrix4d m4 = new Matrix4d();
-        m4.set(m3);
-        m4.setTranslation(pos);
-        setWorld(m4);
+        setWorld(new Matrix4d(m3,MatrixHelper.getPosition(getWorld()),1));
     }
 
     @Override
