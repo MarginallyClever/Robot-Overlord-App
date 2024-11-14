@@ -61,6 +61,8 @@ public class MoveNode extends AbstractUndoableEdit {
         // save the transforms of the children in world space
         Matrix4d m = null;
 
+        int newIndex = insertStartingAt;
+
         // remove the children from their old parents
         for(var data : childParentMap) {
             Node child = data.child;
@@ -75,7 +77,6 @@ public class MoveNode extends AbstractUndoableEdit {
             oldParent.removeChild(child);
 
             // check if the insert index is valid
-            int newIndex = insertStartingAt;
             if(newIndex > newParent.getChildren().size()) newIndex = newParent.getChildren().size();
 
             logger.debug("put "+child.getAbsolutePath()+" @ "+(newIndex-1));
