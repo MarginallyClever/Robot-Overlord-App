@@ -16,9 +16,13 @@ public class CameraPanel extends JPanel {
     }
 
     public CameraPanel(Camera camera) {
-        super(new GridLayout(0,2));
+        super(new GridBagLayout());
         this.camera = camera;
         this.setName(Camera.class.getSimpleName());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
 
         SpinnerNumberModel farZModel = new SpinnerNumberModel(camera.getFarZ(), 0, 10000, 1);
         JSpinner farZSpinner = new JSpinner(farZModel);
@@ -35,7 +39,8 @@ public class CameraPanel extends JPanel {
             fovSpinner.setEnabled(!drawOrthographic);
         });
         ortho.setSelected(camera.getDrawOrthographic());
-        PanelHelper.addLabelAndComponent(this,"Orthographic",ortho);
+        PanelHelper.addLabelAndComponent(this,"Orthographic",ortho,gbc);
+        gbc.gridy++;
 
         // fov
         fovSpinner.setValue(camera.getFovY());
@@ -43,7 +48,8 @@ public class CameraPanel extends JPanel {
             camera.setFovY( (double) fovSpinner.getValue() );
         });
         fovSpinner.setToolTipText("degrees");
-        PanelHelper.addLabelAndComponent(this,"FOV",fovSpinner);
+        PanelHelper.addLabelAndComponent(this,"FOV",fovSpinner,gbc);
+        gbc.gridy++;
 
         // near z
         nearZSpinner.addChangeListener(e -> {
@@ -56,7 +62,8 @@ public class CameraPanel extends JPanel {
         });
         nearZSpinner.setValue(camera.getNearZ());
         nearZSpinner.setToolTipText("cm");
-        PanelHelper.addLabelAndComponent(this,"Near",nearZSpinner);
+        PanelHelper.addLabelAndComponent(this,"Near",nearZSpinner,gbc);
+        gbc.gridy++;
 
         // far z
         farZSpinner.setValue(camera.getFarZ());
@@ -64,7 +71,8 @@ public class CameraPanel extends JPanel {
             camera.setFarZ( (double) farZSpinner.getValue() );
         });
         farZSpinner.setToolTipText("cm");
-        PanelHelper.addLabelAndComponent(this,"Far",farZSpinner);
+        PanelHelper.addLabelAndComponent(this,"Far",farZSpinner,gbc);
+        gbc.gridy++;
 
         // can rotate
         JToggleButton canRotate = new JToggleButton("Yes");
@@ -74,7 +82,8 @@ public class CameraPanel extends JPanel {
         });
         canRotate.setSelected(camera.getCanRotate());
         updateRotateButton(canRotate);
-        PanelHelper.addLabelAndComponent(this,"Can rotate",canRotate);
+        PanelHelper.addLabelAndComponent(this,"Can rotate",canRotate,gbc);
+        gbc.gridy++;
 
         // can translate
         JToggleButton canTranslate = new JToggleButton("Yes");
@@ -84,9 +93,10 @@ public class CameraPanel extends JPanel {
         });
         canTranslate.setSelected(camera.getCanTranslate());
         updateTranslateButton(canTranslate);
-        PanelHelper.addLabelAndComponent(this,"Can translate",canTranslate);
+        PanelHelper.addLabelAndComponent(this,"Can translate",canTranslate,gbc);
+        gbc.gridy++;
 
-        addLookAtComponents();
+        addLookAtComponents(gbc);
     }
 
     private void updateTranslateButton(JToggleButton canTranslate) {
@@ -99,7 +109,7 @@ public class CameraPanel extends JPanel {
         canRotate.setToolTipText(camera.getCanRotate() ? "Click to deny" : "Click to allow");
     }
 
-    private void addLookAtComponents() {
+    private void addLookAtComponents(GridBagConstraints gbc) {
         var formatter = NumberFormatHelper.getNumberFormatter();
 
         JFormattedTextField tx = new JFormattedTextField(formatter);        tx.setValue(0);
@@ -108,6 +118,9 @@ public class CameraPanel extends JPanel {
         tx.setToolTipText("x");
         ty.setToolTipText("y");
         tz.setToolTipText("z");
+        tx.setColumns(6);
+        ty.setColumns(6);
+        tz.setColumns(6);
 
 
         JButton button = new JButton("Set");
@@ -124,10 +137,15 @@ public class CameraPanel extends JPanel {
             }
         });
 
-        PanelHelper.addLabelAndComponent(this, "Look at", new JLabel());
-        PanelHelper.addLabelAndComponent(this, "X", tx);
-        PanelHelper.addLabelAndComponent(this, "Y", ty);
-        PanelHelper.addLabelAndComponent(this, "Z", tz);
-        PanelHelper.addLabelAndComponent(this, "", button);
+        PanelHelper.addLabelAndComponent(this, "Look at", new JLabel(),gbc);
+        gbc.gridy++;
+        PanelHelper.addLabelAndComponent(this, "X", tx,gbc);
+        gbc.gridy++;
+        PanelHelper.addLabelAndComponent(this, "Y", ty,gbc);
+        gbc.gridy++;
+        PanelHelper.addLabelAndComponent(this, "Z", tz,gbc);
+        gbc.gridy++;
+        PanelHelper.addLabelAndComponent(this, "", button,gbc);
+        gbc.gridy++;
     }
 }
