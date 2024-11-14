@@ -25,7 +25,7 @@ import java.util.Objects;
  * <p>If only one of the two parts is connected then the slider joint will allow the connected part to move freely
  * along the specified axis while the other end remains fixed.</p>
  */
-public class ODESlider extends ODELink {
+public class ODESlider extends ODEJoint {
     private static final Logger logger = LoggerFactory.getLogger(ODESlider.class);
     private DSliderJoint sliderJoint;
     private double top = Double.POSITIVE_INFINITY;
@@ -60,8 +60,6 @@ public class ODESlider extends ODELink {
     private void createSlider() {
         sliderJoint = OdeHelper.createSliderJoint(Registry.getPhysics().getODEWorld(), null);
         connectInternal();
-        setDistanceMax(top);
-        setDistanceMin(bottom);
     }
 
     private void destroySlider() {
@@ -79,10 +77,11 @@ public class ODESlider extends ODELink {
     @Override
     protected void connect(DBody a, DBody b) {
         if(sliderJoint == null) return;
+        logger.debug("{} connect {} {}",getAbsolutePath(),a,b);
         sliderJoint.attach(a, b);
         setDistanceMax(top);
         setDistanceMin(bottom);
-        updatePhysicsFromWorld();
+        updateSliderPose();
     }
 
     @Override

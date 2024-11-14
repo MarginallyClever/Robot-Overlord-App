@@ -22,8 +22,6 @@ public class ODEAngularMotorPanel extends JPanel {
         gbc.weightx=1;
         gbc.fill=GridBagConstraints.HORIZONTAL;
 
-        PanelHelper.addSelector(this,gbc,"part A",motor.getPartA(),motor::setPartA);
-        PanelHelper.addSelector(this,gbc,"part B",motor.getPartB(),motor::setPartB);
         addAction(gbc,"Torque",motor);
         PanelHelper.addLimit(this,gbc,"Force Max",motor.getForceMax(),motor::setForceMax,Double.POSITIVE_INFINITY);
         PanelHelper.addLimit(this,gbc,"Angle Max",motor.getAngleMax(),motor::setAngleMax,Double.POSITIVE_INFINITY);

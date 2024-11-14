@@ -25,8 +25,6 @@ public class ODEHingePanel extends JPanel {
         gbc.weightx=1;
         gbc.fill=GridBagConstraints.HORIZONTAL;
 
-        PanelHelper.addSelector(this,gbc,"part A",hinge.getPartA(),hinge::setPartA);
-        PanelHelper.addSelector(this,gbc,"part B",hinge.getPartB(),hinge::setPartB);
         addAction(gbc,"Torque",hinge);
         PanelHelper.addLimit(this,gbc,"Angle Max",hinge.getAngleMax(),hinge::setAngleMax,Double.POSITIVE_INFINITY);
         PanelHelper.addLimit(this,gbc,"Angle Min",hinge.getAngleMin(),hinge::setAngleMin,Double.NEGATIVE_INFINITY);

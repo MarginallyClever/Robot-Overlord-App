@@ -26,7 +26,7 @@ import java.util.Objects;
  * will behave as normal.</p>
  * <p>The motor applies force on its local Z axis.</p>
  */
-public class ODEAngularMotor extends ODELink {
+public class ODEAngularMotor extends ODEJoint {
     private static final Logger logger = LoggerFactory.getLogger(ODEAngularMotor.class);
     private DAMotorJoint motor;
     private double top = Double.POSITIVE_INFINITY;
@@ -62,10 +62,6 @@ public class ODEAngularMotor extends ODELink {
     private void createMotor() {
         motor = OdeHelper.createAMotorJoint(Registry.getPhysics().getODEWorld(), null);
         connectInternal();
-        motor.setNumAxes(3);
-        setAngleMax(top);
-        setAngleMin(bottom);
-        setForceMax(forceMax);
     }
 
     private void destroyMotor() {
@@ -87,8 +83,13 @@ public class ODEAngularMotor extends ODELink {
     @Override
     protected void connect(DBody a, DBody b) {
         if(motor==null) return;
+        logger.debug("{} connect {} {}",getAbsolutePath(),a,b);
         motor.attach(a, b);
-        updatePhysicsFromWorld();
+        motor.setNumAxes(3);
+        setAngleMax(top);
+        setAngleMin(bottom);
+        setForceMax(forceMax);
+        updateMotorPose();
     }
 
     @Override
@@ -143,8 +144,8 @@ public class ODEAngularMotor extends ODELink {
     public JSONObject toJSON() {
         var json = super.toJSON();
         double v = getAngleMax();   if(!Double.isInfinite(v)) json.put("hiStop1",v);
-        v = getAngleMin();          if(!Double.isInfinite(v)) json.put("loStop1",v);
-        v = getForceMax();          if(!Double.isInfinite(v)) json.put("fMax",v);
+               v = getAngleMin();   if(!Double.isInfinite(v)) json.put("loStop1",v);
+               v = getForceMax();   if(!Double.isInfinite(v)) json.put("fMax",v);
         return json;
     }
 

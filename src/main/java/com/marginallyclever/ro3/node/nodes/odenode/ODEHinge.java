@@ -25,7 +25,7 @@ import java.util.Objects;
  * will behave as normal.</p>
  * <p>The hinge pivots on its local Z axis.</p>
  */
-public class ODEHinge extends ODELink {
+public class ODEHinge extends ODEJoint {
     private static final Logger logger = LoggerFactory.getLogger(ODEHinge.class);
     private DHingeJoint hinge;
     double top = Double.POSITIVE_INFINITY;
@@ -60,9 +60,6 @@ public class ODEHinge extends ODELink {
     private void createHinge() {
         hinge = OdeHelper.createHingeJoint(Registry.getPhysics().getODEWorld(), null);
         connectInternal();
-        setAngleMax(top);
-        setAngleMin(bottom);
-        updatePhysicsFromWorld();
     }
 
     private void destroyHinge() {
@@ -84,10 +81,11 @@ public class ODEHinge extends ODELink {
     @Override
     protected void connect(DBody a, DBody b) {
         if(hinge==null) return;
+        logger.debug("{} connect {} {}",getAbsolutePath(),a,b);
         hinge.attach(a, b);
         setAngleMax(top);
         setAngleMin(bottom);
-        updatePhysicsFromWorld();
+        updateHingePose();
     }
 
     @Override
@@ -148,29 +146,17 @@ public class ODEHinge extends ODELink {
     @Override
     public JSONObject toJSON() {
         var json = super.toJSON();
-        double v = getAngleMax();
-        if(!Double.isInfinite(v)) {
-            json.put("hiStop1",v);
-        }
-        v = getAngleMin();
-        if(!Double.isInfinite(v)) {
-            json.put("loStop1",v);
-        }
+        double v = getAngleMax();        if(!Double.isInfinite(v)) json.put("hiStop1",v);
+               v = getAngleMin();        if(!Double.isInfinite(v)) json.put("loStop1",v);
         return json;
     }
 
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        if(from.has("hiStop1")) {
-            setAngleMax(from.getDouble("hiStop1"));
-        }
-        if(from.has("loStop1")) {
-            setAngleMin(from.getDouble("loStop1"));
-        }
-        updatePhysicsFromWorld();
+        if(from.has("hiStop1")) setAngleMax(from.getDouble("hiStop1"));
+        if(from.has("loStop1")) setAngleMin(from.getDouble("loStop1"));
         connectInternal();
-        updateHingePose();
     }
 
     public void addTorque(double value) {

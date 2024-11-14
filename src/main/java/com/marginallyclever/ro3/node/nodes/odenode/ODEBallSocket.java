@@ -2,24 +2,19 @@ package com.marginallyclever.ro3.node.nodes.odenode;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 import org.ode4j.math.DVector3;
 import org.ode4j.ode.DBallJoint;
 import org.ode4j.ode.DBody;
-import org.ode4j.ode.DHingeJoint;
 import org.ode4j.ode.OdeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * <p>Wrapper for a ball joint in ODE4J.  If one side of the hinge is null then it is attached to the world.</p>
@@ -27,7 +22,7 @@ import java.util.Objects;
  * of the hinge, as well as it's relation to the attached parts.  If the simulation is NOT paused then the hinge
  * will behave as normal.</p>
  */
-public class ODEBallSocket extends ODELink {
+public class ODEBallSocket extends ODEJoint {
     private static final Logger logger = LoggerFactory.getLogger(ODEBallSocket.class);
     private DBallJoint ballJoint;
 

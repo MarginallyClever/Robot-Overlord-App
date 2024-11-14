@@ -25,8 +25,6 @@ public class ODESliderPanel extends JPanel {
         gbc.weightx=1;
         gbc.fill=GridBagConstraints.HORIZONTAL;
 
-        PanelHelper.addSelector(this,gbc,"part A",slider.getPartA(),slider::setPartA);
-        PanelHelper.addSelector(this,gbc,"part B",slider.getPartB(),slider::setPartB);
         PanelHelper.addLimit(this,gbc,"Distance Max",slider.getDistanceMax(), slider::setDistanceMax,Double.POSITIVE_INFINITY);
         PanelHelper.addLimit(this,gbc,"Distance Min",slider.getDistanceMin(), slider::setDistanceMin,Double.NEGATIVE_INFINITY);
     }
