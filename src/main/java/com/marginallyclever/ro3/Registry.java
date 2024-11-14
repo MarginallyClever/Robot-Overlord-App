@@ -2,9 +2,9 @@ package com.marginallyclever.ro3;
 
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.mesh.MeshFactory;
+import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodefactory.NodeFactory;
 import com.marginallyclever.ro3.node.nodes.*;
-import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.behavior.BehaviorTreeRunner;
 import com.marginallyclever.ro3.node.nodes.behavior.Fallback;
 import com.marginallyclever.ro3.node.nodes.behavior.Sequence;
@@ -20,9 +20,9 @@ import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODEBox;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODECapsule;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODECylinder;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODESphere;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.*;
 import com.marginallyclever.ro3.physics.ODEPhysics;
-import com.marginallyclever.ro3.node.nodes.pose.*;
 import com.marginallyclever.ro3.texture.TextureFactory;
 
 import javax.swing.event.EventListenerList;
@@ -100,6 +100,7 @@ public class Registry {
                 physics.add("ODESphere", ODESphere::new);
             }
         }
+
         reset();
     }
 
@@ -107,9 +108,7 @@ public class Registry {
         selection.removeAll();
 
         // reset camera
-        List<Camera> toRemove = new ArrayList<>(cameras.getList());
-        for(Camera c : toRemove) cameras.remove(c);
-
+        cameras.removeAll();
         Camera first = new Camera("Camera 1");
         cameras.add(first);
         setActiveCamera(first);
