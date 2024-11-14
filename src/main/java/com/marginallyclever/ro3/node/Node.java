@@ -78,10 +78,8 @@ public class Node {
         child.setParent(this);
         child.onAttach();
         fireAttachEvent(child);
-        if(child.children.isEmpty()) {
-            fireReadyEvent(child);
-            child.onReady();
-        }
+        child.onReady();
+        fireReadyEvent(child);
     }
 
     public void removeChild(Node child) {
@@ -378,8 +376,8 @@ public class Node {
                 logger.error("{}: Could not create type {}.",getAbsolutePath(),child.getString("type"));
                 n = new Node();
             }
-            addChild(n);
             n.fromJSON(child);
+            addChild(n);
         }
     }
 
