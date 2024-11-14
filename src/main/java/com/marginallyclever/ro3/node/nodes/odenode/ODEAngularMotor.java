@@ -114,30 +114,33 @@ public class ODEAngularMotor extends ODEJoint {
         var xAxis = MatrixHelper.getXAxis(mat);        motor.setAxis(0,rel,xAxis.x, xAxis.y, xAxis.z);
         var yAxis = MatrixHelper.getYAxis(mat);        motor.setAxis(1,rel,yAxis.x, yAxis.y, yAxis.z);
         var zAxis = MatrixHelper.getZAxis(mat);        motor.setAxis(2,rel,zAxis.x, zAxis.y, zAxis.z);
+        logger.debug("{} setAxis {}",getAbsolutePath(),zAxis);
     }
 
     @Override
     public void update(double dt) {
         super.update(dt);
-        if(!Registry.getPhysics().isPaused()) {
-            // if the physics simulation is running then the motor will behave as normal.
-            DBody body = motor.getBody(0);
-            if(body==null) body = motor.getBody(1);
-            if(body==null) return;
-
-            DVector3C anchor = body.getPosition();
-            DVector3 axis = new DVector3();
-            motor.getAxis(2,axis);
-            // use axis and anchor to set the world matrix.
-            Matrix3d m3 = MatrixHelper.lookAt(
-                    new Vector3d(0,0,0),
-                    new Vector3d(axis.get0(),axis.get1(),axis.get2())
-            );
-            Matrix4d m4 = new Matrix4d();
-            m4.set(m3);
-            m4.setTranslation(new Vector3d(anchor.get0(),anchor.get1(),anchor.get2()));
-            setWorld(m4);
+        if (!Registry.getPhysics().isPaused()) {
+            updateWorldFromPhysics();
         }
+    }
+
+    private void updateWorldFromPhysics() {
+        if(motor==null) return;
+
+        DBody body = motor.getBody(0);
+        if(body==null) body = motor.getBody(1);
+        if(body==null) return;
+
+        var anchor = body.getPosition();
+        var axis = new DVector3();
+        motor.getAxis(2,axis);
+        // use axis and anchor to set the world matrix.
+        Matrix3d m3 = MatrixHelper.lookAt(
+                new Vector3d(),  // from
+                new Vector3d(axis.get0(),axis.get1(),axis.get2())  // to
+        );
+        setWorld(new Matrix4d(m3,new Vector3d(anchor.get0(),anchor.get1(),anchor.get2()),1));
     }
 
     @Override
@@ -175,7 +178,6 @@ public class ODEAngularMotor extends ODEJoint {
     public void setForceMax(double force) {
         forceMax = force;
         if(motor==null) return;
-        System.out.println("ODEAngularMotor.setForceMax("+force+")");
         motor.setParamFMax(force);
         motor.setParamFMax2(force);
         motor.setParamFMax3(force);

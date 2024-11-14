@@ -118,7 +118,7 @@ public class ODESlider extends ODEJoint {
     private void updateWorldFromPhysics() {
         if(sliderJoint==null) return;
 
-        DVector3 axis = new DVector3();
+        var axis = new DVector3();
         sliderJoint.getAxis(axis);
         Matrix3d m3 = MatrixHelper.lookAt(
                 new Vector3d(),  // from

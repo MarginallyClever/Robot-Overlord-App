@@ -126,20 +126,16 @@ public class ODEHinge extends ODEJoint {
     private void updatePoseFromPhysics() {
         if(hinge==null) return;
 
-        // if the physics simulation is running then the hinge will behave as normal.
-        DVector3 anchor = new DVector3();
-        DVector3 axis = new DVector3();
+        var anchor = new DVector3();
+        var axis = new DVector3();
         hinge.getAnchor(anchor);
         hinge.getAxis(axis);
         // use axis and anchor to set the world matrix.
         Matrix3d m3 = MatrixHelper.lookAt(
-                new Vector3d(0,0,0),
-                new Vector3d(axis.get0(),axis.get1(),axis.get2())
+                new Vector3d(),  // from
+                new Vector3d(axis.get0(),axis.get1(),axis.get2())  // to
         );
-        Matrix4d m4 = new Matrix4d();
-        m4.set(m3);
-        m4.setTranslation(new Vector3d(anchor.get0(),anchor.get1(),anchor.get2()));
-        setWorld(m4);
+        setWorld(new Matrix4d(m3,new Vector3d(anchor.get0(),anchor.get1(),anchor.get2()),1));
     }
 
 

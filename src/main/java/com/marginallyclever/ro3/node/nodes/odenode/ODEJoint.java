@@ -117,7 +117,6 @@ public class ODEJoint extends ODENode implements ODELinkDetachListener, ODELinkA
      * Examines the bodies of this link and connects them if possible.
      */
     protected void connectInternal() {
-        //logger.debug(getAbsolutePath()+" connectInternal");
         var as = partA.getSubject();
         var bs = partB.getSubject();
         if(as==null && bs==null) {
@@ -131,7 +130,7 @@ public class ODEJoint extends ODENode implements ODELinkDetachListener, ODELinkA
         DBody a = as.getODEBody();
         DBody b = bs == null ? null : bs.getODEBody();
 
-        //logger.debug(this.getName()+" connect "+ as.getName() +" to "+(bs == null ?"null":bs.getName()));
+        logger.debug(getAbsolutePath()+" connectInternal "+ as.getAbsolutePath() +" to "+(bs == null ?"null":bs.getAbsolutePath()));
         connect(a,b);
     }
 
