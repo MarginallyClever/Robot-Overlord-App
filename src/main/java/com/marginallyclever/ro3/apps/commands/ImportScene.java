@@ -64,6 +64,7 @@ public class ImportScene extends AbstractUndoableEdit {
             // Add the loaded scene to the current scene.
             created = createFromJSON(jsonObject);
             Registry.getScene().addChild(created);
+            Registry.getPhysics().deferredAction(created);
         } catch (IOException e) {
             logger.error("Error loading scene from JSON", e);
         }

@@ -1,5 +1,8 @@
 package com.marginallyclever.ro3.physics;
 
+import com.marginallyclever.ro3.SceneChangeListener;
+import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.odenode.ODEJoint;
 import org.ode4j.math.DVector3;
 import org.ode4j.ode.*;
 import org.slf4j.Logger;
@@ -10,6 +13,8 @@ import javax.swing.event.EventListenerList;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import static org.ode4j.ode.OdeConstants.*;
 import static org.ode4j.ode.OdeHelper.createSapSpace;
@@ -229,5 +234,23 @@ public class ODEPhysics {
 
     public void removeActionListener(ActionListener a) {
         listeners.remove(ActionListener.class, a);
+    }
+
+    /**
+     * Deferred action to be taken after some nodes have been added to the scene.
+     */
+    public void deferredAction(Node created) {
+        logger.debug("Deferred action on {}",created.getName());
+        // search for all ODEJoint nodes and connect them.
+        Queue<Node> toScan = new LinkedList<>();
+        toScan.add(created);
+        while(!toScan.isEmpty()) {
+            Node n = toScan.remove();
+            toScan.addAll(n.getChildren());
+            if(n instanceof ODEJoint j) {
+                j.setPartA(j.getPartA().getSubject());
+                j.setPartB(j.getPartB().getSubject());
+            }
+        }
     }
 }

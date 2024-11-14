@@ -53,7 +53,16 @@ public class LoadScene extends AbstractAction {
         this.chooser = chooser;
         this.menu = menu;
         this.filePath = filePath;
-        putValue(Action.NAME,filePath==null || filePath.isEmpty() ? "Load..." : filePath);
+
+        if(filePath==null || filePath.isEmpty()) {
+            putValue(Action.NAME,"Load...");
+        } else {
+            int maxLength = 60;
+            String shortName = filePath.length() > maxLength
+                    ? "..." + filePath.substring(filePath.length()-maxLength - 3)
+                    : filePath;
+            putValue(Action.NAME,shortName);
+        }
         putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-load-16.png"))));
         putValue(SHORT_DESCRIPTION,"Load a scene from a file.  Completely replaces the current Scene.");
         putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK));
@@ -122,6 +131,7 @@ public class LoadScene extends AbstractAction {
             Node loaded = new Node("Scene");
             loaded.fromJSON(json);
             Registry.setScene(loaded);
+            Registry.getPhysics().deferredAction(loaded);
 
             if(menu!=null) menu.addPath(selectedFile.getAbsolutePath());
         } catch (IOException e) {
