@@ -4,9 +4,10 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.odenode.ODELinkAttachListener;
 import com.marginallyclever.ro3.node.nodes.odenode.ODELinkDetachListener;
-import com.marginallyclever.ro3.physics.ODE4JHelper;
 import com.marginallyclever.ro3.node.nodes.odenode.ODENode;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
+import com.marginallyclever.ro3.physics.ODE4JHelper;
 import org.json.JSONObject;
 import org.ode4j.math.DMatrix3C;
 import org.ode4j.math.DVector3C;
@@ -144,6 +145,12 @@ public abstract class ODEBody extends ODENode {
         body.setPosition(world.m03, world.m13, world.m23);
         body.setRotation(ODE4JHelper.convertRotationToODE(world));
         fireODEAttach();
+    }
+
+    @Override
+    protected void onParentPoseChanged(Pose pose) {
+        super.onParentPoseChanged(pose);
+        updateBodyPose();
     }
 
     @Override
