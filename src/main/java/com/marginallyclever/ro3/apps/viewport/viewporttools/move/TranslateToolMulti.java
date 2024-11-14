@@ -41,7 +41,7 @@ public class TranslateToolMulti implements ViewportTool {
     private final List<ViewportTool> tools = new ArrayList<>();
     private SelectedItems selectedItems;
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
-    private TextureWithMetadata texture;
+    private final TextureWithMetadata texture;
 
     public TranslateToolMulti() {
         super();

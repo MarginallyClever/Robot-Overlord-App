@@ -27,9 +27,7 @@ public class RotateToolMulti implements ViewportTool {
     private final RotateToolOneAxis toolX = new RotateToolOneAxis(new ColorRGB(255,0,0));
     private final RotateToolOneAxis toolY = new RotateToolOneAxis(new ColorRGB(0,255,0));
     private final RotateToolOneAxis toolZ = new RotateToolOneAxis(new ColorRGB(0,0,255));
-
     private final List<ViewportTool> tools = new ArrayList<>();
-
     private SelectedItems selectedItems;
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
 
