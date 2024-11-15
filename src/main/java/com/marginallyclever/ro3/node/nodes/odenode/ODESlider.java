@@ -104,8 +104,7 @@ public class ODESlider extends ODEJoint {
     @Override
     public void update(double dt) {
         super.update(dt);
-        if(!Registry.getPhysics().isPaused())
-        {
+        if(!Registry.getPhysics().isPaused()) {
             updatePoseFromPhysics();
         }
     }
