@@ -62,7 +62,7 @@ public abstract class ODEBody extends ODENode {
         createBody();
         createGeom();
         updateMass();
-        updatePhysicsFromWorld();
+        updatePhysicsFromPose();
         fireODEAttach();
     }
 
@@ -113,14 +113,14 @@ public abstract class ODEBody extends ODENode {
         super.onFirstUpdate();
         // if the body has not been attached to a geom then it will produce
         // a warning "ODE Message 2: inertia must be positive definite"
-        updatePhysicsFromWorld();
+        updatePhysicsFromPose();
     }
 
     @Override
     public void update(double dt) {
         super.update(dt);
         if(!Registry.getPhysics().isPaused()) {
-            updateWorldFromPhysics();
+            updatePoseFromPhysics();
         }
     }
 
@@ -128,7 +128,7 @@ public abstract class ODEBody extends ODENode {
      * Adjust the position of the {@link com.marginallyclever.ro3.node.nodes.pose.Pose} to match the {@link ODEBody}.
      * This will cause the visual representation to match the physics representation.
      */
-    protected void updateWorldFromPhysics() {
+    protected void updatePoseFromPhysics() {
         if(body == null) return;
         DVector3C translation = body.getPosition();
         DMatrix3C rotation = body.getRotation();
@@ -139,7 +139,7 @@ public abstract class ODEBody extends ODENode {
      * Update the {@link ODEBody} to match the {@link com.marginallyclever.ro3.node.nodes.pose.Pose}.  This will
      * cause the physics representation to match the visual representation.
      */
-    private void updatePhysicsFromWorld() {
+    private void updatePhysicsFromPose() {
         if (body == null) return;
         var world = getWorld();
         body.setPosition(world.m03, world.m13, world.m23);
@@ -203,7 +203,7 @@ public abstract class ODEBody extends ODENode {
         if(from.has("mass")) setMassQty(from.getDouble("mass"));
         if(from.has("avel")) setAngularVel(ODE4JHelper.jsonToVector3(from.getJSONObject("avel")));
         if(from.has("lvel")) setLinearVel(ODE4JHelper.jsonToVector3(from.getJSONObject("lvel")));
-        updatePhysicsFromWorld();
+        updatePhysicsFromPose();
     }
 
     public void setAngularVel(Vector3d angularVel) {
@@ -237,7 +237,7 @@ public abstract class ODEBody extends ODENode {
     private void updateBodyPose() {
         // only allow while paused.
         if (Registry.getPhysics().isPaused()) {
-            updatePhysicsFromWorld();
+            updatePhysicsFromPose();
         }
     }
     /**

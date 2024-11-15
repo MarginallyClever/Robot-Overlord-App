@@ -244,7 +244,7 @@ public class RO3Frame extends JFrame {
         Docking.dock(treeView, this, DockingRegion.WEST);
         Docking.dock(detailView, treeView, DockingRegion.SOUTH);
         Docking.dock(aboutView, treeView, DockingRegion.CENTER);
-        logger.info("done.");
+        logger.debug("done.");
     }
 
     private void saveAndRestoreLayout() {

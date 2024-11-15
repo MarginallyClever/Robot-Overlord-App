@@ -5,7 +5,6 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 import org.ode4j.math.DVector3;
-import org.ode4j.math.DVector3C;
 import org.ode4j.ode.DAMotorJoint;
 import org.ode4j.ode.DBody;
 import org.ode4j.ode.OdeHelper;
@@ -83,7 +82,7 @@ public class ODEAngularMotor extends ODEJoint {
     @Override
     protected void connect(DBody a, DBody b) {
         if(motor==null) return;
-        logger.debug("{} connect {} {}",getAbsolutePath(),a,b);
+        //logger.debug("{} connect {} {}",getAbsolutePath(),a,b);
         motor.attach(a, b);
         motor.setNumAxes(3);
         setAngleMax(top);
@@ -102,11 +101,11 @@ public class ODEAngularMotor extends ODEJoint {
         // only let the user move the motor if the physics simulation is paused.
         if(Registry.getPhysics().isPaused()) {
             // set the motor reference point and axis.
-            updatePhysicsFromWorld();
+            updatePhysicsFromPose();
         }
     }
 
-    private void updatePhysicsFromWorld() {
+    private void updatePhysicsFromPose() {
         if(motor==null) return;
 
         var mat = getWorld();
@@ -114,18 +113,18 @@ public class ODEAngularMotor extends ODEJoint {
         var xAxis = MatrixHelper.getXAxis(mat);        motor.setAxis(0,rel,xAxis.x, xAxis.y, xAxis.z);
         var yAxis = MatrixHelper.getYAxis(mat);        motor.setAxis(1,rel,yAxis.x, yAxis.y, yAxis.z);
         var zAxis = MatrixHelper.getZAxis(mat);        motor.setAxis(2,rel,zAxis.x, zAxis.y, zAxis.z);
-        logger.debug("{} setAxis {}",getAbsolutePath(),zAxis);
+        //logger.debug("{} setAxis {}",getAbsolutePath(),zAxis);
     }
 
     @Override
     public void update(double dt) {
         super.update(dt);
         if (!Registry.getPhysics().isPaused()) {
-            updateWorldFromPhysics();
+            updatePoseFromPhysics();
         }
     }
 
-    private void updateWorldFromPhysics() {
+    private void updatePoseFromPhysics() {
         if(motor==null) return;
 
         DBody body = motor.getBody(0);
@@ -215,9 +214,24 @@ public class ODEAngularMotor extends ODEJoint {
     }
 
     public void addTorque(double qty) {
-        if(motor==null) return;
-        System.out.println("addTorque "+qty);
+        if (motor == null) return;
+        System.out.println("addTorque " + qty);
         //motor.addTorques(0,0,qty);
-        motor.setParamVel3(qty);//+motor.getParamVel3());
+        //motor.setParamVel3(qty);//+motor.getParamVel3());
+
+        addTorqueToBodies(qty);
+    }
+
+    private void addTorqueToBodies(double qty) {
+        var a = motor.getBody(0);
+        var b = motor.getBody(1);
+        if(a!=null && b!=null) {
+            a.addTorque(0,0,qty/2);
+            b.addTorque(0,0,-qty/2);
+        } else if(a!=null) {
+            a.addTorque(0,0,qty);
+        } else if(b!=null) {
+            b.addTorque(0,0,qty);
+        }
     }
 }

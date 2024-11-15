@@ -81,7 +81,7 @@ public class ODEHinge extends ODEJoint {
     @Override
     protected void connect(DBody a, DBody b) {
         if(hinge==null) return;
-        logger.debug("{} connect {} {}",getAbsolutePath(),a,b);
+        //logger.debug("{} connect {} {}",getAbsolutePath(),a,b);
         hinge.attach(a, b);
         setAngleMax(top);
         setAngleMin(bottom);
@@ -98,11 +98,11 @@ public class ODEHinge extends ODEJoint {
         // only let the user move the hinge if the physics simulation is paused.
         if(Registry.getPhysics().isPaused()) {
             // set the hinge reference point and axis.
-            updatePhysicsFromWorld();
+            updatePhysicsFromPose();
         }
     }
 
-    private void updatePhysicsFromWorld() {
+    private void updatePhysicsFromPose() {
         if(hinge==null) return;
 
         var mat = getWorld();

@@ -96,33 +96,34 @@ public class ODESlider extends ODEJoint {
         // only let the user move the hinge if the physics simulation is paused.
         if(Registry.getPhysics().isPaused()) {
             // set the hinge reference point and axis.
-            updatePhysicsFromWorld();
+            updatePhysicsFromPose();
         }
-    }
-
-    private void updatePhysicsFromWorld() {
-        if(sliderJoint==null) return;
-        var zAxis = MatrixHelper.getZAxis(getWorld());
-        sliderJoint.setAxis(zAxis.x, zAxis.y, zAxis.z);
-        logger.debug("{} setAxis {}",getAbsolutePath(),zAxis);
     }
 
     @Override
     public void update(double dt) {
         super.update(dt);
         if(!Registry.getPhysics().isPaused()) {
-            updateWorldFromPhysics();
+            updatePoseFromPhysics();
         }
     }
 
-    private void updateWorldFromPhysics() {
+    private void updatePhysicsFromPose() {
+        if(sliderJoint==null) return;
+        var zAxis = MatrixHelper.getZAxis(getWorld());
+        sliderJoint.setAxis(zAxis.x, zAxis.y, zAxis.z);
+        logger.debug("{} setAxis {}",getAbsolutePath(),zAxis);
+    }
+
+    private void updatePoseFromPhysics() {
         if(sliderJoint==null) return;
 
         var axis = new DVector3();
         sliderJoint.getAxis(axis);
+        Vector3d to = new Vector3d(axis.get0(), axis.get1(), axis.get2());
         Matrix3d m3 = MatrixHelper.lookAt(
                 new Vector3d(),  // from
-                new Vector3d(axis.get0(), axis.get1(), axis.get2())  // to
+                to // to
         );
         setWorld(new Matrix4d(m3,MatrixHelper.getPosition(getWorld()),1));
     }
@@ -142,7 +143,7 @@ public class ODESlider extends ODEJoint {
         super.fromJSON(from);
         if(from.has("hiStop1")) setDistanceMax(from.getDouble("hiStop1"));
         if(from.has("loStop1")) setDistanceMin(from.getDouble("loStop1"));
-        updatePhysicsFromWorld();
+        updatePhysicsFromPose();
         connectInternal();
         updateSliderPose();
     }

@@ -94,11 +94,11 @@ public class DrawMeshes extends AbstractRenderPass {
     }
 
     private void createShadowFBOandDepthMap(GL3 gl3) {
-        logger.debug("Creating shadow FBO");
+        //logger.debug("Creating shadow FBO");
         gl3.glGenFramebuffers(1, shadowFBO, 0);
         OpenGLHelper.checkGLError(gl3,logger);
 
-        logger.debug("Creating depth map");
+        //logger.debug("Creating depth map");
         gl3.glGenTextures(1, depthMap,0);
         gl3.glBindTexture(GL3.GL_TEXTURE_2D, depthMap[0]);
         gl3.glTexImage2D(GL3.GL_TEXTURE_2D,0,GL3.GL_DEPTH_COMPONENT,SHADOW_WIDTH,SHADOW_HEIGHT,0,GL3.GL_DEPTH_COMPONENT,GL3.GL_FLOAT,null);
@@ -112,7 +112,7 @@ public class DrawMeshes extends AbstractRenderPass {
         gl3.glTexParameterfv(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_BORDER_COLOR, borderColor,0);
         OpenGLHelper.checkGLError(gl3,logger);
 
-        logger.debug("Binding depth map {} to shadow FBO",depthMap[0]);
+        //logger.debug("Binding depth map {} to shadow FBO",depthMap[0]);
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, shadowFBO[0]);
         gl3.glFramebufferTexture2D(GL3.GL_FRAMEBUFFER, GL3.GL_DEPTH_ATTACHMENT, GL3.GL_TEXTURE_2D, depthMap[0], 0);
         gl3.glDrawBuffer(GL3.GL_NONE);

@@ -84,7 +84,12 @@ public class ODEPlane extends ODENode {
     @Override
     public void update(double dt) {
         super.update(dt);
-/*
+        if(!Registry.getPhysics().isPaused()) {
+            updatePoseFromPhysics();
+        }
+    }
+
+    private void updatePoseFromPhysics() {/*
         // adjust the position of the Node to match the body.
         if(plane == null) return;
 

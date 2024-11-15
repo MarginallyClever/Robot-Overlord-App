@@ -130,7 +130,7 @@ public class ODEJoint extends ODENode implements ODELinkDetachListener, ODELinkA
         DBody a = as.getODEBody();
         DBody b = bs == null ? null : bs.getODEBody();
 
-        logger.debug(getAbsolutePath()+" connectInternal "+ as.getAbsolutePath() +" to "+(bs == null ?"null":bs.getAbsolutePath()));
+        //logger.debug(getAbsolutePath()+" connectInternal "+ as.getAbsolutePath() +" to "+(bs == null ?"null":bs.getAbsolutePath()));
         connect(a,b);
     }
 

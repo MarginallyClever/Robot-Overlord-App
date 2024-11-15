@@ -82,7 +82,7 @@ public class ODEBallSocket extends ODEJoint {
     protected void connect(DBody a, DBody b) {
         if(ballJoint ==null) return;
         ballJoint.attach(a, b);
-        updatePhysicsFromWorld();
+        updatePhysicsFromPose();
     }
 
     @Override
@@ -95,11 +95,11 @@ public class ODEBallSocket extends ODEJoint {
         // only let the user move the hinge if the physics simulation is paused.
         if(Registry.getPhysics().isPaused()) {
             // set the hinge reference point and axis.
-            updatePhysicsFromWorld();
+            updatePhysicsFromPose();
         }
     }
 
-    private void updatePhysicsFromWorld() {
+    private void updatePhysicsFromPose() {
         if(ballJoint ==null) return;
 
         var mat = getWorld();
@@ -110,15 +110,18 @@ public class ODEBallSocket extends ODEJoint {
     @Override
     public void update(double dt) {
         super.update(dt);
-        if(!Registry.getPhysics().isPaused()) {
-            // if the physics simulation is running then the hinge will behave as normal.
-            DVector3 anchor = new DVector3();
-            ballJoint.getAnchor(anchor);
-            // use anchor to set the world position.
-            Matrix4d m4 = this.getWorld();
-            m4.setTranslation(new Vector3d(anchor.get0(),anchor.get1(),anchor.get2()));
-            setWorld(m4);
+        if (!Registry.getPhysics().isPaused()) {
+            updatePoseFromPhysics();
         }
+    }
+
+    private void updatePoseFromPhysics() {
+        DVector3 anchor = new DVector3();
+        ballJoint.getAnchor(anchor);
+        // use anchor to set the world position.
+        Matrix4d m4 = this.getWorld();
+        m4.setTranslation(new Vector3d(anchor.get0(),anchor.get1(),anchor.get2()));
+        setWorld(m4);
     }
 
     @Override
@@ -131,7 +134,7 @@ public class ODEBallSocket extends ODEJoint {
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        updatePhysicsFromWorld();
+        updatePhysicsFromPose();
         connectInternal();
         updateHingePose();
     }
