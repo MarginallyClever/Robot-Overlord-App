@@ -191,7 +191,7 @@ public class Camera extends Pose {
         Matrix3d viewMatrix = MatrixHelper.lookAt(target,position);
         Vector3d diff = new Vector3d();
         diff.sub(target,position);
-        if(diff.length()<0.0001) {
+        if(diff.length()<1e-6) {
             throw new InvalidParameterException("target is too close to camera.");
         }
         local.set(viewMatrix);

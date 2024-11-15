@@ -110,42 +110,35 @@ public class CameraPanel extends JPanel {
     }
 
     private void addLookAtComponents(GridBagConstraints gbc) {
-        var formatter = NumberFormatHelper.getNumberFormatter();
+        JFormattedTextField tx = PanelHelper.addNumberField("x",0);
+        JFormattedTextField ty = PanelHelper.addNumberField("y",0);
+        JFormattedTextField tz = PanelHelper.addNumberField("z",0);
+        tx.addPropertyChangeListener(e->lookAt(tx,ty,tz));
+        ty.addPropertyChangeListener(e->lookAt(tx,ty,tz));
+        tz.addPropertyChangeListener(e->lookAt(tx,ty,tz));
 
-        JFormattedTextField tx = new JFormattedTextField(formatter);        tx.setValue(0);
-        JFormattedTextField ty = new JFormattedTextField(formatter);        ty.setValue(0);
-        JFormattedTextField tz = new JFormattedTextField(formatter);        tz.setValue(0);
-        tx.setToolTipText("x");
-        ty.setToolTipText("y");
-        tz.setToolTipText("z");
-        tx.setColumns(6);
-        ty.setColumns(6);
-        tz.setColumns(6);
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        c.gridy=0;
+        panel.add(tx,c);
+        panel.add(ty,c);
+        panel.add(tz,c);
 
+        PanelHelper.addLabelAndComponent(this, "Look at", panel,gbc);
+        gbc.gridy++;
+    }
 
-        JButton button = new JButton("Set");
-        button.addActionListener(e -> {
-            Vector3d target = new Vector3d(
-                    ((Number) tx.getValue()).doubleValue(),
-                    ((Number) ty.getValue()).doubleValue(),
-                    ((Number) tz.getValue()).doubleValue()
-            );
-            try {
-                camera.lookAt(target);
-            } catch (InvalidParameterException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
-        PanelHelper.addLabelAndComponent(this, "Look at", new JLabel(),gbc);
-        gbc.gridy++;
-        PanelHelper.addLabelAndComponent(this, "X", tx,gbc);
-        gbc.gridy++;
-        PanelHelper.addLabelAndComponent(this, "Y", ty,gbc);
-        gbc.gridy++;
-        PanelHelper.addLabelAndComponent(this, "Z", tz,gbc);
-        gbc.gridy++;
-        PanelHelper.addLabelAndComponent(this, "", button,gbc);
-        gbc.gridy++;
+    private void lookAt(JFormattedTextField tx,JFormattedTextField ty,JFormattedTextField tz) {
+        try {
+            camera.lookAt(new Vector3d(
+                    ((Number)tx.getValue()).doubleValue(),
+                    ((Number)ty.getValue()).doubleValue(),
+                    ((Number)tz.getValue()).doubleValue()
+            ));
+        } catch (InvalidParameterException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
