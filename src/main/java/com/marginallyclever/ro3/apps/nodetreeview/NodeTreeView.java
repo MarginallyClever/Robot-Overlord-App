@@ -18,6 +18,7 @@ import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.security.InvalidParameterException;
@@ -35,6 +36,7 @@ public class NodeTreeView extends App
     private final JTree tree;
     private final NodeTreeBranch treeModel = new NodeTreeBranch(Registry.getScene());
     private final JToolBar toolBar = new JToolBar();
+    private final AddNode addNode = new AddNode();
     private final CutNode cutNode = new CutNode();
     private final CopyNode copyNode = new CopyNode();
     private final PasteNode pasteNode = new PasteNode();
@@ -76,8 +78,13 @@ public class NodeTreeView extends App
             @Override
             public void keyReleased(KeyEvent e) {
                 super.keyReleased(e);
-                if(removeNode.isEnabled()) {
-                    removeNode.actionPerformed(null);
+                // delete key removes selected nodes
+                if(e.getKeyCode()==KeyEvent.VK_DELETE && removeNode.isEnabled()) {
+                    removeNode.actionPerformed(new ActionEvent(e.getSource(),e.getID(),e.paramString()));
+                }
+                // insert key creates a new node
+                if(e.getKeyCode()==KeyEvent.VK_INSERT && addNode.isEnabled()) {
+                    addNode.actionPerformed(new ActionEvent(e.getSource(),e.getID(),e.paramString()));
                 }
             }
         });
@@ -166,7 +173,7 @@ public class NodeTreeView extends App
     }
 
     private void buildToolBar() {
-        toolBar.add(new JButton(new AddNode()));
+        toolBar.add(new JButton(addNode));
         toolBar.add(new JButton(cutNode));
         toolBar.add(new JButton(removeNode));
         toolBar.add(new JButton(copyNode));
