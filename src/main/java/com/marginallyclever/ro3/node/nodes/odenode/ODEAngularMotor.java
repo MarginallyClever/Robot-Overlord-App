@@ -216,10 +216,15 @@ public class ODEAngularMotor extends ODEJoint {
     public void addTorque(double qty) {
         if (motor == null) return;
         System.out.println("addTorque " + qty);
-        //motor.addTorques(0,0,qty);
-        //motor.setParamVel3(qty);//+motor.getParamVel3());
 
-        addTorqueToBodies(qty);
+        // this works
+        motor.setParamVel3(qty);
+        // this works but is hard to control
+        //motor.setParamVel3(qty+motor.getParamVel3());
+
+        // these don't work but should
+        //motor.addTorques(0,0,qty);
+        //addTorqueToBodies(qty);
     }
 
     private void addTorqueToBodies(double qty) {
