@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.odenode;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
@@ -103,7 +104,8 @@ public class ODESlider extends ODEJoint {
     @Override
     public void update(double dt) {
         super.update(dt);
-        if(!Registry.getPhysics().isPaused()) {
+        if(!Registry.getPhysics().isPaused())
+        {
             updatePoseFromPhysics();
         }
     }
@@ -112,7 +114,7 @@ public class ODESlider extends ODEJoint {
         if(sliderJoint==null) return;
         var zAxis = MatrixHelper.getZAxis(getWorld());
         sliderJoint.setAxis(zAxis.x, zAxis.y, zAxis.z);
-        logger.debug("{} setAxis {}",getAbsolutePath(),zAxis);
+        logger.debug("{} setAxis {}",getAbsolutePath(), StringHelper.printTuple3d(zAxis));
     }
 
     private void updatePoseFromPhysics() {

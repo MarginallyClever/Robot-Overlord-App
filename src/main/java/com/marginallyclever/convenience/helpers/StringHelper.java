@@ -28,7 +28,7 @@ public class StringHelper {
 		byte checksum = 0;
 
 		for (int i = 0; i < msg.length(); ++i) {
-			checksum ^= msg.charAt(i);
+			checksum ^= (byte) msg.charAt(i);
 		}
 
 		return "*" + Integer.toString(checksum);
@@ -122,5 +122,12 @@ public class StringHelper {
 		double [] mArray = new double[16];
 		for(int i=0;i<mArray.length;++i) mArray[i] = Double.parseDouble(pieces[i].trim());
 		return new Matrix4d(mArray);
+	}
+
+	public static String printTuple3d(Vector3d zAxis) {
+        return
+			"(" + StringHelper.formatDouble(zAxis.x) +
+			"," + StringHelper.formatDouble(zAxis.y) +
+			"," + StringHelper.formatDouble(zAxis.z) + ")";
 	}
 }
