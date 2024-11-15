@@ -5,6 +5,7 @@ import com.marginallyclever.ro3.RecentFilesMenu;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +115,7 @@ public class LoadScene extends AbstractAction {
 
         logger.info("Load from {}",selectedFile.getAbsolutePath());
 
-        // do it!
+        // remember the current working directory so we can restore it later
         String newCWD = selectedFile.getParent() + File.separator;
         String oldCWD = System.getProperty("user.dir");
         System.setProperty("user.dir",newCWD);
@@ -124,20 +125,25 @@ public class LoadScene extends AbstractAction {
             // if the json is bad, this will throw an exception before removing the previous scene.
             JSONObject json = new JSONObject(content);
 
-            // reset everything
+            // Reset the previous scene.
             NewScene newScene = new NewScene();
             newScene.commitNewScene();
 
+            // JSON has parsed OK.
             Node loaded = new Node("Scene");
             loaded.fromJSON(json);
+
             Registry.setScene(loaded);
             Registry.getPhysics().deferredAction(loaded);
+
+            moveCameraToFirstActive();
 
             if(menu!=null) menu.addPath(selectedFile.getAbsolutePath());
         } catch (IOException e) {
             logger.error("Error loading file.", e);
         }
 
+        // restore the current working directory
         System.setProperty("user.dir",oldCWD);
 
         if(saveScene!=null) {
@@ -146,5 +152,14 @@ public class LoadScene extends AbstractAction {
         }
 
         logger.info("done.");
+    }
+
+    private void moveCameraToFirstActive() {
+        // find the first active camera in the scene.
+        Node scene = Registry.getScene();
+        var camera = scene.findFirstChild(Camera.class);
+        if(camera!=null) {
+            Registry.setActiveCamera(camera);
+        }
     }
 }
