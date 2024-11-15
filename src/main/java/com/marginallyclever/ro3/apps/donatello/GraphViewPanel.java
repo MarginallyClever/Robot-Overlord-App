@@ -165,9 +165,9 @@ public class GraphViewPanel extends JPanel {
 
         //if(drawGrid)
         drawBackground(g2d,viewableArea);
-        drawNodes(g2d,viewableArea);
+        //drawNodes(g2d,viewableArea);
 
-        drawCursorInWorld(g2d);
+        //drawCursorInWorld(g2d);
     }
 
     private void drawCursorInWorld(Graphics2D g) {

@@ -1,19 +1,10 @@
 package com.marginallyclever.ro3.apps.donatello;
 
-import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.App;
-import com.marginallyclever.ro3.node.Node;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.image.BufferedImage;
-import java.util.*;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * {@link Donatello} is a panel that displays the {@link com.marginallyclever.ro3.Registry}. as a 2D graph.  It
@@ -34,7 +25,7 @@ public class Donatello extends App {
     }
 
     public Donatello() {
-        super();
+        super(new BorderLayout());
 
         setupToolbar();
         add(toolbar,BorderLayout.NORTH);
