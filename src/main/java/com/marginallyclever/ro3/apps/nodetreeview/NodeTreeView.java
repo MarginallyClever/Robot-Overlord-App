@@ -16,11 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
+import javax.swing.tree.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,6 +71,16 @@ public class NodeTreeView extends App
         tree.addTreeSelectionListener(this::changeSelection);
 
         tree.setToolTipText("");
+
+        tree.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+                if(removeNode.isEnabled()) {
+                    removeNode.actionPerformed(null);
+                }
+            }
+        });
     }
 
     private void changeSelection(TreeSelectionEvent e) {
