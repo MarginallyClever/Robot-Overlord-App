@@ -135,6 +135,15 @@ public class ODEJoint extends ODENode implements ODELinkDetachListener, ODELinkA
     }
 
     /**
+     * @return the first body that is not null.  If both are null then null is returned.
+     */
+    protected ODEBody getFirstSubject() {
+        var as = partA.getSubject();
+        if(as!=null) return as;
+        return partB.getSubject();
+    }
+
+    /**
      * <p>Override this method to handle connecting the two parts.  if only one body exists it will be guaranteed to be
      * body a.</p>
      * <p>This method should not be called directly. Instead, call {@link #connectInternal()}.</p>
