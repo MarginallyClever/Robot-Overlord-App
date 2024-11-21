@@ -154,8 +154,8 @@ public class TranslateToolOneAxis implements ViewportTool {
 
         Point3d nearestPoint = getNearestPointOnAxis(currentPoint);
 
-        Vector3d translation = new Vector3d();
-        translation.sub(nearestPoint, previousPoint);
+        Vector3d delta = new Vector3d();
+        delta.sub(nearestPoint, previousPoint);
         previousPoint.set(nearestPoint);
 
         var poses = new ArrayList<Pose>();
@@ -165,8 +165,8 @@ public class TranslateToolOneAxis implements ViewportTool {
             }
         }
 
-        // Apply the translation to the selected items.
-        UndoSystem.addEvent(new TranslatePoseCommand(poses,translation));
+        // Apply the delta to the selected items.
+        UndoSystem.addEvent(new TranslatePoseCommand(poses,delta));
     }
 
     @Override

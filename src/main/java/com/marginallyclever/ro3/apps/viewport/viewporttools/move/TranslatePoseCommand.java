@@ -1,8 +1,6 @@
 package com.marginallyclever.ro3.apps.viewport.viewporttools.move;
 
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoableEdit;
@@ -10,7 +8,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * A Command to translate a list of {@link Pose}s.  Being a Command means that it can be undone and redone.
@@ -26,10 +23,10 @@ public class TranslatePoseCommand extends AbstractUndoableEdit {
      * @param subjects the list of {@link Pose}s to translate.
      * @param v the translation vector is relative to the start of the user's move action.
      */
-    TranslatePoseCommand(List<Pose> subjects, Vector3d v) {
+    public TranslatePoseCommand(List<Pose> subjects, Vector3d v) {
         this.subjects.addAll(subjects);
         this.v.set(v);
-        moveAllSubjects(v);
+        moveAllSubjects(v,1);
     }
 
     @Override
@@ -41,23 +38,21 @@ public class TranslatePoseCommand extends AbstractUndoableEdit {
     @Override
     public void redo() {
         super.redo();
-        moveAllSubjects(v);
+        moveAllSubjects(v,1);
     }
 
     @Override
     public void undo() {
         super.undo();
-        Vector3d v = new Vector3d(this.v);
-        v.scale(-1);
-        moveAllSubjects(v);
+        moveAllSubjects(v,-1);
     }
 
-    private void moveAllSubjects(Vector3d v) {
+    private void moveAllSubjects(Vector3d v,double scale) {
         for(Pose pose : subjects) {
             Matrix4d m = pose.getWorld();
-            m.m03 += v.x;
-            m.m13 += v.y;
-            m.m23 += v.z;
+            m.m03 += v.x * scale;
+            m.m13 += v.y * scale;
+            m.m23 += v.z * scale;
             pose.setWorld(m);
         }
     }

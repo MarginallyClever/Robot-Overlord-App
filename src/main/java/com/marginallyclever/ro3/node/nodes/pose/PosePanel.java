@@ -2,10 +2,13 @@ package com.marginallyclever.ro3.node.nodes.pose;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.PanelHelper;
+import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.viewport.viewporttools.move.TranslatePoseCommand;
 
 import javax.swing.*;
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class PosePanel extends JPanel {
     private final Pose pose;
@@ -89,10 +92,13 @@ public class PosePanel extends JPanel {
 
     private void updateTranslation(JFormattedTextField tx, JFormattedTextField ty, JFormattedTextField tz) {
         var p = pose.getPosition();
-        p.x = ((Number)tx.getValue()).doubleValue();
-        p.y = ((Number)ty.getValue()).doubleValue();
-        p.z = ((Number)tz.getValue()).doubleValue();
-        pose.setPosition(p);
+        Vector3d delta = new Vector3d(
+            ((Number)tx.getValue()).doubleValue() - p.x,
+            ((Number)ty.getValue()).doubleValue() - p.y,
+            ((Number)tz.getValue()).doubleValue() - p.z);
+        var list = new ArrayList<Pose>();
+        list.add(pose);
+        UndoSystem.addEvent(new TranslatePoseCommand(list,delta));
     }
 
     private void updateRotation(JFormattedTextField rx, JFormattedTextField ry, JFormattedTextField rz) {
