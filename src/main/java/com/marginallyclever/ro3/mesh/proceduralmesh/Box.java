@@ -28,6 +28,7 @@ public class Box extends ProceduralMesh {
     public Box(double width,double length,double height) {
         super();
 
+        this.setRenderStyle(GL3.GL_TRIANGLES);
         this.width = width;
         this.length = length;
         this.height = height;
@@ -43,8 +44,6 @@ public class Box extends ProceduralMesh {
     @Override
     public void updateModel() {
         this.clear();
-        this.setRenderStyle(GL3.GL_TRIANGLES);
-        //shape.renderStyle=GL3.GL_LINES;  // set to see the wireframe
 
         double w = width*0.5f;
         double d = length*0.5f;
@@ -89,7 +88,7 @@ public class Box extends ProceduralMesh {
         p1.set(-w,-d,h);
         p2.set(-w,-d,-h);
         p3.set( w,-d,-h);
-        addSubdividedPlane(n,p0,p1,p2,p3,(int)(w/10),hParts);
+        addSubdividedPlane(n,p0,p1,p2,p3,wParts,hParts);
 
         n.set(1, 0, 0);
         p0.set( w, d,-h);
@@ -110,6 +109,16 @@ public class Box extends ProceduralMesh {
 
     /**
      * Subdivide a plane into triangles.
+     * <pre>
+     *     x0    x1
+     * p0--A-----B--p1
+     * |   |     |   |
+     * |   E-----F   | y0
+     * |   |     |   |
+     * |   G-----H   | y1
+     * |   |     |   |
+     * p2--C-----D--p3
+     * </pre>
      * @param n plane normal
      * @param p0 northwest corner
      * @param p1 northeast corner
@@ -128,14 +137,7 @@ public class Box extends ProceduralMesh {
         xParts = Math.max(xParts, 1);
         yParts = Math.max(yParts, 1);
 
-        Vector3d pA=new Vector3d();
-        Vector3d pB=new Vector3d();
-        Vector3d pC=new Vector3d();
-        Vector3d pD=new Vector3d();
-        Vector3d pE=new Vector3d();
-        Vector3d pF=new Vector3d();
-        Vector3d pG=new Vector3d();
-        Vector3d pH=new Vector3d();
+        Vector3d pA, pB, pC, pD, pE, pF, pG, pH;
 
         for(int x=0;x<xParts;x++) {
             float x0 = (float)x/(float)xParts;

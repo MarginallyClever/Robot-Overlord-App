@@ -166,4 +166,13 @@ public class MeshInstance extends Pose {
             }
         }
     }
+
+    @Override
+    protected void onAttach() {
+        super.onAttach();
+        // if there is no mesh, set it to a procedurally generated box
+        if(mesh==null) {
+            setMesh(ProceduralMeshFactory.createMesh("Box"));
+        }
+    }
 }
