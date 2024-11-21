@@ -6,6 +6,7 @@ import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
@@ -22,6 +23,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -52,6 +54,8 @@ public class TranslateToolOneAxis implements ViewportTool {
      * The point on the translation plane where the handle was clicked.
      */
     private Point3d startPoint;
+
+    private final Point3d previousPoint = new Point3d();
 
     /**
      * The plane on which the user is picking.
@@ -131,9 +135,12 @@ public class TranslateToolOneAxis implements ViewportTool {
     @Override
     public void mousePressed(MouseEvent event) {
         if (isCursorOverHandle()) {
+            startPoint = MoveUtils.getPointOnPlaneFromCursor(translationPlane,viewport,event.getX(), event.getY());
+            if(startPoint==null) return;
+
             dragging = true;
             cursorOverHandle = true;
-            startPoint = MoveUtils.getPointOnPlaneFromCursor(translationPlane,viewport,event.getX(), event.getY());
+            previousPoint.set(startPoint);
             selectedItems.savePose();
         }
     }
@@ -148,19 +155,18 @@ public class TranslateToolOneAxis implements ViewportTool {
         Point3d nearestPoint = getNearestPointOnAxis(currentPoint);
 
         Vector3d translation = new Vector3d();
-        translation.sub(nearestPoint, startPoint);
+        translation.sub(nearestPoint, previousPoint);
+        previousPoint.set(nearestPoint);
 
-        // Apply the translation to the selected items
-        for (Node node : selectedItems.getNodes()) {
+        var poses = new ArrayList<Pose>();
+        for(Node node : selectedItems.getNodes()) {
             if(node instanceof Pose pose) {
-                Matrix4d before = selectedItems.getWorldPoseAtStart(node);
-                Matrix4d m = new Matrix4d(before);
-                m.m03 += translation.x;
-                m.m13 += translation.y;
-                m.m23 += translation.z;
-                pose.setWorld(m);
+                poses.add(pose);
             }
         }
+
+        // Apply the translation to the selected items.
+        UndoSystem.addEvent(new TranslatePoseCommand(poses,translation));
     }
 
     @Override
@@ -196,10 +202,11 @@ public class TranslateToolOneAxis implements ViewportTool {
         Vector3d orthogonal = new Vector3d();
         orthogonal.cross(translationAxis, translationPlane.normal);
         orthogonal.normalize();
+        // diff is the vector from the start point to the current point.  it may drift off the axis.
         Vector3d diff = new Vector3d();
         diff.sub(currentPoint,startPoint);
         double d = diff.dot(orthogonal);
-        // remove the component of diff that is orthogonal to the translationAxis
+        // remove the component of diff that is orthogonal to the translationAxis so the motion stays on-axis.
         orthogonal.scale(d);
         diff.sub(orthogonal);
         diff.add(startPoint);
