@@ -133,4 +133,37 @@ public class Cylinder extends ProceduralMesh {
         if(jo.has("radius1")) radius1 = jo.getFloat("radius1");
         updateModel();
     }
+
+    /**
+     * Sets both radius's and the length of the cylinder.
+     * @param radius
+     * @param length
+     */
+    public void setRadiusAndLength(double radius, double length) {
+        if(radius<=0) throw new IllegalArgumentException("Radius must be greater than zero.");
+        if(length<=0) throw new IllegalArgumentException("Length must be greater than zero.");
+        this.radius0 = (float)radius;
+        this.radius1 = (float)radius;
+        this.height = (float)length;
+        updateModel();
+    }
+
+    /**
+     * Sets the length of the cylinder.  does not update the mesh.
+     * @param length
+     */
+    public void setLength(double length) {
+        if(length<=0) throw new IllegalArgumentException("Length must be greater than zero.");
+        this.height = (float)length;
+    }
+
+    /**
+     * Sets the radius of the cylinder.  does not update the mesh.
+     * @param radius
+     */
+    public void setRadius(double radius) {
+        if(radius<=0) throw new IllegalArgumentException("Radius must be greater than zero.");
+        this.radius0 = (float)radius;
+        this.radius1 = (float)radius;
+    }
 }

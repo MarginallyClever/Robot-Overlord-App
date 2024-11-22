@@ -53,19 +53,39 @@ public class ODECapsule extends ODEBody {
         return length;
     }
 
-    public void setRadius(double radius) {
-        if(radius<=0) throw new IllegalArgumentException("Radius must be greater than zero.");
-        this.radius = radius;
-        updateSize();
-    }
 
-    public void setLength(double length) {
+    /**
+     * Sets the radius and the length, then updates the mesh.
+     * @param radius
+     * @param length
+     */
+    public void setRadiusAndLength(double radius, double length) {
+        if(radius<=0) throw new IllegalArgumentException("Radius must be greater than zero.");
         if(length<=0) throw new IllegalArgumentException("Length must be greater than zero.");
+        this.radius = radius;
         this.length = length;
         updateSize();
     }
 
-    private void updateSize() {
+    /**
+     * Sets the radius of the capsule.  does not update the mesh.
+     * @param radius
+     */
+    public void setRadius(double radius) {
+        if(radius<=0) throw new IllegalArgumentException("Radius must be greater than zero.");
+        this.radius = radius;
+    }
+
+    /**
+     * Sets the length of the capsule.  does not update the mesh.
+     * @param length
+     */
+    public void setLength(double length) {
+        if(length<=0) throw new IllegalArgumentException("Length must be greater than zero.");
+        this.length = length;
+    }
+
+    public void updateSize() {
         if(geom==null) return;
 
         ((DCapsule)geom).setParams(radius, length);
@@ -77,9 +97,13 @@ public class ODECapsule extends ODEBody {
         MeshInstance meshInstance = findFirstChild(MeshInstance.class);
         if(null != meshInstance) {
             var mesh = meshInstance.getMesh();
-            if(mesh==null || mesh instanceof Capsule) {
-                meshInstance.setMesh(new Capsule(length, radius));
+            if(mesh instanceof Capsule g) {
+                g.setLength(length);
+                g.setRadius(radius);
+                g.updateModel();
+                return;
             }
+            meshInstance.setMesh(new Capsule(length, radius));
         }
 
         MeshInstance b1 = findNodeByPath("Ball1/MeshInstance",MeshInstance.class);

@@ -149,4 +149,22 @@ public class Capsule extends ProceduralMesh {
         if(jo.has("height")) height = jo.getFloat("height");
         updateModel();
     }
+
+    /**
+     * Sets the length of the cylinder.  does not update the mesh.
+     * @param length
+     */
+    public void setLength(double length) {
+        if(length<=0) throw new IllegalArgumentException("Length must be greater than zero.");
+        this.height = (float)length;
+    }
+
+    /**
+     * Sets the radius of the cylinder.  does not update the mesh.
+     * @param radius
+     */
+    public void setRadius(double radius) {
+        if(radius<=0) throw new IllegalArgumentException("Radius must be greater than zero.");
+        this.radius = (float)radius;
+    }
 }

@@ -19,8 +19,14 @@ public class ODECapsulePanel extends JPanel {
         super(new GridLayout(0,2));
         this.setName(ODECapsule.class.getSimpleName());
 
-        addField("Radius", body.getRadius(), body::setRadius);
-        addField("Length", body.getLength(), body::setLength);
+        addField("Radius", body.getRadius(), e->{
+            body.setRadius(e);
+            body.updateSize();
+        });
+        addField("Length", body.getLength(), e->{
+            body.setLength(e);
+            body.updateSize();
+        });
 
         JButton setMassByVolume = new JButton("Set");
         setMassByVolume.addActionListener(e -> {
