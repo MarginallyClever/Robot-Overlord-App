@@ -85,6 +85,7 @@ public class Registry {
                 pose.add("Limb", Limb::new);
                 pose.add("LookAt", LookAt::new);
                 pose.add("MeshInstance", MeshInstance::new);
+                pose.add("Spaceship", SpaceShip::new);
             }
             NodeFactory.Category physics = node.add("Physics", null);
             {
