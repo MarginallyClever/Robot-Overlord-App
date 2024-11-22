@@ -105,11 +105,13 @@ public class ODEJoint extends ODENode implements ODELinkDetachListener, ODELinkA
 
     @Override
     public void linkAttached(ODENode body) {
+        //logger.debug("{} linkAttached {}",getAbsolutePath(),body.getAbsolutePath());
         connectInternal();
     }
 
     @Override
     public void linkDetached(ODENode body) {
+        //logger.debug("{} linkDetached {}",getAbsolutePath(),body.getAbsolutePath());
         connectInternal();
     }
 

@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodes.odenode.odebody;
 
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.odenode.ODELinkAttachListener;
@@ -57,6 +58,7 @@ public abstract class ODEBody extends ODENode {
     @Override
     protected void onAttach() {
         super.onAttach();
+        //logger.debug("{} ODEBody.onAttach",getAbsolutePath());
         if(findFirstChild(MeshInstance.class)==null) addChild(new MeshInstance());
         if(findFirstChild(Material.class)==null) addChild(new Material());
         createBody();
@@ -77,6 +79,7 @@ public abstract class ODEBody extends ODENode {
     @Override
     protected void onDetach() {
         super.onDetach();
+        logger.debug("{} ODEBody.onDetach",getAbsolutePath());
         destroyBody();
         destroyGeom();
         fireODEDetach();
@@ -142,15 +145,10 @@ public abstract class ODEBody extends ODENode {
     private void updatePhysicsFromPose() {
         if (body == null) return;
         var world = getWorld();
+        //logger.debug("{} updatePhysicsFromPose {}",getAbsolutePath(), MatrixHelper.getZAxis(world));
         body.setPosition(world.m03, world.m13, world.m23);
         body.setRotation(ODE4JHelper.convertRotationToODE(world));
         fireODEAttach();
-    }
-
-    @Override
-    protected void onParentPoseChanged(Pose pose) {
-        super.onParentPoseChanged(pose);
-        updateBodyPose();
     }
 
     @Override
@@ -231,6 +229,14 @@ public abstract class ODEBody extends ODENode {
     @Override
     public void setLocal(Matrix4d m) {
         super.setLocal(m);
+        //logger.debug("{} setLocal {}",getAbsolutePath(), MatrixHelper.getZAxis(getWorld()));
+        updateBodyPose();
+    }
+
+    @Override
+    public void onPoseChange(Pose pose) {
+        super.onPoseChange(pose);
+        //logger.debug("{} ODEBody.onPoseChange {}",getAbsolutePath(), MatrixHelper.getZAxis(getWorld()));
         updateBodyPose();
     }
 
@@ -241,7 +247,7 @@ public abstract class ODEBody extends ODENode {
         }
     }
     /**
-     * Fired after an ODENode is attached to the scene.
+     * Fired after an ODEBody is attached to the scene.
      */
     public void fireODEAttach() {
         for(ODELinkAttachListener listener : listeners.getListeners(ODELinkAttachListener.class)) {
@@ -250,7 +256,7 @@ public abstract class ODEBody extends ODENode {
     }
 
     /**
-     * Fired after an ODENode is detached from the scene.
+     * Fired after an ODEBody is detached from the scene.
      */
     public void fireODEDetach() {
         for(ODELinkDetachListener listener : listeners.getListeners(ODELinkDetachListener.class)) {

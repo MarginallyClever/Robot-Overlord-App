@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes.odenode;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 import org.ode4j.math.DVector3;
@@ -90,6 +91,13 @@ public class ODESlider extends ODEJoint {
     @Override
     public void setLocal(Matrix4d m) {
         super.setLocal(m);
+        logger.debug("{} setLocal {}",getAbsolutePath(),MatrixHelper.getZAxis(getWorld()));
+        updateSliderPose();
+    }
+
+    @Override
+    public void onPoseChange(Pose pose) {
+        super.onPoseChange(pose);
         updateSliderPose();
     }
 
@@ -112,21 +120,46 @@ public class ODESlider extends ODEJoint {
     private void updatePhysicsFromPose() {
         if(sliderJoint==null) return;
         var zAxis = MatrixHelper.getZAxis(getWorld());
-        sliderJoint.setAxis(zAxis.x, zAxis.y, zAxis.z);
-        logger.debug("{} setAxis {}",getAbsolutePath(), StringHelper.printTuple3d(zAxis));
+
+        // sliderJoint.setAxis sets the axis relative to the first body.
+        // If there are no bodies then it silently does nothing.
+        ODEBody a = getFirstSubject();
+        if(a!=null) {
+            var w = a.getWorld();
+            w.invert();
+            w.transform(zAxis);
+            sliderJoint.setAxis(zAxis.x, zAxis.y, zAxis.z);
+            DVector3 v = new DVector3();
+            sliderJoint.getAxis(v);
+            var v2 = new Vector3d(v.get0(), v.get1(), v.get2());
+            logger.debug("{} setAxis {} {}",
+                    getAbsolutePath(),
+                    StringHelper.printTuple3d(zAxis),
+                    StringHelper.printTuple3d(v2)
+            );
+        }
     }
 
     private void updatePoseFromPhysics() {
         if(sliderJoint==null) return;
 
-        var axis = new DVector3();
-        sliderJoint.getAxis(axis);
-        Vector3d to = new Vector3d(axis.get0(), axis.get1(), axis.get2());
-        Matrix3d m3 = MatrixHelper.lookAt(
-                new Vector3d(),  // from
-                to // to
-        );
-        setWorld(new Matrix4d(m3,MatrixHelper.getPosition(getWorld()),1));
+        // sliderJoint.setAxis sets the axis relative to the first body.
+        // If there are no bodies then it silently does nothing.
+        ODEBody a = getFirstSubject();
+        if(a!=null) {
+            // sliderJoint returns axis relative to the world (DxJoint.getAxis).
+            var axis = new DVector3();
+            sliderJoint.getAxis(axis);
+            //System.out.println("axis = " + axis);
+            // body 1 exists, and we have the axis relative to body 1.
+            // get the axis relative to the world.
+            var w = a.getWorld();
+            Vector3d v = new Vector3d(axis.get0(), axis.get1(), axis.get2());
+            //w.transform(v);
+            System.out.println("v = " + v);
+            Matrix3d m3 = MatrixHelper.lookAt( new Vector3d(), v );
+            setWorld(new Matrix4d(m3,MatrixHelper.getPosition(getWorld()),1));
+        }
     }
 
     @Override
