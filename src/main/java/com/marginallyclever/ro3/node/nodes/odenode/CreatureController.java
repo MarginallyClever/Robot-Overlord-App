@@ -33,7 +33,7 @@ public class CreatureController extends ODENode implements CollisionListener {
     private double maxOutputTorque = 150000;  // magic numbers are fun!
 
     public CreatureController() {
-        super("CreatureController");
+        super(CreatureController.class.getSimpleName());
     }
 
     public CreatureController(String name) {

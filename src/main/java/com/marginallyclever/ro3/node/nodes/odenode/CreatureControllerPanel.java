@@ -2,11 +2,8 @@ package com.marginallyclever.ro3.node.nodes.odenode;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
-import com.marginallyclever.ro3.node.nodes.MaterialPanel;
 
-import java.util.List;
 import javax.swing.*;
-import javax.swing.text.NumberFormatter;
 import java.awt.*;
 
 /**

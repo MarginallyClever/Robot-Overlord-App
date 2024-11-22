@@ -1,8 +1,8 @@
 package com.marginallyclever.ro3.apps.actions;
 
-import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.RO3Frame;
 import com.marginallyclever.ro3.RecentFilesMenu;
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.shared.FilenameExtensionChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

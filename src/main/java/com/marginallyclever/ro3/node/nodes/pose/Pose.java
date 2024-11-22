@@ -5,20 +5,23 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.node.Node;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.util.List;
 import java.util.Objects;
-import java.util.Queue;
 
 /**
  * <p>A {@link Pose} is a {@link Node} that has a position and rotation in space.</p>
  */
-public class Pose extends Node {
+public class Pose extends Node implements PoseChangeListener {
+    private static final Logger logger = LoggerFactory.getLogger(Pose.class);
     private final Matrix4d local = MatrixHelper.createIdentityMatrix4();
     private MatrixHelper.EulerSequence rotationIndex = MatrixHelper.EulerSequence.YXZ;
+    private Pose parentPose;
 
     public Pose() {
         this("Pose");
@@ -26,6 +29,48 @@ public class Pose extends Node {
 
     public Pose(String name) {
         super(name);
+    }
+
+    public void addPoseChangeListener(PoseChangeListener listener) {
+        //logger.debug("{} addPoseChangeListener {}",getAbsolutePath(),listener);
+        listeners.add(PoseChangeListener.class, listener);
+    }
+
+    public void removePoseChangeListener(PoseChangeListener listener) {
+        //logger.debug("{} removePoseChangeListener {}",getAbsolutePath(),listener);
+        listeners.remove(PoseChangeListener.class, listener);
+    }
+
+    @Override
+    protected void onAttach() {
+        super.onAttach();
+        attachToParentPose();
+        firePoseChange();
+    }
+
+    @Override
+    protected void onDetach() {
+        super.onDetach();
+        detachFromParentPose();
+    }
+
+    private void attachToParentPose() {
+        // make sure we unregister from the old parent, if any.
+        if(parentPose!=null) detachFromParentPose();
+        // if we have a parent that is a Pose, register to receive pose update events.
+        parentPose = findParent(Pose.class);
+        //logger.debug("{} Pose.onAttach {}",getAbsolutePath(),parentPose==null?"null":parentPose.getAbsolutePath());
+        if(parentPose!=null) {
+            parentPose.addPoseChangeListener(this);
+        }
+    }
+
+    private void detachFromParentPose() {
+        //logger.debug("{} Pose.onDetach {}",getAbsolutePath(),parentPose==null?"null":parentPose.getAbsolutePath());
+        if(parentPose!=null) {
+            parentPose.removePoseChangeListener(this);
+            parentPose = null;
+        }
     }
 
     /**
@@ -47,7 +92,15 @@ public class Pose extends Node {
      * @param m the new local transform.
      */
     public void setLocal(Matrix4d m) {
+        if(local.equals(m)) return;
         local.set(m);
+        firePoseChange();
+    }
+
+    private void firePoseChange() {
+        for(var listener : listeners.getListeners(PoseChangeListener.class)) {
+            listener.onPoseChange(this);
+        }
     }
 
     /**
@@ -55,11 +108,10 @@ public class Pose extends Node {
      */
     public Matrix4d getWorld() {
         // search up the tree to find the world transform.
-        Pose p = findParent(Pose.class);
-        if(p==null) {
+        if(parentPose==null) {
             return getLocal();
         }
-        Matrix4d result = p.getWorld();
+        Matrix4d result = parentPose.getWorld();
         result.mul(getLocal());
         return result;
     }
@@ -70,13 +122,12 @@ public class Pose extends Node {
      */
     public void setWorld(Matrix4d m) {
         // search up the tree to find the world transform.
-        Pose parent = findParent(Pose.class);
-        if(parent==null) {
+        if(parentPose==null) {
             setLocal(m);
             return;
         }
         // Changing m could have unintended side effects, so use a temp variable.
-        Matrix4d temp = parent.getWorld();
+        Matrix4d temp = parentPose.getWorld();
         temp.invert();
         temp.mul(m);
         setLocal(temp);
@@ -160,5 +211,19 @@ public class Pose extends Node {
     @Override
     public Icon getIcon() {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/icons8-xyz-16.png")));
+    }
+
+    public Pose getParentPose() {
+        return parentPose;
+    }
+
+    /**
+     * Override this method to receive pose change events from the parent.
+     * @param pose the parent pose that has changed.
+     */
+    @Override
+    public void onPoseChange(Pose pose) {
+        //logger.debug("{} Pose.onPoseChange {}",getAbsolutePath(),pose.getAbsolutePath());
+        firePoseChange();
     }
 }

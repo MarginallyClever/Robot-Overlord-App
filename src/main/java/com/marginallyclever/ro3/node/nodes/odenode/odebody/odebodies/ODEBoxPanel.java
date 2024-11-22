@@ -17,27 +17,36 @@ public class ODEBoxPanel extends JPanel {
     }
 
     public ODEBoxPanel(ODEBox body) {
-        super(new GridLayout(0,2));
+        super(new GridBagLayout());
         this.setName(ODEBox.class.getSimpleName());
 
-        addField("Size X", body.getSizeX(), body::setSizeX);
-        addField("Size Y", body.getSizeY(), body::setSizeY);
-        addField("Size Z", body.getSizeZ(), body::setSizeZ);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
+        gbc.gridx=0;
 
+        // size xyz
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        JPanel panel = new JPanel(new GridBagLayout());
+        JFormattedTextField sx = PanelHelper.addNumberField("Size X", body.getSizeX());
+        JFormattedTextField sy = PanelHelper.addNumberField("Size Y", body.getSizeY());
+        JFormattedTextField sz = PanelHelper.addNumberField("Size Z", body.getSizeZ());
+        panel.add(sx,c);
+        panel.add(sy,c);
+        panel.add(sz,c);
+        PanelHelper.addLabelAndComponent(this,"Size",panel,gbc);
+        gbc.gridy++;
+        sx.addPropertyChangeListener("value", e -> body.setSizeX(((Number)sx.getValue()).doubleValue()));
+        sy.addPropertyChangeListener("value", e -> body.setSizeY(((Number)sy.getValue()).doubleValue()));
+        sz.addPropertyChangeListener("value", e -> body.setSizeZ(((Number)sz.getValue()).doubleValue()));
+
+        // mass
         JButton setMassByVolume = new JButton("Set");
         setMassByVolume.addActionListener(e -> {
             body.setMassQty(ODE4JHelper.volumeBox(body.getSizeX(),body.getSizeY(),body.getSizeZ()));
         });
-        PanelHelper.addLabelAndComponent(this,"Mass by Volume",setMassByVolume);
-    }
-
-    private void addField(String label, double originalValue, DoubleConsumer setSize) {
-        var formatter = NumberFormatHelper.getNumberFormatter();
-        formatter.setMinimum(0.001);
-
-        JFormattedTextField field = new JFormattedTextField(formatter);
-        field.setValue(originalValue);
-        field.addPropertyChangeListener("value", e -> setSize.accept( ((Number)field.getValue()).doubleValue() ));
-        PanelHelper.addLabelAndComponent(this,label,field);
+        PanelHelper.addLabelAndComponent(this,"Mass by Volume",setMassByVolume,gbc);
     }
 }

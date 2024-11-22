@@ -2,9 +2,6 @@ package com.marginallyclever.ro3.node.nodes.behavior;
 
 import com.marginallyclever.ro3.node.Node;
 
-import javax.swing.*;
-import java.util.Objects;
-
 /**
  * <p>{@link Behavior} is a {@link com.marginallyclever.ro3.node.Node} that can be used to control
  * the behavior of a robot.

@@ -2,11 +2,8 @@ package com.marginallyclever.convenience.helpers;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
-import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 

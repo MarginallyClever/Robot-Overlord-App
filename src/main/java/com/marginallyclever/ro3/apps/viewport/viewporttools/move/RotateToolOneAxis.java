@@ -5,16 +5,16 @@ import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
+import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
 import com.marginallyclever.ro3.mesh.Mesh;
-import com.marginallyclever.ro3.mesh.shapes.Box;
-import com.marginallyclever.ro3.mesh.shapes.CircleXY;
+import com.marginallyclever.ro3.mesh.proceduralmesh.Box;
+import com.marginallyclever.ro3.mesh.proceduralmesh.CircleXY;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
-import com.marginallyclever.ro3.apps.viewport.Viewport;
-import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +29,6 @@ import java.util.List;
  *
  */
 public class RotateToolOneAxis implements ViewportTool {
-    private static final Logger logger = LoggerFactory.getLogger(RotateToolOneAxis.class);
     /**
      * visual "tick" marks for snapping.
      */
@@ -93,18 +92,19 @@ public class RotateToolOneAxis implements ViewportTool {
      */
     private int rotation=2;
     private boolean cursorOverHandle = false;
-    private final Box handleBox = new Box();
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
     private final ColorRGB color;
+    private final Box handleBox = new Box();
     private final Mesh markerMesh = new Mesh();
     private final Mesh angleMesh = new Mesh();
-    private final Mesh ringMesh = new CircleXY();
+    private final CircleXY ringMesh = new CircleXY();
 
     public RotateToolOneAxis(ColorRGB color) {
         super();
         this.color = color;
         buildMarkerMesh();
         buildAngleMesh();
+        ringMesh.updateModel();
         ringMesh.setRenderStyle(GL3.GL_LINE_LOOP);
     }
 
@@ -143,6 +143,8 @@ public class RotateToolOneAxis implements ViewportTool {
             markerMesh.addVertex((float)a.x*d0, (float)a.y*d0, (float)a.z*d0);
             markerMesh.addVertex((float)a.x*d1, (float)a.y*d1, (float)a.z*d1);
         }
+
+        markerMesh.fireMeshChanged();
     }
 
     /**

@@ -6,13 +6,13 @@ import com.marginallyclever.convenience.KSPDirections;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
+import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
-import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
-import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 
 import javax.vecmath.Matrix4d;
@@ -41,7 +41,7 @@ public class TranslateToolMulti implements ViewportTool {
     private final List<ViewportTool> tools = new ArrayList<>();
     private SelectedItems selectedItems;
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
-    private TextureWithMetadata texture;
+    private final TextureWithMetadata texture;
 
     public TranslateToolMulti() {
         super();

@@ -2,8 +2,8 @@ package com.marginallyclever.ro3.node.nodes.odenode;
 
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
-
-import javax.vecmath.Matrix4d;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Base class for all {@link com.marginallyclever.ro3.node.Node} that implement ODE4J.</p>
@@ -19,13 +19,15 @@ import javax.vecmath.Matrix4d;
  * </ul>
  */
 public class ODENode extends Pose {
+    private static final Logger logger = LoggerFactory.getLogger(ODENode.class);
+
     /**
      * Should not be serialized, should be reset on every deserialize (such as {@link #fromJSON(JSONObject)})
      */
     private boolean runFirstUpdate=true;
 
     public ODENode() {
-        this("ODE Node");
+        this(ODENode.class.getSimpleName());
     }
 
     public ODENode(String name) {
@@ -33,8 +35,8 @@ public class ODENode extends Pose {
     }
 
     @Override
-    protected void onDetach() {
-        super.onDetach();
+    protected void onAttach() {
+        super.onAttach();
         runFirstUpdate=true;
     }
 
@@ -72,4 +74,5 @@ public class ODENode extends Pose {
     void setRunFirstUpdate(boolean runFirstUpdate) {
         this.runFirstUpdate=runFirstUpdate;
     }
+
 }

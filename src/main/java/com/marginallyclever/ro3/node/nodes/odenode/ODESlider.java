@@ -1,14 +1,12 @@
 package com.marginallyclever.ro3.node.nodes.odenode;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 import org.ode4j.math.DVector3;
 import org.ode4j.ode.DBody;
-import org.ode4j.ode.DHingeJoint;
 import org.ode4j.ode.DSliderJoint;
 import org.ode4j.ode.OdeHelper;
 import org.slf4j.Logger;
@@ -30,16 +28,14 @@ import java.util.Objects;
  * <p>If only one of the two parts is connected then the slider joint will allow the connected part to move freely
  * along the specified axis while the other end remains fixed.</p>
  */
-public class ODESlider extends ODENode {
+public class ODESlider extends ODEJoint {
     private static final Logger logger = LoggerFactory.getLogger(ODESlider.class);
     private DSliderJoint sliderJoint;
-    private final NodePath<ODEBody> partA = new NodePath<>(this,ODEBody.class);
-    private final NodePath<ODEBody> partB = new NodePath<>(this,ODEBody.class);
-    double top = Double.POSITIVE_INFINITY;
-    double bottom = Double.NEGATIVE_INFINITY;
+    private double top = Double.POSITIVE_INFINITY;
+    private double bottom = Double.NEGATIVE_INFINITY;
 
     public ODESlider() {
-        this("ODE Slider Joint");
+        this(ODESlider.class.getSimpleName());
     }
 
     public ODESlider(String name) {
@@ -52,34 +48,24 @@ public class ODESlider extends ODENode {
         super.getComponents(list);
     }
 
-    /**
-     * Called once at the start of the first {@link #update(double)}
-     */
     @Override
     protected void onFirstUpdate() {
         super.onFirstUpdate();
-        createHinge();
-    }
-
-    @Override
-    protected void onReady() {
-        super.onReady();
+        createSlider();
     }
 
     @Override
     protected void onDetach() {
         super.onDetach();
-        destroyHinge();
+        destroySlider();
     }
 
-    private void createHinge() {
+    private void createSlider() {
         sliderJoint = OdeHelper.createSliderJoint(Registry.getPhysics().getODEWorld(), null);
-        connect();
-        setDistanceMax(top);
-        setDistanceMin(bottom);
+        connectInternal();
     }
 
-    private void destroyHinge() {
+    private void destroySlider() {
         if(sliderJoint !=null) {
             try {
                 sliderJoint.destroy();
@@ -88,108 +74,30 @@ public class ODESlider extends ODENode {
         }
     }
 
-    public NodePath<ODEBody> getPartA() {
-        return partA;
-    }
-
-    public NodePath<ODEBody> getPartB() {
-        return partB;
-    }
-
-    public DSliderJoint getSliderJoint() {
-        return sliderJoint;
-    }
-
-    public void setPartA(ODEBody subject) {
-        partA.setUniqueIDByNode(subject);
-        connect();
-    }
-
-    public void setPartB(ODEBody subject) {
-        partB.setUniqueIDByNode(subject);
-        connect();
-    }
-
     /**
      * Tell the physics engine who is connected to this hinge.
      */
-    private void connect() {
-        if(sliderJoint ==null) return;
-
-        var as = partA.getSubject();
-        var bs = partB.getSubject();
-        DBody a = as == null ? null : as.getODEBody();
-        DBody b = bs == null ? null : bs.getODEBody();
-        if(a==null) {
-            a=b;
-            b=null;
-        }
-        logger.debug(this.getName()+" connect "+(as==null?"null":as.getName())+" to "+(bs==null?"null":bs.getName()));
+    @Override
+    protected void connect(DBody a, DBody b) {
+        if(sliderJoint == null) return;
+        logger.debug("{} connect {} {}",getAbsolutePath(),a,b);
         sliderJoint.attach(a, b);
-        updatePhysicsFromWorld();
+        setDistanceMax(top);
+        setDistanceMin(bottom);
+        updateSliderPose();
     }
 
     @Override
     public void setLocal(Matrix4d m) {
         super.setLocal(m);
-        updateHingePose();
+        updateSliderPose();
     }
 
-    private void updateHingePose() {
+    private void updateSliderPose() {
         // only let the user move the hinge if the physics simulation is paused.
         if(Registry.getPhysics().isPaused()) {
             // set the hinge reference point and axis.
-            updatePhysicsFromWorld();
-        }
-    }
-
-    private void updatePhysicsFromWorld() {
-        if(sliderJoint==null) return;
-
-        var mat = getWorld();
-        var zAxis = MatrixHelper.getZAxis(mat);
-        if(zAxis.length()<0.001) {
-            logger.error("Slider zAxis zero length?");
-        }
-        // When the zAxis is set, the current position of the attached bodies is considered the new zero position.
-        // there is no sliderJoint.setPosition().  This attempts to trick the system by fiddling with the position of
-        // the bodies to make the distance between them zero as setAxis is being called.
-        // first we measure the distance between this.Pose and the car along zAxis.
-        double distance = 0;
-        Pose p = partA.getSubject();
-        Matrix4d pOldWorld = null;
-        if(p==null) p = partB.getSubject();
-        if(p!=null) {
-            logger.debug("swizzling position to set zero distance.");
-            // p position
-            var pWorld = p.getWorld();
-            // a copy of p position
-            pOldWorld = new Matrix4d(pWorld);
-            // the distance between p and this.pose along zAxis
-            var pPos = MatrixHelper.getPosition(pWorld);
-            var worldPos = MatrixHelper.getPosition(mat);
-            pPos.sub(worldPos);
-            distance = pPos.dot(zAxis);
-            // set the p.position to this.pose so that the distance is zero.
-            pWorld.setTranslation(worldPos);
-            p.setWorld(pWorld);
-        }
-        // now we adjust the axis
-        sliderJoint.setAxis(zAxis.x, zAxis.y, zAxis.z);
-
-        // make an update(0) to make the physics engine aware of the new position of the bodies.
-        var physics = Registry.getPhysics();
-        var paused = physics.isPaused();
-        physics.setPaused(false);
-        physics.update(0);
-        physics.setPaused(paused);
-
-        if(p!=null) {
-            // move p to its old position like nothing happened.
-            p.setWorld(pOldWorld);
-            var compare = sliderJoint.getPosition();
-            // the distance should be very close to compare.
-            logger.debug("swizzle complete.  distance="+distance+" compare="+compare);
+            updatePhysicsFromPose();
         }
     }
 
@@ -197,52 +105,48 @@ public class ODESlider extends ODENode {
     public void update(double dt) {
         super.update(dt);
         if(!Registry.getPhysics().isPaused()) {
-            // if the physics simulation is running then the hinge will behave as normal.
-            DVector3 anchor = new DVector3();
-            DVector3 axis = new DVector3();
-            sliderJoint.getAxis(axis);
-            // use axis and anchor to set the world matrix.
-            Matrix3d m3 = MatrixHelper.lookAt(
-                    new Vector3d(0,0,0),
-                    new Vector3d(axis.get0(),axis.get1(),axis.get2())
-            );
-            Matrix4d m4 = new Matrix4d();
-            m4.set(m3);
-            m4.setTranslation(new Vector3d(anchor.get0(),anchor.get1(),anchor.get2()));
-            setWorld(m4);
+            updatePoseFromPhysics();
         }
+    }
+
+    private void updatePhysicsFromPose() {
+        if(sliderJoint==null) return;
+        var zAxis = MatrixHelper.getZAxis(getWorld());
+        sliderJoint.setAxis(zAxis.x, zAxis.y, zAxis.z);
+        logger.debug("{} setAxis {}",getAbsolutePath(), StringHelper.printTuple3d(zAxis));
+    }
+
+    private void updatePoseFromPhysics() {
+        if(sliderJoint==null) return;
+
+        var axis = new DVector3();
+        sliderJoint.getAxis(axis);
+        Vector3d to = new Vector3d(axis.get0(), axis.get1(), axis.get2());
+        Matrix3d m3 = MatrixHelper.lookAt(
+                new Vector3d(),  // from
+                to // to
+        );
+        setWorld(new Matrix4d(m3,MatrixHelper.getPosition(getWorld()),1));
     }
 
     @Override
     public JSONObject toJSON() {
         var json = super.toJSON();
-        json.put("partA",partA.getUniqueID());
-        json.put("partB",partB.getUniqueID());
         double v = getDistanceMax();
-        if(!Double.isInfinite(v)) {
-            json.put("hiStop1",v);
-        }
+        if(!Double.isInfinite(v)) json.put("hiStop1",v);
         v = getDistanceMin();
-        if(!Double.isInfinite(v)) {
-            json.put("loStop1",v);
-        }
+        if(!Double.isInfinite(v)) json.put("loStop1",v);
         return json;
     }
 
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        if(from.has("partA")) partA.setUniqueID(from.getString("partA"));
-        if(from.has("partB")) partB.setUniqueID(from.getString("partB"));
-        if(from.has("hiStop1")) {
-            setDistanceMax(from.getDouble("hiStop1"));
-        }
-        if(from.has("loStop1")) {
-            setDistanceMin(from.getDouble("loStop1"));
-        }
-        updatePhysicsFromWorld();
-        connect();
-        updateHingePose();
+        if(from.has("hiStop1")) setDistanceMax(from.getDouble("hiStop1"));
+        if(from.has("loStop1")) setDistanceMin(from.getDouble("loStop1"));
+        updatePhysicsFromPose();
+        connectInternal();
+        updateSliderPose();
     }
 
     /**
@@ -269,7 +173,7 @@ public class ODESlider extends ODENode {
      */
     public void setDistanceMax(double distance) {
         top = distance;
-        if(sliderJoint ==null) return;
+        if(sliderJoint == null) return;
         sliderJoint.setParamHiStop(distance);
     }
 

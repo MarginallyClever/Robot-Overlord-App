@@ -1,10 +1,6 @@
 package com.marginallyclever.robotoverlord.parameters.swing;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.FocusEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 /**
  * An element in the View

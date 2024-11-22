@@ -1,8 +1,9 @@
-package com.marginallyclever.ro3.mesh.shapes;
+package com.marginallyclever.ro3.mesh.proceduralmesh;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.ro3.mesh.Mesh;
+import org.json.JSONObject;
 
 import javax.vecmath.Vector3d;
 
@@ -11,7 +12,7 @@ import javax.vecmath.Vector3d;
  * The one-sided version only faces +Z.
  * </p>
  */
-public class Decal extends Mesh {
+public class Decal extends ProceduralMesh {
 	public float height = 1;
 	public float width = 1;
 	public int wParts = 1;
@@ -23,15 +24,19 @@ public class Decal extends Mesh {
 		updateModel();
 	}
 
-	/**
-	 * Procedurally generate a list of triangles that form a box, subdivided by some
-	 * amount.
-	 */
+	@Override
+	public String getEnglishName() {
+		return "Decal";
+	}
+
+	@Override
 	public void updateModel() {
 		clear();
 		setRenderStyle(GL3.GL_TRIANGLES);
 		//createTwoSidedDecal();
 		createOneSidedDecal();
+
+		fireMeshChanged();
 	}
 
 	/**
@@ -137,21 +142,26 @@ public class Decal extends Mesh {
 			}
 		}
 	}
-/*
-	@Override
-	public JSONObject toJSON(SerializationContext context) {
-		JSONObject jo = super.toJSON(context);
-		jo.put("width", width.toJSON(context));
-		jo.put("height", height.toJSON(context));
 
-		return jo;
+	@Override
+	public JSONObject toJSON() {
+		JSONObject json = super.toJSON();
+		json.put("height", height);
+		json.put("width", width);
+		json.put("wParts", wParts);
+		json.put("hParts", hParts);
+		json.put("textureScale", textureScale);
+		return json;
 	}
 
 	@Override
-	public void parseJSON(JSONObject jo, SerializationContext context) throws JSONException {
-		super.parseJSON(jo, context);
-		width.parseJSON(jo.getJSONObject("width"), context);
-		height.parseJSON(jo.getJSONObject("height"), context);
+	public void fromJSON(JSONObject from) {
+		super.fromJSON(from);
+		height = from.getFloat("height");
+		width = from.getFloat("width");
+		wParts = from.getInt("wParts");
+		hParts = from.getInt("hParts");
+		textureScale = from.getFloat("textureScale");
+		updateModel();
 	}
-*/
 }

@@ -1,14 +1,14 @@
 package com.marginallyclever.ro3.mesh;
 
+import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
+import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
+import com.marginallyclever.ro3.texture.TextureFactoryDialog;
+
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.util.Objects;
-
-import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.texture.TextureFactoryDialog;
-import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
-import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
 
 /**
  * <p>The {@link MeshChooserDialog} class allows for selecting a {@link com.marginallyclever.ro3.mesh.Mesh}

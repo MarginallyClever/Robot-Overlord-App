@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.node.nodes.behavior;
 
 import com.marginallyclever.ro3.PanelHelper;
-import com.marginallyclever.ro3.node.nodes.HingeJoint;
 
 import javax.swing.*;
 import java.awt.*;

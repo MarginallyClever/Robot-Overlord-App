@@ -7,10 +7,10 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.viewport.Viewport;
-import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
+import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

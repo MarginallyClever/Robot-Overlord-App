@@ -1,9 +1,9 @@
 package com.marginallyclever.ro3.node.nodes.pose.poses;
 
 import com.marginallyclever.convenience.swing.Dial;
+import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.node.nodes.Motor;
 
 import javax.swing.*;

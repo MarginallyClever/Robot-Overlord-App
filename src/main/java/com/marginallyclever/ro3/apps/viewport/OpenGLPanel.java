@@ -3,13 +3,13 @@ package com.marginallyclever.ro3.apps.viewport;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
-import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.App;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.event.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.util.prefs.Preferences;
 
 /**

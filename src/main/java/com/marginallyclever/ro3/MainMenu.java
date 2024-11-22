@@ -76,6 +76,7 @@ public class MainMenu extends JMenuBar {
                     putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_Q, SHORTCUT_CTRL));
                     putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("apps/icons8-stop-16.png"))));
                     putValue(Action.SHORT_DESCRIPTION, "Quit the application.");
+                    putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
                 }
 
                 @Override

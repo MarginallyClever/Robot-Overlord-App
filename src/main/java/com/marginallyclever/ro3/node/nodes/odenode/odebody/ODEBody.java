@@ -1,19 +1,22 @@
 package com.marginallyclever.ro3.node.nodes.odenode.odebody;
 
-import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.Material;
-import com.marginallyclever.ro3.physics.ODE4JHelper;
+import com.marginallyclever.ro3.node.nodes.odenode.ODELinkAttachListener;
+import com.marginallyclever.ro3.node.nodes.odenode.ODELinkDetachListener;
 import com.marginallyclever.ro3.node.nodes.odenode.ODENode;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
+import com.marginallyclever.ro3.physics.ODE4JHelper;
 import org.json.JSONObject;
-import org.ode4j.math.DMatrix3;
 import org.ode4j.math.DMatrix3C;
 import org.ode4j.math.DVector3C;
 import org.ode4j.ode.DBody;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DMass;
 import org.ode4j.ode.OdeHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
@@ -28,6 +31,7 @@ import java.util.Objects;
  * <p>TODO: They should not be responsible for the visual representation because physical and visual shape don't always match.</p>
  */
 public abstract class ODEBody extends ODENode {
+    private static final Logger logger = LoggerFactory.getLogger(ODEBody.class);
     protected DBody body;
     protected DGeom geom;
     protected DMass mass;
@@ -37,7 +41,7 @@ public abstract class ODEBody extends ODENode {
     private boolean isTouchingSomething = false;
 
     public ODEBody() {
-        this("ODE Body");
+        this(ODEBody.class.getSimpleName());
     }
 
     public ODEBody(String name) {
@@ -55,6 +59,19 @@ public abstract class ODEBody extends ODENode {
         super.onAttach();
         if(findFirstChild(MeshInstance.class)==null) addChild(new MeshInstance());
         if(findFirstChild(Material.class)==null) addChild(new Material());
+        createBody();
+        createGeom();
+        updateMass();
+        updatePhysicsFromPose();
+        fireODEAttach();
+    }
+
+    /**
+     * Override this method to create the {@link DGeom} and {@link DMass} for this {@link ODEBody}.
+     */
+    protected void createGeom() {
+        // TODO throw exception if we get here?
+        throw new RuntimeException("createGeom() not implemented.");
     }
 
     @Override
@@ -62,19 +79,30 @@ public abstract class ODEBody extends ODENode {
         super.onDetach();
         destroyBody();
         destroyGeom();
+        fireODEDetach();
     }
 
-    protected void destroyBody() {
+    private void destroyBody() {
         if(body != null) {
             body.destroy();
             body = null;
         }
     }
 
-    protected void destroyGeom() {
+    private void destroyGeom() {
         if(geom != null) {
             geom.destroy();
             geom = null;
+        }
+    }
+
+    private void createBody() {
+        if(body==null) {
+            body = OdeHelper.createBody(Registry.getPhysics().getODEWorld());
+        }
+        if(mass==null) {
+            mass = OdeHelper.createMass();
+            mass.setZero();
         }
     }
 
@@ -82,18 +110,18 @@ public abstract class ODEBody extends ODENode {
      * Called once at the start of the first {@link #update(double)}
      */
     protected void onFirstUpdate() {
-        body = OdeHelper.createBody(Registry.getPhysics().getODEWorld());
-        mass = OdeHelper.createMass();
-        mass.setZero();
-        updateMass();
+        super.onFirstUpdate();
+        // if the body has not been attached to a geom then it will produce
+        // a warning "ODE Message 2: inertia must be positive definite"
         updatePhysicsFromPose();
     }
 
     @Override
     public void update(double dt) {
         super.update(dt);
-
-        updatePoseFromPhysics();
+        if(!Registry.getPhysics().isPaused()) {
+            updatePoseFromPhysics();
+        }
     }
 
     /**
@@ -104,18 +132,25 @@ public abstract class ODEBody extends ODENode {
         if(body == null) return;
         DVector3C translation = body.getPosition();
         DMatrix3C rotation = body.getRotation();
-        super.setWorld(ODE4JHelper.convertODEtoMatrix(translation, rotation));
+        setWorld(ODE4JHelper.convertODEtoMatrix(translation, rotation));
     }
 
     /**
      * Update the {@link ODEBody} to match the {@link com.marginallyclever.ro3.node.nodes.pose.Pose}.  This will
      * cause the physics representation to match the visual representation.
      */
-    protected void updatePhysicsFromPose() {
+    private void updatePhysicsFromPose() {
         if (body == null) return;
         var world = getWorld();
         body.setPosition(world.m03, world.m13, world.m23);
         body.setRotation(ODE4JHelper.convertRotationToODE(world));
+        fireODEAttach();
+    }
+
+    @Override
+    protected void onParentPoseChanged(Pose pose) {
+        super.onParentPoseChanged(pose);
+        updateBodyPose();
     }
 
     @Override
@@ -139,10 +174,12 @@ public abstract class ODEBody extends ODENode {
     private void updateMass() {
         if(mass==null || body==null) return;
         mass.setMass(massQty);
-        if(massQty>0 && mass.check()) {
+        if(massQty>0) {
             body.setMass(mass);
-            body.setAngularVel(angularVel.x, angularVel.y, angularVel.z);
-            body.setLinearVel(linearVel.x, linearVel.y, linearVel.z);
+            if(mass.check()) {
+                body.setAngularVel(angularVel.x, angularVel.y, angularVel.z);
+                body.setLinearVel(linearVel.x, linearVel.y, linearVel.z);
+            }
         }
     }
 
@@ -191,27 +228,49 @@ public abstract class ODEBody extends ODENode {
         this.isTouchingSomething = isTouchingSomething;
     }
 
-
     @Override
     public void setLocal(Matrix4d m) {
         super.setLocal(m);
+        updateBodyPose();
+    }
 
+    private void updateBodyPose() {
         // only allow while paused.
-        if(Registry.getPhysics().isPaused()) return;
-
-        var w = getWorld();
-
-        // set position part
-        var p = MatrixHelper.getPosition(w);
-        body.setPosition(p.x,p.y,p.z);
-
-        // set rotation part
-        DMatrix3 rotation = new DMatrix3();
-        for(int i=0;i<3;++i) {
-            for(int j=0;j<3;++j) {
-                rotation.set(i,j,w.getElement(i,j));
-            }
+        if (Registry.getPhysics().isPaused()) {
+            updatePhysicsFromPose();
         }
-        body.setRotation(rotation);
+    }
+    /**
+     * Fired after an ODENode is attached to the scene.
+     */
+    public void fireODEAttach() {
+        for(ODELinkAttachListener listener : listeners.getListeners(ODELinkAttachListener.class)) {
+            listener.linkAttached(this);
+        }
+    }
+
+    /**
+     * Fired after an ODENode is detached from the scene.
+     */
+    public void fireODEDetach() {
+        for(ODELinkDetachListener listener : listeners.getListeners(ODELinkDetachListener.class)) {
+            listener.linkDetached(this);
+        }
+    }
+
+    public void addODEDetachListener(ODELinkDetachListener o) {
+        listeners.add(ODELinkDetachListener.class,o);
+    }
+
+    public void removeODEDetachListener(ODELinkDetachListener o) {
+        listeners.remove(ODELinkDetachListener.class,o);
+    }
+
+    public void addODEAttachListener(ODELinkAttachListener o) {
+        listeners.add(ODELinkAttachListener.class,o);
+    }
+
+    public void removeODEAttachListener(ODELinkAttachListener o) {
+        listeners.remove(ODELinkAttachListener.class,o);
     }
 }

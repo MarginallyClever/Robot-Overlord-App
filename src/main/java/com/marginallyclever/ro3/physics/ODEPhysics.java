@@ -1,14 +1,18 @@
 package com.marginallyclever.ro3.physics;
 
-import org.ode4j.math.DVector3;
+import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.odenode.ODEJoint;
 import org.ode4j.ode.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.event.EventListenerList;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import static org.ode4j.ode.OdeConstants.*;
-import static org.ode4j.ode.OdeHelper.createSapSpace;
 import static org.ode4j.ode.OdeHelper.createWorld;
 
 /**
@@ -30,13 +34,12 @@ public class ODEPhysics {
     private DSpace space;
     private DContactBuffer contacts;
     private DJointGroup contactGroup;
-    private boolean isPaused = true;
+    private boolean isPaused;
 
     protected final EventListenerList listeners = new EventListenerList();
 
     public ODEPhysics() {
         super();
-        startPhysics();
     }
 
     public void reset() {
@@ -75,25 +78,36 @@ public class ODEPhysics {
         if(contactGroup == null) {
             contactGroup = OdeHelper.createJointGroup();
         }
+
+        fireActionEvent(new ActionEvent(this, 1, "Physics Started"));
+        setPaused(true);
     }
 
     private void stopPhysics() {
         logger.info("Stopping Physics");
 
-        if(contactGroup!=null) {
+        if (contactGroup != null) {
             contactGroup.empty();
             contactGroup.destroy();
-            contactGroup=null;
+            contactGroup = null;
         }
 
-        if(space!=null) {
+        if (space != null) {
             space.destroy();
-            space=null;
+            space = null;
         }
 
-        if(world!=null) {
+        if (world != null) {
             world.destroy();
-            world=null;
+            world = null;
+        }
+
+        fireActionEvent(new ActionEvent(this, 0, "Physics Stopped"));
+    }
+
+    private void fireActionEvent(ActionEvent e) {
+        for(ActionListener listener : listeners.getListeners(ActionListener.class)) {
+            listener.actionPerformed(e);
         }
     }
 
@@ -110,7 +124,7 @@ public class ODEPhysics {
 
         try {
             OdeHelper.spaceCollide(getODESpace(), null, this::nearCallback);
-            world.quickStep(dt);  // advance the simulation.  reportedly better than using step().
+            if(dt>0) world.quickStep(dt);  // advance the simulation.  reportedly better than using step().
             contactGroup.empty();
         } catch(Exception e) {
             logger.error("update failed.", e);
@@ -176,6 +190,10 @@ public class ODEPhysics {
 
     public void setPaused(boolean state) {
         isPaused = state;
+
+        // Notify all listeners that the physics engine is doing something.
+        if(isPaused) fireActionEvent(new ActionEvent(this, 2, "Physics Paused"));
+        else         fireActionEvent(new ActionEvent(this, 3, "Physics Running"));
     }
 
     public double getCFM() {
@@ -205,4 +223,29 @@ public class ODEPhysics {
         if(world!=null) world.setGravity(0, 0, WORLD_GRAVITY);
     }
 
+    public void addActionListener(ActionListener a) {
+        listeners.add(ActionListener.class, a);
+    }
+
+    public void removeActionListener(ActionListener a) {
+        listeners.remove(ActionListener.class, a);
+    }
+
+    /**
+     * Deferred action to be taken after some nodes have been added to the scene.
+     */
+    public void deferredAction(Node created) {
+        logger.debug("Deferred action on {}",created.getName());
+        // search for all ODEJoint nodes and connect them.
+        Queue<Node> toScan = new LinkedList<>();
+        toScan.add(created);
+        while(!toScan.isEmpty()) {
+            Node n = toScan.remove();
+            toScan.addAll(n.getChildren());
+            if(n instanceof ODEJoint j) {
+                j.setPartA(j.getPartA().getSubject());
+                j.setPartB(j.getPartB().getSubject());
+            }
+        }
+    }
 }

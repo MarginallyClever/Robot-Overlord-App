@@ -98,7 +98,10 @@ class LimbPlannerTest {
                     +" Move "+Arrays.toString(limb.getAllJointAngles())
                     +" " + limbSolver.getDistanceToTarget());
             limb.update(dt);
-            if(!limbPlanner.isRunning()) break;
+            if(!limbPlanner.isRunning()) {
+                logger.debug("Stopped at {}",sum);
+                break;
+            }
         }
         if(limbPlanner.isRunning()) {
             limbPlanner.stopRun();

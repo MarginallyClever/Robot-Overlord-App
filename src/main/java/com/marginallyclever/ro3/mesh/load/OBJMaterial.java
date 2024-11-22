@@ -1,5 +1,8 @@
 package com.marginallyclever.ro3.mesh.load;
 
+/**
+ * <p>OBJ material file.</p>
+ */
 public class OBJMaterial {
     public String name;
     public String texture;

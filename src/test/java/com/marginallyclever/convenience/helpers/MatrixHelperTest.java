@@ -67,4 +67,27 @@ public class MatrixHelperTest {
         Assertions.assertEquals(4,a.m22);
         Assertions.assertEquals(1,a.m33);
     }
+
+    @Test
+    public void lookAt() {
+        var m3 = MatrixHelper.lookAt(new Vector3d(1,0,0),new Vector3d(0,0,0));
+        var m4 = new Matrix4d(m3,new Vector3d(),1);
+        var z = MatrixHelper.getZAxis(m4);
+        Assertions.assertEquals(-1,z.x);
+
+        m3 = MatrixHelper.lookAt(new Vector3d(-1,0,0),new Vector3d(0,0,0));
+        m4 = new Matrix4d(m3,new Vector3d(),1);
+        z = MatrixHelper.getZAxis(m4);
+        Assertions.assertEquals(1,z.x);
+
+        m3 = MatrixHelper.lookAt(new Vector3d(0,1,0),new Vector3d(0,0,0));
+        m4 = new Matrix4d(m3,new Vector3d(),1);
+        z = MatrixHelper.getZAxis(m4);
+        Assertions.assertEquals(-1,z.y);
+
+        m3 = MatrixHelper.lookAt(new Vector3d(0,-1,0),new Vector3d(0,0,0));
+        m4 = new Matrix4d(m3,new Vector3d(),1);
+        z = MatrixHelper.getZAxis(m4);
+        Assertions.assertEquals(1,z.y);
+    }
 }

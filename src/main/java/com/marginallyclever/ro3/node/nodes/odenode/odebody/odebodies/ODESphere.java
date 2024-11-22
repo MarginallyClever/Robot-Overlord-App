@@ -1,9 +1,8 @@
 package com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.mesh.shapes.Sphere;
+import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
-import com.marginallyclever.ro3.physics.ODE4JHelper;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONObject;
 import org.ode4j.ode.DSphere;
@@ -20,7 +19,7 @@ public class ODESphere extends ODEBody {
     private double radius = 2.5;
 
     public ODESphere() {
-        this("ODE Sphere");
+        this(ODESphere.class.getSimpleName());
     }
 
     public ODESphere(String name) {
@@ -34,9 +33,7 @@ public class ODESphere extends ODEBody {
     }
 
     @Override
-    protected void onFirstUpdate() {
-        super.onFirstUpdate();
-
+    protected void createGeom() {
         geom = createSphere(Registry.getPhysics().getODESpace(), radius);
         geom.setBody(body);
 

@@ -17,8 +17,12 @@ public class ODEBodyPanel extends JPanel {
     }
 
     public ODEBodyPanel(ODEBody body) {
-        super(new GridLayout(0,2));
+        super(new GridBagLayout());
         this.setName(ODEBody.class.getSimpleName());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.weightx=1;
+        gbc.fill=GridBagConstraints.HORIZONTAL;
 
         var formatter = NumberFormatHelper.getNumberFormatter();
         formatter.setMinimum(0.000);
@@ -26,6 +30,6 @@ public class ODEBodyPanel extends JPanel {
         JFormattedTextField massQty = new JFormattedTextField(formatter);
         massQty.setValue(body.getMassQty());
         massQty.addPropertyChangeListener("value", e -> body.setMassQty( ((Number)massQty.getValue()).doubleValue() ));
-        PanelHelper.addLabelAndComponent(this,"Mass",massQty);
+        PanelHelper.addLabelAndComponent(this,"Mass",massQty,gbc);
     }
 }

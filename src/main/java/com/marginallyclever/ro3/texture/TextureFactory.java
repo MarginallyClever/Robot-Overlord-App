@@ -52,8 +52,9 @@ public class TextureFactory {
     }
 
     /**
-     * Unloads all OpenGL textures so that they can be reloaded on the next call to {@link GLAutoDrawable#display()}.
-     * Does not free the underlying {@link BufferedImage} data.
+     * <p>Unloads all OpenGL textures so that they can be reloaded on the next call to {@link GLAutoDrawable#display()}.
+     * Does not free the underlying {@link BufferedImage} data.</p>
+     * <p>if this is called from a thread that has no OpenGL context a {@link com.jogamp.opengl.GLException} will occur.</p>
      */
     public void unloadAll() {
         for(TextureWithMetadata t : texturePool.getList()) {

@@ -6,7 +6,10 @@ import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.actions.*;
 import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
 import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
-import com.marginallyclever.ro3.node.*;
+import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodeAttachListener;
+import com.marginallyclever.ro3.node.NodeDetachListener;
+import com.marginallyclever.ro3.node.NodeRenameListener;
 import com.marginallyclever.ro3.node.nodefactory.NodeTreeBranchRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +18,12 @@ import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.security.InvalidParameterException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,6 +36,7 @@ public class NodeTreeView extends App
     private final JTree tree;
     private final NodeTreeBranch treeModel = new NodeTreeBranch(Registry.getScene());
     private final JToolBar toolBar = new JToolBar();
+    private final AddNode addNode = new AddNode();
     private final CutNode cutNode = new CutNode();
     private final CopyNode copyNode = new CopyNode();
     private final PasteNode pasteNode = new PasteNode();
@@ -44,9 +52,7 @@ public class NodeTreeView extends App
 
         buildToolBar();
 
-        JScrollPane scroll = new JScrollPane();
-        scroll.setViewportView(tree);
-        add(scroll, BorderLayout.CENTER);
+        add(new JScrollPane(tree), BorderLayout.CENTER);
         add(toolBar, BorderLayout.NORTH);
     }
 
@@ -67,6 +73,21 @@ public class NodeTreeView extends App
         tree.addTreeSelectionListener(this::changeSelection);
 
         tree.setToolTipText("");
+
+        tree.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+                // delete key removes selected nodes
+                if(e.getKeyCode()==KeyEvent.VK_DELETE && removeNode.isEnabled()) {
+                    removeNode.actionPerformed(new ActionEvent(e.getSource(),e.getID(),e.paramString()));
+                }
+                // insert key creates a new node
+                if(e.getKeyCode()==KeyEvent.VK_INSERT && addNode.isEnabled()) {
+                    addNode.actionPerformed(new ActionEvent(e.getSource(),e.getID(),e.paramString()));
+                }
+            }
+        });
     }
 
     private void changeSelection(TreeSelectionEvent e) {
@@ -152,16 +173,11 @@ public class NodeTreeView extends App
     }
 
     private void buildToolBar() {
-        var addButton = new JButton(new AddNode());
-        var cutButton = new JButton(cutNode);
-        var removeButton = new JButton(removeNode);
-        var copyButton = new JButton(copyNode);
-        var pasteButton = new JButton(pasteNode);
-        toolBar.add(addButton);
-        toolBar.add(pasteButton);
-        toolBar.add(copyButton);
-        toolBar.add(cutButton);
-        toolBar.add(removeButton);
+        toolBar.add(new JButton(addNode));
+        toolBar.add(new JButton(cutNode));
+        toolBar.add(new JButton(removeNode));
+        toolBar.add(new JButton(copyNode));
+        toolBar.add(new JButton(pasteNode));
         removeNode.setEnabled(false);  // nothing selected at first
     }
 

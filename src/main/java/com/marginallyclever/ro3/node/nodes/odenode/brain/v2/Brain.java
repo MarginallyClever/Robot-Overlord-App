@@ -3,15 +3,14 @@ package com.marginallyclever.ro3.node.nodes.odenode.brain.v2;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Brain {
-    private List<Neuron> inputNeurons = new ArrayList<>();
-    private List<Neuron> outputNeurons = new ArrayList<>();
-    private List<Neuron> neurons = new ArrayList<>();
-    private List<Connection> connections = new ArrayList<>();
+    private final List<Neuron> inputNeurons = new ArrayList<>();
+    private final List<Neuron> outputNeurons = new ArrayList<>();
+    private final List<Neuron> neurons = new ArrayList<>();
+    private final List<Connection> connections = new ArrayList<>();
     private final DopamineSimulator dopamineSimulator;
     private final CortisolSimulator cortisolSimulator;
 

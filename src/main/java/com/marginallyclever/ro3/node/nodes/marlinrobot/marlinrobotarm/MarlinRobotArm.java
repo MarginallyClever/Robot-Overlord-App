@@ -5,14 +5,14 @@ import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
-import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.Motor;
+import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinListener;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinRobot;
-import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation.MarlinSimulationBlock;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation.MarlinCoordinate;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation.MarlinSettings;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation.MarlinSimulation;
+import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation.MarlinSimulationBlock;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import org.json.JSONObject;
@@ -24,7 +24,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * <p>{@link MarlinRobotArm} converts the state of a robot arm into GCode and back.</p>

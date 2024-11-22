@@ -4,8 +4,10 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.ro3.mesh.Mesh;
 
-import javax.vecmath.*;
-import java.nio.FloatBuffer;
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Quat4d;
+import javax.vecmath.Vector3d;
 
 /**
  * Convenience methods for matrixes
@@ -177,10 +179,9 @@ public class MatrixHelper {
 	}
 
 	/**
-	 * Build a "look at" matrix.  The X+ axis is pointing (to-from) normalized.
-	 * The Z+ starts as pointing up.  Y+ is cross product of X and Z.  Z is then
-	 * recalculated based on the correct X and Y.
-	 * This will fail if to-from is parallel to up.
+	 * <p>Build a "look at" matrix.  The forward axis is pointing (to-from) normalized. The up starts as (0,0,1).
+	 * left axis is cross product of up and forward.  forward is then recalculated as the cross product of left and up.</p>
+	 * <p>This will fail if forward is parallel to up.</p>
 	 *  
 	 * @param from where i'm at
 	 * @param to what I'm looking at
@@ -190,12 +191,13 @@ public class MatrixHelper {
 		Vector3d forward = new Vector3d();
 		Vector3d left = new Vector3d();
 		Vector3d up = new Vector3d();
-		
+		final double NEARLY_ONE = 1-1e-6;
+
 		forward.sub(to,from);
 		forward.normalize();
-		if(forward.z==1) {
+		if(forward.z>NEARLY_ONE) {
 			up.set(0,1,0);
-		} else if(forward.z==-1) {
+		} else if(forward.z<-NEARLY_ONE) {
 			up.set(0,-1,0);
 		} else {
 			up.set(0,0,1);

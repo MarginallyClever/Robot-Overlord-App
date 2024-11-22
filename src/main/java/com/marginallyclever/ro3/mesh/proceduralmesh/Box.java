@@ -1,15 +1,16 @@
-package com.marginallyclever.ro3.mesh.shapes;
+package com.marginallyclever.ro3.mesh.proceduralmesh;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.ro3.mesh.Mesh;
+import org.json.JSONObject;
 
 import javax.vecmath.Vector3d;
 
 /**
  * {@link Box} is a {@link Mesh} with a width, height, and length of 1.  It is centered around the origin.
  */
-public class Box extends Mesh {
+public class Box extends ProceduralMesh {
     public double width;
     public double height;
     public double length;
@@ -27,6 +28,7 @@ public class Box extends Mesh {
     public Box(double width,double length,double height) {
         super();
 
+        this.setRenderStyle(GL3.GL_TRIANGLES);
         this.width = width;
         this.length = length;
         this.height = height;
@@ -34,11 +36,14 @@ public class Box extends Mesh {
         updateModel();
     }
 
-    // Procedurally generate a list of triangles that form a box, subdivided by some amount.
-    private void updateModel() {
+    @Override
+    public String getEnglishName() {
+        return "Box";
+    }
+
+    @Override
+    public void updateModel() {
         this.clear();
-        this.setRenderStyle(GL3.GL_TRIANGLES);
-        //shape.renderStyle=GL3.GL_LINES;  // set to see the wireframe
 
         double w = width*0.5f;
         double d = length*0.5f;
@@ -83,7 +88,7 @@ public class Box extends Mesh {
         p1.set(-w,-d,h);
         p2.set(-w,-d,-h);
         p3.set( w,-d,-h);
-        addSubdividedPlane(n,p0,p1,p2,p3,(int)(w/10),hParts);
+        addSubdividedPlane(n,p0,p1,p2,p3,wParts,hParts);
 
         n.set(1, 0, 0);
         p0.set( w, d,-h);
@@ -98,10 +103,22 @@ public class Box extends Mesh {
         p2.set(-w, d,-h);
         p3.set(-w,-d,-h);
         addSubdividedPlane(n,p0,p1,p2,p3,dParts,hParts);
+
+        fireMeshChanged();
     }
 
     /**
      * Subdivide a plane into triangles.
+     * <pre>
+     *     x0    x1
+     * p0--A-----B--p1
+     * |   |     |   |
+     * |   E-----F   | y0
+     * |   |     |   |
+     * |   G-----H   | y1
+     * |   |     |   |
+     * p2--C-----D--p3
+     * </pre>
      * @param n plane normal
      * @param p0 northwest corner
      * @param p1 northeast corner
@@ -120,14 +137,7 @@ public class Box extends Mesh {
         xParts = Math.max(xParts, 1);
         yParts = Math.max(yParts, 1);
 
-        Vector3d pA=new Vector3d();
-        Vector3d pB=new Vector3d();
-        Vector3d pC=new Vector3d();
-        Vector3d pD=new Vector3d();
-        Vector3d pE=new Vector3d();
-        Vector3d pF=new Vector3d();
-        Vector3d pG=new Vector3d();
-        Vector3d pH=new Vector3d();
+        Vector3d pA, pB, pC, pD, pE, pF, pG, pH;
 
         for(int x=0;x<xParts;x++) {
             float x0 = (float)x/(float)xParts;
@@ -199,10 +209,10 @@ public class Box extends Mesh {
             }
         }
     }
-/*
+
     @Override
-    public JSONObject toJSON(SerializationContext context) {
-        JSONObject json = super.toJSON(context);
+    public JSONObject toJSON() {
+        JSONObject json = super.toJSON();
         json.put("width", width);
         json.put("length", length);
         json.put("height", height);
@@ -210,11 +220,11 @@ public class Box extends Mesh {
     }
 
     @Override
-    public void parseJSON(JSONObject jo, SerializationContext context) throws JSONException {
-        super.parseJSON(jo, context);
-        if(jo.has("width")) width = jo.getDouble("width"));
-        if(jo.has("length")) length = jo.getDouble("length"));
-        if(jo.has("height")) height = jo.getDouble("height"));
+    public void fromJSON(JSONObject from) {
+        super.fromJSON(from);
+        if(from.has("width")) width = from.getDouble("width");
+        if(from.has("length")) length = from.getDouble("length");
+        if(from.has("height")) height = from.getDouble("height");
+        updateModel();
     }
-*/
 }

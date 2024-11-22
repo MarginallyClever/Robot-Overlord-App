@@ -10,29 +10,31 @@ import com.marginallyclever.communications.application.TextInterfaceToSessionLay
 import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.about.AboutPanel;
+import com.marginallyclever.ro3.apps.donatello.Donatello;
 import com.marginallyclever.ro3.apps.editor.EditorPanel;
 import com.marginallyclever.ro3.apps.log.LogPanel;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.ode4j.ODE4JPanel;
-import com.marginallyclever.ro3.apps.viewport.ViewportSettingsPanel;
-import com.marginallyclever.ro3.apps.webcam.WebCamPanel;
 import com.marginallyclever.ro3.apps.viewport.OpenGLPanel;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
+import com.marginallyclever.ro3.apps.viewport.ViewportSettingsPanel;
+import com.marginallyclever.ro3.apps.webcam.WebCamPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.dnd.DropTarget;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.dnd.DropTarget;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * <p>{@link RO3Frame} is the main frame for the Robot Overlord 3 application.  It contains the menu bar and docking
@@ -48,13 +50,15 @@ public class RO3Frame extends JFrame {
     private final TextInterfaceToSessionLayer textInterface;
     private final ODE4JPanel ode4jPanel;
     private final ViewportSettingsPanel viewportSettingsPanel;
+    private final Donatello donatello;
     public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
     public static String VERSION;
 
     public RO3Frame() {
-        super("Robot Overlord 3");
+        super();
         loadVersion();
 
+        setTitleWithVersion();
         setLocationByPlatform(true);
         initDocking();
 
@@ -64,6 +68,7 @@ public class RO3Frame extends JFrame {
         webCamPanel = new WebCamPanel();
         textInterface = new TextInterfaceToSessionLayer();
         ode4jPanel = new ODE4JPanel();
+        donatello = new Donatello();
         viewportSettingsPanel = new ViewportSettingsPanel();
 
         createDefaultLayout();
@@ -77,6 +82,15 @@ public class RO3Frame extends JFrame {
         addQuitHandler();
         addAboutHandler();
         setupDropTarget();
+    }
+
+    private void setTitleWithVersion() {
+        // Retrieve the version from the manifest
+        String version = this.getClass().getPackage().getImplementationVersion();
+        if (version == null) {
+            version = "Development Version"; // Fallback if version is not set
+        }
+        setTitle("Robot Overlord "+version);
     }
 
     private void loadVersion() {
@@ -165,46 +179,51 @@ public class RO3Frame extends JFrame {
      */
     private void createDefaultLayout() {
         DockingPanel renderView = new DockingPanel("8e50154c-a149-4e95-9db5-4611d24cc0cc", "3D view");
-        renderView.add(viewportPanel, BorderLayout.CENTER);
+        renderView.add(viewportPanel);
         windows.add(renderView);
 
         DockingPanel treeView = new DockingPanel("c6b04902-7e53-42bc-8096-fa5d43289362", "Scene");
         NodeTreeView nodeTreeView = new NodeTreeView();
-        treeView.add(nodeTreeView, BorderLayout.CENTER);
+        treeView.add(nodeTreeView);
         windows.add(treeView);
 
         DockingPanel detailView = new DockingPanel("67e45223-79f5-4ce2-b15a-2912228b356f", "Details");
         NodeDetailView nodeDetailView = new NodeDetailView();
-        detailView.add(nodeDetailView, BorderLayout.CENTER);
+        detailView.add(nodeDetailView);
         windows.add(detailView);
 
         DockingPanel logView = new DockingPanel("5e565f83-9734-4281-9828-92cd711939df", "Log");
-        logView.add(logPanel, BorderLayout.CENTER);
+        logView.add(logPanel);
         windows.add(logView);
 
         DockingPanel editorView = new DockingPanel("3f8f54e1-af78-4994-a1c2-21a68ec294c9", "Editor");
-        editorView.add(editPanel, BorderLayout.CENTER);
+        editorView.add(editPanel);
         windows.add(editorView);
 
         DockingPanel aboutView = new DockingPanel("976af87b-90f3-42ce-a5d6-e4ab663fbb15", "About");
-        aboutView.add(new AboutPanel(), BorderLayout.CENTER);
+        aboutView.add(new AboutPanel());
         windows.add(aboutView);
 
         DockingPanel webcamView = new DockingPanel("1331fbb0-ceda-4c67-b343-6539d4f939a1", "USB Camera");
-        webcamView.add(webCamPanel, BorderLayout.CENTER);
+        webcamView.add(webCamPanel);
         windows.add(webcamView);
 
         DockingPanel ode4jView = new DockingPanel("801706cf-c346-4229-a39e-b3665e5a0d94", "ODE4J");
-        ode4jView.add(ode4jPanel, BorderLayout.CENTER);
+        ode4jView.add(ode4jPanel);
         windows.add(ode4jView);
 
         DockingPanel textInterfaceView = new DockingPanel("7796a733-8e33-417a-b363-b28174901e40", "Serial Interface");
-        textInterfaceView.add(textInterface, BorderLayout.CENTER);
+        textInterfaceView.add(textInterface);
         windows.add(textInterfaceView);
 
         DockingPanel viewportSettingsView = new DockingPanel("c0651f5b-d5f0-49ab-88f9-66ae4a8c095e", "Viewport Settings");
-        viewportSettingsView.add(viewportSettingsPanel, BorderLayout.CENTER);
+        viewportSettingsView.add(viewportSettingsPanel);
         windows.add(viewportSettingsView);
+
+        // TODO all persistentIDs should match the name of the class.  Then the class can recreate the view from AppState.
+        DockingPanel donatelloView = new DockingPanel("donatello", "Donatello");
+        donatelloView.add(donatello);
+        windows.add(donatelloView);
     }
 
     /**
@@ -225,7 +244,7 @@ public class RO3Frame extends JFrame {
         Docking.dock(treeView, this, DockingRegion.WEST);
         Docking.dock(detailView, treeView, DockingRegion.SOUTH);
         Docking.dock(aboutView, treeView, DockingRegion.CENTER);
-        logger.info("done.");
+        logger.debug("done.");
     }
 
     private void saveAndRestoreLayout() {

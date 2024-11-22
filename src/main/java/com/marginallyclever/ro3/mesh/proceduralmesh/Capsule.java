@@ -1,7 +1,8 @@
-package com.marginallyclever.ro3.mesh.shapes;
+package com.marginallyclever.ro3.mesh.proceduralmesh;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.ro3.mesh.Mesh;
+import org.json.JSONObject;
 
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import java.util.List;
 /**
  * <p>{@link Capsule} is a {@link Mesh}.  It is a cylinder with rounded ends.</p>
  */
-public class Capsule extends Mesh {
+public class Capsule extends ProceduralMesh {
     public static final int RESOLUTION_CIRCULAR = 16;
     public static final int RESOLUTION_LENGTH = 4;
     public static final int RESOLUTION_DOME = 8;
@@ -32,13 +33,16 @@ public class Capsule extends Mesh {
         updateModel();
     }
 
-    private void updateModel() {
-        this.clear();
-        this.setRenderStyle(GL3.GL_TRIANGLES);
-        addCapsule(height, radius);
+    @Override
+    public String getEnglishName() {
+        return "Capsule";
     }
 
-    private void addCapsule(float height, float radius) {
+    @Override
+    public void updateModel() {
+        this.clear();
+        this.setRenderStyle(GL3.GL_TRIANGLES);
+
         float h = height - radius*2;
         float h2=h/2;
 
@@ -127,28 +131,40 @@ public class Capsule extends Mesh {
             }
         }
 
+        fireMeshChanged();
     }
-/*
+
     @Override
-    public JSONObject toJSON(SerializationContext context) {
-        JSONObject json = super.toJSON(context);
-        json.put("radius0", radius0);
-        json.put("radius1", radius1);
+    public JSONObject toJSON() {
+        JSONObject json = super.toJSON();
+        json.put("radius", radius);
         json.put("height", height);
         return json;
     }
 
     @Override
-    public void parseJSON(JSONObject jo, SerializationContext context) throws JSONException {
-        super.parseJSON(jo, context);
-        if(jo.has("radius")) {
-            radius0 = (jo.getDouble("radius"));
-            radius1 = (jo.getDouble("radius"));
-        } else {
-            if(jo.has("radius0")) radius0 = (jo.getDouble("radius0"));
-            if(jo.has("radius1")) radius1 = (jo.getDouble("radius1"));
-        }
-        if(jo.has("height")) height = (jo.getDouble("height"));
+    public void fromJSON(JSONObject jo) {
+        super.fromJSON(jo);
+        if(jo.has("radius")) radius = jo.getFloat("radius");
+        if(jo.has("height")) height = jo.getFloat("height");
+        updateModel();
     }
-*/
+
+    /**
+     * Sets the length of the cylinder.  does not update the mesh.
+     * @param length
+     */
+    public void setLength(double length) {
+        if(length<=0) throw new IllegalArgumentException("Length must be greater than zero.");
+        this.height = (float)length;
+    }
+
+    /**
+     * Sets the radius of the cylinder.  does not update the mesh.
+     * @param radius
+     */
+    public void setRadius(double radius) {
+        if(radius<=0) throw new IllegalArgumentException("Radius must be greater than zero.");
+        this.radius = (float)radius;
+    }
 }

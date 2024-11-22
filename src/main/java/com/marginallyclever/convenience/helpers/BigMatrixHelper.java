@@ -3,7 +3,6 @@ package com.marginallyclever.convenience.helpers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import java.text.MessageFormat;
 

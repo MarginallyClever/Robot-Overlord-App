@@ -76,6 +76,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         var translateToolMulti = new TranslateToolMulti();
         var rotateToolMulti = new RotateToolMulti();
         var compass3D = new Compass3D();
+
         viewportTools.add(selectionTool);
         viewportTools.add(translateToolMulti);
         viewportTools.add(rotateToolMulti);
@@ -85,50 +86,40 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             tool.setViewport(this);
         }
 
-        JToggleButton select = new JToggleButton(new AbstractAction() {
-            {
-                putValue(Action.NAME,"Select");
-                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-select-16.png"))));
-                putValue(Action.SHORT_DESCRIPTION,"Select items in the scene.");
-            }
+        String[] toolOptions = {"Select", "Move", "Rotate"};
+        ImageIcon[] toolIcons = {
+                new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-select-16.png"))),
+                new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-move-16.png"))),
+                new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-rotate-16.png")))
+        };
+
+        JComboBox<String> toolDropdown = new JComboBox<>(toolOptions);
+        toolDropdown.setRenderer(new DefaultListCellRenderer() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                setActiveToolIndex(viewportTools.indexOf(selectionTool));
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (index >= 0 && index < toolIcons.length) {
+                    setIcon(toolIcons[index]);
+                } else if (value != null) {
+                    int selectedIndex = toolDropdown.getSelectedIndex();
+                    if (selectedIndex >= 0 && selectedIndex < toolIcons.length) {
+                        setIcon(toolIcons[selectedIndex]);
+                    }
+                }
+                return this;
+            }
+        });
+        toolDropdown.setToolTipText("Select a tool");
+
+        toolDropdown.addActionListener(e -> {
+            switch ((String) Objects.requireNonNull(toolDropdown.getSelectedItem())) {
+                default -> setActiveToolIndex(viewportTools.indexOf(selectionTool));
+                case "Move" -> setActiveToolIndex(viewportTools.indexOf(translateToolMulti));
+                case "Rotate" -> setActiveToolIndex(viewportTools.indexOf(rotateToolMulti));
             }
         });
 
-        JToggleButton move = new JToggleButton(new AbstractAction() {
-            {
-                putValue(Action.NAME,"Move");
-                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-move-16.png"))));
-                putValue(Action.SHORT_DESCRIPTION,"Move the selected items.");
-            }
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setActiveToolIndex(viewportTools.indexOf(translateToolMulti));
-            }
-        });
-
-        JToggleButton rotate = new JToggleButton(new AbstractAction() {
-            {
-                putValue(Action.NAME,"Rotate");
-                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-rotate-16.png"))));
-                putValue(Action.SHORT_DESCRIPTION,"Rotate the selected items.");
-            }
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setActiveToolIndex(viewportTools.indexOf(rotateToolMulti));
-            }
-        });
-
-        ButtonGroup group = new ButtonGroup();
-        group.add(select);
-        group.add(move);
-        group.add(rotate);
-
-        toolBar.add(select);
-        toolBar.add(move);
-        toolBar.add(rotate);
+        toolBar.add(toolDropdown);
         toolBar.add(createFrameOfReferenceSelection());
         toolBar.add(new JSeparator());
 
