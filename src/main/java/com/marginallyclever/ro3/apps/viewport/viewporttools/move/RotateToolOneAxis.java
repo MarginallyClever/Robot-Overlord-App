@@ -29,7 +29,6 @@ import java.util.List;
  *
  */
 public class RotateToolOneAxis implements ViewportTool {
-    private static final Logger logger = LoggerFactory.getLogger(RotateToolOneAxis.class);
     /**
      * visual "tick" marks for snapping.
      */
@@ -93,9 +92,9 @@ public class RotateToolOneAxis implements ViewportTool {
      */
     private int rotation=2;
     private boolean cursorOverHandle = false;
-    private final Box handleBox = new Box();
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
     private final ColorRGB color;
+    private final Box handleBox = new Box();
     private final Mesh markerMesh = new Mesh();
     private final Mesh angleMesh = new Mesh();
     private final CircleXY ringMesh = new CircleXY();
