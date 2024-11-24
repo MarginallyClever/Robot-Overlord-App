@@ -121,7 +121,7 @@ public class DrawMeshes extends AbstractRenderPass {
         OpenGLHelper.checkGLError(gl3,logger);
     }
 
-    private void generateDepthMap(GL3 gl3, List<MeshMaterial> meshes) {
+    private void generateDepthMap(GL3 gl3, List<MeshMaterialMatrix> meshes) {
         // before, set up the shadow FBO
         gl3.glViewport(0,0,SHADOW_WIDTH,SHADOW_HEIGHT);
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, shadowFBO[0]);
@@ -133,8 +133,8 @@ public class DrawMeshes extends AbstractRenderPass {
         shadowShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
         shadowShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
 
-        for(MeshMaterial meshMaterial : meshes) {
-            MeshInstance meshInstance = meshMaterial.meshInstance();
+        for(MeshMaterialMatrix meshMaterialMatrix : meshes) {
+            MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
             Matrix4d w = meshInstance.getWorld();
             w.transpose();
             shadowShader.setMatrix4d(gl3,"modelMatrix",w);
@@ -184,7 +184,9 @@ public class DrawMeshes extends AbstractRenderPass {
         if (camera == null) return;
 
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
-        var meshMaterial = collectAllMeshes();
+        var cw = camera.getWorld();
+        cw.invert();
+        var meshMaterial = collectAllMeshes(cw);
         sortMeshMaterialList(meshMaterial);
 
         updateLightMatrix();
@@ -197,11 +199,11 @@ public class DrawMeshes extends AbstractRenderPass {
         outlineSelectedMeshes(gl3,meshMaterial,camera);
     }
 
-    private void keepOnlySelectedMeshMaterials(List<MeshMaterial> list) {
+    private void keepOnlySelectedMeshMaterials(List<MeshMaterialMatrix> list) {
         // remove from meshMaterial anything that is not in the list Registry.selected
-        var toKeep = new ArrayList<MeshMaterial>();
+        var toKeep = new ArrayList<MeshMaterialMatrix>();
         var selected = Registry.selection.getList();
-        for(MeshMaterial mm : list) {
+        for(MeshMaterialMatrix mm : list) {
             // if node is parent of a meshInstance, keep it.
             var me = mm.meshInstance();
             var parent = me.getParent();
@@ -213,8 +215,8 @@ public class DrawMeshes extends AbstractRenderPass {
     }
 
     // sort meshMaterial list by material
-    private void sortMeshMaterialList(List<MeshMaterial> meshMaterial) {
-        meshMaterial.sort((o1, o2) -> {
+    private void sortMeshMaterialList(List<MeshMaterialMatrix> meshMaterialMatrix) {
+        meshMaterialMatrix.sort((o1, o2) -> {
             Material m1 = o1.material();
             Material m2 = o2.material();
             if(m1==null && m2==null) return 0;
@@ -269,20 +271,31 @@ public class DrawMeshes extends AbstractRenderPass {
 
     /**
      * find all MeshInstance nodes in the scene and the Material that is closest to the MeshInstance.
+     * @param cameraWorldInverse the inverse of the camera's world matrix.
      * @return a list of MeshInstance and Material pairs.
      */
-    private List<MeshMaterial> collectAllMeshes() {
-        var meshMaterials = new ArrayList<MeshMaterial>();
-        collAllMeshesRecursively(Registry.getScene(),meshMaterials,new Material());
+    private List<MeshMaterialMatrix> collectAllMeshes(Matrix4d cameraWorldInverse) {
+        var meshMaterials = new ArrayList<MeshMaterialMatrix>();
+        collAllMeshesRecursively(cameraWorldInverse,Registry.getScene(),meshMaterials,new Material());
         return meshMaterials;
     }
 
-    private void collAllMeshesRecursively(Node node, List<MeshMaterial> meshMaterials, Material lastMaterialSeen) {
+    /**
+     * Recursively search the scene for MeshInstance nodes and the Material that is closest to the MeshInstance.
+     * @param cameraWorldInverse the inverse of the camera's world matrix.
+     * @param node the current node to search.
+     * @param meshMaterialMatrices the list to add the MeshInstance and Material pairs to.
+     * @param lastMaterialSeen the last Material found in the scene.
+     */
+    private void collAllMeshesRecursively(Matrix4d cameraWorldInverse,Node node, List<MeshMaterialMatrix> meshMaterialMatrices, Material lastMaterialSeen) {
         if (node instanceof MeshInstance meshInstance) {
             // if they have a mesh, collect it.
             Mesh mesh = meshInstance.getMesh();
             if (mesh != null) {
-                meshMaterials.add(new MeshMaterial(meshInstance,lastMaterialSeen));
+                var m = meshInstance.getWorld();
+                m.mul(cameraWorldInverse,m);
+                m.transpose();
+                meshMaterialMatrices.add(new MeshMaterialMatrix(meshInstance,lastMaterialSeen,m));
             }
         }
 
@@ -292,19 +305,23 @@ public class DrawMeshes extends AbstractRenderPass {
         }
 
         for(Node child : node.getChildren()) {
-            collAllMeshesRecursively(child,meshMaterials,lastMaterialSeen);
+            collAllMeshesRecursively(cameraWorldInverse,child, meshMaterialMatrices,lastMaterialSeen);
         }
     }
 
-    private void drawAllMeshes(GL3 gl3, List<MeshMaterial> meshMaterials, Camera camera) {
+    private void drawAllMeshes(GL3 gl3, List<MeshMaterialMatrix> meshMaterialMatrices, Camera camera) {
         meshShader.use(gl3);
         meshShader.set1i(gl3, "shadowMap", shadowMapUnit);
         meshShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
         meshShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
 
-        meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix());
+        //var vm = camera.getViewMatrix();
+        var vm = MatrixHelper.createIdentityMatrix4();
+        meshShader.setMatrix4d(gl3, "viewMatrix", vm);
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
+
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
+        //Vector3d cameraWorldPos = new Vector3d();
         meshShader.setVector3d(gl3, "cameraPos", cameraWorldPos);  // Camera position in world space
         meshShader.setVector3d(gl3, "lightPos", sunlightSource);  // Light position in world space
 
@@ -321,9 +338,9 @@ public class DrawMeshes extends AbstractRenderPass {
         Material lastSeen = null;
         TextureWithMetadata texture = null;
 
-        for(MeshMaterial meshMaterial : meshMaterials) {
-            MeshInstance meshInstance = meshMaterial.meshInstance();
-            Material material = meshMaterial.material();
+        for(MeshMaterialMatrix meshMaterialMatrix : meshMaterialMatrices) {
+            MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
+            Material material = meshMaterialMatrix.material();
             Mesh mesh = meshInstance.getMesh();
 
             meshShader.set1i(gl3, "useVertexColor", mesh.getHasColors()?1:0);
@@ -352,8 +369,9 @@ public class DrawMeshes extends AbstractRenderPass {
             }
 
             // set the model matrix
-            Matrix4d w = meshInstance.getWorld();
-            w.transpose();
+            //var w = meshInstance.getWorld();
+            //w.transpose();
+            var w = meshMaterialMatrix.matrix();
             meshShader.setMatrix4d(gl3,"modelMatrix",w);
             // draw it
             mesh.render(gl3);
@@ -361,7 +379,7 @@ public class DrawMeshes extends AbstractRenderPass {
         }
     }
 
-    private void outlineSelectedMeshes(GL3 gl3, List<MeshMaterial> meshMaterials, Camera camera) {
+    private void outlineSelectedMeshes(GL3 gl3, List<MeshMaterialMatrix> meshMaterialMatrices, Camera camera) {
         gl3.glEnable(GL3.GL_STENCIL_TEST);
 
         // we're working with stencil and depth buffers.  clear them.
@@ -375,7 +393,7 @@ public class DrawMeshes extends AbstractRenderPass {
         gl3.glStencilFunc(GL3.GL_ALWAYS,1,0xFF);
         gl3.glStencilOp(GL3.GL_KEEP,GL3.GL_KEEP,GL3.GL_REPLACE);
 
-        drawAllMeshes(gl3,meshMaterials,camera);
+        drawAllMeshes(gl3, meshMaterialMatrices,camera);
 
         // resume editing the color buffer, do not change the depth mask or the stencil buffer.
         gl3.glColorMask(true,true,true,true);
@@ -395,19 +413,23 @@ public class DrawMeshes extends AbstractRenderPass {
         // use the outline shader
         outlineShader.use(gl3);
         // tell the shader some important information
-        outlineShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix());
+
+        //var vm = camera.getViewMatrix();
+        var vm = MatrixHelper.createIdentityMatrix4();
+        outlineShader.setMatrix4d(gl3, "viewMatrix", vm);
         outlineShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
         outlineShader.setColor(gl3, "outlineColor", Color.GREEN);
         outlineShader.set1f(gl3,"outlineSize",0.0f);
 
         // render the set
-        for(MeshMaterial meshMaterial : meshMaterials) {
-            MeshInstance meshInstance = meshMaterial.meshInstance();
+        for(MeshMaterialMatrix meshMaterialMatrix : meshMaterialMatrices) {
+            MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
             Mesh mesh = meshInstance.getMesh();
 
             // set the model matrix
-            Matrix4d w = meshInstance.getWorld();
-            w.transpose();
+            //var w = meshInstance.getWorld();
+            //w.transpose();
+            var w = meshMaterialMatrix.matrix();
             outlineShader.setMatrix4d(gl3,"modelMatrix",w);
             // draw it
             mesh.render(gl3);
