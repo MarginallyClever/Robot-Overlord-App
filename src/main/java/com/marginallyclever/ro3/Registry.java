@@ -22,6 +22,7 @@ import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODECylinder
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODESphere;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.*;
+import com.marginallyclever.ro3.node.nodes.pose.poses.space.SpaceShip;
 import com.marginallyclever.ro3.physics.ODEPhysics;
 import com.marginallyclever.ro3.texture.TextureFactory;
 
@@ -85,7 +86,7 @@ public class Registry {
                 pose.add("Limb", Limb::new);
                 pose.add("LookAt", LookAt::new);
                 pose.add("MeshInstance", MeshInstance::new);
-                pose.add("Spaceship", SpaceShip::new);
+                pose.add("SpaceShip", SpaceShip::new);
             }
             NodeFactory.Category physics = node.add("Physics", null);
             {
