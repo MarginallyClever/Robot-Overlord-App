@@ -10,6 +10,9 @@ import java.security.InvalidParameterException;
 
 public class CameraPanel extends JPanel {
     private final Camera camera;
+    private final JFormattedTextField lookAtx = PanelHelper.addNumberField("x",0);
+    private final JFormattedTextField lookAty = PanelHelper.addNumberField("y",0);
+    private final JFormattedTextField lookAtz = PanelHelper.addNumberField("z",-1);
 
     public CameraPanel() {
         this(new Camera());
@@ -24,9 +27,10 @@ public class CameraPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1;
 
-        SpinnerNumberModel farZModel = new SpinnerNumberModel(camera.getFarZ(), 0, 10000, 1);
+        SpinnerNumberModel farZModel = new SpinnerNumberModel(camera.getFarZ(), 0, 1e10, 1);
+        SpinnerNumberModel nearZModel = new SpinnerNumberModel(camera.getNearZ(), 0, 1e10, 1);
         JSpinner farZSpinner = new JSpinner(farZModel);
-        JSpinner nearZSpinner = new JSpinner(new SpinnerNumberModel(camera.getNearZ(), 0, 10000, 1));
+        JSpinner nearZSpinner = new JSpinner(nearZModel);
         JSpinner fovSpinner = new JSpinner(new SpinnerNumberModel(camera.getFovY(), 1, 180, 1));
 
         // orthographic?
@@ -69,6 +73,11 @@ public class CameraPanel extends JPanel {
         farZSpinner.setValue(camera.getFarZ());
         farZSpinner.addChangeListener(e -> {
             camera.setFarZ( (double) farZSpinner.getValue() );
+            var farZ = camera.getFarZ();
+            nearZModel.setMaximum(farZ - 1);
+            if(camera.getNearZ() >= farZ) {
+                nearZSpinner.setValue(farZ - 1);
+            }
         });
         farZSpinner.setToolTipText("cm");
         PanelHelper.addLabelAndComponent(this,"Far",farZSpinner,gbc);
@@ -110,32 +119,29 @@ public class CameraPanel extends JPanel {
     }
 
     private void addLookAtComponents(GridBagConstraints gbc) {
-        JFormattedTextField tx = PanelHelper.addNumberField("x",0);
-        JFormattedTextField ty = PanelHelper.addNumberField("y",0);
-        JFormattedTextField tz = PanelHelper.addNumberField("z",0);
-        tx.addPropertyChangeListener(e->lookAt(tx,ty,tz));
-        ty.addPropertyChangeListener(e->lookAt(tx,ty,tz));
-        tz.addPropertyChangeListener(e->lookAt(tx,ty,tz));
+        lookAtx.addPropertyChangeListener(e->lookAt());
+        lookAty.addPropertyChangeListener(e->lookAt());
+        lookAtz.addPropertyChangeListener(e->lookAt());
 
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1;
         c.gridy=0;
-        panel.add(tx,c);
-        panel.add(ty,c);
-        panel.add(tz,c);
+        panel.add(lookAtx,c);
+        panel.add(lookAty,c);
+        panel.add(lookAtz,c);
 
         PanelHelper.addLabelAndComponent(this, "Look at", panel,gbc);
         gbc.gridy++;
     }
 
-    private void lookAt(JFormattedTextField tx,JFormattedTextField ty,JFormattedTextField tz) {
+    private void lookAt() {
         try {
             camera.lookAt(new Vector3d(
-                    ((Number)tx.getValue()).doubleValue(),
-                    ((Number)ty.getValue()).doubleValue(),
-                    ((Number)tz.getValue()).doubleValue()
+                    ((Number)lookAtx.getValue()).doubleValue(),
+                    ((Number)lookAty.getValue()).doubleValue(),
+                    ((Number)lookAtz.getValue()).doubleValue()
             ));
         } catch (InvalidParameterException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

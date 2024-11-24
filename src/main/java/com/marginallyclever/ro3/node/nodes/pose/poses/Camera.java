@@ -4,6 +4,8 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix3d;
@@ -32,6 +34,7 @@ import java.util.Objects;
  *
  */
 public class Camera extends Pose {
+    private static final Logger logger = LoggerFactory.getLogger(Camera.class);
     private boolean drawOrthographic = false;
     private double fovY = 60;
     private double nearZ = 1;
@@ -196,6 +199,8 @@ public class Camera extends Pose {
         }
         local.set(viewMatrix);
         local.setTranslation(position);
+        // adjust the orbit radius to match the distance to the target.
+        orbitRadius = diff.length();
         this.setLocal(local);
     }
 
@@ -225,7 +230,7 @@ public class Camera extends Pose {
     }
 
     /**
-     * @return the point that the camera is orbiting around.
+     * @return the absolute point around which the camera is orbiting.
      */
     public Vector3d getOrbitPoint() {
         Matrix4d m = getWorld();
@@ -243,15 +248,15 @@ public class Camera extends Pose {
      * @param newRadius new radius.  Must be >=1.
      */
     public void moveToNewRadius(double newRadius) {
-        Matrix4d local = this.getLocal();
+        var w = this.getWorld();
         var point = getOrbitPoint();
         orbitRadius = Math.max(1,newRadius);
 
         //logger.debug("wheel "+dz + " orbitRadius=" + orbitRadius);
-        Vector3d orbitVector = MatrixHelper.getZAxis(local);
+        Vector3d orbitVector = MatrixHelper.getZAxis(w);
         orbitVector.scaleAdd(orbitRadius,point);
-        local.setTranslation(orbitVector);
-        this.setLocal(local);
+        w.setTranslation(orbitVector);
+        setWorld(w);
     }
 
     public double getOrbitRadius() {
@@ -265,11 +270,16 @@ public class Camera extends Pose {
      */
     public void orbit(double dx,double dy) {
         if(!canRotate || !canTranslate) return;
+
         Vector3d orbitPoint = getOrbitPoint();
         //logger.debug("before {}",orbitPoint);
+
         double [] panTiltAngles = getPanTiltFromMatrix(getLocal());
+        // range limit around
         panTiltAngles[0] = (panTiltAngles[0] + dx+360) % 360;
+        // tilt limit
         panTiltAngles[1] = Math.max(0,Math.min(180,panTiltAngles[1] + dy));
+
         Matrix3d panTilt = buildPanTiltMatrix(panTiltAngles);
         Matrix4d newLocal = new Matrix4d();
         newLocal.set(panTilt);

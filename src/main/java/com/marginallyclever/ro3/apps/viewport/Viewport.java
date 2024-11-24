@@ -540,9 +540,6 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
 
         // scale based on orbit distance - smaller orbits need smaller movements
         double scale = camera.getOrbitRadius() * userMovementScale / 50d;
-        dx *= scale;
-        dy *= scale;
-
         boolean shift = (e.getModifiersEx() & MouseEvent.SHIFT_DOWN_MASK) != 0;
 
         //if(buttonPressed.get(MouseEvent.BUTTON1)) {}
@@ -550,15 +547,15 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             if(!shift) {
                 camera.panTilt(dx, dy);
             } else {
-                camera.dolly(dy);
+                camera.dolly(dy * scale);
             }
         }
         if(buttonPressed.get(MouseEvent.BUTTON3)) {  // right button
             if(!shift) {
                 camera.orbit(dx,dy);
             } else {
-                camera.truck(-dx);
-                camera.pedestal(dy);
+                camera.truck(-dx * scale);
+                camera.pedestal(dy * scale);
             }
         }
     }
