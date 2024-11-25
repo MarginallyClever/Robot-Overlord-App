@@ -113,7 +113,6 @@ public class Registry {
         cameras.removeAll();
         Camera first = new Camera("Camera 1");
         cameras.add(first);
-        setActiveCamera(first);
         double v = Math.sqrt(Math.pow(50,2)/3d); // match the viewport default orbit distance.
         first.setPosition(new Vector3d(v,v,v));
         first.lookAt(new Vector3d(0,0,0));
@@ -159,15 +158,6 @@ public class Registry {
 
     public static Node getScene() {
         return scene;
-    }
-
-    public static Camera getActiveCamera() {
-        if(cameras.getList().isEmpty()) throw new RuntimeException("No cameras available.");
-        return activeCamera;
-    }
-
-    public static void setActiveCamera(Camera camera) {
-        activeCamera = camera;
     }
 
     public static ODEPhysics getPhysics() {

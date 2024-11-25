@@ -168,7 +168,7 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
      * @return the name of the item under the cursor, or -1 if nothing was picked.
      */
     private Node findNodeUnderCursor() {
-        Camera camera = Registry.getActiveCamera();
+        Camera camera = viewport.getActiveCamera();
         if(camera==null) return null;
 
         Point2d mouse = viewport.getCursorPosition();

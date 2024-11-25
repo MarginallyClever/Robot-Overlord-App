@@ -96,7 +96,7 @@ public class DrawCameras extends AbstractRenderPass {
 
     @Override
     public void draw(Viewport viewport) {
-        Camera camera = Registry.getActiveCamera();
+        Camera camera = viewport.getActiveCamera();
         if(camera==null) return;
 
         GL3 gl3 = GLContext.getCurrentGL().getGL3();

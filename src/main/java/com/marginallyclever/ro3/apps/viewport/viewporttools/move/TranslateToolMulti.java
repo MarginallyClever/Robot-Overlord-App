@@ -42,6 +42,7 @@ public class TranslateToolMulti implements ViewportTool {
     private SelectedItems selectedItems;
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
     private final TextureWithMetadata texture;
+    private Viewport viewport;
 
     public TranslateToolMulti() {
         super();
@@ -82,7 +83,7 @@ public class TranslateToolMulti implements ViewportTool {
      * @param pivot The pivot matrix, in world space.
      */
     private void setPivotMatrix(Matrix4d pivot) {
-        Camera camera = Registry.getActiveCamera();
+        Camera camera = viewport.getActiveCamera();
         assert camera != null;
 
         toolRadialIn.setPivotMatrix(createPivotPlaneMatrix(pivot,KSPDirections.RADIAL_IN));
@@ -121,7 +122,7 @@ public class TranslateToolMulti implements ViewportTool {
      * @return The pivot plane matrix.
      */
     private Matrix4d createPivotPlaneMatrix(Matrix4d pivot, KSPDirections axis) {
-        Camera camera = Registry.getActiveCamera();
+        Camera camera = viewport.getActiveCamera();
         assert camera != null;
 
         // the pivot plane shares the same origin as pivot.
@@ -205,7 +206,7 @@ public class TranslateToolMulti implements ViewportTool {
         ViewportTool nearestTool = null;
         double nearestDistance = Double.MAX_VALUE;
 
-        Camera cameraPose = Registry.getActiveCamera();
+        Camera cameraPose = viewport.getActiveCamera();
         assert cameraPose != null;
         Point3d cameraPosition = new Point3d(cameraPose.getPosition());
         for (ViewportTool t : tools) {
@@ -242,7 +243,7 @@ public class TranslateToolMulti implements ViewportTool {
     }
 
     private void updatePivotMatrix() {
-        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,selectedItems));
+        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,selectedItems,viewport.getActiveCamera()));
     }
 
     /**
@@ -278,6 +279,7 @@ public class TranslateToolMulti implements ViewportTool {
 
     @Override
     public void setViewport(Viewport viewport) {
+        this.viewport = viewport;
         for (ViewportTool t : tools) t.setViewport(viewport);
     }
 

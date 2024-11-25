@@ -30,6 +30,7 @@ public class RotateToolMulti implements ViewportTool {
     private final List<ViewportTool> tools = new ArrayList<>();
     private SelectedItems selectedItems;
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
+    private Viewport viewport;
 
     public RotateToolMulti() {
         super();
@@ -60,7 +61,7 @@ public class RotateToolMulti implements ViewportTool {
     }
 
     private void updatePivotMatrix() {
-        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,selectedItems));
+        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,selectedItems,viewport.getActiveCamera()));
     }
 
     private void setPivotMatrix(Matrix4d pivot) {
@@ -132,7 +133,7 @@ public class RotateToolMulti implements ViewportTool {
         ViewportTool nearestTool = null;
         double nearestDistance = Double.MAX_VALUE;
 
-        Camera camera = Registry.getActiveCamera();
+        Camera camera = viewport.getActiveCamera();
         assert camera != null;
         Point3d cameraPosition = new Point3d(MatrixHelper.getPosition(camera.getWorld()));
         for(ViewportTool t : tools) {
@@ -192,6 +193,7 @@ public class RotateToolMulti implements ViewportTool {
 
     @Override
     public void setViewport(Viewport viewport) {
+        this.viewport = viewport;
         for(ViewportTool t : tools) t.setViewport(viewport);
     }
 

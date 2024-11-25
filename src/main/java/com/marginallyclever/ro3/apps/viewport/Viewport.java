@@ -9,6 +9,7 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.apps.viewport.renderpasses.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.Compass3D;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectionTool;
@@ -39,10 +40,11 @@ import java.util.prefs.Preferences;
 
 /**
  * {@link Viewport} is an {@link OpenGLPanel} that uses a set of {@link RenderPass}es to draw the
- * {@link Registry#getScene()} from the perspective of a {@link Registry#getActiveCamera()}.
+ * {@link Registry#getScene()} from the perspective of the active {@link Camera}.
  */
-public class Viewport extends OpenGLPanel implements GLEventListener {
+public class Viewport extends OpenGLPanel implements GLEventListener, SceneChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(Viewport.class);
+    private Camera activeCamera;
     public ListWithEvents<RenderPass> renderPasses = new ListWithEvents<>();
     private final JToolBar toolBar = new JToolBar();
     private final DefaultComboBoxModel<Camera> cameraListModel = new DefaultComboBoxModel<>();
@@ -139,7 +141,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
                 if(lastFound==null) return;
 
                 // look at the last selected pose
-                Camera camera = Registry.getActiveCamera();
+                Camera camera = getActiveCamera();
                 Matrix4d m = camera.getWorld();
                 var cameraPosition = MatrixHelper.getPosition(m);
                 var lastFoundPosition = MatrixHelper.getPosition(lastFound.getWorld());
@@ -213,7 +215,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 logger.debug("copy camera");
-                Camera oldCamera = Registry.getActiveCamera();
+                Camera oldCamera = getActiveCamera();
                 assert oldCamera != null;
                 Camera newCamera = new Camera();
                 newCamera.fromJSON(oldCamera.toJSON());
@@ -317,6 +319,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             addRenderPass(this,renderPass);
         }
 
+        Registry.addSceneChangeListener(this);
         Registry.cameras.addItemAddedListener(this::addCamera);
         Registry.cameras.addItemRemovedListener(this::removeCamera);
         Registry.selection.addItemAddedListener(this::selectionChanged);
@@ -327,6 +330,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     public void removeNotify() {
         super.removeNotify();
         saveRenderPassState();
+        Registry.removeSceneChangeListener(this);
         Registry.cameras.removeItemAddedListener(this::addCamera);
         Registry.cameras.removeItemRemovedListener(this::removeCamera);
         Registry.selection.removeItemAddedListener(this::selectionChanged);
@@ -413,8 +417,8 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
             }
         });
         cameraSelector.setToolTipText("Select the active camera.");
-        cameraSelector.addItemListener(e -> {
-            Registry.setActiveCamera((Camera) e.getItem());
+        cameraSelector.addActionListener(e -> {
+            setActiveCamera((Camera)cameraSelector.getSelectedItem());
         });
         cameraSelector.setSelectedIndex(0);
         toolBar.add(cameraSelector);
@@ -459,7 +463,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     }
 
     private void renderViewportTools() {
-        Camera camera = Registry.getActiveCamera();
+        Camera camera = getActiveCamera();
         assert camera != null;
 
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
@@ -535,7 +539,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
         double dy = py - my;
         my = py;
 
-        Camera camera = Registry.getActiveCamera();
+        Camera camera = getActiveCamera();
         assert camera != null;
 
         // scale based on orbit distance - smaller orbits need smaller movements
@@ -584,7 +588,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
      * @param dz mouse wheel movement
      */
     private void changeOrbitRadius(int dz) {
-        Camera camera = Registry.getActiveCamera();
+        Camera camera = getActiveCamera();
         assert camera != null;
         camera.orbitDolly(dz > 0 ? orbitChangeFactor : 1.0 / orbitChangeFactor);
     }
@@ -699,5 +703,30 @@ public class Viewport extends OpenGLPanel implements GLEventListener {
     public void setUserMovementScale(double scale) {
         if(scale<=0) throw new InvalidParameterException("scale must be greater than zero.");
         userMovementScale=scale;
+    }
+
+    @Override
+    public void beforeSceneChange(Node oldScene) {}
+
+    @Override
+    public void afterSceneChange(Node newScene) {
+        // find the first active camera in the scene.
+        Node scene = Registry.getScene();
+        var camera = scene.findFirstChild(Camera.class);
+        if(camera!=null) {
+            setActiveCamera(camera);
+        }
+    }
+
+
+    public Camera getActiveCamera() {
+        if(Registry.cameras.getList().isEmpty()) throw new RuntimeException("No cameras available.");
+        return activeCamera;
+    }
+
+    public void setActiveCamera(Camera camera) {
+        activeCamera = camera;
+        // set camera to registry active camera
+        cameraListModel.setSelectedItem(activeCamera);
     }
 }

@@ -12,11 +12,13 @@ public abstract class AbstractRenderPass implements RenderPass {
     private int activeStatus = ALWAYS;
     protected int canvasWidth, canvasHeight;
 
-    protected AbstractRenderPass() {}
+    protected AbstractRenderPass() {
+        this("RenderPass");
+    }
 
     protected AbstractRenderPass(String name) {
-        this();
-        this.name = name;
+        super();
+        setName(name);
     }
 
     public void setName(String name) {
@@ -48,24 +50,16 @@ public abstract class AbstractRenderPass implements RenderPass {
     }
 
     @Override
-    public void draw(Viewport viewport) {
-
-    }
+    public void draw(Viewport viewport) {}
 
     @Override
-    public void init(GLAutoDrawable glAutoDrawable) {
-
-    }
+    public void init(GLAutoDrawable glAutoDrawable) {}
 
     @Override
-    public void dispose(GLAutoDrawable glAutoDrawable) {
-
-    }
+    public void dispose(GLAutoDrawable glAutoDrawable) {}
 
     @Override
-    public void display(GLAutoDrawable glAutoDrawable) {
-
-    }
+    public void display(GLAutoDrawable glAutoDrawable) {}
 
     @Override
     public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {

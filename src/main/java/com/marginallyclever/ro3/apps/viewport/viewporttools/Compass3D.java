@@ -115,7 +115,7 @@ public class Compass3D implements ViewportTool {
         shaderProgram.setMatrix4d(gl3,"projectionMatrix",projection);
 
         // set the view matrix to be the inverse of the camera matrix and without translation.
-        Camera camera = Registry.getActiveCamera();
+        Camera camera = viewport.getActiveCamera();
         assert camera != null;
         Matrix4d view = camera.getWorld();
         Vector3d z = MatrixHelper.getZAxis(view);
@@ -153,7 +153,7 @@ public class Compass3D implements ViewportTool {
 
     private void drawWhiteCircle(GL3 gl3, ShaderProgram shaderProgram, Vector3d z) {
         // draw the circle when the cursor is over the compass.
-        Camera camera = Registry.getActiveCamera();
+        Camera camera = viewport.getActiveCamera();
         assert camera != null;
 
         double outerRadius = handleLength + handleRadius + 2;
@@ -173,7 +173,7 @@ public class Compass3D implements ViewportTool {
     }
 
     private void drawHandle(GL3 gl3, ShaderProgram shaderProgram, Vector3d offset,int tileIndex,int handleIndex) {
-        Camera camera = Registry.getActiveCamera();
+        Camera camera = viewport.getActiveCamera();
         assert camera != null;
 
         // set the model matrix to be the camera matrix so the handle is always facing the camera.
@@ -223,7 +223,7 @@ public class Compass3D implements ViewportTool {
         var direction = new Vector3d(0,0,1);
 
         // set the view matrix to be the inverse of the camera matrix and without translation.
-        Camera camera = Registry.getActiveCamera();
+        Camera camera = viewport.getActiveCamera();
         assert camera != null;
         Matrix4d view = camera.getWorld();
         view.setTranslation(new Vector3d(0,0,0));
@@ -264,7 +264,7 @@ public class Compass3D implements ViewportTool {
     public void turnCameraAccordingToHandle() {
         if(handleUnderCursor>=0 && handleUnderCursor<6) {
             System.out.println("clicked on handle "+handleUnderCursor);
-            Camera camera = Registry.getActiveCamera();
+            Camera camera = viewport.getActiveCamera();
             assert camera != null;
             Matrix4d world = camera.getWorld();
             Vector3d orbit = camera.getOrbitPoint();

@@ -94,7 +94,7 @@ public class TranslateToolTwoAxis implements ViewportTool {
     }
 
     private void updatePivotMatrix() {
-        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,selectedItems));
+        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,selectedItems,viewport.getActiveCamera()));
     }
 
     public void setPivotMatrix(Matrix4d pivot) {
@@ -191,7 +191,7 @@ public class TranslateToolTwoAxis implements ViewportTool {
     }
 
     private void updateLocalScale() {
-        Camera camera = Registry.getActiveCamera();
+        Camera camera = viewport.getActiveCamera();
         assert camera != null;
         Vector3d cameraPoint = camera.getPosition();
         Vector3d pivotPoint = MatrixHelper.getPosition(pivotMatrix);

@@ -194,7 +194,7 @@ public class TranslateToolOneAxis implements ViewportTool {
     }
 
     private void updatePivotMatrix() {
-        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,selectedItems));
+        setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,selectedItems,viewport.getActiveCamera()));
     }
 
     private Point3d getNearestPointOnAxis(Point3d currentPoint) {
@@ -237,7 +237,7 @@ public class TranslateToolOneAxis implements ViewportTool {
     }
 
     private void updateLocalScale() {
-        Camera cam = Registry.getActiveCamera();
+        Camera cam = viewport.getActiveCamera();
         if(cam!=null) {
             Vector3d cameraPoint = cam.getPosition();
             Vector3d pivotPoint = MatrixHelper.getPosition(pivotMatrix);
@@ -280,7 +280,7 @@ public class TranslateToolOneAxis implements ViewportTool {
 
         if(texture!=null) {
             quad.updateVertexBuffers(gl);
-            Camera camera = Registry.getActiveCamera();
+            Camera camera = viewport.getActiveCamera();
             // set the model matrix to be the camera matrix so the handle is always facing the camera.
             Matrix4d model = camera.getWorld();
             model.setTranslation(MatrixHelper.getPosition(m2));

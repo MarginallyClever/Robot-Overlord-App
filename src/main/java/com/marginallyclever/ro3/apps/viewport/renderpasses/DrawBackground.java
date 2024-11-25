@@ -148,7 +148,7 @@ public class DrawBackground extends AbstractRenderPass {
 
         gl3.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT | GL.GL_STENCIL_BUFFER_BIT);
 
-        Camera camera = Registry.getActiveCamera();
+        Camera camera = viewport.getActiveCamera();
         if (camera != null) {
             gl3.glDisable(GL3.GL_DEPTH_TEST);
             drawSkybox(gl3, camera);

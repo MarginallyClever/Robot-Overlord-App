@@ -124,7 +124,6 @@ public class CameraPanel extends JPanel {
     }
 
     private void addLookAtComponents(GridBagConstraints gbc) {
-
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;

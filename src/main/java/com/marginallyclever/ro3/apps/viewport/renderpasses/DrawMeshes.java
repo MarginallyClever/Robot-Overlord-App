@@ -179,7 +179,7 @@ public class DrawMeshes extends AbstractRenderPass {
 
     @Override
     public void draw(Viewport viewport) {
-        Camera camera = Registry.getActiveCamera();
+        Camera camera = viewport.getActiveCamera();
         if (camera == null) return;
 
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
@@ -188,7 +188,7 @@ public class DrawMeshes extends AbstractRenderPass {
         var meshMaterial = collectAllMeshes(cw);
         sortMeshMaterialList(meshMaterial);
 
-        updateLightMatrix();
+        updateLightMatrix(camera);
         generateDepthMap(gl3,meshMaterial);
 
         drawAllMeshes(gl3,meshMaterial,camera);
@@ -447,10 +447,7 @@ public class DrawMeshes extends AbstractRenderPass {
     }
 
     // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
-    private void updateLightMatrix() {
-        Camera camera = Registry.getActiveCamera();
-        assert camera != null;
-
+    private void updateLightMatrix(Camera camera) {
         // orthographic projection from the light's point of view
         double r = 50;//Math.max(50,camera.getOrbitRadius());
         lightProjection.set(MatrixHelper.orthographicMatrix4d(-r,r,-r,r,1.0,DEPTH_BUFFER_LIMIT));

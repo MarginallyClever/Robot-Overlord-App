@@ -47,7 +47,7 @@ public class MoveUtils {
      * @return the point on the translationPlane, or null if no intersection
      */
     public static Point3d getPointOnPlaneFromCursor(Plane translationPlane, Viewport viewport, double x, double y) {
-        Camera cam = Registry.getActiveCamera();
+        Camera cam = viewport.getActiveCamera();
         assert cam != null;
         // get ray from camera through viewport
         Ray ray = viewport.getRayThroughPoint(cam, x, y);
@@ -75,10 +75,11 @@ public class MoveUtils {
      * Get the pivot matrix of the selected items.  The matrix should be returned in world space.
      * @param frameOfReference the {@link FrameOfReference} to use.
      * @param selectedItems the list of selected items
+     * @param camera the active camera
      * @return the pivot matrix of the selected items, in world space.  If no items are selected, returns the
      *         identity matrix.
      */
-    public static Matrix4d getPivotMatrix(FrameOfReference frameOfReference, SelectedItems selectedItems) {
+    public static Matrix4d getPivotMatrix(FrameOfReference frameOfReference, SelectedItems selectedItems,Camera camera) {
         if(selectedItems == null || selectedItems.isEmpty()) {
             return MatrixHelper.createIdentityMatrix4();
         }
@@ -89,11 +90,7 @@ public class MoveUtils {
         switch(frameOfReference) {
             case WORLD -> m = MatrixHelper.createIdentityMatrix4();
             case LOCAL -> m = lastItemSelectedMatrix;
-            case CAMERA -> {
-                Camera cam = Registry.getActiveCamera();
-                assert cam != null;
-                m = cam.getWorld();
-            }
+            case CAMERA -> m = camera.getWorld();
             default -> throw new InvalidParameterException("Unknown frame of reference: " + frameOfReference);
         }
         m.setTranslation(MatrixHelper.getPosition(lastItemSelectedMatrix));
