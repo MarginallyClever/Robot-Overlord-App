@@ -11,6 +11,10 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.proceduralmesh.Box;
+import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMesh;
+import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
+import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.slf4j.Logger;
@@ -28,15 +32,21 @@ public class DrawBackground extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawBackground.class);
     private final ColorRGB eraseColor = new ColorRGB(64,64,128);
     private ShaderProgram shader;
-    private final Mesh mesh = new Mesh();
+    private final Mesh mesh;
     private final TextureWithMetadata texture;
 
     public DrawBackground() {
         super("Erase/Background");
 
-        buildBox();
+        //mesh = new Mesh();
+        //buildBox();
+        //texture = Registry.textureFactory.load("/images/skybox.png");
 
-        texture = Registry.textureFactory.load("/images/skybox.png");
+        mesh = ProceduralMeshFactory.createMesh("Sphere");
+        ((Sphere)mesh).radius=100;
+        ((Sphere)mesh).updateModel();
+        texture = Registry.textureFactory.load("/com/marginallyclever/ro3/node/nodes/pose/poses/space/milkyway_2020_4k_print.jpg");
+
         texture.setDoNotExport(true);
     }
 
@@ -44,13 +54,13 @@ public class DrawBackground extends AbstractRenderPass {
      * Build a box with the given dimensions.
      * <p>Textures are mapped to the box as follows:</p>
      * <pre>
-     *     +---+---+---+---+
-     *     |   | Z |   |   |
-     *     +---+---+---+---+
-     *     | X-| Y | X | Y-|
-     *     +---+---+---+---+
-     *     |   | Z-|   |   |
-     *     +---+---+---+---+</pre>
+     * +---+---+---+---+
+     * |   | Z |   |   |
+     * +---+---+---+---+
+     * | X-| Y | X | Y-|
+     * +---+---+---+---+
+     * |   | Z-|   |   |
+     * +---+---+---+---+</pre>
      */
     private void buildBox() {
         mesh.setRenderStyle(GL3.GL_QUADS);
@@ -129,18 +139,17 @@ public class DrawBackground extends AbstractRenderPass {
     public void draw(Viewport viewport) {
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
         gl3.glClearColor(eraseColor.red / 255.0f,
-                eraseColor.green / 255.0f,
-                eraseColor.blue / 255.0f,
-                1);
+                        eraseColor.green / 255.0f,
+                        eraseColor.blue / 255.0f,
+                        1);
         gl3.glDepthMask(true);
         gl3.glColorMask(true, true, true, true);
         gl3.glStencilMask(0xFF);
 
+        gl3.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT | GL.GL_STENCIL_BUFFER_BIT);
+
         Camera camera = Registry.getActiveCamera();
-        if (camera == null) {
-            gl3.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT | GL.GL_STENCIL_BUFFER_BIT);
-        } else {
-            gl3.glClear(GL3.GL_DEPTH_BUFFER_BIT | GL.GL_STENCIL_BUFFER_BIT);
+        if (camera != null) {
             gl3.glDisable(GL3.GL_DEPTH_TEST);
             drawSkybox(gl3, camera);
             gl3.glEnable(GL3.GL_DEPTH_TEST);
