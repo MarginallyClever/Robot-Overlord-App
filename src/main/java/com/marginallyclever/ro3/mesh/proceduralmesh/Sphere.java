@@ -48,20 +48,20 @@ public class Sphere extends ProceduralMesh {
                 theta = ty * Math.PI;
 
                 float x = (float)( Math.sin(theta) * Math.cos(phi));
-                float y = (float)( Math.cos(theta));
-                float z = (float)(-Math.sin(theta) * Math.sin(phi));
+                float z = -(float)( Math.cos(theta));
+                float y = (float)(-Math.sin(theta) * Math.sin(phi));
 
                 this.addVertex(x*radius,y*radius,z*radius);
                 this.addNormal(x,y,z);
-                this.addTexCoord((float)tx, (float)ty);
+                this.addTexCoord((float)(1.0-tx), (float)ty);
             }
         }
-        this.addVertex(0,1*radius,0);
-        this.addNormal(0,1,0);
+        this.addVertex(0,0,-1*radius);
+        this.addNormal(0,0,-1);
         this.addTexCoord(0.5f,0);
 
-        this.addVertex(0,-1*radius,0);
-        this.addNormal(0,-1,0);
+        this.addVertex(0,0,1*radius);
+        this.addNormal(0,0,1);
         this.addTexCoord(0.5f,1);
 
         for( j=0; j<height-3; j++ ) {

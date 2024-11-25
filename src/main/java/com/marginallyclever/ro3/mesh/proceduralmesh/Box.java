@@ -170,13 +170,13 @@ public class Box extends ProceduralMesh {
                     this.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
                     this.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
 
-                    this.addTexCoord(0,0);
-                    this.addTexCoord(1,0);
-                    this.addTexCoord(1,1);
+                    this.addTexCoord(x0,y0);
+                    this.addTexCoord(x1,y0);
+                    this.addTexCoord(x1,y1);
 
-                    this.addTexCoord(0,0);
-                    this.addTexCoord(1,1);
-                    this.addTexCoord(0,1);
+                    this.addTexCoord(x0,y0);
+                    this.addTexCoord(x1,y1);
+                    this.addTexCoord(x0,y1);
                 } else if(this.getRenderStyle() == GL3.GL_LINES) {
                     for(int i=0;i<8;++i) {
                         this.addNormal((float)n.x, (float)n.y, (float)n.z);

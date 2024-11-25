@@ -64,7 +64,7 @@ public class ProceduralMeshFactory {
                 for (var constructor : list) {
                     var types = constructor.getParameterTypes();
                     if (types.length == 1 && types[0].isAssignableFrom(mesh.getClass())) {
-                        logger.debug("Creating panel for mesh: {}", shapeName);
+                        //logger.debug("Creating panel for mesh: {}", shapeName);
                         return (JPanel) constructor.newInstance(mesh);
                     }
                 }
