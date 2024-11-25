@@ -23,6 +23,11 @@ public class CameraPanel extends JPanel {
         this.camera = camera;
         this.setName(Camera.class.getSimpleName());
 
+        var v = camera.getOrbitPoint();
+        lookAtx.setValue(v.x);
+        lookAty.setValue(v.y);
+        lookAtz.setValue(v.z);
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1;
@@ -119,9 +124,6 @@ public class CameraPanel extends JPanel {
     }
 
     private void addLookAtComponents(GridBagConstraints gbc) {
-        lookAtx.addPropertyChangeListener(e->lookAt());
-        lookAty.addPropertyChangeListener(e->lookAt());
-        lookAtz.addPropertyChangeListener(e->lookAt());
 
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
@@ -133,16 +135,19 @@ public class CameraPanel extends JPanel {
         panel.add(lookAtz,c);
 
         PanelHelper.addLabelAndComponent(this, "Look at", panel,gbc);
+        lookAtx.addPropertyChangeListener(e->lookAt());
+        lookAty.addPropertyChangeListener(e->lookAt());
+        lookAtz.addPropertyChangeListener(e->lookAt());
         gbc.gridy++;
     }
 
     private void lookAt() {
         try {
-            camera.lookAt(new Vector3d(
+            var lookAt = new Vector3d(
                     ((Number)lookAtx.getValue()).doubleValue(),
                     ((Number)lookAty.getValue()).doubleValue(),
-                    ((Number)lookAtz.getValue()).doubleValue()
-            ));
+                    ((Number)lookAtz.getValue()).doubleValue());
+            camera.lookAt(lookAt);
         } catch (InvalidParameterException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }

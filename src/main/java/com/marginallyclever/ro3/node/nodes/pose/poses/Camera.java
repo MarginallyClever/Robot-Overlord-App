@@ -109,7 +109,7 @@ public class Camera extends Pose {
      * @param delta distance to travel.  Positive is up.
      */
     public void pedestal(double delta) {
-        translate(MatrixHelper.getYAxis(this.getLocal()),delta);
+        translate(MatrixHelper.getYAxis(getWorld()),delta);
     }
 
     /**
@@ -117,7 +117,7 @@ public class Camera extends Pose {
      * @param delta distance to travel.  Positive is right.
      */
     public void truck(double delta) {
-        translate(MatrixHelper.getXAxis(this.getLocal()),delta);
+        translate(MatrixHelper.getXAxis(getWorld()),delta);
     }
 
     /**
@@ -125,23 +125,25 @@ public class Camera extends Pose {
      * @param delta distance to travel.  Positive is forward.
      */
     public void dolly(double delta) {
-        translate(MatrixHelper.getZAxis(this.getLocal()),delta);
+        translate(MatrixHelper.getZAxis(getWorld()),delta);
     }
 
     /**
      * Translate relative to camera's current orientation if canTranslate is true.
-     * @param direction direction to travel
+     * @param direction direction to travel in world space
      * @param delta distance to travel
      */
     private void translate(Vector3d direction,double delta) {
         if(!canTranslate) return;
-        Matrix4d local = this.getLocal();
+        var w = getWorld();
         Vector3d t = new Vector3d();
-        local.get(t);
+        w.get(t);
+        System.out.println("before " + t);
         direction.scale(delta);
         t.add(direction);
-        local.setTranslation(t);
-        this.setLocal(local);
+        w.setTranslation(t);
+        System.out.println("after " + t);
+        setWorld(w);
     }
 
     /**
@@ -189,19 +191,18 @@ public class Camera extends Pose {
      * @param target the point to look at.
      */
     public void lookAt(Vector3d target) {
-        Matrix4d local = this.getLocal();
-        Vector3d position = MatrixHelper.getPosition(local);
-        Matrix3d viewMatrix = MatrixHelper.lookAt(target,position);
-        Vector3d diff = new Vector3d();
+        var m = this.getWorld();
+        var position = MatrixHelper.getPosition(m);
+        var viewMatrix = MatrixHelper.lookAt(target,position);
+        var diff = new Vector3d();
         diff.sub(target,position);
         if(diff.length()<1e-6) {
             throw new InvalidParameterException("target is too close to camera.");
         }
-        local.set(viewMatrix);
-        local.setTranslation(position);
+        m.set(viewMatrix,position,1);
         // adjust the orbit radius to match the distance to the target.
         orbitRadius = diff.length();
-        this.setLocal(local);
+        this.setWorld(m);
     }
 
     public Matrix4d getPerspectiveFrustum(int width,int height) {
@@ -274,19 +275,19 @@ public class Camera extends Pose {
         Vector3d orbitPoint = getOrbitPoint();
         //logger.debug("before {}",orbitPoint);
 
-        double [] panTiltAngles = getPanTiltFromMatrix(getLocal());
+        double [] panTiltAngles = getPanTiltFromMatrix(getWorld());
         // range limit around
         panTiltAngles[0] = (panTiltAngles[0] + dx+360) % 360;
         // tilt limit
         panTiltAngles[1] = Math.max(0,Math.min(180,panTiltAngles[1] + dy));
 
-        Matrix3d panTilt = buildPanTiltMatrix(panTiltAngles);
-        Matrix4d newLocal = new Matrix4d();
-        newLocal.set(panTilt);
-        Vector3d orbitVector = MatrixHelper.getZAxis(newLocal);
+        var panTilt = buildPanTiltMatrix(panTiltAngles);
+        var m = new Matrix4d();
+        m.set(panTilt);
+        Vector3d orbitVector = MatrixHelper.getZAxis(m);
         orbitVector.scaleAdd(getOrbitRadius(),orbitPoint);
-        newLocal.setTranslation(orbitVector);
-        setLocal(newLocal);
+        m.setTranslation(orbitVector);
+        setWorld(m);
         //logger.debug("after {}",getOrbitPoint());
     }
 
@@ -322,16 +323,15 @@ public class Camera extends Pose {
     public void panTilt(double panDegrees, double tiltDegrees) {
         if(!canRotate) return;
 
-        Matrix4d local = getLocal();
-        Vector3d t = new Vector3d();
-        local.get(t);
-        double [] panTiltAngles = getPanTiltFromMatrix(local);
+        var w = getWorld();
+        var t = new Vector3d();
+        w.get(t);
+        double [] panTiltAngles = getPanTiltFromMatrix(w);
         panTiltAngles[0] = (panTiltAngles[0] + panDegrees+360) % 360;
         panTiltAngles[1] = Math.max(0,Math.min(180,panTiltAngles[1] + tiltDegrees));
         Matrix3d panTilt = buildPanTiltMatrix(panTiltAngles);
-        local.set(panTilt);
-        local.setTranslation(t);
-        setLocal(local);
+        w.set(panTilt,t,1);
+        setWorld(w);
     }
 
     public boolean getCanTranslate() {
