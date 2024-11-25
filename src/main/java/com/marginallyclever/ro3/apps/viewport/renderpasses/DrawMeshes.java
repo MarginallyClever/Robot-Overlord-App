@@ -135,8 +135,7 @@ public class DrawMeshes extends AbstractRenderPass {
 
         for(MeshMaterialMatrix meshMaterialMatrix : meshes) {
             MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
-            Matrix4d w = meshInstance.getWorld();
-            w.transpose();
+            Matrix4d w = meshMaterialMatrix.matrix();
             shadowShader.setMatrix4d(gl3,"modelMatrix",w);
             meshInstance.getMesh().render(gl3);
         }
@@ -292,6 +291,7 @@ public class DrawMeshes extends AbstractRenderPass {
             // if they have a mesh, collect it.
             Mesh mesh = meshInstance.getMesh();
             if (mesh != null) {
+                // shift the origin of the mesh to the camera for better precision far from the origin.
                 var m = meshInstance.getWorld();
                 m.mul(cameraWorldInverse,m);
                 m.transpose();
@@ -315,13 +315,12 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
         meshShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
 
-        //var vm = camera.getViewMatrix();
+        //was var vm = camera.getViewMatrix();
         var vm = MatrixHelper.createIdentityMatrix4();
         meshShader.setMatrix4d(gl3, "viewMatrix", vm);
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
 
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
-        //Vector3d cameraWorldPos = new Vector3d();
         meshShader.setVector3d(gl3, "cameraPos", cameraWorldPos);  // Camera position in world space
         meshShader.setVector3d(gl3, "lightPos", sunlightSource);  // Light position in world space
 
@@ -369,8 +368,7 @@ public class DrawMeshes extends AbstractRenderPass {
             }
 
             // set the model matrix
-            //var w = meshInstance.getWorld();
-            //w.transpose();
+            //was var w = meshInstance.getWorld();  w.transpose();
             var w = meshMaterialMatrix.matrix();
             meshShader.setMatrix4d(gl3,"modelMatrix",w);
             // draw it
@@ -414,7 +412,7 @@ public class DrawMeshes extends AbstractRenderPass {
         outlineShader.use(gl3);
         // tell the shader some important information
 
-        //var vm = camera.getViewMatrix();
+        //was var vm = camera.getViewMatrix();
         var vm = MatrixHelper.createIdentityMatrix4();
         outlineShader.setMatrix4d(gl3, "viewMatrix", vm);
         outlineShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
@@ -427,8 +425,7 @@ public class DrawMeshes extends AbstractRenderPass {
             Mesh mesh = meshInstance.getMesh();
 
             // set the model matrix
-            //var w = meshInstance.getWorld();
-            //w.transpose();
+            //was var w = meshInstance.getWorld();  w.transpose();
             var w = meshMaterialMatrix.matrix();
             outlineShader.setMatrix4d(gl3,"modelMatrix",w);
             // draw it
