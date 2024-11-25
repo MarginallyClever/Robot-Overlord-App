@@ -19,7 +19,7 @@ public class CameraTest {
 
     @Test
     public void testPanTiltInverses() {
-        Camera camera = Registry.getActiveCamera();
+        Camera camera = new Camera();
 
         for (int pan = -180; pan <= 180; pan += 10) {
             for (int tilt = -90; tilt <= 90; tilt += 10) {
@@ -35,8 +35,7 @@ public class CameraTest {
 
     @Test
     public void getSetOrbitRadius() {
-        Camera camera = Registry.getActiveCamera();
-        assert camera != null;
+        Camera camera = new Camera();
         camera.moveToNewRadius(1.0);
         Assertions.assertEquals(1.0, camera.getOrbitRadius(), 0.01);
         camera.moveToNewRadius(2.0);
@@ -45,8 +44,7 @@ public class CameraTest {
 
     @Test
     public void getSetFOVY() {
-        Camera camera = Registry.getActiveCamera();
-        assert camera != null;
+        Camera camera = new Camera();
         camera.setFovY(1.0);
         Assertions.assertEquals(1.0, camera.getFovY(), 0.01);
         camera.setFovY(2.0);
@@ -55,8 +53,7 @@ public class CameraTest {
 
     @Test
     public void getSetNearZ() {
-        Camera camera = Registry.getActiveCamera();
-        assert camera != null;
+        Camera camera = new Camera();
         camera.setNearZ(1.0);
         Assertions.assertEquals(1.0, camera.getNearZ(), 0.01);
         camera.setNearZ(2.0);
@@ -65,8 +62,7 @@ public class CameraTest {
 
     @Test
     public void getSetFarZ() {
-        Camera camera = Registry.getActiveCamera();
-        assert camera != null;
+        Camera camera = new Camera();
         camera.setFarZ(1.0);
         Assertions.assertEquals(1.0, camera.getFarZ(), 0.01);
         camera.setFarZ(2.0);
