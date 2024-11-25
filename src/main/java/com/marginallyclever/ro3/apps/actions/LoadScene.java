@@ -136,8 +136,6 @@ public class LoadScene extends AbstractAction {
             Registry.setScene(loaded);
             Registry.getPhysics().deferredAction(loaded);
 
-            moveCameraToFirstActive();
-
             if(menu!=null) menu.addPath(selectedFile.getAbsolutePath());
         } catch (IOException e) {
             logger.error("Error loading file.", e);
@@ -152,14 +150,5 @@ public class LoadScene extends AbstractAction {
         }
 
         logger.info("done.");
-    }
-
-    private void moveCameraToFirstActive() {
-        // find the first active camera in the scene.
-        Node scene = Registry.getScene();
-        var camera = scene.findFirstChild(Camera.class);
-        if(camera!=null) {
-            Registry.setActiveCamera(camera);
-        }
     }
 }
