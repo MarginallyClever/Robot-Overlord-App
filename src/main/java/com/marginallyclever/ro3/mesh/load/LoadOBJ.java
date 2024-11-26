@@ -50,7 +50,7 @@ public class LoadOBJ implements MeshLoader {
 					path = path.substring(0,path.lastIndexOf(File.separator)+1) + line.substring(7);
 					materials.putAll(loadMaterialLibrary(path));
 				} catch(Exception e) {
-					logger.error("Error loading material: "+e.getMessage());
+					logger.warn("Error loading material: {}",e.getMessage());
 				}
 			}
 			if(line.startsWith("usemtl ")) {
@@ -134,7 +134,7 @@ public class LoadOBJ implements MeshLoader {
 									normalArray.get(indexN*3+1),
 									normalArray.get(indexN*3+2));
 						} catch(Exception e) {
-							logger.error("Error normal data: "+e.getMessage());
+							logger.error("Error normal data: {}",e.getMessage());
 						}
 					}
 				}
