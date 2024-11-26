@@ -1,12 +1,7 @@
 package com.marginallyclever.ro3.apps.viewport;
 
-import com.jogamp.opengl.GL3;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLContext;
-import com.jogamp.opengl.GLEventListener;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
@@ -29,9 +24,7 @@ import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
+import java.awt.event.*;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +32,16 @@ import java.util.Objects;
 import java.util.prefs.Preferences;
 
 /**
- * {@link Viewport} is an {@link OpenGLPanel} that uses a set of {@link RenderPass}es to draw the
- * {@link Registry#getScene()} from the perspective of the active {@link Camera}.
+ * {@link Viewport} is an {@link JPanel} that uses a set of {@link RenderPass}es to draw the
+ * {@link Registry#getScene()} from the perspective of the active {@link Camera}.  Mouse actions in the panel
+ * can be used to manipulate the active camera.
  */
-public class Viewport extends OpenGLPanel implements GLEventListener, SceneChangeListener {
+public class Viewport
+        extends JPanel
+        implements SceneChangeListener,
+        MouseListener,
+        MouseMotionListener,
+        MouseWheelListener {
     private static final Logger logger = LoggerFactory.getLogger(Viewport.class);
     private Camera activeCamera;
     public ListWithEvents<RenderPass> renderPasses = new ListWithEvents<>();
@@ -52,16 +51,19 @@ public class Viewport extends OpenGLPanel implements GLEventListener, SceneChang
     private final List<Boolean> buttonPressed = new ArrayList<>();
     private int mx, my;
     private double orbitChangeFactor = 1.1;  // must always be greater than 1
-    private int canvasWidth, canvasHeight;
-    private final List<ViewportTool> viewportTools = new ArrayList<>();
+    protected int canvasWidth, canvasHeight;
+    protected final List<ViewportTool> viewportTools = new ArrayList<>();
     private int activeToolIndex = -1;
-    private ShaderProgram toolShader;
     private double userMovementScale = 1.0;
     private final JButton frameOfReferenceButton = new JButton();
     private final JPopupMenu frameOfReferenceMenu = new JPopupMenu();
 
     public Viewport() {
-        super();
+        this(new BorderLayout());
+    }
+
+    public Viewport(LayoutManager layout) {
+        super(layout);
         add(toolBar, BorderLayout.NORTH);
         toolBar.setLayout(new FlowLayout(FlowLayout.LEFT,5,1));
 
@@ -337,13 +339,11 @@ public class Viewport extends OpenGLPanel implements GLEventListener, SceneChang
         Registry.selection.removeItemRemovedListener(this::selectionChanged);
     }
 
-    private void addRenderPass(Object source,RenderPass renderPass) {
-        addGLEventListener(renderPass);
+    protected void addRenderPass(Object source,RenderPass renderPass) {
         updateRenderPassMenu();
     }
 
-    private void removeRenderPass(Object source,RenderPass renderPass) {
-        removeGLEventListener(renderPass);
+    protected void removeRenderPass(Object source,RenderPass renderPass) {
         updateRenderPassMenu();
     }
 
@@ -424,73 +424,7 @@ public class Viewport extends OpenGLPanel implements GLEventListener, SceneChang
         toolBar.add(cameraSelector);
     }
 
-    @Override
-    public void init(GLAutoDrawable glAutoDrawable) {
-        super.init(glAutoDrawable);
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        try {
-            toolShader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.vert"),
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.frag"));
-        } catch(Exception e) {
-            logger.error("Failed to load shader", e);
-        }
-        for(ViewportTool tool : viewportTools) tool.init(gl3);
-    }
-
-    @Override
-    public void dispose(GLAutoDrawable glAutoDrawable) {
-        super.dispose(glAutoDrawable);
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        toolShader.delete(gl3);
-        for(ViewportTool tool : viewportTools) tool.dispose(gl3);
-    }
-
-    @Override
-    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
-        super.reshape(glAutoDrawable,x,y,width,height);
-        canvasWidth = width;
-        canvasHeight = height;
-    }
-
-    @Override
-    public void display(GLAutoDrawable glAutoDrawable) {
-        double dt = 1.0 / (double)this.getFPS();
-        for(ViewportTool tool : viewportTools) tool.update(dt);
-        updateAllNodes(dt);
-        renderAllPasses();
-        renderViewportTools();
-    }
-
-    private void renderViewportTools() {
-        Camera camera = getActiveCamera();
-        assert camera != null;
-
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
-        toolShader.use(gl3);
-        toolShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix());
-        toolShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
-        Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
-        toolShader.setVector3d(gl3, "cameraPos", cameraWorldPos);  // Camera position in world space
-        toolShader.setVector3d(gl3, "lightPos", cameraWorldPos);  // Light position in world space
-
-        toolShader.setColor(gl3, "lightColor", Color.WHITE);
-        toolShader.setColor(gl3, "diffuseColor", Color.WHITE);
-        toolShader.setColor(gl3, "specularColor", Color.WHITE);
-        toolShader.setColor(gl3,"ambientColor",Color.BLACK);
-
-        toolShader.set1i(gl3,"useTexture",0);
-        toolShader.set1i(gl3,"useLighting",0);
-        toolShader.set1i(gl3,"useVertexColor",0);
-
-        gl3.glDisable(GL3.GL_DEPTH_TEST);
-        for(ViewportTool tool : viewportTools) {
-            tool.render(gl3,toolShader);
-        }
-        gl3.glEnable(GL3.GL_DEPTH_TEST);
-    }
-
-    private void renderAllPasses() {
+    public void renderAllPasses() {
         // renderPasses that are always on
         for(RenderPass pass : renderPasses.getList()) {
             if(pass.getActiveStatus()==RenderPass.NEVER) continue;
@@ -498,20 +432,18 @@ public class Viewport extends OpenGLPanel implements GLEventListener, SceneChang
         }
     }
 
-    private void updateAllNodes(double dt) {
+    public void updateAllNodes(double dt) {
         Registry.getPhysics().update(dt);
         Registry.getScene().update(dt);
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        super.mouseClicked(e);
         for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        super.mousePressed(e);
         for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
 
         buttonPressed.set(e.getButton(),true);
@@ -519,16 +451,19 @@ public class Viewport extends OpenGLPanel implements GLEventListener, SceneChang
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        super.mouseReleased(e);
         for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
 
         buttonPressed.set(e.getButton(),false);
     }
 
     @Override
-    public void mouseDragged(MouseEvent e) {
-        super.mouseDragged(e);
+    public void mouseEntered(MouseEvent e) {}
 
+    @Override
+    public void mouseExited(MouseEvent e) {}
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
         for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
 
         int px = e.getX();
@@ -566,7 +501,6 @@ public class Viewport extends OpenGLPanel implements GLEventListener, SceneChang
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
-        super.mouseWheelMoved(e);
         for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
 
         int dz = e.getWheelRotation();
@@ -575,7 +509,6 @@ public class Viewport extends OpenGLPanel implements GLEventListener, SceneChang
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        super.mouseMoved(e);
         mx = e.getX();
         my = e.getY();
         //logger.debug("mouse {},{}",e.getX(),e.getY());
@@ -729,4 +662,29 @@ public class Viewport extends OpenGLPanel implements GLEventListener, SceneChang
         // set camera to registry active camera
         cameraListModel.setSelectedItem(activeCamera);
     }
+
+    public boolean isHardwareAccelerated() {
+        return false;
+    }
+
+    public void setHardwareAccelerated(boolean selected) {
+        // do nothing
+    }
+
+    public boolean isVerticalSync() {
+        return false;
+    }
+
+    public void setVerticalSync(boolean selected) {
+        // do nothing
+    }
+
+    public int getFsaaSamples() {
+        return 0;
+    }
+
+    public void setFsaaSamples(Integer value) {
+    }
+
+    public void savePrefs() {}
 }

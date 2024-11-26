@@ -64,7 +64,7 @@ public class RO3Frame extends JFrame {
 
         logPanel = new LogPanel();
         editPanel = new EditorPanel();
-        viewportPanel = new Viewport();
+        viewportPanel = new OpenGLPanel();
         webCamPanel = new WebCamPanel();
         textInterface = new TextInterfaceToSessionLayer();
         ode4jPanel = new ODE4JPanel();
