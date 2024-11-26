@@ -86,4 +86,7 @@ void main() {
     //finalColor = vec4(fs_in.textureCoord.x,fs_in.textureCoord.y,0,1);  // for testing texture coordinates
     finalColor = result;
     finalColor.a = diffuseColor.a;
+
+    float far = 1e9;
+    gl_FragDepth = log2(gl_FragCoord.z * far) / log2(far+1.0);
 }
