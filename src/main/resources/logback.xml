@@ -20,7 +20,7 @@
     </appender>
 
     <!-- make the webcam quietly poll for cameras -->
-    <logger name="c.g.s.w.d.b.WebcamDefaultDriver" level="INFO" />
+    <logger name="com.github.sarxos.webcam.ds.buildin.WebcamDefaultDriver" level="INFO" />
 
     <!-- <logger name="java.util.prefs" level="off" /> -->
 
