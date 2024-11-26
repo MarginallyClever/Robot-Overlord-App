@@ -12,8 +12,10 @@ import java.nio.IntBuffer;
  *
  */
 public class OpenGLHelper {
+	private static final IntBuffer depthFunc = IntBuffer.allocate(1);
+	private static final FloatBuffer lineWidth = FloatBuffer.allocate(1);
+
 	public static int drawAtopEverythingStart(GL3 gl) {
-		IntBuffer depthFunc = IntBuffer.allocate(1);
 		gl.glGetIntegerv(GL3.GL_DEPTH_FUNC, depthFunc);
 		gl.glDepthFunc(GL3.GL_ALWAYS);
 		return depthFunc.get();
@@ -32,7 +34,6 @@ public class OpenGLHelper {
 	}
 
 	public static float setLineWidth(GL3 gl,float newWidth) {
-		FloatBuffer lineWidth = FloatBuffer.allocate(1);
 		gl.glGetFloatv(GL3.GL_LINE_WIDTH, lineWidth);
 		gl.glLineWidth(newWidth);
 		return lineWidth.get(0);
