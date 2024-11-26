@@ -457,9 +457,31 @@ public class MatrixHelper {
 	}
 
 	public static Matrix4d perspectiveMatrix4d(double fovY, double aspect, double near, double far) {
-		double [] list = new double[16];
-		org.joml.Matrix4d perspective = new org.joml.Matrix4d();
-		perspective.setPerspective(Math.toRadians(fovY), aspect, near, far).get(list);
-		return new Matrix4d(list);
+		//double [] list = new double[16];
+		//org.joml.Matrix4d perspective = new org.joml.Matrix4d();
+		//perspective.setPerspective(Math.toRadians(fovY), aspect, near, far).get(list);
+		//return new Matrix4d(list);
+
+		var m = new Matrix4d();
+		double tanHalfFovy = Math.tan(Math.toRadians(fovY) / 2.0);
+		m.m00 = 1.0 / (aspect * tanHalfFovy);
+		m.m11 = 1.0 / tanHalfFovy;
+		m.m22 = -(far + near) / (far - near);
+		m.m23 = -1.0;
+		m.m32 = -(2.0 * far * near) / (far - near);
+		m.m33 = 0.0;
+		return m;
+	}
+
+	public Matrix4d setPerspectiveInfiniteFar(double fovY, double aspect, double near) {
+		var m = new Matrix4d();
+		double tanHalfFovy = Math.tan(Math.toRadians(fovY) / 2.0);
+		m.m00 = 1.0 / (aspect * tanHalfFovy);
+		m.m11 = 1.0 / tanHalfFovy;
+		m.m22 = -1.0;            // Infinite far plane
+		m.m23 = -1.0;
+		m.m32 = -2.0 * near;     // Use near to scale depth
+		m.m33 = 0.0;
+		return m;
 	}
 }
