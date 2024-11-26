@@ -442,6 +442,10 @@ public class MatrixHelper {
 		listOut[5] = -rpy[2];
 	}
 
+	/**
+	 * @param pivot the matrix to use as the origin.
+	 * @return a {@link Plane} that is parallel to the XY plane and passes through the origin.
+	 */
 	public static Plane getXYPlane(Matrix4d pivot) {
 		return new Plane(
 				getPosition(pivot),
@@ -449,19 +453,81 @@ public class MatrixHelper {
 		);
 	}
 
+	/**
+	 * Generate an orthographic matrix.
+	 * @param left pixels
+	 * @param right pixels
+	 * @param bottom pixels
+	 * @param top pixels
+	 * @param near distance
+	 * @param far distance
+	 * @return a matrix
+	 */
 	public static Matrix4d orthographicMatrix4d(double left, double right, double bottom, double top, double near, double far) {
+		//return setOrthographicFiniteFar(left, right, bottom, top, near, far);
+		return setOrthographicInfiniteFar(left, right, bottom, top, near);
+	}
+
+	/**
+	 * Generate an orthographic matrix where near is 0 and far is 1.
+	 * @param left pixels
+	 * @param right pixels
+	 * @param bottom pixels
+	 * @param top pixels
+	 * @param near distance
+	 * @param far distance
+	 * @return a matrix
+	 */
+	public static Matrix4d setOrthographicFiniteFar(double left, double right, double bottom, double top, double near, double far) {
 		double [] list = new double[16];
 		org.joml.Matrix4d ortho = new org.joml.Matrix4d();
 		ortho.setOrtho(left, right, bottom, top, near, far).get(list);
 		return new Matrix4d(list);
 	}
 
-	public static Matrix4d perspectiveMatrix4d(double fovY, double aspect, double near, double far) {
-		//double [] list = new double[16];
-		//org.joml.Matrix4d perspective = new org.joml.Matrix4d();
-		//perspective.setPerspective(Math.toRadians(fovY), aspect, near, far).get(list);
-		//return new Matrix4d(list);
+	/**
+	 * Generate a reverse-distance orthographic matrix where near items are 1 and far items are 0.
+	 * @param left pixels
+	 * @param right pixels
+	 * @param bottom pixels
+	 * @param top pixels
+	 * @param near distance
+	 * @return a matrix
+	 */
+	public static Matrix4d setOrthographicInfiniteFar(double left, double right, double bottom, double top, double near) {
+		var m = new Matrix4d();
+		m.m00 = 2.0 / (right - left);
+		m.m11 = 2.0 / (top - bottom);
+		m.m22 = -1.0;             // Infinite far plane
+		m.m30 = -(right + left) / (right - left);
+		m.m31 = -(top + bottom) / (top - bottom);
+		m.m32 = -2.0 / near;      // Use near plane to scale depth
+		m.m33 = 1.0;
+		return m;
+	}
 
+	/**
+	 * Generate a perspective matrix.
+	 * @param fovY degrees
+	 * @param aspect ratio
+	 * @param near distance
+	 * @param far distance
+	 * @return a matrix
+	 */
+	public static Matrix4d perspectiveMatrix4d(double fovY, double aspect, double near, double far) {
+		return setPerspectiveInfiniteFar(fovY, aspect, near);
+		//return setPerspectiveFiniteFar(fovY, aspect, near, far);
+	}
+
+	/**
+	 * Generate a perspective matrix where near items are 1 and far items are 0.
+	 * @param fovY degrees
+	 * @param aspect ratio
+	 * @param near distance
+	 * @param far distance
+	 * @return a matrix
+	 */
+	public static Matrix4d setPerspectiveFiniteFar(double fovY, double aspect, double near, double far) {
 		var m = new Matrix4d();
 		double tanHalfFovy = Math.tan(Math.toRadians(fovY) / 2.0);
 		m.m00 = 1.0 / (aspect * tanHalfFovy);
@@ -473,14 +539,21 @@ public class MatrixHelper {
 		return m;
 	}
 
-	public Matrix4d setPerspectiveInfiniteFar(double fovY, double aspect, double near) {
+	/**
+	 * Generate the reverse perspective matrix, where near items are 1 and far items are 0.
+	 * @param fovY degrees
+	 * @param aspect ratio
+	 * @param near distance
+	 * @return a matrix
+	 */
+	public static Matrix4d setPerspectiveInfiniteFar(double fovY, double aspect, double near) {
 		var m = new Matrix4d();
-		double tanHalfFovy = Math.tan(Math.toRadians(fovY) / 2.0);
-		m.m00 = 1.0 / (aspect * tanHalfFovy);
-		m.m11 = 1.0 / tanHalfFovy;
-		m.m22 = -1.0;            // Infinite far plane
+		double f = 1.0/Math.tan(Math.toRadians(fovY) / 2.0);
+		m.m00 = f / aspect;
+		m.m11 = f;
+		m.m22 = 0.0;  // Infinite far plane
 		m.m23 = -1.0;
-		m.m32 = -2.0 * near;     // Use near to scale depth
+		m.m32 = near;  // Use near to scale depth
 		m.m33 = 0.0;
 		return m;
 	}
