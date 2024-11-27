@@ -138,11 +138,9 @@ public class Camera extends Pose {
         var w = getWorld();
         Vector3d t = new Vector3d();
         w.get(t);
-        System.out.println("before " + t);
         direction.scale(delta);
         t.add(direction);
         w.setTranslation(t);
-        System.out.println("after " + t);
         setWorld(w);
     }
 
