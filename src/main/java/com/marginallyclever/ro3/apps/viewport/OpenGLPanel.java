@@ -92,6 +92,7 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
         capabilities.setBackgroundOpaque(true);
         capabilities.setDoubleBuffered(doubleBuffered);
         capabilities.setStencilBits(8);
+        capabilities.setDepthBits(32);  // 32 bit depth buffer is floating point
         if(fsaaSamples>0) {
             capabilities.setSampleBuffers(true);
             capabilities.setNumSamples(1<<fsaaSamples);
@@ -132,9 +133,20 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
         gl3.glEnable(GL3.GL_DEPTH_TEST);
         gl3.glDepthFunc(GL3.GL_LESS);
         gl3.glDepthMask(true);
+
+        /*
+        // for reverse-z depth buffer
+        GL4 gl = glAutoDrawable.getGL().getGL4();
+        gl.glDisable(GL3.GL_DEPTH_TEST);
+        gl.glDepthFunc(GL3.GL_GREATER);
+        gl.glClearDepth(0);
+        gl.glClipControl(GL4.GL_LOWER_LEFT, GL4.GL_ZERO_TO_ONE);
+        */
+
         // Don't draw triangles facing away from camera
         gl3.glEnable(GL3.GL_CULL_FACE);
         gl3.glCullFace(GL3.GL_BACK);
+
         // default blending option for transparent materials
         gl3.glEnable(GL3.GL_BLEND);
         gl3.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);
