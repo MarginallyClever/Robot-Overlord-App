@@ -464,8 +464,8 @@ public class MatrixHelper {
 	 * @return a matrix
 	 */
 	public static Matrix4d orthographicMatrix4d(double left, double right, double bottom, double top, double near, double far) {
-		//return setOrthographicFiniteFar(left, right, bottom, top, near, far);
-		return setOrthographicInfiniteFar(left, right, bottom, top, near);
+		return setOrthographicFiniteFar(left, right, bottom, top, near, far);
+		//return setOrthographicInfiniteFar(left, right, bottom, top, near);
 	}
 
 	/**
@@ -515,8 +515,8 @@ public class MatrixHelper {
 	 * @return a matrix
 	 */
 	public static Matrix4d perspectiveMatrix4d(double fovY, double aspect, double near, double far) {
-		return setPerspectiveInfiniteFar(fovY, aspect, near);
-		//return setPerspectiveFiniteFar(fovY, aspect, near, far);
+		//return setPerspectiveInfiniteFar(fovY, aspect, near);
+		return setPerspectiveFiniteFar(fovY, aspect, near, far);
 	}
 
 	/**
