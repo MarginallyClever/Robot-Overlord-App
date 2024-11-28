@@ -48,6 +48,7 @@ public class DrawMeshes extends AbstractRenderPass {
     public static final Matrix4d lightView = new Matrix4d();
     private double declination = 0;  // degrees, +/-90
     private double timeOfDay = 12;  // 0-24
+    private boolean originShift = false;
 
     public DrawMeshes() {
         super("Meshes");
@@ -304,7 +305,6 @@ public class DrawMeshes extends AbstractRenderPass {
                 // shift the origin of the mesh to the camera for better precision far from the origin.
                 var m = meshInstance.getWorld();
                 m.mul(cameraWorldInverse,m);
-                //m.transpose();
                 meshMaterialMatrices.add(new MeshMaterialMatrix(meshInstance,lastMaterialSeen,m));
             }
         }
@@ -377,8 +377,7 @@ public class DrawMeshes extends AbstractRenderPass {
             Mesh mesh = meshInstance.getMesh();
             meshShader.set1i(gl3, "useVertexColor", mesh.getHasColors()?1:0);
             // set the model matrix
-            var m = meshMaterialMatrix.matrix();
-            //m.transpose();
+            var m = getOriginShiftedModelMatrix(meshMaterialMatrix.matrix(),MatrixHelper.getPosition(camera.getWorld()));
             meshShader.setMatrix4d(gl3,"modelMatrix",m);
             // draw it
             mesh.render(gl3);
@@ -431,14 +430,11 @@ public class DrawMeshes extends AbstractRenderPass {
         // render the set
         for(MeshMaterialMatrix meshMaterialMatrix : meshMaterialMatrices) {
             MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
-            Mesh mesh = meshInstance.getMesh();
-
             // set the model matrix
-            //was var w = meshInstance.getWorld();  w.transpose();
-            var w = meshMaterialMatrix.matrix();
+            var w = getOriginShiftedModelMatrix(meshMaterialMatrix.matrix(),MatrixHelper.getPosition(camera.getWorld()));
             outlineShader.setMatrix4d(gl3,"modelMatrix",w);
             // draw it
-            mesh.render(gl3);
+            meshInstance.getMesh().render(gl3);
             OpenGLHelper.checkGLError(gl3,logger);
         }
 
@@ -551,5 +547,15 @@ public class DrawMeshes extends AbstractRenderPass {
         result.scale(SUN_DISTANCE);
 
         return result;
+    }
+
+    private Matrix4d getOriginShiftedModelMatrix(Matrix4d m,Vector3d cameraPos) {
+        var m2 = new Matrix4d(m);
+        if(originShift) {
+            m2.m03 -= cameraPos.x;
+            m2.m13 -= cameraPos.y;
+            m2.m23 -= cameraPos.z;
+        }
+        return m2;
     }
 }
