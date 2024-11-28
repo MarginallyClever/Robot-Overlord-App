@@ -41,14 +41,13 @@ public class LookAtLastSelected extends AbstractAction {
         var cameraPosition = MatrixHelper.getPosition(m);
         var lastFoundPosition = MatrixHelper.getPosition(lastFound.getWorld());
         var lookAt = MatrixHelper.lookAt(lastFoundPosition,cameraPosition);
-        m.set(lookAt);
-        m.setTranslation(cameraPosition);
+        m.set(lookAt,cameraPosition,1);
         camera.setWorld(m);
-        // adjust the camera orbit to be the distance from the camera to the last selected pose.
+        // adjust the camera orbit distance so that orbiting will be around the lastFound position.
+        // TODO use the bounding sphere of lastFound to determine the zoom distance.
         Vector3d diff = new Vector3d(cameraPosition);
         diff.sub(lastFoundPosition);
         double distance = Math.max(1,diff.length());
-        // TODO use the bounding sphere of the pose to determine the zoom distance.
         camera.setOrbitRadius(distance);
     }
 }
