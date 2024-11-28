@@ -127,6 +127,7 @@ public class Viewport
         toolBar.add(createFrameOfReferenceSelection());
         toolBar.add(new JSeparator());
         toolBar.add(new LookAtLastSelected(this));
+        toolBar.add(new ZoomToSelected(this));
     }
 
     private void addRenderPasses() {
