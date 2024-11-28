@@ -42,6 +42,9 @@ public class ZoomToSelected extends AbstractAction {
 
         // use the bounds of lastFound to determine the zoom distance.
         var mi = lastFound.findFirstChild(MeshInstance.class);
+        if( mi == null && lastFound instanceof MeshInstance knownMi) {
+            mi = knownMi;
+        }
         if( mi != null) {
             // if the last selected pose has a mesh, use the mesh's bounds to determine the zoom distance.
             var box = mi.getMesh().getBoundingBox();
