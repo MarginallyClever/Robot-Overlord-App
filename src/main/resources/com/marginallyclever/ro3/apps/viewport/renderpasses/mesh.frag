@@ -87,6 +87,7 @@ void main() {
     finalColor = result;
     finalColor.a = diffuseColor.a;
 
+    // log depth for more accuracy at far distances
     float far = 1e9;
     gl_FragDepth = log2(gl_FragCoord.z * far) / log2(far+1.0);
 }
