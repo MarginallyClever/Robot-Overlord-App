@@ -436,7 +436,6 @@ public class DrawMeshes extends AbstractRenderPass {
             // set the model matrix
             //was var w = meshInstance.getWorld();  w.transpose();
             var w = meshMaterialMatrix.matrix();
-            w.transpose();
             outlineShader.setMatrix4d(gl3,"modelMatrix",w);
             // draw it
             mesh.render(gl3);
