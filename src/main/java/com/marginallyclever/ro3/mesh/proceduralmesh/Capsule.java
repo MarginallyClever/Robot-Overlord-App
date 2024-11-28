@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.ro3.mesh.Mesh;
 import org.json.JSONObject;
 
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,8 @@ public class Capsule extends ProceduralMesh {
 
         float h = height - radius*2;
         float h2=h/2;
+
+        boundingBox.setBounds(new Point3d(radius,radius,height/2),new Point3d(-radius,-radius,-height/2));
 
         List<Vector3d> points = new ArrayList<>();
         List<Vector3d> normals = new ArrayList<>();

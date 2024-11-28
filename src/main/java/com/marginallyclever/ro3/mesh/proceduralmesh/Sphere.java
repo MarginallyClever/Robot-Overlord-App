@@ -4,6 +4,8 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.ro3.mesh.Mesh;
 import org.json.JSONObject;
 
+import javax.vecmath.Point3d;
+
 /**
  * <p>{@link Sphere} is a {@link Mesh} with a radius of 1.  The origin is at the center of the sphere.</p>
  */
@@ -83,6 +85,7 @@ public class Sphere extends ProceduralMesh {
             this.addIndex( (height-3)*width + i );
         }
 
+        boundingBox.setBounds(new Point3d(radius,radius,radius),new Point3d(-radius,-radius,-radius));
         fireMeshChanged();
     }
 

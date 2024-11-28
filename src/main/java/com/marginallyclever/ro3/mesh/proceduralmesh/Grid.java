@@ -4,6 +4,8 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.ro3.mesh.Mesh;
 import org.json.JSONObject;
 
+import javax.vecmath.Point3d;
+
 /**
  * <p>{@link Grid} is a {@link Mesh} displaying a grid on the XY plane.  The origin is at the center of the grid.</p>
  *
@@ -58,6 +60,7 @@ public class Grid extends ProceduralMesh {
             this.addNormal(0,0,1);    this.addVertex((int)endx  , (int)i,0);
         }
 
+        boundingBox.setBounds(new Point3d(halfWidth,halfHeight,0),new Point3d(-halfWidth,-halfHeight,0));
         fireMeshChanged();
     }
 

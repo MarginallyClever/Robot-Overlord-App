@@ -5,7 +5,7 @@ import org.json.JSONObject;
 
 public abstract class ProceduralMesh extends Mesh {
     /**
-     * Procedurally generate a list of triangles
+     * Procedurally generate a list of triangles and update the bounding box.
      */
     abstract public void updateModel();
 

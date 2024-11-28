@@ -5,6 +5,7 @@ import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.ro3.mesh.Mesh;
 import org.json.JSONObject;
 
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 /**
@@ -104,6 +105,7 @@ public class Box extends ProceduralMesh {
         p3.set(-w,-d,-h);
         addSubdividedPlane(n,p0,p1,p2,p3,dParts,hParts);
 
+        boundingBox.setBounds(new Point3d(w,d,h),new Point3d(-w,-d,-h));
         fireMeshChanged();
     }
 

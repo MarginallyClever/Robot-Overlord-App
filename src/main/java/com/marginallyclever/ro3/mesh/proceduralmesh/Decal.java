@@ -5,6 +5,7 @@ import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.ro3.mesh.Mesh;
 import org.json.JSONObject;
 
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 /**
@@ -36,6 +37,7 @@ public class Decal extends ProceduralMesh {
 		//createTwoSidedDecal();
 		createOneSidedDecal();
 
+		boundingBox.setBounds(new Point3d(width/2,height/2,0),new Point3d(-width/2,-height/2,0));
 		fireMeshChanged();
 	}
 

@@ -3,6 +3,8 @@ package com.marginallyclever.ro3.mesh.proceduralmesh;
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.ro3.mesh.Mesh;
 
+import javax.vecmath.Point3d;
+
 /**
  * <p>{@link CircleXY} is a {@link Mesh} in the XY plane.  The first vertex is the center so that it can be
  * drawn as a triangle fan.</p>
@@ -30,6 +32,7 @@ public class CircleXY extends ProceduralMesh {
             addVertex(x,y,0);
         }
 
+        boundingBox.setBounds(new Point3d(1,1,0),new Point3d(-1,-1,0));
         fireMeshChanged();
     }
 }
