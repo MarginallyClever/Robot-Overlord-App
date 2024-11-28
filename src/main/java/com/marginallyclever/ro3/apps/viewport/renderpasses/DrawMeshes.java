@@ -185,18 +185,13 @@ public class DrawMeshes extends AbstractRenderPass {
         if (camera == null) return;
 
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
-        var cw = MatrixHelper.createIdentityMatrix4();
-        //var cw = camera.getWorld();
-        //cw.invert();
-        var meshMaterial = collectAllMeshes(cw);
-        sortMeshMaterialList(meshMaterial);
 
+        var meshMaterial = collectAllMeshes();
+        sortMeshMaterialList(meshMaterial);
         updateLightMatrix(camera);
         generateDepthMap(gl3,meshMaterial);
-
         drawAllMeshes(gl3,meshMaterial,camera);
         //drawShadowQuad(gl3,camera);
-
         keepOnlySelectedMeshMaterials(meshMaterial);
         outlineSelectedMeshes(gl3,meshMaterial,camera);
     }
@@ -281,31 +276,26 @@ public class DrawMeshes extends AbstractRenderPass {
 
     /**
      * find all MeshInstance nodes in the scene and the Material that is closest to the MeshInstance.
-     * @param cameraWorldInverse the inverse of the camera's world matrix.
      * @return a list of MeshInstance and Material pairs.
      */
-    private List<MeshMaterialMatrix> collectAllMeshes(Matrix4d cameraWorldInverse) {
+    private List<MeshMaterialMatrix> collectAllMeshes() {
         var meshMaterials = new ArrayList<MeshMaterialMatrix>();
-        collAllMeshesRecursively(cameraWorldInverse,Registry.getScene(),meshMaterials,new Material());
+        collAllMeshesRecursively(Registry.getScene(),meshMaterials,new Material());
         return meshMaterials;
     }
 
     /**
      * Recursively search the scene for MeshInstance nodes and the Material that is closest to the MeshInstance.
-     * @param cameraWorldInverse the inverse of the camera's world matrix.
      * @param node the current node to search.
      * @param meshMaterialMatrices the list to add the MeshInstance and Material pairs to.
      * @param lastMaterialSeen the last Material found in the scene.
      */
-    private void collAllMeshesRecursively(Matrix4d cameraWorldInverse,Node node, List<MeshMaterialMatrix> meshMaterialMatrices, Material lastMaterialSeen) {
+    private void collAllMeshesRecursively(Node node, List<MeshMaterialMatrix> meshMaterialMatrices, Material lastMaterialSeen) {
         if (node instanceof MeshInstance meshInstance) {
             // if they have a mesh, collect it.
             Mesh mesh = meshInstance.getMesh();
             if (mesh != null) {
-                // shift the origin of the mesh to the camera for better precision far from the origin.
-                var m = meshInstance.getWorld();
-                m.mul(cameraWorldInverse,m);
-                meshMaterialMatrices.add(new MeshMaterialMatrix(meshInstance,lastMaterialSeen,m));
+                meshMaterialMatrices.add(new MeshMaterialMatrix(meshInstance,lastMaterialSeen,meshInstance.getWorld()));
             }
         }
 
@@ -315,7 +305,7 @@ public class DrawMeshes extends AbstractRenderPass {
         }
 
         for(Node child : node.getChildren()) {
-            collAllMeshesRecursively(cameraWorldInverse,child, meshMaterialMatrices,lastMaterialSeen);
+            collAllMeshesRecursively(child, meshMaterialMatrices,lastMaterialSeen);
         }
     }
 
