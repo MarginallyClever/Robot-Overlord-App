@@ -479,10 +479,15 @@ public class MatrixHelper {
 	 * @return a matrix
 	 */
 	public static Matrix4d setOrthographicFiniteFar(double left, double right, double bottom, double top, double near, double far) {
-		double [] list = new double[16];
-		org.joml.Matrix4d ortho = new org.joml.Matrix4d();
-		ortho.setOrtho(left, right, bottom, top, near, far).get(list);
-		return new Matrix4d(list);
+		var ortho = new Matrix4d();
+		ortho.m00 = 2.0 / (right - left);
+		ortho.m11 = 2.0 / (top - bottom);
+		ortho.m22 = -2.0 / (far - near);
+		ortho.m33 = 1.0;
+		ortho.m03 = -(right + left) / (right - left);
+		ortho.m13 = -(top + bottom) / (top - bottom);
+		ortho.m23 = -(far + near) / (far - near);
+		return ortho;
 	}
 
 	/**
