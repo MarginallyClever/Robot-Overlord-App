@@ -115,7 +115,6 @@ public class DrawDHParameters extends AbstractRenderPass {
             // set modelView to world
             Pose parentPose = parameter.findParent(Pose.class);
             Matrix4d w = (parentPose==null) ? MatrixHelper.createIdentityMatrix4() : parentPose.getWorld();
-            w.transpose();
             shader.setMatrix4d(gl3,"modelMatrix",w);
             mesh.render(gl3);
         }

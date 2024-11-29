@@ -137,7 +137,6 @@ public class DrawMeshes extends AbstractRenderPass {
         for(MeshMaterialMatrix meshMaterialMatrix : meshes) {
             MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
             var m = meshMaterialMatrix.matrix();
-            m.transpose();
             shadowShader.setMatrix4d(gl3,"modelMatrix",m);
             meshInstance.getMesh().render(gl3);
         }
@@ -237,25 +236,15 @@ public class DrawMeshes extends AbstractRenderPass {
     // draw the shadow quad into the world for debugging.
     private void drawShadowQuad(GL3 gl3, Camera camera) {
         meshShader.use(gl3);
-        var vm = camera.getViewMatrix();
-        //var vm = MatrixHelper.createIdentityMatrix4();
-        meshShader.setMatrix4d(gl3, "viewMatrix", vm);
+        meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix());
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         meshShader.setVector3d(gl3, "cameraPos", cameraWorldPos);  // Camera position in world space
-
-        var w = MatrixHelper.createIdentityMatrix4();
-        //var w = camera.getWorld();
-        //w.invert();
-        var s = new Vector3d(sunlightSource);
-        w.transform(s);
-        meshShader.setVector3d(gl3, "lightPos", s);  // Light position in world space
-
+        meshShader.setVector3d(gl3, "lightPos", sunlightSource);  // Light position in world space
         meshShader.setColor(gl3, "lightColor", sunlightColor);
         meshShader.setColor(gl3, "diffuseColor", Color.WHITE);
         meshShader.setColor(gl3, "specularColor", Color.WHITE);
         meshShader.setColor(gl3,"ambientColor",ambientColor);
-
         meshShader.set1i(gl3, "useVertexColor", 0);
         meshShader.set1i(gl3, "useLighting", 0);
         meshShader.set1i(gl3, "useTexture",1);
@@ -267,9 +256,7 @@ public class DrawMeshes extends AbstractRenderPass {
         gl3.glBindTexture(GL3.GL_TEXTURE_2D,depthMap[0]);
 
         var m = MatrixHelper.createIdentityMatrix4();
-        //m.rotY(Math.PI/2);
         m.setTranslation(new Vector3d(0,0,-20));
-        m.transpose();
         meshShader.setMatrix4d(gl3,"modelMatrix",m);
         shadowQuad.render(gl3);
     }

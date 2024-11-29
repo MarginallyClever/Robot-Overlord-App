@@ -486,7 +486,7 @@ public class MatrixHelper {
 		ortho.m33 = 1.0;
 		ortho.m03 = -(right + left) / (right - left);
 		ortho.m13 = -(top + bottom) / (top - bottom);
-		ortho.m23 = -(far + near) / (far - near);
+		ortho.m32 = -(far + near) / (far - near);
 		return ortho;
 	}
 

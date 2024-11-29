@@ -138,7 +138,6 @@ public class DrawCameras extends AbstractRenderPass {
             scale.m11 *= canvasHeight * coneScale;
             scale.m22 *= canvasHeight * coneScale / Math.tan(Math.toRadians(camera.getFovY()) / 2);
             w.mul(w, scale);
-            w.transpose();
             shader.setMatrix4d(gl3, "modelMatrix", w);
             pyramidMesh.render(gl3);
         }

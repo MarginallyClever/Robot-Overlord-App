@@ -134,7 +134,6 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
 
             // set the model matrix
             Matrix4d w = meshInstance.getWorld();
-            w.transpose();
             shader.setMatrix4d(gl3,"modelMatrix",w);
 
             // highlight selected items

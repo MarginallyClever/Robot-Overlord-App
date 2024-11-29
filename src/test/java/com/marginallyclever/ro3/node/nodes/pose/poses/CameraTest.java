@@ -106,10 +106,12 @@ public class CameraTest {
     public void tilt() {
         Camera camera = new Camera();
         var p0 = Camera.getPanTiltFromMatrix(camera.getLocal());
-        camera.tilt(1.0);
-        var p1 = Camera.getPanTiltFromMatrix(camera.getLocal());
-        Assertions.assertEquals(p0[0], p1[0], 0.01);
-        Assertions.assertEquals(p0[1] + 1.0, p1[1], 0.01);
+        for(int i=0;i<90;i++) {
+            camera.tilt(1.0);
+            var p1 = Camera.getPanTiltFromMatrix(camera.getLocal());
+            Assertions.assertEquals(p0[0], p1[0], 0.01);
+            Assertions.assertEquals(p0[1] + 1.0 + i, p1[1], 0.01);
+        }
     }
 
     @Test

@@ -123,7 +123,6 @@ public class Compass3D implements ViewportTool {
 
         view.setTranslation(new Vector3d(0,0,0));
         view.invert();
-        view.transpose();
         shaderProgram.setMatrix4d(gl3,"viewMatrix",view);
 
         gl3.glClear(GL3.GL_DEPTH_BUFFER_BIT);
@@ -133,7 +132,6 @@ public class Compass3D implements ViewportTool {
 
         // for the gizmo, set the model matrix to be the identity matrix.
         Matrix4d model = MatrixHelper.createScaleMatrix4(handleLength-handleRadius);
-        model.transpose();
         shaderProgram.setColor(gl3,"diffuseColor",Color.WHITE);
         shaderProgram.setMatrix4d(gl3,"modelMatrix",model);
         // and use vertex colors.
@@ -164,7 +162,6 @@ public class Compass3D implements ViewportTool {
             Matrix4d model = camera.getWorld();
             model.setTranslation(z);
             model.mul(model, MatrixHelper.createScaleMatrix4(handleLength + handleRadius + 2));
-            model.transpose();
             shaderProgram.setMatrix4d(gl3, "modelMatrix", model);
             shaderProgram.set1i(gl3, "useVertexColor", 0);
             shaderProgram.setColor(gl3, "diffuseColor", new Color(255, 255, 255, 64));
@@ -180,7 +177,6 @@ public class Compass3D implements ViewportTool {
         Matrix4d model = camera.getWorld();
         model.setTranslation(offset);
         model.mul(model, MatrixHelper.createScaleMatrix4(handleRadius));
-        model.transpose();
         shaderProgram.setMatrix4d(gl3,"modelMatrix",model);
 
         if(handleUnderCursor==handleIndex) tileIndex++;
@@ -227,8 +223,6 @@ public class Compass3D implements ViewportTool {
         assert camera != null;
         Matrix4d view = camera.getWorld();
         view.setTranslation(new Vector3d(0,0,0));
-        //view.invert();
-        //view.transpose();
 
         view.transform(origin);
         view.transform(direction);

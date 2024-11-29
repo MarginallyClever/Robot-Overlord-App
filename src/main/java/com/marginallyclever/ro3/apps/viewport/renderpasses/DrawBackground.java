@@ -163,7 +163,6 @@ public class DrawBackground extends AbstractRenderPass {
         Matrix4d inverseCamera = camera.getWorld();
         inverseCamera.setTranslation(new Vector3d(0,0,0));
         inverseCamera.invert();
-        inverseCamera.transpose();
         shader.setMatrix4d(gl3,"viewMatrix",inverseCamera);
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));
         Vector3d cameraWorldPos = new Vector3d(0,0,0);

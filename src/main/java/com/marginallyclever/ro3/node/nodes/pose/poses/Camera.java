@@ -224,7 +224,6 @@ public class Camera extends Pose {
     public Matrix4d getViewMatrix() {
         Matrix4d inverseCamera = this.getWorld();
         inverseCamera.invert();
-        inverseCamera.transpose();
         return inverseCamera;
     }
 

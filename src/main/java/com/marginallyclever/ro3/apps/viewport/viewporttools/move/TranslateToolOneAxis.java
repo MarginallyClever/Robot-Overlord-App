@@ -264,7 +264,6 @@ public class TranslateToolOneAxis implements ViewportTool {
         // handle
         Matrix4d m = new Matrix4d(pivotMatrix);
         m.mul(m,MatrixHelper.createScaleMatrix4(getHandleLengthScaled()));
-        m.transpose();
         shaderProgram.setMatrix4d(gl,"modelMatrix",m);
         handleLineMesh.render(gl);
 
@@ -274,7 +273,6 @@ public class TranslateToolOneAxis implements ViewportTool {
         m2.mul(pivotMatrix,m2);
         m2.mul(m2,MatrixHelper.createScaleMatrix4(getGripRadiusScaled()));
         Matrix4d m2t = new Matrix4d(m2);
-        m2t.transpose();
         shaderProgram.setMatrix4d(gl,"modelMatrix",m2t);
         handleSphere.render(gl);
 
@@ -285,7 +283,6 @@ public class TranslateToolOneAxis implements ViewportTool {
             Matrix4d model = camera.getWorld();
             model.setTranslation(MatrixHelper.getPosition(m2));
             model.mul(model, MatrixHelper.createScaleMatrix4(getGripRadiusScaled()));
-            model.transpose();
             shaderProgram.setMatrix4d(gl,"modelMatrix",model);
             shaderProgram.set1i(gl,"diffuseTexture",0);
 

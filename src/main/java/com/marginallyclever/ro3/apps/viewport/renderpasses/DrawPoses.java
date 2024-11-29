@@ -90,7 +90,6 @@ public class DrawPoses extends AbstractRenderPass {
 
             Matrix4d w = pose.getWorld();
             w.mul(w, MatrixHelper.createScaleMatrix4(selected ? 2 : 1));
-            w.transpose();
             shader.setMatrix4d(gl3, "modelMatrix", w);
             mesh.render(gl3);
         }

@@ -211,7 +211,6 @@ public class TranslateToolTwoAxis implements ViewportTool {
                 0,0,ps,0,
                 0,0,0,1);
         m.mul(m,s);
-        m.transpose();
         shaderProgram.setMatrix4d(gl,"modelMatrix",m);
 
         float colorScale = cursorOverHandle ? 1:0.5f;

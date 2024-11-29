@@ -120,7 +120,6 @@ public class DrawJoints extends AbstractRenderPass {
         modelMatrix.setTranslation(new Vector3d(0,0,min));
         modelMatrix.mul(world,modelMatrix);
         modelMatrix.mul(MatrixHelper.createScaleMatrix4(range));
-        modelMatrix.transpose();
         shader.setColor(gl3,"diffuseColor",new Color(255,255,0,active ? 255 : 64));
         shader.setMatrix4d(gl3,"modelMatrix",modelMatrix);
         linearRangeMesh.render(gl3);
@@ -139,7 +138,6 @@ public class DrawJoints extends AbstractRenderPass {
         modelMatrix.rotZ(Math.toRadians(joint.getMinAngle()));
         modelMatrix.mul(world,modelMatrix);
         modelMatrix.mul(modelMatrix,MatrixHelper.createScaleMatrix4(scale));
-        modelMatrix.transpose();
         shader.setColor(gl3,"diffuseColor",new Color(255,255,0,active ? 255 : 64));
         shader.setMatrix4d(gl3,"modelMatrix",modelMatrix);
         // draw the range fan
@@ -150,7 +148,6 @@ public class DrawJoints extends AbstractRenderPass {
         modelMatrix.rotZ(Math.toRadians(joint.getAngle()));
         modelMatrix.mul(world,modelMatrix);
         modelMatrix.mul(modelMatrix,MatrixHelper.createScaleMatrix4(scale));
-        modelMatrix.transpose();
         shader.setColor(gl3,"diffuseColor",new Color(255,255,255,active ? 255 : 64));
         shader.setMatrix4d(gl3,"modelMatrix",modelMatrix);
         currentAngleMesh.render(gl3);
@@ -162,7 +159,6 @@ public class DrawJoints extends AbstractRenderPass {
             modelMatrix.rotZ(Math.toRadians(joint.getAngle()+v));
             modelMatrix.mul(world, modelMatrix);
             modelMatrix.mul(modelMatrix, MatrixHelper.createScaleMatrix4(scale));
-            modelMatrix.transpose();
             shader.setMatrix4d(gl3,"modelMatrix",modelMatrix);
             shader.setColor(gl3, "diffuseColor", new Color(255, 0, 0, active ? 255 : 64));
             circleFanMesh.render(gl3, 0, 1+vAbs);

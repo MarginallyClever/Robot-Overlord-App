@@ -370,7 +370,6 @@ public class RotateToolOneAxis implements ViewportTool {
         Matrix4d m = new Matrix4d(startMatrix);
         Matrix4d mt = new Matrix4d(m);
         mt.mul(m,scale);
-        mt.transpose();
         shaderProgram.setMatrix4d(gl,"modelMatrix",mt);
         markerMesh.render(gl);
 
@@ -382,7 +381,6 @@ public class RotateToolOneAxis implements ViewportTool {
         rot.rotZ(rotationAngle);
         mt.mul(m,rot);
         mt.mul(mt,scale);
-        mt.transpose();
         shaderProgram.setMatrix4d(gl,"modelMatrix",mt);
         angleMesh.render(gl);
     }
@@ -392,7 +390,6 @@ public class RotateToolOneAxis implements ViewportTool {
 
         Matrix4d scale = MatrixHelper.createScaleMatrix4(getRingRadiusScaled());
         scale.mul(m,scale);
-        scale.transpose();
         shaderProgram.setMatrix4d(gl,"modelMatrix",scale);
 
         float colorScale = cursorOverHandle ? 1:0.5f;
@@ -401,15 +398,12 @@ public class RotateToolOneAxis implements ViewportTool {
         float blue  = color.blue  * colorScale / 255f;
         shaderProgram.set4f(gl, "diffuseColor", red, green, blue, 1.0f);
         ringMesh.render(gl,1,360);
-
-        m.transpose();
         shaderProgram.setMatrix4d(gl,"modelMatrix",m);
 
         Matrix4d m2 = MatrixHelper.createScaleMatrix4(getGripRadiusScaled());
         m2.m03 = getHandleLengthScaled();
         m2.m13 = getHandleOffsetYScaled();
         m2.mul(pivotMatrix,m2);
-        m2.transpose();
         shaderProgram.setMatrix4d(gl,"modelMatrix",m2);
         handleBox.render(gl);
 
@@ -417,7 +411,6 @@ public class RotateToolOneAxis implements ViewportTool {
         m2.m03 = getHandleLengthScaled();
         m2.m13 = -getHandleOffsetYScaled();
         m2.mul(pivotMatrix,m2);
-        m2.transpose();
         shaderProgram.setMatrix4d(gl,"modelMatrix",m2);
         handleBox.render(gl);
     }
