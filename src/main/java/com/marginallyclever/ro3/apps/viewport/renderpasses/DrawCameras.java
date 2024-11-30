@@ -29,6 +29,7 @@ public class DrawCameras extends AbstractRenderPass {
     private ShaderProgram shader;
     private final double cameraConeRatio = 50;
     private final double coneScale = cameraConeRatio * 0.0001;
+    private final Color DARK_GREEN = new Color(0,64,0,128);
 
 
     public DrawCameras() {
@@ -111,6 +112,7 @@ public class DrawCameras extends AbstractRenderPass {
         shader.setColor(gl3,"ambientColor",Color.BLACK);
         shader.set1i(gl3,"useVertexColor",0);
         shader.set1i(gl3,"useLighting",0);
+        shader.set1i(gl3,"useTexture",0);
         shader.set1i(gl3,"diffuseTexture",0);
         gl3.glDisable(GL3.GL_DEPTH_TEST);
         gl3.glDisable(GL3.GL_TEXTURE_2D);
@@ -125,7 +127,7 @@ public class DrawCameras extends AbstractRenderPass {
             // position and draw the ray from the camera.
             Matrix4d w = MatrixHelper.createIdentityMatrix4();
             shader.setMatrix4d(gl3, "modelMatrix", w);
-            shader.setColor(gl3,"diffuseColor",selected ? Color.GREEN : Color.DARK_GRAY);
+            shader.setColor(gl3,"diffuseColor",selected ? Color.GREEN : DARK_GREEN);
             Ray ray = viewport.getRayThroughPoint(cam,normalizedCoordinates.x,normalizedCoordinates.y);
             changeRayMesh(gl3, ray);
             rayMesh.render(gl3);
@@ -134,10 +136,10 @@ public class DrawCameras extends AbstractRenderPass {
             shader.setColor(gl3,"diffuseColor",selected ? Color.WHITE : Color.BLACK);
             w = cam.getWorld();
             Matrix4d scale = MatrixHelper.createIdentityMatrix4();
-            scale.m00 *= canvasWidth * coneScale;
-            scale.m11 *= canvasHeight * coneScale;
+            scale.m00 *= 2*canvasWidth * coneScale;  // why 2*?
+            scale.m11 *= 2*canvasHeight * coneScale;
             scale.m22 *= canvasHeight * coneScale / Math.tan(Math.toRadians(camera.getFovY()) / 2);
-            w.mul(w, scale);
+            w.mul(scale);
             shader.setMatrix4d(gl3, "modelMatrix", w);
             pyramidMesh.render(gl3);
         }

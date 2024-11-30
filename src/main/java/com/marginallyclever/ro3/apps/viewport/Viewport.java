@@ -531,8 +531,9 @@ public class Viewport
             // perspective projection
             Vector3d cursorUnitVector = getCursorAsNormalized();
             double t = Math.tan(Math.toRadians(camera.getFovY()/2));
-            direction = new Vector3d((cursorUnitVector.x)*t*getAspectRatio(),
-                    (cursorUnitVector.y)*t,
+            direction = new Vector3d(
+                    2*(cursorUnitVector.x)*t*getAspectRatio(),
+                    2*(cursorUnitVector.y)*t,
                     -1);
             // adjust the ray by the camera world pose.
             Matrix4d m2 = camera.getWorld();
