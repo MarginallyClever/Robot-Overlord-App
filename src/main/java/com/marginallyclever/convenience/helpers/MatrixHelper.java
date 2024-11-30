@@ -534,13 +534,13 @@ public class MatrixHelper {
 	 */
 	public static Matrix4d setPerspectiveFiniteFar(double fovY, double aspect, double near, double far) {
 		var m = new Matrix4d();
-		double tanHalfFovy = Math.tan(Math.toRadians(fovY) / 2.0);
-		m.m00 = 1.0 / (aspect * tanHalfFovy);
-		m.m11 = 1.0 / tanHalfFovy;
+		double f = 1.0 / Math.tan( Math.toRadians(fovY) / 2.0 );
+		m.m00 = f / aspect;
+		m.m11 = f;
 		m.m22 = -(far + near) / (far - near);
 		m.m23 = -1.0;
 		m.m32 = -(2.0 * far * near) / (far - near);
-		m.m33 = 0.0;
+		//m33 already zero
 		return m;
 	}
 
