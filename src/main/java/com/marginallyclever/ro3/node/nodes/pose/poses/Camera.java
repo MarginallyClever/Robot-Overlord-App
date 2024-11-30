@@ -212,8 +212,8 @@ public class Camera extends Pose {
      * Render the scene in orthographic projection.
      */
     public Matrix4d getOrthographicMatrix(int width,int height) {
-        double h = 5.0;  // why 5?
-        double w = h * (double)width / (double)height;
+        double h = height/2;
+        double w = width/2;
         return MatrixHelper.orthographicMatrix4d(-w,w,-h,h,getNearZ(),getFarZ());
     }
 
