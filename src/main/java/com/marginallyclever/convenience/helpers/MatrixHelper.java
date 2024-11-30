@@ -540,7 +540,7 @@ public class MatrixHelper {
 		m.m22 = -(far + near) / (far - near);
 		m.m23 = -1.0;
 		m.m32 = -(2.0 * far * near) / (far - near);
-		//m33 already zero
+		m.m33 = 0.0;
 		return m;
 	}
 
@@ -553,12 +553,12 @@ public class MatrixHelper {
 	 */
 	public static Matrix4d setPerspectiveInfiniteFar(double fovY, double aspect, double near) {
 		var m = new Matrix4d();
-		double f = 1.0/Math.tan(Math.toRadians(fovY) / 2.0);
+		double f = 1.0 / Math.tan( Math.toRadians(fovY) / 2.0 );
 		m.m00 = f / aspect;
 		m.m11 = f;
 		m.m22 = 0.0;  // Infinite far plane
-		m.m23 = -1.0;
-		m.m32 = near;  // Use near to scale depth
+		m.m32 = -1.0;
+		m.m23 = near;  // Use near to scale depth
 		m.m33 = 0.0;
 		return m;
 	}
