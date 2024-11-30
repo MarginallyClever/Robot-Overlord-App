@@ -388,6 +388,10 @@ public class RotateToolOneAxis implements ViewportTool {
     private void drawMainRingAndHandles(GL3 gl,ShaderProgram shaderProgram) {
         Matrix4d m = new Matrix4d(pivotMatrix);
 
+        shaderProgram.set1i(gl,"useLighting",0);
+        shaderProgram.set1i(gl,"useVertexColor",0);
+        shaderProgram.set1i(gl,"useTexture",0);
+
         Matrix4d scale = MatrixHelper.createScaleMatrix4(getRingRadiusScaled());
         scale.mul(m,scale);
         shaderProgram.setMatrix4d(gl,"modelMatrix",scale);

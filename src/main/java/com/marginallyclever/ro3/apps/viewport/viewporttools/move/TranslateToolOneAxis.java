@@ -259,6 +259,8 @@ public class TranslateToolOneAxis implements ViewportTool {
         shaderProgram.set4f(gl,"diffuseColor",red, green, blue, 1.0f);
         */
         shaderProgram.set1i(gl,"useTexture",0);
+        shaderProgram.set1i(gl,"useLighting",0);
+        shaderProgram.set1i(gl,"useVertexColor",0);
         shaderProgram.set4f(gl,"diffuseColor",0,0,0, 1.0f);
 
         // handle
