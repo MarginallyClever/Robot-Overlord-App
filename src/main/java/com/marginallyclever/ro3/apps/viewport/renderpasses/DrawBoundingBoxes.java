@@ -28,6 +28,10 @@ import java.util.ArrayList;
  */
 public class DrawBoundingBoxes extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawBoundingBoxes.class);
+
+    private final Color UNSELECTED = new Color(255,255,255, 123);
+    private final Color SELECTED = new Color(255, 130, 47, 255);
+
     private ShaderProgram shader;
     private final Mesh mesh = new Mesh();
 
@@ -103,9 +107,6 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
         gl3.glDisable(GL3.GL_TEXTURE_2D);
         gl3.glDisable(GL3.GL_DEPTH_TEST);
 
-        Color unselected = new Color(255,255,255,64);
-        Color selected = new Color(226, 115, 42,128);
-
         var list = Registry.selection.getList();
         var toScan = new ArrayList<>(Registry.getScene().getChildren());
         while(!toScan.isEmpty()) {
@@ -137,7 +138,7 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
             shader.setMatrix4d(gl3,"modelMatrix",w);
 
             // highlight selected items
-            shader.setColor(gl3,"diffuseColor", list.contains(meshInstance) ? selected : unselected );
+            shader.setColor(gl3,"diffuseColor", list.contains(meshInstance) || list.contains(meshInstance.getParent()) ? SELECTED : UNSELECTED );
             // draw it
             mesh.render(gl3);
         }
