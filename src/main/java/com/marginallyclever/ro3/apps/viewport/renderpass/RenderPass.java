@@ -1,7 +1,8 @@
-package com.marginallyclever.ro3.apps.viewport;
+package com.marginallyclever.ro3.apps.viewport.renderpass;
 
 import com.jogamp.opengl.GLEventListener;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.viewport.Viewport;
 
 /**
  * <p>Classes which implement {@link RenderPass} are drawn as part of - or on top of - the 3D scene.  They should be
