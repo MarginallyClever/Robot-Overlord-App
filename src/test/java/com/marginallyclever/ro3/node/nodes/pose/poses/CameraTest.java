@@ -188,8 +188,8 @@ public class CameraTest {
         Matrix4d p = new Matrix4d(
                 0.15,0.0,0.0,0.0,
                 0.0,0.2,0.0,0.0,
-                0.0,0.0,-0.0020002000200020002,-1.0020002000200020002,
-                0.0,0.0,0.0,1.0
+                0.0,0.0,-0.0020002000200020002,0.0,
+                0.0,0.0,-1.0020002000200020002,1.0
         );
         Assertions.assertArrayEquals(
                 BigMatrixHelper.matrix4dToArray(m),

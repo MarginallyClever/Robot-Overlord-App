@@ -163,6 +163,7 @@ public class ShaderProgram {
     /**
      * Set a matrix in the shader.  Java uses column-major order, where OpenGL and DirectX use row-major order.
      * Thus the thurd parameter is true to make the video card transpose the matrix from row-major to column-major.
+     * @see <a href="https://registry.khronos.org/OpenGL-Refpages/gl4/html/glUniform.xhtml">glUniform</a>
      * @param gl the viewport context
      * @param name the name of the uniform variable
      * @param value the matrix to set

@@ -172,7 +172,6 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
         Registry.textureFactory.unloadAll();
     }
 
-
     @Override
     public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
         canvasWidth = width;
@@ -198,7 +197,7 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
         toolShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         toolShader.setVector3d(gl3, "cameraPos", cameraWorldPos);  // Camera position in world space
-        toolShader.setVector3d(gl3, "lightPos", cameraWorldPos);  // Light position in world space
+        toolShader.setVector3d(gl3, "lightPos", cameraWorldPos);  // doesn't matter, viewport tools don't use lighting.
 
         toolShader.setColor(gl3, "lightColor", Color.WHITE);
         toolShader.setColor(gl3, "diffuseColor", Color.WHITE);

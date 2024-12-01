@@ -464,8 +464,8 @@ public class MatrixHelper {
 	 * @return a matrix
 	 */
 	public static Matrix4d orthographicMatrix4d(double left, double right, double bottom, double top, double near, double far) {
-		return setOrthographicFiniteFar(left, right, bottom, top, near, far);
 		//return setOrthographicInfiniteFar(left, right, bottom, top, near);
+		return setOrthographicFiniteFar(left, right, bottom, top, near, far);
 	}
 
 	/**

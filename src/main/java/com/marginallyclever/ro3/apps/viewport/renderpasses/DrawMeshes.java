@@ -122,7 +122,23 @@ public class DrawMeshes extends AbstractRenderPass {
         OpenGLHelper.checkGLError(gl3,logger);
     }
 
-    private void generateDepthMap(GL3 gl3, List<MeshMaterialMatrix> meshes) {
+    // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
+    private void updateLightMatrix(Camera camera) {
+        // orthographic projection from the light's point of view
+        double r = Math.max(50,camera.getOrbitRadius()*2.0);
+        lightProjection.set(MatrixHelper.orthographicMatrix4d(-r,r,-r,r,1.0,DEPTH_BUFFER_LIMIT));
+
+        Vector3d from = new Vector3d(sunlightSource);
+        Vector3d to = camera.getOrbitPoint();
+        from.add(to);
+        Vector3d up = Math.abs(sunlightSource.z)>0.99? new Vector3d(0,1,0) : new Vector3d(0,0,1);
+
+        // look at the scene from the light's point of view
+        lightView.set(lookAt(from, to, up));
+        lightView.transpose();
+    }
+
+    private void updateShadowMap(GL3 gl3, List<MeshMaterialMatrix> meshes) {
         // before, set up the shadow FBO
         gl3.glViewport(0,0,SHADOW_WIDTH,SHADOW_HEIGHT);
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, shadowFBO[0]);
@@ -132,7 +148,9 @@ public class DrawMeshes extends AbstractRenderPass {
         gl3.glCullFace(GL3.GL_FRONT);
         shadowShader.use(gl3);
         shadowShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
-        shadowShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
+        var lv = new Matrix4d(lightView);
+        //lv.invert();
+        shadowShader.setMatrix4d(gl3, "lightViewMatrix", lv);
 
         for(MeshMaterialMatrix meshMaterialMatrix : meshes) {
             MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
@@ -188,9 +206,9 @@ public class DrawMeshes extends AbstractRenderPass {
         var meshMaterial = collectAllMeshes();
         sortMeshMaterialList(meshMaterial);
         updateLightMatrix(camera);
-        generateDepthMap(gl3,meshMaterial);
+        updateShadowMap(gl3,meshMaterial);
         drawAllMeshes(gl3,meshMaterial,camera);
-        //drawShadowQuad(gl3,camera);
+        //drawShadowMapOnQuad(gl3,camera);
         keepOnlySelectedMeshMaterials(meshMaterial);
         outlineSelectedMeshes(gl3,meshMaterial,camera);
     }
@@ -234,12 +252,12 @@ public class DrawMeshes extends AbstractRenderPass {
     }
 
     // draw the shadow quad into the world for debugging.
-    private void drawShadowQuad(GL3 gl3, Camera camera) {
+    private void drawShadowMapOnQuad(GL3 gl3, Camera camera) {
         meshShader.use(gl3);
         meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix());
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
-        meshShader.setVector3d(gl3, "cameraPos", cameraWorldPos);  // Camera position in world space
+        meshShader.setVector3d(gl3, "cameraPos", cameraWorldPos);  // Camera position in world space for specular lighting
         meshShader.setVector3d(gl3, "lightPos", sunlightSource);  // Light position in world space
         meshShader.setColor(gl3, "lightColor", sunlightColor);
         meshShader.setColor(gl3, "diffuseColor", Color.WHITE);
@@ -249,6 +267,7 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.set1i(gl3, "useLighting", 0);
         meshShader.set1i(gl3, "useTexture",1);
 
+        gl3.glDisable(GL3.GL_DEPTH_TEST);
         gl3.glActiveTexture(GL3.GL_TEXTURE0 + shadowMapUnit);
         gl3.glBindTexture(GL3.GL_TEXTURE_2D,0);
 
@@ -256,9 +275,10 @@ public class DrawMeshes extends AbstractRenderPass {
         gl3.glBindTexture(GL3.GL_TEXTURE_2D,depthMap[0]);
 
         var m = MatrixHelper.createIdentityMatrix4();
-        m.setTranslation(new Vector3d(0,0,-20));
+        m.setTranslation(new Vector3d(cameraWorldPos.x,cameraWorldPos.y,cameraWorldPos.z-50));
         meshShader.setMatrix4d(gl3,"modelMatrix",m);
         shadowQuad.render(gl3);
+        gl3.glEnable(GL3.GL_DEPTH_TEST);
     }
 
     /**
@@ -302,9 +322,7 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
         meshShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
 
-        var vm = camera.getViewMatrix();
-        //var vm = MatrixHelper.createIdentityMatrix4();
-        meshShader.setMatrix4d(gl3, "viewMatrix", vm);
+        meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix());
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
 
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
@@ -426,21 +444,6 @@ public class DrawMeshes extends AbstractRenderPass {
         gl3.glStencilOp(GL3.GL_KEEP, GL3.GL_KEEP, GL3.GL_REPLACE);
 
         gl3.glDisable(GL3.GL_STENCIL_TEST);
-    }
-
-    // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
-    private void updateLightMatrix(Camera camera) {
-        // orthographic projection from the light's point of view
-        double r = Math.max(50,camera.getOrbitRadius()*2.0);
-        lightProjection.set(MatrixHelper.orthographicMatrix4d(-r,r,-r,r,1.0,DEPTH_BUFFER_LIMIT));
-
-        Vector3d from = new Vector3d(sunlightSource);
-        Vector3d to = camera.getOrbitPoint();
-        from.add(to);
-        Vector3d up = Math.abs(sunlightSource.z)>0.99? new Vector3d(0,1,0) : new Vector3d(0,0,1);
-
-        // look at the scene from the light's point of view
-        lightView.set(lookAt(from, to, up));
     }
 
     // not the same as MatrixHelper.lookAt().  This is for the light source.
