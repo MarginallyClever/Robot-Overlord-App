@@ -49,7 +49,6 @@ public class DrawMeshes extends AbstractRenderPass {
     public static final Matrix4d lightView = new Matrix4d();
     private double declination = 0;  // degrees, +/-90
     private double timeOfDay = 12;  // 0-24
-    private boolean originShift = false;
 
     public DrawMeshes() {
         super("Meshes");
@@ -124,13 +123,17 @@ public class DrawMeshes extends AbstractRenderPass {
     }
 
     // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
-    private void updateLightMatrix(Camera camera) {
+    private void updateLightMatrix(Camera camera,boolean originShift) {
         // orthographic projection from the light's point of view
         double r = Math.max(50,camera.getOrbitRadius()*2.0);
         lightProjection.set(MatrixHelper.orthographicMatrix4d(-r,r,-r,r,1.0,DEPTH_BUFFER_LIMIT));
 
         Vector3d from = new Vector3d(sunlightSource);
         Vector3d to = camera.getOrbitPoint();
+        if(originShift) {
+            //var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
+            //to.sub(cameraWorldPos);
+        }
         from.add(to);
         Vector3d up = Math.abs(sunlightSource.z)>0.99? new Vector3d(0,1,0) : new Vector3d(0,0,1);
 
@@ -139,7 +142,7 @@ public class DrawMeshes extends AbstractRenderPass {
         lightView.transpose();
     }
 
-    private void updateShadowMap(GL3 gl3, List<MeshMaterialMatrix> meshes) {
+    private void updateShadowMap(GL3 gl3, List<MeshMaterialMatrix> meshes,Camera camera,boolean originShift) {
         // before, set up the shadow FBO
         gl3.glViewport(0,0,SHADOW_WIDTH,SHADOW_HEIGHT);
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, shadowFBO[0]);
@@ -150,13 +153,15 @@ public class DrawMeshes extends AbstractRenderPass {
         shadowShader.use(gl3);
         shadowShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
         var lv = new Matrix4d(lightView);
-        //lv.invert();
         shadowShader.setMatrix4d(gl3, "lightViewMatrix", lv);
+
+        var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
 
         for(MeshMaterialMatrix meshMaterialMatrix : meshes) {
             MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
-            var m = meshMaterialMatrix.matrix();
-            shadowShader.setMatrix4d(gl3,"modelMatrix",m);
+            var w = meshMaterialMatrix.matrix();
+            if(originShift) w = RenderPassHelper.getOriginShiftedMatrix(w,cameraWorldPos);
+            shadowShader.setMatrix4d(gl3,"modelMatrix",w);
             meshInstance.getMesh().render(gl3);
         }
         // viewport scene as normal with shadow mapping (using depth map)
@@ -202,18 +207,17 @@ public class DrawMeshes extends AbstractRenderPass {
         Camera camera = viewport.getActiveCamera();
         if (camera == null) return;
 
-        originShift = true;
-
+        boolean originShift = viewport.isOriginShift();
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
 
         var meshMaterial = collectAllMeshes();
         sortMeshMaterialList(meshMaterial);
-        updateLightMatrix(camera);
-        updateShadowMap(gl3,meshMaterial);
-        drawAllMeshes(gl3,meshMaterial,camera);
-        //drawShadowMapOnQuad(gl3,camera);
+        updateLightMatrix(camera,originShift);
+        updateShadowMap(gl3,meshMaterial,camera,originShift);
+        drawAllMeshes(gl3,meshMaterial,camera,originShift);
+        //drawShadowMapOnQuad(gl3,camera,originShift);
         keepOnlySelectedMeshMaterials(meshMaterial);
-        outlineSelectedMeshes(gl3,meshMaterial,camera);
+        outlineSelectedMeshes(gl3,meshMaterial,camera,originShift);
     }
 
     private void keepOnlySelectedMeshMaterials(List<MeshMaterialMatrix> list) {
@@ -255,13 +259,15 @@ public class DrawMeshes extends AbstractRenderPass {
     }
 
     // draw the shadow quad into the world for debugging.
-    private void drawShadowMapOnQuad(GL3 gl3, Camera camera) {
+    private void drawShadowMapOnQuad(GL3 gl3, Camera camera,boolean originShift) {
         meshShader.use(gl3);
-        meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix());
+        meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix(originShift));
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         meshShader.setVector3d(gl3, "cameraPos", cameraWorldPos);  // Camera position in world space for specular lighting
-        meshShader.setVector3d(gl3, "lightPos", sunlightSource);  // Light position in world space
+        var s = getSunlightSource();
+        if(originShift) s.sub(cameraWorldPos);
+        meshShader.setVector3d(gl3, "lightPos", s);  // Light position in world space
         meshShader.setColor(gl3, "lightColor", sunlightColor);
         meshShader.setColor(gl3, "diffuseColor", Color.WHITE);
         meshShader.setColor(gl3, "specularColor", Color.WHITE);
@@ -279,6 +285,7 @@ public class DrawMeshes extends AbstractRenderPass {
 
         var m = MatrixHelper.createIdentityMatrix4();
         m.setTranslation(new Vector3d(cameraWorldPos.x,cameraWorldPos.y,cameraWorldPos.z-50));
+        if(originShift) m = RenderPassHelper.getOriginShiftedMatrix(m,cameraWorldPos);
         meshShader.setMatrix4d(gl3,"modelMatrix",m);
         shadowQuad.render(gl3);
         gl3.glEnable(GL3.GL_DEPTH_TEST);
@@ -319,18 +326,21 @@ public class DrawMeshes extends AbstractRenderPass {
         }
     }
 
-    private void drawAllMeshes(GL3 gl3, List<MeshMaterialMatrix> meshMaterialMatrices, Camera camera) {
+    private void drawAllMeshes(GL3 gl3, List<MeshMaterialMatrix> meshMaterialMatrices, Camera camera,boolean originShift) {
         meshShader.use(gl3);
         meshShader.set1i(gl3, "shadowMap", shadowMapUnit);
         meshShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
         meshShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
 
-        meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix());
+        meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix(originShift));
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
 
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         meshShader.setVector3d(gl3, "cameraPos", cameraWorldPos);  // Camera position in world space
-        meshShader.setVector3d(gl3, "lightPos", sunlightSource);  // Light position in world space
+
+        var s = getSunlightSource();
+        if(originShift) s.sub(cameraWorldPos);
+        meshShader.setVector3d(gl3, "lightPos", s);  // Light position in world space
 
         meshShader.setColor(gl3, "lightColor", sunlightColor);
         meshShader.setColor(gl3, "diffuseColor", Color.WHITE);
@@ -375,7 +385,8 @@ public class DrawMeshes extends AbstractRenderPass {
             Mesh mesh = meshInstance.getMesh();
             meshShader.set1i(gl3, "useVertexColor", mesh.getHasColors()?1:0);
             // set the model matrix
-            var m = getOriginShiftedModelMatrix(meshMaterialMatrix.matrix(),MatrixHelper.getPosition(camera.getWorld()));
+            var m = meshMaterialMatrix.matrix();
+            if(originShift) m = RenderPassHelper.getOriginShiftedMatrix(m,cameraWorldPos);
             meshShader.setMatrix4d(gl3,"modelMatrix",m);
             // draw it
             mesh.render(gl3);
@@ -383,7 +394,7 @@ public class DrawMeshes extends AbstractRenderPass {
         }
     }
 
-    private void outlineSelectedMeshes(GL3 gl3, List<MeshMaterialMatrix> meshMaterialMatrices, Camera camera) {
+    private void outlineSelectedMeshes(GL3 gl3, List<MeshMaterialMatrix> meshMaterialMatrices, Camera camera,boolean originShift) {
         gl3.glEnable(GL3.GL_STENCIL_TEST);
 
         // we're working with stencil and depth buffers.  clear them.
@@ -397,7 +408,7 @@ public class DrawMeshes extends AbstractRenderPass {
         gl3.glStencilFunc(GL3.GL_ALWAYS,1,0xFF);
         gl3.glStencilOp(GL3.GL_KEEP,GL3.GL_KEEP,GL3.GL_REPLACE);
 
-        drawAllMeshes(gl3, meshMaterialMatrices,camera);
+        drawAllMeshes(gl3, meshMaterialMatrices,camera,originShift);
 
         // resume editing the color buffer, do not change the depth mask or the stencil buffer.
         gl3.glColorMask(true,true,true,true);
@@ -418,7 +429,8 @@ public class DrawMeshes extends AbstractRenderPass {
         outlineShader.use(gl3);
         // tell the shader some important information
 
-        var vm = camera.getViewMatrix();
+        var vm = camera.getViewMatrix(originShift);
+        var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         //var vm = MatrixHelper.createIdentityMatrix4();
         outlineShader.setMatrix4d(gl3, "viewMatrix", vm);
         outlineShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
@@ -429,7 +441,8 @@ public class DrawMeshes extends AbstractRenderPass {
         for(MeshMaterialMatrix meshMaterialMatrix : meshMaterialMatrices) {
             MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
             // set the model matrix
-            var w = getOriginShiftedModelMatrix(meshMaterialMatrix.matrix(),MatrixHelper.getPosition(camera.getWorld()));
+            var w = meshMaterialMatrix.matrix();
+            if(originShift) w = RenderPassHelper.getOriginShiftedMatrix(w,cameraWorldPos);
             outlineShader.setMatrix4d(gl3,"modelMatrix",w);
             // draw it
             meshInstance.getMesh().render(gl3);
@@ -475,7 +488,7 @@ public class DrawMeshes extends AbstractRenderPass {
     }
 
     public Vector3d getSunlightSource() {
-        return sunlightSource;
+        return new Vector3d(sunlightSource);
     }
 
     public double getDeclination() {
@@ -530,26 +543,5 @@ public class DrawMeshes extends AbstractRenderPass {
         result.scale(SUN_DISTANCE);
 
         return result;
-    }
-
-    private Matrix4d getOriginShiftedModelMatrix(Matrix4d m,Vector3d cameraPos) {
-        var m2 = new Matrix4d(m);
-        if(originShift) {
-            m2.m03 -= cameraPos.x;
-            m2.m13 -= cameraPos.y;
-            m2.m23 -= cameraPos.z;
-        }
-        return m2;
-    }
-
-    public void setOriginShift(boolean b) {
-        // Maybe I'm being paranoid...
-        SwingUtilities.invokeLater(() -> {
-            originShift = b;
-        });
-    }
-
-    public boolean getOriginShift() {
-        return originShift;
     }
 }

@@ -88,14 +88,14 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
     public void draw(Viewport viewport) {
         Camera camera = viewport.getActiveCamera();
         if(camera==null) return;
-
+        boolean originShift = viewport.isOriginShift();
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
         shader.use(gl3);
-        shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix(viewport.isOriginShift()));
+        shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix(originShift));
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
-        shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
-        shader.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
+        shader.setVector3d(gl3,"cameraPos",originShift?new Vector3d() : cameraWorldPos);  // Camera position in world space
+        shader.setVector3d(gl3,"lightPos",originShift?new Vector3d() : cameraWorldPos);  // Light position in world space
         shader.setColor(gl3,"lightColor", Color.WHITE);
         shader.setColor(gl3,"specularColor",Color.GRAY);
         shader.setColor(gl3,"ambientColor",new Color(255/5,255/5,255/5,255));
@@ -135,6 +135,7 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
 
             // set the model matrix
             Matrix4d w = meshInstance.getWorld();
+            if(originShift) w = RenderPassHelper.getOriginShiftedMatrix(w,cameraWorldPos);
             shader.setMatrix4d(gl3,"modelMatrix",w);
 
             // highlight selected items

@@ -100,13 +100,15 @@ public class DrawCameras extends AbstractRenderPass {
         Camera camera = viewport.getActiveCamera();
         if(camera==null) return;
 
+        boolean originShift = viewport.isOriginShift();
+        Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
+
         shader.use(gl3);
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));
-        shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix(viewport.isOriginShift()));
-        Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
-        shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
-        shader.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
+        shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix(originShift));
+        shader.setVector3d(gl3,"cameraPos",originShift ? new Vector3d() : cameraWorldPos);  // Camera position in world space
+        shader.setVector3d(gl3,"lightPos",originShift ? new Vector3d() : cameraWorldPos);  // Light position in world space
         shader.setColor(gl3,"lightColor", Color.WHITE);
         shader.setColor(gl3,"specularColor",Color.DARK_GRAY);
         shader.setColor(gl3,"ambientColor",Color.BLACK);
@@ -126,6 +128,7 @@ public class DrawCameras extends AbstractRenderPass {
 
             // position and draw the ray from the camera.
             Matrix4d w = MatrixHelper.createIdentityMatrix4();
+            if(originShift) w = RenderPassHelper.getOriginShiftedMatrix(w,cameraWorldPos);
             shader.setMatrix4d(gl3, "modelMatrix", w);
             shader.setColor(gl3,"diffuseColor",selected ? Color.GREEN : DARK_GREEN);
             Ray ray = viewport.getRayThroughPoint(cam,normalizedCoordinates.x,normalizedCoordinates.y);
@@ -140,6 +143,7 @@ public class DrawCameras extends AbstractRenderPass {
             scale.m11 *= 2*canvasHeight * coneScale;
             scale.m22 *= canvasHeight * coneScale / Math.tan(Math.toRadians(camera.getFovY()) / 2);
             w.mul(scale);
+            if(originShift) w = RenderPassHelper.getOriginShiftedMatrix(w,cameraWorldPos);
             shader.setMatrix4d(gl3, "modelMatrix", w);
             pyramidMesh.render(gl3);
         }
