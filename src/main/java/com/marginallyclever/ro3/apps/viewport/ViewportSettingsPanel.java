@@ -4,7 +4,7 @@ import com.marginallyclever.convenience.swing.Dial;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.apps.App;
-import com.marginallyclever.ro3.apps.viewport.renderpasses.DrawMeshes;
+import com.marginallyclever.ro3.apps.viewport.renderpass.DrawMeshes;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;

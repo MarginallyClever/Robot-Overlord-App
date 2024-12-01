@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.viewport.renderpasses;
+package com.marginallyclever.ro3.apps.viewport.renderpass;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;

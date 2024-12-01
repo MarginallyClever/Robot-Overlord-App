@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.viewport.renderpasses;
+package com.marginallyclever.ro3.apps.viewport.renderpass;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
@@ -11,8 +11,6 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.mesh.Mesh;
-import com.marginallyclever.ro3.mesh.proceduralmesh.Box;
-import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;

@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.viewport.renderpasses;
+package com.marginallyclever.ro3.apps.viewport.renderpass;
 
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;

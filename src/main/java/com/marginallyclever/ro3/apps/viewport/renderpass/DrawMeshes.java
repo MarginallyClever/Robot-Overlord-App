@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.viewport.renderpasses;
+package com.marginallyclever.ro3.apps.viewport.renderpass;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -201,6 +201,8 @@ public class DrawMeshes extends AbstractRenderPass {
     public void draw(Viewport viewport) {
         Camera camera = viewport.getActiveCamera();
         if (camera == null) return;
+
+        originShift = true;
 
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
 
