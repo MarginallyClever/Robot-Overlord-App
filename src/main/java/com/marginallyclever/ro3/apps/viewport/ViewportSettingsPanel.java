@@ -19,6 +19,7 @@ public class ViewportSettingsPanel extends App {
     private final JFormattedTextField movementScale = new JFormattedTextField(formatter);
     private final JToggleButton hardwareAccelerated = new JToggleButton();
     private final JToggleButton doubleBuffered = new JToggleButton();
+    private final JToggleButton originShift = new JToggleButton();
     private final JToggleButton verticalSync = new JToggleButton();
     private final JComboBox<Integer> fsaaSamples = new JComboBox<>(new Integer[]{1, 2, 4, 8});
     private final Dial timeOfDay = new Dial();
@@ -81,6 +82,13 @@ public class ViewportSettingsPanel extends App {
             setViewportDoubleBuffered(doubleBuffered.isSelected());
         });
         setViewportDoubleBufferedLabel();
+
+        gbc.gridy++;
+        PanelHelper.addLabelAndComponent(container, "Origin Shift", originShift,gbc);
+        originShift.addActionListener(evt -> {
+            setOriginShift(originShift.isSelected());
+        });
+        setOriginShiftLabel();
 
         gbc.gridy++;
         PanelHelper.addLabelAndComponent(container, "Vertical Sync", verticalSync,gbc);
@@ -159,6 +167,10 @@ public class ViewportSettingsPanel extends App {
         doubleBuffered.setText( (subject != null && subject.isDoubleBuffered() ? "On" : "Off") );
     }
 
+    private void setOriginShiftLabel() {
+        originShift.setText( (subject != null && subject.isOriginShift() ? "On" : "Off") );
+    }
+
     private void setHardwareAcceleratedLabel() {
         hardwareAccelerated.setText( (subject != null && subject.isHardwareAccelerated() ? "On" : "Off") );
     }
@@ -173,6 +185,12 @@ public class ViewportSettingsPanel extends App {
         if (subject != null) subject.setDoubleBuffered(selected);
         doubleBuffered.setSelected(selected);
         setViewportDoubleBufferedLabel();
+    }
+
+    private void setOriginShift(boolean selected) {
+        if (subject != null) subject.setOriginShift(selected);
+        originShift.setSelected(selected);
+        setOriginShiftLabel();
     }
 
     private void setVerticalSync(boolean selected) {

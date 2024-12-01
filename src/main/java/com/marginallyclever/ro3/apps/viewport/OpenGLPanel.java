@@ -6,6 +6,7 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.viewport.renderpass.RenderPass;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import org.slf4j.Logger;
@@ -13,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Vector3d;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.prefs.Preferences;
 
 /**
@@ -193,7 +193,7 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
 
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
         toolShader.use(gl3);
-        toolShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix());
+        toolShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix(isOriginShift()));
         toolShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         toolShader.setVector3d(gl3, "cameraPos", cameraWorldPos);  // Camera position in world space
@@ -256,7 +256,7 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
     }
 
     @Override
-    protected void addRenderPass(Object source,RenderPass renderPass) {
+    protected void addRenderPass(Object source, RenderPass renderPass) {
         addGLEventListener(renderPass);
         super.addRenderPass(source,renderPass);
     }

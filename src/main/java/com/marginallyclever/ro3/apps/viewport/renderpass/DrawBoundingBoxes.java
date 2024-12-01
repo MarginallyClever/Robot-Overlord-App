@@ -91,7 +91,7 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
 
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
         shader.use(gl3);
-        shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix());
+        shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix(viewport.isOriginShift()));
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space

@@ -5,7 +5,7 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
-import com.marginallyclever.ro3.apps.viewport.renderpasses.*;
+import com.marginallyclever.ro3.apps.viewport.renderpass.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.Compass3D;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectionTool;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
@@ -13,7 +13,6 @@ import com.marginallyclever.ro3.apps.viewport.viewporttools.move.RotateToolMulti
 import com.marginallyclever.ro3.apps.viewport.viewporttools.move.TranslateToolMulti;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +56,7 @@ public class Viewport
     private double userMovementScale = 1.0;
     private final JButton frameOfReferenceButton = new JButton();
     private final JPopupMenu frameOfReferenceMenu = new JPopupMenu();
+    private boolean originShift = false;
 
     public Viewport() {
         this(new BorderLayout());
@@ -656,4 +656,16 @@ public class Viewport
     }
 
     public void savePrefs() {}
+
+    public boolean isOriginShift() {
+        return originShift;
+    }
+
+    public void setOriginShift(boolean b) {
+        // Maybe I'm being paranoid...
+        SwingUtilities.invokeLater(() -> {
+            originShift = b;
+            System.out.println("originShift NOW " + originShift);
+        });
+    }
 }

@@ -159,7 +159,7 @@ public class CameraTest {
     @Test
     public void getViewMatrix() {
         Camera camera = new Camera();
-        Matrix4d m = camera.getViewMatrix();
+        Matrix4d m = camera.getViewMatrix(false);
         Assertions.assertArrayEquals(BigMatrixHelper.matrix4dToArray(m),
                 BigMatrixHelper.matrix4dToArray(MatrixHelper.createIdentityMatrix4()), 0.01);
     }

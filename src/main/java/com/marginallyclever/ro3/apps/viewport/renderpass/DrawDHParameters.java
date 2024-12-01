@@ -73,7 +73,7 @@ public class DrawDHParameters extends AbstractRenderPass {
         gl3.glDisable(GL3.GL_DEPTH_TEST);
         gl3.glDisable(GL3.GL_TEXTURE_2D);
         shader.use(gl3);
-        shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix());
+        shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix(viewport.isOriginShift()));
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space

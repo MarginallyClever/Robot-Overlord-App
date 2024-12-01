@@ -220,9 +220,16 @@ public class Camera extends Pose {
     public Matrix4d getChosenProjectionMatrix(int width,int height) {
         return drawOrthographic ? getOrthographicMatrix(width,height) : getPerspectiveFrustum(width,height);
     }
-
+/*
     public Matrix4d getViewMatrix() {
+        return getViewMatrix(false);
+    }
+*/
+    public Matrix4d getViewMatrix(boolean originShift) {
         Matrix4d inverseCamera = this.getWorld();
+        if(originShift) {
+            inverseCamera.setTranslation(new Vector3d());
+        }
         inverseCamera.invert();
         return inverseCamera;
     }
