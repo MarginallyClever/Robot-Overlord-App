@@ -662,10 +662,6 @@ public class Viewport
     }
 
     public void setOriginShift(boolean b) {
-        // Maybe I'm being paranoid...
-        SwingUtilities.invokeLater(() -> {
-            originShift = b;
-            System.out.println("originShift NOW " + originShift);
-        });
+        originShift = b;
     }
 }
