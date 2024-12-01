@@ -18,6 +18,7 @@ import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
@@ -537,5 +538,16 @@ public class DrawMeshes extends AbstractRenderPass {
             m2.m23 -= cameraPos.z;
         }
         return m2;
+    }
+
+    public void setOriginShift(boolean b) {
+        // Maybe I'm being paranoid...
+        SwingUtilities.invokeLater(() -> {
+            originShift = b;
+        });
+    }
+
+    public boolean getOriginShift() {
+        return originShift;
     }
 }
