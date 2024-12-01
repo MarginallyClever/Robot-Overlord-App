@@ -69,7 +69,7 @@ public class RO3Frame extends JFrame {
         textInterface = new TextInterfaceToSessionLayer();
         ode4jPanel = new ODE4JPanel();
         donatello = new Donatello();
-        viewportSettingsPanel = new ViewportSettingsPanel();
+        viewportSettingsPanel = new ViewportSettingsPanel(viewportPanel);
 
         createDefaultLayout();
         resetDefaultLayout();
