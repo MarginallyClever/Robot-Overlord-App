@@ -20,6 +20,7 @@ public class SpaceShipPanel extends JPanel {
 
     public SpaceShipPanel(SpaceShip ship) {
         super(new GridBagLayout());
+        setName("SpaceShip");
         this.ship = ship;
 
         var c = new GridBagConstraints();
