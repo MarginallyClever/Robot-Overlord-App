@@ -18,6 +18,8 @@ uniform vec3 lightPos; // Light position in world space
 uniform vec3 cameraPos;  // Camera position in world space
 
 uniform sampler2D diffuseTexture;
+uniform sampler2D normalMap;
+uniform sampler2D specularMap;
 
 uniform bool useTexture;
 uniform bool useLighting;
@@ -52,4 +54,8 @@ void main() {
     //finalColor = vec4(textureCoord.x,textureCoord.y,0,1);  // for testing texture coordinates
     finalColor = result;
     finalColor.a = myColor.a;
+
+    // log depth for more accuracy at far distances
+    float far = 1e9;
+    gl_FragDepth = log2(gl_FragCoord.z * far) / log2(far+1.0);
 }

@@ -63,7 +63,7 @@ public class ODEPlane extends ODENode {
             material = new Material();
             addChild(material);
         }
-        material.setTexture(Registry.textureFactory.load("/com/marginallyclever/ro3/shared/checkerboard.png"));
+        material.setDiffuseTexture(Registry.textureFactory.load("/com/marginallyclever/ro3/shared/checkerboard.png"));
 
         updatePhysicsFromPose();
     }

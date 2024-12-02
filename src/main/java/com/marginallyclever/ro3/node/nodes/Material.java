@@ -26,7 +26,9 @@ import java.util.Objects;
  * </ul>
  */
 public class Material extends Node {
-    private TextureWithMetadata texture;
+    private TextureWithMetadata diffuseTexture;
+    private TextureWithMetadata normalTexture;
+    private TextureWithMetadata specularTexture;
     private Color diffuseColor = new Color(255,255,255);
     private Color specularColor = new Color(255,255,255);
     private Color emissionColor = new Color(0,0,0);
@@ -48,18 +50,36 @@ public class Material extends Node {
         super.getComponents(list);
     }
 
-    public void setTexture(TextureWithMetadata selectedItem) {
-        texture = selectedItem;
+    public void setDiffuseTexture(TextureWithMetadata texture) {
+        diffuseTexture = texture;
     }
 
-    public TextureWithMetadata getTexture() {
-        return texture;
+    public TextureWithMetadata getDiffuseTexture() {
+        return diffuseTexture;
+    }
+
+    public void setNormalTexture(TextureWithMetadata texture) {
+        normalTexture = texture;
+    }
+
+    public TextureWithMetadata getNormalTexture() {
+        return normalTexture;
+    }
+
+    public void setSpecularTexture(TextureWithMetadata texture) {
+        specularTexture = texture;
+    }
+
+    public TextureWithMetadata getSpecularTexture() {
+        return specularTexture;
     }
 
     @Override
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
-        if(texture!=null) json.put("texture",texture.getSource());
+        if(diffuseTexture !=null) json.put("texture", diffuseTexture.getSource());
+        if(specularTexture !=null) json.put("specularTexture", specularTexture.getSource());
+        if(normalTexture !=null) json.put("normalTexture", normalTexture.getSource());
         json.put("diffuseColor", diffuseColor.getRGB());
         json.put("specularColor", specularColor.getRGB());
         json.put("emissionColor", emissionColor.getRGB());
@@ -72,7 +92,9 @@ public class Material extends Node {
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        if(from.has("texture")) texture = Registry.textureFactory.load(from.getString("texture"));
+        if(from.has("texture")) diffuseTexture = Registry.textureFactory.load(from.getString("texture"));
+        if(from.has("specularTexture")) specularTexture = Registry.textureFactory.load(from.getString("specularTexture"));
+        if(from.has("normalTexture")) normalTexture = Registry.textureFactory.load(from.getString("normalTexture"));
         if(from.has("diffuseColor")) diffuseColor = new Color(from.getInt("diffuseColor"),true);
         if(from.has("specularColor")) specularColor = new Color(from.getInt("specularColor"),true);
         if(from.has("emissionColor")) emissionColor = new Color(from.getInt("emissionColor"),true);
