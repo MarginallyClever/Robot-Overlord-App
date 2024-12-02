@@ -353,7 +353,7 @@ public class DrawMeshes extends AbstractRenderPass {
             // set the texture to the first sibling that is a material and has a texture
             if( material != lastSeen ) {
                 lastSeen = material;
-                texture = material.getTexture();
+                texture = material.getDiffuseTexture();
                 meshShader.setColor(gl3,"diffuseColor",material.getDiffuseColor());
                 meshShader.setColor(gl3,"specularColor",material.getSpecularColor());
                 meshShader.setColor(gl3,"emissionColor",material.getEmissionColor());
