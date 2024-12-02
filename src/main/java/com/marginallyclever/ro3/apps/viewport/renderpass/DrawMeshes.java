@@ -42,7 +42,7 @@ public class DrawMeshes extends AbstractRenderPass {
     public static final int SHADOW_HEIGHT = 1024;
     public static final double SUN_DISTANCE = 200;
     public static final double DEPTH_BUFFER_LIMIT = SUN_DISTANCE*1.5;
-    public static final Vector3d sunlightSource = new Vector3d(50,150,750);
+    public static final Vector3d sunlightSource = new Vector3d(50,150,750);  // vector
     public static Color sunlightColor = new Color(0xfd,0xfb,0xd3,255);
     public static Color ambientColor = new Color(0x20,0x20,0x20,255);
     public static final Matrix4d lightProjection = new Matrix4d();
@@ -122,18 +122,19 @@ public class DrawMeshes extends AbstractRenderPass {
         OpenGLHelper.checkGLError(gl3,logger);
     }
 
-    // https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
+    /**
+     * @see <a href="https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping">LearnOpenGL: Shadow Mapping</a>
+     * @param camera the camera viewing the scene through the {@link Viewport} using this {@link RenderPass}.
+     * @param originShift should we use origin shifting?
+     */
     private void updateLightMatrix(Camera camera,boolean originShift) {
         // orthographic projection from the light's point of view
         double r = Math.max(50,camera.getOrbitRadius()*2.0);
         lightProjection.set(MatrixHelper.orthographicMatrix4d(-r,r,-r,r,1.0,DEPTH_BUFFER_LIMIT));
 
-        Vector3d from = new Vector3d(sunlightSource);
         Vector3d to = camera.getOrbitPoint();
-        if(originShift) {
-            var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
-            to.sub(cameraWorldPos);
-        }
+        if(originShift) to.sub(MatrixHelper.getPosition(camera.getWorld()));
+        Vector3d from = new Vector3d(sunlightSource);
         from.add(to);
         Vector3d up = Math.abs(sunlightSource.z)>0.99? new Vector3d(0,1,0) : new Vector3d(0,0,1);
 
@@ -154,8 +155,7 @@ public class DrawMeshes extends AbstractRenderPass {
         gl3.glCullFace(GL3.GL_FRONT);
         shadowShader.use(gl3);
         shadowShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
-        var lv = new Matrix4d(lightView);
-        shadowShader.setMatrix4d(gl3, "lightViewMatrix", lv);
+        shadowShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
 
         for(MeshMaterialMatrix meshMaterialMatrix : meshes) {
             MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
@@ -265,9 +265,7 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         meshShader.setVector3d(gl3, "cameraPos",originShift ? new Vector3d() : cameraWorldPos);  // Camera position in world space for specular lighting
-        var s = getSunlightSource();
-        if(originShift) s.sub(cameraWorldPos);
-        meshShader.setVector3d(gl3, "lightPos", s);  // Light position in world space
+        meshShader.setVector3d(gl3, "lightPos", getSunlightSource());  // Light position in world space
         meshShader.setColor(gl3, "lightColor", sunlightColor);
         meshShader.setColor(gl3, "diffuseColor", Color.WHITE);
         meshShader.setColor(gl3, "specularColor", Color.WHITE);
@@ -331,22 +329,15 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.set1i(gl3, "shadowMap", shadowMapUnit);
         meshShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
         meshShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
-
         meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix(originShift));
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
-
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         meshShader.setVector3d(gl3, "cameraPos",originShift ? new Vector3d() : cameraWorldPos);  // Camera position in world space
-
-        var s = getSunlightSource();
-        if(originShift) s.sub(cameraWorldPos);
-        meshShader.setVector3d(gl3, "lightPos", s);  // Light position in world space
-
+        meshShader.setVector3d(gl3, "lightPos", getSunlightSource());  // Light vector
         meshShader.setColor(gl3, "lightColor", sunlightColor);
         meshShader.setColor(gl3, "diffuseColor", Color.WHITE);
         meshShader.setColor(gl3, "specularColor", Color.WHITE);
         meshShader.setColor(gl3, "ambientColor", ambientColor);
-
         meshShader.set1i(gl3, "useVertexColor", 0);
         meshShader.set1i(gl3, "useLighting", 1);
         meshShader.set1i(gl3, "diffuseTexture", 0);
