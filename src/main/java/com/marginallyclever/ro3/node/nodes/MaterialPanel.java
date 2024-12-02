@@ -27,7 +27,7 @@ public class MaterialPanel extends JPanel {
         gbc.weighty = 1.0;
         gbc.gridx=0;
         gbc.gridy=0;
-        gbc.fill = GridBagConstraints.BOTH;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         var texture = material.getTexture();
 
