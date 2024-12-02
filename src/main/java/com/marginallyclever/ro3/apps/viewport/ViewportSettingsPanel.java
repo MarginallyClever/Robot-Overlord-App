@@ -9,12 +9,13 @@ import com.marginallyclever.ro3.apps.viewport.renderpass.DrawMeshes;
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
+import java.security.InvalidParameterException;
 
 /**
  * {@link ViewportSettingsPanel} adjusts settings for a {@link Viewport}.
  */
 public class ViewportSettingsPanel extends App {
-    private final Viewport subject;
+    private final Viewport viewport;
     private final NumberFormatter formatter = NumberFormatHelper.getNumberFormatter();
     private final JFormattedTextField movementScale = new JFormattedTextField(formatter);
     private final JToggleButton hardwareAccelerated = new JToggleButton();
@@ -30,11 +31,13 @@ public class ViewportSettingsPanel extends App {
     public ViewportSettingsPanel() {
         this(new Viewport());
     }
-    public ViewportSettingsPanel(Viewport subject) {
+    public ViewportSettingsPanel(Viewport viewport) {
         super(new BorderLayout());
-        setName("Viewport");
 
-        this.subject = subject;
+        if(viewport==null) throw new InvalidParameterException("viewport cannot be null");
+
+        setName("Viewport");
+        this.viewport = viewport;
         JPanel container = buildPanel();
         add(new JScrollPane(container),BorderLayout.CENTER);
     }
@@ -42,11 +45,11 @@ public class ViewportSettingsPanel extends App {
     private JPanel buildPanel() {
         var container = new JPanel(new GridBagLayout());
 
-        setMovementScale(subject.getUserMovementScale());
-        setHardwareAccelerated(subject.isHardwareAccelerated());
-        setViewportDoubleBuffered(subject.isDoubleBuffered());
-        setVerticalSync(subject.isVerticalSync());
-        setFSAASamples(subject.getFsaaSamples());
+        setMovementScale(viewport.getUserMovementScale());
+        setHardwareAccelerated(viewport.isHardwareAccelerated());
+        setViewportDoubleBuffered(viewport.isDoubleBuffered());
+        setVerticalSync(viewport.isVerticalSync());
+        setFSAASamples(viewport.getFsaaSamples());
 
         // this only allows parameters from one render pass.
         // TODO: add other passes?
@@ -69,33 +72,24 @@ public class ViewportSettingsPanel extends App {
         movementScale.setValue(1.0);
         movementScale.addPropertyChangeListener("value", evt -> setMovementScale((Double) evt.getNewValue()));
 
+        setHardwareAccelerated(viewport.isHardwareAccelerated());
+        setViewportDoubleBuffered(viewport.isDoubleBuffered());
+        setOriginShift(viewport.isOriginShift());
+        setVerticalSync(viewport.isVerticalSync());
+
         gbc.gridy++;
         PanelHelper.addLabelAndComponent(container, "Hardware Accelerated", hardwareAccelerated,gbc);
-        hardwareAccelerated.addActionListener(evt -> {
-            setHardwareAccelerated(hardwareAccelerated.isSelected());
-        });
-        setHardwareAcceleratedLabel();
-
         gbc.gridy++;
         PanelHelper.addLabelAndComponent(container, "Double Buffered", doubleBuffered,gbc);
-        doubleBuffered.addActionListener(evt -> {
-            setViewportDoubleBuffered(doubleBuffered.isSelected());
-        });
-        setViewportDoubleBufferedLabel();
-
         gbc.gridy++;
         PanelHelper.addLabelAndComponent(container, "Origin Shift", originShift,gbc);
-        originShift.addActionListener(evt -> {
-            setOriginShift(originShift.isSelected());
-        });
-        setOriginShiftLabel();
-
         gbc.gridy++;
         PanelHelper.addLabelAndComponent(container, "Vertical Sync", verticalSync,gbc);
-        verticalSync.addActionListener(evt -> {
-            setVerticalSync(verticalSync.isSelected());
-        });
-        setVerticalSyncLabel();
+
+        hardwareAccelerated.addActionListener(evt -> setHardwareAccelerated(hardwareAccelerated.isSelected()));
+        doubleBuffered.addActionListener(evt -> setViewportDoubleBuffered(doubleBuffered.isSelected()));
+        originShift.addActionListener(evt -> setOriginShift(originShift.isSelected()));
+        verticalSync.addActionListener(evt -> setVerticalSync(verticalSync.isSelected()));
 
         gbc.gridy++;
         PanelHelper.addLabelAndComponent(container, "FSAA Samples", fsaaSamples,gbc);
@@ -130,9 +124,7 @@ public class ViewportSettingsPanel extends App {
     @Override
     public void removeNotify() {
         super.removeNotify();
-
-        if(subject!=null) subject.savePrefs();
-
+        viewport.savePrefs();
         var dm = getDrawMeshes();
         if(dm!=null) dm.savePrefs();
     }
@@ -160,58 +152,56 @@ public class ViewportSettingsPanel extends App {
     }
 
     private void setVerticalSyncLabel() {
-        verticalSync.setText( (subject != null && subject.isVerticalSync() ? "On" : "Off") );
+        verticalSync.setText( (viewport != null && viewport.isVerticalSync() ? "On" : "Off") );
     }
 
     private void setViewportDoubleBufferedLabel() {
-        doubleBuffered.setText( (subject != null && subject.isDoubleBuffered() ? "On" : "Off") );
+        doubleBuffered.setText( (viewport != null && viewport.isDoubleBuffered() ? "On" : "Off") );
     }
 
     private void setOriginShiftLabel() {
-        originShift.setText( (subject != null && subject.isOriginShift() ? "On" : "Off") );
+        originShift.setText( (viewport != null && viewport.isOriginShift() ? "On" : "Off") );
     }
 
     private void setHardwareAcceleratedLabel() {
-        hardwareAccelerated.setText( (subject != null && subject.isHardwareAccelerated() ? "On" : "Off") );
+        hardwareAccelerated.setText( (viewport != null && viewport.isHardwareAccelerated() ? "On" : "Off") );
     }
 
     private void setHardwareAccelerated(boolean selected) {
-        if (subject != null) subject.setHardwareAccelerated(selected);
+        viewport.setHardwareAccelerated(selected);
         hardwareAccelerated.setSelected(selected);
         setHardwareAcceleratedLabel();
     }
 
     private void setViewportDoubleBuffered(boolean selected) {
-        if (subject != null) subject.setDoubleBuffered(selected);
+        viewport.setDoubleBuffered(selected);
         doubleBuffered.setSelected(selected);
         setViewportDoubleBufferedLabel();
     }
 
     private void setOriginShift(boolean selected) {
-        if (subject != null) subject.setOriginShift(selected);
+        viewport.setOriginShift(selected);
         originShift.setSelected(selected);
         setOriginShiftLabel();
     }
 
     private void setVerticalSync(boolean selected) {
-        if (subject != null) subject.setVerticalSync(selected);
+        viewport.setVerticalSync(selected);
         verticalSync.setSelected(selected);
         setVerticalSyncLabel();
     }
 
     private void setFSAASamples(Integer value) {
-        if (subject != null) subject.setFsaaSamples(value);
+        viewport.setFsaaSamples(value);
         fsaaSamples.setSelectedItem(value);
     }
 
     private void setMovementScale(double v) {
-        if (subject != null) subject.setUserMovementScale(v);
+        if (viewport != null) viewport.setUserMovementScale(v);
     }
 
     private DrawMeshes getDrawMeshes() {
-        if(subject==null) return null;
-
-        for(var rp : subject.renderPasses.getList()) {
+        for(var rp : viewport.renderPasses.getList()) {
             if(rp instanceof DrawMeshes) {
                 return (DrawMeshes)rp;
             }
