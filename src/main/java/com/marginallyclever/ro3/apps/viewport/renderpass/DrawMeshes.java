@@ -263,9 +263,11 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.use(gl3);
         meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix(originShift));
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
-        Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
+        var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         meshShader.setVector3d(gl3, "cameraPos",originShift ? new Vector3d() : cameraWorldPos);  // Camera position in world space for specular lighting
-        meshShader.setVector3d(gl3, "lightPos", getSunlightSource());  // Light position in world space
+        var lightPos = getSunlightSource();
+        if(!originShift) lightPos.add(cameraWorldPos);
+        meshShader.setVector3d(gl3, "lightPos", lightPos);  // Light position in world space
         meshShader.setColor(gl3, "lightColor", sunlightColor);
         meshShader.setColor(gl3, "diffuseColor", Color.WHITE);
         meshShader.setColor(gl3, "specularColor", Color.WHITE);
@@ -333,7 +335,9 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         meshShader.setVector3d(gl3, "cameraPos",originShift ? new Vector3d() : cameraWorldPos);  // Camera position in world space
-        meshShader.setVector3d(gl3, "lightPos", getSunlightSource());  // Light vector
+        var lightPos = getSunlightSource();
+        if(!originShift) lightPos.add(cameraWorldPos);
+        meshShader.setVector3d(gl3, "lightPos", lightPos);  // Light position in world space
         meshShader.setColor(gl3, "lightColor", sunlightColor);
         meshShader.setColor(gl3, "diffuseColor", Color.WHITE);
         meshShader.setColor(gl3, "specularColor", Color.WHITE);
