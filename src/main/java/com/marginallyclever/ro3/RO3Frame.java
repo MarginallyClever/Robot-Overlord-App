@@ -17,8 +17,6 @@ import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.ode4j.ODE4JPanel;
 import com.marginallyclever.ro3.apps.viewport.OpenGLPanel;
-import com.marginallyclever.ro3.apps.viewport.Viewport;
-import com.marginallyclever.ro3.apps.viewport.ViewportSettingsPanel;
 import com.marginallyclever.ro3.apps.webcam.WebCamPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +47,6 @@ public class RO3Frame extends JFrame {
     private final WebCamPanel webCamPanel;
     private final TextInterfaceToSessionLayer textInterface;
     private final ODE4JPanel ode4jPanel;
-    private final ViewportSettingsPanel viewportSettingsPanel;
     private final Donatello donatello;
     public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
     public static String VERSION;
@@ -69,7 +66,6 @@ public class RO3Frame extends JFrame {
         textInterface = new TextInterfaceToSessionLayer();
         ode4jPanel = new ODE4JPanel();
         donatello = new Donatello();
-        viewportSettingsPanel = new ViewportSettingsPanel(viewportPanel);
 
         createDefaultLayout();
         resetDefaultLayout();
@@ -216,9 +212,6 @@ public class RO3Frame extends JFrame {
         textInterfaceView.add(textInterface);
         windows.add(textInterfaceView);
 
-        DockingPanel viewportSettingsView = new DockingPanel("c0651f5b-d5f0-49ab-88f9-66ae4a8c095e", "Viewport Settings");
-        viewportSettingsView.add(viewportSettingsPanel);
-        windows.add(viewportSettingsView);
 
         // TODO all persistentIDs should match the name of the class.  Then the class can recreate the view from AppState.
         DockingPanel donatelloView = new DockingPanel("donatello", "Donatello");

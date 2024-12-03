@@ -24,17 +24,15 @@ import java.awt.*;
  */
 public class DrawCameras extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawCameras.class);
-    private final Mesh pyramidMesh = new Mesh();
+    private final Mesh frustumMesh = new Mesh();
     private final Mesh rayMesh = new Mesh();
     private ShaderProgram shader;
-    private final double cameraConeRatio = 50;
-    private final double coneScale = cameraConeRatio * 0.0001;
     private final Color DARK_GREEN = new Color(0,64,0,128);
 
 
     public DrawCameras() {
         super("Cameras");
-        setupMeshCone();
+        setupMeshFrustum();
         setupMeshRay();
     }
 
@@ -44,35 +42,35 @@ public class DrawCameras extends AbstractRenderPass {
         rayMesh.addVertex(0,0,0);
     }
 
-    private void setupMeshCone() {
+    private void setupMeshFrustum() {
         // add mesh to a list that can be unloaded and reloaded as needed.
-        pyramidMesh.setRenderStyle(GL3.GL_LINES);
-        Vector3d a = new Vector3d(-1,-1,-1);
-        Vector3d b = new Vector3d( 1,-1,-1);
-        Vector3d c = new Vector3d( 1, 1,-1);
-        Vector3d d = new Vector3d(-1, 1,-1);
-        pyramidMesh.addVertex(0,0,0);
-        pyramidMesh.addVertex((float)a.x, (float)a.y, (float)a.z);
-        pyramidMesh.addVertex((float)b.x, (float)b.y, (float)b.z);
-        pyramidMesh.addVertex((float)c.x, (float)c.y, (float)c.z);
-        pyramidMesh.addVertex((float)d.x, (float)d.y, (float)d.z);
+        frustumMesh.setRenderStyle(GL3.GL_LINES);
+        // add lines to form the edges of a box.  top circle, bottom circle, and the lines connecting them.
+        // bottom
+        frustumMesh.addVertex(-2,-2,-2);
+        frustumMesh.addVertex( 2,-2,-2);
+        frustumMesh.addVertex( 2, 2,-2);
+        frustumMesh.addVertex(-2, 2,-2);
+        // top
+        frustumMesh.addVertex(-1,-1, -1);
+        frustumMesh.addVertex( 1,-1, -1);
+        frustumMesh.addVertex( 1, 1, -1);
+        frustumMesh.addVertex(-1, 1, -1);
+        // connecting lines
+        frustumMesh.addIndex(0);        frustumMesh.addIndex(1);
+        frustumMesh.addIndex(1);        frustumMesh.addIndex(2);
+        frustumMesh.addIndex(2);        frustumMesh.addIndex(3);
+        frustumMesh.addIndex(3);        frustumMesh.addIndex(0);
 
-        pyramidMesh.addIndex(0);
-        pyramidMesh.addIndex(1);
-        pyramidMesh.addIndex(0);
-        pyramidMesh.addIndex(2);
-        pyramidMesh.addIndex(0);
-        pyramidMesh.addIndex(3);
-        pyramidMesh.addIndex(0);
-        pyramidMesh.addIndex(4);
-        pyramidMesh.addIndex(1);
-        pyramidMesh.addIndex(2);
-        pyramidMesh.addIndex(2);
-        pyramidMesh.addIndex(3);
-        pyramidMesh.addIndex(3);
-        pyramidMesh.addIndex(4);
-        pyramidMesh.addIndex(4);
-        pyramidMesh.addIndex(1);
+        frustumMesh.addIndex(4);        frustumMesh.addIndex(5);
+        frustumMesh.addIndex(5);        frustumMesh.addIndex(6);
+        frustumMesh.addIndex(6);        frustumMesh.addIndex(7);
+        frustumMesh.addIndex(7);        frustumMesh.addIndex(4);
+
+        frustumMesh.addIndex(0);        frustumMesh.addIndex(4);
+        frustumMesh.addIndex(1);        frustumMesh.addIndex(5);
+        frustumMesh.addIndex(2);        frustumMesh.addIndex(6);
+        frustumMesh.addIndex(3);        frustumMesh.addIndex(7);
     }
 
     @Override
@@ -91,7 +89,7 @@ public class DrawCameras extends AbstractRenderPass {
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         rayMesh.unload(gl3);
-        pyramidMesh.unload(gl3);
+        frustumMesh.unload(gl3);
         shader.delete(gl3);
     }
 
@@ -122,42 +120,86 @@ public class DrawCameras extends AbstractRenderPass {
         var list = Registry.selection.getList();
         var normalizedCoordinates = viewport.getCursorAsNormalized();
 
-        for(Camera cam : Registry.cameras.getList() ) {
-            boolean selected = list.contains(cam);
-            if(getActiveStatus()==SOMETIMES && !selected) continue;
-
-            // position and draw the ray from the camera.
-            Matrix4d w = MatrixHelper.createIdentityMatrix4();
+        for( Camera otherCamera : Registry.cameras.getList() ) {
+            boolean selected = list.contains(otherCamera);
+            if( getActiveStatus() == SOMETIMES && !selected ) continue;
+            Matrix4d w = otherCamera.getWorld();
             if(originShift) w = RenderPassHelper.getOriginShiftedMatrix(w,cameraWorldPos);
             shader.setMatrix4d(gl3, "modelMatrix", w);
-            shader.setColor(gl3,"diffuseColor",selected ? Color.GREEN : DARK_GREEN);
-            Ray ray = viewport.getRayThroughPoint(cam,normalizedCoordinates.x,normalizedCoordinates.y);
-            changeRayMesh(gl3, ray);
-            rayMesh.render(gl3);
 
-            // scale and draw the view cones
+            // the frustum (outer limits of the camera's view)
+            changeFrustumMesh(gl3,otherCamera);
             shader.setColor(gl3,"diffuseColor",selected ? Color.WHITE : Color.BLACK);
-            w = cam.getWorld();
-            Matrix4d scale = MatrixHelper.createIdentityMatrix4();
-            scale.m00 *= 2*canvasWidth * coneScale;  // why 2*?
-            scale.m11 *= 2*canvasHeight * coneScale;
-            scale.m22 *= canvasHeight * coneScale / Math.tan(Math.toRadians(camera.getFovY()) / 2);
-            w.mul(scale);
-            if(originShift) w = RenderPassHelper.getOriginShiftedMatrix(w,cameraWorldPos);
-            shader.setMatrix4d(gl3, "modelMatrix", w);
-            pyramidMesh.render(gl3);
+            frustumMesh.render(gl3);
+
+            // the pick ray through the cursor, out the camera, and into the scene, in world space.
+            // Should always be inside the frustum.
+            Ray ray = viewport.getRayThroughPointUntransformed(otherCamera,normalizedCoordinates.x,normalizedCoordinates.y);
+            changeRayMesh(gl3, ray,otherCamera.getFarZ());
+            shader.setColor(gl3,"diffuseColor",selected ? Color.GREEN : DARK_GREEN);
+            rayMesh.render(gl3);
         }
 
         gl3.glEnable(GL3.GL_DEPTH_TEST);
     }
 
-    private void changeRayMesh(GL3 gl3, Ray ray) {
+    /**
+     * Update the frustum mesh to match the camera's view.
+     * @param gl3 the OpenGL context
+     * @param camera the camera to draw
+     */
+    private void changeFrustumMesh(GL3 gl3, Camera camera) {
+        if(camera.getDrawOrthographic()) {
+            // orthographic
+            float far = (float)camera.getFarZ();
+            float near = (float)camera.getNearZ();
+            float h = canvasHeight/2.0f;
+            float w = canvasWidth/2.0f;
+
+            // bottom
+            frustumMesh.setVertex(0,-w,-h,-far);
+            frustumMesh.setVertex(1, w,-h,-far);
+            frustumMesh.setVertex(2, w, h,-far);
+            frustumMesh.setVertex(3,-w, h,-far);
+            // top
+            frustumMesh.setVertex(4,-w,-h,-near);
+            frustumMesh.setVertex(5, w,-h,-near);
+            frustumMesh.setVertex(6, w, h,-near);
+            frustumMesh.setVertex(7,-w, h,-near);
+        } else {
+            // perspective
+            float far = (float)camera.getFarZ();
+            float near = (float)camera.getNearZ();
+            float aspectRatio = (float)canvasWidth / canvasHeight;
+            double ratio = Math.tan(Math.toRadians(camera.getFovY()) / 2.0);// Assuming FoV is in radians
+
+            // Calculate half heights and widths of the near and far planes
+            float hNear = (float)(ratio * near);
+            float wNear = hNear * aspectRatio;
+            float hFar = (float)(ratio * far);
+            float wFar = hFar * aspectRatio;
+
+            // bottom
+            frustumMesh.setVertex(0,-wFar,-hFar,-far);
+            frustumMesh.setVertex(1, wFar,-hFar,-far);
+            frustumMesh.setVertex(2, wFar, hFar,-far);
+            frustumMesh.setVertex(3,-wFar, hFar,-far);
+            // top
+            frustumMesh.setVertex(4,-wNear,-hNear, -near);
+            frustumMesh.setVertex(5, wNear,-hNear, -near);
+            frustumMesh.setVertex(6, wNear, hNear, -near);
+            frustumMesh.setVertex(7,-wNear, hNear, -near);
+        }
+        frustumMesh.updateVertexBuffers(gl3);
+    }
+
+    private void changeRayMesh(GL3 gl3, Ray ray,double farZ) {
         Point3d origin = ray.getOrigin();
         Vector3d direction = ray.getDirection();
 
-        direction.scale(1000);
+        direction.scale(farZ);
         rayMesh.setVertex(0,origin.x,origin.y,origin.z);
-        rayMesh.setVertex(1,direction.x,direction.y,direction.z);
+        rayMesh.setVertex(1,origin.x+direction.x,origin.y+direction.y,origin.z+direction.z);
         rayMesh.updateVertexBuffers(gl3);
     }
 }

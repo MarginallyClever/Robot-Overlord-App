@@ -170,9 +170,8 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
     private Node findNodeUnderCursor() {
         Camera camera = viewport.getActiveCamera();
         if(camera==null) return null;
-
-        Point2d mouse = viewport.getCursorPosition();
-        Ray ray = viewport.getRayThroughPoint(camera,mouse.x,mouse.y);
+        var normalizedCoordinates = viewport.getCursorAsNormalized();
+        Ray ray = viewport.getRayThroughPoint(camera,normalizedCoordinates.x,normalizedCoordinates.y);
         RayPickSystem rayPickSystem = new RayPickSystem();
         RayHit rayHit = rayPickSystem.getFirstHit(ray);
         if(rayHit == null) return null;

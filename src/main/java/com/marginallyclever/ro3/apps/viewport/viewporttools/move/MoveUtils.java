@@ -50,7 +50,8 @@ public class MoveUtils {
         Camera cam = viewport.getActiveCamera();
         assert cam != null;
         // get ray from camera through viewport
-        Ray ray = viewport.getRayThroughPoint(cam, x, y);
+        var normalizedCoordinates = viewport.getCursorAsNormalized(x,y);
+        Ray ray = viewport.getRayThroughPoint(cam, normalizedCoordinates.x, normalizedCoordinates.y);
 
         // get intersection of ray with translationPlane
         double distance = IntersectionHelper.rayPlane(ray, translationPlane);

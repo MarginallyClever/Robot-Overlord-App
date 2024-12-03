@@ -1,7 +1,9 @@
 package com.marginallyclever.ro3.apps.viewport;
 
+import ModernDocking.app.Docking;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.DockingPanel;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
@@ -48,7 +50,7 @@ public class Viewport
     private final DefaultComboBoxModel<Camera> cameraListModel = new DefaultComboBoxModel<>();
     private final JPopupMenu renderPassMenu = new JPopupMenu();
     private final List<Boolean> buttonPressed = new ArrayList<>();
-    private int mx, my;
+    private int mouseX, mouseY;
     private double orbitChangeFactor = 1.1;  // must always be greater than 1
     protected int canvasWidth, canvasHeight;
     protected final List<ViewportTool> viewportTools = new ArrayList<>();
@@ -56,7 +58,7 @@ public class Viewport
     private double userMovementScale = 1.0;
     private final JButton frameOfReferenceButton = new JButton();
     private final JPopupMenu frameOfReferenceMenu = new JPopupMenu();
-    private boolean originShift = false;
+    private boolean originShift = true;
 
     public Viewport() {
         this(new BorderLayout());
@@ -73,6 +75,26 @@ public class Viewport
         addCopyCameraAction();
         addViewportTools();
         allocateButtonMemory();
+
+        addSettingsButton();
+    }
+
+    private void addSettingsButton() {
+        JButton button = new JButton(new AbstractAction() {
+            {
+                putValue(Action.NAME,"");
+                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/apps/shared/icons8-settings-16.png"))));
+                putValue(Action.SHORT_DESCRIPTION,"Settings");
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                var viewportSettingsPanel = new ViewportSettingsPanel(Viewport.this);
+                DockingPanel dockingPanel = new DockingPanel("c0651f5b-d5f0-49ab-88f9-66ae4a8c095e", "Viewport Settings");
+                dockingPanel.add(viewportSettingsPanel);
+                Docking.display(dockingPanel);
+            }
+        });
+        toolBar.add(button);
     }
 
     private void addViewportTools() {
@@ -435,12 +457,12 @@ public class Viewport
         for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
 
         int px = e.getX();
-        double dx = px - mx;
-        mx = px;
+        double dx = px - mouseX;
+        mouseX = px;
 
         int py = e.getY();
-        double dy = py - my;
-        my = py;
+        double dy = py - mouseY;
+        mouseY = py;
 
         Camera camera = getActiveCamera();
         assert camera != null;
@@ -477,8 +499,8 @@ public class Viewport
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        mx = e.getX();
-        my = e.getY();
+        mouseX = e.getX();
+        mouseY = e.getY();
         //logger.debug("mouse {},{}",e.getX(),e.getY());
         for(ViewportTool tool : viewportTools) tool.handleMouseEvent(e);
     }
@@ -507,55 +529,65 @@ public class Viewport
     }
 
     /**
-     * <p>Return the ray coming through the viewport in the current projection.  Remember that in OpenGL the
-     * camera -Z=forward, +X=right, +Y=up</p>
-     * @param x the cursor position in screen coordinates [-1,1]
-     * @param y the cursor position in screen coordinates [-1,1]
+     * <p>Return the ray, in world space, that starts at the camera and passes through this viewport at (x,y) in the
+     * current projection.  x,y should be normalized screen coordinates adjusted for the vertical flip.</p>
+     * <p>Remember that in OpenGL the camera -Z=forward, +X=right, +Y=up</p>
+     * @param normalizedX the cursor position in screen coordinates [-1,1]
+     * @param normalizedY the cursor position in screen coordinates [-1,1]
      * @return the ray coming through the viewport in the current projection.
      */
-    public Ray getRayThroughPoint(Camera camera,double x,double y) {
-        Point3d origin;
-        Vector3d direction;
+    public Ray getRayThroughPoint(Camera camera,double normalizedX,double normalizedY) {
+        Ray r = getRayThroughPointUntransformed(camera,normalizedX,normalizedY);
+        Ray transformedRay = new Ray();
+        // adjust by the camera world orientation.
+        transformedRay.transform(camera.getWorld(),r);
+        return transformedRay;
+    }
 
+    public Ray getRayThroughPointUntransformed(Camera camera,double normalizedX,double normalizedY) {
         if(camera.getDrawOrthographic()) {
             // orthographic projection
-            origin = new Point3d(
-                    x*canvasWidth/10,
-                    y*canvasHeight/10,
+            var origin = new Point3d(
+                    normalizedX*canvasWidth/2.0,
+                    normalizedY*canvasHeight/2.0,
                     0);
-            direction = new Vector3d(0,0,-1);
-            Matrix4d m2 = camera.getWorld();
-            m2.transform(direction);
-            m2.transform(origin);
+            var direction = new Vector3d(0,0,-1);  // forward in camera space
+
+            return new Ray(origin,direction);
         } else {
             // perspective projection
-            Vector3d cursorUnitVector = getCursorAsNormalized();
             double t = Math.tan(Math.toRadians(camera.getFovY()/2));
-            direction = new Vector3d(
-                    2*(cursorUnitVector.x)*t*getAspectRatio(),
-                    2*(cursorUnitVector.y)*t,
+            var direction = new Vector3d(
+                    normalizedX*t*getAspectRatio(),
+                    normalizedY*t,
                     -1);
-            // adjust the ray by the camera world pose.
-            Matrix4d m2 = camera.getWorld();
-            m2.transform(direction);
-            origin = new Point3d(MatrixHelper.getPosition(m2));
-            //logger.debug("origin {} direction {}",origin,direction);
-        }
+            var origin = new Point3d();
 
-        return new Ray(origin,direction);
+            return new Ray(origin,direction);
+        }
     }
 
     /**
-     * @return the cursor position as values from -1...1.
+     * In OpenGL camera space +Y is up and in screen space +Y is down so invert the Y value.
+     * @return the cursor position as (-1...1,-1...1,0).
      */
     public Vector3d getCursorAsNormalized() {
-        return new Vector3d((2.0*mx/canvasWidth)-1.0,
-                1.0-(2.0*my/canvasHeight),
+        return getCursorAsNormalized(mouseX, mouseY);
+    }
+
+    /**
+     * In OpenGL camera space +Y is up and in screen space +Y is down so invert the Y value.
+     * @return the cursor position as (-1...1,-1...1,0).
+     */
+    public Vector3d getCursorAsNormalized(double x,double y) {
+        return new Vector3d(
+                (2.0*x/canvasWidth) - 1.0,
+                1.0 - (2.0*y/canvasHeight),
                 0);
     }
 
     public Point2d getCursorPosition() {
-        return new Point2d(mx,my);
+        return new Point2d(mouseX, mouseY);
     }
 
     public double getAspectRatio() {

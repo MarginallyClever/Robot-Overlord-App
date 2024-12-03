@@ -212,19 +212,15 @@ public class Camera extends Pose {
      * Render the scene in orthographic projection.
      */
     public Matrix4d getOrthographicMatrix(int width,int height) {
-        double h = height/4.0;
-        double w = width/4.0;
+        double h = height/2.0;
+        double w = width/2.0;
         return MatrixHelper.orthographicMatrix4d(-w,w,-h,h,getNearZ(),getFarZ());
     }
 
     public Matrix4d getChosenProjectionMatrix(int width,int height) {
         return drawOrthographic ? getOrthographicMatrix(width,height) : getPerspectiveFrustum(width,height);
     }
-/*
-    public Matrix4d getViewMatrix() {
-        return getViewMatrix(false);
-    }
-*/
+
     public Matrix4d getViewMatrix(boolean originShift) {
         Matrix4d inverseCamera = this.getWorld();
         if(originShift) {

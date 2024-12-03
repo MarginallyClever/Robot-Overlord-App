@@ -533,14 +533,27 @@ public class MatrixHelper {
 	 * @return a matrix
 	 */
 	public static Matrix4d setPerspectiveFiniteFar(double fovY, double aspect, double near, double far) {
-		var m = new Matrix4d();
+		var m = new Matrix4d();//*/
 		double f = 1.0 / Math.tan( Math.toRadians(fovY) / 2.0 );
 		m.m00 = f / aspect;
 		m.m11 = f;
 		m.m22 = -(far + near) / (far - near);
-		m.m23 = -1.0;
-		m.m32 = -(2.0 * far * near) / (far - near);
-		m.m33 = 0.0;
+		m.m32 = -1.0;
+		m.m23 = -(2.0 * far * near) / (far - near);
+		m.m33 = 0.0;/*/
+		var scale = Math.tan( Math.toRadians(fovY) / 2.0 ) * near;
+		var r = aspect * scale;
+		var t = scale;
+		var l = -r;
+		var b = -t;
+		m.m00 = 2 * near / (r - l);
+		m.m11 = 2 * near / (t - b);
+		m.m02 = (r + l) / (r - l);
+		m.m12 = (t + b) / (t - b);
+		m.m22 = -(far + near) / (far - near);
+		m.m32 = -1;
+		m.m23 = -(2 * far * near) / (far - near);
+		m.m33 = 0;//*/
 		return m;
 	}
 
