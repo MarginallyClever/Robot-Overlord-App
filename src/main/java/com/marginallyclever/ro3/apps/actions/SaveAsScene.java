@@ -58,7 +58,10 @@ public class SaveAsScene extends AbstractAction {
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
-        if(saveScene!=null) saveScene.setPath(destinationPath);
+        if(saveScene!=null) {
+            saveScene.setPath(destinationPath);
+            saveScene.setEnabled(true);
+        }
         if(menu!=null) menu.addPath(destinationPath);
     }
 
