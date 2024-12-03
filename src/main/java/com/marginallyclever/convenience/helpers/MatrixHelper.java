@@ -469,7 +469,7 @@ public class MatrixHelper {
 	}
 
 	/**
-	 * Generate an orthographic matrix where near is 0 and far is 1.
+	 * Generate an orthographic matrix where near is -1 and far is 1.
 	 * @param left pixels
 	 * @param right pixels
 	 * @param bottom pixels
@@ -525,7 +525,7 @@ public class MatrixHelper {
 	}
 
 	/**
-	 * Generate a perspective matrix where near items are 1 and far items are 0.
+	 * Generate a perspective matrix where near items are -1 and far items are +1.
 	 * @param fovY degrees
 	 * @param aspect ratio
 	 * @param near distance
@@ -533,14 +533,40 @@ public class MatrixHelper {
 	 * @return a matrix
 	 */
 	public static Matrix4d setPerspectiveFiniteFar(double fovY, double aspect, double near, double far) {
-		var m = new Matrix4d();//*/
-		double f = 1.0 / Math.tan( Math.toRadians(fovY) / 2.0 );
+		return setPerspectiveFiniteFarSimplified(fovY, aspect, near, far);
+	}
+
+	/**
+	 * Generate a perspective matrix where near items are -1 and far items are +1.
+	 * @param fovY degrees
+	 * @param aspect ratio
+	 * @param near distance
+	 * @param far distance
+	 * @return a matrix
+	 */
+	public static Matrix4d setPerspectiveFiniteFarSimplified(double fovY, double aspect, double near, double far) {
+		var m = new Matrix4d();
+		double f = 1.0 / Math.tan(Math.toRadians(fovY) / 2.0);
 		m.m00 = f / aspect;
 		m.m11 = f;
 		m.m22 = -(far + near) / (far - near);
 		m.m32 = -1.0;
 		m.m23 = -(2.0 * far * near) / (far - near);
-		m.m33 = 0.0;/*/
+		m.m33 = 0.0;
+		return m;
+	}
+
+	/**
+	 * Generate a perspective matrix where near items are -1 and far items are +1.
+	 * This version could more easily be tweaked to adjust left/right for stereoscopic rendering.
+	 * @param fovY degrees
+	 * @param aspect ratio
+	 * @param near distance
+	 * @param far distance
+	 * @return a matrix
+	 */
+	public static Matrix4d setPerspectiveFiniteFarAdvanced(double fovY, double aspect, double near, double far) {
+		var m = new Matrix4d();
 		var scale = Math.tan( Math.toRadians(fovY) / 2.0 ) * near;
 		var r = aspect * scale;
 		var t = scale;
@@ -553,7 +579,7 @@ public class MatrixHelper {
 		m.m22 = -(far + near) / (far - near);
 		m.m32 = -1;
 		m.m23 = -(2 * far * near) / (far - near);
-		m.m33 = 0;//*/
+		m.m33 = 0;
 		return m;
 	}
 

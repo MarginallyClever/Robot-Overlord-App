@@ -544,6 +544,14 @@ public class Viewport
         return transformedRay;
     }
 
+    /**
+     * <p>Return the ray, in camera space, that starts at the origin and passes through this viewport at (x,y) in the
+     * current projection.  x,y should be normalized screen coordinates adjusted for the vertical flip.</p>
+     * <p>Remember that in OpenGL the camera -Z=forward, +X=right, +Y=up</p>
+     * @param normalizedX the cursor position in screen coordinates [-1,1]
+     * @param normalizedY the cursor position in screen coordinates [-1,1]
+     * @return the ray coming through the viewport in the current projection.
+     */
     public Ray getRayThroughPointUntransformed(Camera camera,double normalizedX,double normalizedY) {
         if(camera.getDrawOrthographic()) {
             // orthographic projection
