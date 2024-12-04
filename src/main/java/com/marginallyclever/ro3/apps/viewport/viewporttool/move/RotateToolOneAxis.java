@@ -20,6 +20,7 @@ import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
@@ -47,10 +48,10 @@ public class RotateToolOneAxis implements ViewportTool {
     /**
      * The size of the handle and ring.
      */
-    private final double ringRadius = 5.0;
-    private final double handleLength = 4.89898;
-    private final double handleOffsetY = 1.0;
-    private final double gripRadius = 1.0;
+    private static double ringRadius = 5.0;
+    private static double handleLength = 4.89898;
+    private static double handleOffsetY = 1.0;
+    private static double gripRadius = 1.0;
 
     /**
      * The number of segments to use when drawing the ring.
@@ -92,13 +93,13 @@ public class RotateToolOneAxis implements ViewportTool {
     private int rotation=2;
     private boolean cursorOverHandle = false;
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
-    private final ColorRGB color;
+    private final Color color;
     private final Box handleBox = new Box();
     private final Mesh markerMesh = new Mesh();
     private final Mesh angleMesh = new Mesh();
     private final CircleXY ringMesh = new CircleXY();
 
-    public RotateToolOneAxis(ColorRGB color) {
+    public RotateToolOneAxis(Color color) {
         super();
         this.color = color;
         buildMarkerMesh();
@@ -396,6 +397,9 @@ public class RotateToolOneAxis implements ViewportTool {
         shaderProgram.set1i(gl,"useLighting",0);
         shaderProgram.set1i(gl,"useVertexColor",0);
         shaderProgram.set1i(gl,"useTexture",0);
+        float colorScale = cursorOverHandle ? 1:0.5f;
+        Color c2 = new Color(color.getRed()*colorScale,color.getGreen()*colorScale,color.getBlue()*colorScale);
+        shaderProgram.setColor(gl, "diffuseColor", c2);
 
         Camera camera = viewport.getActiveCamera();
         var originShift = viewport.isOriginShift();
@@ -406,11 +410,6 @@ public class RotateToolOneAxis implements ViewportTool {
         if(originShift) scale = RenderPassHelper.getOriginShiftedMatrix(scale, cameraWorldPos);
         shaderProgram.setMatrix4d(gl,"modelMatrix",scale);
 
-        float colorScale = cursorOverHandle ? 1:0.5f;
-        float red   = color.red   * colorScale / 255f;
-        float green = color.green * colorScale / 255f;
-        float blue  = color.blue  * colorScale / 255f;
-        shaderProgram.set4f(gl, "diffuseColor", red, green, blue, 1.0f);
         ringMesh.render(gl,1,360);
         if(originShift) m = RenderPassHelper.getOriginShiftedMatrix(m, cameraWorldPos);
         shaderProgram.setMatrix4d(gl,"modelMatrix",m);

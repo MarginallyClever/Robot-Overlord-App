@@ -24,7 +24,7 @@ public class TranslateToolOneAxisTest {
         var pose = new Pose("test");
         Registry.getScene().addChild(pose);
 
-        var tool = new TranslateToolOneAxis(new ColorRGB(Color.RED));
+        var tool = new TranslateToolOneAxis(Color.RED);
         tool.setViewport(new Viewport());
         tool.setFrameOfReference(FrameOfReference.WORLD);
         tool.setPivotMatrix(MatrixHelper.createIdentityMatrix4());

@@ -15,6 +15,7 @@ import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +25,9 @@ import java.util.List;
  * combination of three {@link RotateToolOneAxis} viewporttools.</p> *
  */
 public class RotateToolMulti implements ViewportTool {
-    private final RotateToolOneAxis toolX = new RotateToolOneAxis(new ColorRGB(255,0,0));
-    private final RotateToolOneAxis toolY = new RotateToolOneAxis(new ColorRGB(0,255,0));
-    private final RotateToolOneAxis toolZ = new RotateToolOneAxis(new ColorRGB(0,0,255));
+    private final RotateToolOneAxis toolX = new RotateToolOneAxis(Color.RED);
+    private final RotateToolOneAxis toolY = new RotateToolOneAxis(Color.GREEN);
+    private final RotateToolOneAxis toolZ = new RotateToolOneAxis(Color.BLUE);
     private final List<ViewportTool> tools = new ArrayList<>();
     private SelectedItems selectedItems;
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;

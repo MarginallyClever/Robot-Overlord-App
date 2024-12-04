@@ -19,6 +19,7 @@ import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.security.InvalidParameterException;
@@ -30,15 +31,17 @@ import java.util.List;
  * combination of three {@link TranslateToolOneAxis}.</p>
  */
 public class TranslateToolMulti implements ViewportTool {
-    private final TranslateToolOneAxis toolRadialIn = new TranslateToolOneAxis(new ColorRGB(255,0,0));
-    private final TranslateToolOneAxis toolNormal = new TranslateToolOneAxis(new ColorRGB(0,255,0));
-    private final TranslateToolOneAxis toolPrograde = new TranslateToolOneAxis(new ColorRGB(0,0,255));
+    private final TranslateToolOneAxis toolRadialIn = new TranslateToolOneAxis(Color.WHITE);
+    private final TranslateToolOneAxis toolNormal = new TranslateToolOneAxis(Color.WHITE);
+    private final TranslateToolOneAxis toolPrograde = new TranslateToolOneAxis(Color.WHITE);
+    private final TranslateToolOneAxis toolRetrograde = new TranslateToolOneAxis(Color.WHITE);
+    private final TranslateToolOneAxis toolAntiNormal = new TranslateToolOneAxis(Color.WHITE);
+    private final TranslateToolOneAxis toolRadialOut = new TranslateToolOneAxis(Color.WHITE);
+
     private final TranslateToolTwoAxis toolXY = new TranslateToolTwoAxis(new ColorRGB(255,255,0));
     private final TranslateToolTwoAxis toolXZ = new TranslateToolTwoAxis(new ColorRGB(255,0,255));
     private final TranslateToolTwoAxis toolYZ = new TranslateToolTwoAxis(new ColorRGB(0,255,255));
-    private final TranslateToolOneAxis toolRetrograde = new TranslateToolOneAxis(new ColorRGB(255,0,0));
-    private final TranslateToolOneAxis toolAntiNormal = new TranslateToolOneAxis(new ColorRGB(0,255,0));
-    private final TranslateToolOneAxis toolRadialOut = new TranslateToolOneAxis(new ColorRGB(0,0,255));
+
     private final List<ViewportTool> tools = new ArrayList<>();
     private SelectedItems selectedItems;
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
@@ -357,5 +360,7 @@ public class TranslateToolMulti implements ViewportTool {
     }
 
     @Override
-    public void getComponents(List<JPanel> list) {}
+    public void getComponents(List<JPanel> list) {
+        list.add(new TranslateToolPanel(this));
+    }
 }
