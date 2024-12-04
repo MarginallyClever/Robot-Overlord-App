@@ -7,6 +7,7 @@ import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
+import com.marginallyclever.ro3.apps.viewport.renderpass.RenderPassHelper;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
 import com.marginallyclever.ro3.mesh.Mesh;
@@ -373,6 +374,10 @@ public class RotateToolOneAxis implements ViewportTool {
         shaderProgram.setMatrix4d(gl,"modelMatrix",mt);
         markerMesh.render(gl);
 
+        Camera camera = viewport.getActiveCamera();
+        var originShift = viewport.isOriginShift();
+        var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
+
         // TODO finish me - draw the start and end angle of the movement.
         //Point3d currentPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,mx,my);
         //if(currentPoint==null) return;
@@ -381,6 +386,7 @@ public class RotateToolOneAxis implements ViewportTool {
         rot.rotZ(rotationAngle);
         mt.mul(m,rot);
         mt.mul(mt,scale);
+        if(originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorldPos);
         shaderProgram.setMatrix4d(gl,"modelMatrix",mt);
         angleMesh.render(gl);
     }
@@ -392,8 +398,13 @@ public class RotateToolOneAxis implements ViewportTool {
         shaderProgram.set1i(gl,"useVertexColor",0);
         shaderProgram.set1i(gl,"useTexture",0);
 
+        Camera camera = viewport.getActiveCamera();
+        var originShift = viewport.isOriginShift();
+        var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
+
         Matrix4d scale = MatrixHelper.createScaleMatrix4(getRingRadiusScaled());
         scale.mul(m,scale);
+        if(originShift) scale = RenderPassHelper.getOriginShiftedMatrix(scale, cameraWorldPos);
         shaderProgram.setMatrix4d(gl,"modelMatrix",scale);
 
         float colorScale = cursorOverHandle ? 1:0.5f;
@@ -402,12 +413,14 @@ public class RotateToolOneAxis implements ViewportTool {
         float blue  = color.blue  * colorScale / 255f;
         shaderProgram.set4f(gl, "diffuseColor", red, green, blue, 1.0f);
         ringMesh.render(gl,1,360);
+        if(originShift) m = RenderPassHelper.getOriginShiftedMatrix(m, cameraWorldPos);
         shaderProgram.setMatrix4d(gl,"modelMatrix",m);
 
         Matrix4d m2 = MatrixHelper.createScaleMatrix4(getGripRadiusScaled());
         m2.m03 = getHandleLengthScaled();
         m2.m13 = getHandleOffsetYScaled();
         m2.mul(pivotMatrix,m2);
+        if(originShift) m2 = RenderPassHelper.getOriginShiftedMatrix(m2, cameraWorldPos);
         shaderProgram.setMatrix4d(gl,"modelMatrix",m2);
         handleBox.render(gl);
 
@@ -415,6 +428,7 @@ public class RotateToolOneAxis implements ViewportTool {
         m2.m03 = getHandleLengthScaled();
         m2.m13 = -getHandleOffsetYScaled();
         m2.mul(pivotMatrix,m2);
+        if(originShift) m2 = RenderPassHelper.getOriginShiftedMatrix(m2, cameraWorldPos);
         shaderProgram.setMatrix4d(gl,"modelMatrix",m2);
         handleBox.render(gl);
     }

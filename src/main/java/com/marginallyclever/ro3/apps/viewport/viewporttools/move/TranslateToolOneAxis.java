@@ -9,6 +9,7 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
+import com.marginallyclever.ro3.apps.viewport.renderpass.RenderPassHelper;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
 import com.marginallyclever.ro3.mesh.Mesh;
@@ -263,9 +264,14 @@ public class TranslateToolOneAxis implements ViewportTool {
         shaderProgram.set1i(gl,"useVertexColor",0);
         shaderProgram.set4f(gl,"diffuseColor",0,0,0, 1.0f);
 
+        Camera camera = viewport.getActiveCamera();
+        var originShift = viewport.isOriginShift();
+        var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
+
         // handle
         Matrix4d m = new Matrix4d(pivotMatrix);
         m.mul(m,MatrixHelper.createScaleMatrix4(getHandleLengthScaled()));
+        if(originShift) m = RenderPassHelper.getOriginShiftedMatrix(m, cameraWorldPos);
         shaderProgram.setMatrix4d(gl,"modelMatrix",m);
         handleLineMesh.render(gl);
 
@@ -275,19 +281,20 @@ public class TranslateToolOneAxis implements ViewportTool {
         m2.mul(pivotMatrix,m2);
         m2.mul(m2,MatrixHelper.createScaleMatrix4(getGripRadiusScaled()));
         Matrix4d m2t = new Matrix4d(m2);
+        if(originShift) m2t = RenderPassHelper.getOriginShiftedMatrix(m2t, cameraWorldPos);
         shaderProgram.setMatrix4d(gl,"modelMatrix",m2t);
         handleSphere.render(gl);
 
         if(texture!=null) {
             quad.updateVertexBuffers(gl);
-            Camera camera = viewport.getActiveCamera();
             // set the model matrix to be the camera matrix so the handle is always facing the camera.
             Matrix4d model = camera.getWorld();
             model.setTranslation(MatrixHelper.getPosition(m2));
             model.mul(model, MatrixHelper.createScaleMatrix4(getGripRadiusScaled()));
+
+            if(originShift) model = RenderPassHelper.getOriginShiftedMatrix(model, cameraWorldPos);
             shaderProgram.setMatrix4d(gl,"modelMatrix",model);
             shaderProgram.set1i(gl,"diffuseTexture",0);
-
             shaderProgram.set4f(gl,"diffuseColor",1,1,1, 1.0f);
             shaderProgram.set1i(gl,"useTexture",1);
             texture.use(shaderProgram);

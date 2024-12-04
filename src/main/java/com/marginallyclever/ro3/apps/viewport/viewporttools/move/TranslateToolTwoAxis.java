@@ -8,6 +8,7 @@ import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
+import com.marginallyclever.ro3.apps.viewport.renderpass.RenderPassHelper;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
 import com.marginallyclever.ro3.mesh.Mesh;
@@ -211,6 +212,11 @@ public class TranslateToolTwoAxis implements ViewportTool {
                 0,0,ps,0,
                 0,0,0,1);
         m.mul(m,s);
+
+        Camera camera = viewport.getActiveCamera();
+        var originShift = viewport.isOriginShift();
+        var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
+        if(originShift) m = RenderPassHelper.getOriginShiftedMatrix(m, cameraWorldPos);
         shaderProgram.setMatrix4d(gl,"modelMatrix",m);
 
         float colorScale = cursorOverHandle ? 1:0.5f;

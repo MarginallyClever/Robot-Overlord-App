@@ -41,7 +41,7 @@ public class MoveUtils {
     }
 
     /**
-     * Looks through the camera's viewport and returns the point on the translationPlane, if any.
+     * Cast a ray through the camera's viewport at the given x,y and find the intersection point on the translationPlane.
      * @param x the x coordinate of the viewport, in screen coordinates [-1,1]
      * @param y the y coordinate of the viewport, in screen coordinates [-1,1]
      * @return the point on the translationPlane, or null if no intersection
