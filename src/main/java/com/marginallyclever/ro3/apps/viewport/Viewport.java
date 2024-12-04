@@ -2,7 +2,6 @@ package com.marginallyclever.ro3.apps.viewport;
 
 import ModernDocking.app.Docking;
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.DockingPanel;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
@@ -20,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -75,26 +73,6 @@ public class Viewport
         addCopyCameraAction();
         addViewportTools();
         allocateButtonMemory();
-
-        addSettingsButton();
-    }
-
-    private void addSettingsButton() {
-        JButton button = new JButton(new AbstractAction() {
-            {
-                putValue(Action.NAME,"");
-                putValue(Action.SMALL_ICON, new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/apps/shared/icons8-settings-16.png"))));
-                putValue(Action.SHORT_DESCRIPTION,"Settings");
-            }
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                var viewportSettingsPanel = new ViewportSettingsPanel(Viewport.this);
-                DockingPanel dockingPanel = new DockingPanel("c0651f5b-d5f0-49ab-88f9-66ae4a8c095e", "Viewport Settings");
-                dockingPanel.add(viewportSettingsPanel);
-                Docking.display(dockingPanel);
-            }
-        });
-        toolBar.add(button);
     }
 
     private void addViewportTools() {
