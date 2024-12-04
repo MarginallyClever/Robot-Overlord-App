@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 /**
  * Displays the settings for the currently active {@link ViewportTool}
+ * TODO I don't love that one Viewport is tied to one ViewportToolPanel.
  */
 public class ViewportToolPanel extends JPanel implements ViewportToolChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(ViewportToolPanel.class);
@@ -26,7 +27,6 @@ public class ViewportToolPanel extends JPanel implements ViewportToolChangeListe
 
         add(scroll,BorderLayout.CENTER);
 
-        // TODO I don't love that one Viewport is tied to one ViewportToolPanel.
         viewport.addToolChangeListener(this);
         onViewportToolChange(viewport.getTool(viewport.getActiveToolIndex()));
     }
@@ -39,10 +39,10 @@ public class ViewportToolPanel extends JPanel implements ViewportToolChangeListe
     }
 
     private JPanel createPanelFor(ViewportTool tool) {
-        this.removeAll();
         if(tool == null) return new JPanel();
 
         var list = new ArrayList<JPanel>();
+
         try {
             tool.getComponents(list);
         } catch (Exception e) {
