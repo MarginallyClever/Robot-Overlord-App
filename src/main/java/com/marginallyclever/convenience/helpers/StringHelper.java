@@ -5,7 +5,6 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 import java.io.IOException;
-import java.text.NumberFormat;
 import java.util.Locale;
 
 /**
@@ -20,34 +19,8 @@ public class StringHelper {
 		return s;
 	}
 	
-	static public String formatFloat(float arg0) {
-		//return Float.toString(roundOff(arg0));
-		return shortenNumber(String.format("%.3f", arg0));
-	}
-	
 	static public String formatDouble(double arg0) {
-		//return Float.toString(roundOff(arg0));
-		return shortenNumber(String.format("%.3f", arg0));
-	}
-
-	/**
-	 * Parse a number sent from a US format system
-	 * @param str
-	 * @return
-	 */
-	static public double parseNumber(String str) {
-		double d=0;
-		
-		try {
-			NumberFormat nf = NumberFormat.getInstance(Locale.US);
-			Number n = nf.parse(str);
-			d = n.doubleValue();
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		return d;
+		return shortenNumber(String.format(Locale.ROOT,"%.3f", arg0));
 	}
 
 	// @return "*"+ the binary XOR of every byte in the msg.
@@ -55,7 +28,7 @@ public class StringHelper {
 		byte checksum = 0;
 
 		for (int i = 0; i < msg.length(); ++i) {
-			checksum ^= msg.charAt(i);
+			checksum ^= (byte) msg.charAt(i);
 		}
 
 		return "*" + Integer.toString(checksum);
@@ -149,5 +122,12 @@ public class StringHelper {
 		double [] mArray = new double[16];
 		for(int i=0;i<mArray.length;++i) mArray[i] = Double.parseDouble(pieces[i].trim());
 		return new Matrix4d(mArray);
+	}
+
+	public static String printTuple3d(Vector3d zAxis) {
+        return
+			"(" + StringHelper.formatDouble(zAxis.x) +
+			"," + StringHelper.formatDouble(zAxis.y) +
+			"," + StringHelper.formatDouble(zAxis.z) + ")";
 	}
 }

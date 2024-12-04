@@ -20,7 +20,7 @@ public class TextInterfaceToListeners extends JPanel implements KeyListener {
 	private final List<String> history = new ArrayList<>();
 	private int historyIndex = 0;
 	private final EventListenerList listeners = new EventListenerList();
-		
+
 	public TextInterfaceToListeners() {
 		super(new GridBagLayout());
 
@@ -81,18 +81,6 @@ public class TextInterfaceToListeners extends JPanel implements KeyListener {
 		for( ActionListener a : listeners.getListeners(ActionListener.class) ) {
 			a.actionPerformed(e);
 		}
-	}
-
-	public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception ignored) {}
-
-		JFrame frame = new JFrame(TextInterfaceToListeners.class.getName());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new TextInterfaceToListeners());
-		frame.pack();
-		frame.setVisible(true);
 	}
 
 	@Override

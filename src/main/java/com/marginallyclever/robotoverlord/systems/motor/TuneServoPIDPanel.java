@@ -2,7 +2,6 @@ package com.marginallyclever.robotoverlord.systems.motor;
 
 import com.marginallyclever.convenience.swing.graph.SingleLineGraph;
 import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
-import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
 import com.marginallyclever.robotoverlord.parameters.swing.ViewElementDouble;
 

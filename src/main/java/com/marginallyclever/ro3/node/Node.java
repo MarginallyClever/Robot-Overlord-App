@@ -76,12 +76,17 @@ public class Node {
 
         children.add(index,child);
         child.setParent(this);
-        fireAttachEvent(child);
         child.onAttach();
-        if(child.children.isEmpty()) {
-            fireReadyEvent(child);
-            child.onReady();
-        }
+        fireAttachEvent(child);
+        child.onReady();
+        fireReadyEvent(child);
+    }
+
+    public void removeChild(Node child) {
+        children.remove(child);
+        child.setParent(null);
+        child.onDetach();
+        fireDetachEvent(child);
     }
 
     private void fireReadyEvent(Node child) {
@@ -109,19 +114,12 @@ public class Node {
     }
 
     /**
-     * Called after this node is added to its parent.
+     * Called after this {@link Node} is added to a new parent {@link Node}.
      */
     protected void onAttach() {}
 
-    public void removeChild(Node child) {
-        child.onDetach();
-        fireDetachEvent(child);
-        children.remove(child);
-        child.setParent(null);
-    }
-
     /**
-     * Called after this node is removed from its parent.
+     * Called after this {@link Node} is removed from its parent {@link Node}.
      */
     protected void onDetach() {}
 
@@ -162,7 +160,7 @@ public class Node {
     }
 
     /**
-     * @return an iterator so that calling class cannot modify the list.
+     * @return the original list.  This is not a copy.  This is dangerous!
      */
     public List<Node> getChildren() {
         return children;
@@ -325,7 +323,7 @@ public class Node {
      */
     public <T extends Node> T findFirstChild(Class<T> type) {
         for(Node child : children) {
-            if(child.getClass().equals(type)) {
+            if(type.isInstance(child)) {
                 return type.cast(child);
             }
         }
@@ -378,8 +376,8 @@ public class Node {
                 logger.error("{}: Could not create type {}.",getAbsolutePath(),child.getString("type"));
                 n = new Node();
             }
-            addChild(n);
             n.fromJSON(child);
+            addChild(n);
         }
     }
 
@@ -478,5 +476,13 @@ public class Node {
      */
     public Node findByPath(String path) {
         return findNodeByPath(path,Node.class);
+    }
+
+    /**
+     * Set a custom icon for this node.
+     * @return the icon, or null if none.
+     */
+    public Icon getIcon() {
+        return null;
     }
 }

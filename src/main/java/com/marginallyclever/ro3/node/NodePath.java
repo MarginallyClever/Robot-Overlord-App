@@ -1,11 +1,10 @@
 package com.marginallyclever.ro3.node;
 
-import com.marginallyclever.convenience.PathCalculator;
-
 /**
- * <p>{@link NodePath} stores the uniqueID to a node.
- * Can be used to find a node in the scene graph.</p>
- * @param <T> the type of node to find
+ * <p>{@link NodePath} stores the uniqueID to a node.  It can be used to find a node in the scene graph.</p>
+ * <p>This is made visible to the user as {@link com.marginallyclever.ro3.apps.nodeselector.NodeSelector} and
+ * {@link com.marginallyclever.ro3.apps.nodeselector.NodeSelectionDialog}.</p>
+ * @param <T> the type of node to allow
  */
 public class NodePath<T extends Node> {
     private String uniqueID;
@@ -31,11 +30,7 @@ public class NodePath<T extends Node> {
     }
 
     public void setUniqueIDByNode(Node node) {
-        if (node != null) {
-            this.uniqueID = node.getUniqueID().toString();
-        } else {
-            this.uniqueID = "";
-        }
+        this.uniqueID = (node == null) ? "" : node.getUniqueID();
     }
 
     public T getSubject() {

@@ -50,7 +50,10 @@ public class TextureWithMetadata {
                     flip.setRGB(x,y,image.getRGB(x,image.getHeight()-y-1));
                 }
             }
-            texture = AWTTextureIO.newTexture(GLProfile.getDefault(), flip, false);
+            texture = AWTTextureIO.newTexture(
+                    GLProfile.getDefault(),
+                    flip,
+                    true);  // generate mipmaps
         }
 
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
@@ -63,6 +66,17 @@ public class TextureWithMetadata {
             shader.set1i(gl3,"useTexture",1);
             shader.set1i(gl3,"diffuseTexture",0);
         }
+
+        // turn on texture wrapping
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_S, GL3.GL_REPEAT);
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_T, GL3.GL_REPEAT);
+        // turn on mipmapping
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_MIN_FILTER, GL3.GL_LINEAR_MIPMAP_LINEAR);
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_MAG_FILTER, GL3.GL_LINEAR);
+        // turn on anisotropic filtering
+        float[] maxAnisotropy = new float[1];
+        gl3.glGetFloatv(GL3.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy, 0);
+        gl3.glTexParameterf(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy[0]);
     }
 
     /**

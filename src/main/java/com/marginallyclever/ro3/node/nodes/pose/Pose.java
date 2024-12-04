@@ -5,18 +5,23 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.node.Node;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>A {@link Pose} is a {@link Node} that has a position and rotation in space.</p>
  */
-public class Pose extends Node {
+public class Pose extends Node implements PoseChangeListener {
+    private static final Logger logger = LoggerFactory.getLogger(Pose.class);
     private final Matrix4d local = MatrixHelper.createIdentityMatrix4();
     private MatrixHelper.EulerSequence rotationIndex = MatrixHelper.EulerSequence.YXZ;
+    private Pose parentPose;
 
     public Pose() {
         this("Pose");
@@ -26,35 +31,46 @@ public class Pose extends Node {
         super(name);
     }
 
-    public Matrix4d getLocal() {
-        return local;
+    public void addPoseChangeListener(PoseChangeListener listener) {
+        //logger.debug("{} addPoseChangeListener {}",getAbsolutePath(),listener);
+        listeners.add(PoseChangeListener.class, listener);
     }
 
-    public void setLocal(Matrix4d m) {
-        local.set(m);
+    public void removePoseChangeListener(PoseChangeListener listener) {
+        //logger.debug("{} removePoseChangeListener {}",getAbsolutePath(),listener);
+        listeners.remove(PoseChangeListener.class, listener);
     }
 
-    public Matrix4d getWorld() {
-        // search up the tree to find the world transform.
-        Pose p = findParent(Pose.class);
-        if(p==null) {
-            return new Matrix4d(local);
+    @Override
+    protected void onAttach() {
+        super.onAttach();
+        attachToParentPose();
+        firePoseChange();
+    }
+
+    @Override
+    protected void onDetach() {
+        super.onDetach();
+        detachFromParentPose();
+    }
+
+    private void attachToParentPose() {
+        // make sure we unregister from the old parent, if any.
+        if(parentPose!=null) detachFromParentPose();
+        // if we have a parent that is a Pose, register to receive pose update events.
+        parentPose = findParent(Pose.class);
+        //logger.debug("{} Pose.onAttach {}",getAbsolutePath(),parentPose==null?"null":parentPose.getAbsolutePath());
+        if(parentPose!=null) {
+            parentPose.addPoseChangeListener(this);
         }
-        Matrix4d parentWorld = p.getWorld();
-        parentWorld.mul(local);
-        return parentWorld;
     }
 
-    public void setWorld(Matrix4d world) {
-        // search up the tree to find the world transform.
-        Pose parent = findParent(Pose.class);
-        if(parent==null) {
-            local.set(world);
-            return;
+    private void detachFromParentPose() {
+        //logger.debug("{} Pose.onDetach {}",getAbsolutePath(),parentPose==null?"null":parentPose.getAbsolutePath());
+        if(parentPose!=null) {
+            parentPose.removePoseChangeListener(this);
+            parentPose = null;
         }
-        Matrix4d inverseParentWorld = parent.getWorld();
-        inverseParentWorld.invert();
-        local.mul(inverseParentWorld,world);
     }
 
     /**
@@ -66,8 +82,60 @@ public class Pose extends Node {
         super.getComponents(list);
     }
 
+    public Matrix4d getLocal() {
+        return new Matrix4d(local);
+    }
+
     /**
-     * @return the rotation of this pose using Euler angles in degrees.
+     * Set the local transform of this pose.  This is the best method to override if you want to
+     * capture changes to the local OR world transform.
+     * @param m the new local transform.
+     */
+    public void setLocal(Matrix4d m) {
+        if(local.equals(m)) return;
+        local.set(m);
+        firePoseChange();
+    }
+
+    private void firePoseChange() {
+        for(var listener : listeners.getListeners(PoseChangeListener.class)) {
+            listener.onPoseChange(this);
+        }
+    }
+
+    /**
+     * @return the world transform of this pose.
+     */
+    public Matrix4d getWorld() {
+        // search up the tree to find the world transform.
+        if(parentPose==null) {
+            return getLocal();
+        }
+        Matrix4d result = parentPose.getWorld();
+        result.mul(getLocal());
+        return result;
+    }
+
+    /**
+     * Set the world transform of this pose.  All cases call {@link #setLocal(Matrix4d)}.
+     * @param m the new world transform.
+     */
+    public void setWorld(Matrix4d m) {
+        // search up the tree to find the world transform.
+        if(parentPose==null) {
+            setLocal(m);
+            return;
+        }
+        // Changing m could have unintended side effects, so use a temp variable.
+        Matrix4d temp = parentPose.getWorld();
+        temp.invert();
+        temp.mul(m);
+        setLocal(temp);
+    }
+
+    /**
+     * @param orderOfRotation the order of rotation.
+     * @return the local rotation of this pose using Euler angles in degrees.
      */
     public Vector3d getRotationEuler(MatrixHelper.EulerSequence orderOfRotation) {
         Vector3d r = MatrixHelper.matrixToEuler(local,orderOfRotation);
@@ -76,18 +144,21 @@ public class Pose extends Node {
     }
 
     /**
-     * Set the rotation of this pose using Euler angles.
+     * Set the local rotation of this pose using Euler angles.
      *
      * @param r Euler angles in degrees.
      * @param orderOfRotation the order of rotation.
      */
     public void setRotationEuler(Vector3d r, MatrixHelper.EulerSequence orderOfRotation) {
-        System.out.println("setRotationEuler("+r+","+orderOfRotation+")");
+        //System.out.println("setRotationEuler("+r+","+orderOfRotation+")");
         Vector3d p = getPosition();
         Vector3d rRad = new Vector3d(r);
         rRad.scale(Math.PI/180.0);
-        local.set(MatrixHelper.eulerToMatrix(rRad, orderOfRotation));
-        setPosition(p);
+
+        var m4 = new Matrix4d();
+        m4.set(MatrixHelper.eulerToMatrix(rRad, orderOfRotation));
+        m4.setTranslation(p);
+        setLocal(m4);
     }
 
     /**
@@ -98,13 +169,13 @@ public class Pose extends Node {
     }
 
     /**
-     * set the local position of this pose.
+     * Set the local position of this pose.
      * @param p the new position.
      */
     public void setPosition(Vector3d p) {
-        local.m03 = p.x;
-        local.m13 = p.y;
-        local.m23 = p.z;
+        var m4 = getLocal();
+        MatrixHelper.setPosition(m4, p);
+        setLocal(m4);
     }
 
     @Override
@@ -135,5 +206,24 @@ public class Pose extends Node {
 
     public void setRotationIndex(MatrixHelper.EulerSequence rotationIndex) {
         this.rotationIndex = rotationIndex;
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/icons8-xyz-16.png")));
+    }
+
+    public Pose getParentPose() {
+        return parentPose;
+    }
+
+    /**
+     * Override this method to receive pose change events from the parent.
+     * @param pose the parent pose that has changed.
+     */
+    @Override
+    public void onPoseChange(Pose pose) {
+        //logger.debug("{} Pose.onPoseChange {}",getAbsolutePath(),pose.getAbsolutePath());
+        firePoseChange();
     }
 }

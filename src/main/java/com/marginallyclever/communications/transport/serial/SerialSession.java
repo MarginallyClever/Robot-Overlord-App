@@ -115,7 +115,6 @@ public final class SerialSession extends SessionLayer implements SerialPortEvent
 		if(!portOpened) return;
 
 		//logger.info("SerialConnection RECV " + msg.trim());
-		
 		serialPort.writeBytes(msg.getBytes());
 	}
 

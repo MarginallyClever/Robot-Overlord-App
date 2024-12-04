@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.parameters.swing;
 
 import com.marginallyclever.convenience.helpers.StringHelper;
+import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.ro3.apps.UndoSystem;
 import com.marginallyclever.robotoverlord.swing.edits.DoubleParameterEdit;
 
 import javax.swing.*;

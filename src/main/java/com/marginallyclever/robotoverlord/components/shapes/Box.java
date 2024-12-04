@@ -1,15 +1,11 @@
 package com.marginallyclever.robotoverlord.components.shapes;
 
-import com.jogamp.opengl.GL3;
-import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.vecmath.Vector3d;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 

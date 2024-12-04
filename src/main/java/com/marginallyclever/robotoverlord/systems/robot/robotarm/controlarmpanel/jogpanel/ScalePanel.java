@@ -2,7 +2,6 @@ package com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpane
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.Serial;
 
 /**
  * Lets the user select the scale, where scale is a number from 1 to 5.  It is intended to be used as the x value in

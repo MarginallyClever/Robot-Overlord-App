@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.entity;
 
-import com.marginallyclever.ro3.mesh.AABB;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
+import com.marginallyclever.ro3.mesh.AABB;
 import com.marginallyclever.robotoverlord.Collidable;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.CameraComponent;
@@ -46,7 +46,6 @@ public class EntityManager {
 	 * @return true if any cuboid in {@code listA} intersects any {@link AABB} in the world.
 	 */
 	@Deprecated
-	// TODO does not belong here!
 	public boolean collisionTest(ArrayList<AABB> listA) {
 		// check all children
 		for( Entity b : entities) {

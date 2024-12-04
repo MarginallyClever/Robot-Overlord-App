@@ -1,6 +1,6 @@
 package com.marginallyclever.ro3.raypicking;
 
-import com.marginallyclever.ro3.node.nodes.pose.MeshInstance;
+import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 
 import javax.vecmath.Vector3d;
 

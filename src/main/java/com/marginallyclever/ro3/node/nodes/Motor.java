@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import javax.swing.*;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A {@link Motor} is a {@link Node} that can be attached to a {@link HingeJoint}.  It will then drive the joint
@@ -74,5 +75,10 @@ public class Motor extends Node {
 
     public boolean hasHinge() {
         return getHinge()!=null;
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/icons8-motor-16.png")));
     }
 }

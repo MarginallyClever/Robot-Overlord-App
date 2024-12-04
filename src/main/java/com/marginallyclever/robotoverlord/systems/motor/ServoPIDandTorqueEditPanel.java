@@ -1,7 +1,6 @@
 package com.marginallyclever.robotoverlord.systems.motor;
 
 import com.marginallyclever.robotoverlord.components.motors.ServoComponent;
-import com.marginallyclever.robotoverlord.entity.Entity;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,7 +1,7 @@
 package com.marginallyclever.robotoverlord.swing.edits;
 
-import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
+import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.swing.translator.Translator;
 
 import javax.swing.undo.AbstractUndoableEdit;

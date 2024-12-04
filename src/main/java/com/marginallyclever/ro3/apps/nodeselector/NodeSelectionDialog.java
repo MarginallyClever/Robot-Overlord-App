@@ -1,20 +1,18 @@
 package com.marginallyclever.ro3.apps.nodeselector;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeBranch;
 import com.marginallyclever.ro3.apps.shared.SearchBar;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeBranch;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import java.util.List;
-import java.util.ArrayList;
 import java.awt.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A dialog that allows the user to select a node from the scene graph.
@@ -75,9 +73,12 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
                 } else {
                     setForeground(Color.BLACK);
                 }
+                setIcon(branch.getNode().getIcon());
+                setToolTipText(branch.getNode().getClass().getSimpleName());
                 return this;
             }
         });
+        tree.setToolTipText("");
     }
 
     public void setSubject(T subject) {
@@ -126,7 +127,6 @@ public class NodeSelectionDialog<T extends Node> extends JPanel {
     /**
      * find all nodes matching the search criteria
      * @param rootNode the root node of the tree to search
-     * @param searchCriteria a regular expression to match against the node name
      * @return a list of all nodes matching the search criteria
      */
     private List<Node> findAllNodesMatching(Node rootNode) {

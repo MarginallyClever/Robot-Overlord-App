@@ -1,13 +1,12 @@
 package com.marginallyclever.ro3.apps.actions;
 
-import com.marginallyclever.ro3.apps.UndoSystem;
-import com.marginallyclever.ro3.apps.RO3Frame;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.marginallyclever.ro3.RO3Frame;
+import com.marginallyclever.ro3.UndoSystem;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.security.InvalidParameterException;
 import java.util.Objects;
 
@@ -15,7 +14,6 @@ import java.util.Objects;
  * Load a Scene and insert it into the existing Scene.
  */
 public class ImportScene extends AbstractAction {
-    private static final Logger logger = LoggerFactory.getLogger(ImportScene.class);
     private final JFileChooser chooser;
 
     public ImportScene() {
@@ -44,7 +42,14 @@ public class ImportScene extends AbstractAction {
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
         chooser.setDialogType(JFileChooser.OPEN_DIALOG);
         if (chooser.showDialog(parentFrame,"Import") == JFileChooser.APPROVE_OPTION) {
-            UndoSystem.addEvent(new com.marginallyclever.ro3.apps.commands.ImportScene(chooser.getSelectedFile()));
+            commitImport(chooser.getSelectedFile());
         }
+    }
+
+    public void commitImport(File selectedFile) {
+        if( selectedFile == null ) throw new InvalidParameterException("File cannot be null");
+        if( !selectedFile.exists() ) throw new InvalidParameterException("File does not exist");
+
+        UndoSystem.addEvent(new com.marginallyclever.ro3.apps.commands.ImportScene(selectedFile));
     }
 }

@@ -9,8 +9,12 @@ import com.marginallyclever.ro3.raypicking.RayHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.event.EventListenerList;
 import javax.vecmath.Point3d;
+import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -46,10 +50,12 @@ public class Mesh {
 	private transient int[] VBO;
 
 	public int renderStyle = GL3.GL_TRIANGLES;
-	private String fileName = null;
+	private String fileName = "";
 
 	// bounding limits
 	protected final AABB boundingBox = new AABB();
+
+	private final EventListenerList listeners = new EventListenerList();
 
 	public Mesh() {
 		super();
@@ -334,6 +340,13 @@ public class Mesh {
 		return new Vector3d(x,y,z);
 	}
 
+	public Vector2d getTexCoord(int t) {
+		t*=2;
+		double u = textureArray.get(t++);
+		double v = textureArray.get(t++);
+		return new Vector2d(u,v);
+	}
+
 	public boolean isDirty() {
 		return isDirty;
 	}
@@ -465,8 +478,30 @@ public class Mesh {
 		vertexArray.set(i++, (float)z);
 	}
 
+	public void setTexCoord(int i, double u, double v) {
+		i*=2;
+		textureArray.set(i++, (float)u);
+		textureArray.set(i++, (float)v);
+	}
+
     public void updateVertexBuffers(GL3 gl3) {
 		if(VBO==null) return;
 		setupArray(gl3,0,3,getNumVertices(),vertexArray);
     }
+
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+		listeners.remove(PropertyChangeListener.class,listener);
+    }
+
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		listeners.add(PropertyChangeListener.class,listener);
+	}
+
+	public void fireMeshChanged() {
+		PropertyChangeEvent p = null;
+		for( var v : listeners.getListeners(PropertyChangeListener.class)) {
+			if(p==null) p = new PropertyChangeEvent(this,"mesh",null,this);
+			v.propertyChange(p);
+		}
+	}
 }

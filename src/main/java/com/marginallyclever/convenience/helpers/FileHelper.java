@@ -14,7 +14,7 @@ public class FileHelper {
 	 *  - The file may be a resource inside a jar file.
 	 *  - The file may be on disk.
 	 *     
-	 * @param filename The file to open
+	 * @param filename The file to open.  May be "filename.ext" or "zipfile.zip:filename.ext"
 	 * @return BufferedInputStream to the file contents
 	 * @throws IOException file open failure
 	 */
@@ -27,8 +27,7 @@ public class FileHelper {
 			return new BufferedInputStream(getInputStream(filename));
 		}
 	}
-	
-	
+
 	private static InputStream getInputStream(String fname) throws IOException {
 		InputStream s = FileHelper.class.getResourceAsStream(fname);
 		if( s==null ) {
@@ -36,8 +35,7 @@ public class FileHelper {
 		}
 		return s;
 	}
-	
-	
+
 	private static BufferedInputStream loadFromZip(String zipFilePath,String fileToExtract) throws IOException {
 		try(ZipFile zipFile = new ZipFile(zipFilePath)) {
 			ZipEntry entry = zipFile.getEntry(fileToExtract);

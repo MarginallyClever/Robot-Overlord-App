@@ -10,6 +10,11 @@ import java.awt.*;
 
 public class DHParameterPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(DHParameterPanel.class);
+
+    public DHParameterPanel() {
+        this(new DHParameter());
+    }
+
     public DHParameterPanel(DHParameter dhParameter) {
         super(new GridLayout(0,2));
         this.setName(DHParameter.class.getSimpleName());
@@ -39,8 +44,6 @@ public class DHParameterPanel extends JPanel {
         dh_alpha.addPropertyChangeListener("value", e -> dhParameter.setAlpha( ((Number)dh_alpha.getValue()).doubleValue() ));
         dh_theta.addPropertyChangeListener("value", e -> dhParameter.setTheta( ((Number)dh_theta.getValue()).doubleValue() ));
 
-        this.setLayout(new GridLayout(0,2));
-
         PanelHelper.addLabelAndComponent(this,"d",dh_d);
         PanelHelper.addLabelAndComponent(this,"theta",dh_theta);
         PanelHelper.addLabelAndComponent(this,"r",dh_r);
@@ -48,6 +51,5 @@ public class DHParameterPanel extends JPanel {
 
         this.add(fromPose);
         this.add(toPose);
-
     }
 }

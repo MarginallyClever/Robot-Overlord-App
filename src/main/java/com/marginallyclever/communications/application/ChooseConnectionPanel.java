@@ -7,14 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 /**
  * A panel that allows the user to open and close a connection to a {@link SessionLayer}.
- *
  */
 public class ChooseConnectionPanel extends JPanel {
 	private static final Logger logger = LoggerFactory.getLogger(ChooseConnectionPanel.class);
@@ -24,11 +23,12 @@ public class ChooseConnectionPanel extends JPanel {
 	private final JButton bConnect = new JButton();
 	private final JLabel connectionName = new JLabel("Not connected",JLabel.LEADING);
 	private SessionLayer mySession;
-	
+
 	public ChooseConnectionPanel() {
 		super();
 
 		bConnect.setText("Connect");
+		bConnect.setToolTipText("Click to connect/disconnect.");
 		bConnect.addActionListener((e)-> onConnectAction() );
 
 		this.setLayout(new FlowLayout(FlowLayout.LEADING));
@@ -91,30 +91,17 @@ public class ChooseConnectionPanel extends JPanel {
 
 	// OBSERVER PATTERN
 	
-	private final ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
+	private final EventListenerList listeners = new EventListenerList();
 	
 	public void addActionListener(ActionListener a) {
-		listeners.add(a);
+		listeners.add(ActionListener.class,a);
 	}
 	
 	public void removeActionListener(ActionListener a) {
-		listeners.remove(a);
+		listeners.remove(ActionListener.class,a);
 	}
 	
 	private void notifyListeners(ActionEvent e) {
-		for( ActionListener a : listeners ) a.actionPerformed(e);
-	}
-
-	// TEST 
-	
-	public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception ignored) {}
-		JFrame frame = new JFrame(ChooseConnectionPanel.class.getName());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new ChooseConnectionPanel());
-		frame.pack();
-		frame.setVisible(true);
+		for( var a : listeners.getListeners(ActionListener.class) ) a.actionPerformed(e);
 	}
 }

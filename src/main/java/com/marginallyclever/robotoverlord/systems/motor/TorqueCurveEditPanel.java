@@ -2,7 +2,6 @@ package com.marginallyclever.robotoverlord.systems.motor;
 
 import com.marginallyclever.convenience.swing.graph.SingleLineGraph;
 import com.marginallyclever.robotoverlord.components.motors.MotorComponent;
-import com.marginallyclever.robotoverlord.entity.Entity;
 
 import javax.swing.*;
 import javax.swing.table.TableModel;

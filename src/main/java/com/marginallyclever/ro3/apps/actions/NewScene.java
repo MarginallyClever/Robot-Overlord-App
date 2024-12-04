@@ -1,15 +1,12 @@
 package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.UndoSystem;
-import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.UndoSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -45,15 +42,7 @@ public class NewScene extends AbstractAction {
     public void commitNewScene() {
         logger.info("New scene");
 
-        // remove all children of the scene to make sure we're starting fresh.
-        Node oldScene = Registry.getScene();
-        List<Node> toRemove = new ArrayList<>(oldScene.getChildren());
-        for(Node child : toRemove) {
-            oldScene.removeChild(child);
-        }
-
         Registry.reset();
-        Registry.setScene(new Node("Scene"));
 
         if(saveScene!=null) saveScene.setEnabled(false);
 

@@ -2,8 +2,8 @@ package com.marginallyclever.ro3.node.nodes.limbplanner;
 
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +12,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * {@link LimbPlanner} knows about a {@link LimbSolver}.
@@ -241,5 +242,10 @@ public class LimbPlanner extends Node implements ActionListener {
         if(solver.getSubject()!=null) {
             solver.getSubject().setLinearVelocity(v);
         }
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/icons8-plan-16.png")));
     }
 }

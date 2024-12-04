@@ -6,13 +6,12 @@ import com.marginallyclever.ro3.node.Node;
 import javax.swing.undo.AbstractUndoableEdit;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 /**
- * Add a new instance of a {@link Node} to every selected branches of the tree
+ * <p>Use a {@link com.marginallyclever.ro3.node.nodefactory.NodeFactory} to add a new instance of a {@link Node} to
+ * every selected branch of the scene tree.</p>
  * @param <T> the type of node to add
  */
 public class AddNode<T extends Node> extends AbstractUndoableEdit {

@@ -5,7 +5,6 @@ import com.marginallyclever.ro3.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.*;
 import java.util.List;

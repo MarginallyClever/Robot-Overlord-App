@@ -1,8 +1,8 @@
 package com.marginallyclever.ro3.apps.actions;
 
+import com.marginallyclever.ro3.RO3Frame;
+import com.marginallyclever.ro3.RecentFilesMenu;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.RO3Frame;
-import com.marginallyclever.ro3.apps.RecentFilesMenu;
 import com.marginallyclever.ro3.apps.shared.FilenameExtensionChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,13 +10,11 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.security.InvalidParameterException;
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -60,7 +58,10 @@ public class SaveAsScene extends AbstractAction {
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
-        if(saveScene!=null) saveScene.setPath(destinationPath);
+        if(saveScene!=null) {
+            saveScene.setPath(destinationPath);
+            saveScene.setEnabled(true);
+        }
         if(menu!=null) menu.addPath(destinationPath);
     }
 

@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.node.nodes;
 
-import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.junit.jupiter.api.Test;
 import java.awt.Color;
@@ -14,8 +13,8 @@ class MaterialTest {
     void testGetTexture() {
         Material material = new Material();
         TextureWithMetadata texture = new TextureWithMetadata(new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB), "test");
-        material.setTexture(texture);
-        assertEquals(texture, material.getTexture());
+        material.setDiffuseTexture(texture);
+        assertEquals(texture, material.getDiffuseTexture());
     }
 
     @Test

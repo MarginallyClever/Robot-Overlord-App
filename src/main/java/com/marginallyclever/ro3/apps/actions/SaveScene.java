@@ -1,18 +1,15 @@
 package com.marginallyclever.ro3.apps.actions;
 
-import com.marginallyclever.ro3.apps.RecentFilesMenu;
-import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.RecentFilesMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -29,6 +26,7 @@ public class SaveScene extends AbstractAction {
         putValue(Action.NAME,"Save");
         putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-save-16.png"))));
         putValue(SHORT_DESCRIPTION,"Save to a file.");
+        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
     }
 
     /**

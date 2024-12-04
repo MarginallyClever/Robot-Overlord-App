@@ -12,6 +12,7 @@ import java.awt.event.*;
 
 /**
  * A dial that can be turned with the mouse wheel, mouse click+drag, or the keyboard +/- keys.
+ * Attach an {@link ActionListener} to receive the "turn" command when the dial is turned.
  */
 public class Dial extends JComponent {
 	private static final Logger logger = LoggerFactory.getLogger(Dial.class);
@@ -152,89 +153,56 @@ public class Dial extends JComponent {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
-		Rectangle rect = this.getBounds();
+		var rect = this.getSize();
 		
 		g.translate(rect.width/2, rect.height/2);
-		int radius = Math.min(rect.width, rect.height) /2;
-		Color old = g.getColor();
+		int radius = (Math.min(rect.width, rect.height) / 2) -2;
 
-		drawEdge(g,radius);
-		drawTurnIndicator(g,radius);
-		drawLabels(g,radius);
+		Graphics2D g2 = (Graphics2D)g.create();
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-		g.setColor(old);
+		drawEdge(g2,radius);
+		drawTurnIndicator(g2,radius);
+		drawLabels(g2,radius);
+		g2.dispose();
 	}
 	
-	private void drawLabels(Graphics g, int radius) {
+	private void drawLabels(Graphics2D g2, int radius) {
 		int inset = 4;
 		int v = radius/5;
 		int x = inset-radius;
-		int y = -radius+v/2 + inset; 
+		int y = -radius+v/2 + inset;
+
+		g2.setStroke(new BasicStroke(1));
 		// -
-		g.drawLine(x,y,x+v,y);
+		g2.drawLine(x,y,x+v,y);
 		// +
 		x = radius-inset;
-		g.drawLine(x-v,y,x,y);
-		g.drawLine(x-v/2, -radius + inset,x-v/2,-radius+v+inset);
+		g2.drawLine(x-v,y,x,y);
+		g2.drawLine(x-v/2, -radius + inset,x-v/2,-radius+v+inset);
 	}
 
-	private void drawTurnIndicator(Graphics g, int radius) {
+	private void drawTurnIndicator(Graphics2D g2, int radius) {
 		radius-=6;
 		double radians = Math.toRadians(value);
 		int x=(int)Math.round(Math.cos(radians)*radius);
 		int y=(int)Math.round(Math.sin(radians)*radius);
-		
-		g.setColor(Color.GRAY);
-		g.drawLine(0,-2,x,y-2);
+
+		g2.setStroke(new BasicStroke(1));
+		g2.setColor(Color.GRAY);
+		g2.drawLine(0,-2,x,y-2);
 	}
 
-	private void drawEdge(Graphics g,int r) {
-		r-=3;
-		
-		// shadow
-		int x=0;
-		int y=-2;
-		g.setColor(Color.DARK_GRAY);
-		g.drawArc(x-r, y-r, x+r*2, y+r*2, 45, 180);
-		g.setColor(Color.GRAY);
-		g.drawArc(x-r, y-r, x+r*2, y+r*2, 180+45, 180);
-		g.setColor(getBackground());
-		// edge
-		r-=3;
-		g.setColor(Color.DARK_GRAY);
-		g.drawArc(x-r, y-r, x+r*2, y+r*2, 180+45, 180);
-		g.setColor(Color.LIGHT_GRAY);
-		g.drawArc(x-r, y-r, x+r*2, y+r*2, 45, 180);
-	}
-
-	public static void main(String[] args) {
-        try {
-        	UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-        	logger.error("Look and feel could not be set: "+e.getMessage());
-        }
-
-		JFrame frame = new JFrame(Dial.class.getSimpleName());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		JPanel p = new JPanel();
-		frame.add(p);
-		Dial dial = new Dial();        
-		p.add(dial);
-		dial.addActionListener((e)->{
-			logger.info(e.getActionCommand()+":"+dial.getChange()+"="+dial.getValue());
-		});
-		
-		p.addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentResized(ComponentEvent e) {
-				Dimension d = new Dimension();
-				p.getSize(d);
-				dial.setPreferredSize(d);
-			}
-		});
-
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
+	private void drawEdge(Graphics2D g2,int r) {
+		g2.setStroke(new BasicStroke(2));
+		// outline
+		g2.setColor(Color.GRAY);
+		g2.drawArc(-r, -r, r*2, r*2, 0, 360);
+		// raised
+		r-=1;
+		g2.setColor(Color.DARK_GRAY);
+		g2.drawArc(-r, -r, r*2, r*2, 180+45, 180);
+		g2.setColor(Color.LIGHT_GRAY);
+		g2.drawArc(-r, -r, r*2, r*2, 45, 180);
 	}
 }

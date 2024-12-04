@@ -1,10 +1,12 @@
 package com.marginallyclever.ro3.node.nodes.limbsolver;
 
+import com.marginallyclever.convenience.approximatejacobian.ApproximateJacobian;
+import com.marginallyclever.convenience.approximatejacobian.ApproximateJacobianFiniteDifferences;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
-import com.marginallyclever.ro3.node.nodes.pose.Limb;
+import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +15,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * {@link LimbSolver} calculates <a href="https://en.wikipedia.org/wiki/Inverse_kinematics">Inverse Kinematics</a> for
@@ -22,11 +25,11 @@ import java.util.List;
  */
 public class LimbSolver extends Node {
     private static final Logger logger = LoggerFactory.getLogger(LimbSolver.class);
+
     private final NodePath<Limb> limb = new NodePath<>(this,Limb.class);
     private final NodePath<Pose> target = new NodePath<>(this,Pose.class);
     private double linearVelocity = 0;
     private double distanceToTarget = 0;
-
     private double goalMarginOfError = 0.1; // not degrees or mm.  Just a number.
     private final double[] cartesianDistance = new double[6];  // 3 linear, 3 angular
     private final double[] cartesianVelocity = new double[cartesianDistance.length];
@@ -54,6 +57,7 @@ public class LimbSolver extends Node {
     }
 
     public void update(double dt) {
+        super.update(dt);
         if(dt==0) return;
 
         moveTowardsTarget();
@@ -107,17 +111,17 @@ public class LimbSolver extends Node {
 
         var limb = getLimb().getSubject();
 
-        if(linearVelocity<0.0001) {
+        if(Math.abs(linearVelocity) < 0.0001) {
             // no velocity.  Make sure the arm doesn't drift.
             limb.setAllJointVelocities(new double[limb.getNumJoints()]);
             return;
         }
         // find direction to move
         MatrixHelper.getCartesianBetweenTwoMatrices(
-                getEndEffector().getWorld(),
+                Objects.requireNonNull(getEndEffector()).getWorld(),
                 getTarget().getSubject().getWorld(),
                 cartesianDistance);
-        // theshold the velocity
+        // limit the velocity
         System.arraycopy(cartesianDistance,0,cartesianVelocity,0,cartesianDistance.length);
         scaleVectorToMagnitude(cartesianVelocity,linearVelocity);
         // set motor velocities.
@@ -143,7 +147,7 @@ public class LimbSolver extends Node {
             // set velocity to zero
             jointVelocity = new double[myLimb.getNumJoints()];
         }
-        if(impossibleVelocity(jointVelocity)) return;  // TODO: throw exception instead?
+        if(impossibleVelocity(jointVelocity)) return;  // TODO throw exception instead?
         myLimb.setAllJointVelocities(jointVelocity);
     }
 
@@ -211,27 +215,25 @@ public class LimbSolver extends Node {
     }
 
     /**
-     * <p>Make sure the given vector's length does not exceed maxLen.  It can be less than the given magnitude.
-     * If the maxLen is greater than the vector length, the vector is unchanged.  This means as the limb approaches
-     * the target the velocity will slow down.</p>
+     * <p>Make sure the given vector's length does not exceed linearVelocity.  This means as the limb approaches the
+     * target the velocity will slow down.</p>
      * <p>Store the results in the original array.</p>
      * @param vector the vector to cap
      * @param maxLen the max length of the vector.
      */
     public static void scaleVectorToMagnitude(double[] vector, double maxLen) {
-        if(maxLen<0) throw new IllegalArgumentException("maxLen must be >= 0");
-
         // get the length of the vector
         double len = 0;
         for (double v : vector) {
             len += v * v;
         }
-
         len = Math.sqrt(len);
-        if(maxLen>len) maxLen=len;
+
+        var linearMagnitude = Math.abs(maxLen);
+        if(linearMagnitude>len) maxLen = Math.signum(maxLen) * len;
 
         // scale the vector
-        double scale = len==0? 0 : maxLen / len;  // catch len==0
+        double scale = (len == 0) ? 0 : maxLen / len;  // catch len==0
         for(int i=0;i<vector.length;i++) {
             vector[i] *= scale;
         }
@@ -266,7 +268,6 @@ public class LimbSolver extends Node {
      * @param linearVelocity must be >= 0
      */
     public void setLinearVelocity(double linearVelocity) {
-        if(linearVelocity<0) throw new IllegalArgumentException("linearVelocity must be >= 0");
         this.linearVelocity = linearVelocity;
     }
 
@@ -318,5 +319,10 @@ public class LimbSolver extends Node {
 
     public boolean getIsAtGoal() {
         return isAtGoal;
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/icons8-rubik's-cube-16.png")));
     }
 }

@@ -2,7 +2,7 @@ package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.convenience.helpers.JSONHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.UndoSystem;
+import com.marginallyclever.ro3.UndoSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

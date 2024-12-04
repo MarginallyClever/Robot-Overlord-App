@@ -4,9 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * All apps extend from App for Reflection.
+ * All applications in the environment extend from {@link App} for Reflection.
  */
-public class App extends JPanel {
+public abstract class App extends JPanel {
     public App() {
         super();
     }

@@ -3,9 +3,9 @@ package com.marginallyclever.robotoverlord.systems.render.mesh;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.robotoverlord.RayHit;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
+import com.marginallyclever.robotoverlord.RayHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

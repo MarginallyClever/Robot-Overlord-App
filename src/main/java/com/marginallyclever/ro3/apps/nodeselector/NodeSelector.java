@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.apps.nodeselector;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.editorpanel.EditorPanel;
 import com.marginallyclever.ro3.node.Node;
 
 import javax.swing.*;
@@ -39,6 +38,11 @@ public class NodeSelector<T extends Node> extends JPanel {
             Registry.selection.set(subject);
         }
     });
+
+    @SuppressWarnings("unchecked")
+    public NodeSelector() {
+        this((Class<T>) Node.class);
+    }
 
     public NodeSelector(Class<T> type) {
         this(type,null);

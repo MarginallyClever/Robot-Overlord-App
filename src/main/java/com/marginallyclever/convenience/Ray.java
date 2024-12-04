@@ -2,6 +2,7 @@ package com.marginallyclever.convenience;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
+import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 
 /**
@@ -16,11 +17,11 @@ public class Ray {
 		this(new Point3d(),new Vector3d(0,0,1),Double.MAX_VALUE);
 	}
 
-	public Ray(Point3d origin,Vector3d direction) {
+	public Ray(Tuple3d origin, Vector3d direction) {
 		this(origin,direction,Double.MAX_VALUE);
 	}
 
-	public Ray(Point3d origin,Vector3d direction,double maxDistance) {
+	public Ray(Tuple3d origin,Vector3d direction,double maxDistance) {
 		this.origin.set(origin);
 		this.direction.set(direction);
 		this.maxDistance = maxDistance;

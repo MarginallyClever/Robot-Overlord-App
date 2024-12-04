@@ -10,6 +10,12 @@ import java.awt.image.BufferedImage;
 public class MaterialPanel extends JPanel {
     private static final int THUMBNAIL_SIZE = 64;
     private final Material material;
+    private final JLabel sizeLabel = new JLabel();
+    private final JLabel imgLabel = new JLabel();
+
+    public MaterialPanel() {
+        this(new Material());
+    }
 
     public MaterialPanel(Material material) {
         super(new GridBagLayout());
@@ -21,9 +27,9 @@ public class MaterialPanel extends JPanel {
         gbc.weighty = 1.0;
         gbc.gridx=0;
         gbc.gridy=0;
-        gbc.fill = GridBagConstraints.BOTH;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        var texture = material.getTexture();
+        var texture = material.getDiffuseTexture();
 
         JButton button = new JButton();
         setTextureButtonLabel(button);
@@ -32,50 +38,20 @@ public class MaterialPanel extends JPanel {
             textureChooserDialog.setSelectedItem(texture);
             int result = textureChooserDialog.run(this);
             if(result == JFileChooser.APPROVE_OPTION) {
-                material.setTexture(textureChooserDialog.getSelectedItem());
+                material.setDiffuseTexture(textureChooserDialog.getSelectedItem());
                 setTextureButtonLabel(button);
+                updatePreview();
             }
         });
         PanelHelper.addLabelAndComponent(this,"Texture",button,gbc);
+        PanelHelper.addLabelAndComponent(this,"Size",sizeLabel,gbc);
+        PanelHelper.addLabelAndComponent(this,"Preview",imgLabel,gbc);
 
-        if(texture!=null) {
-            BufferedImage smaller = scaleImage(texture.getImage());
-            PanelHelper.addLabelAndComponent(this,"Size",new JLabel(texture.getWidth()+"x"+texture.getHeight()),gbc);
-            PanelHelper.addLabelAndComponent(this,"Preview",new JLabel(new ImageIcon(smaller)),gbc);
-        }
+        updatePreview();
 
-        // diffuse
-        var diffuseColor = material.getDiffuseColor();
-        JButton selectColorDiffuse = new JButton();
-        selectColorDiffuse.setBackground(diffuseColor);
-        selectColorDiffuse.addActionListener(e -> {
-            Color color = JColorChooser.showDialog(this,"Diffuse Color",material.getDiffuseColor());
-            if(color!=null) material.setDiffuseColor(color);
-            selectColorDiffuse.setBackground(material.getDiffuseColor());
-        });
-        PanelHelper.addLabelAndComponent(this,"Diffuse",selectColorDiffuse,gbc);
-
-        // specular
-        var specularColor = material.getSpecularColor();
-        JButton selectColorSpecular = new JButton();
-        selectColorSpecular.setBackground(specularColor);
-        selectColorSpecular.addActionListener(e -> {
-            Color color = JColorChooser.showDialog(this,"Specular Color",material.getSpecularColor());
-            if(color!=null) material.setSpecularColor(color);
-            selectColorSpecular.setBackground(material.getSpecularColor());
-        });
-        PanelHelper.addLabelAndComponent(this,"Specular",selectColorSpecular,gbc);
-
-        // emissive
-        var emissionColor = material.getEmissionColor();
-        JButton selectColorEmission = new JButton();
-        selectColorEmission.setBackground(emissionColor);
-        selectColorEmission.addActionListener(e -> {
-            Color color = JColorChooser.showDialog(this,"Emissive Color",material.getEmissionColor());
-            if(color!=null) material.setEmissionColor(color);
-            selectColorEmission.setBackground(material.getEmissionColor());
-        });
-        PanelHelper.addLabelAndComponent(this,"Emissive",selectColorEmission,gbc);
+        PanelHelper.addColorChooser(this,"Diffuse",material.getDiffuseColor(),material::setDiffuseColor,gbc);
+        PanelHelper.addColorChooser(this,"Specular",material.getSpecularColor(),material::setSpecularColor,gbc);
+        PanelHelper.addColorChooser(this,"Emissive",material.getEmissionColor(),material::setEmissionColor,gbc);
 
         // lit
         JToggleButton isLitButton = new JToggleButton("Lit",material.isLit());
@@ -86,6 +62,20 @@ public class MaterialPanel extends JPanel {
         gbc.gridy++;
         gbc.gridwidth=2;
         this.add(createShininessSlider(),gbc);
+        gbc.gridy++;
+        this.add(createSpecularStrengthSlider(),gbc);
+    }
+
+    private void updatePreview() {
+        var texture = material.getDiffuseTexture();
+        if(texture!=null) {
+            sizeLabel.setText(texture.getWidth()+"x"+texture.getHeight());
+            imgLabel.setIcon(new ImageIcon(scaleImage(texture.getImage())));
+            imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        } else {
+            sizeLabel.setText("");
+            imgLabel.setIcon(null);
+        }
     }
 
     private JComponent createShininessSlider() {
@@ -104,8 +94,25 @@ public class MaterialPanel extends JPanel {
         return container;
     }
 
+    private JComponent createSpecularStrengthSlider() {
+        JPanel container = new JPanel(new BorderLayout());
+
+        var specularStrength = material.getSpecularStrength();
+        JSlider slider = new JSlider(0,100,(int)(specularStrength*100));
+        slider.addChangeListener(e -> material.setSpecularStrength(slider.getValue()/100.0));
+
+        // Make the slider fill the available horizontal space
+        slider.setMaximumSize(new Dimension(Integer.MAX_VALUE, slider.getPreferredSize().height));
+        slider.setMinimumSize(new Dimension(50, slider.getPreferredSize().height));
+
+        container.add(new JLabel("Specular strength"), BorderLayout.LINE_START);
+        container.add(slider, BorderLayout.CENTER); // Add slider to the center of the container
+
+        return container;
+    }
+
     private void setTextureButtonLabel(JButton button) {
-        var texture = material.getTexture();
+        var texture = material.getDiffuseTexture();
         button.setText((texture==null)
                 ? "..."
                 : texture.getSource().substring(texture.getSource().lastIndexOf(java.io.File.separatorChar)+1));

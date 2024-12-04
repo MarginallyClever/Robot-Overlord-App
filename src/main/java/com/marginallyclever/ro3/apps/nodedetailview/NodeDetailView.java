@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.nodedetailview;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.actions.BrowseURLAction;
 import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
@@ -18,8 +19,7 @@ import java.util.Objects;
 /**
  * {@link NodeDetailView} is a panel that displays the details of a class that implements {@link Node}.
  */
-public class NodeDetailView extends App
-        implements ItemAddedListener<Node>, ItemRemovedListener<Node> {
+public class NodeDetailView extends App implements ItemAddedListener<Node>, ItemRemovedListener<Node>, SceneChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(NodeDetailView.class);
     public static final String DOC_URL = "https://marginallyclever.github.io/Robot-Overlord-App/com.marginallyclever.robotoverlord/";
     private final JScrollPane scroll = new JScrollPane();
@@ -30,8 +30,10 @@ public class NodeDetailView extends App
     public NodeDetailView() {
         super(new BorderLayout());
 
-        bookIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/apps/icons8-open-book-16.png")));
+        JToolBar toolbar = new JToolBar();
+        toolbar.setFloatable(false);
 
+        // pin button to keep the current selection
         pinButton.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/apps/shared/icons8-pin-16.png"))));
         pinButton.setToolTipText("Pin this selection.");
         pinButton.addActionListener(e -> {
@@ -41,18 +43,19 @@ public class NodeDetailView extends App
                 selectionChanged();
             }
         });
+        toolbar.add(pinButton);
 
+        // book icon links to documentation
+        bookIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/apps/icons8-open-book-16.png")));
         docButton.setIcon(bookIcon);
         docButton.setEnabled(false);
-
-        JToolBar toolbar = new JToolBar();
-        toolbar.setFloatable(false);
-        toolbar.add(pinButton);
         toolbar.add(docButton);
 
         add(toolbar, BorderLayout.NORTH);
         add(scroll, BorderLayout.CENTER);
         selectionChanged();
+
+        Registry.addSceneChangeListener(this);
     }
 
     private void setPinToolTipText(JToggleButton pinButton) {
@@ -149,4 +152,12 @@ public class NodeDetailView extends App
     public void itemRemoved(Object source,Node item) {
         selectionChanged();
     }
+
+    @Override
+    public void beforeSceneChange(Node oldScene) {
+        if(pinButton.isSelected()) pinButton.doClick();
+    }
+
+    @Override
+    public void afterSceneChange(Node newScene) {}
 }

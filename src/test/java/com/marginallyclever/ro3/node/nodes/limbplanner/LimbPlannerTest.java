@@ -5,7 +5,7 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.actions.LoadScene;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
-import com.marginallyclever.ro3.node.nodes.pose.Limb;
+import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -26,7 +26,7 @@ class LimbPlannerTest {
     LimbPlanner limbPlanner;
     Pose pathStart;
 
-    private Limb build6AxisArm() throws Exception {
+    private Limb build6AxisArm() {
         var load = new LoadScene(null,null);
         File file = new File("src/test/resources/com/marginallyclever/ro3/apps/node/nodes/marlinrobotarm/Sixi3-5.RO");
         load.commitLoad(file);
@@ -34,7 +34,7 @@ class LimbPlannerTest {
     }
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         Registry.start();
         limb = build6AxisArm();
 
@@ -54,22 +54,22 @@ class LimbPlannerTest {
     }
 
     @Test
-    void testStartRun1() {
+    void testStartStopEvent() {
         limbPlanner.startRun();
         assertFalse(limbPlanner.isRunning());
-    }
+        limbPlanner.stopRun();
+        assertFalse(limbPlanner.isRunning());
 
-    @Test
-    void testStartRun2() {
-        pathStart.addChild(new Pose());
+        pathStart.addChild(new Pose("start"));
+
         limbPlanner.startRun();
         assertTrue(limbPlanner.isRunning());
-    }
-
-    @Test
-    void testStopRun() {
-        limbPlanner.startRun();
         limbPlanner.stopRun();
+        assertFalse(limbPlanner.isRunning());
+
+        limbPlanner.startRun();
+        ActionEvent event = new ActionEvent(limbPlanner, ActionEvent.ACTION_PERFORMED, "arrivedAtGoal");
+        limbPlanner.actionPerformed(event);
         assertFalse(limbPlanner.isRunning());
     }
 
@@ -98,7 +98,10 @@ class LimbPlannerTest {
                     +" Move "+Arrays.toString(limb.getAllJointAngles())
                     +" " + limbSolver.getDistanceToTarget());
             limb.update(dt);
-            if(!limbPlanner.isRunning()) break;
+            if(!limbPlanner.isRunning()) {
+                logger.debug("Stopped at {}",sum);
+                break;
+            }
         }
         if(limbPlanner.isRunning()) {
             limbPlanner.stopRun();
@@ -110,13 +113,5 @@ class LimbPlannerTest {
         // confirm we moved for 1 second.
         assertEquals(1.0, limbPlanner.getExecutionTime(),1e-4);
         assertEquals(0.0, limbPlanner.getPreviousExecutionTime());
-    }
-
-    @Test
-    void testActionPerformed() {
-        limbPlanner.startRun();
-        ActionEvent event = new ActionEvent(limbPlanner, ActionEvent.ACTION_PERFORMED, "arrivedAtGoal");
-        limbPlanner.actionPerformed(event);
-        assertFalse(limbPlanner.isRunning());
     }
 }

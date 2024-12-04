@@ -1,15 +1,15 @@
 package com.marginallyclever.ro3.apps.nodetreeview;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.UndoSystem;
+import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.commands.MoveNode;
 import com.marginallyclever.ro3.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.tree.*;
-import java.awt.datatransfer.*;
+import javax.swing.tree.TreePath;
+import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

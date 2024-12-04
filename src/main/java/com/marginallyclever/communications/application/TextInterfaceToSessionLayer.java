@@ -90,7 +90,7 @@ public class TextInterfaceToSessionLayer extends App implements SessionLayerList
 	
 	// OBSERVER PATTERN
 	
-	private final ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
+	private final ArrayList<ActionListener> listeners = new ArrayList<>();
 	public void addActionListener(ActionListener a) {
 		listeners.add(a);
 	}
@@ -113,17 +113,15 @@ public class TextInterfaceToSessionLayer extends App implements SessionLayerList
 		mySession.removeListener(a);
 	}
 
-	// TEST 
-	
+	/**
+	 * For testing
+	 * @param args
+	 */
 	public static void main(String[] args) {
-		JFrame frame = new JFrame(TextInterfaceToSessionLayer.class.getName());
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch(Exception ignore) {}
+		JFrame frame = new JFrame("TextInterfaceToSessionLayer");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setPreferredSize(new Dimension(600, 400));
+		frame.setSize(800, 600);
 		frame.add(new TextInterfaceToSessionLayer());
-		frame.pack();
 		frame.setVisible(true);
 	}
 }

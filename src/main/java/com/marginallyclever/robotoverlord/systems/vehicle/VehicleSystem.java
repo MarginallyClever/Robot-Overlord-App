@@ -10,8 +10,8 @@ import com.marginallyclever.robotoverlord.components.vehicle.WheelComponent;
 import com.marginallyclever.robotoverlord.entity.Entity;
 import com.marginallyclever.robotoverlord.entity.EntityManager;
 import com.marginallyclever.robotoverlord.parameters.ReferenceParameter;
-import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
 import com.marginallyclever.robotoverlord.parameters.swing.ComponentSwingViewFactory;
+import com.marginallyclever.robotoverlord.parameters.swing.ViewElementButton;
 import com.marginallyclever.robotoverlord.systems.EntitySystem;
 import com.marginallyclever.robotoverlord.systems.EntitySystemUtils;
 

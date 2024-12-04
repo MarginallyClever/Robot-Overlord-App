@@ -1,9 +1,9 @@
 package com.marginallyclever.convenience.helpers;
 
-import com.marginallyclever.ro3.mesh.AABB;
 import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.ro3.mesh.AABB;
 import com.marginallyclever.ro3.mesh.Mesh;
 
 import javax.vecmath.Matrix4d;
@@ -260,7 +260,7 @@ public abstract class IntersectionHelper {
 	 * @param radius radius of sphere
 	 * @return distance to first hit.  negative values for no hit/behind start. 
 	 */
-	static public double raySphere(final Ray ray,final Point3d center,final double radius) {
+	static public double raySphere(final Ray ray,final Tuple3d center,final double radius) {
 		Vector3d oc = new Vector3d();
 		oc.sub(ray.getOrigin(),center);
 	    double a = ray.getDirection().dot(ray.getDirection());

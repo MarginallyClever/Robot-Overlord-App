@@ -1,12 +1,16 @@
 package com.marginallyclever.ro3.node.nodes;
 
-import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.PanelHelper;
+import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class MotorPanel extends JPanel {
+    public MotorPanel() {
+        this(new Motor());
+    }
+
     public MotorPanel(Motor motor) {
         super(new GridLayout(0,2));
         this.setName(Motor.class.getSimpleName());

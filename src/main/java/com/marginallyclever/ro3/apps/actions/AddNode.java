@@ -1,9 +1,9 @@
 package com.marginallyclever.ro3.apps.actions;
 
-import com.marginallyclever.ro3.apps.FactoryPanel;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.apps.UndoSystem;
+import com.marginallyclever.ro3.node.nodefactory.NodeFactoryPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,10 +15,9 @@ import java.util.function.Supplier;
  * {@link AddNode} is an {@link AbstractAction} to add a new instance of a {@link Node} to every selected branch of the
  * tree.  It will ask the user which type of {@link Node} to add, then create an
  * {@link com.marginallyclever.ro3.apps.commands.AddNode} command to add the new {@link Node}.
- * @param <T> the type of {@link Node} to add
  */
-public class AddNode<T extends Node> extends AbstractAction {
-    private static final FactoryPanel<Node> nfd = new FactoryPanel<>(Registry.nodeFactory);
+public class AddNode extends AbstractAction {
+    private static final NodeFactoryPanel nfd = new NodeFactoryPanel(Registry.nodeFactory);
 
     public AddNode() {
         super();

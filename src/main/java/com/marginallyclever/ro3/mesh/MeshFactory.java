@@ -34,7 +34,7 @@ public class MeshFactory {
 	/**
 	 * Makes sure to only load one instance of each source file.  Loads all the data immediately.
 	 * @param filename file from which to load.  May be "filename.ext" or "zipfile.zip:filename.ext"
-	 * @return an instance of Mesh.  It may contain nothing.
+	 * @return a non-null instance of Mesh.  It may contain nothing.
 	 */
 	public Mesh load(String filename) {
 		if(filename == null || filename.trim().isEmpty()) return null;
@@ -49,8 +49,12 @@ public class MeshFactory {
 		return mesh;
 	}
 
+	/**
+	 * find the existing shape in the pool
+	 * @param filename file from which to load.  May be "filename.ext" or "zipfile.zip:filename.ext"
+	 * @return a non-null instance of Mesh.  It may contain nothing.
+	 */
 	private Mesh getMeshFromPool(String filename) {
-		// find the existing shape in the pool
 		for( Mesh m : meshPool.getList() ) {
 			String sourceName = m.getSourceName();
 			if(sourceName==null) continue;
@@ -62,6 +66,11 @@ public class MeshFactory {
 		return null;
 	}
 
+	/**
+	 * Try to load a mesh from a file using one of the available loaders.
+	 * @param filename The file to open.  May be "filename.ext" or "zipfile.zip:filename.ext"
+	 * @param mesh the mesh to load into
+	 */
 	private void attemptLoad(String filename, Mesh mesh) {
 		for( MeshLoader loader : loaders ) {
 			if(isValidExtension(filename,loader)) {
@@ -80,8 +89,14 @@ public class MeshFactory {
 		return false;
 	}
 
+	/**
+	 * Load a mesh from a file using a specific loader.
+	 * @param filename The file to open.  May be "filename.ext" or "zipfile.zip:filename.ext"
+	 * @param mesh the mesh to load into
+	 * @param loader the loader to use
+	 */
 	private void loadMeshWithLoader(String filename, Mesh mesh, MeshLoader loader) {
-		logger.info("Loading "+filename+" with "+loader.getEnglishName());
+		//logger.info("Loading "+filename+" with "+loader.getEnglishName());
 
 		mesh.setSourceName(filename);
 		mesh.setDirty(true);
@@ -149,6 +164,7 @@ public class MeshFactory {
 	 */
     public void reset() {
 		// FIXME Not calling unload() on each item is probably a video card memory leak.
+		// FIXME but unload can only be called from the GL thread.
 		meshPool.removeAll();
     }
 }

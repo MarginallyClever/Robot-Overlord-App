@@ -1,21 +1,23 @@
 package com.marginallyclever.ro3.apps.actions;
 
 import com.marginallyclever.convenience.helpers.FileHelper;
+import com.marginallyclever.ro3.RO3Frame;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.RO3Frame;
 import com.marginallyclever.ro3.apps.shared.FilenameExtensionChecker;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.security.InvalidParameterException;
-import java.util.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.*;
+import java.security.InvalidParameterException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -98,7 +100,7 @@ public class ExportScene extends AbstractAction {
         Map<String, String> pathMapping = new HashMap<>();
 
         String rootFolderName = nameWithoutExtension(new File(outputZipFile));
-        String sceneName = rootFolderName+ "." + RO3Frame.FILE_FILTER.getExtensions()[0];  // "ro3" or "r
+        String sceneName = rootFolderName+ "." + RO3Frame.FILE_FILTER.getExtensions()[0];  // "RO"
         String newSceneName = rootFolderName+"/"+sceneName;
         pathMapping.put(sceneName,newSceneName);  // reserve this name
 
