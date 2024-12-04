@@ -18,6 +18,7 @@ import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.ode4j.ODE4JPanel;
 import com.marginallyclever.ro3.apps.viewport.OpenGLPanel;
 import com.marginallyclever.ro3.apps.viewport.ViewportSettingsPanel;
+import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportToolPanel;
 import com.marginallyclever.ro3.apps.webcam.WebCamPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,7 @@ public class RO3Frame extends JFrame {
     private final EditorPanel editPanel;
     private final WebCamPanel webCamPanel;
     private final ViewportSettingsPanel viewportSettingsPanel;
+    private final ViewportToolPanel viewportToolPanel;
     private final TextInterfaceToSessionLayer textInterface;
     private final ODE4JPanel ode4jPanel;
     private final Donatello donatello;
@@ -65,6 +67,7 @@ public class RO3Frame extends JFrame {
         editPanel = new EditorPanel();
         viewportPanel = new OpenGLPanel();
         viewportSettingsPanel = new ViewportSettingsPanel(viewportPanel);
+        viewportToolPanel = new ViewportToolPanel(viewportPanel);
         webCamPanel = new WebCamPanel();
         textInterface = new TextInterfaceToSessionLayer();
         ode4jPanel = new ODE4JPanel();
@@ -203,7 +206,7 @@ public class RO3Frame extends JFrame {
         aboutView.add(new AboutPanel());
         windows.add(aboutView);
 
-        DockingPanel webcamView = new DockingPanel("1331fbb0-ceda-4c67-b343-6539d4f939a1", "USB Camera");
+        DockingPanel webcamView = new DockingPanel("1331fbb0-ceda-4c67-b343-6539d4f939a1", "Camera");
         webcamView.add(webCamPanel);
         windows.add(webcamView);
 
@@ -211,13 +214,17 @@ public class RO3Frame extends JFrame {
         ode4jView.add(ode4jPanel);
         windows.add(ode4jView);
 
-        DockingPanel textInterfaceView = new DockingPanel("7796a733-8e33-417a-b363-b28174901e40", "Serial Interface");
+        DockingPanel textInterfaceView = new DockingPanel("7796a733-8e33-417a-b363-b28174901e40", "Serial");
         textInterfaceView.add(textInterface);
         windows.add(textInterfaceView);
 
-        DockingPanel viewportSettingsView = new DockingPanel("c0651f5b-d5f0-49ab-88f9-66ae4a8c095e", "Viewport Settings");
+        DockingPanel viewportSettingsView = new DockingPanel("c0651f5b-d5f0-49ab-88f9-66ae4a8c095e", "Viewport");
         viewportSettingsView.add(viewportSettingsPanel);
         windows.add(viewportSettingsView);
+
+        DockingPanel viewportToolView = new DockingPanel("11230778-22ab-48c9-b822-998538660cd6", "Tool");
+        viewportToolView.add(viewportToolPanel);
+        windows.add(viewportToolView);
 
         // TODO all persistentIDs should match the name of the class.  Then the class can recreate the view from AppState.
         DockingPanel donatelloView = new DockingPanel("donatello", "Donatello");
