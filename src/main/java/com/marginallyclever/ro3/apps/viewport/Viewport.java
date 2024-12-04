@@ -5,9 +5,7 @@ import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.apps.viewport.renderpass.*;
-import com.marginallyclever.ro3.apps.viewport.viewporttool.Compass3D;
-import com.marginallyclever.ro3.apps.viewport.viewporttool.SelectionTool;
-import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
+import com.marginallyclever.ro3.apps.viewport.viewporttool.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.move.RotateToolMulti;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.move.TranslateToolMulti;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
@@ -69,6 +67,8 @@ public class Viewport extends JPanel implements SceneChangeListener, MouseListen
         addCopyCameraAction();
         addViewportTools();
         allocateButtonMemory();
+
+        setActiveToolIndex(0);
     }
 
     private void addViewportTools() {
@@ -601,11 +601,15 @@ public class Viewport extends JPanel implements SceneChangeListener, MouseListen
             viewportTools.get(activeToolIndex).activate(Registry.selection.getList());
         }
 
-        fireViewportToolChanged(index);
+        fireToolChanged(index);
     }
 
-    private void fireViewportToolChanged(int index) {
-        for(var listener : listeners)
+    public int getActiveToolIndex() {
+        return activeToolIndex;
+    }
+
+    public ViewportTool getTool(int index) {
+        return viewportTools.get(index);
     }
 
     private void selectionChanged(Object source,Object item) {
@@ -672,8 +676,7 @@ public class Viewport extends JPanel implements SceneChangeListener, MouseListen
         return 0;
     }
 
-    public void setFsaaSamples(Integer value) {
-    }
+    public void setFsaaSamples(Integer value) {}
 
     public void savePrefs() {}
 
@@ -683,5 +686,20 @@ public class Viewport extends JPanel implements SceneChangeListener, MouseListen
 
     public void setOriginShift(boolean b) {
         originShift = b;
+    }
+
+    public void addToolChangeListener(ViewportToolChangeListener arg0) {
+        listeners.add(ViewportToolChangeListener.class,arg0);
+    }
+
+    public void removeToolChangeListener(ViewportToolChangeListener arg0) {
+        listeners.remove(ViewportToolChangeListener.class,arg0);
+    }
+
+    private void fireToolChanged(int index) {
+        ViewportTool tool = viewportTools.get(index);
+        for(var listener : listeners.getListeners(ViewportToolChangeListener.class)) {
+            listener.onViewportToolChange(tool);
+        }
     }
 }
