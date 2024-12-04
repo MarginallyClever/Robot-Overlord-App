@@ -19,8 +19,7 @@ import java.util.Objects;
 /**
  * {@link NodeDetailView} is a panel that displays the details of a class that implements {@link Node}.
  */
-public class NodeDetailView extends App
-        implements ItemAddedListener<Node>, ItemRemovedListener<Node>, SceneChangeListener {
+public class NodeDetailView extends App implements ItemAddedListener<Node>, ItemRemovedListener<Node>, SceneChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(NodeDetailView.class);
     public static final String DOC_URL = "https://marginallyclever.github.io/Robot-Overlord-App/com.marginallyclever.robotoverlord/";
     private final JScrollPane scroll = new JScrollPane();
