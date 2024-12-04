@@ -1,17 +1,15 @@
 package com.marginallyclever.ro3.apps.viewport;
 
-import ModernDocking.app.Docking;
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.ro3.DockingPanel;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.apps.viewport.renderpass.*;
-import com.marginallyclever.ro3.apps.viewport.viewporttools.Compass3D;
-import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectionTool;
-import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
-import com.marginallyclever.ro3.apps.viewport.viewporttools.move.RotateToolMulti;
-import com.marginallyclever.ro3.apps.viewport.viewporttools.move.TranslateToolMulti;
+import com.marginallyclever.ro3.apps.viewport.viewporttool.Compass3D;
+import com.marginallyclever.ro3.apps.viewport.viewporttool.SelectionTool;
+import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
+import com.marginallyclever.ro3.apps.viewport.viewporttool.move.RotateToolMulti;
+import com.marginallyclever.ro3.apps.viewport.viewporttool.move.TranslateToolMulti;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
@@ -19,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.event.EventListenerList;
 import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -35,12 +34,7 @@ import java.util.prefs.Preferences;
  * {@link Registry#getScene()} from the perspective of the active {@link Camera}.  Mouse actions in the panel
  * can be used to manipulate the active camera.
  */
-public class Viewport
-        extends JPanel
-        implements SceneChangeListener,
-        MouseListener,
-        MouseMotionListener,
-        MouseWheelListener {
+public class Viewport extends JPanel implements SceneChangeListener, MouseListener, MouseMotionListener, MouseWheelListener {
     private static final Logger logger = LoggerFactory.getLogger(Viewport.class);
     private Camera activeCamera;
     public ListWithEvents<RenderPass> renderPasses = new ListWithEvents<>();
@@ -57,6 +51,8 @@ public class Viewport
     private final JButton frameOfReferenceButton = new JButton();
     private final JPopupMenu frameOfReferenceMenu = new JPopupMenu();
     private boolean originShift = true;
+
+    private final EventListenerList listeners = new EventListenerList();
 
     public Viewport() {
         this(new BorderLayout());
@@ -604,6 +600,12 @@ public class Viewport
         if(activeToolIndex >= 0) {
             viewportTools.get(activeToolIndex).activate(Registry.selection.getList());
         }
+
+        fireViewportToolChanged(index);
+    }
+
+    private void fireViewportToolChanged(int index) {
+        for(var listener : listeners)
     }
 
     private void selectionChanged(Object source,Object item) {

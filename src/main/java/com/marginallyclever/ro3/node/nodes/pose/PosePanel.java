@@ -3,7 +3,7 @@ package com.marginallyclever.ro3.node.nodes.pose;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.UndoSystem;
-import com.marginallyclever.ro3.apps.viewport.viewporttools.move.TranslatePoseCommand;
+import com.marginallyclever.ro3.apps.viewport.viewporttool.move.TranslatePoseCommand;
 
 import javax.swing.*;
 import javax.vecmath.Vector3d;
