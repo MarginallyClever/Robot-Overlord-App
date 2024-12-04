@@ -1,7 +1,6 @@
-package com.marginallyclever.ro3.apps.viewport.viewporttools;
+package com.marginallyclever.ro3.apps.viewport.viewporttool;
 
 import com.marginallyclever.ro3.apps.viewport.Viewport;
-import com.marginallyclever.ro3.apps.viewport.viewporttools.move.TranslateToolOneAxis;
 
 import javax.swing.*;
 

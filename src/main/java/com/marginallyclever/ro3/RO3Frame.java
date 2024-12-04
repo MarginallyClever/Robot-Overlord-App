@@ -18,7 +18,7 @@ import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.ode4j.ODE4JPanel;
 import com.marginallyclever.ro3.apps.viewport.OpenGLPanel;
 import com.marginallyclever.ro3.apps.viewport.ViewportSettingsPanel;
-import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportToolPanel;
+import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportToolPanel;
 import com.marginallyclever.ro3.apps.webcam.WebCamPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

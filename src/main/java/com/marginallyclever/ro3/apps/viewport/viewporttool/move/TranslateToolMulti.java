@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.viewport.viewporttools.move;
+package com.marginallyclever.ro3.apps.viewport.viewporttool.move;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.ColorRGB;
@@ -8,8 +8,8 @@ import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
-import com.marginallyclever.ro3.apps.viewport.viewporttools.SelectedItems;
-import com.marginallyclever.ro3.apps.viewport.viewporttools.ViewportTool;
+import com.marginallyclever.ro3.apps.viewport.viewporttool.SelectedItems;
+import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;

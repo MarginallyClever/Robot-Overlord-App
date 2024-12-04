@@ -1,11 +1,10 @@
-package com.marginallyclever.ro3.apps.viewport.viewporttools;
+package com.marginallyclever.ro3.apps.viewport.viewporttool;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.NodePanel;
 
 import javax.swing.*;
 import javax.vecmath.Point3d;

@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.viewport.viewporttools.move;
+package com.marginallyclever.ro3.apps.viewport.viewporttool.move;
 
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 
@@ -10,22 +10,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>A Command to rotate a list of {@link Pose}s.  Being a Command means that it can be undone and redone.</p>
- * <p>An extra challenge is that some {@link Pose} are children of other {@link Pose}s, so the rotation
- * of a parent is automatically applied to the children.</p>
- * <p>An extra challenge is the collective point of rotation for a group of {@link Pose}s.</p>
- *
+ * A Command to translate a list of {@link Pose}s.  Being a Command means that it can be undone and redone.
+ * An extra challenge is that some {@link Pose} are children of other {@link Pose}s, so the translation
+ * of a parent is automatically applied to the children.
  */
-public class RotatePoseCommand extends AbstractUndoableEdit {
+public class TranslatePoseCommand extends AbstractUndoableEdit {
     private final List<Pose> subjects = new ArrayList<>();
     private final Vector3d v = new Vector3d();
 
     /**
-     * Create a new command to rotate a list of {@link Pose}s.
-     * @param subjects the list of {@link Pose}s to rotate.
-     * @param v the rotation vector is relative to the start of the user's move action.
+     * Create a new command to translate a list of {@link Pose}s.
+     * @param subjects the list of {@link Pose}s to translate.
+     * @param v the translation vector is relative to the start of the user's move action.
      */
-    public RotatePoseCommand(List<Pose> subjects, Vector3d v) {
+    public TranslatePoseCommand(List<Pose> subjects, Vector3d v) {
         this.subjects.addAll(subjects);
         this.v.set(v);
         moveAllSubjects(v,1);
@@ -34,7 +32,7 @@ public class RotatePoseCommand extends AbstractUndoableEdit {
     @Override
     public String getPresentationName() {
         int count = subjects.size();
-        return count>1? "Rotate "+count+" Nodes" : "Rotate node";
+        return count>1? "Translate "+count+" Nodes" : "Translate node";
     }
 
     @Override
@@ -69,7 +67,7 @@ public class RotatePoseCommand extends AbstractUndoableEdit {
      */
     @Override
     public boolean addEdit(UndoableEdit anEdit) {
-        if (anEdit instanceof RotatePoseCommand other) {
+        if (anEdit instanceof TranslatePoseCommand other) {
             if (subjects.equals(other.subjects)) {
                 v.add(other.v);
                 // we don't need to moveAllSubjects(other.v) because anEdit constructor already did it.

@@ -1,10 +1,9 @@
-package com.marginallyclever.ro3.apps.viewport.viewporttools.move;
+package com.marginallyclever.ro3.apps.viewport.viewporttool.move;
 
 import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.viewport.OpenGLPanel;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.junit.jupiter.api.BeforeAll;

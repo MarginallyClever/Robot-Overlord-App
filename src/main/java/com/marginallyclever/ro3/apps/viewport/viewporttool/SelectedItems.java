@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.viewport.viewporttools;
+package com.marginallyclever.ro3.apps.viewport.viewporttool;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.node.Node;

@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.viewport.viewporttools;
+package com.marginallyclever.ro3.apps.viewport.viewporttool;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
@@ -51,7 +51,7 @@ public class Compass3D implements ViewportTool {
 
     public Compass3D() {
         super();
-        texture = Registry.textureFactory.load("/com/marginallyclever/ro3/apps/viewport/viewporttools/axisLetters.png");
+        texture = Registry.textureFactory.load("/com/marginallyclever/ro3/apps/viewport/viewporttool/axisLetters.png");
         texture.setDoNotExport(true);
 
         createQuadMesh();
