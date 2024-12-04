@@ -10,8 +10,8 @@ import java.awt.*;
 import java.util.ArrayList;
 
 /**
- * Displays the settings for the currently active {@link ViewportTool}
- * TODO I don't love that one Viewport is tied to one ViewportToolPanel.
+ * <p>Displays the settings for the currently active {@link ViewportTool}</p>
+ * <p>TODO I don't love that one Viewport is tied to one ViewportToolPanel.</p>
  */
 public class ViewportToolPanel extends JPanel implements ViewportToolChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(ViewportToolPanel.class);

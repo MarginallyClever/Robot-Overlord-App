@@ -22,6 +22,7 @@ import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -32,8 +33,8 @@ import java.util.List;
  *
  */
 public class TranslateToolOneAxis implements ViewportTool {
-    private final double handleLength = 5;
-    private final double gripRadius = 1.0;
+    private static double handleLength = 5;
+    private static double gripRadius = 1.0;
     private double localScale = 1;
 
     /**
@@ -72,11 +73,11 @@ public class TranslateToolOneAxis implements ViewportTool {
     private final Mesh handleLineMesh = new Mesh(GL3.GL_LINES);
     private final Sphere handleSphere = new Sphere();
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
-    private final ColorRGB color;
+    private final Color color;
     private TextureWithMetadata texture;
-    private Mesh quad = new Mesh(GL3.GL_QUADS);
+    private final Mesh quad = new Mesh(GL3.GL_QUADS);
 
-    public TranslateToolOneAxis(ColorRGB color) {
+    public TranslateToolOneAxis(Color color) {
         super();
         this.color = color;
 
@@ -251,31 +252,27 @@ public class TranslateToolOneAxis implements ViewportTool {
     public void render(GL3 gl, ShaderProgram shaderProgram) {
         if (selectedItems == null || selectedItems.isEmpty()) return;
         if( !MoveUtils.listContainsAPose(selectedItems.getNodes()) ) return;
-/*
-        float colorScale = cursorOverHandle ? 1:0.5f;
-        float red   = color.red   * colorScale / 255f;
-        float green = color.green * colorScale / 255f;
-        float blue  = color.blue  * colorScale / 255f;
-        shaderProgram.set4f(gl,"diffuseColor",red, green, blue, 1.0f);
-        */
+
+        float colorScale = cursorOverHandle ? 1.0f : 0.75f;
+        Color c2 = new Color(color.getRed()*colorScale,color.getGreen()*colorScale,color.getBlue()*colorScale,color.getAlpha());
+        shaderProgram.setColor(gl,"diffuseColor",c2);
         shaderProgram.set1i(gl,"useTexture",0);
         shaderProgram.set1i(gl,"useLighting",0);
         shaderProgram.set1i(gl,"useVertexColor",0);
-        shaderProgram.set4f(gl,"diffuseColor",0,0,0, 1.0f);
 
         Camera camera = viewport.getActiveCamera();
         var originShift = viewport.isOriginShift();
         var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
 
         // handle
-        Matrix4d m = new Matrix4d(pivotMatrix);
+        var m = new Matrix4d(pivotMatrix);
         m.mul(m,MatrixHelper.createScaleMatrix4(getHandleLengthScaled()));
         if(originShift) m = RenderPassHelper.getOriginShiftedMatrix(m, cameraWorldPos);
         shaderProgram.setMatrix4d(gl,"modelMatrix",m);
         handleLineMesh.render(gl);
 
         // sphere at end of handle
-        Matrix4d m2 = MatrixHelper.createIdentityMatrix4();
+        var m2 = MatrixHelper.createIdentityMatrix4();
         m2.m03 += getHandleLengthScaled();
         m2.mul(pivotMatrix,m2);
         m2.mul(m2,MatrixHelper.createScaleMatrix4(getGripRadiusScaled()));
@@ -294,7 +291,6 @@ public class TranslateToolOneAxis implements ViewportTool {
             if(originShift) model = RenderPassHelper.getOriginShiftedMatrix(model, cameraWorldPos);
             shaderProgram.setMatrix4d(gl,"modelMatrix",model);
             shaderProgram.set1i(gl,"diffuseTexture",0);
-            shaderProgram.set4f(gl,"diffuseColor",1,1,1, 1.0f);
             shaderProgram.set1i(gl,"useTexture",1);
             texture.use(shaderProgram);
             quad.render(gl);
