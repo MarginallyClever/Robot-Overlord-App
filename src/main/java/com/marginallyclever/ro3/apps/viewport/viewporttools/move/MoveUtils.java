@@ -47,9 +47,9 @@ public class MoveUtils {
      * @return the point on the translationPlane, or null if no intersection
      */
     public static Point3d getPointOnPlaneFromCursor(Plane translationPlane, Viewport viewport, double x, double y) {
+        // get ray from camera through viewport
         Camera cam = viewport.getActiveCamera();
         assert cam != null;
-        // get ray from camera through viewport
         var normalizedCoordinates = viewport.getCursorAsNormalized(x,y);
         Ray ray = viewport.getRayThroughPoint(cam, normalizedCoordinates.x, normalizedCoordinates.y);
 

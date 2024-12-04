@@ -130,17 +130,15 @@ public class TranslateToolOneAxis implements ViewportTool {
 
     @Override
     public void mouseMoved(MouseEvent event) {
-        cursorOverHandle = isCursorOverHandle();
+        cursorOverHandle = isCursorOverHandle(event.getX(),event.getY());
     }
 
     @Override
     public void mousePressed(MouseEvent event) {
-        if (isCursorOverHandle()) {
+        if(cursorOverHandle) {
             startPoint = MoveUtils.getPointOnPlaneFromCursor(translationPlane,viewport,event.getX(), event.getY());
             if(startPoint==null) return;
-
             dragging = true;
-            cursorOverHandle = true;
             previousPoint.set(startPoint);
             selectedItems.savePose();
         }
@@ -215,18 +213,19 @@ public class TranslateToolOneAxis implements ViewportTool {
         return new Point3d(diff);
     }
 
-    private boolean isCursorOverHandle() {
+    private boolean isCursorOverHandle(int x,int y) {
         if(selectedItems==null || selectedItems.isEmpty()) return false;
 
-        var nc = viewport.getCursorAsNormalized();
-        Point3d point = MoveUtils.getPointOnPlaneFromCursor(translationPlane,viewport,nc.x, nc.y);
+        Point3d point = MoveUtils.getPointOnPlaneFromCursor(translationPlane,viewport,x,y);
         if (point == null) return false;
 
         // Check if the point is within the handle's bounds
         Vector3d diff = new Vector3d(translationAxis);
         diff.scaleAdd(getHandleLengthScaled(), MatrixHelper.getPosition(pivotMatrix));
         diff.sub(point);
-        return (diff.lengthSquared() < getGripRadiusScaled()*getGripRadiusScaled());
+        var isIn = diff.lengthSquared() < getGripRadiusScaled()*getGripRadiusScaled();
+        System.out.println(diff.lengthSquared()+" "+getGripRadiusScaled()*getGripRadiusScaled());
+        return isIn;
     }
 
     @Override

@@ -209,8 +209,7 @@ public class RotateToolOneAxis implements ViewportTool {
     private boolean isCursorOverHandle(int x, int y) {
         if(selectedItems==null || selectedItems.isEmpty()) return false;
 
-        var nc = viewport.getCursorAsNormalized();
-        Point3d point = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,nc.x, nc.y);
+        Point3d point = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,x, y);
         if (point == null) return false;
 
         // Check if the point is within the handle's bounds
@@ -366,21 +365,19 @@ public class RotateToolOneAxis implements ViewportTool {
     }
 
     private void drawWhileDragging(GL3 gl,ShaderProgram shaderProgram) {
+        Camera camera = viewport.getActiveCamera();
+        var originShift = viewport.isOriginShift();
+        var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
+
         Matrix4d scale = MatrixHelper.createScaleMatrix4(localScale);
 
         Matrix4d m = new Matrix4d(startMatrix);
         Matrix4d mt = new Matrix4d(m);
         mt.mul(m,scale);
+        if(originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorldPos);
         shaderProgram.setMatrix4d(gl,"modelMatrix",mt);
         markerMesh.render(gl);
 
-        Camera camera = viewport.getActiveCamera();
-        var originShift = viewport.isOriginShift();
-        var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
-
-        // TODO finish me - draw the start and end angle of the movement.
-        //Point3d currentPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,mx,my);
-        //if(currentPoint==null) return;
         double rotationAngle = getAngleBetweenPoints(snapToTicks(startPoint /* goes here */ ));
         Matrix4d rot = new Matrix4d();
         rot.rotZ(rotationAngle);
@@ -389,6 +386,10 @@ public class RotateToolOneAxis implements ViewportTool {
         if(originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorldPos);
         shaderProgram.setMatrix4d(gl,"modelMatrix",mt);
         angleMesh.render(gl);
+
+        // TODO draw the start and end angle of the movement.
+        //Point3d currentPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,mx,my);
+        //if(currentPoint==null) return;
     }
 
     private void drawMainRingAndHandles(GL3 gl,ShaderProgram shaderProgram) {
