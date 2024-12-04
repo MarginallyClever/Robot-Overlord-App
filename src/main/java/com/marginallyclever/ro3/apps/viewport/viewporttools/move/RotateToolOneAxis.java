@@ -19,6 +19,7 @@ import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -498,4 +499,7 @@ public class RotateToolOneAxis implements ViewportTool {
         markerMesh.unload(gl3);
         ringMesh.unload(gl3);
     }
+
+    @Override
+    public void getComponents(List<JPanel> list) {}
 }

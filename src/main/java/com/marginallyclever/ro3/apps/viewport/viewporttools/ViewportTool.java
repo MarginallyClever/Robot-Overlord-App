@@ -5,7 +5,9 @@ import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodePanel;
 
+import javax.swing.*;
 import javax.vecmath.Point3d;
 import java.awt.event.MouseEvent;
 import java.util.List;
@@ -90,4 +92,10 @@ public interface ViewportTool {
      * @param gl3 the OpenGL context.
      */
     void dispose(GL3 gl3);
+
+    /**
+     * Build a Swing Component that represents this Tool.
+     * @param list the list to add components to.
+     */
+    void getComponents(List<JPanel> list);
 }

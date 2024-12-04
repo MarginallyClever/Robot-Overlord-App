@@ -19,6 +19,7 @@ import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 
+import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -353,4 +354,7 @@ public class TranslateToolOneAxis implements ViewportTool {
         quad.setTexCoord(2,u+w,v+h);
         quad.setTexCoord(3,u,v+h);
     }
+
+    @Override
+    public void getComponents(List<JPanel> list) {}
 }

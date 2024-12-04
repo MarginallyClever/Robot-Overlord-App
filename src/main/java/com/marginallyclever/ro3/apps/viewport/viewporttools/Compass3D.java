@@ -14,6 +14,7 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 
+import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
@@ -295,4 +296,7 @@ public class Compass3D implements ViewportTool {
         gizmoMesh.unload(gl3);
         quadMesh.unload(gl3);
     }
+
+    @Override
+    public void getComponents(List<JPanel> list) {}
 }

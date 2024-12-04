@@ -15,6 +15,7 @@ import com.marginallyclever.ro3.raypicking.RayPickSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
 import javax.vecmath.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -200,4 +201,7 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
         m2.setTranslation(from);
         pickPoint.setLocal(m2);
     }
+
+    @Override
+    public void getComponents(List<JPanel> list) {}
 }

@@ -13,6 +13,7 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 
+import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import java.awt.event.MouseEvent;
@@ -267,4 +268,7 @@ public class RotateToolMulti implements ViewportTool {
     public void dispose(GL3 gl3) {
         for (ViewportTool t : tools) t.dispose(gl3);
     }
+
+    @Override
+    public void getComponents(List<JPanel> list) {}
 }

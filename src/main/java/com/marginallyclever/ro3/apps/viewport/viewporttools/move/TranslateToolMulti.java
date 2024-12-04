@@ -15,6 +15,7 @@ import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 
+import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -354,4 +355,7 @@ public class TranslateToolMulti implements ViewportTool {
         for (ViewportTool t : tools) t.dispose(gl3);
         texture.unload();
     }
+
+    @Override
+    public void getComponents(List<JPanel> list) {}
 }
