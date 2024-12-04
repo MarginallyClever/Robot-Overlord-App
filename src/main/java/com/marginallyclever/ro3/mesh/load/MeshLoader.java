@@ -6,9 +6,8 @@ import com.marginallyclever.ro3.mesh.MeshFactory;
 import java.io.BufferedInputStream;
 
 /**
- * <p>{@link MeshLoader} interface for all classes that load a {@link Mesh}.</p>
+ * <p>{@link MeshLoader} interface for all classes that load a {@link Mesh} from an {@link java.io.InputStream}.</p>
  * <p>All {@link MeshLoader} should be registered with the {@link MeshFactory}.</p>
- *
  */
 public interface MeshLoader {
 	String getEnglishName();

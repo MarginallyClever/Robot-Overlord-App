@@ -1,20 +1,18 @@
 package com.marginallyclever.ro3.apps.nodeselector;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeBranch;
 import com.marginallyclever.ro3.apps.shared.SearchBar;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeBranch;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import java.util.List;
-import java.util.ArrayList;
 import java.awt.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A dialog that allows the user to select a node from the scene graph.

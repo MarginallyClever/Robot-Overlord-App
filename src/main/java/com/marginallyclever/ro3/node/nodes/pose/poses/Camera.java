@@ -4,6 +4,8 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix3d;
@@ -32,6 +34,7 @@ import java.util.Objects;
  *
  */
 public class Camera extends Pose {
+    private static final Logger logger = LoggerFactory.getLogger(Camera.class);
     private boolean drawOrthographic = false;
     private double fovY = 60;
     private double nearZ = 1;
@@ -106,7 +109,7 @@ public class Camera extends Pose {
      * @param delta distance to travel.  Positive is up.
      */
     public void pedestal(double delta) {
-        translate(MatrixHelper.getYAxis(this.getLocal()),delta);
+        translate(MatrixHelper.getYAxis(getWorld()),delta);
     }
 
     /**
@@ -114,7 +117,7 @@ public class Camera extends Pose {
      * @param delta distance to travel.  Positive is right.
      */
     public void truck(double delta) {
-        translate(MatrixHelper.getXAxis(this.getLocal()),delta);
+        translate(MatrixHelper.getXAxis(getWorld()),delta);
     }
 
     /**
@@ -122,23 +125,23 @@ public class Camera extends Pose {
      * @param delta distance to travel.  Positive is forward.
      */
     public void dolly(double delta) {
-        translate(MatrixHelper.getZAxis(this.getLocal()),delta);
+        translate(MatrixHelper.getZAxis(getWorld()),delta);
     }
 
     /**
      * Translate relative to camera's current orientation if canTranslate is true.
-     * @param direction direction to travel
+     * @param direction direction to travel in world space
      * @param delta distance to travel
      */
     private void translate(Vector3d direction,double delta) {
         if(!canTranslate) return;
-        Matrix4d local = this.getLocal();
+        var w = getWorld();
         Vector3d t = new Vector3d();
-        local.get(t);
+        w.get(t);
         direction.scale(delta);
         t.add(direction);
-        local.setTranslation(t);
-        this.setLocal(local);
+        w.setTranslation(t);
+        setWorld(w);
     }
 
     /**
@@ -186,17 +189,18 @@ public class Camera extends Pose {
      * @param target the point to look at.
      */
     public void lookAt(Vector3d target) {
-        Matrix4d local = this.getLocal();
-        Vector3d position = MatrixHelper.getPosition(local);
-        Matrix3d viewMatrix = MatrixHelper.lookAt(target,position);
-        Vector3d diff = new Vector3d();
+        var m = this.getWorld();
+        var position = MatrixHelper.getPosition(m);
+        var viewMatrix = MatrixHelper.lookAt(target,position);
+        var diff = new Vector3d();
         diff.sub(target,position);
-        if(diff.length()<0.0001) {
+        if(diff.length()<1e-6) {
             throw new InvalidParameterException("target is too close to camera.");
         }
-        local.set(viewMatrix);
-        local.setTranslation(position);
-        this.setLocal(local);
+        m.set(viewMatrix,position,1);
+        // adjust the orbit radius to match the distance to the target.
+        orbitRadius = diff.length();
+        this.setWorld(m);
     }
 
     public Matrix4d getPerspectiveFrustum(int width,int height) {
@@ -208,8 +212,8 @@ public class Camera extends Pose {
      * Render the scene in orthographic projection.
      */
     public Matrix4d getOrthographicMatrix(int width,int height) {
-        double h = 5.0;  // why 5?
-        double w = h * (double)width / (double)height;
+        double h = height/2.0;
+        double w = width/2.0;
         return MatrixHelper.orthographicMatrix4d(-w,w,-h,h,getNearZ(),getFarZ());
     }
 
@@ -217,15 +221,17 @@ public class Camera extends Pose {
         return drawOrthographic ? getOrthographicMatrix(width,height) : getPerspectiveFrustum(width,height);
     }
 
-    public Matrix4d getViewMatrix() {
+    public Matrix4d getViewMatrix(boolean originShift) {
         Matrix4d inverseCamera = this.getWorld();
+        if(originShift) {
+            inverseCamera.setTranslation(new Vector3d());
+        }
         inverseCamera.invert();
-        inverseCamera.transpose();
         return inverseCamera;
     }
 
     /**
-     * @return the point that the camera is orbiting around.
+     * @return the absolute point around which the camera is orbiting.
      */
     public Vector3d getOrbitPoint() {
         Matrix4d m = getWorld();
@@ -243,15 +249,15 @@ public class Camera extends Pose {
      * @param newRadius new radius.  Must be >=1.
      */
     public void moveToNewRadius(double newRadius) {
-        Matrix4d local = this.getLocal();
+        var w = this.getWorld();
         var point = getOrbitPoint();
         orbitRadius = Math.max(1,newRadius);
 
         //logger.debug("wheel "+dz + " orbitRadius=" + orbitRadius);
-        Vector3d orbitVector = MatrixHelper.getZAxis(local);
+        Vector3d orbitVector = MatrixHelper.getZAxis(w);
         orbitVector.scaleAdd(orbitRadius,point);
-        local.setTranslation(orbitVector);
-        this.setLocal(local);
+        w.setTranslation(orbitVector);
+        setWorld(w);
     }
 
     public double getOrbitRadius() {
@@ -265,18 +271,23 @@ public class Camera extends Pose {
      */
     public void orbit(double dx,double dy) {
         if(!canRotate || !canTranslate) return;
+
         Vector3d orbitPoint = getOrbitPoint();
         //logger.debug("before {}",orbitPoint);
-        double [] panTiltAngles = getPanTiltFromMatrix(getLocal());
+
+        double [] panTiltAngles = getPanTiltFromMatrix(getWorld());
+        // range limit around
         panTiltAngles[0] = (panTiltAngles[0] + dx+360) % 360;
+        // tilt limit
         panTiltAngles[1] = Math.max(0,Math.min(180,panTiltAngles[1] + dy));
-        Matrix3d panTilt = buildPanTiltMatrix(panTiltAngles);
-        Matrix4d newLocal = new Matrix4d();
-        newLocal.set(panTilt);
-        Vector3d orbitVector = MatrixHelper.getZAxis(newLocal);
+
+        var panTilt = buildPanTiltMatrix(panTiltAngles);
+        var m = new Matrix4d();
+        m.set(panTilt);
+        Vector3d orbitVector = MatrixHelper.getZAxis(m);
         orbitVector.scaleAdd(getOrbitRadius(),orbitPoint);
-        newLocal.setTranslation(orbitVector);
-        setLocal(newLocal);
+        m.setTranslation(orbitVector);
+        setWorld(m);
         //logger.debug("after {}",getOrbitPoint());
     }
 
@@ -312,16 +323,15 @@ public class Camera extends Pose {
     public void panTilt(double panDegrees, double tiltDegrees) {
         if(!canRotate) return;
 
-        Matrix4d local = getLocal();
-        Vector3d t = new Vector3d();
-        local.get(t);
-        double [] panTiltAngles = getPanTiltFromMatrix(local);
+        var w = getWorld();
+        var t = new Vector3d();
+        w.get(t);
+        double [] panTiltAngles = getPanTiltFromMatrix(w);
         panTiltAngles[0] = (panTiltAngles[0] + panDegrees+360) % 360;
         panTiltAngles[1] = Math.max(0,Math.min(180,panTiltAngles[1] + tiltDegrees));
         Matrix3d panTilt = buildPanTiltMatrix(panTiltAngles);
-        local.set(panTilt);
-        local.setTranslation(t);
-        setLocal(local);
+        w.set(panTilt,t,1);
+        setWorld(w);
     }
 
     public boolean getCanTranslate() {

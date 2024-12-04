@@ -1,9 +1,10 @@
 package com.marginallyclever.ro3;
 
+import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
-import com.marginallyclever.ro3.node.nodes.MaterialPanel;
+import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
 
 import javax.swing.*;
 import java.awt.*;
@@ -77,5 +78,50 @@ public class PanelHelper {
             button.setBackground(color);
         });
         PanelHelper.addLabelAndComponent(parent,title,button,gbc);
+    }
+
+    public static JFormattedTextField addNumberField(String label, double value) {
+        var formatter = NumberFormatHelper.getNumberFormatter();
+        JFormattedTextField field = new JFormattedTextField(formatter);
+        field.setValue(value);
+        field.setToolTipText(label);
+        field.setColumns(1);
+        field.setMinimumSize(new Dimension(0,20));
+        return field;
+    }
+
+
+    public static void addLimit(JPanel pane,GridBagConstraints gbc,String label, double value, Consumer<Double> consumer, double infinite) {
+        JCheckBox limitCheckBox = new JCheckBox("",!Double.isInfinite(value));
+        SpinnerNumberModel model = new SpinnerNumberModel(Double.isInfinite(value) ? 0 : value, -180, 180, 0.1);
+        JSpinner spinner = new JSpinner(model);
+
+        limitCheckBox.addActionListener(e -> enableLimit(limitCheckBox.isSelected(),spinner,consumer,infinite) );
+        spinner.addChangeListener(e -> {
+            if (limitCheckBox.isSelected()) {
+                consumer.accept((Double) spinner.getValue());
+            }
+        });
+        enableLimit(!Double.isInfinite(value),spinner,consumer,infinite);
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(limitCheckBox,BorderLayout.WEST);
+        panel.add(spinner,BorderLayout.CENTER);
+
+        PanelHelper.addLabelAndComponent(pane, label, panel,gbc);
+        gbc.gridy++;
+    }
+
+    public static void enableLimit(boolean isSelected, JSpinner spinner, Consumer<Double> consumer,double infinite) {
+        spinner.setEnabled(isSelected);
+        consumer.accept( (!isSelected) ? infinite : (Double)spinner.getValue() );
+    }
+
+
+    public static void addSelector(JPanel pane,GridBagConstraints gbc, String label, NodePath<ODEBody> originalValue, Consumer<ODEBody> consumer) {
+        NodeSelector<ODEBody> selector = new NodeSelector<>(ODEBody.class,originalValue.getSubject());
+        selector.addPropertyChangeListener("subject", (evt) ->consumer.accept((ODEBody)evt.getNewValue()));
+        PanelHelper.addLabelAndComponent(pane, label,selector,gbc);
+        gbc.gridy++;
     }
 }

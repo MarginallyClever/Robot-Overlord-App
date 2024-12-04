@@ -2,9 +2,9 @@ package com.marginallyclever.ro3;
 
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.mesh.MeshFactory;
+import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodefactory.NodeFactory;
 import com.marginallyclever.ro3.node.nodes.*;
-import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.behavior.BehaviorTreeRunner;
 import com.marginallyclever.ro3.node.nodes.behavior.Fallback;
 import com.marginallyclever.ro3.node.nodes.behavior.Sequence;
@@ -20,9 +20,10 @@ import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODEBox;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODECapsule;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODECylinder;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODESphere;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.*;
+import com.marginallyclever.ro3.node.nodes.pose.poses.space.SpaceShip;
 import com.marginallyclever.ro3.physics.ODEPhysics;
-import com.marginallyclever.ro3.node.nodes.pose.*;
 import com.marginallyclever.ro3.texture.TextureFactory;
 
 import javax.swing.event.EventListenerList;
@@ -85,10 +86,12 @@ public class Registry {
                 pose.add("Limb", Limb::new);
                 pose.add("LookAt", LookAt::new);
                 pose.add("MeshInstance", MeshInstance::new);
+                pose.add("SpaceShip", SpaceShip::new);
             }
             NodeFactory.Category physics = node.add("Physics", null);
             {
                 physics.add("CreatureController", CreatureController::new);
+                physics.add("ODEAngularMotor", ODEAngularMotor::new);
                 physics.add("ODEBallSocket", ODEBallSocket::new);
                 physics.add("ODEBox", ODEBox::new);
                 physics.add("ODECapsule", ODECapsule::new);
@@ -99,6 +102,7 @@ public class Registry {
                 physics.add("ODESphere", ODESphere::new);
             }
         }
+
         reset();
     }
 
@@ -106,12 +110,9 @@ public class Registry {
         selection.removeAll();
 
         // reset camera
-        List<Camera> toRemove = new ArrayList<>(cameras.getList());
-        for(Camera c : toRemove) cameras.remove(c);
-
+        cameras.removeAll();
         Camera first = new Camera("Camera 1");
         cameras.add(first);
-        setActiveCamera(first);
         double v = Math.sqrt(Math.pow(50,2)/3d); // match the viewport default orbit distance.
         first.setPosition(new Vector3d(v,v,v));
         first.lookAt(new Vector3d(0,0,0));
@@ -157,15 +158,6 @@ public class Registry {
 
     public static Node getScene() {
         return scene;
-    }
-
-    public static Camera getActiveCamera() {
-        if(cameras.getList().isEmpty()) throw new RuntimeException("No cameras available.");
-        return activeCamera;
-    }
-
-    public static void setActiveCamera(Camera camera) {
-        activeCamera = camera;
     }
 
     public static ODEPhysics getPhysics() {

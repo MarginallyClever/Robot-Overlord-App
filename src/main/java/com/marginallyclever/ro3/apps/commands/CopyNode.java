@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.apps.commands;
 
-import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import org.json.JSONArray;
 import org.json.JSONObject;

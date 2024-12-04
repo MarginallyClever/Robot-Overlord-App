@@ -1,9 +1,9 @@
 package com.marginallyclever.convenience.helpers;
 
-import com.marginallyclever.ro3.mesh.AABB;
 import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.ro3.mesh.AABB;
 import com.marginallyclever.ro3.mesh.Mesh;
 
 import javax.vecmath.Matrix4d;

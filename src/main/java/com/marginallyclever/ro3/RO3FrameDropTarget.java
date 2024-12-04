@@ -22,7 +22,7 @@ public class RO3FrameDropTarget extends DropTargetAdapter {
 
     public RO3FrameDropTarget() {
         super();
-        logger.debug("adding drag + drop support...");
+        logger.info("adding drag + drop support...");
     }
 
     @Override

@@ -1,9 +1,8 @@
 package com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.mesh.shapes.Cylinder;
+import com.marginallyclever.ro3.mesh.proceduralmesh.Cylinder;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
-import com.marginallyclever.ro3.physics.ODE4JHelper;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONObject;
 import org.ode4j.ode.DCylinder;
@@ -20,7 +19,7 @@ public class ODECylinder extends ODEBody {
     private double length = 5.0;
 
     public ODECylinder() {
-        this("ODE Cylinder");
+        this(ODECylinder.class.getSimpleName());
     }
 
     public ODECylinder(String name) {
@@ -34,9 +33,7 @@ public class ODECylinder extends ODEBody {
     }
 
     @Override
-    protected void onFirstUpdate() {
-        super.onFirstUpdate();
-
+    protected void createGeom() {
         geom = OdeHelper.createCylinder(Registry.getPhysics().getODESpace(), radius, length);
         geom.setBody(body);
 
@@ -78,9 +75,13 @@ public class ODECylinder extends ODEBody {
         MeshInstance meshInstance = findFirstChild(MeshInstance.class);
         if(null != meshInstance) {
             var mesh = meshInstance.getMesh();
-            if(mesh==null || mesh instanceof Cylinder) {
-                meshInstance.setMesh(new Cylinder(length, radius, radius));
+            if(mesh instanceof Cylinder g) {
+                g.setLength(length);
+                g.setRadius(radius);
+                g.updateModel();
+                return;
             }
+            meshInstance.setMesh(new Cylinder(length, radius, radius));
         }
     }
 

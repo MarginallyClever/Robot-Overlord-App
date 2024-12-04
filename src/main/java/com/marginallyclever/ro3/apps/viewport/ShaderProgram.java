@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.apps.viewport;
 
 import com.jogamp.opengl.GL3;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,14 +161,15 @@ public class ShaderProgram {
         return matrixBuffer;
     }
     /**
-     * Set a matrix in the shader.  OpenGL uses column-major order, where Java and DirectX use row-major order.
-     * Don't forget to transpose!
+     * Set a matrix in the shader.  Java uses column-major order, where OpenGL and DirectX use row-major order.
+     * Thus the thurd parameter is true to make the video card transpose the matrix from row-major to column-major.
+     * @see <a href="https://registry.khronos.org/OpenGL-Refpages/gl4/html/glUniform.xhtml">glUniform</a>
      * @param gl the viewport context
      * @param name the name of the uniform variable
      * @param value the matrix to set
      */
     public void setMatrix4d(GL3 gl, String name, Matrix4d value) {
-        gl.glUniformMatrix4fv(getUniformLocation(gl, name), 1, false, matrixToFloatBuffer(value));
+        gl.glUniformMatrix4fv(getUniformLocation(gl, name), 1, true, matrixToFloatBuffer(value));
         OpenGLHelper.checkGLError(gl,logger);
     }
 

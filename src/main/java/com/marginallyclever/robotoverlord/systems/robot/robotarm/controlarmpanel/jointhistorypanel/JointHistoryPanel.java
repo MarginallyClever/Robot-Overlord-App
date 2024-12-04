@@ -1,8 +1,8 @@
 package com.marginallyclever.robotoverlord.systems.robot.robotarm.controlarmpanel.jointhistorypanel;
 
-import com.marginallyclever.convenience.swing.graph.MultiLineGraph;
 import com.marginallyclever.convenience.swing.graph.GraphLine;
 import com.marginallyclever.convenience.swing.graph.GraphModel;
+import com.marginallyclever.convenience.swing.graph.MultiLineGraph;
 import com.marginallyclever.robotoverlord.components.DHComponent;
 import com.marginallyclever.robotoverlord.components.RobotComponent;
 

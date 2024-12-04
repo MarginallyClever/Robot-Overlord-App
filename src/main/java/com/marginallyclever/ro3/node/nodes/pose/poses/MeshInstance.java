@@ -4,6 +4,8 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMesh;
+import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.raypicking.RayHit;
 import org.json.JSONObject;
@@ -12,12 +14,16 @@ import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.Objects;
 
 /**
  * <p>A {@link MeshInstance} is a {@link Pose} containing a {@link Mesh}.</p>
  * <p>The local {@link Pose} information can be used to adjust the center of rotation.</p>
+ * <p>MeshInstance fires a {@link PropertyChangeEvent} to all {@link PropertyChangeListener}s when the {@link Mesh} is
+ * changed.</p>
  */
 public class MeshInstance extends Pose {
     private Mesh mesh;
@@ -45,28 +51,17 @@ public class MeshInstance extends Pose {
      * @param mesh the mesh to set.
      */
     public void setMesh(Mesh mesh) {
+        if (this.mesh == mesh) return;
+        if(mesh!=null) {
+            mesh.removePropertyChangeListener((e)->fireMeshChanged());
+        }
         this.mesh = mesh;
+        mesh.addPropertyChangeListener((e)->fireMeshChanged());
+        fireMeshChanged();
     }
 
     public Mesh getMesh() {
         return mesh;
-    }
-
-    @Override
-    public JSONObject toJSON() {
-        JSONObject json = super.toJSON();
-        if(mesh!=null) {
-            json.put("mesh", mesh.getSourceName());
-        }
-        return json;
-    }
-
-    @Override
-    public void fromJSON(JSONObject from) {
-        super.fromJSON(from);
-        if(from.has("mesh")) {
-            mesh = Registry.meshFactory.load(from.getString("mesh"));
-        }
     }
 
     public void adjustLocal() {
@@ -125,5 +120,59 @@ public class MeshInstance extends Pose {
     @Override
     public Icon getIcon() {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/poses/icons8-mesh-16.png")));
+    }
+
+    public void addPropertyChangedListener(PropertyChangeListener listener) {
+        listeners.add(PropertyChangeListener.class,listener);
+    }
+
+    public void removePropertyChangedListener(PropertyChangeListener listener) {
+        listeners.remove(PropertyChangeListener.class,listener);
+    }
+
+    private void fireMeshChanged() {
+        PropertyChangeEvent p = null;
+        for( var v : listeners.getListeners(PropertyChangeListener.class)) {
+            if(p==null) p = new PropertyChangeEvent(this,"mesh",null,mesh);
+            v.propertyChange(p);
+        }
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject json = super.toJSON();
+        if(mesh!=null) {
+            if(mesh instanceof ProceduralMesh p) {
+                JSONObject pJSON = p.toJSON();
+                json.put("proceduralMesh", pJSON);
+            } else {
+                json.put("mesh", mesh.getSourceName());
+            }
+        }
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject from) {
+        super.fromJSON(from);
+        if(from.has("mesh")) {
+            mesh = Registry.meshFactory.load(from.getString("mesh"));
+        } else if(from.has("proceduralMesh")) {
+            var procMesh = from.getJSONObject("proceduralMesh");
+            var pmesh = ProceduralMeshFactory.createMesh(procMesh.getString("type"));
+            if(pmesh!=null) {
+                pmesh.fromJSON(procMesh);
+                this.setMesh(pmesh);
+            }
+        }
+    }
+
+    @Override
+    protected void onAttach() {
+        super.onAttach();
+        // if there is no mesh, set it to a procedurally generated box
+        if(mesh==null) {
+            setMesh(ProceduralMeshFactory.createMesh("Box"));
+        }
     }
 }

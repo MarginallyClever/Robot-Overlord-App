@@ -4,8 +4,10 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.ro3.mesh.Mesh;
 
-import javax.vecmath.*;
-import java.nio.FloatBuffer;
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Quat4d;
+import javax.vecmath.Vector3d;
 
 /**
  * Convenience methods for matrixes
@@ -177,10 +179,9 @@ public class MatrixHelper {
 	}
 
 	/**
-	 * Build a "look at" matrix.  The X+ axis is pointing (to-from) normalized.
-	 * The Z+ starts as pointing up.  Y+ is cross product of X and Z.  Z is then
-	 * recalculated based on the correct X and Y.
-	 * This will fail if to-from is parallel to up.
+	 * <p>Build a "look at" matrix.  The forward axis is pointing (to-from) normalized. The up starts as (0,0,1).
+	 * left axis is cross product of up and forward.  forward is then recalculated as the cross product of left and up.</p>
+	 * <p>This will fail if forward is parallel to up.</p>
 	 *  
 	 * @param from where i'm at
 	 * @param to what I'm looking at
@@ -190,12 +191,13 @@ public class MatrixHelper {
 		Vector3d forward = new Vector3d();
 		Vector3d left = new Vector3d();
 		Vector3d up = new Vector3d();
-		
+		final double NEARLY_ONE = 1-1e-6;
+
 		forward.sub(to,from);
 		forward.normalize();
-		if(forward.z==1) {
+		if(forward.z>NEARLY_ONE) {
 			up.set(0,1,0);
-		} else if(forward.z==-1) {
+		} else if(forward.z<-NEARLY_ONE) {
 			up.set(0,-1,0);
 		} else {
 			up.set(0,0,1);
@@ -440,6 +442,10 @@ public class MatrixHelper {
 		listOut[5] = -rpy[2];
 	}
 
+	/**
+	 * @param pivot the matrix to use as the origin.
+	 * @return a {@link Plane} that is parallel to the XY plane and passes through the origin.
+	 */
 	public static Plane getXYPlane(Matrix4d pivot) {
 		return new Plane(
 				getPosition(pivot),
@@ -447,17 +453,152 @@ public class MatrixHelper {
 		);
 	}
 
+	/**
+	 * Generate an orthographic matrix.
+	 * @param left pixels
+	 * @param right pixels
+	 * @param bottom pixels
+	 * @param top pixels
+	 * @param near distance
+	 * @param far distance
+	 * @return a matrix
+	 */
 	public static Matrix4d orthographicMatrix4d(double left, double right, double bottom, double top, double near, double far) {
-		double [] list = new double[16];
-		org.joml.Matrix4d ortho = new org.joml.Matrix4d();
-		ortho.setOrtho(left, right, bottom, top, near, far).get(list);
-		return new Matrix4d(list);
+		//return setOrthographicInfiniteFar(left, right, bottom, top, near);
+		return setOrthographicFiniteFar(left, right, bottom, top, near, far);
 	}
 
+	/**
+	 * Generate an orthographic matrix where near is -1 and far is 1.
+	 * @param left pixels
+	 * @param right pixels
+	 * @param bottom pixels
+	 * @param top pixels
+	 * @param near distance
+	 * @param far distance
+	 * @return a matrix
+	 */
+	public static Matrix4d setOrthographicFiniteFar(double left, double right, double bottom, double top, double near, double far) {
+		var ortho = new Matrix4d();
+		ortho.m00 = 2.0 / (right - left);
+		ortho.m11 = 2.0 / (top - bottom);
+		ortho.m22 = -2.0 / (far - near);
+		ortho.m33 = 1.0;
+		ortho.m03 = -(right + left) / (right - left);
+		ortho.m13 = -(top + bottom) / (top - bottom);
+		ortho.m23 = -(far + near) / (far - near);
+		return ortho;
+	}
+
+	/**
+	 * Generate a reverse-distance orthographic matrix where near items are 1 and far items are 0.
+	 * @param left pixels
+	 * @param right pixels
+	 * @param bottom pixels
+	 * @param top pixels
+	 * @param near distance
+	 * @return a matrix
+	 */
+	public static Matrix4d setOrthographicInfiniteFar(double left, double right, double bottom, double top, double near) {
+		var m = new Matrix4d();
+		m.m00 = 2.0 / (right - left);
+		m.m11 = 2.0 / (top - bottom);
+		m.m22 = -1.0;             // Infinite far plane
+		m.m30 = -(right + left) / (right - left);
+		m.m31 = -(top + bottom) / (top - bottom);
+		m.m32 = -2.0 / near;      // Use near plane to scale depth
+		m.m33 = 1.0;
+		return m;
+	}
+
+	/**
+	 * Generate a perspective matrix.
+	 * @param fovY degrees
+	 * @param aspect ratio
+	 * @param near distance
+	 * @param far distance
+	 * @return a matrix
+	 */
 	public static Matrix4d perspectiveMatrix4d(double fovY, double aspect, double near, double far) {
-		double [] list = new double[16];
-		org.joml.Matrix4d perspective = new org.joml.Matrix4d();
-		perspective.setPerspective(Math.toRadians(fovY), aspect, near, far).get(list);
-		return new Matrix4d(list);
+		//return setPerspectiveInfiniteFar(fovY, aspect, near);
+		return setPerspectiveFiniteFar(fovY, aspect, near, far);
+	}
+
+	/**
+	 * Generate a perspective matrix where near items are -1 and far items are +1.
+	 * @param fovY degrees
+	 * @param aspect ratio
+	 * @param near distance
+	 * @param far distance
+	 * @return a matrix
+	 */
+	public static Matrix4d setPerspectiveFiniteFar(double fovY, double aspect, double near, double far) {
+		return setPerspectiveFiniteFarSimplified(fovY, aspect, near, far);
+	}
+
+	/**
+	 * Generate a perspective matrix where near items are -1 and far items are +1.
+	 * @param fovY degrees
+	 * @param aspect ratio
+	 * @param near distance
+	 * @param far distance
+	 * @return a matrix
+	 */
+	public static Matrix4d setPerspectiveFiniteFarSimplified(double fovY, double aspect, double near, double far) {
+		var m = new Matrix4d();
+		double f = 1.0 / Math.tan(Math.toRadians(fovY) / 2.0);
+		m.m00 = f / aspect;
+		m.m11 = f;
+		m.m22 = -(far + near) / (far - near);
+		m.m32 = -1.0;
+		m.m23 = -(2.0 * far * near) / (far - near);
+		m.m33 = 0.0;
+		return m;
+	}
+
+	/**
+	 * Generate a perspective matrix where near items are -1 and far items are +1.
+	 * This version could more easily be tweaked to adjust left/right for stereoscopic rendering.
+	 * @param fovY degrees
+	 * @param aspect ratio
+	 * @param near distance
+	 * @param far distance
+	 * @return a matrix
+	 */
+	public static Matrix4d setPerspectiveFiniteFarAdvanced(double fovY, double aspect, double near, double far) {
+		var m = new Matrix4d();
+		var scale = Math.tan( Math.toRadians(fovY) / 2.0 ) * near;
+		var r = aspect * scale;
+		var t = scale;
+		var l = -r;
+		var b = -t;
+		m.m00 = 2 * near / (r - l);
+		m.m11 = 2 * near / (t - b);
+		m.m02 = (r + l) / (r - l);
+		m.m12 = (t + b) / (t - b);
+		m.m22 = -(far + near) / (far - near);
+		m.m32 = -1;
+		m.m23 = -(2 * far * near) / (far - near);
+		m.m33 = 0;
+		return m;
+	}
+
+	/**
+	 * Generate the reverse perspective matrix, where near items are 1 and far items are 0.
+	 * @param fovY degrees
+	 * @param aspect ratio
+	 * @param near distance
+	 * @return a matrix
+	 */
+	public static Matrix4d setPerspectiveInfiniteFar(double fovY, double aspect, double near) {
+		var m = new Matrix4d();
+		double f = 1.0 / Math.tan( Math.toRadians(fovY) / 2.0 );
+		m.m00 = f / aspect;
+		m.m11 = f;
+		m.m22 = 0.0;  // Infinite far plane
+		m.m32 = -1.0;
+		m.m23 = near;  // Use near to scale depth
+		m.m33 = 0.0;
+		return m;
 	}
 }

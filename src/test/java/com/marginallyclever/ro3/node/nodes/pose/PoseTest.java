@@ -82,4 +82,18 @@ class PoseTest {
         assertEquals(pose.getPosition(),pose2.getPosition());
         assertEquals(pose.getRotationEuler(MatrixHelper.EulerSequence.XYZ),pose2.getRotationEuler(MatrixHelper.EulerSequence.XYZ));
     }
+
+    /**
+     * Add a child to a parent.  confirm the getParentPose is correct.
+     * Remove the child from the parent.  confirm the getParentPose is null.
+     */
+    @Test
+    public void testParentPose() {
+        Pose parent = new Pose();
+        Pose child = new Pose();
+        parent.addChild(child);
+        assertEquals(parent,child.getParentPose());
+        parent.removeChild(child);
+        assertNull(child.getParentPose());
+    }
 }

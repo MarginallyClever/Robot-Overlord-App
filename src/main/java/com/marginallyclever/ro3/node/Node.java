@@ -76,12 +76,17 @@ public class Node {
 
         children.add(index,child);
         child.setParent(this);
-        fireAttachEvent(child);
         child.onAttach();
-        if(child.children.isEmpty()) {
-            fireReadyEvent(child);
-            child.onReady();
-        }
+        fireAttachEvent(child);
+        child.onReady();
+        fireReadyEvent(child);
+    }
+
+    public void removeChild(Node child) {
+        children.remove(child);
+        child.setParent(null);
+        child.onDetach();
+        fireDetachEvent(child);
     }
 
     private void fireReadyEvent(Node child) {
@@ -112,13 +117,6 @@ public class Node {
      * Called after this {@link Node} is added to a new parent {@link Node}.
      */
     protected void onAttach() {}
-
-    public void removeChild(Node child) {
-        child.onDetach();
-        fireDetachEvent(child);
-        children.remove(child);
-        child.setParent(null);
-    }
 
     /**
      * Called after this {@link Node} is removed from its parent {@link Node}.
@@ -378,8 +376,8 @@ public class Node {
                 logger.error("{}: Could not create type {}.",getAbsolutePath(),child.getString("type"));
                 n = new Node();
             }
-            addChild(n);
             n.fromJSON(child);
+            addChild(n);
         }
     }
 

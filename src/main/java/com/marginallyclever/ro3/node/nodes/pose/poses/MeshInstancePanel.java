@@ -1,29 +1,47 @@
 package com.marginallyclever.ro3.node.nodes.pose.poses;
 
 import com.jogamp.opengl.GL3;
+import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.MeshChooserDialog;
 import com.marginallyclever.ro3.mesh.MeshSmoother;
-import com.marginallyclever.ro3.PanelHelper;
-import com.marginallyclever.ro3.mesh.shapes.*;
-import com.marginallyclever.ro3.mesh.shapes.Box;
+import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactoryPanel;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * GUI for a {@link MeshInstance}.
  */
 public class MeshInstancePanel extends JPanel {
-    // matching the values sent to glDrawArrays and glDrawElements.
-    public final static String [] renderStyleNames = { "Points", "Line strip", "Line loop", "Lines", "Triangle strip", "Triangle fan", "Triangles", "Quad strip", "Quads", "Polygon" };
+    public static final String[] meshSources = {
+            "Procedural",
+            "File"
+    };
 
-    private final JPanel sourceContainer = new JPanel(new GridLayout(0,2));
+    // matching the values sent to glDrawArrays and glDrawElements.
+    public static final Map<String,Integer> renderStyles = new HashMap<>();
+    static {
+        renderStyles.put("Points",GL3.GL_POINTS);
+        renderStyles.put("Line strip",GL3.GL_LINE_STRIP);
+        renderStyles.put("Line loop",GL3.GL_LINE_LOOP);
+        renderStyles.put("Lines",GL3.GL_LINES);
+        renderStyles.put("Triangle strip",GL3.GL_TRIANGLE_STRIP);
+        renderStyles.put("Triangle fan",GL3.GL_TRIANGLE_FAN);
+        renderStyles.put("Triangles",GL3.GL_TRIANGLES);
+        renderStyles.put("Quads",GL3.GL_QUADS);
+        //renderStyles.put("Quad strip",GL3.GL_QUADS);
+        //renderStyles.put("Polygon",GL3.GL_TRIANGLES);
+    }
+
     private final MeshInstance meshInstance;
+    private final JPanel sourceContainer = new JPanel(new GridLayout(0,2));
+    private final JPanel proceduralContainer = new JPanel(new BorderLayout());
+    private final JPanel detailsContainer = new JPanel(new GridLayout(0,2));
 
     public MeshInstancePanel() {
         this(new MeshInstance());
@@ -37,118 +55,86 @@ public class MeshInstancePanel extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.gridx=0;
-        gbc.gridy=0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         gbc.fill = GridBagConstraints.BOTH;
 
         addMeshSource(gbc);
+        changeMeshDetails();
 
+        gbc.gridwidth=2;
+        add(sourceContainer,gbc);
+        gbc.gridy++;
+        add(proceduralContainer,gbc);
+        gbc.gridy++;
+        add(detailsContainer,gbc);
+
+        meshInstance.addPropertyChangedListener(e->changeMeshDetails());
+    }
+
+    private void changeMeshDetails() {
+        detailsContainer.removeAll();
         // mesh details
         Mesh mesh = meshInstance.getMesh();
-        if(mesh!=null) {
-            gbc.gridy++;
-            PanelHelper.addLabelAndComponent(this,"Vertices",new JLabel(""+mesh.getNumVertices()),gbc);
-            gbc.gridy++;
-            PanelHelper.addLabelAndComponent(this,"Triangles",new JLabel(""+mesh.getNumTriangles()),gbc);
-
-            gbc.gridy++;
-            JComboBox<String> renderStyle = new JComboBox<>(renderStyleNames);
-            setRenderStyleComboBox(mesh, renderStyle);
-            renderStyle.addActionListener(e->updateMeshStyle(mesh, renderStyle));
-            PanelHelper.addLabelAndComponent(this,"Style",renderStyle,gbc);
-
-            gbc.gridy++;
-            JButton smooth = new JButton("Smooth");
-            smooth.addActionListener(e -> MeshSmoother.smoothNormals(mesh,0.01f,0.25f) );
-            PanelHelper.addLabelAndComponent(this,"Normals",smooth,gbc);
-
-            gbc.gridy++;
-            JButton adjust = new JButton("Adjust");
-            adjust.addActionListener(e -> meshInstance.adjustLocal());
-            PanelHelper.addLabelAndComponent(this,"Local origin",adjust,gbc);
-
-            gbc.gridy++;
-            JButton reload = new JButton("Reload");
-            reload.addActionListener(e-> Registry.meshFactory.reload(mesh) );
-            PanelHelper.addLabelAndComponent(this,"Source",reload,gbc);
+        if(mesh==null) {
+            PanelHelper.addLabelAndComponent(detailsContainer, "No mesh", new JLabel(""));
+            return;
         }
+        PanelHelper.addLabelAndComponent(detailsContainer,"Vertices",new JLabel(""+mesh.getNumVertices()));
+        PanelHelper.addLabelAndComponent(detailsContainer,"Triangles",new JLabel(""+mesh.getNumTriangles()));
+
+        JComboBox<String> renderStyle = new JComboBox<>(renderStyles.keySet().toArray(new String[0]));
+        setRenderStyleComboBox(mesh, renderStyle);
+        renderStyle.addActionListener(e->updateMeshStyle(mesh, renderStyle));
+        PanelHelper.addLabelAndComponent(detailsContainer,"Style",renderStyle);
+
+        JButton smooth = new JButton("Smooth");
+        smooth.addActionListener(e -> MeshSmoother.smoothNormals(mesh,0.01f,0.25f) );
+        PanelHelper.addLabelAndComponent(detailsContainer,"Normals",smooth);
+
+        JButton adjust = new JButton("Adjust");
+        adjust.addActionListener(e -> meshInstance.adjustLocal());
+        PanelHelper.addLabelAndComponent(detailsContainer,"Local origin",adjust);
+
+        detailsContainer.revalidate();
     }
 
-    private void updateMeshStyle(Mesh mesh, JComboBox<String> renderStyle) {
-        mesh.setRenderStyle(switch(renderStyle.getSelectedIndex()) {
-            case 0 -> GL3.GL_POINTS;
-            case 1 -> GL3.GL_LINE_STRIP;
-            case 2 -> GL3.GL_LINE_LOOP;
-            case 3 -> GL3.GL_LINES;
-            case 4 -> GL3.GL_TRIANGLE_STRIP;
-            case 5 -> GL3.GL_TRIANGLE_FAN;
-            case 6 -> GL3.GL_TRIANGLES;
-            //case 7 -> GL3.GL_QUAD_STRIP;
-            case 8 -> GL3.GL_QUADS;
-            //case 9 -> GL3.GL_POLYGON;
-            default -> GL3.GL_TRIANGLES;
-        });
+    private void updateMeshStyle(Mesh mesh, JComboBox<String> comboBox) {
+        mesh.setRenderStyle(renderStyles.get(comboBox.getItemAt(comboBox.getSelectedIndex())));
     }
 
-    private void setRenderStyleComboBox(Mesh mesh, JComboBox<String> renderStyle) {
-        renderStyle.setSelectedIndex(switch(mesh.getRenderStyle()) {
-            case GL3.GL_POINTS -> 0;
-            case GL3.GL_LINE_STRIP -> 1;
-            case GL3.GL_LINE_LOOP -> 2;
-            case GL3.GL_LINES -> 3;
-            case GL3.GL_TRIANGLE_STRIP -> 4;
-            case GL3.GL_TRIANGLE_FAN -> 5;
-            case GL3.GL_TRIANGLES -> 6;
-            //case GL3.GL_QUAD_STRIP -> 7;
-            case GL3.GL_QUADS -> 8;
-            //case GL3.GL_POLYGON -> 9;
-            default -> 0;
+    private void setRenderStyleComboBox(Mesh mesh, JComboBox<String> comboBox) {
+        // get the key for the current value.
+        var value = mesh.getRenderStyle();
+        renderStyles.forEach((k,v)->{
+            if(v==value) {
+                comboBox.setSelectedItem(k);
+            }
         });
     }
 
     private void addMeshSource(GridBagConstraints gbc) {
         // Create a list of available mesh sources
-        String[] meshSources = { "Procedural", "File" }; // replace with actual mesh sources
         JComboBox<String> meshSourceComboBox = new JComboBox<>(meshSources);
-        meshSourceComboBox.setSelectedItem("Procedural");
+        var filename = meshInstance.getMesh()==null ? "" : meshInstance.getMesh().getSourceName();
+        meshSourceComboBox.setSelectedItem((filename!=null && !filename.isEmpty())?"File":"Procedural");
         meshSourceComboBox.addActionListener(e -> changeMeshSource(meshSourceComboBox));
         changeMeshSource(meshSourceComboBox);
-
-        // Add the JComboBox to the panel
         PanelHelper.addLabelAndComponent(this, "Mesh Source", meshSourceComboBox,gbc);
-
-        sourceContainer.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        gbc.gridy++;
-        gbc.gridwidth=2;
-        add(sourceContainer,gbc);
-        gbc.gridwidth=1;
     }
 
     private void changeMeshSource(JComboBox<String> meshSourceComboBox) {
         sourceContainer.removeAll();
+        proceduralContainer.removeAll();
         String selectedMeshSource = (String) meshSourceComboBox.getSelectedItem();
         if(selectedMeshSource==null || selectedMeshSource.equals("File")) {
             addFileMesh();
         } else if(selectedMeshSource.equals("Procedural")) {
-            addProceduralMesh();
+            proceduralContainer.add(new ProceduralMeshFactoryPanel(meshInstance));
         } else {
             throw new RuntimeException("Unknown mesh source: "+selectedMeshSource);
         }
         sourceContainer.revalidate();
-    }
-
-    private void addProceduralMesh() {
-        // Add a button to create a procedural mesh
-        addButton("+Box", e -> meshInstance.setMesh(new Box()));
-        addButton("+Sphere", e -> meshInstance.setMesh(new Sphere()));
-        addButton("+Cylinder", e -> meshInstance.setMesh(new Cylinder()));
-        addButton("+Capsule", e -> meshInstance.setMesh(new Capsule()));
-    }
-
-    private void addButton(String label, ActionListener actionListener) {
-        JButton createBox = new JButton(label);
-        createBox.addActionListener(actionListener);
-        PanelHelper.addLabelAndComponent(sourceContainer,"Procedural",createBox);
     }
 
     private void addFileMesh() {
@@ -160,10 +146,15 @@ public class MeshInstancePanel extends JPanel {
             int result = meshChooserDialog.run(this);
             if(result == JFileChooser.APPROVE_OPTION) {
                 meshInstance.setMesh( meshChooserDialog.getSelectedItem() );
+                changeMeshDetails();
                 setMeshButtonLabel(chooseMesh);
             }
         });
-        PanelHelper.addLabelAndComponent(sourceContainer,"File",chooseMesh);
+        PanelHelper.addLabelAndComponent(sourceContainer,"Path",chooseMesh);
+
+        JButton reload = new JButton("Reload");
+        reload.addActionListener(e-> Registry.meshFactory.reload(meshInstance.getMesh()) );
+        PanelHelper.addLabelAndComponent(sourceContainer,"Source",reload);
     }
 
     private void setMeshButtonLabel(JButton button) {

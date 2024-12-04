@@ -1,10 +1,9 @@
 package com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.mesh.shapes.Capsule;
-import com.marginallyclever.ro3.mesh.shapes.Sphere;
+import com.marginallyclever.ro3.mesh.proceduralmesh.Capsule;
+import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
-import com.marginallyclever.ro3.physics.ODE4JHelper;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONObject;
 import org.ode4j.ode.DCapsule;
@@ -22,7 +21,7 @@ public class ODECapsule extends ODEBody {
     private double length = 10.0;
 
     public ODECapsule() {
-        this("ODE Capsule");
+        this(ODECapsule.class.getSimpleName());
     }
 
     public ODECapsule(String name) {
@@ -36,9 +35,7 @@ public class ODECapsule extends ODEBody {
     }
 
     @Override
-    protected void onFirstUpdate() {
-        super.onFirstUpdate();
-
+    protected void createGeom() {
         geom = OdeHelper.createCapsule(Registry.getPhysics().getODESpace(), radius, length);
         geom.setBody(body);
 
@@ -56,19 +53,39 @@ public class ODECapsule extends ODEBody {
         return length;
     }
 
-    public void setRadius(double radius) {
-        if(radius<=0) throw new IllegalArgumentException("Radius must be greater than zero.");
-        this.radius = radius;
-        updateSize();
-    }
 
-    public void setLength(double length) {
+    /**
+     * Sets the radius and the length, then updates the mesh.
+     * @param radius
+     * @param length
+     */
+    public void setRadiusAndLength(double radius, double length) {
+        if(radius<=0) throw new IllegalArgumentException("Radius must be greater than zero.");
         if(length<=0) throw new IllegalArgumentException("Length must be greater than zero.");
+        this.radius = radius;
         this.length = length;
         updateSize();
     }
 
-    private void updateSize() {
+    /**
+     * Sets the radius of the capsule.  does not update the mesh.
+     * @param radius
+     */
+    public void setRadius(double radius) {
+        if(radius<=0) throw new IllegalArgumentException("Radius must be greater than zero.");
+        this.radius = radius;
+    }
+
+    /**
+     * Sets the length of the capsule.  does not update the mesh.
+     * @param length
+     */
+    public void setLength(double length) {
+        if(length<=0) throw new IllegalArgumentException("Length must be greater than zero.");
+        this.length = length;
+    }
+
+    public void updateSize() {
         if(geom==null) return;
 
         ((DCapsule)geom).setParams(radius, length);
@@ -80,9 +97,13 @@ public class ODECapsule extends ODEBody {
         MeshInstance meshInstance = findFirstChild(MeshInstance.class);
         if(null != meshInstance) {
             var mesh = meshInstance.getMesh();
-            if(mesh==null || mesh instanceof Capsule) {
-                meshInstance.setMesh(new Capsule(length, radius));
+            if(mesh instanceof Capsule g) {
+                g.setLength(length);
+                g.setRadius(radius);
+                g.updateModel();
+                return;
             }
+            meshInstance.setMesh(new Capsule(length, radius));
         }
 
         MeshInstance b1 = findNodeByPath("Ball1/MeshInstance",MeshInstance.class);

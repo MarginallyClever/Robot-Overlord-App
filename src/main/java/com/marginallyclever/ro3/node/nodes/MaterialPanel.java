@@ -27,9 +27,9 @@ public class MaterialPanel extends JPanel {
         gbc.weighty = 1.0;
         gbc.gridx=0;
         gbc.gridy=0;
-        gbc.fill = GridBagConstraints.BOTH;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        var texture = material.getTexture();
+        var texture = material.getDiffuseTexture();
 
         JButton button = new JButton();
         setTextureButtonLabel(button);
@@ -38,7 +38,7 @@ public class MaterialPanel extends JPanel {
             textureChooserDialog.setSelectedItem(texture);
             int result = textureChooserDialog.run(this);
             if(result == JFileChooser.APPROVE_OPTION) {
-                material.setTexture(textureChooserDialog.getSelectedItem());
+                material.setDiffuseTexture(textureChooserDialog.getSelectedItem());
                 setTextureButtonLabel(button);
                 updatePreview();
             }
@@ -67,7 +67,7 @@ public class MaterialPanel extends JPanel {
     }
 
     private void updatePreview() {
-        var texture = material.getTexture();
+        var texture = material.getDiffuseTexture();
         if(texture!=null) {
             sizeLabel.setText(texture.getWidth()+"x"+texture.getHeight());
             imgLabel.setIcon(new ImageIcon(scaleImage(texture.getImage())));
@@ -112,7 +112,7 @@ public class MaterialPanel extends JPanel {
     }
 
     private void setTextureButtonLabel(JButton button) {
-        var texture = material.getTexture();
+        var texture = material.getDiffuseTexture();
         button.setText((texture==null)
                 ? "..."
                 : texture.getSource().substring(texture.getSource().lastIndexOf(java.io.File.separatorChar)+1));

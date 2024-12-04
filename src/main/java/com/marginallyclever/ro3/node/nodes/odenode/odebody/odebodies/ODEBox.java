@@ -1,9 +1,8 @@
 package com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.mesh.shapes.Box;
+import com.marginallyclever.ro3.mesh.proceduralmesh.Box;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
-import com.marginallyclever.ro3.physics.ODE4JHelper;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONObject;
 import org.ode4j.ode.DBox;
@@ -21,7 +20,7 @@ public class ODEBox extends ODEBody {
     private final Vector3d size = new Vector3d(5,5,5);
 
     public ODEBox() {
-        this("ODE Box");
+        this(ODEBox.class.getSimpleName());
     }
 
     public ODEBox(String name) {
@@ -35,9 +34,7 @@ public class ODEBox extends ODEBody {
     }
 
     @Override
-    protected void onFirstUpdate() {
-        super.onFirstUpdate();
-
+    protected void createGeom() {
         geom = createBox(Registry.getPhysics().getODESpace(), size.x, size.y, size.z);
         geom.setBody(body);
 
@@ -88,8 +85,13 @@ public class ODEBox extends ODEBody {
         var meshInstance = findFirstChild(MeshInstance.class);
         if(meshInstance!=null) {
             var mesh = meshInstance.getMesh();
-            if(mesh==null || mesh instanceof Box) {
+            if(mesh==null) {
                 meshInstance.setMesh(new Box(size.x, size.y, size.z));
+            } else if(mesh instanceof Box b) {
+                b.width = size.x;
+                b.length = size.y;
+                b.height = size.z;
+                b.updateModel();
             }
         }
     }

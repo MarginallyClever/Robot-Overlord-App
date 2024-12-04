@@ -10,19 +10,32 @@ import java.security.InvalidParameterException;
 
 public class CameraPanel extends JPanel {
     private final Camera camera;
+    private final JFormattedTextField lookAtx = PanelHelper.addNumberField("x",0);
+    private final JFormattedTextField lookAty = PanelHelper.addNumberField("y",0);
+    private final JFormattedTextField lookAtz = PanelHelper.addNumberField("z",-1);
 
     public CameraPanel() {
         this(new Camera());
     }
 
     public CameraPanel(Camera camera) {
-        super(new GridLayout(0,2));
+        super(new GridBagLayout());
         this.camera = camera;
         this.setName(Camera.class.getSimpleName());
 
-        SpinnerNumberModel farZModel = new SpinnerNumberModel(camera.getFarZ(), 0, 10000, 1);
+        var v = camera.getOrbitPoint();
+        lookAtx.setValue(v.x);
+        lookAty.setValue(v.y);
+        lookAtz.setValue(v.z);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
+
+        SpinnerNumberModel farZModel = new SpinnerNumberModel(camera.getFarZ(), 0, 1e10, 1);
+        SpinnerNumberModel nearZModel = new SpinnerNumberModel(camera.getNearZ(), 0, 1e10, 1);
         JSpinner farZSpinner = new JSpinner(farZModel);
-        JSpinner nearZSpinner = new JSpinner(new SpinnerNumberModel(camera.getNearZ(), 0, 10000, 1));
+        JSpinner nearZSpinner = new JSpinner(nearZModel);
         JSpinner fovSpinner = new JSpinner(new SpinnerNumberModel(camera.getFovY(), 1, 180, 1));
 
         // orthographic?
@@ -35,7 +48,8 @@ public class CameraPanel extends JPanel {
             fovSpinner.setEnabled(!drawOrthographic);
         });
         ortho.setSelected(camera.getDrawOrthographic());
-        PanelHelper.addLabelAndComponent(this,"Orthographic",ortho);
+        PanelHelper.addLabelAndComponent(this,"Orthographic",ortho,gbc);
+        gbc.gridy++;
 
         // fov
         fovSpinner.setValue(camera.getFovY());
@@ -43,7 +57,8 @@ public class CameraPanel extends JPanel {
             camera.setFovY( (double) fovSpinner.getValue() );
         });
         fovSpinner.setToolTipText("degrees");
-        PanelHelper.addLabelAndComponent(this,"FOV",fovSpinner);
+        PanelHelper.addLabelAndComponent(this,"FOV",fovSpinner,gbc);
+        gbc.gridy++;
 
         // near z
         nearZSpinner.addChangeListener(e -> {
@@ -56,15 +71,22 @@ public class CameraPanel extends JPanel {
         });
         nearZSpinner.setValue(camera.getNearZ());
         nearZSpinner.setToolTipText("cm");
-        PanelHelper.addLabelAndComponent(this,"Near",nearZSpinner);
+        PanelHelper.addLabelAndComponent(this,"Near",nearZSpinner,gbc);
+        gbc.gridy++;
 
         // far z
         farZSpinner.setValue(camera.getFarZ());
         farZSpinner.addChangeListener(e -> {
             camera.setFarZ( (double) farZSpinner.getValue() );
+            var farZ = camera.getFarZ();
+            nearZModel.setMaximum(farZ - 1);
+            if(camera.getNearZ() >= farZ) {
+                nearZSpinner.setValue(farZ - 1);
+            }
         });
         farZSpinner.setToolTipText("cm");
-        PanelHelper.addLabelAndComponent(this,"Far",farZSpinner);
+        PanelHelper.addLabelAndComponent(this,"Far",farZSpinner,gbc);
+        gbc.gridy++;
 
         // can rotate
         JToggleButton canRotate = new JToggleButton("Yes");
@@ -74,7 +96,8 @@ public class CameraPanel extends JPanel {
         });
         canRotate.setSelected(camera.getCanRotate());
         updateRotateButton(canRotate);
-        PanelHelper.addLabelAndComponent(this,"Can rotate",canRotate);
+        PanelHelper.addLabelAndComponent(this,"Can rotate",canRotate,gbc);
+        gbc.gridy++;
 
         // can translate
         JToggleButton canTranslate = new JToggleButton("Yes");
@@ -84,9 +107,10 @@ public class CameraPanel extends JPanel {
         });
         canTranslate.setSelected(camera.getCanTranslate());
         updateTranslateButton(canTranslate);
-        PanelHelper.addLabelAndComponent(this,"Can translate",canTranslate);
+        PanelHelper.addLabelAndComponent(this,"Can translate",canTranslate,gbc);
+        gbc.gridy++;
 
-        addLookAtComponents();
+        addLookAtComponents(gbc);
     }
 
     private void updateTranslateButton(JToggleButton canTranslate) {
@@ -99,35 +123,32 @@ public class CameraPanel extends JPanel {
         canRotate.setToolTipText(camera.getCanRotate() ? "Click to deny" : "Click to allow");
     }
 
-    private void addLookAtComponents() {
-        var formatter = NumberFormatHelper.getNumberFormatter();
+    private void addLookAtComponents(GridBagConstraints gbc) {
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        c.gridy=0;
+        panel.add(lookAtx,c);
+        panel.add(lookAty,c);
+        panel.add(lookAtz,c);
 
-        JFormattedTextField tx = new JFormattedTextField(formatter);        tx.setValue(0);
-        JFormattedTextField ty = new JFormattedTextField(formatter);        ty.setValue(0);
-        JFormattedTextField tz = new JFormattedTextField(formatter);        tz.setValue(0);
-        tx.setToolTipText("x");
-        ty.setToolTipText("y");
-        tz.setToolTipText("z");
+        PanelHelper.addLabelAndComponent(this, "Look at", panel,gbc);
+        lookAtx.addPropertyChangeListener(e->lookAt());
+        lookAty.addPropertyChangeListener(e->lookAt());
+        lookAtz.addPropertyChangeListener(e->lookAt());
+        gbc.gridy++;
+    }
 
-
-        JButton button = new JButton("Set");
-        button.addActionListener(e -> {
-            Vector3d target = new Vector3d(
-                    ((Number) tx.getValue()).doubleValue(),
-                    ((Number) ty.getValue()).doubleValue(),
-                    ((Number) tz.getValue()).doubleValue()
-            );
-            try {
-                camera.lookAt(target);
-            } catch (InvalidParameterException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
-        PanelHelper.addLabelAndComponent(this, "Look at", new JLabel());
-        PanelHelper.addLabelAndComponent(this, "X", tx);
-        PanelHelper.addLabelAndComponent(this, "Y", ty);
-        PanelHelper.addLabelAndComponent(this, "Z", tz);
-        PanelHelper.addLabelAndComponent(this, "", button);
+    private void lookAt() {
+        try {
+            var lookAt = new Vector3d(
+                    ((Number)lookAtx.getValue()).doubleValue(),
+                    ((Number)lookAty.getValue()).doubleValue(),
+                    ((Number)lookAtz.getValue()).doubleValue());
+            camera.lookAt(lookAt);
+        } catch (InvalidParameterException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

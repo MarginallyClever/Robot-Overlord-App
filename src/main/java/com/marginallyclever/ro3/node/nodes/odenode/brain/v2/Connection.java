@@ -1,7 +1,5 @@
 package com.marginallyclever.ro3.node.nodes.odenode.brain.v2;
 
-import org.json.JSONObject;
-
 /**
  * Positive weights will act as excitatory connections.
  * Negative weights will act as inhibitory connections.

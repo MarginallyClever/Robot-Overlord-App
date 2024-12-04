@@ -73,9 +73,9 @@ public class NodeFactoryPanel extends JPanel {
         var root = factory.getRoot();
 
         var matches = findAllTypesMatching(root);
-        logger.debug("Found {} matches", matches.size());
+        //logger.debug("Found {} matches", matches.size());
         addAllParents(matches);
-        logger.debug("Grown to {} matches", matches.size());
+        //logger.debug("Grown to {} matches", matches.size());
 
         DefaultMutableTreeNode rootTreeNode = new DefaultMutableTreeNode(root);
         addBranches(root, rootTreeNode, matches);
