@@ -91,7 +91,7 @@ public class ODESlider extends ODEJoint {
     @Override
     public void setLocal(Matrix4d m) {
         super.setLocal(m);
-        logger.debug("{} setLocal {}",getAbsolutePath(),MatrixHelper.getZAxis(getWorld()));
+        //logger.debug("{} setLocal {}",getAbsolutePath(),MatrixHelper.getZAxis(getWorld()));
         updateSliderPose();
     }
 
@@ -156,7 +156,7 @@ public class ODESlider extends ODEJoint {
             var w = a.getWorld();
             Vector3d v = new Vector3d(axis.get0(), axis.get1(), axis.get2());
             //w.transform(v);
-            System.out.println("v = " + v);
+            //System.out.println("v = " + v);
             Matrix3d m3 = MatrixHelper.lookAt( new Vector3d(), v );
             setWorld(new Matrix4d(m3,MatrixHelper.getPosition(getWorld()),1));
         }
