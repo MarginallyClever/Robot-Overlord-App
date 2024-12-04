@@ -9,6 +9,24 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Java (required for building and generating Javadoc)
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'  # Specify the Java version you need
+          distribution: 'temurin'
+
+      # Step 3: Build and generate Javadoc
+      - name: Build project and generate Javadoc
+        run: |
+          mvn clean install   # Clean and build the project
+          mvn javadoc:javadoc # Generate Javadoc
+
+      # Step 4: Deploy Javadoc to GitHub Pages
       - name: Deploy JavaDoc 🚀
         uses: MathieuSoysal/Javadoc-publisher.yml@v2.4.0
         with:
