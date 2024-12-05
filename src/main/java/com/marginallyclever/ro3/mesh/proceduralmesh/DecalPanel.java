@@ -25,11 +25,11 @@ public class DecalPanel extends JPanel {
         this.decal = decal;
         setName(Decal.class.getSimpleName());
 
-        widthField = PanelHelper.addNumberField("Width", decal.width);
-        heightField = PanelHelper.addNumberField("Height", decal.height);
-        wPartsField = PanelHelper.addNumberField("Width Parts", decal.wParts);
-        hPartsField = PanelHelper.addNumberField("Height Parts", decal.hParts);
-        textureScaleField = PanelHelper.addNumberField("Texture Scale", decal.textureScale);
+        widthField = PanelHelper.addNumberFieldDouble("Width", decal.width);
+        heightField = PanelHelper.addNumberFieldDouble("Height", decal.height);
+        wPartsField = PanelHelper.addNumberFieldDouble("Width Parts", decal.wParts);
+        hPartsField = PanelHelper.addNumberFieldDouble("Height Parts", decal.hParts);
+        textureScaleField = PanelHelper.addNumberFieldDouble("Texture Scale", decal.textureScale);
 
         PanelHelper.addLabelAndComponent(this, "Width", widthField);
         PanelHelper.addLabelAndComponent(this, "Height", heightField);

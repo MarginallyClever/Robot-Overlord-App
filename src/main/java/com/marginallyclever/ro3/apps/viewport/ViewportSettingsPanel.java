@@ -16,7 +16,7 @@ import java.security.InvalidParameterException;
  */
 public class ViewportSettingsPanel extends App {
     private final Viewport viewport;
-    private final NumberFormatter formatter = NumberFormatHelper.getNumberFormatter();
+    private final NumberFormatter formatter = NumberFormatHelper.getNumberFormatterDouble();
     private final JFormattedTextField movementScale = new JFormattedTextField(formatter);
     private final JToggleButton hardwareAccelerated = new JToggleButton();
     private final JToggleButton doubleBuffered = new JToggleButton();

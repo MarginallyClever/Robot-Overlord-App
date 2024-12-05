@@ -23,9 +23,9 @@ public class BoxPanel extends JPanel {
         this.box = box;
         setName(Box.class.getSimpleName());
 
-        tx = PanelHelper.addNumberField("Width",box.width);
-        ty = PanelHelper.addNumberField("Height",box.height);
-        tz = PanelHelper.addNumberField("Length",box.length);
+        tx = PanelHelper.addNumberFieldDouble("Width",box.width);
+        ty = PanelHelper.addNumberFieldDouble("Height",box.height);
+        tz = PanelHelper.addNumberFieldDouble("Length",box.length);
 
         PanelHelper.addLabelAndComponent(this,"Width",tx);
         PanelHelper.addLabelAndComponent(this,"Height",ty);

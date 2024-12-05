@@ -1,12 +1,10 @@
 package com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies;
 
-import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.physics.ODE4JHelper;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.function.DoubleConsumer;
 
 /**
  * A panel for editing an ODEBox.
@@ -30,9 +28,9 @@ public class ODEBoxPanel extends JPanel {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1;
         JPanel panel = new JPanel(new GridBagLayout());
-        JFormattedTextField sx = PanelHelper.addNumberField("Size X", body.getSizeX());
-        JFormattedTextField sy = PanelHelper.addNumberField("Size Y", body.getSizeY());
-        JFormattedTextField sz = PanelHelper.addNumberField("Size Z", body.getSizeZ());
+        JFormattedTextField sx = PanelHelper.addNumberFieldDouble("Size X", body.getSizeX());
+        JFormattedTextField sy = PanelHelper.addNumberFieldDouble("Size Y", body.getSizeY());
+        JFormattedTextField sz = PanelHelper.addNumberFieldDouble("Size Z", body.getSizeZ());
         panel.add(sx,c);
         panel.add(sy,c);
         panel.add(sz,c);

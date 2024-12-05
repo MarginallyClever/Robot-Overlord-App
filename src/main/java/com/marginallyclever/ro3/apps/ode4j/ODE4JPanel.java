@@ -81,7 +81,7 @@ public class ODE4JPanel extends App {
 
         gbc.gridwidth=1;
 
-        NumberFormatter formatter = NumberFormatHelper.getNumberFormatter();
+        NumberFormatter formatter = NumberFormatHelper.getNumberFormatterDouble();
 
         // cfm
         JFormattedTextField cfm = new JFormattedTextField(formatter);

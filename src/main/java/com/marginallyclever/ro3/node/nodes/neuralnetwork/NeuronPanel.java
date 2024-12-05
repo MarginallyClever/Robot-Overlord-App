@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.node.nodes.neuralnetwork;
 
-import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
 
 import javax.swing.*;
@@ -31,8 +30,8 @@ public class NeuronPanel extends JPanel {
 
         var local = neuron.position;
 
-        tx = PanelHelper.addNumberField("x",local.x);
-        ty = PanelHelper.addNumberField("y",local.y);
+        tx = PanelHelper.addNumberFieldDouble("x",local.x);
+        ty = PanelHelper.addNumberFieldDouble("y",local.y);
 
         gbc.gridx=0;        this.add(new JLabel("Position"),gbc);
         gbc.gridx=1;        this.add(tx,gbc);
@@ -42,12 +41,12 @@ public class NeuronPanel extends JPanel {
         ty.addPropertyChangeListener("value",(e)->updatePosition());
         gbc.gridy++;
 
-        var bias = PanelHelper.addNumberField("Bias",neuron.getBias());
+        var bias = PanelHelper.addNumberFieldDouble("Bias",neuron.getBias());
         bias.addPropertyChangeListener("value",(e)->neuron.setBias(((Number)e.getNewValue()).doubleValue()));
         PanelHelper.addLabelAndComponent(this,"Bias",bias,gbc);
         gbc.gridy++;
 
-        var sum = PanelHelper.addNumberField("Sum",neuron.getBias());
+        var sum = PanelHelper.addNumberFieldDouble("Sum",neuron.getBias());
         sum.addPropertyChangeListener("value",(e)->neuron.setSum(((Number)e.getNewValue()).doubleValue()));
         PanelHelper.addLabelAndComponent(this,"Sum",sum,gbc);
         gbc.gridy++;

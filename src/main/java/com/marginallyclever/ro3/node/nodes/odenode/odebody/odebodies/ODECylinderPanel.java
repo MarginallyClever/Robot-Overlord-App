@@ -31,7 +31,7 @@ public class ODECylinderPanel extends JPanel {
     }
 
     private void addField(String label, double originalValue, DoubleConsumer setSize) {
-        var formatter = NumberFormatHelper.getNumberFormatter();
+        var formatter = NumberFormatHelper.getNumberFormatterDouble();
         formatter.setMinimum(0.001);
 
         JFormattedTextField field = new JFormattedTextField(formatter);

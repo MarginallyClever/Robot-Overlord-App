@@ -23,9 +23,9 @@ public class GridPanel extends JPanel {
         this.grid = grid;
         setName(Grid.class.getSimpleName());
 
-        widthField = PanelHelper.addNumberField("Width", grid.width);
-        heightField = PanelHelper.addNumberField("Height", grid.length);
-        spacingField = PanelHelper.addNumberField("Spacing", grid.spacing);
+        widthField = PanelHelper.addNumberFieldDouble("Width", grid.width);
+        heightField = PanelHelper.addNumberFieldDouble("Height", grid.length);
+        spacingField = PanelHelper.addNumberFieldDouble("Spacing", grid.spacing);
 
         PanelHelper.addLabelAndComponent(this, "Width", widthField);
         PanelHelper.addLabelAndComponent(this, "Height", heightField);

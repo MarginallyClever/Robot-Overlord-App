@@ -112,7 +112,7 @@ public class CreatureControllerPanel extends JPanel {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER,5,0));
 
         // torque qty
-        var formatter = NumberFormatHelper.getNumberFormatter();
+        var formatter = NumberFormatHelper.getNumberFormatterDouble();
         formatter.setMinimum(0.0);
         JFormattedTextField torqueField = new JFormattedTextField(formatter);
         torqueField.setValue(myFirstTorque);

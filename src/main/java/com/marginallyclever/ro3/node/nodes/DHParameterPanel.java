@@ -32,7 +32,7 @@ public class DHParameterPanel extends JPanel {
         JButton toPose = new JButton("To Pose");
         toPose.addActionListener(e -> dhParameter.toPoseAndAdjustMeshes());
 
-        var formatter = NumberFormatHelper.getNumberFormatter();
+        var formatter = NumberFormatHelper.getNumberFormatterDouble();
 
         JFormattedTextField dh_d = new JFormattedTextField(formatter);        dh_d.setValue(dhParameter.getD());
         JFormattedTextField dh_r = new JFormattedTextField(formatter);        dh_r.setValue(dhParameter.getR());

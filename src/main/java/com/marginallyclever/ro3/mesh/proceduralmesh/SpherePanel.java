@@ -22,8 +22,8 @@ public class SpherePanel extends JPanel {
         this.sphere = sphere;
         setName(Sphere.class.getSimpleName());
 
-        radiusField = PanelHelper.addNumberField("Radius", sphere.radius);
-        detailField = PanelHelper.addNumberField("Detail", sphere.detail);
+        radiusField = PanelHelper.addNumberFieldDouble("Radius", sphere.radius);
+        detailField = PanelHelper.addNumberFieldDouble("Detail", sphere.detail);
 
         PanelHelper.addLabelAndComponent(this, "Radius", radiusField);
         PanelHelper.addLabelAndComponent(this, "Detail", detailField);

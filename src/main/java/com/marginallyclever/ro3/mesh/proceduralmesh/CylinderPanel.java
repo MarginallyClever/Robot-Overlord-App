@@ -24,9 +24,9 @@ public class CylinderPanel extends JPanel {
         this.cylinder = cylinder;
         setName(Box.class.getSimpleName());
 
-        height = PanelHelper.addNumberField("Height", cylinder.height);
-        radius0 = PanelHelper.addNumberField("Radius0", cylinder.radius0);
-        radius1 = PanelHelper.addNumberField("Radius1", cylinder.radius1);
+        height = PanelHelper.addNumberFieldDouble("Height", cylinder.height);
+        radius0 = PanelHelper.addNumberFieldDouble("Radius0", cylinder.radius0);
+        radius1 = PanelHelper.addNumberFieldDouble("Radius1", cylinder.radius1);
 
         PanelHelper.addLabelAndComponent(this,"Height",height);
         PanelHelper.addLabelAndComponent(this,"Radius0",radius0);

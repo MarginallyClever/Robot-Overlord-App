@@ -22,8 +22,8 @@ public class CapsulePanel extends JPanel {
         this.capsule = capsule;
         setName(Box.class.getSimpleName());
 
-        height = PanelHelper.addNumberField("Height", capsule.height);
-        radius = PanelHelper.addNumberField("Radius", capsule.radius);
+        height = PanelHelper.addNumberFieldDouble("Height", capsule.height);
+        radius = PanelHelper.addNumberFieldDouble("Radius", capsule.radius);
 
         PanelHelper.addLabelAndComponent(this,"Height",height);
         PanelHelper.addLabelAndComponent(this,"Radius",radius);

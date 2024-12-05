@@ -39,7 +39,7 @@ public class LimbSolverPanel extends JPanel {
         addMoveTargetToFirstSelected(this,gbc);
 
         gbc.gridy++;
-        var formatter = NumberFormatHelper.getNumberFormatter();
+        var formatter = NumberFormatHelper.getNumberFormatterDouble();
         formatter.setMinimum(0.0);
         JFormattedTextField marginField = new JFormattedTextField(formatter);
         marginField.setValue(limbSolver.getGoalMarginOfError());

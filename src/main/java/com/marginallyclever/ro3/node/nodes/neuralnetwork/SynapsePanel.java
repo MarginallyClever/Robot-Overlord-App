@@ -38,7 +38,7 @@ public class SynapsePanel extends JPanel {
     }
 
     private void addWeightField(GridBagConstraints gbc, Synapse synapse) {
-        JFormattedTextField f = PanelHelper.addNumberField("Weight", synapse.weight);
+        JFormattedTextField f = PanelHelper.addNumberFieldDouble("Weight", synapse.weight);
         f.addPropertyChangeListener("value", (evt) -> synapse.weight = ((Number) f.getValue()).floatValue());
         PanelHelper.addLabelAndComponent(this, "Weight", f, gbc);
     }
