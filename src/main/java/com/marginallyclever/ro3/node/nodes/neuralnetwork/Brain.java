@@ -1,7 +1,9 @@
 package com.marginallyclever.ro3.node.nodes.neuralnetwork;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.NodePath;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -21,6 +23,10 @@ public class Brain extends Node {
     // all synapses in this brain are collected here for convenience.
     private final List<Synapse> synapses = new ArrayList<>();
     private Rectangle bounds = null;
+    // a list of NodePath<Neuron> that are the input neurons
+    public final ListWithEvents<NodePath<Neuron>> inputs = new ListWithEvents<>();
+    // a list of NodePath<Neuron> that are the output neurons
+    public final ListWithEvents<NodePath<Neuron>> outputs = new ListWithEvents<>();
 
     // TODO put a single selection neuron activation here?
     // TODO put a single value for neuron sum decay here?
@@ -94,5 +100,19 @@ public class Brain extends Node {
 
     public boolean isEmpty() {
         return (neurons.isEmpty() || synapses.isEmpty() || bounds==null);
+    }
+
+    public List<Neuron> getNeurons() {
+        return neurons;
+    }
+
+    public List<Synapse> getSynapses() {
+        return synapses;
+    }
+
+    @Override
+    public void getComponents(List<JPanel> list) {
+        list.add(new BrainPanel(this));
+        super.getComponents(list);
     }
 }
