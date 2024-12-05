@@ -13,6 +13,7 @@ import com.marginallyclever.ro3.apps.about.AboutPanel;
 import com.marginallyclever.ro3.apps.donatello.Donatello;
 import com.marginallyclever.ro3.apps.editor.EditorPanel;
 import com.marginallyclever.ro3.apps.log.LogPanel;
+import com.marginallyclever.ro3.apps.neuralnetworkview.BrainView;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.ode4j.ODE4JPanel;
@@ -42,7 +43,12 @@ import java.util.Properties;
  */
 public class RO3Frame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(RO3Frame.class);
+
+    public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
+    public static String VERSION;
+
     private final List<DockingPanel> windows = new ArrayList<>();
+
     private final OpenGLPanel viewportPanel;
     private final LogPanel logPanel;
     private final EditorPanel editPanel;
@@ -52,8 +58,7 @@ public class RO3Frame extends JFrame {
     private final TextInterfaceToSessionLayer textInterface;
     private final ODE4JPanel ode4jPanel;
     private final Donatello donatello;
-    public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
-    public static String VERSION;
+    private final BrainView brainView;
 
     public RO3Frame() {
         super();
@@ -72,6 +77,7 @@ public class RO3Frame extends JFrame {
         textInterface = new TextInterfaceToSessionLayer();
         ode4jPanel = new ODE4JPanel();
         donatello = new Donatello();
+        brainView = new BrainView();
 
         createDefaultLayout();
         resetDefaultLayout();
@@ -180,56 +186,27 @@ public class RO3Frame extends JFrame {
      * or <a href="https://www.uuidgenerator.net/">one of many websites</a>.
      */
     private void createDefaultLayout() {
-        DockingPanel renderView = new DockingPanel("8e50154c-a149-4e95-9db5-4611d24cc0cc", "3D view");
-        renderView.add(viewportPanel);
-        windows.add(renderView);
+        // TODO all persistentIDs should match the name of the class.  Then a DockingPanelFactory could recreate the views from AppState.
 
-        DockingPanel treeView = new DockingPanel("c6b04902-7e53-42bc-8096-fa5d43289362", "Scene");
-        NodeTreeView nodeTreeView = new NodeTreeView();
-        treeView.add(nodeTreeView);
-        windows.add(treeView);
+        addDockingPanel("8e50154c-a149-4e95-9db5-4611d24cc0cc", "3D view",viewportPanel);
+        addDockingPanel("c6b04902-7e53-42bc-8096-fa5d43289362", "Scene",new NodeTreeView());
+        addDockingPanel("67e45223-79f5-4ce2-b15a-2912228b356f", "Details",new NodeDetailView());
+        addDockingPanel("5e565f83-9734-4281-9828-92cd711939df", "Log",logPanel);
+        addDockingPanel("3f8f54e1-af78-4994-a1c2-21a68ec294c9", "Editor",editPanel);
+        addDockingPanel("976af87b-90f3-42ce-a5d6-e4ab663fbb15", "About",new AboutPanel());
+        addDockingPanel("1331fbb0-ceda-4c67-b343-6539d4f939a1", "Camera",webCamPanel);
+        addDockingPanel("801706cf-c346-4229-a39e-b3665e5a0d94", "ODE4J",ode4jPanel);
+        addDockingPanel("7796a733-8e33-417a-b363-b28174901e40", "Serial",textInterface);
+        addDockingPanel("c0651f5b-d5f0-49ab-88f9-66ae4a8c095e", "Viewport",viewportSettingsPanel);
+        addDockingPanel("11230778-22ab-48c9-b822-998538660cd6", "Tool",viewportToolPanel);
+        addDockingPanel("2b463642-9932-43f7-87be-04480cc5d5ba", "Donatello",donatello);
+        addDockingPanel("3fdd39fd-389f-481f-8e4e-144fdf9a34d0", "Brain", brainView);
+    }
 
-        DockingPanel detailView = new DockingPanel("67e45223-79f5-4ce2-b15a-2912228b356f", "Details");
-        NodeDetailView nodeDetailView = new NodeDetailView();
-        detailView.add(nodeDetailView);
-        windows.add(detailView);
-
-        DockingPanel logView = new DockingPanel("5e565f83-9734-4281-9828-92cd711939df", "Log");
-        logView.add(logPanel);
-        windows.add(logView);
-
-        DockingPanel editorView = new DockingPanel("3f8f54e1-af78-4994-a1c2-21a68ec294c9", "Editor");
-        editorView.add(editPanel);
-        windows.add(editorView);
-
-        DockingPanel aboutView = new DockingPanel("976af87b-90f3-42ce-a5d6-e4ab663fbb15", "About");
-        aboutView.add(new AboutPanel());
-        windows.add(aboutView);
-
-        DockingPanel webcamView = new DockingPanel("1331fbb0-ceda-4c67-b343-6539d4f939a1", "Camera");
-        webcamView.add(webCamPanel);
-        windows.add(webcamView);
-
-        DockingPanel ode4jView = new DockingPanel("801706cf-c346-4229-a39e-b3665e5a0d94", "ODE4J");
-        ode4jView.add(ode4jPanel);
-        windows.add(ode4jView);
-
-        DockingPanel textInterfaceView = new DockingPanel("7796a733-8e33-417a-b363-b28174901e40", "Serial");
-        textInterfaceView.add(textInterface);
-        windows.add(textInterfaceView);
-
-        DockingPanel viewportSettingsView = new DockingPanel("c0651f5b-d5f0-49ab-88f9-66ae4a8c095e", "Viewport");
-        viewportSettingsView.add(viewportSettingsPanel);
-        windows.add(viewportSettingsView);
-
-        DockingPanel viewportToolView = new DockingPanel("11230778-22ab-48c9-b822-998538660cd6", "Tool");
-        viewportToolView.add(viewportToolPanel);
-        windows.add(viewportToolView);
-
-        // TODO all persistentIDs should match the name of the class.  Then the class can recreate the view from AppState.
-        DockingPanel donatelloView = new DockingPanel("donatello", "Donatello");
-        donatelloView.add(donatello);
-        windows.add(donatelloView);
+    private void addDockingPanel(String persistentID,String tabText,Component component) {
+        DockingPanel panel = new DockingPanel(persistentID,tabText);
+        panel.add(component);
+        windows.add(panel);
     }
 
     /**

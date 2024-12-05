@@ -39,24 +39,30 @@ public class MatrixHelperTest {
         logger.info("testEulerMatrix() OK");
     }
 
-    // TODO fix euler to matrix so this test passes!
-    @Disabled
+    @Disabled // this test is not working, but it is low priority.
     @Test
-    public void eulerToMatrix() {
+    public void eulerToMatrixAndBackTest() {
         Vector3d v1 = new Vector3d();
         v1.x = Math.toRadians(15);
         v1.y = Math.toRadians(25);
         v1.z = Math.toRadians(35);
+        boolean pass = true;
 
         for(MatrixHelper.EulerSequence s : MatrixHelper.EulerSequence.values()) {
             Matrix3d a = MatrixHelper.eulerToMatrix(v1,s);
             Vector3d v2 = MatrixHelper.matrixToEuler(a,s);
-            Matrix3d b = MatrixHelper.eulerToMatrix(v2,s);
+            //Matrix3d b = MatrixHelper.eulerToMatrix(v2,s);
 
+            logger.info("Sequence: " + s);
+            logger.info("v1: " + v1);
+            logger.info("v2: " + v2);
+            //logger.info("a: " + a);
+            //logger.info("b: " + b);
             // Check if the original and resulting rotation matrices are approximately equal
-            System.out.println(s+" a="+a+" b="+b);
-            Assertions.assertTrue(a.epsilonEquals(b, 1e-3));
+            pass &= v1.epsilonEquals(v2, 1e-3);
+            logger.info("pass: " + pass);
         }
+        Assertions.assertTrue(pass);
     }
 
     @Test
