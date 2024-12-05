@@ -7,6 +7,7 @@ import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
 
 import javax.swing.*;
+import javax.swing.text.NumberFormatter;
 import java.awt.*;
 import java.util.function.Consumer;
 
@@ -80,8 +81,15 @@ public class PanelHelper {
         PanelHelper.addLabelAndComponent(parent,title,button,gbc);
     }
 
-    public static JFormattedTextField addNumberField(String label, double value) {
-        var formatter = NumberFormatHelper.getNumberFormatter();
+    public static JFormattedTextField addNumberFieldDouble(String label, double value) {
+        return addNumberField(label,value,NumberFormatHelper.getNumberFormatterDouble());
+    }
+
+    public static JFormattedTextField addNumberFieldInt(String label, int value) {
+        return addNumberField(label,value,NumberFormatHelper.getNumberFormatterInt());
+    }
+
+    private static JFormattedTextField addNumberField(String label, double value, NumberFormatter formatter) {
         JFormattedTextField field = new JFormattedTextField(formatter);
         field.setValue(value);
         field.setToolTipText(label);
