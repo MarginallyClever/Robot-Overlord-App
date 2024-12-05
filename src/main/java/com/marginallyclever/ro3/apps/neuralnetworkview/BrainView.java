@@ -20,9 +20,10 @@ import java.awt.*;
 public class BrainView extends App implements ItemAddedListener<Node>, ItemRemovedListener<Node> {
     private Brain brain = null;
     private Node selectedNode = null;
-    private final Color UNSELECTED_NEURON = Color.BLUE;
-    private final Color SELECTED_NEURON = Color.GREEN;
     private final int RADIUS = 5;
+    private final int HIGHLIGHT_RADIUS = 4;
+    private final Color HIGHLIGHT_COLOR = new Color(255,128,0,128);
+    // TODO put a NodePath<Brain> in a toolbar?
 
     public BrainView() {
         super(new BorderLayout());
@@ -69,6 +70,7 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
                 n = n.getParent();
             }
         }
+        repaint();
     }
 
     @Override
@@ -91,7 +93,7 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     }
 
     private void drawAllSynapses(Graphics2D g2d) {
-        for(Synapse s : synapses) {
+        for(Synapse s : brain.getSynapses()) {
             drawOneSynapse(g2d,s);
         }
     }
@@ -102,10 +104,10 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         Neuron to = s.getTo();
         if(from==null || to==null) return;
 
-        // selected synapses are thicker.
         if(s==selectedNode) {
-            g2d.setStroke(new BasicStroke(4));
-            g2d.setColor(new Color(255,255,0,128));
+            // selected items are highlighted.
+            g2d.setStroke(new BasicStroke(HIGHLIGHT_RADIUS));
+            g2d.setColor(HIGHLIGHT_COLOR);
             g2d.drawLine(
                     from.position.x+RADIUS,
                     from.position.y+RADIUS,
@@ -134,7 +136,7 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     }
 
     private void drawAllNeurons(Graphics2D g2d) {
-        for(Neuron nn : neurons) {
+        for(Neuron nn : brain.getNeurons()) {
             drawOneNeuron(g2d,nn);
         }
     }
@@ -143,28 +145,29 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         final var d = RADIUS*2;
 
         if(nn == selectedNode) {
-            var b = 4;
-            g2d.setColor(new Color(255,255,0,128));
-            g2d.fillRect(nn.position.x-b,nn.position.y-b,d+b*2,d+b*2);
+            // selected items are highlighted.
+            final var b = HIGHLIGHT_RADIUS;
+            g2d.setColor(HIGHLIGHT_COLOR);
+            g2d.fillRect(nn.position.x-b,nn.position.y-b,d+b*2+1,d+b*2+1);
         }
 
         // interior
         g2d.setColor(getBackground());
         g2d.fillRect(nn.position.x,nn.position.y,d,d);
+
+        g2d.setColor(Color.BLUE);
         var b = nn.getBias();
         var s = nn.getSum();
         if(b!=0) {
             // fill -> how close it is to firing.
             var r = Math.floor(d * Math.max(0,Math.min(1,s/b)));
             var ir = d-r;
-            g2d.setColor((nn == selectedNode) ? SELECTED_NEURON : UNSELECTED_NEURON);
             g2d.fillRect(nn.position.x,nn.position.y+(int)ir,d,(int)r);
         }
 
         // border
-        g2d.setColor((nn == selectedNode) ? SELECTED_NEURON : UNSELECTED_NEURON);
         g2d.drawRect(nn.position.x,nn.position.y,d,d);
         // it would be nice to visualize the bias and the sum.
-        g2d.drawString(s+"/"+b,nn.position.x+d+2,nn.position.y+d);
+        g2d.drawString(nn.getName()+" "+s+"/"+b,nn.position.x+d+2,nn.position.y+d);
     }
 }
