@@ -10,15 +10,15 @@ import com.marginallyclever.ro3.node.nodes.neuralnetwork.Neuron;
 import com.marginallyclever.ro3.node.nodes.neuralnetwork.Synapse;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
 /**
  * {@link BrainView} visualizes the details of a {@link Brain}, its {@link Neuron}s, and {@link Synapse}s.
  */
-public class BrainView extends App implements ItemAddedListener<Node>, ItemRemovedListener<Node>, ActionListener {
+public class BrainView extends App implements ItemAddedListener<Node>, ItemRemovedListener<Node>, ActionListener,
+        MouseListener, MouseMotionListener, MouseWheelListener {
     // TODO put a NodePath<Brain> in a toolbar?
     private Brain brain = null;
 
@@ -47,6 +47,10 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         Registry.selection.addItemAddedListener(this);
         Registry.selection.addItemRemovedListener(this);
         Registry.getPhysics().addActionListener(this);
+
+        addMouseListener(this);
+        addMouseMotionListener(this);
+        addMouseWheelListener(this);
     }
 
     @Override
@@ -150,10 +154,13 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         }
     }
 
-    private void drawOneNeuron(Graphics2D g2d, Neuron nn) {
+    private int getNeuronRadius(Neuron nn) {
         var b = nn.getBias();
-        var s = nn.getSum();
-        final var d = RADIUS + Math.abs((int)b)/2;
+        return RADIUS + Math.abs((int)(b/2.0));
+    }
+
+    private void drawOneNeuron(Graphics2D g2d, Neuron nn) {
+        final var d = getNeuronRadius(nn);
 
         if(nn == selectedNode) {
             // selected items are highlighted.
@@ -166,7 +173,9 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         fillBox(g2d,nn.position,d);
 
         g2d.setColor(new Color(0,128,255));
+        var b = nn.getBias();
         if(b!=0) {
+            var s = nn.getSum();
             // fill -> how close it is to firing.
             var r = Math.floor(d*2 * Math.max(0,Math.min(1,s/b)));
             var ir = d*2-r;
@@ -181,7 +190,7 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         int j=0;
         if(brain.inputs.getList().stream().anyMatch(n->n.getSubject()==nn)) {
             j=2;
-            g2d.setColor(Color.PINK);
+            g2d.setColor(Color.ORANGE);
             drawBox(g2d,nn.position,d+j);
         }
         // outputs as blue box
@@ -224,5 +233,54 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
                 },0,100);
             }
         }
+    }
+
+    public Neuron getFirstNeuronAt(Point p) {
+        for(Neuron nn : brain.getNeurons()) {
+            var r = getNeuronRadius(nn);
+            if(nn.position.distanceSq(p) <= r*r) return nn;
+        }
+        return null;
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        var n = getFirstNeuronAt(e.getPoint());
+        if(n!=null) Registry.selection.set(n);
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+
     }
 }
