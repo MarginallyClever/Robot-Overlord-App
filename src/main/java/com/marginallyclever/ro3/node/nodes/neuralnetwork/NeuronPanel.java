@@ -30,8 +30,8 @@ public class NeuronPanel extends JPanel {
 
         var local = neuron.position;
 
-        tx = PanelHelper.addNumberFieldDouble("x",local.x);
-        ty = PanelHelper.addNumberFieldDouble("y",local.y);
+        tx = PanelHelper.addNumberFieldInt("x",local.x);
+        ty = PanelHelper.addNumberFieldInt("y",local.y);
 
         gbc.gridx=0;        this.add(new JLabel("Position"),gbc);
         gbc.gridx=1;        this.add(tx,gbc);
