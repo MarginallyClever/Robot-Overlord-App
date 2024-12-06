@@ -4,6 +4,7 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -60,17 +61,6 @@ public class Brain extends Node {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/neuralnetwork/icons8-neural-network-16.png")));
     }
 
-    @Override
-    public JSONObject toJSON() {
-        var json = super.toJSON();
-        return json;
-    }
-
-    @Override
-    public void fromJSON(JSONObject json) {
-        super.fromJSON(json);
-    }
-
     /**
      * Scan all children of this brain to collect all neurons and synapses.
      * Updates the bounding box of the brain, as well as the neurons and synapses lists
@@ -114,5 +104,41 @@ public class Brain extends Node {
     public void getComponents(List<JPanel> list) {
         list.add(new BrainPanel(this));
         super.getComponents(list);
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        var json = super.toJSON();
+
+        JSONArray inputsJson = new JSONArray();
+        for(NodePath<Neuron> np : inputs.getList()) {
+            inputsJson.put(np.getUniqueID());
+        }
+        json.put("inputs",inputsJson);
+
+        JSONArray outputsJson = new JSONArray();
+        for(NodePath<Neuron> np : outputs.getList()) {
+            outputsJson.put(np.getUniqueID());
+        }
+        json.put("outputs",outputsJson);
+
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject json) {
+        super.fromJSON(json);
+        if(json.has("inputs")) {
+            JSONArray inputsJson = json.getJSONArray("inputs");
+            for(int i=0;i<inputsJson.length();i++) {
+                inputs.add(new NodePath<>(this,Neuron.class,inputsJson.getString(i)));
+            }
+        }
+        if(json.has("outputs")) {
+            JSONArray outputsJson = json.getJSONArray("outputs");
+            for(int i=0;i<outputsJson.length();i++) {
+                outputs.add(new NodePath<>(this,Neuron.class,outputsJson.getString(i)));
+            }
+        }
     }
 }

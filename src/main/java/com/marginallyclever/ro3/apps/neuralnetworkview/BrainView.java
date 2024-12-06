@@ -104,19 +104,20 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         Neuron to = s.getTo();
         if(from==null || to==null) return;
 
+        var w = s.getWeight();
+        var absW = Math.abs(s.getWeight());
         if(s==selectedNode) {
             // selected items are highlighted.
-            g2d.setStroke(new BasicStroke(HIGHLIGHT_RADIUS));
+            g2d.setStroke(new BasicStroke((float)(HIGHLIGHT_RADIUS+absW+1)));
             g2d.setColor(HIGHLIGHT_COLOR);
             g2d.drawLine(
                     from.position.x+RADIUS,
                     from.position.y+RADIUS,
                     to.position.x+RADIUS,
                     to.position.y+RADIUS );
-            g2d.setStroke(new BasicStroke(1));
         }
 
-        var w = s.getWeight();
+        g2d.setStroke(new BasicStroke((float)(1+absW)));
         // positive weights are more green.  negative weights are more red.
         if(w>0) g2d.setColor(interpolateColor(Color.BLUE,Color.GREEN,Math.min(1, w)));
         else    g2d.setColor(interpolateColor(Color.BLUE,Color.RED  ,Math.min(1,-w)));
@@ -155,7 +156,7 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         g2d.setColor(getBackground());
         g2d.fillRect(nn.position.x,nn.position.y,d,d);
 
-        g2d.setColor(Color.BLUE);
+        g2d.setColor(new Color(0,128,255));
         var b = nn.getBias();
         var s = nn.getSum();
         if(b!=0) {
@@ -166,8 +167,22 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         }
 
         // border
+        g2d.setColor(Color.BLUE);
         g2d.drawRect(nn.position.x,nn.position.y,d,d);
+
+        int j=0;
+        if(brain.inputs.getList().stream().anyMatch(n->n.getSubject()==nn)) {
+            j=2;
+            g2d.setColor(Color.RED);
+            g2d.drawRect(nn.position.x-j,nn.position.y-j,d+j*2,d+j*2);
+        }
+        if(brain.outputs.getList().stream().anyMatch(n->n.getSubject()==nn)) {
+            j=4;
+            g2d.setColor(Color.GREEN);
+            g2d.drawRect(nn.position.x-j,nn.position.y-j,d+j*2,d+j*2);
+        }
+
         // it would be nice to visualize the bias and the sum.
-        g2d.drawString(nn.getName()+" "+s+"/"+b,nn.position.x+d+2,nn.position.y+d);
+        g2d.drawString(nn.getName()+" "+s+"/"+b,nn.position.x+d+j+2,nn.position.y+d);
     }
 }

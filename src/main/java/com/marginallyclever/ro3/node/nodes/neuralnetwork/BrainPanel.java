@@ -12,9 +12,8 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * {@link BrainPanel} controls settings for a {@link Brain}.  This is different from a
- * {@link BrainView} which illustrates the {@link Brain}'s
- * contents.
+ * {@link BrainPanel} controls settings for a {@link Brain}.  This is different from a {@link BrainView} which
+ * illustrates the {@link Brain}'s contents.
  */
 public class BrainPanel extends JPanel {
     private final Brain brain;
@@ -31,7 +30,12 @@ public class BrainPanel extends JPanel {
         redo();
     }
 
+    /**
+     * Remove everything from this panel, and rebuild it.
+     */
     public void redo() {
+        // TODO this is extremely lazy.  When the user changes the count of neurons the whole panel rebuild
+        //      causes the count component to lose focus.  This is a bad user experience.
         removeAll();
 
         GridBagConstraints c = new GridBagConstraints();
@@ -45,7 +49,7 @@ public class BrainPanel extends JPanel {
         this.add(addNeuronsPanel("Output",brain.outputs),c);
         c.gridy++;
 
-        invalidate();
+        revalidate();
         repaint();
     }
 
@@ -62,7 +66,8 @@ public class BrainPanel extends JPanel {
 
         // display the list length
         var count = PanelHelper.addNumberFieldInt("Count",list.size());
-        count.addPropertyChangeListener("value", e->changeListSize( list, ((Number)count.getValue()).intValue() ) );
+        final var finalList = list;
+        count.addPropertyChangeListener("value", e->changeListSize( finalList, ((Number)count.getValue()).intValue() ) );
         PanelHelper.addLabelAndComponent(outerPanel, "Count", count);
 
         int i=0;
@@ -71,7 +76,7 @@ public class BrainPanel extends JPanel {
             var motorSelector = new NodeSelector<>(Neuron.class, neuron.getSubject());
             int jFinal = i;
             motorSelector.addPropertyChangeListener("subject",(e)-> {
-                brain.inputs.getList().get(jFinal).setUniqueIDByNode((Neuron)e.getNewValue());
+                list.getList().get(jFinal).setUniqueIDByNode((Neuron)e.getNewValue());
             });
             PanelHelper.addLabelAndComponent(outerPanel, ""+i, motorSelector);
             i++;
