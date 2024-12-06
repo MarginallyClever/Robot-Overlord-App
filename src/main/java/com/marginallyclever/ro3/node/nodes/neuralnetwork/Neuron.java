@@ -7,7 +7,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.locks.Lock;
 
 /**
  * Neuron is one of the nodes in a {@link Brain}.
