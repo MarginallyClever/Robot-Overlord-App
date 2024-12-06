@@ -96,4 +96,8 @@ public class ListWithEvents<T> {
             add(selection);
         }
     }
+
+    public boolean contains(T n) {
+        return list.contains(n);
+    }
 }

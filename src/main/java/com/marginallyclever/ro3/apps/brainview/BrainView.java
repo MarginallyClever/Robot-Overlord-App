@@ -34,7 +34,7 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     // the timer should be removed when the BrainView is removed from the screen.
     // the timer should be added when the BrainView is added to the screen.
     private Timer timer;
-
+    private final Point previousMousePosition = new Point();
 
     public BrainView() {
         super(new BorderLayout());
@@ -246,12 +246,26 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     @Override
     public void mouseClicked(MouseEvent e) {
         var n = getFirstNeuronAt(e.getPoint());
-        if(n!=null) Registry.selection.set(n);
+        if(n!=null) {
+            if((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
+                // is control held down?  toggle selection.
+                if(Registry.selection.contains(n)) {
+                    Registry.selection.remove(n);
+                } else {
+                    Registry.selection.add(n);
+                }
+            } else if((e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0) {
+                // is shift held down?  add to selection.
+                Registry.selection.add(n);
+            } else {
+                Registry.selection.set(n);
+            }
+        }
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-
+        previousMousePosition.setLocation(e.getPoint());
     }
 
     @Override
@@ -260,27 +274,32 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     }
 
     @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
+    public void mouseEntered(MouseEvent e) {}
 
     @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
+    public void mouseExited(MouseEvent e) {}
 
     @Override
     public void mouseDragged(MouseEvent e) {
+        // get the delta
+        Point delta = new Point(e.getPoint().x-previousMousePosition.x,e.getPoint().y-previousMousePosition.y);
 
+        // if the mouse is down, move the selected neuron(s).
+        if((e.getModifiersEx() & InputEvent.BUTTON1_DOWN_MASK) != 0) {
+            for(Node n : Registry.selection.getList()) {
+                if(n instanceof Neuron nn) {
+                    nn.position.x += delta.x;
+                    nn.position.y += delta.y;
+                }
+            }
+            repaint();
+        }
+        previousMousePosition.setLocation(e.getPoint());
     }
 
     @Override
-    public void mouseMoved(MouseEvent e) {
-
-    }
+    public void mouseMoved(MouseEvent e) {}
 
     @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-
-    }
+    public void mouseWheelMoved(MouseWheelEvent e) {}
 }
