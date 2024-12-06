@@ -3,10 +3,13 @@ package com.marginallyclever.ro3.node.nodes.neuralnetwork.leglimbic;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.neuralnetwork.Brain;
+import com.marginallyclever.ro3.node.nodes.neuralnetwork.Neuron;
 import com.marginallyclever.ro3.node.nodes.odenode.ODEAngularMotor;
+import com.marginallyclever.ro3.node.nodes.odenode.ODEHinge;
 
 import javax.swing.*;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>{@link LegLimbic} bonds together a Leg with a Brain.</p>
@@ -79,23 +82,36 @@ public class LegLimbic extends Node {
 
     @Override
     public void update(double dt) {
-        super.update(dt);
+        var leg = getParent();
+        var knee = (ODEHinge) leg.findByPath("Knee");
+        var hip = (ODEHinge) leg.findByPath("Hip");
+
         if(!Registry.getPhysics().isPaused()) {
             // send data from the Leg to the Brain
-            var leg = getParent();
-            var knee = (ODEAngularMotor)leg.findByPath("Knee/KneeMuscle");
-            if(knee!=null) {
-                var v = brain.getOutput(0);
-                knee.addTorque(v);
-            }
-
-            var hip = (ODEAngularMotor)leg.findByPath("Hip/HipMuscle");
-            if(hip!=null) {
-                var v = brain.getOutput(1);
-                hip.addTorque(v);
-            }
-
-            // read data from the Brain to control the Leg
+            if (knee != null) brain.setInput(0, Math.toDegrees(knee.getAngle()));
+            if (hip != null) brain.setInput(1, Math.toDegrees(hip.getAngle()));
         }
+
+        super.update(dt);
+
+        if(!Registry.getPhysics().isPaused()) {
+            // read data from the Brain to control the Leg
+            if (knee != null) {
+                var kneeMuscle = (ODEAngularMotor) knee.findChild("KneeMuscle");
+                if (kneeMuscle != null) kneeMuscle.addTorque(brain.getOutput(0));
+            }
+            if (hip != null) {
+                var hipMuscle = (ODEAngularMotor) hip.findChild("HipMuscle");
+                if (hipMuscle != null) hipMuscle.addTorque(brain.getOutput(1));
+            }
+
+            // decay all neuron sums
+            for(Neuron n : brain.getNeurons()) n.setSum(0);
+        }
+    }
+
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/neuralnetwork/icons8-limbic-16.png")));
     }
 }
