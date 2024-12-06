@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.neuralnetworkview;
+package com.marginallyclever.ro3.apps.brainview;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.App;
@@ -9,21 +9,32 @@ import com.marginallyclever.ro3.node.nodes.neuralnetwork.Brain;
 import com.marginallyclever.ro3.node.nodes.neuralnetwork.Neuron;
 import com.marginallyclever.ro3.node.nodes.neuralnetwork.Synapse;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * {@link BrainView} visualizes the details of a {@link Brain}, its {@link Neuron}s, and {@link Synapse}s.
  */
-public class BrainView extends App implements ItemAddedListener<Node>, ItemRemovedListener<Node> {
+public class BrainView extends App implements ItemAddedListener<Node>, ItemRemovedListener<Node>, ActionListener {
+    // TODO put a NodePath<Brain> in a toolbar?
     private Brain brain = null;
+
     private Node selectedNode = null;
     private final int RADIUS = 5;
     private final int HIGHLIGHT_RADIUS = 4;
     private final Color HIGHLIGHT_COLOR = new Color(255,128,0,128);
-    // TODO put a NodePath<Brain> in a toolbar?
+
+    // add a timer that runs when physics is unpaused.  the timer should call repaint() every 100ms.
+    // this will allow the BrainView to animate the neurons and synapses.
+    // the timer should be removed when physics is paused.
+    // the timer should be added when physics is unpaused.
+    // the timer should be removed when the BrainView is removed from the screen.
+    // the timer should be added when the BrainView is added to the screen.
+    private Timer timer;
+
 
     public BrainView() {
         super(new BorderLayout());
@@ -35,6 +46,7 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         super.addNotify();
         Registry.selection.addItemAddedListener(this);
         Registry.selection.addItemRemovedListener(this);
+        Registry.getPhysics().addActionListener(this);
     }
 
     @Override
@@ -42,6 +54,10 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         super.removeNotify();
         Registry.selection.removeItemAddedListener(this);
         Registry.selection.removeItemRemovedListener(this);
+        if(timer != null) {
+            timer.cancel();
+            timer=null;
+        }
     }
 
     @Override
@@ -110,22 +126,14 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
             // selected items are highlighted.
             g2d.setStroke(new BasicStroke((float)(HIGHLIGHT_RADIUS+absW+1)));
             g2d.setColor(HIGHLIGHT_COLOR);
-            g2d.drawLine(
-                    from.position.x+RADIUS,
-                    from.position.y+RADIUS,
-                    to.position.x+RADIUS,
-                    to.position.y+RADIUS );
+            g2d.drawLine( from.position.x, from.position.y, to.position.x, to.position.y );
         }
 
         g2d.setStroke(new BasicStroke((float)(1+absW)));
         // positive weights are more green.  negative weights are more red.
         if(w>0) g2d.setColor(interpolateColor(Color.BLUE,Color.GREEN,Math.min(1, w)));
         else    g2d.setColor(interpolateColor(Color.BLUE,Color.RED  ,Math.min(1,-w)));
-        g2d.drawLine(
-                from.position.x+RADIUS,
-                from.position.y+RADIUS,
-                to.position.x+RADIUS,
-                to.position.y+RADIUS );
+        g2d.drawLine( from.position.x, from.position.y, to.position.x, to.position.y );
     }
 
     private Color interpolateColor(Color zero, Color one, double unit) {
@@ -143,46 +151,78 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     }
 
     private void drawOneNeuron(Graphics2D g2d, Neuron nn) {
-        final var d = RADIUS*2;
+        var b = nn.getBias();
+        var s = nn.getSum();
+        final var d = RADIUS + Math.abs((int)b)/2;
 
         if(nn == selectedNode) {
             // selected items are highlighted.
-            final var b = HIGHLIGHT_RADIUS;
             g2d.setColor(HIGHLIGHT_COLOR);
-            g2d.fillRect(nn.position.x-b,nn.position.y-b,d+b*2+1,d+b*2+1);
+            fillBox(g2d,nn.position,d+HIGHLIGHT_RADIUS);
         }
 
         // interior
         g2d.setColor(getBackground());
-        g2d.fillRect(nn.position.x,nn.position.y,d,d);
+        fillBox(g2d,nn.position,d);
 
         g2d.setColor(new Color(0,128,255));
-        var b = nn.getBias();
-        var s = nn.getSum();
         if(b!=0) {
             // fill -> how close it is to firing.
-            var r = Math.floor(d * Math.max(0,Math.min(1,s/b)));
-            var ir = d-r;
-            g2d.fillRect(nn.position.x,nn.position.y+(int)ir,d,(int)r);
+            var r = Math.floor(d*2 * Math.max(0,Math.min(1,s/b)));
+            var ir = d*2-r;
+            g2d.fillRect(nn.position.x-d,nn.position.y-d+(int)ir,d*2,(int)r);
         }
 
         // border
-        g2d.setColor(Color.BLUE);
-        g2d.drawRect(nn.position.x,nn.position.y,d,d);
+        g2d.setColor(nn.getBias()>=0?Color.GREEN: Color.RED);
+        drawBox(g2d,nn.position,d);
 
+        // inputs as pink box
         int j=0;
         if(brain.inputs.getList().stream().anyMatch(n->n.getSubject()==nn)) {
             j=2;
-            g2d.setColor(Color.RED);
-            g2d.drawRect(nn.position.x-j,nn.position.y-j,d+j*2,d+j*2);
+            g2d.setColor(Color.PINK);
+            drawBox(g2d,nn.position,d+j);
         }
+        // outputs as blue box
         if(brain.outputs.getList().stream().anyMatch(n->n.getSubject()==nn)) {
             j=4;
-            g2d.setColor(Color.GREEN);
-            g2d.drawRect(nn.position.x-j,nn.position.y-j,d+j*2,d+j*2);
+            g2d.setColor(Color.BLUE);
+            drawBox(g2d,nn.position,d+j);
         }
 
         // it would be nice to visualize the bias and the sum.
-        g2d.drawString(nn.getName()+" "+s+"/"+b,nn.position.x+d+j+2,nn.position.y+d);
+        g2d.setColor(Color.BLACK);
+        g2d.drawString(nn.getName(),nn.position.x+d+j+2,nn.position.y+d);//+" "+s+"/"+b
+    }
+
+    private void drawBox(Graphics2D g, Point p,int r) {
+        g.drawRect(p.x-r,p.y-r,r*2+1,r*2+1);
+    }
+
+    private void fillBox(Graphics2D g, Point p,int r) {
+        g.fillRect(p.x-r,p.y-r,r*2+1,r*2+1);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if(e.getID()%2==0) {
+            // physics stopped
+            if(timer!=null) {
+                timer.cancel();
+                timer=null;
+            }
+        } else {
+            // physics started
+            if(timer==null) {
+                timer = new Timer();
+                timer.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        repaint();
+                    }
+                },0,100);
+            }
+        }
     }
 }

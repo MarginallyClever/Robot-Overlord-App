@@ -13,7 +13,7 @@ import com.marginallyclever.ro3.apps.about.AboutPanel;
 import com.marginallyclever.ro3.apps.donatello.Donatello;
 import com.marginallyclever.ro3.apps.editor.EditorPanel;
 import com.marginallyclever.ro3.apps.log.LogPanel;
-import com.marginallyclever.ro3.apps.neuralnetworkview.BrainView;
+import com.marginallyclever.ro3.apps.brainview.BrainView;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.ode4j.ODE4JPanel;

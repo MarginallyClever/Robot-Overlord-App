@@ -1,8 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.neuralnetwork;
 
-import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
-import com.marginallyclever.ro3.apps.neuralnetworkview.BrainView;
+import com.marginallyclever.ro3.apps.brainview.BrainView;
 import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
