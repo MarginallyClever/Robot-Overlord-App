@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import javax.swing.*;
 import java.awt.*;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,12 +48,10 @@ public class Brain extends Node {
 
         // if physics is enabled, update the physics
         if(!Registry.getPhysics().isPaused()) {
-            scan();
+            //scan();
 
             // decay all neuron sums
-            for(Neuron n : neurons) {
-                n.setSum(0);  // reset the sum completely, most basic form of decay.
-            }
+            //for(Neuron n : neurons) n.setSum(0);  // reset the sum completely, most basic form of decay.
         }
     }
 
@@ -140,5 +139,48 @@ public class Brain extends Node {
                 outputs.add(new NodePath<>(this,Neuron.class,outputsJson.getString(i)));
             }
         }
+    }
+
+    public void setInputs(int newCount) {
+        setListSize(inputs,newCount);
+    }
+
+    public void setOutputs(int newCount) {
+        setListSize(outputs,newCount);
+    }
+
+    public void setListSize(ListWithEvents<NodePath<Neuron>> list, int newCount) {
+        while(list.size()<newCount) {
+            list.add(new NodePath<>(this,Neuron.class));
+        }
+        while(list.size()>newCount) {
+            var lastItem = list.getList().get(list.size()-1);
+            list.remove(lastItem);
+        }
+    }
+
+    /**
+     * Get the sum of output neuron i.
+     * @param i the index of the neuron
+     * @return the sum of the neuron or zero if the neuron is not found.
+     * @throws InvalidParameterException if the index is out of range
+     */
+    public double getOutput(int i) {
+        if(i<0 || i>=outputs.size()) throw new InvalidParameterException("index out of range");
+        Neuron n = outputs.getList().get(i).getSubject();
+        if(n==null) return 0;
+        return n.getSum();
+    }
+
+    /**
+     * Set the sum of input neuron i.
+     * @param i the index of the neuron
+     * @param v the new sum
+     * @throws InvalidParameterException if the index is out of range
+     */
+    public void setInput(int i,double v) {
+        if(i<0 || i>=inputs.size()) throw new InvalidParameterException("index out of range");
+        Neuron n = inputs.getList().get(i).getSubject();
+        if(n!=null) n.setSum(v);
     }
 }
