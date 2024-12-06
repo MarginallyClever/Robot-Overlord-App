@@ -84,14 +84,13 @@ public class BrainPanel extends JPanel {
         return containerPanel;
     }
 
+    /**
+     * Change the list size and rebuild the panel as needed.
+     * @param list the list to change
+     * @param newCount the new size
+     */
     private void changeListSize(ListWithEvents<NodePath<Neuron>> list, int newCount) {
-        while(list.size()<newCount) {
-            list.add(new NodePath<>(brain,Neuron.class));
-        }
-        while(list.size()>newCount) {
-            var lastItem = list.getList().get(list.size()-1);
-            list.remove(lastItem);
-        }
+        brain.setListSize(list,newCount);
         redo();
     }
 }
