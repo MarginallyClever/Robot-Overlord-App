@@ -198,4 +198,9 @@ public class ODEHinge extends ODEJoint {
     public Icon getIcon() {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/odenode/icons8-angle-16.png")));
     }
+
+    public double getAngle() {
+        if(hinge==null) return 0;
+        return Math.toDegrees(hinge.getAngle());
+    }
 }
