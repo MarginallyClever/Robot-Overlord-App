@@ -46,7 +46,7 @@ public class NeuronPanel extends JPanel {
         PanelHelper.addLabelAndComponent(this,"Bias",bias,gbc);
         gbc.gridy++;
 
-        var sum = PanelHelper.addNumberFieldDouble("Sum",neuron.getBias());
+        var sum = PanelHelper.addNumberFieldDouble("Sum",neuron.getSum());
         sum.addPropertyChangeListener("value",(e)->neuron.setSum(((Number)e.getNewValue()).doubleValue()));
         PanelHelper.addLabelAndComponent(this,"Sum",sum,gbc);
         gbc.gridy++;
