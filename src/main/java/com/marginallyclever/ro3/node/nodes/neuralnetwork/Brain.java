@@ -48,16 +48,44 @@ public class Brain extends Node {
 
         // if physics is enabled, update the physics
         if(!Registry.getPhysics().isPaused()) {
-            //scan();
+            scan();
 
-            // decay all neuron sums
-            //for(Neuron n : neurons) n.setSum(0);  // reset the sum completely, most basic form of decay.
+            var toFire = new ArrayList<Neuron>();
+            // update the neurons
+            for(Neuron n : neurons) {
+                // ReLu activation function
+                if(n.getSum()+n.getBias()>0) {
+                    toFire.add(n);
+                }
+            }
+
+            // fire the neurons
+            var found = new ArrayList<Synapse>();
+            for(Neuron n : toFire) {
+                // find all synapses from this neuron
+                found.clear();
+                for(Synapse s : synapses) {
+                    var from = s.getFrom();
+                    if (from != n) continue;
+                    var to = s.getTo();
+                    if (to == null) continue;
+                    found.add(s);
+                }
+                // split the sum among all synapses
+                int count = found.size();
+                var w = n.getSum() / count;
+                for(Synapse s : found) {
+                    var to = s.getTo();
+                    // add the weighted sum to the target neuron
+                    to.setSum( to.getSum() + w * s.getWeight() );
+                }
+            }
         }
     }
 
     @Override
     public Icon getIcon() {
-        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/neuralnetwork/icons8-neural-network-16.png")));
+        return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/neuralnetwork/icons8-brain-16.png")));
     }
 
     /**
