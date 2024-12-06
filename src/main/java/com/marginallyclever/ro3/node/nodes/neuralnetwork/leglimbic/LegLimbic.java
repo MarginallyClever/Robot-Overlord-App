@@ -6,6 +6,7 @@ import com.marginallyclever.ro3.node.nodes.neuralnetwork.Brain;
 import com.marginallyclever.ro3.node.nodes.neuralnetwork.Neuron;
 import com.marginallyclever.ro3.node.nodes.odenode.ODEAngularMotor;
 import com.marginallyclever.ro3.node.nodes.odenode.ODEHinge;
+import org.json.JSONObject;
 
 import javax.swing.*;
 import java.util.List;
@@ -42,10 +43,12 @@ import java.util.Objects;
  */
 public class LegLimbic extends Node {
     private Brain brain;
+    private double decay=1.0;
 
     public LegLimbic() {
         this("Leg Limbic");
     }
+
     public LegLimbic(String name) {
         super(name);
     }
@@ -106,12 +109,37 @@ public class LegLimbic extends Node {
             }
 
             // decay all neuron sums
-            for(Neuron n : brain.getNeurons()) n.setSum(0);
+            for(Neuron n : brain.getNeurons()) n.setSum(n.getSum()*decay);
         }
     }
 
     @Override
     public Icon getIcon() {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/neuralnetwork/icons8-limbic-16.png")));
+    }
+
+    public double getDecay() {
+        return decay;
+    }
+
+    /**
+     * Set the decay rate for all neuron sums.
+     * @param decay 0...1 inclusive.  1 means no decay.
+     */
+    public void setDecay(double decay) {
+        this.decay = decay;
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        var json = super.toJSON();
+        json.put("decay", decay);
+        return json;
+    }
+
+    @Override
+    public void fromJSON(JSONObject json) {
+        super.fromJSON(json);
+        if(json.has("decay")) decay = json.getDouble("decay");
     }
 }
