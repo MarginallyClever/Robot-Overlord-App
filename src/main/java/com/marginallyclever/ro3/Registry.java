@@ -18,6 +18,7 @@ import com.marginallyclever.ro3.node.nodes.networksession.NetworkSession;
 import com.marginallyclever.ro3.node.nodes.neuralnetwork.Brain;
 import com.marginallyclever.ro3.node.nodes.neuralnetwork.Neuron;
 import com.marginallyclever.ro3.node.nodes.neuralnetwork.Synapse;
+import com.marginallyclever.ro3.node.nodes.neuralnetwork.leglimbic.LegLimbic;
 import com.marginallyclever.ro3.node.nodes.odenode.*;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODEBox;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODECapsule;
@@ -85,6 +86,7 @@ public class Registry {
             NodeFactory.Category nn = node.add("NeuralNetwork", null);
             {
                 nn.add("Brain", Brain::new);
+                nn.add("LegLimbic", LegLimbic::new);
                 nn.add("Neuron", Neuron::new);
                 nn.add("Synapse", Synapse::new);
             }
