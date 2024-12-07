@@ -1,7 +1,9 @@
 package com.marginallyclever.ro3.apps.brainview;
 
+import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.App;
+import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
 import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
 import com.marginallyclever.ro3.node.Node;
@@ -9,6 +11,7 @@ import com.marginallyclever.ro3.node.nodes.neuralnetwork.Brain;
 import com.marginallyclever.ro3.node.nodes.neuralnetwork.Neuron;
 import com.marginallyclever.ro3.node.nodes.neuralnetwork.Synapse;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Timer;
@@ -19,13 +22,11 @@ import java.util.TimerTask;
  */
 public class BrainView extends App implements ItemAddedListener<Node>, ItemRemovedListener<Node>, ActionListener,
         MouseListener, MouseMotionListener, MouseWheelListener {
-    // TODO put a NodePath<Brain> in a toolbar?
-    private Brain brain = null;
+    private final NodeSelector<Brain> brainPath = new NodeSelector<>(Brain.class);
 
-    private Node selectedNode = null;
     private final int RADIUS = 5;
     private final int HIGHLIGHT_RADIUS = 4;
-    private final Color HIGHLIGHT_COLOR = new Color(255,128,0,128);
+    private final Color HIGHLIGHT_COLOR = new Color(255, 255, 0, 192);
 
     // add a timer that runs when physics is unpaused.  the timer should call repaint() every 100ms.
     // this will allow the BrainView to animate the neurons and synapses.
@@ -35,10 +36,19 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     // the timer should be added when the BrainView is added to the screen.
     private Timer timer;
     private final Point previousMousePosition = new Point();
+    private final JToolBar toolbar = new JToolBar();
 
     public BrainView() {
         super(new BorderLayout());
         selectionChanged();
+        addToolBar();
+    }
+
+    private void addToolBar() {
+        brainPath.setMaximumSize(new Dimension(150, 24));
+        toolbar.setFloatable(false);
+        toolbar.add(brainPath);
+        add(toolbar, BorderLayout.NORTH);
     }
 
     @Override
@@ -75,27 +85,13 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     }
 
     private void selectionChanged() {
-        // if there is one selected item and it (or one of its parents) is a Brain, remember the Brain.
-        var selectedNodes = Registry.selection.getList();
-        brain = null;
-        if(selectedNodes.size()==1) {
-            Node n = selectedNodes.get(0);
-            selectedNode = n;
-
-            while(n!=null) {
-                if (n instanceof Brain nn) {
-                    brain = nn;
-                    break;
-                }
-                n = n.getParent();
-            }
-        }
         repaint();
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+        var brain = brainPath.getSubject();
         if(brain == null) return;
         brain.scan();
         if(brain.isEmpty()) return;
@@ -108,11 +104,11 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         g2d.setColor(getBackground());
         g2d.fillRect(0,0,getWidth(),getHeight());
 
-        drawAllSynapses(g2d);
-        drawAllNeurons(g2d);
+        drawAllSynapses(g2d,brain);
+        drawAllNeurons(g2d,brain);
     }
 
-    private void drawAllSynapses(Graphics2D g2d) {
+    private void drawAllSynapses(Graphics2D g2d,Brain brain) {
         for(Synapse s : brain.getSynapses()) {
             drawOneSynapse(g2d,s);
         }
@@ -125,19 +121,23 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         if(from==null || to==null) return;
 
         var w = s.getWeight();
-        var absW = Math.abs(s.getWeight());
-        if(s==selectedNode) {
+        var width = getSynapseWidth(s);
+        if(Registry.selection.contains(s)) {
             // selected items are highlighted.
-            g2d.setStroke(new BasicStroke((float)(HIGHLIGHT_RADIUS+absW+1)));
+            g2d.setStroke(new BasicStroke((float)(HIGHLIGHT_RADIUS+width)));
             g2d.setColor(HIGHLIGHT_COLOR);
             g2d.drawLine( from.position.x, from.position.y, to.position.x, to.position.y );
         }
 
-        g2d.setStroke(new BasicStroke((float)(1+absW)));
+        g2d.setStroke(new BasicStroke(width));
         // positive weights are more green.  negative weights are more red.
         if(w>0) g2d.setColor(interpolateColor(Color.BLUE,Color.GREEN,Math.min(1, w)));
         else    g2d.setColor(interpolateColor(Color.BLUE,Color.RED  ,Math.min(1,-w)));
         g2d.drawLine( from.position.x, from.position.y, to.position.x, to.position.y );
+    }
+
+    private float getSynapseWidth(Synapse s) {
+        return 1.0f+(float)Math.abs(s.getWeight());
     }
 
     private Color interpolateColor(Color zero, Color one, double unit) {
@@ -148,9 +148,9 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         );
     }
 
-    private void drawAllNeurons(Graphics2D g2d) {
+    private void drawAllNeurons(Graphics2D g2d,Brain brain) {
         for(Neuron nn : brain.getNeurons()) {
-            drawOneNeuron(g2d,nn);
+            drawOneNeuron(g2d,nn,brain);
         }
     }
 
@@ -159,10 +159,10 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         return RADIUS + Math.abs((int)(b/2.0));
     }
 
-    private void drawOneNeuron(Graphics2D g2d, Neuron nn) {
+    private void drawOneNeuron(Graphics2D g2d, Neuron nn,Brain brain) {
         final var d = getNeuronRadius(nn);
 
-        if(nn == selectedNode) {
+        if(Registry.selection.contains(nn)) {
             // selected items are highlighted.
             g2d.setColor(HIGHLIGHT_COLOR);
             fillBox(g2d,nn.position,d+HIGHLIGHT_RADIUS);
@@ -235,7 +235,7 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         }
     }
 
-    public Neuron getFirstNeuronAt(Point p) {
+    public Neuron getFirstNeuronAt(Point p,Brain brain) {
         for(Neuron nn : brain.getNeurons()) {
             var r = getNeuronRadius(nn);
             if(nn.position.distanceSq(p) <= r*r) return nn;
@@ -245,22 +245,86 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        var n = getFirstNeuronAt(e.getPoint());
+        var brain = brainPath.getSubject();
+        if(brain == null) return;
+
+        Node n = getFirstNeuronAt(e.getPoint(),brain);
+        if(n==null) n = getFirstSynapseAt(e.getPoint(),brain);
+
         if(n!=null) {
-            if((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
+            if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
                 // is control held down?  toggle selection.
-                if(Registry.selection.contains(n)) {
+                if (Registry.selection.contains(n)) {
                     Registry.selection.remove(n);
                 } else {
                     Registry.selection.add(n);
                 }
-            } else if((e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0) {
+            } else if ((e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0) {
                 // is shift held down?  add to selection.
                 Registry.selection.add(n);
             } else {
+                // select only this item.
                 Registry.selection.set(n);
             }
+        } else {
+            // if no shift or ctrl, clear the selection.
+            if ((e.getModifiersEx() & (InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK)) == 0) {
+                Registry.selection.removeAll();
+            }
         }
+    }
+
+    private Synapse getFirstSynapseAt(Point point, Brain brain) {
+        double bestD = Double.MAX_VALUE;
+        Synapse bestS = null;
+
+        for(Synapse s : brain.getSynapses()) {
+            var from = s.getFrom();
+            var to = s.getTo();
+            if(from==null || to==null) continue;
+
+            var d = PointLineDistance(point,from.position,to.position);
+            if(d<bestD) {
+                bestD = d;
+                bestS = s;
+                if(bestD<=1) break;
+            }
+        }
+        if(bestS!=null) {
+            var w = 2+getSynapseWidth(bestS);
+            if(bestD>w*w) return null;
+        }
+        return bestS;
+    }
+
+    /**
+     * Calculate the distance from a point to a line segment.
+     * @param point the point to test
+     * @param lineStart the line segment start
+     * @param lineEnd the line segment end
+     * @return the square of the distance from the point to the line segment.
+     */
+    private double PointLineDistance(Point point, Point lineStart, Point lineEnd) {
+        var x1 = lineStart.x;
+        var y1 = lineStart.y;
+        var x2 = lineEnd.x;
+        var y2 = lineEnd.y;
+        var x = point.x;
+        var y = point.y;
+
+        var dx = x2 - x1;
+        var dy = y2 - y1;
+        var d = Math.sqrt(dx*dx + dy*dy);
+        var u = ((x - x1) * dx + (y - y1) * dy) / (d*d);
+        // projection of point onto line
+        var px = x1 + u * dx;
+        var py = y1 + u * dy;
+
+        // outside the line segment?  return a large number.
+        if(px < Math.min(x1,x2) || px > Math.max(x1,x2)) return Double.MAX_VALUE;
+        if(py < Math.min(y1,y2) || py > Math.max(y1,y2)) return Double.MAX_VALUE;
+        // return the square of the distance to the point because we only need to compare distances.
+        return (px-x)*(px-x)+(py-y)*(py-y);
     }
 
     @Override
