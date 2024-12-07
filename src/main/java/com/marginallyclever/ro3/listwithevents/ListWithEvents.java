@@ -86,13 +86,18 @@ public class ListWithEvents<T> {
     }
 
     public void set(T selection) {
-        boolean found=false;
-        for( T node : new ArrayList<>(list) ) {
-            if(!node.equals(selection)) {
-                remove(node);
-            } else found=true;
+        // remove everything except selection.
+        if(selection==null) {
+            removeAll();
+            return;
         }
-        if(!found && selection!=null) {
+        for (T item : new ArrayList<>(list)) {
+            if(!selection.equals(item)) {
+                remove(item);
+            }
+        }
+        // add selection if it's not already in the list.
+        if(!list.contains(selection)) {
             add(selection);
         }
     }
