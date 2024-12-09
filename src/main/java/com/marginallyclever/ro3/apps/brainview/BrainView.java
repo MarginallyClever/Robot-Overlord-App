@@ -37,6 +37,8 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     private Timer timer;
     private final Point previousMousePosition = new Point();
     private final JToolBar toolbar = new JToolBar();
+    private final JToggleButton showNames = new JToggleButton("Names");
+    private final JToggleButton showAlt = new JToggleButton("Alt");
 
     public BrainView() {
         super(new BorderLayout());
@@ -48,7 +50,12 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         brainPath.setMaximumSize(new Dimension(150, 24));
         toolbar.setFloatable(false);
         toolbar.add(brainPath);
+        toolbar.add(showNames);
+        toolbar.add(showAlt);
         add(toolbar, BorderLayout.NORTH);
+
+        showNames.addActionListener(e->repaint());
+        showAlt.addActionListener(e->repaint());
     }
 
     @Override
@@ -200,9 +207,18 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
             drawBox(g2d,nn.position,d+j);
         }
 
-        // it would be nice to visualize the bias and the sum.
-        g2d.setColor(Color.BLACK);
-        g2d.drawString(nn.getName(),nn.position.x+d+j+2,nn.position.y+d);//+" "+s+"/"+b
+        if(showNames.isSelected()) {
+            g2d.setColor(Color.BLACK);
+            g2d.drawString(nn.getName(),nn.position.x+d+j+2,nn.position.y+d);//+" "+s+"/"+b
+        }
+        if(showAlt.isSelected()) {
+            g2d.setColor(Color.BLACK);
+            String letter = nn.getNeuronType().toString().substring(0,1);
+            var fm = g2d.getFontMetrics();
+            var w = fm.charWidth(letter.charAt(0));
+            var h = fm.getHeight();
+            g2d.drawString(letter,nn.position.x-w/2,nn.position.y+h/4);
+        }
     }
 
     private void drawBox(Graphics2D g, Point p,int r) {
@@ -333,9 +349,7 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     }
 
     @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
+    public void mouseReleased(MouseEvent e) {}
 
     @Override
     public void mouseEntered(MouseEvent e) {}
