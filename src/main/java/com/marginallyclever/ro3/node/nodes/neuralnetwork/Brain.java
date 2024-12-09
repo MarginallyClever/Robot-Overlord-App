@@ -51,40 +51,43 @@ public class Brain extends Node {
         // update the children first
         super.update(dt);
 
-        // if physics is enabled, update the physics
+        // if physics is enabled, update the brain as well.
         if(!Registry.getPhysics().isPaused()) {
-            scan();
+            step();
+        }
+    }
 
-            var toFire = collectFiringNeurons();
+    /**
+     * Update the brain by one step.  This is the core of the neural network.
+     */
+    void step() {
+        scan();
 
-            // fire the neurons
-            for(Neuron n : toFire) {
-                // find all synapses from this neuron
-                var found = getAllSynapsesFrom(n);
+        // fire the activated neurons
+        var toFire = collectFiringNeurons();
+        for(Neuron n : toFire) {
+            // find all synapses from this neuron
+            var found = getAllSynapsesFrom(n);
 
-                // split the sum among all synapses
-                int count = found.size();
-                var w = n.getSum() / count;
-                for(Synapse s : found) {
-                    var to = s.getTo();
-                    switch(n.getNeuronType()) {
-                        case Worker:
-                            // add the weighted sum to the target neuron
-                            to.setSum( to.getSum() + w * s.getWeight() );
-                            break;
-                        case Exciter:
-                            to.setModulation( to.getModulation() + w * s.getWeight() );
-                            break;
-                        case Suppressor:
-                            to.setModulation( to.getModulation() - w * s.getWeight() );
-                            break;
-                    }
+            //var w = n.getSum();  // use the sum
+            //var w = n.getSum() - n.getBias();  // use the overflow
+            //w /= found.size();  // split the overflow between all synapses
+            var w = 1.0;  // simplest version
+
+            // fire the synapses
+            for(Synapse s : found) {
+                var to = s.getTo();
+                var ws = w * s.getWeight();
+                switch(n.getNeuronType()) {
+                    default        :  to.setSum( to.getSum() + ws );  break;
+                    case Exciter   :  to.setModulation( to.getModulation() + ws );  break;
+                    case Suppressor:  to.setModulation( to.getModulation() - ws );  break;
                 }
             }
+        }
 
-            if(hebbianLearningActive) {
-                hebbianLearning(toFire);
-            }
+        if(hebbianLearningActive) {
+            hebbianLearning(toFire);
         }
     }
 
@@ -103,14 +106,14 @@ public class Brain extends Node {
     }
 
     /**
-     * return all synapses that have the given neuron as the from neuron.
-     * @param n the neuron to search for
+     * Return all synapses that have "from" as the match neuron and that connect to a valid neuron.
+     * @param match the neuron to search for
      */
-    private ArrayList<Synapse> getAllSynapsesFrom(Neuron n) {
+    private ArrayList<Synapse> getAllSynapsesFrom(Neuron match) {
         var found = new ArrayList<Synapse>();
         for(Synapse s : synapses) {
             var from = s.getFrom();
-            if (from != n) continue;
+            if (from != match) continue;
             var to = s.getTo();
             if (to == null) continue;
             found.add(s);
