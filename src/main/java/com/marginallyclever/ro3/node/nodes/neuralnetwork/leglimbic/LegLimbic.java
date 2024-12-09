@@ -43,7 +43,6 @@ import java.util.Objects;
  */
 public class LegLimbic extends Node {
     private Brain brain;
-    private double decay=1.0;
 
     public LegLimbic() {
         this("Leg Limbic");
@@ -108,38 +107,12 @@ public class LegLimbic extends Node {
                 if (hipMuscle != null) hipMuscle.addTorque(brain.getOutput(1));
             }
 
-            // decay all neuron sums
-            for(Neuron n : brain.getNeurons()) n.setSum(n.getSum()*decay);
+            brain.decaySums();
         }
     }
 
     @Override
     public Icon getIcon() {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/neuralnetwork/icons8-limbic-16.png")));
-    }
-
-    public double getDecay() {
-        return decay;
-    }
-
-    /**
-     * Set the decay rate for all neuron sums.
-     * @param decay 0...1 inclusive.  1 means no decay.
-     */
-    public void setDecay(double decay) {
-        this.decay = decay;
-    }
-
-    @Override
-    public JSONObject toJSON() {
-        var json = super.toJSON();
-        json.put("decay", decay);
-        return json;
-    }
-
-    @Override
-    public void fromJSON(JSONObject json) {
-        super.fromJSON(json);
-        if(json.has("decay")) decay = json.getDouble("decay");
     }
 }

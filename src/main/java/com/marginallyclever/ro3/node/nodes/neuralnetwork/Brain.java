@@ -30,8 +30,13 @@ public class Brain extends Node {
     // a list of NodePath<Neuron> that are the output neurons
     public final ListWithEvents<NodePath<Neuron>> outputs = new ListWithEvents<>();
 
-    // TODO put a single selection neuron activation here?
-    // TODO put a single value for neuron sum decay here?
+    // TODO add activation function selector here?
+    private boolean hebbianLearningActive=false;
+    private double learningRate=0.1;
+    private double forgettingRate=0.001;
+
+    // a single value for neuron sum decay every frame.
+    private double sumDecay = 1.0;
 
     public Brain() {
         this("Brain");
@@ -50,37 +55,78 @@ public class Brain extends Node {
         if(!Registry.getPhysics().isPaused()) {
             scan();
 
-            var toFire = new ArrayList<Neuron>();
-            // update the neurons
-            for(Neuron n : neurons) {
-                // ReLu activation function
-                if(n.getSum()+n.getBias()>0) {
-                    toFire.add(n);
-                }
-            }
+            var toFire = collectFiringNeurons();
 
             // fire the neurons
-            var found = new ArrayList<Synapse>();
             for(Neuron n : toFire) {
                 // find all synapses from this neuron
-                found.clear();
-                for(Synapse s : synapses) {
-                    var from = s.getFrom();
-                    if (from != n) continue;
-                    var to = s.getTo();
-                    if (to == null) continue;
-                    found.add(s);
-                }
+                var found = getAllSynapsesFrom(n);
+
                 // split the sum among all synapses
                 int count = found.size();
                 var w = n.getSum() / count;
                 for(Synapse s : found) {
                     var to = s.getTo();
-                    // add the weighted sum to the target neuron
-                    to.setSum( to.getSum() + w * s.getWeight() );
+                    switch(n.getNeuronType()) {
+                        case Worker:
+                            // add the weighted sum to the target neuron
+                            to.setSum( to.getSum() + w * s.getWeight() );
+                            break;
+                        case Exciter:
+                            to.setModulation( to.getModulation() + w * s.getWeight() );
+                            break;
+                        case Suppressor:
+                            to.setModulation( to.getModulation() - w * s.getWeight() );
+                            break;
+                    }
                 }
             }
+
+            if(hebbianLearningActive) {
+                hebbianLearning(toFire);
+            }
         }
+    }
+
+    // Hebbian learning:  neurons that fire together, wire together.
+    private void hebbianLearning(ArrayList<Neuron> toFire) {
+        // look at existing synapses only
+        for(Synapse s : synapses) {
+            var from = s.getFrom();
+            var to = s.getTo();
+            if(toFire.contains(from) && toFire.contains(to)) {
+                s.setWeight( s.getWeight() + learningRate * from.getSum() * to.getSum() );
+            } else {
+                s.setWeight( s.getWeight() - forgettingRate * s.getWeight() );
+            }
+        }
+    }
+
+    /**
+     * return all synapses that have the given neuron as the from neuron.
+     * @param n the neuron to search for
+     */
+    private ArrayList<Synapse> getAllSynapsesFrom(Neuron n) {
+        var found = new ArrayList<Synapse>();
+        for(Synapse s : synapses) {
+            var from = s.getFrom();
+            if (from != n) continue;
+            var to = s.getTo();
+            if (to == null) continue;
+            found.add(s);
+        }
+        return found;
+    }
+
+    private ArrayList<Neuron> collectFiringNeurons() {
+        var toFire = new ArrayList<Neuron>();
+        for(Neuron n : neurons) {
+            // ReLu activation function
+            if(n.getSum()+n.getBias()>0) {
+                toFire.add(n);
+            }
+        }
+        return toFire;
     }
 
     @Override
@@ -137,6 +183,10 @@ public class Brain extends Node {
     public JSONObject toJSON() {
         var json = super.toJSON();
 
+        json.put("sumDecay", sumDecay);
+        json.put("learningRate", learningRate);
+        json.put("forgettingRate", forgettingRate);
+
         JSONArray inputsJson = new JSONArray();
         for(NodePath<Neuron> np : inputs.getList()) {
             inputsJson.put(np.getUniqueID());
@@ -155,6 +205,11 @@ public class Brain extends Node {
     @Override
     public void fromJSON(JSONObject json) {
         super.fromJSON(json);
+
+        if(json.has("sumDecay")) sumDecay = json.getDouble("sumDecay");
+        if(json.has("learningRate")) learningRate = json.getDouble("learningRate");
+        if(json.has("forgettingRate")) forgettingRate = json.getDouble("forgettingRate");
+
         if(json.has("inputs")) {
             JSONArray inputsJson = json.getJSONArray("inputs");
             for(int i=0;i<inputsJson.length();i++) {
@@ -210,5 +265,42 @@ public class Brain extends Node {
         if(i<0 || i>=inputs.size()) throw new InvalidParameterException("index out of range");
         Neuron n = inputs.getList().get(i).getSubject();
         if(n!=null) n.setSum(v);
+    }
+
+    // decay all neuron sums
+    public void decaySums() {
+        for(Neuron n : getNeurons()) n.setSum(n.getSum()* sumDecay);
+    }
+
+    public double getSumDecay() {
+        return sumDecay;
+    }
+
+    public void setSumDecay(double v) {
+        sumDecay = v;
+    }
+
+    public double getLearningRate() {
+        return learningRate;
+    }
+
+    public void setLearningRate(double v) {
+        learningRate = v;
+    }
+
+    public double getForgettingRate() {
+        return forgettingRate;
+    }
+
+    public void setForgettingRate(double v) {
+        forgettingRate = v;
+    }
+
+    public boolean isHebbianLearningActive() {
+        return hebbianLearningActive;
+    }
+
+    public void setHebbianLearningActive(boolean v) {
+        hebbianLearningActive = v;
     }
 }
