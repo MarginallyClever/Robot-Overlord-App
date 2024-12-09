@@ -14,7 +14,7 @@ import java.util.Objects;
 public class Synapse extends Node {
     private final NodePath<Neuron> from = new NodePath<>(this,Neuron.class);
     private final NodePath<Neuron> to = new NodePath<>(this,Neuron.class);
-    // typically anything but zero.
+    // anything greater than zero.
     public double weight;
 
     public Synapse() {
@@ -73,7 +73,7 @@ public class Synapse extends Node {
         return weight;
     }
 
-    public void setWeight(float weight) {
+    public void setWeight(double weight) {
         this.weight = weight;
     }
 }

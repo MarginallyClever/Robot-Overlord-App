@@ -186,7 +186,8 @@ public class RO3Frame extends JFrame {
      * or <a href="https://www.uuidgenerator.net/">one of many websites</a>.
      */
     private void createDefaultLayout() {
-        // TODO all persistentIDs should match the name of the class.  Then a DockingPanelFactory could recreate the views from AppState.
+        // TODO all persistentIDs should match the name of the class.  Then a DockingPanelFactory could recreate the
+        //  views from AppState.  Also remember https://github.com/andrewauclair/ModernDocking/discussions/240#discussioncomment-10897811
 
         addDockingPanel("8e50154c-a149-4e95-9db5-4611d24cc0cc", "3D view",viewportPanel);
         addDockingPanel("c6b04902-7e53-42bc-8096-fa5d43289362", "Scene",new NodeTreeView());
@@ -232,15 +233,14 @@ public class RO3Frame extends JFrame {
 
     private void saveAndRestoreLayout() {
         // now that the main frame is set up with the defaults, we can restore the layout
-        var path = FileHelper.getUserHome()+File.separator+"RobotOverlord"+File.separator+"ro3.layout";
-        logger.debug(path);
-        AppState.setPersistFile(new File(path));
+        var layoutPath = FileHelper.getUserHome()+File.separator+"RobotOverlord"+File.separator+"ro3.layout";
+        logger.debug("layout file={}",layoutPath);
+        AppState.setPersistFile(new File(layoutPath));
         AppState.setAutoPersist(true);
 
         try {
             AppState.restore();
         } catch (DockingLayoutException e) {
-            // something happened trying to load the layout file, record it here
             logger.error("Failed to restore docking layout.", e);
         }
     }
