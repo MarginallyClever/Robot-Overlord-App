@@ -41,6 +41,12 @@ public class NeuronPanel extends JPanel {
         ty.addPropertyChangeListener("value",(e)->updatePosition());
         gbc.gridy++;
 
+        var typeChoice = new JComboBox<>(Neuron.Type.values());
+        PanelHelper.addLabelAndComponent(this,"Type",typeChoice,gbc);
+        gbc.gridy++;
+        typeChoice.setSelectedItem(neuron.getNeuronType());
+        typeChoice.addActionListener((e)->neuron.setNeuronType((Neuron.Type)typeChoice.getSelectedItem()));
+
         var bias = PanelHelper.addNumberFieldDouble("Bias",neuron.getBias());
         bias.addPropertyChangeListener("value",(e)->neuron.setBias(((Number)e.getNewValue()).doubleValue()));
         PanelHelper.addLabelAndComponent(this,"Bias",bias,gbc);
@@ -49,6 +55,11 @@ public class NeuronPanel extends JPanel {
         var sum = PanelHelper.addNumberFieldDouble("Sum",neuron.getSum());
         sum.addPropertyChangeListener("value",(e)->neuron.setSum(((Number)e.getNewValue()).doubleValue()));
         PanelHelper.addLabelAndComponent(this,"Sum",sum,gbc);
+        gbc.gridy++;
+
+        var modulation = PanelHelper.addNumberFieldDouble("Modulation",neuron.getModulation());
+        modulation.addPropertyChangeListener("value",(e)->neuron.setModulation(((Number)e.getNewValue()).doubleValue()));
+        PanelHelper.addLabelAndComponent(this,"Modulation",modulation,gbc);
         gbc.gridy++;
     }
 
