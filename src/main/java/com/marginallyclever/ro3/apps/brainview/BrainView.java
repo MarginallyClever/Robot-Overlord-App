@@ -54,8 +54,8 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         toolbar.add(showAlt);
         add(toolbar, BorderLayout.NORTH);
 
-        showNames.addActionListener(e->repaint());
-        showAlt.addActionListener(e->repaint());
+        showNames.addActionListener(e->BrainView.this.repaint());
+        showAlt.addActionListener(e->BrainView.this.repaint());
     }
 
     @Override
