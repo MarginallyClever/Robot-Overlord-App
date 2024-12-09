@@ -18,7 +18,7 @@ public class BrainTest {
     }
 
     @Test
-    public void fireNeuron() {
+    public void fire1Neuron() {
         var brain = new Brain();
         var a = new Neuron();
         var b = new Neuron();
@@ -35,5 +35,6 @@ public class BrainTest {
         brain.scan();
         brain.step();
 
+        Assertions.assertEquals(1.0, b.getSum());
     }
 }
