@@ -16,6 +16,7 @@ import java.awt.*;
  */
 public class BrainPanel extends JPanel {
     private final Brain brain;
+    private final JToggleButton hebbianLearningActive = new JToggleButton();
 
     public BrainPanel() {
         this(new Brain());
@@ -26,23 +27,37 @@ public class BrainPanel extends JPanel {
         this.brain = brain;
         setName("Brain");
 
-        redo();
-    }
-
-    /**
-     * Remove everything from this panel, and rebuild it.
-     */
-    public void redo() {
-        // TODO this is extremely lazy.  When the user changes the count of neurons the whole panel rebuild
-        //      causes the count component to lose focus.  This is a bad user experience.
-        removeAll();
-
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1;
         c.gridx = 0;
         c.gridy = 0;
 
+        var sumDecay = PanelHelper.addNumberFieldDouble("Sum Decay",brain.getSumDecay());
+        sumDecay.addPropertyChangeListener("value",(e)->brain.setSumDecay(((Number)e.getNewValue()).doubleValue()));
+        PanelHelper.addLabelAndComponent(this,"Sum Decay",sumDecay,c);
+        c.gridy++;
+
+        hebbianLearningActive.setSelected(brain.isHebbianLearningActive());
+        hebbianLearningActive.addActionListener((e)->{
+            brain.setHebbianLearningActive(hebbianLearningActive.isSelected());
+            setLearningLabel();
+        });
+        PanelHelper.addLabelAndComponent(this,"Hebbian Learning Active",hebbianLearningActive,c);
+        setLearningLabel();
+        c.gridy++;
+
+        var learningRate = PanelHelper.addNumberFieldDouble("Learning Rate",brain.getLearningRate());
+        learningRate.addPropertyChangeListener("value",(e)->brain.setLearningRate(((Number)e.getNewValue()).doubleValue()));
+        PanelHelper.addLabelAndComponent(this,"Learning Rate",learningRate,c);
+        c.gridy++;
+
+        var forgettingRate = PanelHelper.addNumberFieldDouble("Forgetting Rate",brain.getForgettingRate());
+        forgettingRate.addPropertyChangeListener("value",(e)->brain.setForgettingRate(((Number)e.getNewValue()).doubleValue()));
+        PanelHelper.addLabelAndComponent(this,"Forgetting Rate",forgettingRate,c);
+        c.gridy++;
+
+        c.gridwidth=2;
         this.add(addNeuronsPanel("Input",brain.inputs),c);
         c.gridy++;
         this.add(addNeuronsPanel("Output",brain.outputs),c);
@@ -50,6 +65,10 @@ public class BrainPanel extends JPanel {
 
         revalidate();
         repaint();
+    }
+
+    private void setLearningLabel() {
+        hebbianLearningActive.setText(brain.isHebbianLearningActive() ? "Active" : "Inactive");
     }
 
     /**
@@ -60,14 +79,38 @@ public class BrainPanel extends JPanel {
      */
     private JPanel addNeuronsPanel(String label, ListWithEvents<NodePath<Neuron>> list) {
         var containerPanel = new CollapsiblePanel(label+" Neurons");
-        var outerPanel = containerPanel.getContentPane();
-        outerPanel.setLayout(new GridLayout(0, 2));
+        var contentPane = containerPanel.getContentPane();
+        contentPane.setLayout(new BorderLayout());
+
+        var countPanel = new JPanel(new GridBagLayout());
+
+        var listPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridwidth=1;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        c.gridx = 0;
+        c.gridy = 0;
 
         // display the list length
         var count = PanelHelper.addNumberFieldInt("Count",list.size());
         final var finalList = list;
-        count.addPropertyChangeListener("value", e->changeListSize( finalList, ((Number)count.getValue()).intValue() ) );
-        PanelHelper.addLabelAndComponent(outerPanel, "Count", count);
+        count.addPropertyChangeListener("value", e->changeListSize( listPanel, finalList, ((Number)count.getValue()).intValue() ) );
+        PanelHelper.addLabelAndComponent(countPanel, "Count", count,c);
+        contentPane.add(countPanel,BorderLayout.NORTH);
+        contentPane.add(listPanel,BorderLayout.CENTER);
+
+        addNeuronsToPanel(listPanel,list);
+        return containerPanel;
+    }
+
+    private void addNeuronsToPanel(JPanel outerPanel, ListWithEvents<NodePath<Neuron>> list) {
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridwidth=1;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        c.gridx = 0;
+        c.gridy = 0;
 
         int i=0;
         for (NodePath<Neuron> neuron : list.getList()) {
@@ -77,19 +120,21 @@ public class BrainPanel extends JPanel {
             motorSelector.addPropertyChangeListener("subject",(e)-> {
                 list.getList().get(jFinal).setUniqueIDByNode((Neuron)e.getNewValue());
             });
-            PanelHelper.addLabelAndComponent(outerPanel, ""+i, motorSelector);
+            PanelHelper.addLabelAndComponent(outerPanel, ""+i, motorSelector,c);
+            c.gridy++;
             i++;
         }
-        return containerPanel;
     }
 
     /**
      * Change the list size and rebuild the panel as needed.
+     * @param listPanel the panel to change
      * @param list the list to change
      * @param newCount the new size
      */
-    private void changeListSize(ListWithEvents<NodePath<Neuron>> list, int newCount) {
+    private void changeListSize(JPanel listPanel,ListWithEvents<NodePath<Neuron>> list, int newCount) {
         brain.setListSize(list,newCount);
-        redo();
+        listPanel.removeAll();
+        addNeuronsToPanel(listPanel,list);
     }
 }
