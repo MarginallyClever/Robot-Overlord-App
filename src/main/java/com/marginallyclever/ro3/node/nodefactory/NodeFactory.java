@@ -69,14 +69,19 @@ public class NodeFactory {
         return root;
     }
 
-    public Supplier<Node> getSupplierFor(String path) {
+    /**
+     * find the sub-factory that matches the given identifier.
+     * @param identifier the name of type of {@link Node} the sub-factory produces.
+     * @return the sub-factory that matches the given identifier, or null if not found.
+     */
+    public Supplier<Node> getSupplierFor(String identifier) {
         List<Category> toCheck = new ArrayList<>();
         toCheck.add(root);
         while(!toCheck.isEmpty()) {
             Category current = toCheck.remove(0);
             toCheck.addAll(current.children);
 
-            if(current.name.equals(path)) {
+            if(current.name.equals(identifier)) {
                 return current.supplier;
             }
         }
@@ -84,21 +89,29 @@ public class NodeFactory {
         return null;
     }
 
-    public Node create(String path) {
-        Supplier<Node> supplier = getSupplierFor(path);
+    /**
+     * Create a new {@link Node} of the given type.
+     * @param identifier the type of Node to create.
+     * @return a new instance of the Node, or null if the supplier is not found.
+     */
+    public Node create(String identifier) {
+        Supplier<Node> supplier = getSupplierFor(identifier);
         if(supplier==null) return null;
         return supplier.get();
     }
 
+    /**
+     * Scan all classes in the package com.marginallyclever.ro3.node for classes that extend {@link Node}.
+     */
     public void scan() {
         // Create a new instance of Reflections
         Reflections reflections = new Reflections("com.marginallyclever.ro3");
         // Get all classes that extend T
         Set<Class<? extends Node>> found = reflections.getSubTypesOf(Node.class);
-        // Now, classes contains all classes that extend T
-        for (Class<? extends Node> clazz : found) {
+        // log it
+        found.stream().sorted((a,b)->a.getName().compareTo(b.getName())).forEach((clazz)->{
             logger.info("Found " + clazz.getName());
-        }
+        });
     }
 
     public void clear() {
