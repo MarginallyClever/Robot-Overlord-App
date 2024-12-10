@@ -189,7 +189,7 @@ public class RO3Frame extends JFrame {
         // TODO all persistentIDs should match the name of the class.  Then a DockingPanelFactory could recreate the
         //  views from AppState.  Also remember https://github.com/andrewauclair/ModernDocking/discussions/240#discussioncomment-10897811
 
-        addDockingPanel("8e50154c-a149-4e95-9db5-4611d24cc0cc", "3D view",viewportPanel);
+        addDockingPanel("8e50154c-a149-4e95-9db5-4611d24cc0cc", "OpenGL",viewportPanel);
         addDockingPanel("c6b04902-7e53-42bc-8096-fa5d43289362", "Scene",new NodeTreeView());
         addDockingPanel("67e45223-79f5-4ce2-b15a-2912228b356f", "Details",new NodeDetailView());
         addDockingPanel("5e565f83-9734-4281-9828-92cd711939df", "Log",logPanel);
