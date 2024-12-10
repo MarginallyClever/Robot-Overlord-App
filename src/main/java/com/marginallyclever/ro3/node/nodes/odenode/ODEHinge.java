@@ -203,4 +203,9 @@ public class ODEHinge extends ODEJoint {
         if(hinge==null) return 0;
         return Math.toDegrees(hinge.getAngle());
     }
+
+    public double getAngleVelocity() {
+        if(hinge==null) return 0;
+        return Math.toDegrees(hinge.getAngleRate());
+    }
 }

@@ -113,4 +113,12 @@ public class Neuron extends Node {
     public void setModulation(double modulation) {
         this.modulation = modulation;
     }
+
+    /**
+     * ReLU activation function
+     * @return true if the neuron should fire.
+     */
+    public boolean activationFunction() {
+        return sum+bias+modulation>0;
+    }
 }

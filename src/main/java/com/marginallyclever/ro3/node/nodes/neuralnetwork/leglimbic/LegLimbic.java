@@ -90,8 +90,15 @@ public class LegLimbic extends Node {
 
         if(!Registry.getPhysics().isPaused()) {
             // send data from the Leg to the Brain
-            if (knee != null) brain.setInput(0, Math.toDegrees(knee.getAngle()));
-            if (hip != null) brain.setInput(1, Math.toDegrees(hip.getAngle()));
+            int i=0;
+            if (knee != null) {
+                brain.setInput(i++, Math.toDegrees(knee.getAngle()));
+                brain.setInput(i++, Math.toDegrees(knee.getAngleVelocity()));
+            }
+            if (hip != null) {
+                brain.setInput(i++, Math.toDegrees(hip.getAngle()));
+                brain.setInput(i++, Math.toDegrees(hip.getAngleVelocity()));
+            }
         }
 
         super.update(dt);

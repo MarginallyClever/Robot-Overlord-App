@@ -32,8 +32,9 @@ public class Brain extends Node {
 
     // TODO add activation function selector here?
     private boolean hebbianLearningActive=false;
-    private double learningRate=0.1;
-    private double forgettingRate=0.001;
+    private double learningRate=0.1;  // 0 for none, 1 for full.
+    private double forgettingRate=0.001;  // 0 for none, 1 for full.
+    private double modulationDegradationRate = 0.1;  // 0 for none, 1 for full.
 
     // a single value for neuron sum decay every frame.
     private double sumDecay = 1.0;
@@ -69,10 +70,9 @@ public class Brain extends Node {
             // find all synapses from this neuron
             var found = getAllSynapsesFrom(n);
 
-            //var w = n.getSum();  // use the sum
-            //var w = n.getSum() - n.getBias();  // use the overflow
+            var w = n.getSum();  // use the sum
+            //w -= n.getBias();  // use the overflow
             //w /= found.size();  // split the overflow between all synapses
-            var w = 1.0;  // simplest version
 
             // fire the synapses
             for(Synapse s : found) {
@@ -89,9 +89,20 @@ public class Brain extends Node {
         if(hebbianLearningActive) {
             hebbianLearning(toFire);
         }
+        degradeAllModulations();
     }
 
-    // Hebbian learning:  neurons that fire together, wire together.
+    private void degradeAllModulations() {
+        for(Neuron n : neurons) {
+            var m = n.getModulation();
+            n.setModulation(m - m * modulationDegradationRate);
+        }
+    }
+
+    /**
+     * Hebbian learning:  neurons that fire together, wire together.
+     * @param toFire the list of neurons that are currently firing
+     */
     private void hebbianLearning(ArrayList<Neuron> toFire) {
         // look at existing synapses only
         for(Synapse s : synapses) {
@@ -124,10 +135,7 @@ public class Brain extends Node {
     private ArrayList<Neuron> collectFiringNeurons() {
         var toFire = new ArrayList<Neuron>();
         for(Neuron n : neurons) {
-            // ReLu activation function
-            if(n.getSum()+n.getBias()>0) {
-                toFire.add(n);
-            }
+            if(n.activationFunction()) toFire.add(n);
         }
         return toFire;
     }
@@ -189,6 +197,8 @@ public class Brain extends Node {
         json.put("sumDecay", sumDecay);
         json.put("learningRate", learningRate);
         json.put("forgettingRate", forgettingRate);
+        json.put("hebbianLearningActive", hebbianLearningActive);
+        json.put("modulationDegradationRate", modulationDegradationRate);
 
         JSONArray inputsJson = new JSONArray();
         for(NodePath<Neuron> np : inputs.getList()) {
@@ -212,6 +222,8 @@ public class Brain extends Node {
         if(json.has("sumDecay")) sumDecay = json.getDouble("sumDecay");
         if(json.has("learningRate")) learningRate = json.getDouble("learningRate");
         if(json.has("forgettingRate")) forgettingRate = json.getDouble("forgettingRate");
+        if(json.has("hebbianLearningActive")) hebbianLearningActive = json.getBoolean("hebbianLearningActive");
+        if(json.has("modulationDegradationRate")) modulationDegradationRate = json.getDouble("modulationDegradationRate");
 
         if(json.has("inputs")) {
             JSONArray inputsJson = json.getJSONArray("inputs");
@@ -305,5 +317,13 @@ public class Brain extends Node {
 
     public void setHebbianLearningActive(boolean v) {
         hebbianLearningActive = v;
+    }
+
+    public void setModulationDegradationRate(double v) {
+        modulationDegradationRate = v;
+    }
+
+    public double getModulationDegradationRate() {
+        return modulationDegradationRate;
     }
 }
