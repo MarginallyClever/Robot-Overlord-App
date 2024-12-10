@@ -1,8 +1,10 @@
 package com.marginallyclever.ro3.apps.brainview;
 
-import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.SceneChangeListener;
+import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.App;
+import com.marginallyclever.ro3.apps.commands.AddNode;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
 import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
@@ -16,12 +18,13 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.function.Supplier;
 
 /**
  * {@link BrainView} visualizes the details of a {@link Brain}, its {@link Neuron}s, and {@link Synapse}s.
  */
 public class BrainView extends App implements ItemAddedListener<Node>, ItemRemovedListener<Node>, ActionListener,
-        MouseListener, MouseMotionListener, MouseWheelListener {
+        MouseListener, MouseMotionListener, MouseWheelListener, SceneChangeListener {
     private final NodeSelector<Brain> brainPath = new NodeSelector<>(Brain.class);
 
     private final int RADIUS = 5;
@@ -39,6 +42,7 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     private final JToolBar toolbar = new JToolBar();
     private final JToggleButton showNames = new JToggleButton("Names");
     private final JToggleButton showAlt = new JToggleButton("Alt");
+    private final JButton connectNeuronsButton = new JButton("+S");
 
     public BrainView() {
         super(new BorderLayout());
@@ -52,10 +56,12 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         toolbar.add(brainPath);
         toolbar.add(showNames);
         toolbar.add(showAlt);
+        toolbar.add(connectNeuronsButton);
         add(toolbar, BorderLayout.NORTH);
 
         showNames.addActionListener(e->BrainView.this.repaint());
         showAlt.addActionListener(e->BrainView.this.repaint());
+        connectNeuronsButton.addActionListener(e->connectNeurons());
     }
 
     @Override
@@ -64,6 +70,7 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         Registry.selection.addItemAddedListener(this);
         Registry.selection.addItemRemovedListener(this);
         Registry.getPhysics().addActionListener(this);
+        Registry.addSceneChangeListener(this);
 
         addMouseListener(this);
         addMouseMotionListener(this);
@@ -75,6 +82,7 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         super.removeNotify();
         Registry.selection.removeItemAddedListener(this);
         Registry.selection.removeItemRemovedListener(this);
+        Registry.removeSceneChangeListener(this);
         if(timer != null) {
             timer.cancel();
             timer=null;
@@ -190,8 +198,12 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         }
 
         // border
+        if(nn.activationFunction()) {
+            g2d.setColor(Color.GREEN);
+            fillBox(g2d, nn.position, d);
+        }
         g2d.setColor(Color.BLUE);
-        drawBox(g2d,nn.position,d);
+        drawBox(g2d, nn.position, d);
 
         final int margin = 3;
         // input
@@ -386,4 +398,45 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {}
+
+    @Override
+    public void beforeSceneChange(Node oldScene) {
+        brainPath.setSubject(null);
+    }
+
+    @Override
+    public void afterSceneChange(Node newScene) {}
+
+    /**
+     * Create a synapse between the two selected neurons.
+     */
+    private void connectNeurons() {
+        var brain = brainPath.getSubject();
+        if(brain == null) return;
+        // get the selected neurons.
+        var selected = Registry.selection.getList().stream().filter(n->n instanceof Neuron).map(n->(Neuron)n).toArray(Neuron[]::new);
+        // if there are two neurons selected...
+        if(selected.length!=2) return;
+        var n0 = selected[0];
+        var n1 = selected[1];
+        // ...and no synapse between them...
+        if(n0==n1) return;
+        if(brain.getSynapses().stream().anyMatch(s->(s.getFrom()==n0 && s.getTo()==n1) || (s.getFrom()==n1 && s.getTo()==n0))) return;
+        // then create a synapse...
+        Supplier<Node> factory = Registry.nodeFactory.getSupplierFor("Synapse");
+        var an = new com.marginallyclever.ro3.apps.commands.AddNode<>(factory,brain);
+        UndoSystem.addEvent(an);
+        var s = (Synapse)an.getFirstCreated();
+
+        // and connect the synapse to the neurons.  Assume the neuron with the smaller y is the from neuron.
+        if(n1.position.y < n0.position.y) {
+            s.setFrom(n1);
+            s.setTo(n0);
+        } else {
+            s.setFrom(n0);
+            s.setTo(n1);
+        }
+        // select the synapse.
+        Registry.selection.set(s);
+    }
 }
