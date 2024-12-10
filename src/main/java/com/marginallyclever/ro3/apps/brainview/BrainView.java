@@ -190,26 +190,32 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         }
 
         // border
-        g2d.setColor(nn.getBias()>=0?Color.GREEN: Color.RED);
+        g2d.setColor(Color.BLUE);
         drawBox(g2d,nn.position,d);
 
-        // inputs as pink box
-        int j=0;
+        final int margin = 3;
+        // input
         if(brain.inputs.getList().stream().anyMatch(n->n.getSubject()==nn)) {
-            j=2;
             g2d.setColor(Color.ORANGE);
-            drawBox(g2d,nn.position,d+j);
+            // draw a triangle above the neuron, pointing down.
+            var p1 = new Point(nn.position.x-d,nn.position.y-margin-d*2);
+            var p2 = new Point(nn.position.x+d,nn.position.y-margin-d*2);
+            var p3 = new Point(nn.position.x,nn.position.y-margin-d);
+            g2d.fillPolygon(new int[]{p1.x,p2.x,p3.x},new int[]{p1.y,p2.y,p3.y},3);
         }
-        // outputs as blue box
+        // output
         if(brain.outputs.getList().stream().anyMatch(n->n.getSubject()==nn)) {
-            j=4;
             g2d.setColor(Color.BLUE);
-            drawBox(g2d,nn.position,d+j);
+            // draw a triangle below the neuron, pointing down.
+            var p1 = new Point(nn.position.x-d,nn.position.y+margin+d);
+            var p2 = new Point(nn.position.x+d,nn.position.y+margin+d);
+            var p3 = new Point(nn.position.x,nn.position.y+margin+d*2);
+            g2d.fillPolygon(new int[]{p1.x,p2.x,p3.x},new int[]{p1.y,p2.y,p3.y},3);
         }
 
         if(showNames.isSelected()) {
             g2d.setColor(Color.BLACK);
-            g2d.drawString(nn.getName(),nn.position.x+d+j+2,nn.position.y+d);//+" "+s+"/"+b
+            g2d.drawString(nn.getName(),nn.position.x+d+2,nn.position.y+d);//+" "+s+"/"+b
         }
         if(showAlt.isSelected()) {
             g2d.setColor(Color.BLACK);
@@ -222,11 +228,11 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     }
 
     private void drawBox(Graphics2D g, Point p,int r) {
-        g.drawRect(p.x-r,p.y-r,r*2+1,r*2+1);
+        g.drawRect(p.x-r-1,p.y-r-1,r*2+2,r*2+2);
     }
 
     private void fillBox(Graphics2D g, Point p,int r) {
-        g.fillRect(p.x-r,p.y-r,r*2+1,r*2+1);
+        g.fillRect(p.x-r-1,p.y-r-1,r*2+2,r*2+2);
     }
 
     @Override
