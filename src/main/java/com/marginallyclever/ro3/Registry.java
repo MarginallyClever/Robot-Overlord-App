@@ -45,12 +45,12 @@ public class Registry {
     public static final NodeFactory nodeFactory = new NodeFactory();
     private static Node scene = new Node("Scene");
     public static final ListWithEvents<Camera> cameras = new ListWithEvents<>();
-    private static Camera activeCamera = null;
     public static final ListWithEvents<Node> selection = new ListWithEvents<>();
     private static final ODEPhysics physics = new ODEPhysics();
 
     public static void start() {
         nodeFactory.clear();
+        nodeFactory.scan();
         NodeFactory.Category node = nodeFactory.getRoot();
         {
             NodeFactory.Category behavior = node.add("Behavior", null);
@@ -59,7 +59,7 @@ public class Registry {
                 {
                     action.add("LimbMoveToTarget", LimbMoveToTarget::new);
                 }
-                NodeFactory.Category control = behavior.add("Control", null);
+                behavior.add("Control", null);
                 NodeFactory.Category decorator = behavior.add("Decorator", null);
                 {
                     decorator.add("ForceFailure", ForceFailure::new);
@@ -138,7 +138,7 @@ public class Registry {
         meshFactory.reset();
         physics.reset();
 
-        scene = new Node("Scene");
+        setScene(new Node("Scene"));
     }
 
     public static void addSceneChangeListener(SceneChangeListener listener) {
