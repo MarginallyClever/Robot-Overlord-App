@@ -120,7 +120,7 @@ public class PanelHelper {
         JFormattedTextField field = new JFormattedTextField(formatter);
         field.setValue(value);
         field.setToolTipText(toolTip);
-        field.setColumns(1);
+        field.setColumns(3);
         field.setMinimumSize(new Dimension(0,20));
         return field;
     }
@@ -173,5 +173,44 @@ public class PanelHelper {
         selector.addPropertyChangeListener("subject", (evt) ->consumer.accept((ODEBody)evt.getNewValue()));
         PanelHelper.addLabelAndComponent(pane, label,selector,gbc);
         gbc.gridy++;
+    }
+
+    /**
+     * Create a range slider with two decimal places that displays the value on the right.
+     * @param max the maximum value
+     * @param min the minimum value
+     * @param value the initial value
+     * @param consumer the consumer to accept the value
+     * @return the {@link JComponent}
+     */
+    public static JComponent createRange(double max,double min,double value,Consumer<Double> consumer) {
+        JPanel panel = new JPanel(new BorderLayout());
+        var f = addNumberFieldDouble("",value);
+
+        double range = (int)((max-min)*100);
+        JSlider slider = new JSlider((int)(min*100),(int)(max*100),(int)(value*100));
+        slider.addChangeListener((e)->{
+            consumer.accept(slider.getValue()/range);
+            f.setValue(slider.getValue()/100.0);
+        });
+        slider.setPreferredSize(new Dimension(100,20));
+
+        f.setInputVerifier(new InputVerifier() {
+            @Override
+            public boolean verify(JComponent input) {
+                var f = (JFormattedTextField)input;
+                var v = ((Number)f.getValue()).doubleValue();
+                return v>=min && v<=max;
+            }
+        });
+        f.addPropertyChangeListener("value",(e)->{
+            var v = ((Number)f.getValue()).doubleValue();
+            // if it is in range, update the slider.
+            slider.setValue((int)(v*100));
+        });
+
+        panel.add(slider,BorderLayout.CENTER);
+        panel.add(f,BorderLayout.EAST);
+        return panel;
     }
 }

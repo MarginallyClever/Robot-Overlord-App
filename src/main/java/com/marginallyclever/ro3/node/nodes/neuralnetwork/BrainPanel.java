@@ -33,8 +33,7 @@ public class BrainPanel extends JPanel {
         c.gridx = 0;
         c.gridy = 0;
 
-        var sumDecay = PanelHelper.addNumberFieldDouble("Sum Decay",brain.getSumDecay());
-        sumDecay.addPropertyChangeListener("value",(e)->brain.setSumDecay(((Number)e.getNewValue()).doubleValue()));
+        var sumDecay = PanelHelper.createRange(1.0, 0.0, brain.getSumDecay(), brain::setSumDecay);
         PanelHelper.addLabelAndComponent(this,"Sum Decay",sumDecay,c);
         c.gridy++;
 
@@ -43,17 +42,15 @@ public class BrainPanel extends JPanel {
             brain.setHebbianLearningActive(hebbianLearningActive.isSelected());
             setLearningLabel();
         });
-        PanelHelper.addLabelAndComponent(this,"Hebbian Learning Active",hebbianLearningActive,c);
+        PanelHelper.addLabelAndComponent(this,"Hebbian Learning",hebbianLearningActive,c);
         setLearningLabel();
         c.gridy++;
 
-        var learningRate = PanelHelper.addNumberFieldDouble("Learning Rate",brain.getLearningRate());
-        learningRate.addPropertyChangeListener("value",(e)->brain.setLearningRate(((Number)e.getNewValue()).doubleValue()));
+        var learningRate = PanelHelper.createRange(1.0, 0.0, brain.getLearningRate(), brain::setLearningRate);
         PanelHelper.addLabelAndComponent(this,"Learning Rate",learningRate,c);
         c.gridy++;
 
-        var forgettingRate = PanelHelper.addNumberFieldDouble("Forgetting Rate",brain.getForgettingRate());
-        forgettingRate.addPropertyChangeListener("value",(e)->brain.setForgettingRate(((Number)e.getNewValue()).doubleValue()));
+        var forgettingRate = PanelHelper.createRange(1.0, 0.0, brain.getForgettingRate(), brain::setForgettingRate);
         PanelHelper.addLabelAndComponent(this,"Forgetting Rate",forgettingRate,c);
         c.gridy++;
 
