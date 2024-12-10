@@ -32,10 +32,12 @@ public class Brain extends Node {
 
     // TODO add activation function selector here?
     private boolean hebbianLearningActive=false;
+    // how fast does the network learn?  larger is faster.
     private double learningRate=0.1;  // 0 for none, 1 for full.
+    // How fast does the network forget?  larger is faster.
     private double forgettingRate=0.001;  // 0 for none, 1 for full.
+    // modulation degradation rate.  larger is faster.
     private double modulationDegradationRate = 0.1;  // 0 for none, 1 for full.
-
     // a single value for neuron sum decay every frame.
     private double sumDecay = 1.0;
 
@@ -87,9 +89,10 @@ public class Brain extends Node {
         }
 
         if(hebbianLearningActive) {
-            hebbianLearning(toFire);
+            hebbianLearning();
         }
         degradeAllModulations();
+        // don't decay the sums here.  The limbic system needs to read data out before the sums are decayed.
     }
 
     private void degradeAllModulations() {
@@ -100,15 +103,15 @@ public class Brain extends Node {
     }
 
     /**
-     * Hebbian learning:  neurons that fire together, wire together.
-     * @param toFire the list of neurons that are currently firing
+     * Hebbian learning: Neurons that fire together, wire together.  We need to find all the neurons that fired this
+     * tick AND the ones that will fire on the next because the firings may have activated new neurons.
      */
-    private void hebbianLearning(ArrayList<Neuron> toFire) {
-        // look at existing synapses only
+    private void hebbianLearning() {
         for(Synapse s : synapses) {
             var from = s.getFrom();
             var to = s.getTo();
-            if(toFire.contains(from) && toFire.contains(to)) {
+
+            if(from.activationFunction() && to.activationFunction()) {
                 s.setWeight( s.getWeight() + learningRate * from.getSum() * to.getSum() );
             } else {
                 s.setWeight( s.getWeight() - forgettingRate * s.getWeight() );
@@ -132,6 +135,9 @@ public class Brain extends Node {
         return found;
     }
 
+    /**
+     * @return a list of neurons that are currently firing
+     */
     private ArrayList<Neuron> collectFiringNeurons() {
         var toFire = new ArrayList<Neuron>();
         for(Neuron n : neurons) {
