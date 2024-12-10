@@ -3,10 +3,8 @@ package com.marginallyclever.ro3.node.nodes.neuralnetwork.leglimbic;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.neuralnetwork.Brain;
-import com.marginallyclever.ro3.node.nodes.neuralnetwork.Neuron;
 import com.marginallyclever.ro3.node.nodes.odenode.ODEAngularMotor;
 import com.marginallyclever.ro3.node.nodes.odenode.ODEHinge;
-import org.json.JSONObject;
 
 import javax.swing.*;
 import java.util.List;
@@ -61,12 +59,14 @@ public class LegLimbic extends Node {
             // no, create one
             createBrain();
         }
-        brain.addDetachListener(this::onBrainRemoved);
+        brain.addDetachListener(this::onChildRemoved);
     }
 
-    private void onBrainRemoved(Node node) {
-        // if the brain is removed create a new one.
-        createBrain();
+    private void onChildRemoved(Node node) {
+        // if there are no brains left create a new one.
+        if(null==findFirstChild(Brain.class)) {
+            createBrain();
+        }
     }
 
     private void createBrain() {
