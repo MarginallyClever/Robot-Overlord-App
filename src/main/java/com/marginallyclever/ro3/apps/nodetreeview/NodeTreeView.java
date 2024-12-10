@@ -88,6 +88,18 @@ public class NodeTreeView extends App
                 }
             }
         });
+
+        // Bind Ctrl+C, Ctrl+V, and Ctrl+X to copy, paste, and cut actions
+        InputMap inputMap = tree.getInputMap(JComponent.WHEN_FOCUSED);
+        ActionMap actionMap = tree.getActionMap();
+
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK), "copy");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK), "paste");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK), "cut");
+
+        actionMap.put("copy", copyNode);
+        actionMap.put("paste", pasteNode);
+        actionMap.put("cut", cutNode);
     }
 
     private void changeSelection(TreeSelectionEvent e) {
