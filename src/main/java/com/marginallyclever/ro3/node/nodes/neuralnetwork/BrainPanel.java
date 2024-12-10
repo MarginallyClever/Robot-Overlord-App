@@ -54,6 +54,10 @@ public class BrainPanel extends JPanel {
         PanelHelper.addLabelAndComponent(this,"Forgetting Rate",forgettingRate,c);
         c.gridy++;
 
+        var modRate = PanelHelper.createRange(1.0, 0.0, brain.getModulationDegradationRate(), brain::setModulationDegradationRate);
+        PanelHelper.addLabelAndComponent(this,"Mod Reduction Rate",modRate,c);
+        c.gridy++;
+
         c.gridwidth=2;
         this.add(addNeuronsPanel("Input",brain.inputs),c);
         c.gridy++;
