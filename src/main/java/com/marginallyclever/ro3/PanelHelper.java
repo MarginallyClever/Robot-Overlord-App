@@ -190,7 +190,7 @@ public class PanelHelper {
         double range = (int)((max-min)*100);
         JSlider slider = new JSlider((int)(min*100),(int)(max*100),(int)(value*100));
         slider.addChangeListener((e)->{
-            consumer.accept(slider.getValue()/range);
+            if(consumer!=null) consumer.accept(slider.getValue()/range);
             f.setValue(slider.getValue()/100.0);
         });
         slider.setPreferredSize(new Dimension(100,20));
