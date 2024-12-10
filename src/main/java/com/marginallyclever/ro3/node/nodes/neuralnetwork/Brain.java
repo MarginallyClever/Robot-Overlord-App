@@ -153,6 +153,7 @@ public class Brain extends Node {
         neurons.clear();
         synapses.clear();
         // also find their bounding box.
+        bounds=null;
 
         List<Node> toScan = new LinkedList<>(getChildren());
         while(!toScan.isEmpty()) {
