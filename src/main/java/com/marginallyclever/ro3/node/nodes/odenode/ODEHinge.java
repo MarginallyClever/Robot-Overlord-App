@@ -199,11 +199,17 @@ public class ODEHinge extends ODEJoint {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/odenode/icons8-angle-16.png")));
     }
 
+    /**
+     * @return angle in degrees
+     */
     public double getAngle() {
         if(hinge==null) return 0;
         return Math.toDegrees(hinge.getAngle());
     }
 
+    /**
+     * @return angle velocity in degrees/sec
+     */
     public double getAngleVelocity() {
         if(hinge==null) return 0;
         return Math.toDegrees(hinge.getAngleRate());

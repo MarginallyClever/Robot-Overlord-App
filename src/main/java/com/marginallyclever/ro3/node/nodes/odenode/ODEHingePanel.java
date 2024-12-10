@@ -1,5 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.odenode;
 
+import com.marginallyclever.convenience.helpers.StringHelper;
+import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
 
 import javax.swing.*;
@@ -24,6 +26,14 @@ public class ODEHingePanel extends JPanel {
         addAction(gbc,"Torque",hinge);
         PanelHelper.addLimit(this,gbc,"Angle Max",hinge.getAngleMax(),hinge::setAngleMax,Double.POSITIVE_INFINITY);
         PanelHelper.addLimit(this,gbc,"Angle Min",hinge.getAngleMin(),hinge::setAngleMin,Double.NEGATIVE_INFINITY);
+
+        JLabel angle = new JLabel(StringHelper.formatDouble(hinge.getAngle()));
+        PanelHelper.addLabelAndComponent(this,"Angle",angle,gbc);
+        gbc.gridy++;
+
+        JLabel angleVel = new JLabel(StringHelper.formatDouble(hinge.getAngleVelocity()));
+        PanelHelper.addLabelAndComponent(this,"Av",angleVel,gbc);
+        gbc.gridy++;
     }
 
     private void addAction(GridBagConstraints gbc,String label,ODEHinge hinge) {
