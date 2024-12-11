@@ -7,6 +7,7 @@ import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
 
 import javax.swing.*;
+import javax.swing.text.NumberFormatter;
 import java.awt.*;
 import java.util.function.Consumer;
 
@@ -69,6 +70,14 @@ public class PanelHelper {
         return selector;
     }
 
+    /**
+     * <p>A convenience method to add a color chooser to a panel.</p>
+     * @param parent the parent panel
+     * @param title the title for the color chooser
+     * @param startColor the initial color
+     * @param consumer the consumer to accept the color
+     * @param gbc the {@link GridBagConstraints} to use
+     */
     public static void addColorChooser(JPanel parent, String title, Color startColor, Consumer<Color> consumer, GridBagConstraints gbc) {
         JButton button = new JButton();
         button.setBackground(startColor);
@@ -80,17 +89,51 @@ public class PanelHelper {
         PanelHelper.addLabelAndComponent(parent,title,button,gbc);
     }
 
-    public static JFormattedTextField addNumberField(String label, double value) {
-        var formatter = NumberFormatHelper.getNumberFormatter();
+    /**
+     * <p>A convenience method to add a number field to a panel.</p>
+     * @param toolTip the tooltip for the field
+     * @param value the initial value
+     * @return the {@link JFormattedTextField}
+     */
+    public static JFormattedTextField addNumberFieldDouble(String toolTip, double value) {
+        return addNumberField(toolTip,value,NumberFormatHelper.getNumberFormatterDouble());
+    }
+
+    /**
+     * <p>A convenience method to add a number field to a panel.</p>
+     * @param toolTip the tooltip for the field
+     * @param value the initial value
+     * @return the {@link JFormattedTextField}
+     */
+    public static JFormattedTextField addNumberFieldInt(String toolTip, int value) {
+        return addNumberField(toolTip,value,NumberFormatHelper.getNumberFormatterInt());
+    }
+
+    /**
+     * <p>A convenience method to add a number field to a panel.</p>
+     * @param toolTip the tooltip for the field
+     * @param value the initial value
+     * @param formatter the {@link NumberFormatter} to use
+     * @return the {@link JFormattedTextField}
+     */
+    private static JFormattedTextField addNumberField(String toolTip, double value, NumberFormatter formatter) {
         JFormattedTextField field = new JFormattedTextField(formatter);
         field.setValue(value);
-        field.setToolTipText(label);
-        field.setColumns(1);
+        field.setToolTipText(toolTip);
+        field.setColumns(3);
         field.setMinimumSize(new Dimension(0,20));
         return field;
     }
 
-
+    /**
+     * <p>A convenience method to add an angle limit to a panel (in degrees).</p>
+     * @param pane the panel to add to
+     * @param gbc the {@link GridBagConstraints} to use
+     * @param label the label for the limit
+     * @param value the initial value
+     * @param consumer the consumer to accept the value
+     * @param infinite the value to use for infinite (no limit)
+     */
     public static void addLimit(JPanel pane,GridBagConstraints gbc,String label, double value, Consumer<Double> consumer, double infinite) {
         JCheckBox limitCheckBox = new JCheckBox("",!Double.isInfinite(value));
         SpinnerNumberModel model = new SpinnerNumberModel(Double.isInfinite(value) ? 0 : value, -180, 180, 0.1);
@@ -117,11 +160,57 @@ public class PanelHelper {
         consumer.accept( (!isSelected) ? infinite : (Double)spinner.getValue() );
     }
 
-
+    /**
+     * <p>A convenience method to add a {@link NodeSelector} to a panel.</p>
+     * @param pane the panel to add to
+     * @param gbc the {@link GridBagConstraints} to use
+     * @param label the label for the selector
+     * @param originalValue the original value
+     * @param consumer the consumer to accept the value
+     */
     public static void addSelector(JPanel pane,GridBagConstraints gbc, String label, NodePath<ODEBody> originalValue, Consumer<ODEBody> consumer) {
         NodeSelector<ODEBody> selector = new NodeSelector<>(ODEBody.class,originalValue.getSubject());
         selector.addPropertyChangeListener("subject", (evt) ->consumer.accept((ODEBody)evt.getNewValue()));
         PanelHelper.addLabelAndComponent(pane, label,selector,gbc);
         gbc.gridy++;
+    }
+
+    /**
+     * Create a range slider with two decimal places that displays the value on the right.
+     * @param max the maximum value
+     * @param min the minimum value
+     * @param value the initial value
+     * @param consumer the consumer to accept the value
+     * @return the {@link JComponent}
+     */
+    public static JComponent createRange(double max,double min,double value,Consumer<Double> consumer) {
+        JPanel panel = new JPanel(new BorderLayout());
+        var f = addNumberFieldDouble("",value);
+
+        double range = (int)((max-min)*100);
+        JSlider slider = new JSlider((int)(min*100),(int)(max*100),(int)(value*100));
+        slider.addChangeListener((e)->{
+            if(consumer!=null) consumer.accept(slider.getValue()/range);
+            f.setValue(slider.getValue()/100.0);
+        });
+        slider.setPreferredSize(new Dimension(100,20));
+
+        f.setInputVerifier(new InputVerifier() {
+            @Override
+            public boolean verify(JComponent input) {
+                var f = (JFormattedTextField)input;
+                var v = ((Number)f.getValue()).doubleValue();
+                return v>=min && v<=max;
+            }
+        });
+        f.addPropertyChangeListener("value",(e)->{
+            var v = ((Number)f.getValue()).doubleValue();
+            // if it is in range, update the slider.
+            slider.setValue((int)(v*100));
+        });
+
+        panel.add(slider,BorderLayout.CENTER);
+        panel.add(f,BorderLayout.EAST);
+        return panel;
     }
 }

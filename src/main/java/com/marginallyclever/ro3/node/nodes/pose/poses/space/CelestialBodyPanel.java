@@ -16,27 +16,27 @@ public class CelestialBodyPanel extends JPanel {
         super(new GridLayout(0,2));
         this.body = body;
 
-        var mass = PanelHelper.addNumberField("Mass",body.mass);
+        var mass = PanelHelper.addNumberFieldDouble("Mass",body.mass);
         PanelHelper.addLabelAndComponent(this,"Mass",mass);
 
-        var radius = PanelHelper.addNumberField("Radius",body.radius);
+        var radius = PanelHelper.addNumberFieldDouble("Radius",body.radius);
         PanelHelper.addLabelAndComponent(this,"Radius",radius);
 
-        var rotationalPeriod = PanelHelper.addNumberField("rotationalPeriod",body.rotationalPeriod);  // hours
+        var rotationalPeriod = PanelHelper.addNumberFieldDouble("rotationalPeriod",body.rotationalPeriod);  // hours
         PanelHelper.addLabelAndComponent(this,"rotational period",rotationalPeriod);
-        var perihelion = PanelHelper.addNumberField("perihelion",body.perihelion);  // 10^6 km
+        var perihelion = PanelHelper.addNumberFieldDouble("perihelion",body.perihelion);  // 10^6 km
         PanelHelper.addLabelAndComponent(this,"perihelion",perihelion);
-        var aphelion = PanelHelper.addNumberField("aphelion",body.aphelion);  // 10^6 km
+        var aphelion = PanelHelper.addNumberFieldDouble("aphelion",body.aphelion);  // 10^6 km
         PanelHelper.addLabelAndComponent(this,"aphelion",aphelion);
-        var orbitalPeriod = PanelHelper.addNumberField("orbitalPeriod",body.orbitalPeriod);  // days
+        var orbitalPeriod = PanelHelper.addNumberFieldDouble("orbitalPeriod",body.orbitalPeriod);  // days
         PanelHelper.addLabelAndComponent(this,"orbital period",orbitalPeriod);
-        var orbitalVelocity = PanelHelper.addNumberField("orbitalVelocity",body.orbitalVelocity);  // km/s
+        var orbitalVelocity = PanelHelper.addNumberFieldDouble("orbitalVelocity",body.orbitalVelocity);  // km/s
         PanelHelper.addLabelAndComponent(this,"orbital velocity",orbitalVelocity);
-        var orbitalInclination = PanelHelper.addNumberField("orbitalInclination",body.orbitalInclination);  // degrees
+        var orbitalInclination = PanelHelper.addNumberFieldDouble("orbitalInclination",body.orbitalInclination);  // degrees
         PanelHelper.addLabelAndComponent(this,"orbital inclination",orbitalInclination);
-        var orbitalEccentricity = PanelHelper.addNumberField("orbitalEccentricity",body.orbitalEccentricity);
+        var orbitalEccentricity = PanelHelper.addNumberFieldDouble("orbitalEccentricity",body.orbitalEccentricity);
         PanelHelper.addLabelAndComponent(this,"orbital eccentricity",orbitalEccentricity);
-        var obliquityToOrbit = PanelHelper.addNumberField("obliquityToOrbit",body.obliquityToOrbit); // degrees
+        var obliquityToOrbit = PanelHelper.addNumberFieldDouble("obliquityToOrbit",body.obliquityToOrbit); // degrees
         PanelHelper.addLabelAndComponent(this,"obliquity to orbit",obliquityToOrbit);
 
         mass.addPropertyChangeListener("value", e->updateSize(mass,radius));

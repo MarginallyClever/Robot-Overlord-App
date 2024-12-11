@@ -24,7 +24,7 @@ public class ODEBodyPanel extends JPanel {
         gbc.weightx=1;
         gbc.fill=GridBagConstraints.HORIZONTAL;
 
-        var formatter = NumberFormatHelper.getNumberFormatter();
+        var formatter = NumberFormatHelper.getNumberFormatterDouble();
         formatter.setMinimum(0.000);
 
         JFormattedTextField massQty = new JFormattedTextField(formatter);

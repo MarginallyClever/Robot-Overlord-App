@@ -99,7 +99,9 @@ public class MainMenu extends JMenuBar {
         for(DockingPanel w : frame.getDockingPanels()) {
             DockableMenuItem item = new DockableMenuItem(w.getPersistentID(),w.getTabText());
             menuWindows.add(item);
-            item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1 + index, InputEvent.SHIFT_DOWN_MASK));
+            if(index<12) {
+                item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1 + index, InputEvent.SHIFT_DOWN_MASK));
+            }
             index++;
         }
 

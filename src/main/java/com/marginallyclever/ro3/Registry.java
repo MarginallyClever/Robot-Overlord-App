@@ -15,6 +15,10 @@ import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.linearstewartplatform.LinearStewartPlatform;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.MarlinRobotArm;
 import com.marginallyclever.ro3.node.nodes.networksession.NetworkSession;
+import com.marginallyclever.ro3.node.nodes.neuralnetwork.Brain;
+import com.marginallyclever.ro3.node.nodes.neuralnetwork.Neuron;
+import com.marginallyclever.ro3.node.nodes.neuralnetwork.Synapse;
+import com.marginallyclever.ro3.node.nodes.neuralnetwork.leglimbic.LegLimbic;
 import com.marginallyclever.ro3.node.nodes.odenode.*;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODEBox;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODECapsule;
@@ -41,12 +45,12 @@ public class Registry {
     public static final NodeFactory nodeFactory = new NodeFactory();
     private static Node scene = new Node("Scene");
     public static final ListWithEvents<Camera> cameras = new ListWithEvents<>();
-    private static Camera activeCamera = null;
     public static final ListWithEvents<Node> selection = new ListWithEvents<>();
     private static final ODEPhysics physics = new ODEPhysics();
 
     public static void start() {
         nodeFactory.clear();
+        nodeFactory.scan();
         NodeFactory.Category node = nodeFactory.getRoot();
         {
             NodeFactory.Category behavior = node.add("Behavior", null);
@@ -55,7 +59,7 @@ public class Registry {
                 {
                     action.add("LimbMoveToTarget", LimbMoveToTarget::new);
                 }
-                NodeFactory.Category control = behavior.add("Control", null);
+                behavior.add("Control", null);
                 NodeFactory.Category decorator = behavior.add("Decorator", null);
                 {
                     decorator.add("ForceFailure", ForceFailure::new);
@@ -79,6 +83,13 @@ public class Registry {
             node.add("Material", Material::new);
             node.add("Motor", Motor::new);
             node.add("NetworkSession", NetworkSession::new);
+            NodeFactory.Category nn = node.add("NeuralNetwork", null);
+            {
+                nn.add("Brain", Brain::new);
+                nn.add("LegLimbic", LegLimbic::new);
+                nn.add("Neuron", Neuron::new);
+                nn.add("Synapse", Synapse::new);
+            }
             NodeFactory.Category pose = node.add("Pose", Pose::new);
             {
                 pose.add("AttachmentPoint", AttachmentPoint::new);
@@ -127,7 +138,7 @@ public class Registry {
         meshFactory.reset();
         physics.reset();
 
-        scene = new Node("Scene");
+        setScene(new Node("Scene"));
     }
 
     public static void addSceneChangeListener(SceneChangeListener listener) {

@@ -18,7 +18,7 @@ public class HingeJointPanel extends JPanel {
         super(new GridLayout(0,2));
         this.setName(HingeJoint.class.getSimpleName());
 
-        NumberFormatter formatter = NumberFormatHelper.getNumberFormatter();
+        NumberFormatter formatter = NumberFormatHelper.getNumberFormatterDouble();
 
         var angle = hingeJoint.getAngle();
         JFormattedTextField angleField = new JFormattedTextField(formatter);

@@ -16,8 +16,10 @@ import static org.ode4j.ode.OdeConstants.*;
 import static org.ode4j.ode.OdeHelper.createWorld;
 
 /**
- * Manages the ODE4J physics world, space, and contact handling.  There must be exactly one of these in the scene
- * for physics to work.
+ * <p>Manages the ODE4J physics world, space, and contact handling.  There must be exactly one of these in the scene
+ * for physics to work.</p>
+ * <p>{@link ActionListener}s can subscribe to get "Physics started" (1) and "Physics stopped" (0) events.</p>
+ * <p>{@link CollisionListener}s can subscribe to get collision events.</p>
  */
 public class ODEPhysics {
     private static final Logger logger = LoggerFactory.getLogger(ODEPhysics.class);
@@ -79,7 +81,7 @@ public class ODEPhysics {
             contactGroup = OdeHelper.createJointGroup();
         }
 
-        fireActionEvent(new ActionEvent(this, 1, "Physics Started"));
+        fireStarted();
         setPaused(true);
     }
 
@@ -102,13 +104,7 @@ public class ODEPhysics {
             world = null;
         }
 
-        fireActionEvent(new ActionEvent(this, 0, "Physics Stopped"));
-    }
-
-    private void fireActionEvent(ActionEvent e) {
-        for(ActionListener listener : listeners.getListeners(ActionListener.class)) {
-            listener.actionPerformed(e);
-        }
+        fireStopped();
     }
 
     public DWorld getODEWorld() {
@@ -176,6 +172,10 @@ public class ODEPhysics {
         }
     }
 
+    /**
+     * Subscribe to listen for collision events.
+     * @param listener the listener
+     */
     public void addCollisionListener(CollisionListener listener) {
         listeners.add(CollisionListener.class, listener);
     }
@@ -192,8 +192,8 @@ public class ODEPhysics {
         isPaused = state;
 
         // Notify all listeners that the physics engine is doing something.
-        if(isPaused) fireActionEvent(new ActionEvent(this, 2, "Physics Paused"));
-        else         fireActionEvent(new ActionEvent(this, 3, "Physics Running"));
+        if(isPaused) firePaused();
+        else         fireRunning();
     }
 
     public double getCFM() {
@@ -223,14 +223,6 @@ public class ODEPhysics {
         if(world!=null) world.setGravity(0, 0, WORLD_GRAVITY);
     }
 
-    public void addActionListener(ActionListener a) {
-        listeners.add(ActionListener.class, a);
-    }
-
-    public void removeActionListener(ActionListener a) {
-        listeners.remove(ActionListener.class, a);
-    }
-
     /**
      * Deferred action to be taken after some nodes have been added to the scene.
      */
@@ -246,6 +238,42 @@ public class ODEPhysics {
                 j.setPartA(j.getPartA().getSubject());
                 j.setPartB(j.getPartB().getSubject());
             }
+        }
+    }
+
+    /**
+     * Subscribe to listen for "Physics started" (1) and "Physics stopped" (0) events.
+     * @param a the listener
+     */
+    public void addActionListener(ActionListener a) {
+        listeners.add(ActionListener.class, a);
+    }
+
+    public void removeActionListener(ActionListener a) {
+        listeners.remove(ActionListener.class, a);
+    }
+
+    private void fireStopped() {
+        fireActionEvent(0, "Physics Stopped");
+    }
+
+    private void fireStarted() {
+        fireActionEvent(1, "Physics Started");
+    }
+
+    private void firePaused() {
+        fireActionEvent(2, "Physics Paused");
+    }
+
+    private void fireRunning() {
+        fireActionEvent(3, "Physics Running");
+    }
+
+    private void fireActionEvent(int id,String label) {
+        ActionEvent e=null;
+        for(ActionListener listener : listeners.getListeners(ActionListener.class)) {
+            if(e==null) e = new ActionEvent(this,id,label);  // lazy create the event
+            listener.actionPerformed(e);
         }
     }
 }

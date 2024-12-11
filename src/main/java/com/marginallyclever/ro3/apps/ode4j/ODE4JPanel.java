@@ -32,6 +32,7 @@ public class ODE4JPanel extends App {
     private boolean randomColor = true;
     private boolean randomOrientation = false;
     private final JButton pauseButton;
+    private final JButton stepButton;
     private final ODEPhysics physics;
 
     public ODE4JPanel() {
@@ -43,6 +44,14 @@ public class ODE4JPanel extends App {
         pauseButton = addButtonByNameAndCallback("", (e)->{
             ODEPhysics physics = Registry.getPhysics();
             physics.setPaused(!physics.isPaused());
+        });
+
+        stepButton = addButtonByNameAndCallback("", (e)->{
+            ODEPhysics physics = Registry.getPhysics();
+            physics.setPaused(false);
+            // TODO this time step is a magic number.  It should be a user setting.
+            updateAllNodes(1.0/30.0);
+            physics.setPaused(true);
         });
 
         physics.addActionListener(e->{
@@ -81,7 +90,7 @@ public class ODE4JPanel extends App {
 
         gbc.gridwidth=1;
 
-        NumberFormatter formatter = NumberFormatHelper.getNumberFormatter();
+        NumberFormatter formatter = NumberFormatHelper.getNumberFormatterDouble();
 
         // cfm
         JFormattedTextField cfm = new JFormattedTextField(formatter);
@@ -104,6 +113,15 @@ public class ODE4JPanel extends App {
         gravity.addPropertyChangeListener("value", evt ->setGravity((Double) evt.getNewValue()));
     }
 
+    /**
+     * Identical to Viewport.updateAllNodes(double dt).  ODE4JPanel has no knowledge of Viewport.
+     * @param dt time step
+     */
+    private void updateAllNodes(double dt) {
+        Registry.getPhysics().update(dt);
+        Registry.getScene().update(dt);
+    }
+
     private JToolBar createToolBar() {
         var toolbar = new JToolBar();
 
@@ -114,6 +132,10 @@ public class ODE4JPanel extends App {
         // The workaround is to manually set the button.  Not pretty but it will have to do.
         pauseButton.setToolTipText("Play");
         pauseButton.setIcon( new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/shared/icons8-play-16.png"))) );
+
+        stepButton.setToolTipText("Step");
+        stepButton.setIcon( new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/shared/icons8-end-16.png"))) );
+        toolbar.add(stepButton);
 
         JToggleButton randomColorToggle = new JToggleButton("~Color");
         randomColorToggle.addActionListener(e->randomColor = !randomColor);
