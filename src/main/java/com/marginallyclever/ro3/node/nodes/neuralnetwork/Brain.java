@@ -81,9 +81,9 @@ public class Brain extends Node {
                 var to = s.getTo();
                 var ws = w * s.getWeight();
                 switch(n.getNeuronType()) {
-                    default        :  to.setSum( to.getSum() + ws );  break;
-                    case Exciter   :  to.setModulation( to.getModulation() + ws );  break;
-                    case Suppressor:  to.setModulation( to.getModulation() - ws );  break;
+                    default       :  to.setSum( to.getSum() + ws );  break;
+                    case Exciter  :  to.setModulation( to.getModulation() + ws );  break;
+                    case Inhibitor:  to.setModulation( to.getModulation() - ws );  break;
                 }
             }
         }
@@ -180,7 +180,7 @@ public class Brain extends Node {
     }
 
     public boolean isEmpty() {
-        return (neurons.isEmpty() || synapses.isEmpty() || bounds==null);
+        return neurons.isEmpty() && synapses.isEmpty();
     }
 
     public List<Neuron> getNeurons() {
