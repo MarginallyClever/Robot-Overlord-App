@@ -61,6 +61,7 @@ public class AllPanels {
     private void collectAllJPanels(Reflections reflections, JPanel cardPanel, List<String> names, List<Class<?>> exceptions) {
         Set<Class<? extends JPanel>> allClasses = reflections.getSubTypesOf(JPanel.class);
         if(allClasses.isEmpty()) {
+            logger.debug("No classes found by reflections.  Using handmade list.");
             allClasses.addAll(getHandmadeList());
         }
         for(var panelClass : allClasses) {
@@ -104,7 +105,12 @@ public class AllPanels {
                 com.marginallyclever.ro3.node.nodes.behavior.decorators.RepeatPanel.class,
                 com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlannerPanel.class,
                 com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolverPanel.class,
+                com.marginallyclever.ro3.node.nodes.marlinrobot.linearstewartplatform.LinearStewartPlatformPanel.class,
                 com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.MarlinRobotArmPanel.class,
+                com.marginallyclever.ro3.node.nodes.networksession.NetworkSessionPanel.class,
+                com.marginallyclever.ro3.node.nodes.neuralnetwork.BrainPanel.class,
+                com.marginallyclever.ro3.node.nodes.neuralnetwork.NeuronPanel.class,
+                com.marginallyclever.ro3.node.nodes.neuralnetwork.SynapsePanel.class,
                 com.marginallyclever.ro3.node.nodes.pose.PosePanel.class,
                 com.marginallyclever.ro3.node.nodes.pose.poses.AttachmentPointPanel.class,
                 com.marginallyclever.ro3.node.nodes.pose.poses.CameraPanel.class,

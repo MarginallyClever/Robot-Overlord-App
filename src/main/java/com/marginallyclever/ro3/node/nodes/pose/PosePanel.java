@@ -37,9 +37,9 @@ public class PosePanel extends JPanel {
     private void addTranslationComponents(GridBagConstraints gbc) {
         var local = pose.getPosition();
 
-        JFormattedTextField tx = PanelHelper.addNumberField("translate x",local.x);
-        JFormattedTextField ty = PanelHelper.addNumberField("translate y",local.y);
-        JFormattedTextField tz = PanelHelper.addNumberField("translate z",local.z);
+        JFormattedTextField tx = PanelHelper.addNumberFieldDouble("translate x",local.x);
+        JFormattedTextField ty = PanelHelper.addNumberFieldDouble("translate y",local.y);
+        JFormattedTextField tz = PanelHelper.addNumberFieldDouble("translate z",local.z);
 
         gbc.gridx=0;        this.add(new JLabel("Translation"),gbc);
         gbc.gridx=1;        this.add(tx,gbc);
@@ -68,9 +68,9 @@ public class PosePanel extends JPanel {
             pose.setRotationIndex( MatrixHelper.EulerSequence.values()[rotationType.getSelectedIndex()] );
         });
 
-        JFormattedTextField rx = PanelHelper.addNumberField("rotate x",r.x);
-        JFormattedTextField ry = PanelHelper.addNumberField("rotate y",r.y);
-        JFormattedTextField rz = PanelHelper.addNumberField("rotate z",r.z);
+        JFormattedTextField rx = PanelHelper.addNumberFieldDouble("rotate x",r.x);
+        JFormattedTextField ry = PanelHelper.addNumberFieldDouble("rotate y",r.y);
+        JFormattedTextField rz = PanelHelper.addNumberFieldDouble("rotate z",r.z);
 
         gbc.gridx=0;        this.add(new JLabel("Rotation"),gbc);
         gbc.gridx=1;        this.add(rx,gbc);

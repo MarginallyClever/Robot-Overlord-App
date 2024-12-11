@@ -225,7 +225,7 @@ public class TranslateToolOneAxis implements ViewportTool {
         diff.scaleAdd(getHandleLengthScaled(), MatrixHelper.getPosition(pivotMatrix));
         diff.sub(point);
         var isIn = diff.lengthSquared() < getGripRadiusScaled()*getGripRadiusScaled();
-        System.out.println(diff.lengthSquared()+" "+getGripRadiusScaled()*getGripRadiusScaled());
+        //System.out.println(diff.lengthSquared()+" "+getGripRadiusScaled()*getGripRadiusScaled());
         return isIn;
     }
 
@@ -254,7 +254,11 @@ public class TranslateToolOneAxis implements ViewportTool {
         if( !MoveUtils.listContainsAPose(selectedItems.getNodes()) ) return;
 
         float colorScale = cursorOverHandle ? 1.0f : 0.75f;
-        Color c2 = new Color(color.getRed()*colorScale,color.getGreen()*colorScale,color.getBlue()*colorScale,color.getAlpha());
+        var r = color.getRed()/255.0f;
+        var g = color.getGreen()/255.0f;
+        var b = color.getBlue()/255.0f;
+        var a = color.getAlpha()/255.0f;
+        Color c2 = new Color(r*colorScale,g*colorScale,b*colorScale,a);
         shaderProgram.setColor(gl,"diffuseColor",c2);
         shaderProgram.set1i(gl,"useTexture",0);
         shaderProgram.set1i(gl,"useLighting",0);

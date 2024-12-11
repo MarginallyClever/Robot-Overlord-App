@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.node.nodes.pose.poses;
 
-import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
 
 import javax.swing.*;
@@ -10,9 +9,9 @@ import java.security.InvalidParameterException;
 
 public class CameraPanel extends JPanel {
     private final Camera camera;
-    private final JFormattedTextField lookAtx = PanelHelper.addNumberField("x",0);
-    private final JFormattedTextField lookAty = PanelHelper.addNumberField("y",0);
-    private final JFormattedTextField lookAtz = PanelHelper.addNumberField("z",-1);
+    private final JFormattedTextField lookAtx = PanelHelper.addNumberFieldDouble("x",0);
+    private final JFormattedTextField lookAty = PanelHelper.addNumberFieldDouble("y",0);
+    private final JFormattedTextField lookAtz = PanelHelper.addNumberFieldDouble("z",-1);
 
     public CameraPanel() {
         this(new Camera());

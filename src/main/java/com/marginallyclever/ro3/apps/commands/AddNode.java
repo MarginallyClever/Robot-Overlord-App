@@ -11,15 +11,36 @@ import java.util.function.Supplier;
 
 /**
  * <p>Use a {@link com.marginallyclever.ro3.node.nodefactory.NodeFactory} to add a new instance of a {@link Node} to
- * every selected branch of the scene tree.</p>
+ * every selected {@link Node}.</p>
  * @param <T> the type of node to add
  */
 public class AddNode<T extends Node> extends AbstractUndoableEdit {
     private final Supplier<T> factory;
     private final List<Node> created = new ArrayList<>();
+    private final List<Node> parents = new ArrayList<>();
 
+    /**
+     * <p>Use a {@link com.marginallyclever.ro3.node.nodefactory.NodeFactory} to add a new instance of a {@link Node}
+     * to every selected {@link Node}.</p>
+     * @param factory the factory to use
+     */
     public AddNode(Supplier<T> factory) {
+        super();
         this.factory = factory;
+        parents.addAll(Registry.selection.getList());
+        execute();
+    }
+
+    /**
+     * <p>Use a {@link com.marginallyclever.ro3.node.nodefactory.NodeFactory} to add a new instance of a {@link Node}
+     * to a single parent {@link Node}.</p>
+     * @param factory the factory to use
+     * @param parent the parent to add the new node to
+     */
+    public AddNode(Supplier<T> factory, Node parent) {
+        super();
+        this.factory = factory;
+        parents.add(parent);
         execute();
     }
 
@@ -41,11 +62,10 @@ public class AddNode<T extends Node> extends AbstractUndoableEdit {
     public void addChildrenUsingFactory(Supplier<T> factory) {
         if(factory==null) throw new InvalidParameterException("factory is null");
 
-        var list = new ArrayList<>(Registry.selection.getList());
-        if(list.isEmpty()) {
+        if(parents.isEmpty()) {
             addOne(Registry.getScene());
         } else {
-            for(Node parent : list) {
+            for(Node parent : parents) {
                 addOne(parent);
             }
         }
@@ -64,5 +84,9 @@ public class AddNode<T extends Node> extends AbstractUndoableEdit {
             Node parent = child.getParent();
             parent.removeChild(child);
         }
+    }
+
+    public Node getFirstCreated() {
+        return created.get(0);
     }
 }

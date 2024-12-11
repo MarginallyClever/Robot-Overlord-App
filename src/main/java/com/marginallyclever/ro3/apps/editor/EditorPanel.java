@@ -151,7 +151,7 @@ public class EditorPanel extends App implements MarlinListener, PropertyChangeLi
 
     private void createReportInterval() {
         // report interval
-        var formatter = NumberFormatHelper.getNumberFormatter();
+        var formatter = NumberFormatHelper.getNumberFormatterDouble();
         formatter.setMinimum(0.05);
         secondsField = new JFormattedTextField(formatter);
         secondsField.setToolTipText("Time interval in seconds.");

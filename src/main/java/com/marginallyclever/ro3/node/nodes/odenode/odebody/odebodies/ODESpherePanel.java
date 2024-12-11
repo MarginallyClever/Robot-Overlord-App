@@ -19,7 +19,7 @@ public class ODESpherePanel extends JPanel {
         super(new GridLayout(0,2));
         this.setName(ODESphere.class.getSimpleName());
 
-        var formatter = NumberFormatHelper.getNumberFormatter();
+        var formatter = NumberFormatHelper.getNumberFormatterDouble();
         formatter.setMinimum(0.001);
 
         JFormattedTextField radiusValue = new JFormattedTextField(formatter);

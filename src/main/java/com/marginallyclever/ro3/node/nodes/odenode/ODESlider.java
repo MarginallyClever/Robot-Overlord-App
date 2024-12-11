@@ -81,7 +81,7 @@ public class ODESlider extends ODEJoint {
     @Override
     protected void connect(DBody a, DBody b) {
         if(sliderJoint == null) return;
-        logger.debug("{} connect {} {}",getAbsolutePath(),a,b);
+        //logger.debug("{} connect {} {}",getAbsolutePath(),a,b);
         sliderJoint.attach(a, b);
         setDistanceMax(top);
         setDistanceMin(bottom);

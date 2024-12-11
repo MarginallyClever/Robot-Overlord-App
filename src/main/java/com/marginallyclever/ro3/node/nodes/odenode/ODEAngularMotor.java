@@ -215,7 +215,7 @@ public class ODEAngularMotor extends ODEJoint {
 
     public void addTorque(double qty) {
         if (motor == null) return;
-        System.out.println("addTorque " + qty);
+        //System.out.println("addTorque " + qty);
 
         // this works
         motor.setParamVel3(qty);

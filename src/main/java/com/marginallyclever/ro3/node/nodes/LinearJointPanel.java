@@ -18,7 +18,7 @@ public class LinearJointPanel extends JPanel {
         super(new GridLayout(0,2));
         this.setName(LinearJoint.class.getSimpleName());
 
-        NumberFormatter formatter = NumberFormatHelper.getNumberFormatter();
+        NumberFormatter formatter = NumberFormatHelper.getNumberFormatterDouble();
 
         var angle = LinearJoint.getPosition();
         JFormattedTextField positionField = new JFormattedTextField(formatter);
