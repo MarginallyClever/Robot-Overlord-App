@@ -24,7 +24,7 @@ public class Neuron extends Node {
     public enum Type {
         Worker,
         Exciter,
-        Suppressor,
+        Inhibitor,
     };
 
     public final Point position = new Point();
