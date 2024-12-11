@@ -201,7 +201,7 @@ public class RO3Frame extends JFrame {
         addDockingPanel("c0651f5b-d5f0-49ab-88f9-66ae4a8c095e", "Viewport",viewportSettingsPanel);
         addDockingPanel("11230778-22ab-48c9-b822-998538660cd6", "Tool",viewportToolPanel);
         addDockingPanel("2b463642-9932-43f7-87be-04480cc5d5ba", "Donatello",donatello);
-        addDockingPanel("3fdd39fd-389f-481f-8e4e-144fdf9a34d0", "Brain", brainView);
+        addDockingPanel("3fdd39fd-389f-481f-8e4e-144fdf9a34d0", "BrainView", brainView);
     }
 
     private void addDockingPanel(String persistentID,String tabText,Component component) {
