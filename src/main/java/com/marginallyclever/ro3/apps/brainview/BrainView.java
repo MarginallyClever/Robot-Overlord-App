@@ -4,7 +4,6 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.App;
-import com.marginallyclever.ro3.apps.commands.AddNode;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
 import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
@@ -51,17 +50,48 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     }
 
     private void addToolBar() {
-        brainPath.setMaximumSize(new Dimension(150, 24));
         toolbar.setFloatable(false);
+        add(toolbar, BorderLayout.NORTH);
+
         toolbar.add(brainPath);
         toolbar.add(showNames);
         toolbar.add(showAlt);
         toolbar.add(connectNeuronsButton);
-        add(toolbar, BorderLayout.NORTH);
+        toolbar.add(new AbstractAction("+W") {
+            {
+                putValue(Action.SHORT_DESCRIPTION, "Add a Worker Neuron");
+                putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addNeuron(Neuron.Type.Worker);
+            }
+        });
+        toolbar.add(new AbstractAction("+E") {
+            {
+                putValue(Action.SHORT_DESCRIPTION, "Add an Exciter Neuron");
+                putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addNeuron(Neuron.Type.Exciter);
+            }
+        });
+        toolbar.add(new AbstractAction("+I") {
+            {
+                putValue(Action.SHORT_DESCRIPTION, "Add an Inhibitor Neuron");
+                putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_I, KeyEvent.CTRL_DOWN_MASK));
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addNeuron(Neuron.Type.Inhibitor);
+            }
+        });
 
+        brainPath.setMaximumSize(new Dimension(150, 24));
         showNames.addActionListener(e->BrainView.this.repaint());
         showAlt.addActionListener(e->BrainView.this.repaint());
-        connectNeuronsButton.addActionListener(e->connectNeurons());
+        connectNeuronsButton.addActionListener(e-> addSynapseBetweenTwoNeurons());
     }
 
     @Override
@@ -202,7 +232,7 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
             g2d.setColor(Color.GREEN);
             fillBox(g2d, nn.position, d);
         }
-        g2d.setColor(Color.BLUE);
+        g2d.setColor(Color.BLACK);
         drawBox(g2d, nn.position, d);
 
         final int margin = 3;
@@ -370,7 +400,9 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     public void mouseReleased(MouseEvent e) {}
 
     @Override
-    public void mouseEntered(MouseEvent e) {}
+    public void mouseEntered(MouseEvent e) {
+        previousMousePosition.setLocation(e.getPoint());
+    }
 
     @Override
     public void mouseExited(MouseEvent e) {}
@@ -394,7 +426,9 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     }
 
     @Override
-    public void mouseMoved(MouseEvent e) {}
+    public void mouseMoved(MouseEvent e) {
+        previousMousePosition.setLocation(e.getPoint());
+    }
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {}
@@ -410,7 +444,7 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     /**
      * Create a synapse between the two selected neurons.
      */
-    private void connectNeurons() {
+    private void addSynapseBetweenTwoNeurons() {
         var brain = brainPath.getSubject();
         if(brain == null) return;
         // get the selected neurons.
@@ -438,5 +472,21 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         }
         // select the synapse.
         Registry.selection.set(s);
+    }
+
+    /**
+     * Create a new neuron of the given type.
+     * @param type the type of neuron to create
+     */
+    private void addNeuron(Neuron.Type type) {
+        var brain = brainPath.getSubject();
+        if(brain == null) return;
+        Supplier<Node> factory = Registry.nodeFactory.getSupplierFor("Neuron");
+        var an = new com.marginallyclever.ro3.apps.commands.AddNode<>(factory,brain);
+        UndoSystem.addEvent(an);
+        var n = (Neuron)an.getFirstCreated();
+        n.setNeuronType(type);
+        n.position.setLocation(previousMousePosition);
+        Registry.selection.set(n);
     }
 }

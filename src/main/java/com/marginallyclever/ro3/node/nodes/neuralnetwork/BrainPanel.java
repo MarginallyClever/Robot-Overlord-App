@@ -64,6 +64,16 @@ public class BrainPanel extends JPanel {
         this.add(addNeuronsPanel("Output",brain.outputs),c);
         c.gridy++;
 
+        // run brain scan and display the new count of neurons and synapses.
+        var scanButton = new JButton("Scan Brain");
+        scanButton.addActionListener((e)->{
+            brain.scan();
+            var s = brain.getSynapses().size();
+            var n = brain.getNeurons().size();
+            JOptionPane.showMessageDialog(this,"Brain has "+n+" neurons and "+s+" synapses.");
+        });
+        PanelHelper.addLabelAndComponent(this,"Start",scanButton,c);
+
         revalidate();
         repaint();
     }
