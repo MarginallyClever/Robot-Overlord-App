@@ -31,6 +31,11 @@ public class RayPickSystem {
         List<RayHit> rayHits = findRayIntersections(ray);
         if(rayHits.isEmpty()) return null;
         rayHits.sort(Comparator.comparingDouble(RayHit::distance));
+        // handle the case where the ray starts inside the mesh ("shadow acne")
+        while(!rayHits.isEmpty() && rayHits.get(0).distance() < 1e-3) {
+            rayHits.remove(0);
+        }
+        if(rayHits.isEmpty()) return null;
         return rayHits.get(0);
     }
 
