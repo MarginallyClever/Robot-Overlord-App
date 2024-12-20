@@ -32,7 +32,7 @@ public class RayPickSystem {
         if(rayHits.isEmpty()) return null;
         rayHits.sort(Comparator.comparingDouble(RayHit::distance));
         // handle the case where the ray starts inside the mesh ("shadow acne")
-        while(!rayHits.isEmpty() && rayHits.get(0).distance() < 1e-3) {
+        while(!rayHits.isEmpty() && rayHits.get(0).distance() < 1e-9) {
             rayHits.remove(0);
         }
         if(rayHits.isEmpty()) return null;
