@@ -131,6 +131,9 @@ public class Material extends Node {
         shininess = Math.max(arg0, 0);
     }
 
+    /**
+     * @return the shininess of the material 0...128
+     */
     public int getShininess() {
         return shininess;
     }
