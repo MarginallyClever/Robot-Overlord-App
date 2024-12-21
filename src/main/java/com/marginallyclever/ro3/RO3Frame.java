@@ -17,6 +17,7 @@ import com.marginallyclever.ro3.apps.brainview.BrainView;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.ode4j.ODE4JPanel;
+import com.marginallyclever.ro3.apps.pathtracer.PathTracerPanel;
 import com.marginallyclever.ro3.apps.viewport.OpenGLPanel;
 import com.marginallyclever.ro3.apps.viewport.ViewportSettingsPanel;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportToolPanel;
@@ -59,6 +60,7 @@ public class RO3Frame extends JFrame {
     private final ODE4JPanel ode4jPanel;
     private final Donatello donatello;
     private final BrainView brainView;
+    private final PathTracerPanel pathTracer;
 
     public RO3Frame() {
         super();
@@ -78,6 +80,7 @@ public class RO3Frame extends JFrame {
         ode4jPanel = new ODE4JPanel();
         donatello = new Donatello();
         brainView = new BrainView();
+        pathTracer = new PathTracerPanel();
 
         createDefaultLayout();
         resetDefaultLayout();
@@ -202,6 +205,7 @@ public class RO3Frame extends JFrame {
         addDockingPanel("11230778-22ab-48c9-b822-998538660cd6", "Tool",viewportToolPanel);
         addDockingPanel("2b463642-9932-43f7-87be-04480cc5d5ba", "Donatello",donatello);
         addDockingPanel("3fdd39fd-389f-481f-8e4e-144fdf9a34d0", "BrainView", brainView);
+        addDockingPanel("4f23c247-7136-4815-b10e-7b1a10fd08b5", "PathTracer", pathTracer);
     }
 
     private void addDockingPanel(String persistentID,String tabText,Component component) {

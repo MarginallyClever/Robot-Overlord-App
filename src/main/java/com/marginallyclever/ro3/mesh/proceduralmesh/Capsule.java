@@ -52,12 +52,12 @@ public class Capsule extends ProceduralMesh {
         List<Vector3d> points = new ArrayList<>();
         List<Vector3d> normals = new ArrayList<>();
         double pi2 = Math.PI/2.0;
-        double doneAngleStep = pi2/RESOLUTION_DOME;
+        double domeAngleStep = pi2/RESOLUTION_DOME;
 
         // consider a line that runs from the North Pole, around 1/4 of the circle,
         // down the cylinder, and around the second 1/4 circle to the South Pole.
         for(int i=0;i<=RESOLUTION_DOME;++i) {
-            double angle = i * doneAngleStep;
+            double angle = i * domeAngleStep;
             double z = Math.cos(angle);
             double x = Math.sin(angle);
             points.add(new Vector3d(x*radius,0,z*radius+h2));
@@ -70,7 +70,7 @@ public class Capsule extends ProceduralMesh {
         }
 
         for(int i=0;i<=RESOLUTION_DOME;++i) {
-            double angle = i * doneAngleStep + pi2;
+            double angle = i * domeAngleStep + pi2;
             double z = Math.cos(angle);
             double x = Math.sin(angle);
             points.add(new Vector3d(x*radius,0,z*radius-h2));

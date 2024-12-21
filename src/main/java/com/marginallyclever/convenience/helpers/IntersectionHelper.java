@@ -264,11 +264,11 @@ public abstract class IntersectionHelper {
 		Vector3d oc = new Vector3d();
 		oc.sub(ray.getOrigin(),center);
 	    double a = ray.getDirection().dot(ray.getDirection());
-	    double b = 2.0 * oc.dot(ray.getDirection());
-	    double c = oc.dot(oc) - radius*radius;
-	    double discriminant = b*b - 4*a*c;
+		var h = oc.dot(ray.getDirection());
+		var c = oc.dot(oc) - radius*radius;
+		var discriminant = h*h - a*c;
 	    if(discriminant >= 0) {
-	        return (-b - Math.sqrt(discriminant)) / (2.0*a);
+			return (-h - Math.sqrt(discriminant)) / a;
 	    }
 	    // no hit
         return -1.0;

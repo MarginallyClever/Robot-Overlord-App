@@ -381,7 +381,7 @@ public class Mesh {
 
 	/**
 	 * Intersect a ray with this mesh.
-	 * @param ray The ray to intersect with.
+	 * @param ray The ray to intersect with, in local space.
 	 * @return The RayHit object containing the intersection point and normal, or null if no intersection.
 	 */
 	public RayHit intersect(Ray ray) {

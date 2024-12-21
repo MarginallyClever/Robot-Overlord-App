@@ -1,10 +1,14 @@
 package com.marginallyclever.ro3.mesh.proceduralmesh;
 
 import com.jogamp.opengl.GL3;
+import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.raypicking.RayHit;
 import org.json.JSONObject;
 
 import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 
 /**
  * <p>{@link Sphere} is a {@link Mesh} with a radius of 1.  The origin is at the center of the sphere.</p>
@@ -109,5 +113,23 @@ public class Sphere extends ProceduralMesh {
         if(jo.has("radius")) radius = jo.getFloat("radius");
         if(jo.has("detail")) detail = jo.getInt("detail");
         updateModel();
+    }
+
+    /**
+     * Intersect a ray with this mesh.
+     * @param ray The ray to intersect with, in local space.
+     * @return The RayHit object containing the intersection point and normal, or null if no intersection.
+     */
+    @Override
+    public RayHit intersect(Ray ray) {
+        // calculate intersection of ray and sphere
+        var d = IntersectionHelper.raySphere(ray, new Vector3d(0,0,0), this.radius);
+        if(d>0) {
+            Vector3d normal = new Vector3d(ray.getOrigin());
+            normal.scaleAdd(d, ray.getDirection(), normal);
+            normal.normalize();
+            return new RayHit(null, d, normal);
+        }
+        return null;
     }
 }

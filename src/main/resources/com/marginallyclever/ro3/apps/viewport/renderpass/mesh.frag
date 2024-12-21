@@ -28,7 +28,7 @@ uniform bool useTexture;
 uniform bool useLighting;
 uniform bool useVertexColor;  // per-vertex color
 
-float ShadowCalculation(vec4 fragPosLightSpace,vec3 normal,vec3 lightDir) {
+float shadowCalculation(vec4 fragPosLightSpace,vec3 normal,vec3 lightDir) {
     // perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     // transform to [0,1] range
@@ -55,12 +55,9 @@ float ShadowCalculation(vec4 fragPosLightSpace,vec3 normal,vec3 lightDir) {
 }
 
 void main() {
-    vec4 myColor = diffuseColor;
-    if(useVertexColor) myColor *= fs_in.fragmentColor;
-    if(useTexture) myColor *= texture(diffuseTexture, fs_in.textureCoord);
-
-    vec4 result = myColor;
-
+    vec4 result = diffuseColor;
+    if(useVertexColor) result *= fs_in.fragmentColor;
+    if(useTexture) result *= texture(diffuseTexture, fs_in.textureCoord);
     if(useLighting) {
         vec3 norm = normalize(fs_in.normalVector);
         vec3 lightDir = normalize(lightPos - fs_in.fragmentPosition);
@@ -76,7 +73,7 @@ void main() {
         vec4 specularLight = specularStrength * spec * specularColor * lightColor;
 
         // Shadow
-        float shadow = ShadowCalculation(fs_in.fragPosLightSpace,norm,lightDir);
+        float shadow = shadowCalculation(fs_in.fragPosLightSpace,norm,lightDir);
 
         // put it all together.
         result *= ambientColor + (diffuseLight + specularLight) * (1.0 - shadow);
