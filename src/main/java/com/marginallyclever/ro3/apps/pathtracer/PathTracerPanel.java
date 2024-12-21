@@ -12,8 +12,6 @@ import com.marginallyclever.ro3.raypicking.RayPickSystem;
 import javax.swing.*;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.ArrayList;
@@ -35,28 +33,24 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
     private final List<RayXY> rays = new ArrayList<>();
     private final JLabel centerLabel = new JLabel();
     private final RayPickSystem rayPickSystem = new RayPickSystem();
-    private int samplesPerPixel = 10;
+    private int samplesPerPixel = 20;
     private int maxDepth = 4;
     private Color skyColor = new Color(
             (int)(255.0 * 0.5),
             (int)(255.0 * 0.7),
             (int)(255.0 * 1.0));
+    private Color ambientColor = new Color(64,64,64);
+    private Vector3d sunlightSource = new Vector3d(150,150,150);
     private final JProgressBar progressBar = new JProgressBar();
+    private RayTracingWorker rayTracingWorker;
 
-    record RayXY(Ray ray,int x,int y) {}
+    record RayXY(int x,int y) {}
 
     public PathTracerPanel() {
         super(new BorderLayout());
         setupToolbar();
         add(toolBar, BorderLayout.NORTH);
         add(centerLabel,BorderLayout.CENTER);
-
-        // resize listener, update the canvas size
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-            }
-        });
     }
 
     @Override
@@ -143,8 +137,9 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
     }
 
     public void render() {
-        canvasWidth = centerLabel.getWidth();
-        canvasHeight = centerLabel.getHeight();
+        sunlightSource.set(-150,150,350);
+        canvasWidth = getWidth();
+        canvasHeight = getHeight();
         buffer = new BufferedImage(canvasWidth,canvasHeight,BufferedImage.TYPE_INT_RGB);
         centerLabel.setIcon(new ImageIcon(buffer));
         progressBar.setValue(0);
@@ -153,14 +148,15 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         rays.clear();
         for(int y=0;y<canvasHeight;y++) {
             for(int x=0;x<canvasWidth;x++) {
-                var nx = (2.0*x/getWidth()) - 1.0;
-                var ny = 1.0 - (2.0*y/getHeight());
-                rays.add(new RayXY(getRayThroughPoint(activeCamera,nx,ny),x,y));
+                rays.add(new RayXY(x,y));
             }
         }
 
-        RayTracingWorker worker = new RayTracingWorker(rays,buffer);
-        worker.execute();
+        if(rayTracingWorker!=null) {
+            rayTracingWorker.cancel(true);
+        }
+        rayTracingWorker = new RayTracingWorker(rays,buffer);
+        rayTracingWorker.execute();
     }
 
     /**
@@ -175,7 +171,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         // trace the ray
         RayHit rayHit = rayPickSystem.getFirstHit(ray);
         if(rayHit==null) return getSkyColor(ray);
-        return getintersectionColor(ray,rayHit,depth);
+        return getIntersectionColor(ray,rayHit,depth);
     }
 
     // sky color
@@ -190,21 +186,16 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
                 clampColor(a * skyColor.getBlue()  + (1.0-a)*255.0));
     }
 
-    private Vector3d sunlightSource = new Vector3d(50,150,750);
-    private Color getintersectionColor(Ray ray,RayHit rayHit,int depth) {
+    private Color getIntersectionColor(Ray ray, RayHit rayHit, int depth) {
         // if material, set color based on material.  else... white.
         var target = rayHit.target();
         assert(target!=null);
-        //if(target == null) return Color.WHITE;
 
         var mat = target.findFirstSibling(Material.class);
-        if(mat==null) return Color.WHITE;
-
-        // reflection
-        Color diffuseColor = mat.getDiffuseColor();
+        Color diffuseColor = (mat==null)? Color.WHITE : mat.getDiffuseColor();
+        Color emissionColor = (mat==null)? Color.BLACK : mat.getEmissionColor();
 
         // get the point where the ray hit
-        var from = ray.getPoint(rayHit.distance());
         // get face normal
         var normal = rayHit.normal();
         // lambertian reflection
@@ -214,31 +205,47 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
             direction.set(normal);
         }
 
+        // bounce and collect light from other surfaces
+        var from = ray.getPoint(rayHit.distance());
         var newRay = new Ray(from,direction);
         var newColor = rayColor(newRay,depth-1);
 
-        // Check if the point is in shadow
+        var diffuseR = diffuseColor.getRed()/255.0;
+        var diffuseG = diffuseColor.getGreen()/255.0;
+        var diffuseB = diffuseColor.getBlue()/255.0;
+
+        // check in shadow
         Vector3d lightDirection = new Vector3d(sunlightSource);
         lightDirection.normalize();
-        boolean inShadow = isInShadow(from, lightDirection);
-        double s = inShadow ? 0.5 : 1.0;
-        var r = diffuseColor.getRed()*s/255.0;
-        var g = diffuseColor.getGreen()*s/255.0;
-        var b = diffuseColor.getBlue()*s/255.0;
+        boolean inShadow = isInShadow(from, lightDirection,rayHit);
+        var incident = Math.max(0,lightDirection.dot(normal));
+        double s = incident * (inShadow ? 0.5 : 1.0);
+
+        // result *= ambient + (diffuseLight * specularLight) * (1.0-shadow)
+        // result += emissionLight
+        diffuseR *= ambientColor.getRed() + s * newColor.getRed();
+        diffuseG *= ambientColor.getGreen() + s * newColor.getGreen();
+        diffuseB *= ambientColor.getBlue() + s * newColor.getBlue();
 
         return new Color(
-                clampColor(255.0 * (r * (newColor.getRed()  /255.0))),
-                clampColor(255.0 * (g * (newColor.getGreen()/255.0))),
-                clampColor(255.0 * (b * (newColor.getBlue() /255.0)))
+                clampColor(emissionColor.getRed()   + diffuseR ),
+                clampColor(emissionColor.getGreen() + diffuseG ),
+                clampColor(emissionColor.getBlue()  + diffuseB )
         );
     }
 
-    private boolean isInShadow(Vector3d point, Vector3d lightDirection) {
-        Ray shadowRay = new Ray(point, lightDirection);
-        RayHit rayHit = rayPickSystem.getFirstHit(shadowRay);
-        return rayHit != null;
+    private boolean isInShadow(Vector3d point, Vector3d lightDirection, RayHit rayHit) {
+        Vector3d p2 = new Vector3d(rayHit.normal());
+        p2.scaleAdd(1e-10,point);
+        Ray shadowRay = new Ray(p2, lightDirection);
+        RayHit shadowHit = rayPickSystem.getFirstHit(shadowRay);
+        return shadowHit != null;
     }
 
+    /**
+     * @param n the normal
+     * @return a random unit vector on the hemisphere defined by the normal.
+     */
     private Vector3d getRandomUnitVectorOnHemisphere(Vector3d n) {
         var v = getRandomUnitVector();
         if(v.dot(n) < 0) {
@@ -343,7 +350,11 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
             rays.stream().parallel().forEach(pixel -> {
                 double r=0, g=0, b=0;
                 for(int i=0;i<samplesPerPixel;++i) {
-                    Color result = rayColor(pixel.ray,maxDepth);
+                    // jiggle the ray a little bit to get a better anti-aliasing effect
+                    var nx =       (2.0*(pixel.x+Math.random()-0.5)/canvasWidth ) - 1.0;
+                    var ny = 1.0 - (2.0*(pixel.y+Math.random()-0.5)/canvasHeight);
+                    var ray = getRayThroughPoint(activeCamera,nx,ny);
+                    Color result = rayColor(ray,maxDepth);
                     r += result.getRed();
                     g += result.getGreen();
                     b += result.getBlue();
@@ -373,10 +384,6 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
             // Update progress bar here
             progressBar.setValue(latestProgress);
 
-            // then draw the buffer to the screen
-            var graphics = buffer.getGraphics();
-            graphics.drawImage(buffer,0,0,null);
-
             // display buffer in the center of this panel.
             repaint();
         }
@@ -384,8 +391,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         @Override
         protected void done() {
             // Rendering finished
-            // Possibly repaint image on UI, or enable buttons, etc.
-            centerLabel.repaint();
+            rayTracingWorker=null;
         }
 
         private void drawPixel(RayXY pixel, Color c) {
