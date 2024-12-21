@@ -5,6 +5,7 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
+import com.marginallyclever.ro3.node.nodes.environment.Environment;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.raypicking.RayHit;
 import com.marginallyclever.ro3.raypicking.RayPickSystem;
@@ -35,12 +36,13 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
     private final RayPickSystem rayPickSystem = new RayPickSystem();
     private int samplesPerPixel = 20;
     private int maxDepth = 4;
-    private Color skyColor = new Color(
+    private final Color skyColor = new Color(
             (int)(255.0 * 0.5),
             (int)(255.0 * 0.7),
             (int)(255.0 * 1.0));
     private Color ambientColor = new Color(64,64,64);
-    private Vector3d sunlightSource = new Vector3d(150,150,150);
+    private Color sunlightColor = new Color(255,255,255);
+    private final Vector3d sunlightSource = new Vector3d(150,150,150);
     private final JProgressBar progressBar = new JProgressBar();
     private RayTracingWorker rayTracingWorker;
 
@@ -137,7 +139,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
     }
 
     public void render() {
-        sunlightSource.set(-150,150,350);
+        getSunlight();
         canvasWidth = getWidth();
         canvasHeight = getHeight();
         buffer = new BufferedImage(canvasWidth,canvasHeight,BufferedImage.TYPE_INT_RGB);
@@ -219,13 +221,13 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         lightDirection.normalize();
         boolean inShadow = isInShadow(from, lightDirection,rayHit);
         var incident = Math.max(0,lightDirection.dot(normal));
-        double s = incident * (inShadow ? 0.5 : 1.0);
+        double s = incident * (inShadow ? 0.5 : 1.0) / 255.0;
 
         // result *= ambient + (diffuseLight * specularLight) * (1.0-shadow)
         // result += emissionLight
-        diffuseR *= ambientColor.getRed() + s * newColor.getRed();
-        diffuseG *= ambientColor.getGreen() + s * newColor.getGreen();
-        diffuseB *= ambientColor.getBlue() + s * newColor.getBlue();
+        diffuseR *= ambientColor.getRed()   + s * sunlightColor.getRed()   * newColor.getRed();
+        diffuseG *= ambientColor.getGreen() + s * sunlightColor.getGreen() * newColor.getGreen();
+        diffuseB *= ambientColor.getBlue()  + s * sunlightColor.getBlue()  * newColor.getBlue();
 
         return new Color(
                 clampColor(emissionColor.getRed()   + diffuseR ),
@@ -398,5 +400,17 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
             // Convert Ray’s coordinate to pixel indices and set the pixel’s color
             image.setRGB(pixel.x, pixel.y, c.getRGB());
         }
+    }
+
+    private void getSunlight() {
+        Environment env = Registry.getScene().findFirstChild(Environment.class);
+        if(null==env) {
+            env = new Environment();
+            Registry.getScene().addChild(env);
+        }
+
+        sunlightSource.set(env.getSunlightSource());
+        sunlightColor = env.getSunlightColor();
+        ambientColor = env.getAmbientColor();
     }
 }
