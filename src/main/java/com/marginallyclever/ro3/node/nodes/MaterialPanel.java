@@ -49,9 +49,9 @@ public class MaterialPanel extends JPanel {
 
         updatePreview();
 
-        PanelHelper.addColorChooser(this,"Diffuse",material.getDiffuseColor(),material::setDiffuseColor,gbc);
-        PanelHelper.addColorChooser(this,"Specular",material.getSpecularColor(),material::setSpecularColor,gbc);
-        PanelHelper.addColorChooser(this,"Emissive",material.getEmissionColor(),material::setEmissionColor,gbc);
+        PanelHelper.addColorChooser(this,"Diffuse",material::getDiffuseColor,material::setDiffuseColor,gbc);
+        PanelHelper.addColorChooser(this,"Specular",material::getSpecularColor,material::setSpecularColor,gbc);
+        PanelHelper.addColorChooser(this,"Emissive",material::getEmissionColor,material::setEmissionColor,gbc);
 
         // lit
         JToggleButton isLitButton = new JToggleButton("Lit",material.isLit());
@@ -64,6 +64,17 @@ public class MaterialPanel extends JPanel {
         this.add(createShininessSlider(),gbc);
         gbc.gridy++;
         this.add(createSpecularStrengthSlider(),gbc);
+        gbc.gridy++;
+
+        var iorField = PanelHelper.addNumberFieldDouble("IOR",material.getIOR());
+        iorField.addPropertyChangeListener("value",e->material.setIOR(((Number)e.getNewValue()).doubleValue()));
+        PanelHelper.addLabelAndComponent(this,"IOR",iorField,gbc);
+        gbc.gridy++;
+
+        var reflectivityField = PanelHelper.addNumberFieldDouble("reflectivity",material.getReflectivity());
+        reflectivityField.addPropertyChangeListener("value",e->material.setReflectivity(((Number)e.getNewValue()).doubleValue()));
+        PanelHelper.addLabelAndComponent(this,"Reflectivity",reflectivityField,gbc);
+        gbc.gridy++;
     }
 
     private void updatePreview() {

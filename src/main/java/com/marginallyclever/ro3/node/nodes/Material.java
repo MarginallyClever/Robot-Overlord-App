@@ -35,6 +35,8 @@ public class Material extends Node {
     private int shininess = 10;
     private boolean isLit = true;
     private double specularStrength = 0.5;
+    private double ior = 1.0;  // index of refraction
+    private double reflectivity = 0.0;
 
     public Material() {
         this("Material");
@@ -86,6 +88,8 @@ public class Material extends Node {
         json.put("shininess", shininess);
         json.put("specularStrength", specularStrength);
         json.put("isLit", isLit);
+        json.put("ior", ior);
+        json.put("reflectivity", reflectivity);
         return json;
     }
 
@@ -101,6 +105,8 @@ public class Material extends Node {
         if(from.has("shininess")) shininess = from.getInt("shininess");
         if(from.has("specularStrength")) specularStrength = from.getDouble("specularStrength");
         if(from.has("isLit")) isLit = from.getBoolean("isLit");
+        if(from.has("ior")) ior = from.getDouble("ior");
+        if(from.has("reflectivity")) reflectivity = from.getDouble("reflectivity");
     }
 
     public Color getDiffuseColor() {
@@ -157,5 +163,35 @@ public class Material extends Node {
 
     public double getSpecularStrength() {
         return specularStrength;
+    }
+
+    /**
+     * Set the index of refraction.
+     * @param ior the index of refraction
+     */
+    public void setIOR(double ior) {
+        this.ior = ior;
+    }
+
+    /**
+     * @return the index of refraction.
+     */
+    public double getIOR() {
+        return ior;
+    }
+
+    /**
+     * Set the reflectivity of the material.
+     * @param reflectivity 0...1.0
+     */
+    public void setReflectivity(double reflectivity) {
+        this.reflectivity = reflectivity;
+    }
+
+    /**
+     * @return the reflectivity of the material.
+     */
+    public double getReflectivity() {
+        return reflectivity;
     }
 }
