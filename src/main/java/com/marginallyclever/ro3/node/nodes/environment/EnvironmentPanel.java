@@ -45,9 +45,9 @@ public class EnvironmentPanel extends JPanel {
 
         // TODO the lighting settings below here should be per-scene.
         // ambient color
-        PanelHelper.addColorChooser(container,"Ambient",Color.DARK_GRAY,this::setAmbientColor,gbc);
+        PanelHelper.addColorChooser(container,"Ambient", environment::getAmbientColor,this::setAmbientColor,gbc);
         // sun color
-        PanelHelper.addColorChooser(container,"Sun color",Color.WHITE,this::setSunColor,gbc);
+        PanelHelper.addColorChooser(container,"Sun color",environment::getSunlightColor,this::setSunColor,gbc);
 
         gbc.weighty = 1.0;
         // sun position
