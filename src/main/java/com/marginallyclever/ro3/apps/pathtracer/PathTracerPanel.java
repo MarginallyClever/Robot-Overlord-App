@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.pathtracer;
 
 import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.node.Node;
@@ -45,6 +46,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
     private final Vector3d sunlightSource = new Vector3d(150,150,150);
     private final JProgressBar progressBar = new JProgressBar();
     private RayTracingWorker rayTracingWorker;
+    private final Material defaultMaterial = new Material();
 
     record RayXY(int x,int y) {}
 
@@ -87,6 +89,15 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
 
         toolBar.setLayout(new FlowLayout(FlowLayout.LEFT,5,1));
         addCameraSelector();
+
+        var spp = PanelHelper.addNumberFieldInt("Samples per pixel",samplesPerPixel);
+        spp.addPropertyChangeListener("value",e->setSamplesPerPixel(((Number)e.getNewValue()).intValue()));
+        toolBar.add(spp);
+
+        var md = PanelHelper.addNumberFieldInt("Max Depth",maxDepth);
+        md.addPropertyChangeListener("value",e->setMaxDepth(((Number)e.getNewValue()).intValue()));
+        toolBar.add(md);
+
         toolBar.add(new AbstractAction() {
             {
                 putValue(Action.NAME, "Render");
@@ -181,11 +192,17 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
     private Color getSkyColor(Ray ray) {
         Vector3d d = ray.getDirection();
         d.normalize();
-        var a = 0.5 * (-d.z + 1.0);
+        Vector3d sun = new Vector3d(sunlightSource);
+        sun.normalize();
+        var dot = Math.max(0,sun.dot(d));
+
+        var sd = Math.pow(dot,3);
+        //var a = 0.5 * (-d.z + 1.0);
+        var a = 1.0-sd;
         return new Color(
-                clampColor(a * skyColor.getRed()   + (1.0-a)*255.0),
-                clampColor(a * skyColor.getGreen() + (1.0-a)*255.0),
-                clampColor(a * skyColor.getBlue()  + (1.0-a)*255.0));
+                clampColor( a * skyColor.getRed()   + sd * sunlightColor.getRed()  ),
+                clampColor( a * skyColor.getGreen() + sd * sunlightColor.getGreen()),
+                clampColor( a * skyColor.getBlue()  + sd * sunlightColor.getBlue() ));
     }
 
     private Color getIntersectionColor(Ray ray, RayHit rayHit, int depth) {
@@ -194,46 +211,136 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         assert(target!=null);
 
         var mat = target.findFirstSibling(Material.class);
-        Color diffuseColor = (mat==null)? Color.WHITE : mat.getDiffuseColor();
-        Color emissionColor = (mat==null)? Color.BLACK : mat.getEmissionColor();
+        if(mat==null) mat = defaultMaterial;
+
+        Color diffuseColor = mat.getDiffuseColor();
+        Color emissionColor = mat.getEmissionColor();
+
+        double diffuseR = clampColor(ambientColor.getRed()   + diffuseColor.getRed()  );
+        double diffuseG = clampColor(ambientColor.getGreen() + diffuseColor.getGreen());
+        double diffuseB = clampColor(ambientColor.getBlue()  + diffuseColor.getBlue() );
 
         // get the point where the ray hit
+        var hitPoint = ray.getPoint(rayHit.distance());
+
         // get face normal
         var normal = rayHit.normal();
-        // lambertian reflection
-        var direction = new Vector3d(normal);
-        direction.add(getRandomUnitVector());
-        if(direction.lengthSquared() < 1e-6) {
-            direction.set(normal);
+        double reflectivity = mat.getReflectivity();
+        if(reflectivity<1.0) {
+            // lambertian reflection - bounce and collect light from other surfaces
+            var direction = new Vector3d(normal);
+            direction.add(PathTracerPanel.getRandomUnitVector());
+            if (direction.lengthSquared() < 1e-6) {
+                direction.set(normal);
+            }
+            var newRay = new Ray(hitPoint, direction);
+            var newColor = rayColor(newRay, depth - 1);
+
+            // check in shadow
+            //Vector3d lightDirection = new Vector3d(sunlightSource);
+            //lightDirection.normalize();
+            //boolean inShadow = isInShadow(from, lightDirection,rayHit);
+            //var incident = Math.max(0,lightDirection.dot(normal));
+            //double s = incident * (inShadow ? 0.5 : 1.0) / 255.0;
+
+            // result *= ambient + (diffuseLight * specularLight) * (1.0-shadow)
+            // result += emissionLight
+            diffuseR *= newColor.getRed() / 255.0;
+            diffuseG *= newColor.getGreen() / 255.0;
+            diffuseB *= newColor.getBlue() / 255.0;
+        }
+        if(reflectivity>0) {
+            // reflection
+            var reflected = reflect(ray.getDirection(),normal);
+            var reflectedRay = new Ray(hitPoint,reflected);
+            var reflectedColor = rayColor(reflectedRay,depth-1);
+            diffuseR = clampColor(reflectedColor.getRed()   * reflectivity + diffuseR * (1.0-reflectivity));
+            diffuseG = clampColor(reflectedColor.getGreen() * reflectivity + diffuseG * (1.0-reflectivity));
+            diffuseB = clampColor(reflectedColor.getBlue()  * reflectivity + diffuseB * (1.0-reflectivity));
         }
 
-        // bounce and collect light from other surfaces
-        var from = ray.getPoint(rayHit.distance());
-        var newRay = new Ray(from,direction);
-        var newColor = rayColor(newRay,depth-1);
+        var alpha = diffuseColor.getAlpha();
+        if(alpha<255) {
+            // at least semi-transparent.  use index of refraction to calculate refraction.
+            var rayDirection = ray.getDirection();
+            rayDirection.normalize();
 
-        var diffuseR = diffuseColor.getRed()/255.0;
-        var diffuseG = diffuseColor.getGreen()/255.0;
-        var diffuseB = diffuseColor.getBlue()/255.0;
+            var ior = mat.getIOR();
+            var cosI = Math.min(-normal.dot(rayDirection),1.0);
+            // since normals face outside an object, if cosI is positive the ray is exiting the object.
+            boolean backFace = cosI > 0;
+            if(backFace) normal.negate();
 
-        // check in shadow
-        Vector3d lightDirection = new Vector3d(sunlightSource);
-        lightDirection.normalize();
-        boolean inShadow = isInShadow(from, lightDirection,rayHit);
-        var incident = Math.max(0,lightDirection.dot(normal));
-        double s = incident * (inShadow ? 0.5 : 1.0) / 255.0;
+            var eta = backFace ? ior : 1.0/ior;
+            var sinTheta = Math.sqrt(1.0-cosI*cosI);
+            var cannotRefract = eta * sinTheta > 1.0;
+            var nextDir = cannotRefract || reflectance(cosI,eta) > Math.random()
+                    ? reflect(rayDirection,normal) // total internal reflection
+                    : refract(rayDirection,normal,eta); // refraction
 
-        // result *= ambient + (diffuseLight * specularLight) * (1.0-shadow)
-        // result += emissionLight
-        diffuseR *= ambientColor.getRed()   + s * sunlightColor.getRed()   * newColor.getRed();
-        diffuseG *= ambientColor.getGreen() + s * sunlightColor.getGreen() * newColor.getGreen();
-        diffuseB *= ambientColor.getBlue()  + s * sunlightColor.getBlue()  * newColor.getBlue();
+            // Recursively compute the color along the next ray
+            Ray nextRay = new Ray(hitPoint, nextDir);
+            Color throughColor = rayColor(nextRay, depth-1);
+
+            // newColor should be throughColor * (1-a) + newColor * a
+            var a = (double)alpha/255.0;
+            var r = 1.0 - a;
+            diffuseR = clampColor(throughColor.getRed()   * r + diffuseR * a);
+            diffuseG = clampColor(throughColor.getGreen() * r + diffuseG * a);
+            diffuseB = clampColor(throughColor.getBlue()  * r + diffuseB * a);
+        }
 
         return new Color(
-                clampColor(emissionColor.getRed()   + diffuseR ),
-                clampColor(emissionColor.getGreen() + diffuseG ),
-                clampColor(emissionColor.getBlue()  + diffuseB )
+            clampColor(emissionColor.getRed()   + diffuseR ),
+            clampColor(emissionColor.getGreen() + diffuseG ),
+            clampColor(emissionColor.getBlue()  + diffuseB )
         );
+    }
+
+    /**
+     * Use Shlick's approximation for reflectance
+     * @param cosI the cosine of the angle of incidence
+     * @param eta the ratio of the refractive indices of the two materials
+     * @return the reflectance
+     */
+    private double reflectance(double cosI, double eta) {
+        var r0 = (1.0-eta) / (1.0+eta);
+        r0 *= r0;
+        return r0 + (1.0-r0) * Math.pow(1.0-cosI,5);
+    }
+
+    /**
+     * Reflect the vector v off the normal n
+     * @param v the vector to reflect
+     * @param n the normal
+     * @return the reflected vector
+     */
+    private Vector3d reflect(Vector3d v, Vector3d n) {
+        var dot = 2.0 * v.dot(n);
+        return new Vector3d(
+            v.x - n.x * dot,
+            v.y - n.y * dot,
+            v.z - n.z * dot);
+    }
+
+    /**
+     * Refract the vector uv through the normal n
+     * @param uv the vector to refract
+     * @param n the normal
+     * @param eta the ratio of the refractive indices of the two materials
+     * @return the refracted vector
+     */
+    private Vector3d refract(Vector3d uv, Vector3d n, double eta) {
+        var cosTheta = Math.min(-uv.dot(n), 1.0);
+        // vec3 r_out_perp =  etai_over_etat * (uv + cos_theta*n);
+        Vector3d outPerpendicular = new Vector3d(n);
+        n.scaleAdd(cosTheta,uv);
+        n.scale(eta);
+        // vec3 r_out_parallel = -sqrt(abs(1.0 - r_out_perp.length_squared())) * n;
+        Vector3d outParallel = new Vector3d(n);
+        outParallel.scale(-Math.sqrt(Math.abs(1.0 - outPerpendicular.lengthSquared())));
+        outPerpendicular.add(outParallel);
+        return outPerpendicular;
     }
 
     private boolean isInShadow(Vector3d point, Vector3d lightDirection, RayHit rayHit) {
@@ -248,7 +355,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
      * @param n the normal
      * @return a random unit vector on the hemisphere defined by the normal.
      */
-    private Vector3d getRandomUnitVectorOnHemisphere(Vector3d n) {
+    public static Vector3d getRandomUnitVectorOnHemisphere(Vector3d n) {
         var v = getRandomUnitVector();
         if(v.dot(n) < 0) {
             v.negate();
@@ -256,7 +363,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         return v;
     }
 
-    private Vector3d getRandomUnitVector() {
+    public static Vector3d getRandomUnitVector() {
         var p = new Vector3d();
         do {
             p.set(Math.random()*2-1,Math.random()*2-1,Math.random()*2-1);
@@ -306,6 +413,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
                     normalizedX*t*getAspectRatio(),
                     normalizedY*t,
                     -1);
+            direction.normalize();
             var origin = new Point3d();
 
             return new Ray(origin,direction);
@@ -352,6 +460,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
             rays.stream().parallel().forEach(pixel -> {
                 double r=0, g=0, b=0;
                 for(int i=0;i<samplesPerPixel;++i) {
+                    if(isCancelled()) return;
                     // jiggle the ray a little bit to get a better anti-aliasing effect
                     var nx =       (2.0*(pixel.x+Math.random()-0.5)/canvasWidth ) - 1.0;
                     var ny = 1.0 - (2.0*(pixel.y+Math.random()-0.5)/canvasHeight);
@@ -412,5 +521,21 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         sunlightSource.set(env.getSunlightSource());
         sunlightColor = env.getSunlightColor();
         ambientColor = env.getAmbientColor();
+    }
+
+    public int getMaxDepth() {
+        return maxDepth;
+    }
+
+    public void setMaxDepth(int maxDepth) {
+        this.maxDepth = maxDepth;
+    }
+
+    public int getSamplesPerPixel() {
+        return samplesPerPixel;
+    }
+
+    public void setSamplesPerPixel(int samplesPerPixel) {
+        this.samplesPerPixel = samplesPerPixel;
     }
 }
