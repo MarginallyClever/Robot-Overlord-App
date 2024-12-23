@@ -48,6 +48,59 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
     private RayTracingWorker rayTracingWorker;
     private final Material defaultMaterial = new Material();
 
+    public static class ColorDouble {
+        public double r,g,b,a;
+
+        public ColorDouble(double r,double g,double b,double a) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = a;
+        }
+
+        public ColorDouble(double r,double g,double b) {
+            this(r,g,b,1.0);
+        }
+
+        public ColorDouble(Color c) {
+            this(c.getRed()/255.0,
+                    c.getGreen()/255.0,
+                    c.getBlue()/255.0,
+                    c.getAlpha()/255.0);
+        }
+
+        public ColorDouble(ColorDouble other) {
+            this(other.r,other.g,other.b,other.a);
+        }
+
+        public Color getColor() {
+            return new Color(
+                (int)(Math.max(0,Math.min(255,r*255.0))),
+                (int)(Math.max(0,Math.min(255,g*255.0))),
+                (int)(Math.max(0,Math.min(255,b*255.0))),
+                (int)(Math.max(0,Math.min(255,a*255.0)))
+            );
+        }
+
+        public void scale(double s) {
+            r *= s;
+            g *= s;
+            b *= s;
+        }
+
+        public void add(ColorDouble c) {
+            r += c.r;
+            g += c.g;
+            b += c.b;
+        }
+
+        public void scale(ColorDouble other) {
+            r *= other.r;
+            g *= other.g;
+            b *= other.b;
+        }
+    }
+
     record RayXY(int x,int y) {}
 
     public PathTracerPanel() {
@@ -178,8 +231,8 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
      * @param depth the maximum number of bounces to trace
      * @return the color of the pixel at the end of the ray.
      */
-    private Color rayColor(Ray ray,int depth) {
-        if(depth<=0) return Color.BLACK;
+    private ColorDouble rayColor(Ray ray,int depth) {
+        if(depth<=0) return new ColorDouble(0,0,0);
 
         // trace the ray
         RayHit rayHit = rayPickSystem.getFirstHit(ray);
@@ -189,7 +242,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
 
     // sky color
     // TODO use ViewportSettings to get the angle and color of the sun.
-    private Color getSkyColor(Ray ray) {
+    private ColorDouble getSkyColor(Ray ray) {
         Vector3d d = ray.getDirection();
         d.normalize();
         Vector3d sun = new Vector3d(sunlightSource);
@@ -199,13 +252,13 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         var sd = Math.pow(dot,3);
         //var a = 0.5 * (-d.z + 1.0);
         var a = 1.0-sd;
-        return new Color(
-                clampColor( a * skyColor.getRed()   + sd * sunlightColor.getRed()  ),
-                clampColor( a * skyColor.getGreen() + sd * sunlightColor.getGreen()),
-                clampColor( a * skyColor.getBlue()  + sd * sunlightColor.getBlue() ));
+        return new ColorDouble(
+                /* a * skyColor.getRed()   +*/ sd * sunlightColor.getRed()  /255.0,
+                /* a * skyColor.getGreen() +*/ sd * sunlightColor.getGreen()/255.0,
+                /* a * skyColor.getBlue()  +*/ sd * sunlightColor.getBlue() /255.0);
     }
 
-    private Color getIntersectionColor(Ray ray, RayHit rayHit, int depth) {
+    private ColorDouble getIntersectionColor(Ray ray, RayHit rayHit, int depth) {
         // if material, set color based on material.  else... white.
         var target = rayHit.target();
         assert(target!=null);
@@ -213,12 +266,12 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         var mat = target.findFirstSibling(Material.class);
         if(mat==null) mat = defaultMaterial;
 
-        Color diffuseColor = mat.getDiffuseColor();
-        Color emissionColor = mat.getEmissionColor();
+        ColorDouble diffuseColor = new ColorDouble(mat.getDiffuseColor());
+        ColorDouble emissionColor = new ColorDouble(mat.getEmissionColor());
+        ColorDouble ambientColor2 = new ColorDouble(ambientColor);
 
-        double diffuseR = clampColor(ambientColor.getRed()   + diffuseColor.getRed()  );
-        double diffuseG = clampColor(ambientColor.getGreen() + diffuseColor.getGreen());
-        double diffuseB = clampColor(ambientColor.getBlue()  + diffuseColor.getBlue() );
+        ColorDouble sum = new ColorDouble(ambientColor2);
+        sum.add(diffuseColor);
 
         // get the point where the ray hit
         var hitPoint = ray.getPoint(rayHit.distance());
@@ -245,58 +298,55 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
 
             // result *= ambient + (diffuseLight * specularLight) * (1.0-shadow)
             // result += emissionLight
-            diffuseR *= newColor.getRed() / 255.0;
-            diffuseG *= newColor.getGreen() / 255.0;
-            diffuseB *= newColor.getBlue() / 255.0;
+            sum.scale(newColor);
         }
         if(reflectivity>0) {
             // reflection
             var reflected = reflect(ray.getDirection(),normal);
             var reflectedRay = new Ray(hitPoint,reflected);
             var reflectedColor = rayColor(reflectedRay,depth-1);
-            diffuseR = clampColor(reflectedColor.getRed()   * reflectivity + diffuseR * (1.0-reflectivity));
-            diffuseG = clampColor(reflectedColor.getGreen() * reflectivity + diffuseG * (1.0-reflectivity));
-            diffuseB = clampColor(reflectedColor.getBlue()  * reflectivity + diffuseB * (1.0-reflectivity));
+            sum = blend(sum,reflectedColor,reflectivity);
         }
 
-        var alpha = diffuseColor.getAlpha();
-        if(alpha<255) {
+        var alpha = diffuseColor.a;
+        if(alpha<1.0) {
             // at least semi-transparent.  use index of refraction to calculate refraction.
             var rayDirection = ray.getDirection();
             rayDirection.normalize();
 
             var ior = mat.getIOR();
-            var cosI = Math.min(-normal.dot(rayDirection),1.0);
+            var cosTheta = Math.min(-normal.dot(rayDirection),1.0);
             // since normals face outside an object, if cosI is positive the ray is exiting the object.
-            boolean backFace = cosI > 0;
+            boolean backFace = cosTheta > 0;
             if(backFace) normal.negate();
 
-            var eta = backFace ? ior : 1.0/ior;
-            var sinTheta = Math.sqrt(1.0-cosI*cosI);
-            var cannotRefract = eta * sinTheta > 1.0;
-            var nextDir = cannotRefract || reflectance(cosI,eta) > Math.random()
+            var ri = backFace ? 1.0/ior : ior;
+            var sinTheta = Math.sqrt(1.0-cosTheta*cosTheta);
+            var cannotRefract = ri * sinTheta > 1.0;
+            var nextDir = cannotRefract || reflectance(cosTheta,ri) > Math.random()
                     ? reflect(rayDirection,normal) // total internal reflection
-                    : refract(rayDirection,normal,eta); // refraction
+                    : refract(rayDirection,normal,ri); // refraction
 
             // Recursively compute the color along the next ray
             Ray nextRay = new Ray(hitPoint, nextDir);
-            Color throughColor = rayColor(nextRay, depth-1);
+            ColorDouble throughColor = rayColor(nextRay, depth-1);
 
             // newColor should be throughColor * (1-a) + newColor * a
-            var a = (double)alpha/255.0;
-            var r = 1.0 - a;
-            diffuseR = clampColor(throughColor.getRed()   * r + diffuseR * a);
-            diffuseG = clampColor(throughColor.getGreen() * r + diffuseG * a);
-            diffuseB = clampColor(throughColor.getBlue()  * r + diffuseB * a);
+            sum = blend(sum,throughColor,alpha);
         }
 
-        return new Color(
-            clampColor(emissionColor.getRed()   + diffuseR ),
-            clampColor(emissionColor.getGreen() + diffuseG ),
-            clampColor(emissionColor.getBlue()  + diffuseB )
-        );
+        sum.add(emissionColor);
+        return sum;
     }
 
+    private ColorDouble blend(ColorDouble a,ColorDouble b,double alpha) {
+        double oneMinusAlpha = 1.0-alpha;
+        return new ColorDouble(
+            a.r * alpha + b.r * oneMinusAlpha,
+            a.g * alpha + b.g * oneMinusAlpha,
+            a.b * alpha + b.b * oneMinusAlpha
+        );
+    }
     /**
      * Use Shlick's approximation for reflectance
      * @param cosI the cosine of the angle of incidence
@@ -458,22 +508,22 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
 
             // in parallel, trace each ray and store the result in a buffer
             rays.stream().parallel().forEach(pixel -> {
-                double r=0, g=0, b=0;
+                ColorDouble sum = new ColorDouble(0,0,0);
                 for(int i=0;i<samplesPerPixel;++i) {
                     if(isCancelled()) return;
                     // jiggle the ray a little bit to get a better anti-aliasing effect
                     var nx =       (2.0*(pixel.x+Math.random()-0.5)/canvasWidth ) - 1.0;
                     var ny = 1.0 - (2.0*(pixel.y+Math.random()-0.5)/canvasHeight);
                     var ray = getRayThroughPoint(activeCamera,nx,ny);
-                    Color result = rayColor(ray,maxDepth);
-                    r += result.getRed();
-                    g += result.getGreen();
-                    b += result.getBlue();
+                    var result = rayColor(ray,maxDepth);
+                    sum.r += result.r;
+                    sum.g += result.g;
+                    sum.b += result.b;
                 }
                 var result = new Color(
-                        clampColor(r/samplesPerPixel),
-                        clampColor(g/samplesPerPixel),
-                        clampColor(b/samplesPerPixel));
+                        clampColor(sum.r*255.0/samplesPerPixel),
+                        clampColor(sum.g*255.0/samplesPerPixel),
+                        clampColor(sum.b*255.0/samplesPerPixel));
                 // store the result in the buffer
                 drawPixel(pixel,result);
 
