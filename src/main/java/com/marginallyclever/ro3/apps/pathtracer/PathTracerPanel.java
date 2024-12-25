@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -46,6 +47,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
     private final Material defaultMaterial = new Material();
     private long startTime;
     private final JLabel runTime = new JLabel();
+    private static final Random random = new Random();
 
     public static class ColorDouble {
         public double r,g,b,a;
@@ -101,9 +103,31 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
             b *= other.b;
             a *= other.a;
         }
+
+        public void set(double r,double g,double b,double a) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = a;
+        }
+
+        public void set(ColorDouble other) {
+            set(other.r,other.g,other.b,other.a);
+        }
     }
 
-    record RayXY(int x,int y) {}
+    public static class RayXY {
+        public int x;
+        public int y;
+        public int samples=0;
+        public final ColorDouble sum = new ColorDouble(0,0,0);
+        public final ColorDouble average = new ColorDouble(0,0,0);
+
+        public RayXY(int x,int y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
 
     public PathTracerPanel() {
         super(new BorderLayout());
@@ -206,25 +230,25 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
     }
 
     public void render() {
-        getSunlight();
-        canvasWidth = getWidth();
-        canvasHeight = getHeight();
-        buffer = new BufferedImage(canvasWidth,canvasHeight,BufferedImage.TYPE_INT_RGB);
-        centerLabel.setIcon(new ImageIcon(buffer));
-        progressBar.setValue(0);
-
-        // update rays
-        rays.clear();
-        for(int y=0;y<canvasHeight;y++) {
-            for(int x=0;x<canvasWidth;x++) {
-                rays.add(new RayXY(x,y));
-            }
-        }
-
         if(rayTracingWorker!=null) {
             rayTracingWorker.cancel(true);
             rayTracingWorker = null;
         } else {
+            getSunlight();
+            canvasWidth = getWidth();
+            canvasHeight = getHeight();
+            buffer = new BufferedImage(canvasWidth,canvasHeight,BufferedImage.TYPE_INT_RGB);
+            centerLabel.setIcon(new ImageIcon(buffer));
+            progressBar.setValue(0);
+
+            // update rays
+            rays.clear();
+            for(int y=0;y<canvasHeight;y++) {
+                for(int x=0;x<canvasWidth;x++) {
+                    rays.add(new RayXY(x,y));
+                }
+            }
+
             rayTracingWorker = new RayTracingWorker(rays, buffer);
             rayTracingWorker.execute();
         }
@@ -271,8 +295,8 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         var mat = target.findFirstSibling(Material.class);
         if(mat==null) mat = defaultMaterial;
 
-        ColorDouble diffuseColor = new ColorDouble(mat.getDiffuseColor());
-        ColorDouble sum = new ColorDouble(diffuseColor);
+        ColorDouble albedo = new ColorDouble(mat.getDiffuseColor());
+        ColorDouble sum = new ColorDouble(albedo);
 
         // get the point where the ray hit
         var hitPoint = ray.getPoint(rayHit.distance());
@@ -309,7 +333,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
             sum = blend(reflectedColor,sum,reflectivity);
         }
 
-        var alpha = diffuseColor.a;
+        var alpha = albedo.a;
         if(alpha<1.0) {
             // at least semi-transparent.  use index of refraction to calculate refraction.
             var rayDirection = ray.getDirection();
@@ -438,7 +462,43 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         return v;
     }
 
-    public static Vector3d getRandomUnitVector() {
+    /**
+     * @return a random vector on the unit sphere
+     */
+    private static Vector3d getRandomUnitVector() {
+        double t1 = random.nextDouble() * 2.0 * Math.PI;
+        var y = (random.nextDouble() - 0.5) * 2.0;
+        double t2 = Math.sqrt(1.0 - y*y);
+        var x = t2 * Math.cos(t1);
+        var z = t2 * Math.sin(t1);
+        return new Vector3d(x,y,z);
+    }
+
+    /**
+     * I'm told this isn't evenly distributed.
+     * @return a random vector on the unit sphere
+     */
+    public static Vector3d getRandomUnitVectorOld2() {
+        double u, v, s;
+        do {
+            u = 2.0 * random.nextDouble() - 1.0;
+            v = 2.0 * random.nextDouble() - 1.0;
+            s = u * u + v * v;
+        } while (s >= 1 || s == 0);
+
+        double scale = Math.sqrt(1 - s);
+        double x = 2.0 * u * scale;
+        double y = 2.0 * v * scale;
+        double z = 1.0 - 2.0 * s;
+
+        return new Vector3d(x, y, z);
+    }
+
+    /**
+     * I'm told this isn't evenly distributed.
+     * @return a random vector on the unit sphere
+     */
+    public static Vector3d getRandomUnitVectorOld() {
         var p = new Vector3d();
         double len;
         while(true) {
@@ -527,7 +587,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
 
         @Override
         protected Void doInBackground() throws Exception {
-            int total = pixels.size();
+            int total = pixels.size() * samplesPerPixel;
             AtomicInteger completed = new AtomicInteger(0);
 
             startTime = System.currentTimeMillis();
@@ -541,32 +601,39 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
             graphics.fillRect(0,0,canvasWidth,canvasHeight);
 
             // in parallel, trace each ray and store the result in a buffer
-            rays.stream().parallel().forEach(pixel -> {
-                if(isCancelled()) return;
-                ColorDouble sum = new ColorDouble(0,0,0);
-                for(int i=0;i<samplesPerPixel;++i) {
+            while(true) {
+                if(isCancelled()) return null;
+
+                rays.stream().parallel().forEach(pixel -> {
                     if(isCancelled()) return;
                     // jiggle the ray a little bit to get a better anti-aliasing effect
                     var nx =       (2.0*(pixel.x+Math.random()-0.5)/canvasWidth ) - 1.0;
                     var ny = 1.0 - (2.0*(pixel.y+Math.random()-0.5)/canvasHeight);
                     var ray = getRayThroughPoint(activeCamera,nx,ny);
-                    sum.add(rayColor(ray,maxDepth));
-                }
-                sum.scale(1.0/samplesPerPixel);
-                //toneMap(sum);
-                var result = sum.getColor();
-                // store the result in the buffer
-                drawPixel(pixel,result);
+                    // sum the total color of all samples
+                    pixel.sum.add(rayColor(ray,maxDepth));
+                    // and count
+                    pixel.samples++;
+                    // then get the average of the samples
+                    pixel.average.set(pixel.sum);
+                    pixel.average.scale(1.0/pixel.samples);
+                    toneMap(pixel.average);
+                    var result = pixel.average.getColor();
+                    // store the result in the buffer
+                    drawPixel(pixel,result);
 
-                // Update progress
-                int done = completed.incrementAndGet();
-                // Optionally only publish occasionally to avoid flooding the EDT
-                if (done % 100 == 0 || done == total) {
-                    publish((int) ((done * 100.0f) / total));
-                }
-            });
+                    // Update progress
+                    int done = completed.incrementAndGet();
+                    // Optionally only publish occasionally to avoid flooding the EDT
+                    if (done % 100 == 0 || done == total) {
+                        publish((int) ((done * 100.0f) / total));
 
-            return null;
+                        if(done == total) {
+                            cancel(true);
+                        }
+                    }
+                });
+            }
         }
 
         @Override
