@@ -37,16 +37,15 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
     private final RayPickSystem rayPickSystem = new RayPickSystem();
     private int samplesPerPixel = 20;
     private int maxDepth = 4;
-    private final Color skyColor = new Color(
-            (int)(255.0 * 0.5),
-            (int)(255.0 * 0.7),
-            (int)(255.0 * 1.0));
-    private Color ambientColor = new Color(64,64,64);
-    private Color sunlightColor = new Color(255,255,255);
+    private final ColorDouble skyColor = new ColorDouble(0.5,0.7,1.0);
+    private ColorDouble ambientColor = new ColorDouble(new Color(64,64,64));
+    private ColorDouble sunlightColor = new ColorDouble(1,1,1,25.0/255.0);
     private final Vector3d sunlightSource = new Vector3d(150,150,150);
     private final JProgressBar progressBar = new JProgressBar();
     private RayTracingWorker rayTracingWorker;
     private final Material defaultMaterial = new Material();
+    private long startTime;
+    private final JLabel runTime = new JLabel();
 
     public static class ColorDouble {
         public double r,g,b,a;
@@ -86,18 +85,21 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
             r *= s;
             g *= s;
             b *= s;
+            a *= s;
         }
 
-        public void add(ColorDouble c) {
-            r += c.r;
-            g += c.g;
-            b += c.b;
+        public void add(ColorDouble other) {
+            r += other.r;
+            g += other.g;
+            b += other.b;
+            a += other.a;
         }
 
         public void scale(ColorDouble other) {
             r *= other.r;
             g *= other.g;
             b *= other.b;
+            a *= other.a;
         }
     }
 
@@ -163,6 +165,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
             }
         });
         toolBar.add(progressBar);
+        toolBar.add(runTime);
     }
 
     private void addCameraSelector() {
@@ -220,9 +223,11 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
 
         if(rayTracingWorker!=null) {
             rayTracingWorker.cancel(true);
+            rayTracingWorker = null;
+        } else {
+            rayTracingWorker = new RayTracingWorker(rays, buffer);
+            rayTracingWorker.execute();
         }
-        rayTracingWorker = new RayTracingWorker(rays,buffer);
-        rayTracingWorker.execute();
     }
 
     /**
@@ -253,9 +258,9 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         //var a = 0.5 * (-d.z + 1.0);
         var a = 1.0-sd;
         return new ColorDouble(
-                /* a * skyColor.getRed()   +*/ sd * sunlightColor.getRed()  /255.0,
-                /* a * skyColor.getGreen() +*/ sd * sunlightColor.getGreen()/255.0,
-                /* a * skyColor.getBlue()  +*/ sd * sunlightColor.getBlue() /255.0);
+                /* a * skyColor.r + */ a * ambientColor.r + sd * sunlightColor.r * sunlightColor.a,
+                /* a * skyColor.g + */ a * ambientColor.g + sd * sunlightColor.g * sunlightColor.a,
+                /* a * skyColor.b + */ a * ambientColor.b + sd * sunlightColor.b * sunlightColor.a);
     }
 
     private ColorDouble getIntersectionColor(Ray ray, RayHit rayHit, int depth) {
@@ -267,11 +272,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         if(mat==null) mat = defaultMaterial;
 
         ColorDouble diffuseColor = new ColorDouble(mat.getDiffuseColor());
-        ColorDouble emissionColor = new ColorDouble(mat.getEmissionColor());
-        ColorDouble ambientColor2 = new ColorDouble(ambientColor);
-
-        ColorDouble sum = new ColorDouble(ambientColor2);
-        sum.add(diffuseColor);
+        ColorDouble sum = new ColorDouble(diffuseColor);
 
         // get the point where the ray hit
         var hitPoint = ray.getPoint(rayHit.distance());
@@ -305,7 +306,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
             var reflected = reflect(ray.getDirection(),normal);
             var reflectedRay = new Ray(hitPoint,reflected);
             var reflectedColor = rayColor(reflectedRay,depth-1);
-            sum = blend(sum,reflectedColor,reflectivity);
+            sum = blend(reflectedColor,sum,reflectivity);
         }
 
         var alpha = diffuseColor.a;
@@ -331,14 +332,37 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
             Ray nextRay = new Ray(hitPoint, nextDir);
             ColorDouble throughColor = rayColor(nextRay, depth-1);
 
-            // newColor should be throughColor * (1-a) + newColor * a
             sum = blend(sum,throughColor,alpha);
         }
 
+        ColorDouble emissionColor = new ColorDouble(mat.getEmissionColor());
+        emissionColor.scale(emissionColor.a*255);
         sum.add(emissionColor);
         return sum;
     }
 
+    private void toneMap(ColorDouble d) {
+        acesApprox(d);
+    }
+
+    private void acesApprox(ColorDouble v) {
+        v.scale(0.6);
+        double a = 2.51;
+        double b = 0.03;
+        double c = 2.43;
+        double d = 0.59;
+        double e = 0.14;
+        v.r = Math.max(0,Math.min(1, (v.r * (a*v.r+b)) / (v.r * (c*v.r+d)+e) ));
+        v.g = Math.max(0,Math.min(1, (v.g * (a*v.g+b)) / (v.g * (c*v.g+d)+e) ));
+        v.b = Math.max(0,Math.min(1, (v.b * (a*v.b+b)) / (v.b * (c*v.b+d)+e) ));
+    }
+
+    /**
+     * @param a the first color
+     * @param b the second color
+     * @param alpha the blend factor (0...1)
+     * @return a * alpha + b * (1-alpha)
+     */
     private ColorDouble blend(ColorDouble a,ColorDouble b,double alpha) {
         double oneMinusAlpha = 1.0-alpha;
         return new ColorDouble(
@@ -347,6 +371,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
             a.b * alpha + b.b * oneMinusAlpha
         );
     }
+
     /**
      * Use Shlick's approximation for reflectance
      * @param cosI the cosine of the angle of incidence
@@ -415,11 +440,15 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
 
     public static Vector3d getRandomUnitVector() {
         var p = new Vector3d();
-        do {
-            p.set(Math.random()*2-1,Math.random()*2-1,Math.random()*2-1);
-        } while(p.lengthSquared() <=1e-6);
-        p.normalize();
-        return p;
+        double len;
+        while(true) {
+            p.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
+            len = p.lengthSquared();
+            if (1e-16 < len && len <= 1) {
+                p.scale(1.0 / Math.sqrt(len));
+                return p;
+            }
+        }
     }
 
     /**
@@ -501,6 +530,11 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
             int total = pixels.size();
             AtomicInteger completed = new AtomicInteger(0);
 
+            startTime = System.currentTimeMillis();
+
+            System.out.println("samples per pixel: "+samplesPerPixel);
+            System.out.println("max depth: "+maxDepth);
+
             // clear view
             var graphics = buffer.getGraphics();
             graphics.setColor(centerLabel.getBackground());
@@ -508,6 +542,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
 
             // in parallel, trace each ray and store the result in a buffer
             rays.stream().parallel().forEach(pixel -> {
+                if(isCancelled()) return;
                 ColorDouble sum = new ColorDouble(0,0,0);
                 for(int i=0;i<samplesPerPixel;++i) {
                     if(isCancelled()) return;
@@ -515,15 +550,11 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
                     var nx =       (2.0*(pixel.x+Math.random()-0.5)/canvasWidth ) - 1.0;
                     var ny = 1.0 - (2.0*(pixel.y+Math.random()-0.5)/canvasHeight);
                     var ray = getRayThroughPoint(activeCamera,nx,ny);
-                    var result = rayColor(ray,maxDepth);
-                    sum.r += result.r;
-                    sum.g += result.g;
-                    sum.b += result.b;
+                    sum.add(rayColor(ray,maxDepth));
                 }
-                var result = new Color(
-                        clampColor(sum.r*255.0/samplesPerPixel),
-                        clampColor(sum.g*255.0/samplesPerPixel),
-                        clampColor(sum.b*255.0/samplesPerPixel));
+                sum.scale(1.0/samplesPerPixel);
+                //toneMap(sum);
+                var result = sum.getColor();
                 // store the result in the buffer
                 drawPixel(pixel,result);
 
@@ -545,6 +576,13 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
             // Update progress bar here
             progressBar.setValue(latestProgress);
 
+            var elapsed = System.currentTimeMillis() - startTime;
+            // display in hh:mm:ss:ms
+            runTime.setText(String.format("%02d:%02d:%02d:%03d",
+                    elapsed / 3600000,
+                    (elapsed % 3600000) / 60000,
+                    (elapsed % 60000) / 1000,
+                    elapsed % 1000));
             // display buffer in the center of this panel.
             repaint();
         }
@@ -569,8 +607,8 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         }
 
         sunlightSource.set(env.getSunlightSource());
-        sunlightColor = env.getSunlightColor();
-        ambientColor = env.getAmbientColor();
+        sunlightColor = new ColorDouble(env.getSunlightColor());
+        ambientColor = new ColorDouble(env.getAmbientColor());
     }
 
     public int getMaxDepth() {

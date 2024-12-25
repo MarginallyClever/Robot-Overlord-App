@@ -420,41 +420,33 @@ public abstract class IntersectionHelper {
 	 * @return distance to the intersection, negative numbers for hits behind camera, Double.MAX_VALUE for no hit.
 	 */
     public static double rayTriangle(Ray ray, Vector3d v0, Vector3d v1, Vector3d v2) {
-		Vector3d edge1 = new Vector3d();
-		Vector3d edge2 = new Vector3d();
-		Vector3d tvec = new Vector3d();
+		Vector3d edge1 = new Vector3d(v1.x-v0.x, v1.y-v0.y, v1.z-v0.z);
+		Vector3d edge2 = new Vector3d(v2.x-v0.x, v2.y-v0.y, v2.z-v0.z);
 		Vector3d pvec = new Vector3d();
-		Vector3d qvec = new Vector3d();
-		double det, inv_det;
-		double u, v;
 		final double EPSILON = 1e-8;
 
-		edge1.sub(v1, v0);
-		edge2.sub(v2, v0);
 		pvec.cross(ray.getDirection(), edge2);
-		det = edge1.dot(pvec);
-
+		double det = edge1.dot(pvec);
 		if (det > -EPSILON && det < EPSILON) {
 			return Double.MAX_VALUE; // Ray and triangle are parallel
 		}
 
-		inv_det = 1.0 / det;
+		double inv_det = 1.0 / det;
+		Vector3d tvec = new Vector3d();
 		tvec.sub(ray.getOrigin(), v0);
-		u = tvec.dot(pvec) * inv_det;
-
+		double u = tvec.dot(pvec) * inv_det;
 		if (u < 0.0 || u > 1.0) {
 			return Double.MAX_VALUE;
 		}
 
+		Vector3d qvec = new Vector3d();
 		qvec.cross(tvec, edge1);
-		v = ray.getDirection().dot(qvec) * inv_det;
-
+		double v = ray.getDirection().dot(qvec) * inv_det;
 		if (v < 0.0 || u + v > 1.0) {
 			return Double.MAX_VALUE;
 		}
 
 		double t = edge2.dot(qvec) * inv_det;
-
 		if (t < EPSILON) {
 			return Double.MAX_VALUE; // Intersection is behind the ray origin
 		}
