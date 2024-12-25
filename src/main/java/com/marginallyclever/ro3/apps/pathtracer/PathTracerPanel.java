@@ -49,19 +49,6 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
     private final JLabel runTime = new JLabel();
     private static final Random random = new Random();
 
-    public static class RayXY {
-        public int x;
-        public int y;
-        public int samples=0;
-        public final ColorDouble sum = new ColorDouble(0,0,0);
-        public final ColorDouble average = new ColorDouble(0,0,0);
-
-        public RayXY(int x,int y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
-
     public PathTracerPanel() {
         super(new BorderLayout());
         setupToolbar();
