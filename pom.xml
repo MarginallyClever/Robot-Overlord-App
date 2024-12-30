@@ -6,7 +6,7 @@
 
 	<groupId>com.marginallyclever</groupId>
 	<artifactId>RobotOverlord</artifactId>
-	<version>3.119.0</version>
+	<version>3.120.0</version>
 	<name>Robot Overlord</name>
 	<description>A friendly 3D user interface for controlling robots.</description>
 	<url>https://www.marginallyclever.com/</url>
