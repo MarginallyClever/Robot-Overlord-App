@@ -290,6 +290,7 @@ public class Viewport extends JPanel implements SceneChangeListener, MouseListen
         Registry.cameras.addItemRemovedListener(this::removeCamera);
         Registry.selection.addItemAddedListener(this::selectionChanged);
         Registry.selection.addItemRemovedListener(this::selectionChanged);
+        updateCameraList();
     }
 
     @Override
@@ -353,6 +354,14 @@ public class Viewport extends JPanel implements SceneChangeListener, MouseListen
                     return;
                 }
             }
+        }
+    }
+
+    private void updateCameraList() {
+        cameraListModel.removeAllElements();
+        Registry.cameras.getList().forEach(cameraListModel::addElement);
+        if(cameraListModel.getSize()>0) {
+            setActiveCamera(cameraListModel.getElementAt(0));
         }
     }
 
