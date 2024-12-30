@@ -1,8 +1,8 @@
 package com.marginallyclever.ro3.node.nodes.environment;
 
 import com.marginallyclever.convenience.swing.Dial;
+import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
-import com.marginallyclever.ro3.apps.viewport.renderpass.DrawMeshes;
 
 import javax.swing.*;
 import java.awt.*;
@@ -46,10 +46,19 @@ public class EnvironmentPanel extends JPanel {
         // TODO the lighting settings below here should be per-scene.
         // ambient color
         PanelHelper.addColorChooser(container,"Ambient", environment::getAmbientColor,this::setAmbientColor,gbc);
+        gbc.gridy++;
         // sun color
         PanelHelper.addColorChooser(container,"Sun color",environment::getSunlightColor,this::setSunColor,gbc);
+        gbc.gridy++;
 
-        gbc.weighty = 1.0;
+        // sunlight strength
+        var nfPos = NumberFormatHelper.getNumberFormatterDouble();
+        nfPos.setMinimum(0);
+        var esField = PanelHelper.addNumberField("sunlight strength",environment.getSunlightStrength(), nfPos);
+        esField.addPropertyChangeListener("value",e->environment.setSunlightStrength(((Number)e.getNewValue()).doubleValue()));
+        PanelHelper.addLabelAndComponent(container,"Sunlight strength",esField,gbc);
+        gbc.gridy++;
+
         // sun position
         gbc.gridy++;
         PanelHelper.addLabelAndComponent(container, "Time of day (24h)", timeOfDay,gbc);

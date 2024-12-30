@@ -18,6 +18,7 @@ public class Environment extends Node {
     public final Vector3d sunlightSource = new Vector3d(50,150,750);  // vector
     public static final double SUN_DISTANCE = 200;
     public Color sunlightColor = new Color(0xfd,0xfb,0xd3,255);
+    public double sunlightStrength = 1;
     public Color ambientColor = new Color(0x20,0x20,0x20,255);
     private double declination = 0;  // degrees, +/-90
     private double timeOfDay = 12;  // 0-24
@@ -36,6 +37,7 @@ public class Environment extends Node {
         json.put("declination", declination);
         json.put("timeOfDay", timeOfDay);
         json.put("sunlightColor", sunlightColor.getRGB());
+        json.put("sunlightStrength", sunlightStrength);
         json.put("ambientColor", ambientColor.getRGB());
         return json;
     }
@@ -43,10 +45,11 @@ public class Environment extends Node {
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        declination = from.optDouble("declination", 0);
-        timeOfDay = from.optDouble("timeOfDay", 12);
-        sunlightColor = new Color(from.optInt("sunlightColor", 0xfdffd3));
-        ambientColor = new Color(from.optInt("ambientColor", 0x202020));
+        declination = from.optDouble("declination", declination);
+        timeOfDay = from.optDouble("timeOfDay", timeOfDay);
+        sunlightColor = new Color(from.optInt("sunlightColor", sunlightColor.getRGB()));
+        sunlightStrength = from.optDouble("sunlightStrength", sunlightStrength);
+        ambientColor = new Color(from.optInt("ambientColor", ambientColor.getRGB()));
         sunlightSource.set(calculateSunPosition());
     }
 
@@ -56,6 +59,14 @@ public class Environment extends Node {
 
     public void setSunlightColor(Color color) {
         sunlightColor = color;
+    }
+
+    public double getSunlightStrength() {
+        return sunlightStrength;
+    }
+
+    public void setSunlightStrength(double strength) {
+        sunlightStrength = strength;
     }
 
     public Color getAmbientColor() {

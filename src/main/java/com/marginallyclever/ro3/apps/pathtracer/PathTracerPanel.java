@@ -40,9 +40,9 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
     private final RayPickSystem rayPickSystem = new RayPickSystem();
     private int samplesPerPixel = 20;
     private int maxDepth = 4;
-    private final ColorDouble skyColor = new ColorDouble(0.5,0.7,1.0);
     private ColorDouble ambientColor = new ColorDouble(new Color(64,64,64));
     private ColorDouble sunlightColor = new ColorDouble(1,1,1,25.0/255.0);
+    private double sunlightStrength = 1.0;
     private final Vector3d sunlightSource = new Vector3d(150,150,150);
     private final JProgressBar progressBar = new JProgressBar();
     private RayTracingWorker rayTracingWorker;
@@ -193,71 +193,71 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
     private ColorDouble trace(Ray ray, int depth, double contribution) {
         ColorDouble incomingLight = new ColorDouble(0, 0, 0);
         ColorDouble rayColor = new ColorDouble(1, 1, 1, 1);
-        Ray r2 = new Ray(ray);
 
-        try {
-            for (int i = 0; i <= depth; ++i) {
-                RayHit rayHit = rayPickSystem.getFirstHit(r2);
-                if (rayHit == null) {
-                    var sky = getSkyColor(r2);
-                    sky.scale(rayColor);
-                    incomingLight.add(sky);
-                    break;
-                }
-
-                var mat = getMaterial(rayHit);
-                var albedo = new ColorDouble(mat.getDiffuseColor());
-
-                var emittedLight = new ColorDouble(mat.getEmissionColor());
-                emittedLight.scale(mat.getEmissionStrength());
-                emittedLight.scale(rayColor);
-
-                incomingLight.add(emittedLight);
-
-                boolean isSpecularBounce = mat.getSpecularStrength() > Math.random();
-                rayColor.scale(isSpecularBounce ? new ColorDouble(mat.getSpecularColor()) : albedo);
-
-                // monte carlo russian roulette
-                double average = (rayColor.r + rayColor.g + rayColor.b ) / 3;
-                //double average = 0.2126*rayColor.r + 0.7152*rayColor.g + 0.0722*rayColor.b;
-                double p = 1.0/Math.max(1e-6,average);
-                if( Math.random() > average) {
-                    incomingLight.scale(average == 0 ? 0 : p);
-                    break;
-                }
-                rayColor.scale(p);
-
-                // Calculate Fresnel reflectance
-                double cosTheta = rayHit.normal().dot(r2.getDirection());
-                boolean entering = cosTheta < 0;
-                //double ior1 = entering ? 1.0 : mat.getIOR(); // Air IOR = 1.0
-                //double ior2 = entering ? mat.getIOR() : 1.0;
-                //double reflectance = computeFresnel(Math.abs(cosTheta), ior1, ior2);
-
-                r2.setOrigin(rayHit.point());
-
-                // Handle refraction or reflection based on Fresnel reflectance
-                if(albedo.a<1.0) {
-                    Ray r3 = getRefraction(r2,rayHit.point(),rayHit.normal(),mat);
-                    r2.setDirection(r3.getDirection());
-                    continue;
-                }
-                // opaque
-                var diffuseDirection = PathTracerPanel.getRandomUnitVector();
-                diffuseDirection.add(rayHit.normal());
-                diffuseDirection.normalize();
-                if (diffuseDirection.lengthSquared() < 1e-6) {
-                    diffuseDirection.set(rayHit.normal());
-                }
-
-                Vector3d specularDirection = reflect(r2.getDirection(),rayHit.normal());
-                var dir = MathHelper.interpolate(diffuseDirection, specularDirection, (isSpecularBounce ? mat.getReflectivity() : 0));
-                dir.normalize();
-                r2.setDirection(dir);
+        for (int i = 0; i <= depth; ++i) {
+            RayHit rayHit = rayPickSystem.getFirstHit(ray);
+            if (rayHit == null) {
+                var sky = getSkyColor(ray);
+                sky.scale(rayColor);
+                incomingLight.add(sky);
+                break;
             }
-        } catch(Exception e) {
-            e.printStackTrace();
+
+            var mat = getMaterial(rayHit);
+            var albedo = new ColorDouble(mat.getDiffuseColor());
+
+            var emittedLight = new ColorDouble(mat.getEmissionColor());
+            emittedLight.scale(mat.getEmissionStrength());
+            emittedLight.scale(rayColor);
+
+            incomingLight.add(emittedLight);
+
+            boolean isSpecularBounce = mat.getSpecularStrength() > Math.random();
+            rayColor.scale(isSpecularBounce ? new ColorDouble(mat.getSpecularColor()) : albedo);
+
+            // monte carlo russian roulette
+            double average = (rayColor.r + rayColor.g + rayColor.b ) / 3;
+            //double average = 0.2126*rayColor.r + 0.7152*rayColor.g + 0.0722*rayColor.b;
+            double p = 1.0/Math.max(1e-6,average);
+            if( Math.random() > average) {
+                incomingLight.scale(average == 0 ? 0 : p);
+                break;
+            }
+            rayColor.scale(p);
+
+            // Calculate Fresnel reflectance
+            double cosTheta = rayHit.normal().dot(ray.getDirection());
+            boolean entering = cosTheta < 0;
+            //double ior1 = entering ? 1.0 : mat.getIOR(); // Air IOR = 1.0
+            //double ior2 = entering ? mat.getIOR() : 1.0;
+            //double reflectance = computeFresnel(Math.abs(cosTheta), ior1, ior2);
+
+            // Handle refraction or reflection based on Fresnel reflectance
+            if(albedo.a<1.0) {
+                // this will return either the reflected or refracted ray
+                Ray r3 = getRefraction(ray,rayHit.point(),rayHit.normal(),mat);
+                ray.setOrigin(rayHit.point());
+                ray.setDirection(r3.getDirection());
+                continue;
+            }
+
+            // opaque
+            ray.setOrigin(rayHit.point());
+            // get the cosine weighted random direction
+            var diffuseDirection = PathTracerPanel.getRandomUnitVector();
+            diffuseDirection.add(rayHit.normal());
+            diffuseDirection.normalize();
+            if (diffuseDirection.lengthSquared() < 1e-6) {
+                // edge case where diffuseDirection is zero.
+                diffuseDirection.set(rayHit.normal());
+            }
+
+            Vector3d specularDirection = reflect(ray.getDirection(),rayHit.normal());
+            var dir = MathHelper.interpolate(diffuseDirection, specularDirection, (isSpecularBounce ? mat.getReflectivity() : 0));
+            dir.normalize();
+            ray.setDirection(dir);
         }
+
         return incomingLight;
     }
 
@@ -312,9 +312,9 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         //var a = 0.5 * (-d.z + 1.0);
         var a = 1.0-sd;
         return new ColorDouble(
-                /* a * skyColor.r + */ a * ambientColor.r + sd * sunlightColor.r,
-                /* a * skyColor.g + */ a * ambientColor.g + sd * sunlightColor.g,
-                /* a * skyColor.b + */ a * ambientColor.b + sd * sunlightColor.b);
+                 a * ambientColor.r + sd * sunlightColor.r * sunlightStrength,
+                 a * ambientColor.g + sd * sunlightColor.g * sunlightStrength,
+                 a * ambientColor.b + sd * sunlightColor.b * sunlightStrength);
     }
 
     /**
@@ -601,6 +601,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         sunlightSource.set(env.getSunlightSource());
         sunlightColor = new ColorDouble(env.getSunlightColor());
         ambientColor = new ColorDouble(env.getAmbientColor());
+        sunlightStrength = env.getSunlightStrength();
     }
 
     public int getMaxDepth() {
