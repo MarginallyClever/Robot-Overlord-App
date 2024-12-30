@@ -119,7 +119,7 @@ public class PanelHelper {
      * @param formatter the {@link NumberFormatter} to use
      * @return the {@link JFormattedTextField}
      */
-    private static JFormattedTextField addNumberField(String toolTip, double value, NumberFormatter formatter) {
+    public static JFormattedTextField addNumberField(String toolTip, double value, NumberFormatter formatter) {
         JFormattedTextField field = new JFormattedTextField(formatter);
         field.setValue(value);
         field.setToolTipText(toolTip);

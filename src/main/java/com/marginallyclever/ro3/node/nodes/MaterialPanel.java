@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.texture.TextureChooserDialog;
 
@@ -60,7 +61,9 @@ public class MaterialPanel extends JPanel {
         gbc.gridy++;
 
         // emission strength
-        var esField = PanelHelper.addNumberFieldDouble("Emission strength",material.getEmissionStrength());
+        var nfPos = NumberFormatHelper.getNumberFormatterDouble();
+        nfPos.setMinimum(0);
+        var esField = PanelHelper.addNumberField("Emission strength",material.getEmissionStrength(), nfPos);
         esField.addPropertyChangeListener("value",e->material.setEmissionStrength(((Number)e.getNewValue()).doubleValue()));
         PanelHelper.addLabelAndComponent(this,"Emission strength",esField,gbc);
         gbc.gridy++;
