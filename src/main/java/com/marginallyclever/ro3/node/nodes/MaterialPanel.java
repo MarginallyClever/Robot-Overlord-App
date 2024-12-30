@@ -44,22 +44,34 @@ public class MaterialPanel extends JPanel {
             }
         });
         PanelHelper.addLabelAndComponent(this,"Texture",button,gbc);
+        gbc.gridy++;
         PanelHelper.addLabelAndComponent(this,"Size",sizeLabel,gbc);
+        gbc.gridy++;
         PanelHelper.addLabelAndComponent(this,"Preview",imgLabel,gbc);
+        gbc.gridy++;
 
         updatePreview();
 
         PanelHelper.addColorChooser(this,"Diffuse",material::getDiffuseColor,material::setDiffuseColor,gbc);
+        gbc.gridy++;
         PanelHelper.addColorChooser(this,"Specular",material::getSpecularColor,material::setSpecularColor,gbc);
+        gbc.gridy++;
         PanelHelper.addColorChooser(this,"Emissive",material::getEmissionColor,material::setEmissionColor,gbc);
+        gbc.gridy++;
+
+        // emission strength
+        var esField = PanelHelper.addNumberFieldDouble("Emission strength",material.getEmissionStrength());
+        esField.addPropertyChangeListener("value",e->material.setEmissionStrength(((Number)e.getNewValue()).doubleValue()));
+        PanelHelper.addLabelAndComponent(this,"Emission strength",esField,gbc);
+        gbc.gridy++;
 
         // lit
         JToggleButton isLitButton = new JToggleButton("Lit",material.isLit());
         isLitButton.addActionListener(e -> material.setLit(isLitButton.isSelected()));
         PanelHelper.addLabelAndComponent(this,"Lit",isLitButton,gbc);
+        gbc.gridy++;
 
         // shininess
-        gbc.gridy++;
         gbc.gridwidth=2;
         this.add(createShininessSlider(),gbc);
         gbc.gridy++;

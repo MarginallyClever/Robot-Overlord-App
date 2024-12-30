@@ -32,6 +32,7 @@ public class Material extends Node {
     private Color diffuseColor = new Color(255,255,255);
     private Color specularColor = new Color(255,255,255);
     private Color emissionColor = new Color(0,0,0);
+    private double emissionStrength = 0.0;
     private int shininess = 10;
     private boolean isLit = true;
     private double specularStrength = 0.5;
@@ -85,6 +86,7 @@ public class Material extends Node {
         json.put("diffuseColor", diffuseColor.getRGB());
         json.put("specularColor", specularColor.getRGB());
         json.put("emissionColor", emissionColor.getRGB());
+        json.put("emissionStrength", emissionStrength);
         json.put("shininess", shininess);
         json.put("specularStrength", specularStrength);
         json.put("isLit", isLit);
@@ -102,6 +104,7 @@ public class Material extends Node {
         if(from.has("diffuseColor")) diffuseColor = new Color(from.getInt("diffuseColor"),true);
         if(from.has("specularColor")) specularColor = new Color(from.getInt("specularColor"),true);
         if(from.has("emissionColor")) emissionColor = new Color(from.getInt("emissionColor"),true);
+        if(from.has("emissionStrength")) emissionStrength = from.getDouble("emissionStrength");
         if(from.has("shininess")) shininess = from.getInt("shininess");
         if(from.has("specularStrength")) specularStrength = from.getDouble("specularStrength");
         if(from.has("isLit")) isLit = from.getBoolean("isLit");
@@ -131,6 +134,20 @@ public class Material extends Node {
 
     public void setEmissionColor(Color color) {
         emissionColor = color;
+    }
+
+    /**
+     * @return the emission strength of the material.  &gt;=0
+     */
+    public double getEmissionStrength() {
+        return emissionStrength;
+    }
+
+    /**
+     * @param emissionStrength the emission strength of the material.  &gt;=0
+     */
+    public void setEmissionStrength(double emissionStrength) {
+        this.emissionStrength = emissionStrength;
     }
 
     public void setShininess(int arg0) {
