@@ -36,7 +36,7 @@ public class Material extends Node {
     private boolean isLit = true;
     private double specularStrength = 0.5;
     private double ior = 1.0;  // index of refraction
-    private double reflectivity = 0.0;
+    private double reflectivity = 0.0;  // 0...1
 
     public Material() {
         this("Material");
