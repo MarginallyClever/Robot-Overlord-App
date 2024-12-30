@@ -29,8 +29,8 @@ public class PathTracer {
     private int canvasHeight = 480;
     private BufferedImage image;
 
-    private int samplesPerPixel = 20;
-    private int maxDepth = 4;
+    private int samplesPerPixel = 500;
+    private int maxDepth = 3;
     private ColorDouble ambientColor = new ColorDouble(0.25,0.25,0.25,1);
     private ColorDouble sunlightColor = new ColorDouble(1,1,1,1);
     private double sunlightStrength = 1.0;
