@@ -18,9 +18,9 @@ public class ColorDouble {
 
     public ColorDouble(Color c) {
         this(c.getRed() / 255.0,
-                c.getGreen() / 255.0,
-                c.getBlue() / 255.0,
-                c.getAlpha() / 255.0);
+            c.getGreen() / 255.0,
+            c.getBlue() / 255.0,
+            c.getAlpha() / 255.0);
     }
 
     public ColorDouble(ColorDouble other) {
