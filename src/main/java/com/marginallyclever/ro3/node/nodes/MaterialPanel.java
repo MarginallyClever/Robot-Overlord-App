@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.texture.TextureChooserDialog;
 
@@ -44,26 +45,51 @@ public class MaterialPanel extends JPanel {
             }
         });
         PanelHelper.addLabelAndComponent(this,"Texture",button,gbc);
+        gbc.gridy++;
         PanelHelper.addLabelAndComponent(this,"Size",sizeLabel,gbc);
+        gbc.gridy++;
         PanelHelper.addLabelAndComponent(this,"Preview",imgLabel,gbc);
+        gbc.gridy++;
 
         updatePreview();
 
-        PanelHelper.addColorChooser(this,"Diffuse",material.getDiffuseColor(),material::setDiffuseColor,gbc);
-        PanelHelper.addColorChooser(this,"Specular",material.getSpecularColor(),material::setSpecularColor,gbc);
-        PanelHelper.addColorChooser(this,"Emissive",material.getEmissionColor(),material::setEmissionColor,gbc);
+        PanelHelper.addColorChooser(this,"Diffuse",material::getDiffuseColor,material::setDiffuseColor,gbc);
+        gbc.gridy++;
+        PanelHelper.addColorChooser(this,"Specular",material::getSpecularColor,material::setSpecularColor,gbc);
+        gbc.gridy++;
+        PanelHelper.addColorChooser(this,"Emissive",material::getEmissionColor,material::setEmissionColor,gbc);
+        gbc.gridy++;
+
+        // emission strength
+        var nfPos = NumberFormatHelper.getNumberFormatterDouble();
+        nfPos.setMinimum(0);
+        var esField = PanelHelper.addNumberField("Emission strength",material.getEmissionStrength(), nfPos);
+        esField.addPropertyChangeListener("value",e->material.setEmissionStrength(((Number)e.getNewValue()).doubleValue()));
+        PanelHelper.addLabelAndComponent(this,"Emission strength",esField,gbc);
+        gbc.gridy++;
 
         // lit
         JToggleButton isLitButton = new JToggleButton("Lit",material.isLit());
         isLitButton.addActionListener(e -> material.setLit(isLitButton.isSelected()));
         PanelHelper.addLabelAndComponent(this,"Lit",isLitButton,gbc);
+        gbc.gridy++;
 
         // shininess
-        gbc.gridy++;
         gbc.gridwidth=2;
         this.add(createShininessSlider(),gbc);
         gbc.gridy++;
         this.add(createSpecularStrengthSlider(),gbc);
+        gbc.gridy++;
+
+        var iorField = PanelHelper.addNumberFieldDouble("IOR",material.getIOR());
+        iorField.addPropertyChangeListener("value",e->material.setIOR(((Number)e.getNewValue()).doubleValue()));
+        PanelHelper.addLabelAndComponent(this,"IOR",iorField,gbc);
+        gbc.gridy++;
+
+        var reflectivityField = PanelHelper.addNumberFieldDouble("reflectivity",material.getReflectivity());
+        reflectivityField.addPropertyChangeListener("value",e->material.setReflectivity(((Number)e.getNewValue()).doubleValue()));
+        PanelHelper.addLabelAndComponent(this,"Reflectivity",reflectivityField,gbc);
+        gbc.gridy++;
     }
 
     private void updatePreview() {

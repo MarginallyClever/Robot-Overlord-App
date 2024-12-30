@@ -10,6 +10,7 @@ import javax.swing.*;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * {@link PanelHelper} is a collection of static methods to help build panels.
@@ -78,13 +79,15 @@ public class PanelHelper {
      * @param consumer the consumer to accept the color
      * @param gbc the {@link GridBagConstraints} to use
      */
-    public static void addColorChooser(JPanel parent, String title, Color startColor, Consumer<Color> consumer, GridBagConstraints gbc) {
+    public static void addColorChooser(JPanel parent, String title, Supplier<Color> startColor, Consumer<Color> consumer, GridBagConstraints gbc) {
         JButton button = new JButton();
-        button.setBackground(startColor);
+        button.setBackground(startColor.get());
         button.addActionListener(e -> {
-            Color color = JColorChooser.showDialog(parent,title,startColor);
-            if(color!=null) consumer.accept(color);
-            button.setBackground(color);
+            Color color = JColorChooser.showDialog(parent,title,startColor.get());
+            if(color!=null) {
+                consumer.accept(color);
+                button.setBackground(color);
+            }
         });
         PanelHelper.addLabelAndComponent(parent,title,button,gbc);
     }
@@ -116,7 +119,7 @@ public class PanelHelper {
      * @param formatter the {@link NumberFormatter} to use
      * @return the {@link JFormattedTextField}
      */
-    private static JFormattedTextField addNumberField(String toolTip, double value, NumberFormatter formatter) {
+    public static JFormattedTextField addNumberField(String toolTip, double value, NumberFormatter formatter) {
         JFormattedTextField field = new JFormattedTextField(formatter);
         field.setValue(value);
         field.setToolTipText(toolTip);
