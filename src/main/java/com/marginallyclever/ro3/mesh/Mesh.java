@@ -57,6 +57,8 @@ public class Mesh {
 
 	private final EventListenerList listeners = new EventListenerList();
 
+	private VertexProvider vertexProvider;
+
 	public Mesh() {
 		super();
 		boundingBox.setShape(this);
@@ -162,6 +164,42 @@ public class Mesh {
 		}
 
 		gl.glBindVertexArray(0);
+
+		createNewVertexProvider();
+	}
+
+	private void createNewVertexProvider() {
+		if (hasIndexes) {
+			vertexProvider = new VertexProvider() {
+				@Override
+				public Vector3d provideVertex(int index) {
+					return getVertex(indexArray.get(index));
+				}
+				@Override
+				public Vector3d provideNormal(int index) {
+					return getNormal(indexArray.get(index));
+				}
+				@Override
+				public int provideCount() {
+					return indexArray.size();
+				}
+			};
+		} else {
+			vertexProvider = new VertexProvider() {
+				@Override
+				public Vector3d provideVertex(int index) {
+					return getVertex(index);
+				}
+				@Override
+				public Vector3d provideNormal(int index) {
+					return getNormal(index);
+				}
+				@Override
+				public int provideCount() {
+					return getNumVertices();
+				}
+			};
+		}
 	}
 
 	private void checkBufferSizes() {
@@ -393,40 +431,10 @@ public class Mesh {
 			return null;  // no hit
 		}
 
-		VertexProvider vp;
-		if (hasIndexes) {
-			vp = new VertexProvider() {
-				@Override
-				public Vector3d provideVertex(int index) {
-					return getVertex(indexArray.get(index));
-				}
-				@Override
-				public Vector3d provideNormal(int index) {
-					return getNormal(indexArray.get(index));
-				}
-				@Override
-				public int provideCount() {
-					return indexArray.size();
-				}
-			};
-		} else {
-			vp = new VertexProvider() {
-				@Override
-				public Vector3d provideVertex(int index) {
-					return getVertex(index);
-				}
-				@Override
-				public Vector3d provideNormal(int index) {
-					return getNormal(index);
-				}
-				@Override
-				public int provideCount() {
-					return getNumVertices();
-				}
-			};
+		if(vertexProvider==null) {
+			createNewVertexProvider();
 		}
-
-		return intersect(ray,vp);
+		return intersect(ray, vertexProvider);
 	}
 
 
@@ -437,7 +445,7 @@ public class Mesh {
 	 * @return null if no intersection, otherwise a RayHit object with the intersection point and normal.
 	 */
 	private RayHit intersect(Ray ray, VertexProvider provider) {
-		int a=0,b=0,c=0;
+		int a=0;
 
 		double nearest = Double.MAX_VALUE;
 		for(int i=0;i<provider.provideCount();i+=3) {
@@ -448,8 +456,6 @@ public class Mesh {
 			if(nearest > t) {
 				nearest = t;
 				a=i;
-				b=i+1;
-				c=i+2;
 			}
 		}
 
@@ -457,13 +463,15 @@ public class Mesh {
 			Vector3d normal;
 			if(hasNormals) {
 				normal =   provider.provideNormal(a);
-				normal.add(provider.provideNormal(b));
-				normal.add(provider.provideNormal(c));
+				normal.add(provider.provideNormal(a+1));
+				normal.add(provider.provideNormal(a+2));
+				// average of normals
 				normal.normalize();
 			} else {
 				Vector3d v0 = provider.provideVertex(a);
-				Vector3d v1 = provider.provideVertex(b);
-				Vector3d v2 = provider.provideVertex(c);
+				Vector3d v1 = provider.provideVertex(a+1);
+				Vector3d v2 = provider.provideVertex(a+2);
+				// normal from face
 				normal = IntersectionHelper.buildNormalFrom3Points(v0, v1, v2);
 			}
 			Point3d p = new Point3d(ray.getDirection());
