@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.pathtracer;
 
 import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
@@ -8,6 +9,7 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.environment.Environment;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
+import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import com.marginallyclever.ro3.raypicking.RayHit;
 import com.marginallyclever.ro3.raypicking.RayPickSystem;
 
@@ -48,9 +50,13 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
     private long startTime;
     private final JLabel runTime = new JLabel();
     private static final Random random = new Random();
+    private final List<LightSource> lightSources = new ArrayList<>();
+
+    private record LightSource(MeshInstance mi, Point3d point, ColorDouble emission, boolean isSun) {}
 
     public PathTracerPanel() {
         super(new BorderLayout());
+        progressBar.setStringPainted(true);
         setupToolbar();
         add(toolBar, BorderLayout.NORTH);
         add(centerLabel,BorderLayout.CENTER);
@@ -62,6 +68,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         Registry.addSceneChangeListener(this);
         Registry.cameras.addItemAddedListener(this::addCamera);
         Registry.cameras.addItemRemovedListener(this::removeCamera);
+        updateCameraList();
     }
 
     @Override
@@ -72,6 +79,13 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         Registry.cameras.removeItemRemovedListener(this::removeCamera);
     }
 
+    private void updateCameraList() {
+        cameraListModel.removeAllElements();
+        Registry.cameras.getList().forEach(cameraListModel::addElement);
+        if(cameraListModel.getSize()>0) {
+            setActiveCamera(cameraListModel.getElementAt(0));
+        }
+    }
 
     private void addCamera(Object source,Camera camera) {
         if(cameraListModel.getIndexOf(camera) == -1) {
@@ -145,10 +159,6 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         cameraListModel.setSelectedItem(activeCamera);
     }
 
-    private int clampColor(double c) {
-        return (int)(Math.max(0,Math.min(255,c)));
-    }
-
     public void render() {
         if(rayTracingWorker!=null) {
             rayTracingWorker.cancel(true);
@@ -161,7 +171,6 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
             centerLabel.setIcon(new ImageIcon(buffer));
             progressBar.setValue(0);
 
-            // update rays
             rays.clear();
             for(int y=0;y<canvasHeight;y++) {
                 for(int x=0;x<canvasWidth;x++) {
@@ -178,19 +187,120 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
      * <p>Trace the ray and return the color of the pixel at the end of the ray.</p>
      * @param ray the ray to trace
      * @param depth the maximum number of bounces to trace
+     * @param contribution the contribution factor for Russian roulette
      * @return the color of the pixel at the end of the ray.
      */
-    private ColorDouble rayColor(Ray ray,int depth) {
-        if(depth<=0) return new ColorDouble(0,0,0);
+    private ColorDouble trace(Ray ray, int depth, double contribution) {
+        ColorDouble incomingLight = new ColorDouble(0, 0, 0);
+        ColorDouble rayColor = new ColorDouble(1, 1, 1, 1);
+        Ray r2 = new Ray(ray);
 
-        // trace the ray
-        RayHit rayHit = rayPickSystem.getFirstHit(ray);
-        if(rayHit==null) return getSkyColor(ray);
-        return getIntersectionColor(ray,rayHit,depth);
+        try {
+            for (int i = 0; i <= depth; ++i) {
+                RayHit rayHit = rayPickSystem.getFirstHit(r2);
+                if (rayHit == null) {
+                    var sky = getSkyColor(r2);
+                    sky.scale(rayColor);
+                    incomingLight.add(sky);
+                    break;
+                }
+
+                var mat = getMaterial(rayHit);
+                var albedo = new ColorDouble(mat.getDiffuseColor());
+
+                var emittedLight = new ColorDouble(mat.getEmissionColor());
+                emittedLight.scale(mat.getEmissionStrength());
+                emittedLight.scale(rayColor);
+
+                incomingLight.add(emittedLight);
+
+                boolean isSpecularBounce = mat.getSpecularStrength() > Math.random();
+                rayColor.scale(isSpecularBounce ? new ColorDouble(mat.getSpecularColor()) : albedo);
+
+                // monte carlo russian roulette
+                double average = (rayColor.r + rayColor.g + rayColor.b ) / 3;
+                //double average = 0.2126*rayColor.r + 0.7152*rayColor.g + 0.0722*rayColor.b;
+                double p = 1.0/Math.max(1e-6,average);
+                if( Math.random() > average) {
+                    incomingLight.scale(average == 0 ? 0 : p);
+                    break;
+                }
+                rayColor.scale(p);
+
+                // Calculate Fresnel reflectance
+                double cosTheta = rayHit.normal().dot(r2.getDirection());
+                boolean entering = cosTheta < 0;
+                //double ior1 = entering ? 1.0 : mat.getIOR(); // Air IOR = 1.0
+                //double ior2 = entering ? mat.getIOR() : 1.0;
+                //double reflectance = computeFresnel(Math.abs(cosTheta), ior1, ior2);
+
+                r2.setOrigin(rayHit.point());
+
+                // Handle refraction or reflection based on Fresnel reflectance
+                if(albedo.a<1.0) {
+                    Ray r3 = getRefraction(r2,rayHit.point(),rayHit.normal(),mat);
+                    r2.setDirection(r3.getDirection());
+                    continue;
+                }
+                // opaque
+                var diffuseDirection = PathTracerPanel.getRandomUnitVector();
+                diffuseDirection.add(rayHit.normal());
+                diffuseDirection.normalize();
+                if (diffuseDirection.lengthSquared() < 1e-6) {
+                    diffuseDirection.set(rayHit.normal());
+                }
+
+                Vector3d specularDirection = reflect(r2.getDirection(),rayHit.normal());
+                var dir = MathHelper.interpolate(diffuseDirection, specularDirection, (isSpecularBounce ? mat.getReflectivity() : 0));
+                dir.normalize();
+                r2.setDirection(dir);
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return incomingLight;
     }
 
-    // sky color
-    // TODO use ViewportSettings to get the angle and color of the sun.
+    private double computeFresnel(double cosTheta, double ior1, double ior2) {
+        double r0 = Math.pow((ior1 - ior2) / (ior1 + ior2), 2);
+        return r0 + (1 - r0) * Math.pow(1 - cosTheta, 5);
+    }
+
+    /**
+     * <p>Refract the ray and return the refracted vector.</p>
+     * @param incident  the incident vector
+     * @param normal   the normal at the hit point
+     * @param iorRatio the ratio of the refractive indices of the two materials
+     * @return the refracted vector
+     */
+    private Vector3d refract2(Vector3d incident, Vector3d normal, double iorRatio) {
+        double cosI = -normal.dot(incident);
+        double sin2T = iorRatio * iorRatio * (1 - cosI * cosI);
+
+        // Total internal reflection
+        if (sin2T > 1.0) {
+            return null;
+        }
+
+        double cosT = Math.sqrt(1.0 - sin2T);
+        Vector3d refracted = new Vector3d();
+        refracted.scale(iorRatio, incident);
+        refracted.scaleAdd(iorRatio * cosI - cosT, normal, refracted);
+        return refracted;
+    }
+
+    private Material getMaterial(RayHit rayHit) {
+        var meshInstance = rayHit.target();
+        if(meshInstance==null) return defaultMaterial;
+        var mat = meshInstance.findFirstSibling(Material.class);
+        return mat == null ? defaultMaterial : mat;
+    }
+
+    /**
+     * sky or sun color, depending on angle of incidence
+     * @param ray the ray to check
+     * @return the color of the sky
+     */
     private ColorDouble getSkyColor(Ray ray) {
         Vector3d d = ray.getDirection();
         d.normalize();
@@ -198,91 +308,43 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         sun.normalize();
         var dot = Math.max(0,sun.dot(d));
 
-        var sd = Math.pow(dot,3);
+        var sd = Math.pow(dot,5);
         //var a = 0.5 * (-d.z + 1.0);
         var a = 1.0-sd;
         return new ColorDouble(
-                /* a * skyColor.r + */ a * ambientColor.r + sd * sunlightColor.r * sunlightColor.a,
-                /* a * skyColor.g + */ a * ambientColor.g + sd * sunlightColor.g * sunlightColor.a,
-                /* a * skyColor.b + */ a * ambientColor.b + sd * sunlightColor.b * sunlightColor.a);
+                /* a * skyColor.r + */ a * ambientColor.r + sd * sunlightColor.r,
+                /* a * skyColor.g + */ a * ambientColor.g + sd * sunlightColor.g,
+                /* a * skyColor.b + */ a * ambientColor.b + sd * sunlightColor.b);
     }
 
-    private ColorDouble getIntersectionColor(Ray ray, RayHit rayHit, int depth) {
-        // if material, set color based on material.  else... white.
-        var target = rayHit.target();
-        assert(target!=null);
+    /**
+     * Get the refracted ray
+     * @param ray the ray to refract
+     * @param hitPoint the point where the ray hit
+     * @param normal the normal at the hit point
+     * @param mat the material at the hit point
+     * @return the next ray to trace
+     */
+    private Ray getRefraction(Ray ray, Point3d hitPoint, Vector3d normal, Material mat) {
+        // at least semi-transparent.  use index of refraction.
+        var rayDirection = ray.getDirection();
+        rayDirection.normalize();
 
-        var mat = target.findFirstSibling(Material.class);
-        if(mat==null) mat = defaultMaterial;
+        var ior = mat.getIOR();
+        var cosTheta = Math.min(-normal.dot(rayDirection),1.0);
+        // since normals face outside an object, if cosTheta is positive the ray is exiting the object.
+        boolean backFace = cosTheta > 0;
+        if(backFace) normal.negate();
 
-        ColorDouble albedo = new ColorDouble(mat.getDiffuseColor());
-        ColorDouble sum = new ColorDouble(albedo);
+        var ri = backFace ? 1.0/ior : ior;
+        var sinTheta = Math.sqrt(1.0-cosTheta*cosTheta);
+        var cannotRefract = ri * sinTheta > 1.0;
+        var nextDir = cannotRefract || reflectance(cosTheta,ri) > Math.random()
+                ? reflect(rayDirection,normal) // total internal reflection
+                : refract(rayDirection,normal,ri); // refraction
 
-        // get the point where the ray hit
-        var hitPoint = ray.getPoint(rayHit.distance());
-
-        // get face normal
-        var normal = rayHit.normal();
-        double reflectivity = mat.getReflectivity();
-        if(reflectivity<1.0) {
-            // lambertian reflection - bounce and collect light from other surfaces
-            var direction = new Vector3d(normal);
-            direction.add(PathTracerPanel.getRandomUnitVector());
-            if (direction.lengthSquared() < 1e-6) {
-                direction.set(normal);
-            }
-            var newRay = new Ray(hitPoint, direction);
-            var newColor = rayColor(newRay, depth - 1);
-
-            // check in shadow
-            //Vector3d lightDirection = new Vector3d(sunlightSource);
-            //lightDirection.normalize();
-            //boolean inShadow = isInShadow(from, lightDirection,rayHit);
-            //var incident = Math.max(0,lightDirection.dot(normal));
-            //double s = incident * (inShadow ? 0.5 : 1.0) / 255.0;
-
-            // result *= ambient + (diffuseLight * specularLight) * (1.0-shadow)
-            // result += emissionLight
-            sum.scale(newColor);
-        }
-        if(reflectivity>0) {
-            // reflection
-            var reflected = reflect(ray.getDirection(),normal);
-            var reflectedRay = new Ray(hitPoint,reflected);
-            var reflectedColor = rayColor(reflectedRay,depth-1);
-            sum = blend(reflectedColor,sum,reflectivity);
-        }
-
-        var alpha = albedo.a;
-        if(alpha<1.0) {
-            // at least semi-transparent.  use index of refraction to calculate refraction.
-            var rayDirection = ray.getDirection();
-            rayDirection.normalize();
-
-            var ior = mat.getIOR();
-            var cosTheta = Math.min(-normal.dot(rayDirection),1.0);
-            // since normals face outside an object, if cosI is positive the ray is exiting the object.
-            boolean backFace = cosTheta > 0;
-            if(backFace) normal.negate();
-
-            var ri = backFace ? 1.0/ior : ior;
-            var sinTheta = Math.sqrt(1.0-cosTheta*cosTheta);
-            var cannotRefract = ri * sinTheta > 1.0;
-            var nextDir = cannotRefract || reflectance(cosTheta,ri) > Math.random()
-                    ? reflect(rayDirection,normal) // total internal reflection
-                    : refract(rayDirection,normal,ri); // refraction
-
-            // Recursively compute the color along the next ray
-            Ray nextRay = new Ray(hitPoint, nextDir);
-            ColorDouble throughColor = rayColor(nextRay, depth-1);
-
-            sum = blend(sum,throughColor,alpha);
-        }
-
-        ColorDouble emissionColor = new ColorDouble(mat.getEmissionColor());
-        emissionColor.scale(emissionColor.a*255);
-        sum.add(emissionColor);
-        return sum;
+        // Recursively compute the color along the next ray
+        return new Ray(hitPoint, nextDir);
     }
 
     private void toneMap(ColorDouble d) {
@@ -362,26 +424,6 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         return outPerpendicular;
     }
 
-    private boolean isInShadow(Vector3d point, Vector3d lightDirection, RayHit rayHit) {
-        Vector3d p2 = new Vector3d(rayHit.normal());
-        p2.scaleAdd(1e-10,point);
-        Ray shadowRay = new Ray(p2, lightDirection);
-        RayHit shadowHit = rayPickSystem.getFirstHit(shadowRay);
-        return shadowHit != null;
-    }
-
-    /**
-     * @param n the normal
-     * @return a random unit vector on the hemisphere defined by the normal.
-     */
-    public static Vector3d getRandomUnitVectorOnHemisphere(Vector3d n) {
-        var v = getRandomUnitVector();
-        if(v.dot(n) < 0) {
-            v.negate();
-        }
-        return v;
-    }
-
     /**
      * @return a random vector on the unit sphere
      */
@@ -392,43 +434,6 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
         var x = t2 * Math.cos(t1);
         var z = t2 * Math.sin(t1);
         return new Vector3d(x,y,z);
-    }
-
-    /**
-     * I'm told this isn't evenly distributed.
-     * @return a random vector on the unit sphere
-     */
-    public static Vector3d getRandomUnitVectorOld2() {
-        double u, v, s;
-        do {
-            u = 2.0 * random.nextDouble() - 1.0;
-            v = 2.0 * random.nextDouble() - 1.0;
-            s = u * u + v * v;
-        } while (s >= 1 || s == 0);
-
-        double scale = Math.sqrt(1 - s);
-        double x = 2.0 * u * scale;
-        double y = 2.0 * v * scale;
-        double z = 1.0 - 2.0 * s;
-
-        return new Vector3d(x, y, z);
-    }
-
-    /**
-     * I'm told this isn't evenly distributed.
-     * @return a random vector on the unit sphere
-     */
-    public static Vector3d getRandomUnitVectorOld() {
-        var p = new Vector3d();
-        double len;
-        while(true) {
-            p.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
-            len = p.lengthSquared();
-            if (1e-16 < len && len <= 1) {
-                p.scale(1.0 / Math.sqrt(len));
-                return p;
-            }
-        }
     }
 
     /**
@@ -526,21 +531,21 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener {
 
                 rays.stream().parallel().forEach(pixel -> {
                     if(isCancelled()) return;
+
                     // jiggle the ray a little bit to get a better anti-aliasing effect
                     var nx =       (2.0*(pixel.x+Math.random()-0.5)/canvasWidth ) - 1.0;
                     var ny = 1.0 - (2.0*(pixel.y+Math.random()-0.5)/canvasHeight);
                     var ray = getRayThroughPoint(activeCamera,nx,ny);
                     // sum the total color of all samples
-                    pixel.sum.add(rayColor(ray,maxDepth));
+                    pixel.sum.add(trace(ray,maxDepth,1.0));
                     // and count
                     pixel.samples++;
                     // then get the average of the samples
                     pixel.average.set(pixel.sum);
                     pixel.average.scale(1.0/pixel.samples);
                     toneMap(pixel.average);
-                    var result = pixel.average.getColor();
                     // store the result in the buffer
-                    drawPixel(pixel,result);
+                    drawPixel(pixel,pixel.average.getColor());
 
                     // Update progress
                     int done = completed.incrementAndGet();
