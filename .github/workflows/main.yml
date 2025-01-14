@@ -18,7 +18,7 @@ jobs:
     - uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '17'
+        java-version: '21'
         cache: 'maven'
 
     - name: Build and Test with Maven
@@ -101,7 +101,7 @@ jobs:
     - uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '17'
+        java-version: '21'
 
     - uses: actions/download-artifact@v4.1.7
       with:
