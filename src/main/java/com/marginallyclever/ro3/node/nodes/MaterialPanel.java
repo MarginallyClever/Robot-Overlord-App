@@ -9,10 +9,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class MaterialPanel extends JPanel {
-    private static final int THUMBNAIL_SIZE = 64;
     private final Material material;
-    private final JLabel sizeLabel = new JLabel();
-    private final JLabel imgLabel = new JLabel();
 
     public MaterialPanel() {
         this(new Material());
@@ -30,28 +27,8 @@ public class MaterialPanel extends JPanel {
         gbc.gridy=0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        var texture = material.getDiffuseTexture();
-
-        JButton button = new JButton();
-        setTextureButtonLabel(button);
-        button.addActionListener(e -> {
-            var textureChooserDialog = new TextureChooserDialog();
-            textureChooserDialog.setSelectedItem(texture);
-            int result = textureChooserDialog.run(this);
-            if(result == JFileChooser.APPROVE_OPTION) {
-                material.setDiffuseTexture(textureChooserDialog.getSelectedItem());
-                setTextureButtonLabel(button);
-                updatePreview();
-            }
-        });
-        PanelHelper.addLabelAndComponent(this,"Texture",button,gbc);
+        PanelHelper.addTextureField(this,"Texture",material::getDiffuseTexture,material::setDiffuseTexture,gbc);
         gbc.gridy++;
-        PanelHelper.addLabelAndComponent(this,"Size",sizeLabel,gbc);
-        gbc.gridy++;
-        PanelHelper.addLabelAndComponent(this,"Preview",imgLabel,gbc);
-        gbc.gridy++;
-
-        updatePreview();
 
         PanelHelper.addColorChooser(this,"Diffuse",material::getDiffuseColor,material::setDiffuseColor,gbc);
         gbc.gridy++;
@@ -92,18 +69,6 @@ public class MaterialPanel extends JPanel {
         gbc.gridy++;
     }
 
-    private void updatePreview() {
-        var texture = material.getDiffuseTexture();
-        if(texture!=null) {
-            sizeLabel.setText(texture.getWidth()+"x"+texture.getHeight());
-            imgLabel.setIcon(new ImageIcon(scaleImage(texture.getImage())));
-            imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        } else {
-            sizeLabel.setText("");
-            imgLabel.setIcon(null);
-        }
-    }
-
     private JComponent createShininessSlider() {
         JPanel container = new JPanel(new BorderLayout());
 
@@ -137,21 +102,4 @@ public class MaterialPanel extends JPanel {
         return container;
     }
 
-    private void setTextureButtonLabel(JButton button) {
-        var texture = material.getDiffuseTexture();
-        button.setText((texture==null)
-                ? "..."
-                : texture.getSource().substring(texture.getSource().lastIndexOf(java.io.File.separatorChar)+1));
-    }
-
-    private BufferedImage scaleImage(BufferedImage sourceImage) {
-        Image tmp = sourceImage.getScaledInstance(THUMBNAIL_SIZE, THUMBNAIL_SIZE, Image.SCALE_SMOOTH);
-        BufferedImage scaledImage = new BufferedImage(THUMBNAIL_SIZE, THUMBNAIL_SIZE, BufferedImage.TYPE_INT_ARGB);
-
-        Graphics2D g2d = scaledImage.createGraphics();
-        g2d.drawImage(tmp, 0, 0, null);
-        g2d.dispose();
-
-        return scaledImage;
-    }
 }

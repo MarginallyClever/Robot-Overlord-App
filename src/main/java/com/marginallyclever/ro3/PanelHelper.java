@@ -5,10 +5,13 @@ import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
+import com.marginallyclever.ro3.texture.TextureChooserDialog;
+import com.marginallyclever.ro3.texture.TextureWithMetadata;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -16,6 +19,8 @@ import java.util.function.Supplier;
  * {@link PanelHelper} is a collection of static methods to help build panels.
  */
 public class PanelHelper {
+    public static final int THUMBNAIL_SIZE = 64;
+
     /**
      * <p>A convenience method to add a label and component to a panel that is built with
      * {@link GridLayout}.</p>
@@ -215,5 +220,72 @@ public class PanelHelper {
         panel.add(slider,BorderLayout.CENTER);
         panel.add(f,BorderLayout.EAST);
         return panel;
+    }
+
+    /**
+     * <p>A convenience method to add a texture field to a panel.</p>
+     * @param panel the panel to add to
+     * @param label the label for the field
+     * @param getDiffuseTexture the supplier to get the texture
+     * @param setDiffuseTexture the consumer to set the texture
+     * @param gbc the {@link GridBagConstraints} to use
+     */
+    public static void addTextureField(JPanel panel,
+                                       String label,
+                                       Supplier<TextureWithMetadata> getDiffuseTexture,
+                                       Consumer<TextureWithMetadata> setDiffuseTexture,
+                                       GridBagConstraints gbc) {
+        JButton button = new JButton();
+        JLabel sizeLabel = new JLabel();
+        JLabel imgLabel = new JLabel();
+        PanelHelper.addLabelAndComponent(panel,label,button,gbc);
+        gbc.gridy++;
+        PanelHelper.addLabelAndComponent(panel,"Size",sizeLabel,gbc);
+        gbc.gridy++;
+        PanelHelper.addLabelAndComponent(panel,"Preview",imgLabel,gbc);
+
+        button.addActionListener(e -> {
+            var textureChooserDialog = new TextureChooserDialog();
+            var texture = getDiffuseTexture.get();
+            textureChooserDialog.setSelectedItem(texture);
+            int result = textureChooserDialog.run(panel);
+            if(result == JFileChooser.APPROVE_OPTION) {
+                setDiffuseTexture.accept(textureChooserDialog.getSelectedItem());
+                setTextureButtonLabel(button,texture);
+                updateTexturePreview(sizeLabel,imgLabel,textureChooserDialog.getSelectedItem());
+            }
+        });
+
+        var texture = getDiffuseTexture.get();
+        setTextureButtonLabel(button,texture);
+        updateTexturePreview(sizeLabel,imgLabel,texture);
+    }
+
+    private static void updateTexturePreview(JLabel sizeLabel, JLabel imgLabel, TextureWithMetadata texture) {
+        if(texture!=null) {
+            sizeLabel.setText(texture.getWidth()+"x"+texture.getHeight());
+            imgLabel.setIcon(new ImageIcon(scaleImage(texture.getImage())));
+            imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        } else {
+            sizeLabel.setText("");
+            imgLabel.setIcon(null);
+        }
+    }
+
+    private static void setTextureButtonLabel(JButton button,TextureWithMetadata texture) {
+        button.setText((texture==null)
+                ? "..."
+                : texture.getSource().substring(texture.getSource().lastIndexOf(java.io.File.separatorChar)+1));
+    }
+
+    private static BufferedImage scaleImage(BufferedImage sourceImage) {
+        Image tmp = sourceImage.getScaledInstance(THUMBNAIL_SIZE, THUMBNAIL_SIZE, Image.SCALE_SMOOTH);
+        BufferedImage scaledImage = new BufferedImage(THUMBNAIL_SIZE, THUMBNAIL_SIZE, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g2d = scaledImage.createGraphics();
+        g2d.drawImage(tmp, 0, 0, null);
+        g2d.dispose();
+
+        return scaledImage;
     }
 }
