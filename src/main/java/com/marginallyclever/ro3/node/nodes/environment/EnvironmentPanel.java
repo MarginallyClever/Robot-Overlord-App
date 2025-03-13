@@ -22,15 +22,9 @@ public class EnvironmentPanel extends JPanel {
     }
 
     public EnvironmentPanel(Environment environment) {
-        super(new BorderLayout());
+        super(new GridBagLayout());
         setName("Environment");
         this.environment = environment;
-        JPanel container = buildPanel();
-        add(container, BorderLayout.NORTH);
-    }
-
-    private JPanel buildPanel() {
-        var container = new JPanel(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.weightx = 1.0;
@@ -43,12 +37,11 @@ public class EnvironmentPanel extends JPanel {
         timeOfDay.setValue(environment.getTimeOfDay()-90);
         declination.setValue(environment.getDeclination());
 
-        // TODO the lighting settings below here should be per-scene.
         // ambient color
-        PanelHelper.addColorChooser(container,"Ambient", environment::getAmbientColor,this::setAmbientColor,gbc);
+        PanelHelper.addColorChooser(this,"Ambient", environment::getAmbientColor,this::setAmbientColor,gbc);
         gbc.gridy++;
         // sun color
-        PanelHelper.addColorChooser(container,"Sun color",environment::getSunlightColor,this::setSunColor,gbc);
+        PanelHelper.addColorChooser(this,"Sun color",environment::getSunlightColor,this::setSunColor,gbc);
         gbc.gridy++;
 
         // sunlight strength
@@ -56,18 +49,18 @@ public class EnvironmentPanel extends JPanel {
         nfPos.setMinimum(0);
         var esField = PanelHelper.addNumberField("sunlight strength",environment.getSunlightStrength(), nfPos);
         esField.addPropertyChangeListener("value",e->environment.setSunlightStrength(((Number)e.getNewValue()).doubleValue()));
-        PanelHelper.addLabelAndComponent(container,"Sunlight strength",esField,gbc);
+        PanelHelper.addLabelAndComponent(this,"Sunlight strength",esField,gbc);
         gbc.gridy++;
 
         // sun position
         gbc.gridy++;
-        PanelHelper.addLabelAndComponent(container, "Time of day (24h)", timeOfDay,gbc);
+        PanelHelper.addLabelAndComponent(this, "Time of day (24h)", timeOfDay,gbc);
         timeOfDay.addActionListener(e->updateSunPosition());
         timeOfDay.setPreferredSize(new Dimension(100,100));
 
         // sun position
         gbc.gridy++;
-        PanelHelper.addLabelAndComponent(container, "Declination (+/-90)", declination,gbc);
+        PanelHelper.addLabelAndComponent(this, "Declination (+/-90)", declination,gbc);
         declination.addActionListener(e->{
             if(declination.getValue()>90) declination.setValue(90);
             if(declination.getValue()<-90) declination.setValue(-90);
@@ -75,7 +68,20 @@ public class EnvironmentPanel extends JPanel {
         });
         declination.setPreferredSize(new Dimension(100,100));
 
-        return container;
+        // sky texture
+        gbc.gridy++;
+        PanelHelper.addTextureField(this,"Texture",environment::getSkyTexture,environment::setSkyTexture,gbc);
+
+        // sky shape
+        gbc.gridy++;
+        JToggleButton isSphereButton = new JToggleButton("",environment.isSkyShapeIsSphere());
+        isSphereButton.addActionListener(e -> {
+            environment.setSkyShapeIsSphere(isSphereButton.isSelected());
+            isSphereButton.setText(environment.isSkyShapeIsSphere()?"sphere":"box");
+        });
+        isSphereButton.setText(environment.isSkyShapeIsSphere()?"sphere":"box");
+        PanelHelper.addLabelAndComponent(this,"Shape",isSphereButton,gbc);
+        gbc.gridy++;
     }
 
     private void setAmbientColor(Color color) {
