@@ -250,9 +250,10 @@ public class PanelHelper {
             textureChooserDialog.setSelectedItem(texture);
             int result = textureChooserDialog.run(panel);
             if(result == JFileChooser.APPROVE_OPTION) {
-                setDiffuseTexture.accept(textureChooserDialog.getSelectedItem());
-                setTextureButtonLabel(button,texture);
-                updateTexturePreview(sizeLabel,imgLabel,textureChooserDialog.getSelectedItem());
+                var newTexture = textureChooserDialog.getSelectedItem();
+                setDiffuseTexture.accept(newTexture);
+                setTextureButtonLabel(button,newTexture);
+                updateTexturePreview(sizeLabel,imgLabel,newTexture);
             }
         });
 
@@ -273,9 +274,20 @@ public class PanelHelper {
     }
 
     private static void setTextureButtonLabel(JButton button,TextureWithMetadata texture) {
-        button.setText((texture==null)
-                ? "..."
-                : texture.getSource().substring(texture.getSource().lastIndexOf(java.io.File.separatorChar)+1));
+        if(texture==null) {
+            button.setText("...");
+            button.setToolTipText(null);
+            return;
+        }
+        // truncate name if it is too long.
+        var name = texture.getSource();
+        button.setToolTipText(name);
+        if(name.contains(java.io.File.separator)) {
+            name = name.substring(name.lastIndexOf(java.io.File.separatorChar)+1);
+        } else if(name.contains("/")) {
+            name = name.substring(name.lastIndexOf('/')+1);
+        }
+        button.setText(name);
     }
 
     private static BufferedImage scaleImage(BufferedImage sourceImage) {
