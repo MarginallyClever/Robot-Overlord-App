@@ -1,7 +1,9 @@
 package com.marginallyclever.ro3.node.nodes.environment;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -22,12 +24,15 @@ public class Environment extends Node {
     public Color ambientColor = new Color(0x20,0x20,0x20,255);
     private double declination = 0;  // degrees, +/-90
     private double timeOfDay = 12;  // 0-24
+    private TextureWithMetadata skyTexture;
+    private boolean skyShapeIsSphere = false;
 
     public Environment() {
-    super("Environment");
-  }
+        super("Environment");
+        skyTexture = Registry.textureFactory.load("/com/marginallyclever/ro3/node/nodes/environment/skybox.png");
+    }
 
-  public Environment(String name) {
+    public Environment(String name) {
     super(name);
   }
 
@@ -39,6 +44,8 @@ public class Environment extends Node {
         json.put("sunlightColor", sunlightColor.getRGB());
         json.put("sunlightStrength", sunlightStrength);
         json.put("ambientColor", ambientColor.getRGB());
+        json.put("skyTexture", skyTexture.getSource());
+        json.put("skyShapeIsSphere", skyShapeIsSphere);
         return json;
     }
 
@@ -51,6 +58,8 @@ public class Environment extends Node {
         sunlightStrength = from.optDouble("sunlightStrength", sunlightStrength);
         ambientColor = new Color(from.optInt("ambientColor", ambientColor.getRGB()));
         sunlightSource.set(calculateSunPosition());
+        skyTexture = Registry.textureFactory.load(from.optString("skyTexture"));
+        skyShapeIsSphere = from.optBoolean("skyShapeIsSphere", skyShapeIsSphere);
     }
 
     public Color getSunlightColor() {
@@ -127,5 +136,24 @@ public class Environment extends Node {
     @Override
     public Icon getIcon() {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/environment/icons8-environment-16.png")));
+    }
+
+    public TextureWithMetadata getSkyTexture() {
+        return skyTexture;
+    }
+
+    public void setSkyTexture(TextureWithMetadata skyTextureSource) {
+        this.skyTexture = skyTextureSource;
+        // TODO find the DrawBackground render pass and update the texture
+    }
+
+    public boolean isSkyShapeIsSphere() {
+        return skyShapeIsSphere;
+    }
+
+    public void setSkyShapeIsSphere(boolean skyShapeIsSphere) {
+        this.skyShapeIsSphere = skyShapeIsSphere;
+        // TODO find the DrawBackground render pass and update the mesh
+
     }
 }
