@@ -17,8 +17,8 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          java-version: '17'  # Specify the Java version you need
           distribution: 'temurin'
+          java-version: '22'
 
       # Step 3: Build and generate Javadoc
       - name: Build project and generate Javadoc
