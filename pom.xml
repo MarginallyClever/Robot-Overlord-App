@@ -69,24 +69,23 @@
 
 	<repositories>
 		<repository>
-			<id>jitpack.io</id>
-			<url>https://jitpack.io</url>
-		</repository>
-		<repository>
-			<id>my-local-repo</id>
-			<url>file://${project.basedir}/java/local-maven-repo</url>
-		</repository>
-		<repository>
-			<id>jogamp-remote</id>
-			<name>jogamp test mirror</name>
-			<url>https://www.jogamp.org/deployment/maven/</url>
-			<layout>default</layout>
+			<id>jogamp</id>
+			<name>JogAmp Repository</name>
+			<url>https://jogamp.org/deployment/maven/</url>
 		</repository>
 		<repository>
 			<id>maven_central</id>
 			<name>Maven Central</name>
 			<url>https://repo.maven.apache.org/maven2/</url>
+		</repository>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
 		</repository><!--
+		<repository>
+			<id>my-local-repo</id>
+			<url>file://${project.basedir}/java/local-maven-repo</url>
+		</repository>
 		<repository>
 			<id>snapshots-repo</id>
 			<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
@@ -262,7 +261,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<configuration>
-					<ignoreNonCompile>${maven-dependency-plugin.ignoreNonCompile}</ignoreNonCompile>
+					<ignoreNonCompile>true</ignoreNonCompile>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -353,18 +352,6 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.junit</groupId>
-				<artifactId>junit-bom</artifactId>
-				<version>5.9.2</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
@@ -583,8 +570,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<minimum.maven.version>3.8.1</minimum.maven.version>
-		<minimum.java.version>21</minimum.java.version>
-		<maven-dependency-plugin.ignoreNonCompile>true</maven-dependency-plugin.ignoreNonCompile>
+		<minimum.java.version>22</minimum.java.version>
 		<maven.compiler.source>${minimum.java.version}</maven.compiler.source>
 		<maven.compiler.target>${minimum.java.version}</maven.compiler.target>
 		<maven.compiler.release>${minimum.java.version}</maven.compiler.release>
