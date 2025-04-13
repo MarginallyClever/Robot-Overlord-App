@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4.2.2
-    - uses: actions/setup-java@v4.7.0
+    - uses: actions/setup-java@v4.7.1
       with:
         distribution: 'temurin'
         java-version: '22'
@@ -27,13 +27,13 @@ jobs:
 
     - name: Generate JaCoCo Badge
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
-      uses: cicirello/jacoco-badge-generator@v2
+      uses: cicirello/jacoco-badge-generator@v2.11.0
       with:
         generate-branches-badge: true
 
     - name: Commit and push the badge (if it changed)
       if: github.ref != 'refs/heads/master' || github.ref == 'refs/heads/main'
-      uses: EndBug/add-and-commit@v9
+      uses: EndBug/add-and-commit@v9.1.4
       with:
         default_author: github_actions
         message: 'commit badge'
@@ -68,7 +68,7 @@ jobs:
 
     - name: Deploy universal release
       if: github.repository == 'MarginallyClever/Robot-Overlord-App' && github.ref == 'refs/heads/master'
-      uses: WebFreak001/deploy-nightly@v3.0.0
+      uses: WebFreak001/deploy-nightly@v3.2.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
       with:
@@ -80,7 +80,7 @@ jobs:
         max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
 
     - name: Upload artifact for package
-      uses: actions/upload-artifact@v4.3.0
+      uses: actions/upload-artifact@v4.6.2
       with:
         name: jar
         retention-days: 1
@@ -98,12 +98,12 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
     steps:
-    - uses: actions/setup-java@v4
+    - uses: actions/setup-java@v4.7.1
       with:
         distribution: 'temurin'
         java-version: '22'
 
-    - uses: actions/download-artifact@v4.1.7
+    - uses: actions/download-artifact@v4.2.1
       with:
         name: jar
 
@@ -126,7 +126,7 @@ jobs:
 
     - name: Deploy installation release
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
-      uses: WebFreak001/deploy-nightly@v3.0.0
+      uses: WebFreak001/deploy-nightly@v3.2.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
       with:
@@ -139,7 +139,7 @@ jobs:
 
     - name: Upload artifact for testing purpose
 #      if: github.repository == 'MarginallyClever/Robot-Overlord-App' || github.ref != 'refs/heads/master'
-      uses: actions/upload-artifact@v4.3.0
+      uses: actions/upload-artifact@v4.6.2
       with:
         name: ${{ env.BINARY }}
         retention-days: 2
