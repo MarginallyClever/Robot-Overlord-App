@@ -60,7 +60,7 @@ public class LoadScene extends AbstractAction {
         } else {
             int maxLength = 60;
             String shortName = filePath.length() > maxLength
-                    ? "..." + filePath.substring(filePath.length()-maxLength - 3)
+                    ? "..." + filePath.substring(Math.max(0,filePath.length()-maxLength))
                     : filePath;
             putValue(Action.NAME,shortName);
         }
