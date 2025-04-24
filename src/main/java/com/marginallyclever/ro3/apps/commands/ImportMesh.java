@@ -32,7 +32,7 @@ public class ImportMesh extends AbstractUndoableEdit {
         // do it!
         String newCWD = selectedFile.getParent() + File.separator;
         String oldCWD = PathHelper.getCurrentWorkingDirectory();
-        System.setProperty("user.dir",newCWD);
+        PathHelper.setCurrentWorkingDirectory(newCWD);
 
         meshInstance = new MeshInstance(getFilenameWithoutExtensionFromPath());
         meshInstance.setMesh(Registry.meshFactory.load(selectedFile.getAbsolutePath()));

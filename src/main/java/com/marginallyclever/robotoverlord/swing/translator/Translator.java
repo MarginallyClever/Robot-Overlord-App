@@ -1,5 +1,6 @@
 package com.marginallyclever.robotoverlord.swing.translator;
 
+import com.marginallyclever.convenience.helpers.PathHelper;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -226,7 +227,7 @@ public final class Translator {
 
 	private static Path getUserDirectory() {
 		logger.debug("Looking for user.dir");
-		Path rootPath = FileSystems.getDefault().getPath(System.getProperty("user.dir"));
+		Path rootPath = FileSystems.getDefault().getPath(PathHelper.getCurrentWorkingDirectory());
 		logger.debug("user.dir="+rootPath);
 		return rootPath;
 	}

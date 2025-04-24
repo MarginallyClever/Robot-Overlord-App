@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.apps.actions;
 
+import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.ro3.RO3Frame;
 import com.marginallyclever.ro3.RecentFilesMenu;
 import com.marginallyclever.ro3.Registry;
@@ -117,8 +118,8 @@ public class LoadScene extends AbstractAction {
 
         // remember the current working directory so we can restore it later
         String newCWD = selectedFile.getParent() + File.separator;
-        String oldCWD = System.getProperty("user.dir");
-        System.setProperty("user.dir",newCWD);
+        String oldCWD = PathHelper.getCurrentWorkingDirectory();
+        PathHelper.setCurrentWorkingDirectory(newCWD);
 
         try {
             String content = new String(Files.readAllBytes(Paths.get(selectedFile.getAbsolutePath())));
@@ -142,7 +143,7 @@ public class LoadScene extends AbstractAction {
         }
 
         // restore the current working directory
-        System.setProperty("user.dir",oldCWD);
+        PathHelper.setCurrentWorkingDirectory(oldCWD);
 
         if(saveScene!=null) {
             saveScene.setPath(selectedFile.getAbsolutePath());
