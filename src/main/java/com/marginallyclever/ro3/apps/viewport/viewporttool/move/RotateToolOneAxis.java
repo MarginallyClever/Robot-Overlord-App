@@ -397,7 +397,8 @@ public class RotateToolOneAxis implements ViewportTool {
         shaderProgram.set1i(gl,"useLighting",0);
         shaderProgram.set1i(gl,"useVertexColor",0);
         shaderProgram.set1i(gl,"useTexture",0);
-        float colorScale = cursorOverHandle ? 1:0.5f;
+        float colorScale = (cursorOverHandle ? 1 : 0.5f)/255.0f;
+
         Color c2 = new Color(color.getRed()*colorScale,color.getGreen()*colorScale,color.getBlue()*colorScale);
         shaderProgram.setColor(gl, "diffuseColor", c2);
 

@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.apps.commands;
 
+import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import org.json.JSONObject;
@@ -50,8 +51,8 @@ public class ImportScene extends AbstractUndoableEdit {
 
         // do it!
         String newCWD = selectedFile.getParent() + File.separator;
-        String oldCWD = System.getProperty("user.dir");
-        System.setProperty("user.dir",newCWD);
+        String oldCWD = PathHelper.getCurrentWorkingDirectory();
+        PathHelper.setCurrentWorkingDirectory(newCWD);
 
         try {
             String content = new String(Files.readAllBytes(Paths.get(selectedFile.getAbsolutePath())));
@@ -65,7 +66,7 @@ public class ImportScene extends AbstractUndoableEdit {
             logger.error("Error loading scene from JSON", e);
         }
 
-        System.setProperty("user.dir",oldCWD);
+        PathHelper.setCurrentWorkingDirectory(oldCWD);
         logger.info("done.");
     }
 

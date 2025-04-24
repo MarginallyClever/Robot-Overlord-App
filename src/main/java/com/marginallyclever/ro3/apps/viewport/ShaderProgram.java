@@ -160,6 +160,7 @@ public class ShaderProgram {
 
         return matrixBuffer;
     }
+
     /**
      * Set a matrix in the shader.  Java uses column-major order, where OpenGL and DirectX use row-major order.
      * Thus the thurd parameter is true to make the video card transpose the matrix from row-major to column-major.

@@ -65,10 +65,6 @@ public class FileHelper {
 	    }
 	}
 
-	public static String getUserDirectory() {
-		return System.getProperty("user.dir");
-	}
-
 	public static String getUserHome() {
 		return System.getProperty("user.home");
 	}
@@ -86,7 +82,7 @@ public class FileHelper {
 	public static String getAbsolutePathOrFilename(String filename) {
 		String absolutePath;
 		// look for the file relative to the current working directory.
-		File pathCheck = new File(System.getProperty("user.dir"),filename);
+		File pathCheck = new File(PathHelper.getCurrentWorkingDirectory(),filename);
 		if(pathCheck.exists()) absolutePath = pathCheck.getAbsolutePath();
 		else {
 			// if we don't find the file, maybe it's absolute.

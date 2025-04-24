@@ -4,6 +4,7 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
+import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.viewport.renderpass.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.move.RotateToolMulti;
@@ -32,7 +33,7 @@ import java.util.prefs.Preferences;
  * {@link Registry#getScene()} from the perspective of the active {@link Camera}.  Mouse actions in the panel
  * can be used to manipulate the active camera.
  */
-public class Viewport extends JPanel implements SceneChangeListener, MouseListener, MouseMotionListener, MouseWheelListener {
+public class Viewport extends App implements SceneChangeListener, MouseListener, MouseMotionListener, MouseWheelListener {
     private static final Logger logger = LoggerFactory.getLogger(Viewport.class);
     private Camera activeCamera;
     public ListWithEvents<RenderPass> renderPasses = new ListWithEvents<>();

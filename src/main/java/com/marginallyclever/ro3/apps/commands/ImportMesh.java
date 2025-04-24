@@ -1,5 +1,7 @@
 package com.marginallyclever.ro3.apps.commands;
 
+import com.marginallyclever.convenience.helpers.FileHelper;
+import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.slf4j.Logger;
@@ -29,13 +31,13 @@ public class ImportMesh extends AbstractUndoableEdit {
 
         // do it!
         String newCWD = selectedFile.getParent() + File.separator;
-        String oldCWD = System.getProperty("user.dir");
-        System.setProperty("user.dir",newCWD);
+        String oldCWD = PathHelper.getCurrentWorkingDirectory();
+        PathHelper.setCurrentWorkingDirectory(newCWD);
 
         meshInstance = new MeshInstance(getFilenameWithoutExtensionFromPath());
         meshInstance.setMesh(Registry.meshFactory.load(selectedFile.getAbsolutePath()));
 
-        System.setProperty("user.dir",oldCWD);
+        PathHelper.setCurrentWorkingDirectory(oldCWD);
         logger.info("done.");
 
         execute();
