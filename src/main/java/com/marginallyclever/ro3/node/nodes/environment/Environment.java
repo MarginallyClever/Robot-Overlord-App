@@ -44,7 +44,7 @@ public class Environment extends Node {
         json.put("sunlightColor", sunlightColor.getRGB());
         json.put("sunlightStrength", sunlightStrength);
         json.put("ambientColor", ambientColor.getRGB());
-        json.put("skyTexture", skyTexture.getSource());
+        if(skyTexture!=null) json.put("skyTexture", skyTexture.getSource());
         json.put("skyShapeIsSphere", skyShapeIsSphere);
         return json;
     }
@@ -58,7 +58,9 @@ public class Environment extends Node {
         sunlightStrength = from.optDouble("sunlightStrength", sunlightStrength);
         ambientColor = new Color(from.optInt("ambientColor", ambientColor.getRGB()));
         sunlightSource.set(calculateSunPosition());
-        skyTexture = Registry.textureFactory.load(from.optString("skyTexture"));
+        if(from.has("skyTexture")) {
+            skyTexture = Registry.textureFactory.load(from.optString("skyTexture"));
+        }
         skyShapeIsSphere = from.optBoolean("skyShapeIsSphere", skyShapeIsSphere);
     }
 
