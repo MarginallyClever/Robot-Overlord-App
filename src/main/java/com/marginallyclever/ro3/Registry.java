@@ -51,7 +51,7 @@ public class Registry {
 
     public static void start() {
         nodeFactory.clear();
-        nodeFactory.scan();
+        nodeFactory.scan("com.marginallyclever.ro3");
         NodeFactory.Category node = nodeFactory.getRoot();
         {
             NodeFactory.Category behavior = node.add("Behavior", null);
