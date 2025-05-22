@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - javadoc
+      - enable-javadoc-api
 
 jobs:
   publish:
