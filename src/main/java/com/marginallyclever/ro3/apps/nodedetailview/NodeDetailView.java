@@ -21,11 +21,22 @@ import java.util.Objects;
  */
 public class NodeDetailView extends App implements ItemAddedListener<Node>, ItemRemovedListener<Node>, SceneChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(NodeDetailView.class);
-    public static final String DOC_URL = "https://marginallyclever.github.io/Robot-Overlord-App/com.marginallyclever.robotoverlord/";
+    public static final String DOC_ROOT_URL = "https://marginallyclever.github.io/Robot-Overlord-App/";
+    public static String VERSION_NAME = NodeDetailView.class.getPackage().getImplementationVersion();
+    public static final String DOC_URL = DOC_ROOT_URL + VERSION_NAME;
     private final JScrollPane scroll = new JScrollPane();
     private final JToggleButton pinButton = new JToggleButton();
     private final JButton docButton = new JButton();
     private final ImageIcon bookIcon;
+
+    static {
+        String v = NodeDetailView.class.getPackage().getImplementationVersion();
+        if(v==null) {
+            // if the version is not set, use the value in the pom file.
+            v = NodeDetailView.class.getPackage().getSpecificationVersion();
+        }
+        VERSION_NAME = v; 
+    }
 
     public NodeDetailView() {
         super(new BorderLayout());
@@ -89,8 +100,8 @@ public class NodeDetailView extends App implements ItemAddedListener<Node>, Item
 
         if(nodeList.size()==1) {
             // add a documentation button that links to
-            var clazz = nodeList.get(0).getClass();
-            String url = DOC_URL + clazz.getName().replace('.', '/') + ".html";
+            var clazz = nodeList.getFirst().getClass();
+            String url = DOC_URL + (DOC_URL.endsWith("/")?"":"/") + clazz.getName().replace('.', '/') + ".html";
             var docAction = new BrowseURLAction(url);
             docAction.putValue(Action.NAME, "Docs");
             docAction.putValue(Action.SMALL_ICON, bookIcon);
