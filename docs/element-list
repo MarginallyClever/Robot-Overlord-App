@@ -15,6 +15,7 @@ com.marginallyclever.ro3
 com.marginallyclever.ro3.apps
 com.marginallyclever.ro3.apps.about
 com.marginallyclever.ro3.apps.actions
+com.marginallyclever.ro3.apps.brainview
 com.marginallyclever.ro3.apps.commands
 com.marginallyclever.ro3.apps.donatello
 com.marginallyclever.ro3.apps.editor
@@ -23,6 +24,7 @@ com.marginallyclever.ro3.apps.nodedetailview
 com.marginallyclever.ro3.apps.nodeselector
 com.marginallyclever.ro3.apps.nodetreeview
 com.marginallyclever.ro3.apps.ode4j
+com.marginallyclever.ro3.apps.pathtracer
 com.marginallyclever.ro3.apps.shared
 com.marginallyclever.ro3.apps.viewport
 com.marginallyclever.ro3.apps.viewport.renderpass
@@ -40,6 +42,7 @@ com.marginallyclever.ro3.node.nodes
 com.marginallyclever.ro3.node.nodes.behavior
 com.marginallyclever.ro3.node.nodes.behavior.actions
 com.marginallyclever.ro3.node.nodes.behavior.decorators
+com.marginallyclever.ro3.node.nodes.environment
 com.marginallyclever.ro3.node.nodes.limbplanner
 com.marginallyclever.ro3.node.nodes.limbsolver
 com.marginallyclever.ro3.node.nodes.marlinrobot
@@ -47,6 +50,8 @@ com.marginallyclever.ro3.node.nodes.marlinrobot.linearstewartplatform
 com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm
 com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation
 com.marginallyclever.ro3.node.nodes.networksession
+com.marginallyclever.ro3.node.nodes.neuralnetwork
+com.marginallyclever.ro3.node.nodes.neuralnetwork.leglimbic
 com.marginallyclever.ro3.node.nodes.odenode
 com.marginallyclever.ro3.node.nodes.odenode.brain
 com.marginallyclever.ro3.node.nodes.odenode.brain.v2
