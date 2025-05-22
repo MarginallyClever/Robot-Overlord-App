@@ -51,8 +51,8 @@ jobs:
           git checkout javadoc
           # Generate index.html listing all version folders
           echo '<!DOCTYPE html>
-          <html><head><meta charset="utf-8"><title>Donatello Documentation Versions</title></head>
-          <body><h1>Available Donatello Documentation Versions</h1><ul>' > index.html
+          <html><head><meta charset="utf-8"><title>Robot Overlord Documentation Versions</title></head>
+          <body><h1>Available Robot Overlord Documentation Versions</h1><ul>' > index.html
           for dir in $(find . -maxdepth 1 -type d ! -name '.' ! -name 'assets' ! -name 'static'); do
             version=$(basename "$dir")
             [[ "$version" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] || continue
