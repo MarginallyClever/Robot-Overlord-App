@@ -23,14 +23,11 @@ public class ViewportSettingsPanel extends App {
     private final JToggleButton originShift = new JToggleButton();
     private final JToggleButton verticalSync = new JToggleButton();
     private final JComboBox<Integer> fsaaSamples = new JComboBox<>(new Integer[]{1, 2, 4, 8});
-    private final Dial timeOfDay = new Dial();
-    private final Dial declination = new Dial();
-    private final JButton selectSunColor = new JButton();
-    private final JButton selectAmbientColor = new JButton();
 
     public ViewportSettingsPanel() {
         this(new Viewport());
     }
+
     public ViewportSettingsPanel(Viewport viewport) {
         super(new BorderLayout());
 
@@ -52,13 +49,6 @@ public class ViewportSettingsPanel extends App {
         setFSAASamples(viewport.getFsaaSamples());
 
         // this only allows parameters from one render pass.
-        // TODO: add other passes?
-        DrawMeshes meshes = getDrawMeshes();
-        if(meshes!=null) {
-            setSunColor(meshes.getSunlightColor());
-            timeOfDay.setValue(meshes.getTimeOfDay()-90);
-            declination.setValue(meshes.getDeclination());
-        }
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.weightx = 1.0;
@@ -95,29 +85,6 @@ public class ViewportSettingsPanel extends App {
         PanelHelper.addLabelAndComponent(container, "FSAA Samples", fsaaSamples,gbc);
         fsaaSamples.addActionListener(evt -> setFSAASamples((Integer) fsaaSamples.getSelectedItem()));
 
-        // TODO the lighting settings below here should be per-scene.
-        // ambient color
-        PanelHelper.addColorChooser(container,"Ambient",Color.DARK_GRAY,this::setAmbientColor,gbc);
-        // sun color
-        PanelHelper.addColorChooser(container,"Sun color",Color.WHITE,this::setSunColor,gbc);
-
-        gbc.weighty = 1.0;
-        // sun position
-        gbc.gridy++;
-        PanelHelper.addLabelAndComponent(container, "Time of day (24h)", timeOfDay,gbc);
-        timeOfDay.addActionListener(e->updateSunPosition());
-        timeOfDay.setPreferredSize(new Dimension(100,100));
-
-        // sun position
-        gbc.gridy++;
-        PanelHelper.addLabelAndComponent(container, "Declination (+/-90)", declination,gbc);
-        declination.addActionListener(e->{
-            if(declination.getValue()>90) declination.setValue(90);
-            if(declination.getValue()<-90) declination.setValue(-90);
-            updateSunPosition();
-        });
-        declination.setPreferredSize(new Dimension(100,100));
-
         return container;
     }
 
@@ -125,30 +92,6 @@ public class ViewportSettingsPanel extends App {
     public void removeNotify() {
         super.removeNotify();
         viewport.savePrefs();
-        var dm = getDrawMeshes();
-        if(dm!=null) dm.savePrefs();
-    }
-
-    private void setAmbientColor(Color color) {
-        var dm = getDrawMeshes();
-        if(dm==null) return;
-        dm.setAmbientColor(color);
-        selectAmbientColor.setBackground(color);
-    }
-
-    private void setSunColor(Color color) {
-        var dm = getDrawMeshes();
-        if(dm==null) return;
-        dm.setSunlightColor(color);
-        selectSunColor.setBackground(color);
-    }
-
-    private void updateSunPosition() {
-        DrawMeshes meshes = getDrawMeshes();
-        if(meshes==null) return;
-
-        meshes.setDeclination(declination.getValue());
-        meshes.setTimeOfDay(timeOfDay.getValue()+90);
     }
 
     private void setVerticalSyncLabel() {

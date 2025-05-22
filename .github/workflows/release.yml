@@ -13,7 +13,7 @@ jobs:
     - uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '17'
+        java-version: '22'
         cache: 'maven'
 
     # from https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
@@ -54,7 +54,7 @@ jobs:
     - uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '17'
+        java-version: '22'
 
     - uses: actions/download-artifact@v4.1.7
       with:
@@ -73,7 +73,7 @@ jobs:
         echo "BINARY=$BINARY" | tee -a $GITHUB_ENV &&
 
     - name: Deploy installation release
-      if: github.repository == 'MarginallyClever/Robot-Overlord-App' && github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions

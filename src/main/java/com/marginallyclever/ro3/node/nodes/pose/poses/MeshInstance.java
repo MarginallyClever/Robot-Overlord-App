@@ -83,7 +83,10 @@ public class MeshInstance extends Pose {
         RayHit localHit = mesh.intersect(localRay);
         if(localHit!=null && localHit.distance()<Double.MAX_VALUE) {
             Vector3d normal = transformNormalToWorldSpace(localHit.normal());
-            return new RayHit(this,localHit.distance(),normal);
+            Point3d hit = new Point3d(ray.getDirection());
+            hit.scale(localHit.distance());
+            hit.add(ray.getOrigin());
+            return new RayHit(this,localHit.distance(),normal,hit);
         } else {
             return null;
         }

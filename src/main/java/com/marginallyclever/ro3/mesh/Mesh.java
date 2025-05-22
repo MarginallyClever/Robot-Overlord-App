@@ -57,6 +57,8 @@ public class Mesh {
 
 	private final EventListenerList listeners = new EventListenerList();
 
+	private VertexProvider vertexProvider;
+
 	public Mesh() {
 		super();
 		boundingBox.setShape(this);
@@ -162,6 +164,42 @@ public class Mesh {
 		}
 
 		gl.glBindVertexArray(0);
+
+		createNewVertexProvider();
+	}
+
+	private void createNewVertexProvider() {
+		if (hasIndexes) {
+			vertexProvider = new VertexProvider() {
+				@Override
+				public Vector3d provideVertex(int index) {
+					return getVertex(indexArray.get(index));
+				}
+				@Override
+				public Vector3d provideNormal(int index) {
+					return getNormal(indexArray.get(index));
+				}
+				@Override
+				public int provideCount() {
+					return indexArray.size();
+				}
+			};
+		} else {
+			vertexProvider = new VertexProvider() {
+				@Override
+				public Vector3d provideVertex(int index) {
+					return getVertex(index);
+				}
+				@Override
+				public Vector3d provideNormal(int index) {
+					return getNormal(index);
+				}
+				@Override
+				public int provideCount() {
+					return getNumVertices();
+				}
+			};
+		}
 	}
 
 	private void checkBufferSizes() {
@@ -381,7 +419,7 @@ public class Mesh {
 
 	/**
 	 * Intersect a ray with this mesh.
-	 * @param ray The ray to intersect with.
+	 * @param ray The ray to intersect with, in local space.
 	 * @return The RayHit object containing the intersection point and normal, or null if no intersection.
 	 */
 	public RayHit intersect(Ray ray) {
@@ -393,40 +431,10 @@ public class Mesh {
 			return null;  // no hit
 		}
 
-		VertexProvider vp;
-		if (hasIndexes) {
-			vp = new VertexProvider() {
-				@Override
-				public Vector3d provideVertex(int index) {
-					return getVertex(indexArray.get(index));
-				}
-				@Override
-				public Vector3d provideNormal(int index) {
-					return getNormal(indexArray.get(index));
-				}
-				@Override
-				public int provideCount() {
-					return indexArray.size();
-				}
-			};
-		} else {
-			vp = new VertexProvider() {
-				@Override
-				public Vector3d provideVertex(int index) {
-					return getVertex(index);
-				}
-				@Override
-				public Vector3d provideNormal(int index) {
-					return getNormal(index);
-				}
-				@Override
-				public int provideCount() {
-					return getNumVertices();
-				}
-			};
+		if(vertexProvider==null) {
+			createNewVertexProvider();
 		}
-
-		return intersect(ray,vp);
+		return intersect(ray, vertexProvider);
 	}
 
 
@@ -437,7 +445,7 @@ public class Mesh {
 	 * @return null if no intersection, otherwise a RayHit object with the intersection point and normal.
 	 */
 	private RayHit intersect(Ray ray, VertexProvider provider) {
-		int a=0,b=0,c=0;
+		int a=0;
 
 		double nearest = Double.MAX_VALUE;
 		for(int i=0;i<provider.provideCount();i+=3) {
@@ -448,8 +456,6 @@ public class Mesh {
 			if(nearest > t) {
 				nearest = t;
 				a=i;
-				b=i+1;
-				c=i+2;
 			}
 		}
 
@@ -457,16 +463,21 @@ public class Mesh {
 			Vector3d normal;
 			if(hasNormals) {
 				normal =   provider.provideNormal(a);
-				normal.add(provider.provideNormal(b));
-				normal.add(provider.provideNormal(c));
+				normal.add(provider.provideNormal(a+1));
+				normal.add(provider.provideNormal(a+2));
+				// average of normals
 				normal.normalize();
 			} else {
 				Vector3d v0 = provider.provideVertex(a);
-				Vector3d v1 = provider.provideVertex(b);
-				Vector3d v2 = provider.provideVertex(c);
+				Vector3d v1 = provider.provideVertex(a+1);
+				Vector3d v2 = provider.provideVertex(a+2);
+				// normal from face
 				normal = IntersectionHelper.buildNormalFrom3Points(v0, v1, v2);
 			}
-			return new RayHit(null,nearest,normal);
+			Point3d p = new Point3d(ray.getDirection());
+			p.scale(nearest);
+			p.add(ray.getOrigin());
+			return new RayHit(null,nearest,normal,p);
 		}
 		return null;
 	}
@@ -503,5 +514,48 @@ public class Mesh {
 			if(p==null) p = new PropertyChangeEvent(this,"mesh",null,this);
 			v.propertyChange(p);
 		}
+	}
+
+	/**
+	 * <p>Assumes that all triangles are outward facing and part of a closed, convex, non-intersecting mesh.</p>
+	 * <p>This is a very rough approximation.  The most correct way to do this is to find the area of every triangle,
+	 * then pick a random triangle weighted by area, then pick a random point on that triangle.</p>
+	 * <p>The actual algorithm picks a random triangle, then a random point inside that triangle.</p>
+	 * @return a random point on the surface of this mesh.
+	 */
+    public Point3d getRandomPointOnSurface() {
+		int triangle = (int)(Math.random()*getNumTriangles());
+		return getRandomPointOnTriangle(triangle);
+    }
+
+	public Point3d getRandomPointOnTriangle(int triangleIndex) {
+		Vector3d v0 = getVertex(triangleIndex*3);
+		Vector3d v1 = getVertex(triangleIndex*3+1);
+		Vector3d v2 = getVertex(triangleIndex*3+2);
+		double a = Math.random();
+		double b = Math.random();
+		if(a+b>1) {
+			a=1-a;
+			b=1-b;
+		}
+		// this is a weighted average of the three points.
+		double x = v0.x + a * (v1.x - v0.x) + b * (v2.x - v0.x);
+		double y = v0.y + a * (v1.y - v0.y) + b * (v2.y - v0.y);
+		double z = v0.z + a * (v1.z - v0.z) + b * (v2.z - v0.z);
+
+		return new Point3d(x,y,z);
+	}
+
+	public double getTriangleArea(int triangleIndex) {
+		Vector3d v0 = getVertex(triangleIndex*3);
+		Vector3d v1 = getVertex(triangleIndex*3+1);
+		Vector3d v2 = getVertex(triangleIndex*3+2);
+		var v20 = new Vector3d(v2);
+		v20.sub(v0);
+		var v10 = new Vector3d(v1);
+		v10.sub(v0);
+		var cross = new Vector3d();
+		cross.cross(v20,v10);
+		return cross.length()/2;
 	}
 }

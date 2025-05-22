@@ -32,9 +32,12 @@ public class Material extends Node {
     private Color diffuseColor = new Color(255,255,255);
     private Color specularColor = new Color(255,255,255);
     private Color emissionColor = new Color(0,0,0);
+    private double emissionStrength = 0.0;
     private int shininess = 10;
     private boolean isLit = true;
     private double specularStrength = 0.5;
+    private double ior = 1.0;  // index of refraction
+    private double reflectivity = 0.0;  // 0...1
 
     public Material() {
         this("Material");
@@ -83,9 +86,12 @@ public class Material extends Node {
         json.put("diffuseColor", diffuseColor.getRGB());
         json.put("specularColor", specularColor.getRGB());
         json.put("emissionColor", emissionColor.getRGB());
+        json.put("emissionStrength", emissionStrength);
         json.put("shininess", shininess);
         json.put("specularStrength", specularStrength);
         json.put("isLit", isLit);
+        json.put("ior", ior);
+        json.put("reflectivity", reflectivity);
         return json;
     }
 
@@ -98,9 +104,12 @@ public class Material extends Node {
         if(from.has("diffuseColor")) diffuseColor = new Color(from.getInt("diffuseColor"),true);
         if(from.has("specularColor")) specularColor = new Color(from.getInt("specularColor"),true);
         if(from.has("emissionColor")) emissionColor = new Color(from.getInt("emissionColor"),true);
+        if(from.has("emissionStrength")) emissionStrength = from.getDouble("emissionStrength");
         if(from.has("shininess")) shininess = from.getInt("shininess");
         if(from.has("specularStrength")) specularStrength = from.getDouble("specularStrength");
         if(from.has("isLit")) isLit = from.getBoolean("isLit");
+        if(from.has("ior")) ior = from.getDouble("ior");
+        if(from.has("reflectivity")) reflectivity = from.getDouble("reflectivity");
     }
 
     public Color getDiffuseColor() {
@@ -127,10 +136,27 @@ public class Material extends Node {
         emissionColor = color;
     }
 
+    /**
+     * @return the emission strength of the material.  &gt;=0
+     */
+    public double getEmissionStrength() {
+        return emissionStrength;
+    }
+
+    /**
+     * @param emissionStrength the emission strength of the material.  &gt;=0
+     */
+    public void setEmissionStrength(double emissionStrength) {
+        this.emissionStrength = emissionStrength;
+    }
+
     public void setShininess(int arg0) {
         shininess = Math.max(arg0, 0);
     }
 
+    /**
+     * @return the shininess of the material 0...128
+     */
     public int getShininess() {
         return shininess;
     }
@@ -154,5 +180,35 @@ public class Material extends Node {
 
     public double getSpecularStrength() {
         return specularStrength;
+    }
+
+    /**
+     * Set the index of refraction.
+     * @param ior the index of refraction
+     */
+    public void setIOR(double ior) {
+        this.ior = ior;
+    }
+
+    /**
+     * @return the index of refraction.
+     */
+    public double getIOR() {
+        return ior;
+    }
+
+    /**
+     * Set the reflectivity of the material.
+     * @param reflectivity 0...1.0
+     */
+    public void setReflectivity(double reflectivity) {
+        this.reflectivity = reflectivity;
+    }
+
+    /**
+     * @return the reflectivity of the material.
+     */
+    public double getReflectivity() {
+        return reflectivity;
     }
 }
