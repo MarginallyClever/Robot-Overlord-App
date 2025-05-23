@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.mesh.load;
 
 import com.marginallyclever.convenience.helpers.FileHelper;
+import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.ro3.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,9 +47,12 @@ public class LoadOBJ implements MeshLoader {
 					// material library
 
 					// get the path from model.getSourceName() aka remove the filename at the end.
-					String path = model.getSourceName();
-					path = path.substring(0,path.lastIndexOf(File.separator)+1) + line.substring(7);
+					String fullName = model.getSourceName();
+					String path = fullName.substring(0,fullName.lastIndexOf(File.separator)+1) + line.substring(7);
+					String oldPath = PathHelper.getCurrentWorkingDirectory();
+					PathHelper.setCurrentWorkingDirectory(path);
 					materials.putAll(loadMaterialLibrary(path));
+					PathHelper.setCurrentWorkingDirectory(oldPath);
 				} catch(Exception e) {
 					logger.warn("Error loading material: {}",e.getMessage());
 				}

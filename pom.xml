@@ -166,7 +166,6 @@
 					<source>${minimum.java.version}</source>
 					<show>public</show>
 					<excludePackageNames>com.marginallyclever.robotoverlord.*</excludePackageNames>
-					<reportOutputDirectory>${project.basedir}/docs</reportOutputDirectory>
 					<destDir>.</destDir>
 				</configuration>
 			</plugin>

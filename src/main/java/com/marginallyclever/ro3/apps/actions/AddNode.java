@@ -17,7 +17,7 @@ import java.util.function.Supplier;
  * {@link com.marginallyclever.ro3.apps.commands.AddNode} command to add the new {@link Node}.
  */
 public class AddNode extends AbstractAction {
-    private static final NodeFactoryPanel nfd = new NodeFactoryPanel(Registry.nodeFactory);
+    private static final NodeFactoryPanel nodeFactoryPanel = new NodeFactoryPanel(Registry.nodeFactory);
 
     public AddNode() {
         super();
@@ -40,11 +40,11 @@ public class AddNode extends AbstractAction {
 
     private Supplier<Node> getFactoryFromUser(Component source) {
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
-        int result = JOptionPane.showConfirmDialog(parentFrame,nfd,"Create Node",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
+        int result = JOptionPane.showConfirmDialog(parentFrame, nodeFactoryPanel,"Create Node",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
         if(result != JOptionPane.OK_OPTION) return null;  // cancelled
-        if(nfd.getResult() != JOptionPane.OK_OPTION) return null;  // cancelled
+        if(nodeFactoryPanel.getResult() != JOptionPane.OK_OPTION) return null;  // cancelled
 
-        String type = nfd.getSelectedNode();
+        String type = nodeFactoryPanel.getSelectedNode();
         if(type.isEmpty()) return null;  // cancelled?
 
         Supplier<Node> factory = Registry.nodeFactory.getSupplierFor(type);

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -78,12 +79,11 @@ public class NodeFactory {
         List<Category> toCheck = new ArrayList<>();
         toCheck.add(root);
         while(!toCheck.isEmpty()) {
-            Category current = toCheck.remove(0);
-            toCheck.addAll(current.children);
-
+            Category current = toCheck.removeFirst();
             if(current.name.equals(identifier)) {
                 return current.supplier;
             }
+            toCheck.addAll(current.children);
         }
 
         return null;
@@ -101,15 +101,16 @@ public class NodeFactory {
     }
 
     /**
-     * Scan all classes in the package com.marginallyclever.ro3.node for classes that extend {@link Node}.
+     * Scan all classes in the package for classes that extend {@link Node}.
+     * @param packageName the package to scan.
      */
-    public void scan() {
+    public void scan(String packageName) {
         // Create a new instance of Reflections
-        Reflections reflections = new Reflections("com.marginallyclever.ro3");
+        Reflections reflections = new Reflections(packageName);
         // Get all classes that extend T
         Set<Class<? extends Node>> found = reflections.getSubTypesOf(Node.class);
         // log it
-        found.stream().sorted((a,b)->a.getName().compareTo(b.getName())).forEach((clazz)->{
+        found.stream().sorted(Comparator.comparing(Class::getName)).forEach((clazz)->{
             logger.info("Found " + clazz.getName());
         });
     }

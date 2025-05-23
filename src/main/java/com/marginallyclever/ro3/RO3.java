@@ -15,27 +15,24 @@ public class RO3 {
 
     public static void main(String[] args) {
         Registry.start();
-        setLookAndFeel();
 
-        if(!GraphicsEnvironment.isHeadless()) {
-            SwingUtilities.invokeLater(() -> (new RO3Frame()).setVisible(true));
+        if(GraphicsEnvironment.isHeadless()) {
+            System.out.println("This app must be run with a display, keyboard, and mouse.");
         }
+
+        setLookAndFeel();
+        SwingUtilities.invokeLater(() -> (new RO3Frame()).setVisible(true));
     }
 
     public static void setLookAndFeel() {
         logger.info("Setting look and feel...");
-        FlatLaf.registerCustomDefaultsSource( "com.marginallyclever.ro3" );
-        //FlatLaf.registerCustomDefaultsSource("docking");
+        FlatLaf.registerCustomDefaultsSource( RO3.class.getPackageName() );
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
             // option 2: UIManager.setLookAndFeel(new FlatDarkLaf());
-        } catch (Exception ignored) {
-            logger.warn("failed to set flat look and feel. falling back to default native look and feel");
-            try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Exception ex) {
-                logger.warn("failed to set native look and feel.", ex);
-            }
+            // option 3: UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ex) {
+            logger.warn("failed to set native look and feel.", ex);
         }
     }
 }
