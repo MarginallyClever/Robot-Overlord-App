@@ -14,11 +14,6 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      # Step 0: Get project version
-      - name: Get project version
-        id: get_version
-        run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
-
       # Step 1: Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
@@ -29,6 +24,11 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '22'
+
+      # Step 0: Get project version
+      - name: Get project version
+        id: get_version
+        run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
 
       # Step 3: Build and generate Javadoc
       - name: Build project and generate Javadoc
