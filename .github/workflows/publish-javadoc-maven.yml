@@ -5,6 +5,10 @@ on:
     branches:
       - javadoc
       - enable-javadoc-api
+  workflow_run:
+    workflows: ["Java CI with Maven"]
+    types:
+      - completed
 
 jobs:
   publish:
