@@ -6,7 +6,7 @@
 
 	<groupId>com.marginallyclever</groupId>
 	<artifactId>RobotOverlord</artifactId>
-	<version>3.120.0</version>
+	<version>3.120.1</version>
 	<name>Robot Overlord</name>
 	<description>A friendly 3D user interface for controlling robots.</description>
 	<url>https://www.marginallyclever.com/</url>
@@ -159,6 +159,7 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.6.3</version>
 				<configuration>
@@ -166,7 +167,6 @@
 					<source>${minimum.java.version}</source>
 					<show>public</show>
 					<excludePackageNames>com.marginallyclever.robotoverlord.*</excludePackageNames>
-					<reportOutputDirectory>${project.basedir}/docs</reportOutputDirectory>
 					<destDir>.</destDir>
 				</configuration>
 			</plugin>

@@ -346,7 +346,6 @@ public class Node {
      * @return the JSON object.
      */
     public JSONObject toJSON() {
-        //logger.debug("Saving {}.",getAbsolutePath());
         JSONObject json = new JSONObject();
         json.put("type",getClass().getSimpleName());
         json.put("name",name);
@@ -404,7 +403,7 @@ public class Node {
         List<Node> toScan = new ArrayList<>();
         toScan.add(this);
         while(!toScan.isEmpty()) {
-            Node n = toScan.remove(0);
+            Node n = toScan.removeFirst();
             n.nodeID = UUID.randomUUID();
             toScan.addAll(n.getChildren());
         }
@@ -421,9 +420,9 @@ public class Node {
         List<Node> toScan = new ArrayList<>();
         toScan.add(this);
         while(!toScan.isEmpty()) {
-            Node node = toScan.remove(0);
+            Node node = toScan.removeFirst();
             if(type.isInstance(node)) {
-                if(node.getUniqueID().toString().equals(nodeID)) {
+                if(node.getUniqueID().equals(nodeID)) {
                     return type.cast(node);
                 }
             }
@@ -454,11 +453,9 @@ public class Node {
             String part = parts[i];
             if(part.equals("..")) {
                 node = node.getParent();
-            } else if(part.equals(".")) {
-                // do nothing
-            } else {
+            } else if(!part.equals(".")) {
                 node = node.findChild(part);
-            }
+            } // else if part.equals(".") do nothing.
             if(node == null) {
                 return null;
             }

@@ -148,7 +148,6 @@ public class Mesh {
 
 		checkBufferSizes();
 
-		int attribIndex=0;
 		setupArray(gl,0,3,numVertexes,vertexArray);
 		if(hasNormals ) setupArray(gl,1,3,numVertexes,normalArray );
 		if(hasColors  ) setupArray(gl,2,4,numVertexes,colorArray  );

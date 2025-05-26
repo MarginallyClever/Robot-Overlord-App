@@ -8,6 +8,7 @@ env:
 
 on:
   push:
+    branches: [ main, master, dev ]
   pull_request:
 
 jobs:
