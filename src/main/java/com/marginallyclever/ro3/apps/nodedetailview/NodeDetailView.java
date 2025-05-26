@@ -1,5 +1,7 @@
 package com.marginallyclever.ro3.apps.nodedetailview;
 
+import com.marginallyclever.ro3.RO3;
+import com.marginallyclever.ro3.RO3Frame;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.apps.App;
@@ -23,7 +25,7 @@ public class NodeDetailView extends App implements ItemAddedListener<Node>, Item
     private static final Logger logger = LoggerFactory.getLogger(NodeDetailView.class);
     public static final String DOC_ROOT_URL = "https://marginallyclever.github.io/Robot-Overlord-App/";
     public static String VERSION_NAME = NodeDetailView.class.getPackage().getImplementationVersion();
-    public static final String DOC_URL = DOC_ROOT_URL + VERSION_NAME;
+    public static String DOC_URL = DOC_ROOT_URL + VERSION_NAME;
     private final JScrollPane scroll = new JScrollPane();
     private final JToggleButton pinButton = new JToggleButton();
     private final JButton docButton = new JButton();
@@ -33,9 +35,10 @@ public class NodeDetailView extends App implements ItemAddedListener<Node>, Item
         String v = NodeDetailView.class.getPackage().getImplementationVersion();
         if(v==null) {
             // if the version is not set, use the value in the pom file.
-            v = NodeDetailView.class.getPackage().getSpecificationVersion();
+            v = RO3Frame.VERSION;
         }
-        VERSION_NAME = v; 
+        VERSION_NAME = v;
+        DOC_URL = DOC_ROOT_URL + VERSION_NAME;
     }
 
     public NodeDetailView() {
@@ -101,7 +104,11 @@ public class NodeDetailView extends App implements ItemAddedListener<Node>, Item
         if(nodeList.size()==1) {
             // add a documentation button that links to
             var clazz = nodeList.getFirst().getClass();
-            String url = DOC_URL + (DOC_URL.endsWith("/")?"":"/") + clazz.getName().replace('.', '/') + ".html";
+            String moduleName = clazz.getModule().getName();
+            String className = clazz.getName();
+            String url = DOC_URL + (DOC_URL.endsWith("/")?"":"/")
+                    + moduleName + "/"
+                    + className.replace('.', '/') + ".html";
             var docAction = new BrowseURLAction(url);
             docAction.putValue(Action.NAME, "Docs");
             docAction.putValue(Action.SMALL_ICON, bookIcon);
