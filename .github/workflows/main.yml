@@ -28,7 +28,7 @@ jobs:
 
     - name: Generate JaCoCo Badge
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
-      uses: cicirello/jacoco-badge-generator@v2.11.0
+      uses: cicirello/jacoco-badge-generator@v2.12.0
       with:
         generate-branches-badge: true
 
