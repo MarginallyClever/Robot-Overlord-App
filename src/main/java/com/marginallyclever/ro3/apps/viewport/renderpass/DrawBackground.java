@@ -13,6 +13,7 @@ import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
+import com.marginallyclever.ro3.node.nodes.environment.Environment;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.slf4j.Logger;
@@ -30,22 +31,19 @@ public class DrawBackground extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawBackground.class);
     private final ColorRGB eraseColor = new ColorRGB(64,64,128);
     private ShaderProgram shader;
-    private final Mesh mesh;
-    private final TextureWithMetadata texture;
+    private Mesh mesh;
+    private TextureWithMetadata skyTexture;
 
     public DrawBackground() {
         super("Erase/Background");
 
-        //mesh = new Mesh();
         //buildBox();
         //texture = Registry.textureFactory.load("/images/skybox.png");
 
-        mesh = ProceduralMeshFactory.createMesh("Sphere");
-        ((Sphere)mesh).radius=100;
-        ((Sphere)mesh).updateModel();
-        texture = Registry.textureFactory.load("/com/marginallyclever/ro3/node/nodes/pose/poses/space/milkyway_2020_4k_print.jpg");
+        buildSphere();
+        skyTexture = Registry.textureFactory.load("/com/marginallyclever/ro3/node/nodes/pose/poses/space/milkyway_2020_4k_print.jpg");
 
-        texture.setDoNotExport(true);
+        skyTexture.setDoNotExport(true);
     }
 
     /**
@@ -61,6 +59,7 @@ public class DrawBackground extends AbstractRenderPass {
      * +---+---+---+---+</pre>
      */
     private void buildBox() {
+        mesh = new Mesh();
         mesh.setRenderStyle(GL3.GL_QUADS);
 
         float adj = 1f/256f;
@@ -105,6 +104,13 @@ public class DrawBackground extends AbstractRenderPass {
         mesh.addTexCoord(a,f);  mesh.addVertex(-v, -v, -v);
     }
 
+    private void buildSphere() {
+        mesh = ProceduralMeshFactory.createMesh("Sphere");
+        assert mesh instanceof Sphere;
+        ((Sphere)mesh).radius = 100;
+        ((Sphere)mesh).updateModel();
+    }
+
     /**
      * @return the localized name
      */
@@ -130,7 +136,7 @@ public class DrawBackground extends AbstractRenderPass {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         mesh.unload(gl3);
         shader.delete(gl3);
-        texture.unload();
+        skyTexture.unload();
     }
 
     @Override
@@ -146,17 +152,39 @@ public class DrawBackground extends AbstractRenderPass {
 
         gl3.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT | GL.GL_STENCIL_BUFFER_BIT);
 
+        var env = Registry.getScene().findFirstChild(Environment.class);
+        if(env==null) return;
+        checkForEnvironmentChanges(env);
+
+        if(skyTexture == null || mesh == null) return;
+
         Camera camera = viewport.getActiveCamera();
         if (camera != null) {
             gl3.glDisable(GL3.GL_DEPTH_TEST);
-            drawSkybox(gl3, camera);
+            drawSkyMesh(gl3, camera);
             gl3.glEnable(GL3.GL_DEPTH_TEST);
         }
     }
 
-    private void drawSkybox(GL3 gl3, Camera camera) {
-        if(texture==null) return;
+    private void checkForEnvironmentChanges(Environment env) {
+        if(env.isSkyShapeIsSphere() != mesh instanceof Sphere) {
+            if(env.isSkyShapeIsSphere()) {
+                buildSphere();
+            } else {
+                buildBox();
+            }
+        }
+        if(env.getSkyTexture() != skyTexture) {
+            skyTexture = env.getSkyTexture();
+        }
+    }
 
+    /**
+     * Assumes camera, texture, and mesh are not null.
+     * @param gl3 the OpenGL context
+     * @param camera the camera
+     */
+    private void drawSkyMesh(GL3 gl3, Camera camera) {
         shader.use(gl3);
         Matrix4d inverseCamera = camera.getWorld();
         inverseCamera.setTranslation(new Vector3d(0,0,0));
@@ -176,7 +204,7 @@ public class DrawBackground extends AbstractRenderPass {
         shader.set1i(gl3,"useTexture",1);
 
         shader.setMatrix4d(gl3,"modelMatrix",MatrixHelper.createIdentityMatrix4());
-        texture.use(shader);
+        skyTexture.use(shader);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_S, GL3.GL_CLAMP_TO_EDGE);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_T, GL3.GL_CLAMP_TO_EDGE);
         gl3.glDisable(GL3.GL_CULL_FACE);
