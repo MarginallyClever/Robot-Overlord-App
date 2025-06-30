@@ -205,7 +205,7 @@ public class Camera extends Pose {
 
     public Matrix4d getPerspectiveFrustum(int width,int height) {
         double aspect = (double)width / (double)height;
-        return MatrixHelper.perspectiveMatrix4d(this.getFovY(),aspect,getNearZ(),getFarZ());
+        return MatrixHelper.getPerspectiveMatrix4d(this.getFovY(),aspect,getNearZ(),getFarZ());
     }
 
     /**

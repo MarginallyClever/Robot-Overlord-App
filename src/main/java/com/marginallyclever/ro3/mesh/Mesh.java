@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.mesh;
 
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
@@ -219,7 +218,7 @@ public class Mesh {
 
 	private void bindArray(GL3 gl, int attribIndex, int size) {
 		gl.glEnableVertexAttribArray(attribIndex);
-		gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[attribIndex]);
+		gl.glBindBuffer(GL3.GL_ARRAY_BUFFER, VBO[attribIndex]);
 		gl.glVertexAttribPointer(attribIndex,size,GL3.GL_FLOAT,false,0,0);
 		OpenGLHelper.checkGLError(gl,logger);
 	}
