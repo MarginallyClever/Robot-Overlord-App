@@ -1,14 +1,21 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.pathtracer.ColorDouble;
+import com.marginallyclever.ro3.apps.pathtracer.PathTracerHelper;
+import com.marginallyclever.ro3.apps.pathtracer.ScatterRecord;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.raypicking.RayHit;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.json.JSONObject;
 
 import javax.swing.*;
+import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 /**
  * <p>{@link Material} contains properties for rendering a surface.  The first use case is to apply a texture to a
@@ -150,6 +157,10 @@ public class Material extends Node {
         this.emissionStrength = emissionStrength;
     }
 
+    public boolean isEmissive() {
+        return emissionStrength>0 && (emissionColor.getRed()>0 || emissionColor.getGreen()>0 || emissionColor.getBlue()>0);
+    }
+
     public void setShininess(int arg0) {
         shininess = Math.max(arg0, 0);
     }
@@ -210,5 +221,30 @@ public class Material extends Node {
      */
     public double getReflectivity() {
         return reflectivity;
+    }
+
+    public ColorDouble BRDF(RayHit rayHit,Vector3d in, Vector3d out) {
+        if(rayHit.normal().dot(in)<=0) return new ColorDouble(0,0,0);
+
+        // lambertian diffuse BRDF
+        ColorDouble a = new ColorDouble(getDiffuseColor());
+        a.scale(1.0/ Math.PI); // diffuse BRDF
+        return a;
+    }
+
+    public double getProbableDistributionFunction(RayHit rayHit, Vector3d in, Vector3d out) {
+        double cosTheta = rayHit.normal().dot(in);
+        if( cosTheta <= 0 ) return 0.0;
+
+        return cosTheta / Math.PI;
+    }
+
+    public ScatterRecord scatter(Ray ray, RayHit hitRecord, Random random) {
+        Vector3d newDirection = PathTracerHelper.getRandomCosineWeightedHemisphere(random, hitRecord.normal());
+        double p = 1.0/ 2.0 * Math.PI; // cosine weighted hemisphere
+        double cosTheta = hitRecord.normal().dot(newDirection);
+        ColorDouble attenuation = BRDF(hitRecord,newDirection,ray.direction());
+        attenuation.scale(cosTheta);
+        return new ScatterRecord(newDirection,p,attenuation);
     }
 }

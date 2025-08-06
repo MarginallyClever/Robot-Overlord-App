@@ -11,7 +11,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 /**
- * <p>PathTracerPanel performs basic rendering of a scene using path tracing.</p>
+ * <p>{@link PathTracerPanel} controls a {@link PathTracer} and displays the results.</p>
  * <p>Special thanks to <a href='https://raytracing.github.io/books/RayTracingInOneWeekend.html'>Ray Tracing in One Weekend</a></p>
  */
 public class PathTracerPanel extends JPanel implements SceneChangeListener, ProgressListener {
@@ -97,6 +97,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener, Prog
                 pathTracer.setActiveCamera(getActiveCamera());
                 pathTracer.setSize(getWidth(),getHeight());
                 centerLabel.setIcon(new ImageIcon(pathTracer.getImage()));
+                //centerLabel.setIcon(new ImageIcon(pathTracer.getDepthMap()));
                 progressBar.setValue(0);
                 runTime.setText(String.format("%02d:%02d:%02d:%03d",0,0,0,0));
                 pathTracer.render();

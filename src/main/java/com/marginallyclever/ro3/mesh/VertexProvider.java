@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.mesh;
 
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 /**
@@ -12,7 +13,7 @@ public interface VertexProvider {
      * @param index the index of the vertex to provide
      * @return the vertex at the given index
      */
-    Vector3d provideVertex(int index);
+    Point3d provideVertex(int index);
 
     /**
      * Provides a normal at the given index.

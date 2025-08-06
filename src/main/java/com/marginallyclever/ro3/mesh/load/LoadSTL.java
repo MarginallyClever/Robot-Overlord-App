@@ -58,37 +58,27 @@ public class LoadSTL implements MeshLoader {
 	    ByteBuffer dataBuffer = ByteBuffer.wrap(arrayNumber);
 	    dataBuffer.order(ByteOrder.LITTLE_ENDIAN);
 	    int numTriangles = dataBuffer.getInt();
+
 	    int byteCount = 50;
 	    byte[] tempInfo = new byte[byteCount*numTriangles];     // Each face has 50 bytes of data
         inputStream.read(tempInfo);                         // We get the rest of the file
         dataBuffer = ByteBuffer.wrap(tempInfo);    // Now we have all the data in this ByteBuffer
         dataBuffer.order(ByteOrder.LITTLE_ENDIAN);
-        		
-		float x,y,z;
+
 		for(j=0;j<numTriangles;++j) {
-			x=dataBuffer.getFloat();
-			y=dataBuffer.getFloat();
-			z=dataBuffer.getFloat();
+			float nx=dataBuffer.getFloat();
+			float ny=dataBuffer.getFloat();
+			float nz=dataBuffer.getFloat();
+			model.addNormal(nx, ny, nz);
+			model.addNormal(nx, ny, nz);
+			model.addNormal(nx, ny, nz);
 
-			model.addNormal(x, y, z);
-			model.addNormal(x, y, z);
-			model.addNormal(x, y, z);
-
-			x=dataBuffer.getFloat();
-			y=dataBuffer.getFloat();
-			z=dataBuffer.getFloat();
-			model.addVertex(x, y, z);
-
-			x=dataBuffer.getFloat();
-			y=dataBuffer.getFloat();
-			z=dataBuffer.getFloat();
-			model.addVertex(x, y, z);
-
-			x=dataBuffer.getFloat();
-			y=dataBuffer.getFloat();
-			z=dataBuffer.getFloat();
-			model.addVertex(x, y, z);
-			
+			for(int i=0;i<3;++i) {
+				float px = dataBuffer.getFloat();
+				float py = dataBuffer.getFloat();
+				float pz = dataBuffer.getFloat();
+				model.addVertex(px, py, pz);
+			}
 			// attribute bytes
 			dataBuffer.get();
 			dataBuffer.get();

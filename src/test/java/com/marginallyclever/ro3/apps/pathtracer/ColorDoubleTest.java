@@ -27,11 +27,11 @@ public class ColorDoubleTest {
     }
 
     @Test
-    public void testScale() {
+    public void testMultiply() {
         ColorDouble a = new ColorDouble(0.1, 0.2, 0.3);
         ColorDouble b = new ColorDouble(0.4, 0.5, 0.6);
         ColorDouble c = new ColorDouble(a);
-        c.scale(b); // c = a*b
+        c.multiply(b); // c = a*b
         Assertions.assertEquals(0.04, c.r, EPSILON);
         Assertions.assertEquals(0.1, c.g, EPSILON);
         Assertions.assertEquals(0.18, c.b, EPSILON);
