@@ -1,119 +1,85 @@
 package com.marginallyclever.ro3.node.nodes.crab;
 
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Box;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
+import com.marginallyclever.ro3.node.nodes.neuralnetwork.leglimbic.LegLimbic;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 
+import javax.swing.*;
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Crab controller demo
+ * <p>Crab controller demo.</p>
+ * <h3>Leg index</h3>
+ * <pre>
+ * 0 - center left
+ * 1 - front right
+ * 2 - front left
+ * 3 - center right
+ * 4 - back left
+ * 5 - back right
+ * </pre>
+ * <h3>Pose format</h3>
+ * <p>pose is a compact array of 18 doubles.  the format is <code>coxa/femur/tibia</code> for each leg.  the sequence
+ * follows the leg index.</p>
  */
 public class Crab extends Pose {
     public static final double COXA = 6.2;  // coxa 62mm
     public static final double FEMUR = 15.0;  // femur 150mm
-    public static final double  TIBIA = 30.0;  // tibia 300mm
+    public static final double TIBIA = 30.0;  // tibia 300mm
 
     public static final Vector3d CENTER_COXA = new Vector3d(11.80,0,0);
     public static final Vector3d CORNER_COXA = new Vector3d(7.90,11.40,0);
+    private static final Vector3d FRONT_RIGHT_TRANSLATION = new Vector3d(CORNER_COXA.x,CORNER_COXA.y,CORNER_COXA.z);
+    private static final Vector3d FRONT_LEFT_TRANSLATION = new Vector3d(-CORNER_COXA.x,CORNER_COXA.y,CORNER_COXA.z);
+    private static final Vector3d CENTER_LEFT_TRANSLATION = new Vector3d(-CENTER_COXA.x,CENTER_COXA.y,CENTER_COXA.z);
+    private static final Vector3d BACK_LEFT_TRANSLATION = new Vector3d(-CORNER_COXA.x,-CORNER_COXA.y,CORNER_COXA.z);
+    private static final Vector3d BACK_RIGHT_TRANSLATION = new Vector3d(CORNER_COXA.x,-CORNER_COXA.y,CORNER_COXA.z);
+    public static final String[] legNames = {
+            "center right",
+            "front right",
+            "from left",
+            "center left",
+            "back left",
+            "back right"
+    };
 
+    private final double [] startingCoxaValues = { 0,45,135,180,225,315};
 
     public enum WalkStategy {
-        DO_NOTHING,
+        GO_LIMP,
+        HOME_POSITION,
         SIT_DOWN,
         STAND_UP,
+        TAP_TOE_ONE,
         WALK_THREE_AT_ONCE,
         RIPPLE1,
         RIPPLE2,
     };
 
-    private WalkStategy chosenStrategy = WalkStategy.DO_NOTHING;
+    private WalkStategy chosenStrategy = WalkStategy.GO_LIMP;
 
-    public class Leg {
-        public Pose coxa = new Pose();
-        public Pose femur = new Pose();
-        public Pose tibia = new Pose();
-        public Pose toe = new Pose();
-
-        public double angleCoxa=0;
-        public double angleFemur=0;
-        public double angleTibia=0;
-
-        public Leg() {
-            coxa.addChild(femur);
-            femur.addChild(tibia);
-            tibia.addChild(toe);
-
-            coxa.setName("coxa");
-            femur.setName("femur");
-            tibia.setName("tibia");
-            toe.setName("toe");
-
-            femur.setPosition(new Vector3d(COXA, 0, 0));
-            tibia.setPosition(new Vector3d(FEMUR, 0, 0));
-            toe.setPosition(new Vector3d(TIBIA, 0, 0));
-
-            addMeshAndMaterial(coxa);
-            addMeshAndMaterial(femur);
-            addMeshAndMaterial(tibia);
-            addMeshAndMaterial(toe);
-        }
-
-        // set the FK for one leg
-        private void setAngles(double coxa,double femur,double tibia) {
-            // turn coxa
-            {
-                var m3 = this.coxa.getLocal();
-                var p = new Vector3d();
-                m3.get(p);
-                m3.rotZ(Math.toRadians(coxa));
-                m3.setTranslation(p);
-                this.coxa.setLocal(m3);
-                this.angleCoxa = coxa;
-            }
-            // turn femur
-            {
-                var m3 = this.femur.getLocal();
-                var p = new Vector3d();
-                m3.get(p);
-                m3.rotY(Math.toRadians(femur));
-                m3.setTranslation(p);
-                this.femur.setLocal(m3);
-                this.angleFemur = femur;
-            }
-            // turn tibia
-            {
-                var m3 = this.tibia.getLocal();
-                var p = new Vector3d();
-                m3.get(p);
-                m3.rotY(Math.toRadians(tibia));
-                m3.setTranslation(p);
-                this.tibia.setLocal(m3);
-                this.angleTibia = tibia;
-            }
-        }
-    }
-
-    private final List<Leg> legs = new ArrayList<>();
+    private final List<CrabLeg> legs = new ArrayList<>();
 
     public Crab() {
         super();
         setName("Crab");
 
-        addMeshAndMaterial(this);
+        Crab.addMeshAndMaterial(this);
 
         // add 6 legs
         for (int i = 0; i < 6; ++i) {
-            var leg = new Leg();
+            var leg = new CrabLeg(this,legNames[i]);
             legs.add(leg);
-            this.addChild(leg.coxa);
-
+            addChild(leg.coxa);
             // position the legs.
             var matrix = new Matrix4d();
             matrix.setIdentity();
@@ -121,12 +87,17 @@ public class Crab extends Pose {
             leg.coxa.setLocal(matrix);
         }
 
-
         fixMeshes();
-        positionLegs();
+        initializeAllLegPoses();
 
         // raise the body
         this.setPosition(new Vector3d(0,0,4.5));
+    }
+
+    @Override
+    public void getComponents(List<JPanel> list) {
+        list.add(new CrabPanel(this));
+        super.getComponents(list);
     }
 
     private void fixMeshes() {
@@ -158,89 +129,56 @@ public class Crab extends Pose {
         }
     }
 
-    private void positionLegs() {
-        var m = new Matrix4d();
-        // center leg left (x+)
-        m = new Matrix4d();
-        m.setIdentity();
-        m.setTranslation(CENTER_COXA);
-        var centerLeft = this.legs.get(0);
-        centerLeft.coxa.setLocal(m);
-        centerLeft.coxa.setName("center left");
+    private void initializeAllLegPoses() {
+        initializeLegPose(0, CENTER_COXA, startingCoxaValues[0], "center right");
+        initializeLegPose(1, FRONT_RIGHT_TRANSLATION, startingCoxaValues[1], "front right");
+        initializeLegPose(2, FRONT_LEFT_TRANSLATION, startingCoxaValues[2], "front left");
+        initializeLegPose(3, CENTER_LEFT_TRANSLATION, startingCoxaValues[3], "center left");
+        initializeLegPose(4, BACK_LEFT_TRANSLATION, startingCoxaValues[4], "back left");
+        initializeLegPose(5, BACK_RIGHT_TRANSLATION, startingCoxaValues[5], "back right");
 
-        // front right
-        m = new Matrix4d();
-        m.setIdentity();
-        m.rotZ(Math.toRadians(45));
-
-        m.setTranslation(new Vector3d(CORNER_COXA.x,CORNER_COXA.y,CORNER_COXA.z));
-        var frontRight = this.legs.get(1);
-        frontRight.coxa.setLocal(m);
-        frontRight.coxa.setName("front right");
-        frontRight.angleCoxa = 45;
-
-        // front left
-        m = new Matrix4d();
-        m.setIdentity();
-        m.rotZ(Math.toRadians(45+90));
-        m.setTranslation(new Vector3d(-CORNER_COXA.x,CORNER_COXA.y,CORNER_COXA.z));
-        var frontLeft = this.legs.get(2);
-        frontLeft.coxa.setLocal(m);
-        frontLeft.coxa.setName("front left");
-        frontLeft.angleCoxa = 45+90;
-
-        // center leg right (x-)
-        m = new Matrix4d();
-        m.setIdentity();
-        m.rotZ(Math.toRadians(180));
-        m.setTranslation(new Vector3d(-CENTER_COXA.x,CENTER_COXA.y,CENTER_COXA.z));
-        var centerRight = this.legs.get(3);
-        centerRight.coxa.setLocal(m);
-        centerRight.coxa.setName("center right");
-        centerRight.angleCoxa = 180;
-
-        // back left
-        m = new Matrix4d();
-        m.setIdentity();
-        m.rotZ(Math.toRadians(45+90+90));
-        m.setTranslation(new Vector3d(-CORNER_COXA.x,-CORNER_COXA.y,CORNER_COXA.z));
-        var backLeft = this.legs.get(4);
-        backLeft.coxa.setLocal(m);
-        backLeft.coxa.setName("back left");
-        backLeft.angleCoxa = 45+90+90;
-
-        // back right
-        m = new Matrix4d();
-        m.setIdentity();
-        m.rotZ(Math.toRadians(45+90+90+90));
-        m.setTranslation(new Vector3d(CORNER_COXA.x,-CORNER_COXA.y,CORNER_COXA.z));
-        var backRight = this.legs.get(5);
-        backRight.coxa.setLocal(m);
-        backRight.coxa.setName("back right");
-        backRight.angleCoxa = 45+90+90+90;
-
-        for(int i=0;i<6;++i) {
-            var leg = legs.get(i);
-            {
-                var m3 = leg.coxa.getLocal();
-                var p = new Vector3d();
-                m3.get(p);
-                p.z = 2.6;
-                m3.setTranslation(p);
-                leg.coxa.setLocal(m3);
-            }
-            {
-                var m3 = leg.femur.getLocal();
-                var p = new Vector3d();
-                m3.get(p);
-                p.z = -2.0;
-                m3.setTranslation(p);
-                leg.femur.setLocal(m3);
-            }
+        for(CrabLeg leg : legs) {
+            adjustCoxaAndFemurBones(leg);
         }
     }
 
-    private void addMeshAndMaterial(Node node) {
+    private void initializeLegPose(int legIndex, Vector3d translation, double rotZDeg, String name) {
+        Matrix4d m = new Matrix4d();
+        m.setIdentity();
+        m.rotZ(Math.toRadians(rotZDeg));
+        m.setTranslation(translation);
+        CrabLeg leg = this.legs.get(legIndex);
+        leg.coxa.setLocal(m);
+        leg.coxa.setName(name);
+        leg.angleCoxa = rotZDeg;
+        leg.coxaAdjust = rotZDeg;
+    }
+
+    /**
+     * adjust both coxa and femur leg bones.
+     * @param leg
+     */
+    private void adjustCoxaAndFemurBones(CrabLeg leg) {
+        translateZOnePose(leg.coxa,2.6);
+        translateZOnePose(leg.femur,-2.0);
+    }
+
+    /**
+     * translate one {@link Pose} bone along z a small amount.
+     * @param legBone the {@link Pose} to move
+     * @param zAdj the amount to move
+     */
+    private void translateZOnePose(Pose legBone, double zAdj) {
+        var m3 = legBone.getLocal();
+        var p = new Vector3d();
+        m3.get(p);
+        p.z = zAdj;
+        m3.setTranslation(p);
+        legBone.setLocal(m3);
+    }
+
+
+    static void addMeshAndMaterial(Node node) {
         node.addChild(new Material());
         var mi = new MeshInstance();
         node.addChild(mi);
@@ -252,38 +190,189 @@ public class Crab extends Pose {
     public void update(double dt) {
         super.update(dt);
 
-        // choose one of many strategies
-        chosenStrategy = WalkStategy.SIT_DOWN;
-        // or blend two or more together
+        // run the choosen strategy
+        // TODO blend two or more together.
         switch(chosenStrategy) {
-            case SIT_DOWN:  sitDown();  break;
-            case STAND_UP:  standUp();  break;
-            case WALK_THREE_AT_ONCE:  walkThreeAtOnce();  break;
-            case RIPPLE1:  ripple1();  break;
-            case RIPPLE2:  ripple2();  break;
-            default:
+            case HOME_POSITION: homePosition();  break;
+            case SIT_DOWN:  sitDown(dt);  break;
+            case STAND_UP:  standUp(dt);  break;
+            case TAP_TOE_ONE:  tapOneToe(dt);  break;
+            case WALK_THREE_AT_ONCE:  walkThreeAtOnce(dt);  break;
+            case RIPPLE1:  ripple1(dt);  break;
+            case RIPPLE2:  ripple2(dt);  break;
+            default:  goLimp();
                 // do nothing
                 break;
         }
     }
 
-    private void sitDown() {
+    /**
+     *  do not control the target position of each leg.
+     *  this allows the app user to move them with the on screen tools and test the inverse kinematics.
+     */
+    private void goLimp() {
         for(int i=0;i<6;++i) {
-            legs.get(i).setAngles(legs.get(i).angleCoxa,-115,150);
+            var leg = legs.get(i);
+            Pose pose = (Pose)findChild(legNames[i]+" targetPosition");
+            if(pose!=null) {
+                // we need pos relative to coxa
+                var pos = MatrixHelper.getPosition(pose.getWorld());
+                moveToeForOneLeg(i, pos);
+            }
         }
     }
 
-    private void standUp() {
+    private void homePosition() {
+        for(int i=0;i<6;++i) {
+            legs.get(i).setAngles(startingCoxaValues[i],0,0);
+        }
     }
 
-    private void walkThreeAtOnce() {
+    boolean firstSit = false;
+
+    private void sitDown(double dt) {
+        for(int i=0;i<6;++i) {
+            var leg = legs.get(i);
+            leg.setAngles(legs.get(i).angleCoxa,-115-90,150);
+            var pos = MatrixHelper.getPosition(leg.toe.getWorld());
+            pos.z=0;
+            leg.pointOfContactLast.set(pos);
+            leg.pointOfContactNext.set(pos);
+            leg.targetPosition.setPosition(new Vector3d(leg.pointOfContactLast));
+        }
+        firstSit=true;
+        firstStand=false;
+    }
+
+    boolean firstStand = false;
+    //double firstStandRadius = 0;
+
+    private void standUp(double dt) {
+        if(!firstSit) return;
+
+        var bodyWorld = this.getWorld();
+        bodyWorld.m22=1;
+        if(bodyWorld.m23<6) bodyWorld.m23+=dt;
+        if(bodyWorld.m23>6) bodyWorld.m23-=dt/2;
+        this.setWorld(bodyWorld);
+
+        for(int i=0;i<6;++i) {
+            var leg = legs.get(i);
+
+            Pose pose = (Pose) findChild(legNames[i] + " targetPosition");
+            if (pose != null) {
+                Matrix4d m = pose.getWorld();
+                m.setTranslation(leg.pointOfContactLast);
+                pose.setWorld(m);
+
+                // we need pos relative to coxa
+                var pos = MatrixHelper.getPosition(pose.getWorld());
+                moveToeForOneLeg(i, pos);
+            }
+        }
+    }
+
+    private void tapOneToe(double dt) {
+        var leg = legs.getFirst();
+        // interpolate a Vector3d between pointOfContactLast to pointOfContactNext based on time.
+        // interpolate the z up and down in an abs(sine) wave.
+        final double cycleTime = 2.0; // seconds for one full cycle
+        final double liftHeight = 5.0; // mm to lift the toe
+
+        double timeInCycle = (System.currentTimeMillis() % (long)(cycleTime*1000)) / 1000.0;
+        double timeUnit = (timeInCycle / cycleTime);  // 0 to 1
+        double phase = timeUnit * 1.0 * Math.PI;
+        double lift = Math.abs(Math.sin(phase)) * liftHeight;
+        Vector3d diff = new Vector3d(leg.pointOfContactNext);
+        diff.sub(leg.pointOfContactLast);
+        diff.scale(timeUnit);
+        diff.add(leg.pointOfContactLast);
+        diff.z += lift;
+        leg.targetPosition.setPosition(diff);
+
+        Pose pose = (Pose) findChild(legNames[0] + " targetPosition");
+        var pos = MatrixHelper.getPosition(pose.getWorld());
+        moveToeForOneLeg(0, pos);
+    }
+
+    private void walkThreeAtOnce(double dt) {
 
     }
 
-    private void ripple1() {
+    private void ripple1(double dt) {
     }
 
-    private void ripple2() {
+    private void ripple2(double dt) {
+    }
+
+    /**
+     * Get all 18 joint angles that we care about.
+     * @return see the post description in the class header.
+     */
+    public double [] getPose() {
+        var list = new double [18];
+        int j=0;
+
+        for(int i=0;i<6;++i) {
+            var leg =  legs.get(i);
+            list[j++] = leg.angleCoxa;
+            list[j++] = leg.angleFemur;
+            list[j++] = leg.angleTibia;
+        }
+
+        return list;
+    }
+
+    /**
+     * Set the 18 joint angles that we care about.
+     * @param list see the post description in the class header.
+     */
+    public void setPose(double [] list) {
+        if(list.length!=18) throw new IllegalArgumentException("list length must be 18.");
+
+        int j=0;
+
+        for(int i=0;i<6;++i) {
+            double a =  list[j++];
+            double b =  list[j++];
+            double c =  list[j++];
+            legs.get(i).setAngles(a,b,c);
+        }
+    }
+
+    /**
+     * If the kinematics are unsolvable the angles will be NaN and the leg bones will disappear.
+     * @param legIndex the leg to move
+     * @param newPosition the desired world position of the toe tip.
+     */
+    public void moveToeForOneLeg(int legIndex, Tuple3d newPosition) {
+        var leg = legs.get(legIndex);
+        var coxaPos = MatrixHelper.getPosition(leg.coxa.getWorld());
+        Vector3d relativeToCoxa = new Vector3d(newPosition);
+        relativeToCoxa.sub(coxaPos);
+
+        double x = relativeToCoxa.x;
+        double y = relativeToCoxa.y;
+        double z = relativeToCoxa.z;
+
+        double d = Math.sqrt(x * x + y * y);  // horizontal distance from toe tip to axis of the femur motor
+        double r = d - COXA;                  // horizontal distance from the coxa motor to the tip of the foot
+        double c = Math.sqrt(z * z + r * r);  // linear distance from femur motor axis to tip of the foot
+
+        // Angles in degrees
+        double angleCoxa = Math.toDegrees(Math.atan2(y, x));  // aka theta0
+        double angleFemur = -Math.toDegrees(Math.atan2(r,-z) + Math.acos((FEMUR * FEMUR + c * c - TIBIA * TIBIA) / (2 * FEMUR * c)));  // aka theta1
+        double angleTibia = 180.0 - Math.toDegrees(Math.acos((FEMUR * FEMUR + TIBIA * TIBIA - c * c) / (2 * FEMUR * TIBIA)));  // aka theta2
+
+        legs.get(legIndex).setAngles(angleCoxa,angleFemur,angleTibia);
+    }
+
+    public void setChosenStrategy(WalkStategy chosenStrategy) {
+        this.chosenStrategy = chosenStrategy;
+    }
+
+    public WalkStategy getChosenStrategy() {
+        return chosenStrategy;
     }
 }
 
