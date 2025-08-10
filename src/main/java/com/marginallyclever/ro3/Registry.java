@@ -10,6 +10,7 @@ import com.marginallyclever.ro3.node.nodes.behavior.Fallback;
 import com.marginallyclever.ro3.node.nodes.behavior.Sequence;
 import com.marginallyclever.ro3.node.nodes.behavior.actions.LimbMoveToTarget;
 import com.marginallyclever.ro3.node.nodes.behavior.decorators.*;
+import com.marginallyclever.ro3.node.nodes.crab.Crab;
 import com.marginallyclever.ro3.node.nodes.environment.Environment;
 import com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlanner;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
@@ -74,6 +75,7 @@ public class Registry {
                 behavior.add("Sequence", Sequence::new);
             }
             node.add("BehaviorTreeRunner", BehaviorTreeRunner::new);
+            node.add("Crab", Crab::new);
             node.add("DHParameter", DHParameter::new);
             node.add("Environment", Environment::new);
             node.add("HingeJoint", HingeJoint::new);
