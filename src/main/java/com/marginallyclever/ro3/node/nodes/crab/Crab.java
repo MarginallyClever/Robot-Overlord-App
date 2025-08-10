@@ -82,7 +82,7 @@ public class Crab extends Pose {
                 var m3 = this.femur.getLocal();
                 var p = new Vector3d();
                 m3.get(p);
-                m3.rotY(Math.toRadians(coxa));
+                m3.rotY(Math.toRadians(femur));
                 m3.setTranslation(p);
                 this.femur.setLocal(m3);
                 this.angleFemur = femur;
@@ -92,7 +92,7 @@ public class Crab extends Pose {
                 var m3 = this.tibia.getLocal();
                 var p = new Vector3d();
                 m3.get(p);
-                m3.rotY(Math.toRadians(coxa));
+                m3.rotY(Math.toRadians(tibia));
                 m3.setTranslation(p);
                 this.tibia.setLocal(m3);
                 this.angleTibia = tibia;
