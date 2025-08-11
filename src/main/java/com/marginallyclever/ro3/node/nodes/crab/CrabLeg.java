@@ -30,6 +30,7 @@ public class CrabLeg {
     public double angleFemur = 0;
     public double angleTibia = 0;
 
+    public final Vector3d contactPointIdeal = new Vector3d();
     public final Vector3d contactPointLast = new Vector3d();
     public final Vector3d contactPointNext = new Vector3d();
     public boolean isTouchingGround=false;
@@ -108,19 +109,22 @@ public class CrabLeg {
         }
     }
 
+    public void update(double dt) {
+        setPosition(this.nextPosition, contactPointNext);
+        setPosition(this.lastPosition, contactPointLast);
+    }
+
     /**
      * Interpolate between pointOfContactLast to pointOfContactNext based on timeUnit.
      * Interpolate the z up and down in an abs(sine) wave.
      * @param timeUnit 0 to 1
      */
     public void animateStep(double timeUnit) {
-        final double liftHeight = 5.0; // mm to lift the toe
-
         timeUnit = Math.min(Math.max(timeUnit,0),1);
         if(isTouchingGround && timeUnit > 0.95) timeUnit = 0;  // don't animate when on the ground.
 
         double phase = timeUnit * 1.0 * Math.PI;
-        double lift = Math.abs(Math.sin(phase)) * liftHeight;
+        double lift = Math.abs(Math.sin(phase)) * Crab.TOE_STEP_HEIGHT;
         // (next-last)*tineUnit + last
         Vector3d diff = new Vector3d(this.contactPointNext);
         diff.sub(this.contactPointLast);
@@ -128,9 +132,6 @@ public class CrabLeg {
         diff.add(this.contactPointLast);
         diff.z += lift;
         this.targetPosition.setPosition(diff);
-
-        setPosition(this.nextPosition, contactPointNext);
-        setPosition(this.lastPosition, contactPointLast);
     }
 
     private void setPosition(Pose p,Vector3d v) {

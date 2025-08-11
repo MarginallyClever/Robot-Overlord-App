@@ -46,7 +46,7 @@ public class CrabPanel extends JPanel {
         buttonPanel.add(createButton("Forward", e->crab.forward(1)));
         buttonPanel.add(createButton("Turn Right", e->crab.turnLeft(-1)));
         buttonPanel.add(createButton("Strafe Left", e->crab.strafeRight(-1)));
-        buttonPanel.add(createButton("Stop", e->crab.stop()));
+        buttonPanel.add(createButton("Stop", e->crab.idle()));
         buttonPanel.add(createButton("Strafe Right", e->crab.strafeRight(1)));
         buttonPanel.add(createButton("Raise Torso", e->crab.raiseTorso(1)));
         buttonPanel.add(createButton("Backward", e->crab.forward(-1)));
