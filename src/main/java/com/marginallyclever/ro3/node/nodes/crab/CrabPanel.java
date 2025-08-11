@@ -10,16 +10,9 @@ public class CrabPanel extends JPanel {
     private final Crab crab;
 
     // walkStyleNames has to match Crab.WalkStategy.
-    private final String [] walkStyleNames = {
-            "GO_LIMP",
-            "HOME_POSITION",
-            "SIT_DOWN",
-            "STAND_UP",
-            "TAP_TOE_ONE",
-            //"WALK_THREE_AT_ONCE",
-            //"RIPPLE1",
-            //"RIPPLE2",
-    };
+    private final String [] walkStyleNames = java.util.Arrays.stream(Crab.WalkStategy.values())
+            .map(Enum::name)
+            .toArray(String[]::new);
 
     public CrabPanel() {
         this(new Crab());
@@ -27,6 +20,7 @@ public class CrabPanel extends JPanel {
 
     public CrabPanel(Crab limb) {
         super(new GridBagLayout());
+
         this.crab = limb;
 
         GridBagConstraints gbc = new GridBagConstraints();

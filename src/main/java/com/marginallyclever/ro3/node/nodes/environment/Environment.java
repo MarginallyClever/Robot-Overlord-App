@@ -27,9 +27,10 @@ public class Environment extends Node {
     super("Environment");
   }
 
-  public Environment(String name) {
-    super(name);
-  }
+    public Environment(String name) {
+        super(name);
+        sunlightSource.set(calculateSunPosition());
+    }
 
     @Override
     public JSONObject toJSON() {
@@ -90,6 +91,9 @@ public class Environment extends Node {
         sunlightSource.set(calculateSunPosition());
     }
 
+    /**
+     * @return 0..24 (hours)
+     */
     public double getTimeOfDay() {
         return timeOfDay;
     }

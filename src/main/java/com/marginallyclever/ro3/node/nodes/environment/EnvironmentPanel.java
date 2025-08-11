@@ -62,6 +62,7 @@ public class EnvironmentPanel extends JPanel {
         // sun position
         gbc.gridy++;
         PanelHelper.addLabelAndComponent(container, "Time of day (24h)", timeOfDay,gbc);
+        timeOfDay.setValue(environment.getTimeOfDay());
         timeOfDay.addActionListener(e->updateSunPosition());
         timeOfDay.setPreferredSize(new Dimension(100,100));
 

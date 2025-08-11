@@ -5,13 +5,13 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Box;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
-import com.marginallyclever.ro3.node.nodes.neuralnetwork.leglimbic.LegLimbic;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
+import com.marginallyclever.robotoverlord.components.demo.CrabRobotComponent;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Tuple3d;
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ import java.util.List;
  * <p>pose is a compact array of 18 doubles.  the format is <code>coxa/femur/tibia</code> for each leg.  the sequence
  * follows the leg index.</p>
  */
-public class Crab extends Pose {
+public class Crab extends Node {
     public static final double COXA = 6.2;  // coxa 62mm
     public static final double FEMUR = 15.0;  // femur 150mm
     public static final double TIBIA = 30.0;  // tibia 300mm
@@ -55,31 +55,48 @@ public class Crab extends Pose {
     private final double [] startingCoxaValues = { 0,45,135,180,225,315};
 
     public enum WalkStategy {
-        GO_LIMP,
-        HOME_POSITION,
-        SIT_DOWN,
-        STAND_UP,
-        TAP_TOE_ONE,
-        WALK_THREE_AT_ONCE,
-        RIPPLE1,
-        RIPPLE2,
+        GO_LIMP("GO_LIMP"),
+        HOME_POSITION("HOME_POSITION"),
+        SIT_DOWN("SIT_DOWN"),
+        STAND_UP("STAND_UP"),
+        TAP_TOE_ONE("TAP_TOE_ONE"),
+        RIPPLE1("RIPPLE1"),
+        RIPPLE2("RIPPLE2"),
+        WALK_THREE_AT_ONCE("WALK_THREE_AT_ONCE");
+
+        public final String name;
+
+        WalkStategy(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     };
 
-    private WalkStategy chosenStrategy = WalkStategy.GO_LIMP;
-
+    private final Pose body = new Pose("body");
     private final List<CrabLeg> legs = new ArrayList<>();
+
+    private WalkStategy chosenStrategy = WalkStategy.GO_LIMP;
+    private double gaitCycleTime = 0;
+
 
     public Crab() {
         super();
         setName("Crab");
 
-        Crab.addMeshAndMaterial(this);
+        // add the body
+        addChild(body);
+        Crab.addMeshAndMaterial(body);
+        body.setPosition(new Vector3d(0,0,4.5));
 
         // add 6 legs
         for (int i = 0; i < 6; ++i) {
             var leg = new CrabLeg(this,legNames[i]);
             legs.add(leg);
-            addChild(leg.coxa);
+            body.addChild(leg.coxa);
             // position the legs.
             var matrix = new Matrix4d();
             matrix.setIdentity();
@@ -89,9 +106,6 @@ public class Crab extends Pose {
 
         fixMeshes();
         initializeAllLegPoses();
-
-        // raise the body
-        this.setPosition(new Vector3d(0,0,4.5));
     }
 
     @Override
@@ -102,7 +116,7 @@ public class Crab extends Pose {
 
     private void fixMeshes() {
         // body
-        var bodyMesh = this.findFirstChild(MeshInstance.class);
+        var bodyMesh = body.findFirstChild(MeshInstance.class);
         bodyMesh.setMesh(Registry.meshFactory.load("src/main/resources/crab/body.stl"));
         var m = new Matrix4d();
         var m2 = new Matrix4d();
@@ -190,6 +204,8 @@ public class Crab extends Pose {
     public void update(double dt) {
         super.update(dt);
 
+        gaitCycleTime+=dt;
+
         // run the choosen strategy
         // TODO blend two or more together.
         switch(chosenStrategy) {
@@ -211,12 +227,16 @@ public class Crab extends Pose {
      *  this allows the app user to move them with the on screen tools and test the inverse kinematics.
      */
     private void goLimp() {
+        solveKinematicsForAllLegs();
+    }
+
+    private void solveKinematicsForAllLegs() {
         for(int i=0;i<6;++i) {
             var leg = legs.get(i);
-            Pose pose = (Pose)findChild(legNames[i]+" targetPosition");
+            Pose pose = leg.targetPosition;
             if(pose!=null) {
                 // we need pos relative to coxa
-                var pos = MatrixHelper.getPosition(pose.getWorld());
+                var pos = new Point3d(MatrixHelper.getPosition(pose.getWorld()));
                 moveToeForOneLeg(i, pos);
             }
         }
@@ -236,9 +256,9 @@ public class Crab extends Pose {
             leg.setAngles(legs.get(i).angleCoxa,-115-90,150);
             var pos = MatrixHelper.getPosition(leg.toe.getWorld());
             pos.z=0;
-            leg.pointOfContactLast.set(pos);
-            leg.pointOfContactNext.set(pos);
-            leg.targetPosition.setPosition(new Vector3d(leg.pointOfContactLast));
+            leg.contactPointLast.set(pos);
+            leg.contactPointNext.set(pos);
+            leg.targetPosition.setPosition(new Vector3d(leg.contactPointLast));
         }
         firstSit=true;
         firstStand=false;
@@ -250,59 +270,141 @@ public class Crab extends Pose {
     private void standUp(double dt) {
         if(!firstSit) return;
 
-        var bodyWorld = this.getWorld();
+        var bodyWorld = body.getWorld();
         bodyWorld.m22=1;
         if(bodyWorld.m23<6) bodyWorld.m23+=dt;
         if(bodyWorld.m23>6) bodyWorld.m23-=dt/2;
-        this.setWorld(bodyWorld);
+        body.setWorld(bodyWorld);
 
         for(int i=0;i<6;++i) {
             var leg = legs.get(i);
 
-            Pose pose = (Pose) findChild(legNames[i] + " targetPosition");
+            Pose pose = leg.targetPosition;
             if (pose != null) {
                 Matrix4d m = pose.getWorld();
-                m.setTranslation(leg.pointOfContactLast);
+                m.setTranslation(leg.contactPointLast);
                 pose.setWorld(m);
-
-                // we need pos relative to coxa
-                var pos = MatrixHelper.getPosition(pose.getWorld());
-                moveToeForOneLeg(i, pos);
             }
         }
+
+        solveKinematicsForAllLegs();
     }
 
+    /**
+     * Tap the first toe up and down in a sine wave.
+     * @param dt
+     */
     private void tapOneToe(double dt) {
-        var leg = legs.getFirst();
-        // interpolate a Vector3d between pointOfContactLast to pointOfContactNext based on time.
-        // interpolate the z up and down in an abs(sine) wave.
         final double cycleTime = 2.0; // seconds for one full cycle
-        final double liftHeight = 5.0; // mm to lift the toe
-
         double timeInCycle = (System.currentTimeMillis() % (long)(cycleTime*1000)) / 1000.0;
         double timeUnit = (timeInCycle / cycleTime);  // 0 to 1
-        double phase = timeUnit * 1.0 * Math.PI;
-        double lift = Math.abs(Math.sin(phase)) * liftHeight;
-        Vector3d diff = new Vector3d(leg.pointOfContactNext);
-        diff.sub(leg.pointOfContactLast);
-        diff.scale(timeUnit);
-        diff.add(leg.pointOfContactLast);
-        diff.z += lift;
-        leg.targetPosition.setPosition(diff);
+        animateOneLeg(legs.getFirst(),timeUnit);
 
-        Pose pose = (Pose) findChild(legNames[0] + " targetPosition");
-        var pos = MatrixHelper.getPosition(pose.getWorld());
-        moveToeForOneLeg(0, pos);
+        solveKinematicsForAllLegs();
     }
 
-    private void walkThreeAtOnce(double dt) {
+    /**
+     * Interpolate a the {@link CrabLeg#targetPosition} between pointOfContactLast to pointOfContactNext based on timeUnit.
+     * Interpolate the z up and down in an abs(sine) wave.
+     * @param leg the leg leg to animate
+     * @param timeUnit 0 to 1
+     */
+    private void animateOneLeg(CrabLeg leg, double timeUnit) {
+        final double liftHeight = 5.0; // mm to lift the toe
 
+        double phase = timeUnit * 1.0 * Math.PI;
+        double lift = Math.abs(Math.sin(phase)) * liftHeight;
+        Vector3d diff = new Vector3d(leg.contactPointNext);
+        diff.sub(leg.contactPointLast);
+        diff.scale(timeUnit);
+        diff.add(leg.contactPointLast);
+        diff.z += lift;
+        leg.targetPosition.setPosition(diff);
     }
 
     private void ripple1(double dt) {
+        var zeroToSix = (System.currentTimeMillis() % 6000) / 1000.0;
+             if(zeroToSix<1) animateOneLeg(legs.get(0), zeroToSix);  // first leg
+        else if(zeroToSix>2-1 && zeroToSix<2) animateOneLeg(legs.get(2), zeroToSix-1);  // second leg
+        else if(zeroToSix>3-1 && zeroToSix<3) animateOneLeg(legs.get(4), zeroToSix-2);  // third leg
+        else if(zeroToSix>4-1 && zeroToSix<4) animateOneLeg(legs.get(1), zeroToSix-3);  // fourth leg
+        else if(zeroToSix>5-1 && zeroToSix<5) animateOneLeg(legs.get(3), zeroToSix-4);  // fifth leg
+        else if(zeroToSix>5)                  animateOneLeg(legs.get(5), zeroToSix-5);  // sixth leg
+
+        solveKinematicsForAllLegs();
     }
 
+    /**
+     * 2   1
+     * 3   0
+     * 4   5
+     * order should be 2,5,3,1,4,0
+     */
     private void ripple2(double dt) {
+        double gc1 = gaitCycleTime + 0.5f;
+        double gc2 = gaitCycleTime;
+
+        double x1 = gc1 - Math.floor(gc1);
+        double x2 = gc2 - Math.floor(gc2);
+        double step1 = Math.max(0, x1);
+        double step2 = Math.max(0, x2);
+        int leg1 = (int) Math.floor(gc1) % 3;
+        int leg2 = (int) Math.floor(gc2) % 3;
+
+        int o1, o2;
+        o1 = switch (leg1) {
+            case 0 -> 2;
+            case 1 -> 3;
+            case 2 -> 4;
+            default -> 0;
+        };
+        o2 = switch (leg2) {
+            case 0 -> 5;
+            case 1 -> 1;
+            case 2 -> 0;
+            default -> 0;
+        };
+        animateOneLeg(legs.get(o1), step1);
+        animateOneLeg(legs.get(o2), step2);
+
+        // put all feet down except the active leg(s).
+        for(int i=0;i<6;++i) {
+            if(i!=o1 && i!=o2) {
+                putFootDown(legs.get(i),dt);
+            }
+        }
+
+        solveKinematicsForAllLegs();
+    }
+
+    /**
+     * Walk three legs at once in a tripod gait.
+     * @param dt the time step
+     */
+    private void walkThreeAtOnce(double dt) {
+        double step = (gaitCycleTime - Math.floor(gaitCycleTime));
+        int legToMove = ((int) Math.floor(gaitCycleTime) % 2);
+
+        // put all feet down except the active leg(s).
+        for (int i = 0; i < CrabRobotComponent.NUM_LEGS; ++i) {
+            if ((i % 2) != legToMove) {
+                putFootDown(legs.get(i),dt);
+            } else {
+                animateOneLeg(legs.get(i), step);
+            }
+        }
+
+        solveKinematicsForAllLegs();
+    }
+
+    private void putFootDown(CrabLeg leg,double dt) {
+        // put the foot down at the last contact point.
+        var m = leg.targetPosition.getWorld();
+        var pos = MatrixHelper.getPosition(m);
+        //if(pos.z>0) pos.z-= dt;
+        pos.z=0;
+        m.setTranslation(pos);
+        leg.targetPosition.setWorld(m);
     }
 
     /**
@@ -345,11 +447,17 @@ public class Crab extends Pose {
      * @param legIndex the leg to move
      * @param newPosition the desired world position of the toe tip.
      */
-    public void moveToeForOneLeg(int legIndex, Tuple3d newPosition) {
+    public void moveToeForOneLeg(int legIndex, Point3d newPosition) {
         var leg = legs.get(legIndex);
-        var coxaPos = MatrixHelper.getPosition(leg.coxa.getWorld());
-        Vector3d relativeToCoxa = new Vector3d(newPosition);
-        relativeToCoxa.sub(coxaPos);
+
+        var bodyMatrix = body.getWorld();
+        bodyMatrix.invert();
+        var relativeToBody = new Point3d();
+        bodyMatrix.transform(newPosition,relativeToBody);
+
+        var coxaPos = MatrixHelper.getPosition(leg.coxa.getLocal());
+        Vector3d relativeToCoxa = new Vector3d();
+        relativeToCoxa.sub(relativeToBody,coxaPos);
 
         double x = relativeToCoxa.x;
         double y = relativeToCoxa.y;

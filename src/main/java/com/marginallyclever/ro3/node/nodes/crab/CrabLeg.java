@@ -1,11 +1,8 @@
 package com.marginallyclever.ro3.node.nodes.crab;
 
-import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 
-import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
-import java.awt.*;
 
 /**
  * Internal description of each leg for calculating kinematics.
@@ -25,8 +22,8 @@ public class CrabLeg {
     public double angleFemur = 0;
     public double angleTibia = 0;
 
-    public final Vector3d pointOfContactLast = new Vector3d();
-    public final Vector3d pointOfContactNext = new Vector3d();
+    public final Vector3d contactPointLast = new Vector3d();
+    public final Vector3d contactPointNext = new Vector3d();
 
     public CrabLeg(Crab crab,String legName) {
         this.crab = crab;
