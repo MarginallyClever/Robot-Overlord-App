@@ -16,7 +16,7 @@ public class CrabLeg {
     public Pose targetPosition = new Pose();
 
     public boolean flipCoxa = false;
-    public double coxaAdjust = 0;
+    public double startingCoxaAngle = 0;
 
     public double angleCoxa = 0;
     public double angleFemur = 0;
