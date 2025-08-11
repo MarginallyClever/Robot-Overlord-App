@@ -27,7 +27,11 @@ import java.util.Objects;
  * 3 - center right
  * 4 - back left
  * 5 - back right
- * </pre>
+ *
+ * Forward
+ *  2   1
+ *  3 x 0 Right
+ *  4   5</pre>
  * <h3>Pose format</h3>
  * <p>pose is a compact array of 18 doubles.  the format is <code>coxa/femur/tibia</code> for each leg.  the sequence
  * follows the leg index.</p>
@@ -43,6 +47,8 @@ public class Crab extends Node {
     public static final double CENTER_X =11.8;
     public static final double COXA_X = 7.9;
     public static final double COXA_Y = 11.4;
+
+    public static double STANDING_EPSILON = 0.01;
 
     public static final Vector3d [] legOffsets = {
             new Vector3d(CENTER_X,0,0),
@@ -169,7 +175,7 @@ public class Crab extends Node {
 
     /**
      * adjust both coxa and femur leg bones.
-     * @param leg
+     * @param leg the {@link CrabLeg} to adjust
      */
     private void adjustCoxaAndFemurBones(CrabLeg leg) {
         translateZOnePose(leg.coxa,2.6);
@@ -205,6 +211,8 @@ public class Crab extends Node {
 
         gaitCycleTime+=dt;
 
+        checkLegsTouchingGround();
+
         // run the choosen strategy
         // TODO blend two or more together.
         switch(chosenStrategy) {
@@ -213,11 +221,28 @@ public class Crab extends Node {
             case STAND_UP:  standUp(dt);  break;
             case TAP_TOE_ONE:  tapOneToe(dt);  break;
             case WALK_THREE_AT_ONCE:  walkThreeAtOnce(dt);  break;
-            case WALK_RIPPLE1:  ripple1(dt);  break;
-            case WALK_RIPPLE2:  ripple2(dt);  break;
+            case WALK_RIPPLE1:  walkRipple1(dt);  break;
+            case WALK_RIPPLE2:  walkRipple2(dt);  break;
             default:  goLimp();
                 // do nothing
                 break;
+        }
+    }
+
+    /**
+     * Check if each leg is touching the ground.
+     * If they are, update the last contact point.
+     */
+    private void checkLegsTouchingGround() {
+        for(var leg : legs) {
+            // is the leg touching the ground?
+            var p = MatrixHelper.getPosition(leg.toe.getWorld());
+            leg.isTouchingGround = ( p.z <= 0 );
+            // if yes, update the contact point.
+            if(leg.isTouchingGround) {
+                p.z=0;
+                leg.contactPointLast.set(p);  // update the last contact point
+            }
         }
     }
 
@@ -253,19 +278,42 @@ public class Crab extends Node {
             pos.z=0;
             leg.contactPointLast.set(pos);
             leg.contactPointNext.set(pos);
-            leg.targetPosition.setPosition(new Vector3d(leg.contactPointLast));
+            leg.putFootDown(dt);
         }
-        firstSit=true;
+        // only consider it sitting if all the legs are touching the ground.
+        int count = 0;
+        for(var leg : legs) {
+            if(leg.isTouchingGround) count++;
+        }
+        if(count == NUM_LEGS) {
+            firstSit = true;
+        }
+        // if we are sitting then we are not standing.
         firstStand=false;
     }
 
     private void standUp(double dt) {
-        if(!firstSit) return;
+        if (!firstSit) return;
 
         var bodyWorld = body.getWorld();
-        bodyWorld.m22=1;
-        if(bodyWorld.m23<torsoHeight) bodyWorld.m23+=dt;
-        if(bodyWorld.m23>torsoHeight) bodyWorld.m23-=dt/2;
+        bodyWorld.m22 = 1;
+        if (bodyWorld.m23 < torsoHeight) {
+            bodyWorld.m23 += dt;
+            if (bodyWorld.m23 > torsoHeight + STANDING_EPSILON) {
+                bodyWorld.m23 = torsoHeight;  // clamp to torso height
+            }
+        } else if (bodyWorld.m23 > torsoHeight + STANDING_EPSILON) {
+            bodyWorld.m23 -= dt / 2;
+            if (bodyWorld.m23 < torsoHeight) {
+                bodyWorld.m23 = torsoHeight;  // clamp to torso height
+            }
+        }
+
+        if (bodyWorld.m23 >= torsoHeight &&
+            bodyWorld.m23 < torsoHeight + STANDING_EPSILON) {
+            firstStand = true;
+        }
+
         body.setWorld(bodyWorld);
 
         for(var leg : legs) {
@@ -288,39 +336,21 @@ public class Crab extends Node {
         final double cycleTime = 2.0; // seconds for one full cycle
         double timeInCycle = (System.currentTimeMillis() % (long)(cycleTime*1000)) / 1000.0;
         double timeUnit = (timeInCycle / cycleTime);  // 0 to 1
-        animateOneLeg(legs.getFirst(),timeUnit);
+        legs.getFirst().animateStep(timeUnit);
 
         solveKinematicsForAllLegs();
     }
 
-    /**
-     * Interpolate a the {@link CrabLeg#targetPosition} between pointOfContactLast to pointOfContactNext based on timeUnit.
-     * Interpolate the z up and down in an abs(sine) wave.
-     * @param leg the leg leg to animate
-     * @param timeUnit 0 to 1
-     */
-    private void animateOneLeg(CrabLeg leg, double timeUnit) {
-        final double liftHeight = 5.0; // mm to lift the toe
-
-        double phase = timeUnit * 1.0 * Math.PI;
-        double lift = Math.abs(Math.sin(phase)) * liftHeight;
-        Vector3d diff = new Vector3d(leg.contactPointNext);
-        diff.sub(leg.contactPointLast);
-        diff.scale(timeUnit);
-        diff.add(leg.contactPointLast);
-        diff.z += lift;
-        leg.targetPosition.setPosition(diff);
-    }
-
-    private void ripple1(double dt) {
+    private void walkRipple1(double dt) {
         var zeroToSix = (System.currentTimeMillis() % (NUM_LEGS*1000)) / 1000.0;
-             if(zeroToSix<1) animateOneLeg(legs.get(0), zeroToSix);  // first leg
-        else if(zeroToSix>2-1 && zeroToSix<2) animateOneLeg(legs.get(2), zeroToSix-1);  // second leg
-        else if(zeroToSix>3-1 && zeroToSix<3) animateOneLeg(legs.get(4), zeroToSix-2);  // third leg
-        else if(zeroToSix>4-1 && zeroToSix<4) animateOneLeg(legs.get(1), zeroToSix-3);  // fourth leg
-        else if(zeroToSix>5-1 && zeroToSix<5) animateOneLeg(legs.get(3), zeroToSix-4);  // fifth leg
-        else if(zeroToSix>5)                  animateOneLeg(legs.get(5), zeroToSix-5);  // sixth leg
+             if(zeroToSix<1) legs.get(0).animateStep(zeroToSix);  // first leg
+        else if(zeroToSix>2-1 && zeroToSix<2) legs.get(2).animateStep(zeroToSix-1);  // second leg
+        else if(zeroToSix>3-1 && zeroToSix<3) legs.get(4).animateStep(zeroToSix-2);  // third leg
+        else if(zeroToSix>4-1 && zeroToSix<4) legs.get(1).animateStep(zeroToSix-3);  // fourth leg
+        else if(zeroToSix>5-1 && zeroToSix<5) legs.get(3).animateStep(zeroToSix-4);  // fifth leg
+        else if(zeroToSix>5)                  legs.get(5).animateStep(zeroToSix-5);  // sixth leg
 
+        walk(dt);
         solveKinematicsForAllLegs();
     }
 
@@ -330,7 +360,7 @@ public class Crab extends Node {
      * 4   5
      * order should be 2,5,3,1,4,0
      */
-    private void ripple2(double dt) {
+    private void walkRipple2(double dt) {
         double gc1 = gaitCycleTime + 0.5f;
         double gc2 = gaitCycleTime;
 
@@ -354,16 +384,17 @@ public class Crab extends Node {
             case 2 -> 0;
             default -> 0;
         };
-        animateOneLeg(legs.get(o1), step1);
-        animateOneLeg(legs.get(o2), step2);
+        legs.get(o1).animateStep(step1);
+        legs.get(o2).animateStep(step2);
 
         // put all feet down except the active leg(s).
         for(int i=0;i<NUM_LEGS;++i) {
             if(i!=o1 && i!=o2) {
-                putFootDown(legs.get(i),dt);
+                legs.get(i).putFootDown(dt);
             }
         }
 
+        walk(dt);
         solveKinematicsForAllLegs();
     }
 
@@ -378,23 +409,80 @@ public class Crab extends Node {
         // put all feet down except the active leg(s).
         for (int i = 0; i < CrabRobotComponent.NUM_LEGS; ++i) {
             if ((i % 2) != legToMove) {
-                putFootDown(legs.get(i),dt);
+                legs.get(i).putFootDown(dt);
             } else {
-                animateOneLeg(legs.get(i), step);
+                legs.get(i).animateStep(step);
             }
         }
 
+        walk(dt);
         solveKinematicsForAllLegs();
     }
 
-    private void putFootDown(CrabLeg leg,double dt) {
-        // put the foot down at the last contact point.
-        var m = leg.targetPosition.getWorld();
-        var pos = MatrixHelper.getPosition(m);
-        //if(pos.z>0) pos.z-= dt;
-        pos.z=0;
-        m.setTranslation(pos);
-        leg.targetPosition.setWorld(m);
+    /**
+     * Walk the crab robot.  This method is called by the various walk strategies.
+     * <ul>
+     *     <li>Move the body towards the average of the next contact points + the desired height.</li>
+     *     <li>Adjust the position of contactPointNext for each leg based on the walk directions.</li>
+     * </ul>
+     * @param dt the time step
+     */
+    private void walk(double dt) {
+        if(!firstStand) return;  // only walk if we are standing
+
+        double angleRad = Math.toRadians(movingTurning);
+        var m = body.getWorld();
+        var xAxis = MatrixHelper.getXAxis(m);
+        var yAxis = MatrixHelper.getYAxis(m);
+        var bodyPos = MatrixHelper.getPosition(m);
+
+        var rotZ = new Matrix4d();
+        rotZ.rotZ(angleRad * dt);
+
+        {
+            // body average position
+            Vector3d desiredBodyPos = new Vector3d();
+            for(var leg : legs) {
+                // average the contact points
+                desiredBodyPos.x += leg.contactPointNext.x;
+                desiredBodyPos.y += leg.contactPointNext.y;
+                desiredBodyPos.z += leg.contactPointNext.z;
+            }
+            desiredBodyPos.scale(1.0 / NUM_LEGS);  // overall average
+            desiredBodyPos.z += torsoHeight;  // plus the torso height
+
+            Vector3d direction = new Vector3d();
+            direction.sub(desiredBodyPos, bodyPos);  // relative to current position
+            if(direction.length() > dt) {
+                desiredBodyPos.scaleAdd(dt,direction,bodyPos);  // add to current position
+            }
+            m.setTranslation(desiredBodyPos);
+
+            Vector3d before = MatrixHelper.getPosition(m);
+            // rotate the body a little
+            m.mul(rotZ,m);  // apply the rotation
+            m.setTranslation(before);
+
+            // set the new body matrix
+            body.setWorld(m);
+        }
+
+        rotZ.rotZ(angleRad);
+        for(var leg : legs) {
+            // adjust the next contact point based on the walk directions.
+            Vector3d nextContact = new Vector3d(leg.contactPointLast);
+            // adjust for the walk directions based on body orientation
+            nextContact.scaleAdd(movingRight,xAxis,nextContact);
+            nextContact.scaleAdd(movingForward,yAxis,nextContact);
+
+            // adjust for turning
+            Vector3d before = new Vector3d(nextContact);
+            nextContact.sub(bodyPos);  // make relative to body position
+            rotZ.transform(nextContact);
+            nextContact.add(bodyPos);  // put it back in world space
+            // apply
+            leg.contactPointNext.set(nextContact);
+        }
     }
 
     /**
@@ -491,7 +579,6 @@ public class Crab extends Node {
         movingTurning = 0;
         movingForward = 0;
         movingRight = 0;
-        torsoHeight = 0;
     }
 }
 
