@@ -21,15 +21,15 @@ public class Environment extends Node {
     public double sunlightStrength = 1;
     public Color ambientColor = new Color(0x20,0x20,0x20,255);
     private double declination = 0;  // degrees, +/-90
-    private double timeOfDay = 12;  // 0-24
+    private double timeOfDay = 170;  // 0-360
 
     public Environment() {
-    super("Environment");
+    this("Environment");
   }
 
     public Environment(String name) {
         super(name);
-        sunlightSource.set(calculateSunPosition());
+        setTimeOfDay(timeOfDay);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class Environment extends Node {
         sunlightColor = new Color(from.optInt("sunlightColor", sunlightColor.getRGB()));
         sunlightStrength = from.optDouble("sunlightStrength", sunlightStrength);
         ambientColor = new Color(from.optInt("ambientColor", ambientColor.getRGB()));
-        sunlightSource.set(calculateSunPosition());
+        setTimeOfDay(timeOfDay);
     }
 
     public Color getSunlightColor() {
@@ -92,7 +92,7 @@ public class Environment extends Node {
     }
 
     /**
-     * @return 0..24 (hours)
+     * @return 0..360 (scale by 24/360 to get hours)
      */
     public double getTimeOfDay() {
         return timeOfDay;

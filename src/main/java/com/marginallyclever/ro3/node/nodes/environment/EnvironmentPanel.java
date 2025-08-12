@@ -40,7 +40,6 @@ public class EnvironmentPanel extends JPanel {
         gbc.fill = GridBagConstraints.BOTH;
 
         setSunColor(environment.getSunlightColor());
-        timeOfDay.setValue(environment.getTimeOfDay()-90);
         declination.setValue(environment.getDeclination());
 
         // TODO the lighting settings below here should be per-scene.
@@ -62,7 +61,7 @@ public class EnvironmentPanel extends JPanel {
         // sun position
         gbc.gridy++;
         PanelHelper.addLabelAndComponent(container, "Time of day (24h)", timeOfDay,gbc);
-        timeOfDay.setValue(environment.getTimeOfDay());
+        timeOfDay.setValue(environment.getTimeOfDay()-90);
         timeOfDay.addActionListener(e->updateSunPosition());
         timeOfDay.setPreferredSize(new Dimension(100,100));
 
