@@ -60,10 +60,10 @@ public class CrabLeg {
         tibia.setPosition(new Vector3d(Crab.FEMUR, 0, 0));
         toe.setPosition(new Vector3d(Crab.TIBIA, 0, 0));
 
-        Crab.addMeshAndMaterial(coxa);
-        Crab.addMeshAndMaterial(femur);
-        Crab.addMeshAndMaterial(tibia);
-        Crab.addMeshAndMaterial(toe);
+        Crab.addMesh(coxa);
+        Crab.addMesh(femur);
+        Crab.addMesh(tibia);
+        Crab.addMesh(toe);
     }
 
     private void addDecoration(Pose pose, Mesh mesh, Color color) {

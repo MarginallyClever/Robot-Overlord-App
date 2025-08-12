@@ -12,6 +12,7 @@ import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -101,7 +102,10 @@ public class Crab extends Node {
 
         // add the body
         addChild(body);
-        Crab.addMeshAndMaterial(body);
+        Crab.addMesh(body);
+        var mat = new Material();
+        body.addChild(mat);
+        mat.setDiffuseColor(Color.BLUE);
         body.setPosition(new Vector3d(0,0,4.5));
 
         // add legs
@@ -200,8 +204,7 @@ public class Crab extends Node {
         legBone.setLocal(m3);
     }
 
-    static void addMeshAndMaterial(Node node) {
-        node.addChild(new Material());
+    static void addMesh(Node node) {
         var mi = new MeshInstance();
         node.addChild(mi);
         var box = new Box();
