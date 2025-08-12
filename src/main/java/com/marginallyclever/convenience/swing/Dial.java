@@ -13,9 +13,9 @@ import java.awt.event.*;
 /**
  * A dial that can be turned with the mouse wheel, mouse click+drag, or the keyboard +/- keys.
  * Attach an {@link ActionListener} to receive the "turn" command when the dial is turned.
+ * The dial value is a double that can be set to any value.  The dial range is 0...360 degrees.
  */
 public class Dial extends JComponent {
-	private static final Logger logger = LoggerFactory.getLogger(Dial.class);
 	private double value=0;
 	private double change=0;
 
