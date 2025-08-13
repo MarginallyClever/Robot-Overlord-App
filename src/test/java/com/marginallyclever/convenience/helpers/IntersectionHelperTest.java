@@ -32,15 +32,12 @@ public class IntersectionHelperTest {
     public void testCuboidCuboid() {
         AABB a = new AABB();
         a.setBounds(new Point3d(0, 0, 0), new Point3d(1, 1, 1));
-        a.setPose(MatrixHelper.createIdentityMatrix4());
 
         AABB b = new AABB();
         b.setBounds(new Point3d(2, 2, 2), new Point3d(3, 3, 3));
-        b.setPose(MatrixHelper.createIdentityMatrix4());
 
         AABB c = new AABB();
         c.setBounds(new Point3d(0.5, 0.5, 0.5), new Point3d(1.5, 1.5, 1.5));
-        c.setPose(MatrixHelper.createIdentityMatrix4());
 
         assertFalse(IntersectionHelper.cuboidCuboid(a, b));
         assertTrue(IntersectionHelper.cuboidCuboid(a, c));
@@ -50,7 +47,6 @@ public class IntersectionHelperTest {
     public void testRayBox() {
         AABB a = new AABB();
         a.setBounds(new Point3d(0, 0, 0), new Point3d(1, 1, 1));
-        a.setPose(MatrixHelper.createIdentityMatrix4());
 
         var p1 = new Point3d(0.5, 0.5, 1.5);
         var p2 = new Vector3d(0.0, 0.0, 1.0);

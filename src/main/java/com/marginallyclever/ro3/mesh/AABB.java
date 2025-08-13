@@ -9,13 +9,9 @@ import javax.vecmath.Point3d;
 import java.io.Serializable;
 
 /**
- * Axially-aligned bounding box.  Used for fast sorting and filtering.
+ * {@link AABB} is a bounding box aligned to the world axies.  Used for fast sorting and filtering.
  */
 public class AABB implements BoundingVolume, Serializable {
-
-	// pose of this {@link Cuboid} in the world.
-	protected Matrix4d pose = new Matrix4d();
-	
 	protected Point3d max = new Point3d();  // max limits
 	protected Point3d min = new Point3d();  // min limits
 	
@@ -27,12 +23,10 @@ public class AABB implements BoundingVolume, Serializable {
 	
 	public AABB() {
 		super();
-		pose.setIdentity();
 		for(int i = 0; i< corners.length; ++i) corners[i] = new Point3d();
 	}
 
 	public void set(AABB b) {
-		pose.set(b.pose);
 		max.set(b.max);
 		min.set(b.min);
 		myShape = b.myShape;
@@ -54,12 +48,6 @@ public class AABB implements BoundingVolume, Serializable {
 		corners[5].set(max.x, min.y, max.z);
 		corners[6].set(max.x, max.y, min.z);
 		corners[7].set(max.x, max.y, max.z);
-
-        for (Point3d point3d : corners) {
-            // logger.info("\t"+point3d);
-            pose.transform(point3d);
-            // logger.info(" >> "+point3d);
-        }
 	}
 
 	public void setBounds(Point3d newMax, Point3d newMin) {
@@ -91,17 +79,6 @@ public class AABB implements BoundingVolume, Serializable {
 	
 	public double getExtentZ() {
 		return max.z- min.z;
-	}
-	
-	public void setPose(Matrix4d m) {
-		if(!pose.epsilonEquals(m, 1e-4)) {
-			pose.set(m);
-			isDirty=true;
-		}
-	}
-	
-	public Matrix4d getPose() {
-		return new Matrix4d(pose);
 	}
 
 	public void setDirty(boolean newState) {
@@ -145,7 +122,6 @@ public class AABB implements BoundingVolume, Serializable {
 		children[7].setBounds(new Point3d(max.x, max.y, max.z), new Point3d(mid.x, mid.y, mid.z));
 
 		for(AABB child : children) {
-			child.setPose(pose);
 			child.setDirty(true);
 		}
 

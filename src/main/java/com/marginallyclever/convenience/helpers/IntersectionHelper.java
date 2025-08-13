@@ -165,27 +165,23 @@ public abstract class IntersectionHelper {
 	
 	static protected boolean cuboidCuboidInternal(AABB a, AABB b) {
 		// get the normals for A
-		Vector3d[] n = new Vector3d[3];
-		Matrix4d pose = a.getPose();
-		n[0] = new Vector3d(pose.m00, pose.m10, pose.m20);
-		n[1] = new Vector3d(pose.m01, pose.m11, pose.m21);
-		n[2] = new Vector3d(pose.m02, pose.m12, pose.m22);
-		// logger.info("aMatrix="+a.poseWorld);
-		
+		final Vector3d [] normals = {
+				new Vector3d(1,0,0),
+				new Vector3d(0,1,0),
+				new Vector3d(0,0,1),
+		};
 		a.updatePoints();
 		b.updatePoints();
 
-        for (Vector3d vector3d : n) {
+        for (var n : normals) {
             // SATTest the normals of A against the 8 points of box A.
             // SATTest the normals of A against the 8 points of box B.
             // points of each box are a combination of the box's top/bottom values.
-            double[] aLim = SATTest(vector3d, a.corners);
-            double[] bLim = SATTest(vector3d, b.corners);
-            // logger.info("Lim "+axis[i]+" > "+n[i].x+"\t"+n[i].y+"\t"+n[i].z+" :
-            // "+aLim[0]+","+aLim[1]+" vs "+bLim[0]+","+bLim[1]);
+            double[] aLim = SATTest(n, a.corners);
+            double[] bLim = SATTest(n, b.corners);
+            // logger.info("Lim "+axis[i]+" > "+n.x+"\t"+n.y+"\t"+n.z+" : "+aLim[0]+","+aLim[1]+" vs "+bLim[0]+","+bLim[1]);
 
-            // if the two box projections do not overlap then there is no chance of a
-            // collision.
+            // if the two box projections do not overlap then there is no chance of a collision.
             if (!overlaps(aLim[0], aLim[1], bLim[0], bLim[1])) {
                 // logger.info("Miss");
                 return false;
