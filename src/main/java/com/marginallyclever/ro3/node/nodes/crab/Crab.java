@@ -227,7 +227,7 @@ public class Crab extends Node {
             case STAND_UP:  standUp(dt);  break;
             case TAP_TOE_ONE:  tapOneToe();  break;
             case WALK_THREE_AT_ONCE:  walkThreeAtOnce(dt);  break;
-            case WALK_RIPPLE1:  walkRipple1(dt);  break;
+            case WALK_RIPPLE:  walkRipple1(dt);  break;
             case WALK_WAVE:  walkRipple2(dt);  break;
             default:  goLimp();
                 // do nothing

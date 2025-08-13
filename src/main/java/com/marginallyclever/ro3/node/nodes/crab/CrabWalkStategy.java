@@ -6,8 +6,8 @@ public enum CrabWalkStategy {
     SIT_DOWN("SIT_DOWN"),
     STAND_UP("STAND_UP"),
     TAP_TOE_ONE("TAP_TOE_ONE"),
-    WALK_RIPPLE1("WALK_RIPPLE1"),
-    WALK_RIPPLE2("WALK_RIPPLE2"),
+    WALK_RIPPLE("WALK_RIPPLE"),
+    WALK_WAVE("WALK_WAVE"),
     WALK_THREE_AT_ONCE("WALK_THREE_AT_ONCE");
 
     public final String name;
