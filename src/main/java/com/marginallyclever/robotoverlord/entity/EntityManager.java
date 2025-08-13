@@ -4,7 +4,6 @@ import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.ro3.mesh.AABB;
 import com.marginallyclever.robotoverlord.Collidable;
 import com.marginallyclever.robotoverlord.SerializationContext;
-import com.marginallyclever.robotoverlord.components.CameraComponent;
 import com.marginallyclever.robotoverlord.components.PoseComponent;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,9 +48,9 @@ public class EntityManager {
 	public boolean collisionTest(ArrayList<AABB> listA) {
 		// check all children
 		for( Entity b : entities) {
-			if( !(b instanceof Collidable) ) continue;
+			if( !(b instanceof Collidable c) ) continue;
 			
-			ArrayList<AABB> listB = ((Collidable)b).getCuboidList();
+			ArrayList<AABB> listB = c.getCuboidList();
 			if( listB == null ) continue;
 			
 			if(listB.get(0)==listA.get(0)) {
@@ -124,19 +123,6 @@ public class EntityManager {
 		}
 		return null;
     }
-
-	public CameraComponent getCamera() {
-		Queue<Entity> toTest = new LinkedList<>(entities);
-		while(!toTest.isEmpty()) {
-			Entity entity = toTest.remove();
-
-			CameraComponent camera = entity.findFirstComponentRecursive(CameraComponent.class);
-			if(camera!=null) return camera;
-
-			toTest.addAll(entity.getChildren());
-		}
-		return null;
-	}
 
 	/**
 	 * Deep search for a child with this name.
