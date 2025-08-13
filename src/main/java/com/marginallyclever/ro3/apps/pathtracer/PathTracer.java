@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.apps.pathtracer;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.environment.Environment;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
@@ -67,7 +68,7 @@ public class PathTracer {
         pathTracingWorker = null;
     }
 
-    public void render() {
+    public void start() {
         if(pathTracingWorker !=null) return;
 
         getSunlight();
@@ -121,7 +122,8 @@ public class PathTracer {
             }
 
             // does this material emit light?
-            Material mat = getMaterial(rayHit);
+            Material mat = RayPickSystem.getMaterial(rayHit.target());
+            if(mat == null) mat = defaultMaterial;
             if(mat.isEmissive()) {
                 handleEmissiveHit(ray,rayHit,prevRay,prevHit,throughput,radiance,mat);
                 break;
@@ -329,13 +331,6 @@ public class PathTracer {
         refracted.scale(iorRatio, incident);
         refracted.scaleAdd(iorRatio * cosI - cosT, normal, refracted);
         return refracted;
-    }
-
-    private Material getMaterial(RayHit rayHit) {
-        var meshInstance = rayHit.target();
-        if(meshInstance==null) return defaultMaterial;
-        var mat = meshInstance.findFirstSibling(Material.class);
-        return mat == null ? defaultMaterial : mat;
     }
 
     /**

@@ -105,7 +105,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener, Prog
                     //centerLabel.setIcon(new ImageIcon(pathTracer.getDepthMap()));
                     progressBar.setValue(0);
                     runTime.setText(String.format("%02d:%02d:%02d:%03d", 0, 0, 0, 0));
-                    pathTracer.render();
+                    pathTracer.start();
                 }
             }
         });
