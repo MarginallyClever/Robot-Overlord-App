@@ -42,10 +42,10 @@ public class CrabPanel extends JPanel {
 
         // add 3x3 grid of buttons.  turn left, forward, turn right, strafe left, stop, strafe right, raise torso, backward, lower torso.
         JPanel buttonPanel = new JPanel(new GridLayout(3, 3));
-        buttonPanel.add(createButton("Turn Left", e->crab.turnLeft(1)));
+        buttonPanel.add(createButton("Turn Left", e->crab.turnLeft(5)));
         buttonPanel.add(createButton("Forward", e->crab.forward(1)));
         buttonPanel.add(createButton("Turn Right", e->crab.turnLeft(-5)));
-        buttonPanel.add(createButton("Strafe Left", e->crab.strafeRight(-5)));
+        buttonPanel.add(createButton("Strafe Left", e->crab.strafeRight(-1)));
         buttonPanel.add(createButton("Stop", e->crab.idle()));
         buttonPanel.add(createButton("Strafe Right", e->crab.strafeRight(1)));
         buttonPanel.add(createButton("Raise Torso", e->crab.raiseTorso(1)));

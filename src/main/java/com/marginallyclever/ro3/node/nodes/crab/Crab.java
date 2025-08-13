@@ -82,7 +82,7 @@ public class Crab extends Node {
     private final List<CrabLeg> legs = new ArrayList<>();
 
     // animation strategies
-    private CrabWalkStategy chosenStrategy = CrabWalkStategy.GO_LIMP;
+    private CrabWalkStategy chosenStrategy = CrabWalkStategy.SIT_DOWN;
     // animation timer
     private double gaitCycleTime = 0;
     // flags for sit and stand
@@ -105,7 +105,7 @@ public class Crab extends Node {
         Crab.addMesh(body);
         var mat = new Material();
         body.addChild(mat);
-        mat.setDiffuseColor(Color.BLUE);
+        mat.setDiffuseColor(new Color(51,153,255));
         body.setPosition(new Vector3d(0,0,4.5));
 
         // add legs
@@ -228,7 +228,7 @@ public class Crab extends Node {
             case TAP_TOE_ONE:  tapOneToe();  break;
             case WALK_THREE_AT_ONCE:  walkThreeAtOnce(dt);  break;
             case WALK_RIPPLE1:  walkRipple1(dt);  break;
-            case WALK_RIPPLE2:  walkRipple2(dt);  break;
+            case WALK_WAVE:  walkRipple2(dt);  break;
             default:  goLimp();
                 // do nothing
                 break;
@@ -356,7 +356,7 @@ public class Crab extends Node {
         else if(zeroToSix>=4 && zeroToSix<5) legs.get(4).animateStep(zeroToSix-4);
         else if(zeroToSix>=5               ) legs.get(0).animateStep(zeroToSix-5);
 
-        walk(dt);
+        walk(dt,1.0/NUM_LEGS);
         solveKinematicsForAllLegs();
     }
 
@@ -400,7 +400,7 @@ public class Crab extends Node {
             }
         }
 
-        walk(dt);
+        walk(dt,2.0/NUM_LEGS);
         solveKinematicsForAllLegs();
     }
 
@@ -421,7 +421,7 @@ public class Crab extends Node {
             }
         }
 
-        walk(dt);
+        walk(dt,3.0/NUM_LEGS);
         solveKinematicsForAllLegs();
     }
 
@@ -432,8 +432,9 @@ public class Crab extends Node {
      *     <li>Adjust the position of contactPointNext for each leg based on the walk directions.</li>
      * </ul>
      * @param dt the time step
+     * @param turnScale a scale factor for turning, based on the relative speed of the legs.
      */
-    private void walk(double dt) {
+    private void walk(double dt,double turnScale) {
         if(!firstStand) return;  // only walk if we are standing
 
         adjustBodyHeight(dt,torsoHeight);
@@ -442,7 +443,7 @@ public class Crab extends Node {
 
         double angleRad = Math.toRadians(movingTurning);
         var rotZ = new Matrix4d();
-        rotZ.rotZ(angleRad*dt/6);
+        rotZ.rotZ(angleRad*dt*turnScale);
 
         // rotate the body without drifting.
         {
