@@ -88,19 +88,25 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener, Prog
 
         toolBar.add(new AbstractAction() {
             {
-                putValue(Action.NAME, "Render");
+                putValue(Action.NAME, "Start");
                 putValue(Action.SHORT_DESCRIPTION, "Render the scene using path tracing.");
             }
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                pathTracer.setActiveCamera(getActiveCamera());
-                pathTracer.setSize(getWidth(),getHeight());
-                centerLabel.setIcon(new ImageIcon(pathTracer.getImage()));
-                //centerLabel.setIcon(new ImageIcon(pathTracer.getDepthMap()));
-                progressBar.setValue(0);
-                runTime.setText(String.format("%02d:%02d:%02d:%03d",0,0,0,0));
-                pathTracer.render();
+                if(pathTracer.isRunning()) {
+                    pathTracer.stop();
+                    putValue(Action.NAME, "Start");
+                } else {
+                    putValue(Action.NAME, "Stop");
+                    pathTracer.setActiveCamera(getActiveCamera());
+                    pathTracer.setSize(getWidth(), getHeight());
+                    centerLabel.setIcon(new ImageIcon(pathTracer.getImage()));
+                    //centerLabel.setIcon(new ImageIcon(pathTracer.getDepthMap()));
+                    progressBar.setValue(0);
+                    runTime.setText(String.format("%02d:%02d:%02d:%03d", 0, 0, 0, 0));
+                    pathTracer.render();
+                }
             }
         });
         toolBar.add(progressBar);

@@ -61,27 +61,30 @@ public class PathTracer {
         super();
     }
 
+    public void stop() {
+        if(pathTracingWorker == null) return;
+        pathTracingWorker.cancel(true);
+        pathTracingWorker = null;
+    }
+
     public void render() {
-        if(pathTracingWorker !=null) {
-            pathTracingWorker.cancel(true);
-            pathTracingWorker = null;
-        } else {
-            getSunlight();
-            if(activeCamera==null) throw new RuntimeException("No active camera!");
-            if(canvasHeight==0 || canvasWidth==0) throw new RuntimeException("Canvas size is zero!");
+        if(pathTracingWorker !=null) return;
 
-            rays.clear();
-            for(int y=0;y<canvasHeight;y++) {
-                for(int x=0;x<canvasWidth;x++) {
-                    rays.add(new RayXY(x,y));
-                }
+        getSunlight();
+        if(activeCamera==null) throw new RuntimeException("No active camera!");
+        if(canvasHeight==0 || canvasWidth==0) throw new RuntimeException("Canvas size is zero!");
+
+        rays.clear();
+        for(int y=0;y<canvasHeight;y++) {
+            for(int x=0;x<canvasWidth;x++) {
+                rays.add(new RayXY(x,y));
             }
-            //rays.add(new RayXY(429,473));
-
-            rayPickSystem.reset();
-            pathTracingWorker = new PathTracingWorker(rays, image);
-            pathTracingWorker.execute();
         }
+        //rays.add(new RayXY(429,473));
+
+        rayPickSystem.reset();
+        pathTracingWorker = new PathTracingWorker(rays, image);
+        pathTracingWorker.execute();
     }
 
     /**
@@ -473,6 +476,10 @@ public class PathTracer {
 
     public void setActiveCamera(Camera camera) {
         this.activeCamera = camera;
+    }
+
+    public boolean isRunning() {
+        return pathTracingWorker != null && !pathTracingWorker.isDone() && !pathTracingWorker.isCancelled();
     }
 
     private class PathTracingWorker extends SwingWorker<Void,Integer> {

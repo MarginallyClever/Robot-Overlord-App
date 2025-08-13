@@ -2,9 +2,7 @@ package com.marginallyclever.ro3.raypicking;
 
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.pathtracer.ColorDouble;
 import com.marginallyclever.ro3.apps.pathtracer.PathMesh;
-import com.marginallyclever.ro3.apps.pathtracer.PathTracer;
 import com.marginallyclever.ro3.apps.pathtracer.PathTriangle;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.VertexProvider;
