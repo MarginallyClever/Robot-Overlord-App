@@ -5,6 +5,7 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
+import com.marginallyclever.ro3.mesh.VertexProvider;
 import com.marginallyclever.robotoverlord.RayHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
