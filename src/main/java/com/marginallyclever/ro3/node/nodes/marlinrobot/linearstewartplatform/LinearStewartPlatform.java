@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.util.ArrayList;
@@ -191,7 +192,7 @@ public class LinearStewartPlatform extends MarlinRobot {
         arm.setTarget((Pose)ee.findChild(key));
 
         Vector3d attachPos = MatrixHelper.getPosition(attachPoint.getWorld());
-        Vector3d startPos = new Vector3d(attachPos);
+        Point3d startPos = new Point3d(attachPos);
         startPos.z=0;
         Ray ray = new Ray(startPos, new Vector3d(0,0,1));
         rays.add(ray);

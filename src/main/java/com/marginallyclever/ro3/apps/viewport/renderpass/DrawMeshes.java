@@ -24,7 +24,6 @@ import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 /**
  * Draw each {@link MeshInstance} as a {@link Mesh}.  If the {@link MeshInstance} has a sibling {@link Material} with
@@ -34,7 +33,7 @@ public class DrawMeshes extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawMeshes.class);
     private ShaderProgram meshShader, shadowShader, outlineShader;
     private final Mesh shadowQuad = new Mesh();
-    private int outlineThickness = 5;
+    private int outlineThickness = 25;
     private final int [] shadowFBO = new int[1];  // Frame Buffer Object
     private final int [] depthMap = new int[1];  // texture for the FBO
     private final int shadowMapUnit = 1;

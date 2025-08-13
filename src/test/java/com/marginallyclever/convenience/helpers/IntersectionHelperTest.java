@@ -75,9 +75,9 @@ public class IntersectionHelperTest {
     @Test
     public void testRayTriangle() {
         Ray a = new Ray(new Point3d(0, 0, 0), new Vector3d(0, 0, 1));
-        Vector3d v0 = new Vector3d(-1, -1, 1);
-        Vector3d v1 = new Vector3d(1, 0, 1);
-        Vector3d v2 = new Vector3d(0, 1, 1);
+        Point3d v0 = new Point3d(-1, -1, 1);
+        Point3d v1 = new Point3d(1, 0, 1);
+        Point3d v2 = new Point3d(0, 1, 1);
         var result = IntersectionHelper.rayTriangle(a, v0, v1, v2);
         assertEquals(1, result, 1e-6);
         Ray b = new Ray(new Point3d(0, 0, 0), new Vector3d(0, 0, -1));
