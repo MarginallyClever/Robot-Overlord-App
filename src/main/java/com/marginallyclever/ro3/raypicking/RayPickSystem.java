@@ -10,6 +10,8 @@ import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -19,6 +21,7 @@ import java.util.*;
  * A system for finding the nearest {@link MeshInstance} that collides with a ray.
  */
 public class RayPickSystem {
+    private static final Logger logger = LoggerFactory.getLogger(RayPickSystem.class);
     // all the MeshInstances in the scene.
     private final List<MeshInstance> sceneElements = new ArrayList<>();
 
@@ -35,6 +38,7 @@ public class RayPickSystem {
     }
 
     public void reset() {
+        logger.debug("reset");
         cache.clear();
         emissiveMeshes.clear();
         sceneElements.clear();
@@ -42,6 +46,7 @@ public class RayPickSystem {
     }
 
     private void buildSceneList() {
+        logger.debug("start");
         // build the list of scene elements once
         Queue<Node> toTest = new LinkedList<>();
         toTest.add(Registry.getScene());
@@ -49,13 +54,31 @@ public class RayPickSystem {
             Node node = toTest.remove();
             if(node instanceof MeshInstance meshInstance) {
                 sceneElements.add(meshInstance);
-                var mat = meshInstance.findFirstSibling(Material.class);
+                var mat = getMaterial(meshInstance);
                 if(mat!=null && mat.isEmissive()) {
                     emissiveMeshes.add(meshInstance);
                 }
+                cache.put(meshInstance, createPathMesh(meshInstance));
             }
             toTest.addAll(node.getChildren());
         }
+        logger.debug("done with {} cached items", cache.size());
+    }
+
+    public static Material getMaterial(Node meshInstance) {
+        if(meshInstance==null) return null;
+
+        var mat = meshInstance.findFirstSibling(Material.class);
+        if(mat != null) return mat;
+
+        // check all parents until a material is found
+        var parent = meshInstance.getParent();
+        while(parent != null) {
+            mat = parent.findFirstSibling(Material.class);
+            if(mat != null) return mat;
+            parent = parent.getParent();
+        }
+        return null;
     }
 
     /**
@@ -95,11 +118,7 @@ public class RayPickSystem {
             }
 
             if(optimize) {
-                if (!cache.containsKey(meshInstance)) {
-                    // create a copy of meshInstance that is transformed to world space.
-                    cache.put(meshInstance, createPathMesh(meshInstance));
-                }
-                PathMesh worldMesh = cache.get(meshInstance);
+                PathMesh worldMesh = getCachedMesh(meshInstance);
                 if (worldMesh == null) continue;
 
                 RayHit hit2 = worldMesh.intersect(ray);
@@ -109,6 +128,14 @@ public class RayPickSystem {
             }
         }
         return rayHits;
+    }
+
+    private PathMesh getCachedMesh(MeshInstance meshInstance) {
+        if (!cache.containsKey(meshInstance)) {
+            // create a copy of meshInstance that is transformed to world space.
+            cache.put(meshInstance, createPathMesh(meshInstance));
+        }
+        return cache.get(meshInstance);
     }
 
     /**
@@ -122,9 +149,8 @@ public class RayPickSystem {
         var matrix = meshInstance.getWorld();
 
         VertexProvider vertexProvider = oldMesh.getVertexProvider();
-
-        var numTriangles = oldMesh.getNumTriangles() * 3;
-        for(int i = 0; i < numTriangles; i+=3) {
+        var numVertexes = vertexProvider.provideCount();
+        for(int i = 0; i < numVertexes; i+=3) {
             Point3d p0 = vertexProvider.provideVertex(i    );
             Point3d p1 = vertexProvider.provideVertex(i + 1);
             Point3d p2 = vertexProvider.provideVertex(i + 2);
@@ -141,11 +167,7 @@ public class RayPickSystem {
 
     public RayHit getRandomEmissiveSurface() {
         for(var meshInstance : emissiveMeshes) {
-            if(!cache.containsKey(meshInstance)) {
-                // create a copy of meshInstance that is transformed to world space.
-                cache.put(meshInstance, createPathMesh(meshInstance));
-            }
-            PathMesh worldMesh = cache.get(meshInstance);
+            PathMesh worldMesh = getCachedMesh(meshInstance);
             if(worldMesh==null) continue;
 
             PathTriangle pt = worldMesh.getRandomTriangle();
