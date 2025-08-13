@@ -2,7 +2,6 @@ package com.marginallyclever.ro3.mesh.load;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.Material;
-import com.marginallyclever.robotoverlord.components.MaterialComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
