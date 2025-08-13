@@ -23,7 +23,7 @@ public interface VertexProvider {
     Vector3d provideNormal(int index);
 
     /**
-     * @return the number of vertexes and normals available.
+     * @return the number of vertexes and normals available.  This should be number of triangles * 3.
      */
     int provideCount();
 }
