@@ -49,11 +49,13 @@ public class IntersectionHelperTest {
         a.setBounds(new Point3d(0, 0, 0), new Point3d(1, 1, 1));
 
         var p1 = new Point3d(0.5, 0.5, 1.5);
-        var p2 = new Vector3d(0.0, 0.0, 1.0);
-        var p3 = new Vector3d(0.0, 0.0, -1.0);
+        var v2 = new Vector3d(0.0, 0.0, 1.0);
+        var v3 = new Vector3d(0.0, 0.0, -1.0);
+        var p4 = new Point3d(0.5, 0.5, 0.5);
 
-        assertFalse(IntersectionHelper.rayBox(new Ray(p1, p2), a.getBoundsBottom(), a.getBoundsTop()) > 0);
-        assertTrue(IntersectionHelper.rayBox(new Ray(p1, p3), a.getBoundsBottom(), a.getBoundsTop()) > 0);
+        assertFalse(IntersectionHelper.rayBox(new Ray(p1, v2), a.getBoundsTop(), a.getBoundsBottom()).isHit());
+        assertTrue(IntersectionHelper.rayBox(new Ray(p1, v3), a.getBoundsTop(), a.getBoundsBottom()).isHit());
+        assertTrue(IntersectionHelper.rayBox(new Ray(p4, v3), a.getBoundsTop(), a.getBoundsBottom()).isHit());
     }
 
     @Test

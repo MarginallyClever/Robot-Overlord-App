@@ -428,7 +428,8 @@ public class Mesh {
 			renderStyle != GL3.GL_TRIANGLE_FAN &&
 			renderStyle != GL3.GL_TRIANGLE_STRIP ) return null;
 
-		if(!boundingBox.intersect(ray)) return null;  // no hit
+		var test = boundingBox.intersect(ray);
+		if (!test.isHit()) return null;  // miss
 
 		int a=0;
 		double nearest = Double.MAX_VALUE;

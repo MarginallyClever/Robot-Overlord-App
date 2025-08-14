@@ -243,7 +243,7 @@ public abstract class IntersectionHelper {
 	 * @param ray start and direction
 	 * @param center center of sphere
 	 * @param radius radius of sphere
-	 * @return distance to first hit.  negative values for no hit/behind start. 
+	 * @return distance to first hit.  negative values for no hit/behind start.
 	 */
 	static public double raySphere(final Ray ray,final Tuple3d center,final double radius) {
 		Vector3d oc = new Vector3d();
@@ -265,58 +265,65 @@ public abstract class IntersectionHelper {
 	 * @param ray start and direction
 	 * @param boxMin lower bounds
 	 * @param boxMax upper bounds
-	 * @return &gt;=0 for hit, negative numbers for hits behind the ray origin or no hit.
+	 * @return a {@link RayAABBHit}
 	 */
-	static public double rayBox(final Ray ray,final Point3d boxMin,final Point3d boxMax) {
-		Vector3d rayDirection = ray.direction();
+	static public RayAABBHit rayBox(final Ray ray,final Point3d boxMin,final Point3d boxMax) {
 		Point3d rayOrigin = ray.origin();
-	    double tmin = (boxMin.x - rayOrigin.x) / rayDirection.x;
-	    double tmax = (boxMax.x - rayOrigin.x) / rayDirection.x;
-	
-	    if (tmin > tmax) {
-	    	double temp = tmin;
-	    	tmin=tmax;
-	    	tmax=temp;
-	    }
-	
-	    double tymin = (boxMin.y - rayOrigin.y) / rayDirection.y;
-	    double tymax = (boxMax.y - rayOrigin.y) / rayDirection.y;
-	
-	    if (tymin > tymax) {
-	    	double temp = tymin;
-	    	tymin=tymax;
-	    	tymax=temp;
-	    }
-	
-	    if ((tmin > tymax) || (tymin > tmax)) 
-	        return -1; 
-	
-	    if (tymin > tmin) 
-	        tmin = tymin; 
-	
-	    if (tymax < tmax) 
-	        tmax = tymax; 
-	
-	    double tzmin = (boxMin.z - rayOrigin.z) / rayDirection.z;
-	    double tzmax = (boxMax.z - rayOrigin.z) / rayDirection.z;
-	
-	    if (tzmin > tzmax) {
-	    	double temp = tzmin;
-	    	tzmin=tzmax;
-	    	tzmax=temp;
-	    }
-	
-	    if ((tmin > tzmax) || (tzmin > tmax)) 
-	        return -1; 
-	
-	    if (tzmin > tmin) 
-	        tmin = tzmin; 
-	
-	    //if (tzmax < tmax) 
-	    //    tmax = tzmax; 
-	
-	    return tmin; 
+		Vector3d rayDirection = ray.direction();
+
+		double tEnter = 0.0;
+		double tExit  = Double.POSITIVE_INFINITY;
+
+		// X slab
+		if (rayDirection.x == 0.0) {
+			if (rayOrigin.x < boxMin.x || rayOrigin.x > boxMax.x) return RayAABBHit.miss();
+		} else {
+			double inv = 1.0 / rayDirection.x;
+			double t0 = (boxMin.x - rayOrigin.x) * inv;
+			double t1 = (boxMax.x - rayOrigin.x) * inv;
+			if (t0 > t1) { double tmp = t0; t0 = t1; t1 = tmp; }
+			tEnter = Math.max(tEnter, t0);
+			tExit  = Math.min(tExit,  t1);
+			if (tEnter > tExit) return RayAABBHit.miss();
+		}
+
+		// Y slab
+		if (rayDirection.y == 0.0) {
+			if (rayOrigin.y < boxMin.y || rayOrigin.y > boxMax.y) return RayAABBHit.miss();
+		} else {
+			double inv = 1.0 / rayDirection.y;
+			double t0 = (boxMin.y - rayOrigin.y) * inv;
+			double t1 = (boxMax.y - rayOrigin.y) * inv;
+			if (t0 > t1) { double tmp = t0; t0 = t1; t1 = tmp; }
+			tEnter = Math.max(tEnter, t0);
+			tExit  = Math.min(tExit,  t1);
+			if (tEnter > tExit) return RayAABBHit.miss();
+		}
+
+		// Z slab
+		if (rayDirection.z == 0.0) {
+			if (rayOrigin.z < boxMin.z || rayOrigin.z > boxMax.z) return RayAABBHit.miss();
+		} else {
+			double inv = 1.0 / rayDirection.z;
+			double t0 = (boxMin.z - rayOrigin.z) * inv;
+			double t1 = (boxMax.z - rayOrigin.z) * inv;
+			if (t0 > t1) { double tmp = t0; t0 = t1; t1 = tmp; }
+			tEnter = Math.max(tEnter, t0);
+			tExit  = Math.min(tExit,  t1);
+			if (tEnter > tExit) return RayAABBHit.miss();
+		}
+
+		boolean inside =
+				rayOrigin.x >= boxMin.x && rayOrigin.x <= boxMax.x &&
+						rayOrigin.y >= boxMin.y && rayOrigin.y <= boxMax.y &&
+						rayOrigin.z >= boxMin.z && rayOrigin.z <= boxMax.z;
+		if (inside) tEnter = 0.0;
+
+		if (tExit < 0.0) return RayAABBHit.miss(); // box entirely behind
+
+		return RayAABBHit.hit(inside, tEnter, tExit);
 	}
+
 
 	/**
 	 * <a href="https://en.wikipedia.org/wiki/Circumscribed_circle">circumscribed circle</a>

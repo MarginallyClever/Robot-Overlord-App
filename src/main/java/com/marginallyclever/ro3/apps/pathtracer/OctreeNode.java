@@ -12,11 +12,10 @@ import java.util.List;
  * OctreeNode is a node in an octree structure used for spatial partitioning.
  */
 public class OctreeNode {
-    private static final int MAX_TRIANGLES = 50;
     private static final int MAX_DEPTH = 10;
 
     private final AABB bounds;
-    private List<PathTriangle> triangles = new LinkedList<>();
+    private final List<PathTriangle> triangles = new LinkedList<>();
     private OctreeNode[] children = null;
 
     public OctreeNode(AABB bounds) {
@@ -74,12 +73,14 @@ public class OctreeNode {
     }
 
     public PathTriangle intersect(Ray ray) {
-        if (!bounds.intersect(ray)) return null;
+        var test = bounds.intersect(ray);
+        if (!test.isHit()) return null;
 
         PathTriangle closestHit = null;
         double closestDist = ray.maxDistance();
 
         for (PathTriangle triangle : triangles) {
+            if(!triangle.bounds.intersect(ray).isHit()) continue;
             double dist = triangle.intersectRay(ray);
             if (dist < closestDist) {
                 closestDist = dist;
@@ -107,12 +108,10 @@ public class OctreeNode {
     }
 
     private void print(int depth) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("  ".repeat(depth))
-                     .append("OctreeNode at depth ").append(depth)
-                     .append(" with bounds ").append(bounds)
-                     .append(" containing ").append(triangles.size()).append(" triangles.\n");
-        System.out.print(stringBuilder.toString());
+        System.out.println("  ".repeat(depth) +
+                "OctreeNode at depth " + depth +
+                " with bounds " + bounds +
+                " containing " + triangles.size() + " triangles.");
         if (children != null) {
             for (OctreeNode child : children) {
                 child.print(depth + 1);

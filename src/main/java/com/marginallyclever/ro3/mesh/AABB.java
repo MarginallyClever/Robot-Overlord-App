@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.mesh;
 import com.marginallyclever.convenience.BoundingVolume;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
+import com.marginallyclever.convenience.helpers.RayAABBHit;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -65,8 +66,8 @@ public class AABB implements BoundingVolume, Serializable {
 		return myShape;
 	}
 
-	public boolean intersect(Ray ray) {
-		return IntersectionHelper.rayBox(ray, min, max)>=0;
+	public RayAABBHit intersect(Ray ray) {
+		return IntersectionHelper.rayBox(ray, min, max);
 	}
 
 	/**

@@ -43,7 +43,8 @@ public class PathMesh {
      * @return The RayHit object containing the intersection point and normal, or null if no intersection.
      */
     public RayHit intersect(Ray ray) {
-        if(!boundingBox.intersect(ray)) return null;  // no hit
+        var test = boundingBox.intersect(ray);
+        if(!test.isHit()) return null;  // no hit
 
         PathTriangle bestTriangle = octreeRoot.intersect(ray);
         if( bestTriangle == null ) return null;  // no hit
