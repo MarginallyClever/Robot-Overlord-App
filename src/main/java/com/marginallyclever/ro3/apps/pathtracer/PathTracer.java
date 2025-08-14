@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class PathTracer {
     private static final double EPSILON = 1e-6;
     private static final int MIN_BOUNCES = 3; // minimum number of bounces before Russian roulette can kick in
-    private static final double LIGHT_SAMPLING_PROBABILITY = 1.0;
+    private static final double LIGHT_SAMPLING_PROBABILITY = 0.25;
     private static final double MAX_THROUGHPUT = 10.0;
     private static final double MAX_CONTRIBUTION = 20.0;
 
@@ -174,7 +174,7 @@ public class PathTracer {
     }
 
     private void probabilisticLightSampling(double p, Ray ray, RayHit rayHit, Material mat, ColorDouble throughput, ColorDouble radiance) {
-        // get an emissive surface, including the sun
+        // get an emissive surface
         RayHit emissiveHit = rayPickSystem.getRandomEmissiveSurface();
         if(emissiveHit == null) return;
 
@@ -185,7 +185,7 @@ public class PathTracer {
 
         // shoot a shadow ray to see if the light is visible
         Point3d from = new Point3d();
-        from.scaleAdd(-EPSILON,rayHit.normal(),rayHit.point());
+        from.scaleAdd(EPSILON,rayHit.normal(),rayHit.point());
         Ray lightRay = new Ray(from, toLight);
         RayHit lightHit = rayPickSystem.getFirstHit(lightRay,true);
         if(lightHit == null) return;
