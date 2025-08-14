@@ -28,7 +28,7 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
     private int fsaaSamples = 2;
     private boolean verticalSync = true;
     private int fps = 30;
-    private final FPSAnimator animator = new FPSAnimator(fps);
+    private final FPSAnimator animator;
     private ShaderProgram toolShader;
 
     public OpenGLPanel() {
@@ -45,6 +45,7 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
             logger.error("Failed to create canvas.  Are your native drivers missing?");
         }
         add(glCanvas, BorderLayout.CENTER);
+        animator = new FPSAnimator(fps);
         animator.add(glCanvas);
         animator.start();
     }
