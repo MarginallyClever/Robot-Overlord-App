@@ -18,18 +18,6 @@ public record Ray(Point3d origin, Vector3d direction,double maxDistance) {
 	}
 
 	/**
-	 * @param direction the direction of this ray.  cannot be a zero vector.
-	 * @throws IllegalArgumentException if direction is too small
-	 */
-	public void setDirection(Vector3d direction) throws IllegalArgumentException {
-		if(direction.lengthSquared()<0.0001) {
-			throw new IllegalArgumentException("direction is too small");
-		}
-		this.direction.set(direction);
-		this.direction.normalize();
-	}
-
-	/**
 	 * @return start + direction * t
 	 */
 	public Vector3d getPoint(double t) {
