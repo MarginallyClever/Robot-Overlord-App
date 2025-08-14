@@ -3,7 +3,6 @@ package com.marginallyclever.ro3.apps.pathtracer;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.environment.Environment;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
@@ -83,7 +82,7 @@ public class PathTracer {
         }
         //rays.add(new RayXY(429,473));
 
-        rayPickSystem.reset();
+        rayPickSystem.reset(true);
         pathTracingWorker = new PathTracingWorker(rays, image);
         pathTracingWorker.execute();
     }
@@ -175,7 +174,7 @@ public class PathTracer {
     }
 
     private void probabilisticLightSampling(double p, Ray ray, RayHit rayHit, Material mat, ColorDouble throughput, ColorDouble radiance) {
-        // get an emissive surface
+        // get an emissive surface, including the sun
         RayHit emissiveHit = rayPickSystem.getRandomEmissiveSurface();
         if(emissiveHit == null) return;
 
@@ -189,12 +188,12 @@ public class PathTracer {
         from.scaleAdd(-EPSILON,rayHit.normal(),rayHit.point());
         Ray lightRay = new Ray(from, toLight);
         RayHit lightHit = rayPickSystem.getFirstHit(lightRay,true);
-        if (lightHit == null) return;
+        if(lightHit == null) return;
 
         // hit a thing
         var target = lightHit.target();
         var mat2 = target.findFirstSibling(Material.class);
-        if (mat2 == null || !mat2.isEmissive()) return;
+        if(mat2 == null || !mat2.isEmissive()) return;
 
         // the light is visible
         ColorDouble lightEmission = getEmittedLight(mat2);

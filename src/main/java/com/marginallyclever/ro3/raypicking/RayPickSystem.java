@@ -24,6 +24,7 @@ public class RayPickSystem {
     private static final Logger logger = LoggerFactory.getLogger(RayPickSystem.class);
     // all the MeshInstances in the scene.
     private final List<MeshInstance> sceneElements = new ArrayList<>();
+    private int numEmissiveTriangles;
 
     /**
      * A cache of meshes transformed into world space.  This is much faster than transforming each ray into local
@@ -37,16 +38,17 @@ public class RayPickSystem {
         super();
     }
 
-    public void reset() {
+    public void reset(boolean optimize) {
         logger.debug("reset");
         cache.clear();
         emissiveMeshes.clear();
         sceneElements.clear();
-        buildSceneList();
+        buildSceneList(optimize);
     }
 
-    private void buildSceneList() {
+    private void buildSceneList(boolean optimize) {
         logger.debug("start");
+        numEmissiveTriangles = 0;
         // build the list of scene elements once
         Queue<Node> toTest = new LinkedList<>();
         toTest.add(Registry.getScene());
@@ -54,11 +56,16 @@ public class RayPickSystem {
             Node node = toTest.remove();
             if(node instanceof MeshInstance meshInstance) {
                 sceneElements.add(meshInstance);
+                if(optimize) {
+                    cache.put(meshInstance, createPathMesh(meshInstance));
+                }
                 var mat = getMaterial(meshInstance);
                 if(mat!=null && mat.isEmissive()) {
                     emissiveMeshes.add(meshInstance);
+                    if(optimize) {
+                        numEmissiveTriangles += cache.get(meshInstance).getTriangleCount();
+                    }
                 }
-                cache.put(meshInstance, createPathMesh(meshInstance));
             }
             toTest.addAll(node.getChildren());
         }
@@ -108,7 +115,7 @@ public class RayPickSystem {
      * @return all {@link RayHit} by the ray.  It may be an empty list.
      */
     public List<RayHit> findRayIntersections(Ray ray,boolean optimize) {
-        List<RayHit> rayHits = new ArrayList<>();
+        List<RayHit> rayHits = new LinkedList<>();
 
         for(var meshInstance : sceneElements) {
             if(!optimize || meshInstance.getMesh() instanceof Sphere) {
@@ -165,11 +172,30 @@ public class RayPickSystem {
         return newMesh;
     }
 
+    public int getNumberOfEmissiveTriangles() {
+        return numEmissiveTriangles;
+    }
+
+    public RayHit getEmissiveSurface(int index) {
+        for(var meshInstance : emissiveMeshes) {
+            PathMesh worldMesh = getCachedMesh(meshInstance);
+            if(worldMesh==null) continue;
+            if(worldMesh.getTriangleCount() >= index) {
+                index -= worldMesh.getTriangleCount();
+                continue;
+            }
+
+            PathTriangle pt = worldMesh.getTriangle(index);
+            if(pt==null) continue;
+            return new RayHit(meshInstance, 0, pt.normal, pt.getRandomPointInside(), pt);
+        }
+        return null;
+    }
+
     public RayHit getRandomEmissiveSurface() {
         for(var meshInstance : emissiveMeshes) {
             PathMesh worldMesh = getCachedMesh(meshInstance);
             if(worldMesh==null) continue;
-
             PathTriangle pt = worldMesh.getRandomTriangle();
             if(pt==null) continue;
             return new RayHit(meshInstance, 0, pt.normal, pt.getRandomPointInside(), pt);
