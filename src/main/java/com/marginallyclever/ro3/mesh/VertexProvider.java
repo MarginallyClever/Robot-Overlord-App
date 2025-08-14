@@ -9,14 +9,14 @@ import javax.vecmath.Vector3d;
  */
 public interface VertexProvider {
     /**
-     * Provides a vertex at the given index.
+     * Provides a new instance of a vertex at the given index.
      * @param index the index of the vertex to provide
      * @return the vertex at the given index
      */
     Point3d provideVertex(int index);
 
     /**
-     * Provides a normal at the given index.
+     * Provides a new instance of a normal at the given index.
      * @param index the index of the vertex to provide
      * @return the vertex at the given index
      */
