@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.apps.pathtracer;
 
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
+import com.marginallyclever.ro3.mesh.AABB;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -13,8 +14,7 @@ public class PathTriangle {
     public final Point3d a,b,c;
     public final Vector3d normal;
     private final Vector3d edge1, edge2;
-    public final Point3d center;
-    public final double radius;
+    public final AABB bounds = new AABB();
 
     public PathTriangle(Point3d a, Point3d b, Point3d c, Vector3d normal) {
         this.a = a;
@@ -23,13 +23,13 @@ public class PathTriangle {
         this.normal = normal;
         edge1 = new Vector3d(b.x - a.x, b.y - a.y, b.z - a.z);
         edge2 = new Vector3d(c.x - a.x, c.y - a.y, c.z - a.z);
-        center = new Point3d(
-                (a.x + b.x + c.x) / 3.0,
-                (a.y + b.y + c.y) / 3.0,
-                (a.z + b.z + c.z) / 3.0);
-        radius = Math.max(center.distance(a),
-                Math.max(center.distance(b),
-                        center.distance(c)));
+        bounds.setBounds(a,a);
+        bounds.grow(b);
+        bounds.grow(c);
+    }
+
+    public AABB getBounds() {
+        return bounds;
     }
 
     /**
