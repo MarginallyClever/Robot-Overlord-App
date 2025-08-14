@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -17,7 +17,7 @@ import java.util.List;
 public class PathMesh {
     private static final Logger logger = LoggerFactory.getLogger(PathMesh.class);
 
-    private final List<PathTriangle> triangles = new ArrayList<>();
+    private final List<PathTriangle> triangles = new LinkedList<>();
     private final AABB boundingBox = new AABB();
     private OctreeNode octreeRoot = null;
 
@@ -26,12 +26,15 @@ public class PathMesh {
     }
 
     public void buildOctree() {
-        logger.debug("updateCuboid for {} triangles", triangles.size());
         updateCuboid();
         octreeRoot = new OctreeNode(boundingBox);
+        int misses=0;
         for(PathTriangle triangle : triangles) {
-            octreeRoot.insert(triangle,0);
+            if(!octreeRoot.insert(triangle,0)) misses++;
         }
+        if(misses>0) logger.warn("Failed to insert {} triangles into octree.", misses);
+        octreeRoot.trim();
+        //octreeRoot.print();
     }
 
     /**
@@ -104,9 +107,17 @@ public class PathMesh {
         boundBottom.z = Math.min(p.z, boundBottom.z);
     }
 
+    public PathTriangle getTriangle(int index) {
+        return triangles.get(index);
+    }
+
+    public int getTriangleCount() {
+        return triangles.size();
+    }
+
     public PathTriangle getRandomTriangle() {
-        if(triangles.isEmpty()) return null;
-        int index = (int)(Math.random() * triangles.size());
+        if (triangles.isEmpty()) return null;
+        int index = (int) (Math.random() * triangles.size());
         return triangles.get(index);
     }
 }
