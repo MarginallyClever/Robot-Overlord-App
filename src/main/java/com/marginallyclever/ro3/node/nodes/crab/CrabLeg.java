@@ -63,7 +63,6 @@ public class CrabLeg {
         Crab.addMesh(coxa);
         Crab.addMesh(femur);
         Crab.addMesh(tibia);
-        Crab.addMesh(toe);
     }
 
     private void addDecoration(Pose pose, Mesh mesh, Color color) {
