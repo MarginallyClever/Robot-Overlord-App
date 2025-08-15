@@ -1,6 +1,6 @@
 package com.marginallyclever.ro3.apps.viewport.renderpass;
 
-import com.marginallyclever.ro3.node.nodes.Material;
+import com.marginallyclever.ro3.node.nodes.material.Material;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 
 import javax.vecmath.Matrix4d;

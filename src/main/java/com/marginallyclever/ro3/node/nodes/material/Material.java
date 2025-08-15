@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes;
+package com.marginallyclever.ro3.node.nodes.material;
 
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.Registry;
@@ -251,7 +251,7 @@ public class Material extends Node {
 
     public ScatterRecord scatter(Ray ray, RayHit hitRecord, Random random) {
         Vector3d newDirection = PathTracerHelper.getRandomCosineWeightedHemisphere(random, hitRecord.normal());
-        double p = 1.0/ 2.0 * Math.PI; // cosine weighted hemisphere
+        double p = 1.0 / 2.0 * Math.PI; // cosine weighted hemisphere
         double cosTheta = hitRecord.normal().dot(newDirection);
         ColorDouble attenuation = BRDF(hitRecord,newDirection,ray.getDirection());
         attenuation.scale(cosTheta);

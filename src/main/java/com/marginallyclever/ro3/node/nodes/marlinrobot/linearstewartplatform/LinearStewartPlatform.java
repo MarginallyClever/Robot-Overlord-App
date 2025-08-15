@@ -6,7 +6,7 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.Material;
+import com.marginallyclever.ro3.node.nodes.material.Material;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinListener;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinRobot;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;

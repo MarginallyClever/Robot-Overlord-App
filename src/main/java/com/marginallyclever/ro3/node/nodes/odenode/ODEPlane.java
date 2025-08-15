@@ -3,7 +3,7 @@ package com.marginallyclever.ro3.node.nodes.odenode;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Decal;
-import com.marginallyclever.ro3.node.nodes.Material;
+import com.marginallyclever.ro3.node.nodes.material.Material;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONObject;
 import org.ode4j.ode.DPlane;

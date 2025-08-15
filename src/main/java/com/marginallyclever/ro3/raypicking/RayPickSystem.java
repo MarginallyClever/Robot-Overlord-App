@@ -8,7 +8,7 @@ import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.VertexProvider;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.Material;
+import com.marginallyclever.ro3.node.nodes.material.Material;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,9 +1,8 @@
 package com.marginallyclever.ro3.apps.pathtracer;
 
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.convenience.helpers.MathHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.nodes.Material;
+import com.marginallyclever.ro3.node.nodes.material.Material;
 import com.marginallyclever.ro3.node.nodes.environment.Environment;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.raypicking.RayHit;
@@ -156,21 +155,6 @@ public class PathTracer {
 
             ScatterRecord scatterRecord = mat.scatter(ray, rayHit, random);
             ray = new Ray(rayHit.point(),scatterRecord.direction);
-/*
-            // Handle refraction or reflection based on Fresnel reflectance
-            ColorDouble albedo = new ColorDouble(mat.getDiffuseColor());
-            if(albedo.a<1.0) {
-                // this will return either the reflected or refracted ray
-                ray = getRefraction(ray,rayHit.point(),rayHit.normal(),mat);
-            } else {
-                // opaque
-                boolean isSpecularBounce = mat.getSpecularStrength() > random.nextDouble();
-                //throughput.scale(isSpecularBounce ? new ColorDouble(mat.getSpecularColor()) : albedo);
-                Vector3d specularDirection = reflect(ray.getDirection(), rayHit.normal());
-                var dir = MathHelper.interpolate(wi, specularDirection, (isSpecularBounce ? mat.getReflectivity() : 0));
-                dir.normalize();
-                ray = new Ray(rayHit.point(), dir);
-            }*/
         }
 
         pixel.add(radiance);
@@ -293,29 +277,6 @@ public class PathTracer {
     }
 
     /**
-     * <p>Refract the ray and return the refracted vector.</p>
-     * @param incident  the incident vector
-     * @param normal   the normal at the hit point
-     * @param iorRatio the ratio of the refractive indices of the two materials
-     * @return the refracted vector
-     */
-    private Vector3d refract2(Vector3d incident, Vector3d normal, double iorRatio) {
-        double cosI = -normal.dot(incident);
-        double sin2T = iorRatio * iorRatio * (1 - cosI * cosI);
-
-        // Total internal reflection
-        if (sin2T > 1.0) {
-            return null;
-        }
-
-        double cosT = Math.sqrt(1.0 - sin2T);
-        Vector3d refracted = new Vector3d();
-        refracted.scale(iorRatio, incident);
-        refracted.scaleAdd(iorRatio * cosI - cosT, normal, refracted);
-        return refracted;
-    }
-
-    /**
      * sky or sun color, depending on angle of incidence
      * @param ray the ray to check
      * @return the color of the sky
@@ -334,97 +295,6 @@ public class PathTracer {
                 a * ambientColor.r + sd * sunlightColor.r * sunlightStrength,
                 a * ambientColor.g + sd * sunlightColor.g * sunlightStrength,
                 a * ambientColor.b + sd * sunlightColor.b * sunlightStrength);
-    }
-
-    /**
-     * Get the refracted ray
-     * @param ray the ray to refract
-     * @param hitPoint the point where the ray hit
-     * @param normal the normal at the hit point
-     * @param mat the material at the hit point
-     * @return the next ray to trace
-     */
-    private Ray getRefraction(Ray ray, Point3d hitPoint, Vector3d normal, Material mat) {
-        // at least semi-transparent.  use index of refraction.
-        var rayDirection = ray.getDirection();
-        rayDirection.normalize();
-
-        var ior = mat.getIOR();
-        var cosTheta = Math.min(-normal.dot(rayDirection),1.0);
-        // since normals face outside an object, if cosTheta is positive the ray is exiting the object.
-        boolean backFace = cosTheta > 0;
-        if(backFace) normal.negate();
-
-        var ri = backFace ? 1.0/ior : ior;
-        var sinTheta = Math.sqrt(1.0-cosTheta*cosTheta);
-        var cannotRefract = ri * sinTheta > 1.0;
-        var nextDir = cannotRefract || reflectance(cosTheta,ri) > random.nextDouble()
-                ? reflect(rayDirection,normal) // total internal reflection
-                : refract(rayDirection,normal,ri); // refraction
-
-        // Recursively compute the color along the next ray
-        return new Ray(hitPoint, nextDir);
-    }
-
-    /**
-     * @param a the first color
-     * @param b the second color
-     * @param alpha the blend factor (0...1)
-     * @return a * alpha + b * (1-alpha)
-     */
-    private ColorDouble blend(ColorDouble a,ColorDouble b,double alpha) {
-        double oneMinusAlpha = 1.0-alpha;
-        return new ColorDouble(
-                a.r * alpha + b.r * oneMinusAlpha,
-                a.g * alpha + b.g * oneMinusAlpha,
-                a.b * alpha + b.b * oneMinusAlpha
-        );
-    }
-
-    /**
-     * Use Shlick's approximation for reflectance
-     * @param cosI the cosine of the angle of incidence
-     * @param eta the ratio of the refractive indices of the two materials
-     * @return the reflectance
-     */
-    private double reflectance(double cosI, double eta) {
-        var r0 = (1.0-eta) / (1.0+eta);
-        r0 *= r0;
-        return r0 + (1.0-r0) * Math.pow(1.0-cosI,5);
-    }
-
-    /**
-     * Reflect the vector v off the normal n
-     * @param v the vector to reflect
-     * @param n the normal
-     * @return the reflected vector
-     */
-    private Vector3d reflect(Vector3d v, Vector3d n) {
-        var dot = 2.0 * v.dot(n);
-        return new Vector3d(
-                v.x - n.x * dot,
-                v.y - n.y * dot,
-                v.z - n.z * dot);
-    }
-
-    /**
-     * Refract the vector uv through the normal n
-     * @param uv the vector to refract
-     * @param n the normal
-     * @param eta the ratio of the refractive indices of the two materials
-     * @return the refracted vector
-     */
-    private Vector3d refract(Vector3d uv, Vector3d n, double eta) {
-        var cosTheta = Math.min(-uv.dot(n), 1.0);
-        // vec3 r_out_perp =  etai_over_etat * (uv + cos_theta*n);
-        Vector3d outPerpendicular = new Vector3d(n);
-        n.scaleAdd(cosTheta,uv);
-        n.scale(eta);
-        // vec3 r_out_parallel = -sqrt(abs(1.0 - r_out_perp.length_squared())) * n;
-        Vector3d outParallel = new Vector3d(n);
-        outParallel.scale(-Math.sqrt(Math.abs(1.0 - outPerpendicular.lengthSquared())));
-        outPerpendicular.add(outParallel);
-        return outPerpendicular;
     }
 
     public long getStartTime() {
