@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.node.nodes;
 
-import com.marginallyclever.ro3.node.nodes.material.Material;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.junit.jupiter.api.Test;
 import java.awt.Color;

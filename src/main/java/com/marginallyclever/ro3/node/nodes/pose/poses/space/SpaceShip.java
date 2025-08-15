@@ -2,7 +2,7 @@ package com.marginallyclever.ro3.node.nodes.pose.poses.space;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.nodes.material.Material;
+import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONObject;

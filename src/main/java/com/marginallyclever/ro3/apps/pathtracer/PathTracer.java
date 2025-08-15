@@ -2,7 +2,7 @@ package com.marginallyclever.ro3.apps.pathtracer;
 
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.nodes.material.Material;
+import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.environment.Environment;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.raypicking.RayHit;

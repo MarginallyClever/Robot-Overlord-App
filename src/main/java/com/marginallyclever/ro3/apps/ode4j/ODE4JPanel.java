@@ -6,7 +6,7 @@ import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.material.Material;
+import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.odenode.CreatureController;
 import com.marginallyclever.ro3.node.nodes.odenode.ODEHinge;
 import com.marginallyclever.ro3.node.nodes.odenode.ODEPlane;

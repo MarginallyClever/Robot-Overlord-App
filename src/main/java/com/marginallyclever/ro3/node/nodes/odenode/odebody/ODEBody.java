@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.odenode.odebody;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.node.nodes.material.Material;
+import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.odenode.ODELinkAttachListener;
 import com.marginallyclever.ro3.node.nodes.odenode.ODELinkDetachListener;
 import com.marginallyclever.ro3.node.nodes.odenode.ODENode;

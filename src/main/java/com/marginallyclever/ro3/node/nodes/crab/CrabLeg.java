@@ -3,7 +3,7 @@ package com.marginallyclever.ro3.node.nodes.crab;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
-import com.marginallyclever.ro3.node.nodes.material.Material;
+import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 

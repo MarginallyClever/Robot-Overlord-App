@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.material;
+package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
