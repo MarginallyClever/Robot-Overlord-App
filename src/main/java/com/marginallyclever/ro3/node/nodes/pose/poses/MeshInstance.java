@@ -85,9 +85,9 @@ public class MeshInstance extends Pose {
             return null;
         }
         Vector3d normal = transformNormalToWorldSpace(localHit.normal());
-        Point3d hit = new Point3d(ray.direction());
+        Point3d hit = new Point3d(ray.getDirection());
         hit.scale(localHit.distance());
-        hit.add(ray.origin());
+        hit.add(ray.getOrigin());
         return new RayHit(this, localHit.distance(), normal, hit, localHit.triangle());
     }
 
@@ -98,14 +98,14 @@ public class MeshInstance extends Pose {
      */
     private Ray transformRayToLocalSpace(Ray ray) {
         Matrix4d m = getWorld();
-        Point3d o = new Point3d(ray.origin());
-        Vector3d d = new Vector3d(ray.direction());
+        Point3d o = new Point3d(ray.getOrigin());
+        Vector3d d = new Vector3d(ray.getDirection());
 
         m.invert();
         m.transform(o);
         m.transform(d);
 
-        return new Ray(o,d,ray.maxDistance());
+        return new Ray(o,d,ray.getMaxDistance());
     }
 
     /**

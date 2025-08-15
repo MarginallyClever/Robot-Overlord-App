@@ -223,8 +223,18 @@ public class Material extends Node {
         return reflectivity;
     }
 
+    /**
+     * Calculate the Bidirectional Reflectance Distribution Function (BRDF) for this material.
+     * @param rayHit the ray hit record containing the normal and other information about the surface.
+     * @param in the incoming direction of the ray.
+     * @param out the outgoing direction of the ray.
+     * @return the BRDF value as a {@link ColorDouble}.
+     */
     public ColorDouble BRDF(RayHit rayHit,Vector3d in, Vector3d out) {
-        if(rayHit.normal().dot(in)<=0) return new ColorDouble(0,0,0);
+        if(rayHit.normal().dot(in)<=0) {
+            // back facing, no light
+            return new ColorDouble(0,0,0);
+        }
 
         // lambertian diffuse BRDF
         ColorDouble a = new ColorDouble(getDiffuseColor());
@@ -243,7 +253,7 @@ public class Material extends Node {
         Vector3d newDirection = PathTracerHelper.getRandomCosineWeightedHemisphere(random, hitRecord.normal());
         double p = 1.0/ 2.0 * Math.PI; // cosine weighted hemisphere
         double cosTheta = hitRecord.normal().dot(newDirection);
-        ColorDouble attenuation = BRDF(hitRecord,newDirection,ray.direction());
+        ColorDouble attenuation = BRDF(hitRecord,newDirection,ray.getDirection());
         attenuation.scale(cosTheta);
         return new ScatterRecord(newDirection,p,attenuation);
     }

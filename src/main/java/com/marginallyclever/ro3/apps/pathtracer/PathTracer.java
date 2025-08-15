@@ -136,7 +136,7 @@ public class PathTracer {
 
             // pick the next ray direction
             Vector3d wi = PathTracerHelper.getRandomCosineWeightedHemisphere(random,rayHit.normal());
-            Vector3d wo = new Vector3d(ray.direction());
+            Vector3d wo = new Vector3d(ray.getDirection());
             wo.negate();
 
             ColorDouble brdf = mat.BRDF(rayHit,wi,wo);
@@ -154,6 +154,9 @@ public class PathTracer {
             prevHit = rayHit;
             prevRay = ray;
 
+            ScatterRecord scatterRecord = mat.scatter(ray, rayHit, random);
+            ray = new Ray(rayHit.point(),scatterRecord.direction);
+/*
             // Handle refraction or reflection based on Fresnel reflectance
             ColorDouble albedo = new ColorDouble(mat.getDiffuseColor());
             if(albedo.a<1.0) {
@@ -163,11 +166,11 @@ public class PathTracer {
                 // opaque
                 boolean isSpecularBounce = mat.getSpecularStrength() > random.nextDouble();
                 //throughput.scale(isSpecularBounce ? new ColorDouble(mat.getSpecularColor()) : albedo);
-                Vector3d specularDirection = reflect(ray.direction(), rayHit.normal());
+                Vector3d specularDirection = reflect(ray.getDirection(), rayHit.normal());
                 var dir = MathHelper.interpolate(wi, specularDirection, (isSpecularBounce ? mat.getReflectivity() : 0));
                 dir.normalize();
                 ray = new Ray(rayHit.point(), dir);
-            }
+            }*/
         }
 
         pixel.add(radiance);
@@ -201,7 +204,7 @@ public class PathTracer {
         double cosThetaLight = Math.max(0, -lightHit.normal().dot(toLight));
 
         Vector3d wi = new Vector3d(toLight);
-        Vector3d wo = new Vector3d(ray.direction());
+        Vector3d wo = new Vector3d(ray.getDirection());
         wo.negate();
 
         ColorDouble brdf = mat.BRDF(rayHit,wi,wo);
@@ -219,7 +222,7 @@ public class PathTracer {
     }
 
     /**
-     * @param throughput
+     * @param throughput the current throughput of the ray
      * @return true if the path should terminate
      */
     private boolean russianRouletteTermination(ColorDouble throughput) {
@@ -236,11 +239,11 @@ public class PathTracer {
 
     private void handleEmissiveHit(Ray ray, RayHit rayHit, Ray prevRay, RayHit prevHit, ColorDouble throughput, ColorDouble radiance,Material mat) {
         if(prevHit != null) {
-            Vector3d wi = new Vector3d(ray.direction());
-            Vector3d wo = new Vector3d(prevRay.direction());
+            Vector3d wi = new Vector3d(ray.getDirection());
+            Vector3d wo = new Vector3d(prevRay.getDirection());
             wo.negate();
 
-            Point3d prevPoint = ray.origin();
+            Point3d prevPoint = ray.getOrigin();
             Point3d lightPoint = rayHit.point();
             Vector3d nLight = rayHit.normal();
 
@@ -283,26 +286,6 @@ public class PathTracer {
         return a2 / (a2 + b2);
     }
 
-    private ColorDouble getBRDF(RayHit rayHit, Vector3d in, Vector3d out, Material mat) {
-        // get the diffuse color
-        ColorDouble albedo = new ColorDouble(mat.getDiffuseColor());
-        albedo.scale(1.0 / Math.PI); // cosine-weighted diffuse
-        return albedo;/*
-        if(albedo.a<1.0) {
-            // this is a semi-transparent material.  use the diffuse color.
-        } else {
-            // opaque material.  use the diffuse color and specular color.
-            albedo.scale(1.0 - mat.getReflectivity());
-        }
-
-        // calculate the BRDF
-        double cosTheta = Math.max(0, diffuseDirection.dot(rayHit.normal()));
-        return new ColorDouble(
-                albedo.r * cosTheta,
-                albedo.g * cosTheta,
-                albedo.b * cosTheta);*/
-    }
-
     public ColorDouble getEmittedLight(Material mat) {
         var emittedLight = new ColorDouble(mat.getEmissionColor());
         emittedLight.scale(mat.getEmissionStrength());
@@ -338,7 +321,7 @@ public class PathTracer {
      * @return the color of the sky
      */
     private ColorDouble getSkyColor(Ray ray) {
-        Vector3d d = ray.direction();
+        Vector3d d = ray.getDirection();
         d.normalize();
         Vector3d sun = new Vector3d(sunlightSource);
         sun.normalize();
@@ -363,7 +346,7 @@ public class PathTracer {
      */
     private Ray getRefraction(Ray ray, Point3d hitPoint, Vector3d normal, Material mat) {
         // at least semi-transparent.  use index of refraction.
-        var rayDirection = ray.direction();
+        var rayDirection = ray.getDirection();
         rayDirection.normalize();
 
         var ior = mat.getIOR();

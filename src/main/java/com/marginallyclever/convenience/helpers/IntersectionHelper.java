@@ -247,9 +247,9 @@ public abstract class IntersectionHelper {
 	 */
 	static public double raySphere(final Ray ray,final Tuple3d center,final double radius) {
 		Vector3d oc = new Vector3d();
-		oc.sub(ray.origin(),center);
-	    double a = ray.direction().dot(ray.direction());
-		var h = oc.dot(ray.direction());
+		oc.sub(ray.getOrigin(),center);
+	    double a = ray.getDirection().dot(ray.getDirection());
+		var h = oc.dot(ray.getDirection());
 		var c = oc.dot(oc) - radius*radius;
 		var discriminant = h*h - a*c;
 	    if(discriminant >= 0) {
@@ -268,8 +268,9 @@ public abstract class IntersectionHelper {
 	 * @return a {@link RayAABBHit}
 	 */
 	static public RayAABBHit rayBox(final Ray ray,final Point3d boxMin,final Point3d boxMax) {
-		Point3d rayOrigin = ray.origin();
-		Vector3d rayDirection = ray.direction();
+		Point3d rayOrigin = ray.getOrigin();
+		Vector3d rayDirection = ray.getDirection();
+		Vector3d invDir = ray.getInverseDirection();
 
 		double tEnter = 0.0;
 		double tExit  = Double.POSITIVE_INFINITY;
@@ -278,10 +279,14 @@ public abstract class IntersectionHelper {
 		if (rayDirection.x == 0.0) {
 			if (rayOrigin.x < boxMin.x || rayOrigin.x > boxMax.x) return RayAABBHit.miss();
 		} else {
-			double inv = 1.0 / rayDirection.x;
+			double inv = invDir.x;
 			double t0 = (boxMin.x - rayOrigin.x) * inv;
 			double t1 = (boxMax.x - rayOrigin.x) * inv;
-			if (t0 > t1) { double tmp = t0; t0 = t1; t1 = tmp; }
+			if (t0 > t1) {
+				double tmp = t0;
+				t0 = t1;
+				t1 = tmp;
+			}
 			tEnter = Math.max(tEnter, t0);
 			tExit  = Math.min(tExit,  t1);
 			if (tEnter > tExit) return RayAABBHit.miss();
@@ -291,10 +296,14 @@ public abstract class IntersectionHelper {
 		if (rayDirection.y == 0.0) {
 			if (rayOrigin.y < boxMin.y || rayOrigin.y > boxMax.y) return RayAABBHit.miss();
 		} else {
-			double inv = 1.0 / rayDirection.y;
+			double inv = invDir.y;
 			double t0 = (boxMin.y - rayOrigin.y) * inv;
 			double t1 = (boxMax.y - rayOrigin.y) * inv;
-			if (t0 > t1) { double tmp = t0; t0 = t1; t1 = tmp; }
+			if (t0 > t1) {
+				double tmp = t0;
+				t0 = t1;
+				t1 = tmp;
+			}
 			tEnter = Math.max(tEnter, t0);
 			tExit  = Math.min(tExit,  t1);
 			if (tEnter > tExit) return RayAABBHit.miss();
@@ -304,22 +313,25 @@ public abstract class IntersectionHelper {
 		if (rayDirection.z == 0.0) {
 			if (rayOrigin.z < boxMin.z || rayOrigin.z > boxMax.z) return RayAABBHit.miss();
 		} else {
-			double inv = 1.0 / rayDirection.z;
+			double inv = invDir.z;
 			double t0 = (boxMin.z - rayOrigin.z) * inv;
 			double t1 = (boxMax.z - rayOrigin.z) * inv;
-			if (t0 > t1) { double tmp = t0; t0 = t1; t1 = tmp; }
+			if (t0 > t1) {
+				double tmp = t0;
+				t0 = t1;
+				t1 = tmp;
+			}
 			tEnter = Math.max(tEnter, t0);
 			tExit  = Math.min(tExit,  t1);
 			if (tEnter > tExit) return RayAABBHit.miss();
 		}
 
-		boolean inside =
-				rayOrigin.x >= boxMin.x && rayOrigin.x <= boxMax.x &&
-						rayOrigin.y >= boxMin.y && rayOrigin.y <= boxMax.y &&
-						rayOrigin.z >= boxMin.z && rayOrigin.z <= boxMax.z;
-		if (inside) tEnter = 0.0;
-
 		if (tExit < 0.0) return RayAABBHit.miss(); // box entirely behind
+
+		boolean inside = rayOrigin.x >= boxMin.x && rayOrigin.x <= boxMax.x &&
+						 rayOrigin.y >= boxMin.y && rayOrigin.y <= boxMax.y &&
+						 rayOrigin.z >= boxMin.z && rayOrigin.z <= boxMax.z;
+		if (inside) tEnter = 0.0;
 
 		return RayAABBHit.hit(inside, tEnter, tExit);
 	}
@@ -415,7 +427,7 @@ public abstract class IntersectionHelper {
 		Vector3d edge1 = new Vector3d(p1.x-p0.x, p1.y-p0.y, p1.z-p0.z);
 		Vector3d edge2 = new Vector3d(p2.x-p0.x, p2.y-p0.y, p2.z-p0.z);
 		Vector3d pVec = new Vector3d();
-		pVec.cross(ray.direction(), edge2);
+		pVec.cross(ray.getDirection(), edge2);
 		double det = edge1.dot(pVec);
 		if (det > -EPSILON && det < EPSILON) {
 			return Double.MAX_VALUE; // Ray and triangle are parallel
@@ -423,7 +435,7 @@ public abstract class IntersectionHelper {
 
 		double invDet = 1.0 / det;
 		Vector3d tVec = new Vector3d();
-		tVec.sub(ray.origin(), p0);
+		tVec.sub(ray.getOrigin(), p0);
 		double u = tVec.dot(pVec) * invDet;
 		if (u < 0.0 || u > 1.0) {
 			return Double.MAX_VALUE;
@@ -431,7 +443,7 @@ public abstract class IntersectionHelper {
 
 		Vector3d qVec = new Vector3d();
 		qVec.cross(tVec, edge1);
-		double v = ray.direction().dot(qVec) * invDet;
+		double v = ray.getDirection().dot(qVec) * invDet;
 		if (v < 0.0 || u + v > 1.0) {
 			return Double.MAX_VALUE;
 		}
@@ -452,7 +464,7 @@ public abstract class IntersectionHelper {
 	 */
     public static double rayPlane(Ray ray, Plane translationPlane) {
 		// Calculate the dot product of the ray direction and plane normal
-		double dotProduct = ray.direction().dot(translationPlane.getNormal());
+		double dotProduct = ray.getDirection().dot(translationPlane.getNormal());
 
 		// Check if the ray is parallel to the plane (no intersection)
 		if (Math.abs(dotProduct) < 1e-6) {
@@ -461,7 +473,7 @@ public abstract class IntersectionHelper {
 
 		// Calculate the distance between the ray origin and plane point
 		Vector3d distanceVector = new Vector3d();
-		distanceVector.sub(translationPlane.getPoint(), ray.origin());
+		distanceVector.sub(translationPlane.getPoint(), ray.getOrigin());
 
 		// Calculate the intersection distance using the dot product
 		double distance = distanceVector.dot(translationPlane.getNormal()) / dotProduct;

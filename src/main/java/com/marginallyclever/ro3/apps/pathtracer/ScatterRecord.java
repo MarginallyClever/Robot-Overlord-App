@@ -12,20 +12,13 @@ public class ScatterRecord {
         EXPLICIT, // explicit scatter
         RANDOM, // random scatter
     }
-    ScatterType type;
-    Vector3d direction;
-    double p;  // direciton probability
-    ColorDouble attenuation; // attenuation factor
+    public ScatterType type;
+    public final Vector3d direction;
+    public double p;  // direction probability
+    public final ColorDouble attenuation; // attenuation factor
 
     public ScatterRecord() {
         this(ScatterType.NONE, new Vector3d(), 0.0, new ColorDouble(0,0,0,0));
-    }
-
-    public ScatterRecord(ScatterType type, Vector3d direction, double p, ColorDouble attenuation) {
-        this.type = type;
-        this.direction = new Vector3d(direction);
-        this.p = p;
-        this.attenuation = new ColorDouble(attenuation);
     }
 
     public ScatterRecord(Vector3d direction, ColorDouble attenuation) {
@@ -34,5 +27,12 @@ public class ScatterRecord {
 
     public ScatterRecord(Vector3d direction, double p, ColorDouble attenuation) {
         this(ScatterType.EXPLICIT, direction, p, attenuation);
+    }
+
+    public ScatterRecord(ScatterType type, Vector3d direction, double p, ColorDouble attenuation) {
+        this.type = type;
+        this.direction = new Vector3d(direction);
+        this.p = p;
+        this.attenuation = new ColorDouble(attenuation);
     }
 }

@@ -74,18 +74,18 @@ public class Plane {
 	 */
 	public double intersectDistance(Ray ray) {
 		// if ray is orthogonal to the plane, no hit possible.
-		double d2 = ray.direction().dot(normal);
+		double d2 = ray.getDirection().dot(normal);
 		if(Math.abs(d2) < 0.0001) {
 			return Double.NaN;
 		}
 
-		return (distance - distanceAlongNormal(ray.origin())) / d2;
+		return (distance - distanceAlongNormal(ray.getOrigin())) / d2;
 	}
 
 	public boolean intersect(Ray r, Point3d intersection) {
 		double d = intersectDistance(r);
 		if(Double.isNaN(d)) return false;
-		intersection.scaleAdd(d, r.direction(), r.origin());
+		intersection.scaleAdd(d, r.getDirection(), r.getOrigin());
 		return true;
 	}
 

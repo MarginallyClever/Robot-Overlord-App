@@ -125,8 +125,8 @@ public class Sphere extends ProceduralMesh {
         // calculate intersection of ray and sphere
         var d = IntersectionHelper.raySphere(ray, new Vector3d(0,0,0), this.radius);
         if(d>0) {
-            Point3d p = new Point3d(ray.direction());
-            p.scaleAdd(d,ray.origin());
+            Point3d p = new Point3d(ray.getDirection());
+            p.scaleAdd(d,ray.getOrigin());
             Vector3d normal = new Vector3d(p);
             normal.normalize();
             return new RayHit(null, d, normal,p,null);

@@ -77,7 +77,7 @@ public class OctreeNode {
         if (!test.isHit()) return null;
 
         PathTriangle closestHit = null;
-        double closestDist = ray.maxDistance();
+        double closestDist = ray.getMaxDistance();
 
         for (PathTriangle triangle : triangles) {
             if(!triangle.bounds.intersect(ray).isHit()) continue;

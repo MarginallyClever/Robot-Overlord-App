@@ -445,7 +445,7 @@ public class Mesh {
 			}
 		}
 
-		if( nearest >= ray.maxDistance() ) return null;  // no hit
+		if( nearest >= ray.getMaxDistance() ) return null;  // no hit
 		// get normal
 		Vector3d normal;
 		if(hasNormals) {
@@ -462,7 +462,7 @@ public class Mesh {
 			normal = IntersectionHelper.buildNormalFrom3Points(v0, v1, v2);
 		}
 		Point3d p = new Point3d();
-		p.scaleAdd(nearest, ray.direction(), ray.origin());
+		p.scaleAdd(nearest, ray.getDirection(), ray.getOrigin());
 		return new RayHit(null,nearest,normal,p,null);
 	}
 

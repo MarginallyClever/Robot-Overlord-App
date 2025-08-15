@@ -39,7 +39,7 @@ public class PathTriangle {
      */
     public double intersectRay(Ray ray) {
         Vector3d pVec = new Vector3d();
-        final Vector3d dir = ray.direction();
+        final Vector3d dir = ray.getDirection();
         pVec.cross(dir, edge2);
         double det = edge1.dot(pVec);
         if (det > -IntersectionHelper.EPSILON && det < IntersectionHelper.EPSILON) {
@@ -48,7 +48,7 @@ public class PathTriangle {
 
         double invDet = 1.0 / det;
         Vector3d tVec = new Vector3d();
-        tVec.sub(ray.origin(), a);
+        tVec.sub(ray.getOrigin(), a);
         double u = tVec.dot(pVec) * invDet;
         if (u < 0.0 || u > 1.0) return Double.MAX_VALUE;
 

@@ -52,7 +52,7 @@ public class PathMesh {
         double nearest = bestTriangle.intersectRay(ray);
         Vector3d normal = bestTriangle.normal;
         Point3d p = new Point3d();
-        p.scaleAdd(nearest, ray.direction(), ray.origin());
+        p.scaleAdd(nearest, ray.getDirection(), ray.getOrigin());
         return new RayHit(null,nearest,normal,p, bestTriangle);
     }
 

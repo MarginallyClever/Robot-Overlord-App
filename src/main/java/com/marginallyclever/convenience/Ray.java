@@ -8,13 +8,32 @@ import javax.vecmath.Vector3d;
 /**
  * {@link Ray} is a starting point and a direction.
  */
-public record Ray(Point3d origin, Vector3d direction,double maxDistance) {
+public class Ray {
+	private final Point3d origin;
+	private final Vector3d direction;
+	private final double maxDistance;
+	private final Vector3d inverseDirection = new Vector3d();
+
 	public Ray() {
 		this(new Point3d(),new Vector3d(0,0,1),Double.MAX_VALUE);
 	}
 
 	public Ray(Point3d origin, Vector3d direction) {
 		this(origin,direction,Double.MAX_VALUE);
+	}
+
+	public Ray(Point3d origin, Vector3d direction, double maxDistance) {
+		this.origin = new Point3d(origin);
+		this.direction = new Vector3d(direction);
+		this.maxDistance = maxDistance;
+		updateInverseDirection();
+	}
+
+	private void updateInverseDirection() {
+		double ix = direction.x ==0 ? 0 : 1.0/direction.x;
+		double iy = direction.y ==0 ? 0 : 1.0/direction.y;
+		double iz = direction.z ==0 ? 0 : 1.0/direction.z;
+		inverseDirection.set(ix,iy,iz);
 	}
 
 	/**
@@ -27,6 +46,18 @@ public record Ray(Point3d origin, Vector3d direction,double maxDistance) {
 				origin.z+direction.z*t);
 	}
 
+	public Point3d getOrigin() {
+		return origin;
+	}
+
+	public Vector3d getDirection() {
+		return direction;
+	}
+
+	public double getMaxDistance() {
+		return maxDistance;
+	}
+
 	/**
 	 * Set this ray to be a copy of another ray.  this = matrix.transform(from)
 	 * @param matrix the local transform
@@ -37,5 +68,10 @@ public record Ray(Point3d origin, Vector3d direction,double maxDistance) {
 		this.direction.set(from.direction);
 		matrix.transform(origin);
 		matrix.transform(direction);
+		updateInverseDirection();
     }
+
+	public Vector3d getInverseDirection() {
+		return inverseDirection;
+	}
 }
