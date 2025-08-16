@@ -140,8 +140,7 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
 
     private void initPreferences(GL3 gl) {
         gl.glClearColor(0.8f,0.8f,0.8f,1);
-        gl.glHint(GL3.GL_LINE_SMOOTH, GL3.GL_NICEST);
-        gl.glEnable(GL3.GL_LINE_SMOOTH);
+
         gl.glEnable(GL3.GL_BLEND);
         gl.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);
     }
