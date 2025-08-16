@@ -57,6 +57,8 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
     };
     private int vertexShaderId;
     private int fragmentShaderId;
+    // connects the matrix on the CPU to the 'model' matrix in the shader script.
+    private int matrixId;
 
     // mesh stuff
     private final float [] vertices = new float[] {
@@ -161,6 +163,8 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
         if (!checkCompileStatus(gl, shaderId, GL3.GL_VALIDATE_STATUS)) {
             throw new IllegalStateException("Failed to validate shader program.");
         }
+
+        matrixId = gl.glGetUniformLocation(shaderId, "model");
     }
 
     private int loadShader(GL3 gl, int type, String[] shaderCode, String name) {
@@ -291,19 +295,24 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
         // get time since last frame, in seconds.
         double dt = 1.0 / FPS;
         double secondsSinceStart = (System.currentTimeMillis() - startTime) / 1000.0;
-        //System.out.println("A "+secondsSinceStart);
-        var m =  new Matrix4d();
-        m.rotZ(Math.toRadians(secondsSinceStart*90));
+        System.out.println("A " + secondsSinceStart);
+
+        var m = new Matrix4d();
+        m.rotZ(Math.toRadians(secondsSinceStart * 90));
+        uploadMatrixToCurrentShader(gl,m);
+    }
+
+    // assumes matrixId is still valid
+    private void uploadMatrixToCurrentShader(GL3 gl, Matrix4d m) {
         float [] list = {
                 (float) m.m00, (float) m.m10, (float) m.m20, (float) m.m30,
                 (float) m.m01, (float) m.m11, (float) m.m21, (float) m.m31,
                 (float) m.m02, (float) m.m12, (float) m.m22, (float) m.m32,
                 (float) m.m03, (float) m.m13, (float) m.m23, (float) m.m33
         };
-        int modelLoc = gl.glGetUniformLocation(shaderId, "model");
-        gl.glUniformMatrix4fv(modelLoc, 1, false, list, 0);
-
+        gl.glUniformMatrix4fv(matrixId, 1, false, list, 0);
     }
+
 
     private void drawTriangle(GL3 gl) {
         gl.glBindVertexArray(vao[0]);
