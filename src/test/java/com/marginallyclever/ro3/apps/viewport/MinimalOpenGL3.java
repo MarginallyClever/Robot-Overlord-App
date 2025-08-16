@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
+import java.awt.*;
 import java.nio.FloatBuffer;
 
 /**
@@ -30,7 +31,7 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
     private static boolean HARDWARE_ACCELERATED = true;
     private static boolean DOUBLE_BUFFERED = true;
     private static final int FSAA_SAMPLES = 2;
-    private static final int FPS = 30;
+    private static final int FPS = 60;
 
     private static final long startTime = System.currentTimeMillis();
 
@@ -72,8 +73,8 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
             0, 0, 1, 1,
     };
     private static final int NUM_BUFFERS = 2;
-    private int[] vao = new int[1];
-    private int[] vbo = new int[NUM_BUFFERS];
+    private final int[] vao = new int[1];
+    private final int[] vbo = new int[NUM_BUFFERS];
     private static final int VERTEX_COMPONENTS = 3;
     private static final int COLOR_COMPONENTS = 4;
 
@@ -140,6 +141,15 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
 
     private void initPreferences(GL3 gl) {
         gl.glClearColor(0.8f,0.8f,0.8f,1);
+
+        // enable vsync to prevent screen tearing effect
+        gl.setSwapInterval(1);
+        
+        gl.glHint(GL3.GL_LINE_SMOOTH_HINT, GL3.GL_NICEST);
+        gl.glEnable(GL3.GL_LINE_SMOOTH);
+
+        gl.glHint(GL3.GL_POLYGON_SMOOTH_HINT, GL3.GL_NICEST);
+        gl.glEnable(GL3.GL_POLYGON_SMOOTH);
 
         gl.glEnable(GL3.GL_BLEND);
         gl.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);
