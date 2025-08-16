@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import java.nio.FloatBuffer;
-import java.util.List;
 
 /**
  * <p>Use JOGL to open a GLJPanel in a JFrame and render a triangle.
@@ -73,6 +72,8 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
     private static final int NUM_BUFFERS = 2;
     private int[] vao = new int[1];
     private int[] vbo = new int[NUM_BUFFERS];
+    private static final int VERTEX_COMPONENTS = 3;
+    private static final int COLOR_COMPONENTS = 4;
 
 
     public static void main(String[] args) {
@@ -188,25 +189,25 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
         gl.glBindVertexArray(vao[0]);
         OpenGLHelper.checkGLError(gl,logger);
 
-        setupArray(gl,0,3,vertices);
+        setupOneBuffer(gl,0, VERTEX_COMPONENTS, vertices);
         OpenGLHelper.checkGLError(gl,logger);
 
-        setupArray(gl,1,4,colors  );
+        setupOneBuffer(gl,1, COLOR_COMPONENTS, colors  );
         OpenGLHelper.checkGLError(gl,logger);
 
         gl.glBindVertexArray(0);
     }
 
-    private void bindArray(GL3 gl, int attribIndex, int size) {
-        gl.glEnableVertexAttribArray(attribIndex);
+    private void bindOneBuffer(GL3 gl, int attribIndex, int size) {
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo[attribIndex]);
-        gl.glVertexAttribPointer(attribIndex,size,GL3.GL_FLOAT,false,0,0);
         OpenGLHelper.checkGLError(gl,logger);
     }
 
-    private void setupArray(GL3 gl, int attribIndex, int size, float [] data) {
-        bindArray(gl, attribIndex, size);
+    private void setupOneBuffer(GL3 gl, int attribIndex, int size, float [] data) {
+        bindOneBuffer(gl, attribIndex, size);
         gl.glBufferData(GL3.GL_ARRAY_BUFFER, (long) data.length * Float.BYTES, FloatBuffer.wrap(data), GL3.GL_STATIC_DRAW);
+        gl.glVertexAttribPointer(attribIndex,size,GL3.GL_FLOAT,false,0,0);
+        gl.glEnableVertexAttribArray(attribIndex);
         OpenGLHelper.checkGLError(gl,logger);
     }
     
@@ -294,10 +295,10 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
         var m =  new Matrix4d();
         m.rotZ(Math.toRadians(secondsSinceStart*90));
         float [] list = {
-                (float) m.m00, (float) m.m01, (float) m.m02, (float) m.m03,
-                (float) m.m10, (float) m.m11, (float) m.m12, (float) m.m13,
-                (float) m.m20, (float) m.m21, (float) m.m22, (float) m.m23,
-                (float) m.m30, (float) m.m31, (float) m.m32, (float) m.m33
+                (float) m.m00, (float) m.m10, (float) m.m20, (float) m.m30,
+                (float) m.m01, (float) m.m11, (float) m.m21, (float) m.m31,
+                (float) m.m02, (float) m.m12, (float) m.m22, (float) m.m32,
+                (float) m.m03, (float) m.m13, (float) m.m23, (float) m.m33
         };
         int modelLoc = gl.glGetUniformLocation(shaderId, "model");
         gl.glUniformMatrix4fv(modelLoc, 1, false, list, 0);
