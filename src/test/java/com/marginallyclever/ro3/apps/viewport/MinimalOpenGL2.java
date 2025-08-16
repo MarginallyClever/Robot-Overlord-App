@@ -19,10 +19,10 @@ public class MinimalOpenGL2 extends JPanel implements GLEventListener {
     private final GLJPanel glPanel;
     private final FPSAnimator animator;
 
-    private static boolean HARDWARE_ACCELERATED = true;
-    private static boolean DOUBLE_BUFFERED = true;
+    private static final boolean HARDWARE_ACCELERATED = true;
+    private static final boolean DOUBLE_BUFFERED = true;
     private static final int FSAA_SAMPLES = 2;
-    private static final int FPS = 30;
+    private static final int FPS = 60;
 
     private static final long startTime = System.currentTimeMillis();
 
@@ -46,11 +46,11 @@ public class MinimalOpenGL2 extends JPanel implements GLEventListener {
         this.setLayout(new java.awt.BorderLayout());
         this.add(glPanel, java.awt.BorderLayout.CENTER);
         animator = new FPSAnimator(glPanel, FPS);
-        animator.start();
     }
 
     private GLCapabilities getCapabilities() {
-        GLProfile profile = GLProfile.getMaxProgrammable(true);
+        //GLProfile profile = GLProfile.getMaxProgrammable(true);
+        GLProfile profile = GLProfile.getGL2ES1();
         GLCapabilities capabilities = new GLCapabilities(profile);
         capabilities.setHardwareAccelerated(HARDWARE_ACCELERATED);
         capabilities.setBackgroundOpaque(true);
@@ -68,21 +68,35 @@ public class MinimalOpenGL2 extends JPanel implements GLEventListener {
     }
 
     @Override
-    public void init(GLAutoDrawable glAutoDrawable) {
-        var gl2 = glAutoDrawable.getGL().getGL2();
-        gl2.glClearColor(0.8f,0.8f,0.8f,1);
+    public void addNotify() {
+        super.addNotify();
+        animator.start();
+    }
 
-        gl2.glHint(GL2.GL_LINE_SMOOTH, GL2.GL_NICEST);
-        gl2.glEnable(GL2.GL_LINE_SMOOTH);
-        gl2.glEnable(GL2.GL_BLEND);
-        gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+    @Override
+    public void removeNotify() {
+        super.removeNotify();
+        animator.stop();
+    }
+
+    @Override
+    public void init(GLAutoDrawable glAutoDrawable) {
+        var gl = glAutoDrawable.getGL().getGL2();
+        gl.glClearColor(0.8f,0.8f,0.8f,1);
+
+        // enable vsync to prevent screen tearing effect
+        gl.setSwapInterval(1);
+
+        gl.glHint(GL2.GL_LINE_SMOOTH, GL2.GL_NICEST);
+        gl.glEnable(GL2.GL_LINE_SMOOTH);
+        gl.glEnable(GL2.GL_BLEND);
+        gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
     }
 
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
-        var gl2 = glAutoDrawable.getGL().getGL2();
-        animator.stop();
-        gl2.glFinish(); // Ensure all OpenGL commands are completed before disposing
+        var gl = glAutoDrawable.getGL().getGL2();
+        gl.glFinish(); // Ensure all OpenGL commands are completed before disposing
         logger.info("OpenGL resources disposed.");
     }
 
@@ -92,11 +106,11 @@ public class MinimalOpenGL2 extends JPanel implements GLEventListener {
      */
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
-        var gl2 = glAutoDrawable.getGL().getGL2();
-        gl2.glClear(GL2.GL_COLOR_BUFFER_BIT);
+        var gl = glAutoDrawable.getGL().getGL2();
+        gl.glClear(GL2.GL_COLOR_BUFFER_BIT);
 
-        spinTriangle(gl2);
-        drawTriangle(gl2);
+        spinTriangle(gl);
+        drawTriangle(gl);
     }
 
     private void spinTriangle(GL2 gl2) {
@@ -113,12 +127,12 @@ public class MinimalOpenGL2 extends JPanel implements GLEventListener {
         // draw the triangle again with the new rotation
     }
 
-    private void drawTriangle(GL2 gl2) {
-        gl2.glBegin(GL2.GL_TRIANGLES);
-        gl2.glColor3f(1, 0, 0);        gl2.glVertex2f(-0.5f, -0.5f); // Red
-        gl2.glColor3f(0, 1, 0);        gl2.glVertex2f( 0.5f, -0.5f); // Green
-        gl2.glColor3f(0, 0, 1);        gl2.glVertex2f( 0.0f,  0.5f); // Blue
-        gl2.glEnd();
+    private void drawTriangle(GL2 gl) {
+        gl.glBegin(GL2.GL_TRIANGLES);
+        gl.glColor3f(1, 0, 0);        gl.glVertex2f(-0.5f, -0.5f); // Red
+        gl.glColor3f(0, 1, 0);        gl.glVertex2f( 0.5f, -0.5f); // Green
+        gl.glColor3f(0, 0, 1);        gl.glVertex2f( 0.0f,  0.5f); // Blue
+        gl.glEnd();
     }
 
     @Override
