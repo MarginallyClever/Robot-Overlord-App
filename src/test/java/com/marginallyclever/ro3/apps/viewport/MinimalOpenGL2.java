@@ -18,8 +18,6 @@ public class MinimalOpenGL2 extends JPanel implements GLEventListener {
     private static final Logger logger = LoggerFactory.getLogger(MinimalOpenGL2.class);
     private final GLJPanel glPanel;
     private final FPSAnimator animator;
-    private int displayWidth = 800;
-    private int displayHeight = 600;
 
     private static boolean HARDWARE_ACCELERATED = true;
     private static boolean DOUBLE_BUFFERED = true;
@@ -124,9 +122,5 @@ public class MinimalOpenGL2 extends JPanel implements GLEventListener {
     }
 
     @Override
-    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
-        //var gl2 = glAutoDrawable.getGL().getGL2();
-        displayWidth = width;
-        displayHeight = height;
-    }
+    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {}
 }
