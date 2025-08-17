@@ -3,20 +3,36 @@
 ![coverage](https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/.github/badges/jacoco.svg)
 [![Javadoc](https://img.shields.io/badge/JavaDoc-Online-green)](https://marginallyclever.github.io/Robot-Overlord-App/)
 
-# Robot Overlord #
-![Preview image](Screenshot.png)
+Robot Overlord is an open-source 3D interface for simulating and controlling robots through a node-based visual programming system. Think of it as a lightweight, easier-to-use alternative to ROS, with a built-in 3D engine and real-time feedback.
 
-Robot Overlord is 3D control software for robots.  It is intended to be easier than ROS.  It was started by [Marginally Clever Robots, Ltd.](http://www.marginallyclever.com/)
+Whether you're controlling DIY robots or developing custom simulations, Robot Overlord provides a visual, modular approach that makes robotics more accessible for makers, educators, and hobbyists.
 
-We would love to see your robot run in the app.  Please joint our [Discord channel](https://discord.gg/Q5TZFmB) and talk live with a human!  
+## ✨ Features
 
-Some of the robots it can simulate include:
+🧩 Visual Programming: Create complex robot behaviors using a node graph system.
 
-- 5 and 6 DOF Robot arms: Sixi 3, AR4, Meca500, and more.
+🤖 Hardware Control: Supports live control of DIY robots via serial or network communication.
+
+🌐 3D Simulation: Preview and test robot kinematics in a built-in OpenGL scene.
+
+📐 Multiple Robot Types:
+
+- 5/6 DOF arms: like [AR4](https://www.anninrobotics.com/) and [Meca500](https://mecademic.com/products/meca500-industrial-robot-arm/)
 - Stewart Platforms (flight simulators)
-- 2 legged walkers (bipeds)
-- 4 legged walkers (dog robots)
-- 6 legged walkers (crabs, spiders)
+- Bipeds, quadrupeds, hexapods
+- Custom DIY solutions easily extensible in Java
+        
+## Quickstart
+
+Download the latest release (coming soon).
+
+Follow the [Getting Started Guide](https://mcr.dozuki.com/c/Robot_Overlord_3) to set up your robot.
+
+Launch the app and start building your graph!
+
+## Screenshots
+
+![Preview image](Screenshot.png)
 
 ## Why
 
@@ -24,10 +40,18 @@ The short answer?  ROS is too hard.  We want to make it easier.
 
 [Our philosophy about Robot Overlord](https://github.com/MarginallyClever/Robot-Overlord-App/wiki/Why-Robot-Overlord%3F).
 
-## Get Started today!
+## 🤝 Get Involved
 
-[Read our friendly manual](https://mcr.dozuki.com/c/Robot_Overlord_3).  It has pictures with arrows and everything!
+We would love to see your robot running in Robot Overlord
 
-## Icons
+🗣️ [Join our Discord](https://discord.gg/Q5TZFmB)
 
-Many app icons provided by http://icons8.com.
+🛠️ Fork this repo and share your improvements!
+
+🧠 Submit ideas and feature requests in (Issues)[https://github.com/MarginallyClever/Robot-Overlord-App/issues]
+
+## Credits
+
+- app icons provided by http://icons8.com.
+- Developed by [Marginally Clever Robots, Ltd.](http://www.marginallyclever.com/).
+
