@@ -19,7 +19,7 @@ public class PathMesh {
 
     private final List<PathTriangle> triangles = new LinkedList<>();
     private final AABB boundingBox = new AABB();
-    private OctreeNode octreeRoot = null;
+    private SpatialAccelerationStructure SAS = null;
 
     public void addTriangle(PathTriangle pt) {
         triangles.add(pt);
@@ -27,13 +27,14 @@ public class PathMesh {
 
     public void buildOctree() {
         updateCuboid();
-        octreeRoot = new OctreeNode(boundingBox);
+        //SAS = new OctreeNode(boundingBox);
+        SAS = new BoundingVolumeHeirarchy();
         int misses=0;
         for(PathTriangle triangle : triangles) {
-            if(!octreeRoot.insert(triangle,0)) misses++;
+            if(!SAS.insert(triangle)) misses++;
         }
         if(misses>0) logger.warn("Failed to insert {} triangles into octree.", misses);
-        octreeRoot.trim();
+        SAS.finishInserts();
         //octreeRoot.print();
     }
 
@@ -46,7 +47,7 @@ public class PathMesh {
         var test = boundingBox.intersect(ray);
         if(!test.isHit()) return null;  // no hit
 
-        PathTriangle bestTriangle = octreeRoot.intersect(ray);
+        PathTriangle bestTriangle = SAS.intersect(ray);
         if( bestTriangle == null ) return null;  // no hit
 
         double nearest = bestTriangle.intersectRay(ray);

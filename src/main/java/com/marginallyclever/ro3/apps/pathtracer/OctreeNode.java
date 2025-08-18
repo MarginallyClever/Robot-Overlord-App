@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * OctreeNode is a node in an octree structure used for spatial partitioning.
  */
-public class OctreeNode {
+public class OctreeNode implements SpatialAccelerationStructure {
     private static final int MAX_DEPTH = 10;
 
     private final AABB bounds;
@@ -19,10 +19,16 @@ public class OctreeNode {
     private OctreeNode[] children = null;
 
     public OctreeNode(AABB bounds) {
+        super();
         this.bounds = bounds;
     }
 
-    public boolean insert(PathTriangle triangle, int depth) {
+    @Override
+    public boolean insert(PathTriangle triangle) {
+        return insert(triangle,0);
+    }
+
+    private boolean insert(PathTriangle triangle, int depth) {
         if (!contains(triangle)) return false;
 
         if (depth < MAX_DEPTH) {
@@ -36,7 +42,15 @@ public class OctreeNode {
         return true;
     }
 
-    public void trim() {
+    @Override
+    public void finishInserts() {
+        trim();
+    }
+
+    /**
+     * Remove unused children
+     */
+    private void trim() {
         // if all children are empty, remove them.
         if (children == null) return;
 
@@ -72,6 +86,7 @@ public class OctreeNode {
         }
     }
 
+    @Override
     public PathTriangle intersect(Ray ray) {
         var test = bounds.intersect(ray);
         if (!test.isHit()) return null;

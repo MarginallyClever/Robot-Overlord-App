@@ -31,13 +31,13 @@ public class IntersectionHelperTest {
     @Test
     public void testCuboidCuboid() {
         AABB a = new AABB();
-        a.setBounds(new Point3d(0, 0, 0), new Point3d(1, 1, 1));
+        a.setBounds(new Point3d(1, 1, 1), new Point3d(0, 0, 0));
 
         AABB b = new AABB();
-        b.setBounds(new Point3d(2, 2, 2), new Point3d(3, 3, 3));
+        b.setBounds(new Point3d(3, 3, 3), new Point3d(2, 2, 2));
 
         AABB c = new AABB();
-        c.setBounds(new Point3d(0.5, 0.5, 0.5), new Point3d(1.5, 1.5, 1.5));
+        c.setBounds(new Point3d(1.5, 1.5, 1.5), new Point3d(0.5, 0.5, 0.5));
 
         assertFalse(IntersectionHelper.cuboidCuboid(a, b));
         assertTrue(IntersectionHelper.cuboidCuboid(a, c));

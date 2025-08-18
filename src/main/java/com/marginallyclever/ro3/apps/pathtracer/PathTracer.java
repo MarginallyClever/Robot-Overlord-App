@@ -79,7 +79,6 @@ public class PathTracer {
                 rays.add(new RayXY(x,y));
             }
         }
-        //rays.add(new RayXY(429,473));
 
         rayPickSystem.reset(true);
         pathTracingWorker = new PathTracingWorker(rays, image);
