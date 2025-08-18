@@ -18,10 +18,19 @@ public class Ray {
 		this(new Point3d(),new Vector3d(0,0,1),Double.MAX_VALUE);
 	}
 
+	/**
+	 * Calls {@link Ray#Ray(Point3d, Vector3d, double)} with the maximum ray distance.
+	 */
 	public Ray(Point3d origin, Vector3d direction) {
 		this(origin,direction,Double.MAX_VALUE);
 	}
 
+	/**
+	 *
+	 * @param origin the camera position.
+	 * @param direction unit length venctor from camera through viewport and into scene.
+	 * @param maxDistance the limit to test for ray intersections.
+	 */
 	public Ray(Point3d origin, Vector3d direction, double maxDistance) {
 		this.origin = new Point3d(origin);
 		this.direction = new Vector3d(direction);

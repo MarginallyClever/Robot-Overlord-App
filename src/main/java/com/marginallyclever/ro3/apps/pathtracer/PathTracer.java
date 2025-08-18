@@ -17,6 +17,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.SplittableRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -52,7 +53,7 @@ public class PathTracer {
     private final Vector3d sunlightSource = new Vector3d(150,150,150);
     private final Material defaultMaterial = new Material();
     private long startTime;
-    private static final Random random = new Random();
+    private static final SplittableRandom random = new SplittableRandom();
 
     private final EventListenerList listeners = new EventListenerList();
 
@@ -69,16 +70,20 @@ public class PathTracer {
     public void start() {
         if(pathTracingWorker !=null) return;
 
+        System.out.println("Starting PathTracer "+canvasHeight+"x"+canvasWidth);
+
         getSunlight();
         if(activeCamera==null) throw new RuntimeException("No active camera!");
         if(canvasHeight==0 || canvasWidth==0) throw new RuntimeException("Canvas size is zero!");
 
-        rays.clear();
+        rays.clear();//*
         for(int y=0;y<canvasHeight;y++) {
             for(int x=0;x<canvasWidth;x++) {
                 rays.add(new RayXY(x,y));
             }
-        }
+        }//*/
+        //rays.add(new RayXY(50,50));
+        //rays.add(new RayXY(658-50,50));
 
         rayPickSystem.reset(true);
         pathTracingWorker = new PathTracingWorker(rays, image);
@@ -139,7 +144,6 @@ public class PathTracer {
 
             ColorDouble brdf = mat.BRDF(rayHit,wi,wo);
             double pdf = mat.getProbableDistributionFunction(rayHit,wi,wo);
-            double cosTheta = Math.max(0,rayHit.normal().dot(wi));
             if(pdf<= EPSILON) break;
             throughput.multiply(brdf);
             throughput.scale(1.0 / pdf); // cosine-weighted diffuse
@@ -194,6 +198,26 @@ public class PathTracer {
         double pdfBSDF = mat.getProbableDistributionFunction(rayHit,wi,wo);
         double pdfLight = Math.max(EPSILON,pdfLightSolidAngle(lightHit.triangle().getArea(),distanceSquared,cosThetaLight));
         double wLight = misWeight(pdfLight,pdfBSDF);
+
+        double ks = mat.getSpecularStrength();
+        double kd = 1.0 - ks;
+
+        // Calculate halfway vector for Blinn-Phong
+        Vector3d h = new Vector3d(wi);
+        h.add(wo);
+        h.normalize();
+
+        // Calculate specular component
+        double specDot = Math.max(0, rayHit.normal().dot(h));
+        double norm = (mat.getShininess() + 2) / (2.0 * Math.PI);
+        double specular = norm * Math.pow(specDot, mat.getShininess());
+
+        // Add specular component
+        ColorDouble spec = new ColorDouble(mat.getSpecularColor());
+        spec.scale(specular * ks);
+        brdf.scale(1.0-ks);
+        brdf.add(spec);
+
         // the light contributes
         ColorDouble contribution = new ColorDouble(lightEmission);
         contribution.multiply(brdf);
@@ -351,15 +375,12 @@ public class PathTracer {
             while(!isCancelled()) {
                 rays.stream().parallel().forEach(pixel -> {
                     if(isCancelled()) return;
-
+                    // get the jiggled ray
                     var ray = getStratifiedSample(sqrtSPP,random,activeCamera,pixel);
-
                     // sum the total color of all samples
                     trace(ray,pixel);
-
                     // store the result in the buffer
                     drawPixel(pixel,pixel.colorAverage.getColor());
-
                     // Update progress
                     int done = completed.incrementAndGet();
                     // Only publish occasionally to avoid flooding the EDT
@@ -452,7 +473,18 @@ public class PathTracer {
         listeners.add(ProgressListener.class,pathTracerPanel);
     }
 
-    public Ray getStratifiedSample(int sqrtSPP, Random random, Camera camera,RayXY pixel) {
+    /**
+     * <p>Get the ray leaving the camera at a given pixel, stratified.  Instead of jiggling the ray
+     * across the entire pixel, the pixel area is divided into an n*n grid, where n=sqrt(total samples).
+     * The ray is then jiggled inside the area of each grid cell.</p>
+     *
+     * @param sqrtSPP the square of the total samples per pixel.
+     * @param random the pretty random number generator
+     * @param camera the camera viewing the scene
+     * @param pixel the {@link RayXY} with the 2d coordinate on the viewport.
+     * @return the jiggled
+     */
+    public Ray getStratifiedSample(int sqrtSPP, SplittableRandom random, Camera camera,RayXY pixel) {
         int s = pixel.getSamples();
         int sx = s % sqrtSPP; // x coordinate in the sqrt grid
         int sy = s / sqrtSPP; // y coordinate in the sqrt grid

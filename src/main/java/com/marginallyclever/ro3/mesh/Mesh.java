@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.event.EventListenerList;
+import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
@@ -169,6 +170,10 @@ public class Mesh {
 			if (hasIndexes) {
 				vertexProvider = new VertexProvider() {
 					@Override
+					public int provideCount() {
+						return indexArray.size();
+					}
+					@Override
 					public Point3d provideVertex(int index) {
 						return getVertex(indexArray.get(index));
 					}
@@ -177,12 +182,16 @@ public class Mesh {
 						return getNormal(indexArray.get(index));
 					}
 					@Override
-					public int provideCount() {
-						return indexArray.size();
+					public Point2d provideTextureCoordinate(int index) {
+						return getTexCoord(indexArray.get(index));
 					}
 				};
 			} else {
 				vertexProvider = new VertexProvider() {
+					@Override
+					public int provideCount() {
+						return getNumVertices();
+					}
 					@Override
 					public Point3d provideVertex(int index) {
 						return getVertex(index);
@@ -192,8 +201,8 @@ public class Mesh {
 						return getNormal(index);
 					}
 					@Override
-					public int provideCount() {
-						return getNumVertices();
+					public Point2d provideTextureCoordinate(int index) {
+						return getTexCoord(index);
 					}
 				};
 			}
@@ -377,11 +386,12 @@ public class Mesh {
 		return new Vector3d(x,y,z);
 	}
 
-	public Vector2d getTexCoord(int t) {
+	public Point2d getTexCoord(int t) {
+		if(!hasTextures) return null;
 		t*=2;
 		double u = textureArray.get(t++);
 		double v = textureArray.get(t);
-		return new Vector2d(u,v);
+		return new Point2d(u,v);
 	}
 
 	public boolean isDirty() {

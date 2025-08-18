@@ -34,7 +34,7 @@ public class RayXY {
 
     private void toneMap(ColorDouble d) {
         //acesApprox(d);
-        //shlickUniformRationalQuantization(d,2.0);
+        shlickUniformRationalQuantization(d,2.0);
     }
 
     private void acesApprox(ColorDouble v) {

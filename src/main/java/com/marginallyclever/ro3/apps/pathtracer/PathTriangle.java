@@ -4,6 +4,7 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.ro3.mesh.AABB;
 
+import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -12,20 +13,31 @@ import javax.vecmath.Vector3d;
  */
 public class PathTriangle {
     public final Point3d a,b,c;
+    public final Point2d tA,tB,tC;
     public final Vector3d normal;
     private final Vector3d edge1, edge2;
     public final AABB bounds = new AABB();
+    // for finding texture UVs
+    private final double d00, d01, d11, denom;
 
-    public PathTriangle(Point3d a, Point3d b, Point3d c, Vector3d normal) {
+    public PathTriangle(Point3d a, Point3d b, Point3d c, Vector3d normal,Point2d tA,Point2d tB,Point2d tC) {
         this.a = a;
         this.b = b;
         this.c = c;
+        this.tA = tA;
+        this.tB = tB;
+        this.tC = tC;
         this.normal = normal;
         edge1 = new Vector3d(b.x - a.x, b.y - a.y, b.z - a.z);
         edge2 = new Vector3d(c.x - a.x, c.y - a.y, c.z - a.z);
         bounds.setBounds(a,a);
         bounds.grow(b);
         bounds.grow(c);
+
+        d00 = edge1.dot(edge1);
+        d01 = edge1.dot(edge2);
+        d11 = edge2.dot(edge2);
+        denom = d00 * d11 - d01 * d01;
     }
 
     public AABB getBounds() {
@@ -82,5 +94,27 @@ public class PathTriangle {
         Vector3d cross = new Vector3d();
         cross.cross(edge1, edge2);
         return 0.5 * cross.length();
+    }
+
+    /**
+     * 
+     * @param point the 3d world point of intersection with the triangle.
+     * @return the UV coordinates of the texture at the point.
+     */
+    public Point2d getUVAt(Point3d point) {
+        Vector3d v2 = new Vector3d();
+        v2.sub(point, a);
+
+        double d20 = v2.dot(edge1);
+        double d21 = v2.dot(edge2);
+
+        double v = (d11 * d20 - d01 * d21) / denom;
+        double w = (d00 * d21 - d01 * d20) / denom;
+        double u = 1.0 - v - w;
+
+        return new Point2d(
+                u * tA.x + v * tB.x + w * tC.x,
+                u * tA.y + v * tB.y + w * tC.y
+        );
     }
 }

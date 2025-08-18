@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.apps.pathtracer;
 
 import javax.vecmath.Vector3d;
 import java.util.Random;
+import java.util.SplittableRandom;
 
 public class PathTracerHelper {
     /**
@@ -16,7 +17,7 @@ public class PathTracerHelper {
         return new Vector3d(x, y, z);
     }
 
-    public static Vector3d getRandomCosineWeightedHemisphere(Random random,Vector3d normal) {
+    public static Vector3d getRandomCosineWeightedHemisphere(SplittableRandom random, Vector3d normal) {
         // Sample random numbers
         double u1 = random.nextDouble();
         double u2 = random.nextDouble();

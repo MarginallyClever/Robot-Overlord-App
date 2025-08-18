@@ -4,6 +4,7 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.pathtracer.ColorDouble;
 import com.marginallyclever.ro3.apps.pathtracer.PathTracerHelper;
+import com.marginallyclever.ro3.apps.pathtracer.PathTriangle;
 import com.marginallyclever.ro3.apps.pathtracer.ScatterRecord;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.raypicking.RayHit;
@@ -16,6 +17,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.SplittableRandom;
 
 /**
  * <p>{@link Material} contains properties for rendering a surface.  The first use case is to apply a texture to a
@@ -237,9 +239,18 @@ public class Material extends Node {
         }
 
         // lambertian diffuse BRDF
-        ColorDouble a = new ColorDouble(getDiffuseColor());
-        a.scale(1.0/ Math.PI); // diffuse BRDF
+        ColorDouble a = new ColorDouble(getDiffuseTextureAt(rayHit));
+        ColorDouble mat = new ColorDouble(getDiffuseColor());
+        a.multiply(mat);
+        a.scale(1.0 / Math.PI); // diffuse BRDF
+
         return a;
+    }
+
+    private Color getDiffuseTextureAt(RayHit rayHit) {
+        if (diffuseTexture == null) return Color.WHITE;
+        var uv = rayHit.triangle().getUVAt(rayHit.point());
+        return diffuseTexture.getColorAt(uv.x, uv.y);
     }
 
     public double getProbableDistributionFunction(RayHit rayHit, Vector3d in, Vector3d out) {
@@ -249,7 +260,7 @@ public class Material extends Node {
         return cosTheta / Math.PI;
     }
 
-    public ScatterRecord scatter(Ray ray, RayHit hitRecord, Random random) {
+    public ScatterRecord scatter(Ray ray, RayHit hitRecord, SplittableRandom random) {
         Vector3d newDirection = PathTracerHelper.getRandomCosineWeightedHemisphere(random, hitRecord.normal());
         double p = 1.0 / 2.0 * Math.PI; // cosine weighted hemisphere
         double cosTheta = hitRecord.normal().dot(newDirection);

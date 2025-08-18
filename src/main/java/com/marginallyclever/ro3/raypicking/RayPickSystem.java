@@ -13,6 +13,7 @@ import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.util.*;
@@ -158,7 +159,7 @@ public class RayPickSystem {
         VertexProvider vertexProvider = oldMesh.getVertexProvider();
         var numVertexes = vertexProvider.provideCount();
         for(int i = 0; i < numVertexes; i+=3) {
-            Point3d p0 = vertexProvider.provideVertex(i    );
+            Point3d p0 = vertexProvider.provideVertex(i);
             Point3d p1 = vertexProvider.provideVertex(i + 1);
             Point3d p2 = vertexProvider.provideVertex(i + 2);
             matrix.transform(p0);
@@ -166,9 +167,12 @@ public class RayPickSystem {
             matrix.transform(p2);
             Vector3d n = vertexProvider.provideNormal(i);
             matrix.transform(n);
-            newMesh.addTriangle(new PathTriangle(p0,p1,p2,n));
+            Point2d ta = vertexProvider.provideTextureCoordinate(i);
+            Point2d tb = vertexProvider.provideTextureCoordinate(i + 1);
+            Point2d tc = vertexProvider.provideTextureCoordinate(i + 2);
+            newMesh.addTriangle(new PathTriangle(p0,p1,p2,n,ta,tb,tc));
         }
-        newMesh.buildOctree();
+        newMesh.buildSAS();
         return newMesh;
     }
 

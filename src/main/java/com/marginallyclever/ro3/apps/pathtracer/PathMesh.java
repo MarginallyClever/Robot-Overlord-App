@@ -25,7 +25,10 @@ public class PathMesh {
         triangles.add(pt);
     }
 
-    public void buildOctree() {
+    /**
+     * Build the {@link SpatialAccelerationStructure} that will optimize the intersection math.
+     */
+    public void buildSAS() {
         updateCuboid();
         //SAS = new OctreeNode(boundingBox);
         SAS = new BoundingVolumeHeirarchy();

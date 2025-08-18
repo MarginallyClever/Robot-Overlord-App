@@ -7,6 +7,7 @@ import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
@@ -105,5 +106,18 @@ public class TextureWithMetadata {
 
     public void setDoNotExport(boolean value) {
     	doNotExport=value;
+    }
+
+    public Color getColorAt(double x, double y) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        x*=width;
+        y*=height;
+
+        // Wrap
+        x = ((x % width) + width) % width;
+        y = ((y % height) + height) % height;
+
+        return new Color(image.getRGB((int) x, height - 1 - (int) y));
     }
 }
