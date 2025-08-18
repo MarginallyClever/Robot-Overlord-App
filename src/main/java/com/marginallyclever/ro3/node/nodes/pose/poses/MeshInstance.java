@@ -72,7 +72,7 @@ public class MeshInstance extends Pose {
     }
 
     /**
-     * transform the ray into local space and test for intersection.
+     * Transform the ray into local space and test for intersection.
      * @param ray the ray in world space
      * @return the ray hit in world space, or null if no hit.
      */
@@ -81,15 +81,14 @@ public class MeshInstance extends Pose {
 
         Ray localRay = transformRayToLocalSpace(ray);
         RayHit localHit = mesh.intersect(localRay);
-        if(localHit!=null && localHit.distance()<Double.MAX_VALUE) {
-            Vector3d normal = transformNormalToWorldSpace(localHit.normal());
-            Point3d hit = new Point3d(ray.getDirection());
-            hit.scale(localHit.distance());
-            hit.add(ray.getOrigin());
-            return new RayHit(this,localHit.distance(),normal,hit);
-        } else {
+        if(localHit == null || localHit.distance() >= Double.MAX_VALUE) {
             return null;
         }
+        Vector3d normal = transformNormalToWorldSpace(localHit.normal());
+        Point3d hit = new Point3d(ray.direction());
+        hit.scale(localHit.distance());
+        hit.add(ray.origin());
+        return new RayHit(this, localHit.distance(), normal, hit, localHit.triangle());
     }
 
     /**
@@ -99,14 +98,14 @@ public class MeshInstance extends Pose {
      */
     private Ray transformRayToLocalSpace(Ray ray) {
         Matrix4d m = getWorld();
-        Point3d o = new Point3d(ray.getOrigin());
-        Vector3d d = new Vector3d(ray.getDirection());
+        Point3d o = new Point3d(ray.origin());
+        Vector3d d = new Vector3d(ray.direction());
 
         m.invert();
         m.transform(o);
         m.transform(d);
 
-        return new Ray(o,d,ray.getMaxDistance());
+        return new Ray(o,d,ray.maxDistance());
     }
 
     /**

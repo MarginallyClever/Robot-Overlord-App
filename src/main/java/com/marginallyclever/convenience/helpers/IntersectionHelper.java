@@ -17,6 +17,9 @@ import javax.vecmath.Vector3d;
  */
 public abstract class IntersectionHelper {
 	static final float SMALL_NUM = 0.001f;
+
+	public static final double EPSILON = 1e-8;
+
 	/**
      * test intersection of two cylinders.  From <a href="http://geomalgorithms.com/a07-_distance.html">...</a>
      * @param cA cylinder A
@@ -176,8 +179,8 @@ public abstract class IntersectionHelper {
             // SATTest the normals of A against the 8 points of box A.
             // SATTest the normals of A against the 8 points of box B.
             // points of each box are a combination of the box's top/bottom values.
-            double[] aLim = SATTest(vector3d, a.p);
-            double[] bLim = SATTest(vector3d, b.p);
+            double[] aLim = SATTest(vector3d, a.corners);
+            double[] bLim = SATTest(vector3d, b.corners);
             // logger.info("Lim "+axis[i]+" > "+n[i].x+"\t"+n[i].y+"\t"+n[i].z+" :
             // "+aLim[0]+","+aLim[1]+" vs "+bLim[0]+","+bLim[1]);
 
@@ -262,9 +265,9 @@ public abstract class IntersectionHelper {
 	 */
 	static public double raySphere(final Ray ray,final Tuple3d center,final double radius) {
 		Vector3d oc = new Vector3d();
-		oc.sub(ray.getOrigin(),center);
-	    double a = ray.getDirection().dot(ray.getDirection());
-		var h = oc.dot(ray.getDirection());
+		oc.sub(ray.origin(),center);
+	    double a = ray.direction().dot(ray.direction());
+		var h = oc.dot(ray.direction());
 		var c = oc.dot(oc) - radius*radius;
 		var discriminant = h*h - a*c;
 	    if(discriminant >= 0) {
@@ -283,8 +286,8 @@ public abstract class IntersectionHelper {
 	 * @return &gt;=0 for hit, negative numbers for hits behind the ray origin or no hit.
 	 */
 	static public double rayBox(final Ray ray,final Point3d boxMin,final Point3d boxMax) {
-		Vector3d rayDirection = ray.getDirection();
-		Point3d rayOrigin = ray.getOrigin();
+		Vector3d rayDirection = ray.direction();
+		Point3d rayOrigin = ray.origin();
 	    double tmin = (boxMin.x - rayOrigin.x) / rayDirection.x;
 	    double tmax = (boxMax.x - rayOrigin.x) / rayDirection.x;
 	
@@ -414,39 +417,37 @@ public abstract class IntersectionHelper {
 	 * products needs to be reversed to get the correct intersection result.
 	 * See also <a href="https://en.wikipedia.org/wiki/Incircle_and_excircles_of_a_triangle">Wikipedia</a>.
 	 * @param ray origin and direction
-	 * @param v0 point 1
-	 * @param v1 point 2
-	 * @param v2 point 3
-	 * @return distance to the intersection, negative numbers for hits behind camera, Double.MAX_VALUE for no hit.
+	 * @param p0 point 1
+	 * @param p1 point 2
+	 * @param p2 point 3
+	 * @return distance to the intersection.  Negative numbers for hits behind start of ray, Double.MAX_VALUE for no hit.
 	 */
-    public static double rayTriangle(Ray ray, Vector3d v0, Vector3d v1, Vector3d v2) {
-		Vector3d edge1 = new Vector3d(v1.x-v0.x, v1.y-v0.y, v1.z-v0.z);
-		Vector3d edge2 = new Vector3d(v2.x-v0.x, v2.y-v0.y, v2.z-v0.z);
-		Vector3d pvec = new Vector3d();
-		final double EPSILON = 1e-8;
-
-		pvec.cross(ray.getDirection(), edge2);
-		double det = edge1.dot(pvec);
+    public static double rayTriangle(Ray ray, final Point3d p0, final Point3d p1, final Point3d p2) {
+		Vector3d edge1 = new Vector3d(p1.x-p0.x, p1.y-p0.y, p1.z-p0.z);
+		Vector3d edge2 = new Vector3d(p2.x-p0.x, p2.y-p0.y, p2.z-p0.z);
+		Vector3d pVec = new Vector3d();
+		pVec.cross(ray.direction(), edge2);
+		double det = edge1.dot(pVec);
 		if (det > -EPSILON && det < EPSILON) {
 			return Double.MAX_VALUE; // Ray and triangle are parallel
 		}
 
-		double inv_det = 1.0 / det;
-		Vector3d tvec = new Vector3d();
-		tvec.sub(ray.getOrigin(), v0);
-		double u = tvec.dot(pvec) * inv_det;
+		double invDet = 1.0 / det;
+		Vector3d tVec = new Vector3d();
+		tVec.sub(ray.origin(), p0);
+		double u = tVec.dot(pVec) * invDet;
 		if (u < 0.0 || u > 1.0) {
 			return Double.MAX_VALUE;
 		}
 
-		Vector3d qvec = new Vector3d();
-		qvec.cross(tvec, edge1);
-		double v = ray.getDirection().dot(qvec) * inv_det;
+		Vector3d qVec = new Vector3d();
+		qVec.cross(tVec, edge1);
+		double v = ray.direction().dot(qVec) * invDet;
 		if (v < 0.0 || u + v > 1.0) {
 			return Double.MAX_VALUE;
 		}
 
-		double t = edge2.dot(qvec) * inv_det;
+		double t = edge2.dot(qVec) * invDet;
 		if (t < EPSILON) {
 			return Double.MAX_VALUE; // Intersection is behind the ray origin
 		}
@@ -462,7 +463,7 @@ public abstract class IntersectionHelper {
 	 */
     public static double rayPlane(Ray ray, Plane translationPlane) {
 		// Calculate the dot product of the ray direction and plane normal
-		double dotProduct = ray.getDirection().dot(translationPlane.getNormal());
+		double dotProduct = ray.direction().dot(translationPlane.getNormal());
 
 		// Check if the ray is parallel to the plane (no intersection)
 		if (Math.abs(dotProduct) < 1e-6) {
@@ -471,7 +472,7 @@ public abstract class IntersectionHelper {
 
 		// Calculate the distance between the ray origin and plane point
 		Vector3d distanceVector = new Vector3d();
-		distanceVector.sub(translationPlane.getPoint(), ray.getOrigin());
+		distanceVector.sub(translationPlane.getPoint(), ray.origin());
 
 		// Calculate the intersection distance using the dot product
 		double distance = distanceVector.dot(translationPlane.getNormal()) / dotProduct;
@@ -484,7 +485,7 @@ public abstract class IntersectionHelper {
 		return distance;
 	}
 
-	public static Vector3d buildNormalFrom3Points(Vector3d v0, Vector3d v1, Vector3d v2) {
+	public static Vector3d buildNormalFrom3Points(Point3d v0, Point3d v1, Point3d v2) {
 		// build normal from points v0,v1,v2
 		Vector3d edge1 = new Vector3d();
 		Vector3d edge2 = new Vector3d();

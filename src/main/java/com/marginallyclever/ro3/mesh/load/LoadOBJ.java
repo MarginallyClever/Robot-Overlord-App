@@ -97,12 +97,12 @@ public class LoadOBJ implements MeshLoader {
 				// face
 				String[] tokens = line.split("\\s+");
 				//logger.info("face len="+tokens.length);
-				int index;
 				for(int i=1;i<tokens.length;++i) {
 					String [] subTokens = tokens[i].split("/");
 					// vertex data
-					index = Integer.parseInt(subTokens[0])-1;
-					
+					var tok = Integer.parseInt(subTokens[0]);
+					int index = ( tok >= 0 ) ? tok-1 : vertexArray.size()/3 + tok;
+
 					try {
 						model.addVertex(
 								vertexArray.get(index*3  ),
@@ -120,7 +120,9 @@ public class LoadOBJ implements MeshLoader {
 					}
 					// texture data (if any)
 					if(subTokens.length>1 && !subTokens[1].isEmpty()) {
-						int indexT = Integer.parseInt(subTokens[1])-1;
+						var tok2 = Integer.parseInt(subTokens[1]);
+						int indexT = ( tok2 >= 0 ) ? tok2-1 : texCoordArray.size()/2 + tok2;
+
 						try {
 							model.addTexCoord(
 									texCoordArray.get(indexT*2  ),
@@ -131,7 +133,9 @@ public class LoadOBJ implements MeshLoader {
 					}
 					// normal data (if any)
 					if(subTokens.length>2 && !subTokens[2].isEmpty()) {
-						int indexN = Integer.parseInt(subTokens[2])-1;
+						var tok2 = Integer.parseInt(subTokens[2]);
+						int indexN = ( tok2 >= 0 ) ? tok2-1 : normalArray.size()/3 + tok2;
+
 						try {
 							model.addNormal(
 									normalArray.get(indexN*3  ),

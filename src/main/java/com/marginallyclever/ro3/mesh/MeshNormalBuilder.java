@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 /**
@@ -65,9 +66,9 @@ public class MeshNormalBuilder {
 	}
 
 	private static Vector3d buildNormalFromThreePoints(Mesh m, int a, int b, int c) {
-		Vector3d vA = m.getVertex(a);
-		Vector3d vB = m.getVertex(b);
-		Vector3d vC = m.getVertex(c);
+		Point3d vA = m.getVertex(a);
+		Point3d vB = m.getVertex(b);
+		Point3d vC = m.getVertex(c);
         Vector3d nCA = new Vector3d();
         Vector3d nBA = new Vector3d();
         Vector3d n = new Vector3d();

@@ -194,8 +194,8 @@ public class DrawCameras extends AbstractRenderPass {
     }
 
     private void changeRayMesh(GL3 gl3, Ray ray,double farZ) {
-        Point3d origin = ray.getOrigin();
-        Vector3d direction = ray.getDirection();
+        Point3d origin = ray.origin();
+        Vector3d direction = ray.direction();
 
         direction.scale(farZ);
         rayMesh.setVertex(0,origin.x,origin.y,origin.z);

@@ -16,10 +16,10 @@ public class AABB implements BoundingVolume, Serializable {
 	// pose of this {@link Cuboid} in the world.
 	protected Matrix4d pose = new Matrix4d();
 	
-	protected Point3d boundTop = new Point3d();  // max limits
-	protected Point3d boundBottom = new Point3d();  // min limits
+	protected Point3d max = new Point3d();  // max limits
+	protected Point3d min = new Point3d();  // min limits
 	
-	public Point3d [] p = new Point3d[8];  // all 8 corners
+	public Point3d [] corners = new Point3d[8];  // all 8 corners
 	
 	private boolean isDirty=false;
 	private Mesh myShape;
@@ -28,16 +28,16 @@ public class AABB implements BoundingVolume, Serializable {
 	public AABB() {
 		super();
 		pose.setIdentity();
-		for(int i=0;i<p.length;++i) p[i] = new Point3d();
+		for(int i = 0; i< corners.length; ++i) corners[i] = new Point3d();
 	}
 
 	public void set(AABB b) {
 		pose.set(b.pose);
-		boundTop.set(b.boundTop);
-		boundBottom.set(b.boundBottom);
+		max.set(b.max);
+		min.set(b.min);
 		myShape = b.myShape;
 
-		for(int i=0;i<8;++i) p[i].set(b.p[i]);
+		for(int i=0;i<8;++i) corners[i].set(b.corners[i]);
 		
 		isDirty=b.isDirty;
 	}
@@ -46,53 +46,51 @@ public class AABB implements BoundingVolume, Serializable {
 		if(!isDirty) return;
 		isDirty=false;
 		
-		p[0].set(boundBottom.x, boundBottom.y, boundBottom.z);
-		p[1].set(boundBottom.x, boundBottom.y, boundTop   .z);
-		p[2].set(boundBottom.x, boundTop   .y, boundBottom.z);
-		p[3].set(boundBottom.x, boundTop   .y, boundTop   .z);
-		p[4].set(boundTop   .x, boundBottom.y, boundBottom.z);
-		p[5].set(boundTop   .x, boundBottom.y, boundTop   .z);
-		p[6].set(boundTop   .x, boundTop   .y, boundBottom.z);
-		p[7].set(boundTop   .x, boundTop   .y, boundTop   .z);
+		corners[0].set(min.x, min.y, min.z);
+		corners[1].set(min.x, min.y, max.z);
+		corners[2].set(min.x, max.y, min.z);
+		corners[3].set(min.x, max.y, max.z);
+		corners[4].set(max.x, min.y, min.z);
+		corners[5].set(max.x, min.y, max.z);
+		corners[6].set(max.x, max.y, min.z);
+		corners[7].set(max.x, max.y, max.z);
 
-		for (int i = 0; i < p.length; ++i) {
-			// logger.info("\t"+p[i]);
-			pose.transform(p[i]);
-			// logger.info(" >> "+p[i]);
-		}
+        for (Point3d point3d : corners) {
+            // logger.info("\t"+point3d);
+            pose.transform(point3d);
+            // logger.info(" >> "+point3d);
+        }
 	}
 
-	public void setBounds(Point3d boundTop, Point3d boundBottom) {
-		if(!this.boundTop.epsilonEquals(boundTop, 1e-4)) 
-		{
-			this.boundTop.set(boundTop);
+	public void setBounds(Point3d newMax, Point3d newMin) {
+		if(!this.max.epsilonEquals(newMax, 1e-4))  {
+			this.max.set(newMax);
 			isDirty=true;
 		}
-		if(!this.boundBottom.epsilonEquals(boundBottom, 1e-4))
-		{
-			this.boundBottom.set(boundBottom);
+		if(!this.min.epsilonEquals(newMin, 1e-4)) {
+			this.min.set(newMin);
 			isDirty=true;
 		}
 	}
 	
 	public Point3d getBoundsTop() {
-		return this.boundTop;
+		return this.max;
 	}
 	
 	public Point3d getBoundsBottom() {
-		return boundBottom;
+		return min;
 	}
 	
 	public double getExtentX() {
-		return boundTop.x-boundBottom.x;
+		return max.x- min.x;
 	}
 	
 	public double getExtentY() {
-		return boundTop.y-boundBottom.y;
+		return max.y- min.y;
 	}
 	
 	public double getExtentZ() {
-		return boundTop.z-boundBottom.z;
+		return max.z- min.z;
 	}
 	
 	public void setPose(Matrix4d m) {
@@ -119,6 +117,38 @@ public class AABB implements BoundingVolume, Serializable {
 	}
 
 	public boolean intersect(Ray ray) {
-		return IntersectionHelper.rayBox(ray, boundBottom, boundTop)>=0;
+		return IntersectionHelper.rayBox(ray, min, max)>=0;
+	}
+
+	/**
+	 * Subdivide this AABB into 8 smaller AABBs.
+	 * @return 8 new AABBs that are subdivisions of this AABB.
+	 */
+	public AABB [] subdivide() {
+		AABB [] children = new AABB[8];
+		for(int i=0;i<children.length;++i) {
+			children[i] = new AABB();
+			children[i].setShape(myShape);
+		}
+
+		Point3d mid = new Point3d(max);
+		mid.add(min);
+		mid.scale(0.5);
+
+		children[0].setBounds(new Point3d(mid.x, mid.y, mid.z), new Point3d(min.x, min.y, min.z));
+		children[1].setBounds(new Point3d(mid.x, mid.y, max.z), new Point3d(min.x, min.y, mid.z));
+		children[2].setBounds(new Point3d(mid.x, max.y, mid.z), new Point3d(min.x, mid.y, min.z));
+		children[3].setBounds(new Point3d(mid.x, max.y, max.z), new Point3d(min.x, mid.y, mid.z));
+		children[4].setBounds(new Point3d(max.x, mid.y, mid.z), new Point3d(mid.x, min.y, min.z));
+		children[5].setBounds(new Point3d(max.x, mid.y, max.z), new Point3d(mid.x, min.y, mid.z));
+		children[6].setBounds(new Point3d(max.x, max.y, mid.z), new Point3d(mid.x, mid.y, min.z));
+		children[7].setBounds(new Point3d(max.x, max.y, max.z), new Point3d(mid.x, mid.y, mid.z));
+
+		for(AABB child : children) {
+			child.setPose(pose);
+			child.setDirty(true);
+		}
+
+		return children;
 	}
 }
