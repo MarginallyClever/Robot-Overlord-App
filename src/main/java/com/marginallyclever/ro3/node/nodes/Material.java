@@ -268,4 +268,15 @@ public class Material extends Node {
         attenuation.scale(cosTheta);
         return new ScatterRecord(newDirection,p,attenuation);
     }
+
+    /**
+     * Calculate the emitted light from a material based on its emission color and strength.
+     *
+     * @return the emitted light as a ColorDouble
+     */
+    public ColorDouble getEmittedLight() {
+        var emittedLight = new ColorDouble(getEmissionColor());
+        emittedLight.scale(getEmissionStrength());
+        return emittedLight;
+    }
 }

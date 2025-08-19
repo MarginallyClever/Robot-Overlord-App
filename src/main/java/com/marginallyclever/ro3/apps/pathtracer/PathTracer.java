@@ -14,9 +14,10 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.SplittableRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -41,6 +42,8 @@ public class PathTracer {
     // depth map
     private BufferedImage depthMap;
     private double deepestHit = 0.0; // the deepest hit in the scene, used for depth map scaling
+    // normal map
+    private BufferedImage normalMap;
 
     // number of times to retest each pixel.  the results are then averaged.
     private int samplesPerPixel = 70;
@@ -70,7 +73,7 @@ public class PathTracer {
     public void start() {
         if(pathTracingWorker !=null) return;
 
-        System.out.println("Starting PathTracer "+canvasHeight+"x"+canvasWidth);
+        System.out.println("Starting PathTracer "+canvasHeight+"x"+canvasWidth+" @ "+samplesPerPixel + "spp, max depth "+maxDepth);
 
         getSunlight();
         if(activeCamera==null) throw new RuntimeException("No active camera!");
@@ -85,7 +88,9 @@ public class PathTracer {
         //rays.add(new RayXY(50,50));
         //rays.add(new RayXY(658-50,50));
 
+        firePending();
         rayPickSystem.reset(true);
+        fireStarted();
         pathTracingWorker = new PathTracingWorker(rays, image);
         pathTracingWorker.execute();
     }
@@ -101,8 +106,8 @@ public class PathTracer {
         RayHit prevHit=null;
         Ray prevRay=null;
 
-        for (int i = 0; i < maxDepth; ++i) {
-            if(i >= MIN_BOUNCES && russianRouletteTermination(throughput)) break;
+        for (int depth = 0; depth < maxDepth; ++depth) {
+            if(depth >= MIN_BOUNCES && russianRouletteTermination(throughput)) break;
 
             // get the first hit along the ray
             RayHit rayHit = rayPickSystem.getFirstHit(ray,true);
@@ -115,12 +120,11 @@ public class PathTracer {
             }
 
             // hit something
-            if(i==0) {
-                // if this is the first hit, record the depth
+            if(depth==0) {
+                // if this is the first hit, record the depth and the deepest hit.
                 pixel.depth = rayHit.distance();
-                if(deepestHit < rayHit.distance()) {
-                    deepestHit = rayHit.distance(); // update the deepest hit
-                }
+                deepestHit = Math.max(deepestHit, pixel.depth);
+                pixel.normal = rayHit.normal();
             }
 
             // does this material emit light?
@@ -182,12 +186,12 @@ public class PathTracer {
 
         // hit a thing
         var target = lightHit.target();
-        var mat2 = target.findFirstSibling(Material.class);
-        if(mat2 == null || !mat2.isEmissive()) return;
+        var mat2 = RayPickSystem.getMaterial(target);
+        if(mat2 == null) mat2 = defaultMaterial;
+        if(!mat2.isEmissive()) return;
 
         // the light is visible
-        ColorDouble lightEmission = getEmittedLight(mat2);
-        double cosTheta = Math.max(0, rayHit.normal().dot(toLight));
+        ColorDouble lightEmission = mat2.getEmittedLight();
         double cosThetaLight = Math.max(0, -lightHit.normal().dot(toLight));
 
         Vector3d wi = new Vector3d(toLight);
@@ -245,38 +249,39 @@ public class PathTracer {
     }
 
     private void handleEmissiveHit(Ray ray, RayHit rayHit, Ray prevRay, RayHit prevHit, ColorDouble throughput, ColorDouble radiance,Material mat) {
-        if(prevHit != null) {
-            Vector3d wi = new Vector3d(ray.getDirection());
-            Vector3d wo = new Vector3d(prevRay.getDirection());
-            wo.negate();
-
-            Point3d prevPoint = ray.getOrigin();
-            Point3d lightPoint = rayHit.point();
-            Vector3d nLight = rayHit.normal();
-
-            double distanceSquared = lightPoint.distanceSquared(prevPoint);
-            Vector3d lightDir = new Vector3d();
-            lightDir.sub(lightPoint, prevPoint);
-            lightDir.normalize();
-            double cosThetaLight = Math.max(0.0, -nLight.dot(lightDir));
-
-            var mat2 = prevHit.target().findFirstSibling(Material.class);
-            if(mat2!=null) {
-                double pdfLight = pdfLightSolidAngle(rayHit.triangle().getArea(), distanceSquared, cosThetaLight);
-                double pdfBSDF = mat2.getProbableDistributionFunction(prevHit, wi, wo);
-                double wBSDF = misWeight(pdfBSDF, pdfLight);
-
-                ColorDouble emittedLight = getEmittedLight(mat);
-                emittedLight.multiply(throughput);
-                emittedLight.scale(wBSDF);
-                radiance.add(emittedLight);
-            } else throw new RuntimeException("no material?");
-        } else {
+        if(prevHit == null) {
             // First bounce: no MIS, just add light directly
-            ColorDouble emittedLight = getEmittedLight(mat);
+            ColorDouble emittedLight = mat.getEmittedLight();
             emittedLight.multiply(throughput);
             radiance.add(emittedLight);
+            return;
         }
+
+        Vector3d wi = new Vector3d(ray.getDirection());
+        Vector3d wo = new Vector3d(prevRay.getDirection());
+        wo.negate();
+
+        Point3d prevPoint = ray.getOrigin();
+        Point3d lightPoint = rayHit.point();
+        Vector3d nLight = rayHit.normal();
+
+        double distanceSquared = lightPoint.distanceSquared(prevPoint);
+        Vector3d lightDir = new Vector3d();
+        lightDir.sub(lightPoint, prevPoint);
+        lightDir.normalize();
+        double cosThetaLight = Math.max(0.0, -nLight.dot(lightDir));
+
+        var mat2 = RayPickSystem.getMaterial(prevHit.target());
+        if(mat2 == null) mat2 = defaultMaterial;
+
+        double pdfLight = pdfLightSolidAngle(rayHit.triangle().getArea(), distanceSquared, cosThetaLight);
+        double pdfBSDF = mat2.getProbableDistributionFunction(prevHit, wi, wo);
+        double wBSDF = misWeight(pdfBSDF, pdfLight);
+
+        ColorDouble emittedLight = mat.getEmittedLight();
+        emittedLight.multiply(throughput);
+        emittedLight.scale(wBSDF);
+        radiance.add(emittedLight);
     }
 
     private double pdfLightSolidAngle(double lightArea, double distanceSquared,double cosThetaLight) {
@@ -287,16 +292,17 @@ public class PathTracer {
         return (pA * distanceSquared) / cosThetaLight;
     }
 
+    /**
+     * Calculate the Multiple Importance Sampling (MIS) weight using the power heuristic.
+     *
+     * @param pdfA probability density function value for strategy A
+     * @param pdfB probability density function value for strategy B
+     * @return the MIS weight for balancing between the two sampling strategies
+     */
     private static double misWeight(double pdfA, double pdfB) {
         double a2 = pdfA * pdfA;
         double b2 = pdfB * pdfB;
         return a2 / (a2 + b2);
-    }
-
-    public ColorDouble getEmittedLight(Material mat) {
-        var emittedLight = new ColorDouble(mat.getEmissionColor());
-        emittedLight.scale(mat.getEmissionStrength());
-        return emittedLight;
     }
 
     /**
@@ -320,6 +326,11 @@ public class PathTracer {
                 a * ambientColor.b + sd * sunlightColor.b * sunlightStrength);
     }
 
+    /**
+     * Get the timestamp when the path tracing started.
+     *
+     * @return the start time in milliseconds
+     */
     public long getStartTime() {
         return startTime;
     }
@@ -334,20 +345,45 @@ public class PathTracer {
         canvasHeight = height;
         image = new BufferedImage(canvasWidth,canvasHeight,BufferedImage.TYPE_INT_RGB);
         depthMap = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_RGB);
+        normalMap = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_RGB);
     }
 
+    /**
+     * Get the rendered image buffer containing the path traced scene.
+     *
+     * @return the rendered image as a BufferedImage
+     */
     public BufferedImage getImage() {
         return image;
     }
 
+    /**
+     * Get the depth map buffer containing the distance information for each pixel.
+     *
+     * @return the depth map as a BufferedImage
+     */
     public BufferedImage getDepthMap() {
         return depthMap;
     }
 
+    public BufferedImage getNormalMap() {
+        return normalMap;
+    }
+
+    /**
+     * Set the camera to be used for rendering the scene.
+     *
+     * @param camera the camera to use for path tracing
+     */
     public void setActiveCamera(Camera camera) {
         this.activeCamera = camera;
     }
 
+    /**
+     * Check if the path tracer is currently processing.
+     *
+     * @return true if the worker is active and not done or cancelled, false otherwise
+     */
     public boolean isRunning() {
         return pathTracingWorker != null && !pathTracingWorker.isDone() && !pathTracingWorker.isCancelled();
     }
@@ -368,8 +404,6 @@ public class PathTracer {
             AtomicInteger completed = new AtomicInteger(0);
 
             startTime = System.currentTimeMillis();
-
-            //System.out.println("samples per pixel: "+samplesPerPixel + ", max depth: "+maxDepth);
 
             // in parallel, trace each ray and store the result in a buffer
             while(!isCancelled()) {
@@ -407,12 +441,16 @@ public class PathTracer {
         protected void done() {
             // Rendering finished
             pathTracingWorker =null;
+            fireFinished();
         }
 
         private void drawPixel(RayXY pixel, Color c) {
             // Convert Ray’s coordinate to pixel indices and set the pixel’s color
             image.setRGB(pixel.x, pixel.y, c.getRGB());
-            // convert pixel.depth to a rainbow heatmap color
+
+            if(pixel.samples>1) return;
+
+            // Update depth map.  Convert pixel.depth to a rainbow heatmap color
             if(pixel.depth == Double.POSITIVE_INFINITY) {
                 // no hit, set to black
                 depthMap.setRGB(pixel.x, pixel.y, Color.BLACK.getRGB());
@@ -420,6 +458,12 @@ public class PathTracer {
                 double depthValue = Math.max(0,Math.min(1,pixel.depth / deepestHit));
                 // Convert depth value to a color (e.g., blue for near, red for far)
                 depthMap.setRGB(pixel.x, pixel.y, unitToRainbow(depthValue).getRGB());
+            }
+
+            // update normal map
+            if(pixel.normal != null) {
+                Color n = new Color((float) (0.5 + 0.5 * pixel.normal.x), (float) (0.5 + 0.5 * pixel.normal.y), (float) (0.5 + 0.5 * pixel.normal.z));
+                normalMap.setRGB(pixel.x, pixel.y, n.getRGB());
             }
         }
     }
@@ -469,8 +513,34 @@ public class PathTracer {
         }
     }
 
-    public void addProgressListener(PathTracerPanel pathTracerPanel) {
-        listeners.add(ProgressListener.class,pathTracerPanel);
+    public void addProgressListener(ProgressListener listener) {
+        listeners.add(ProgressListener.class,listener);
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        listeners.add(PropertyChangeListener.class,listener);
+    }
+
+    private void fireStateChange(Object oldState, Object newState) {
+        PropertyChangeEvent pce = null;
+        for( var listener : listeners.getListeners(PropertyChangeListener.class)) {
+            // lazy allocation
+            if(pce==null) pce = new PropertyChangeEvent(this,"state",oldState,newState);
+            // notify the listener that the path tracing is finished
+            listener.propertyChange(pce);
+        }
+    }
+
+    private void firePending() {
+        fireStateChange(null, SwingWorker.StateValue.PENDING);
+    }
+
+    private void fireStarted() {
+        fireStateChange(null, SwingWorker.StateValue.STARTED);
+    }
+
+    private void fireFinished() {
+        fireStateChange(null,SwingWorker.StateValue.DONE);
     }
 
     /**

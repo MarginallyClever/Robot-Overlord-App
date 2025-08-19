@@ -9,12 +9,16 @@ import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * <p>{@link PathTracerPanel} controls a {@link PathTracer} and displays the results.</p>
  * <p>Special thanks to <a href='https://raytracing.github.io/books/RayTracingInOneWeekend.html'>Ray Tracing in One Weekend</a></p>
  */
-public class PathTracerPanel extends JPanel implements SceneChangeListener, ProgressListener {
+public class PathTracerPanel
+        extends JPanel
+        implements SceneChangeListener, ProgressListener, PropertyChangeListener {
     private final PathTracer pathTracer;
     private final JToolBar toolBar = new JToolBar();
     private final DefaultComboBoxModel<Camera> cameraListModel = new DefaultComboBoxModel<>();
@@ -22,6 +26,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener, Prog
     private final JLabel centerLabel = new JLabel();
     private final JProgressBar progressBar = new JProgressBar();
     private final JLabel runTime = new JLabel();
+    private AbstractAction startButton;
 
     public PathTracerPanel() {
         this(new PathTracer());
@@ -31,6 +36,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener, Prog
         super(new BorderLayout());
         this.pathTracer = pathTracer;
         pathTracer.addProgressListener(this);
+        pathTracer.addPropertyChangeListener(this);
         progressBar.setStringPainted(true);
         setupToolbar();
         add(toolBar, BorderLayout.NORTH);
@@ -73,7 +79,9 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener, Prog
     }
 
     private void setupToolbar() {
-        // add the same camera selection that appears in ViewportPanel
+        var comboBox = new JComboBox<String>(new String[]{"Color","Depth","Normal"});
+        comboBox.setToolTipText("Select which render mode to display.");
+        comboBox.addActionListener(e -> setCenterLabel(comboBox.getSelectedIndex()));
 
         toolBar.setLayout(new FlowLayout(FlowLayout.LEFT,5,1));
         addCameraSelector();
@@ -86,7 +94,7 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener, Prog
         md.addPropertyChangeListener("value",e->pathTracer.setMaxDepth(((Number)e.getNewValue()).intValue()));
         toolBar.add(md);
 
-        toolBar.add(new AbstractAction() {
+        startButton = new AbstractAction() {
             {
                 putValue(Action.NAME, "Start");
                 putValue(Action.SHORT_DESCRIPTION, "Render the scene using path tracing.");
@@ -94,23 +102,33 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener, Prog
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(pathTracer.isRunning()) {
+                if (pathTracer.isRunning()) {
                     pathTracer.stop();
-                    putValue(Action.NAME, "Start");
                 } else {
-                    putValue(Action.NAME, "Stop");
+                    startButton.putValue(Action.NAME, "Stop");
                     pathTracer.setActiveCamera(getActiveCamera());
                     pathTracer.setSize(getWidth(), getHeight());
-                    centerLabel.setIcon(new ImageIcon(pathTracer.getImage()));
-                    //centerLabel.setIcon(new ImageIcon(pathTracer.getDepthMap()));
+                    setCenterLabel(comboBox.getSelectedIndex());
                     progressBar.setValue(0);
-                    runTime.setText(String.format("%02d:%02d:%02d:%03d", 0, 0, 0, 0));
+                    runTime.setText("Preparing to render...");
                     pathTracer.start();
                 }
             }
-        });
+        };
+
+        toolBar.add(startButton);
         toolBar.add(progressBar);
         toolBar.add(runTime);
+
+        toolBar.add(comboBox);
+    }
+
+    private void setCenterLabel(int index) {
+        switch (index) {
+            case 1 -> centerLabel.setIcon(new ImageIcon(pathTracer.getDepthMap()));
+            case 2 -> centerLabel.setIcon(new ImageIcon(pathTracer.getNormalMap()));
+            default -> centerLabel.setIcon(new ImageIcon(pathTracer.getImage()));
+        }
     }
 
     private void addCameraSelector() {
@@ -171,5 +189,14 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener, Prog
                 (elapsed % 3600000) / 60000,
                 (elapsed % 60000) / 1000,
                 elapsed % 1000));
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if("state".equals(evt.getPropertyName())) {
+            if(evt.getNewValue() == SwingWorker.StateValue.DONE) {
+                startButton.putValue(Action.NAME, "Start");
+            }
+        }
     }
 }

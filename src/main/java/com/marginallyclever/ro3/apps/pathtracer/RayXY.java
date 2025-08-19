@@ -1,5 +1,7 @@
 package com.marginallyclever.ro3.apps.pathtracer;
 
+import javax.vecmath.Vector3d;
+
 /**
  * {@link RayXY} is used to track the average color of each pixel as the path traced image is generated.
  */
@@ -11,6 +13,7 @@ public class RayXY {
     public final ColorDouble colorAverage = new ColorDouble(0, 0, 0);
     public double depth;  // depth of first hit in the scene.
     public boolean isLit;
+    public Vector3d normal;
 
     public RayXY(int x, int y) {
         this.x = x;
