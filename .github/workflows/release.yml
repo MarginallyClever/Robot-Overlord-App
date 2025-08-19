@@ -44,8 +44,35 @@ jobs:
         cp LICENSE target/package/ &&
         cp README.md target/package/
 
-  package:
+  delete-nightly-assets:
     needs: build_universal_package
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
+    steps:
+      - name: Delete all assets from Nightly Builds release
+        uses: actions/github-script@v7.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const release_id = 54908875; // Nightly Builds release
+            const assets = await github.rest.repos.listReleaseAssets({ owner, repo, release_id });
+            
+            if (assets.data.length === 0) {
+              console.log("No assets to delete.");
+            }
+            
+            for (const asset of assets.data) {
+              console.log(`Deleting asset: ${asset.name}`);
+              await github.rest.repos.deleteReleaseAsset({
+                owner,
+                repo,
+                asset_id: asset.id,
+              });
+            }
+
+  package:
+    needs: delete-nightly-assets
     strategy:
       matrix:
         include:
