@@ -120,15 +120,28 @@ public class AABB implements BoundingVolume, Serializable {
 	}
 
 	/**
+	 * Grow this AABB to include the other AABB.
+	 * @param other the AABB to include in this AABB.
+	 */
+	public void union(AABB other) {
+		if(other.min.x < min.x) min.x = other.min.x;
+		if(other.min.y < min.y) min.y = other.min.y;
+		if(other.min.z < min.z) min.z = other.min.z;
+		if(other.max.x > max.x) max.x = other.max.x;
+		if(other.max.y > max.y) max.y = other.max.y;
+		if(other.max.z > max.z) max.z = other.max.z;
+	}
+
+	/**
 	 * Return the nth component of the centroid.  The centroid is the midpoint between min and max limits.
 	 * @param axis 0, 1,or 2.
 	 * @return the nth component of the centroid. 0 for x, 1 for y, and all others for z.
 	 */
 	public double getCentroidAxis(int axis) {
 		return switch(axis) {
-			case 0 -> ( min.x + max.x ) / 2.0;
-			case 1 -> ( min.y + max.y ) / 2.0;
-			case 2 -> ( min.z + max.z ) / 2.0;
+			case 0 -> ( min.x + max.x ) * 0.5;
+			case 1 -> ( min.y + max.y ) * 0.5;
+			case 2 -> ( min.z + max.z ) * 0.5;
 			default -> throw new IllegalArgumentException("invalid axis");
 		};
 	}

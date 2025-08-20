@@ -19,6 +19,8 @@ public class PathTriangle {
     public final AABB bounds = new AABB();
     // for finding texture UVs
     private final double d00, d01, d11, denom;
+    private double area;
+    private final double [] centroid = new double[3];
 
     public PathTriangle(Point3d a, Point3d b, Point3d c, Vector3d normal,Point2d tA,Point2d tB,Point2d tC) {
         this.a = a;
@@ -38,6 +40,18 @@ public class PathTriangle {
         d01 = edge1.dot(edge2);
         d11 = edge2.dot(edge2);
         denom = d00 * d11 - d01 * d01;
+
+        Point3d middle = new Point3d(bounds.getBoundsBottom());
+        middle.add(bounds.getBoundsTop());
+        middle.scale(0.5);
+        this.centroid[0] = middle.x;
+        this.centroid[1] = middle.y;
+        this.centroid[2] = middle.z;
+
+        // area
+        Vector3d cross = new Vector3d();
+        cross.cross(edge1, edge2);
+        area = 0.5 * cross.length();
     }
 
     public AABB getBounds() {
@@ -116,5 +130,14 @@ public class PathTriangle {
                 u * tA.x + v * tB.x + w * tC.x,
                 u * tA.y + v * tB.y + w * tC.y
         );
+    }
+
+    /**
+     * Get the centroid of the triangle along a specific axis.
+     * @param axis the axis to get the centroid along (0 for x, 1 for y, or 2 for z)
+     * @return the centroid coordinate along the specified axis
+     */
+    public double getCentroidAxis(int axis) {
+        return centroid[axis];
     }
 }
