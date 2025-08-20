@@ -8,7 +8,7 @@ public class PathTracerHelper {
     /**
      * @return a random vector on the unit sphere
      */
-    public static Vector3d getRandomUnitVector(Random random) {
+    public static Vector3d getRandomUnitVector(SplittableRandom random) {
         double t1 = random.nextDouble() * 2.0 * Math.PI;
         var y = (random.nextDouble() - 0.5) * 2.0;
         double t2 = Math.sqrt(1.0 - y*y);
@@ -59,7 +59,7 @@ public class PathTracerHelper {
      * @param normal the normal of the surface at the hit point
      * @return a random direction on the hemisphere defined by the normal
      */
-    public static Vector3d getRandomUnitHemisphere(Random random,Vector3d normal) {
+    public static Vector3d getRandomUnitHemisphere(SplittableRandom random,Vector3d normal) {
         Vector3d newDir = getRandomUnitVector(random);
         // if the random direction is facing the wrong way, flip it.
         if( newDir.dot(normal) < 0) {
