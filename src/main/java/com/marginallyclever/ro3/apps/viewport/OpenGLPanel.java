@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.io.PrintStream;
 import java.util.prefs.Preferences;
 
 /**
@@ -120,6 +121,8 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
     public void init(GLAutoDrawable glAutoDrawable) {
         logger.info("init");
 
+        attachPipelines(glAutoDrawable);
+
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
 
         // turn on vsync
@@ -162,6 +165,24 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
             logger.error("Failed to load shader", e);
         }
         for(ViewportTool tool : viewportTools) tool.init(gl3);
+    }
+
+    /**
+     * Attaches the OpenGL pipelines to the {@link GLAutoDrawable}.
+     * This allows for debugging and tracing OpenGL calls.
+     * @param glAutoDrawable the OpenGL drawable to attach the pipelines to.
+     */
+    private void attachPipelines(GLAutoDrawable glAutoDrawable) {
+        GL3 gl = glAutoDrawable.getGL().getGL3();
+        if(this.isTraceGL()) {
+            logger.info("Activating trace pipeline");
+            gl = new TraceGL3(gl, new PrintStream(System.out));
+        }
+        if(this.isDebugGL()) {
+            logger.info("Activating debug pipeline");
+            gl = new DebugGL3(gl);
+        }
+        glAutoDrawable.setGL(gl);
     }
 
     @Override

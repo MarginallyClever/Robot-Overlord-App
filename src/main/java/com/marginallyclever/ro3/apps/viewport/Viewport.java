@@ -49,6 +49,10 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
     private double userMovementScale = 1.0;
     private final JButton frameOfReferenceButton = new JButton();
     private final JPopupMenu frameOfReferenceMenu = new JPopupMenu();
+    /**
+     * If true, everything in the scene will be shifted to the camera origin at render time.
+     * This should fix issues with large scenes where the camera is far from the origin.
+     */
     private boolean originShift = true;
 
     private final EventListenerList listeners = new EventListenerList();
@@ -713,5 +717,25 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
         for(var listener : listeners.getListeners(ViewportToolChangeListener.class)) {
             listener.onViewportToolChange(tool);
         }
+    }
+
+    public boolean isDebugGL() {
+        Preferences pref = Preferences.userNodeForPackage(this.getClass());
+        return pref.getBoolean("debugGL",false);
+    }
+
+    public void setDebugGL(boolean debugGL) {
+        Preferences pref = Preferences.userNodeForPackage(this.getClass());
+        pref.putBoolean("debugGL",debugGL);
+    }
+
+    public boolean isTraceGL() {
+        Preferences pref = Preferences.userNodeForPackage(this.getClass());
+        return pref.getBoolean("traceGL",false);
+    }
+
+    public void setTraceGL(boolean traceGL) {
+        Preferences pref = Preferences.userNodeForPackage(this.getClass());
+        pref.putBoolean("traceGL",traceGL);
     }
 }
