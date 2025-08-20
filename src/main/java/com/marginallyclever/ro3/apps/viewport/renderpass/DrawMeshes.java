@@ -43,7 +43,7 @@ public class DrawMeshes extends AbstractRenderPass {
     public static final Matrix4d lightProjection = new Matrix4d();
     public static final Matrix4d lightView = new Matrix4d();
     private Color sunlightColor = Color.WHITE;
-    private Vector3d sunlightSource = new Vector3d(50,150,350);
+    private final Vector3d sunlightSource = new Vector3d(50,150,350);
     private Color ambientColor = Color.BLACK;
 
 
