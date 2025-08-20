@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.pose.poses;
 
 import com.jogamp.opengl.GL3;
+import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.Mesh;
@@ -164,6 +165,6 @@ public class MeshInstancePanel extends JPanel {
             return;
         }
         var src = mesh.getSourceName().trim();
-        button.setText(src.isEmpty() ? "..." : src.substring(src.lastIndexOf(File.separatorChar)+1));
+        button.setText(src.isEmpty() ? "..." : PathHelper.extractFileName(src));
     }
 }

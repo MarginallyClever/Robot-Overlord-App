@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.texture.TextureChooserDialog;
@@ -141,7 +142,7 @@ public class MaterialPanel extends JPanel {
         var texture = material.getDiffuseTexture();
         button.setText((texture==null)
                 ? "..."
-                : texture.getSource().substring(texture.getSource().lastIndexOf(java.io.File.separatorChar)+1));
+                : PathHelper.extractFileName(texture.getSource()));
     }
 
     private BufferedImage scaleImage(BufferedImage sourceImage) {
