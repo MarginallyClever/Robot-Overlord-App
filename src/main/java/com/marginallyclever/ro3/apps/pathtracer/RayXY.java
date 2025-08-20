@@ -12,7 +12,6 @@ public class RayXY {
     public final ColorDouble colorSum = new ColorDouble(0, 0, 0);
     public final ColorDouble colorAverage = new ColorDouble(0, 0, 0);
     public double depth;  // depth of first hit in the scene.
-    public boolean isLit;
     public Vector3d normal;
 
     public RayXY(int x, int y) {
