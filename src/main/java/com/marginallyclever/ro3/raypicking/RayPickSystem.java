@@ -196,6 +196,10 @@ public class RayPickSystem {
         return null;
     }
 
+    /**
+     * Guaranteed to return one triangle if there is at least one emissive triangle in the scene.
+     * @return a random emissive triangle in the scene, or null if there are no emissive triangles.
+     */
     public RayHit getRandomEmissiveSurface() {
         for(var meshInstance : emissiveMeshes) {
             PathMesh worldMesh = getCachedMesh(meshInstance);
