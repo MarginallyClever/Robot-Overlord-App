@@ -13,6 +13,7 @@ public class Ray {
 	private final Vector3d direction;
 	private final double maxDistance;
 	private final Vector3d inverseDirection = new Vector3d();
+	private final Vector3d wo;
 
 	public Ray() {
 		this(new Point3d(),new Vector3d(0,0,1),Double.MAX_VALUE);
@@ -35,6 +36,7 @@ public class Ray {
 		this.origin = new Point3d(origin);
 		this.direction = new Vector3d(direction);
 		this.maxDistance = maxDistance;
+		this.wo = new Vector3d(-direction.x,-direction.y,-direction.z);
 		updateInverseDirection();
 	}
 
@@ -63,6 +65,10 @@ public class Ray {
 		return direction;
 	}
 
+	public Vector3d getWo() {
+		return wo;
+	}
+
 	public double getMaxDistance() {
 		return maxDistance;
 	}
@@ -77,6 +83,7 @@ public class Ray {
 		this.direction.set(from.direction);
 		matrix.transform(origin);
 		matrix.transform(direction);
+		this.wo.set(-direction.x,-direction.y,-direction.z);
 		updateInverseDirection();
     }
 
