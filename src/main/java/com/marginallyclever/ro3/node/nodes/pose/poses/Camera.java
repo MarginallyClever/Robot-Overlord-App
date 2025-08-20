@@ -1,7 +1,9 @@
 package com.marginallyclever.ro3.node.nodes.pose.poses;
 
+import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.pathtracer.PathTracer;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -10,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.security.InvalidParameterException;
 import java.util.List;
@@ -396,5 +399,63 @@ public class Camera extends Pose {
     public void setOrbitRadius(double radius) {
         if(radius<1) throw new InvalidParameterException("target is too close to camera.");
         orbitRadius = radius;
+    }
+
+    /**
+     * <p>Return the ray, in camera space, that starts at the origin and passes through this viewport at (x,y) in the
+     * current projection.  x,y should be normalized screen coordinates adjusted for the vertical flip.</p>
+     * <p>Remember that in OpenGL the camera -Z=forward, +X=right, +Y=up</p>
+     *
+     * @param normalizedX  the cursor position in screen coordinates [-1,1]
+     * @param normalizedY  the cursor position in screen coordinates [-1,1]
+     * @param canvasWidth  the width of the canvas in pixels
+     * @param canvasHeight the height of the canvas in pixels
+     * @return the ray coming through the viewport in the current projection.
+     */
+    public Ray getRayThroughPointUntransformed(double normalizedX, double normalizedY, int canvasWidth, int canvasHeight) {
+        if(getDrawOrthographic()) {
+            // orthographic projection
+            var origin = new Point3d(
+                    normalizedX*canvasWidth/2.0,
+                    normalizedY*canvasHeight/2.0,
+                    0);
+            var direction = new Vector3d(0,0,-1);  // forward in camera space
+
+            return new Ray(origin,direction);
+        } else {
+            // perspective projection
+            double t = Math.tan(Math.toRadians(getFovY()/2));
+            var direction = new Vector3d(
+                    normalizedX * t * getAspectRatio(canvasWidth,canvasHeight),
+                    normalizedY * t,
+                    -1);
+            direction.normalize();
+            var origin = new Point3d();
+
+            return new Ray(origin,direction);
+        }
+    }
+
+    private double getAspectRatio(double canvasWidth, double canvasHeight) {
+        return canvasWidth/canvasHeight;
+    }
+
+    /**
+     * <p>Return the ray, in world space, that starts at the camera and passes through this viewport at (x,y) in the
+     * current projection.  x,y should be normalized screen coordinates adjusted for the vertical flip.</p>
+     * <p>Remember that in OpenGL the camera -Z=forward, +X=right, +Y=up</p>
+     *
+     * @param normalizedX  the cursor position in screen coordinates [-1,1]
+     * @param normalizedY  the cursor position in screen coordinates [-1,1]
+     * @param canvasWidth  the width of the canvas in pixels
+     * @param canvasHeight the height of the canvas in pixels
+     * @return the ray coming through the viewport in the current projection.
+     */
+    public Ray getRayThroughPoint(double normalizedX, double normalizedY, int canvasWidth, int canvasHeight) {
+        Ray r = getRayThroughPointUntransformed(normalizedX,normalizedY, canvasWidth, canvasHeight);
+        Ray transformedRay = new Ray();
+        // adjust by the camera world orientation.
+        transformedRay.transform(getWorld(),r);
+        return transformedRay;
     }
 }
