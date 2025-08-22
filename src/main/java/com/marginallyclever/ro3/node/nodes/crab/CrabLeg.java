@@ -7,6 +7,7 @@ import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 
@@ -15,25 +16,32 @@ import java.awt.*;
  */
 public class CrabLeg {
     private final Crab crab;
+    // poses for each joint in the leg
     public Pose coxa = new Pose();
     public Pose femur = new Pose();
     public Pose tibia = new Pose();
     public Pose toe = new Pose();
+    // the kinematics for the leg try bring the toe position to touch the target position.
     public Pose targetPosition = new Pose();
+    // illustrates the next contact point
     public Pose nextPosition = new Pose();
+    // illustrates the last contact point
     public Pose lastPosition = new Pose();
 
-    public boolean flipCoxa = false;
     public double startingCoxaAngle = 0;
 
     public double angleCoxa = 0;
     public double angleFemur = 0;
     public double angleTibia = 0;
 
-    public final Vector3d contactPointIdeal = new Vector3d();
-    public final Vector3d contactPointLast = new Vector3d();
-    public final Vector3d contactPointNext = new Vector3d();
-    public boolean isTouchingGround=false;
+    public final Point3d contactPointIdeal = new Point3d();
+    public final Point3d contactPointLast = new Point3d();
+    public final Point3d contactPointNext = new Point3d();
+    public boolean isTouchingGround = false;
+    // should only be true when the leg is in the air and moving towards the ground.
+    public boolean isRising = false;
+    // Rrue when the leg is moving.  False when the leg is stationary.
+    public boolean inMotion = false;
 
     public CrabLeg(Crab crab,String legName) {
         this.crab = crab;
@@ -119,10 +127,12 @@ public class CrabLeg {
      * @param timeUnit 0 to 1
      */
     public void animateStep(double timeUnit) {
+        inMotion=true;
         timeUnit = Math.min(Math.max(timeUnit,0),1);
         if(isTouchingGround && timeUnit > 0.95) timeUnit = 0;  // don't animate when on the ground.
 
-        double phase = timeUnit * 1.0 * Math.PI;
+        double phase = timeUnit * Math.PI;
+        this.isRising = timeUnit < 0.5;
         double lift = Math.abs(Math.sin(phase)) * Crab.TOE_STEP_HEIGHT;
         // (next-last)*tineUnit + last
         Vector3d diff = new Vector3d(this.contactPointNext);
@@ -133,9 +143,9 @@ public class CrabLeg {
         this.targetPosition.setPosition(diff);
     }
 
-    private void setPosition(Pose p,Vector3d v) {
+    private void setPosition(Pose p,Point3d v) {
         var m = p.getWorld();
-        m.setTranslation(v);
+        m.setTranslation(new Vector3d(v));
         p.setWorld(m);
     }
 
@@ -149,8 +159,12 @@ public class CrabLeg {
 
         var m = this.targetPosition.getWorld();
         var pos = MatrixHelper.getPosition(m);
-        pos.z = Math.max(pos.z-dt,0);  // don't go below the ground
+        pos.z -= dt*5;  // drop until contact is made
         m.setTranslation(pos);
         this.targetPosition.setWorld(m);
+    }
+
+    public Point3d getToePosition() {
+        return new Point3d(MatrixHelper.getPosition(toe.getWorld()));
     }
 }
