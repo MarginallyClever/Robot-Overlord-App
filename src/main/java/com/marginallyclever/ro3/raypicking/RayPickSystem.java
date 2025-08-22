@@ -40,7 +40,7 @@ public class RayPickSystem {
     }
 
     public void reset(boolean optimize) {
-        logger.debug("reset");
+        //logger.debug("reset");
         cache.clear();
         emissiveMeshes.clear();
         sceneElements.clear();
@@ -48,7 +48,7 @@ public class RayPickSystem {
     }
 
     private void buildSceneList(boolean optimize) {
-        logger.debug("start");
+        //logger.debug("start");
         numEmissiveTriangles = 0;
         // build the list of scene elements once
         Queue<Node> toTest = new LinkedList<>();
@@ -70,7 +70,7 @@ public class RayPickSystem {
             }
             toTest.addAll(node.getChildren());
         }
-        logger.debug("done with {} cached items", cache.size());
+        //logger.debug("done with {} cached items", cache.size());
     }
 
     public static Material getMaterial(Node meshInstance) {
@@ -99,8 +99,6 @@ public class RayPickSystem {
      */
     public RayHit getFirstHit(Ray ray,boolean optimize) {
         List<RayHit> rayHits = findRayIntersections(ray,optimize);
-        if(rayHits.isEmpty()) return null;
-        rayHits.sort(Comparator.comparingDouble(RayHit::distance));
         // handle the case where the ray starts inside the mesh ("shadow acne")
         while(!rayHits.isEmpty() && rayHits.getFirst().distance() < 1e-9) {
             rayHits.removeFirst();
@@ -113,7 +111,7 @@ public class RayPickSystem {
      * Traverse the scene {@link Node}s and find all the {@link MeshInstance}s that collide with the ray.
      * @param ray the ray to test.
      * @param optimize true if extra steps should be taken to optimize, typically for path tracing.
-     * @return all {@link RayHit} by the ray.  It may be an empty list.
+     * @return all {@link RayHit} by the ray, sorted by distance.
      */
     public List<RayHit> findRayIntersections(Ray ray,boolean optimize) {
         List<RayHit> rayHits = new LinkedList<>();
@@ -135,6 +133,9 @@ public class RayPickSystem {
                 }
             }
         }
+
+        rayHits.sort(Comparator.comparingDouble(RayHit::distance));
+
         return rayHits;
     }
 
