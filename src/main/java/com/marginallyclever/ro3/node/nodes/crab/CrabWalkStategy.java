@@ -1,5 +1,9 @@
 package com.marginallyclever.ro3.node.nodes.crab;
 
+/**
+ * Enum representing different strategies for crab walking.
+ * Each strategy corresponds to a specific walking behavior or movement pattern.
+ */
 public enum CrabWalkStategy {
     GO_LIMP("GO_LIMP"),
     HOME_POSITION("HOME_POSITION"),
