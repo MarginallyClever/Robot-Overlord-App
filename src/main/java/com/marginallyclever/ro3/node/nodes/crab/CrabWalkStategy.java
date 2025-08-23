@@ -10,8 +10,11 @@ public enum CrabWalkStategy {
     SIT_DOWN("SIT_DOWN"),
     STAND_UP("STAND_UP"),
     TAP_ONE_TOE("TAP_ONE_TOE"),
+    // one leg at a time
     WALK_RIPPLE("WALK_RIPPLE"),
+    // two legs at a time
     WALK_WAVE("WALK_WAVE"),
+    // three legs at a time
     WALK_THREE_AT_ONCE("WALK_THREE_AT_ONCE");
 
     public final String name;

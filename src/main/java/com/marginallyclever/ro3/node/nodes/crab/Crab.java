@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.node.nodes.crab;
 
-import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Box;
@@ -8,7 +7,6 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
-import com.marginallyclever.ro3.raypicking.RayHit;
 import com.marginallyclever.ro3.raypicking.RayPickSystem;
 import org.json.JSONObject;
 
@@ -79,6 +77,19 @@ public class Crab extends Node {
     };
 
     private final double [] startingCoxaAngles = { 0,45,135,180,225,315};
+
+    /**
+     * 2   1
+     * 3   0
+     * 4   5
+     */
+    private final int [] ripple1Sequence = {2,0,4,1,3,5};  // the order of legs to animate
+    private int ripple1Counter = 0;
+
+    final int [] ripple2SequenceA = {2,4,3};
+    final int [] ripple2SequenceB = {0,1,5};
+    private int ripple2CounterA = 0;
+    private int ripple2CounterB = 0;
 
     // links to body parts for quick access.
     private Pose body = new Pose("body");
@@ -232,7 +243,7 @@ public class Crab extends Node {
             case HOME_POSITION: homePosition();  break;
             case SIT_DOWN:  sitDown(dt);  break;
             case STAND_UP:  standUp(dt);  break;
-            case TAP_ONE_TOE:  tapOneToe();  break;
+            case TAP_ONE_TOE:  tapOneToe(dt);  break;
             case WALK_THREE_AT_ONCE:  walkThreeAtOnce(dt);  break;
             case WALK_RIPPLE:  walkRipple1(dt);  break;
             case WALK_WAVE:  walkRipple2(dt);  break;
@@ -242,7 +253,7 @@ public class Crab extends Node {
         }
 
         for(var leg : legs) {
-            leg.update(dt);
+            leg.updateVisualizations();
         }
 
         firstFrameOfStrategy = false;
@@ -257,57 +268,19 @@ public class Crab extends Node {
 
         try {
             for (var leg : legs) {
-                checkOneLegTouchingGround(leg);
+                leg.checkLegTouchingGround(rayPickSystem);
             }
         } catch(Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    /**
-     * is the leg touching the ground?
-     * @param leg the leg to check
-     */
-    private void checkOneLegTouchingGround(CrabLeg leg) {
-        leg.isTouchingGround = false;
-        if(leg.isRising) return;
-
-        Ray ray = getRayDownFromToe(leg);  // ray starts 1cm above the toe
-        var list = rayPickSystem.findRayIntersections(ray,false);
-        List<RayHit> list2 = new ArrayList<>();
-        // find the first target that is not part of the crab robot.
-        for(RayHit rayHit : list) {
-            var target = rayHit.target();
-            if (!nodeIsPartOfMe(target)) list2.add(rayHit);
-        }
-        if(list2.isEmpty()) return;
-
-        // At least one hit is not part of the crab.  They're already sorted by distance.
-        var rayHit = list2.getFirst();
-        //System.out.println(rayHit.distance());
-        // check if the ray hit is close enough to the ground, accounting for the 1cm offset.
-        leg.isTouchingGround = rayHit.distance()<1.0;
-        if (leg.isTouchingGround) {
-            // huzzah!
-            leg.contactPointLast.set(rayHit.point());  // update the last contact point
-            leg.inMotion=false;
-        }
-        // it was not touching the ground.
-    }
-
-    private boolean nodeIsPartOfMe(Node target) {
+    public boolean nodeIsPartOfMe(Node target) {
         while(target != null) {
             if (target == this) return true;  // ignore the body
             target = target.getParent();
         }
         return false;
-    }
-
-    // create a ray that begins 1cm above the toe and points straight down.
-    private Ray getRayDownFromToe(CrabLeg leg) {
-        Point3d p = leg.getToePosition();
-        p.z+=1;
-        return new Ray(p, new Vector3d(0, 0, -1), TOE_STEP_HEIGHT*3);  // ray down a short distance
     }
 
     /**
@@ -374,13 +347,14 @@ public class Crab extends Node {
         for(var leg : legs) {
             leg.putFootDown(dt);
         }
+
         // when all feet down we can start standing up.
         if(allFeetDown()) {
             adjustBodyHeight(dt, standingHeight);
 
             var bodyWorld = body.getWorld();
             if (bodyWorld.m23 >= standingHeight &&
-                    bodyWorld.m23 < standingHeight + STANDING_EPSILON) {
+                bodyWorld.m23 < standingHeight + STANDING_EPSILON) {
                 // now we are standing.
             }
             if( bodyWorld.m23 >= 0.01) {
@@ -395,72 +369,66 @@ public class Crab extends Node {
     /**
      * Tap the first toe up and down in a sine wave.
      */
-    private void tapOneToe() {
+    private void tapOneToe(double dt) {
         var firstLeg = legs.getFirst();
-        checkOneLegTouchingGround(firstLeg);
-        final double cycleTime = 2.0; // seconds for one full cycle
-        double timeInCycle = gaitCycleTime % (long)cycleTime;
-        double timeUnit = (timeInCycle / cycleTime);  // 0 to 1
-        firstLeg.animateStep(timeUnit);
+        firstLeg.checkLegTouchingGround(rayPickSystem);
+        if(firstLeg.isTouchingGround && firstLeg.getAnimationTime()==0) {
+            firstLeg.setPhase(CrabLegPhase.RISE);
+        }
+        firstLeg.animateStep(dt);
 
         solveKinematicsForAllLegs();
     }
 
     private void walkRipple1(double dt) {
-        double zeroToSix = gaitCycleTime % (double)NUM_LEGS;
-             if(                zeroToSix<1) legs.get(2).animateStep(zeroToSix);
-        else if(zeroToSix>=1 && zeroToSix<2) legs.get(5).animateStep(zeroToSix-1);
-        else if(zeroToSix>=2 && zeroToSix<3) legs.get(3).animateStep(zeroToSix-2);
-        else if(zeroToSix>=3 && zeroToSix<4) legs.get(0).animateStep(zeroToSix-3);
-        else if(zeroToSix>=4 && zeroToSix<5) legs.get(4).animateStep(zeroToSix-4);
-        else if(zeroToSix>=5               ) legs.get(1).animateStep(zeroToSix-5);
+        var leg = legs.get(ripple1Sequence[ripple1Counter]);
+        if(leg.getAnimationTime()==0) {
+            // if the leg is not moving then put it down.
+            leg.setPhase(CrabLegPhase.RISE);
+        }
+        leg.animateStep(dt);
+        if(leg.getPhase()== CrabLegPhase.REST) {
+            ripple1Counter = (ripple1Counter+1) % NUM_LEGS;
+        }
 
         walk(dt,1.0/NUM_LEGS);
         solveKinematicsForAllLegs();
     }
-
+    
     /**
-     * 2   1
-     * 3   0
-     * 4   5
-     * order should be 2,5,3,1,4,0
+     * Walk two legs at once in a wave gait.
+     * @param dt the time step
      */
     private void walkRipple2(double dt) {
-        double gc1 = gaitCycleTime + 0.5f;
-        double gc2 = gaitCycleTime;
+        var legA = legs.get(ripple2SequenceA[ripple2CounterA]);
+        var legB = legs.get(ripple2SequenceB[ripple2CounterB]);
 
-        double x1 = gc1 - Math.floor(gc1);
-        double x2 = gc2 - Math.floor(gc2);
-        double step1 = Math.max(0, x1);
-        double step2 = Math.max(0, x2);
-        int leg1 = (int) Math.floor(gc1) % 3;
-        int leg2 = (int) Math.floor(gc2) % 3;
-
-        int o1, o2;
-        o1 = switch (leg1) {
-            case 0 -> 2;
-            case 1 -> 3;
-            case 2 -> 4;
-            default -> 0;
-        };
-        o2 = switch (leg2) {
-            case 0 -> 5;
-            case 1 -> 0;
-            case 2 -> 1;
-            default -> 0;
-        };
-        legs.get(o1).animateStep(step1);
-        legs.get(o2).animateStep(step2);
-
-        // put all feet down except the active leg(s).
-        for(int i=0;i<NUM_LEGS;++i) {
-            if(i!=o1 && i!=o2) {
-                legs.get(i).putFootDown(dt);
-            }
+        // Pick the current leg for each ripple stream
+        // Start leg if idle (stateful like walkRipple1)
+        if (legA.getAnimationTime() == 0 && legB.getPhase() != CrabLegPhase.RISE) {
+            legA.setPhase(CrabLegPhase.RISE);
+        }
+        // Advance the active leg
+        legA.animateStep(dt);
+        // When a leg finishes, advance to the next in its sequence
+        if (legA.getPhase() == CrabLegPhase.REST) {
+            ripple2CounterA = (ripple2CounterA + 1) % ripple2SequenceA.length;
         }
 
-        walk(dt,2.0/NUM_LEGS);
+        // do it all again for the second ripple stream
+        if (legB.getAnimationTime() == 0 && legA.getPhase() != CrabLegPhase.RISE) {
+            legB.setPhase(CrabLegPhase.RISE);
+        }
+        legB.animateStep(dt);
+
+        if (legB.getPhase() == CrabLegPhase.REST) {
+            ripple2CounterB = (ripple2CounterB + 1) % ripple2SequenceB.length;
+        }
+
+        // Move body and solve IK
+        walk(dt, 2.0 / NUM_LEGS);
         solveKinematicsForAllLegs();
+
     }
 
     /**
@@ -512,35 +480,12 @@ public class Crab extends Node {
         // set the new body matrix
         body.setWorld(m);
 
-        adjustNextPOCForAllLegs();
+        updateNextPointOfContactForAllLegs();
     }
 
-    private void adjustNextPOCForAllLegs() {
-        double angleRad = Math.toRadians(movingTurning);
-        var m = body.getWorld();
-        var rotZ = new Matrix4d();
-        // adjust the next contact points for each leg based on the walk directions and body orientation.
-        var xAxis = MatrixHelper.getXAxis(m);
-        var yAxis = MatrixHelper.getYAxis(m);
-        var bodyPos = MatrixHelper.getPosition(m);
-        rotZ.rotZ(angleRad);
+    private void updateNextPointOfContactForAllLegs() {
         for(var leg : legs) {
-            if(!leg.inMotion) continue;
-            Vector3d nextContact = new Vector3d(leg.contactPointLast);
-            nextContact.scaleAdd(movingRight,xAxis,nextContact);
-            nextContact.scaleAdd(movingForward,yAxis,nextContact);
-
-            // rotate the next contact point around the body position.
-            nextContact.sub(bodyPos);  // make relative to body position
-            rotZ.transform(nextContact);
-            nextContact.add(bodyPos);  // put it back in world space
-
-            // lower the next contact point a bit so it doesn't float in the air.
-            // and so the toe hits the floor before the animation cycle ends.
-            nextContact.z -= 0.5;
-
-            // apply
-            leg.contactPointNext.set(nextContact);
+            leg.updateNextPointOfContact(movingTurning,movingForward,movingRight);
         }
     }
 
@@ -727,5 +672,8 @@ public class Crab extends Node {
         return null;
     }
 
+    public Pose getBody() {
+        return body;
+    }
 }
 
