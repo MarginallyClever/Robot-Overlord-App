@@ -233,20 +233,45 @@ public class Material extends Node {
      * @return the BRDF value as a {@link ColorDouble}.
      */
     public ColorDouble BRDF(RayHit rayHit,Vector3d in, Vector3d out) {
-        if(rayHit.normal().dot(in)<=0) {
+        var n = rayHit.normal();
+        if(n.dot(in)<=0 || n.dot(out) <= 0.0) {
             // back facing, no light
             return new ColorDouble(0,0,0);
         }
 
-        // lambertian diffuse BRDF
-        ColorDouble a = new ColorDouble(getDiffuseTextureAt(rayHit));
-        ColorDouble mat = new ColorDouble(getDiffuseColor());
-        a.multiply(mat);
-        a.scale(1.0 / Math.PI); // diffuse BRDF
+        // Split energy between diffuse and specular
+        double ks = getSpecularStrength();   // [0..1]
+        double kd = 1.0 - ks;
 
-        return a;
+        // diffuse (lambertian)
+        ColorDouble diffuse = new ColorDouble(getDiffuseTextureAt(rayHit));
+        diffuse.multiply(new ColorDouble(getDiffuseColor()));
+        //ColorDouble diffuse = new ColorDouble(getDiffuseColor());
+        diffuse.scale(kd / Math.PI); // diffuse BRDF
+
+        if (ks > 0.0 && getShininess() > 0) {
+            // specular (blinn-phong)
+            Vector3d h = new Vector3d(in);
+            h.add(out);
+            if (h.lengthSquared() > 0) {
+                h.normalize();
+                double specDot = Math.max(0, n.dot(h));
+                double norm = (getShininess() + 2.0) / (2.0 * Math.PI);
+                double specular = norm * Math.pow(specDot, getShininess());
+
+                ColorDouble spec = new ColorDouble(getSpecularColor());
+                spec.scale(specular * ks);
+                diffuse.add(spec);
+            }
+        }
+
+        return diffuse;
     }
 
+    /**
+     * @param rayHit the ray hit record containing the triangle and point of intersection.
+     * @return the color from the diffuse texture at the UV coordinates of the ray hit, or white if no texture is set.
+     */
     private Color getDiffuseTextureAt(RayHit rayHit) {
         if (diffuseTexture == null) return Color.WHITE;
         var uv = rayHit.triangle().getUVAt(rayHit.point());
@@ -260,15 +285,6 @@ public class Material extends Node {
         return cosTheta / Math.PI;
     }
 
-    public ScatterRecord scatter(Ray ray, RayHit hitRecord, SplittableRandom random) {
-        Vector3d newDirection = PathTracerHelper.getRandomCosineWeightedHemisphere(random, hitRecord.normal());
-        double p = 1.0 / 2.0 * Math.PI; // cosine weighted hemisphere
-        double cosTheta = hitRecord.normal().dot(newDirection);
-        ColorDouble attenuation = BRDF(hitRecord,newDirection,ray.getDirection());
-        attenuation.scale(cosTheta);
-        return new ScatterRecord(newDirection,p,attenuation);
-    }
-
     /**
      * Calculate the emitted light from a material based on its emission color and strength.
      *
@@ -278,5 +294,104 @@ public class Material extends Node {
         var emittedLight = new ColorDouble(getEmissionColor());
         emittedLight.scale(getEmissionStrength());
         return emittedLight;
+    }
+
+    public ScatterRecord scatter(Ray ray, RayHit rayHit, SplittableRandom random) {
+        var in = PathTracerHelper.getRandomCosineWeightedHemisphere(random, rayHit.normal());
+        // if the material is reflective, we need to consider that.
+        double opacity = (diffuseColor.getAlpha()/255.0);
+        if(opacity>0) {
+            // partially opaque or fully opaque material
+            double reflectivity = getReflectivity();
+            if (reflectivity > 0 && random.nextDouble() < reflectivity) {
+                // Reflective case
+                Vector3d reflected = reflect(ray.getDirection(), rayHit.normal());
+                return new ScatterRecord(ScatterRecord.ScatterType.EXPLICIT, reflected, 1.0, new ColorDouble(1, 1, 1, 1));
+            }
+
+            double p = random.nextDouble();
+            if(p<opacity) {
+                var out = ray.getWo();
+                var attenuation = BRDF(rayHit,in,out);
+                attenuation.scale(1.0/p);
+                return new ScatterRecord(ScatterRecord.ScatterType.RANDOM,in,1.0,attenuation);
+            }
+        }
+
+        // this is a partially transparent material, treat it as a dielectric.
+        double cosTheta = rayHit.normal().dot(ray.getDirection());
+        boolean entering = cosTheta < 0;
+        Vector3d outwardNormal = rayHit.normal();
+        if(entering) outwardNormal.negate();
+        double etai = entering ? 1.0 : ior;
+        double etat = entering ? ior : 1.0;
+        double eta = etai / etat;
+
+        double sinTheta2 = eta * eta * (1.0 - cosTheta * cosTheta);
+
+        double absCosTheta = Math.abs(cosTheta);
+        if (sinTheta2 > 1.0 || reflectance(absCosTheta, eta) > random.nextDouble()) {
+            // Total internal reflection or Fresnel reflection
+            Vector3d reflected = reflect(ray.getDirection(), outwardNormal);
+            return new ScatterRecord(ScatterRecord.ScatterType.EXPLICIT, reflected, 1.0, new ColorDouble(1,1,1,1));
+        }
+
+        // refractive
+        var out = getRefractedRay(random, rayHit.normal(), ray.getDirection(), ior);
+        return new ScatterRecord(ScatterRecord.ScatterType.EXPLICIT,out,1.0,new ColorDouble(1,1,1,1));
+    }
+
+    private double reflectance(double cosine, double ref_idx) {
+        // Use Schlick's approximation for reflectance
+        double r0 = (1 - ref_idx) / (1 + ref_idx);
+        r0 = r0 * r0;
+        return r0 + (1 - r0) * Math.pow((1 - cosine), 5);
+    }
+
+    /**
+     * Reflect a vector off a surface normal.
+     *
+     * @param v the incoming vector
+     * @param n the surface normal
+     * @return the reflected vector
+     */
+    private Vector3d reflect(Vector3d v, Vector3d n) {
+        Vector3d result = new Vector3d(v);
+        Vector3d temp = new Vector3d(n);
+        temp.scale(2.0 * v.dot(n));
+        result.sub(temp);
+        return result;
+    }
+
+    private Vector3d getRefractedRay(SplittableRandom random, Vector3d normal, Vector3d in, double ior) {
+        double cosTheta = -normal.dot(in);
+        double etai = 1.0, etat = ior;
+        Vector3d n = new Vector3d(normal);
+
+        if (cosTheta < 0) {
+            // Ray is entering the medium
+            cosTheta = -cosTheta;
+            double temp = etai;
+            etai = etat;
+            etat = temp;
+            n.negate();
+        }
+
+        double eta = etai / etat;
+        double sinThetaT2 = eta * eta * (1.0 - cosTheta * cosTheta);
+
+        if (sinThetaT2 > 1.0) {
+            // Total internal reflection
+            return in;
+        }
+
+        double cosThetaT = Math.sqrt(1.0 - sinThetaT2);
+        Vector3d out = new Vector3d(in);
+        out.scale(eta);
+        n.scale(eta * cosTheta - cosThetaT);
+        out.add(n);
+        out.normalize();
+
+        return out;
     }
 }

@@ -28,6 +28,7 @@ public class PathTracer {
     private static final double EPSILON = 1e-6;
     private static final int MIN_BOUNCES = 3; // minimum number of bounces before Russian roulette can kick in
     private static final double LIGHT_SAMPLING_PROBABILITY = 0.25;
+    private static final double ENVIRONMENT_LIGHT_PROB = 0.25;
     private static final double MAX_THROUGHPUT = 10.0;
     private static final double MAX_CONTRIBUTION = 20.0;
 
@@ -113,7 +114,7 @@ public class PathTracer {
             RayHit rayHit = rayPickSystem.getFirstHit(ray,true);
             if (rayHit == null) {
                 // hit nothing
-                var sky = getSkyColor(ray);
+                var sky = new ColorDouble(getSkyColor(ray));
                 sky.multiply(throughput);
                 radiance.add(sky);
                 break;
@@ -142,11 +143,10 @@ public class PathTracer {
             }
 
             // pick the next ray direction
-            Vector3d wi = PathTracerHelper.getRandomCosineWeightedHemisphere(random,rayHit.normal());
-            Vector3d wo = new Vector3d(ray.getDirection());
-            wo.negate();
-
-            ColorDouble brdf = mat.BRDF(rayHit,wi,wo);
+            ScatterRecord scatterRecord = mat.scatter(ray, rayHit, random);
+            Vector3d wi = scatterRecord.direction;
+            Vector3d wo = ray.getWo();
+            ColorDouble brdf = scatterRecord.attenuation;
             double pdf = mat.getProbableDistributionFunction(rayHit,wi,wo);
             if(pdf<= EPSILON) break;
             throughput.multiply(brdf);
@@ -160,8 +160,7 @@ public class PathTracer {
             prevHit = rayHit;
             prevRay = ray;
 
-            ScatterRecord scatterRecord = mat.scatter(ray, rayHit, random);
-            ray = new Ray(rayHit.point(),scatterRecord.direction);
+            ray = new Ray(rayHit.point(), wi);
         }
 
         pixel.add(radiance);
@@ -172,17 +171,17 @@ public class PathTracer {
         RayHit emissiveHit = rayPickSystem.getRandomEmissiveSurface();
         if(emissiveHit == null) return;
 
-        Vector3d toLight = new Vector3d();
-        toLight.sub(emissiveHit.point(), rayHit.point());
-        double distanceSquared = toLight.lengthSquared();
-        toLight.normalize();
+        Vector3d wi = new Vector3d();
+        wi.sub(emissiveHit.point(), rayHit.point());
+        double distanceSquared = wi.lengthSquared();
+        wi.normalize();
 
         // shoot a shadow ray to see if the light is visible
-        Point3d from = new Point3d();
-        from.scaleAdd(EPSILON,rayHit.normal(),rayHit.point());
-        Ray lightRay = new Ray(from, toLight);
+        Point3d origin = new Point3d();
+        origin.scaleAdd(EPSILON,rayHit.normal(),rayHit.point());
+        Ray lightRay = new Ray(origin, wi);
         RayHit lightHit = rayPickSystem.getFirstHit(lightRay,true);
-        if(lightHit == null) return;
+        if(lightHit == null) return; // occluded
 
         // hit a thing
         var target = lightHit.target();
@@ -190,37 +189,16 @@ public class PathTracer {
         if(mat2 == null) mat2 = defaultMaterial;
         if(!mat2.isEmissive()) return;
 
-        // the light is visible
-        ColorDouble lightEmission = mat2.getEmittedLight();
-        double cosThetaLight = Math.max(0, -lightHit.normal().dot(toLight));
-
-        Vector3d wi = new Vector3d(toLight);
-        Vector3d wo = new Vector3d(ray.getDirection());
-        wo.negate();
-
+        // BRDF
+        Vector3d wo = ray.getWo();
         ColorDouble brdf = mat.BRDF(rayHit,wi,wo);
         double pdfBSDF = mat.getProbableDistributionFunction(rayHit,wi,wo);
+        double cosThetaLight = Math.max(0, -lightHit.normal().dot(wi));
         double pdfLight = Math.max(EPSILON,pdfLightSolidAngle(lightHit.triangle().getArea(),distanceSquared,cosThetaLight));
         double wLight = misWeight(pdfLight,pdfBSDF);
 
-        double ks = mat.getSpecularStrength();
-        double kd = 1.0 - ks;
-
-        // Calculate halfway vector for Blinn-Phong
-        Vector3d h = new Vector3d(wi);
-        h.add(wo);
-        h.normalize();
-
-        // Calculate specular component
-        double specDot = Math.max(0, rayHit.normal().dot(h));
-        double norm = (mat.getShininess() + 2) / (2.0 * Math.PI);
-        double specular = norm * Math.pow(specDot, mat.getShininess());
-
-        // Add specular component
-        ColorDouble spec = new ColorDouble(mat.getSpecularColor());
-        spec.scale(specular * ks);
-        brdf.scale(1.0-ks);
-        brdf.add(spec);
+        // the light is visible
+        ColorDouble lightEmission = mat2.getEmittedLight();
 
         // the light contributes
         ColorDouble contribution = new ColorDouble(lightEmission);
@@ -257,23 +235,20 @@ public class PathTracer {
             return;
         }
 
+        var mat2 = RayPickSystem.getMaterial(prevHit.target());
+        if(mat2 == null) mat2 = defaultMaterial;
+
         Vector3d wi = new Vector3d(ray.getDirection());
-        Vector3d wo = new Vector3d(prevRay.getDirection());
-        wo.negate();
+        Vector3d wo = prevRay.getWo();
 
         Point3d prevPoint = ray.getOrigin();
         Point3d lightPoint = rayHit.point();
-        Vector3d nLight = rayHit.normal();
 
         double distanceSquared = lightPoint.distanceSquared(prevPoint);
         Vector3d lightDir = new Vector3d();
         lightDir.sub(lightPoint, prevPoint);
         lightDir.normalize();
-        double cosThetaLight = Math.max(0.0, -nLight.dot(lightDir));
-
-        var mat2 = RayPickSystem.getMaterial(prevHit.target());
-        if(mat2 == null) mat2 = defaultMaterial;
-
+        double cosThetaLight = Math.max(0.0, -rayHit.normal().dot(lightDir));
         double pdfLight = pdfLightSolidAngle(rayHit.triangle().getArea(), distanceSquared, cosThetaLight);
         double pdfBSDF = mat2.getProbableDistributionFunction(prevHit, wi, wo);
         double wBSDF = misWeight(pdfBSDF, pdfLight);
@@ -313,12 +288,8 @@ public class PathTracer {
     private ColorDouble getSkyColor(Ray ray) {
         Vector3d d = ray.getDirection();
         d.normalize();
-        Vector3d sun = new Vector3d(sunlightSource);
-        sun.normalize();
-        var dot = Math.max(0,sun.dot(d));
-
+        var dot = Math.max(0,sunlightSource.dot(d));
         var sd = Math.pow(dot,5);
-        //var a = 0.5 * (-d.z + 1.0);
         var a = 1.0-sd;
         return new ColorDouble(
                 a * ambientColor.r + sd * sunlightColor.r * sunlightStrength,
@@ -410,7 +381,7 @@ public class PathTracer {
                 rays.stream().parallel().forEach(pixel -> {
                     if(isCancelled()) return;
                     // get the jiggled ray
-                    var ray = getStratifiedSample(sqrtSPP,random,activeCamera,pixel);
+                    var ray = getStratifiedSample(sqrtSPP,random,pixel);
                     // sum the total color of all samples
                     trace(ray,pixel);
                     // store the result in the buffer
@@ -448,7 +419,7 @@ public class PathTracer {
             // Convert Ray’s coordinate to pixel indices and set the pixel’s color
             image.setRGB(pixel.x, pixel.y, c.getRGB());
 
-            if(pixel.samples>1) return;
+            if(pixel.samples>2) return;
 
             // Update depth map.  Convert pixel.depth to a rainbow heatmap color
             if(pixel.depth == Double.POSITIVE_INFINITY) {
@@ -459,6 +430,8 @@ public class PathTracer {
                 // Convert depth value to a color (e.g., blue for near, red for far)
                 depthMap.setRGB(pixel.x, pixel.y, unitToRainbow(depthValue).getRGB());
             }
+
+            if(pixel.samples>1) return;
 
             // update normal map
             if(pixel.normal != null) {
@@ -486,6 +459,7 @@ public class PathTracer {
         }
 
         sunlightSource.set(env.getSunlightSource());
+        sunlightSource.normalize();
         sunlightColor = new ColorDouble(env.getSunlightColor());
         ambientColor = new ColorDouble(env.getAmbientColor());
         sunlightStrength = env.getSunlightStrength();
@@ -550,11 +524,10 @@ public class PathTracer {
      *
      * @param sqrtSPP the square of the total samples per pixel.
      * @param random the pretty random number generator
-     * @param camera the camera viewing the scene
      * @param pixel the {@link RayXY} with the 2d coordinate on the viewport.
      * @return the jiggled
      */
-    public Ray getStratifiedSample(int sqrtSPP, SplittableRandom random, Camera camera,RayXY pixel) {
+    private Ray getStratifiedSample(int sqrtSPP, SplittableRandom random, RayXY pixel) {
         int s = pixel.getSamples();
         int sx = s % sqrtSPP; // x coordinate in the sqrt grid
         int sy = s / sqrtSPP; // y coordinate in the sqrt grid
@@ -564,58 +537,6 @@ public class PathTracer {
         // jiggle the ray a little bit to get a better anti-aliasing effect
         var nx =       (2.0*(pixel.x+jx)/canvasWidth ) - 1.0;
         var ny = 1.0 - (2.0*(pixel.y+jy)/canvasHeight);
-        return getRayThroughPoint(camera,nx,ny);
-    }
-
-    /**
-     * <p>Return the ray, in world space, that starts at the camera and passes through this viewport at (x,y) in the
-     * current projection.  x,y should be normalized screen coordinates adjusted for the vertical flip.</p>
-     * <p>Remember that in OpenGL the camera -Z=forward, +X=right, +Y=up</p>
-     * @param normalizedX the cursor position in screen coordinates [-1,1]
-     * @param normalizedY the cursor position in screen coordinates [-1,1]
-     * @return the ray coming through the viewport in the current projection.
-     */
-    public Ray getRayThroughPoint(Camera camera, double normalizedX, double normalizedY) {
-        Ray r = getRayThroughPointUntransformed(camera,normalizedX,normalizedY);
-        Ray transformedRay = new Ray();
-        // adjust by the camera world orientation.
-        transformedRay.transform(camera.getWorld(),r);
-        return transformedRay;
-    }
-
-    /**
-     * <p>Return the ray, in camera space, that starts at the origin and passes through this viewport at (x,y) in the
-     * current projection.  x,y should be normalized screen coordinates adjusted for the vertical flip.</p>
-     * <p>Remember that in OpenGL the camera -Z=forward, +X=right, +Y=up</p>
-     * @param normalizedX the cursor position in screen coordinates [-1,1]
-     * @param normalizedY the cursor position in screen coordinates [-1,1]
-     * @return the ray coming through the viewport in the current projection.
-     */
-    public Ray getRayThroughPointUntransformed(Camera camera, double normalizedX, double normalizedY) {
-        if(camera.getDrawOrthographic()) {
-            // orthographic projection
-            var origin = new Point3d(
-                    normalizedX*canvasWidth/2.0,
-                    normalizedY*canvasHeight/2.0,
-                    0);
-            var direction = new Vector3d(0,0,-1);  // forward in camera space
-
-            return new Ray(origin,direction);
-        } else {
-            // perspective projection
-            double t = Math.tan(Math.toRadians(camera.getFovY()/2));
-            var direction = new Vector3d(
-                    normalizedX*t*getAspectRatio(),
-                    normalizedY*t,
-                    -1);
-            direction.normalize();
-            var origin = new Point3d();
-
-            return new Ray(origin,direction);
-        }
-    }
-
-    public double getAspectRatio() {
-        return (double)canvasWidth/(double)canvasHeight;
+        return activeCamera.getRayThroughPoint(nx,ny, canvasWidth, canvasHeight);
     }
 }
