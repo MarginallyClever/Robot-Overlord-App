@@ -12,12 +12,13 @@ public class ProceduralMeshFactory {
     private static final Logger logger = LoggerFactory.getLogger(ProceduralMeshFactory.class);
     private static final String [] proceduralNames = {
             "Box",
-            "Sphere",
-            "Cylinder",
             "Capsule",
             "CircleXY",
+            "Cylinder",
             "Decal",
-            "Grid"
+            "Grid",
+            "Sphere",
+            "Waldo"
     };
 
     /**
