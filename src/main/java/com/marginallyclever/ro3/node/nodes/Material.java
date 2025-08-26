@@ -12,11 +12,11 @@ import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.json.JSONObject;
 
 import javax.swing.*;
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.SplittableRandom;
 
 /**
@@ -297,55 +297,173 @@ public class Material extends Node {
     }
 
     public ScatterRecord scatter(Ray ray, RayHit rayHit, SplittableRandom random) {
-        var in = PathTracerHelper.getRandomCosineWeightedHemisphere(random, rayHit.normal());
-        // if the material is reflective, we need to consider that.
-        double opacity = (diffuseColor.getAlpha()/255.0);
-        if(opacity>0) {
-            // partially opaque or fully opaque material
-            double reflectivity = getReflectivity();
-            if (reflectivity > 0 && random.nextDouble() < reflectivity) {
-                // Reflective case
-                Vector3d reflected = reflect(ray.getDirection(), rayHit.normal());
-                return new ScatterRecord(ScatterRecord.ScatterType.EXPLICIT, reflected, 1.0, new ColorDouble(1, 1, 1, 1));
+        Vector3d n = rayHit.normal();
+        Vector3d wo = ray.getWo();
+        var p = rayHit.point();
+
+        // cosθ for Fresnel and diffuse
+        double cosTheta = Math.max(0, wo.dot(n));
+
+        // Fresnel reflectance using Schlick
+        var F0 = new ColorDouble(this.specularColor);
+        double R = schlickFresnel(cosTheta, F0);
+
+        // Lobe weights
+        var diffuse = new ColorDouble(this.diffuseColor);
+
+        double wt = diffuse.a;  // transmission weight
+        double wd = (diffuse.r+diffuse.g+diffuse.b)/3.0 * (1 - wt);  // diffuse weight
+        double ws = R * (1 - wt);  // specular reflection weight
+
+        double sum = wd + ws + wt;
+        wd /= sum;
+        ws /= sum;
+        wt /= sum;
+
+        // Random choice
+        double r = random.nextDouble();
+        if (r < wd) {
+            // --- Diffuse lobe ---
+            Vector3d wi = PathTracerHelper.getRandomCosineWeightedHemisphere(random,n);
+            double cosi = Math.max(0, wi.dot(n));
+            double pdf = cosi / Math.PI;
+            var brdf = new ColorDouble(diffuseColor);
+            brdf.scale((1.0/Math.PI) * (cosi / pdf));
+
+            return new ScatterRecord(new Ray(p, wi), brdf, pdf, false);
+
+        } else if (r < wd + ws) {
+            // --- Specular lobe ---
+            Vector3d reflectDir = reflect(ray.getDirection(), n);
+
+            if (this.shininess == 0.0) {
+                // perfect mirror
+                return new ScatterRecord(new Ray(p, reflectDir), F0, 1.0, true);
+            } else {
+                // glossy reflection
+                Vector3d wi = samplePhongLobe(reflectDir, shininess, random);
+                double pdf = phongPdf(wi, reflectDir, shininess);
+                double cosi = Math.max(0, wi.dot(n));
+                ColorDouble brdf = phongBrdf(wi, wo, reflectDir, specularColor, shininess);
+                var attenuation = new ColorDouble(brdf);
+                attenuation.scale(cosi / pdf);
+
+                return new ScatterRecord(new Ray(p, wi), attenuation, pdf, false);
+            }
+        } else {
+            // --- Transmission lobe ---
+            double etai = 1.0;
+            double etat = this.ior;
+            Vector3d nn = new Vector3d(n);
+            double cosi = wo.dot(n);
+            if (cosi < 0) {
+                cosi = -cosi;
+            } else {
+                // inside object → flip normal
+                nn.negate();
+                double tmp = etai; etai = etat; etat = tmp;
             }
 
-            double p = random.nextDouble();
-            if(p<opacity) {
-                var out = ray.getWo();
-                var attenuation = BRDF(rayHit,in,out);
-                attenuation.scale(1.0/p);
-                return new ScatterRecord(ScatterRecord.ScatterType.RANDOM,in,1.0,attenuation);
+            double eta = etai / etat;
+            double k = 1 - eta * eta * (1 - cosi * cosi);
+
+            if (k < 0) {
+                // Total internal reflection → fall back to mirror
+                Vector3d reflectDir = reflect(ray.getDirection(), n);
+                return new ScatterRecord(new Ray(p, reflectDir), F0, 1.0, true);
+            } else {
+                // Refract
+                Vector3d refractDir = getRefractedRay(random, ray.getDirection(), nn, eta, cosi, k);
+                double pdf = 1.0; // delta distribution
+                var attenuation = new ColorDouble(diffuseColor); // or tint for colored glass
+                return new ScatterRecord(new Ray(p, refractDir), attenuation, pdf, true);
             }
         }
-
-        // this is a partially transparent material, treat it as a dielectric.
-        double cosTheta = rayHit.normal().dot(ray.getDirection());
-        boolean entering = cosTheta < 0;
-        Vector3d outwardNormal = rayHit.normal();
-        if(entering) outwardNormal.negate();
-        double etai = entering ? 1.0 : ior;
-        double etat = entering ? ior : 1.0;
-        double eta = etai / etat;
-
-        double sinTheta2 = eta * eta * (1.0 - cosTheta * cosTheta);
-
-        double absCosTheta = Math.abs(cosTheta);
-        if (sinTheta2 > 1.0 || reflectance(absCosTheta, eta) > random.nextDouble()) {
-            // Total internal reflection or Fresnel reflection
-            Vector3d reflected = reflect(ray.getDirection(), outwardNormal);
-            return new ScatterRecord(ScatterRecord.ScatterType.EXPLICIT, reflected, 1.0, new ColorDouble(1,1,1,1));
-        }
-
-        // refractive
-        var out = getRefractedRay(random, rayHit.normal(), ray.getDirection(), ior);
-        return new ScatterRecord(ScatterRecord.ScatterType.EXPLICIT,out,1.0,new ColorDouble(1,1,1,1));
     }
 
-    private double reflectance(double cosine, double ref_idx) {
+    /**
+     * Sample a direction around the reflection axis using a Phong (cos^n) lobe.
+     * @param axis unit reflection direction
+     * @param shininess Phong exponent n (>=0)
+     * @param rng random source
+     * @return sampled direction (unit)
+     */
+    private Vector3d samplePhongLobe(Vector3d axis, int shininess, SplittableRandom rng) {
+        double n = Math.max(0, shininess);
+        double u1 = rng.nextDouble();
+        double u2 = rng.nextDouble();
+
+        // Invert CDF for cos^n theta
+        double cosTheta = Math.pow(u1, 1.0 / (n + 1.0));
+        double sinTheta = Math.sqrt(Math.max(0.0, 1.0 - cosTheta * cosTheta));
+        double phi = 2.0 * Math.PI * u2;
+
+        double x = sinTheta * Math.cos(phi);
+        double y = sinTheta * Math.sin(phi);
+        double z = cosTheta;
+
+        // Build orthonormal basis around axis
+        Vector3d w = new Vector3d(axis);
+        w.normalize();
+        Vector3d up = Math.abs(w.z) < 0.999 ? new Vector3d(0, 0, 1) : new Vector3d(0, 1, 0);
+        Vector3d u = new Vector3d();
+        u.cross(up, w);
+        u.normalize();
+        Vector3d v = new Vector3d();
+        v.cross(w, u);
+
+        Vector3d dir = new Vector3d();
+        // local (x,y,z) -> world
+        dir.scaleAdd(x, u, dir);
+        dir.scaleAdd(y, v, dir);
+        dir.scaleAdd(z, w, dir);
+        dir.normalize();
+        return dir;
+    }
+
+    /**
+     * PDF of the Phong lobe used in samplePhongLobe.
+     * @param wi sampled direction (unit)
+     * @param axis reflection axis (unit)
+     * @param shininess Phong exponent
+     * @return pdf value
+     */
+    private double phongPdf(Vector3d wi, Vector3d axis, int shininess) {
+        double n = Math.max(0, shininess);
+        double cosAlpha = axis.dot(wi);
+        if (cosAlpha <= 0.0) return 0.0;
+        return (n + 1.0) * 0.5 / Math.PI * Math.pow(cosAlpha, n);
+    }
+
+    /**
+     * Normalized Phong BRDF (specular term only).
+     * f_r = Ks * (n+2)/(2π) * (r·wi)^n
+     * @param wi incoming (next) direction
+     * @param wo outgoing (view) direction (unused here but kept for interface completeness)
+     * @param axis perfect reflection direction
+     * @param specularColor specular tint
+     * @param shininess Phong exponent
+     * @return specular BRDF value
+     */
+    private ColorDouble phongBrdf(Vector3d wi, Vector3d wo, Vector3d axis, Color specularColor, int shininess) {
+        double n = Math.max(0, shininess);
+        double cosAlpha = axis.dot(wi);
+        if (cosAlpha <= 0.0) return new ColorDouble(0,0,0);
+        double factor = (n + 2.0) * 0.5 / Math.PI * Math.pow(cosAlpha, n);
+        ColorDouble ks = new ColorDouble(specularColor);
+        ks.scale(factor);
+        return ks;
+    }
+
+    private double schlickFresnel(double cosTheta, ColorDouble specularColor) {
+        // get max component of specular color
+        double F0 = Math.max(specularColor.r, Math.max(specularColor.g, specularColor.b));
+        return F0 + (1 - F0) * Math.pow((1 - cosTheta), 5);
+
         // Use Schlick's approximation for reflectance
-        double r0 = (1 - ref_idx) / (1 + ref_idx);
-        r0 = r0 * r0;
-        return r0 + (1 - r0) * Math.pow((1 - cosine), 5);
+        //double r0 = (1 - ref_idx) / (1 + ref_idx);
+        //r0 = r0 * r0;
+        //return r0 + (1 - r0) * Math.pow((1 - cosine), 5);
     }
 
     /**
@@ -363,29 +481,12 @@ public class Material extends Node {
         return result;
     }
 
-    private Vector3d getRefractedRay(SplittableRandom random, Vector3d normal, Vector3d in, double ior) {
-        double cosTheta = -normal.dot(in);
-        double etai = 1.0, etat = ior;
-        Vector3d n = new Vector3d(normal);
-
-        if (cosTheta < 0) {
-            // Ray is entering the medium
-            cosTheta = -cosTheta;
-            double temp = etai;
-            etai = etat;
-            etat = temp;
-            n.negate();
+    private Vector3d getRefractedRay(SplittableRandom random, Vector3d in, Vector3d n, double eta, double cosTheta,double k) {
+        if (k > 1.0) {
+            return in;  // Total internal reflection
         }
 
-        double eta = etai / etat;
-        double sinThetaT2 = eta * eta * (1.0 - cosTheta * cosTheta);
-
-        if (sinThetaT2 > 1.0) {
-            // Total internal reflection
-            return in;
-        }
-
-        double cosThetaT = Math.sqrt(1.0 - sinThetaT2);
+        double cosThetaT = Math.sqrt(1.0 - k);
         Vector3d out = new Vector3d(in);
         out.scale(eta);
         n.scale(eta * cosTheta - cosThetaT);
@@ -393,5 +494,28 @@ public class Material extends Node {
         out.normalize();
 
         return out;
+    }
+
+    /**
+     * Diffuse-only BRDF (f) for next-event (light) sampling.
+     * Excludes specular (never light sampled) and transmission (delta).
+     * Does NOT include the cosine term or any pdf factors.
+     */
+    public ColorDouble lightSamplingBRDF(RayHit rayHit, Vector3d wi, Vector3d wo) {
+        Vector3d n = rayHit.normal();
+        double cosI = n.dot(wi);
+        if (cosI <= 0.0) return new ColorDouble(0,0,0);
+
+        // Base diffuse reflectance (optionally could sample texture)
+        ColorDouble kd = new ColorDouble(getDiffuseColor());
+
+        // Transmission weight encoded in alpha (as in scatter()).
+        double wt = kd.a;
+        if (wt >= 0.999) return new ColorDouble(0,0,0); // effectively transparent: no surface shading
+
+        // Pure Lambert BRDF: Kd / π (no cos term here)
+        kd.scale(1.0 / Math.PI);
+
+        return kd;
     }
 }

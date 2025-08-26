@@ -82,11 +82,11 @@ public class MaterialPanel extends JPanel {
         this.add(createSpecularStrengthSlider(),gbc);
         gbc.gridy++;
 
-        var iorField = PanelHelper.createSlider(5.0, 1.0, material.getIOR(), material::setIOR);
+        var iorField = PanelHelper.createSlider(5.0, 1.0, Math.max(1,material.getIOR()), material::setIOR);
         PanelHelper.addLabelAndComponent(this,"IOR",iorField,gbc);
         gbc.gridy++;
 
-        var reflectivity = PanelHelper.createSlider(1.0, 0.0, material.getReflectivity(), material::setReflectivity);
+        var reflectivity = PanelHelper.createSlider(1.0, 0.0, Math.max(1,material.getReflectivity()), material::setReflectivity);
         PanelHelper.addLabelAndComponent(this,"Reflectivity",reflectivity,gbc);
         gbc.gridy++;
     }

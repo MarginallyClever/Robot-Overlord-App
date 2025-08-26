@@ -1,5 +1,7 @@
 package com.marginallyclever.ro3.apps.pathtracer;
 
+import com.marginallyclever.convenience.Ray;
+
 import javax.vecmath.Vector3d;
 
 /**
@@ -7,32 +9,15 @@ import javax.vecmath.Vector3d;
  * This class is currently empty and serves as a placeholder for future implementation.
  */
 public class ScatterRecord {
-    public enum ScatterType {
-        NONE, // path stops
-        EXPLICIT, // explicit scatter
-        RANDOM, // random scatter
-    }
-    public ScatterType type;
-    public final Vector3d direction;
-    public double p;  // direction probability
+    Ray ray; // scattered ray
     public final ColorDouble attenuation; // attenuation factor
+    public double pdf;
+    public boolean isSpecular;
 
-    public ScatterRecord() {
-        this(ScatterType.NONE, new Vector3d(), 0.0, new ColorDouble(0,0,0,0));
-    }
-
-    public ScatterRecord(Vector3d direction, ColorDouble attenuation) {
-        this(ScatterType.EXPLICIT, direction, 1.0, attenuation);
-    }
-
-    public ScatterRecord(Vector3d direction, double p, ColorDouble attenuation) {
-        this(ScatterType.EXPLICIT, direction, p, attenuation);
-    }
-
-    public ScatterRecord(ScatterType type, Vector3d direction, double p, ColorDouble attenuation) {
-        this.type = type;
-        this.direction = new Vector3d(direction);
-        this.p = p;
-        this.attenuation = new ColorDouble(attenuation);
+    public ScatterRecord(Ray ray, ColorDouble attenuation, double pdf, boolean isSpecular) {
+        this.ray = ray;
+        this.attenuation = attenuation;
+        this.pdf = pdf;
+        this.isSpecular = isSpecular;
     }
 }

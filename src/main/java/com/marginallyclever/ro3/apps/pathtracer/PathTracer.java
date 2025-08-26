@@ -136,31 +136,26 @@ public class PathTracer {
                 break;
             }
 
-            // probabilistic light sampling
-            double p = random.nextDouble();
-            if(p < LIGHT_SAMPLING_PROBABILITY) {
-                probabilisticLightSampling(p, ray, rayHit, mat, throughput, radiance);
-            }
-
-            // pick the next ray direction
             ScatterRecord scatterRecord = mat.scatter(ray, rayHit, random);
-            Vector3d wi = scatterRecord.direction;
-            Vector3d wo = ray.getWo();
-            ColorDouble brdf = scatterRecord.attenuation;
-            double pdf = mat.getProbableDistributionFunction(rayHit,wi,wo);
-            if(pdf<= EPSILON) break;
-            throughput.multiply(brdf);
-            throughput.scale(1.0 / pdf); // cosine-weighted diffuse
-            throughput.clamp(0,MAX_THROUGHPUT);
-            if(throughput.r<EPSILON && throughput.g<EPSILON && throughput.b<EPSILON) {
-                // no more light to bounce
-                break;
+            if(!scatterRecord.isSpecular) {
+                // probabilistic light sampling
+                double p = random.nextDouble();
+                if (p < LIGHT_SAMPLING_PROBABILITY) {
+                    probabilisticLightSampling(p, ray, rayHit, mat, throughput, radiance);
+                }
             }
 
             prevHit = rayHit;
             prevRay = ray;
 
-            ray = new Ray(rayHit.point(), wi);
+            // pick the next ray direction
+            ray = new Ray(rayHit.point(), scatterRecord.ray.getDirection());
+            throughput.multiply(scatterRecord.attenuation);
+            throughput.clamp(0,MAX_THROUGHPUT);
+            if(throughput.r<EPSILON && throughput.g<EPSILON && throughput.b<EPSILON) {
+                // no more light to bounce
+                break;
+            }
         }
 
         pixel.add(radiance);
@@ -185,13 +180,14 @@ public class PathTracer {
 
         // hit a thing
         var target = lightHit.target();
+
         var mat2 = RayPickSystem.getMaterial(target);
         if(mat2 == null) mat2 = defaultMaterial;
         if(!mat2.isEmissive()) return;
 
-        // BRDF
         Vector3d wo = ray.getWo();
-        ColorDouble brdf = mat.BRDF(rayHit,wi,wo);
+        // BRDF
+        ColorDouble brdf = mat.lightSamplingBRDF(rayHit,wi,wo);
         double pdfBSDF = mat.getProbableDistributionFunction(rayHit,wi,wo);
         double cosThetaLight = Math.max(0, -lightHit.normal().dot(wi));
         double pdfLight = Math.max(EPSILON,pdfLightSolidAngle(lightHit.triangle().getArea(),distanceSquared,cosThetaLight));
@@ -218,11 +214,10 @@ public class PathTracer {
         double maxThroughput = Math.max(throughput.r, Math.max(throughput.g, throughput.b));
         if(maxThroughput == 1.0) return false;
 
-        double q = 1.0 - maxThroughput;
-        if (q > 0.95) q = 0.95;  // limit the probability of stopping
-        if (random.nextDouble() < q) return true;
+        double p = Math.max(0.05,maxThroughput);  // limit the probability of stopping
+        if (random.nextDouble() > p) return true;
 
-        throughput.scale(1.0 / (1.0 - q));  // adjust throughput to account for the probability of stopping
+        throughput.scale(1.0 / p);  // adjust throughput to account for the probability of stopping
         return false;
     }
 
@@ -250,12 +245,21 @@ public class PathTracer {
         lightDir.normalize();
         double cosThetaLight = Math.max(0.0, -rayHit.normal().dot(lightDir));
         double pdfLight = pdfLightSolidAngle(rayHit.triangle().getArea(), distanceSquared, cosThetaLight);
+
+        if(pdfLight <= EPSILON) return;
         double pdfBSDF = mat2.getProbableDistributionFunction(prevHit, wi, wo);
-        double wBSDF = misWeight(pdfBSDF, pdfLight);
+        double wBSDF;
+        if(pdfBSDF <= EPSILON) wBSDF=1;
+        else {
+            // Include strategy selection probabilities in MIS
+            double pl = pdfLight * LIGHT_SAMPLING_PROBABILITY;
+            double pb = pdfBSDF * (1.0 - LIGHT_SAMPLING_PROBABILITY);
+            wBSDF = misWeight(pb, pl);
+        }
 
         ColorDouble emittedLight = mat.getEmittedLight();
-        emittedLight.multiply(throughput);
         emittedLight.scale(wBSDF);
+        emittedLight.multiply(throughput);
         radiance.add(emittedLight);
     }
 
