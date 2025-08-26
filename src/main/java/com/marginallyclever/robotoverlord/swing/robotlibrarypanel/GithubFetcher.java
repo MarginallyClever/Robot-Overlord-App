@@ -382,8 +382,7 @@ public class GithubFetcher {
         List<String> results = new ArrayList<>();
 
         try {
-            URL url = new URL(GITHUB_API_BASE_URL + "/" + repo + "/contents/"+ALL_ROBOTS_TXT);
-
+            URL url = URI.create(GITHUB_API_BASE_URL + "/" + repo + "/contents/"+ALL_ROBOTS_TXT).toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/vnd.github.VERSION.raw");
