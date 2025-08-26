@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.net.URL;
 
 
@@ -63,7 +64,7 @@ public final class TCPSession extends SessionLayer implements Runnable {
 		}
 
 		// the string input
-		URL a = new URL("http://"+ipAddress);
+		URL a = URI.create("http://"+ipAddress).toURL();
 		String host = a.getHost();
 		int port = a.getPort();
 		String userInfo = a.getUserInfo();
