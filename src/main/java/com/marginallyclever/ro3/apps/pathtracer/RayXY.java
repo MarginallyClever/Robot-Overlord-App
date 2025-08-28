@@ -1,6 +1,13 @@
 package com.marginallyclever.ro3.apps.pathtracer;
 
+import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.ro3.raypicking.RayHit;
+
 import javax.vecmath.Vector3d;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * {@link RayXY} is used to track the average color of each pixel as the path traced image is generated.
@@ -13,11 +20,20 @@ public class RayXY {
     public final ColorDouble colorAverage = new ColorDouble(0, 0, 0);
     public double depth;  // depth of first hit in the scene.
     public Vector3d normal;
+    // history of paths traced for this pixel (for debugging)
+    public boolean debug = false;
+    public Map<Ray, RayHit> rays = new HashMap<>();
 
     public RayXY(int x, int y) {
         this.x = x;
         this.y = y;
         this.depth = Double.POSITIVE_INFINITY;
+    }
+
+    public void addRayRecord(Ray ray, RayHit hit) {
+        if(debug && samples<1) {
+            rays.put(ray, hit);
+        }
     }
 
     /**

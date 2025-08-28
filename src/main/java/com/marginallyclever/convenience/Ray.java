@@ -19,6 +19,14 @@ public class Ray {
 		this(new Point3d(),new Vector3d(0,0,1),Double.MAX_VALUE);
 	}
 
+    public Ray(Ray other) {
+        this.origin = new Point3d(other.origin);
+        this.direction = new Vector3d(other.direction);
+        this.maxDistance = other.maxDistance;
+        this.wo = new Vector3d(other.wo);
+        this.inverseDirection.set(other.inverseDirection);
+    }
+
 	/**
 	 * Calls {@link Ray#Ray(Point3d, Vector3d, double)} with the maximum ray distance.
 	 */
@@ -65,6 +73,9 @@ public class Ray {
 		return direction;
 	}
 
+    /**
+     * @return the negated direction vector (pointing back toward the origin).
+     */
 	public Vector3d getWo() {
 		return wo;
 	}

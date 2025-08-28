@@ -22,7 +22,7 @@ public class ProceduralMeshFactory {
     };
 
     /**
-     * @return the list of meshes that extend {@link ProceduralMesh}.
+     * @return the array of meshes that extend {@link ProceduralMesh}.
      */
     public static String [] getListOfProceduralMeshes() {
         return proceduralNames;

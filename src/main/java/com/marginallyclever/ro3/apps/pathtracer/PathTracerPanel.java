@@ -9,6 +9,8 @@ import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -37,10 +39,18 @@ public class PathTracerPanel
         this.pathTracer = pathTracer;
         pathTracer.addProgressListener(this);
         pathTracer.addPropertyChangeListener(this);
+        pathTracer.setSize(1,1);
         progressBar.setStringPainted(true);
         setupToolbar();
         add(toolBar, BorderLayout.NORTH);
         add(centerLabel,BorderLayout.CENTER);
+        centerLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                System.out.println("Mouse clicked at: " + e.getX() + ", " + e.getY());
+                pathTracer.fireOneRay(e.getX(), e.getY());
+            }
+        });
     }
 
     @Override
@@ -107,7 +117,7 @@ public class PathTracerPanel
                 } else {
                     startButton.putValue(Action.NAME, "Stop");
                     pathTracer.setActiveCamera(getActiveCamera());
-                    pathTracer.setSize(getWidth(), getHeight());
+                    pathTracer.setSize(centerLabel.getWidth(), centerLabel.getHeight());
                     setCenterLabel(comboBox.getSelectedIndex());
                     progressBar.setValue(0);
                     runTime.setText("Preparing to render...");

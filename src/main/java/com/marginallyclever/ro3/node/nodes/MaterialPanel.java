@@ -86,7 +86,7 @@ public class MaterialPanel extends JPanel {
         PanelHelper.addLabelAndComponent(this,"IOR",iorField,gbc);
         gbc.gridy++;
 
-        var reflectivity = PanelHelper.createSlider(1.0, 0.0, Math.max(1,material.getReflectivity()), material::setReflectivity);
+        var reflectivity = PanelHelper.createSlider(1.0, 0.0, Math.clamp(material.getReflectivity(),0,1), material::setReflectivity);
         PanelHelper.addLabelAndComponent(this,"Reflectivity",reflectivity,gbc);
         gbc.gridy++;
     }

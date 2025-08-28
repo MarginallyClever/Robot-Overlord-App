@@ -253,8 +253,17 @@ public abstract class IntersectionHelper {
 		var c = oc.dot(oc) - radius*radius;
 		var discriminant = h*h - a*c;
 	    if(discriminant >= 0) {
-			return (-h - Math.sqrt(discriminant)) / a;
-	    }
+			//return (-h - Math.sqrt(discriminant)) / a;
+
+            // choose the smallest positive root (handle rays starting inside the sphere)
+            double sqrtD = Math.sqrt(discriminant);
+            double t0 = (-h - sqrtD) / a;
+            double t1 = (-h + sqrtD) / a;
+            double eps = 1e-9;
+            if (t0 > eps) return t0;
+            if (t1 > eps) return t1;
+            return -1.0; // both behind the origin
+        }
 	    // no hit
         return -1.0;
 	}

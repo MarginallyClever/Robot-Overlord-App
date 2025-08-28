@@ -9,7 +9,11 @@ import javax.vecmath.Vector3d;
  * This class is currently empty and serves as a placeholder for future implementation.
  */
 public class ScatterRecord {
-    Ray ray; // scattered ray
+    public enum ScatterType {
+        DIFFUSE, SPECULAR, REFRACTIVE
+    };
+    public ScatterType type;
+    public Ray ray; // scattered ray
     public final ColorDouble attenuation; // attenuation factor
     public double pdf;
     public boolean isSpecular;

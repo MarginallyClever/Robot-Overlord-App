@@ -212,10 +212,10 @@ public class Material extends Node {
 
     /**
      * Set the reflectivity of the material.
-     * @param reflectivity 0...1.0
+     * @param arg0 0...1.0
      */
-    public void setReflectivity(double reflectivity) {
-        this.reflectivity = reflectivity;
+    public void setReflectivity(double arg0) {
+        this.reflectivity = arg0;
     }
 
     /**
@@ -301,8 +301,17 @@ public class Material extends Node {
         Vector3d wo = ray.getWo();
         var p = rayHit.point();
 
+        if(this.reflectivity==1) {
+            // perfect mirror
+            Vector3d reflectDir = reflect(ray.getDirection(), n);
+            var F0 = new ColorDouble(1,1,1,1);
+            var record = new ScatterRecord(new Ray(p, reflectDir), F0, 1.0, true);
+            record.type = ScatterRecord.ScatterType.SPECULAR;
+            return record;
+        }
+
         // cosθ for Fresnel and diffuse
-        double cosTheta = Math.max(0, wo.dot(n));
+        double cosTheta = Math.max(0, ray.getDirection().dot(n));
 
         // Fresnel reflectance using Schlick
         var F0 = new ColorDouble(this.specularColor);
@@ -311,8 +320,8 @@ public class Material extends Node {
         // Lobe weights
         var diffuse = new ColorDouble(this.diffuseColor);
 
-        double wt = diffuse.a;  // transmission weight
-        double wd = (diffuse.r+diffuse.g+diffuse.b)/3.0 * (1 - wt);  // diffuse weight
+        double wt = (1.0-diffuse.a);  // transmission weight
+        double wd = (diffuse.r+diffuse.g+diffuse.b)/3.0 * (1.0 - wt);  // diffuse weight
         double ws = R * (1 - wt);  // specular reflection weight
 
         double sum = wd + ws + wt;
@@ -330,14 +339,16 @@ public class Material extends Node {
             var brdf = new ColorDouble(diffuseColor);
             brdf.scale((1.0/Math.PI) * (cosi / pdf));
 
-            return new ScatterRecord(new Ray(p, wi), brdf, pdf, false);
+            var record = new ScatterRecord(new Ray(p, wi), brdf, pdf, false);
+            record.type = ScatterRecord.ScatterType.DIFFUSE;
+            return record;
 
         } else if (r < wd + ws) {
             // --- Specular lobe ---
             Vector3d reflectDir = reflect(ray.getDirection(), n);
 
-            if (this.shininess == 0.0) {
-                // perfect mirror
+            if (this.reflectivity == 1.0) {
+                // perfect mirrorc
                 return new ScatterRecord(new Ray(p, reflectDir), F0, 1.0, true);
             } else {
                 // glossy reflection
@@ -348,36 +359,51 @@ public class Material extends Node {
                 var attenuation = new ColorDouble(brdf);
                 attenuation.scale(cosi / pdf);
 
-                return new ScatterRecord(new Ray(p, wi), attenuation, pdf, false);
+                var record = new ScatterRecord(new Ray(p, wi), attenuation, pdf, false);
+                record.type = ScatterRecord.ScatterType.DIFFUSE;
+                return record;
             }
         } else {
             // --- Transmission lobe ---
             double etai = 1.0;
             double etat = this.ior;
             Vector3d nn = new Vector3d(n);
-            double cosi = wo.dot(n);
+            double cosi = -ray.getDirection().dot(n);
             if (cosi < 0) {
+                // inside object → flip normal, swap indices
                 cosi = -cosi;
-            } else {
-                // inside object → flip normal
                 nn.negate();
-                double tmp = etai; etai = etat; etat = tmp;
+                double tmp = etai;
+                etai = etat;
+                etat = tmp;
             }
 
             double eta = etai / etat;
-            double k = 1 - eta * eta * (1 - cosi * cosi);
+            double sin2t = eta * eta * (1.0 - cosi * cosi);
 
-            if (k < 0) {
+            ScatterRecord record;
+            if (sin2t > 1.0) {
                 // Total internal reflection → fall back to mirror
                 Vector3d reflectDir = reflect(ray.getDirection(), n);
-                return new ScatterRecord(new Ray(p, reflectDir), F0, 1.0, true);
-            } else {
-                // Refract
-                Vector3d refractDir = getRefractedRay(random, ray.getDirection(), nn, eta, cosi, k);
-                double pdf = 1.0; // delta distribution
-                var attenuation = new ColorDouble(diffuseColor); // or tint for colored glass
-                return new ScatterRecord(new Ray(p, refractDir), attenuation, pdf, true);
+                record = new ScatterRecord(new Ray(p, reflectDir), F0, 1.0, true);
+                record.type = ScatterRecord.ScatterType.SPECULAR;
+                return record;
             }
+
+            // Refract
+            double cost = Math.sqrt(1.0 - sin2t);
+            Vector3d refractDir = new Vector3d(ray.getDirection());
+            refractDir.scale(eta);
+
+            Vector3d ns = new Vector3d(nn);
+            ns.scale(eta * cosi - cost);
+            refractDir.add(ns);
+            refractDir.normalize();
+
+            var attenuation = new ColorDouble(1,1,1,1);
+            record = new ScatterRecord(new Ray(p, refractDir), attenuation, 1.0, true);
+            record.type = ScatterRecord.ScatterType.REFRACTIVE;
+            return record;
         }
     }
 
@@ -474,19 +500,21 @@ public class Material extends Node {
      * @return the reflected vector
      */
     private Vector3d reflect(Vector3d v, Vector3d n) {
+        // r = v - 2(v·n)n
         Vector3d result = new Vector3d(v);
         Vector3d temp = new Vector3d(n);
         temp.scale(2.0 * v.dot(n));
         result.sub(temp);
+        result.normalize();
         return result;
     }
 
-    private Vector3d getRefractedRay(SplittableRandom random, Vector3d in, Vector3d n, double eta, double cosTheta,double k) {
-        if (k > 1.0) {
+    private Vector3d getRefractedRay(Vector3d in, Vector3d n, double eta, double cosTheta,double k) {
+        if (k <0) {
             return in;  // Total internal reflection
         }
 
-        double cosThetaT = Math.sqrt(1.0 - k);
+        double cosThetaT = Math.sqrt(k);
         Vector3d out = new Vector3d(in);
         out.scale(eta);
         n.scale(eta * cosTheta - cosThetaT);
@@ -510,7 +538,7 @@ public class Material extends Node {
         ColorDouble kd = new ColorDouble(getDiffuseColor());
 
         // Transmission weight encoded in alpha (as in scatter()).
-        double wt = kd.a;
+        double wt = (1.0-kd.a);
         if (wt >= 0.999) return new ColorDouble(0,0,0); // effectively transparent: no surface shading
 
         // Pure Lambert BRDF: Kd / π (no cos term here)
