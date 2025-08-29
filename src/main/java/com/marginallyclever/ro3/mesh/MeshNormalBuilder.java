@@ -30,9 +30,9 @@ public class MeshNormalBuilder {
     	for(int i=0;i<mesh.getNumVertices();i+=3) {
     		Vector3d n = buildNormalFromThreePoints(mesh,i,i+1,i+2);
     		
-    		mesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-    		mesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-    		mesh.addNormal((float)n.x, (float)n.y, (float)n.z);
+    		mesh.addNormal(n);
+    		mesh.addNormal(n);
+    		mesh.addNormal(n);
     	}
 	}
 
@@ -61,7 +61,7 @@ public class MeshNormalBuilder {
 		for( Vector3d n : myNormals ) {
 			// this normal may have had several normals added to it.
 			n.normalize();
-			mesh.addNormal((float)n.x, (float)n.y, (float)n.z);
+			mesh.addNormal(n);
 		}
 	}
 

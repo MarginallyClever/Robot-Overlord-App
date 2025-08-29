@@ -9,10 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.event.EventListenerList;
-import javax.vecmath.Point2d;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector2d;
-import javax.vecmath.Vector3d;
+import javax.vecmath.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.nio.FloatBuffer;
@@ -290,12 +287,20 @@ public class Mesh {
 		normalArray.add(z);
 		hasNormals=true;
 	}
+
+    public void addNormal(Tuple3d n) {
+        addNormal((float)n.x, (float)n.y, (float)n.z);
+    }
 	
 	public void addVertex(float x,float y,float z) {
 		vertexArray.add(x);
 		vertexArray.add(y);
 		vertexArray.add(z);
 	}
+
+    public void addVertex(Tuple3d p) {
+        addVertex((float)p.x, (float)p.y, (float)p.z);
+    }
 
 	/**
 	 * Add a color to the mesh.

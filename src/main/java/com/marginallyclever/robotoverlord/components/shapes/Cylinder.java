@@ -123,7 +123,7 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
         n.normalize();
         myMesh.addVertex(x*radius, y*radius, z);
         myMesh.addTexCoord(0.5f+x*0.5f,0.5f+y*0.5f);
-        myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
+        myMesh.addNormal(n);
     }
 
     @Override
