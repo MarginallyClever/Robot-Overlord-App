@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.apps.pathtracer;
 
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.ro3.mesh.AABB;
 import com.marginallyclever.ro3.raypicking.RayHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,6 @@ public class PathMesh {
     private static final Logger logger = LoggerFactory.getLogger(PathMesh.class);
 
     private final List<PathTriangle> triangles = new LinkedList<>();
-    private final AABB boundingBox = new AABB();
     private SpatialAccelerationStructure SAS = null;
 
     public void addTriangle(PathTriangle pt) {
@@ -29,8 +27,6 @@ public class PathMesh {
      * Build the {@link SpatialAccelerationStructure} that will optimize the intersection math.
      */
     public void buildSAS() {
-        updateCuboid();
-        //SAS = new OctreeNode(boundingBox);
         SAS = new BoundingVolumeHeirarchy();
         int misses=0;
         for(PathTriangle triangle : triangles) {
@@ -38,7 +34,6 @@ public class PathMesh {
         }
         if(misses>0) logger.warn("Failed to insert {} triangles into octree.", misses);
         SAS.finishInserts();
-        //octreeRoot.print();
     }
 
     /**
@@ -55,29 +50,6 @@ public class PathMesh {
         Point3d p = new Point3d();
         p.scaleAdd(nearest, ray.getDirection(), ray.getOrigin());
         return new RayHit(null,nearest,normal,p, bestTriangle);
-    }
-
-
-    /**
-     * Force recalculation of the minimum bounding box to contain all the triangles.
-     * Done automatically every time updateBuffers() is called.
-     * Meaningless if there is no vertexArray of points.
-     */
-    private void updateCuboid() {
-        Point3d boundBottom = new Point3d(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);
-        Point3d boundTop = new Point3d(-Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE);
-
-        for(PathTriangle triangle : triangles) {
-            upperLimit(boundTop,triangle.a);
-            upperLimit(boundTop,triangle.b);
-            upperLimit(boundTop,triangle.c);
-            lowerLimit(boundBottom,triangle.a);
-            lowerLimit(boundBottom,triangle.b);
-            lowerLimit(boundBottom,triangle.c);
-        }
-        // if one side of the box is zero (a flat triangle) then add a tiny offset.
-        addOffsetForZeroSize(boundTop, boundBottom);
-        boundingBox.setBounds(boundTop, boundBottom);
     }
 
     // if one side of the box is zero (a flat triangle) then add a tiny offset.
