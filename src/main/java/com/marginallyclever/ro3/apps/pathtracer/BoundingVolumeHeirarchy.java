@@ -47,9 +47,9 @@ public class BoundingVolumeHeirarchy implements SpatialAccelerationStructure {
      */
     @Override
     public void finishInserts() {
-        logger.debug("build started");
+        //logger.debug("build started");
         root = pool.invoke(new BuildTask(triangles));
-        logger.debug("build finished");
+        //logger.debug("build finished");
         triangles.clear(); // free memory
     }
 
