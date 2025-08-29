@@ -8,19 +8,19 @@ public class PathTracerHelper {
     /**
      * @return a random vector on the unit sphere
      */
-    public static Vector3d getRandomUnitVector(SplittableRandom random) {
-        double t1 = random.nextDouble() * 2.0 * Math.PI;
-        var y = (random.nextDouble() - 0.5) * 2.0;
+    public static Vector3d getRandomUnitVector(RayXY pixel) {
+        double t1 = pixel.halton.nextDouble(PathTracer.CHANNEL_HEMISPHERE_U) * 2.0 * Math.PI;
+        double y = (pixel.halton.nextDouble(PathTracer.CHANNEL_HEMISPHERE_V) - 0.5) * 2.0;
         double t2 = Math.sqrt(1.0 - y*y);
         var x = t2 * Math.cos(t1);
         var z = t2 * Math.sin(t1);
         return new Vector3d(x, y, z);
     }
 
-    public static Vector3d getRandomCosineWeightedHemisphere(SplittableRandom random, Vector3d normal) {
+    public static Vector3d getRandomCosineWeightedHemisphere(RayXY pixel, Vector3d normal) {
         // Sample random numbers
-        double u1 = random.nextDouble();
-        double u2 = random.nextDouble();
+        double u1 = pixel.halton.nextDouble(PathTracer.CHANNEL_HEMISPHERE_U);
+        double u2 = pixel.halton.nextDouble(PathTracer.CHANNEL_HEMISPHERE_V);
 
         // Convert to polar coordinates (cosine-weighted)
         double r = Math.sqrt(u1);
@@ -59,8 +59,8 @@ public class PathTracerHelper {
      * @param normal the normal of the surface at the hit point
      * @return a random direction on the hemisphere defined by the normal
      */
-    public static Vector3d getRandomUnitHemisphere(SplittableRandom random,Vector3d normal) {
-        Vector3d newDir = getRandomUnitVector(random);
+    public static Vector3d getRandomUnitHemisphere(RayXY pixel,Vector3d normal) {
+        Vector3d newDir = getRandomUnitVector(pixel);
         // if the random direction is facing the wrong way, flip it.
         if( newDir.dot(normal) < 0) {
             newDir.negate();

@@ -2,22 +2,17 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.pathtracer.ColorDouble;
-import com.marginallyclever.ro3.apps.pathtracer.PathTracerHelper;
-import com.marginallyclever.ro3.apps.pathtracer.PathTriangle;
-import com.marginallyclever.ro3.apps.pathtracer.ScatterRecord;
+import com.marginallyclever.ro3.apps.pathtracer.*;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.raypicking.RayHit;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.json.JSONObject;
 
 import javax.swing.*;
-import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.util.List;
 import java.util.Objects;
-import java.util.SplittableRandom;
 
 /**
  * <p>{@link Material} contains properties for rendering a surface.  The first use case is to apply a texture to a
@@ -226,49 +221,6 @@ public class Material extends Node {
     }
 
     /**
-     * Calculate the Bidirectional Reflectance Distribution Function (BRDF) for this material.
-     * @param rayHit the ray hit record containing the normal and other information about the surface.
-     * @param in the incoming direction of the ray.
-     * @param out the outgoing direction of the ray.
-     * @return the BRDF value as a {@link ColorDouble}.
-     */
-    public ColorDouble BRDF(RayHit rayHit,Vector3d in, Vector3d out) {
-        var n = rayHit.normal();
-        if(n.dot(in)<=0 || n.dot(out) <= 0.0) {
-            // back facing, no light
-            return new ColorDouble(0,0,0);
-        }
-
-        // Split energy between diffuse and specular
-        double ks = getSpecularStrength();   // [0..1]
-        double kd = 1.0 - ks;
-
-        // diffuse (lambertian)
-        ColorDouble diffuse = new ColorDouble(getDiffuseTextureAt(rayHit));
-        diffuse.multiply(new ColorDouble(getDiffuseColor()));
-        //ColorDouble diffuse = new ColorDouble(getDiffuseColor());
-        diffuse.scale(kd / Math.PI); // diffuse BRDF
-
-        if (ks > 0.0 && getShininess() > 0) {
-            // specular (blinn-phong)
-            Vector3d h = new Vector3d(in);
-            h.add(out);
-            if (h.lengthSquared() > 0) {
-                h.normalize();
-                double specDot = Math.max(0, n.dot(h));
-                double norm = (getShininess() + 2.0) / (2.0 * Math.PI);
-                double specular = norm * Math.pow(specDot, getShininess());
-
-                ColorDouble spec = new ColorDouble(getSpecularColor());
-                spec.scale(specular * ks);
-                diffuse.add(spec);
-            }
-        }
-
-        return diffuse;
-    }
-
-    /**
      * @param rayHit the ray hit record containing the triangle and point of intersection.
      * @return the color from the diffuse texture at the UV coordinates of the ray hit, or white if no texture is set.
      */
@@ -296,7 +248,7 @@ public class Material extends Node {
         return emittedLight;
     }
 
-    public ScatterRecord scatter(Ray ray, RayHit rayHit, SplittableRandom random) {
+    public ScatterRecord scatter(Ray ray, RayHit rayHit, RayXY pixel) {
         Vector3d n = rayHit.normal();
         Vector3d wo = ray.getWo();
         var p = rayHit.point();
@@ -314,11 +266,16 @@ public class Material extends Node {
         double cosTheta = Math.max(0, ray.getDirection().dot(n));
 
         // Fresnel reflectance using Schlick
-        var F0 = new ColorDouble(this.specularColor);
+        ColorDouble spec = new ColorDouble(getSpecularColor());
+        spec.scale(getSpecularStrength());
+
+        var F0 = new ColorDouble(spec);
         double R = schlickFresnel(cosTheta, F0);
 
         // Lobe weights
-        var diffuse = new ColorDouble(this.diffuseColor);
+
+        ColorDouble diffuse = new ColorDouble(getDiffuseTextureAt(rayHit));
+        diffuse.multiply(new ColorDouble(getDiffuseColor()));
 
         double wt = (1.0-diffuse.a);  // transmission weight
         double wd = (diffuse.r+diffuse.g+diffuse.b)/3.0 * (1.0 - wt);  // diffuse weight
@@ -330,13 +287,14 @@ public class Material extends Node {
         wt /= sum;
 
         // Random choice
-        double r = random.nextDouble();
+        double r = pixel.halton.nextDouble(PathTracer.CHANNEL_BSDF_SAMPLING);
         if (r < wd) {
             // --- Diffuse lobe ---
-            Vector3d wi = PathTracerHelper.getRandomCosineWeightedHemisphere(random,n);
+            Vector3d wi = PathTracerHelper.getRandomCosineWeightedHemisphere(pixel,n);
             double cosi = Math.max(0, wi.dot(n));
             double pdf = cosi / Math.PI;
-            var brdf = new ColorDouble(diffuseColor);
+
+            var brdf = new ColorDouble(diffuse);
             brdf.scale((1.0/Math.PI) * (cosi / pdf));
 
             var record = new ScatterRecord(new Ray(p, wi), brdf, pdf, false);
@@ -352,10 +310,10 @@ public class Material extends Node {
                 return new ScatterRecord(new Ray(p, reflectDir), F0, 1.0, true);
             } else {
                 // glossy reflection
-                Vector3d wi = samplePhongLobe(reflectDir, shininess, random);
+                Vector3d wi = samplePhongLobe(reflectDir, shininess, pixel);
                 double pdf = phongPdf(wi, reflectDir, shininess);
                 double cosi = Math.max(0, wi.dot(n));
-                ColorDouble brdf = phongBrdf(wi, wo, reflectDir, specularColor, shininess);
+                ColorDouble brdf = phongBrdf(wi, wo, reflectDir, spec, shininess);
                 var attenuation = new ColorDouble(brdf);
                 attenuation.scale(cosi / pdf);
 
@@ -367,6 +325,7 @@ public class Material extends Node {
             // --- Transmission lobe ---
             double etai = 1.0;
             double etat = this.ior;
+
             Vector3d nn = new Vector3d(n);
             double cosi = -ray.getDirection().dot(n);
             if (cosi < 0) {
@@ -411,13 +370,13 @@ public class Material extends Node {
      * Sample a direction around the reflection axis using a Phong (cos^n) lobe.
      * @param axis unit reflection direction
      * @param shininess Phong exponent n (>=0)
-     * @param rng random source
+     * @param pixel pixel for random number generation
      * @return sampled direction (unit)
      */
-    private Vector3d samplePhongLobe(Vector3d axis, int shininess, SplittableRandom rng) {
+    private Vector3d samplePhongLobe(Vector3d axis, int shininess, RayXY pixel) {
         double n = Math.max(0, shininess);
-        double u1 = rng.nextDouble();
-        double u2 = rng.nextDouble();
+        double u1 = pixel.halton.nextDouble(PathTracer.CHANNEL_HEMISPHERE_U);
+        double u2 = pixel.halton.nextDouble(PathTracer.CHANNEL_HEMISPHERE_V);
 
         // Invert CDF for cos^n theta
         double cosTheta = Math.pow(u1, 1.0 / (n + 1.0));
@@ -471,7 +430,7 @@ public class Material extends Node {
      * @param shininess Phong exponent
      * @return specular BRDF value
      */
-    private ColorDouble phongBrdf(Vector3d wi, Vector3d wo, Vector3d axis, Color specularColor, int shininess) {
+    private ColorDouble phongBrdf(Vector3d wi, Vector3d wo, Vector3d axis, ColorDouble specularColor, int shininess) {
         double n = Math.max(0, shininess);
         double cosAlpha = axis.dot(wi);
         if (cosAlpha <= 0.0) return new ColorDouble(0,0,0);

@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.environment.Environment;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
@@ -29,11 +30,18 @@ import java.util.concurrent.atomic.AtomicInteger;
  * {@link PathTracer} performs multithreaded path tracing (aka ray tracing with bounces)
  */
 public class PathTracer {
+    public static final int CHANNEL_VIEWPORT_U = 0;
+    public static final int CHANNEL_VIEWPORT_V = 1;
+    public static final int CHANNEL_HEMISPHERE_U = 2;
+    public static final int CHANNEL_HEMISPHERE_V = 3;
+    public static final int CHANNEL_RUSSIAN_ROULETTE = 4;
+    public static final int CHANNEL_LIGHT_SAMPLING = 5;
+    public static final int CHANNEL_BSDF_SAMPLING = 6;
+
     private static final double EPSILON = 1e-6;
-    private static final int MIN_BOUNCES = 5; // minimum number of bounces before Russian roulette can kick in
-    private static final double LIGHT_SAMPLING_PROBABILITY = 0.25;
-    private static final double MAX_THROUGHPUT = 10.0;
-    private static final double MAX_CONTRIBUTION = 20.0;
+    private int minBounces = 5; // minimum number of bounces before Russian roulette can kick in
+    private double lightSamplingProbability = 1.0;
+    private double maxContribution = 100000.0;
 
     private final List<RayXY> rays = new ArrayList<>();
     private final RayPickSystem rayPickSystem = new RayPickSystem();
@@ -86,19 +94,18 @@ public class PathTracer {
         if(activeCamera==null) throw new RuntimeException("No active camera!");
         if(canvasHeight==0 || canvasWidth==0) throw new RuntimeException("Canvas size is zero!");
 
-        rays.clear();//*
+        rays.clear();
         for(int y=0;y<canvasHeight;y++) {
             for(int x=0;x<canvasWidth;x++) {
                 rays.add(new RayXY(x,y));
             }
-        }/*/
-        rays.add(new RayXY(50,50));
-        rays.add(new RayXY(658-50,50));
-        //*/
+        }
 
         firePending();
         if(displayContainer!=null) {
-            Registry.getScene().removeChild(displayContainer);
+            if(Registry.getScene().getChildren().contains(displayContainer)) {
+                Registry.getScene().removeChild(displayContainer);
+            }
             displayContainer = null;
         }
         rayPickSystem.reset(true);
@@ -113,7 +120,7 @@ public class PathTracer {
      * @param ray the ray to trace
      * @param pixel the pixel to store the result in
      */
-    private void trace(Ray ray,RayXY pixel,SplittableRandom random) {
+    private void trace(Ray ray,RayXY pixel) {
         ColorDouble radiance = new ColorDouble(0, 0, 0);
         ColorDouble throughput = new ColorDouble(1, 1, 1, 1);
         RayHit prevHit=null;
@@ -121,7 +128,7 @@ public class PathTracer {
         ScatterRecord prevScatter=null;
 
         for (int depth = 0; depth < maxDepth; ++depth) {
-            if(depth >= MIN_BOUNCES && russianRouletteTermination(throughput,random)) break;
+            if(depth >= minBounces && russianRouletteTermination(throughput,pixel)) break;
 
             // get the first hit along the ray
             RayHit rayHit = rayPickSystem.getFirstHit(ray,true);
@@ -150,11 +157,11 @@ public class PathTracer {
                 break;
             }
 
-            ScatterRecord scatterRecord = mat.scatter(ray, rayHit, random);
+            ScatterRecord scatterRecord = mat.scatter(ray, rayHit,pixel);
             if(!scatterRecord.isSpecular) {
-                // probabilistic light sampling
-                double p = random.nextDouble();
-                if (p < LIGHT_SAMPLING_PROBABILITY) {
+                // probabilistic light sampling AKA Next Event Estimation (NEE)
+                double p = pixel.halton.nextDouble(CHANNEL_LIGHT_SAMPLING);
+                if (p < lightSamplingProbability) {
                     probabilisticLightSampling(p, ray, rayHit, mat, throughput, radiance,pixel);
                 }
             }
@@ -165,6 +172,7 @@ public class PathTracer {
 
             // pick the next ray direction
             ray = new Ray(rayHit.point(), scatterRecord.ray.getDirection());
+            var oldThroughput = new ColorDouble(throughput);
             throughput.multiply(scatterRecord.attenuation);
             //throughput.clamp(0,MAX_THROUGHPUT);
             if(throughput.r<EPSILON && throughput.g<EPSILON && throughput.b<EPSILON) {
@@ -211,9 +219,15 @@ public class PathTracer {
         Vector3d wo = ray.getWo();
         ColorDouble brdf = mat.lightSamplingBRDF(rayHit,wi,wo);
 
+        double area;
+        if(lightHit.target().getMesh() instanceof Sphere sphere) {
+            area = 4.0 * Math.PI * Math.pow(sphere.radius,2);
+        } else {
+            area = lightHit.triangle().getArea();
+        }
         double cosThetaLight = Math.max(0, -lightHit.normal().dot(wi));
         double pdfLight = Math.max(EPSILON,
-                pdfLightSolidAngle(lightHit.triangle().getArea(),distanceSquared,cosThetaLight));
+                pdfLightSolidAngle(area,distanceSquared,cosThetaLight));
         double pdfBSDF = mat.getProbableDistributionFunction(rayHit,wi,wo);
 
         // Include strategy selection probabilities in MIS
@@ -230,7 +244,7 @@ public class PathTracer {
         contribution.scale( 1.0 / (pdfLight*p));
         contribution.multiply(throughput);
         contribution.scale(wBSDF);
-        contribution.clamp(0,MAX_CONTRIBUTION);
+        contribution.clamp(0, maxContribution);
         radiance.add(contribution);
     }
 
@@ -238,12 +252,12 @@ public class PathTracer {
      * @param throughput the current throughput of the ray
      * @return true if the path should terminate
      */
-    private boolean russianRouletteTermination(ColorDouble throughput,SplittableRandom random) {
+    private boolean russianRouletteTermination(ColorDouble throughput,RayXY pixel) {
         double maxThroughput = Math.max(throughput.r, Math.max(throughput.g, throughput.b));
         if(maxThroughput == 1.0) return false;
 
         double p = Math.max(0.05,maxThroughput);  // limit the probability of stopping
-        if (random.nextDouble() > p) return true;
+        if (pixel.halton.nextDouble(CHANNEL_RUSSIAN_ROULETTE) > p) return true;
 
         throughput.scale(1.0 / p);  // adjust throughput to account for the probability of stopping
         return false;
@@ -290,9 +304,16 @@ public class PathTracer {
             // if the previous bounce was specular, we can only have come from the BSDF sampling
             // so we don't need to do MIS.
         } else {
+            double area;
+            if(rayHit.target().getMesh() instanceof Sphere sphere) {
+                area = 0.00001;//4.0 * Math.PI * Math.pow(sphere.radius,2);
+            } else {
+                area = rayHit.triangle().getArea();
+            }
+
             double pdfBSDF = prevMat.getProbableDistributionFunction(prevHit, wi, wo);
             double pdfLight = Math.max(EPSILON,
-                    pdfLightSolidAngle(rayHit.triangle().getArea(), distanceSquared, cosThetaLight));
+                    pdfLightSolidAngle(area, distanceSquared, cosThetaLight));
             double wBSDF = misWeight(pdfBSDF, pdfLight);
             emittedLight.scale(wBSDF);
         }
@@ -410,9 +431,9 @@ public class PathTracer {
                 canvasWidth, canvasHeight);
         RayXY pixel = new RayXY(x,y);
         pixel.debug = true;
-        long seed = System.nanoTime() + pixel.x * 73856093L + pixel.y * 19349663L;
-        SplittableRandom random = new SplittableRandom(seed);
-        trace(ray,pixel,random);
+        long seed = pixel.samples + pixel.x * 73856093L + pixel.y * 19349663L;
+        pixel.halton.resetMemory(seed);
+        trace(ray,pixel);
 
         var list = new ArrayList<RayXY>();
         list.add(pixel);
@@ -497,13 +518,15 @@ public class PathTracer {
             // in parallel, trace each ray and store the result in a buffer
             while(!isCancelled()) {
                 rays.stream().parallel().forEach(pixel -> {
-                    long seed = System.nanoTime() + pixel.x * 73856093L + pixel.y * 19349663L;
-                    SplittableRandom random = new SplittableRandom(seed);
                     if(isCancelled()) return;
+
+                    long seed = pixel.samples + pixel.x * 73856093L + pixel.y * 19349663L;
+                    pixel.halton.resetMemory(seed);
+
                     // get the jiggled ray
-                    var ray = getStratifiedSample(sqrtSPP,random,pixel);
+                    var ray = getStratifiedSample(pixel);
                     // sum the total color of all samples
-                    trace(ray,pixel,random);
+                    trace(ray, pixel);
                     // store the result in the buffer
                     drawPixel(pixel,pixel.colorAverage.getColor());
                     // Update progress
@@ -643,23 +666,43 @@ public class PathTracer {
      * across the entire pixel, the pixel area is divided into an n*n grid, where n=sqrt(total samples).
      * The ray is then jiggled inside the area of each grid cell.</p>
      *
-     * @param sqrtSPP the square of the total samples per pixel.
-     * @param random the pretty random number generator
      * @param pixel the {@link RayXY} with the 2d coordinate on the viewport.
      * @return the jiggled
      */
-    private Ray getStratifiedSample(int sqrtSPP, SplittableRandom random, RayXY pixel) {
+    private Ray getStratifiedSample(RayXY pixel) {
         int s = pixel.getSamples();
         // FIX: wrap both indices within the grid
-        int sx = s % sqrtSPP;
-        int sy = s / sqrtSPP;
 
-
-        double jx = (sx+random.nextDouble()) / sqrtSPP;
-        double jy = (sy+random.nextDouble()) / sqrtSPP;
+        double jx = pixel.halton.nextDouble(PathTracer.CHANNEL_VIEWPORT_U);
+        double jy = pixel.halton.nextDouble(PathTracer.CHANNEL_VIEWPORT_V);
         // jiggle the ray a little bit to get a better anti-aliasing effect
         var nx =       (2.0*(pixel.x+jx)/canvasWidth ) - 1.0;
         var ny = 1.0 - (2.0*(pixel.y+jy)/canvasHeight);
         return activeCamera.getRayThroughPoint(nx,ny, canvasWidth, canvasHeight);
+    }
+
+
+    public double getMaxContribution() {
+        return maxContribution;
+    }
+
+    public void setMaxContribution(double limit) {
+        this.maxContribution = Math.max(0,limit);
+    }
+
+    public double getLightSamplingProbability() {
+        return lightSamplingProbability;
+    }
+
+    public void setLightSamplingProbability(double probability) {
+        this.lightSamplingProbability = Math.clamp(probability,0,1);
+    }
+
+    public int getMinBounces() {
+        return minBounces;
+    }
+
+    public void setMinBounces(int count) {
+        this.minBounces = Math.max(1,count);
     }
 }

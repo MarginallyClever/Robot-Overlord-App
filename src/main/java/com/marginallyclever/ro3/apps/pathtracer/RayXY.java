@@ -4,9 +4,7 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.raypicking.RayHit;
 
 import javax.vecmath.Vector3d;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,6 +21,7 @@ public class RayXY {
     // history of paths traced for this pixel (for debugging)
     public boolean debug = false;
     public Map<Ray, RayHit> rays = new HashMap<>();
+    public HaltonWithMemory halton = new HaltonWithMemory();
 
     public RayXY(int x, int y) {
         this.x = x;
@@ -41,6 +40,7 @@ public class RayXY {
      * @param traceResult the result of the path trace.
      */
     public void add(ColorDouble traceResult) {
+        //traceResult.clamp(0,10);
         colorSum.add(traceResult);
         samples++;
         // recalculate the average.
@@ -99,6 +99,7 @@ public class RayXY {
     /**
      * Convert the color to sRGB and apply a uniform rational quantization.
      * @param v the color to quantize.
+     * @param b the brightness parameter (higher is brighter, typical values are 1.0 to 3.0).
      */
     private void shlickUniformRationalQuantization(ColorDouble v,double b) {
         // Step 1: RGB → XYZ
