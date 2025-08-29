@@ -11,7 +11,6 @@ import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactoryPanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
