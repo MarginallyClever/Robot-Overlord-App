@@ -45,5 +45,11 @@ public class PathTracerSettingsPanel extends JPanel {
                 pathTracer::setLightSamplingProbability);
         PanelHelper.addLabelAndComponent(this, "Light sampling %", lightSamplingProbability, c);
         c.gridy++;
+
+        // exposure
+        var exposure = PanelHelper.createSlider(17,-6,pathTracer.getExposure(),
+                pathTracer::setExposure);
+        PanelHelper.addLabelAndComponent(this, "Exposure", exposure, c);
+        c.gridy++;
     }
 }

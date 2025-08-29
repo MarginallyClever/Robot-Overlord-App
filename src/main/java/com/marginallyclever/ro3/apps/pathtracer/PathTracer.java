@@ -40,8 +40,9 @@ public class PathTracer {
 
     private static final double EPSILON = 1e-6;
     private int minBounces = 5; // minimum number of bounces before Russian roulette can kick in
-    private double lightSamplingProbability = 1.0;
+    private double lightSamplingProbability = 0.0;
     private double maxContribution = 100000.0;
+    private double exposure = 3.14;
 
     private final List<RayXY> rays = new ArrayList<>();
     private final RayPickSystem rayPickSystem = new RayPickSystem();
@@ -172,16 +173,14 @@ public class PathTracer {
 
             // pick the next ray direction
             ray = new Ray(rayHit.point(), scatterRecord.ray.getDirection());
-            var oldThroughput = new ColorDouble(throughput);
             throughput.multiply(scatterRecord.attenuation);
-            //throughput.clamp(0,MAX_THROUGHPUT);
             if(throughput.r<EPSILON && throughput.g<EPSILON && throughput.b<EPSILON) {
                 // no more light to bounce
                 break;
             }
         }
 
-        pixel.add(radiance);
+        pixel.add(radiance,exposure);
     }
 
     /**
@@ -492,8 +491,8 @@ public class PathTracer {
     }
 
     private void displayLine(Point3d p0, Point3d p1, Color c) {
-        displayMesh.addVertex((float) p0.x, (float) p0.y, (float) p0.z);
-        displayMesh.addVertex((float) p1.x, (float) p1.y, (float) p1.z);
+        displayMesh.addVertex(p0);
+        displayMesh.addVertex(p1);
         displayMesh.addColor(c.getRed(), c.getGreen(), c.getBlue(), 1.0f);
         displayMesh.addColor(c.getRed(), c.getGreen(), c.getBlue(), 1.0f);
     }
@@ -704,5 +703,13 @@ public class PathTracer {
 
     public void setMinBounces(int count) {
         this.minBounces = Math.max(1,count);
+    }
+
+    public void setExposure(double arg0) {
+        this.exposure = arg0;
+    }
+
+    public double getExposure() {
+        return exposure;
     }
 }

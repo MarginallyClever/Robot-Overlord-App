@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@link RayXY} is used to track the average color of each pixel as the path traced image is generated.
+ * {@link RayXY} is used to track the average color of each pixel as the {@link PathTracer} runs.
  */
 public class RayXY {
     public int x;
@@ -39,15 +39,22 @@ public class RayXY {
      * Add the results of a path trace to this pixel and recalculate the tone mapped average.
      * @param traceResult the result of the path trace.
      */
-    public void add(ColorDouble traceResult) {
+    public void add(ColorDouble traceResult,double exposure) {
         //traceResult.clamp(0,10);
         colorSum.add(traceResult);
         samples++;
         // recalculate the average.
         colorAverage.set(colorSum);
         colorAverage.scale(1.0/samples);
+        // apply exposure
+        exposureMap(colorAverage,exposure);
         // tone map the result.
         toneMap(colorAverage);
+    }
+
+    private void exposureMap(ColorDouble d, double exposure) {
+        double factor = Math.pow(2.0, exposure);
+        d.scale(factor);
     }
 
     private void toneMap(ColorDouble d) {
