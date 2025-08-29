@@ -8,6 +8,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
+/**
+ * A RecursiveTask to build a BVHNode tree using SAH.
+ */
 public class BuildTask extends RecursiveTask<BVHNode> {
     public static final int PARALLEL_THRESHOLD = 256; // min #tris in range to justify parallel split
 
@@ -53,7 +56,14 @@ public class BuildTask extends RecursiveTask<BVHNode> {
         AABB[] leftBounds  = new AABB[count];
         AABB[] rightBounds = new AABB[count];
 
-        for (int axis = 0; axis < 3; axis++) {
+        // find the longest axis to split on
+        int axis = parent.getExtentZ() > parent.getExtentX()
+                ? (parent.getExtentZ() > parent.getExtentY() ? 2 : 1)
+                : (parent.getExtentX() > parent.getExtentY() ? 0 : 1);
+        // or test all three axes and pick best
+        //for (int axis = 0; axis < 3; axis++)
+
+        {
             final var myAxis = axis;
             tris.sort(Comparator.comparingDouble(t -> t.getCentroidAxis(myAxis)));
 
