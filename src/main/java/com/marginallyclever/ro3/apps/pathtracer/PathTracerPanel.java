@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -25,9 +26,14 @@ public class PathTracerPanel
     private final JToolBar toolBar = new JToolBar();
     private final DefaultComboBoxModel<Camera> cameraListModel = new DefaultComboBoxModel<>();
     private Camera activeCamera;
+    private final JComboBox<String> comboBox = new JComboBox<>(new String[]{"Color","Depth","Normal"});
     private final JLabel centerLabel = new JLabel();
     private final JProgressBar progressBar = new JProgressBar();
     private final JLabel runTime = new JLabel();
+    private final JButton saveButton = new JButton(new ImageIcon(
+            Toolkit.getDefaultToolkit().getImage(getClass().getResource("/com/marginallyclever/ro3/apps/editor/icons8-save-16.png"))
+                    .getScaledInstance(16,16, Image.SCALE_SMOOTH)
+    ));
     private AbstractAction startButton;
 
     public PathTracerPanel() {
@@ -89,20 +95,28 @@ public class PathTracerPanel
     }
 
     private void setupToolbar() {
-        var comboBox = new JComboBox<String>(new String[]{"Color","Depth","Normal"});
+        toolBar.setLayout(new FlowLayout(FlowLayout.LEFT,5,1));
+        toolBar.add(new AbstractAction() {
+            {
+                putValue(Action.NAME, "");
+                putValue(Action.SHORT_DESCRIPTION, "Open settings panel.");
+                putValue(Action.SMALL_ICON, new ImageIcon(
+                        Toolkit.getDefaultToolkit().getImage(getClass().getResource("/com/marginallyclever/ro3/apps/shared/icons8-settings-16.png"))
+                                .getScaledInstance(16,16, Image.SCALE_SMOOTH)
+                ));
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                var parent = SwingUtilities.getWindowAncestor(PathTracerPanel.this);
+                var panel = new PathTracerSettingsPanel(pathTracer);
+                JOptionPane.showMessageDialog(parent, panel, "Path Tracer Settings", JOptionPane.PLAIN_MESSAGE);
+            }
+        });
+
         comboBox.setToolTipText("Select which render mode to display.");
         comboBox.addActionListener(e -> setCenterLabel(comboBox.getSelectedIndex()));
 
-        toolBar.setLayout(new FlowLayout(FlowLayout.LEFT,5,1));
         addCameraSelector();
-
-        var spp = PanelHelper.addNumberFieldInt("Samples per pixel",pathTracer.getSamplesPerPixel());
-        spp.addPropertyChangeListener("value",e->pathTracer.setSamplesPerPixel(((Number)e.getNewValue()).intValue()));
-        toolBar.add(spp);
-
-        var md = PanelHelper.addNumberFieldInt("Max Depth",pathTracer.getMaxDepth());
-        md.addPropertyChangeListener("value",e->pathTracer.setMaxDepth(((Number)e.getNewValue()).intValue()));
-        toolBar.add(md);
 
         startButton = new AbstractAction() {
             {
@@ -129,16 +143,45 @@ public class PathTracerPanel
         toolBar.add(startButton);
         toolBar.add(progressBar);
         toolBar.add(runTime);
-
         toolBar.add(comboBox);
+
+        saveButton.setToolTipText("Save the current image to a PNG file.");
+        saveButton.addActionListener(e -> {
+            if(pathTracer.getImage()!=null) {
+                saveImage();
+            }
+        });
+        toolBar.add(saveButton);
+    }
+
+    private void saveImage() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save Rendered Image");
+        String dateAndTime = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
+        dateAndTime += "-" + comboBox.getSelectedItem() + ".png";
+        fileChooser.setSelectedFile(new java.io.File(dateAndTime));
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            java.io.File fileToSave = fileChooser.getSelectedFile();
+            try {
+                var image = getPathTracerImage(comboBox.getSelectedIndex());
+                javax.imageio.ImageIO.write(image, "png", fileToSave);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error saving image: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     private void setCenterLabel(int index) {
-        switch (index) {
-            case 1 -> centerLabel.setIcon(new ImageIcon(pathTracer.getDepthMap()));
-            case 2 -> centerLabel.setIcon(new ImageIcon(pathTracer.getNormalMap()));
-            default -> centerLabel.setIcon(new ImageIcon(pathTracer.getImage()));
-        }
+        centerLabel.setIcon(new ImageIcon(getPathTracerImage(index)));
+    }
+
+    private BufferedImage getPathTracerImage(int index) {
+        return switch (index) {
+            case 1 -> pathTracer.getDepthMap();
+            case 2 -> pathTracer.getNormalMap();
+            default -> pathTracer.getImage();
+        };
     }
 
     private void addCameraSelector() {
