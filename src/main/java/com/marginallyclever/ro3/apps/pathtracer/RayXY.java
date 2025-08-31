@@ -39,7 +39,7 @@ public class RayXY {
      * Add the results of a path trace to this pixel and recalculate the tone mapped average.
      * @param traceResult the result of the path trace.
      */
-    public void add(ColorDouble traceResult,double exposure) {
+    public void add(ColorDouble traceResult,double exposure, boolean activateToneMap) {
         //traceResult.clamp(0,10);
         colorSum.add(traceResult);
         samples++;
@@ -49,7 +49,7 @@ public class RayXY {
         // apply exposure
         exposureMap(colorAverage,exposure);
         // tone map the result.
-        toneMap(colorAverage);
+        if(activateToneMap) toneMap(colorAverage);
     }
 
     private void exposureMap(ColorDouble d, double exposure) {

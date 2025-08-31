@@ -36,6 +36,7 @@ public class PathTracerSettingsPanel extends JPanel {
         var minBounces = PanelHelper.addNumberFieldInt(
                 "Min bounces",
                 pathTracer.getMinBounces());
+        minBounces.addPropertyChangeListener("value",e->pathTracer.setMinBounces(((Number)e.getNewValue()).intValue()));
         PanelHelper.addLabelAndComponent(this, "Min bounces before RR", minBounces, c);
         c.gridy++;
 
@@ -50,6 +51,13 @@ public class PathTracerSettingsPanel extends JPanel {
         var exposure = PanelHelper.createSlider(17,-6,pathTracer.getExposure(),
                 pathTracer::setExposure);
         PanelHelper.addLabelAndComponent(this, "Exposure", exposure, c);
+        c.gridy++;
+
+        // activate tone mapping
+        var activateToneMap = new JCheckBox();
+        activateToneMap.setSelected(pathTracer.isActivateToneMap());
+        activateToneMap.addActionListener(e->pathTracer.setActivateToneMap(activateToneMap.isSelected()));
+        PanelHelper.addLabelAndComponent(this, "Tone map", activateToneMap,c);
         c.gridy++;
     }
 }
