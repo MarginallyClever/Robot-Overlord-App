@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.proceduralmesh.GenerativeMesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.environment.Environment;
@@ -23,7 +24,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SplittableRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -43,6 +43,7 @@ public class PathTracer {
     private double lightSamplingProbability = 0.0;
     private double maxContribution = 100000.0;
     private double exposure = 3.14;
+    private boolean activateToneMap=true;
 
     private final List<RayXY> rays = new ArrayList<>();
     private final RayPickSystem rayPickSystem = new RayPickSystem();
@@ -78,6 +79,7 @@ public class PathTracer {
 
     public PathTracer() {
         super();
+        sunlightSource.normalize();
     }
 
     public void stop() {
@@ -142,8 +144,8 @@ public class PathTracer {
                 break;
             }
 
-            // first ray hit something.  record the depth and normal.
-            if(depth==0) {
+            // first hit on something.  record the depth and normal.
+            if(pixel.samples==0 && depth==0) {
                 // if this is the first hit, record the depth and the deepest hit.
                 pixel.depth = rayHit.distance();
                 deepestHit = Math.max(deepestHit, pixel.depth);
@@ -159,13 +161,14 @@ public class PathTracer {
             }
 
             ScatterRecord scatterRecord = mat.scatter(ray, rayHit,pixel);
+            //*
             if(!scatterRecord.isSpecular) {
                 // probabilistic light sampling AKA Next Event Estimation (NEE)
                 double p = pixel.halton.nextDouble(CHANNEL_LIGHT_SAMPLING);
                 if (p < lightSamplingProbability) {
                     probabilisticLightSampling(p, ray, rayHit, mat, throughput, radiance,pixel);
                 }
-            }
+            }//*/
 
             prevHit = rayHit;
             prevRay = ray;
@@ -180,7 +183,7 @@ public class PathTracer {
             }
         }
 
-        pixel.add(radiance,exposure);
+        pixel.add(radiance,exposure,activateToneMap);
     }
 
     /**
@@ -225,8 +228,7 @@ public class PathTracer {
             area = lightHit.triangle().getArea();
         }
         double cosThetaLight = Math.max(0, -lightHit.normal().dot(wi));
-        double pdfLight = Math.max(EPSILON,
-                pdfLightSolidAngle(area,distanceSquared,cosThetaLight));
+        double pdfLight = Math.max(EPSILON, pdfLightSolidAngle(area,distanceSquared,cosThetaLight));
         double pdfBSDF = mat.getProbableDistributionFunction(rayHit,wi,wo);
 
         // Include strategy selection probabilities in MIS
@@ -234,16 +236,14 @@ public class PathTracer {
         double pb = pdfBSDF * (1.0 - p);
         double wBSDF = misWeight(pl, pb);
 
-        // the light is visible
-        ColorDouble lightEmission = mat2.getEmittedLight();
-
-        // the light contributes
-        ColorDouble contribution = new ColorDouble(lightEmission);
+        // contribution
+        ColorDouble contribution = new ColorDouble(mat2.getEmittedLight());
         contribution.multiply(brdf);
         contribution.scale( 1.0 / (pdfLight*p));
         contribution.multiply(throughput);
         contribution.scale(wBSDF);
         contribution.clamp(0, maxContribution);
+
         radiance.add(contribution);
     }
 
@@ -278,6 +278,7 @@ public class PathTracer {
             // First bounce: no MIS, just add light directly
             ColorDouble emittedLight = mat.getEmittedLight();
             emittedLight.multiply(throughput);
+            emittedLight.clamp(0, maxContribution);
             radiance.add(emittedLight);
             return;
         }
@@ -318,6 +319,8 @@ public class PathTracer {
         }
 
         emittedLight.multiply(throughput);
+        emittedLight.clamp(0, maxContribution);
+        throughput.scale(1.0 / (1.0-lightSamplingProbability));
         radiance.add(emittedLight);
     }
 
@@ -350,7 +353,7 @@ public class PathTracer {
     private ColorDouble getSkyColor(Ray ray) {
         Vector3d d = ray.getDirection();
         d.normalize();
-        var dot = Math.max(0,sunlightSource.dot(d));
+        var dot = Math.clamp(sunlightSource.dot(d),0,1);
         var sd = Math.pow(dot,5);
         var a = 1.0-sd;
         return new ColorDouble(
@@ -430,7 +433,7 @@ public class PathTracer {
                 canvasWidth, canvasHeight);
         RayXY pixel = new RayXY(x,y);
         pixel.debug = true;
-        long seed = pixel.samples + pixel.x * 73856093L + pixel.y * 19349663L;
+        long seed = getSeed(pixel);
         pixel.halton.resetMemory(seed);
         trace(ray,pixel);
 
@@ -454,7 +457,7 @@ public class PathTracer {
             displayContainer.addChild(mat);
             //mat.setDiffuseColor(new Color(1,1,1,0.1f));
 
-            displayMesh = new Mesh();
+            displayMesh = new GenerativeMesh();
             displayPath.setMesh(displayMesh);
         }
 
@@ -519,7 +522,7 @@ public class PathTracer {
                 rays.stream().parallel().forEach(pixel -> {
                     if(isCancelled()) return;
 
-                    long seed = pixel.samples + pixel.x * 73856093L + pixel.y * 19349663L;
+                    long seed = getSeed(pixel);
                     pixel.halton.resetMemory(seed);
 
                     // get the jiggled ray
@@ -582,6 +585,13 @@ public class PathTracer {
                 normalMap.setRGB(pixel.x, pixel.y, n.getRGB());
             }
         }
+    }
+
+    private long getSeed(RayXY pixel) {
+        long pixelIndex = pixel.x + (long) pixel.y * canvasWidth;
+        long sampleIndex = pixel.samples;
+        long combined = (pixelIndex << 32) | (sampleIndex & 0xffffffffL);
+        return PathTracerHelper.mix64(combined);
     }
 
     private Color unitToRainbow(double value) {
@@ -711,5 +721,13 @@ public class PathTracer {
 
     public double getExposure() {
         return exposure;
+    }
+
+    public void setActivateToneMap(boolean activate) {
+        this.activateToneMap = activate;
+    }
+
+    public boolean isActivateToneMap() {
+        return activateToneMap;
     }
 }
