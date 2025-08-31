@@ -591,7 +591,17 @@ public class PathTracer {
         long pixelIndex = pixel.x + (long) pixel.y * canvasWidth;
         long sampleIndex = pixel.samples;
         long combined = (pixelIndex << 32) | (sampleIndex & 0xffffffffL);
-        return PathTracerHelper.mix64(combined);
+        return mix64(combined);
+    }
+
+    // Strong 64-bit mix (MurmurHash3 finalizer style)
+    private long mix64(long z) {
+        z ^= (z >>> 33);
+        z *= 0xff51afd7ed558ccdL;
+        z ^= (z >>> 33);
+        z *= 0xc4ceb9fe1a85ec53L;
+        z ^= (z >>> 33);
+        return z;
     }
 
     private Color unitToRainbow(double value) {
