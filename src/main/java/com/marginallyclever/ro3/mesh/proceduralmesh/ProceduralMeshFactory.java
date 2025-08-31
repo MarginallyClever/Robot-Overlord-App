@@ -18,7 +18,8 @@ public class ProceduralMeshFactory {
             "Decal",
             "Grid",
             "Sphere",
-            "Waldo"
+            "Waldo",
+            "GenerativeMesh"
     };
 
     /**
