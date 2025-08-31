@@ -225,4 +225,13 @@ public class PanelHelper {
         }
         return panel;
     }
+
+    public static JComboBox<String> createComboBox(String[] options, int type, Consumer<Integer> consumer) {
+        JComboBox<String> comboBox = new JComboBox<>(options);
+        comboBox.setSelectedIndex(type);
+        if(consumer != null) {
+            comboBox.addActionListener(e -> consumer.accept(comboBox.getSelectedIndex()));
+        }
+        return comboBox;
+    }
 }
