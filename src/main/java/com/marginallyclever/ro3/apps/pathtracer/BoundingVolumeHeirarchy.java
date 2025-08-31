@@ -94,6 +94,7 @@ public class BoundingVolumeHeirarchy implements SpatialAccelerationStructure {
             closest = hitL.intersectRay(ray);
             nearest = hitL;
         }
+
         PathTriangle hitR = intersectNode(node.right, ray, closest);
         if (hitR != null) {
             double d = hitR.intersectRay(ray);
@@ -101,6 +102,7 @@ public class BoundingVolumeHeirarchy implements SpatialAccelerationStructure {
                 nearest = hitR;
             }
         }
+
         return nearest;
     }
 }
