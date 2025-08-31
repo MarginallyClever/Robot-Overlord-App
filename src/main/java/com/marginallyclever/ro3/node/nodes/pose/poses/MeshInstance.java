@@ -56,7 +56,9 @@ public class MeshInstance extends Pose {
             mesh.removePropertyChangeListener((e)->fireMeshChanged());
         }
         this.mesh = mesh;
-        mesh.addPropertyChangeListener((e)->fireMeshChanged());
+        if(mesh!=null) {
+            mesh.addPropertyChangeListener((e) -> fireMeshChanged());
+        }
         fireMeshChanged();
     }
 
