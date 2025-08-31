@@ -19,8 +19,8 @@ import java.util.Map;
  */
 public class MeshInstancePanel extends JPanel {
     public static final String[] meshSources = {
+            "File",
             "Procedural",
-            "File"
     };
 
     // matching the values sent to glDrawArrays and glDrawElements.
@@ -115,18 +115,18 @@ public class MeshInstancePanel extends JPanel {
 
     private void addMeshSource(GridBagConstraints gbc) {
         // Create a list of available mesh sources
-        JComboBox<String> meshSourceComboBox = new JComboBox<>(meshSources);
+
         var filename = meshInstance.getMesh()==null ? "" : meshInstance.getMesh().getSourceName();
-        meshSourceComboBox.setSelectedItem((filename!=null && !filename.isEmpty())?"File":"Procedural");
-        meshSourceComboBox.addActionListener(e -> changeMeshSource(meshSourceComboBox));
-        changeMeshSource(meshSourceComboBox);
+        int startIndex = (filename!=null && !filename.isEmpty())? 0:1;
+        JComboBox<String> meshSourceComboBox = PanelHelper.createComboBox(meshSources, startIndex, this::changeMeshSource);
+        changeMeshSource(startIndex);
         PanelHelper.addLabelAndComponent(this, "Mesh Source", meshSourceComboBox,gbc);
     }
 
-    private void changeMeshSource(JComboBox<String> meshSourceComboBox) {
+    private void changeMeshSource(int index) {
         sourceContainer.removeAll();
         proceduralContainer.removeAll();
-        String selectedMeshSource = (String) meshSourceComboBox.getSelectedItem();
+        String selectedMeshSource = meshSources[index];
         if(selectedMeshSource==null || selectedMeshSource.equals("File")) {
             addFileMesh();
         } else if(selectedMeshSource.equals("Procedural")) {
