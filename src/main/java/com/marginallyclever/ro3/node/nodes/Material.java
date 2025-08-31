@@ -252,7 +252,7 @@ public class Material extends Node {
         Vector3d n = rayHit.normal();
         Vector3d wo = ray.getWo();
         var p = rayHit.point();
-
+/*
         if(this.reflectivity==1) {
             // perfect mirror
             Vector3d reflectDir = reflect(ray.getDirection(), n);
@@ -271,13 +271,13 @@ public class Material extends Node {
 
         var F0 = new ColorDouble(spec);
         double R = schlickFresnel(cosTheta, F0);
-
+*/
         // Lobe weights
 
         ColorDouble diffuse = new ColorDouble(getDiffuseTextureAt(rayHit));
         diffuse.multiply(new ColorDouble(getDiffuseColor()));
-
-        double wt = (1.0-diffuse.a);  // transmission weight
+/*
+        double wt = 0;//(1.0-diffuse.a);  // transmission weight
         double wd = (diffuse.r+diffuse.g+diffuse.b)/3.0 * (1.0 - wt);  // diffuse weight
         double ws = R * (1 - wt);  // specular reflection weight
 
@@ -288,40 +288,7 @@ public class Material extends Node {
 
         // Random choice
         double r = pixel.halton.nextDouble(PathTracer.CHANNEL_BSDF_SAMPLING);
-        if (r < wd) {
-            // --- Diffuse lobe ---
-            Vector3d wi = PathTracerHelper.getRandomCosineWeightedHemisphere(pixel,n);
-            double cosi = Math.max(0, wi.dot(n));
-            double pdf = cosi / Math.PI;
-
-            var brdf = new ColorDouble(diffuse);
-            brdf.scale((1.0/Math.PI) * (cosi / pdf));
-
-            var record = new ScatterRecord(new Ray(p, wi), brdf, pdf, false);
-            record.type = ScatterRecord.ScatterType.DIFFUSE;
-            return record;
-
-        } else if (r < wd + ws) {
-            // --- Specular lobe ---
-            Vector3d reflectDir = reflect(ray.getDirection(), n);
-
-            if (this.reflectivity == 1.0) {
-                // perfect mirrorc
-                return new ScatterRecord(new Ray(p, reflectDir), F0, 1.0, true);
-            } else {
-                // glossy reflection
-                Vector3d wi = samplePhongLobe(reflectDir, shininess, pixel);
-                double pdf = phongPdf(wi, reflectDir, shininess);
-                double cosi = Math.max(0, wi.dot(n));
-                ColorDouble brdf = phongBrdf(wi, wo, reflectDir, spec, shininess);
-                var attenuation = new ColorDouble(brdf);
-                attenuation.scale(cosi / pdf);
-
-                var record = new ScatterRecord(new Ray(p, wi), attenuation, pdf, false);
-                record.type = ScatterRecord.ScatterType.DIFFUSE;
-                return record;
-            }
-        } else {
+        if(r > wd + ws) {
             // --- Transmission lobe ---
             double etai = 1.0;
             double etat = this.ior;
@@ -362,6 +329,47 @@ public class Material extends Node {
             var attenuation = new ColorDouble(1,1,1,1);
             record = new ScatterRecord(new Ray(p, refractDir), attenuation, 1.0, true);
             record.type = ScatterRecord.ScatterType.REFRACTIVE;
+            return record;
+        } else if (r > wd) {
+            // --- Specular lobe ---
+            Vector3d reflectDir = reflect(ray.getDirection(), n);
+
+            if (this.reflectivity == 1.0) {
+                // perfect mirror
+                var record = new ScatterRecord(new Ray(p, reflectDir), F0, 1.0, true);
+                record.type = ScatterRecord.ScatterType.SPECULAR;
+                return record;
+            } else {
+                // glossy reflection
+                Vector3d wi = samplePhongLobe(reflectDir, shininess, pixel);
+                double pdf = phongPdf(wi, reflectDir, shininess);
+                double cosi = Math.max(0, wi.dot(n));
+                ColorDouble brdf = phongBrdf(wi, wo, reflectDir, spec, shininess);
+                var attenuation = new ColorDouble(brdf);
+                attenuation.scale(cosi / pdf);
+
+                var record = new ScatterRecord(new Ray(p, wi), attenuation, pdf, false);
+                record.type = ScatterRecord.ScatterType.DIFFUSE;
+                return record;
+            }
+        } else*/ {
+            // --- Diffuse lobe ---
+            Vector3d wi = PathTracerHelper.getRandomCosineWeightedHemisphere(pixel.halton,n);
+            //if(wi.dot(wo)<0) wi.negate();
+
+            double cosTheta = Math.max(0, wi.dot(n));
+            double pdf = this.getProbableDistributionFunction(rayHit,wi,wo);
+            //double pdf = Math.max(0, cosTheta / Math.PI);
+
+            //var brdf = new ColorDouble(diffuse);
+            //brdf.scale(1.0/Math.PI);
+            //brdf.scale(cosTheta/pdf);
+            //var record = new ScatterRecord(new Ray(p, wi), brdf, pdf, false);
+
+            var attenuation = (pdf>0) ? new ColorDouble(diffuse) : new ColorDouble(0,0,0);
+
+            var record = new ScatterRecord(new Ray(p, wi), attenuation, pdf, false);
+            record.type = ScatterRecord.ScatterType.DIFFUSE;
             return record;
         }
     }
