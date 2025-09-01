@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.pathtracer;
+package com.marginallyclever.ro3.apps.pathtracer.halton;
 
 /**
  * <p>Halton sequence generator. Each dimension has its own prime base (2,3,5,...).  Call <code>sample(index, dim)</code>

@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.pathtracer;
 
 import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.ro3.apps.pathtracer.halton.HaltonWithMemory;
 import com.marginallyclever.ro3.raypicking.Hit;
 
 import javax.vecmath.Vector3d;

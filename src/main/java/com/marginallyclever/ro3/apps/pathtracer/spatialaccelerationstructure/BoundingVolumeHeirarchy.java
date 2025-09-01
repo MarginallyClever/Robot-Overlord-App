@@ -1,8 +1,9 @@
-package com.marginallyclever.ro3.apps.pathtracer;
+package com.marginallyclever.ro3.apps.pathtracer.spatialaccelerationstructure;
 
 import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.ro3.apps.pathtracer.PathTracer;
+import com.marginallyclever.ro3.apps.pathtracer.PathTriangle;
 import com.marginallyclever.ro3.mesh.AABB;
-import com.marginallyclever.ro3.raypicking.Hit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

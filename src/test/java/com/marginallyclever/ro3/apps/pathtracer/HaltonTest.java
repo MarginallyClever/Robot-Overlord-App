@@ -1,5 +1,7 @@
 package com.marginallyclever.ro3.apps.pathtracer;
 
+import com.marginallyclever.ro3.apps.pathtracer.halton.HaltonWithMemory;
+
 public class HaltonTest {
     public static void main(String[] args) {
         // make a BufferedImage, 100x100

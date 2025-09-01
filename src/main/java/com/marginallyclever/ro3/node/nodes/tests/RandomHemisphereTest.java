@@ -2,11 +2,10 @@ package com.marginallyclever.ro3.node.nodes.tests;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.ro3.apps.pathtracer.HaltonWithMemory;
+import com.marginallyclever.ro3.apps.pathtracer.halton.HaltonWithMemory;
 import com.marginallyclever.ro3.apps.pathtracer.PathTracerHelper;
 import com.marginallyclever.ro3.mesh.proceduralmesh.GenerativeMesh;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.HingeJointPanel;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 

@@ -1,8 +1,8 @@
 package com.marginallyclever.ro3.apps.pathtracer;
 
+import com.marginallyclever.ro3.apps.pathtracer.halton.HaltonWithMemory;
+
 import javax.vecmath.Vector3d;
-import java.util.Random;
-import java.util.SplittableRandom;
 
 public class PathTracerHelper {
     /**

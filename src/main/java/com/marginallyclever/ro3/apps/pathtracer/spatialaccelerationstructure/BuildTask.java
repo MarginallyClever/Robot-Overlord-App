@@ -1,6 +1,7 @@
-package com.marginallyclever.ro3.apps.pathtracer;
+package com.marginallyclever.ro3.apps.pathtracer.spatialaccelerationstructure;
 
 
+import com.marginallyclever.ro3.apps.pathtracer.PathTriangle;
 import com.marginallyclever.ro3.mesh.AABB;
 
 import java.util.ArrayList;

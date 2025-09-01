@@ -1,9 +1,9 @@
 package com.marginallyclever.ro3.apps.pathtracer;
 
 import com.marginallyclever.convenience.Ray;
+import com.marginallyclever.ro3.apps.pathtracer.spatialaccelerationstructure.BoundingVolumeHeirarchy;
+import com.marginallyclever.ro3.apps.pathtracer.spatialaccelerationstructure.SpatialAccelerationStructure;
 import com.marginallyclever.ro3.raypicking.Hit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;

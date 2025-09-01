@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.pathtracer;
+package com.marginallyclever.ro3.apps.pathtracer.halton;
 
 import java.util.SplittableRandom;
 
