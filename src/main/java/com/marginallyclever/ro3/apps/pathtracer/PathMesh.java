@@ -48,39 +48,6 @@ public class PathMesh {
         return new Hit(null,nearest,normal,p, bestTriangle);
     }
 
-    // if one side of the box is zero (a flat triangle) then add a tiny offset.
-    private void addOffsetForZeroSize(Point3d boundTop, Point3d boundBottom) {
-        final double OFFSET = 0.001; // a small offset to prevent zero-size bounds
-        if(boundTop.x == boundBottom.x) {
-            boundTop.x += OFFSET;
-            boundBottom.x -= OFFSET;
-        }
-        if(boundTop.y == boundBottom.y) {
-            boundTop.y += OFFSET;
-            boundBottom.y -= OFFSET;
-        }
-        if(boundTop.z == boundBottom.z) {
-            boundTop.z += OFFSET;
-            boundBottom.z -= OFFSET;
-        }
-    }
-
-    private void upperLimit(Point3d boundTop,Point3d p) {
-        boundTop.x = Math.max(p.x, boundTop.x);
-        boundTop.y = Math.max(p.y, boundTop.y);
-        boundTop.z = Math.max(p.z, boundTop.z);
-    }
-
-    private void lowerLimit(Point3d boundBottom,Point3d p) {
-        boundBottom.x = Math.min(p.x, boundBottom.x);
-        boundBottom.y = Math.min(p.y, boundBottom.y);
-        boundBottom.z = Math.min(p.z, boundBottom.z);
-    }
-
-    public PathTriangle getTriangle(int index) {
-        return triangles.get(index);
-    }
-
     public int getTriangleCount() {
         return triangles.size();
     }

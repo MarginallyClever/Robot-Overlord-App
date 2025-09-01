@@ -55,27 +55,28 @@ public class RayPickSystem {
         buildSceneList();
     }
 
+    /**
+     * Build the list of scene elements by traversing the scene graph.  Also count the number of emissive triangles if optimizing.
+     */
     private void buildSceneList() {
         numEmissiveTriangles = 0;
-        // build the list of scene elements once
         Queue<Node> toTest = new LinkedList<>();
         toTest.add(Registry.getScene());
         while (!toTest.isEmpty()) {
             Node node = toTest.remove();
+            toTest.addAll(node.getChildren());
             if(node instanceof MeshInstance meshInstance) {
                 sceneElements.add(meshInstance);
+
                 if(optimize) {
-                    cache.put(meshInstance, createPathMesh(meshInstance));
-                }
-                var mat = getMaterial(meshInstance);
-                if(mat!=null && mat.isEmissive()) {
-                    emissiveMeshes.add(meshInstance);
-                    if(optimize) {
-                        numEmissiveTriangles += cache.get(meshInstance).getTriangleCount();
+                    var pathMesh = cache.get(meshInstance);
+                    cache.put(meshInstance, pathMesh);
+                    var mat = getMaterial(meshInstance);
+                    if(mat!=null && mat.isEmissive()) {
+                        numEmissiveTriangles += pathMesh.getTriangleCount();
                     }
                 }
             }
-            toTest.addAll(node.getChildren());
         }
     }
 
@@ -186,26 +187,6 @@ public class RayPickSystem {
         }
         newMesh.buildSAS();
         return newMesh;
-    }
-
-    public int getNumberOfEmissiveTriangles() {
-        return numEmissiveTriangles;
-    }
-
-    public Hit getEmissiveSurface(int index) {
-        for(var meshInstance : emissiveMeshes) {
-            PathMesh worldMesh = getCachedMesh(meshInstance);
-            if(worldMesh==null) continue;
-            if(worldMesh.getTriangleCount() >= index) {
-                index -= worldMesh.getTriangleCount();
-                continue;
-            }
-
-            PathTriangle pt = worldMesh.getTriangle(index);
-            if(pt==null) continue;
-            return new Hit(meshInstance, 0, pt.normal, pt.getRandomPointInside(), pt);
-        }
-        return null;
     }
 
     /**

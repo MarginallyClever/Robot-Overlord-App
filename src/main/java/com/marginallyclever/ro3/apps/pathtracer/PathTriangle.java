@@ -89,6 +89,10 @@ public class PathTriangle {
         return t;
     }
 
+    /**
+     * Get a random point inside the triangle using barycentric coordinates.
+     * @return a random point inside the triangle.
+     */
     public Point3d getRandomPointInside() {
         double r1 = Math.random();
         double r2 = Math.random();
@@ -105,13 +109,11 @@ public class PathTriangle {
     }
 
     public double getArea() {
-        Vector3d cross = new Vector3d();
-        cross.cross(edge1, edge2);
-        return 0.5 * cross.length();
+        return area;
     }
 
     /**
-     * 
+     * Get the UV coordinates of the texture at a specific point on the triangle.
      * @param point the 3d world point of intersection with the triangle.
      * @return the UV coordinates of the texture at the point.
      */
