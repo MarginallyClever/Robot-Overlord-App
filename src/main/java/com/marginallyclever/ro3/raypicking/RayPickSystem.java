@@ -69,7 +69,7 @@ public class RayPickSystem {
                 sceneElements.add(meshInstance);
 
                 if(optimize) {
-                    var pathMesh = cache.get(meshInstance);
+                    var pathMesh = createPathMesh(meshInstance);
                     cache.put(meshInstance, pathMesh);
                     var mat = getMaterial(meshInstance);
                     if(mat!=null && mat.isEmissive()) {

@@ -3,6 +3,10 @@ package com.marginallyclever.ro3.apps.pathtracer.halton;
 import com.marginallyclever.ro3.apps.pathtracer.PathTracer;
 
 public class HaltonTest {
+    /**
+     * Generate a halton.png file with halton samples drawn in white on black.  Visually inspect for uniformity.
+     * @param args not used.
+     */
     public static void main(String[] args) {
         // make a BufferedImage, 100x100
         var image = new java.awt.image.BufferedImage(250, 250, java.awt.image.BufferedImage.TYPE_INT_RGB);

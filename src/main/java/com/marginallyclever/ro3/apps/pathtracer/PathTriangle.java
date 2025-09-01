@@ -97,9 +97,9 @@ public class PathTriangle {
         double r1 = Math.random();
         double r2 = Math.random();
         double sqrtR1 = Math.sqrt(r1);
-        double u = 1 - sqrtR1;
+        double u = 1.0 - sqrtR1;
         double v = r2 * sqrtR1;
-        double w = 1 - u - v;
+        double w = 1.0 - u - v;
 
         return new Point3d(
                 u * a.x + v * b.x + w * c.x,

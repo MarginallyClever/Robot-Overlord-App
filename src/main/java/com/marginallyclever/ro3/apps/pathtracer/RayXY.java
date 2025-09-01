@@ -12,16 +12,18 @@ import java.util.Map;
  * {@link RayXY} is used to track the average color of each pixel as the {@link PathTracer} runs.
  */
 public class RayXY {
-    public int x;
-    public int y;
-    public int samples = 0;
-    public final ColorDouble colorSum = new ColorDouble(0, 0, 0);
-    public final ColorDouble colorAverage = new ColorDouble(0, 0, 0);
+    public int x;  // pixel coordinate in the viewport.  0...canvasWidth-1
+    public int y;  // pixel coordinate in the viewport.  0...canvasHeight-1
+    public int samples = 0;  // number of samples accumulated for this pixel.
+    public final ColorDouble radianceSum = new ColorDouble(0, 0, 0);
+    public final ColorDouble radianceAverage = new ColorDouble(0, 0, 0);
     public double depth;  // depth of first hit in the scene.
-    public Vector3d normal;
-    // history of paths traced for this pixel (for debugging)
+    public Vector3d normal;  // normal of first hit in the scene.
+    // the maximum depth of any path traced for this pixel (for debugging)
     public int traceDepth = 0;
+    // history of paths traced for this pixel (for debugging)
     public Map<Ray, Hit> rayHistory = new HashMap<>();
+    // halton sequence with memory for this pixel (for consistent sampling across frames)
     public HaltonWithMemory halton = new HaltonWithMemory();
 
     public RayXY(int x, int y) {
@@ -42,15 +44,15 @@ public class RayXY {
      */
     public void add(ColorDouble traceResult,double exposure, boolean activateToneMap) {
         //traceResult.clamp(0,10);
-        colorSum.add(traceResult);
+        radianceSum.add(traceResult);
         samples++;
         // recalculate the average.
-        colorAverage.set(colorSum);
-        colorAverage.scale(1.0/samples);
+        radianceAverage.set(radianceSum);
+        radianceAverage.scale(1.0/samples);
         // apply exposure
-        exposureMap(colorAverage,exposure);
+        exposureMap(radianceAverage,exposure);
         // tone map the result.
-        if(activateToneMap) toneMap(colorAverage);
+        if(activateToneMap) toneMap(radianceAverage);
     }
 
     private void exposureMap(ColorDouble d, double exposure) {

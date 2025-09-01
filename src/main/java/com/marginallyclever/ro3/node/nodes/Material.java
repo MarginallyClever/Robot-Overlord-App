@@ -481,21 +481,6 @@ public class Material extends Node {
         return result;
     }
 
-    private Vector3d getRefractedRay(Vector3d in, Vector3d n, double eta, double cosTheta,double k) {
-        if (k <0) {
-            return in;  // Total internal reflection
-        }
-
-        double cosThetaT = Math.sqrt(k);
-        Vector3d out = new Vector3d(in);
-        out.scale(eta);
-        n.scale(eta * cosTheta - cosThetaT);
-        out.add(n);
-        out.normalize();
-
-        return out;
-    }
-
     /**
      * Diffuse-only BRDF (f) for next-event (light) sampling.
      * Excludes specular (never light sampled) and transmission (delta).

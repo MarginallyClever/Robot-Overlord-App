@@ -3,6 +3,9 @@ package com.marginallyclever.ro3.apps.pathtracer.spatialaccelerationstructure;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.apps.pathtracer.PathTriangle;
 
+/**
+ * Interface for a Spatial Acceleration Structure (SAS) used in ray tracing to optimize intersection tests.
+ */
 public interface SpatialAccelerationStructure {
     /**
      * Add a new triangle to the SAS

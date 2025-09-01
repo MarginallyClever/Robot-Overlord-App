@@ -89,7 +89,7 @@ public class PathTracer {
     }
 
     public void start() {
-        if(pathTracingWorker !=null) return;
+        if(pathTracingWorker != null) return;
 
         System.out.println("Starting PathTracer "+canvasHeight+"x"+canvasWidth+" @ "+samplesPerPixel + "spp, max depth "+maxDepth);
 
@@ -119,9 +119,9 @@ public class PathTracer {
     }
 
     /**
-     * <p>Trace the ray and return the color of the pixel at the end of the ray.</p>
+     * March the ray through the scene.  This is the core of the path tracer.
      * @param ray the ray to trace
-     * @param pixel the pixel to store the result in
+     * @param pixel the pixel in which to store the result.
      */
     private void trace(Ray ray,RayXY pixel) {
         ColorDouble radiance = new ColorDouble(0, 0, 0);
@@ -579,6 +579,11 @@ public class PathTracer {
         showRays(list,false);
     }
 
+    /**
+     * {@link PathTracingWorker} is a SwingWorker that performs the path tracing in the background.  <a
+     * href="https://docs.oracle.com/javase/tutorial/uiswing/concurrency/worker.html">SwingWorkers cannot be reused</a>
+     * so it must be destroyed and recreated each time the path tracer is started.
+     */
     private class PathTracingWorker extends SwingWorker<Void,Integer> {
         private final List<RayXY> pixels;
         private final BufferedImage image;
@@ -590,28 +595,20 @@ public class PathTracer {
 
         @Override
         protected Void doInBackground() {
+            //naiveStream();  // 1:58
+            //tiledStreamByProcessor();  // 2:27
+            //tiledStream2(32,32);  // 1:48
+            tiledStream2(16,16);  // 1:26
+            //tiledStream2(8,8);  // 1:27
+
+            return null;
+        }
+
+        private void tiledStreamCore(List<Rectangle2i> indexes) {
             int total = pixels.size() * samplesPerPixel;
             AtomicInteger completed = new AtomicInteger(0);
 
             startTime = System.currentTimeMillis();
-
-            int numThreads = 16;
-            int tSqrt = (int)Math.sqrt(numThreads);
-            int w = canvasWidth / tSqrt;
-            int h = canvasHeight / tSqrt;
-            List<Rectangle2i> indexes = new ArrayList<>();
-            for(int y=0;y<canvasHeight;y+=h) {
-                for(int x=0;x<canvasWidth;x+=w) {
-                    indexes.add(
-                            new Rectangle2i(
-                                new Point2i(x,y),
-                                new Point2i(
-                                    Math.min(canvasWidth,x+w),
-                                    Math.min(canvasHeight,y+h))
-                            )
-                    );
-                }
-            }
 
             // in parallel, trace each ray and store the result in a buffer
             // split the ray list into several sublists and process each sublist in parallel
@@ -640,7 +637,29 @@ public class PathTracer {
                     }
                 }
             });
-            return null;
+        }
+
+        private void tiledStreamByProcessor() {
+            int numThreads = Math.max(1,Runtime.getRuntime().availableProcessors());
+            int tSqrt = (int)Math.sqrt(numThreads);
+            tiledStream2(
+                    canvasWidth / tSqrt,
+                    canvasHeight / tSqrt);
+        }
+
+        private void tiledStream2(int tileW,int tileH) {
+            List<Rectangle2i> indexes = new ArrayList<>();
+            for(int y=0;y<canvasHeight;y+=tileH) {
+                for(int x=0;x<canvasWidth;x+=tileW) {
+                    indexes.add( new Rectangle2i(
+                                    new Point2i(x,y),
+                                    new Point2i(
+                                            Math.min(canvasWidth,x+tileW),
+                                            Math.min(canvasHeight,y+tileH))
+                    ) );
+                }
+            }
+            tiledStreamCore(indexes);
         }
 
         private void runOnePixel(RayXY pixel) {
@@ -652,7 +671,7 @@ public class PathTracer {
             // sum the total color of all samples
             trace(ray, pixel);
             // store the result in the buffer
-            drawPixel(pixel,pixel.colorAverage.getColor());
+            drawPixel(pixel,pixel.radianceAverage.getColor());
         }
 
         @Override
@@ -674,24 +693,47 @@ public class PathTracer {
             // Convert Ray’s coordinate to pixel indices and set the pixel’s color
             image.setRGB(pixel.x, pixel.y, c.getRGB());
 
-            if(pixel.samples>2) return;
-
-            // Update depth map.  Convert pixel.depth to a rainbow heatmap color
-            if(pixel.depth == Double.POSITIVE_INFINITY) {
-                // no hit, set to black
-                depthMap.setRGB(pixel.x, pixel.y, Color.BLACK.getRGB());
-            } else {
-                double depthValue = Math.max(0,Math.min(1,pixel.depth / deepestHit));
-                // Convert depth value to a color (e.g., blue for near, red for far)
-                depthMap.setRGB(pixel.x, pixel.y, unitToRainbow(depthValue).getRGB());
+            if(pixel.samples==1) {
+                // Update depth map.  Convert pixel.depth to a rainbow heatmap color
+                if (pixel.depth == Double.POSITIVE_INFINITY) {
+                    // no hit, set to black
+                    depthMap.setRGB(pixel.x, pixel.y, Color.BLACK.getRGB());
+                } else {
+                    double depthValue = Math.max(0, Math.min(1, pixel.depth / deepestHit));
+                    // Convert depth value to a color (e.g., blue for near, red for far)
+                    depthMap.setRGB(pixel.x, pixel.y, unitToRainbow(depthValue).getRGB());
+                }
             }
+            if(pixel.samples==0) {
+                // update normal map
+                if (pixel.normal != null) {
+                    Color n = new Color((float) (0.5 + 0.5 * pixel.normal.x), (float) (0.5 + 0.5 * pixel.normal.y), (float) (0.5 + 0.5 * pixel.normal.z));
+                    normalMap.setRGB(pixel.x, pixel.y, n.getRGB());
+                }
+            }
+        }
 
-            if(pixel.samples>1) return;
+        private void naiveStream() {
+            int total = pixels.size() * samplesPerPixel;
+            AtomicInteger completed = new AtomicInteger(0);
 
-            // update normal map
-            if(pixel.normal != null) {
-                Color n = new Color((float) (0.5 + 0.5 * pixel.normal.x), (float) (0.5 + 0.5 * pixel.normal.y), (float) (0.5 + 0.5 * pixel.normal.z));
-                normalMap.setRGB(pixel.x, pixel.y, n.getRGB());
+            startTime = System.currentTimeMillis();
+
+            while(!isCancelled()) {
+                pixels.stream().parallel().forEach(p -> {
+                    if (isCancelled()) return;
+
+                    runOnePixel(p);
+
+                    int done = completed.incrementAndGet();
+                    // Only publish occasionally to avoid flooding the EDT
+                    if (done % 1000 == 0 || done == total) {
+                        publish((int) ((done * 100.0f) / total));
+                        if (done == total) {
+                            cancel(true);
+                        }
+                    }
+                });
             }
         }
     }

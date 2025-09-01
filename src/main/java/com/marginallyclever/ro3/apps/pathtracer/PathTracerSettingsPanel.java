@@ -5,12 +5,12 @@ import com.marginallyclever.ro3.PanelHelper;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * A JPanel that contains controls for adjusting the settings of a {@link PathTracer}.
+ */
 public class PathTracerSettingsPanel extends JPanel {
-    private final PathTracer pathTracer;
-
     public PathTracerSettingsPanel(PathTracer pathTracer) {
         super(new GridBagLayout());
-        this.pathTracer = pathTracer;
         setName(getClass().getSimpleName());
 
         GridBagConstraints c = new GridBagConstraints();
@@ -24,7 +24,7 @@ public class PathTracerSettingsPanel extends JPanel {
 
         var md = PanelHelper.addNumberFieldInt("Max Depth",pathTracer.getMaxDepth());
         md.addPropertyChangeListener("value",e->pathTracer.setMaxDepth(((Number)e.getNewValue()).intValue()));
-        PanelHelper.addLabelAndComponent(this, "Max Depth", md, c);
+        PanelHelper.addLabelAndComponent(this, "Max trace depth", md, c);
 
         // max contribution
         var maxContribution = PanelHelper.addNumberFieldDouble("Max contribution",pathTracer.getMaxContribution());
@@ -32,10 +32,8 @@ public class PathTracerSettingsPanel extends JPanel {
         PanelHelper.addLabelAndComponent(this, "Max contribution per sample", maxContribution, c);
         c.gridy++;
 
-        // min bounces before russian roulette termination
-        var minBounces = PanelHelper.addNumberFieldInt(
-                "Min bounces",
-                pathTracer.getMinBounces());
+        // min bounces before russian roulette termination begins
+        var minBounces = PanelHelper.addNumberFieldInt( "Minimum bounces before russian roulette termination begins", pathTracer.getMinBounces());
         minBounces.addPropertyChangeListener("value",e->pathTracer.setMinBounces(((Number)e.getNewValue()).intValue()));
         PanelHelper.addLabelAndComponent(this, "Min bounces before RR", minBounces, c);
         c.gridy++;
