@@ -95,31 +95,31 @@ public class RayPickSystem {
      * short.
      * @param ray the ray to test.
      * @param optimize true if extra steps should be taken to optimize, typically for path tracing.
-     * @return the nearest {@link RayHit} by the ray, or null if no entity was hit.
+     * @return the nearest {@link Hit} by the ray, or null if no entity was hit.
      */
-    public RayHit getFirstHit(Ray ray,boolean optimize) {
-        List<RayHit> rayHits = findRayIntersections(ray,optimize);
+    public Hit getFirstHit(Ray ray, boolean optimize) {
+        List<Hit> hits = findRayIntersections(ray,optimize);
         // handle the case where the ray starts inside the mesh ("shadow acne")
-        while(!rayHits.isEmpty() && rayHits.getFirst().distance() < 1e-9) {
-            rayHits.removeFirst();
+        while(!hits.isEmpty() && hits.getFirst().distance() < 1e-9) {
+            hits.removeFirst();
         }
-        if(rayHits.isEmpty()) return null;
-        return rayHits.getFirst();
+        if(hits.isEmpty()) return null;
+        return hits.getFirst();
     }
 
     /**
      * Traverse the scene {@link Node}s and find all the {@link MeshInstance}s that collide with the ray.
      * @param ray the ray to test.
      * @param optimize true if extra steps should be taken to optimize, typically for path tracing.
-     * @return all {@link RayHit} by the ray, sorted by distance.
+     * @return all {@link Hit} by the ray, sorted by distance.
      */
-    public List<RayHit> findRayIntersections(Ray ray,boolean optimize) {
-        List<RayHit> rayHits = new LinkedList<>();
+    public List<Hit> findRayIntersections(Ray ray, boolean optimize) {
+        List<Hit> hits = new LinkedList<>();
 
         for(var meshInstance : sceneElements) {
             if(!optimize || meshInstance.getMesh() instanceof Sphere) {
-                RayHit hit = meshInstance.intersect(ray);
-                if (hit != null) rayHits.add(hit);
+                Hit hit = meshInstance.intersect(ray);
+                if (hit != null) hits.add(hit);
                 continue;
             }
 
@@ -127,16 +127,16 @@ public class RayPickSystem {
                 PathMesh worldMesh = getCachedMesh(meshInstance);
                 if (worldMesh == null) continue;
 
-                RayHit hit2 = worldMesh.intersect(ray);
+                Hit hit2 = worldMesh.intersect(ray);
                 if (hit2 != null) {
-                    rayHits.add(new RayHit(meshInstance, hit2.distance(), hit2.normal(), hit2.point(),hit2.triangle()));
+                    hits.add(new Hit(meshInstance, hit2.distance(), hit2.normal(), hit2.point(),hit2.triangle()));
                 }
             }
         }
 
-        rayHits.sort(Comparator.comparingDouble(RayHit::distance));
+        hits.sort(Comparator.comparingDouble(Hit::distance));
 
-        return rayHits;
+        return hits;
     }
 
     private PathMesh getCachedMesh(MeshInstance meshInstance) {
@@ -181,7 +181,7 @@ public class RayPickSystem {
         return numEmissiveTriangles;
     }
 
-    public RayHit getEmissiveSurface(int index) {
+    public Hit getEmissiveSurface(int index) {
         for(var meshInstance : emissiveMeshes) {
             PathMesh worldMesh = getCachedMesh(meshInstance);
             if(worldMesh==null) continue;
@@ -192,22 +192,24 @@ public class RayPickSystem {
 
             PathTriangle pt = worldMesh.getTriangle(index);
             if(pt==null) continue;
-            return new RayHit(meshInstance, 0, pt.normal, pt.getRandomPointInside(), pt);
+            return new Hit(meshInstance, 0, pt.normal, pt.getRandomPointInside(), pt);
         }
         return null;
     }
 
     /**
-     * Guaranteed to return one triangle if there is at least one emissive triangle in the scene.
-     * @return a random emissive triangle in the scene, or null if there are no emissive triangles.
+     * Guaranteed to return one valid result if there is at least one emissive triangle in the scene.
+     * @return a {@link Hit} on a random emissive surface, or null if there are no emissive surfaces.
      */
-    public RayHit getRandomEmissiveSurface() {
+    public Hit getRandomEmissiveSurface() {
         for(var meshInstance : emissiveMeshes) {
             PathMesh worldMesh = getCachedMesh(meshInstance);
             if(worldMesh==null) continue;
+
             PathTriangle pt = worldMesh.getRandomTriangle();
             if(pt==null) continue;
-            return new RayHit(meshInstance, 0, pt.normal, pt.getRandomPointInside(), pt);
+
+            return new Hit(meshInstance, 0, pt.normal, pt.getRandomPointInside(), pt);
         }
         return null;
     }

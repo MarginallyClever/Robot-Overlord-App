@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.apps.pathtracer;
 
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.ro3.raypicking.RayHit;
+import com.marginallyclever.ro3.raypicking.Hit;
 
 import javax.vecmath.Vector3d;
 import java.util.HashMap;
@@ -19,8 +19,8 @@ public class RayXY {
     public double depth;  // depth of first hit in the scene.
     public Vector3d normal;
     // history of paths traced for this pixel (for debugging)
-    public boolean debug = false;
-    public Map<Ray, RayHit> rays = new HashMap<>();
+    public int traceDepth = 0;
+    public Map<Ray, Hit> rayHistory = new HashMap<>();
     public HaltonWithMemory halton = new HaltonWithMemory();
 
     public RayXY(int x, int y) {
@@ -29,9 +29,9 @@ public class RayXY {
         this.depth = Double.POSITIVE_INFINITY;
     }
 
-    public void addRayRecord(Ray ray, RayHit hit) {
-        if(debug && samples<1) {
-            rays.put(ray, hit);
+    public void addRayHistory(Ray ray, Hit hit) {
+        if(rayHistory.size()<traceDepth) {
+            rayHistory.put(ray, hit);
         }
     }
 

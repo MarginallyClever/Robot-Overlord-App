@@ -44,19 +44,18 @@ public class PathTracerHelper {
         if (Math.abs(n.z) < 0.999) {
             tangent = new Vector3d(-n.y, n.x, 0.0); // perpendicular
         } else {
-            tangent = new Vector3d(0.0, 1.0, 0.0);
-            tangent.cross(tangent, n);
+            tangent = new Vector3d(1.0, 1.0, 0.0);
         }
-        tangent.normalize();
 
         Vector3d bitangent = new Vector3d();
-        bitangent.cross(normal, tangent);
+        bitangent.cross(n, tangent);
 
         // Transform local sample to world space
         Vector3d direction = new Vector3d();
         direction.scale(x, tangent);
         direction.scaleAdd(y, bitangent, direction);
-        direction.scaleAdd(z, normal, direction);
+        direction.scaleAdd(z, n, direction);
+        direction.normalize();
 
         return direction;
     }

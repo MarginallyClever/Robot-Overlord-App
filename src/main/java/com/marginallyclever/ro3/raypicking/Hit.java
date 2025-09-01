@@ -14,4 +14,4 @@ import javax.vecmath.Vector3d;
  * @param point the point of contact in world space.
  * @param triangle the triangle at the point of contact.
  */
-public record RayHit(MeshInstance target, double distance, Vector3d normal, Point3d point, PathTriangle triangle) {}
+public record Hit(MeshInstance target, double distance, Vector3d normal, Point3d point, PathTriangle triangle) {}

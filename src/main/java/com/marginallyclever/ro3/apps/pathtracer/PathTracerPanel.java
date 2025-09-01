@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.apps.pathtracer;
 
-import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.node.Node;
@@ -54,7 +53,7 @@ public class PathTracerPanel
             @Override
             public void mouseClicked(MouseEvent e) {
                 System.out.println("Mouse clicked at: " + e.getX() + ", " + e.getY());
-                pathTracer.fireOneRay(e.getX(), e.getY());
+                pathTracer.fireAndDisplayOneRay(e.getX(), e.getY(),pathTracer.getMaxDepth());
             }
         });
     }
@@ -242,6 +241,8 @@ public class PathTracerPanel
                 (elapsed % 3600000) / 60000,
                 (elapsed % 60000) / 1000,
                 elapsed % 1000));
+
+        centerLabel.invalidate();
     }
 
     @Override

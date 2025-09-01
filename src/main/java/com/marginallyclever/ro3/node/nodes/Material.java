@@ -4,7 +4,7 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.pathtracer.*;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.raypicking.RayHit;
+import com.marginallyclever.ro3.raypicking.Hit;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.json.JSONObject;
 
@@ -221,18 +221,27 @@ public class Material extends Node {
     }
 
     /**
-     * @param rayHit the ray hit record containing the triangle and point of intersection.
+     * @param hit the ray hit record containing the triangle and point of intersection.
      * @return the color from the diffuse texture at the UV coordinates of the ray hit, or white if no texture is set.
      */
-    private Color getDiffuseTextureAt(RayHit rayHit) {
+    private Color getDiffuseTextureAt(Hit hit) {
         if (diffuseTexture == null) return Color.WHITE;
-        var uv = rayHit.triangle().getUVAt(rayHit.point());
+        var uv = hit.triangle().getUVAt(hit.point());
         return diffuseTexture.getColorAt(uv.x, uv.y);
     }
 
-    public double getProbableDistributionFunction(RayHit rayHit, Vector3d in, Vector3d out) {
-        double cosTheta = rayHit.normal().dot(in);
-        if( cosTheta <= 0 ) return 0.0;
+    /**
+     * Cosine-weighted hemisphere PDF for diffuse reflection.
+     * @param hit the hit record
+     * @param in incoming direction (unit, towards surface)
+     * @param out outgoing direction (unit, towards viewer)
+     * @return the PDF value
+     */
+    public double getPDF(Hit hit, Vector3d in, Vector3d out) {
+        double cosTheta = hit.normal().dot(in);
+        if( cosTheta <= 0 ) {
+            return 0.0;
+        }
 
         return cosTheta / Math.PI;
     }
@@ -248,11 +257,11 @@ public class Material extends Node {
         return emittedLight;
     }
 
-    public ScatterRecord scatter(Ray ray, RayHit rayHit, RayXY pixel) {
-        Vector3d n = rayHit.normal();
+    public ScatterRecord scatter(Ray ray, Hit hit, RayXY pixel) {
+        Vector3d n = hit.normal();
         Vector3d wo = ray.getWo();
-        var p = rayHit.point();
-/*
+        var p = hit.point();
+
         if(this.reflectivity==1) {
             // perfect mirror
             Vector3d reflectDir = reflect(ray.getDirection(), n);
@@ -262,22 +271,22 @@ public class Material extends Node {
             return record;
         }
 
-        // cosθ for Fresnel and diffuse
-        double cosTheta = Math.max(0, ray.getDirection().dot(n));
-
         // Fresnel reflectance using Schlick
         ColorDouble spec = new ColorDouble(getSpecularColor());
         spec.scale(getSpecularStrength());
 
+        // cosθ for Fresnel and diffuse
+        double cosTheta = Math.max(0, ray.getDirection().dot(n));
+
         var F0 = new ColorDouble(spec);
         double R = schlickFresnel(cosTheta, F0);
-*/
+
         // Lobe weights
 
-        ColorDouble diffuse = new ColorDouble(getDiffuseTextureAt(rayHit));
+        ColorDouble diffuse = new ColorDouble(getDiffuseTextureAt(hit));
         diffuse.multiply(new ColorDouble(getDiffuseColor()));
-/*
-        double wt = 0;//(1.0-diffuse.a);  // transmission weight
+
+        double wt = (1.0-diffuse.a);  // transmission weight
         double wd = (diffuse.r+diffuse.g+diffuse.b)/3.0 * (1.0 - wt);  // diffuse weight
         double ws = R * (1 - wt);  // specular reflection weight
 
@@ -352,14 +361,10 @@ public class Material extends Node {
                 record.type = ScatterRecord.ScatterType.DIFFUSE;
                 return record;
             }
-        } else*/ {
+        } else {
             // --- Diffuse lobe ---
             Vector3d wi = PathTracerHelper.getRandomCosineWeightedHemisphere(pixel.halton,n);
-            //if(wi.dot(wo)<0) wi.negate();
-
-            double cosTheta = Math.max(0, wi.dot(n));
-            double pdf = this.getProbableDistributionFunction(rayHit,wi,wo);
-            //double pdf = Math.max(0, cosTheta / Math.PI);
+            double pdf = getPDF(hit,wi,wo);
 
             //var brdf = new ColorDouble(diffuse);
             //brdf.scale(1.0/Math.PI);
@@ -496,8 +501,8 @@ public class Material extends Node {
      * Excludes specular (never light sampled) and transmission (delta).
      * Does NOT include the cosine term or any pdf factors.
      */
-    public ColorDouble lightSamplingBRDF(RayHit rayHit, Vector3d wi, Vector3d wo) {
-        Vector3d n = rayHit.normal();
+    public ColorDouble lightSamplingBRDF(Hit hit, Vector3d wi, Vector3d wo) {
+        Vector3d n = hit.normal();
         double cosI = n.dot(wi);
         if (cosI <= 0.0) return new ColorDouble(0,0,0);
 

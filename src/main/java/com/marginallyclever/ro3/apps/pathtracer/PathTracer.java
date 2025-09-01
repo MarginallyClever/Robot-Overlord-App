@@ -11,7 +11,7 @@ import com.marginallyclever.ro3.node.nodes.environment.Environment;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
-import com.marginallyclever.ro3.raypicking.RayHit;
+import com.marginallyclever.ro3.raypicking.Hit;
 import com.marginallyclever.ro3.raypicking.RayPickSystem;
 
 import javax.swing.*;
@@ -31,9 +31,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class PathTracer {
     public static final int CHANNEL_VIEWPORT_U = 0;
-    public static final int CHANNEL_VIEWPORT_V = 1;
-    public static final int CHANNEL_HEMISPHERE_U = 2;
-    public static final int CHANNEL_HEMISPHERE_V = 3;
+    public static final int CHANNEL_VIEWPORT_V = 0;
+    public static final int CHANNEL_HEMISPHERE_U = 0;
+    public static final int CHANNEL_HEMISPHERE_V = 0;
     public static final int CHANNEL_RUSSIAN_ROULETTE = 4;
     public static final int CHANNEL_LIGHT_SAMPLING = 5;
     public static final int CHANNEL_BSDF_SAMPLING = 6;
@@ -126,17 +126,18 @@ public class PathTracer {
     private void trace(Ray ray,RayXY pixel) {
         ColorDouble radiance = new ColorDouble(0, 0, 0);
         ColorDouble throughput = new ColorDouble(1, 1, 1, 1);
-        RayHit prevHit=null;
+        Hit prevHit=null;
         Ray prevRay=null;
         ScatterRecord prevScatter=null;
 
-        for (int depth = 0; depth < maxDepth; ++depth) {
+        int depth;
+        for (depth = 0; depth < maxDepth; ++depth) {
             if(depth >= minBounces && russianRouletteTermination(throughput,pixel)) break;
 
             // get the first hit along the ray
-            RayHit rayHit = rayPickSystem.getFirstHit(ray,true);
-            pixel.addRayRecord(new Ray(ray),rayHit);
-            if (rayHit == null) {
+            Hit hit = rayPickSystem.getFirstHit(ray,true);
+            pixel.addRayHistory(new Ray(ray), hit);
+            if (hit == null) {
                 // hit nothing
                 var sky = new ColorDouble(getSkyColor(ray));
                 sky.multiply(throughput);
@@ -147,35 +148,34 @@ public class PathTracer {
             // first hit on something.  record the depth and normal.
             if(pixel.samples==0 && depth==0) {
                 // if this is the first hit, record the depth and the deepest hit.
-                pixel.depth = rayHit.distance();
+                pixel.depth = hit.distance();
                 deepestHit = Math.max(deepestHit, pixel.depth);
-                pixel.normal = rayHit.normal();
+                pixel.normal = hit.normal();
             }
 
             // does this material emit light?
-            Material mat = RayPickSystem.getMaterial(rayHit.target());
+            Material mat = RayPickSystem.getMaterial(hit.target());
             if(mat == null) mat = defaultMaterial;
             if(mat.isEmissive()) {
-                handleEmissiveHit(ray,rayHit,prevRay,prevHit,throughput,radiance,mat,prevScatter);
+                handleEmissiveHit(ray, hit,prevRay,prevHit,throughput,radiance,mat,prevScatter);
                 break;
             }
 
-            ScatterRecord scatterRecord = mat.scatter(ray, rayHit,pixel);
-            //*
+            ScatterRecord scatterRecord = mat.scatter(ray, hit,pixel);
             if(!scatterRecord.isSpecular) {
                 // probabilistic light sampling AKA Next Event Estimation (NEE)
                 double p = pixel.halton.nextDouble(CHANNEL_LIGHT_SAMPLING);
                 if (p < lightSamplingProbability) {
-                    probabilisticLightSampling(p, ray, rayHit, mat, throughput, radiance,pixel);
+                    probabilisticLightSampling(p, ray, hit, mat, throughput, radiance,pixel);
                 }
-            }//*/
+            }
 
-            prevHit = rayHit;
+            prevHit = hit;
             prevRay = ray;
             prevScatter = scatterRecord;
 
             // pick the next ray direction
-            ray = new Ray(rayHit.point(), scatterRecord.ray.getDirection());
+            ray = new Ray(hit.point(), scatterRecord.ray.getDirection());
             throughput.multiply(scatterRecord.attenuation);
             if(throughput.r<EPSILON && throughput.g<EPSILON && throughput.b<EPSILON) {
                 // no more light to bounce
@@ -190,27 +190,27 @@ public class PathTracer {
      * Probabilistic light sampling with Multiple Importance Sampling (MIS).
      * @param p the probability of selecting this strategy
      * @param ray the current ray
-     * @param rayHit the current ray hit
+     * @param hit the current ray hit
      * @param mat the material at the ray hit
      * @param throughput the current throughput of the ray
      * @param radiance the accumulated radiance
      */
-    private void probabilisticLightSampling(double p, Ray ray, RayHit rayHit, Material mat, ColorDouble throughput, ColorDouble radiance, RayXY pixel) {
+    private void probabilisticLightSampling(double p, Ray ray, Hit hit, Material mat, ColorDouble throughput, ColorDouble radiance, RayXY pixel) {
         // get an emissive surface
-        RayHit emissiveHit = rayPickSystem.getRandomEmissiveSurface();
+        Hit emissiveHit = rayPickSystem.getRandomEmissiveSurface();
         if(emissiveHit == null) return;
 
         Vector3d wi = new Vector3d();
-        wi.sub(emissiveHit.point(), rayHit.point());
+        wi.sub(emissiveHit.point(), hit.point());
         double distanceSquared = wi.lengthSquared();
         wi.normalize();
 
         // shoot a shadow ray to see if the light is visible
         Point3d origin = new Point3d();
-        origin.scaleAdd(EPSILON,rayHit.normal(),rayHit.point());
+        origin.scaleAdd(EPSILON, hit.normal(), hit.point());
         Ray lightRay = new Ray(origin, wi);
-        RayHit lightHit = rayPickSystem.getFirstHit(lightRay,true);
-        pixel.addRayRecord(new Ray(lightRay),lightHit);
+        Hit lightHit = rayPickSystem.getFirstHit(lightRay,true);
+        pixel.addRayHistory(new Ray(lightRay),lightHit);
         if(lightHit == null) return; // occluded
 
         // hit a thing
@@ -219,7 +219,7 @@ public class PathTracer {
         if(!mat2.isEmissive()) return;
 
         Vector3d wo = ray.getWo();
-        ColorDouble brdf = mat.lightSamplingBRDF(rayHit,wi,wo);
+        ColorDouble brdf = mat.lightSamplingBRDF(hit,wi,wo);
 
         double area;
         if(lightHit.target().getMesh() instanceof Sphere sphere) {
@@ -229,12 +229,12 @@ public class PathTracer {
         }
         double cosThetaLight = Math.max(0, -lightHit.normal().dot(wi));
         double pdfLight = Math.max(EPSILON, pdfLightSolidAngle(area,distanceSquared,cosThetaLight));
-        double pdfBSDF = mat.getProbableDistributionFunction(rayHit,wi,wo);
+        double pdfBSDF = mat.getPDF(hit,wi,wo);
 
         // Include strategy selection probabilities in MIS
         double pl = pdfLight * p;
         double pb = pdfBSDF * (1.0 - p);
-        double wBSDF = misWeight(pl, pb);
+        double wBSDF = misWeight(pb,pl);
 
         // contribution
         ColorDouble contribution = new ColorDouble(mat2.getEmittedLight());
@@ -265,7 +265,7 @@ public class PathTracer {
     /**
      * Handle direct hits to emissive surfaces.
      * @param ray the current ray
-     * @param rayHit the current ray hit
+     * @param hit the current ray hit
      * @param prevRay the previous ray, or null if this is the first ray
      * @param prevHit the previous ray hit, or null if this is the first hit
      * @param throughput the current throughput of the ray
@@ -273,7 +273,7 @@ public class PathTracer {
      * @param mat the emissive material
      * @param prevScatter the scatter record of the previous hit, or null if this is the first hit
      */
-    private void handleEmissiveHit(Ray ray, RayHit rayHit, Ray prevRay, RayHit prevHit, ColorDouble throughput, ColorDouble radiance,Material mat,ScatterRecord prevScatter) {
+    private void handleEmissiveHit(Ray ray, Hit hit, Ray prevRay, Hit prevHit, ColorDouble throughput, ColorDouble radiance, Material mat, ScatterRecord prevScatter) {
         if(prevHit == null) {
             // First bounce: no MIS, just add light directly
             ColorDouble emittedLight = mat.getEmittedLight();
@@ -290,13 +290,13 @@ public class PathTracer {
         Vector3d wo = prevRay.getWo();
 
         Point3d prevPoint = ray.getOrigin();
-        Point3d lightPoint = rayHit.point();
+        Point3d lightPoint = hit.point();
 
         double distanceSquared = lightPoint.distanceSquared(prevPoint);
         Vector3d lightDir = new Vector3d();
         lightDir.sub(lightPoint, prevPoint);
         lightDir.normalize();
-        double cosThetaLight = Math.max(0.0, -rayHit.normal().dot(lightDir));
+        double cosThetaLight = Math.max(0.0, -hit.normal().dot(lightDir));
 
         ColorDouble emittedLight = mat.getEmittedLight();
 
@@ -305,22 +305,21 @@ public class PathTracer {
             // so we don't need to do MIS.
         } else {
             double area;
-            if(rayHit.target().getMesh() instanceof Sphere sphere) {
-                area = 0.00001;//4.0 * Math.PI * Math.pow(sphere.radius,2);
+            if(hit.target().getMesh() instanceof Sphere sphere) {
+                area = 4.0 * Math.PI * Math.pow(sphere.radius,2);
             } else {
-                area = rayHit.triangle().getArea();
+                area = hit.triangle().getArea();
             }
 
-            double pdfBSDF = prevMat.getProbableDistributionFunction(prevHit, wi, wo);
+            double pdfBSDF = prevMat.getPDF(prevHit, wi, wo);
             double pdfLight = Math.max(EPSILON,
                     pdfLightSolidAngle(area, distanceSquared, cosThetaLight));
-            double wBSDF = misWeight(pdfBSDF, pdfLight);
+            double wBSDF = misWeight(pdfLight,pdfBSDF);
             emittedLight.scale(wBSDF);
         }
 
         emittedLight.multiply(throughput);
         emittedLight.clamp(0, maxContribution);
-        throughput.scale(1.0 / (1.0-lightSamplingProbability));
         radiance.add(emittedLight);
     }
 
@@ -354,7 +353,7 @@ public class PathTracer {
         Vector3d d = ray.getDirection();
         d.normalize();
         var dot = Math.clamp(sunlightSource.dot(d),0,1);
-        var sd = Math.pow(dot,5);
+        var sd = Math.pow(dot,16);
         var a = 1.0-sd;
         return new ColorDouble(
                 a * ambientColor.r + sd * sunlightColor.r * sunlightStrength,
@@ -424,25 +423,44 @@ public class PathTracer {
         return pathTracingWorker != null && !pathTracingWorker.isDone() && !pathTracingWorker.isCancelled();
     }
 
-    public void fireOneRay(int x, int y) {
+    /**
+     * Fire one ray through the pixel at (x,y) and display the path on screen.
+     * @param x the x coordinate of the pixel
+     * @param y the y coordinate of the pixel
+     */
+    public void fireAndDisplayOneRay(int x, int y,int traceDepth) {
         if(!isRunning()) return;
+        var list = new ArrayList<RayXY>();
+        list.add(fireOneRayWithTracingOn(x,y,traceDepth));
+        showRays(list,true);
+    }
 
-        Ray ray = activeCamera.getRayThroughPoint(
+    /**
+     * Fire one ray through the pixel at (x,y)
+     * @param x the x coordinate of the pixel
+     * @param y the y coordinate of the pixel
+     */
+    private RayXY fireOneRayWithTracingOn(int x, int y,int traceDepth) {
+        var ray = getRayForXY(x,y);
+
+        RayXY pixel = new RayXY(x,y);
+        pixel.traceDepth = traceDepth;
+        long seed = getSeed(pixel);
+        pixel.halton.resetMemory(seed);
+
+        trace(ray,pixel);
+
+        return pixel;
+    }
+
+    private Ray getRayForXY(int x,int y) {
+        return activeCamera.getRayThroughPoint(
                 (2.0 * x / canvasWidth) - 1.0,
                 1.0 - (2.0 * y / canvasHeight),
                 canvasWidth, canvasHeight);
-        RayXY pixel = new RayXY(x,y);
-        pixel.debug = true;
-        long seed = getSeed(pixel);
-        pixel.halton.resetMemory(seed);
-        trace(ray,pixel);
-
-        var list = new ArrayList<RayXY>();
-        list.add(pixel);
-        showRays(list);
     }
 
-    private void showRays(List<RayXY> list) {
+    private void showRays(List<RayXY> list,boolean showWholeRay) {
         if(displayContainer==null) {
             displayContainer = new Pose();
             displayContainer.setName("PathTracer Container");
@@ -463,41 +481,103 @@ public class PathTracer {
 
         displayMesh.setRenderStyle(GL3.GL_LINES);
         displayMesh.clear();
-        for( var pixel : list) {
-            for (var e : pixel.rays.entrySet()) {
-                Ray r = e.getKey();
-                RayHit h = e.getValue();
-                Point3d p0 = r.getOrigin();
-                Vector3d d = r.getDirection();
-                d.normalize();
-                Point3d p1;
-                Color c;
-                if (h == null) {
-                    // no hit, draw a short ray
-                    p1 = new Point3d();
-                    p1.scaleAdd(1.0, d, p0);
-                    c = Color.RED;
-                    displayLine(p0,p1,c);
-                } else {
-                    p1 = h.point();
-                    Material mat = RayPickSystem.getMaterial(h.target());
-                    c = mat.isEmissive() ? Color.GREEN : Color.YELLOW;
-                    displayLine(p0,p1,c);
+        Point3d p1 = new Point3d();
 
-                    c = Color.BLUE;
-                    Point3d p2 = new Point3d(h.normal());
-                    p2.add(h.point());
-                    displayLine(p1,p2,c);
+        for( var pixel : list) {
+            for (var rayHit : pixel.rayHistory.entrySet()) {
+                Ray ray = rayHit.getKey();
+                Hit hit = rayHit.getValue();
+                Point3d p0 = ray.getOrigin();
+                Vector3d d = ray.getDirection();
+                d.normalize();
+
+
+                if (hit == null) {
+                    p1.scaleAdd(1.0, d, p0);
+                    displayLine(p0,p1,Color.RED,Color.ORANGE);
+                    continue;
                 }
+                /*
+                p1 = h.point();
+                Material mat = RayPickSystem.getMaterial(h.target());
+                displayLine(p0,p1,mat.isEmissive() ? Color.GREEN : Color.YELLOW);
+
+                Point3d p2 = new Point3d(h.normal());
+                p2.add(h.point());
+                displayLine(p1,p2,Color.BLUE);
+                */
+                if(showWholeRay)
+                {
+                    displayLine(hit.point(), p0, new Color(0.2f, 0.2f, 0, 0.1f),new Color(0.2f, 0.2f, 0, 0.1f));
+                }
+
+                p1 = new Point3d();
+                p1.scaleAdd(-1.0,d,hit.point());
+                displayLine(hit.point(),p1,Color.GREEN,Color.CYAN);
+/*
+                p1.scaleAdd(0.5,hit.normal(),hit.point());
+                displayLine(hit.point(),p1,Color.YELLOW);
+//*/
+                var emissiveHitPoint = hitARandomEmissiveSurface(hit,pixel);
+                if(emissiveHitPoint!=null) {
+                    var v1 = new Vector3d();
+                    v1.sub(emissiveHitPoint.point(), hit.point());
+                    v1.normalize();
+                    p1.scaleAdd(1, v1, hit.point());
+                    displayLine(hit.point(), p1, Color.MAGENTA, Color.BLUE);
+                }//*/
             }
         }
     }
 
-    private void displayLine(Point3d p0, Point3d p1, Color c) {
+    /**
+     * pick a random emissive surface and pick a ray towards it.
+     * @param hit the current hit from which to shoot the ray
+     * @param pixel the pixel to store the ray history in
+     * @return the hit on the emissive surface, or null if none was hit
+     */
+    private Hit hitARandomEmissiveSurface(Hit hit, RayXY pixel) {
+        // pick a random emissive surface
+        Hit randomEmissiveSurface = rayPickSystem.getRandomEmissiveSurface();
+        if(randomEmissiveSurface == null) return null;  // no emissive surfaces
+
+        // get the direction to the emissive surface
+        Vector3d towardsEmissiveSurface = new Vector3d();
+        towardsEmissiveSurface.sub(randomEmissiveSurface.point(), hit.point());
+        towardsEmissiveSurface.normalize();
+
+        // offset the origin a little to avoid self intersection
+        Point3d origin = new Point3d();
+        origin.scaleAdd(EPSILON, hit.normal(), hit.point());
+
+        // shoot a shadow ray to see if the light is visible
+        Ray lightRay = new Ray(origin, towardsEmissiveSurface);
+
+        Hit lightHit = rayPickSystem.getFirstHit(lightRay,true);
+        if(lightHit!=null && lightHit.target() != randomEmissiveSurface.target()) return null; // hit itself, ignore
+        return lightHit;
+    }
+
+    private void displayLine(Point3d p0, Point3d p1, Color c0,Color c1) {
         displayMesh.addVertex(p0);
         displayMesh.addVertex(p1);
-        displayMesh.addColor(c.getRed(), c.getGreen(), c.getBlue(), 1.0f);
-        displayMesh.addColor(c.getRed(), c.getGreen(), c.getBlue(), 1.0f);
+        displayMesh.addColor(c0.getRed(), c0.getGreen(), c0.getBlue(), c0.getAlpha());
+        displayMesh.addColor(c1.getRed(), c1.getGreen(), c1.getBlue(), c1.getAlpha());
+    }
+
+    public void visualize() {
+        if(!isRunning()) return;
+        System.out.println("Visualizing all rays...");
+        var list = new ArrayList<RayXY>();
+
+        int stepSize=20;
+
+        for(int x=0;x<canvasWidth;x+=stepSize) {
+            for(int y=0;y<canvasHeight;y+=stepSize) {
+                list.add(fireOneRayWithTracingOn(x,y,1));
+            }
+        }
+        showRays(list,false);
     }
 
     private class PathTracingWorker extends SwingWorker<Void,Integer> {
@@ -512,37 +592,68 @@ public class PathTracer {
         @Override
         protected Void doInBackground() {
             int total = pixels.size() * samplesPerPixel;
-            int sqrtSPP = (int)Math.sqrt(samplesPerPixel);
             AtomicInteger completed = new AtomicInteger(0);
 
             startTime = System.currentTimeMillis();
 
+            int numThreads = 16;
+            int tSqrt = (int)Math.sqrt(numThreads);
+            int w = canvasWidth / tSqrt;
+            int h = canvasHeight / tSqrt;
+            List<Rectangle2i> indexes = new ArrayList<>();
+            for(int y=0;y<canvasHeight;y+=h) {
+                for(int x=0;x<canvasWidth;x+=w) {
+                    indexes.add(
+                            new Rectangle2i(
+                                new Point2i(x,y),
+                                new Point2i(
+                                    Math.min(canvasWidth,x+w),
+                                    Math.min(canvasHeight,y+h))
+                            )
+                    );
+                }
+            }
+
             // in parallel, trace each ray and store the result in a buffer
-            while(!isCancelled()) {
-                rays.stream().parallel().forEach(pixel -> {
-                    if(isCancelled()) return;
+            // split the ray list into several sublists and process each sublist in parallel
+            indexes.stream().parallel().forEach(tileCorners -> {
+                int w2 = tileCorners.max.x - tileCorners.min.x;
+                int h2 = tileCorners.max.y - tileCorners.min.y;
+                int totalSamplesRemaining = samplesPerPixel * w2 * h2;
+                while(!isCancelled() && totalSamplesRemaining>0) {
+                    for (int y = tileCorners.min.y; y < tileCorners.max.y; y++) {
+                        if (isCancelled()) return;
+                        for (int x = tileCorners.min.x; x < tileCorners.max.x; x++) {
+                            if (isCancelled()) return;
 
-                    long seed = getSeed(pixel);
-                    pixel.halton.resetMemory(seed);
+                            runOnePixel(rays.get(y * canvasWidth + x));
+                            totalSamplesRemaining--;
 
-                    // get the jiggled ray
-                    var ray = getStratifiedSample(pixel);
-                    // sum the total color of all samples
-                    trace(ray, pixel);
-                    // store the result in the buffer
-                    drawPixel(pixel,pixel.colorAverage.getColor());
-                    // Update progress
-                    int done = completed.incrementAndGet();
-                    // Only publish occasionally to avoid flooding the EDT
-                    if (done % 100 == 0 || done == total) {
-                        publish((int) ((done * 100.0f) / total));
-                        if(done == total) {
-                            cancel(true);
+                            // Update progress
+                            int done = completed.incrementAndGet();
                         }
                     }
-                });
-            }
+                    int done = completed.get();
+                    // Only publish occasionally to avoid flooding the EDT
+                    publish((int) ((done * 100.0f) / total));
+                    if (done == total) {
+                        cancel(true);
+                    }
+                }
+            });
             return null;
+        }
+
+        private void runOnePixel(RayXY pixel) {
+            long seed = getSeed(pixel);
+            pixel.halton.resetMemory(seed);
+
+            // get the jiggled ray
+            var ray = getStratifiedSample(pixel);
+            // sum the total color of all samples
+            trace(ray, pixel);
+            // store the result in the buffer
+            drawPixel(pixel,pixel.colorAverage.getColor());
         }
 
         @Override
@@ -591,11 +702,11 @@ public class PathTracer {
         long pixelIndex = pixel.x + (long) pixel.y * canvasWidth;
         long sampleIndex = pixel.samples;
         long combined = (pixelIndex << 32) | (sampleIndex & 0xffffffffL);
-        return mix64(combined);
+        return PathTracer.mix64(combined);
     }
 
     // Strong 64-bit mix (MurmurHash3 finalizer style)
-    private long mix64(long z) {
+    public static long mix64(long z) {
         z ^= (z >>> 33);
         z *= 0xff51afd7ed558ccdL;
         z ^= (z >>> 33);

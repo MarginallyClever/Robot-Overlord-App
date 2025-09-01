@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.tests;
 
 import com.jogamp.opengl.GL3;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.apps.pathtracer.HaltonWithMemory;
 import com.marginallyclever.ro3.apps.pathtracer.PathTracerHelper;
 import com.marginallyclever.ro3.mesh.proceduralmesh.GenerativeMesh;
@@ -64,7 +65,8 @@ public class RandomHemisphereTest extends Node {
         mesh.clear();
         HaltonWithMemory halton = new HaltonWithMemory();
         halton.resetMemory(0xDEADBEEFL);
-        Vector3d up = new Vector3d(0,0,1);
+        //Vector3d up = new Vector3d(0,0,1);
+        var up = MatrixHelper.getZAxis(meshInstance.getWorld());
 
         switch(type){
             case 0: createRandomHemispherePoints(()->PathTracerHelper.getRandomUnitVector(halton)); break;

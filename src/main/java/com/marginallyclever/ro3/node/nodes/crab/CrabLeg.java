@@ -7,7 +7,7 @@ import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
-import com.marginallyclever.ro3.raypicking.RayHit;
+import com.marginallyclever.ro3.raypicking.Hit;
 import com.marginallyclever.ro3.raypicking.RayPickSystem;
 
 import javax.vecmath.Matrix4d;
@@ -262,11 +262,11 @@ public class CrabLeg {
 
         Ray ray = getRayDownFromToe();  // ray starts 1cm above the toe
         var list = rayPickSystem.findRayIntersections(ray,false);
-        List<RayHit> list2 = new ArrayList<>();
+        List<Hit> list2 = new ArrayList<>();
         // find the first target that is not part of the crab robot.
-        for(RayHit rayHit : list) {
-            var target = rayHit.target();
-            if (!crab.nodeIsPartOfMe(target)) list2.add(rayHit);
+        for(Hit hit : list) {
+            var target = hit.target();
+            if (!crab.nodeIsPartOfMe(target)) list2.add(hit);
         }
         if(list2.isEmpty()) return;
 

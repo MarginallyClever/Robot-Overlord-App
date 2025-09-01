@@ -7,7 +7,7 @@ import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
-import com.marginallyclever.ro3.raypicking.RayHit;
+import com.marginallyclever.ro3.raypicking.Hit;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -78,11 +78,11 @@ public class MeshInstance extends Pose {
      * @param ray the ray in world space
      * @return the ray hit in world space, or null if no hit.
      */
-    public RayHit intersect(Ray ray) {
+    public Hit intersect(Ray ray) {
         if( mesh==null ) return null;
 
         Ray localRay = transformRayToLocalSpace(ray);
-        RayHit localHit = mesh.intersect(localRay);
+        Hit localHit = mesh.intersect(localRay);
         if(localHit == null || localHit.distance() >= Double.MAX_VALUE) {
             return null;
         }
@@ -90,7 +90,7 @@ public class MeshInstance extends Pose {
         Point3d hit = new Point3d(ray.getDirection());
         hit.scale(localHit.distance());
         hit.add(ray.getOrigin());
-        return new RayHit(this, localHit.distance(), normal, hit, localHit.triangle());
+        return new Hit(this, localHit.distance(), normal, hit, localHit.triangle());
     }
 
     /**

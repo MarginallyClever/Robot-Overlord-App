@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
-import com.marginallyclever.ro3.raypicking.RayHit;
+import com.marginallyclever.ro3.raypicking.Hit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -436,7 +436,7 @@ public class Mesh {
 	 * @param ray The ray to intersect with, in local space.
 	 * @return The RayHit object containing the intersection point and normal, or null if no intersection.
 	 */
-	public RayHit intersect(Ray ray) {
+	public Hit intersect(Ray ray) {
 		if( renderStyle != GL3.GL_TRIANGLES &&
 			renderStyle != GL3.GL_TRIANGLE_FAN &&
 			renderStyle != GL3.GL_TRIANGLE_STRIP ) return null;
@@ -476,7 +476,7 @@ public class Mesh {
 		}
 		Point3d p = new Point3d();
 		p.scaleAdd(nearest, ray.getDirection(), ray.getOrigin());
-		return new RayHit(null,nearest,normal,p,null);
+		return new Hit(null,nearest,normal,p,null);
 	}
 
 	public void setVertex(int i, double x, double y, double z) {

@@ -59,5 +59,11 @@ public class PathTracerSettingsPanel extends JPanel {
         activateToneMap.addActionListener(e->pathTracer.setActivateToneMap(activateToneMap.isSelected()));
         PanelHelper.addLabelAndComponent(this, "Tone map", activateToneMap,c);
         c.gridy++;
+
+        // add a button that runs PathTracer.visualizer().
+        var visualizerButton = new JButton("Generate");
+        visualizerButton.addActionListener(e-> pathTracer.visualize());
+        PanelHelper.addLabelAndComponent(this, "Visualizer", visualizerButton,c);
+        c.gridy++;
     }
 }

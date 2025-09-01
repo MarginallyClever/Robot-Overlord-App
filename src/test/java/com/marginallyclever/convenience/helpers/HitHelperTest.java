@@ -11,7 +11,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
 
-public class IntersectionHelperTest {
+public class HitHelperTest {
     @Test
     public void testCylinderCylinder() {
         Cylinder c1 = new Cylinder();

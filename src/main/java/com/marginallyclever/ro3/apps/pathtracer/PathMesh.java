@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.apps.pathtracer;
 
 import com.marginallyclever.convenience.Ray;
-import com.marginallyclever.ro3.raypicking.RayHit;
+import com.marginallyclever.ro3.raypicking.Hit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public class PathMesh {
      * @param ray The ray to intersect with, in local space.
      * @return The RayHit object containing the intersection point and normal, or null if no intersection.
      */
-    public RayHit intersect(Ray ray) {
+    public Hit intersect(Ray ray) {
         PathTriangle bestTriangle = SAS.intersect(ray);
         if( bestTriangle == null ) return null;  // no hit
 
@@ -49,7 +49,7 @@ public class PathMesh {
         Vector3d normal = bestTriangle.normal;
         Point3d p = new Point3d();
         p.scaleAdd(nearest, ray.getDirection(), ray.getOrigin());
-        return new RayHit(null,nearest,normal,p, bestTriangle);
+        return new Hit(null,nearest,normal,p, bestTriangle);
     }
 
     // if one side of the box is zero (a flat triangle) then add a tiny offset.
