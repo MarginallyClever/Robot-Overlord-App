@@ -91,6 +91,8 @@ public class Crab extends Node {
     private int ripple2CounterA = 0;
     private int ripple2CounterB = 0;
 
+    private int waveCounter = 0;
+
     // links to body parts for quick access.
     private Pose body = new Pose("body");
     private final List<CrabLeg> legs = new ArrayList<>();
@@ -428,7 +430,6 @@ public class Crab extends Node {
         // Move body and solve IK
         walk(dt, 2.0 / NUM_LEGS);
         solveKinematicsForAllLegs();
-
     }
 
     /**
@@ -436,18 +437,32 @@ public class Crab extends Node {
      * @param dt the time step
      */
     private void walkThreeAtOnce(double dt) {
-        double step = (gaitCycleTime - Math.floor(gaitCycleTime));
-        int legToMove = ((int) Math.floor(gaitCycleTime) % 2);
+        var legA = legs.get(ripple1Sequence[waveCounter]);
+        var legB = legs.get(ripple1Sequence[waveCounter+1]);
+        var legC = legs.get(ripple1Sequence[waveCounter+2]);
 
-        // put all feet down except the active leg(s).
-        for (int i = 0; i < NUM_LEGS; ++i) {
-            if ((i % 2) != legToMove) {
-                legs.get(i).putFootDown(dt);
-            } else {
-                legs.get(i).animateStep(step);
-            }
+        // Pick the current leg for each ripple stream
+        // Start leg if idle (stateful like walkRipple1)
+        if (legA.getAnimationTime() == 0 &&
+            legB.getAnimationTime() == 0 &&
+            legC.getAnimationTime() == 0) {
+            legA.setPhase(CrabLegPhase.RISE);
+            legB.setPhase(CrabLegPhase.RISE);
+            legC.setPhase(CrabLegPhase.RISE);
+        }
+        // Advance the active leg
+        legA.animateStep(dt);
+        legB.animateStep(dt);
+        legC.animateStep(dt);
+
+        // When all three leg finished, advance to the next in its sequence
+        if (legA.getPhase() == CrabLegPhase.REST &&
+            legB.getPhase() == CrabLegPhase.REST &&
+            legC.getPhase() == CrabLegPhase.REST) {
+            waveCounter = (waveCounter + 3) % ripple1Sequence.length;
         }
 
+        // Move body and solve IK
         walk(dt,3.0/NUM_LEGS);
         solveKinematicsForAllLegs();
     }

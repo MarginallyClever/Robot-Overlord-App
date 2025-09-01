@@ -9,11 +9,12 @@ import java.util.SplittableRandom;
 public class PathTracerTest {
     @Test
     public void testUnitVectors() {
-        RayXY pixel = new RayXY(0,0);
-        
+        HaltonWithMemory halton = new HaltonWithMemory();
+        halton.resetMemory(0xDEADBEEFL);
+
         for(int i=0;i<100;i++) {
             // Generate a random unit vector
-            Vector3d v = PathTracerHelper.getRandomUnitVector(pixel);
+            Vector3d v = PathTracerHelper.getRandomUnitVector(halton);
             // Check if the vector is normalized (length should be 1)
             double length = v.length();
             assert Math.abs(length - 1.0) < 1e-6 : "Vector is not normalized: " + v;

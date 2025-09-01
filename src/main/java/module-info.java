@@ -34,6 +34,4 @@ open module com.marginallyclever.robotoverlord {
     requires ch.qos.logback.classic;
     requires ch.qos.logback.core;
     requires core;
-
-	//requires org.ode4j.ode;
 }
