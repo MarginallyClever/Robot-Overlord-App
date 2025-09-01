@@ -10,8 +10,6 @@ import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
@@ -19,11 +17,14 @@ import javax.vecmath.Vector3d;
 import java.util.*;
 
 /**
- * A system for finding the nearest {@link MeshInstance} that collides with a ray.
+ * <p>{@link RayPickSystem} is for finding the {@link MeshInstance}s that collide with a {@link Ray}. This is used for
+ * ray picking and path tracing.</p>
+ * <p>For path tracing, it is important to optimize the ray/mesh intersection tests as much as possible.  This is done
+ * by transforming each mesh into world space in a {@link PathMesh}.  For ray picking, the optimization is less
+ * important, so the meshes are tested in their local space.</p>
+ * <p>To use the {@link RayPickSystem}, create an instance, call <code>reset(optimize)</code>, and then </p>
  */
 public class RayPickSystem {
-    private static final Logger logger = LoggerFactory.getLogger(RayPickSystem.class);
-    // all the MeshInstances in the scene.
     private final List<MeshInstance> sceneElements = new ArrayList<>();
     private int numEmissiveTriangles;
 
@@ -34,21 +35,27 @@ public class RayPickSystem {
     private final Map<MeshInstance, PathMesh> cache = new HashMap<>();
     // all meshes that have an emissive material.
     private final List<MeshInstance> emissiveMeshes = new ArrayList<>();
+    private boolean optimize = false;
 
     public RayPickSystem() {
         super();
     }
 
+    /**
+     * Reset the system and rebuild the list of scene elements.  This should be called whenever the scene graph changes.
+     * @param optimize true if extra steps should be taken to optimize, typically for path tracing.
+     *                 If false, the system will do less work and use less memory, but ray/mesh intersection tests
+     *                 will be slower.
+     */
     public void reset(boolean optimize) {
-        //logger.debug("reset");
+        this.optimize = optimize;
         cache.clear();
         emissiveMeshes.clear();
         sceneElements.clear();
-        buildSceneList(optimize);
+        buildSceneList();
     }
 
-    private void buildSceneList(boolean optimize) {
-        //logger.debug("start");
+    private void buildSceneList() {
         numEmissiveTriangles = 0;
         // build the list of scene elements once
         Queue<Node> toTest = new LinkedList<>();
@@ -70,9 +77,14 @@ public class RayPickSystem {
             }
             toTest.addAll(node.getChildren());
         }
-        //logger.debug("done with {} cached items", cache.size());
     }
 
+    /**
+     * Find the nearest {@link Material} in the scene graph, starting from the given {@link MeshInstance}.  The nearest
+     * material is the first one found in the given mesh instance or its parents.
+     * @param meshInstance the mesh instance to start searching from.
+     * @return the nearest {@link Material}, or null if none is found.
+     */
     public static Material getMaterial(Node meshInstance) {
         if(meshInstance==null) return null;
 
@@ -90,15 +102,14 @@ public class RayPickSystem {
     }
 
     /**
-     * Traverse the scene Entities and find the nearest {@link MeshInstance} that collides with the ray.
-     * This computes all intersections and then sorts them by distance, so it is a good idea to keey the ray length
+     * Traverse the scene and find the nearest {@link MeshInstance} that collides with the ray.
+     * This computes all intersections and then sorts them by distance, so it is a good idea to keep the ray length
      * short.
      * @param ray the ray to test.
-     * @param optimize true if extra steps should be taken to optimize, typically for path tracing.
      * @return the nearest {@link Hit} by the ray, or null if no entity was hit.
      */
-    public Hit getFirstHit(Ray ray, boolean optimize) {
-        List<Hit> hits = findRayIntersections(ray,optimize);
+    public Hit getFirstHit(Ray ray) {
+        List<Hit> hits = findRayIntersections(ray);
         // handle the case where the ray starts inside the mesh ("shadow acne")
         while(!hits.isEmpty() && hits.getFirst().distance() < 1e-9) {
             hits.removeFirst();
@@ -108,12 +119,12 @@ public class RayPickSystem {
     }
 
     /**
-     * Traverse the scene {@link Node}s and find all the {@link MeshInstance}s that collide with the ray.
+     * Traverse the scene and find all the {@link MeshInstance}s that collide with the ray.
      * @param ray the ray to test.
      * @param optimize true if extra steps should be taken to optimize, typically for path tracing.
      * @return all {@link Hit} by the ray, sorted by distance.
      */
-    public List<Hit> findRayIntersections(Ray ray, boolean optimize) {
+    public List<Hit> findRayIntersections(Ray ray) {
         List<Hit> hits = new LinkedList<>();
 
         for(var meshInstance : sceneElements) {

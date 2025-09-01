@@ -25,6 +25,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.prefs.Preferences;
 
 /**
  * {@link PathTracer} performs multithreaded path tracing (aka ray tracing with bounces)
@@ -39,11 +40,14 @@ public class PathTracer {
     public static final int CHANNEL_BSDF_SAMPLING = 6;
 
     private static final double EPSILON = 1e-6;
-    private int minBounces = 5; // minimum number of bounces before Russian roulette can kick in
-    private double lightSamplingProbability = 0.0;
-    private double maxContribution = 100000.0;
-    private double exposure = 3.14;
-    private boolean activateToneMap=true;
+
+    private int samplesPerPixel = 70;  // number of times to retest each pixel.  the results are then averaged.
+    private int maxDepth = 15;  // number of bounces per ray
+    private int minBounces = 5;  // minimum number of bounces before Russian roulette can kick in
+    private double lightSamplingProbability = 0.0;  // 0...1
+    private double maxContribution = 20.0;  // clamp the maximum contribution of a single bounce to avoid fireflies
+    private double exposure = 1.0;  // exposure multiplier
+    private boolean activateToneMap=true;  // apply simple tone mapping to the final color
 
     private final List<RayXY> rays = new ArrayList<>();
     private final RayPickSystem rayPickSystem = new RayPickSystem();
@@ -59,10 +63,6 @@ public class PathTracer {
     // normal map
     private BufferedImage normalMap;
 
-    // number of times to retest each pixel.  the results are then averaged.
-    private int samplesPerPixel = 70;
-    // number of bounces per ray
-    private int maxDepth = 15;
 
     private ColorDouble ambientColor = new ColorDouble(0.25,0.25,0.25,1);
     private ColorDouble sunlightColor = new ColorDouble(1,1,1,1);
@@ -74,11 +74,11 @@ public class PathTracer {
     private final EventListenerList listeners = new EventListenerList();
 
     private Pose displayContainer;
-    private MeshInstance displayPath;
     private Mesh displayMesh;
 
     public PathTracer() {
         super();
+        loadPreferences();
         sunlightSource.normalize();
     }
 
@@ -135,7 +135,7 @@ public class PathTracer {
             if(depth >= minBounces && russianRouletteTermination(throughput,pixel)) break;
 
             // get the first hit along the ray
-            Hit hit = rayPickSystem.getFirstHit(ray,true);
+            Hit hit = rayPickSystem.getFirstHit(ray);
             pixel.addRayHistory(new Ray(ray), hit);
             if (hit == null) {
                 // hit nothing
@@ -209,7 +209,7 @@ public class PathTracer {
         Point3d origin = new Point3d();
         origin.scaleAdd(EPSILON, hit.normal(), hit.point());
         Ray lightRay = new Ray(origin, wi);
-        Hit lightHit = rayPickSystem.getFirstHit(lightRay,true);
+        Hit lightHit = rayPickSystem.getFirstHit(lightRay);
         pixel.addRayHistory(new Ray(lightRay),lightHit);
         if(lightHit == null) return; // occluded
 
@@ -300,10 +300,9 @@ public class PathTracer {
 
         ColorDouble emittedLight = mat.getEmittedLight();
 
-        if(prevScatter.type == ScatterRecord.ScatterType.SPECULAR) {
-            // if the previous bounce was specular, we can only have come from the BSDF sampling
-            // so we don't need to do MIS.
-        } else {
+        // if the previous bounce was specular we can only have come from the BSDF sampling
+        // so we don't need to do MIS.
+        if(prevScatter.type != ScatterRecord.ScatterType.SPECULAR) {
             double area;
             if(hit.target().getMesh() instanceof Sphere sphere) {
                 area = 4.0 * Math.PI * Math.pow(sphere.radius,2);
@@ -466,7 +465,7 @@ public class PathTracer {
             displayContainer.setName("PathTracer Container");
             Registry.getScene().addChild(displayContainer);
 
-            displayPath = new MeshInstance();
+            MeshInstance displayPath = new MeshInstance();
             displayPath.setName("PathTracer Path");
             displayContainer.addChild(displayPath);
 
@@ -553,7 +552,7 @@ public class PathTracer {
         // shoot a shadow ray to see if the light is visible
         Ray lightRay = new Ray(origin, towardsEmissiveSurface);
 
-        Hit lightHit = rayPickSystem.getFirstHit(lightRay,true);
+        Hit lightHit = rayPickSystem.getFirstHit(lightRay);
         if(lightHit!=null && lightHit.target() != randomEmissiveSurface.target()) return null; // hit itself, ignore
         return lightHit;
     }
@@ -667,7 +666,6 @@ public class PathTracer {
         @Override
         protected void done() {
             // Rendering finished
-            //showRays(rays);
             pathTracingWorker = null;
             fireFinished();
         }
@@ -769,26 +767,26 @@ public class PathTracer {
         listeners.add(PropertyChangeListener.class,listener);
     }
 
-    private void fireStateChange(Object oldState, Object newState) {
+    private void fireStateChange(SwingWorker.StateValue newState) {
         PropertyChangeEvent pce = null;
         for( var listener : listeners.getListeners(PropertyChangeListener.class)) {
             // lazy allocation
-            if(pce==null) pce = new PropertyChangeEvent(this,"state",oldState,newState);
+            if(pce==null) pce = new PropertyChangeEvent(this,"state", null,newState);
             // notify the listener that the path tracing is finished
             listener.propertyChange(pce);
         }
     }
 
     private void firePending() {
-        fireStateChange(null, SwingWorker.StateValue.PENDING);
+        fireStateChange(SwingWorker.StateValue.PENDING);
     }
 
     private void fireStarted() {
-        fireStateChange(null, SwingWorker.StateValue.STARTED);
+        fireStateChange(SwingWorker.StateValue.STARTED);
     }
 
     private void fireFinished() {
-        fireStateChange(null,SwingWorker.StateValue.DONE);
+        fireStateChange(SwingWorker.StateValue.DONE);
     }
 
     /**
@@ -850,5 +848,31 @@ public class PathTracer {
 
     public boolean isActivateToneMap() {
         return activateToneMap;
+    }
+
+    // Save settings
+    public void savePreferences() {
+        Preferences preferences = Preferences.userNodeForPackage(PathTracer.class);
+
+        preferences.putInt("samplesPerPixel", samplesPerPixel);
+        preferences.putInt("maxDepth", maxDepth);
+        preferences.putInt("minBounces", minBounces);
+        preferences.putDouble("lightSamplingProbability", lightSamplingProbability);
+        preferences.putDouble("maxContribution", maxContribution);
+        preferences.putDouble("exposure", exposure);
+        preferences.putBoolean("activateToneMap", activateToneMap);
+    }
+
+    // Load settings
+    public void loadPreferences() {
+        Preferences preferences = Preferences.userNodeForPackage(PathTracer.class);
+
+        samplesPerPixel = preferences.getInt("samplesPerPixel", samplesPerPixel);
+        maxDepth = preferences.getInt("maxDepth", maxDepth);
+        minBounces = preferences.getInt("minBounces", minBounces);
+        lightSamplingProbability = preferences.getDouble("lightSamplingProbability", lightSamplingProbability);
+        maxContribution = preferences.getDouble("maxContribution", maxContribution);
+        exposure = preferences.getDouble("exposure", exposure);
+        activateToneMap = preferences.getBoolean("activateToneMap", activateToneMap);
     }
 }

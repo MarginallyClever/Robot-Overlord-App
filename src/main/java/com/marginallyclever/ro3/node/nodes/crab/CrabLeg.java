@@ -261,7 +261,7 @@ public class CrabLeg {
         isTouchingGround = false;
 
         Ray ray = getRayDownFromToe();  // ray starts 1cm above the toe
-        var list = rayPickSystem.findRayIntersections(ray,false);
+        var list = rayPickSystem.findRayIntersections(ray);
         List<Hit> list2 = new ArrayList<>();
         // find the first target that is not part of the crab robot.
         for(Hit hit : list) {

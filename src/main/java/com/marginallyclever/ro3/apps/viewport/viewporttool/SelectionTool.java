@@ -175,7 +175,7 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
         Ray ray = viewport.getRayThroughPoint(camera,normalizedCoordinates.x,normalizedCoordinates.y);
         RayPickSystem rayPickSystem = new RayPickSystem();
         rayPickSystem.reset(false);
-        Hit hit = rayPickSystem.getFirstHit(ray,false);
+        Hit hit = rayPickSystem.getFirstHit(ray);
         if(hit == null) return null;
         setPickPoint(ray, hit);
         return hit.target();

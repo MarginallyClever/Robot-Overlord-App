@@ -18,22 +18,23 @@ import java.beans.PropertyChangeListener;
  * <p>{@link PathTracerPanel} controls a {@link PathTracer} and displays the results.</p>
  * <p>Special thanks to <a href='https://raytracing.github.io/books/RayTracingInOneWeekend.html'>Ray Tracing in One Weekend</a></p>
  */
-public class PathTracerPanel
-        extends JPanel
+public class PathTracerPanel extends JPanel
         implements SceneChangeListener, ProgressListener, PropertyChangeListener {
     private final PathTracer pathTracer;
     private final JToolBar toolBar = new JToolBar();
     private final DefaultComboBoxModel<Camera> cameraListModel = new DefaultComboBoxModel<>();
     private Camera activeCamera;
     private final JComboBox<String> comboBox = new JComboBox<>(new String[]{"Color","Depth","Normal"});
-    private final JLabel centerLabel = new JLabel();
+    private final PathTracerResultPanel centerLabel = new PathTracerResultPanel();
+    private AbstractAction startButton;
     private final JProgressBar progressBar = new JProgressBar();
     private final JLabel runTime = new JLabel();
     private final JButton saveButton = new JButton(new ImageIcon(
             Toolkit.getDefaultToolkit().getImage(getClass().getResource("/com/marginallyclever/ro3/apps/editor/icons8-save-16.png"))
                     .getScaledInstance(16,16, Image.SCALE_SMOOTH)
     ));
-    private AbstractAction startButton;
+    private static final JFileChooser saveImageFileChooser = new JFileChooser();
+
 
     public PathTracerPanel() {
         this(new PathTracer());
@@ -54,6 +55,14 @@ public class PathTracerPanel
             public void mouseClicked(MouseEvent e) {
                 System.out.println("Mouse clicked at: " + e.getX() + ", " + e.getY());
                 pathTracer.fireAndDisplayOneRay(e.getX(), e.getY(),pathTracer.getMaxDepth());
+            }
+        });
+
+        // listen to centerLabel resize events
+        centerLabel.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                //pathTracer.setSize(centerLabel.getWidth(), centerLabel.getHeight());
             }
         });
     }
@@ -109,6 +118,7 @@ public class PathTracerPanel
                 var parent = SwingUtilities.getWindowAncestor(PathTracerPanel.this);
                 var panel = new PathTracerSettingsPanel(pathTracer);
                 JOptionPane.showMessageDialog(parent, panel, "Path Tracer Settings", JOptionPane.PLAIN_MESSAGE);
+                pathTracer.savePreferences();
             }
         });
 
@@ -154,14 +164,13 @@ public class PathTracerPanel
     }
 
     private void saveImage() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Save Rendered Image");
+        saveImageFileChooser.setDialogTitle("Save Rendered Image");
         String dateAndTime = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
         dateAndTime += "-" + comboBox.getSelectedItem() + ".png";
-        fileChooser.setSelectedFile(new java.io.File(dateAndTime));
-        int userSelection = fileChooser.showSaveDialog(this);
+        saveImageFileChooser.setSelectedFile(new java.io.File(dateAndTime));
+        int userSelection = saveImageFileChooser.showSaveDialog(this);
         if (userSelection == JFileChooser.APPROVE_OPTION) {
-            java.io.File fileToSave = fileChooser.getSelectedFile();
+            java.io.File fileToSave = saveImageFileChooser.getSelectedFile();
             try {
                 var image = getPathTracerImage(comboBox.getSelectedIndex());
                 javax.imageio.ImageIO.write(image, "png", fileToSave);
@@ -172,7 +181,7 @@ public class PathTracerPanel
     }
 
     private void setCenterLabel(int index) {
-        centerLabel.setIcon(new ImageIcon(getPathTracerImage(index)));
+        centerLabel.setImage(getPathTracerImage(index));
     }
 
     private BufferedImage getPathTracerImage(int index) {
@@ -242,7 +251,7 @@ public class PathTracerPanel
                 (elapsed % 60000) / 1000,
                 elapsed % 1000));
 
-        centerLabel.invalidate();
+        centerLabel.repaint();
     }
 
     @Override
