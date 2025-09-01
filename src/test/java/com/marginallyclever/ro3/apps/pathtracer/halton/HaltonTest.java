@@ -1,6 +1,6 @@
-package com.marginallyclever.ro3.apps.pathtracer;
+package com.marginallyclever.ro3.apps.pathtracer.halton;
 
-import com.marginallyclever.ro3.apps.pathtracer.halton.HaltonWithMemory;
+import com.marginallyclever.ro3.apps.pathtracer.PathTracer;
 
 public class HaltonTest {
     public static void main(String[] args) {
