@@ -1,5 +1,8 @@
 package com.marginallyclever.ro3.apps.pathtracer;
 
+/**
+ * Simple 2D integer point class.
+ */
 public class Point2i {
     public int x,y;
 

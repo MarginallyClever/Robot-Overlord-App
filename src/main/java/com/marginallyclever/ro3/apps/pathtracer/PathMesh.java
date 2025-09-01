@@ -11,11 +11,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A collection of {@link PathTriangle}s contained in an {@link OctreeNode} for optimized path tracing.
+ * A collection of {@link PathTriangle}s contained in an {@link SpatialAccelerationStructure} for optimized path tracing.
  */
 public class PathMesh {
-    private static final Logger logger = LoggerFactory.getLogger(PathMesh.class);
-
     private final List<PathTriangle> triangles = new LinkedList<>();
     private SpatialAccelerationStructure SAS = null;
 
@@ -28,11 +26,9 @@ public class PathMesh {
      */
     public void buildSAS() {
         SAS = new BoundingVolumeHeirarchy();
-        int misses=0;
         for(PathTriangle triangle : triangles) {
-            if(!SAS.insert(triangle)) misses++;
+            SAS.insert(triangle);
         }
-        if(misses>0) logger.warn("Failed to insert {} triangles into octree.", misses);
         SAS.finishInserts();
     }
 

@@ -17,7 +17,7 @@ import java.util.concurrent.ForkJoinPool;
 public class BoundingVolumeHeirarchy implements SpatialAccelerationStructure {
     private static final Logger logger = LoggerFactory.getLogger(BoundingVolumeHeirarchy.class);
 
-    public static final int MAX_TRIANGLES_PER_LEAF = 4;
+    public static final int MAX_TRIANGLES_PER_LEAF = 8;
     // used in the cost function to determine where to split each node.
     public static final double C_TRAV = 1.0;  // the cost to travel between nodes
     public static final double C_INT = 10.0;  // the cost to intersect a triangle
