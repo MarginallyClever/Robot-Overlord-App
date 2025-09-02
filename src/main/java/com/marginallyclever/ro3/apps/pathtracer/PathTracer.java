@@ -97,13 +97,6 @@ public class PathTracer {
         if(activeCamera==null) throw new RuntimeException("No active camera!");
         if(canvasHeight==0 || canvasWidth==0) throw new RuntimeException("Canvas size is zero!");
 
-        rays.clear();
-        for(int y=0;y<canvasHeight;y++) {
-            for(int x=0;x<canvasWidth;x++) {
-                rays.add(new RayXY(x,y));
-            }
-        }
-
         firePending();
         if(displayContainer!=null) {
             if(Registry.getScene().getChildren().contains(displayContainer)) {
@@ -116,6 +109,15 @@ public class PathTracer {
         fireStarted();
         pathTracingWorker = new PathTracingWorker(rays, image);
         pathTracingWorker.execute();
+    }
+
+    private void allocateRays() {
+        rays.clear();
+        for(int y=0;y<canvasHeight;y++) {
+            for(int x=0;x<canvasWidth;x++) {
+                rays.add(new RayXY(x,y));
+            }
+        }
     }
 
     /**
@@ -380,6 +382,7 @@ public class PathTracer {
         image = new BufferedImage(canvasWidth,canvasHeight,BufferedImage.TYPE_INT_RGB);
         depthMap = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_RGB);
         normalMap = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_RGB);
+        allocateRays();
     }
 
     /**
@@ -595,91 +598,37 @@ public class PathTracer {
 
         @Override
         protected Void doInBackground() {
-            //naiveStream();  // 1:58
-            //tiledStreamByProcessor();  // 2:27
-            //tiledStream2(32,32);  // 1:48
-            tiledStream2(16,16);  // 1:26
-            //tiledStream2(8,8);  // 1:27
-
-            return null;
-        }
-
-        private void tiledStreamCore(List<Rectangle2i> indexes) {
-            int total = pixels.size() * samplesPerPixel;
             AtomicInteger completed = new AtomicInteger(0);
 
             startTime = System.currentTimeMillis();
 
-            // in parallel, trace each ray and store the result in a buffer
-            // split the ray list into several sublists and process each sublist in parallel
-            indexes.stream().parallel().forEach(tileCorners -> {
-                int w2 = tileCorners.max.x - tileCorners.min.x;
-                int h2 = tileCorners.max.y - tileCorners.min.y;
-                int totalSamplesRemaining = samplesPerPixel * w2 * h2;
-                while(!isCancelled() && totalSamplesRemaining>0) {
-                    for (int y = tileCorners.min.y; y < tileCorners.max.y; y++) {
-                        if (isCancelled()) return;
-                        for (int x = tileCorners.min.x; x < tileCorners.max.x; x++) {
-                            if (isCancelled()) return;
+            while(!isCancelled()) {
+                pixels.stream().parallel().forEach(pixel -> {
+                    if (isCancelled()) return;
 
-                            runOnePixel(rays.get(y * canvasWidth + x));
-                            totalSamplesRemaining--;
+                    pixel.halton.resetMemory(getSeed(pixel));
 
-                            // Update progress
-                            int done = completed.incrementAndGet();
-                        }
-                    }
-                    int done = completed.get();
-                    // Only publish occasionally to avoid flooding the EDT
-                    publish((int) ((done * 100.0f) / total));
-                    if (done == total) {
-                        cancel(true);
-                    }
-                }
-            });
-        }
-
-        private void tiledStreamByProcessor() {
-            int numThreads = Math.max(1,Runtime.getRuntime().availableProcessors());
-            int tSqrt = (int)Math.sqrt(numThreads);
-            tiledStream2(
-                    canvasWidth / tSqrt,
-                    canvasHeight / tSqrt);
-        }
-
-        private void tiledStream2(int tileW,int tileH) {
-            List<Rectangle2i> indexes = new ArrayList<>();
-            for(int y=0;y<canvasHeight;y+=tileH) {
-                for(int x=0;x<canvasWidth;x+=tileW) {
-                    indexes.add( new Rectangle2i(
-                                    new Point2i(x,y),
-                                    new Point2i(
-                                            Math.min(canvasWidth,x+tileW),
-                                            Math.min(canvasHeight,y+tileH))
-                    ) );
+                    // get the jiggled ray
+                    var ray = getStratifiedSample(pixel);
+                    // sum the total color of all samples
+                    trace(ray, pixel);
+                    // store the result in the buffer
+                    drawPixel(pixel,pixel.radianceAverage.getColor());
+                });
+                int done = completed.incrementAndGet();
+                publish(done);
+                if (done >= samplesPerPixel) {
+                    cancel(true);
                 }
             }
-            tiledStreamCore(indexes);
-        }
 
-        private void runOnePixel(RayXY pixel) {
-            long seed = getSeed(pixel);
-            pixel.halton.resetMemory(seed);
-
-            // get the jiggled ray
-            var ray = getStratifiedSample(pixel);
-            // sum the total color of all samples
-            trace(ray, pixel);
-            // store the result in the buffer
-            drawPixel(pixel,pixel.radianceAverage.getColor());
+            return null;
         }
 
         @Override
         protected void process(List<Integer> chunks) {
             // The last value in chunks is the most recent progress value
-            int latestProgress = chunks.getLast();
-
-            fireProgressUpdate(latestProgress);
+            fireProgressUpdate(chunks.getLast());
         }
 
         @Override
@@ -710,30 +659,6 @@ public class PathTracer {
                     Color n = new Color((float) (0.5 + 0.5 * pixel.normal.x), (float) (0.5 + 0.5 * pixel.normal.y), (float) (0.5 + 0.5 * pixel.normal.z));
                     normalMap.setRGB(pixel.x, pixel.y, n.getRGB());
                 }
-            }
-        }
-
-        private void naiveStream() {
-            int total = pixels.size() * samplesPerPixel;
-            AtomicInteger completed = new AtomicInteger(0);
-
-            startTime = System.currentTimeMillis();
-
-            while(!isCancelled()) {
-                pixels.stream().parallel().forEach(p -> {
-                    if (isCancelled()) return;
-
-                    runOnePixel(p);
-
-                    int done = completed.incrementAndGet();
-                    // Only publish occasionally to avoid flooding the EDT
-                    if (done % 1000 == 0 || done == total) {
-                        publish((int) ((done * 100.0f) / total));
-                        if (done == total) {
-                            cancel(true);
-                        }
-                    }
-                });
             }
         }
     }
