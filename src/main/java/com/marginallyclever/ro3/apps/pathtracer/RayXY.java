@@ -20,15 +20,20 @@ public class RayXY {
     public double depth;  // depth of first hit in the scene.
     public Vector3d normal;  // normal of first hit in the scene.
     // the maximum depth of any path traced for this pixel (for debugging)
-    public int traceDepth = 0;
+    private int traceDepth = 0;
     // history of paths traced for this pixel (for debugging)
     public Map<Ray, Hit> rayHistory = new HashMap<>();
     // halton sequence with memory for this pixel (for consistent sampling across frames)
     public HaltonWithMemory halton = new HaltonWithMemory();
 
     public RayXY(int x, int y) {
+        this(x, y, 0);
+    }
+
+    public RayXY(int x, int y, int traceDepth) {
         this.x = x;
         this.y = y;
+        this.traceDepth = traceDepth;
         this.depth = Double.POSITIVE_INFINITY;
     }
 
@@ -43,7 +48,6 @@ public class RayXY {
      * @param traceResult the result of the path trace.
      */
     public void add(ColorDouble traceResult,double exposure, boolean activateToneMap) {
-        //traceResult.clamp(0,10);
         radianceSum.add(traceResult);
         samples++;
         // recalculate the average.

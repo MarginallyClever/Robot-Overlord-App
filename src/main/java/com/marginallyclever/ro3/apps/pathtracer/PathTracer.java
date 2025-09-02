@@ -445,8 +445,7 @@ public class PathTracer {
     private RayXY fireOneRayWithTracingOn(int x, int y,int traceDepth) {
         var ray = getRayForXY(x,y);
 
-        RayXY pixel = new RayXY(x,y);
-        pixel.traceDepth = traceDepth;
+        RayXY pixel = new RayXY(x,y,traceDepth);
         long seed = getSeed(pixel);
         pixel.halton.resetMemory(seed);
 
