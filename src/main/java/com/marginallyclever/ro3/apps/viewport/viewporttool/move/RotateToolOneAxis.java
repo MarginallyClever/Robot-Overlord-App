@@ -175,6 +175,7 @@ public class RotateToolOneAxis implements ViewportTool {
         pivotMatrix.set(pivot);
         rotationAxisX.set(MatrixHelper.getXAxis(pivot));
         rotationAxisY.set(MatrixHelper.getYAxis(pivot));
+        startMatrix.set(pivotMatrix);
     }
 
     /**
@@ -230,6 +231,12 @@ public class RotateToolOneAxis implements ViewportTool {
         return !(Math.abs(Math.abs(dy) - getHandleOffsetYScaled()) > getGripRadiusScaled());
     }
 
+    /**
+     * called when the mouse is dragged after a successful mousePressed event.
+     * pivotMatrix is already set to the frame of reference such that pivotMatrix Z axis is the axis aroun which we want
+     * to rotate
+     * @param event the mouse event
+     */
     @Override
     public void mouseDragged(MouseEvent event) {
         if(!dragging) return;
@@ -243,14 +250,14 @@ public class RotateToolOneAxis implements ViewportTool {
         Matrix4d rot = new Matrix4d();
         rot.rotZ(currentRotationAngle);
 
-        Matrix4d iPivot = new Matrix4d(startMatrix);
-        iPivot.invert();
+        // use startMatrix to prevent accumulation of numerical errors.
+        Matrix4d inverseStartMatrix = new Matrix4d(startMatrix);
+        inverseStartMatrix.invert();
 
         for (Node node : selectedItems.getNodes()) {
             if(!(node instanceof Pose pc)) continue;
             Matrix4d pose = new Matrix4d(selectedItems.getWorldPoseAtStart(pc));
-            // move to pivot space.
-            pose.mul(iPivot,pose);
+            pose.mul(inverseStartMatrix,pose);  // move to pivot space.
             pose.mul(rot,pose);  // apply the rotation.
             pose.mul(startMatrix,pose);  // move back to world space.
             // set the new world matrix.
