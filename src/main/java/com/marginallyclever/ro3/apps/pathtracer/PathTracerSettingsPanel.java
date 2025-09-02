@@ -1,0 +1,67 @@
+package com.marginallyclever.ro3.apps.pathtracer;
+
+import com.marginallyclever.ro3.PanelHelper;
+
+import javax.swing.*;
+import java.awt.*;
+
+/**
+ * A JPanel that contains controls for adjusting the settings of a {@link PathTracer}.
+ */
+public class PathTracerSettingsPanel extends JPanel {
+    public PathTracerSettingsPanel(PathTracer pathTracer) {
+        super(new GridBagLayout());
+        setName(getClass().getSimpleName());
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx=1.0;
+
+        var spp = PanelHelper.addNumberFieldInt("Samples per pixel",pathTracer.getSamplesPerPixel());
+        spp.addPropertyChangeListener("value",e->pathTracer.setSamplesPerPixel(((Number)e.getNewValue()).intValue()));
+        PanelHelper.addLabelAndComponent(this, "Samples per pixel", spp, c);
+        c.gridy++;
+
+        var md = PanelHelper.addNumberFieldInt("Max Depth",pathTracer.getMaxDepth());
+        md.addPropertyChangeListener("value",e->pathTracer.setMaxDepth(((Number)e.getNewValue()).intValue()));
+        PanelHelper.addLabelAndComponent(this, "Max trace depth", md, c);
+
+        // max contribution
+        var maxContribution = PanelHelper.addNumberFieldDouble("Max contribution",pathTracer.getMaxContribution());
+        maxContribution.addPropertyChangeListener("value",e->pathTracer.setMaxContribution(((Number)e.getNewValue()).intValue()));
+        PanelHelper.addLabelAndComponent(this, "Max contribution per sample", maxContribution, c);
+        c.gridy++;
+
+        // min bounces before russian roulette termination begins
+        var minBounces = PanelHelper.addNumberFieldInt( "Minimum bounces before russian roulette termination begins", pathTracer.getMinBounces());
+        minBounces.addPropertyChangeListener("value",e->pathTracer.setMinBounces(((Number)e.getNewValue()).intValue()));
+        PanelHelper.addLabelAndComponent(this, "Min bounces before RR", minBounces, c);
+        c.gridy++;
+
+        // light sampling probability
+        var lightSamplingProbability = PanelHelper.createSlider(
+                1,0,pathTracer.getLightSamplingProbability(),
+                pathTracer::setLightSamplingProbability);
+        PanelHelper.addLabelAndComponent(this, "Light sampling %", lightSamplingProbability, c);
+        c.gridy++;
+
+        // exposure
+        var exposure = PanelHelper.createSlider(17,-6,pathTracer.getExposure(),
+                pathTracer::setExposure);
+        PanelHelper.addLabelAndComponent(this, "Exposure", exposure, c);
+        c.gridy++;
+
+        // activate tone mapping
+        var activateToneMap = new JCheckBox();
+        activateToneMap.setSelected(pathTracer.isActivateToneMap());
+        activateToneMap.addActionListener(e->pathTracer.setActivateToneMap(activateToneMap.isSelected()));
+        PanelHelper.addLabelAndComponent(this, "Tone map", activateToneMap,c);
+        c.gridy++;
+
+        // add a button that runs PathTracer.visualizer().
+        var visualizerButton = new JButton("Generate");
+        visualizerButton.addActionListener(e-> pathTracer.visualize());
+        PanelHelper.addLabelAndComponent(this, "Visualizer", visualizerButton,c);
+        c.gridy++;
+    }
+}

@@ -54,4 +54,4 @@ We would love to see your robot running in Robot Overlord
 
 - app icons provided by http://icons8.com.
 - Developed by [Marginally Clever Robots, Ltd.](http://www.marginallyclever.com/).
-
+- Path tracing owes thanks to https://raytracing.github.io/, https://www.scratchapixel.com/, and the patient people at https://discord.gg/graphicsprogramming

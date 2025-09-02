@@ -115,8 +115,8 @@ public class Decal extends ProceduralMesh {
 			Vector3d b = MathHelper.interpolate(p3, p2, xFraction);
 			for (int y = 0; y <= yParts; y++) {
 				var v = MathHelper.interpolate(a, b, (double) y / yParts);
-				addVertex((float) v.x, (float) v.y, (float) v.z);
-				addNormal((float) n.x, (float) n.y, (float) n.z);
+				addVertex(v);
+				addNormal(n);
 				addColor(1, 1, 1, 1);
 				addTexCoord(
 						(float) (v.x - p2.x) / textureScale,

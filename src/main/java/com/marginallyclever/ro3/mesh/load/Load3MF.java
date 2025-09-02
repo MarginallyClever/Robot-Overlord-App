@@ -122,7 +122,7 @@ public class Load3MF implements MeshLoader {
 	private void buildIndexedTriangles(Element mesh, Mesh model, ArrayList<Vector3d> vertexes) {
 		int n = model.getNumVertices();
 		for( Vector3d vA : vertexes ) {
-			model.addVertex((float)vA.x,(float)vA.y,(float)vA.z);
+			model.addVertex(vA);
 		}
 		
     	Element triangles = (Element)mesh.getElementsByTagName("triangles").item(0);
@@ -147,9 +147,9 @@ public class Load3MF implements MeshLoader {
     		int v1 = Integer.parseInt(t1.getAttribute("v1"));
     		int v2 = Integer.parseInt(t1.getAttribute("v2"));
     		int v3 = Integer.parseInt(t1.getAttribute("v3"));
-    		vA = vertexes.get(v1);	model.addVertex((float)vA.x,(float)vA.y,(float)vA.z);
-    		vA = vertexes.get(v2);	model.addVertex((float)vA.x,(float)vA.y,(float)vA.z);
-    		vA = vertexes.get(v3);	model.addVertex((float)vA.x,(float)vA.y,(float)vA.z);
+    		model.addVertex(vertexes.get(v1));
+    		model.addVertex(vertexes.get(v2));
+    		model.addVertex(vertexes.get(v3));
     		
     		ColorRGB myColor;
     		if( t1.hasAttribute("pid") ) {

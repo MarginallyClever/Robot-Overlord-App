@@ -87,7 +87,7 @@ public class MinimalOpenGL2 extends JPanel implements GLEventListener {
         // enable vsync to prevent screen tearing effect
         gl.setSwapInterval(1);
 
-        gl.glHint(GL2.GL_LINE_SMOOTH, GL2.GL_NICEST);
+        gl.glHint(GL2.GL_LINE_SMOOTH_HINT, GL2.GL_NICEST);
         gl.glEnable(GL2.GL_LINE_SMOOTH);
         gl.glEnable(GL2.GL_BLEND);
         gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);

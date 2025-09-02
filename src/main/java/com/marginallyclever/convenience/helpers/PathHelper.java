@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Utility functions for working with the local file system.
@@ -94,5 +95,19 @@ public class PathHelper {
             }
         }
         directory.delete();
+    }
+
+    // Robust for both / and \, URLs, and trailing separators.
+    public static String extractFileName(String path) {
+        if (path == null || path.isBlank()) return "";
+        try {
+            // Handles mixed separators on all platforms
+            return Paths.get(path).getFileName().toString();
+        } catch (Exception ignored) {
+            // Fallback: manual search for both separators
+            int i = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+            if (i >= 0 && i + 1 < path.length()) return path.substring(i + 1);
+            return path;
+        }
     }
 }

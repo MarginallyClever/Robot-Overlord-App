@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.apps.pathtracer;
 
-import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.node.Node;
@@ -9,19 +8,33 @@ import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
- * <p>PathTracerPanel performs basic rendering of a scene using path tracing.</p>
+ * <p>{@link PathTracerPanel} controls a {@link PathTracer} and displays the results.</p>
  * <p>Special thanks to <a href='https://raytracing.github.io/books/RayTracingInOneWeekend.html'>Ray Tracing in One Weekend</a></p>
  */
-public class PathTracerPanel extends JPanel implements SceneChangeListener, ProgressListener {
+public class PathTracerPanel extends JPanel
+        implements SceneChangeListener, ProgressListener, PropertyChangeListener {
     private final PathTracer pathTracer;
     private final JToolBar toolBar = new JToolBar();
     private final DefaultComboBoxModel<Camera> cameraListModel = new DefaultComboBoxModel<>();
     private Camera activeCamera;
-    private final JLabel centerLabel = new JLabel();
-    private final JProgressBar progressBar = new JProgressBar();
-    private final JLabel runTime = new JLabel();
+    private final JComboBox<String> comboBox = new JComboBox<>(new String[]{"Color","Depth","Normal"});
+    private final PathTracerResultPanel centerLabel = new PathTracerResultPanel();
+    private AbstractAction startButton;
+    private final JLabel runTime = new JLabel("Ready");
+    private final JButton saveButton = new JButton(new ImageIcon(
+            Toolkit.getDefaultToolkit().getImage(getClass().getResource("/com/marginallyclever/ro3/apps/editor/icons8-save-16.png"))
+                    .getScaledInstance(16,16, Image.SCALE_SMOOTH)
+    ));
+    private static final JFileChooser saveImageFileChooser = new JFileChooser();
+    private final JPanel statusBar = new JPanel(new FlowLayout(FlowLayout.LEFT,5,1));
+
 
     public PathTracerPanel() {
         this(new PathTracer());
@@ -31,10 +44,23 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener, Prog
         super(new BorderLayout());
         this.pathTracer = pathTracer;
         pathTracer.addProgressListener(this);
-        progressBar.setStringPainted(true);
-        setupToolbar();
+        pathTracer.addPropertyChangeListener(this);
+        pathTracer.setSize(1, 1);
+        setupBars();
+        setupCenter();
         add(toolBar, BorderLayout.NORTH);
-        add(centerLabel,BorderLayout.CENTER);
+        add(centerLabel, BorderLayout.CENTER);
+        add(statusBar, BorderLayout.SOUTH);
+    }
+
+    private void setupCenter() {
+        centerLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                System.out.println("Mouse clicked at: " + e.getX() + ", " + e.getY());
+                pathTracer.fireAndDisplayOneRay(e.getX(), e.getY(),pathTracer.getMaxDepth());
+            }
+        });
     }
 
     @Override
@@ -72,38 +98,98 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener, Prog
         cameraListModel.removeElement(camera);
     }
 
-    private void setupToolbar() {
-        // add the same camera selection that appears in ViewportPanel
-
+    private void setupBars() {
         toolBar.setLayout(new FlowLayout(FlowLayout.LEFT,5,1));
-        addCameraSelector();
-
-        var spp = PanelHelper.addNumberFieldInt("Samples per pixel",pathTracer.getSamplesPerPixel());
-        spp.addPropertyChangeListener("value",e->pathTracer.setSamplesPerPixel(((Number)e.getNewValue()).intValue()));
-        toolBar.add(spp);
-
-        var md = PanelHelper.addNumberFieldInt("Max Depth",pathTracer.getMaxDepth());
-        md.addPropertyChangeListener("value",e->pathTracer.setMaxDepth(((Number)e.getNewValue()).intValue()));
-        toolBar.add(md);
-
         toolBar.add(new AbstractAction() {
             {
-                putValue(Action.NAME, "Render");
+                putValue(Action.NAME, "");
+                putValue(Action.SHORT_DESCRIPTION, "Open settings panel.");
+                putValue(Action.SMALL_ICON, new ImageIcon(
+                        Toolkit.getDefaultToolkit().getImage(getClass().getResource("/com/marginallyclever/ro3/apps/shared/icons8-settings-16.png"))
+                                .getScaledInstance(16,16, Image.SCALE_SMOOTH)
+                ));
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                var parent = SwingUtilities.getWindowAncestor(PathTracerPanel.this);
+                var panel = new PathTracerSettingsPanel(pathTracer);
+                JOptionPane.showMessageDialog(parent, panel, "Path Tracer Settings", JOptionPane.PLAIN_MESSAGE);
+                pathTracer.savePreferences();
+            }
+        });
+
+        comboBox.setToolTipText("Select which render mode to display.");
+        comboBox.addActionListener(e -> setCenterLabel(comboBox.getSelectedIndex()));
+
+        addCameraSelector();
+
+        startButton = new AbstractAction() {
+            {
+                // put unicode for play
+                putValue(Action.NAME, "▶");
                 putValue(Action.SHORT_DESCRIPTION, "Render the scene using path tracing.");
             }
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                pathTracer.setActiveCamera(getActiveCamera());
-                pathTracer.setSize(getWidth(),getHeight());
-                centerLabel.setIcon(new ImageIcon(pathTracer.getImage()));
-                progressBar.setValue(0);
-                runTime.setText(String.format("%02d:%02d:%02d:%03d",0,0,0,0));
-                pathTracer.render();
+                if (pathTracer.isRunning()) {
+                    pathTracer.stop();
+                } else {
+                    // make into unicode for pause
+                    startButton.putValue(Action.NAME, "⏸");
+                    pathTracer.setActiveCamera(getActiveCamera());
+                    pathTracer.setSize(centerLabel.getWidth(), centerLabel.getHeight());
+                    setCenterLabel(comboBox.getSelectedIndex());
+                    runTime.setText("Preparing to render...");
+                    runTime.repaint();
+                    pathTracer.start();
+                }
             }
-        });
-        toolBar.add(progressBar);
-        toolBar.add(runTime);
+        };
+
+        toolBar.add(startButton);
+        toolBar.add(comboBox);
+
+        saveButton.setToolTipText("Save the current image to a PNG file.");
+        saveButton.addActionListener(e -> saveImage());
+        toolBar.add(saveButton);
+
+        statusBar.add(runTime);
+        statusBar.setBorder(BorderFactory.createLoweredBevelBorder());
+    }
+
+    private void saveImage() {
+        if(pathTracer.getImage() == null) {
+            JOptionPane.showMessageDialog(this, "No image to save. Please render the scene first.", "No Image", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        saveImageFileChooser.setDialogTitle("Save Rendered Image");
+        String dateAndTime = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
+        dateAndTime += "-" + comboBox.getSelectedItem() + ".png";
+        saveImageFileChooser.setSelectedFile(new java.io.File(dateAndTime));
+        int userSelection = saveImageFileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            java.io.File fileToSave = saveImageFileChooser.getSelectedFile();
+            try {
+                var image = getPathTracerImage(comboBox.getSelectedIndex());
+                javax.imageio.ImageIO.write(image, "png", fileToSave);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error saving image: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void setCenterLabel(int index) {
+        centerLabel.setImage(getPathTracerImage(index));
+    }
+
+    private BufferedImage getPathTracerImage(int index) {
+        return switch (index) {
+            case 1 -> pathTracer.getDepthMap();
+            case 2 -> pathTracer.getNormalMap();
+            default -> pathTracer.getImage();
+        };
     }
 
     private void addCameraSelector() {
@@ -154,15 +240,24 @@ public class PathTracerPanel extends JPanel implements SceneChangeListener, Prog
 
     @Override
     public void onProgressUpdate(int latestProgress) {
-        // Update progress bar here
-        progressBar.setValue(latestProgress);
-
         var elapsed = System.currentTimeMillis() - pathTracer.getStartTime();
         // display in hh:mm:ss:ms
-        runTime.setText(String.format("%02d:%02d:%02d:%03d",
+        runTime.setText(String.format("%d samples %02d:%02d:%02d",
+                latestProgress,
                 elapsed / 3600000,
                 (elapsed % 3600000) / 60000,
-                (elapsed % 60000) / 1000,
-                elapsed % 1000));
+                (elapsed % 60000) / 1000));
+
+        centerLabel.repaint();
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if("state".equals(evt.getPropertyName())) {
+            if(evt.getNewValue() == SwingWorker.StateValue.DONE) {
+                // set name to unicode for play
+                startButton.putValue(Action.NAME, "▶");
+            }
+        }
     }
 }

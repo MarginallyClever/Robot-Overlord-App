@@ -7,7 +7,7 @@ import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
-import com.marginallyclever.ro3.raypicking.RayHit;
+import com.marginallyclever.ro3.raypicking.Hit;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -56,7 +56,9 @@ public class MeshInstance extends Pose {
             mesh.removePropertyChangeListener((e)->fireMeshChanged());
         }
         this.mesh = mesh;
-        mesh.addPropertyChangeListener((e)->fireMeshChanged());
+        if(mesh!=null) {
+            mesh.addPropertyChangeListener((e) -> fireMeshChanged());
+        }
         fireMeshChanged();
     }
 
@@ -72,24 +74,23 @@ public class MeshInstance extends Pose {
     }
 
     /**
-     * transform the ray into local space and test for intersection.
+     * Transform the ray into local space and test for intersection.
      * @param ray the ray in world space
      * @return the ray hit in world space, or null if no hit.
      */
-    public RayHit intersect(Ray ray) {
+    public Hit intersect(Ray ray) {
         if( mesh==null ) return null;
 
         Ray localRay = transformRayToLocalSpace(ray);
-        RayHit localHit = mesh.intersect(localRay);
-        if(localHit!=null && localHit.distance()<Double.MAX_VALUE) {
-            Vector3d normal = transformNormalToWorldSpace(localHit.normal());
-            Point3d hit = new Point3d(ray.getDirection());
-            hit.scale(localHit.distance());
-            hit.add(ray.getOrigin());
-            return new RayHit(this,localHit.distance(),normal,hit);
-        } else {
+        Hit localHit = mesh.intersect(localRay);
+        if(localHit == null || localHit.distance() >= Double.MAX_VALUE) {
             return null;
         }
+        Vector3d normal = transformNormalToWorldSpace(localHit.normal());
+        Point3d hit = new Point3d(ray.getDirection());
+        hit.scale(localHit.distance());
+        hit.add(ray.getOrigin());
+        return new Hit(this, localHit.distance(), normal, hit, localHit.triangle());
     }
 
     /**

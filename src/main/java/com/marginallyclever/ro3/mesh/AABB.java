@@ -3,111 +3,68 @@ package com.marginallyclever.ro3.mesh;
 import com.marginallyclever.convenience.BoundingVolume;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
+import com.marginallyclever.convenience.helpers.RayAABBHit;
 
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import java.io.Serializable;
 
 /**
- * Axially-aligned bounding box.  Used for fast sorting and filtering.
+ * {@link AABB} is a bounding box aligned to the world axies.  Used for fast sorting and filtering.
  */
 public class AABB implements BoundingVolume, Serializable {
+	private final Point3d max = new Point3d(-Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE);  // max limits
+	private final Point3d min = new Point3d(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);  // min limits
 
-	// pose of this {@link Cuboid} in the world.
-	protected Matrix4d pose = new Matrix4d();
-	
-	protected Point3d boundTop = new Point3d();  // max limits
-	protected Point3d boundBottom = new Point3d();  // min limits
-	
-	public Point3d [] p = new Point3d[8];  // all 8 corners
-	
-	private boolean isDirty=false;
 	private Mesh myShape;
-	
-	
+
+
 	public AABB() {
 		super();
-		pose.setIdentity();
-		for(int i=0;i<p.length;++i) p[i] = new Point3d();
+	}
+
+	public AABB(AABB aabb) {
+		this();
+		set(aabb);
 	}
 
 	public void set(AABB b) {
-		pose.set(b.pose);
-		boundTop.set(b.boundTop);
-		boundBottom.set(b.boundBottom);
+		max.set(b.max);
+		min.set(b.min);
 		myShape = b.myShape;
-
-		for(int i=0;i<8;++i) p[i].set(b.p[i]);
-		
-		isDirty=b.isDirty;
-	}
-	
-	public void updatePoints() {
-		if(!isDirty) return;
-		isDirty=false;
-		
-		p[0].set(boundBottom.x, boundBottom.y, boundBottom.z);
-		p[1].set(boundBottom.x, boundBottom.y, boundTop   .z);
-		p[2].set(boundBottom.x, boundTop   .y, boundBottom.z);
-		p[3].set(boundBottom.x, boundTop   .y, boundTop   .z);
-		p[4].set(boundTop   .x, boundBottom.y, boundBottom.z);
-		p[5].set(boundTop   .x, boundBottom.y, boundTop   .z);
-		p[6].set(boundTop   .x, boundTop   .y, boundBottom.z);
-		p[7].set(boundTop   .x, boundTop   .y, boundTop   .z);
-
-		for (int i = 0; i < p.length; ++i) {
-			// logger.info("\t"+p[i]);
-			pose.transform(p[i]);
-			// logger.info(" >> "+p[i]);
-		}
 	}
 
-	public void setBounds(Point3d boundTop, Point3d boundBottom) {
-		if(!this.boundTop.epsilonEquals(boundTop, 1e-4)) 
-		{
-			this.boundTop.set(boundTop);
-			isDirty=true;
+	/**
+	 *
+	 * @param newMax upper bounds
+	 * @param newMin lower bounds
+	 */
+	public void setBounds(Point3d newMax, Point3d newMin) {
+		if(!this.max.epsilonEquals(newMax, 1e-4))  {
+			this.max.set(newMax);
 		}
-		if(!this.boundBottom.epsilonEquals(boundBottom, 1e-4))
-		{
-			this.boundBottom.set(boundBottom);
-			isDirty=true;
+		if(!this.min.epsilonEquals(newMin, 1e-4)) {
+			this.min.set(newMin);
 		}
 	}
 	
 	public Point3d getBoundsTop() {
-		return this.boundTop;
+		return this.max;
 	}
 	
 	public Point3d getBoundsBottom() {
-		return boundBottom;
+		return min;
 	}
 	
 	public double getExtentX() {
-		return boundTop.x-boundBottom.x;
+		return max.x- min.x;
 	}
 	
 	public double getExtentY() {
-		return boundTop.y-boundBottom.y;
+		return max.y- min.y;
 	}
 	
 	public double getExtentZ() {
-		return boundTop.z-boundBottom.z;
-	}
-	
-	public void setPose(Matrix4d m) {
-		if(!pose.epsilonEquals(m, 1e-4)) {
-			pose.set(m);
-			isDirty=true;
-		}
-	}
-	
-	public Matrix4d getPose() {
-		return new Matrix4d(pose);
-	}
-
-	public void setDirty(boolean newState) {
-		isDirty=newState;
+		return max.z- min.z;
 	}
 
 	public void setShape(Mesh shape) {
@@ -118,7 +75,86 @@ public class AABB implements BoundingVolume, Serializable {
 		return myShape;
 	}
 
-	public boolean intersect(Ray ray) {
-		return IntersectionHelper.rayBox(ray, boundBottom, boundTop)>=0;
+	public RayAABBHit intersect(Ray ray) {
+		return IntersectionHelper.rayBox(ray, min, max);
+	}
+
+	/**
+	 * Subdivide this AABB into 8 smaller AABBs.
+	 * @return 8 new AABBs that are subdivisions of this AABB.
+	 */
+	public AABB [] subdivide() {
+		AABB [] children = new AABB[8];
+		for(int i=0;i<children.length;++i) {
+			children[i] = new AABB();
+			children[i].setShape(myShape);
+		}
+
+		Point3d mid = new Point3d(max);
+		mid.add(min);
+		mid.scale(0.5);
+
+		children[0].setBounds(new Point3d(mid.x, mid.y, mid.z), new Point3d(min.x, min.y, min.z));
+		children[1].setBounds(new Point3d(mid.x, mid.y, max.z), new Point3d(min.x, min.y, mid.z));
+		children[2].setBounds(new Point3d(mid.x, max.y, mid.z), new Point3d(min.x, mid.y, min.z));
+		children[3].setBounds(new Point3d(mid.x, max.y, max.z), new Point3d(min.x, mid.y, mid.z));
+		children[4].setBounds(new Point3d(max.x, mid.y, mid.z), new Point3d(mid.x, min.y, min.z));
+		children[5].setBounds(new Point3d(max.x, mid.y, max.z), new Point3d(mid.x, min.y, mid.z));
+		children[6].setBounds(new Point3d(max.x, max.y, mid.z), new Point3d(mid.x, mid.y, min.z));
+		children[7].setBounds(new Point3d(max.x, max.y, max.z), new Point3d(mid.x, mid.y, mid.z));
+
+		return children;
+	}
+
+	/**
+	 * Grow this AABB to include the point b.
+	 * @param p the point to include in the AABB.
+	 */
+	public void grow(Point3d p) {
+		if(p.x < min.x) min.x = p.x;
+		if(p.y < min.y) min.y = p.y;
+		if(p.z < min.z) min.z = p.z;
+		if(p.x > max.x) max.x = p.x;
+		if(p.y > max.y) max.y = p.y;
+		if(p.z > max.z) max.z = p.z;
+	}
+
+	/**
+	 * Grow this AABB to include the other AABB.
+	 * @param other the AABB to include in this AABB.
+	 */
+	public void union(AABB other) {
+		if(other.min.x < min.x) min.x = other.min.x;
+		if(other.min.y < min.y) min.y = other.min.y;
+		if(other.min.z < min.z) min.z = other.min.z;
+		if(other.max.x > max.x) max.x = other.max.x;
+		if(other.max.y > max.y) max.y = other.max.y;
+		if(other.max.z > max.z) max.z = other.max.z;
+	}
+
+	/**
+	 * Return the nth component of the centroid.  The centroid is the midpoint between min and max limits.
+	 * @param axis 0, 1,or 2.
+	 * @return the nth component of the centroid. 0 for x, 1 for y, and all others for z.
+	 */
+	public double getCentroidAxis(int axis) {
+		return switch(axis) {
+			case 0 -> ( min.x + max.x ) * 0.5;
+			case 1 -> ( min.y + max.y ) * 0.5;
+			case 2 -> ( min.z + max.z ) * 0.5;
+			default -> throw new IllegalArgumentException("invalid axis");
+		};
+	}
+
+	/**
+	 * @return the surface area of the entire {@link AABB}.
+	 */
+	public double surfaceArea() {
+		var x = max.x - min.x;
+		var y = max.y - min.y;
+		var z = max.z - min.z;
+
+		// pairs of sides are equal so find three unique sides and double it.
+		return ( x*y + x*z + y*z ) * 2.0;
 	}
 }

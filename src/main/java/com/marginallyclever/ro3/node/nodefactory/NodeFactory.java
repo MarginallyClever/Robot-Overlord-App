@@ -1,6 +1,32 @@
 package com.marginallyclever.ro3.node.nodefactory;
 
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.*;
+import com.marginallyclever.ro3.node.nodes.behavior.BehaviorTreeRunner;
+import com.marginallyclever.ro3.node.nodes.behavior.Fallback;
+import com.marginallyclever.ro3.node.nodes.behavior.Sequence;
+import com.marginallyclever.ro3.node.nodes.behavior.actions.LimbMoveToTarget;
+import com.marginallyclever.ro3.node.nodes.behavior.decorators.*;
+import com.marginallyclever.ro3.node.nodes.crab.Crab;
+import com.marginallyclever.ro3.node.nodes.environment.Environment;
+import com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlanner;
+import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
+import com.marginallyclever.ro3.node.nodes.marlinrobot.linearstewartplatform.LinearStewartPlatform;
+import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.MarlinRobotArm;
+import com.marginallyclever.ro3.node.nodes.networksession.NetworkSession;
+import com.marginallyclever.ro3.node.nodes.neuralnetwork.Brain;
+import com.marginallyclever.ro3.node.nodes.neuralnetwork.Neuron;
+import com.marginallyclever.ro3.node.nodes.neuralnetwork.Synapse;
+import com.marginallyclever.ro3.node.nodes.neuralnetwork.leglimbic.LegLimbic;
+import com.marginallyclever.ro3.node.nodes.odenode.*;
+import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODEBox;
+import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODECapsule;
+import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODECylinder;
+import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODESphere;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.poses.*;
+import com.marginallyclever.ro3.node.nodes.pose.poses.space.SpaceShip;
+import com.marginallyclever.ro3.node.nodes.tests.RandomHemisphereTest;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,56 +43,14 @@ import java.util.function.Supplier;
 public class NodeFactory {
     private static final Logger logger = LoggerFactory.getLogger(NodeFactory.class);
 
-    /**
-     * Categories of Node types.  These categories can be nested in a tree.
-     */
-    public static class Category {
-        private final String name;
-        private final Supplier<Node> supplier;
-        private final List<Category> children = new ArrayList<>();
-        private Category parent=null;
-
-        public Category(String name,Supplier<Node> supplier) {
-            this.name = name;
-            this.supplier = supplier;
-        }
-
-        public void add(Category c) {
-            children.add(c);
-            c.parent = this;
-        }
-
-        public Category add(String name, Supplier<Node> supplier) {
-            Category item = new Category(name,supplier);
-            add(item);
-            return item;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public Category getParent() {
-            return parent;
-        }
-
-        public List<Category> getChildren() {
-            return children;
-        }
-
-        public Supplier<Node> getSupplier() {
-            return supplier;
-        }
-    }
-
-    private final Category root = new Category("Node",Node::new);
+    private final NodeFactoryCategory root = new NodeFactoryCategory("Node",Node::new);
 
     public NodeFactory() {
         super();
         //scan();
     }
 
-    public Category getRoot() {
+    public NodeFactoryCategory getRoot() {
         return root;
     }
 
@@ -76,14 +60,14 @@ public class NodeFactory {
      * @return the sub-factory that matches the given identifier, or null if not found.
      */
     public Supplier<Node> getSupplierFor(String identifier) {
-        List<Category> toCheck = new ArrayList<>();
+        List<NodeFactoryCategory> toCheck = new ArrayList<>();
         toCheck.add(root);
         while(!toCheck.isEmpty()) {
-            Category current = toCheck.removeFirst();
-            if(current.name.equals(identifier)) {
-                return current.supplier;
+            NodeFactoryCategory current = toCheck.removeFirst();
+            if(identifier.equals(current.getName())) {
+                return current.getSupplier();
             }
-            toCheck.addAll(current.children);
+            toCheck.addAll(current.getChildren());
         }
 
         return null;
@@ -116,6 +100,77 @@ public class NodeFactory {
     }
 
     public void clear() {
-        root.children.clear();
+        root.clear();
+    }
+
+    public void addKnownNodes() {
+        NodeFactoryCategory node = root;
+        {
+            NodeFactoryCategory behavior = node.add("Behavior", null);
+            {
+                NodeFactoryCategory action = behavior.add("Action", null);
+                {
+                    action.add("LimbMoveToTarget", LimbMoveToTarget::new);
+                }
+                behavior.add("Control", null);
+                NodeFactoryCategory decorator = behavior.add("Decorator", null);
+                {
+                    decorator.add("ForceFailure", ForceFailure::new);
+                    decorator.add("ForceSuccess", ForceSuccess::new);
+                    decorator.add("Inverter", Inverter::new);
+                    decorator.add("KeepRunningUntilFailure", KeepRunningUntilFailure::new);
+                    decorator.add("Repeat", Repeat::new);
+                    decorator.add("RetryUntilSuccessful", RetryUntilSuccessful::new);
+                }
+                behavior.add("Fallback", Fallback::new);
+                behavior.add("Sequence", Sequence::new);
+            }
+            node.add("BehaviorTreeRunner", BehaviorTreeRunner::new);
+            node.add("Crab", Crab::new);
+            node.add("DHParameter", DHParameter::new);
+            node.add("Environment", Environment::new);
+            node.add("HingeJoint", HingeJoint::new);
+            node.add("LimbPlanner", LimbPlanner::new);
+            node.add("LimbSolver", LimbSolver::new);
+            node.add("LinearStewartPlatform", LinearStewartPlatform::new);
+            node.add("LinearJoint", LinearJoint::new);
+            node.add("MarlinRobotArm", MarlinRobotArm::new);
+            node.add("Material", Material::new);
+            node.add("Motor", Motor::new);
+            node.add("NetworkSession", NetworkSession::new);
+            NodeFactoryCategory nn = node.add("NeuralNetwork", null);
+            {
+                nn.add("Brain", Brain::new);
+                nn.add("LegLimbic", LegLimbic::new);
+                nn.add("Neuron", Neuron::new);
+                nn.add("Synapse", Synapse::new);
+            }
+            NodeFactoryCategory pose = node.add("Pose", Pose::new);
+            {
+                pose.add("AttachmentPoint", AttachmentPoint::new);
+                pose.add("Camera", Camera::new);
+                pose.add("Limb", Limb::new);
+                pose.add("LookAt", LookAt::new);
+                pose.add("MeshInstance", MeshInstance::new);
+                pose.add("SpaceShip", SpaceShip::new);
+            }
+            NodeFactoryCategory physics = node.add("Physics", null);
+            {
+                physics.add("CreatureController", CreatureController::new);
+                physics.add("ODEAngularMotor", ODEAngularMotor::new);
+                physics.add("ODEBallSocket", ODEBallSocket::new);
+                physics.add("ODEBox", ODEBox::new);
+                physics.add("ODECapsule", ODECapsule::new);
+                physics.add("ODECylinder", ODECylinder::new);
+                physics.add("ODEHinge", ODEHinge::new);
+                physics.add("ODEPlane", ODEPlane::new);
+                physics.add("ODESlider", ODESlider::new);
+                physics.add("ODESphere", ODESphere::new);
+            }
+            NodeFactoryCategory tests = node.add("Tests", null);
+            {
+                tests.add("RandomHemisphereTest", RandomHemisphereTest::new);
+            }
+        }
     }
 }

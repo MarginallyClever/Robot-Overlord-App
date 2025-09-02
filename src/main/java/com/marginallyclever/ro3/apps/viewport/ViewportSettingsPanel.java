@@ -18,6 +18,8 @@ public class ViewportSettingsPanel extends App {
     private final Viewport viewport;
     private final NumberFormatter formatter = NumberFormatHelper.getNumberFormatterDouble();
     private final JFormattedTextField movementScale = new JFormattedTextField(formatter);
+    private final JToggleButton traceGL = new JToggleButton("Trace GL");
+    private final JToggleButton debugGL = new JToggleButton("Debug GL");
     private final JToggleButton hardwareAccelerated = new JToggleButton();
     private final JToggleButton doubleBuffered = new JToggleButton();
     private final JToggleButton originShift = new JToggleButton();
@@ -42,6 +44,8 @@ public class ViewportSettingsPanel extends App {
     private JPanel buildPanel() {
         var container = new JPanel(new GridBagLayout());
 
+        setTraceGL(viewport.isTraceGL());
+        setDebugGL(viewport.isDebugGL());
         setMovementScale(viewport.getUserMovementScale());
         setHardwareAccelerated(viewport.isHardwareAccelerated());
         setViewportDoubleBuffered(viewport.isDoubleBuffered());
@@ -68,6 +72,10 @@ public class ViewportSettingsPanel extends App {
         setVerticalSync(viewport.isVerticalSync());
 
         gbc.gridy++;
+        PanelHelper.addLabelAndComponent(container, "Trace GL", traceGL,gbc);
+        gbc.gridy++;
+        PanelHelper.addLabelAndComponent(container, "Debug GL", debugGL,gbc);
+        gbc.gridy++;
         PanelHelper.addLabelAndComponent(container, "Hardware Accelerated", hardwareAccelerated,gbc);
         gbc.gridy++;
         PanelHelper.addLabelAndComponent(container, "Double Buffered", doubleBuffered,gbc);
@@ -76,6 +84,8 @@ public class ViewportSettingsPanel extends App {
         gbc.gridy++;
         PanelHelper.addLabelAndComponent(container, "Vertical Sync", verticalSync,gbc);
 
+        traceGL.addActionListener(evt -> setTraceGL(traceGL.isSelected()));
+        debugGL.addActionListener(evt -> setDebugGL(debugGL.isSelected()));
         hardwareAccelerated.addActionListener(evt -> setHardwareAccelerated(hardwareAccelerated.isSelected()));
         doubleBuffered.addActionListener(evt -> setViewportDoubleBuffered(doubleBuffered.isSelected()));
         originShift.addActionListener(evt -> setOriginShift(originShift.isSelected()));
@@ -88,26 +98,46 @@ public class ViewportSettingsPanel extends App {
         return container;
     }
 
+    private void setTraceGL(boolean traceGL) {
+        viewport.setTraceGL(traceGL);
+        this.traceGL.setSelected(traceGL);
+        setTraceGLLabel();
+    }
+
+    private void setDebugGL(boolean debugGL) {
+        viewport.setDebugGL(debugGL);
+        this.debugGL.setSelected(debugGL);
+        setDebugGLLabel();
+    }
+
     @Override
     public void removeNotify() {
         super.removeNotify();
         viewport.savePrefs();
     }
 
+    private void setTraceGLLabel() {
+        traceGL.setText(viewport != null && viewport.isTraceGL() ? "On" : "Off");
+    }
+
+    private void setDebugGLLabel() {
+        debugGL.setText(viewport != null && viewport.isDebugGL() ? "On" : "Off");
+    }
+
     private void setVerticalSyncLabel() {
-        verticalSync.setText( (viewport != null && viewport.isVerticalSync() ? "On" : "Off") );
+        verticalSync.setText( viewport != null && viewport.isVerticalSync() ? "On" : "Off" );
     }
 
     private void setViewportDoubleBufferedLabel() {
-        doubleBuffered.setText( (viewport != null && viewport.isDoubleBuffered() ? "On" : "Off") );
+        doubleBuffered.setText( viewport != null && viewport.isDoubleBuffered() ? "On" : "Off" );
     }
 
     private void setOriginShiftLabel() {
-        originShift.setText( (viewport != null && viewport.isOriginShift() ? "On" : "Off") );
+        originShift.setText( viewport != null && viewport.isOriginShift() ? "On" : "Off" );
     }
 
     private void setHardwareAcceleratedLabel() {
-        hardwareAccelerated.setText( (viewport != null && viewport.isHardwareAccelerated() ? "On" : "Off") );
+        hardwareAccelerated.setText( viewport != null && viewport.isHardwareAccelerated() ? "On" : "Off" );
     }
 
     private void setHardwareAccelerated(boolean selected) {

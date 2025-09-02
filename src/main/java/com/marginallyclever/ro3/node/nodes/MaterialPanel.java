@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.texture.TextureChooserDialog;
@@ -81,14 +82,12 @@ public class MaterialPanel extends JPanel {
         this.add(createSpecularStrengthSlider(),gbc);
         gbc.gridy++;
 
-        var iorField = PanelHelper.addNumberFieldDouble("IOR",material.getIOR());
-        iorField.addPropertyChangeListener("value",e->material.setIOR(((Number)e.getNewValue()).doubleValue()));
+        var iorField = PanelHelper.createSlider(5.0, 1.0, Math.max(1,material.getIOR()), material::setIOR);
         PanelHelper.addLabelAndComponent(this,"IOR",iorField,gbc);
         gbc.gridy++;
 
-        var reflectivityField = PanelHelper.addNumberFieldDouble("reflectivity",material.getReflectivity());
-        reflectivityField.addPropertyChangeListener("value",e->material.setReflectivity(((Number)e.getNewValue()).doubleValue()));
-        PanelHelper.addLabelAndComponent(this,"Reflectivity",reflectivityField,gbc);
+        var reflectivity = PanelHelper.createSlider(1.0, 0.0, Math.clamp(material.getReflectivity(),0,1), material::setReflectivity);
+        PanelHelper.addLabelAndComponent(this,"Reflectivity",reflectivity,gbc);
         gbc.gridy++;
     }
 
@@ -141,7 +140,7 @@ public class MaterialPanel extends JPanel {
         var texture = material.getDiffuseTexture();
         button.setText((texture==null)
                 ? "..."
-                : texture.getSource().substring(texture.getSource().lastIndexOf(java.io.File.separatorChar)+1));
+                : PathHelper.extractFileName(texture.getSource()));
     }
 
     private BufferedImage scaleImage(BufferedImage sourceImage) {

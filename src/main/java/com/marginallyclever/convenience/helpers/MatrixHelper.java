@@ -519,9 +519,9 @@ public class MatrixHelper {
 	 * @param far distance
 	 * @return a matrix
 	 */
-	public static Matrix4d perspectiveMatrix4d(double fovY, double aspect, double near, double far) {
+	public static Matrix4d getPerspectiveMatrix4d(double fovY, double aspect, double near, double far) {
 		//return setPerspectiveInfiniteFar(fovY, aspect, near);
-		return setPerspectiveFiniteFar(fovY, aspect, near, far);
+		return getPerspectiveFiniteFar(fovY, aspect, near, far);
 	}
 
 	/**
@@ -532,8 +532,8 @@ public class MatrixHelper {
 	 * @param far distance
 	 * @return a matrix
 	 */
-	public static Matrix4d setPerspectiveFiniteFar(double fovY, double aspect, double near, double far) {
-		return setPerspectiveFiniteFarSimplified(fovY, aspect, near, far);
+	public static Matrix4d getPerspectiveFiniteFar(double fovY, double aspect, double near, double far) {
+		return getPerspectiveFiniteFarSimplified(fovY, aspect, near, far);
 	}
 
 	/**
@@ -544,7 +544,7 @@ public class MatrixHelper {
 	 * @param far distance
 	 * @return a matrix
 	 */
-	public static Matrix4d setPerspectiveFiniteFarSimplified(double fovY, double aspect, double near, double far) {
+	public static Matrix4d getPerspectiveFiniteFarSimplified(double fovY, double aspect, double near, double far) {
 		var m = new Matrix4d();
 		double f = 1.0 / Math.tan(Math.toRadians(fovY) / 2.0);
 		m.m00 = f / aspect;

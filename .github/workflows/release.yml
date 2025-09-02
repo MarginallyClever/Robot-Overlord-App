@@ -44,41 +44,101 @@ jobs:
         cp LICENSE target/package/ &&
         cp README.md target/package/
 
-  package:
+  delete-nightly-assets:
     needs: build_universal_package
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
+    steps:
+      - name: Delete all assets from Nightly Builds release
+        uses: actions/github-script@v7.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const release_id = 54908875; // Nightly Builds release
+            const assets = await github.rest.repos.listReleaseAssets({ owner, repo, release_id });
+            
+            if (assets.data.length === 0) {
+              console.log("No assets to delete.");
+            }
+            
+            for (const asset of assets.data) {
+              console.log(`Deleting asset: ${asset.name}`);
+              await github.rest.repos.deleteReleaseAsset({
+                owner,
+                repo,
+                asset_id: asset.id,
+              });
+            }
+
+  package:
+    needs: delete-nightly-assets
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        include:
+          - runs_on: macos-13
+            arch: x64
+            java_arch: x64
+            os_label: mac-intel
+          - runs_on: macos-latest
+            arch: arm64
+            java_arch: aarch64
+            os_label: mac-arm64
+          - runs_on: ubuntu-latest
+            arch: x64
+            java_arch: x64
+            os_label: ubuntu
+          - runs_on: windows-latest
+            arch: x64
+            java_arch: x64
+            os_label: windows
+    runs-on: ${{ matrix.runs_on }}
+
     steps:
-    - uses: actions/setup-java@v4.7.1
-      with:
-        distribution: 'temurin'
-        java-version: '22'
-        
-    - uses: actions/download-artifact@v4.3.0
-      with:
-        name: jar
+      - uses: actions/setup-java@v4.7.1
+        with:
+          distribution: 'temurin'
+          java-version: '22'
+          architecture: ${{ matrix.java_arch }}
 
-    - name: Build installation package
-      shell: bash
-      run: |
-        set -x
-        set -o pipefail
-        APP_VERSION=$(ls -1 target/package/RobotOverlord-*-with-dependencies.jar | sed "s/.*RobotOverlord-\([^-]*\)-with-dependencies.jar/\1/") &&
-        sed -i.bak "s/\(--app-version\).*/\1 $APP_VERSION/" src/main/package/jpackage.cfg &&
-        jpackage "@src/main/package/jpackage.cfg" "@src/main/package/jpackage-${{matrix.os}}.cfg" --main-jar "RobotOverlord-$APP_VERSION-with-dependencies.jar" &&
-        ls &&
-        BINARY=$(find . -maxdepth 1 -iname 'robotoverlord*' | grep -E '(msi$|dmg$|deb$)' | sed "s,./,," | head -1) &&
-        echo "BINARY=$BINARY" | tee -a $GITHUB_ENV &&
+      - uses: actions/download-artifact@v4.3.0
+        with:
+          name: jar
 
-    - name: Deploy installation release
-      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
-      uses: actions/upload-release-asset@v1.0.2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ${{ env.BINARY }} # path to archive to upload
-        asset_name: ${{ env.BINARY }} # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
-        asset_content_type: application/zip # required by GitHub API
+      - name: Build installation package
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_VERSION=$(ls -1 target/package/RobotOverlord-*-with-dependencies.jar | sed "s/.*RobotOverlord-\([^-]*\)-with-dependencies.jar/\1/")
+          sed -i.bak "s/\(--app-version\).*/\1 $APP_VERSION/" src/main/package/jpackage.cfg
+          APP_NAME="Makelangelo-${{ matrix.os_label }}"
+          jpackage "@src/main/package/jpackage.cfg" "@src/main/package/jpackage-${{matrix.runs_on}}.cfg" \
+            --main-jar "RobotOverlord-$APP_VERSION-with-dependencies.jar" && \
+            --name "$APP_NAME"
+          BINARY=$(find . -maxdepth 1 -iname 'robotoverlord*' | grep -E '(msi$|dmg$|deb$)' | sed "s,./,," | head -1)
+          EXT="${BINARY##*.}"
+          DATE=$(date +%Y%m%d)
+          BINARY_NIGHTLY="$APP_NAME-$DATE.$EXT"
+          mv "$BINARY" "$BINARY_NIGHTLY"
+          echo "BINARY_NIGHTLY=$BINARY_NIGHTLY" >> $GITHUB_ENV
+
+#      - name: Deploy installation release
+#        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+#        uses: actions/upload-release-asset@v1.0.2
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+#        with:
+#          upload_url: ${{ github.event.release.upload_url }}
+#          asset_path: ${{ env.BINARY_NIGHTLY }} # path to archive to upload
+#          asset_name: ${{ env.BINARY_NIGHTLY }} # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+#          asset_content_type: application/zip # required by GitHub API
+
+      - name: Upload to Nightly Builds
+        uses: WebFreak001/deploy-nightly@v3.2.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          upload_url: ${{ env.UPLOAD_URL }}
+          release_id: ${{ env.RELEASE_ID }}
+          asset_path: ${{ env.BINARY_NIGHTLY }}
+          asset_name: ${{ env.BINARY_NIGHTLY }}
+          asset_content_type: application/octet-stream

@@ -161,16 +161,16 @@ public class Box extends ProceduralMesh {
 
                 if(this.getRenderStyle() == GL3.GL_TRIANGLES) {
                     for(int i=0;i<6;++i) {
-                        this.addNormal((float)n.x, (float)n.y, (float)n.z);
+                        this.addNormal(n);
                         this.addColor(1,1,1,1);
                     }
-                    this.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
-                    this.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
-                    this.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
+                    this.addVertex(pE);
+                    this.addVertex(pF);
+                    this.addVertex(pH);
 
-                    this.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
-                    this.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
-                    this.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
+                    this.addVertex(pE);
+                    this.addVertex(pH);
+                    this.addVertex(pG);
 
                     this.addTexCoord(x0,y0);
                     this.addTexCoord(x1,y0);
@@ -181,20 +181,20 @@ public class Box extends ProceduralMesh {
                     this.addTexCoord(x0,y1);
                 } else if(this.getRenderStyle() == GL3.GL_LINES) {
                     for(int i=0;i<8;++i) {
-                        this.addNormal((float)n.x, (float)n.y, (float)n.z);
+                        this.addNormal(n);
                         this.addColor(1,1,1,1);
                     }
-                    this.addVertex((float)pF.x, (float)pF.y, (float)pF.z);
-                    this.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
+                    this.addVertex(pF);
+                    this.addVertex(pH);
 
-                    this.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
-                    this.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
+                    this.addVertex(pH);
+                    this.addVertex(pE);
 
-                    this.addVertex((float)pH.x, (float)pH.y, (float)pH.z);
-                    this.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
+                    this.addVertex(pH);
+                    this.addVertex(pG);
 
-                    this.addVertex((float)pG.x, (float)pG.y, (float)pG.z);
-                    this.addVertex((float)pE.x, (float)pE.y, (float)pE.z);
+                    this.addVertex(pG);
+                    this.addVertex(pE);
 
                     this.addTexCoord(x1,y0);//f
                     this.addTexCoord(x1,y1);//h

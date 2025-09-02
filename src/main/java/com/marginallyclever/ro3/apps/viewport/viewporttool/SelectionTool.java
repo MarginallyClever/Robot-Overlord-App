@@ -10,7 +10,7 @@ import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
-import com.marginallyclever.ro3.raypicking.RayHit;
+import com.marginallyclever.ro3.raypicking.Hit;
 import com.marginallyclever.ro3.raypicking.RayPickSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,10 +174,11 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
         var normalizedCoordinates = viewport.getCursorAsNormalized();
         Ray ray = viewport.getRayThroughPoint(camera,normalizedCoordinates.x,normalizedCoordinates.y);
         RayPickSystem rayPickSystem = new RayPickSystem();
-        RayHit rayHit = rayPickSystem.getFirstHit(ray);
-        if(rayHit == null) return null;
-        setPickPoint(ray,rayHit);
-        return rayHit.target();
+        rayPickSystem.reset(false);
+        Hit hit = rayPickSystem.getFirstHit(ray);
+        if(hit == null) return null;
+        setPickPoint(ray, hit);
+        return hit.target();
     }
 
     private void createPickPoint() {
@@ -188,13 +189,13 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
         }
     }
 
-    private void setPickPoint(Ray ray, RayHit rayHit) {
+    private void setPickPoint(Ray ray, Hit hit) {
         createPickPoint();
         Pose pickPoint = (Pose)Registry.getScene().findChild(PICK_POINT_NAME);
 
-        Vector3d from = ray.getPoint(rayHit.distance());
+        Vector3d from = ray.getPoint(hit.distance());
         Vector3d to = new Vector3d(from);
-        to.add(rayHit.normal());
+        to.add(hit.normal());
         Matrix4d m2 = new Matrix4d();
         Matrix3d lookAt = MatrixHelper.lookAt(from,to);
         m2.set(lookAt);
