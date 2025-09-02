@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.apps.viewport.viewporttool.move;
 
 import com.jogamp.opengl.GL3;
-import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
@@ -12,6 +11,7 @@ import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Box;
 import com.marginallyclever.ro3.mesh.proceduralmesh.CircleXY;
+import com.marginallyclever.ro3.mesh.proceduralmesh.Waldo;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
@@ -73,24 +73,26 @@ public class RotateToolOneAxis implements ViewportTool {
      */
     private boolean dragging = false;
 
-    /**
-     * The point on the translation plane where the handle was clicked.
-     */
+    // The point on the translation plane where the handle was clicked.
     private Point3d startPoint;
+    // The current point on the translation plane as the user drags the mouse.
+    private Point3d currentDragPoint;
+    // The current angle of rotation as the user drags the mouse.
+    private double currentRotationAngle;
 
-    /**
-     * The axes along which the user is translating.
-     */
+    // The axes in the plane along which the user is translating.
     private final Vector3d rotationAxisX = new Vector3d();
     private final Vector3d rotationAxisY = new Vector3d();
 
+    // The pivot matrix around which the rotation occurs.
     private final Matrix4d pivotMatrix = new Matrix4d();
+    // The pivot matrix when the drag started.
     private final Matrix4d startMatrix = new Matrix4d();
 
     /**
      * which axis of rotation will be used?  0,1,2 = x,y,z
      */
-    private int rotation=2;
+    private int axisOfRotation = 2;
     private boolean cursorOverHandle = false;
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
     private final Color color;
@@ -98,6 +100,7 @@ public class RotateToolOneAxis implements ViewportTool {
     private final Mesh markerMesh = new Mesh();
     private final Mesh angleMesh = new Mesh();
     private final CircleXY ringMesh = new CircleXY();
+    private final Waldo waldo = new Waldo(3);
 
     public RotateToolOneAxis(Color color) {
         super();
@@ -108,12 +111,18 @@ public class RotateToolOneAxis implements ViewportTool {
         ringMesh.setRenderStyle(GL3.GL_LINE_LOOP);
     }
 
+    /**
+     * Build the mesh used to show the angle of rotation while dragging.
+     */
     private void buildAngleMesh() {
         angleMesh.setRenderStyle(GL3.GL_LINES);
         angleMesh.addVertex(0,0,0);
         angleMesh.addVertex(1,0,0);
     }
 
+    /**
+     * Build the mesh used to show the tick marks on the ring.
+     */
     private void buildMarkerMesh() {
         markerMesh.setRenderStyle(GL3.GL_LINES);
 
@@ -154,8 +163,8 @@ public class RotateToolOneAxis implements ViewportTool {
      * @param list The selected items to be manipulated by the tool.
      */
     @Override
-    public void activate(List<Node> list) {
-        this.selectedItems = new SelectedItems(list);
+    public void activate(SelectedItems list) {
+        this.selectedItems = list;
         if (selectedItems.isEmpty()) return;
 
         updatePivotMatrix();
@@ -179,14 +188,12 @@ public class RotateToolOneAxis implements ViewportTool {
 
     @Override
     public void handleMouseEvent(MouseEvent event) {
-        if( event.getID() == MouseEvent.MOUSE_MOVED ) {
-            mouseMoved(event);
-        } else if (event.getID() == MouseEvent.MOUSE_PRESSED) {
-            mousePressed(event);
-        } else if (event.getID() == MouseEvent.MOUSE_DRAGGED) {
-            mouseDragged(event);
-        } else if (event.getID() == MouseEvent.MOUSE_RELEASED) {
-            mouseReleased(event);
+        switch(event.getID()) {
+            case MouseEvent.MOUSE_MOVED   : mouseMoved   (event);  break;
+            case MouseEvent.MOUSE_PRESSED : mousePressed (event);  break;
+            case MouseEvent.MOUSE_DRAGGED : mouseDragged (event);  break;
+            case MouseEvent.MOUSE_RELEASED: mouseReleased(event);  break;
+            default: break;
         }
     }
 
@@ -226,30 +233,26 @@ public class RotateToolOneAxis implements ViewportTool {
     public void mouseDragged(MouseEvent event) {
         if(!dragging) return;
 
-        Point3d currentPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,event.getX(), event.getY());
-        if(currentPoint==null) return;
-        double rotationAngle = getAngleBetweenPoints(snapToTicks(currentPoint));
-        Matrix4d rot = new Matrix4d();
-        switch(rotation) {
-            case 0 -> rot.rotX(rotationAngle);
-            case 1 -> rot.rotY(rotationAngle);
-            case 2 -> rot.rotZ(rotationAngle);
-        }
+        // get the current point on the plane
+        currentDragPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,event.getX(), event.getY());
+        if(currentDragPoint == null) return;  // if the plane is somehow edge-on, we can't do anything.
+        currentRotationAngle = getAngleBetweenPoints(snapToTicks(currentDragPoint));
 
-        Vector3d position = MatrixHelper.getPosition(startMatrix);
+        // build a rotation matrix for the current angle.
+        Matrix4d rot = new Matrix4d();
+        rot.rotZ(currentRotationAngle);
+
+        Matrix4d iPivot = new Matrix4d(startMatrix);
+        iPivot.invert();
 
         for (Node node : selectedItems.getNodes()) {
             if(!(node instanceof Pose pc)) continue;
-            Matrix4d pose = new Matrix4d(selectedItems.getWorldPoseAtStart(node));
-
-            pose.m03 -= position.x;
-            pose.m13 -= position.y;
-            pose.m23 -= position.z;
-            pose.mul(rot);
-            pose.m03 += position.x;
-            pose.m13 += position.y;
-            pose.m23 += position.z;
-
+            Matrix4d pose = new Matrix4d(selectedItems.getWorldPoseAtStart(pc));
+            // move to pivot space.
+            pose.mul(iPivot,pose);
+            pose.mul(rot);  // apply the rotation.
+            pose.mul(startMatrix,pose);  // move back to world space.
+            // set the new world matrix.
             pc.setWorld(pose);
         }
     }
@@ -304,6 +307,7 @@ public class RotateToolOneAxis implements ViewportTool {
         dragging = false;
         if(selectedItems!=null) {
             MoveUtils.updateUndoState(selectedItems);
+            // update the saved pose to the new pose so further drags are relative to the new position.
             selectedItems.savePose();
         }
     }
@@ -361,6 +365,42 @@ public class RotateToolOneAxis implements ViewportTool {
             shaderProgram.set4f(gl, "diffuseColor", 1,1,1,1);
             drawWhileDragging(gl,shaderProgram);
         }
+
+        boolean originShift = viewport.isOriginShift();
+        Camera camera = viewport.getActiveCamera();
+        var cameraWorld = MatrixHelper.getPosition(camera.getWorld());
+/*
+        for (Node node : selectedItems.getNodes()) {
+            if(node instanceof Pose pc) {
+                Matrix4d mt = new Matrix4d(selectedItems.getWorldPoseAtStart(pc));
+                if (originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorld);
+                shaderProgram.setMatrix4d(gl, "modelMatrix", mt);
+                drawWaldo(gl, shaderProgram);
+            }
+        }//*/
+        //*
+        if(cursorOverHandle) {
+            var mt = new Matrix4d(pivotMatrix);
+            //var mt = new Matrix4d(startMatrix);
+            if (originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorld);
+            shaderProgram.setMatrix4d(gl, "modelMatrix", mt);
+            drawWaldo(gl, shaderProgram);
+        }//*/
+        if(dragging) {
+            Matrix4d iPivot = new Matrix4d(startMatrix);
+            iPivot.invert();
+
+            for (Node node : selectedItems.getNodes()) {
+                if (!(node instanceof Pose pc)) continue;
+                Matrix4d mt = new Matrix4d(selectedItems.getWorldPoseAtStart(pc));
+                // move to pivot space.
+                mt.mul(iPivot, mt);
+                if (originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorld);
+                shaderProgram.setMatrix4d(gl, "modelMatrix", mt);
+                drawWaldo(gl, shaderProgram);
+            }
+        }
+        //*/
     }
 
     private void drawWhileDragging(GL3 gl,ShaderProgram shaderProgram) {
@@ -370,34 +410,38 @@ public class RotateToolOneAxis implements ViewportTool {
 
         Matrix4d scale = MatrixHelper.createScaleMatrix4(localScale);
 
-        Matrix4d m = new Matrix4d(startMatrix);
-        Matrix4d mt = new Matrix4d(m);
-        mt.mul(m,scale);
+        Matrix4d mt = new Matrix4d(startMatrix);
+        mt.mul(scale);
         if(originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorldPos);
+
         shaderProgram.setMatrix4d(gl,"modelMatrix",mt);
         markerMesh.render(gl);
 
-        double rotationAngle = getAngleBetweenPoints(snapToTicks(startPoint /* goes here */ ));
-        Matrix4d rot = new Matrix4d();
-        rot.rotZ(rotationAngle);
-        mt.mul(m,rot);
-        mt.mul(mt,scale);
-        if(originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorldPos);
-        shaderProgram.setMatrix4d(gl,"modelMatrix",mt);
-        angleMesh.render(gl);
+        // Draw the start and end angle of the movement.
+        if(currentDragPoint!=null) {
+            Matrix4d rot = new Matrix4d();
+            rot.rotZ(currentRotationAngle);
+            mt.mul(startMatrix,rot);
+            mt.mul(mt,scale);
+            if(originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorldPos);
+            shaderProgram.setMatrix4d(gl,"modelMatrix",mt);
+            angleMesh.render(gl);
+        }
+    }
 
-        // TODO draw the start and end angle of the movement.
-        //Point3d currentPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,mx,my);
-        //if(currentPoint==null) return;
+    private void drawWaldo(GL3 gl,ShaderProgram shaderProgram) {
+        shaderProgram.set1i(gl,"useLighting",0);
+        shaderProgram.set1i(gl,"useVertexColor",1);
+        shaderProgram.set4f(gl, "diffuseColor", 1,1,1,1);
+        waldo.render(gl);
+        shaderProgram.set1i(gl,"useVertexColor",0);
     }
 
     private void drawMainRingAndHandles(GL3 gl,ShaderProgram shaderProgram) {
-        Matrix4d m = new Matrix4d(pivotMatrix);
-
         shaderProgram.set1i(gl,"useLighting",0);
         shaderProgram.set1i(gl,"useVertexColor",0);
         shaderProgram.set1i(gl,"useTexture",0);
-        float colorScale = cursorOverHandle ? 1:0.5f;
+        float colorScale = cursorOverHandle ? 1:0.75f;
         Color c2 = new Color(
                 Math.clamp(color.getRed()/255.0f*colorScale, 0, 1),
                 Math.clamp(color.getGreen()/255.0f*colorScale, 0, 1),
@@ -408,30 +452,31 @@ public class RotateToolOneAxis implements ViewportTool {
         var originShift = viewport.isOriginShift();
         var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
 
-        Matrix4d scale = MatrixHelper.createScaleMatrix4(getRingRadiusScaled());
-        scale.mul(m,scale);
-        if(originShift) scale = RenderPassHelper.getOriginShiftedMatrix(scale, cameraWorldPos);
-        shaderProgram.setMatrix4d(gl,"modelMatrix",scale);
-
-        ringMesh.render(gl,1,360);
-        if(originShift) m = RenderPassHelper.getOriginShiftedMatrix(m, cameraWorldPos);
-        shaderProgram.setMatrix4d(gl,"modelMatrix",m);
-
-        Matrix4d m2 = MatrixHelper.createScaleMatrix4(getGripRadiusScaled());
-        m2.m03 = getHandleLengthScaled();
-        m2.m13 = getHandleOffsetYScaled();
-        m2.mul(pivotMatrix,m2);
-        if(originShift) m2 = RenderPassHelper.getOriginShiftedMatrix(m2, cameraWorldPos);
-        shaderProgram.setMatrix4d(gl,"modelMatrix",m2);
-        handleBox.render(gl);
-
-        m2 = MatrixHelper.createScaleMatrix4(getGripRadiusScaled());
-        m2.m03 = getHandleLengthScaled();
-        m2.m13 = -getHandleOffsetYScaled();
-        m2.mul(pivotMatrix,m2);
-        if(originShift) m2 = RenderPassHelper.getOriginShiftedMatrix(m2, cameraWorldPos);
-        shaderProgram.setMatrix4d(gl,"modelMatrix",m2);
-        handleBox.render(gl);
+        {
+            Matrix4d m2 = MatrixHelper.createScaleMatrix4(getRingRadiusScaled());
+            m2.mul(startMatrix, m2);
+            if (originShift) m2 = RenderPassHelper.getOriginShiftedMatrix(m2, cameraWorldPos);
+            shaderProgram.setMatrix4d(gl, "modelMatrix", m2);
+            ringMesh.render(gl, 1, 360);
+        }
+        {
+            Matrix4d m2 = MatrixHelper.createScaleMatrix4(getGripRadiusScaled());
+            m2.m03 = getHandleLengthScaled();
+            m2.m13 = getHandleOffsetYScaled();
+            m2.mul(startMatrix, m2);
+            if (originShift) m2 = RenderPassHelper.getOriginShiftedMatrix(m2, cameraWorldPos);
+            shaderProgram.setMatrix4d(gl, "modelMatrix", m2);
+            handleBox.render(gl);
+        }
+        {
+            Matrix4d m2 = MatrixHelper.createScaleMatrix4(getGripRadiusScaled());
+            m2.m03 = getHandleLengthScaled();
+            m2.m13 = -getHandleOffsetYScaled();
+            m2.mul(startMatrix, m2);
+            if (originShift) m2 = RenderPassHelper.getOriginShiftedMatrix(m2, cameraWorldPos);
+            shaderProgram.setMatrix4d(gl, "modelMatrix", m2);
+            handleBox.render(gl);
+        }
     }
 
     @Override
@@ -454,8 +499,8 @@ public class RotateToolOneAxis implements ViewportTool {
         return startPoint;
     }
 
-    public void setRotation(int i) {
-        rotation=i;
+    public void setAxisOfRotation(int i) {
+        axisOfRotation =i;
     }
 
     private double getHandleLengthScaled() {

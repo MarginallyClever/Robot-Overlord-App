@@ -28,7 +28,8 @@ import java.util.List;
 
 /**
  * <p>A tool to translate {@link Pose} nodes in the {@link Viewport}.  It is a
- * combination of three {@link TranslateToolOneAxis}.</p>
+ * combination of three {@link TranslateToolOneAxis}.  While one tool is active
+ * the other two are hidden.</p>
  */
 public class TranslateToolMulti implements ViewportTool {
     private final TranslateToolOneAxis toolRadialIn = new TranslateToolOneAxis(Color.RED);
@@ -72,8 +73,8 @@ public class TranslateToolMulti implements ViewportTool {
      * @param list The selected items to be manipulated by the tool.
      */
     @Override
-    public void activate(List<Node> list) {
-        this.selectedItems = new SelectedItems(list);
+    public void activate(SelectedItems list) {
+        this.selectedItems = list;
 
         for (ViewportTool t : tools) t.activate(list);
 

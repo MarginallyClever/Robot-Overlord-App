@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class TranslateToolOneAxis implements ViewportTool {
     private static double handleLength = 5;
-    private static double gripRadius = 1.0;
+    private static double gripRadius = 0.5;
     private double localScale = 1;
 
     /**
@@ -96,8 +96,9 @@ public class TranslateToolOneAxis implements ViewportTool {
     }
 
     @Override
-    public void activate(List<Node> list) {
-        this.selectedItems = new SelectedItems(list);
+    public void activate(SelectedItems list) {
+        selectedItems = list;
+
         if(selectedItems.isEmpty()) return;
 
         updatePivotMatrix();
