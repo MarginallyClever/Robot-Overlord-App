@@ -200,11 +200,11 @@ public class RotateToolOneAxis implements ViewportTool {
 
     public void mouseMoved(MouseEvent event) {
         cursorOverHandle = isCursorOverHandle(event.getX(), event.getY());
+        startMatrix.set(pivotMatrix);
     }
 
     @Override
     public void mousePressed(MouseEvent event) {
-        startMatrix.set(pivotMatrix);
         if (isCursorOverHandle(event.getX(), event.getY())) {
             dragging = true;
             cursorOverHandle = true;
