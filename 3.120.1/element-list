@@ -25,6 +25,8 @@ com.marginallyclever.ro3.apps.nodeselector
 com.marginallyclever.ro3.apps.nodetreeview
 com.marginallyclever.ro3.apps.ode4j
 com.marginallyclever.ro3.apps.pathtracer
+com.marginallyclever.ro3.apps.pathtracer.halton
+com.marginallyclever.ro3.apps.pathtracer.spatialaccelerationstructure
 com.marginallyclever.ro3.apps.shared
 com.marginallyclever.ro3.apps.viewport
 com.marginallyclever.ro3.apps.viewport.renderpass
@@ -42,6 +44,7 @@ com.marginallyclever.ro3.node.nodes
 com.marginallyclever.ro3.node.nodes.behavior
 com.marginallyclever.ro3.node.nodes.behavior.actions
 com.marginallyclever.ro3.node.nodes.behavior.decorators
+com.marginallyclever.ro3.node.nodes.crab
 com.marginallyclever.ro3.node.nodes.environment
 com.marginallyclever.ro3.node.nodes.limbplanner
 com.marginallyclever.ro3.node.nodes.limbsolver
@@ -60,6 +63,7 @@ com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies
 com.marginallyclever.ro3.node.nodes.pose
 com.marginallyclever.ro3.node.nodes.pose.poses
 com.marginallyclever.ro3.node.nodes.pose.poses.space
+com.marginallyclever.ro3.node.nodes.tests
 com.marginallyclever.ro3.physics
 com.marginallyclever.ro3.raypicking
 com.marginallyclever.ro3.texture
