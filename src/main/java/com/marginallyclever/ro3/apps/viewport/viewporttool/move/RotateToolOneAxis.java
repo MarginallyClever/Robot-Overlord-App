@@ -15,6 +15,7 @@ import com.marginallyclever.ro3.mesh.proceduralmesh.Waldo;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
+import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
@@ -250,7 +251,7 @@ public class RotateToolOneAxis implements ViewportTool {
             Matrix4d pose = new Matrix4d(selectedItems.getWorldPoseAtStart(pc));
             // move to pivot space.
             pose.mul(iPivot,pose);
-            pose.mul(rot);  // apply the rotation.
+            pose.mul(rot,pose);  // apply the rotation.
             pose.mul(startMatrix,pose);  // move back to world space.
             // set the new world matrix.
             pc.setWorld(pose);
@@ -365,43 +366,8 @@ public class RotateToolOneAxis implements ViewportTool {
             shaderProgram.set4f(gl, "diffuseColor", 1,1,1,1);
             drawWhileDragging(gl,shaderProgram);
         }
-
-        boolean originShift = viewport.isOriginShift();
-        Camera camera = viewport.getActiveCamera();
-        var cameraWorld = MatrixHelper.getPosition(camera.getWorld());
-/*
-        for (Node node : selectedItems.getNodes()) {
-            if(node instanceof Pose pc) {
-                Matrix4d mt = new Matrix4d(selectedItems.getWorldPoseAtStart(pc));
-                if (originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorld);
-                shaderProgram.setMatrix4d(gl, "modelMatrix", mt);
-                drawWaldo(gl, shaderProgram);
-            }
-        }//*/
-        //*
-        if(cursorOverHandle) {
-            var mt = new Matrix4d(pivotMatrix);
-            //var mt = new Matrix4d(startMatrix);
-            if (originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorld);
-            shaderProgram.setMatrix4d(gl, "modelMatrix", mt);
-            drawWaldo(gl, shaderProgram);
-        }//*/
-        if(dragging) {
-            Matrix4d iPivot = new Matrix4d(startMatrix);
-            iPivot.invert();
-
-            for (Node node : selectedItems.getNodes()) {
-                if (!(node instanceof Pose pc)) continue;
-                Matrix4d mt = new Matrix4d(selectedItems.getWorldPoseAtStart(pc));
-                // move to pivot space.
-                mt.mul(iPivot, mt);
-                if (originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorld);
-                shaderProgram.setMatrix4d(gl, "modelMatrix", mt);
-                drawWaldo(gl, shaderProgram);
-            }
-        }
-        //*/
     }
+
 
     private void drawWhileDragging(GL3 gl,ShaderProgram shaderProgram) {
         Camera camera = viewport.getActiveCamera();
