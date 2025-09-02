@@ -258,8 +258,8 @@ public class TranslateToolOneAxis implements ViewportTool {
         var g = color.getGreen()/255.0f;
         var b = color.getBlue()/255.0f;
         var a = color.getAlpha()/255.0f;
-        Color c2 = new Color(r*colorScale,g*colorScale,b*colorScale,a);
-        shaderProgram.setColor(gl,"diffuseColor",c2);
+        Color c2 = new Color(r * colorScale, g * colorScale, b * colorScale, a);
+        shaderProgram.setColor(gl, "diffuseColor", c2);
         shaderProgram.set1i(gl,"useTexture",0);
         shaderProgram.set1i(gl,"useLighting",0);
         shaderProgram.set1i(gl,"useVertexColor",0);
@@ -284,7 +284,7 @@ public class TranslateToolOneAxis implements ViewportTool {
         if(originShift) m2t = RenderPassHelper.getOriginShiftedMatrix(m2t, cameraWorldPos);
         shaderProgram.setMatrix4d(gl,"modelMatrix",m2t);
         handleSphere.render(gl);
-
+/*
         if(texture!=null) {
             quad.updateVertexBuffers(gl);
             // set the model matrix to be the camera matrix so the handle is always facing the camera.
@@ -299,7 +299,7 @@ public class TranslateToolOneAxis implements ViewportTool {
             texture.use(shaderProgram);
             quad.render(gl);
             shaderProgram.set1i(gl,"useTexture",0);
-        }
+        } else */
     }
 
     @Override

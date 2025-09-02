@@ -31,12 +31,12 @@ import java.util.List;
  * combination of three {@link TranslateToolOneAxis}.</p>
  */
 public class TranslateToolMulti implements ViewportTool {
-    private final TranslateToolOneAxis toolRadialIn = new TranslateToolOneAxis(Color.WHITE);
-    private final TranslateToolOneAxis toolNormal = new TranslateToolOneAxis(Color.WHITE);
-    private final TranslateToolOneAxis toolPrograde = new TranslateToolOneAxis(Color.WHITE);
-    private final TranslateToolOneAxis toolRetrograde = new TranslateToolOneAxis(Color.WHITE);
-    private final TranslateToolOneAxis toolAntiNormal = new TranslateToolOneAxis(Color.WHITE);
-    private final TranslateToolOneAxis toolRadialOut = new TranslateToolOneAxis(Color.WHITE);
+    private final TranslateToolOneAxis toolRadialIn = new TranslateToolOneAxis(Color.RED);
+    private final TranslateToolOneAxis toolNormal = new TranslateToolOneAxis(Color.GREEN);
+    private final TranslateToolOneAxis toolPrograde = new TranslateToolOneAxis(Color.BLUE);
+    //private final TranslateToolOneAxis toolRetrograde = new TranslateToolOneAxis(Color.WHITE);
+    //private final TranslateToolOneAxis toolAntiNormal = new TranslateToolOneAxis(Color.WHITE);
+    //private final TranslateToolOneAxis toolRadialOut = new TranslateToolOneAxis(Color.WHITE);
 
     private final TranslateToolTwoAxis toolXY = new TranslateToolTwoAxis(new ColorRGB(255,255,0));
     private final TranslateToolTwoAxis toolXZ = new TranslateToolTwoAxis(new ColorRGB(255,0,255));
@@ -54,9 +54,9 @@ public class TranslateToolMulti implements ViewportTool {
         tools.add(toolRadialIn);
         tools.add(toolNormal);
         tools.add(toolPrograde);
-        tools.add(toolRetrograde);
-        tools.add(toolAntiNormal);
-        tools.add(toolRadialOut);
+        //tools.add(toolRetrograde);
+        //tools.add(toolAntiNormal);
+        //tools.add(toolRadialOut);
         tools.add(toolXY);
         tools.add(toolXZ);
         tools.add(toolYZ);
@@ -94,9 +94,9 @@ public class TranslateToolMulti implements ViewportTool {
         toolNormal.setPivotMatrix(createPivotPlaneMatrix(pivot,KSPDirections.NORMAL));
         toolPrograde.setPivotMatrix(createPivotPlaneMatrix(pivot,KSPDirections.PROGRADE));
 
-        toolRetrograde.setPivotMatrix(createPivotPlaneMatrix(pivot,KSPDirections.RETROGRADE));
-        toolAntiNormal.setPivotMatrix(createPivotPlaneMatrix(pivot,KSPDirections.ANTINORMAL));
-        toolRadialOut.setPivotMatrix(createPivotPlaneMatrix(pivot,KSPDirections.RADIAL_OUT));
+        //toolRetrograde.setPivotMatrix(createPivotPlaneMatrix(pivot,KSPDirections.RETROGRADE));
+        //toolAntiNormal.setPivotMatrix(createPivotPlaneMatrix(pivot,KSPDirections.ANTINORMAL));
+        //toolRadialOut.setPivotMatrix(createPivotPlaneMatrix(pivot,KSPDirections.RADIAL_OUT));
 
         Matrix4d rot = new Matrix4d();
 
@@ -260,16 +260,14 @@ public class TranslateToolMulti implements ViewportTool {
         if( selectedItems == null || selectedItems.isEmpty() ) return;
         if( !MoveUtils.listContainsAPose(selectedItems.getNodes()) ) return;
 
-        // RADIAL_IN
+        /*
         toolRadialIn.setTexture(texture,new Rectangle2D.Double(0.50,0.75,0.25,0.25));
-        // NORMAL
         toolNormal.setTexture(texture,new Rectangle2D.Double(0,0.25,0.25,0.25));
-        // PROGRADE
         toolPrograde.setTexture(texture,new Rectangle2D.Double(0,0.75,0.25,0.25));
-
         toolRetrograde.setTexture(texture, new Rectangle2D.Double(0,0.50,0.25,0.25));
         toolAntiNormal.setTexture(texture, new Rectangle2D.Double(0,0,0.25,0.25));
         toolRadialOut.setTexture(texture, new Rectangle2D.Double(0.5,0.5,0.25,0.25));
+        */
 
         int i = getIndexInUse();
         if(-1==i) {
