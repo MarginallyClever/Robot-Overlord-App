@@ -101,7 +101,9 @@ public class RotateToolOneAxis implements ViewportTool {
     private final Mesh markerMesh = new Mesh();
     private final Mesh angleMesh = new Mesh();
     private final CircleXY ringMesh = new CircleXY();
-    private final Waldo waldo = new Waldo(3);
+    private final Waldo waldo = new Waldo(0.25f);
+
+    private boolean drawPivotPoint=true;
 
     public RotateToolOneAxis(Color color) {
         super();
@@ -110,6 +112,10 @@ public class RotateToolOneAxis implements ViewportTool {
         buildAngleMesh();
         ringMesh.updateModel();
         ringMesh.setRenderStyle(GL3.GL_LINE_LOOP);
+    }
+
+    public void setDrawPivotPoint(boolean b) {
+        drawPivotPoint = b;
     }
 
     /**
@@ -373,8 +379,21 @@ public class RotateToolOneAxis implements ViewportTool {
             shaderProgram.set4f(gl, "diffuseColor", 1,1,1,1);
             drawWhileDragging(gl,shaderProgram);
         }
+
+        if(drawPivotPoint) drawPivotPoint(gl,shaderProgram);
     }
 
+    // draw waldo at the pivot point
+    public void drawPivotPoint(GL3 gl,ShaderProgram shaderProgram) {
+        Matrix4d m = new Matrix4d();
+        m.set(pivotMatrix);
+        if (viewport.isOriginShift()) {
+            var cameraWorldPos = MatrixHelper.getPosition(viewport.getActiveCamera().getWorld());
+            m = RenderPassHelper.getOriginShiftedMatrix(m, cameraWorldPos);
+        }
+        shaderProgram.setMatrix4d(gl, "modelMatrix", m);
+        drawWaldo(gl, shaderProgram);
+    }
 
     private void drawWhileDragging(GL3 gl,ShaderProgram shaderProgram) {
         Camera camera = viewport.getActiveCamera();
