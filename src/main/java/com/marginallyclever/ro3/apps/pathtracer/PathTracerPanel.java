@@ -27,13 +27,13 @@ public class PathTracerPanel extends JPanel
     private final JComboBox<String> comboBox = new JComboBox<>(new String[]{"Color","Depth","Normal"});
     private final PathTracerResultPanel centerLabel = new PathTracerResultPanel();
     private AbstractAction startButton;
-    private final JProgressBar progressBar = new JProgressBar();
-    private final JLabel runTime = new JLabel();
+    private final JLabel runTime = new JLabel("Ready");
     private final JButton saveButton = new JButton(new ImageIcon(
             Toolkit.getDefaultToolkit().getImage(getClass().getResource("/com/marginallyclever/ro3/apps/editor/icons8-save-16.png"))
                     .getScaledInstance(16,16, Image.SCALE_SMOOTH)
     ));
     private static final JFileChooser saveImageFileChooser = new JFileChooser();
+    private final JPanel statusBar = new JPanel(new FlowLayout(FlowLayout.LEFT,5,1));
 
 
     public PathTracerPanel() {
@@ -45,24 +45,20 @@ public class PathTracerPanel extends JPanel
         this.pathTracer = pathTracer;
         pathTracer.addProgressListener(this);
         pathTracer.addPropertyChangeListener(this);
-        pathTracer.setSize(1,1);
-        progressBar.setStringPainted(true);
-        setupToolbar();
+        pathTracer.setSize(1, 1);
+        setupBars();
+        setupCenter();
         add(toolBar, BorderLayout.NORTH);
-        add(centerLabel,BorderLayout.CENTER);
+        add(centerLabel, BorderLayout.CENTER);
+        add(statusBar, BorderLayout.SOUTH);
+    }
+
+    private void setupCenter() {
         centerLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 System.out.println("Mouse clicked at: " + e.getX() + ", " + e.getY());
                 pathTracer.fireAndDisplayOneRay(e.getX(), e.getY(),pathTracer.getMaxDepth());
-            }
-        });
-
-        // listen to centerLabel resize events
-        centerLabel.addComponentListener(new java.awt.event.ComponentAdapter() {
-            @Override
-            public void componentResized(java.awt.event.ComponentEvent evt) {
-                //pathTracer.setSize(centerLabel.getWidth(), centerLabel.getHeight());
             }
         });
     }
@@ -102,7 +98,7 @@ public class PathTracerPanel extends JPanel
         cameraListModel.removeElement(camera);
     }
 
-    private void setupToolbar() {
+    private void setupBars() {
         toolBar.setLayout(new FlowLayout(FlowLayout.LEFT,5,1));
         toolBar.add(new AbstractAction() {
             {
@@ -129,7 +125,8 @@ public class PathTracerPanel extends JPanel
 
         startButton = new AbstractAction() {
             {
-                putValue(Action.NAME, "Start");
+                // put unicode for play
+                putValue(Action.NAME, "▶");
                 putValue(Action.SHORT_DESCRIPTION, "Render the scene using path tracing.");
             }
 
@@ -138,32 +135,35 @@ public class PathTracerPanel extends JPanel
                 if (pathTracer.isRunning()) {
                     pathTracer.stop();
                 } else {
-                    startButton.putValue(Action.NAME, "Stop");
+                    // make into unicode for pause
+                    startButton.putValue(Action.NAME, "⏸");
                     pathTracer.setActiveCamera(getActiveCamera());
                     pathTracer.setSize(centerLabel.getWidth(), centerLabel.getHeight());
                     setCenterLabel(comboBox.getSelectedIndex());
-                    progressBar.setValue(0);
                     runTime.setText("Preparing to render...");
+                    runTime.repaint();
                     pathTracer.start();
                 }
             }
         };
 
         toolBar.add(startButton);
-        toolBar.add(progressBar);
-        toolBar.add(runTime);
         toolBar.add(comboBox);
 
         saveButton.setToolTipText("Save the current image to a PNG file.");
-        saveButton.addActionListener(e -> {
-            if(pathTracer.getImage()!=null) {
-                saveImage();
-            }
-        });
+        saveButton.addActionListener(e -> saveImage());
         toolBar.add(saveButton);
+
+        statusBar.add(runTime);
+        statusBar.setBorder(BorderFactory.createLoweredBevelBorder());
     }
 
     private void saveImage() {
+        if(pathTracer.getImage() == null) {
+            JOptionPane.showMessageDialog(this, "No image to save. Please render the scene first.", "No Image", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         saveImageFileChooser.setDialogTitle("Save Rendered Image");
         String dateAndTime = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
         dateAndTime += "-" + comboBox.getSelectedItem() + ".png";
@@ -240,16 +240,13 @@ public class PathTracerPanel extends JPanel
 
     @Override
     public void onProgressUpdate(int latestProgress) {
-        // Update progress bar here
-        progressBar.setValue(latestProgress);
-
         var elapsed = System.currentTimeMillis() - pathTracer.getStartTime();
         // display in hh:mm:ss:ms
-        runTime.setText(String.format("%02d:%02d:%02d:%03d",
+        runTime.setText(String.format("%d samples %02d:%02d:%02d",
+                latestProgress,
                 elapsed / 3600000,
                 (elapsed % 3600000) / 60000,
-                (elapsed % 60000) / 1000,
-                elapsed % 1000));
+                (elapsed % 60000) / 1000));
 
         centerLabel.repaint();
     }
@@ -258,7 +255,8 @@ public class PathTracerPanel extends JPanel
     public void propertyChange(PropertyChangeEvent evt) {
         if("state".equals(evt.getPropertyName())) {
             if(evt.getNewValue() == SwingWorker.StateValue.DONE) {
-                startButton.putValue(Action.NAME, "Start");
+                // set name to unicode for play
+                startButton.putValue(Action.NAME, "▶");
             }
         }
     }
