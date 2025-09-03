@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.apps.viewport.viewporttool.move;
 
 import com.jogamp.opengl.GL3;
-import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
@@ -22,7 +21,8 @@ import java.util.List;
 
 /**
  * <p>A tool to rotate {@link Pose} noes in the {@link Viewport}.  It is a
- * combination of three {@link RotateToolOneAxis} viewporttools.</p> *
+ * combination of three {@link RotateToolOneAxis}.  While one tool is active
+ * the other two are hidden.</p>
  */
 public class RotateToolMulti implements ViewportTool {
     private final RotateToolOneAxis toolX = new RotateToolOneAxis(Color.RED);
@@ -39,9 +39,11 @@ public class RotateToolMulti implements ViewportTool {
         tools.add(toolX);
         tools.add(toolY);
         tools.add(toolZ);
-        toolX.setRotation(0);
-        toolY.setRotation(1);
-        toolZ.setRotation(2);
+        toolX.setAxisOfRotation(0);
+        toolY.setAxisOfRotation(1);
+        toolZ.setAxisOfRotation(2);
+        toolX.setDrawPivotPoint(false);
+        toolY.setDrawPivotPoint(false);
     }
 
     /**
@@ -51,8 +53,8 @@ public class RotateToolMulti implements ViewportTool {
      * @param list The selected items to be manipulated by the tool.
      */
     @Override
-    public void activate(List<Node> list) {
-        this.selectedItems = new SelectedItems(list);
+    public void activate(SelectedItems list) {
+        this.selectedItems = list;
 
         for (ViewportTool t : tools) t.activate(list);
 
@@ -61,6 +63,9 @@ public class RotateToolMulti implements ViewportTool {
         updatePivotMatrix();
     }
 
+    /**
+     * Called all the time - by both update and mouse events - to ensure the pivot matrix is correct.
+     */
     private void updatePivotMatrix() {
         setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,selectedItems,viewport.getActiveCamera()));
     }
@@ -107,14 +112,12 @@ public class RotateToolMulti implements ViewportTool {
 
         updatePivotMatrix();
 
-        if(event.getID() == MouseEvent.MOUSE_MOVED) {
-            mouseMoved(event);
-        } else if(event.getID() == MouseEvent.MOUSE_PRESSED) {
-            mousePressed(event);
-        } else if(event.getID() == MouseEvent.MOUSE_DRAGGED) {
-            mouseDragged(event);
-        } else if(event.getID() == MouseEvent.MOUSE_RELEASED) {
-            mouseReleased(event);
+        switch(event.getID()) {
+            case MouseEvent.MOUSE_MOVED   : mouseMoved   (event); break;
+            case MouseEvent.MOUSE_PRESSED : mousePressed (event); break;
+            case MouseEvent.MOUSE_DRAGGED : mouseDragged (event); break;
+            case MouseEvent.MOUSE_RELEASED: mouseReleased(event); break;
+            default: break;
         }
     }
 
@@ -190,6 +193,8 @@ public class RotateToolMulti implements ViewportTool {
         if(2==i || -1==i) {
             toolZ.render(gl,shaderProgram);
         }
+
+        toolZ.drawPivotPoint(gl,shaderProgram);
     }
 
     @Override

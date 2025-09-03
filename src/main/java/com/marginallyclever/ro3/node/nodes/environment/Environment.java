@@ -101,6 +101,9 @@ public class Environment extends Node {
         sunlightSource.set(calculateSunPosition());
     }
 
+    /**
+     * @return 0..360 (scale by 24/360 to get hours)
+     */
     public double getTimeOfDay() {
         return timeOfDay;
     }

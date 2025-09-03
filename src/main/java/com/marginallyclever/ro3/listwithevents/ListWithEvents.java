@@ -38,12 +38,14 @@ public class ListWithEvents<T> {
         listenerList.remove(ItemRemovedListener.class, listener);
     }
 
+    @SuppressWarnings("unchecked")  // because getListeners is not generic
     protected void fireItemAdded(T item) {
         for (ItemAddedListener<T> listener : listenerList.getListeners(ItemAddedListener.class)) {
             listener.itemAdded(this,item);
         }
     }
 
+    @SuppressWarnings("unchecked")  // because getListeners is not generic
     protected void fireItemRemoved(T item) {
         for (ItemRemovedListener<T> listener : listenerList.getListeners(ItemRemovedListener.class)) {
             listener.itemRemoved(this,item);

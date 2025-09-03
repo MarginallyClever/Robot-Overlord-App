@@ -83,7 +83,7 @@ public class Compass3D implements ViewportTool {
     }
 
     @Override
-    public void activate(List<Node> list) {}
+    public void activate(SelectedItems list) {}
 
     @Override
     public void deactivate() {}

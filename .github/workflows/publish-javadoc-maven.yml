@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - javadoc
+      - enable-javadoc-api
+  workflow_run:
+    workflows: ["Java CI with Maven"]
+    types:
+      - completed
 
 jobs:
   publish:
@@ -11,14 +16,19 @@ jobs:
     steps:
       # Step 1: Checkout the repository
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.2.2
 
       # Step 2: Set up Java (required for building and generating Javadoc)
       - name: Set up Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4.7.1
         with:
           distribution: 'temurin'
           java-version: '22'
+
+      # Step 0: Get project version
+      - name: Get project version
+        id: get_version
+        run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
 
       # Step 3: Build and generate Javadoc
       - name: Build project and generate Javadoc
@@ -28,14 +38,32 @@ jobs:
 
       # Step 4: Deploy Javadoc to GitHub Pages
       - name: Deploy JavaDoc 🚀
-        uses: MathieuSoysal/Javadoc-publisher.yml@v2.4.0
+        uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          java-version: 17
+          java-version: 22
           javadoc-branch: javadoc
           java-distribution: temurin
           project: maven
-          javadoc-source-folder: docs
           # url will be https://<username>.github.io/<repo>/<target-folder>
           # update this to the project version number
-          target-folder: 3
+          target-folder: ${{ steps.get_version.outputs.version }}
+
+      # Step 5: Generate index.html in the javadoc branch root
+      - name: Generate index.html for all versions
+        run: |
+          git fetch origin javadoc:javadoc
+          git checkout javadoc
+          # Generate index.html listing all version folders
+          echo '<!DOCTYPE html>
+          <html><head><meta charset="utf-8"><title>Robot Overlord Documentation Versions</title></head>
+          <body><h1>Available Robot Overlord Documentation Versions</h1><ul>' > index.html
+          for dir in $(find . -maxdepth 1 -type d ! -name '.' ! -name 'assets' ! -name 'static'); do
+            version=$(basename "$dir")
+            [[ "$version" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] || continue
+            echo "<li><a href=\"$version/\">$version</a></li>" >> index.html
+          done
+          echo '</ul></body></html>' >> index.html
+          git add index.html
+          git commit -m "Update index.html for Javadoc versions" || echo "No changes to commit"
+          git push origin javadoc

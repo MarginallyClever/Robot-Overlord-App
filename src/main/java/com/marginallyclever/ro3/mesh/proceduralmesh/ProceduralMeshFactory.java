@@ -12,16 +12,18 @@ public class ProceduralMeshFactory {
     private static final Logger logger = LoggerFactory.getLogger(ProceduralMeshFactory.class);
     private static final String [] proceduralNames = {
             "Box",
-            "Sphere",
-            "Cylinder",
             "Capsule",
             "CircleXY",
+            "Cylinder",
             "Decal",
-            "Grid"
+            "Grid",
+            "Sphere",
+            "Waldo",
+            "GenerativeMesh"
     };
 
     /**
-     * @return the list of meshes that extend {@link ProceduralMesh}.
+     * @return the array of meshes that extend {@link ProceduralMesh}.
      */
     public static String [] getListOfProceduralMeshes() {
         return proceduralNames;

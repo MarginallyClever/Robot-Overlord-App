@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.Objects;
 
@@ -76,7 +77,7 @@ public class CheckForUpdateAction extends AbstractAction implements ActionListen
     }
 
 	public String getLatestVersionFromGithub() throws Exception {
-		URL github = new URL(UPDATE_URL);
+		URL github = URI.create(UPDATE_URL).toURL();
 		HttpURLConnection conn = (HttpURLConnection) github.openConnection();
 		conn.setInstanceFollowRedirects(false);  // you still need to handle redirect manually.
 		conn.setConnectTimeout(5000);

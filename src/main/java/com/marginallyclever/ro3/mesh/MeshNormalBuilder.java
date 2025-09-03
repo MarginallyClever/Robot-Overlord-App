@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 /**
@@ -29,9 +30,9 @@ public class MeshNormalBuilder {
     	for(int i=0;i<mesh.getNumVertices();i+=3) {
     		Vector3d n = buildNormalFromThreePoints(mesh,i,i+1,i+2);
     		
-    		mesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-    		mesh.addNormal((float)n.x, (float)n.y, (float)n.z);
-    		mesh.addNormal((float)n.x, (float)n.y, (float)n.z);
+    		mesh.addNormal(n);
+    		mesh.addNormal(n);
+    		mesh.addNormal(n);
     	}
 	}
 
@@ -60,14 +61,14 @@ public class MeshNormalBuilder {
 		for( Vector3d n : myNormals ) {
 			// this normal may have had several normals added to it.
 			n.normalize();
-			mesh.addNormal((float)n.x, (float)n.y, (float)n.z);
+			mesh.addNormal(n);
 		}
 	}
 
 	private static Vector3d buildNormalFromThreePoints(Mesh m, int a, int b, int c) {
-		Vector3d vA = m.getVertex(a);
-		Vector3d vB = m.getVertex(b);
-		Vector3d vC = m.getVertex(c);
+		Point3d vA = m.getVertex(a);
+		Point3d vB = m.getVertex(b);
+		Point3d vC = m.getVertex(c);
         Vector3d nCA = new Vector3d();
         Vector3d nBA = new Vector3d();
         Vector3d n = new Vector3d();

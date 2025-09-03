@@ -22,7 +22,7 @@ public interface ViewportTool {
      *
      * @param list The selected items to be manipulated by the tool.
      */
-    void activate(List<Node> list);
+    void activate(SelectedItems list);
 
     /**
      * This method is called when the tool is deactivated. It allows the tool to perform any necessary cleanup

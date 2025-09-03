@@ -34,7 +34,6 @@ public class EnvironmentPanel extends JPanel {
         gbc.fill = GridBagConstraints.BOTH;
 
         setSunColor(environment.getSunlightColor());
-        timeOfDay.setValue(environment.getTimeOfDay()-90);
         declination.setValue(environment.getDeclination());
 
         // ambient color
@@ -54,7 +53,9 @@ public class EnvironmentPanel extends JPanel {
 
         // sun position
         gbc.gridy++;
-        PanelHelper.addLabelAndComponent(this, "Time of day (24h)", timeOfDay,gbc);
+        PanelHelper.addLabelAndComponent(container, "Time of day (24h)", timeOfDay,gbc);
+        timeOfDay.setValue(environment.getTimeOfDay()-90);
+
         timeOfDay.addActionListener(e->updateSunPosition());
         timeOfDay.setPreferredSize(new Dimension(100,100));
 

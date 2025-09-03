@@ -10,7 +10,6 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodeAttachListener;
 import com.marginallyclever.ro3.node.NodeDetachListener;
 import com.marginallyclever.ro3.node.NodeRenameListener;
-import com.marginallyclever.ro3.node.nodefactory.NodeTreeBranchRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

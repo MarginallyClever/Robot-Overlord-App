@@ -33,7 +33,7 @@ public class BrainPanel extends JPanel {
         c.gridx = 0;
         c.gridy = 0;
 
-        var sumDecay = PanelHelper.createRange(1.0, 0.0, brain.getSumDecay(), brain::setSumDecay);
+        var sumDecay = PanelHelper.createSlider(1.0, 0.0, brain.getSumDecay(), brain::setSumDecay);
         PanelHelper.addLabelAndComponent(this,"Sum Decay",sumDecay,c);
         c.gridy++;
 
@@ -46,15 +46,15 @@ public class BrainPanel extends JPanel {
         setLearningLabel();
         c.gridy++;
 
-        var learningRate = PanelHelper.createRange(1.0, 0.0, brain.getLearningRate(), brain::setLearningRate);
+        var learningRate = PanelHelper.createSlider(1.0, 0.0, brain.getLearningRate(), brain::setLearningRate);
         PanelHelper.addLabelAndComponent(this,"Learning Rate",learningRate,c);
         c.gridy++;
 
-        var forgettingRate = PanelHelper.createRange(1.0, 0.0, brain.getForgettingRate(), brain::setForgettingRate);
+        var forgettingRate = PanelHelper.createSlider(1.0, 0.0, brain.getForgettingRate(), brain::setForgettingRate);
         PanelHelper.addLabelAndComponent(this,"Forgetting Rate",forgettingRate,c);
         c.gridy++;
 
-        var modRate = PanelHelper.createRange(1.0, 0.0, brain.getModulationDegradationRate(), brain::setModulationDegradationRate);
+        var modRate = PanelHelper.createSlider(1.0, 0.0, brain.getModulationDegradationRate(), brain::setModulationDegradationRate);
         PanelHelper.addLabelAndComponent(this,"Mod Reduction Rate",modRate,c);
         c.gridy++;
 

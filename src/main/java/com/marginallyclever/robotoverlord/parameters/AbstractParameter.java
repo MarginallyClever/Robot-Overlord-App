@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * A convenience class for basic data types
  */
-public abstract class AbstractParameter<T> {
+@Deprecated public abstract class AbstractParameter<T> {
 	private String name;
 	// the data to store
 	private T value;

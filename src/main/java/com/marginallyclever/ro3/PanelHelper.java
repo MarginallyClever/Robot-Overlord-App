@@ -191,34 +191,43 @@ public class PanelHelper {
      * @param consumer the consumer to accept the value
      * @return the {@link JComponent}
      */
-    public static JComponent createRange(double max,double min,double value,Consumer<Double> consumer) {
+    public static JComponent createSlider(double max, double min, double value, Consumer<Double> consumer) {
+        if(max<=min) throw new IllegalArgumentException("max must be > min");
+        if(value<min) throw new IllegalArgumentException("value must be >= min");
+        if(value>max) throw new IllegalArgumentException("value must be <= max");
+
         JPanel panel = new JPanel(new BorderLayout());
         var f = addNumberFieldDouble("",value);
 
         double range = (int)((max-min)*100);
-        JSlider slider = new JSlider((int)(min*100),(int)(max*100),(int)(value*100));
-        slider.addChangeListener((e)->{
-            if(consumer!=null) consumer.accept(slider.getValue()/range);
-            f.setValue(slider.getValue()/100.0);
-        });
-        slider.setPreferredSize(new Dimension(100,20));
+        try {
+            JSlider slider = new JSlider((int) (min * 100), (int) (max * 100), (int) (value * 100));
 
-        f.setInputVerifier(new InputVerifier() {
-            @Override
-            public boolean verify(JComponent input) {
-                var f = (JFormattedTextField)input;
+            slider.addChangeListener((e)->{
+                if(consumer!=null) consumer.accept((double)slider.getValue()/100.0);
+                f.setValue(slider.getValue()/100.0);
+            });
+            slider.setPreferredSize(new Dimension(100,20));
+
+            f.setInputVerifier(new InputVerifier() {
+                @Override
+                public boolean verify(JComponent input) {
+                    var f = (JFormattedTextField)input;
+                    var v = ((Number)f.getValue()).doubleValue();
+                    return v>=min && v<=max;
+                }
+            });
+            f.addPropertyChangeListener("value",(e)->{
                 var v = ((Number)f.getValue()).doubleValue();
-                return v>=min && v<=max;
-            }
-        });
-        f.addPropertyChangeListener("value",(e)->{
-            var v = ((Number)f.getValue()).doubleValue();
-            // if it is in range, update the slider.
-            slider.setValue((int)(v*100));
-        });
+                // if it is in range, update the slider.
+                slider.setValue((int)(v*100));
+            });
 
-        panel.add(slider,BorderLayout.CENTER);
-        panel.add(f,BorderLayout.EAST);
+            panel.add(slider,BorderLayout.CENTER);
+            panel.add(f,BorderLayout.EAST);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
         return panel;
     }
 
@@ -299,5 +308,14 @@ public class PanelHelper {
         g2d.dispose();
 
         return scaledImage;
+    }
+
+    public static JComboBox<String> createComboBox(String[] options, int type, Consumer<Integer> consumer) {
+        JComboBox<String> comboBox = new JComboBox<>(options);
+        comboBox.setSelectedIndex(type);
+        if(consumer != null) {
+            comboBox.addActionListener(e -> consumer.accept(comboBox.getSelectedIndex()));
+        }
+        return comboBox;
     }
 }

@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.node.nodes.odenode.odebody;
 
-import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.odenode.ODELinkAttachListener;

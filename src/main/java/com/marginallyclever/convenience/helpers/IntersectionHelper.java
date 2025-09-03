@@ -17,6 +17,9 @@ import javax.vecmath.Vector3d;
  */
 public abstract class IntersectionHelper {
 	static final float SMALL_NUM = 0.001f;
+
+	public static final double EPSILON = 1e-8;
+
 	/**
      * test intersection of two cylinders.  From <a href="http://geomalgorithms.com/a07-_distance.html">...</a>
      * @param cA cylinder A
@@ -158,39 +161,21 @@ public abstract class IntersectionHelper {
 		return cuboidCuboidInternal(a,b) &&
 				cuboidCuboidInternal(b,a);
 	}
-	
-	
+
 	static protected boolean cuboidCuboidInternal(AABB a, AABB b) {
-		// get the normals for A
-		Vector3d[] n = new Vector3d[3];
-		Matrix4d pose = a.getPose();
-		n[0] = new Vector3d(pose.m00, pose.m10, pose.m20);
-		n[1] = new Vector3d(pose.m01, pose.m11, pose.m21);
-		n[2] = new Vector3d(pose.m02, pose.m12, pose.m22);
-		// logger.info("aMatrix="+a.poseWorld);
-		
-		a.updatePoints();
-		b.updatePoints();
+		// If updatePoints() only recomputes min/max, keep it; otherwise drop it.
+		// a.updatePoints();
+		// b.updatePoints();
 
-        for (Vector3d vector3d : n) {
-            // SATTest the normals of A against the 8 points of box A.
-            // SATTest the normals of A against the 8 points of box B.
-            // points of each box are a combination of the box's top/bottom values.
-            double[] aLim = SATTest(vector3d, a.p);
-            double[] bLim = SATTest(vector3d, b.p);
-            // logger.info("Lim "+axis[i]+" > "+n[i].x+"\t"+n[i].y+"\t"+n[i].z+" :
-            // "+aLim[0]+","+aLim[1]+" vs "+bLim[0]+","+bLim[1]);
+		var aMin = a.getBoundsBottom();
+		var aMax = a.getBoundsTop();
+		var bMin = b.getBoundsBottom();
+		var bMax = b.getBoundsTop();
 
-            // if the two box projections do not overlap then there is no chance of a
-            // collision.
-            if (!overlaps(aLim[0], aLim[1], bLim[0], bLim[1])) {
-                // logger.info("Miss");
-                return false;
-            }
-        }
-
-		// intersect!
-		// logger.info("Hit");
+		// Separating axis theorem for AABBs reduces to 1D interval overlap on each axis
+		if (aMax.x < bMin.x || bMax.x < aMin.x) return false; // X separated
+		if (aMax.y < bMin.y || bMax.y < aMin.y) return false; // Y separated
+		if (aMax.z < bMin.z || bMax.z < aMin.z) return false; // Z separated
 		return true;
 	}
 	
@@ -258,7 +243,7 @@ public abstract class IntersectionHelper {
 	 * @param ray start and direction
 	 * @param center center of sphere
 	 * @param radius radius of sphere
-	 * @return distance to first hit.  negative values for no hit/behind start. 
+	 * @return distance to first hit.  negative values for no hit/behind start.
 	 */
 	static public double raySphere(final Ray ray,final Tuple3d center,final double radius) {
 		Vector3d oc = new Vector3d();
@@ -268,8 +253,17 @@ public abstract class IntersectionHelper {
 		var c = oc.dot(oc) - radius*radius;
 		var discriminant = h*h - a*c;
 	    if(discriminant >= 0) {
-			return (-h - Math.sqrt(discriminant)) / a;
-	    }
+			//return (-h - Math.sqrt(discriminant)) / a;
+
+            // choose the smallest positive root (handle rays starting inside the sphere)
+            double sqrtD = Math.sqrt(discriminant);
+            double t0 = (-h - sqrtD) / a;
+            double t1 = (-h + sqrtD) / a;
+            double eps = 1e-9;
+            if (t0 > eps) return t0;
+            if (t1 > eps) return t1;
+            return -1.0; // both behind the origin
+        }
 	    // no hit
         return -1.0;
 	}
@@ -280,58 +274,77 @@ public abstract class IntersectionHelper {
 	 * @param ray start and direction
 	 * @param boxMin lower bounds
 	 * @param boxMax upper bounds
-	 * @return &gt;=0 for hit, negative numbers for hits behind the ray origin or no hit.
+	 * @return a {@link RayAABBHit}
 	 */
-	static public double rayBox(final Ray ray,final Point3d boxMin,final Point3d boxMax) {
-		Vector3d rayDirection = ray.getDirection();
+	static public RayAABBHit rayBox(final Ray ray,final Point3d boxMin,final Point3d boxMax) {
 		Point3d rayOrigin = ray.getOrigin();
-	    double tmin = (boxMin.x - rayOrigin.x) / rayDirection.x;
-	    double tmax = (boxMax.x - rayOrigin.x) / rayDirection.x;
-	
-	    if (tmin > tmax) {
-	    	double temp = tmin;
-	    	tmin=tmax;
-	    	tmax=temp;
-	    }
-	
-	    double tymin = (boxMin.y - rayOrigin.y) / rayDirection.y;
-	    double tymax = (boxMax.y - rayOrigin.y) / rayDirection.y;
-	
-	    if (tymin > tymax) {
-	    	double temp = tymin;
-	    	tymin=tymax;
-	    	tymax=temp;
-	    }
-	
-	    if ((tmin > tymax) || (tymin > tmax)) 
-	        return -1; 
-	
-	    if (tymin > tmin) 
-	        tmin = tymin; 
-	
-	    if (tymax < tmax) 
-	        tmax = tymax; 
-	
-	    double tzmin = (boxMin.z - rayOrigin.z) / rayDirection.z;
-	    double tzmax = (boxMax.z - rayOrigin.z) / rayDirection.z;
-	
-	    if (tzmin > tzmax) {
-	    	double temp = tzmin;
-	    	tzmin=tzmax;
-	    	tzmax=temp;
-	    }
-	
-	    if ((tmin > tzmax) || (tzmin > tmax)) 
-	        return -1; 
-	
-	    if (tzmin > tmin) 
-	        tmin = tzmin; 
-	
-	    //if (tzmax < tmax) 
-	    //    tmax = tzmax; 
-	
-	    return tmin; 
+		Vector3d rayDirection = ray.getDirection();
+		Vector3d invDir = ray.getInverseDirection();
+
+		double tEnter = 0.0;
+		double tExit  = Double.POSITIVE_INFINITY;
+
+		// X slab
+		if (rayDirection.x == 0.0) {
+			if (rayOrigin.x < boxMin.x || rayOrigin.x > boxMax.x) return RayAABBHit.miss();
+		} else {
+			double inv = invDir.x;
+			double t0 = (boxMin.x - rayOrigin.x) * inv;
+			double t1 = (boxMax.x - rayOrigin.x) * inv;
+			if (t0 > t1) {
+				double tmp = t0;
+				t0 = t1;
+				t1 = tmp;
+			}
+			tEnter = Math.max(tEnter, t0);
+			tExit  = Math.min(tExit,  t1);
+			if (tEnter > tExit) return RayAABBHit.miss();
+		}
+
+		// Y slab
+		if (rayDirection.y == 0.0) {
+			if (rayOrigin.y < boxMin.y || rayOrigin.y > boxMax.y) return RayAABBHit.miss();
+		} else {
+			double inv = invDir.y;
+			double t0 = (boxMin.y - rayOrigin.y) * inv;
+			double t1 = (boxMax.y - rayOrigin.y) * inv;
+			if (t0 > t1) {
+				double tmp = t0;
+				t0 = t1;
+				t1 = tmp;
+			}
+			tEnter = Math.max(tEnter, t0);
+			tExit  = Math.min(tExit,  t1);
+			if (tEnter > tExit) return RayAABBHit.miss();
+		}
+
+		// Z slab
+		if (rayDirection.z == 0.0) {
+			if (rayOrigin.z < boxMin.z || rayOrigin.z > boxMax.z) return RayAABBHit.miss();
+		} else {
+			double inv = invDir.z;
+			double t0 = (boxMin.z - rayOrigin.z) * inv;
+			double t1 = (boxMax.z - rayOrigin.z) * inv;
+			if (t0 > t1) {
+				double tmp = t0;
+				t0 = t1;
+				t1 = tmp;
+			}
+			tEnter = Math.max(tEnter, t0);
+			tExit  = Math.min(tExit,  t1);
+			if (tEnter > tExit) return RayAABBHit.miss();
+		}
+
+		if (tExit < 0.0) return RayAABBHit.miss(); // box entirely behind
+
+		boolean inside = rayOrigin.x >= boxMin.x && rayOrigin.x <= boxMax.x &&
+						 rayOrigin.y >= boxMin.y && rayOrigin.y <= boxMax.y &&
+						 rayOrigin.z >= boxMin.z && rayOrigin.z <= boxMax.z;
+		if (inside) tEnter = 0.0;
+
+		return RayAABBHit.hit(inside, tEnter, tExit);
 	}
+
 
 	/**
 	 * <a href="https://en.wikipedia.org/wiki/Circumscribed_circle">circumscribed circle</a>
@@ -414,39 +427,37 @@ public abstract class IntersectionHelper {
 	 * products needs to be reversed to get the correct intersection result.
 	 * See also <a href="https://en.wikipedia.org/wiki/Incircle_and_excircles_of_a_triangle">Wikipedia</a>.
 	 * @param ray origin and direction
-	 * @param v0 point 1
-	 * @param v1 point 2
-	 * @param v2 point 3
-	 * @return distance to the intersection, negative numbers for hits behind camera, Double.MAX_VALUE for no hit.
+	 * @param p0 point 1
+	 * @param p1 point 2
+	 * @param p2 point 3
+	 * @return distance to the intersection.  Negative numbers for hits behind start of ray, Double.MAX_VALUE for no hit.
 	 */
-    public static double rayTriangle(Ray ray, Vector3d v0, Vector3d v1, Vector3d v2) {
-		Vector3d edge1 = new Vector3d(v1.x-v0.x, v1.y-v0.y, v1.z-v0.z);
-		Vector3d edge2 = new Vector3d(v2.x-v0.x, v2.y-v0.y, v2.z-v0.z);
-		Vector3d pvec = new Vector3d();
-		final double EPSILON = 1e-8;
-
-		pvec.cross(ray.getDirection(), edge2);
-		double det = edge1.dot(pvec);
+    public static double rayTriangle(Ray ray, final Point3d p0, final Point3d p1, final Point3d p2) {
+		Vector3d edge1 = new Vector3d(p1.x-p0.x, p1.y-p0.y, p1.z-p0.z);
+		Vector3d edge2 = new Vector3d(p2.x-p0.x, p2.y-p0.y, p2.z-p0.z);
+		Vector3d pVec = new Vector3d();
+		pVec.cross(ray.getDirection(), edge2);
+		double det = edge1.dot(pVec);
 		if (det > -EPSILON && det < EPSILON) {
 			return Double.MAX_VALUE; // Ray and triangle are parallel
 		}
 
-		double inv_det = 1.0 / det;
-		Vector3d tvec = new Vector3d();
-		tvec.sub(ray.getOrigin(), v0);
-		double u = tvec.dot(pvec) * inv_det;
+		double invDet = 1.0 / det;
+		Vector3d tVec = new Vector3d();
+		tVec.sub(ray.getOrigin(), p0);
+		double u = tVec.dot(pVec) * invDet;
 		if (u < 0.0 || u > 1.0) {
 			return Double.MAX_VALUE;
 		}
 
-		Vector3d qvec = new Vector3d();
-		qvec.cross(tvec, edge1);
-		double v = ray.getDirection().dot(qvec) * inv_det;
+		Vector3d qVec = new Vector3d();
+		qVec.cross(tVec, edge1);
+		double v = ray.getDirection().dot(qVec) * invDet;
 		if (v < 0.0 || u + v > 1.0) {
 			return Double.MAX_VALUE;
 		}
 
-		double t = edge2.dot(qvec) * inv_det;
+		double t = edge2.dot(qVec) * invDet;
 		if (t < EPSILON) {
 			return Double.MAX_VALUE; // Intersection is behind the ray origin
 		}
@@ -484,7 +495,7 @@ public abstract class IntersectionHelper {
 		return distance;
 	}
 
-	public static Vector3d buildNormalFrom3Points(Vector3d v0, Vector3d v1, Vector3d v2) {
+	public static Vector3d buildNormalFrom3Points(Point3d v0, Point3d v1, Point3d v2) {
 		// build normal from points v0,v1,v2
 		Vector3d edge1 = new Vector3d();
 		Vector3d edge2 = new Vector3d();

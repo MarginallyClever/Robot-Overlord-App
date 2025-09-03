@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.ro3.mesh.Mesh;
-import com.marginallyclever.ro3.raypicking.RayHit;
+import com.marginallyclever.ro3.raypicking.Hit;
 import org.json.JSONObject;
 
 import javax.vecmath.Point3d;
@@ -121,7 +121,7 @@ public class Sphere extends ProceduralMesh {
      * @return The RayHit object containing the intersection point and normal, or null if no intersection.
      */
     @Override
-    public RayHit intersect(Ray ray) {
+    public Hit intersect(Ray ray) {
         // calculate intersection of ray and sphere
         var d = IntersectionHelper.raySphere(ray, new Vector3d(0,0,0), this.radius);
         if(d>0) {
@@ -129,7 +129,7 @@ public class Sphere extends ProceduralMesh {
             p.scaleAdd(d,ray.getOrigin());
             Vector3d normal = new Vector3d(p);
             normal.normalize();
-            return new RayHit(null, d, normal,p);
+            return new Hit(null, d, normal,p,null);
         }
         return null;
     }

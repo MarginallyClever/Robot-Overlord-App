@@ -2,6 +2,10 @@ package com.marginallyclever.ro3.apps.pathtracer;
 
 import java.awt.*;
 
+/**
+ * Represents a color with double precision for each channel (red, green, blue, alpha).
+ * Values are expected to be in the range [0.0, 1.0].
+ */
 public class ColorDouble {
     public double r, g, b, a;
 
@@ -50,7 +54,7 @@ public class ColorDouble {
         a += other.a;
     }
 
-    public void scale(ColorDouble other) {
+    public void multiply(ColorDouble other) {
         r *= other.r;
         g *= other.g;
         b *= other.b;
@@ -66,5 +70,12 @@ public class ColorDouble {
 
     public void set(ColorDouble other) {
         set(other.r, other.g, other.b, other.a);
+    }
+
+    public void clamp(int min, double max) {
+        this.r = Math.max(min, Math.min(max,r));
+        this.g = Math.max(min, Math.min(max,g));
+        this.b = Math.max(min, Math.min(max,b));
+        this.a = Math.max(min, Math.min(max,a));
     }
 }

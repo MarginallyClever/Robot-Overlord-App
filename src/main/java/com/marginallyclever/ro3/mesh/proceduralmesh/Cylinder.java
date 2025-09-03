@@ -116,7 +116,7 @@ public class Cylinder extends ProceduralMesh {
         n.normalize();
         this.addVertex(x*radius, y*radius, z);
         this.addTexCoord(0.5f+x*0.5f,0.5f+y*0.5f);
-        this.addNormal((float)n.x, (float)n.y, (float)n.z);
+        this.addNormal(n);
     }
 
     @Override

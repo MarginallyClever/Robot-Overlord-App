@@ -2,10 +2,10 @@ package com.marginallyclever.robotoverlord.components.shapes;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MathHelper;
+import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.robotoverlord.SerializationContext;
 import com.marginallyclever.robotoverlord.components.ShapeComponent;
 import com.marginallyclever.robotoverlord.parameters.DoubleParameter;
-import com.marginallyclever.robotoverlord.systems.render.mesh.Mesh;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -123,7 +123,7 @@ public class Cylinder extends ShapeComponent implements PropertyChangeListener {
         n.normalize();
         myMesh.addVertex(x*radius, y*radius, z);
         myMesh.addTexCoord(0.5f+x*0.5f,0.5f+y*0.5f);
-        myMesh.addNormal((float)n.x, (float)n.y, (float)n.z);
+        myMesh.addNormal(n);
     }
 
     @Override

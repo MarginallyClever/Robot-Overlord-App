@@ -9,60 +9,50 @@ import javax.vecmath.Vector3d;
  * {@link Ray} is a starting point and a direction.
  */
 public class Ray {
-	private final Point3d origin = new Point3d();
-	private final Vector3d direction = new Vector3d();
-	private double maxDistance;
+	private final Point3d origin;
+	private final Vector3d direction;
+	private final double maxDistance;
+	private final Vector3d inverseDirection = new Vector3d();
+	private final Vector3d wo;
 
 	public Ray() {
 		this(new Point3d(),new Vector3d(0,0,1),Double.MAX_VALUE);
 	}
 
-	public Ray(Tuple3d origin, Vector3d direction) {
+    public Ray(Ray other) {
+        this.origin = new Point3d(other.origin);
+        this.direction = new Vector3d(other.direction);
+        this.maxDistance = other.maxDistance;
+        this.wo = new Vector3d(other.wo);
+        this.inverseDirection.set(other.inverseDirection);
+    }
+
+	/**
+	 * Calls {@link Ray#Ray(Point3d, Vector3d, double)} with the maximum ray distance.
+	 */
+	public Ray(Point3d origin, Vector3d direction) {
 		this(origin,direction,Double.MAX_VALUE);
 	}
 
-	public Ray(Tuple3d origin,Vector3d direction,double maxDistance) {
-		this.origin.set(origin);
-		this.direction.set(direction);
-		this.maxDistance = maxDistance;
-	}
-
-	public Ray(Ray r) {
-		this.origin.set(r.origin);
-		this.direction.set(r.direction);
-		this.maxDistance = r.maxDistance;
-	}
-
 	/**
-	 * @param direction the direction of this ray.  cannot be a zero vector.
-	 * @throws IllegalArgumentException if direction is too small
+	 *
+	 * @param origin the camera position.
+	 * @param direction unit length venctor from camera through viewport and into scene.
+	 * @param maxDistance the limit to test for ray intersections.
 	 */
-	public void setDirection(Vector3d direction) throws IllegalArgumentException {
-		if(direction.lengthSquared()<0.0001) {
-			throw new IllegalArgumentException("direction is too small");
-		}
-		this.direction.set(direction);
-		this.direction.normalize();
-	}
-
-	public Vector3d getDirection() {
-		return direction;
-	}
-
-	public void setOrigin(Point3d origin) {
-		this.origin.set(origin);
-	}
-
-	public Point3d getOrigin() {
-		return origin;
-	}
-
-	public void setMaxDistance(double maxDistance) {
+	public Ray(Point3d origin, Vector3d direction, double maxDistance) {
+		this.origin = new Point3d(origin);
+		this.direction = new Vector3d(direction);
 		this.maxDistance = maxDistance;
+		this.wo = new Vector3d(-direction.x,-direction.y,-direction.z);
+		updateInverseDirection();
 	}
 
-	public double getMaxDistance() {
-		return maxDistance;
+	private void updateInverseDirection() {
+		double ix = direction.x ==0 ? 0 : 1.0/direction.x;
+		double iy = direction.y ==0 ? 0 : 1.0/direction.y;
+		double iz = direction.z ==0 ? 0 : 1.0/direction.z;
+		inverseDirection.set(ix,iy,iz);
 	}
 
 	/**
@@ -75,6 +65,25 @@ public class Ray {
 				origin.z+direction.z*t);
 	}
 
+	public Point3d getOrigin() {
+		return origin;
+	}
+
+	public Vector3d getDirection() {
+		return direction;
+	}
+
+    /**
+     * @return the negated direction vector (pointing back toward the origin).
+     */
+	public Vector3d getWo() {
+		return wo;
+	}
+
+	public double getMaxDistance() {
+		return maxDistance;
+	}
+
 	/**
 	 * Set this ray to be a copy of another ray.  this = matrix.transform(from)
 	 * @param matrix the local transform
@@ -85,5 +94,11 @@ public class Ray {
 		this.direction.set(from.direction);
 		matrix.transform(origin);
 		matrix.transform(direction);
+		this.wo.set(-direction.x,-direction.y,-direction.z);
+		updateInverseDirection();
     }
+
+	public Vector3d getInverseDirection() {
+		return inverseDirection;
+	}
 }

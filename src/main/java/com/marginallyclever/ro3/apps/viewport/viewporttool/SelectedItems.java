@@ -15,9 +15,6 @@ import java.util.Map;
  *
  */
 public class SelectedItems {
-    /**
-     * The list of entities selected in the editorpanel.
-     */
     private final List<Node> nodes = new ArrayList<>();
 
     /**
@@ -77,6 +74,9 @@ public class SelectedItems {
         worldPoses.clear();
     }
 
+    /**
+     * Saves the current world pose of each node in the selection.
+     */
     public void savePose() {
         for(Node e : nodes) {
             setEntityWorldPose(e);

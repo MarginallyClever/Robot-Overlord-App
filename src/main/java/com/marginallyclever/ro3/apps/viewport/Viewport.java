@@ -8,6 +8,7 @@ import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.viewport.renderpass.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.move.RotateToolMulti;
+import com.marginallyclever.ro3.apps.viewport.viewporttool.move.RotateToolOneAxis;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.move.TranslateToolMulti;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.node.Node;
@@ -49,6 +50,10 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
     private double userMovementScale = 1.0;
     private final JButton frameOfReferenceButton = new JButton();
     private final JPopupMenu frameOfReferenceMenu = new JPopupMenu();
+    /**
+     * If true, everything in the scene will be shifted to the camera origin at render time.
+     * This should fix issues with large scenes where the camera is far from the origin.
+     */
     private boolean originShift = true;
 
     private final EventListenerList listeners = new EventListenerList();
@@ -135,6 +140,8 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
         renderPasses.add(new DrawDHParameters());
         renderPasses.add(new DrawJoints());
         renderPasses.add(new DrawPoses());
+        renderPasses.add(new DrawDepthBuffer());
+        renderPasses.add(new DrawStencilBuffer());
     }
 
     /**
@@ -607,11 +614,8 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
         // if we reselect the current tool, toggle off.
         activeToolIndex = (activeToolIndex == index) ? -1 : index;
 
-        if(activeToolIndex >= 0) {
-            viewportTools.get(activeToolIndex).activate(Registry.selection.getList());
-        }
-
         fireToolChanged(index);
+        selectionChanged(null,null);
     }
 
     public int getActiveToolIndex() {
@@ -624,7 +628,8 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
 
     private void selectionChanged(Object source,Object item) {
         if(activeToolIndex >= 0) {
-            viewportTools.get(activeToolIndex).activate(Registry.selection.getList());
+            SelectedItems selection = new SelectedItems(Registry.selection.getList());
+            viewportTools.get(activeToolIndex).activate(selection);
         }
     }
 
@@ -711,5 +716,25 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
         for(var listener : listeners.getListeners(ViewportToolChangeListener.class)) {
             listener.onViewportToolChange(tool);
         }
+    }
+
+    public boolean isDebugGL() {
+        Preferences pref = Preferences.userNodeForPackage(this.getClass());
+        return pref.getBoolean("debugGL",false);
+    }
+
+    public void setDebugGL(boolean debugGL) {
+        Preferences pref = Preferences.userNodeForPackage(this.getClass());
+        pref.putBoolean("debugGL",debugGL);
+    }
+
+    public boolean isTraceGL() {
+        Preferences pref = Preferences.userNodeForPackage(this.getClass());
+        return pref.getBoolean("traceGL",false);
+    }
+
+    public void setTraceGL(boolean traceGL) {
+        Preferences pref = Preferences.userNodeForPackage(this.getClass());
+        pref.putBoolean("traceGL",traceGL);
     }
 }

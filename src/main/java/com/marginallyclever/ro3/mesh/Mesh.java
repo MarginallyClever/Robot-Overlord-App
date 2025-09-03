@@ -1,18 +1,15 @@
 package com.marginallyclever.ro3.mesh;
 
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
-import com.marginallyclever.ro3.raypicking.RayHit;
+import com.marginallyclever.ro3.raypicking.Hit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.event.EventListenerList;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector2d;
-import javax.vecmath.Vector3d;
+import javax.vecmath.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.nio.FloatBuffer;
@@ -29,8 +26,6 @@ import java.util.List;
 public class Mesh {
 	private static final Logger logger = LoggerFactory.getLogger(Mesh.class);
 	public static final int NUM_BUFFERS=5;  // verts, normals, colors, textureCoordinates, index
-	public static final int BYTES_PER_INT = Integer.SIZE/8;
-	public static final int BYTES_PER_FLOAT = Float.SIZE/8;
 
 	public final transient List<Float> vertexArray = new ArrayList<>();
 	public final transient List<Float> normalArray = new ArrayList<>();
@@ -159,46 +154,57 @@ public class Mesh {
 			data.rewind();
 
 			gl.glBindBuffer(GL3.GL_ELEMENT_ARRAY_BUFFER, VBO[4]);
-			gl.glBufferData(GL3.GL_ELEMENT_ARRAY_BUFFER, (long) indexArray.size() *BYTES_PER_INT, data, GL3.GL_STATIC_DRAW);
+			gl.glBufferData(GL3.GL_ELEMENT_ARRAY_BUFFER, (long) indexArray.size() *Integer.BYTES, data, GL3.GL_STATIC_DRAW);
 		}
 
 		gl.glBindVertexArray(0);
 
-		createNewVertexProvider();
+		getVertexProvider();
 	}
 
-	private void createNewVertexProvider() {
-		if (hasIndexes) {
-			vertexProvider = new VertexProvider() {
-				@Override
-				public Vector3d provideVertex(int index) {
-					return getVertex(indexArray.get(index));
-				}
-				@Override
-				public Vector3d provideNormal(int index) {
-					return getNormal(indexArray.get(index));
-				}
-				@Override
-				public int provideCount() {
-					return indexArray.size();
-				}
-			};
-		} else {
-			vertexProvider = new VertexProvider() {
-				@Override
-				public Vector3d provideVertex(int index) {
-					return getVertex(index);
-				}
-				@Override
-				public Vector3d provideNormal(int index) {
-					return getNormal(index);
-				}
-				@Override
-				public int provideCount() {
-					return getNumVertices();
-				}
-			};
+	public VertexProvider getVertexProvider() {
+		if(vertexProvider==null) {
+			if (hasIndexes) {
+				vertexProvider = new VertexProvider() {
+					@Override
+					public int provideCount() {
+						return indexArray.size();
+					}
+					@Override
+					public Point3d provideVertex(int index) {
+						return getVertex(indexArray.get(index));
+					}
+					@Override
+					public Vector3d provideNormal(int index) {
+						return getNormal(indexArray.get(index));
+					}
+					@Override
+					public Point2d provideTextureCoordinate(int index) {
+						return getTexCoord(indexArray.get(index));
+					}
+				};
+			} else {
+				vertexProvider = new VertexProvider() {
+					@Override
+					public int provideCount() {
+						return getNumVertices();
+					}
+					@Override
+					public Point3d provideVertex(int index) {
+						return getVertex(index);
+					}
+					@Override
+					public Vector3d provideNormal(int index) {
+						return getNormal(index);
+					}
+					@Override
+					public Point2d provideTextureCoordinate(int index) {
+						return getTexCoord(index);
+					}
+				};
+			}
 		}
+		return vertexProvider;
 	}
 
 	private void checkBufferSizes() {
@@ -219,7 +225,7 @@ public class Mesh {
 
 	private void bindArray(GL3 gl, int attribIndex, int size) {
 		gl.glEnableVertexAttribArray(attribIndex);
-		gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[attribIndex]);
+		gl.glBindBuffer(GL3.GL_ARRAY_BUFFER, VBO[attribIndex]);
 		gl.glVertexAttribPointer(attribIndex,size,GL3.GL_FLOAT,false,0,0);
 		OpenGLHelper.checkGLError(gl,logger);
 	}
@@ -229,7 +235,7 @@ public class Mesh {
 		for( Float f : list ) data.put(f);
 		data.rewind();
 		bindArray(gl,attribIndex,size);
-		gl.glBufferData(GL3.GL_ARRAY_BUFFER, numVertexes*size*BYTES_PER_FLOAT, data, GL3.GL_STATIC_DRAW);
+		gl.glBufferData(GL3.GL_ARRAY_BUFFER, numVertexes*size*Float.BYTES, data, GL3.GL_STATIC_DRAW);
 		OpenGLHelper.checkGLError(gl,logger);
 	}
 
@@ -281,12 +287,20 @@ public class Mesh {
 		normalArray.add(z);
 		hasNormals=true;
 	}
+
+    public void addNormal(Tuple3d n) {
+        addNormal((float)n.x, (float)n.y, (float)n.z);
+    }
 	
 	public void addVertex(float x,float y,float z) {
 		vertexArray.add(x);
 		vertexArray.add(y);
 		vertexArray.add(z);
 	}
+
+    public void addVertex(Tuple3d p) {
+        addVertex((float)p.x, (float)p.y, (float)p.z);
+    }
 
 	/**
 	 * Add a color to the mesh.
@@ -361,27 +375,28 @@ public class Mesh {
 		return (vertexArray==null) ? 0 : vertexArray.size()/3;
 	}
 
-	public Vector3d getVertex(int t) {
+	public Point3d getVertex(int t) {
 		t*=3;
 		double x = vertexArray.get(t++); 
 		double y = vertexArray.get(t++); 
-		double z = vertexArray.get(t++); 
-		return new Vector3d(x,y,z);
+		double z = vertexArray.get(t);
+		return new Point3d(x,y,z);
 	}
 
 	public Vector3d getNormal(int t) {
 		t*=3;
 		double x = normalArray.get(t++);
 		double y = normalArray.get(t++);
-		double z = normalArray.get(t++);
+		double z = normalArray.get(t);
 		return new Vector3d(x,y,z);
 	}
 
-	public Vector2d getTexCoord(int t) {
+	public Point2d getTexCoord(int t) {
+		if(!hasTextures) return null;
 		t*=2;
 		double u = textureArray.get(t++);
-		double v = textureArray.get(t++);
-		return new Vector2d(u,v);
+		double v = textureArray.get(t);
+		return new Point2d(u,v);
 	}
 
 	public boolean isDirty() {
@@ -421,36 +436,21 @@ public class Mesh {
 	 * @param ray The ray to intersect with, in local space.
 	 * @return The RayHit object containing the intersection point and normal, or null if no intersection.
 	 */
-	public RayHit intersect(Ray ray) {
+	public Hit intersect(Ray ray) {
 		if( renderStyle != GL3.GL_TRIANGLES &&
 			renderStyle != GL3.GL_TRIANGLE_FAN &&
-			renderStyle != GL3.GL_TRIANGLE_STRIP) return null;
+			renderStyle != GL3.GL_TRIANGLE_STRIP ) return null;
 
-		if(!boundingBox.intersect(ray)) {
-			return null;  // no hit
-		}
+		var test = boundingBox.intersect(ray);
+		if (!test.isHit()) return null;  // miss
 
-		if(vertexProvider==null) {
-			createNewVertexProvider();
-		}
-		return intersect(ray, vertexProvider);
-	}
-
-
-	/**
-	 *
-	 * @param ray the ray to intersect with
-	 * @param provider a VertexProvider that will provide the vertices and normals of the triangles to intersect with
-	 * @return null if no intersection, otherwise a RayHit object with the intersection point and normal.
-	 */
-	private RayHit intersect(Ray ray, VertexProvider provider) {
 		int a=0;
-
 		double nearest = Double.MAX_VALUE;
-		for(int i=0;i<provider.provideCount();i+=3) {
-			Vector3d v0 = provider.provideVertex(i);
-			Vector3d v1 = provider.provideVertex(i+1);
-			Vector3d v2 = provider.provideVertex(i+2);
+		VertexProvider provider = getVertexProvider();
+		for(int i=0; i<provider.provideCount(); i+=3) {
+			Point3d v0 = provider.provideVertex(i);
+			Point3d v1 = provider.provideVertex(i+1);
+			Point3d v2 = provider.provideVertex(i+2);
 			double t = IntersectionHelper.rayTriangle(ray, v0, v1, v2);
 			if(nearest > t) {
 				nearest = t;
@@ -458,40 +458,38 @@ public class Mesh {
 			}
 		}
 
-		if(nearest<ray.getMaxDistance()) {
-			Vector3d normal;
-			if(hasNormals) {
-				normal =   provider.provideNormal(a);
-				normal.add(provider.provideNormal(a+1));
-				normal.add(provider.provideNormal(a+2));
-				// average of normals
-				normal.normalize();
-			} else {
-				Vector3d v0 = provider.provideVertex(a);
-				Vector3d v1 = provider.provideVertex(a+1);
-				Vector3d v2 = provider.provideVertex(a+2);
-				// normal from face
-				normal = IntersectionHelper.buildNormalFrom3Points(v0, v1, v2);
-			}
-			Point3d p = new Point3d(ray.getDirection());
-			p.scale(nearest);
-			p.add(ray.getOrigin());
-			return new RayHit(null,nearest,normal,p);
+		if( nearest >= ray.getMaxDistance() ) return null;  // no hit
+		// get normal
+		Vector3d normal;
+		if(hasNormals) {
+			normal =   provider.provideNormal(a);
+			normal.add(provider.provideNormal(a+1));
+			normal.add(provider.provideNormal(a+2));
+			// average of normals
+			normal.normalize();
+		} else {
+			Point3d v0 = provider.provideVertex(a);
+			Point3d v1 = provider.provideVertex(a+1);
+			Point3d v2 = provider.provideVertex(a+2);
+			// normal from face
+			normal = IntersectionHelper.buildNormalFrom3Points(v0, v1, v2);
 		}
-		return null;
+		Point3d p = new Point3d();
+		p.scaleAdd(nearest, ray.getDirection(), ray.getOrigin());
+		return new Hit(null,nearest,normal,p,null);
 	}
 
 	public void setVertex(int i, double x, double y, double z) {
 		i*=3;
 		vertexArray.set(i++, (float)x);
 		vertexArray.set(i++, (float)y);
-		vertexArray.set(i++, (float)z);
+		vertexArray.set(i  , (float)z);
 	}
 
 	public void setTexCoord(int i, double u, double v) {
 		i*=2;
 		textureArray.set(i++, (float)u);
-		textureArray.set(i++, (float)v);
+		textureArray.set(i  , (float)v);
 	}
 
     public void updateVertexBuffers(GL3 gl3) {
@@ -528,9 +526,9 @@ public class Mesh {
     }
 
 	public Point3d getRandomPointOnTriangle(int triangleIndex) {
-		Vector3d v0 = getVertex(triangleIndex*3);
-		Vector3d v1 = getVertex(triangleIndex*3+1);
-		Vector3d v2 = getVertex(triangleIndex*3+2);
+		Point3d v0 = getVertex(triangleIndex*3);
+		Point3d v1 = getVertex(triangleIndex*3+1);
+		Point3d v2 = getVertex(triangleIndex*3+2);
 		double a = Math.random();
 		double b = Math.random();
 		if(a+b>1) {
@@ -546,9 +544,9 @@ public class Mesh {
 	}
 
 	public double getTriangleArea(int triangleIndex) {
-		Vector3d v0 = getVertex(triangleIndex*3);
-		Vector3d v1 = getVertex(triangleIndex*3+1);
-		Vector3d v2 = getVertex(triangleIndex*3+2);
+		Point3d v0 = getVertex(triangleIndex*3);
+		Point3d v1 = getVertex(triangleIndex*3+1);
+		Point3d v2 = getVertex(triangleIndex*3+2);
 		var v20 = new Vector3d(v2);
 		v20.sub(v0);
 		var v10 = new Vector3d(v1);
