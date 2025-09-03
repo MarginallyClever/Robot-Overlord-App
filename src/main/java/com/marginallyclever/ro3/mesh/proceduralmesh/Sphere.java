@@ -35,7 +35,7 @@ public class Sphere extends ProceduralMesh {
     // Procedurally generate a list of triangles that form a sphere subdivided by some amount.
     @Override
     public void updateModel() {
-        if(radius<=0) throw new IllegalArgumentException("Sphere radius must be greater than zero.");
+        if(radius==0) throw new IllegalArgumentException("Sphere radius must be non-zero.");
 
         this.clear();
         this.setRenderStyle(GL3.GL_TRIANGLES);
