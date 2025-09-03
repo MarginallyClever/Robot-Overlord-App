@@ -10,12 +10,8 @@ import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
-import com.marginallyclever.ro3.mesh.Mesh;
-import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
-import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.nodes.environment.Environment;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
-import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,90 +21,14 @@ import java.awt.*;
 
 /**
  * <p>Draw the background.  This may be a skybox or a solid color.</p>
- * <p>TODO <a href="https://antongerdelan.net/opengl/cubemaps.html">use the OpenGL cube map texture</a>?</p>
  */
 public class DrawBackground extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawBackground.class);
-    private final ColorRGB eraseColor = new ColorRGB(64,64,128);
+    private final ColorRGB clearColor = new ColorRGB(64,64,128);
     private ShaderProgram shader;
-    private Mesh mesh;
-    private TextureWithMetadata skyTexture;
 
     public DrawBackground() {
-        super("Erase/Background");
-
-        //buildBox();
-        //texture = Registry.textureFactory.load("/images/skybox.png");
-
-        buildSphere();
-        skyTexture = Registry.textureFactory.load("/com/marginallyclever/ro3/node/nodes/pose/poses/space/milkyway_2020_4k_print.jpg");
-
-        skyTexture.setDoNotExport(true);
-    }
-
-    /**
-     * Build a box with the given dimensions.
-     * <p>Textures are mapped to the box as follows:</p>
-     * <pre>
-     * +---+---+---+---+
-     * |   | Z |   |   |
-     * +---+---+---+---+
-     * | X-| Y | X | Y-|
-     * +---+---+---+---+
-     * |   | Z-|   |   |
-     * +---+---+---+---+</pre>
-     */
-    private void buildBox() {
-        mesh = new Mesh();
-        mesh.setRenderStyle(GL3.GL_QUADS);
-
-        float adj = 1f/256f;
-        float a=0.00f+adj;
-        float b=0.25f;
-        float c=0.50f;
-        float d=0.75f;
-        float e=1.00f-adj;
-
-        float f=1f/3f+adj*3;
-        float g=2f/3f-adj*3;
-        int v = 100;
-        // build the top face (z+)
-        mesh.addTexCoord(b,g);  mesh.addVertex(-v, v, v);
-        mesh.addTexCoord(c,g);  mesh.addVertex( v, v, v);
-        mesh.addTexCoord(c,e);  mesh.addVertex( v,-v, v);
-        mesh.addTexCoord(b,e);  mesh.addVertex(-v,-v, v);
-        // build the bottom face (z-)
-        mesh.addTexCoord(b,a);  mesh.addVertex(-v, v, -v);
-        mesh.addTexCoord(c,a);  mesh.addVertex( v, v, -v);
-        mesh.addTexCoord(c,f);  mesh.addVertex( v,-v, -v);
-        mesh.addTexCoord(b,f);  mesh.addVertex(-v,-v, -v);
-        // build north face (y+)
-        mesh.addTexCoord(b,g);  mesh.addVertex(-v, v,  v);
-        mesh.addTexCoord(c,g);  mesh.addVertex( v, v,  v);
-        mesh.addTexCoord(c,f);  mesh.addVertex( v, v, -v);
-        mesh.addTexCoord(b,f);  mesh.addVertex(-v, v, -v);
-        // build south face (y-)
-        mesh.addTexCoord(e,g);  mesh.addVertex(-v, -v,  v);
-        mesh.addTexCoord(d,g);  mesh.addVertex( v, -v,  v);
-        mesh.addTexCoord(d,f);  mesh.addVertex( v, -v, -v);
-        mesh.addTexCoord(e,f);  mesh.addVertex(-v, -v, -v);
-        // build east face (x+)
-        mesh.addTexCoord(d,g);  mesh.addVertex(v, -v,  v);
-        mesh.addTexCoord(c,g);  mesh.addVertex(v,  v,  v);
-        mesh.addTexCoord(c,f);  mesh.addVertex(v,  v, -v);
-        mesh.addTexCoord(d,f);  mesh.addVertex(v, -v, -v);
-        // build west face (x-)
-        mesh.addTexCoord(a,g);  mesh.addVertex(-v, -v,  v);
-        mesh.addTexCoord(b,g);  mesh.addVertex(-v,  v,  v);
-        mesh.addTexCoord(b,f);  mesh.addVertex(-v,  v, -v);
-        mesh.addTexCoord(a,f);  mesh.addVertex(-v, -v, -v);
-    }
-
-    private void buildSphere() {
-        mesh = ProceduralMeshFactory.createMesh("Sphere");
-        assert mesh instanceof Sphere;
-        ((Sphere)mesh).radius = 100;
-        ((Sphere)mesh).updateModel();
+        super("Sky/Background");
     }
 
     /**
@@ -116,7 +36,7 @@ public class DrawBackground extends AbstractRenderPass {
      */
     @Override
     public String getName() {
-        return "Erase/Background";
+        return "Sky/Background";
     }
 
     @Override
@@ -134,17 +54,19 @@ public class DrawBackground extends AbstractRenderPass {
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        mesh.unload(gl3);
+        Environment env = Registry.getScene().findFirstChild(Environment.class);
+        if(env!=null){
+            env.dispose(glAutoDrawable);
+        }
         shader.delete(gl3);
-        skyTexture.unload();
     }
 
     @Override
     public void draw(Viewport viewport) {
         GL3 gl3 = GLContext.getCurrentGL().getGL3();
-        gl3.glClearColor(eraseColor.red / 255.0f,
-                        eraseColor.green / 255.0f,
-                        eraseColor.blue / 255.0f,
+        gl3.glClearColor(clearColor.red / 255.0f,
+                        clearColor.green / 255.0f,
+                        clearColor.blue / 255.0f,
                         1);
         gl3.glDepthMask(true);
         gl3.glColorMask(true, true, true, true);
@@ -154,37 +76,24 @@ public class DrawBackground extends AbstractRenderPass {
 
         var env = Registry.getScene().findFirstChild(Environment.class);
         if(env==null) return;
-        checkForEnvironmentChanges(env);
-
-        if(skyTexture == null || mesh == null) return;
+        if(env.getSkyTexture() == null) return;
+        if(env.getSkyMesh() == null) return;
 
         Camera camera = viewport.getActiveCamera();
         if (camera != null) {
             gl3.glDisable(GL3.GL_DEPTH_TEST);
-            drawSkyMesh(gl3, camera);
+            drawSkyMesh(gl3, camera, env);
             gl3.glEnable(GL3.GL_DEPTH_TEST);
         }
     }
 
-    private void checkForEnvironmentChanges(Environment env) {
-        if(env.isSkyShapeIsSphere() != mesh instanceof Sphere) {
-            if(env.isSkyShapeIsSphere()) {
-                buildSphere();
-            } else {
-                buildBox();
-            }
-        }
-        if(env.getSkyTexture() != skyTexture) {
-            skyTexture = env.getSkyTexture();
-        }
-    }
-
     /**
-     * Assumes camera, texture, and mesh are not null.
+     * Assumes camera, texture, and environment are not null.
      * @param gl3 the OpenGL context
      * @param camera the camera
+     * @param env the environment (for sky texture and mesh)
      */
-    private void drawSkyMesh(GL3 gl3, Camera camera) {
+    private void drawSkyMesh(GL3 gl3, Camera camera, Environment env) {
         shader.use(gl3);
         Matrix4d inverseCamera = camera.getWorld();
         inverseCamera.setTranslation(new Vector3d(0,0,0));
@@ -204,19 +113,19 @@ public class DrawBackground extends AbstractRenderPass {
         shader.set1i(gl3,"useTexture",1);
 
         shader.setMatrix4d(gl3,"modelMatrix",MatrixHelper.createIdentityMatrix4());
-        skyTexture.use(shader);
+        env.getSkyTexture().use(shader);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_S, GL3.GL_CLAMP_TO_EDGE);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_T, GL3.GL_CLAMP_TO_EDGE);
         gl3.glDisable(GL3.GL_CULL_FACE);
-        mesh.render(gl3);
+        env.getSkyMesh().render(gl3);
         gl3.glEnable(GL3.GL_CULL_FACE);
     }
 
-    public ColorRGB getEraseColor() {
-        return eraseColor;
+    public ColorRGB getClearColor() {
+        return clearColor;
     }
 
-    public void setEraserColor(ColorRGB c) {
-        eraseColor.set(c);
+    public void setClearColor(ColorRGB c) {
+        clearColor.set(c);
     }
 }

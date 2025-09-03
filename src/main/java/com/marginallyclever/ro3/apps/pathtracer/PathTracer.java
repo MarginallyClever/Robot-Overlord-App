@@ -64,10 +64,7 @@ public class PathTracer {
     private BufferedImage normalMap;
 
 
-    private ColorDouble ambientColor = new ColorDouble(0.25,0.25,0.25,1);
-    private ColorDouble sunlightColor = new ColorDouble(1,1,1,1);
-    private double sunlightStrength = 1.0;
-    private final Vector3d sunlightSource = new Vector3d(150,150,150);
+    private Environment environment;
     private final Material defaultMaterial = new Material();
     private long startTime;
 
@@ -79,7 +76,6 @@ public class PathTracer {
     public PathTracer() {
         super();
         loadPreferences();
-        sunlightSource.normalize();
     }
 
     public void stop() {
@@ -93,7 +89,7 @@ public class PathTracer {
 
         System.out.println("Starting PathTracer "+canvasHeight+"x"+canvasWidth+" @ "+samplesPerPixel + "spp, max depth "+maxDepth);
 
-        getSunlight();
+        environment = Registry.getScene().findFirstChild(Environment.class);
         if(activeCamera==null) throw new RuntimeException("No active camera!");
         if(canvasHeight==0 || canvasWidth==0) throw new RuntimeException("Canvas size is zero!");
 
@@ -139,9 +135,9 @@ public class PathTracer {
             // get the first hit along the ray
             Hit hit = rayPickSystem.getFirstHit(ray);
             pixel.addRayHistory(new Ray(ray), hit);
-            if (hit == null) {
+            if (hit == null && environment != null ) {
                 // hit nothing
-                var sky = new ColorDouble(getSkyColor(ray));
+                ColorDouble sky = environment.getEnivornmentColor(ray);
                 sky.multiply(throughput);
                 radiance.add(sky);
                 break;
@@ -343,23 +339,6 @@ public class PathTracer {
         double a2 = pdfA * pdfA;
         double b2 = pdfB * pdfB;
         return a2 / (a2 + b2);
-    }
-
-    /**
-     * sky or sun color, depending on angle of incidence
-     * @param ray the ray to check
-     * @return the color of the sky
-     */
-    private ColorDouble getSkyColor(Ray ray) {
-        Vector3d d = ray.getDirection();
-        d.normalize();
-        var dot = Math.clamp(sunlightSource.dot(d),0,1);
-        var sd = Math.pow(dot,16);
-        var a = 1.0-sd;
-        return new ColorDouble(
-                a * ambientColor.r + sd * sunlightColor.r * sunlightStrength,
-                a * ambientColor.g + sd * sunlightColor.g * sunlightStrength,
-                a * ambientColor.b + sd * sunlightColor.b * sunlightStrength);
     }
 
     /**
@@ -687,20 +666,6 @@ public class PathTracer {
         float saturation = 1.0f;
         float brightness = 1.0f;
         return Color.getHSBColor(hue, saturation, brightness);
-    }
-
-    private void getSunlight() {
-        Environment env = Registry.getScene().findFirstChild(Environment.class);
-        if(null==env) {
-            env = new Environment();
-            Registry.getScene().addChild(env);
-        }
-
-        sunlightSource.set(env.getSunlightSource());
-        sunlightSource.normalize();
-        sunlightColor = new ColorDouble(env.getSunlightColor());
-        ambientColor = new ColorDouble(env.getAmbientColor());
-        sunlightStrength = env.getSunlightStrength();
     }
 
     public int getMaxDepth() {
