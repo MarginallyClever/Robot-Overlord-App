@@ -6,11 +6,11 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.pathtracer.ColorDouble;
+import com.marginallyclever.ro3.apps.pathtracer.PathMesh;
 import com.marginallyclever.ro3.mesh.Mesh;
-import com.marginallyclever.ro3.mesh.proceduralmesh.Box;
-import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.raypicking.RayPickSystem;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.json.JSONObject;
 
@@ -34,19 +34,22 @@ public class Environment extends Node {
     private double declination = 0;  // degrees, +/-90
     private double timeOfDay = 12;  // 0-24
     private TextureWithMetadata skyTexture;
-    private boolean skyShapeIsSphere = false;
+    private boolean skyShapeIsSphere=true;
 
     // sky mesh - either a box or a sphere
     private Mesh mesh;
+    private PathMesh pathMesh;
 
     public Environment() {
         super("Environment");
-        //skyTexture = Registry.textureFactory.load("/com/marginallyclever/ro3/node/nodes/environment/skybox.png");
-        //buildBox();
 
-        skyTexture = Registry.textureFactory.load("/com/marginallyclever/ro3/node/nodes/pose/poses/space/milkyway_2020_4k_print.jpg");
+        if(skyShapeIsSphere) {
+            skyTexture = Registry.textureFactory.load("/com/marginallyclever/ro3/node/nodes/pose/poses/space/milkyway_2020_4k_print.jpg");
+        } else {
+            skyTexture = Registry.textureFactory.load("/com/marginallyclever/ro3/node/nodes/environment/skybox.png");
+        }
         skyTexture.setDoNotExport(true);
-        buildSphere();
+        updateSkyMesh();
     }
 
     /**
@@ -76,35 +79,35 @@ public class Environment extends Node {
         float g=2f/3f-adj*3;
         int v = 100;
         // build the top face (z+)
-        mesh.addTexCoord(b,g);  mesh.addVertex(-v, v, v);
-        mesh.addTexCoord(c,g);  mesh.addVertex( v, v, v);
-        mesh.addTexCoord(c,e);  mesh.addVertex( v,-v, v);
-        mesh.addTexCoord(b,e);  mesh.addVertex(-v,-v, v);
+        mesh.addTexCoord(b,g);  mesh.addVertex(-v, v, v);  mesh.addNormal(0,0,-1);
+        mesh.addTexCoord(c,g);  mesh.addVertex( v, v, v);  mesh.addNormal(0,0,-1);
+        mesh.addTexCoord(c,e);  mesh.addVertex( v,-v, v);  mesh.addNormal(0,0,-1);
+        mesh.addTexCoord(b,e);  mesh.addVertex(-v,-v, v);  mesh.addNormal(0,0,-1);
         // build the bottom face (z-)
-        mesh.addTexCoord(b,a);  mesh.addVertex(-v, v, -v);
-        mesh.addTexCoord(c,a);  mesh.addVertex( v, v, -v);
-        mesh.addTexCoord(c,f);  mesh.addVertex( v,-v, -v);
-        mesh.addTexCoord(b,f);  mesh.addVertex(-v,-v, -v);
+        mesh.addTexCoord(b,a);  mesh.addVertex(-v, v, -v);  mesh.addNormal(0,0,1);
+        mesh.addTexCoord(c,a);  mesh.addVertex( v, v, -v);  mesh.addNormal(0,0,1);
+        mesh.addTexCoord(c,f);  mesh.addVertex( v,-v, -v);  mesh.addNormal(0,0,1);
+        mesh.addTexCoord(b,f);  mesh.addVertex(-v,-v, -v);  mesh.addNormal(0,0,1);
         // build north face (y+)
-        mesh.addTexCoord(b,g);  mesh.addVertex(-v, v,  v);
-        mesh.addTexCoord(c,g);  mesh.addVertex( v, v,  v);
-        mesh.addTexCoord(c,f);  mesh.addVertex( v, v, -v);
-        mesh.addTexCoord(b,f);  mesh.addVertex(-v, v, -v);
+        mesh.addTexCoord(b,g);  mesh.addVertex(-v, v,  v);  mesh.addNormal(0,-1,0);
+        mesh.addTexCoord(c,g);  mesh.addVertex( v, v,  v);  mesh.addNormal(0,-1,0);
+        mesh.addTexCoord(c,f);  mesh.addVertex( v, v, -v);  mesh.addNormal(0,-1,0);
+        mesh.addTexCoord(b,f);  mesh.addVertex(-v, v, -v);  mesh.addNormal(0,-1,0);
         // build south face (y-)
-        mesh.addTexCoord(e,g);  mesh.addVertex(-v, -v,  v);
-        mesh.addTexCoord(d,g);  mesh.addVertex( v, -v,  v);
-        mesh.addTexCoord(d,f);  mesh.addVertex( v, -v, -v);
-        mesh.addTexCoord(e,f);  mesh.addVertex(-v, -v, -v);
+        mesh.addTexCoord(e,g);  mesh.addVertex(-v, -v,  v);  mesh.addNormal(0,1,0);
+        mesh.addTexCoord(d,g);  mesh.addVertex( v, -v,  v);  mesh.addNormal(0,1,0);
+        mesh.addTexCoord(d,f);  mesh.addVertex( v, -v, -v);  mesh.addNormal(0,1,0);
+        mesh.addTexCoord(e,f);  mesh.addVertex(-v, -v, -v);  mesh.addNormal(0,1,0);
         // build east face (x+)
-        mesh.addTexCoord(d,g);  mesh.addVertex(v, -v,  v);
-        mesh.addTexCoord(c,g);  mesh.addVertex(v,  v,  v);
-        mesh.addTexCoord(c,f);  mesh.addVertex(v,  v, -v);
-        mesh.addTexCoord(d,f);  mesh.addVertex(v, -v, -v);
+        mesh.addTexCoord(d,g);  mesh.addVertex(v, -v,  v);  mesh.addNormal(-1,0,0);
+        mesh.addTexCoord(c,g);  mesh.addVertex(v,  v,  v);  mesh.addNormal(-1,0,0);
+        mesh.addTexCoord(c,f);  mesh.addVertex(v,  v, -v);  mesh.addNormal(-1,0,0);
+        mesh.addTexCoord(d,f);  mesh.addVertex(v, -v, -v);  mesh.addNormal(-1,0,0);
         // build west face (x-)
-        mesh.addTexCoord(a,g);  mesh.addVertex(-v, -v,  v);
-        mesh.addTexCoord(b,g);  mesh.addVertex(-v,  v,  v);
-        mesh.addTexCoord(b,f);  mesh.addVertex(-v,  v, -v);
-        mesh.addTexCoord(a,f);  mesh.addVertex(-v, -v, -v);
+        mesh.addTexCoord(a,g);  mesh.addVertex(-v, -v,  v);  mesh.addNormal(1,0,0);
+        mesh.addTexCoord(b,g);  mesh.addVertex(-v,  v,  v);  mesh.addNormal(1,0,0);
+        mesh.addTexCoord(b,f);  mesh.addVertex(-v,  v, -v);  mesh.addNormal(1,0,0);
+        mesh.addTexCoord(a,f);  mesh.addVertex(-v, -v, -v);  mesh.addNormal(1,0,0);
     }
 
     private void buildSphere() {
@@ -245,12 +248,17 @@ public class Environment extends Node {
 
     public void setSkyShapeIsSphere(boolean skyShapeIsSphere) {
         this.skyShapeIsSphere = skyShapeIsSphere;
+        updateSkyMesh();
+    }
+
+    private void updateSkyMesh() {
         // TODO unload the old mesh from opengl
         if(isSkyShapeIsSphere()) {
             buildSphere();
         } else {
             buildBox();
         }
+        pathMesh = mesh.createPathMesh(new Matrix4d());
     }
 
     public Mesh getSkyMesh() {
@@ -287,16 +295,20 @@ public class Environment extends Node {
      * @return
      */
     public ColorDouble getEnivornmentColor(Ray ray) {
-        if(getSkyTexture()==null) { // no texture, return sky/sun effect
-            return new ColorDouble(getSkyColor(ray));
-        }
-        // Is the sky a cube or a sphere?
-        if(isSkyShapeIsSphere()) {
-            // get the texture coordinate on the sphere
-        } else {
-            // get texture coordinate on cube
+        if(skyTexture == null || pathMesh == null) {
+            // no texture, return sky/sun effect
+            return getSkyColor(ray);
         }
 
-        return getSkyColor(ray);  // placeholder
+        // get the texture coordinate
+        Ray r2 = new Ray(ray);
+        r2.getOrigin().set(0,0,0); // center the ray at
+        var hit = pathMesh.intersect(r2);
+        if(hit == null) {
+            // ray missed the sky mesh, return sky/sun effect
+            return getSkyColor(ray);
+        }
+        var uv = hit.triangle().getUVAt(hit.point());
+        return new ColorDouble(skyTexture.getColorAt(uv.x, uv.y));
     }
 }

@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes.pose.poses;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.pathtracer.PathMesh;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
@@ -178,5 +179,9 @@ public class MeshInstance extends Pose {
         if(mesh==null) {
             setMesh(ProceduralMeshFactory.createMesh("Box"));
         }
+    }
+
+    public PathMesh createPathMesh() {
+        return mesh.createPathMesh(getWorld());
     }
 }
