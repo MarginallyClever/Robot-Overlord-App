@@ -37,6 +37,7 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
 
     public DrawBoundingBoxes() {
         super("Bounding Boxes");
+        Registry.meshFactory.addToPool(mesh);
 
         mesh.setRenderStyle(GL3.GL_LINES);
         // add 8 points of a unit cube centered on the origin
@@ -80,16 +81,15 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        mesh.unload(gl3);
         shader.delete(gl3);
     }
 
     @Override
-    public void draw(Viewport viewport) {
+    public void draw(Viewport viewport, GL3 gl3) {
         Camera camera = viewport.getActiveCamera();
         if(camera==null) return;
         boolean originShift = viewport.isOriginShift();
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
+
         shader.use(gl3);
         shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix(originShift));
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));

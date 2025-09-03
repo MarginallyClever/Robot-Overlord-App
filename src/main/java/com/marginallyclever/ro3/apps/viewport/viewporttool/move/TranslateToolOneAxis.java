@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
@@ -69,16 +70,20 @@ public class TranslateToolOneAxis implements ViewportTool {
     private final Vector3d translationAxis = new Vector3d();
     private final Matrix4d pivotMatrix = MatrixHelper.createIdentityMatrix4();
     private boolean cursorOverHandle = false;
-    private final Mesh handleLineMesh = new Mesh(GL3.GL_LINES);
-    private final Sphere handleSphere = new Sphere();
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
     private final Color color;
     private TextureWithMetadata texture;
+    private final Mesh handleLineMesh = new Mesh(GL3.GL_LINES);
+    private final Sphere handleSphere = new Sphere();
     private final Mesh quad = new Mesh(GL3.GL_QUADS);
 
     public TranslateToolOneAxis(Color color) {
         super();
         this.color = color;
+
+        Registry.meshFactory.addToPool(handleLineMesh);
+        Registry.meshFactory.addToPool(handleSphere);
+        Registry.meshFactory.addToPool(quad);
 
         // handle line
         handleLineMesh.addVertex(0, 0, 0);
@@ -335,11 +340,7 @@ public class TranslateToolOneAxis implements ViewportTool {
     public void init(GL3 gl3) {}
 
     @Override
-    public void dispose(GL3 gl3) {
-        handleSphere.unload(gl3);
-        handleLineMesh.unload(gl3);
-        quad.unload(gl3);
-    }
+    public void dispose(GL3 gl3) {}
 
     public void setTexture(TextureWithMetadata texture, Rectangle2D textureBounds) {
         this.texture = texture;

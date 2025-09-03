@@ -54,16 +54,11 @@ public class DrawBackground extends AbstractRenderPass {
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        Environment env = Registry.getScene().findFirstChild(Environment.class);
-        if(env!=null){
-            env.dispose(glAutoDrawable);
-        }
         shader.delete(gl3);
     }
 
     @Override
-    public void draw(Viewport viewport) {
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
+    public void draw(Viewport viewport,GL3 gl3) {
         gl3.glClearColor(clearColor.red / 255.0f,
                         clearColor.green / 255.0f,
                         clearColor.blue / 255.0f,

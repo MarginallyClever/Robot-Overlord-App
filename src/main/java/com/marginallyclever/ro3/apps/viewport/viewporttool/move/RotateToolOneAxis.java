@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.apps.viewport.viewporttool.move;
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.apps.viewport.renderpass.RenderPassHelper;
@@ -103,6 +104,11 @@ public class RotateToolOneAxis implements ViewportTool {
     public RotateToolOneAxis(Color color) {
         super();
         this.color = color;
+        Registry.meshFactory.addToPool(markerMesh);
+        Registry.meshFactory.addToPool(angleMesh);
+        Registry.meshFactory.addToPool(ringMesh);
+        Registry.meshFactory.addToPool(waldo);
+
         buildMarkerMesh();
         buildAngleMesh();
         ringMesh.updateModel();
@@ -586,15 +592,10 @@ public class RotateToolOneAxis implements ViewportTool {
     }
 
     @Override
-    public void init(GL3 gl3) {
-    }
+    public void init(GL3 gl3) {}
 
     @Override
-    public void dispose(GL3 gl3) {
-        markerMesh.unload(gl3);
-        ringMesh.unload(gl3);
-        waldo.unload(gl3);
-    }
+    public void dispose(GL3 gl3) {}
 
     @Override
     public void getComponents(List<JPanel> list) {}

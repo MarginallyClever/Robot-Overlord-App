@@ -50,6 +50,10 @@ public class Compass3D implements ViewportTool {
 
     public Compass3D() {
         super();
+        Registry.meshFactory.addToPool(gizmoMesh);
+        Registry.meshFactory.addToPool(circleMesh);
+        Registry.meshFactory.addToPool(quadMesh);
+
         texture = Registry.textureFactory.load("/com/marginallyclever/ro3/apps/viewport/viewporttool/axisLetters.png");
         texture.setDoNotExport(true);
 
@@ -289,12 +293,7 @@ public class Compass3D implements ViewportTool {
     public void init(GL3 gl3) {}
 
     @Override
-    public void dispose(GL3 gl3) {
-        texture.unload();
-        circleMesh.unload(gl3);
-        gizmoMesh.unload(gl3);
-        quadMesh.unload(gl3);
-    }
+    public void dispose(GL3 gl3) {}
 
     @Override
     public void getComponents(List<JPanel> list) {}

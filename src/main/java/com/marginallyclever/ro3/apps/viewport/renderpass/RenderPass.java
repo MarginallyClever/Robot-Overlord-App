@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.apps.viewport.renderpass;
 
+import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLEventListener;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
@@ -34,5 +35,5 @@ public interface RenderPass extends GLEventListener {
      * Draw this viewport pass.
      * @param viewport the viewport to draw into
      */
-    void draw(Viewport viewport);
+    void draw(Viewport viewport, GL3 gl3);
 }

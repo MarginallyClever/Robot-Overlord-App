@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.texture;
 
+import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
@@ -56,9 +57,9 @@ public class TextureFactory {
      * Does not free the underlying {@link BufferedImage} data.</p>
      * <p>if this is called from a thread that has no OpenGL context a {@link com.jogamp.opengl.GLException} will occur.</p>
      */
-    public void unloadAll() {
+    public void unloadAll(GL3 gl) {
         for(TextureWithMetadata t : texturePool.getList()) {
-            t.unload();
+            t.unload(gl);
         }
     }
 

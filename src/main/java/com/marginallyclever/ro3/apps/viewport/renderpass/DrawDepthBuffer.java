@@ -61,9 +61,7 @@ public class DrawDepthBuffer extends AbstractRenderPass {
     }
 
     @Override
-    public void draw(Viewport viewport) {
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
-
+    public void draw(Viewport viewport, GL3 gl3) {
         int width = viewport.getWidth();
         int height = viewport.getHeight();
 

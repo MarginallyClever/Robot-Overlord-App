@@ -191,7 +191,8 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         toolShader.delete(gl3);
         for(ViewportTool tool : viewportTools) tool.dispose(gl3);
-        Registry.textureFactory.unloadAll();
+        Registry.textureFactory.unloadAll(gl3);
+        Registry.meshFactory.unloadAll(gl3);
     }
 
     @Override
@@ -206,15 +207,15 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
         double dt = 1.0 / (double)this.getFPS();
         for(ViewportTool tool : viewportTools) tool.update(dt);
         updateAllNodes(dt);
-        renderAllPasses();
-        renderViewportTools();
+        GL3 gl3 = glAutoDrawable.getGL().getGL3();
+        renderAllPasses(gl3);
+        renderViewportTools(gl3);
     }
 
-    public void renderViewportTools() {
+    public void renderViewportTools(GL3 gl3) {
         Camera camera = getActiveCamera();
         assert camera != null;
 
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
         toolShader.use(gl3);
         toolShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix(isOriginShift()));
         toolShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));

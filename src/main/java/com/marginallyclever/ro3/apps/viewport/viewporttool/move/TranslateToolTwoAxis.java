@@ -5,6 +5,7 @@ import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.apps.viewport.renderpass.RenderPassHelper;
@@ -73,6 +74,8 @@ public class TranslateToolTwoAxis implements ViewportTool {
     public TranslateToolTwoAxis(ColorRGB color) {
         super();
         this.color = color;
+
+        Registry.meshFactory.addToPool(quadMesh);
 
         quadMesh.addVertex( 0, 0,0);
         quadMesh.addVertex(1, 0,0);
@@ -279,13 +282,10 @@ public class TranslateToolTwoAxis implements ViewportTool {
     }
 
     @Override
-    public void init(GL3 gl3) {
-    }
+    public void init(GL3 gl3) {}
 
     @Override
-    public void dispose(GL3 gl3) {
-        quadMesh.unload(gl3);
-    }
+    public void dispose(GL3 gl3) {}
 
     @Override
     public void getComponents(List<JPanel> list) {}

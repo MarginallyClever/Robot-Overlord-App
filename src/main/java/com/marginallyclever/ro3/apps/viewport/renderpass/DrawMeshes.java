@@ -49,6 +49,7 @@ public class DrawMeshes extends AbstractRenderPass {
 
     public DrawMeshes() {
         super("Meshes");
+        Registry.meshFactory.addToPool(shadowQuad);
 
         shadowQuad.setRenderStyle(GL3.GL_QUADS);
         float v = 100;
@@ -172,7 +173,7 @@ public class DrawMeshes extends AbstractRenderPass {
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        unloadAllMeshes(gl3);
+
         meshShader.delete(gl3);
         shadowShader.delete(gl3);
         outlineShader.delete(gl3);
@@ -182,30 +183,14 @@ public class DrawMeshes extends AbstractRenderPass {
         gl3.glDeleteTextures(1, depthMap,0);
     }
 
-    private void unloadAllMeshes(GL3 gl3) {
-        List<Node> toScan = new ArrayList<>(Registry.getScene().getChildren());
-        while(!toScan.isEmpty()) {
-            Node node = toScan.remove(0);
-
-            if(node instanceof MeshInstance meshInstance) {
-                Mesh mesh = meshInstance.getMesh();
-                if(mesh==null) continue;
-                mesh.unload(gl3);
-            }
-
-            toScan.addAll(node.getChildren());
-        }
-    }
-
     @Override
-    public void draw(Viewport viewport) {
+    public void draw(Viewport viewport, GL3 gl3) {
         Camera camera = viewport.getActiveCamera();
         if (camera == null) return;
 
         getSunlight();
 
         boolean originShift = viewport.isOriginShift();
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
 
         var meshMaterial = collectAllMeshes();
         sortMeshMaterialList(meshMaterial);

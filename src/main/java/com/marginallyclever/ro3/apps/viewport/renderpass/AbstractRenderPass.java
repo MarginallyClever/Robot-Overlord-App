@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.apps.viewport.renderpass;
 
+import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 
@@ -49,7 +50,7 @@ public abstract class AbstractRenderPass implements RenderPass {
     }
 
     @Override
-    public void draw(Viewport viewport) {}
+    public void draw(Viewport viewport, GL3 gl3) {}
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {}

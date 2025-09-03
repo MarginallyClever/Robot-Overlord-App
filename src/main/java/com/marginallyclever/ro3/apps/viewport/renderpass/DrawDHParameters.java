@@ -34,6 +34,7 @@ public class DrawDHParameters extends AbstractRenderPass {
 
     public DrawDHParameters() {
         super("DH Parameters");
+        Registry.meshFactory.addToPool(mesh);
 
         // add mesh to a list that can be unloaded and reloaded as needed.
         mesh.setRenderStyle(GL3.GL_LINES);
@@ -60,18 +61,16 @@ public class DrawDHParameters extends AbstractRenderPass {
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        mesh.unload(gl3);
         shader.delete(gl3);
     }
 
     @Override
-    public void draw(Viewport viewport) {
+    public void draw(Viewport viewport, GL3 gl3) {
         Camera camera = viewport.getActiveCamera();
         if(camera==null) return;
 
         boolean originShift = viewport.isOriginShift();
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
 
         gl3.glDisable(GL3.GL_DEPTH_TEST);
         gl3.glDisable(GL3.GL_TEXTURE_2D);

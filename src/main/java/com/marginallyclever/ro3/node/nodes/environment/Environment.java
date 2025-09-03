@@ -8,6 +8,7 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.pathtracer.ColorDouble;
 import com.marginallyclever.ro3.apps.pathtracer.PathMesh;
 import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.proceduralmesh.GenerativeMesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
@@ -53,6 +54,7 @@ public class Environment extends Node {
             skyTexture = Registry.textureFactory.load("/com/marginallyclever/ro3/node/nodes/environment/skybox.png");
         }
         skyTexture.setDoNotExport(true);
+
         updateSkyMesh();
     }
 
@@ -69,7 +71,7 @@ public class Environment extends Node {
      * +---+---+---+---+</pre>
      */
     private void buildBox() {
-        mesh = new Mesh();
+        mesh = new GenerativeMesh();
         mesh.setRenderStyle(GL3.GL_TRIANGLES);
 
         float adj = 1f/256f;
@@ -140,13 +142,6 @@ public class Environment extends Node {
     private void buildSphere() {
         mesh = new Sphere(-100);
         ((Sphere)mesh).updateModel();
-    }
-
-    // TODO don't mention opengl directly outside of the rendering code
-    public void dispose(GLAutoDrawable glAutoDrawable) {
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        mesh.unload(gl3);
-        skyTexture.unload();
     }
 
     @Override
@@ -281,13 +276,29 @@ public class Environment extends Node {
     }
 
     private void updateSkyMesh() {
-        // TODO unload the old mesh from opengl
+        maybeUnregister();
         if(isSkyShapeIsSphere()) {
             buildSphere();
         } else {
             buildBox();
         }
+        // register the mesh so it persists if the renderer reloads all meshes
+        Registry.meshFactory.addToPool(mesh);
+
         pathMesh = mesh.createPathMesh(MatrixHelper.createIdentityMatrix4());
+    }
+
+    private void maybeUnregister() {
+        if(mesh!=null) {
+            // unregister the old mesh
+            Registry.meshFactory.removeFromPool(mesh);
+        }
+    }
+
+    @Override
+    protected void onDetach() {
+        super.onDetach();
+        maybeUnregister();
     }
 
     public Mesh getSkyMesh() {
@@ -316,8 +327,8 @@ public class Environment extends Node {
     /**
      * Locate the Environment in the scene.  If there is a texture assigned, look up the UV color.
      * If there is no texture, return the sky/sun color.
-     * @param ray
-     * @return
+     * @param ray the ray to check
+     * @return the color of the environment
      */
     public ColorDouble getEnvironmentColor(Ray ray) {
         if(skyTexture == null || pathMesh == null) {

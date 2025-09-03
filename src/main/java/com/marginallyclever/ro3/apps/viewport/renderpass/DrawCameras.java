@@ -32,6 +32,9 @@ public class DrawCameras extends AbstractRenderPass {
 
     public DrawCameras() {
         super("Cameras");
+        Registry.meshFactory.addToPool(frustumMesh);
+        Registry.meshFactory.addToPool(rayMesh);
+
         setupMeshFrustum();
         setupMeshRay();
     }
@@ -88,19 +91,16 @@ public class DrawCameras extends AbstractRenderPass {
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        rayMesh.unload(gl3);
-        frustumMesh.unload(gl3);
         shader.delete(gl3);
     }
 
     @Override
-    public void draw(Viewport viewport) {
+    public void draw(Viewport viewport, GL3 gl3) {
         Camera camera = viewport.getActiveCamera();
         if(camera==null) return;
 
         boolean originShift = viewport.isOriginShift();
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
 
         shader.use(gl3);
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));

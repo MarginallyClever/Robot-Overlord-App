@@ -84,9 +84,9 @@ public class TextureWithMetadata {
      * Must only be called when there is a valid OpenGL viewport context, likely from within
      * a {@link com.jogamp.opengl.GLAutoDrawable}.
      */
-    public void unload() {
+    public void unload(GL3 gl) {
         if(texture==null) return;
-        texture.destroy(GLContext.getCurrentGL().getGL3());
+        texture.destroy(gl);
         texture = null;
     }
 

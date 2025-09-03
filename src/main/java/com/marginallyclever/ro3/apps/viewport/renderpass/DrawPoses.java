@@ -30,6 +30,7 @@ public class DrawPoses extends AbstractRenderPass {
 
     public DrawPoses() {
         super("Poses");
+        Registry.meshFactory.addToPool(mesh);
     }
 
     @Override
@@ -52,13 +53,12 @@ public class DrawPoses extends AbstractRenderPass {
     }
 
     @Override
-    public void draw(Viewport viewport) {
+    public void draw(Viewport viewport, GL3 gl3) {
         Camera camera = viewport.getActiveCamera();
         if(camera==null) return;
 
         boolean originShift = viewport.isOriginShift();
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
 
         shader.use(gl3);
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));

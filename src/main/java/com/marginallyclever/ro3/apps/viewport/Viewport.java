@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.apps.viewport;
 
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
@@ -404,11 +405,11 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
         toolBar.add(cameraSelector);
     }
 
-    public void renderAllPasses() {
+    public void renderAllPasses(GL3 gl3) {
         // renderPasses that are always on
         for(RenderPass pass : renderPasses.getList()) {
             if(pass.getActiveStatus()==RenderPass.NEVER) continue;
-            pass.draw(this);
+            pass.draw(this,gl3);
         }
     }
 

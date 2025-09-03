@@ -38,6 +38,9 @@ public class DrawJoints extends AbstractRenderPass {
 
     public DrawJoints() {
         super("Joints");
+        Registry.meshFactory.addToPool(currentAngleMesh);
+        Registry.meshFactory.addToPool(circleFanMesh);
+        Registry.meshFactory.addToPool(linearRangeMesh);
 
         currentAngleMesh.setRenderStyle(GL3.GL_LINES);
         currentAngleMesh.addColor(1.0f,1.0f,1.0f,1);  currentAngleMesh.addVertex(0,0,0);  // origin
@@ -63,20 +66,16 @@ public class DrawJoints extends AbstractRenderPass {
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        currentAngleMesh.unload(gl3);
-        circleFanMesh.unload(gl3);
-        linearRangeMesh.unload(gl3);
         shader.delete(gl3);
     }
 
     @Override
-    public void draw(Viewport viewport) {
+    public void draw(Viewport viewport, GL3 gl3) {
         Camera camera = viewport.getActiveCamera();
         if(camera==null) return;
 
         boolean originShift = viewport.isOriginShift();
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
 
         shader.use(gl3);
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));
