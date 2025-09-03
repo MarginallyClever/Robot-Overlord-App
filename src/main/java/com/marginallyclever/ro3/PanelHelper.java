@@ -5,10 +5,13 @@ import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.odenode.odebody.ODEBody;
+import com.marginallyclever.ro3.texture.TextureChooserDialog;
+import com.marginallyclever.ro3.texture.TextureWithMetadata;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -16,6 +19,8 @@ import java.util.function.Supplier;
  * {@link PanelHelper} is a collection of static methods to help build panels.
  */
 public class PanelHelper {
+    public static final int THUMBNAIL_SIZE = 64;
+
     /**
      * <p>A convenience method to add a label and component to a panel that is built with
      * {@link GridLayout}.</p>
@@ -224,6 +229,85 @@ public class PanelHelper {
             e.printStackTrace();
         }
         return panel;
+    }
+
+    /**
+     * <p>A convenience method to add a texture field to a panel.</p>
+     * @param panel the panel to add to
+     * @param label the label for the field
+     * @param getDiffuseTexture the supplier to get the texture
+     * @param setDiffuseTexture the consumer to set the texture
+     * @param gbc the {@link GridBagConstraints} to use
+     */
+    public static void addTextureField(JPanel panel,
+                                       String label,
+                                       Supplier<TextureWithMetadata> getDiffuseTexture,
+                                       Consumer<TextureWithMetadata> setDiffuseTexture,
+                                       GridBagConstraints gbc) {
+        JButton button = new JButton();
+        JLabel sizeLabel = new JLabel();
+        JLabel imgLabel = new JLabel();
+        PanelHelper.addLabelAndComponent(panel,label,button,gbc);
+        gbc.gridy++;
+        PanelHelper.addLabelAndComponent(panel,"Size",sizeLabel,gbc);
+        gbc.gridy++;
+        PanelHelper.addLabelAndComponent(panel,"Preview",imgLabel,gbc);
+
+        button.addActionListener(e -> {
+            var textureChooserDialog = new TextureChooserDialog();
+            var texture = getDiffuseTexture.get();
+            textureChooserDialog.setSelectedItem(texture);
+            int result = textureChooserDialog.run(panel);
+            if(result == JFileChooser.APPROVE_OPTION) {
+                var newTexture = textureChooserDialog.getSelectedItem();
+                setDiffuseTexture.accept(newTexture);
+                setTextureButtonLabel(button,newTexture);
+                updateTexturePreview(sizeLabel,imgLabel,newTexture);
+            }
+        });
+
+        var texture = getDiffuseTexture.get();
+        setTextureButtonLabel(button,texture);
+        updateTexturePreview(sizeLabel,imgLabel,texture);
+    }
+
+    private static void updateTexturePreview(JLabel sizeLabel, JLabel imgLabel, TextureWithMetadata texture) {
+        if(texture!=null) {
+            sizeLabel.setText(texture.getWidth()+"x"+texture.getHeight());
+            imgLabel.setIcon(new ImageIcon(scaleImage(texture.getImage())));
+            imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        } else {
+            sizeLabel.setText("");
+            imgLabel.setIcon(null);
+        }
+    }
+
+    private static void setTextureButtonLabel(JButton button,TextureWithMetadata texture) {
+        if(texture==null) {
+            button.setText("...");
+            button.setToolTipText(null);
+            return;
+        }
+        // truncate name if it is too long.
+        var name = texture.getSource();
+        button.setToolTipText(name);
+        if(name.contains(java.io.File.separator)) {
+            name = name.substring(name.lastIndexOf(java.io.File.separatorChar)+1);
+        } else if(name.contains("/")) {
+            name = name.substring(name.lastIndexOf('/')+1);
+        }
+        button.setText(name);
+    }
+
+    private static BufferedImage scaleImage(BufferedImage sourceImage) {
+        Image tmp = sourceImage.getScaledInstance(THUMBNAIL_SIZE, THUMBNAIL_SIZE, Image.SCALE_SMOOTH);
+        BufferedImage scaledImage = new BufferedImage(THUMBNAIL_SIZE, THUMBNAIL_SIZE, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g2d = scaledImage.createGraphics();
+        g2d.drawImage(tmp, 0, 0, null);
+        g2d.dispose();
+
+        return scaledImage;
     }
 
     public static JComboBox<String> createComboBox(String[] options, int type, Consumer<Integer> consumer) {

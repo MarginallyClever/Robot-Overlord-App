@@ -437,7 +437,6 @@ public class RotateToolOneAxis implements ViewportTool {
 
             int start = Math.min(currentDegrees,startingDegrees);
             int diff = Math.abs(currentDegrees-startingDegrees);
-            System.out.println(start+"\t"+diff);
             rot.rotZ(Math.toRadians(start));
             mt.mul(pivotMatrix,rot);  // turn it so 0 degrees faces the start angle
             mt.mul(mt,MatrixHelper.createScaleMatrix4(getRingRadiusScaled()));  // make it big

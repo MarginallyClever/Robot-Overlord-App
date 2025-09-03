@@ -69,10 +69,11 @@ public class RayPickSystem {
                 sceneElements.add(meshInstance);
 
                 if(optimize) {
-                    var pathMesh = createPathMesh(meshInstance);
+                    var pathMesh = meshInstance.createPathMesh();
                     cache.put(meshInstance, pathMesh);
                     var mat = getMaterial(meshInstance);
                     if(mat!=null && mat.isEmissive()) {
+                        emissiveMeshes.add(meshInstance);
                         numEmissiveTriangles += pathMesh.getTriangleCount();
                     }
                 }
@@ -122,7 +123,6 @@ public class RayPickSystem {
     /**
      * Traverse the scene and find all the {@link MeshInstance}s that collide with the ray.
      * @param ray the ray to test.
-     * @param optimize true if extra steps should be taken to optimize, typically for path tracing.
      * @return all {@link Hit} by the ray, sorted by distance.
      */
     public List<Hit> findRayIntersections(Ray ray) {
@@ -134,15 +134,13 @@ public class RayPickSystem {
                 if (hit != null) hits.add(hit);
                 continue;
             }
+            // optimized path: use the cached world mesh.
+            PathMesh worldMesh = getCachedMesh(meshInstance);
+            if (worldMesh == null) continue;
 
-            if(optimize) {
-                PathMesh worldMesh = getCachedMesh(meshInstance);
-                if (worldMesh == null) continue;
-
-                Hit hit2 = worldMesh.intersect(ray);
-                if (hit2 != null) {
-                    hits.add(new Hit(meshInstance, hit2.distance(), hit2.normal(), hit2.point(),hit2.triangle()));
-                }
+            Hit hit2 = worldMesh.intersect(ray);
+            if (hit2 != null) {
+                hits.add(new Hit(meshInstance, hit2.distance(), hit2.normal(), hit2.point(),hit2.triangle()));
             }
         }
 
@@ -154,39 +152,9 @@ public class RayPickSystem {
     private PathMesh getCachedMesh(MeshInstance meshInstance) {
         if (!cache.containsKey(meshInstance)) {
             // create a copy of meshInstance that is transformed to world space.
-            cache.put(meshInstance, createPathMesh(meshInstance));
+            cache.put(meshInstance, meshInstance.createPathMesh());
         }
         return cache.get(meshInstance);
-    }
-
-    /**
-     * Create a copy of mesh transformed to world space.
-     * @param meshInstance the meshInstance to transform
-     * @return the new mesh.
-     */
-    private PathMesh createPathMesh(MeshInstance meshInstance) {
-        PathMesh newMesh = new PathMesh();
-        Mesh oldMesh = meshInstance.getMesh();
-        var matrix = meshInstance.getWorld();
-
-        VertexProvider vertexProvider = oldMesh.getVertexProvider();
-        var numVertexes = vertexProvider.provideCount();
-        for(int i = 0; i < numVertexes; i+=3) {
-            Point3d p0 = vertexProvider.provideVertex(i);
-            Point3d p1 = vertexProvider.provideVertex(i + 1);
-            Point3d p2 = vertexProvider.provideVertex(i + 2);
-            matrix.transform(p0);
-            matrix.transform(p1);
-            matrix.transform(p2);
-            Vector3d n = vertexProvider.provideNormal(i);
-            matrix.transform(n);
-            Point2d ta = vertexProvider.provideTextureCoordinate(i);
-            Point2d tb = vertexProvider.provideTextureCoordinate(i + 1);
-            Point2d tc = vertexProvider.provideTextureCoordinate(i + 2);
-            newMesh.addTriangle(new PathTriangle(p0,p1,p2,n,ta,tb,tc));
-        }
-        newMesh.buildSAS();
-        return newMesh;
     }
 
     /**

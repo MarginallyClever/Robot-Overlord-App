@@ -4,6 +4,8 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
+import com.marginallyclever.ro3.apps.pathtracer.PathMesh;
+import com.marginallyclever.ro3.apps.pathtracer.PathTriangle;
 import com.marginallyclever.ro3.raypicking.Hit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -555,4 +557,31 @@ public class Mesh {
 		cross.cross(v20,v10);
 		return cross.length()/2;
 	}
+
+    /**
+     * Create a {@link PathMesh} from this mesh, transformed by the given world matrix.
+     * @param worldMatrix the world matrix to transform the mesh by.
+     * @return the new {@link PathMesh}.
+     */
+    public PathMesh createPathMesh(Matrix4d worldMatrix) {
+        PathMesh newMesh = new PathMesh();
+        VertexProvider vertexProvider = getVertexProvider();
+        var numVertexes = vertexProvider.provideCount();
+        for(int i = 0; i < numVertexes; i+=3) {
+            Point3d p0 = vertexProvider.provideVertex(i);
+            Point3d p1 = vertexProvider.provideVertex(i + 1);
+            Point3d p2 = vertexProvider.provideVertex(i + 2);
+            worldMatrix.transform(p0);
+            worldMatrix.transform(p1);
+            worldMatrix.transform(p2);
+            Vector3d n = vertexProvider.provideNormal(i);
+            worldMatrix.transform(n);
+            Point2d ta = vertexProvider.provideTextureCoordinate(i);
+            Point2d tb = vertexProvider.provideTextureCoordinate(i + 1);
+            Point2d tc = vertexProvider.provideTextureCoordinate(i + 2);
+            newMesh.addTriangle(new PathTriangle(p0,p1,p2,n,ta,tb,tc));
+        }
+        newMesh.buildSAS();
+        return newMesh;
+    }
 }
