@@ -85,8 +85,6 @@ public class RotateToolOneAxis implements ViewportTool {
 
     // The pivot matrix around which the rotation occurs.
     private final Matrix4d pivotMatrix = new Matrix4d();
-    // The pivot matrix when the drag started.
-    private final Matrix4d startMatrix = new Matrix4d();
 
     /**
      * which axis of rotation will be used?  0,1,2 = x,y,z
@@ -175,9 +173,11 @@ public class RotateToolOneAxis implements ViewportTool {
     }
 
     public void setPivotMatrix(Matrix4d pivot) {
-        pivotMatrix.set(pivot);
-        rotationAxisX.set(MatrixHelper.getXAxis(pivot));
-        rotationAxisY.set(MatrixHelper.getYAxis(pivot));
+        if(!dragging) {
+            rotationAxisX.set(MatrixHelper.getXAxis(pivot));
+            rotationAxisY.set(MatrixHelper.getYAxis(pivot));
+            pivotMatrix.set(pivot);
+        }
     }
 
     /**
@@ -210,8 +210,7 @@ public class RotateToolOneAxis implements ViewportTool {
         if (isCursorOverHandle(event.getX(), event.getY())) {
             dragging = true;
             cursorOverHandle = true;
-            startMatrix.set(pivotMatrix);
-            startPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,event.getX(), event.getY());
+            startPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(pivotMatrix),viewport,event.getX(), event.getY());
             startingRotationAngle = getAngleBetweenPoints(snapToTicks(startPoint));
             if(selectedItems!=null) selectedItems.savePose();
         }
@@ -221,12 +220,12 @@ public class RotateToolOneAxis implements ViewportTool {
         if(selectedItems==null || selectedItems.isEmpty()) return false;
 
         // Get the cursor's position projected onto the plane of rotation
-        Point3d cursorPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix), viewport, x, y);
+        Point3d cursorPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(pivotMatrix), viewport, x, y);
         if (cursorPoint == null) return false; // Cursor not on plane
 
         // Calculate the vector from pivot to cursor point
         Vector3d cursorVector = new Vector3d();
-        cursorVector.sub(cursorPoint, MatrixHelper.getPosition(startMatrix));
+        cursorVector.sub(cursorPoint, MatrixHelper.getPosition(pivotMatrix));
 
         // Compute the distance from the pivot (radius of the cursor position relative to the pivot)
         double cursorRadius = cursorVector.length();
@@ -261,7 +260,7 @@ public class RotateToolOneAxis implements ViewportTool {
         if(!dragging) return;
 
         // get the current point on the plane
-        currentDragPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,event.getX(), event.getY());
+        currentDragPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(pivotMatrix),viewport,event.getX(), event.getY());
         if(currentDragPoint == null) return;  // if the plane is somehow edge-on, we can't do anything.
 
         currentRotationAngle = getAngleBetweenPoints(snapToTicks(currentDragPoint));
@@ -270,16 +269,16 @@ public class RotateToolOneAxis implements ViewportTool {
         Matrix4d rot = new Matrix4d();
         rot.rotZ(currentRotationAngle-startingRotationAngle);
 
-        // use startMatrix to prevent accumulation of numerical errors.
-        Matrix4d inverseStartMatrix = new Matrix4d(startMatrix);
-        inverseStartMatrix.invert();
+        // use pivotMatrix to prevent accumulation of numerical errors.
+        Matrix4d inversepivotMatrix = new Matrix4d(pivotMatrix);
+        inversepivotMatrix.invert();
 
         for (Node node : selectedItems.getNodes()) {
             if(!(node instanceof Pose pc)) continue;
             Matrix4d pose = new Matrix4d(selectedItems.getWorldPoseAtStart(pc));
-            pose.mul(inverseStartMatrix,pose);  // move to pivot space.
+            pose.mul(inversepivotMatrix,pose);  // move to pivot space.
             pose.mul(rot,pose);  // apply the rotation.
-            pose.mul(startMatrix,pose);  // move back to world space.
+            pose.mul(pivotMatrix,pose);  // move back to world space.
             // set the new world matrix.
             pc.setWorld(pose);
         }
@@ -287,7 +286,7 @@ public class RotateToolOneAxis implements ViewportTool {
 
     private Point3d snapToTicks(Point3d currentPoint) {
         Vector3d diff = new Vector3d();
-        Vector3d center = MatrixHelper.getPosition(startMatrix);
+        Vector3d center = MatrixHelper.getPosition(pivotMatrix);
         diff.sub(currentPoint, center);
         double diffLength = diff.length()/getRingRadiusScaled();
         double angle = getAngleBetweenPoints(currentPoint);
@@ -345,7 +344,7 @@ public class RotateToolOneAxis implements ViewportTool {
      */
     private double getAngleBetweenPoints(Point3d currentPoint) {
         Vector3d v2 = new Vector3d(currentPoint);
-        v2.sub(MatrixHelper.getPosition(startMatrix));
+        v2.sub(MatrixHelper.getPosition(pivotMatrix));
         return Math.atan2(
                 rotationAxisY.dot(v2),
                 rotationAxisX.dot(v2));
@@ -430,7 +429,7 @@ public class RotateToolOneAxis implements ViewportTool {
 
         Matrix4d scale = MatrixHelper.createScaleMatrix4(localScale);
 
-        Matrix4d mt = new Matrix4d(startMatrix);
+        Matrix4d mt = new Matrix4d(pivotMatrix);
         mt.mul(scale);
         if(originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorldPos);
 
@@ -441,7 +440,7 @@ public class RotateToolOneAxis implements ViewportTool {
         if(currentDragPoint!=null) {
             Matrix4d rot = new Matrix4d();
             rot.rotZ(currentRotationAngle);
-            mt.mul(startMatrix,rot);
+            mt.mul(pivotMatrix,rot);
             mt.mul(mt,scale);
             if(originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorldPos);
             shaderProgram.setMatrix4d(gl,"modelMatrix",mt);
@@ -497,13 +496,13 @@ public class RotateToolOneAxis implements ViewportTool {
 
     private void drawArcOfHandle(GL3 gl, ShaderProgram shaderProgram, Matrix3d lookAtMatrix, Vector3d cameraWorldPos, boolean originShift) {
         Matrix4d m2 = MatrixHelper.createScaleMatrix4(getRingRadiusScaled());
-        m2.mul(startMatrix, m2);
+        m2.mul(pivotMatrix, m2);
         if (originShift) m2 = RenderPassHelper.getOriginShiftedMatrix(m2, cameraWorldPos);
         shaderProgram.setMatrix4d(gl, "modelMatrix", m2);
 
         Vector3d lookAt = new Vector3d(-lookAtMatrix.m02, -lookAtMatrix.m12, -lookAtMatrix.m22);
         // are we straight at the camera?  if yes, don't bother.
-        if( Math.abs(MatrixHelper.getZAxis(startMatrix).dot(lookAt)) < 0.9 ) {
+        if( Math.abs(MatrixHelper.getZAxis(pivotMatrix).dot(lookAt)) < 0.9 ) {
             double [] angles = getArcAngles(lookAt);
             int start = (int)angles[0];
             int end = (int)angles[1];

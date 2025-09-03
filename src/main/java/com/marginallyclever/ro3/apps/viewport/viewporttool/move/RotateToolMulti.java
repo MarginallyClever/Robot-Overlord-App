@@ -63,6 +63,9 @@ public class RotateToolMulti implements ViewportTool {
         updatePivotMatrix();
     }
 
+    /**
+     * Called all the time - by both update and mouse events - to ensure the pivot matrix is correct.
+     */
     private void updatePivotMatrix() {
         setPivotMatrix(MoveUtils.getPivotMatrix(frameOfReference,selectedItems,viewport.getActiveCamera()));
     }
@@ -109,14 +112,12 @@ public class RotateToolMulti implements ViewportTool {
 
         updatePivotMatrix();
 
-        if(event.getID() == MouseEvent.MOUSE_MOVED) {
-            mouseMoved(event);
-        } else if(event.getID() == MouseEvent.MOUSE_PRESSED) {
-            mousePressed(event);
-        } else if(event.getID() == MouseEvent.MOUSE_DRAGGED) {
-            mouseDragged(event);
-        } else if(event.getID() == MouseEvent.MOUSE_RELEASED) {
-            mouseReleased(event);
+        switch(event.getID()) {
+            case MouseEvent.MOUSE_MOVED   : mouseMoved   (event); break;
+            case MouseEvent.MOUSE_PRESSED : mousePressed (event); break;
+            case MouseEvent.MOUSE_DRAGGED : mouseDragged (event); break;
+            case MouseEvent.MOUSE_RELEASED: mouseReleased(event); break;
+            default: break;
         }
     }
 
