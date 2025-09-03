@@ -100,22 +100,4 @@ public class MaterialPanel extends JPanel {
 
         return container;
     }
-
-    private void setTextureButtonLabel(JButton button) {
-        var texture = material.getDiffuseTexture();
-        button.setText((texture==null)
-                ? "..."
-                : PathHelper.extractFileName(texture.getSource()));
-    }
-
-    private BufferedImage scaleImage(BufferedImage sourceImage) {
-        Image tmp = sourceImage.getScaledInstance(THUMBNAIL_SIZE, THUMBNAIL_SIZE, Image.SCALE_SMOOTH);
-        BufferedImage scaledImage = new BufferedImage(THUMBNAIL_SIZE, THUMBNAIL_SIZE, BufferedImage.TYPE_INT_ARGB);
-
-        Graphics2D g2d = scaledImage.createGraphics();
-        g2d.drawImage(tmp, 0, 0, null);
-        g2d.dispose();
-
-        return scaledImage;
-    }
 }
