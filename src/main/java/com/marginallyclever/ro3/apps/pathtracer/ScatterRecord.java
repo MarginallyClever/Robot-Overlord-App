@@ -2,8 +2,6 @@ package com.marginallyclever.ro3.apps.pathtracer;
 
 import com.marginallyclever.convenience.Ray;
 
-import javax.vecmath.Vector3d;
-
 /**
  * Represents a record of scattering events in a path tracer.
  * This class is currently empty and serves as a placeholder for future implementation.

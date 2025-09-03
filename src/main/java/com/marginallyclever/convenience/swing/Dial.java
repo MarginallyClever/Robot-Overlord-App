@@ -1,8 +1,5 @@
 package com.marginallyclever.convenience.swing;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import javax.vecmath.Vector2d;

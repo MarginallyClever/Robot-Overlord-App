@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class MotorTest {

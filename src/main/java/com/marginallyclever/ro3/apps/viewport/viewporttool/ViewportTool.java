@@ -4,7 +4,6 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
-import com.marginallyclever.ro3.node.Node;
 
 import javax.swing.*;
 import javax.vecmath.Point3d;

@@ -2,7 +2,8 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.junit.jupiter.api.Test;
-import java.awt.Color;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 import static org.junit.jupiter.api.Assertions.*;

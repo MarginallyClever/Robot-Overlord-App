@@ -5,7 +5,6 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
-import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;

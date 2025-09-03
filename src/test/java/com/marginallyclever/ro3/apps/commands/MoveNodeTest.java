@@ -2,7 +2,6 @@ package com.marginallyclever.ro3.apps.commands;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodefactory.NodeFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.odenode.brain.v2;
 
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ConnectionTest {

@@ -6,8 +6,6 @@ import com.jogamp.opengl.GLContext;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.mesh.Mesh;
 
-import java.nio.ByteBuffer;
-
 /**
  * {@link DrawDepthBuffer} is a render pass that is responsible for rendering the stencil buffer to the viewport.
  */

@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.apps.nodetreeview;
 
 import com.marginallyclever.ro3.RO3;
-import com.marginallyclever.ro3.RO3Frame;
 import com.marginallyclever.ro3.Registry;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 

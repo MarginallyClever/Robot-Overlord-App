@@ -6,8 +6,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
-import java.util.List;
-
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class ViewportTest {
     @BeforeAll

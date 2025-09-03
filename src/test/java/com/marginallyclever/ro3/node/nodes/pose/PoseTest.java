@@ -1,12 +1,14 @@
 package com.marginallyclever.ro3.node.nodes.pose;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
-import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class PoseTest {
     @Test

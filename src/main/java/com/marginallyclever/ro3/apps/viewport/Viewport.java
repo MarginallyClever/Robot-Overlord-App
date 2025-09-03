@@ -8,7 +8,6 @@ import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.viewport.renderpass.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.move.RotateToolMulti;
-import com.marginallyclever.ro3.apps.viewport.viewporttool.move.RotateToolOneAxis;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.move.TranslateToolMulti;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.node.Node;

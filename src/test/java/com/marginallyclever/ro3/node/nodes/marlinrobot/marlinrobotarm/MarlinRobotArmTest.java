@@ -2,17 +2,16 @@ package com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm;
 
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinListener;
-import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.MarlinRobotArm;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
-import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Locale;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MarlinRobotArmTest {
     @Test

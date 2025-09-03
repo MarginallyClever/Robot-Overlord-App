@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
-import java.awt.*;
 import java.nio.FloatBuffer;
 
 /**

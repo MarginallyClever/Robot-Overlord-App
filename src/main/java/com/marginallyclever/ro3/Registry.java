@@ -4,10 +4,7 @@ import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.mesh.MeshFactory;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodefactory.NodeFactory;
-import com.marginallyclever.ro3.node.nodes.*;
-import com.marginallyclever.ro3.node.nodes.behavior.decorators.*;
-import com.marginallyclever.ro3.node.nodes.odenode.*;
-import com.marginallyclever.ro3.node.nodes.pose.poses.*;
+import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.physics.ODEPhysics;
 import com.marginallyclever.ro3.texture.TextureFactory;
 

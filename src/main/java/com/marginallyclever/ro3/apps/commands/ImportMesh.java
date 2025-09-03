@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.apps.commands;
 
-import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
