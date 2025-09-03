@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.mesh;
 
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.mesh.load.*;
@@ -108,7 +109,7 @@ public class MeshFactory {
 			logger.error("Failed to load mesh: "+e.getMessage());
 		}
 
-		mesh.updateCuboid();
+		mesh.updateBoundingBox();
 	}
 
 	public void reload(Mesh myMesh) {
@@ -166,5 +167,33 @@ public class MeshFactory {
 		// FIXME Not calling unload() on each item is probably a video card memory leak.
 		// FIXME but unload can only be called from the GL thread.
 		meshPool.removeAll();
+    }
+
+    /**
+     * Add a mesh to the pool if it is not already present.
+     * @param mesh the mesh to add
+     */
+    public void addToPool(Mesh mesh) {
+        if(!meshPool.getList().contains(mesh)) {
+            meshPool.add(mesh);
+        }
+    }
+
+    /**
+     * Remove a mesh from the pool.
+     * @param mesh the mesh to remove
+     */
+    public void removeFromPool(Mesh mesh) {
+        meshPool.remove(mesh);
+    }
+
+    /**
+     * Unload all meshes in the pool from OpenGL memory.  This must be called from the OpenGL thread.
+     * @param gl the OpenGL context
+     */
+    public void unloadAll(GL3 gl) {
+        for( Mesh m : meshPool.getList() ) {
+            m.unload(gl);
+        }
     }
 }
