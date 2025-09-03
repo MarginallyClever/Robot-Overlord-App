@@ -101,8 +101,8 @@ public class Mesh {
 	}
 
 	/**
-	 * Destroy the optimized rendering buffers for the fixed function pipeline.
-	 * This does not free the memory used by the mesh.  See also {@link Mesh#clear()}
+	 * <p>Destroy the buffers stored in the video card memory.  This does not free the arrays used by the mesh.
+     * See also {@link Mesh#clear()}</p>
 	 * @param gl the OpenGL context
 	 */
 	public void unload(GL3 gl) {
@@ -341,7 +341,7 @@ public class Mesh {
 	 * Done automatically every time updateBuffers() is called.
 	 * Meaningless if there is no vertexArray of points.
 	 */
-	public void updateCuboid() {
+	public void updateBoundingBox() {
 		Point3d boundBottom = new Point3d(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);
 		Point3d boundTop = new Point3d(-Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE);
 		
@@ -363,7 +363,7 @@ public class Mesh {
 	}
 
 	/**
-	 * @return axially-aligned bounding box in the mesh's local space.
+	 * @return {@link AABB} in the mesh's local space.
 	 */
 	public AABB getBoundingBox() {
 		return boundingBox;
