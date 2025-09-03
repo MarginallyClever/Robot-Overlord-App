@@ -76,8 +76,8 @@ public class RotateToolOneAxis implements ViewportTool {
     // The current point on the translation plane as the user drags the mouse.
     private Point3d currentDragPoint;
     // The current angle of rotation as the user drags the mouse.
-    private double startingRotationAngle;
-    private double currentRotationAngle;
+    private double startingRotationAngleRadians;
+    private double currentRotationAngleRadians;
 
     // The axes in the plane along which the user is translating.
     private final Vector3d rotationAxisX = new Vector3d();
@@ -96,7 +96,7 @@ public class RotateToolOneAxis implements ViewportTool {
     private final Mesh markerMesh = new Mesh();
     private final Mesh angleMesh = new Mesh();
     private final CircleXY ringMesh = new CircleXY();
-    private final Waldo waldo = new Waldo(0.25f);
+    private final Waldo waldo = new Waldo();
 
     private boolean drawPivotPoint=true;
 
@@ -211,7 +211,7 @@ public class RotateToolOneAxis implements ViewportTool {
             dragging = true;
             cursorOverHandle = true;
             startPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(pivotMatrix),viewport,event.getX(), event.getY());
-            startingRotationAngle = getAngleBetweenPoints(snapToTicks(startPoint));
+            startingRotationAngleRadians = getAngleBetweenPoints(snapToTicks(startPoint));
             if(selectedItems!=null) selectedItems.savePose();
         }
     }
@@ -263,11 +263,11 @@ public class RotateToolOneAxis implements ViewportTool {
         currentDragPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(pivotMatrix),viewport,event.getX(), event.getY());
         if(currentDragPoint == null) return;  // if the plane is somehow edge-on, we can't do anything.
 
-        currentRotationAngle = getAngleBetweenPoints(snapToTicks(currentDragPoint));
+        currentRotationAngleRadians = getAngleBetweenPoints(snapToTicks(currentDragPoint));
 
         // build a rotation matrix for the current angle.
         Matrix4d rot = new Matrix4d();
-        rot.rotZ(currentRotationAngle-startingRotationAngle);
+        rot.rotZ(currentRotationAngleRadians - startingRotationAngleRadians);
 
         // use pivotMatrix to prevent accumulation of numerical errors.
         Matrix4d inversepivotMatrix = new Matrix4d(pivotMatrix);
@@ -403,7 +403,6 @@ public class RotateToolOneAxis implements ViewportTool {
 
         drawMainRingAndHandles(gl,shaderProgram);
         if(dragging) {
-            shaderProgram.set4f(gl, "diffuseColor", 1,1,1,1);
             drawWhileDragging(gl,shaderProgram);
         }
 
@@ -414,6 +413,7 @@ public class RotateToolOneAxis implements ViewportTool {
     public void drawPivotPoint(GL3 gl,ShaderProgram shaderProgram) {
         Matrix4d m = new Matrix4d();
         m.set(pivotMatrix);
+        m.mul(MatrixHelper.createScaleMatrix4(localScale));
         if (viewport.isOriginShift()) {
             var cameraWorldPos = MatrixHelper.getPosition(viewport.getActiveCamera().getWorld());
             m = RenderPassHelper.getOriginShiftedMatrix(m, cameraWorldPos);
@@ -427,25 +427,32 @@ public class RotateToolOneAxis implements ViewportTool {
         var originShift = viewport.isOriginShift();
         var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
 
-        Matrix4d scale = MatrixHelper.createScaleMatrix4(localScale);
-
-        Matrix4d mt = new Matrix4d(pivotMatrix);
-        mt.mul(scale);
-        if(originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorldPos);
-
-        shaderProgram.setMatrix4d(gl,"modelMatrix",mt);
-        markerMesh.render(gl);
 
         // Draw the start and end angle of the movement.
-        if(currentDragPoint!=null) {
+        if(currentDragPoint!=null && startPoint!=null) {
+            Matrix4d mt = new Matrix4d(pivotMatrix);
             Matrix4d rot = new Matrix4d();
-            rot.rotZ(currentRotationAngle);
-            mt.mul(pivotMatrix,rot);
-            mt.mul(mt,scale);
+            int currentDegrees = (int)Math.toDegrees(currentRotationAngleRadians);
+            int startingDegrees = (int)Math.toDegrees(startingRotationAngleRadians);
+
+            int start = Math.min(currentDegrees,startingDegrees);
+            int diff = Math.abs(currentDegrees-startingDegrees);
+            System.out.println(start+"\t"+diff);
+            rot.rotZ(Math.toRadians(start));
+            mt.mul(pivotMatrix,rot);  // turn it so 0 degrees faces the start angle
+            mt.mul(mt,MatrixHelper.createScaleMatrix4(getRingRadiusScaled()));  // make it big
             if(originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorldPos);
             shaderProgram.setMatrix4d(gl,"modelMatrix",mt);
-            angleMesh.render(gl);
+            ringMesh.render(gl, 0, diff);
         }
+
+        // draw the snap markers
+        Matrix4d mt = new Matrix4d(pivotMatrix);
+        mt.mul(MatrixHelper.createScaleMatrix4(localScale));
+        if(originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorldPos);
+        shaderProgram.set4f(gl, "diffuseColor", 1,1,1,1);
+        shaderProgram.setMatrix4d(gl,"modelMatrix",mt);
+        markerMesh.render(gl);
     }
 
     private void drawWaldo(GL3 gl,ShaderProgram shaderProgram) {
@@ -466,7 +473,6 @@ public class RotateToolOneAxis implements ViewportTool {
                 Math.clamp(color.getGreen()/255.0f*colorScale, 0, 1),
                 Math.clamp(color.getBlue()/255.0f*colorScale, 0, 1));
         shaderProgram.setColor(gl, "diffuseColor", c2);
-
 
         Camera camera = viewport.getActiveCamera();
         var originShift = viewport.isOriginShift();
@@ -510,7 +516,6 @@ public class RotateToolOneAxis implements ViewportTool {
             int before = ringMesh.getRenderStyle();
             ringMesh.setRenderStyle(GL3.GL_LINE_STRIP);
             if(end>360) {
-                int diff = end-360;
                 int start2 = 1;
                 int end2 = end-360;
                 //shaderProgram.setColor(gl, "diffuseColor", Color.ORANGE);
