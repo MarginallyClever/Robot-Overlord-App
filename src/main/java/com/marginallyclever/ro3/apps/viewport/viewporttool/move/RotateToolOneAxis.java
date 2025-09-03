@@ -9,15 +9,14 @@ import com.marginallyclever.ro3.apps.viewport.renderpass.RenderPassHelper;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
 import com.marginallyclever.ro3.mesh.Mesh;
-import com.marginallyclever.ro3.mesh.proceduralmesh.Box;
 import com.marginallyclever.ro3.mesh.proceduralmesh.CircleXY;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Waldo;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
-import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 
 import javax.swing.*;
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -50,8 +49,6 @@ public class RotateToolOneAxis implements ViewportTool {
      * The size of the handle and ring.
      */
     private static double ringRadius = 5.0;
-    private static double handleLength = 4.89898;
-    private static double handleOffsetY = 1.0;
     private static double gripRadius = 1.0;
 
     /**
@@ -79,6 +76,7 @@ public class RotateToolOneAxis implements ViewportTool {
     // The current point on the translation plane as the user drags the mouse.
     private Point3d currentDragPoint;
     // The current angle of rotation as the user drags the mouse.
+    private double startingRotationAngle;
     private double currentRotationAngle;
 
     // The axes in the plane along which the user is translating.
@@ -97,7 +95,6 @@ public class RotateToolOneAxis implements ViewportTool {
     private boolean cursorOverHandle = false;
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
     private final Color color;
-    private final Box handleBox = new Box();
     private final Mesh markerMesh = new Mesh();
     private final Mesh angleMesh = new Mesh();
     private final CircleXY ringMesh = new CircleXY();
@@ -181,7 +178,6 @@ public class RotateToolOneAxis implements ViewportTool {
         pivotMatrix.set(pivot);
         rotationAxisX.set(MatrixHelper.getXAxis(pivot));
         rotationAxisY.set(MatrixHelper.getYAxis(pivot));
-        startMatrix.set(pivotMatrix);
     }
 
     /**
@@ -207,7 +203,6 @@ public class RotateToolOneAxis implements ViewportTool {
 
     public void mouseMoved(MouseEvent event) {
         cursorOverHandle = isCursorOverHandle(event.getX(), event.getY());
-        startMatrix.set(pivotMatrix);
     }
 
     @Override
@@ -215,7 +210,9 @@ public class RotateToolOneAxis implements ViewportTool {
         if (isCursorOverHandle(event.getX(), event.getY())) {
             dragging = true;
             cursorOverHandle = true;
+            startMatrix.set(pivotMatrix);
             startPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,event.getX(), event.getY());
+            startingRotationAngle = getAngleBetweenPoints(snapToTicks(startPoint));
             if(selectedItems!=null) selectedItems.savePose();
         }
     }
@@ -223,18 +220,34 @@ public class RotateToolOneAxis implements ViewportTool {
     private boolean isCursorOverHandle(int x, int y) {
         if(selectedItems==null || selectedItems.isEmpty()) return false;
 
-        Point3d point = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,x, y);
-        if (point == null) return false;
+        // Get the cursor's position projected onto the plane of rotation
+        Point3d cursorPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix), viewport, x, y);
+        if (cursorPoint == null) return false; // Cursor not on plane
 
-        // Check if the point is within the handle's bounds
-        Vector3d diff = new Vector3d();
-        diff.sub(point, MatrixHelper.getPosition(startMatrix));
+        // Calculate the vector from pivot to cursor point
+        Vector3d cursorVector = new Vector3d();
+        cursorVector.sub(cursorPoint, MatrixHelper.getPosition(startMatrix));
 
-        double dx = diff.dot(rotationAxisX);
-        if( Math.abs(dx-getHandleLengthScaled()) > getGripRadiusScaled() ) return false;
+        // Compute the distance from the pivot (radius of the cursor position relative to the pivot)
+        double cursorRadius = cursorVector.length();
+        double ringRadiusScaled = getRingRadiusScaled();
 
-        double dy = diff.dot(rotationAxisY);
-        return !(Math.abs(Math.abs(dy) - getHandleOffsetYScaled()) > getGripRadiusScaled());
+        // Check if the cursor is within the arc's radius range (handle radius ± grip radius)
+        if (Math.abs(cursorRadius - ringRadiusScaled) > getGripRadiusScaled()) return false;
+
+        double angle = getAngleOnPlaneDegrees(cursorVector);
+
+        Camera camera = viewport.getActiveCamera();
+        var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
+        var lookAt = MatrixHelper.getPosition(pivotMatrix);
+        lookAt.sub(cameraWorldPos);
+        double [] angles = getArcAngles(lookAt);
+        int start = (int)angles[0];
+        int end = (int)angles[1];
+        if(angle<start) angle+=360;
+
+        // Check if the cursor's angle lies within the arc
+        return angle >= start && angle <= end;
     }
 
     /**
@@ -250,11 +263,12 @@ public class RotateToolOneAxis implements ViewportTool {
         // get the current point on the plane
         currentDragPoint = MoveUtils.getPointOnPlaneFromCursor(MatrixHelper.getXYPlane(startMatrix),viewport,event.getX(), event.getY());
         if(currentDragPoint == null) return;  // if the plane is somehow edge-on, we can't do anything.
+
         currentRotationAngle = getAngleBetweenPoints(snapToTicks(currentDragPoint));
 
         // build a rotation matrix for the current angle.
         Matrix4d rot = new Matrix4d();
-        rot.rotZ(currentRotationAngle);
+        rot.rotZ(currentRotationAngle-startingRotationAngle);
 
         // use startMatrix to prevent accumulation of numerical errors.
         Matrix4d inverseStartMatrix = new Matrix4d(startMatrix);
@@ -276,17 +290,15 @@ public class RotateToolOneAxis implements ViewportTool {
         Vector3d center = MatrixHelper.getPosition(startMatrix);
         diff.sub(currentPoint, center);
         double diffLength = diff.length()/getRingRadiusScaled();
-        Vector3d xAxis = MatrixHelper.getXAxis(startMatrix);
-        Vector3d yAxis = MatrixHelper.getYAxis(startMatrix);
-        double angle = Math.atan2(yAxis.dot(diff),xAxis.dot(diff));
+        double angle = getAngleBetweenPoints(currentPoint);
 
         // if the diff length is within the TICK_RATIO_INSIDE_5 and TICK_RATIO_INSIDE_10 and
         // if angle is within SNAP_RADIANS_5 of every 5 degrees, snap to 5 degrees.
         if(diffLength > TICK_RATIO_INSIDE_5 && diffLength < TICK_RATIO_OUTSIDE_10) {
             angle = roundToNearestSnap(angle, SNAP_RADIANS_5,5);
             double angle5 = Math.round(angle / (Math.PI/36)) * (Math.PI/36);
-            diff.scaleAdd(Math.cos(angle5), xAxis, center);
-            diff.scaleAdd(Math.sin(angle5), yAxis, diff);
+            diff.scaleAdd(Math.cos(angle5), rotationAxisX, center);
+            diff.scaleAdd(Math.sin(angle5), rotationAxisY, diff);
             currentPoint.set(diff);
             return currentPoint;
         }
@@ -295,8 +307,8 @@ public class RotateToolOneAxis implements ViewportTool {
         if(diffLength > TICK_RATIO_INSIDE_45 && diffLength < TICK_RATIO_OUTSIDE_45) {
             angle = roundToNearestSnap(angle, SNAP_RADIANS_45,45);
             double angle5 = Math.round(angle / (Math.PI/4)) * (Math.PI/4);
-            diff.scaleAdd(Math.cos(angle5), xAxis, center);
-            diff.scaleAdd(Math.sin(angle5), yAxis, diff);
+            diff.scaleAdd(Math.cos(angle5), rotationAxisX, center);
+            diff.scaleAdd(Math.sin(angle5), rotationAxisY, diff);
             currentPoint.set(diff);
             return currentPoint;
         }
@@ -334,9 +346,25 @@ public class RotateToolOneAxis implements ViewportTool {
     private double getAngleBetweenPoints(Point3d currentPoint) {
         Vector3d v2 = new Vector3d(currentPoint);
         v2.sub(MatrixHelper.getPosition(startMatrix));
-        double x = v2.dot(MatrixHelper.getXAxis(startMatrix));
-        double y = v2.dot(MatrixHelper.getYAxis(startMatrix));
-        return Math.atan2(y,x);
+        return Math.atan2(
+                rotationAxisY.dot(v2),
+                rotationAxisX.dot(v2));
+    }
+
+    /**
+     * Get the angle in degrees of the given point on the plane defined by rotationAxisX and rotationAxisY.
+     * @param pointOnPlane a vector from the pivot to a point on the plane.
+     * @return the angle in degrees.
+     */
+    private double getAngleOnPlaneDegrees(Vector3d pointOnPlane) {
+        // Determine the angle of the cursor point relative to the pivot
+        double angle = Math.atan2(
+                pointOnPlane.dot(rotationAxisY),
+                pointOnPlane.dot(rotationAxisX)); // Angle in radians
+
+        // Ensure angle is normalized to [0, 2π] for comparison with the arc's bounds
+        if (angle < 0) angle += 2 * Math.PI;
+        return Math.toDegrees(angle);
     }
 
     /**
@@ -440,35 +468,72 @@ public class RotateToolOneAxis implements ViewportTool {
                 Math.clamp(color.getBlue()/255.0f*colorScale, 0, 1));
         shaderProgram.setColor(gl, "diffuseColor", c2);
 
+
         Camera camera = viewport.getActiveCamera();
         var originShift = viewport.isOriginShift();
         var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
+        var p = MatrixHelper.getPosition(pivotMatrix);
+        var lookAtMatrix = MatrixHelper.lookAt(p,cameraWorldPos);
 
-        {
-            Matrix4d m2 = MatrixHelper.createScaleMatrix4(getRingRadiusScaled());
-            m2.mul(startMatrix, m2);
-            if (originShift) m2 = RenderPassHelper.getOriginShiftedMatrix(m2, cameraWorldPos);
-            shaderProgram.setMatrix4d(gl, "modelMatrix", m2);
-            ringMesh.render(gl, 1, 360);
+        drawWhiteCircleFacingCamera(gl,shaderProgram,lookAtMatrix,cameraWorldPos,p,originShift);
+        shaderProgram.setColor(gl, "diffuseColor", c2);
+
+        drawArcOfHandle(gl,shaderProgram,lookAtMatrix,cameraWorldPos,originShift);
+    }
+
+    private void drawWhiteCircleFacingCamera(GL3 gl, ShaderProgram shaderProgram, Matrix3d lookAtMatrix, Vector3d cameraWorldPos, Vector3d p, boolean originShift) {
+        // draw a white circle facing the camera
+        Matrix4d m2 = new Matrix4d();
+        m2.set(lookAtMatrix);
+        m2.setTranslation(p);
+        Matrix4d scale = MatrixHelper.createScaleMatrix4(getRingRadiusScaled());
+        m2.mul(scale);
+        if (originShift) m2 = RenderPassHelper.getOriginShiftedMatrix(m2, cameraWorldPos);
+        shaderProgram.setMatrix4d(gl, "modelMatrix", m2);
+        shaderProgram.setColor(gl, "diffuseColor", new Color(1,1,1,0.25f));
+        ringMesh.render(gl, 1, 360);
+        // put the color back where it was.
+    }
+
+    private void drawArcOfHandle(GL3 gl, ShaderProgram shaderProgram, Matrix3d lookAtMatrix, Vector3d cameraWorldPos, boolean originShift) {
+        Matrix4d m2 = MatrixHelper.createScaleMatrix4(getRingRadiusScaled());
+        m2.mul(startMatrix, m2);
+        if (originShift) m2 = RenderPassHelper.getOriginShiftedMatrix(m2, cameraWorldPos);
+        shaderProgram.setMatrix4d(gl, "modelMatrix", m2);
+
+        Vector3d lookAt = new Vector3d(-lookAtMatrix.m02, -lookAtMatrix.m12, -lookAtMatrix.m22);
+        // are we straight at the camera?  if yes, don't bother.
+        if( Math.abs(MatrixHelper.getZAxis(startMatrix).dot(lookAt)) < 0.9 ) {
+            double [] angles = getArcAngles(lookAt);
+            int start = (int)angles[0];
+            int end = (int)angles[1];
+
+            int before = ringMesh.getRenderStyle();
+            ringMesh.setRenderStyle(GL3.GL_LINE_STRIP);
+            if(end>360) {
+                int diff = end-360;
+                int start2 = 1;
+                int end2 = end-360;
+                //shaderProgram.setColor(gl, "diffuseColor", Color.ORANGE);
+                ringMesh.render(gl, start2, end2-start2+1);
+                end=360;
+            }
+            if(start<1) start=1;
+            //shaderProgram.setColor(gl, "diffuseColor", Color.MAGENTA);
+            ringMesh.render(gl, start, end-start+2);
+            ringMesh.setRenderStyle(before);
         }
-        {
-            Matrix4d m2 = MatrixHelper.createScaleMatrix4(getGripRadiusScaled());
-            m2.m03 = getHandleLengthScaled();
-            m2.m13 = getHandleOffsetYScaled();
-            m2.mul(startMatrix, m2);
-            if (originShift) m2 = RenderPassHelper.getOriginShiftedMatrix(m2, cameraWorldPos);
-            shaderProgram.setMatrix4d(gl, "modelMatrix", m2);
-            handleBox.render(gl);
-        }
-        {
-            Matrix4d m2 = MatrixHelper.createScaleMatrix4(getGripRadiusScaled());
-            m2.m03 = getHandleLengthScaled();
-            m2.m13 = -getHandleOffsetYScaled();
-            m2.mul(startMatrix, m2);
-            if (originShift) m2 = RenderPassHelper.getOriginShiftedMatrix(m2, cameraWorldPos);
-            shaderProgram.setMatrix4d(gl, "modelMatrix", m2);
-            handleBox.render(gl);
-        }
+    }
+
+    private double[] getArcAngles(Vector3d lookAt) {
+        var r = Math.atan2(
+                rotationAxisY.dot(lookAt),
+                rotationAxisX.dot(lookAt));
+        int start = (int)Math.toDegrees(r)+90;
+        if(start>360) start-=360;
+        if(start<0) start+=360;
+        int end = start + 180;
+        return new double[]{start,end};
     }
 
     @Override
@@ -495,16 +560,8 @@ public class RotateToolOneAxis implements ViewportTool {
         axisOfRotation =i;
     }
 
-    private double getHandleLengthScaled() {
-        return handleLength * localScale;
-    }
-
     private double getGripRadiusScaled() {
         return gripRadius * localScale;
-    }
-
-    private double getHandleOffsetYScaled() {
-        return handleOffsetY * localScale;
     }
 
     private double getRingRadiusScaled() {
@@ -531,9 +588,9 @@ public class RotateToolOneAxis implements ViewportTool {
 
     @Override
     public void dispose(GL3 gl3) {
-        handleBox.unload(gl3);
         markerMesh.unload(gl3);
         ringMesh.unload(gl3);
+        waldo.unload(gl3);
     }
 
     @Override
