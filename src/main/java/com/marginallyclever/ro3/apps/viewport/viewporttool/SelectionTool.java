@@ -42,7 +42,7 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
      * @param list The selected items to be manipulated by the tool.
      */
     @Override
-    public void activate(List<Node> list) {
+    public void activate(SelectedItems list) {
         isActive=true;
     }
 

@@ -81,8 +81,9 @@ public class TranslateToolTwoAxis implements ViewportTool {
     }
 
     @Override
-    public void activate(List<Node> list) {
-        this.selectedItems = new SelectedItems(list);
+    public void activate(SelectedItems list) {
+        this.selectedItems = list;
+
         if (selectedItems.isEmpty()) return;
 
         updatePivotMatrix();

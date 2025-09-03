@@ -13,23 +13,17 @@ import javax.vecmath.Point3d;
  * The blue arrow indicates the +Z axis.</p>
  */
 public class Waldo extends ProceduralMesh {
-    public float getRadius() {
-        return radius;
-    }
+    public static final float DEFAULT_RADIUS = 1.0f;
 
-    /**
-     * Set the length of each axis arrow.
-     * @param radius the length of each axis arrow.
-     */
-    public void setRadius(float radius) throws IllegalArgumentException {
-        if(radius<=0) throw new IllegalArgumentException("Radius must be positive");
-        this.radius = radius;
-    }
-
-    public float radius = 1;
+    private float radius;
 
     public Waldo() {
+        this(DEFAULT_RADIUS);
+    }
+
+    public Waldo(float radius) {
         super();
+        this.radius = radius;
         this.setRenderStyle(GL3.GL_LINES);
         updateModel();
     }
@@ -64,5 +58,18 @@ public class Waldo extends ProceduralMesh {
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
         updateModel();
+    }
+
+    public float getRadius() {
+        return radius;
+    }
+
+    /**
+     * Set the length of each axis arrow.
+     * @param radius the length of each axis arrow.
+     */
+    public void setRadius(float radius) throws IllegalArgumentException {
+        if(radius<=0) throw new IllegalArgumentException("Radius must be positive");
+        this.radius = radius;
     }
 }

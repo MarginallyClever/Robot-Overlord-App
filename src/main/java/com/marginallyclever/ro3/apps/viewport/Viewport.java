@@ -8,6 +8,7 @@ import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.viewport.renderpass.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.move.RotateToolMulti;
+import com.marginallyclever.ro3.apps.viewport.viewporttool.move.RotateToolOneAxis;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.move.TranslateToolMulti;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.node.Node;
@@ -613,11 +614,8 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
         // if we reselect the current tool, toggle off.
         activeToolIndex = (activeToolIndex == index) ? -1 : index;
 
-        if(activeToolIndex >= 0) {
-            viewportTools.get(activeToolIndex).activate(Registry.selection.getList());
-        }
-
         fireToolChanged(index);
+        selectionChanged(null,null);
     }
 
     public int getActiveToolIndex() {
@@ -630,7 +628,8 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
 
     private void selectionChanged(Object source,Object item) {
         if(activeToolIndex >= 0) {
-            viewportTools.get(activeToolIndex).activate(Registry.selection.getList());
+            SelectedItems selection = new SelectedItems(Registry.selection.getList());
+            viewportTools.get(activeToolIndex).activate(selection);
         }
     }
 

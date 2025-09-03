@@ -6,13 +6,9 @@ import javax.vecmath.Vector3d;
 public class RenderPassHelper {
     public static Matrix4d getOriginShiftedMatrix(Matrix4d m, Vector3d cameraWorldPos) {
         var m2 = new Matrix4d(m);
-        var t = new Vector3d();
-        m2.get(t);
-        t.x -= cameraWorldPos.x;
-        t.y -= cameraWorldPos.y;
-        t.z -= cameraWorldPos.z;
-        m2.setTranslation(t);
-
+        m2.m03 -= cameraWorldPos.x;
+        m2.m13 -= cameraWorldPos.y;
+        m2.m23 -= cameraWorldPos.z;
         return m2;
     }
 }
