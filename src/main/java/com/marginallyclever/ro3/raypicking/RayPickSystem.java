@@ -73,6 +73,7 @@ public class RayPickSystem {
                     cache.put(meshInstance, pathMesh);
                     var mat = getMaterial(meshInstance);
                     if(mat!=null && mat.isEmissive()) {
+                        emissiveMeshes.add(meshInstance);
                         numEmissiveTriangles += pathMesh.getTriangleCount();
                     }
                 }

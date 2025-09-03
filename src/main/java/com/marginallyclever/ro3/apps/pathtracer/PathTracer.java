@@ -137,7 +137,7 @@ public class PathTracer {
             pixel.addRayHistory(new Ray(ray), hit);
             if (hit == null && environment != null ) {
                 // hit nothing
-                ColorDouble sky = environment.getEnivornmentColor(ray);
+                ColorDouble sky = environment.getEnvironmentColor(ray);
                 sky.multiply(throughput);
                 radiance.add(sky);
                 break;
@@ -442,6 +442,7 @@ public class PathTracer {
 
     private void showRays(List<RayXY> list,boolean showWholeRay) {
         if(displayContainer==null) {
+            // create container mesh
             displayContainer = new Pose();
             displayContainer.setName("PathTracer Container");
             Registry.getScene().addChild(displayContainer);
@@ -470,7 +471,6 @@ public class PathTracer {
                 Point3d p0 = ray.getOrigin();
                 Vector3d d = ray.getDirection();
                 d.normalize();
-
 
                 if (hit == null) {
                     p1.scaleAdd(1.0, d, p0);

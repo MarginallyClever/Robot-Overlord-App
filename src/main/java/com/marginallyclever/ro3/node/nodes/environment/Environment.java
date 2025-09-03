@@ -10,7 +10,6 @@ import com.marginallyclever.ro3.apps.pathtracer.PathMesh;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.raypicking.RayPickSystem;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.json.JSONObject;
 
@@ -27,6 +26,7 @@ import java.util.Objects;
  */
 public class Environment extends Node {
     public final Vector3d sunlightSource = new Vector3d(50,150,750);  // vector
+    public final Vector3d sunlightSourceNormalized = new Vector3d();
     public static final double SUN_DISTANCE = 200;
     public Color sunlightColor = new Color(0xfd,0xfb,0xd3,255);
     public double sunlightStrength = 1;
@@ -41,7 +41,11 @@ public class Environment extends Node {
     private PathMesh pathMesh;
 
     public Environment() {
-        super("Environment");
+        this("Environment");
+    }
+
+    public Environment(String name) {
+        super(name);
 
         if(skyShapeIsSphere) {
             skyTexture = Registry.textureFactory.load("/com/marginallyclever/ro3/node/nodes/pose/poses/space/milkyway_2020_4k_print.jpg");
@@ -66,7 +70,7 @@ public class Environment extends Node {
      */
     private void buildBox() {
         mesh = new Mesh();
-        mesh.setRenderStyle(GL3.GL_QUADS);
+        mesh.setRenderStyle(GL3.GL_TRIANGLES);
 
         float adj = 1f/256f;
         float a=0.00f+adj;
@@ -74,44 +78,67 @@ public class Environment extends Node {
         float c=0.50f;
         float d=0.75f;
         float e=1.00f-adj;
-
         float f=1f/3f+adj*3;
         float g=2f/3f-adj*3;
         int v = 100;
-        // build the top face (z+)
-        mesh.addTexCoord(b,g);  mesh.addVertex(-v, v, v);  mesh.addNormal(0,0,-1);
-        mesh.addTexCoord(c,g);  mesh.addVertex( v, v, v);  mesh.addNormal(0,0,-1);
-        mesh.addTexCoord(c,e);  mesh.addVertex( v,-v, v);  mesh.addNormal(0,0,-1);
-        mesh.addTexCoord(b,e);  mesh.addVertex(-v,-v, v);  mesh.addNormal(0,0,-1);
-        // build the bottom face (z-)
-        mesh.addTexCoord(b,a);  mesh.addVertex(-v, v, -v);  mesh.addNormal(0,0,1);
-        mesh.addTexCoord(c,a);  mesh.addVertex( v, v, -v);  mesh.addNormal(0,0,1);
-        mesh.addTexCoord(c,f);  mesh.addVertex( v,-v, -v);  mesh.addNormal(0,0,1);
-        mesh.addTexCoord(b,f);  mesh.addVertex(-v,-v, -v);  mesh.addNormal(0,0,1);
-        // build north face (y+)
-        mesh.addTexCoord(b,g);  mesh.addVertex(-v, v,  v);  mesh.addNormal(0,-1,0);
-        mesh.addTexCoord(c,g);  mesh.addVertex( v, v,  v);  mesh.addNormal(0,-1,0);
-        mesh.addTexCoord(c,f);  mesh.addVertex( v, v, -v);  mesh.addNormal(0,-1,0);
-        mesh.addTexCoord(b,f);  mesh.addVertex(-v, v, -v);  mesh.addNormal(0,-1,0);
-        // build south face (y-)
-        mesh.addTexCoord(e,g);  mesh.addVertex(-v, -v,  v);  mesh.addNormal(0,1,0);
-        mesh.addTexCoord(d,g);  mesh.addVertex( v, -v,  v);  mesh.addNormal(0,1,0);
-        mesh.addTexCoord(d,f);  mesh.addVertex( v, -v, -v);  mesh.addNormal(0,1,0);
-        mesh.addTexCoord(e,f);  mesh.addVertex(-v, -v, -v);  mesh.addNormal(0,1,0);
-        // build east face (x+)
-        mesh.addTexCoord(d,g);  mesh.addVertex(v, -v,  v);  mesh.addNormal(-1,0,0);
-        mesh.addTexCoord(c,g);  mesh.addVertex(v,  v,  v);  mesh.addNormal(-1,0,0);
-        mesh.addTexCoord(c,f);  mesh.addVertex(v,  v, -v);  mesh.addNormal(-1,0,0);
-        mesh.addTexCoord(d,f);  mesh.addVertex(v, -v, -v);  mesh.addNormal(-1,0,0);
-        // build west face (x-)
-        mesh.addTexCoord(a,g);  mesh.addVertex(-v, -v,  v);  mesh.addNormal(1,0,0);
-        mesh.addTexCoord(b,g);  mesh.addVertex(-v,  v,  v);  mesh.addNormal(1,0,0);
-        mesh.addTexCoord(b,f);  mesh.addVertex(-v,  v, -v);  mesh.addNormal(1,0,0);
-        mesh.addTexCoord(a,f);  mesh.addVertex(-v, -v, -v);  mesh.addNormal(1,0,0);
+
+        // Top face (z+), split into two triangles
+        mesh.addTexCoord(b, g); mesh.addVertex(-v, v, v); mesh.addNormal(0, 0, -1);
+        mesh.addTexCoord(c, g); mesh.addVertex(v, v, v); mesh.addNormal(0, 0, -1);
+        mesh.addTexCoord(c, e); mesh.addVertex(v, -v, v); mesh.addNormal(0, 0, -1);
+
+        mesh.addTexCoord(b, g); mesh.addVertex(-v, v, v); mesh.addNormal(0, 0, -1);
+        mesh.addTexCoord(c, e); mesh.addVertex(v, -v, v); mesh.addNormal(0, 0, -1);
+        mesh.addTexCoord(b, e); mesh.addVertex(-v, -v, v); mesh.addNormal(0, 0, -1);
+
+        // Bottom face (z-), split into two triangles
+        mesh.addTexCoord(b, a); mesh.addVertex(-v,  v, -v); mesh.addNormal(0, 0, 1);
+        mesh.addTexCoord(c, a); mesh.addVertex( v,  v, -v); mesh.addNormal(0, 0, 1);
+        mesh.addTexCoord(c, f); mesh.addVertex( v, -v, -v); mesh.addNormal(0, 0, 1);
+
+        mesh.addTexCoord(b, a); mesh.addVertex(-v,  v, -v); mesh.addNormal(0, 0, 1);
+        mesh.addTexCoord(c, f); mesh.addVertex( v, -v, -v); mesh.addNormal(0, 0, 1);
+        mesh.addTexCoord(b, f); mesh.addVertex(-v, -v, -v); mesh.addNormal(0, 0, 1);
+
+        // North face (y+), split into two triangles
+        mesh.addTexCoord(b, g); mesh.addVertex(-v, v,  v); mesh.addNormal(0, -1, 0);
+        mesh.addTexCoord(c, g); mesh.addVertex( v, v,  v); mesh.addNormal(0, -1, 0);
+        mesh.addTexCoord(c, f); mesh.addVertex( v, v, -v); mesh.addNormal(0, -1, 0);
+
+        mesh.addTexCoord(b, g); mesh.addVertex(-v, v,  v); mesh.addNormal(0, -1, 0);
+        mesh.addTexCoord(c, f); mesh.addVertex( v, v, -v); mesh.addNormal(0, -1, 0);
+        mesh.addTexCoord(b, f); mesh.addVertex(-v, v, -v); mesh.addNormal(0, -1, 0);
+
+        // South face (y-), split into two triangles
+        mesh.addTexCoord(e, g); mesh.addVertex(-v, -v,  v); mesh.addNormal(0, 1, 0);
+        mesh.addTexCoord(d, g); mesh.addVertex( v, -v,  v); mesh.addNormal(0, 1, 0);
+        mesh.addTexCoord(d, f); mesh.addVertex( v, -v, -v); mesh.addNormal(0, 1, 0);
+
+        mesh.addTexCoord(e, g); mesh.addVertex(-v, -v,  v); mesh.addNormal(0, 1, 0);
+        mesh.addTexCoord(d, f); mesh.addVertex( v, -v, -v); mesh.addNormal(0, 1, 0);
+        mesh.addTexCoord(e, f); mesh.addVertex(-v, -v, -v); mesh.addNormal(0, 1, 0);
+
+        // East face (x+), split into two triangles
+        mesh.addTexCoord(d, g); mesh.addVertex(v, -v,  v); mesh.addNormal(-1, 0, 0);
+        mesh.addTexCoord(c, g); mesh.addVertex(v,  v,  v); mesh.addNormal(-1, 0, 0);
+        mesh.addTexCoord(c, f); mesh.addVertex(v,  v, -v); mesh.addNormal(-1, 0, 0);
+
+        mesh.addTexCoord(d, g); mesh.addVertex(v, -v,  v); mesh.addNormal(-1, 0, 0);
+        mesh.addTexCoord(c, f); mesh.addVertex(v,  v, -v); mesh.addNormal(-1, 0, 0);
+        mesh.addTexCoord(d, f); mesh.addVertex(v, -v, -v); mesh.addNormal(-1, 0, 0);
+
+        // West face (x-), split into two triangles
+        mesh.addTexCoord(a, g); mesh.addVertex(-v, -v, v); mesh.addNormal(1, 0, 0);
+        mesh.addTexCoord(b, g); mesh.addVertex(-v,  v, v); mesh.addNormal(1, 0, 0);
+        mesh.addTexCoord(b, f); mesh.addVertex(-v,  v, -v); mesh.addNormal(1, 0, 0);
+
+        mesh.addTexCoord(a, g); mesh.addVertex(-v, -v, v); mesh.addNormal(1, 0, 0);
+        mesh.addTexCoord(b, f); mesh.addVertex(-v,  v, -v); mesh.addNormal(1, 0, 0);
+        mesh.addTexCoord(a, f); mesh.addVertex(-v, -v, -v); mesh.addNormal(1, 0, 0);
     }
 
     private void buildSphere() {
-        mesh = new Sphere(100);
+        mesh = new Sphere(-100);
         ((Sphere)mesh).updateModel();
     }
 
@@ -121,10 +148,6 @@ public class Environment extends Node {
         mesh.unload(gl3);
         skyTexture.unload();
     }
-
-    public Environment(String name) {
-    super(name);
-  }
 
     @Override
     public JSONObject toJSON() {
@@ -147,11 +170,17 @@ public class Environment extends Node {
         sunlightColor = new Color(from.optInt("sunlightColor", sunlightColor.getRGB()));
         sunlightStrength = from.optDouble("sunlightStrength", sunlightStrength);
         ambientColor = new Color(from.optInt("ambientColor", ambientColor.getRGB()));
-        sunlightSource.set(getSunPosition());
         if(from.has("skyTexture")) {
             skyTexture = Registry.textureFactory.load(from.optString("skyTexture"));
         }
         skyShapeIsSphere = from.optBoolean("skyShapeIsSphere", skyShapeIsSphere);
+        updateSunlightSource();
+    }
+
+    private void updateSunlightSource() {
+        sunlightSource.set(getSunPosition());
+        sunlightSourceNormalized.set(sunlightSource);
+        sunlightSourceNormalized.normalize();
     }
 
     public Color getSunlightColor() {
@@ -188,7 +217,7 @@ public class Environment extends Node {
 
     public void setDeclination(double declination) {
         this.declination = declination;
-        sunlightSource.set(getSunPosition());
+        updateSunlightSource();
     }
 
     /**
@@ -200,7 +229,7 @@ public class Environment extends Node {
 
     public void setTimeOfDay(double timeOfDay) {
         this.timeOfDay = timeOfDay;
-        sunlightSource.set(getSunPosition());
+        updateSunlightSource();
     }
 
     private Vector3d getSunPosition() {
@@ -258,7 +287,7 @@ public class Environment extends Node {
         } else {
             buildBox();
         }
-        pathMesh = mesh.createPathMesh(new Matrix4d());
+        pathMesh = mesh.createPathMesh(MatrixHelper.createIdentityMatrix4());
     }
 
     public Mesh getSkyMesh() {
@@ -270,18 +299,14 @@ public class Environment extends Node {
      * @param ray the ray to check
      * @return the color of the sky
      */
-    private ColorDouble getSkyColor(Ray ray) {
-        sunlightSource.set(this.getSunlightSource());
-        sunlightSource.normalize();
-        var sunlightColorD = new ColorDouble(this.getSunlightColor());
-        var ambientColorD = new ColorDouble(this.getAmbientColor());
-        sunlightStrength = this.getSunlightStrength();
-
+    public ColorDouble getSkyColor(Ray ray) {
         Vector3d d = ray.getDirection();
-        d.normalize();
-        var dot = Math.clamp(sunlightSource.dot(d),0,1);
-        var sd = Math.pow(dot,16);
+        var dot = Math.clamp(sunlightSourceNormalized.dot(d),0,1);
+        var sd = Math.pow(dot,5);
         var a = 1.0-sd;
+
+        var sunlightColorD = new ColorDouble(getSunlightColor());
+        var ambientColorD = new ColorDouble(getAmbientColor());
         return new ColorDouble(
                 a * ambientColorD.r + sd * sunlightColorD.r * sunlightStrength,
                 a * ambientColorD.g + sd * sunlightColorD.g * sunlightStrength,
@@ -294,21 +319,31 @@ public class Environment extends Node {
      * @param ray
      * @return
      */
-    public ColorDouble getEnivornmentColor(Ray ray) {
+    public ColorDouble getEnvironmentColor(Ray ray) {
         if(skyTexture == null || pathMesh == null) {
             // no texture, return sky/sun effect
             return getSkyColor(ray);
         }
+
+        Vector3d d = ray.getDirection();
+        double dot = Math.clamp(sunlightSourceNormalized.dot(d),0,1);
+        double sd = Math.pow(dot,5);
+        double a = Math.pow(1.0-sd,5);
 
         // get the texture coordinate
         Ray r2 = new Ray(ray);
         r2.getOrigin().set(0,0,0); // center the ray at
         var hit = pathMesh.intersect(r2);
         if(hit == null) {
-            // ray missed the sky mesh, return sky/sun effect
-            return getSkyColor(ray);
+            throw new RuntimeException("Ray missed the environment mesh");
         }
         var uv = hit.triangle().getUVAt(hit.point());
-        return new ColorDouble(skyTexture.getColorAt(uv.x, uv.y));
+        var ambientTexture = new ColorDouble(skyTexture.getColorAt(uv.x, uv.y));
+
+        var sunlightColorD = new ColorDouble(getSunlightColor());
+        return new ColorDouble(
+                a * ambientTexture.r + sd * sunlightColorD.r * sunlightStrength,
+                a * ambientTexture.g + sd * sunlightColorD.g * sunlightStrength,
+                a * ambientTexture.b + sd * sunlightColorD.b * sunlightStrength);
     }
 }
