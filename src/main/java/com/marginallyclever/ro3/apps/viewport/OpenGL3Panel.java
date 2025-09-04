@@ -37,7 +37,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
     private final FPSAnimator animator;
     private ShaderProgram toolShader;
     // resources can only be unloaded in the GL thread.  So we set a flag to unload them in the next frame.
-    private boolean unloadFactoriesNextFrame = false;
+    private boolean unloadOrphansNextFrame = false;
 
     public OpenGL3Panel() {
         super(new BorderLayout());
@@ -243,9 +243,9 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        if(unloadFactoriesNextFrame) {
-            unloadResources(gl3);
-            unloadFactoriesNextFrame = false;
+        if(unloadOrphansNextFrame) {
+            unloadOrphanedResources(gl3);
+            unloadOrphansNextFrame = false;
         }
 
         double dt = 1.0 / (double)this.getFPS();
@@ -338,6 +338,6 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
     @Override
     public void beforeSceneChange(Node oldScene) {
         super.beforeSceneChange(oldScene);
-        unloadFactoriesNextFrame = true;
+        unloadOrphansNextFrame = true;
     }
 }
