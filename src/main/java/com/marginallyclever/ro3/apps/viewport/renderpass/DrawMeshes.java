@@ -6,7 +6,6 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.viewport.Shader;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.factories.Lifetime;
@@ -272,15 +271,6 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setMatrix4d(gl3,"modelMatrix",m);
         shadowQuad.render(gl3);
         gl3.glEnable(GL3.GL_DEPTH_TEST);
-    }
-
-    private Vector3d getSunlightSource() {
-        Environment env = Registry.getScene().findFirstChild(Environment.class);
-        if(null==env) {
-            env = new Environment();
-            Registry.getScene().addChild(env);
-        }
-        return env.getSunlightSource();
     }
 
     /**

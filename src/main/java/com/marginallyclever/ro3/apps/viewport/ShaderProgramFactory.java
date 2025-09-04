@@ -18,13 +18,13 @@ public class ShaderProgramFactory {
 
     public Shader createShader(Lifetime lifetime,int type, String[] shaderCode) {
         String key = type+"-"+ Arrays.hashCode(shaderCode);
-        return shaders.computeIfAbsent(key, k-> new Resource<>(
+        return shaders.computeIfAbsent(key, _ -> new Resource<>(
                         new Shader(type,shaderCode,key),lifetime)
                 ).resource();
     }
 
     public ShaderProgram createShaderProgram(Lifetime lifetime, String key, Shader... shaders) {
-        return shaderPrograms.computeIfAbsent(key, k-> new Resource<>(
+        return shaderPrograms.computeIfAbsent(key, _-> new Resource<>(
                         new ShaderProgram(Arrays.stream(shaders).toList()),lifetime)
                 ).resource();
     }

@@ -5,7 +5,6 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.viewport.Shader;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.factories.Lifetime;
@@ -46,9 +45,6 @@ public class DrawPoses extends AbstractRenderPass {
             logger.error("Failed to load shader", e);
         }
     }
-
-    @Override
-    public void dispose(GLAutoDrawable glAutoDrawable) {}
 
     @Override
     public void draw(Viewport viewport, GL3 gl3) {

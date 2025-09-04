@@ -6,7 +6,6 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.viewport.Shader;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.factories.Lifetime;
@@ -61,9 +60,6 @@ public class DrawDHParameters extends AbstractRenderPass {
     }
 
     @Override
-    public void dispose(GLAutoDrawable glAutoDrawable) {}
-
-    @Override
     public void draw(Viewport viewport, GL3 gl3) {
         Camera camera = viewport.getActiveCamera();
         if(camera==null) return;
@@ -95,7 +91,7 @@ public class DrawDHParameters extends AbstractRenderPass {
         List<Node> toScan = new ArrayList<>();
         toScan.add(Registry.getScene());
         while(!toScan.isEmpty()) {
-            Node node = toScan.remove(0);
+            Node node = toScan.removeFirst();
             toScan.addAll(node.getChildren());
 
             if(!(node instanceof DHParameter parameter)) continue;

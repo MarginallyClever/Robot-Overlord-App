@@ -27,7 +27,7 @@ public class MeshFactoryDialog {
             chooser.addChoosableFileFilter(f);
         }
         if (filters.size() == 1) {
-            chooser.setFileFilter(filters.get(0));
+            chooser.setFileFilter(filters.getFirst());
         }
     }
 
