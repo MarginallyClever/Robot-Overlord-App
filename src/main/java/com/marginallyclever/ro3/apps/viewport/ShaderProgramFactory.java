@@ -30,17 +30,17 @@ public class ShaderProgramFactory {
     }
 
     /**
-     * Deletes (but does not clear) all the shader programs.
+     * Releases all shader programs.  This should be called when the OpenGL context is going away.
+     * @param gl3 the GL3 context
      */
     public void unloadAll(GL3 gl3) {
-        for( ShaderProgram sp : shaderPrograms.values() ) {
-            sp.unload(gl3);
+        for( Resource<ShaderProgram> sp : shaderPrograms.values() ) {
+            sp.resource().unload(gl3);
         }
-        shaderPrograms.clear();
     }
 
     public void reset() {
-        shaders.clear();
-        shaderPrograms.clear();
+        shaders.values().removeIf(entry -> entry.lifetime()==Lifetime.SCENE);
+        shaderPrograms.values().removeIf(entry -> entry.lifetime()==Lifetime.SCENE);
     }
 }

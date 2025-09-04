@@ -7,5 +7,5 @@ public enum Lifetime {
     // for the life of the project
     APPLICATION,
     // for the life of the current project within the application
-    PROJECT,
+    SCENE,
 }
