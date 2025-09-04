@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.viewport;
 
 import com.jogamp.opengl.GL3;
+import com.marginallyclever.ro3.factories.Factory;
 import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.factories.Resource;
 
@@ -12,7 +13,7 @@ import java.util.Map;
  * Maintains a list of the loaded {@link ShaderProgram} and prevents duplication.  Also provides a centralized place to
  * destroy them when the OpenGL context goes away.
  */
-public class ShaderProgramFactory {
+public class ShaderProgramFactory implements Factory {
     private final Map<String, Resource<Shader>> shaders = new HashMap<>();
     private final Map<String, Resource<ShaderProgram>> shaderPrograms = new HashMap<>();
 
@@ -39,6 +40,7 @@ public class ShaderProgramFactory {
         }
     }
 
+    @Override
     public void reset() {
         shaders.values().removeIf(entry -> entry.lifetime()==Lifetime.SCENE);
         shaderPrograms.values().removeIf(entry -> entry.lifetime()==Lifetime.SCENE);

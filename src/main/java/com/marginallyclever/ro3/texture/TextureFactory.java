@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.texture;
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.marginallyclever.convenience.helpers.FileHelper;
+import com.marginallyclever.ro3.factories.Factory;
 import com.marginallyclever.ro3.factories.Resource;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import org.slf4j.Logger;
@@ -19,7 +20,7 @@ import java.util.List;
 /**
  * {@link TextureFactory} loads textures from files.
  */
-public class TextureFactory {
+public class TextureFactory implements Factory {
     private static final Logger logger = LoggerFactory.getLogger(TextureFactory.class);
     private final ListWithEvents<TextureWithMetadata> texturePool = new ListWithEvents<>();
 
@@ -94,9 +95,7 @@ public class TextureFactory {
         return result;
     }
 
-    /**
-     * Remove all textures from the pool.
-     */
+    @Override
     public void reset() {
         // FIXME Not calling unload() on each item is probably a video card memory leak.
         texturePool.removeAll();

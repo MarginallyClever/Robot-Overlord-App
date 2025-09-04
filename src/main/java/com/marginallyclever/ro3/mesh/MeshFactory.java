@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.mesh;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.FileHelper;
+import com.marginallyclever.ro3.factories.Factory;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.mesh.load.*;
 import org.slf4j.Logger;
@@ -19,7 +20,7 @@ import java.util.List;
  * all mesh loaded so that only one instance of each shape is loaded.
  *
  */
-public class MeshFactory {
+public class MeshFactory implements Factory {
 	private static final Logger logger = LoggerFactory.getLogger(MeshFactory.class);
 	private final MeshLoader [] loaders = {
 			new Load3MF(),
@@ -160,9 +161,7 @@ public class MeshFactory {
 		return meshPool;
 	}
 
-	/**
-	 * Remove all meshes from the pool.
-	 */
+    @Override
     public void reset() {
 		// FIXME Not calling unload() on each item is probably a video card memory leak.
 		// FIXME but unload can only be called from the GL thread.
