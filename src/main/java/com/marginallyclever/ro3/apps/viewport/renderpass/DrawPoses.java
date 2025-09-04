@@ -36,10 +36,11 @@ public class DrawPoses extends AbstractRenderPass {
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
         try {
+            var sf = Registry.shaderFactory;
             var spf = Registry.shaderProgramFactory;
-            shader = spf.createShaderProgram(Lifetime.APPLICATION,"PosesShader",
-                    spf.createShader(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
-                    spf.createShader(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
+            shader = spf.get(Lifetime.APPLICATION,"PosesShader",
+                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
+                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
             );
         } catch(Exception e) {
             logger.error("Failed to load shader", e);

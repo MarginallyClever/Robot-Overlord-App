@@ -14,17 +14,9 @@ import java.util.Map;
  * destroy them when the OpenGL context goes away.
  */
 public class ShaderProgramFactory extends Factory {
-    private final Map<String, Resource<Shader>> shaders = new HashMap<>();
     private final Map<String, Resource<ShaderProgram>> shaderPrograms = new HashMap<>();
 
-    public Shader createShader(Lifetime lifetime,int type, String[] shaderCode) {
-        String key = type+"-"+ Arrays.hashCode(shaderCode);
-        return shaders.computeIfAbsent(key, _ -> new Resource<>(
-                        new Shader(type,shaderCode,key),lifetime)
-                ).item();
-    }
-
-    public ShaderProgram createShaderProgram(Lifetime lifetime, String key, Shader... shaders) {
+    public ShaderProgram get(Lifetime lifetime, String key, Shader... shaders) {
         return shaderPrograms.computeIfAbsent(key, _-> new Resource<>(
                         new ShaderProgram(Arrays.stream(shaders).toList()),lifetime)
                 ).item();
@@ -40,7 +32,6 @@ public class ShaderProgramFactory extends Factory {
 
     @Override
     public void reset() {
-        shaders.values().removeIf(entry -> entry.lifetime()==Lifetime.SCENE);
         shaderPrograms.values().removeIf(entry -> entry.lifetime()==Lifetime.SCENE);
     }
 }

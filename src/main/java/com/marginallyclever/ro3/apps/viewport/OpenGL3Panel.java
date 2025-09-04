@@ -19,17 +19,19 @@ import java.io.PrintStream;
 import java.util.prefs.Preferences;
 
 /**
- * {@link OpenGL3Panel} manages a {@link GLJPanel} and an {@link FPSAnimator}.
+ * {@link OpenGL3Panel} manages a {@link GLJPanel} and an {@link FPSAnimator} running OpenGL 3.0.
  * It is a concrete implementation of {@link Viewport}.
  */
 public class OpenGL3Panel extends Viewport implements GLEventListener {
     private static final Logger logger = LoggerFactory.getLogger(OpenGL3Panel.class);
+    public static final int DEFAULT_FPS = 30;
+
     protected GLJPanel glCanvas;
     private boolean hardwareAccelerated = true;
     private boolean doubleBuffered = true;
     private int fsaaSamples = 2;
     private boolean verticalSync = true;
-    private int fps = 30;
+    private int fps = DEFAULT_FPS;
     private final FPSAnimator animator;
     private ShaderProgram toolShader;
 
@@ -160,10 +162,11 @@ public class OpenGL3Panel extends Viewport implements GLEventListener {
         gl3.glActiveTexture(GL3.GL_TEXTURE0);
 
         try {
+            var sf = Registry.shaderFactory;
             var spf = Registry.shaderProgramFactory;
-            toolShader = spf.createShaderProgram(Lifetime.APPLICATION,"toolShader",
-                    spf.createShader(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
-                    spf.createShader(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
+            toolShader = spf.get(Lifetime.APPLICATION,"toolShader",
+                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
+                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
             );
         } catch(Exception e) {
             logger.error("Failed to load shader", e);

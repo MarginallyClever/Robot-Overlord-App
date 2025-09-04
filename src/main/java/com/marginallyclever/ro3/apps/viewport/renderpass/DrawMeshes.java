@@ -64,18 +64,19 @@ public class DrawMeshes extends AbstractRenderPass {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
 
         try {
+            var sf = Registry.shaderFactory;
             var spf = Registry.shaderProgramFactory;
-            meshShader = spf.createShaderProgram(Lifetime.APPLICATION,"meshShader",
-                    spf.createShader(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"mesh.vert")),
-                    spf.createShader(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"mesh.frag"))
+            meshShader = spf.get(Lifetime.APPLICATION,"meshShader",
+                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"mesh.vert")),
+                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"mesh.frag"))
             );
-            shadowShader = spf.createShaderProgram(Lifetime.APPLICATION,"shadowShader",
-                    spf.createShader(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"shadow.vert")),
-                    spf.createShader(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"shadow.frag"))
+            shadowShader = spf.get(Lifetime.APPLICATION,"shadowShader",
+                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"shadow.vert")),
+                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"shadow.frag"))
             );
-            outlineShader = spf.createShaderProgram(Lifetime.APPLICATION,"outlineShader",
-                    spf.createShader(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"outline_330.vert")),
-                    spf.createShader(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"outline_330.frag"))
+            outlineShader = spf.get(Lifetime.APPLICATION,"outlineShader",
+                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"outline_330.vert")),
+                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"outline_330.frag"))
             );
         } catch (Exception e) {
             logger.error("Failed to load shader", e);

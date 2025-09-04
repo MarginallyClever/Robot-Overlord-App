@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3;
 
+import com.marginallyclever.ro3.apps.viewport.ShaderFactory;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgramFactory;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.mesh.MeshFactory;
@@ -21,6 +22,7 @@ public class Registry {
     public static final EventListenerList listeners = new EventListenerList();
     public static final TextureFactory textureFactory = new TextureFactory();
     public static final MeshFactory meshFactory = new MeshFactory();
+    public static final ShaderFactory shaderFactory = new ShaderFactory();
     public static final ShaderProgramFactory shaderProgramFactory = new ShaderProgramFactory();
     public static final NodeFactory nodeFactory = new NodeFactory();
     private static Node scene = new Node("Scene");
@@ -58,6 +60,7 @@ public class Registry {
 
         textureFactory.reset();
         meshFactory.reset();
+        shaderFactory.reset();
         shaderProgramFactory.reset();
         physics.reset();
 
