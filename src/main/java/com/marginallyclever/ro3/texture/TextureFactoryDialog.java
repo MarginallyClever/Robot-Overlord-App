@@ -42,7 +42,7 @@ public class TextureFactoryDialog {
         int returnVal = chooser.showOpenDialog(parent);
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             String absPath = chooser.getSelectedFile().getAbsolutePath();
-            lastTextureLoaded = Registry.textureFactory.load(absPath);
+            lastTextureLoaded = Registry.textureFactory.get(absPath);
             if(lastTextureLoaded==null) {
                 logger.error("Failed to load from "+absPath);
                 returnVal = JFileChooser.CANCEL_OPTION;

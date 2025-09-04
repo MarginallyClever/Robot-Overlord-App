@@ -48,7 +48,7 @@ public class LoadMTL {
                 specular = readColorFromString(line);
             } else if (line.startsWith("map_Kd")) {
                 // diffuse texture map
-                material.setDiffuseTexture(Registry.textureFactory.load(line.substring(7)));
+                material.setDiffuseTexture(Registry.textureFactory.get(line.substring(7)));
             } else if(line.startsWith("Ni")) {
                 // index of refraction 0.001 to 10.  1 means light does not bend.
                 material.setIOR(Double.parseDouble(line.substring(4)));

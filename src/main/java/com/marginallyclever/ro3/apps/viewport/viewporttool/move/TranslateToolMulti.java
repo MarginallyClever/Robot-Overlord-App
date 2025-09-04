@@ -60,7 +60,7 @@ public class TranslateToolMulti implements ViewportTool {
         tools.add(toolXZ);
         tools.add(toolYZ);
 
-        texture = Registry.textureFactory.load("/com/marginallyclever/ro3/apps/viewport/renderpass/navball.png");
+        texture = Registry.textureFactory.get("/com/marginallyclever/ro3/apps/viewport/renderpass/navball.png");
         texture.setDoNotExport(true);
     }
 

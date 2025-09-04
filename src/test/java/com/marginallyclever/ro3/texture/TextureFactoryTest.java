@@ -9,9 +9,9 @@ public class TextureFactoryTest {
         TextureFactory factory = new TextureFactory();
         assert(factory.getPool().getList().isEmpty());
         assert(factory.getAllSourcesForExport().isEmpty());
-        var a = factory.load(path);
+        var a = factory.get(path);
         assert(!factory.getPool().getList().isEmpty());
-        var b = factory.load(path);
+        var b = factory.get(path);
         assert(a==b);
         assert(!factory.getAllSourcesForExport().isEmpty());
     }

@@ -102,9 +102,9 @@ public class Material extends Node {
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        if(from.has("texture")) diffuseTexture = Registry.textureFactory.load(from.getString("texture"));
-        if(from.has("specularTexture")) specularTexture = Registry.textureFactory.load(from.getString("specularTexture"));
-        if(from.has("normalTexture")) normalTexture = Registry.textureFactory.load(from.getString("normalTexture"));
+        if(from.has("texture")) diffuseTexture = Registry.textureFactory.get(from.getString("texture"));
+        if(from.has("specularTexture")) specularTexture = Registry.textureFactory.get(from.getString("specularTexture"));
+        if(from.has("normalTexture")) normalTexture = Registry.textureFactory.get(from.getString("normalTexture"));
         if(from.has("diffuseColor")) diffuseColor = new Color(from.getInt("diffuseColor"),true);
         if(from.has("specularColor")) specularColor = new Color(from.getInt("specularColor"),true);
         if(from.has("emissionColor")) emissionColor = new Color(from.getInt("emissionColor"),true);

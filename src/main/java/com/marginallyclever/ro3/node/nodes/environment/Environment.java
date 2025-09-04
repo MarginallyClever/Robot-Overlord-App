@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.node.nodes.environment;
 
 import com.jogamp.opengl.GL3;
-import com.jogamp.opengl.GLAutoDrawable;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
@@ -49,9 +48,9 @@ public class Environment extends Node {
         super(name);
 
         if(skyShapeIsSphere) {
-            skyTexture = Registry.textureFactory.load("/com/marginallyclever/ro3/node/nodes/pose/poses/space/milkyway_2020_4k_print.jpg");
+            skyTexture = Registry.textureFactory.get("/com/marginallyclever/ro3/node/nodes/pose/poses/space/milkyway_2020_4k_print.jpg");
         } else {
-            skyTexture = Registry.textureFactory.load("/com/marginallyclever/ro3/node/nodes/environment/skybox.png");
+            skyTexture = Registry.textureFactory.get("/com/marginallyclever/ro3/node/nodes/environment/skybox.png");
         }
         skyTexture.setDoNotExport(true);
 
@@ -166,7 +165,7 @@ public class Environment extends Node {
         sunlightStrength = from.optDouble("sunlightStrength", sunlightStrength);
         ambientColor = new Color(from.optInt("ambientColor", ambientColor.getRGB()));
         if(from.has("skyTexture")) {
-            skyTexture = Registry.textureFactory.load(from.optString("skyTexture"));
+            skyTexture = Registry.textureFactory.get(from.optString("skyTexture"));
         }
         skyShapeIsSphere = from.optBoolean("skyShapeIsSphere", skyShapeIsSphere);
         updateSunlightSource();

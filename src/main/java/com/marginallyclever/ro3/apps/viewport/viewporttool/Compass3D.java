@@ -54,7 +54,7 @@ public class Compass3D implements ViewportTool {
         Registry.meshFactory.addToPool(circleMesh);
         Registry.meshFactory.addToPool(quadMesh);
 
-        texture = Registry.textureFactory.load("/com/marginallyclever/ro3/apps/viewport/viewporttool/axisLetters.png");
+        texture = Registry.textureFactory.get("/com/marginallyclever/ro3/apps/viewport/viewporttool/axisLetters.png");
         texture.setDoNotExport(true);
 
         createQuadMesh();

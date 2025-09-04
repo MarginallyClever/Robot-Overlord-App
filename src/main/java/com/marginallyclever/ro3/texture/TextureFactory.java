@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.texture;
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.marginallyclever.convenience.helpers.FileHelper;
+import com.marginallyclever.ro3.factories.Resource;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +30,8 @@ public class TextureFactory {
      * @param filename the file to load.
      * @return the texture, or null if the file could not be loaded.
      */
-    public TextureWithMetadata load(String filename) {
+    public TextureWithMetadata get(String filename) {
         String absolutePath = FileHelper.getAbsolutePathOrFilename(filename);
-
         for(TextureWithMetadata t : texturePool.getList()) {
             if(t.getSource().equals(absolutePath)) {
                 return t;
