@@ -124,10 +124,12 @@ public class Mesh {
 	private void destroyBuffers(GL3 gl) {
 		if(VBO != null) {
 			gl.glDeleteBuffers(NUM_BUFFERS, VBO, 0);
+            OpenGLHelper.checkGLError(gl,logger);
 			VBO = null;
 		}
 		if(VAO != null) {
 			gl.glDeleteVertexArrays(1, VAO, 0);
+            OpenGLHelper.checkGLError(gl,logger);
 			VAO = null;
 		}
 	}
@@ -160,6 +162,7 @@ public class Mesh {
 		}
 
 		gl.glBindVertexArray(0);
+        OpenGLHelper.checkGLError(gl,logger);
 
 		getVertexProvider();
 	}
