@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3;
 
+import com.marginallyclever.ro3.apps.viewport.ShaderProgramFactory;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.mesh.MeshFactory;
 import com.marginallyclever.ro3.node.Node;
@@ -20,6 +21,7 @@ public class Registry {
     public static final EventListenerList listeners = new EventListenerList();
     public static final TextureFactory textureFactory = new TextureFactory();
     public static final MeshFactory meshFactory = new MeshFactory();
+    public static final ShaderProgramFactory shaderProgramFactory = new ShaderProgramFactory();
     public static final NodeFactory nodeFactory = new NodeFactory();
     private static Node scene = new Node("Scene");
     public static final ListWithEvents<Camera> cameras = new ListWithEvents<>();
@@ -33,6 +35,10 @@ public class Registry {
         reset();
     }
 
+    /**
+     * reset is intended to be called when starting a new scene.  It clears out all existing data and
+     * resets to a default state.
+     */
     public static void reset() {
         selection.removeAll();
 
@@ -52,6 +58,7 @@ public class Registry {
 
         textureFactory.reset();
         meshFactory.reset();
+        shaderProgramFactory.reset();
         physics.reset();
 
         setScene(new Node("Scene"));
