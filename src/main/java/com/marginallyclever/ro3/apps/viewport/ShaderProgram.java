@@ -77,9 +77,10 @@ public class ShaderProgram {
         if(programId == -1) return; // not loaded
         for( Shader shader : shaders ) {
             gl.glDetachShader(programId, shader.getShaderId());
-            shader.unload(gl);
+            OpenGLHelper.checkGLError(gl, logger);
         }
         gl.glDeleteProgram(programId);
+        OpenGLHelper.checkGLError(gl, logger);
         programId = -1;
     }
 

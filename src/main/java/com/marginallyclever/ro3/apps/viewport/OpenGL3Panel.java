@@ -6,9 +6,11 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.apps.viewport.renderpass.RenderPass;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
 import com.marginallyclever.ro3.factories.Lifetime;
+import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +24,7 @@ import java.util.prefs.Preferences;
  * {@link OpenGL3Panel} manages a {@link GLJPanel} and an {@link FPSAnimator} running OpenGL 3.0.
  * It is a concrete implementation of {@link Viewport}.
  */
-public class OpenGL3Panel extends Viewport implements GLEventListener {
+public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(OpenGL3Panel.class);
     public static final int DEFAULT_FPS = 30;
 
@@ -34,6 +36,8 @@ public class OpenGL3Panel extends Viewport implements GLEventListener {
     private int fps = DEFAULT_FPS;
     private final FPSAnimator animator;
     private ShaderProgram toolShader;
+    // resources can only be unloaded in the GL thread.  So we set a flag to unload them in the next frame.
+    private boolean unloadFactoriesNextFrame = false;
 
     public OpenGL3Panel() {
         super(new BorderLayout());
@@ -79,6 +83,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener {
         glCanvas.addMouseListener(this);
         glCanvas.addMouseMotionListener(this);
         glCanvas.addMouseWheelListener(this);
+        Registry.addSceneChangeListener(this);
     }
 
     @Override
@@ -88,6 +93,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener {
         glCanvas.removeMouseListener(this);
         glCanvas.removeMouseMotionListener(this);
         glCanvas.removeMouseWheelListener(this);
+        Registry.removeSceneChangeListener(this);
         // factories will unload all in dispose()
     }
 
@@ -194,10 +200,18 @@ public class OpenGL3Panel extends Viewport implements GLEventListener {
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         logger.info("dispose");
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
+        unloadResources(glAutoDrawable.getGL().getGL3());
+    }
+
+    /**
+     * Unload all resources from all factories.
+     * @param gl3 the GL3 context
+     */
+    private void unloadResources(GL3 gl3) {
         Registry.textureFactory.unloadAll(gl3);
         Registry.meshFactory.unloadAll(gl3);
         Registry.shaderProgramFactory.unloadAll(gl3);
+        Registry.shaderFactory.unloadAll(gl3);
     }
 
     @Override
@@ -208,11 +222,16 @@ public class OpenGL3Panel extends Viewport implements GLEventListener {
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
+        GL3 gl3 = glAutoDrawable.getGL().getGL3();
+        if(unloadFactoriesNextFrame) {
+            unloadResources(gl3);
+            unloadFactoriesNextFrame = false;
+        }
+
         double dt = 1.0 / (double)this.getFPS();
         for(ViewportTool tool : viewportTools) tool.update(dt);
         updateAllNodes(dt);
 
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
         renderAllPasses(gl3);
         renderViewportTools(gl3);
     }
@@ -294,5 +313,11 @@ public class OpenGL3Panel extends Viewport implements GLEventListener {
     protected void removeRenderPass(Object source,RenderPass renderPass) {
         removeGLEventListener(renderPass);
         super.removeRenderPass(source,renderPass);
+    }
+
+    @Override
+    public void beforeSceneChange(Node oldScene) {
+        super.beforeSceneChange(oldScene);
+        unloadFactoriesNextFrame = true;
     }
 }

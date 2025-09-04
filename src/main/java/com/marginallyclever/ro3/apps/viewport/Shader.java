@@ -42,25 +42,28 @@ public class Shader {
      */
     void load(GL3 gl) {
         refCount++;
+        if(refCount>1) return;
+
         shaderId = gl.glCreateShader(shaderType);
-        OpenGLHelper.checkGLError(gl,logger);
+        OpenGLHelper.checkGLError(gl, logger);
         gl.glShaderSource(shaderId, shaderCode.length, shaderCode, null, 0);
-        OpenGLHelper.checkGLError(gl,logger);
+        OpenGLHelper.checkGLError(gl, logger);
         gl.glCompileShader(shaderId);
-        OpenGLHelper.checkGLError(gl,logger);
+        OpenGLHelper.checkGLError(gl, logger);
         if (!OpenGLHelper.checkStatus(gl, shaderId, GL3.GL_COMPILE_STATUS)) {
             int[] logLength = new int[1];
             gl.glGetShaderiv(shaderId, GL3.GL_INFO_LOG_LENGTH, logLength, 0);
             byte[] log = new byte[logLength[0]];
             gl.glGetShaderInfoLog(shaderId, logLength[0], null, 0, log, 0);
-            logger.error("Failed to compile "+name+" shader code: " + new String(log));
+            logger.error("Failed to compile " + name + " shader code: " + new String(log));
         }
     }
 
     public void unload(GL3 gl3) {
         refCount--;
-        if( shaderId != -1 && refCount <= 0 ) {
+        if( shaderId != -1 && refCount == 0 ) {
             gl3.glDeleteShader(shaderId);
+            OpenGLHelper.checkGLError(gl3, logger);
             shaderId = -1;
         }
     }

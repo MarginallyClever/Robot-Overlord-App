@@ -88,7 +88,6 @@ public class TextureFactory extends Factory {
 
     @Override
     public void reset() {
-        // FIXME Not calling unload() on each item is probably a video card memory leak.
-        cache.clear();
+        cache.values().removeIf(r -> r.lifetime() == Lifetime.SCENE);
     }
 }

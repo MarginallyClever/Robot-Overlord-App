@@ -13,7 +13,16 @@ public class ShaderFactory extends Factory {
     private final Map<String, Resource<Shader>> shaders = new HashMap<>();
 
     public Shader get(Lifetime lifetime, int type, String[] shaderCode) {
-        String key = type+"-"+ Arrays.hashCode(shaderCode);
+        String typeName = switch(type) {
+            case GL3.GL_VERTEX_SHADER -> "VERTEX";
+            case GL3.GL_FRAGMENT_SHADER -> "FRAGMENT";
+            case GL3.GL_GEOMETRY_SHADER -> "GEOMETRY";
+            case GL3.GL_TESS_CONTROL_SHADER -> "TESS_CONTROL";
+            case GL3.GL_TESS_EVALUATION_SHADER -> "TESS_EVALUATION";
+            case GL3.GL_COMPUTE_SHADER -> "COMPUTE";
+            default -> throw new IllegalArgumentException("Invalid shader type: "+type);
+        };
+        String key = typeName+" "+ Integer.toHexString(Arrays.hashCode(shaderCode));
         return shaders.computeIfAbsent(key, _ -> new Resource<>(
                 new Shader(type,shaderCode,key),lifetime)
         ).item();

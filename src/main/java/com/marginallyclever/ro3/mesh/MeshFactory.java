@@ -156,8 +156,6 @@ public class MeshFactory extends Factory {
      */
     @Override
     public void reset() {
-		// FIXME Not calling unload() on each item is probably a video card memory leak.
-		// FIXME but unload can only be called from the GL thread.
 		cache.values().removeIf(e->e.lifetime() == Lifetime.SCENE);
     }
 
@@ -185,8 +183,5 @@ public class MeshFactory extends Factory {
      */
     public void unloadAll(GL3 gl) {
         cache.values().forEach(e -> e.item().unload(gl) );
-        cache.values().forEach(e->{
-            if(e.item().isLoaded()) throw new RuntimeException("Should not be loaded");
-        });
     }
 }

@@ -34,7 +34,8 @@ public class Registry {
         nodeFactory.clear();
         nodeFactory.scan("com.marginallyclever.ro3");
         nodeFactory.addKnownNodes();
-        reset();
+
+        setScene(new Node("Scene"));
     }
 
     /**
@@ -63,8 +64,6 @@ public class Registry {
         shaderFactory.reset();
         shaderProgramFactory.reset();
         physics.reset();
-
-        setScene(new Node("Scene"));
     }
 
     public static void addSceneChangeListener(SceneChangeListener listener) {
@@ -77,6 +76,7 @@ public class Registry {
 
     public static void setScene(Node newScene) {
         fireBeforeSceneChange(newScene);
+        reset();
         scene = newScene;
         fireAfterSceneChange(newScene);
     }
