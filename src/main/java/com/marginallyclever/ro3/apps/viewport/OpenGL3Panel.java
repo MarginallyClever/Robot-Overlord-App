@@ -86,6 +86,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener {
         glCanvas.removeMouseListener(this);
         glCanvas.removeMouseMotionListener(this);
         glCanvas.removeMouseWheelListener(this);
+        // factories will unload all in dispose()
     }
 
     private GLCapabilities getCapabilities() {
@@ -167,7 +168,6 @@ public class OpenGL3Panel extends Viewport implements GLEventListener {
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }
-        for(ViewportTool tool : viewportTools) tool.init(gl3);
     }
 
     /**
@@ -192,7 +192,6 @@ public class OpenGL3Panel extends Viewport implements GLEventListener {
     public void dispose(GLAutoDrawable glAutoDrawable) {
         logger.info("dispose");
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        for(ViewportTool tool : viewportTools) tool.dispose(gl3);
         Registry.textureFactory.unloadAll(gl3);
         Registry.meshFactory.unloadAll(gl3);
         Registry.shaderProgramFactory.unloadAll(gl3);

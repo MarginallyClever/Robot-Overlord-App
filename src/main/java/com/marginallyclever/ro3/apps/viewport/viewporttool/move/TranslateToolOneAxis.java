@@ -337,12 +337,6 @@ public class TranslateToolOneAxis implements ViewportTool {
         return gripRadius * localScale;
     }
 
-    @Override
-    public void init(GL3 gl3) {}
-
-    @Override
-    public void dispose(GL3 gl3) {}
-
     public void setTexture(TextureWithMetadata texture, Rectangle2D textureBounds) {
         this.texture = texture;
         double u = textureBounds.getX();

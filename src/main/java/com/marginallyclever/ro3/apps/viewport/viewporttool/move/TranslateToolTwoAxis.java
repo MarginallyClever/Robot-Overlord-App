@@ -282,11 +282,5 @@ public class TranslateToolTwoAxis implements ViewportTool {
     }
 
     @Override
-    public void init(GL3 gl3) {}
-
-    @Override
-    public void dispose(GL3 gl3) {}
-
-    @Override
     public void getComponents(List<JPanel> list) {}
 }
