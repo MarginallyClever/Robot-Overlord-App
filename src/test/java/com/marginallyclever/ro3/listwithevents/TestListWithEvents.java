@@ -57,7 +57,7 @@ public class TestListWithEvents {
     public void testGetList() {
         listWithEvents.add(testItem);
         assertEquals(1, listWithEvents.getList().size());
-        assertEquals(testItem, listWithEvents.getList().get(0));
+        assertEquals(testItem, listWithEvents.getList().getFirst());
     }
 
     @Test

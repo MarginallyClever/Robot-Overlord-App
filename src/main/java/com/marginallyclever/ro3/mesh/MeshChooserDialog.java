@@ -54,9 +54,10 @@ public class MeshChooserDialog extends JPanel implements ListListener<Mesh> {
         clearButton.setToolTipText("Choose none.");
         clearButton.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(
                 "/com/marginallyclever/ro3/apps/icons8-reset-16.png"))));
-        clearButton.addActionListener(e -> setSelectedItem(null));
+        clearButton.addActionListener(_ -> setSelectedItem(null));
         toolBar.add(clearButton);
 
+        // TODO implement different view types.
         /*
         String[] viewTypes = {"List View", "Detail View", "Thumbnail View"};
         JComboBox<String> viewTypeComboBox = new JComboBox<>(viewTypes);
@@ -92,7 +93,7 @@ public class MeshChooserDialog extends JPanel implements ListListener<Mesh> {
         }
         list.setModel(model);
         list.setSelectedValue(selectedItem, true);
-        list.addListSelectionListener(e -> selectedItem = list.getSelectedValue());
+        list.addListSelectionListener(_ -> selectedItem = list.getSelectedValue());
     }
 
     @Override

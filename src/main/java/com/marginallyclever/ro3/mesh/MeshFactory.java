@@ -5,12 +5,10 @@ import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.factories.Factory;
 import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.factories.Resource;
-import com.marginallyclever.ro3.listwithevents.ListListener;
 import com.marginallyclever.ro3.mesh.load.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.event.EventListenerList;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.BufferedInputStream;

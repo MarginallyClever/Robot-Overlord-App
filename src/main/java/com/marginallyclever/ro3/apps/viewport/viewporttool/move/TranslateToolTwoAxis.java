@@ -31,7 +31,6 @@ import java.util.List;
  *
  */
 public class TranslateToolTwoAxis implements ViewportTool {
-    private static final Logger logger = LoggerFactory.getLogger(TranslateToolTwoAxis.class);
     private static double padSize = 1;
     private double localScale = 1;
 

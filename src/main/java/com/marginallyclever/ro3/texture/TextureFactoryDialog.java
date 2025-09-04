@@ -27,7 +27,7 @@ public class TextureFactoryDialog {
         List<FileFilter> filters = Registry.textureFactory.getAllExtensions();
         if (filters.isEmpty()) throw new RuntimeException("No filters found?!");
         if (filters.size() == 1) {
-            chooser.setFileFilter(filters.get(0));
+            chooser.setFileFilter(filters.getFirst());
         } else {
             for (FileFilter f : filters) {
                 chooser.addChoosableFileFilter(f);

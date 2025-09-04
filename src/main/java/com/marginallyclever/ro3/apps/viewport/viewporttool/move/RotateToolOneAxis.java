@@ -54,11 +54,6 @@ public class RotateToolOneAxis implements ViewportTool {
     private static double gripRadius = 1.0;
 
     /**
-     * The number of segments to use when drawing the ring.
-     */
-    private final int ringResolution = 64;
-
-    /**
      * The viewport to which this tool is attached.
      */
     private Viewport viewport;
@@ -91,7 +86,7 @@ public class RotateToolOneAxis implements ViewportTool {
     /**
      * which axis of rotation will be used?  0,1,2 = x,y,z
      */
-    private int axisOfRotation = 2;
+    private int axisOfRotation;
     private boolean cursorOverHandle = false;
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
     private final Color color;

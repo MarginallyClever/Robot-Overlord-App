@@ -141,7 +141,7 @@ public class TranslateToolMulti implements ViewportTool {
             case ANTINORMAL: v = MatrixHelper.getYAxis(pivot);  v.scale(-1);  break;
             case RETROGRADE: v = MatrixHelper.getZAxis(pivot);  v.scale(-1);  break;
             default: throw new InvalidParameterException("axis must be 0...5.");
-        };
+        }
         // the pivot plane has a z axis that points at the camera.
         Vector3d z = new Vector3d(camera.getPosition());
         z.sub(o);
@@ -155,10 +155,10 @@ public class TranslateToolMulti implements ViewportTool {
         y.cross(z,v);
         // build the matrix for the pivot plane
         Matrix4d result = new Matrix4d();
-        result.m00 = v.x;   result.m10 = v.y;   result.m20 = v.z;
-        result.m01 = y.x;   result.m11 = y.y;   result.m21 = y.z;
-        result.m02 = z.x;   result.m12 = z.y;   result.m22 = z.z;
-        result.m03 = o.x;   result.m13 = o.y;   result.m23 = o.z;
+        MatrixHelper.setXAxis(result, v);
+        MatrixHelper.setYAxis(result, y);
+        MatrixHelper.setZAxis(result, z);
+        MatrixHelper.setPosition(result, o);
         result.m33 = 1;
         return result;
     }

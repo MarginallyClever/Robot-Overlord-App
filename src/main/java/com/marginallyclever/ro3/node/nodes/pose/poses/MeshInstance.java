@@ -128,11 +128,11 @@ public class MeshInstance extends Pose {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/poses/icons8-mesh-16.png")));
     }
 
-    public void addPropertyChangedListener(PropertyChangeListener listener) {
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
         listeners.add(PropertyChangeListener.class,listener);
     }
 
-    public void removePropertyChangedListener(PropertyChangeListener listener) {
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
         listeners.remove(PropertyChangeListener.class,listener);
     }
 
