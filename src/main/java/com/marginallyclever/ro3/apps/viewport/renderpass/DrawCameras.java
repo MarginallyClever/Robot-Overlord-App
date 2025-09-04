@@ -9,6 +9,7 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.Shader;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import org.slf4j.Logger;
@@ -80,9 +81,9 @@ public class DrawCameras extends AbstractRenderPass {
     public void init(GLAutoDrawable glAutoDrawable) {
         try {
             var spf = Registry.shaderProgramFactory;
-            shader = spf.createShaderProgram("CameraShader",
-                    spf.createShader(GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
-                    spf.createShader(GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
+            shader = spf.createShaderProgram(Lifetime.APPLICATION,"CameraShader",
+                    spf.createShader(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
+                    spf.createShader(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
             );
         } catch(Exception e) {
             logger.error("Failed to load shader", e);

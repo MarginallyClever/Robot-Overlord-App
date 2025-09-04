@@ -8,6 +8,7 @@ import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.renderpass.RenderPass;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,9 +160,9 @@ public class OpenGL3Panel extends Viewport implements GLEventListener {
 
         try {
             var spf = Registry.shaderProgramFactory;
-            toolShader = spf.createShaderProgram("toolShader",
-                    spf.createShader(GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
-                    spf.createShader(GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
+            toolShader = spf.createShaderProgram(Lifetime.APPLICATION,"toolShader",
+                    spf.createShader(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
+                    spf.createShader(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
             );
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
