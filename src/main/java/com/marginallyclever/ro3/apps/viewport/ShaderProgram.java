@@ -10,42 +10,53 @@ import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.nio.FloatBuffer;
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>{@link ShaderProgram} is a wrapper for vertex and fragment shader programs.  It also provides a simple interface
- * for setting uniforms.</p>
+ * <p>{@link ShaderProgram} is a wrapper for shader programs made of several {@link Shader}s.  It also provides a
+ * simple interface for setting uniforms.</p>
  */
 public class ShaderProgram {
     private static final Logger logger = LoggerFactory.getLogger(ShaderProgram.class);
-    private final int programId;
-    private final int vertexShaderId;
-    private final int fragmentShaderId;
+    private int programId = -1;
+    private final List<Shader> shaders = new ArrayList<>();
     private final Map<String, Integer> uniformLocations = new HashMap<>();
     private final FloatBuffer matrixBuffer = FloatBuffer.allocate(16);
 
-    public ShaderProgram(GL3 gl, String[] vertexCode, String[] fragmentCode) {
-        vertexShaderId = loadShader(gl, GL3.GL_VERTEX_SHADER, vertexCode,"vertex");
-        fragmentShaderId = loadShader(gl, GL3.GL_FRAGMENT_SHADER, fragmentCode,"fragment");
+    /**
+     * Package private constructor.  Use {@link ShaderProgramFactory} to create instances.
+     * @param shaders the list of shaders to link into a program
+     */
+    ShaderProgram(List<Shader> shaders) {
+        super();
+        this.shaders.addAll(shaders);
+    }
 
+    private void load(GL3 gl) {
         programId = gl.glCreateProgram();
 
-        gl.glAttachShader(programId, vertexShaderId);
-        gl.glAttachShader(programId, fragmentShaderId);
-
+        for( Shader shader : shaders ) {
+            shader.load(gl);
+            gl.glAttachShader(programId, shader.getShaderId());
+            OpenGLHelper.checkGLError(gl,logger);
+        }
         gl.glLinkProgram(programId);
-
-        if (!checkStatus(gl, programId, GL3.GL_LINK_STATUS)) {
-            throw new IllegalStateException("Failed to link shader program.");
+        if (!OpenGLHelper.checkStatus(gl, programId, GL3.GL_LINK_STATUS)) {
+            showProgramError(gl,"Failed to link shader program.");
+            programId=-1;
+            return;
         }
         gl.glValidateProgram(programId);
-        if (!checkStatus(gl, programId, GL3.GL_VALIDATE_STATUS)) {
-            throw new IllegalStateException("Failed to validate shader program.");
+        if (!OpenGLHelper.checkStatus(gl, programId, GL3.GL_VALIDATE_STATUS)) {
+            showProgramError(gl,"Failed to validate shader program.");
+            programId=-1;
         }
     }
 
-    private void showProgramError(GL3 gl, String message) {
+    public void showProgramError(GL3 gl, String message) {
         int[] logLength = new int[1];
         gl.glGetProgramiv(programId, GL3.GL_INFO_LOG_LENGTH, logLength, 0);
         byte[] log = new byte[logLength[0]];
@@ -53,50 +64,24 @@ public class ShaderProgram {
         logger.error(message + new String(log));
     }
 
-    private int loadShader(GL3 gl, int type, String[] shaderCode, String name) {
-        int shaderId = gl.glCreateShader(type);
-        gl.glShaderSource(shaderId, shaderCode.length, shaderCode, null, 0);
-        gl.glCompileShader(shaderId);
-        if (!checkStatus(gl, shaderId, GL3.GL_COMPILE_STATUS)) {
-            int[] logLength = new int[1];
-            gl.glGetShaderiv(shaderId, GL3.GL_INFO_LOG_LENGTH, logLength, 0);
-
-            byte[] log = new byte[logLength[0]];
-            gl.glGetShaderInfoLog(shaderId, logLength[0], null, 0, log, 0);
-
-            logger.error("Failed to compile "+name+" shader code: " + new String(log));
-        }
-        return shaderId;
-    }
-
-    /**
-     * Check the status of a shader or program.
-     *
-     * @param gl    The OpenGL context
-     * @param id    The shader or program id
-     * @param param The parameter to check
-     * @return true if the status is OK
-     */
-    private boolean checkStatus(GL3 gl, int id, int param) {
-        int[] result = new int[]{GL3.GL_FALSE};
-        if (param == GL3.GL_COMPILE_STATUS) {
-            gl.glGetShaderiv(id, param, result, 0);
-        } else {
-            gl.glGetProgramiv(id, param, result, 0);
-        }
-        return result[0] != GL3.GL_FALSE;
-    }
 
     public void use(GL3 gl) {
+        if(programId == -1) {
+            load(gl);
+        }
         gl.glUseProgram(programId);
+        OpenGLHelper.checkGLError(gl,logger);
     }
 
-    public void delete(GL3 gl) {
-        gl.glDetachShader(programId, vertexShaderId);
-        gl.glDetachShader(programId, fragmentShaderId);
-        gl.glDeleteShader(vertexShaderId);
-        gl.glDeleteShader(fragmentShaderId);
+    public void unload(GL3 gl) {
+        if(programId == -1) return; // not loaded
+        for( Shader shader : shaders ) {
+            if(shader.getShaderId() == -1) continue; // not loaded
+            gl.glDetachShader(programId, shader.getShaderId());
+            shader.unload(gl);
+        }
         gl.glDeleteProgram(programId);
+        programId = -1;
     }
 
     public int getProgramId() {
