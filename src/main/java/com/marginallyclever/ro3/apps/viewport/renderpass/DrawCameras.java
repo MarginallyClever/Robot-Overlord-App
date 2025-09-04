@@ -2,11 +2,11 @@ package com.marginallyclever.ro3.apps.viewport.renderpass;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLContext;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.viewport.Shader;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.mesh.Mesh;
@@ -78,11 +78,12 @@ public class DrawCameras extends AbstractRenderPass {
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
         try {
-            shader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.vert"),
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.frag"));
+            var spf = Registry.shaderProgramFactory;
+            shader = spf.createShaderProgram("CameraShader",
+                    spf.createShader(GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
+                    spf.createShader(GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
+            );
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }
@@ -91,7 +92,7 @@ public class DrawCameras extends AbstractRenderPass {
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        shader.delete(gl3);
+        shader.unload(gl3);
     }
 
     @Override

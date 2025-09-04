@@ -2,11 +2,11 @@ package com.marginallyclever.ro3.apps.viewport.renderpass;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLContext;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.viewport.Shader;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.mesh.AABB;
@@ -68,21 +68,19 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
         try {
-            shader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.vert"),
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.frag"));
+            var spf = Registry.shaderProgramFactory;
+            shader = spf.createShaderProgram("boundingBoxShader",
+                    spf.createShader(GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
+                    spf.createShader(GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
+            );
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }
     }
 
     @Override
-    public void dispose(GLAutoDrawable glAutoDrawable) {
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        shader.delete(gl3);
-    }
+    public void dispose(GLAutoDrawable glAutoDrawable) {}
 
     @Override
     public void draw(Viewport viewport, GL3 gl3) {

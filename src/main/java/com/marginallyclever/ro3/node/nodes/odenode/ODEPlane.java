@@ -27,6 +27,8 @@ public class ODEPlane extends ODENode {
 
     public ODEPlane(String name) {
         super(name);
+        Registry.meshFactory.addToPool(decal);
+
         // setup decal
         decal.width = 1000;
         decal.height = 1000;

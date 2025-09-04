@@ -2,11 +2,11 @@ package com.marginallyclever.ro3.apps.viewport.renderpass;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLContext;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.viewport.Shader;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.mesh.Mesh;
@@ -64,27 +64,21 @@ public class DrawMeshes extends AbstractRenderPass {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
 
         try {
-            meshShader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "mesh.vert"),
-                    ResourceHelper.readResource(this.getClass(), "mesh.frag"));
+            var spf = Registry.shaderProgramFactory;
+            meshShader = spf.createShaderProgram("meshShader",
+                    spf.createShader(GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"mesh.vert")),
+                    spf.createShader(GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"mesh.frag"))
+            );
+            shadowShader = spf.createShaderProgram("shadowShader",
+                    spf.createShader(GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"shadow.vert")),
+                    spf.createShader(GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"shadow.frag"))
+            );
+            outlineShader = spf.createShaderProgram("outlineShader",
+                    spf.createShader(GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"outline_330.vert")),
+                    spf.createShader(GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"outline_330.frag"))
+            );
         } catch (Exception e) {
-            logger.error("Failed to load mesh shader", e);
-        }
-
-        try {
-            shadowShader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "shadow.vert"),
-                    ResourceHelper.readResource(this.getClass(), "shadow.frag"));
-        } catch (Exception e) {
-            logger.error("Failed to load shadow shader", e);
-        }
-
-        try {
-            outlineShader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "outline_330.vert"),
-                    ResourceHelper.readResource(this.getClass(), "outline_330.frag"));
-        } catch (Exception e) {
-            logger.error("Failed to load outline shader", e);
+            logger.error("Failed to load shader", e);
         }
 
         createShadowFBOandDepthMap(gl3);
@@ -173,12 +167,6 @@ public class DrawMeshes extends AbstractRenderPass {
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-
-        meshShader.delete(gl3);
-        shadowShader.delete(gl3);
-        outlineShader.delete(gl3);
-        shadowQuad.unload(gl3);
-
         gl3.glDeleteFramebuffers(1, shadowFBO,0);
         gl3.glDeleteTextures(1, depthMap,0);
     }
