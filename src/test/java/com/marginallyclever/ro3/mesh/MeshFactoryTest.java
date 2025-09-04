@@ -10,10 +10,10 @@ public class MeshFactoryTest {
         assert(factory.getPool().getList().isEmpty());
         assert(factory.getAllSourcesForExport().isEmpty());
         assert(factory.canLoad(path));
-        var a = factory.load(path);
+        var a = factory.get(path);
         assert(!factory.getPool().getList().isEmpty());
         assert(a.getNumVertices()>0);
-        var b = factory.load(path);
+        var b = factory.get(path);
         assert(a==b);
         assert(!factory.getAllSourcesForExport().isEmpty());
     }

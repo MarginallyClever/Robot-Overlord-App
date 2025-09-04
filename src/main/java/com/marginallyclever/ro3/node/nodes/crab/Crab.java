@@ -156,7 +156,7 @@ public class Crab extends Node {
     private void fixMeshes() {
         // body
         var bodyMesh = body.findFirstChild(MeshInstance.class);
-        bodyMesh.setMesh(Registry.meshFactory.load(RESOURCE_PATH+"body.stl"));
+        bodyMesh.setMesh(Registry.meshFactory.get(RESOURCE_PATH+"body.stl"));
         var m = new Matrix4d();
         var m2 = new Matrix4d();
         m.setIdentity();
@@ -168,13 +168,13 @@ public class Crab extends Node {
         for(var leg : legs) {
             // coxa
             var meshCoxa = leg.coxa.findFirstChild(MeshInstance.class);
-            meshCoxa.setMesh(Registry.meshFactory.load(RESOURCE_PATH+"coxa.stl"));
+            meshCoxa.setMesh(Registry.meshFactory.get(RESOURCE_PATH+"coxa.stl"));
             // femur
             var meshFemur = leg.femur.findFirstChild(MeshInstance.class);
-            meshFemur.setMesh(Registry.meshFactory.load(RESOURCE_PATH+"femur.stl"));
+            meshFemur.setMesh(Registry.meshFactory.get(RESOURCE_PATH+"femur.stl"));
             // tibia
             var meshTibia = leg.tibia.findFirstChild(MeshInstance.class);
-            meshTibia.setMesh(Registry.meshFactory.load(RESOURCE_PATH+"tibia.stl"));
+            meshTibia.setMesh(Registry.meshFactory.get(RESOURCE_PATH+"tibia.stl"));
         }
     }
 

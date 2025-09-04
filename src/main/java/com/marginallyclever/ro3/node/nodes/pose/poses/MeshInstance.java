@@ -161,7 +161,7 @@ public class MeshInstance extends Pose {
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
         if(from.has("mesh")) {
-            mesh = Registry.meshFactory.load(from.getString("mesh"));
+            mesh = Registry.meshFactory.get(from.getString("mesh"));
         } else if(from.has("proceduralMesh")) {
             var procMesh = from.getJSONObject("proceduralMesh");
             var pmesh = ProceduralMeshFactory.createMesh(procMesh.getString("type"));

@@ -25,7 +25,7 @@ public class SpaceShip extends Pose {
 
         var mesh = new MeshInstance();
         this.addChild(mesh);
-        mesh.setMesh(Registry.meshFactory.load("C:/Users/aggra/Desktop/RO3 test scenes/serenity.obj"));
+        mesh.setMesh(Registry.meshFactory.get("C:/Users/aggra/Desktop/RO3 test scenes/serenity.obj"));
         var mat = new Material();
         this.addChild(mat);
     }

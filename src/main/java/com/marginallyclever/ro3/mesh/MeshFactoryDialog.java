@@ -39,7 +39,7 @@ public class MeshFactoryDialog {
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             String absPath = chooser.getSelectedFile().getAbsolutePath();
             try {
-                lastMeshLoaded = Registry.meshFactory.load(absPath);
+                lastMeshLoaded = Registry.meshFactory.get(absPath);
             } catch(Exception e) {
                 logger.error("Failed to load from "+absPath,e);
                 returnVal = JFileChooser.CANCEL_OPTION;

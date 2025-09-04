@@ -37,7 +37,7 @@ public class MeshFactory {
 	 * @param filename file from which to load.  May be "filename.ext" or "zipfile.zip:filename.ext"
 	 * @return a non-null instance of Mesh.  It may contain nothing.
 	 */
-	public Mesh load(String filename) {
+	public Mesh get(String filename) {
 		if(filename == null || filename.trim().isEmpty()) return null;
 
 		String absolutePath = FileHelper.getAbsolutePathOrFilename(filename);
