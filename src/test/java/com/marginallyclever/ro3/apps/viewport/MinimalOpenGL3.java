@@ -5,6 +5,7 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,8 +23,11 @@ import java.nio.FloatBuffer;
  * Because the high-performance pipeline has taken over everything, you must also do your transforms in the GLSL script.</p>
  * <p>CC-BY-SA 2025-08-16 Dan Royer (dan@marginallyclever.com)</p>
  */
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless environment")
 public class MinimalOpenGL3 extends JPanel implements GLEventListener {
     private static final Logger logger = LoggerFactory.getLogger(MinimalOpenGL3.class);
+    private static final long startTime = System.currentTimeMillis();
+
     private final GLJPanel glPanel;
     private final FPSAnimator animator;
 
@@ -31,8 +35,6 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
     private static boolean DOUBLE_BUFFERED = true;
     private static final int FSAA_SAMPLES = 2;
     private static final int FPS = 60;
-
-    private static final long startTime = System.currentTimeMillis();
 
     // shader stuff
     private int shaderId;

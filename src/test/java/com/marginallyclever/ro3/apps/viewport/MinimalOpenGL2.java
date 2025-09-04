@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.apps.viewport;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,8 +15,11 @@ import javax.swing.*;
  * Use GL2 (the old fixed-function pipeline) to do this.</p>
  * <p>CC-BY-SA 2025-08-16 Dan Royer (dan@marginallyclever.com)</p>
  */
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless environment")
 public class MinimalOpenGL2 extends JPanel implements GLEventListener {
     private static final Logger logger = LoggerFactory.getLogger(MinimalOpenGL2.class);
+    private static final long startTime = System.currentTimeMillis();
+
     private final GLJPanel glPanel;
     private final FPSAnimator animator;
 
@@ -23,8 +27,6 @@ public class MinimalOpenGL2 extends JPanel implements GLEventListener {
     private static final boolean DOUBLE_BUFFERED = true;
     private static final int FSAA_SAMPLES = 2;
     private static final int FPS = 60;
-
-    private static final long startTime = System.currentTimeMillis();
 
     public static void main(String[] args) {
         logger.info("start time "+startTime);
