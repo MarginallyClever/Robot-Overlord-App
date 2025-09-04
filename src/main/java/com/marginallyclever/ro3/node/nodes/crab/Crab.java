@@ -99,8 +99,6 @@ public class Crab extends Node {
 
     // animation strategies
     private CrabWalkStategy chosenStrategy = CrabWalkStategy.SIT_DOWN;
-    // animation timer
-    private double gaitCycleTime = 0;
     // flags for sit and stand
     boolean firstSit = false;
     boolean firstStand = false;
@@ -233,8 +231,6 @@ public class Crab extends Node {
     public void update(double dt) {
         super.update(dt);
 
-        gaitCycleTime+=dt;
-
         if(chosenStrategy != CrabWalkStategy.TAP_ONE_TOE) {
             checkAllLegsTouchingGround();
         }
@@ -355,10 +351,11 @@ public class Crab extends Node {
             adjustBodyHeight(dt, standingHeight);
 
             var bodyWorld = body.getWorld();
+            /*
             if (bodyWorld.m23 >= standingHeight &&
                 bodyWorld.m23 < standingHeight + STANDING_EPSILON) {
                 // now we are standing.
-            }
+            }*/
             if( bodyWorld.m23 >= 0.01) {
                 // we are standing.
                 firstStand = true;

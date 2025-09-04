@@ -75,7 +75,7 @@ public class DrawPoses extends AbstractRenderPass {
         var toScan = new ArrayList<Node>();
         toScan.add(Registry.getScene());
         while(!toScan.isEmpty()) {
-            Node node = toScan.remove(0);
+            Node node = toScan.removeFirst();
             toScan.addAll(node.getChildren());
 
             if (!(node instanceof Pose pose)) continue;

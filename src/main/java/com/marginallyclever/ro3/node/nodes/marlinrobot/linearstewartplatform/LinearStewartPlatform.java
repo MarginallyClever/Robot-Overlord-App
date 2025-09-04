@@ -30,8 +30,6 @@ import java.util.List;
  * which is a scene file that contains the Linear Stewart Platform.
  */
 public class LinearStewartPlatform extends MarlinRobot {
-    private final Logger logger = LoggerFactory.getLogger(LinearStewartPlatform.class);
-
     private static final String RESOURCE_PATH = "/com/marginallyclever/ro3/node/nodes/marlinrobot/linearstewartplatform/";
     private static final String RESOURCE_BASE = RESOURCE_PATH + "001 stewart platform linear v12.obj";
     private static final String RESOURCE_ARM  = RESOURCE_PATH + "arm assembly v4.obj";
