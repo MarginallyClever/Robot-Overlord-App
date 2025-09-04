@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import com.marginallyclever.ro3.apps.viewport.OpenGL3Panel;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +89,7 @@ public class AllPanels {
                 com.marginallyclever.ro3.apps.nodeselector.NodeSelector.class,
                 com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView.class,
                 com.marginallyclever.ro3.apps.shared.SearchBar.class,
-                com.marginallyclever.ro3.apps.viewport.OpenGLPanel.class,
+                com.marginallyclever.ro3.apps.viewport.OpenGL3Panel.class,
                 com.marginallyclever.ro3.apps.viewport.Viewport.class,
                 com.marginallyclever.ro3.apps.viewport.ViewportSettingsPanel.class,
                 com.marginallyclever.ro3.apps.webcam.WebCamPanel.class,

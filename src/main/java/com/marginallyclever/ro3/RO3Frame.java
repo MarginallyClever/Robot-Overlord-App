@@ -18,7 +18,7 @@ import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.ode4j.ODE4JPanel;
 import com.marginallyclever.ro3.apps.pathtracer.PathTracerPanel;
-import com.marginallyclever.ro3.apps.viewport.OpenGLPanel;
+import com.marginallyclever.ro3.apps.viewport.OpenGL3Panel;
 import com.marginallyclever.ro3.apps.viewport.ViewportSettingsPanel;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportToolPanel;
 import com.marginallyclever.ro3.apps.webcam.WebCamPanel;
@@ -50,7 +50,7 @@ public class RO3Frame extends JFrame {
 
     private final List<DockingPanel> windows = new ArrayList<>();
 
-    private final OpenGLPanel viewportPanel;
+    private final OpenGL3Panel viewportPanel;
     private final LogPanel logPanel;
     private final EditorPanel editPanel;
     private final WebCamPanel webCamPanel;
@@ -72,7 +72,7 @@ public class RO3Frame extends JFrame {
 
         logPanel = new LogPanel();
         editPanel = new EditorPanel();
-        viewportPanel = new OpenGLPanel();
+        viewportPanel = new OpenGL3Panel();
         viewportSettingsPanel = new ViewportSettingsPanel(viewportPanel);
         viewportToolPanel = new ViewportToolPanel(viewportPanel);
         webCamPanel = new WebCamPanel();

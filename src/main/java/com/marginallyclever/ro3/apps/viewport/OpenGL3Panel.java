@@ -18,11 +18,11 @@ import java.io.PrintStream;
 import java.util.prefs.Preferences;
 
 /**
- * {@link OpenGLPanel} manages a {@link GLJPanel} and an {@link FPSAnimator}.
+ * {@link OpenGL3Panel} manages a {@link GLJPanel} and an {@link FPSAnimator}.
  * It is a concrete implementation of {@link Viewport}.
  */
-public class OpenGLPanel extends Viewport implements GLEventListener {
-    private static final Logger logger = LoggerFactory.getLogger(OpenGLPanel.class);
+public class OpenGL3Panel extends Viewport implements GLEventListener {
+    private static final Logger logger = LoggerFactory.getLogger(OpenGL3Panel.class);
     protected GLJPanel glCanvas;
     private boolean hardwareAccelerated = true;
     private boolean doubleBuffered = true;
@@ -32,7 +32,7 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
     private final FPSAnimator animator;
     private ShaderProgram toolShader;
 
-    public OpenGLPanel() {
+    public OpenGL3Panel() {
         super(new BorderLayout());
 
         loadPrefs();
@@ -158,9 +158,11 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
         gl3.glActiveTexture(GL3.GL_TEXTURE0);
 
         try {
-            toolShader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.vert"),
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.frag"));
+            var spf = Registry.shaderProgramFactory;
+            toolShader = spf.createShaderProgram("toolShader",
+                    spf.createShader(GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
+                    spf.createShader(GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
+            );
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }
@@ -189,10 +191,10 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
     public void dispose(GLAutoDrawable glAutoDrawable) {
         logger.info("dispose");
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        toolShader.delete(gl3);
         for(ViewportTool tool : viewportTools) tool.dispose(gl3);
         Registry.textureFactory.unloadAll(gl3);
         Registry.meshFactory.unloadAll(gl3);
+        Registry.shaderProgramFactory.unloadAll(gl3);
     }
 
     @Override
@@ -207,6 +209,7 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
         double dt = 1.0 / (double)this.getFPS();
         for(ViewportTool tool : viewportTools) tool.update(dt);
         updateAllNodes(dt);
+
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         renderAllPasses(gl3);
         renderViewportTools(gl3);
