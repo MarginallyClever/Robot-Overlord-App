@@ -5,13 +5,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
- * Methods to make loading files from disk or jar resource easier.
+ * Methods to make loading files from disk or jar item easier.
  */
 public class FileHelper {
 	/**
 	 * Open a file.  open() looks in three places:<br>
 	 *  - The file may be contained inside a zip, as indicated by the filename "zipname:filename".<br>
-	 *  - The file may be a resource inside a jar file.
+	 *  - The file may be a item inside a jar file.
 	 *  - The file may be on disk.
 	 *     
 	 * @param filename The file to open.  May be "filename.ext" or "zipfile.zip:filename.ext"
@@ -75,7 +75,7 @@ public class FileHelper {
 
 	/**
 	 * Get the absolute path to a file.  If the file is not found, return the filename.
-	 * The file may be relative to the current working directory (user.dir), absolute, or a resource.
+	 * The file may be relative to the current working directory (user.dir), absolute, or a item.
 	 * @param filename the file to find
 	 * @return the absolute path to the file, or the original filename if the file is not found.
 	 */
@@ -89,7 +89,7 @@ public class FileHelper {
 			pathCheck = new File(filename);
 			if(pathCheck.exists()) absolutePath = pathCheck.getAbsolutePath();
 			else {
-				// maybe it's a resource file?
+				// maybe it's a item file?
 				absolutePath = filename;
 			}
 		}

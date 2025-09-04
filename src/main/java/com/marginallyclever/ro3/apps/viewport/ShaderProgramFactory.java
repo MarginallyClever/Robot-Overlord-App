@@ -13,7 +13,7 @@ import java.util.Map;
  * Maintains a list of the loaded {@link ShaderProgram} and prevents duplication.  Also provides a centralized place to
  * destroy them when the OpenGL context goes away.
  */
-public class ShaderProgramFactory implements Factory {
+public class ShaderProgramFactory extends Factory {
     private final Map<String, Resource<Shader>> shaders = new HashMap<>();
     private final Map<String, Resource<ShaderProgram>> shaderPrograms = new HashMap<>();
 
@@ -21,13 +21,13 @@ public class ShaderProgramFactory implements Factory {
         String key = type+"-"+ Arrays.hashCode(shaderCode);
         return shaders.computeIfAbsent(key, _ -> new Resource<>(
                         new Shader(type,shaderCode,key),lifetime)
-                ).resource();
+                ).item();
     }
 
     public ShaderProgram createShaderProgram(Lifetime lifetime, String key, Shader... shaders) {
         return shaderPrograms.computeIfAbsent(key, _-> new Resource<>(
                         new ShaderProgram(Arrays.stream(shaders).toList()),lifetime)
-                ).resource();
+                ).item();
     }
 
     /**
@@ -35,9 +35,7 @@ public class ShaderProgramFactory implements Factory {
      * @param gl3 the GL3 context
      */
     public void unloadAll(GL3 gl3) {
-        for( Resource<ShaderProgram> sp : shaderPrograms.values() ) {
-            sp.resource().unload(gl3);
-        }
+        shaderPrograms.values().forEach(e -> e.item().unload(gl3));
     }
 
     @Override

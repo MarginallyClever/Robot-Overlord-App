@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.node.nodes.crab;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Box;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
@@ -154,7 +155,7 @@ public class Crab extends Node {
     private void fixMeshes() {
         // body
         var bodyMesh = body.findFirstChild(MeshInstance.class);
-        bodyMesh.setMesh(Registry.meshFactory.get(RESOURCE_PATH+"body.stl"));
+        bodyMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE,RESOURCE_PATH+"body.stl"));
         var m = new Matrix4d();
         var m2 = new Matrix4d();
         m.setIdentity();
@@ -166,13 +167,13 @@ public class Crab extends Node {
         for(var leg : legs) {
             // coxa
             var meshCoxa = leg.coxa.findFirstChild(MeshInstance.class);
-            meshCoxa.setMesh(Registry.meshFactory.get(RESOURCE_PATH+"coxa.stl"));
+            meshCoxa.setMesh(Registry.meshFactory.get(Lifetime.SCENE,RESOURCE_PATH+"coxa.stl"));
             // femur
             var meshFemur = leg.femur.findFirstChild(MeshInstance.class);
-            meshFemur.setMesh(Registry.meshFactory.get(RESOURCE_PATH+"femur.stl"));
+            meshFemur.setMesh(Registry.meshFactory.get(Lifetime.SCENE,RESOURCE_PATH+"femur.stl"));
             // tibia
             var meshTibia = leg.tibia.findFirstChild(MeshInstance.class);
-            meshTibia.setMesh(Registry.meshFactory.get(RESOURCE_PATH+"tibia.stl"));
+            meshTibia.setMesh(Registry.meshFactory.get(Lifetime.SCENE,RESOURCE_PATH+"tibia.stl"));
         }
     }
 

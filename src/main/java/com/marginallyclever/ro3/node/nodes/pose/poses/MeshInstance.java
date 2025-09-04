@@ -4,6 +4,7 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.pathtracer.PathMesh;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
@@ -161,7 +162,7 @@ public class MeshInstance extends Pose {
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
         if(from.has("mesh")) {
-            mesh = Registry.meshFactory.get(from.getString("mesh"));
+            mesh = Registry.meshFactory.get(Lifetime.SCENE,from.getString("mesh"));
         } else if(from.has("proceduralMesh")) {
             var procMesh = from.getJSONObject("proceduralMesh");
             var pmesh = ProceduralMeshFactory.createMesh(procMesh.getString("type"));

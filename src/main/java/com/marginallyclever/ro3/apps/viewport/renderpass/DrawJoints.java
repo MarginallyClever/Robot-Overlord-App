@@ -38,9 +38,9 @@ public class DrawJoints extends AbstractRenderPass {
 
     public DrawJoints() {
         super("Joints");
-        Registry.meshFactory.addToPool(currentAngleMesh);
-        Registry.meshFactory.addToPool(circleFanMesh);
-        Registry.meshFactory.addToPool(linearRangeMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "DrawJoints.currentAngleMesh", currentAngleMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "DrawJoints.circleFanMesh", circleFanMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "DrawJoints.linearRangeMesh", linearRangeMesh);
 
         currentAngleMesh.setRenderStyle(GL3.GL_LINES);
         currentAngleMesh.addColor(1.0f,1.0f,1.0f,1);  currentAngleMesh.addVertex(0,0,0);  // origin

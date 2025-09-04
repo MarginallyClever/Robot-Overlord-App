@@ -10,6 +10,7 @@ import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
@@ -60,7 +61,7 @@ public class TranslateToolMulti implements ViewportTool {
         tools.add(toolXZ);
         tools.add(toolYZ);
 
-        texture = Registry.textureFactory.get("/com/marginallyclever/ro3/apps/viewport/renderpass/navball.png");
+        texture = Registry.textureFactory.get(Lifetime.APPLICATION,"/com/marginallyclever/ro3/apps/viewport/renderpass/navball.png");
         texture.setDoNotExport(true);
     }
 

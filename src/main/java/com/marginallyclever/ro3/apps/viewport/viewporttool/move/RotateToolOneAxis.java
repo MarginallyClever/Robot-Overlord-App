@@ -9,6 +9,7 @@ import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.apps.viewport.renderpass.RenderPassHelper;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.CircleXY;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Waldo;
@@ -104,10 +105,10 @@ public class RotateToolOneAxis implements ViewportTool {
     public RotateToolOneAxis(Color color) {
         super();
         this.color = color;
-        Registry.meshFactory.addToPool(markerMesh);
-        Registry.meshFactory.addToPool(angleMesh);
-        Registry.meshFactory.addToPool(ringMesh);
-        Registry.meshFactory.addToPool(waldo);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "RotateToolOneAxis.markerMesh", markerMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "RotateToolOneAxis.angleMesh", angleMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "RotateToolOneAxis.ringMesh", ringMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "RotateToolOneAxis.waldo", waldo);
 
         buildMarkerMesh();
         buildAngleMesh();

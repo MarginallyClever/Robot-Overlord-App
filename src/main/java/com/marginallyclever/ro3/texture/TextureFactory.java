@@ -4,8 +4,10 @@ import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.factories.Factory;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.factories.Resource;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
+import com.marginallyclever.ro3.mesh.Mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,33 +16,28 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * {@link TextureFactory} loads textures from files.
  */
-public class TextureFactory implements Factory {
+public class TextureFactory extends Factory {
     private static final Logger logger = LoggerFactory.getLogger(TextureFactory.class);
-    private final ListWithEvents<TextureWithMetadata> texturePool = new ListWithEvents<>();
+    private final Map<String, Resource<TextureWithMetadata>> cache = new HashMap<>();
 
     public TextureFactory() {}
 
     /**
      * Load a texture from a file.
+     * @param lifetime the lifetime of the texture.
      * @param filename the file to load.
      * @return the texture, or null if the file could not be loaded.
      */
-    public TextureWithMetadata get(String filename) {
+    public TextureWithMetadata get(Lifetime lifetime,String filename) {
         String absolutePath = FileHelper.getAbsolutePathOrFilename(filename);
-        for(TextureWithMetadata t : texturePool.getList()) {
-            if(t.getSource().equals(absolutePath)) {
-                return t;
-            }
-        }
-        TextureWithMetadata t = loadTexture(absolutePath);
-        if(t!=null) texturePool.add(t);
-        return t;
+        return cache.computeIfAbsent(absolutePath, _->
+                new Resource<>(loadTexture(absolutePath), lifetime)
+        ).item();
     }
 
     private TextureWithMetadata loadTexture(String filename) {
@@ -59,28 +56,24 @@ public class TextureFactory implements Factory {
      * <p>if this is called from a thread that has no OpenGL context a {@link com.jogamp.opengl.GLException} will occur.</p>
      */
     public void unloadAll(GL3 gl) {
-        for(TextureWithMetadata t : texturePool.getList()) {
-            t.unload(gl);
-        }
+        cache.values().forEach(e -> e.item().unload(gl) );
     }
 
-    /**
-     * @return a list of all the sources used to load textures.
-     */
     public List<String> getAllSourcesForExport() {
-        List<String> result = new ArrayList<>();
-        for(TextureWithMetadata t : texturePool.getList()) {
-            if(t.isDoNotExport()) continue;
-            result.add(t.getSource());
-        }
-        return result;
+        return getResources(Lifetime.SCENE).stream().map(TextureWithMetadata::getSource).toList();
     }
 
-    /**
-     * @return a list of all the textures loaded.
-     */
-    public ListWithEvents<TextureWithMetadata> getPool() {
-        return texturePool;
+    public List<TextureWithMetadata> getResources(Lifetime lifetime) {
+        return cache.values().stream()
+                .filter(r -> r.lifetime() == lifetime)
+                .map(Resource::item)
+                .toList();
+    }
+
+    public List<TextureWithMetadata> getAllResources() {
+        return cache.values().stream()
+                .map(Resource::item)
+                .toList();
     }
 
     public List<FileFilter> getAllExtensions() {
@@ -98,6 +91,6 @@ public class TextureFactory implements Factory {
     @Override
     public void reset() {
         // FIXME Not calling unload() on each item is probably a video card memory leak.
-        texturePool.removeAll();
+        cache.clear();
     }
 }

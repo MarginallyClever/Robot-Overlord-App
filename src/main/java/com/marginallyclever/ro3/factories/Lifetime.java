@@ -1,7 +1,7 @@
 package com.marginallyclever.ro3.factories;
 
 /**
- * LifeTime indicates how long a resource should be kept around.
+ * LifeTime indicates how long a item should be kept around.
  */
 public enum Lifetime {
     // for the life of the project

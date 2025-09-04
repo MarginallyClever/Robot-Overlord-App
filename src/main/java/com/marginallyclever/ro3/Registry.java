@@ -40,10 +40,10 @@ public class Registry {
      * resets to a default state.
      */
     public static void reset() {
-        selection.removeAll();
+        selection.clear();
 
         // reset camera
-        cameras.removeAll();
+        cameras.clear();
         Camera first = new Camera("Camera 1");
         cameras.add(first);
         double v = Math.sqrt(Math.pow(50,2)/3d); // match the viewport default orbit distance.

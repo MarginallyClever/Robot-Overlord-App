@@ -76,7 +76,6 @@ public class ShaderProgram {
     public void unload(GL3 gl) {
         if(programId == -1) return; // not loaded
         for( Shader shader : shaders ) {
-            if(shader.getShaderId() == -1) continue; // not loaded
             gl.glDetachShader(programId, shader.getShaderId());
             shader.unload(gl);
         }

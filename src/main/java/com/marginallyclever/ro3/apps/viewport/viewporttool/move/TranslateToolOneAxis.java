@@ -11,6 +11,7 @@ import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.apps.viewport.renderpass.RenderPassHelper;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.Node;
@@ -81,9 +82,9 @@ public class TranslateToolOneAxis implements ViewportTool {
         super();
         this.color = color;
 
-        Registry.meshFactory.addToPool(handleLineMesh);
-        Registry.meshFactory.addToPool(handleSphere);
-        Registry.meshFactory.addToPool(quad);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "TranslateToolOneAxis.handleLineMesh", handleLineMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "TranslateToolOneAxis.handleSphere", handleSphere);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "TranslateToolOneAxis.quad", quad);
 
         // handle line
         handleLineMesh.addVertex(0, 0, 0);

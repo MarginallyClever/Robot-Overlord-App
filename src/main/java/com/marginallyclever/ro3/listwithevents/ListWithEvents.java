@@ -22,32 +22,24 @@ public class ListWithEvents<T> {
         fireItemRemoved(item);
     }
 
-    public void addItemAddedListener(ItemAddedListener<T> listener) {
-        listenerList.add(ItemAddedListener.class, listener);
+    public void addItemListener(ListListener<T> listener) {
+        listenerList.add(ListListener.class, listener);
     }
 
-    public void removeItemAddedListener(ItemAddedListener<T> listener) {
-        listenerList.remove(ItemAddedListener.class, listener);
-    }
-
-    public void addItemRemovedListener(ItemRemovedListener<T> listener) {
-        listenerList.add(ItemRemovedListener.class, listener);
-    }
-
-    public void removeItemRemovedListener(ItemRemovedListener<T> listener) {
-        listenerList.remove(ItemRemovedListener.class, listener);
+    public void removeItemListener(ListListener<T> listener) {
+        listenerList.remove(ListListener.class, listener);
     }
 
     @SuppressWarnings("unchecked")  // because getListeners is not generic
     protected void fireItemAdded(T item) {
-        for (ItemAddedListener<T> listener : listenerList.getListeners(ItemAddedListener.class)) {
+        for (ListListener<T> listener : listenerList.getListeners(ListListener.class)) {
             listener.itemAdded(this,item);
         }
     }
 
     @SuppressWarnings("unchecked")  // because getListeners is not generic
     protected void fireItemRemoved(T item) {
-        for (ItemRemovedListener<T> listener : listenerList.getListeners(ItemRemovedListener.class)) {
+        for (ListListener<T> listener : listenerList.getListeners(ListListener.class)) {
             listener.itemRemoved(this,item);
         }
     }
@@ -56,9 +48,9 @@ public class ListWithEvents<T> {
         return list;
     }
 
-    public void removeAll() {
+    public void clear() {
         while(!list.isEmpty()) {
-            remove(list.get(0));
+            remove(list.getFirst());
         }
     }
 
@@ -90,7 +82,7 @@ public class ListWithEvents<T> {
     public void set(T selection) {
         // remove everything except selection.
         if(selection==null) {
-            removeAll();
+            clear();
             return;
         }
         for (T item : new ArrayList<>(list)) {

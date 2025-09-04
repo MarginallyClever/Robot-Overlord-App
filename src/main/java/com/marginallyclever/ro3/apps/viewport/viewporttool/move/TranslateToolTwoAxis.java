@@ -11,6 +11,7 @@ import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.apps.viewport.renderpass.RenderPassHelper;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
@@ -75,7 +76,7 @@ public class TranslateToolTwoAxis implements ViewportTool {
         super();
         this.color = color;
 
-        Registry.meshFactory.addToPool(quadMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"TranslateToolTwoAxis.quadMesh",quadMesh);
 
         quadMesh.addVertex( 0, 0,0);
         quadMesh.addVertex(1, 0,0);

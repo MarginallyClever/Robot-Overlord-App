@@ -107,7 +107,6 @@ public class Mesh {
 	 */
 	public void unload(GL3 gl) {
 		if(!isLoaded) return;
-		isLoaded=false;
 		destroyBuffers(gl);
 	}
 	
@@ -119,6 +118,7 @@ public class Mesh {
 		VBO = new int[NUM_BUFFERS];
 		gl.glGenBuffers(NUM_BUFFERS, VBO, 0);
 		OpenGLHelper.checkGLError(gl,logger);
+        isLoaded=true;
 	}
 
 	private void destroyBuffers(GL3 gl) {
@@ -132,6 +132,7 @@ public class Mesh {
             OpenGLHelper.checkGLError(gl,logger);
 			VAO = null;
 		}
+        isLoaded=false;
 	}
 	
 	/**
@@ -264,11 +265,10 @@ public class Mesh {
 	 */
 	public void render(GL3 gl,int startIndex,int count) {
 		if(!isLoaded) {
-			isLoaded=true;
+            createBuffers(gl);
 			isDirty=true;
 		}
 		if(isDirty) {
-			createBuffers(gl);
 			updateBuffers(gl);
 			isDirty=false;
 		}

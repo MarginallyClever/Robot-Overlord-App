@@ -1,8 +1,7 @@
 package com.marginallyclever.ro3.mesh;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
-import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
+import com.marginallyclever.ro3.listwithevents.ListListener;
 import com.marginallyclever.ro3.texture.TextureFactoryDialog;
 
 import javax.swing.*;
@@ -16,7 +15,7 @@ import java.util.Objects;
  * This class also provides access to the {@link MeshFactoryDialog} for loading additional meshes.</p>
  * <p>TODO In the future it would be nice to count references and unload it when no longer needed.</p>
  */
-public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>, ItemRemovedListener<Mesh> {
+public class MeshChooserDialog extends JPanel implements ListListener<Mesh> {
     private final DefaultListModel<Mesh> model = new DefaultListModel<>();
     private final JList<Mesh> list = new JList<>();
     private final JToolBar toolBar = new JToolBar();
@@ -88,7 +87,7 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
             }
         });
 
-        for (Mesh mesh : Registry.meshFactory.getPool().getList()) {
+        for (Mesh mesh : Registry.meshFactory.getAllResources()) {
             model.addElement(mesh);
         }
         list.setModel(model);
@@ -99,15 +98,13 @@ public class MeshChooserDialog extends JPanel implements ItemAddedListener<Mesh>
     @Override
     public void addNotify() {
         super.addNotify();
-        Registry.meshFactory.getPool().addItemAddedListener(this);
-        Registry.meshFactory.getPool().addItemRemovedListener(this);
+        Registry.meshFactory.addItemListener(this);
     }
 
     @Override
     public void removeNotify() {
         super.removeNotify();
-        Registry.meshFactory.getPool().removeItemAddedListener(this);
-        Registry.meshFactory.getPool().removeItemRemovedListener(this);
+        Registry.meshFactory.removeItemListener(this);
     }
 
     public Mesh getSelectedItem() {

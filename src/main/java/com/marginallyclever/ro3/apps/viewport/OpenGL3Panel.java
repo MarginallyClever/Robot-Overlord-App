@@ -202,7 +202,6 @@ public class OpenGL3Panel extends Viewport implements GLEventListener {
     public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
         canvasWidth = width;
         canvasHeight = height;
-        logger.info("reshape "+width+"x"+height);
     }
 
     @Override

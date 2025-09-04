@@ -32,8 +32,8 @@ public class DrawCameras extends AbstractRenderPass {
 
     public DrawCameras() {
         super("Cameras");
-        Registry.meshFactory.addToPool(frustumMesh);
-        Registry.meshFactory.addToPool(rayMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"DrawCameras.frustumMesh",frustumMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"DrawCameras.rayMesh",rayMesh);
 
         setupMeshFrustum();
         setupMeshRay();

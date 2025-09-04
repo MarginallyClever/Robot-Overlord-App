@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.node.nodes.odenode;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Decal;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
@@ -27,7 +28,6 @@ public class ODEPlane extends ODENode {
 
     public ODEPlane(String name) {
         super(name);
-        Registry.meshFactory.addToPool(decal);
 
         // setup decal
         decal.width = 1000;
@@ -65,14 +65,21 @@ public class ODEPlane extends ODENode {
             material = new Material();
             addChild(material);
         }
-        material.setDiffuseTexture(Registry.textureFactory.get("/com/marginallyclever/ro3/shared/checkerboard.png"));
+        material.setDiffuseTexture(Registry.textureFactory.get(Lifetime.APPLICATION,"/com/marginallyclever/ro3/shared/checkerboard.png"));
 
         updatePhysicsFromPose();
     }
 
     @Override
+    protected void onAttach() {
+        super.onAttach();
+        Registry.meshFactory.addToPool(Lifetime.SCENE,"odeplane-"+this.hashCode(),decal);
+    }
+
+    @Override
     protected void onDetach() {
         super.onDetach();
+        Registry.meshFactory.removeFromPool(decal);
         destroyPlane();
     }
 

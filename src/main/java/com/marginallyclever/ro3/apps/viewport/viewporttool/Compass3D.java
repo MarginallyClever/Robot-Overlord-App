@@ -8,6 +8,7 @@ import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.CircleXY;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
@@ -50,11 +51,11 @@ public class Compass3D implements ViewportTool {
 
     public Compass3D() {
         super();
-        Registry.meshFactory.addToPool(gizmoMesh);
-        Registry.meshFactory.addToPool(circleMesh);
-        Registry.meshFactory.addToPool(quadMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"Compass3D.gizmoMesh",gizmoMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"Compass3D.circleMesh",circleMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"Compass3D.quadMesh",quadMesh);
 
-        texture = Registry.textureFactory.get("/com/marginallyclever/ro3/apps/viewport/viewporttool/axisLetters.png");
+        texture = Registry.textureFactory.get(Lifetime.APPLICATION,"/com/marginallyclever/ro3/apps/viewport/viewporttool/axisLetters.png");
         texture.setDoNotExport(true);
 
         createQuadMesh();

@@ -5,8 +5,7 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.actions.BrowseURLAction;
-import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
-import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
+import com.marginallyclever.ro3.listwithevents.ListListener;
 import com.marginallyclever.ro3.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,7 @@ import java.util.Objects;
 /**
  * {@link NodeDetailView} is a panel that displays the details of a class that implements {@link Node}.
  */
-public class NodeDetailView extends App implements ItemAddedListener<Node>, ItemRemovedListener<Node>, SceneChangeListener {
+public class NodeDetailView extends App implements ListListener<Node>, SceneChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(NodeDetailView.class);
     public static final String DOC_ROOT_URL = "https://marginallyclever.github.io/Robot-Overlord-App/";
     public static String VERSION_NAME = NodeDetailView.class.getPackage().getImplementationVersion();
@@ -148,15 +147,13 @@ public class NodeDetailView extends App implements ItemAddedListener<Node>, Item
     @Override
     public void addNotify() {
         super.addNotify();
-        Registry.selection.addItemAddedListener(this);
-        Registry.selection.addItemRemovedListener(this);
+        Registry.selection.addItemListener(this);
     }
 
     @Override
     public void removeNotify() {
         super.removeNotify();
-        Registry.selection.removeItemAddedListener(this);
-        Registry.selection.removeItemRemovedListener(this);
+        Registry.selection.removeItemListener(this);
     }
 
     @Override

@@ -34,7 +34,7 @@ public class DrawDHParameters extends AbstractRenderPass {
 
     public DrawDHParameters() {
         super("DH Parameters");
-        Registry.meshFactory.addToPool(mesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"DrawDHParameters.mesh",mesh);
 
         // add mesh to a list that can be unloaded and reloaded as needed.
         mesh.setRenderStyle(GL3.GL_LINES);

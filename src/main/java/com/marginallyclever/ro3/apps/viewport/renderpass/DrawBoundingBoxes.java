@@ -37,7 +37,7 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
 
     public DrawBoundingBoxes() {
         super("Bounding Boxes");
-        Registry.meshFactory.addToPool(mesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"DrawBoundingBoxes.mesh",mesh);
 
         mesh.setRenderStyle(GL3.GL_LINES);
         // add 8 points of a unit cube centered on the origin

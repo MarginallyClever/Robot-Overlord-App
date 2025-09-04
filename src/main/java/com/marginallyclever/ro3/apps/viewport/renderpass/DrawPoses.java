@@ -30,7 +30,7 @@ public class DrawPoses extends AbstractRenderPass {
 
     public DrawPoses() {
         super("Poses");
-        Registry.meshFactory.addToPool(mesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"DrawPoses.mesh",mesh);
     }
 
     @Override

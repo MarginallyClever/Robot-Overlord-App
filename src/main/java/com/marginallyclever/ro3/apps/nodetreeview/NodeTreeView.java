@@ -4,8 +4,7 @@ import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.actions.*;
-import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
-import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
+import com.marginallyclever.ro3.listwithevents.ListListener;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodeAttachListener;
 import com.marginallyclever.ro3.node.NodeDetachListener;
@@ -33,7 +32,7 @@ import java.util.List;
  */
 public class NodeTreeView extends App
         implements NodeAttachListener, NodeDetachListener, NodeRenameListener,
-        SceneChangeListener, ItemAddedListener<Node>, ItemRemovedListener<Node> {
+        SceneChangeListener, ListListener<Node> {
     private static final Logger logger = LoggerFactory.getLogger(NodeTreeView.class);
     private final JTree tree;
     private final NodeTreeBranch treeModel = new NodeTreeBranch(Registry.getScene());
@@ -134,8 +133,7 @@ public class NodeTreeView extends App
     public void addNotify() {
         super.addNotify();
         Registry.addSceneChangeListener(this);
-        Registry.selection.addItemAddedListener(this);
-        Registry.selection.addItemRemovedListener(this);
+        Registry.selection.addItemListener(this);
         listenTo(Registry.getScene());
     }
 
@@ -150,8 +148,7 @@ public class NodeTreeView extends App
         super.removeNotify();
         stopListeningTo(Registry.getScene());
         Registry.removeSceneChangeListener(this);
-        Registry.selection.removeItemAddedListener(this);
-        Registry.selection.removeItemRemovedListener(this);
+        Registry.selection.removeItemListener(this);
     }
 
     private void stopListeningTo(Node node) {

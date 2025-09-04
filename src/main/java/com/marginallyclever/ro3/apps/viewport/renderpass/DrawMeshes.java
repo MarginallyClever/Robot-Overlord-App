@@ -49,7 +49,7 @@ public class DrawMeshes extends AbstractRenderPass {
 
     public DrawMeshes() {
         super("Meshes");
-        Registry.meshFactory.addToPool(shadowQuad);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"DrawMeshes.shadowQuad",shadowQuad);
 
         shadowQuad.setRenderStyle(GL3.GL_QUADS);
         float v = 100;

@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.mesh;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
+import com.marginallyclever.ro3.factories.Lifetime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ public class MeshFactoryDialog {
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             String absPath = chooser.getSelectedFile().getAbsolutePath();
             try {
-                lastMeshLoaded = Registry.meshFactory.get(absPath);
+                lastMeshLoaded = Registry.meshFactory.get(Lifetime.SCENE,absPath);
             } catch(Exception e) {
                 logger.error("Failed to load from "+absPath,e);
                 returnVal = JFileChooser.CANCEL_OPTION;

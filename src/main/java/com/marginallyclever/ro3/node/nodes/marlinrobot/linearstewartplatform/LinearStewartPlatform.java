@@ -5,6 +5,7 @@ import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinListener;
@@ -69,7 +70,7 @@ public class LinearStewartPlatform extends MarlinRobot {
         if(this.findChild("MeshInstance")==null) {
             MeshInstance i = new MeshInstance();
             this.addChild(i);
-            var m = Registry.meshFactory.get(RESOURCE_BASE);
+            var m = Registry.meshFactory.get(Lifetime.SCENE,RESOURCE_BASE);
             i.setMesh(m);
         }
         // make sure Base has a Material.
@@ -97,7 +98,7 @@ public class LinearStewartPlatform extends MarlinRobot {
         if(ee.findChild("MeshInstance")==null) {
             MeshInstance i = new MeshInstance();
             ee.addChild(i);
-            i.setMesh(Registry.meshFactory.get(RESOURCE_EE));
+            i.setMesh(Registry.meshFactory.get(Lifetime.SCENE,RESOURCE_EE));
         }
         // make sure EE has a Material.
         var m = makeSureHasMaterial(ee);
@@ -150,7 +151,7 @@ public class LinearStewartPlatform extends MarlinRobot {
             // make sure car has a MeshInstance for RESOURCE_CAR
             MeshInstance mesh = new MeshInstance();
             car.addChild(mesh);
-            mesh.setMesh(Registry.meshFactory.get(RESOURCE_CAR));
+            mesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE,RESOURCE_CAR));
             mesh.setRotationEuler(new Vector3d(0,90,180), MatrixHelper.EulerSequence.XYZ);
         }
         car.setPosition(new Vector3d(10.015,1.6 * ((i%2==0)?1:-1),10.6));
@@ -179,7 +180,7 @@ public class LinearStewartPlatform extends MarlinRobot {
             // make sure attachPoint has a MeshInstance for RESOURCE_ARM
             MeshInstance mesh = new MeshInstance();
             arm.addChild(mesh);
-            mesh.setMesh(Registry.meshFactory.get(RESOURCE_ARM));
+            mesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE,RESOURCE_ARM));
         }
         // make sure attachPoint has a Material.
         m = makeSureHasMaterial(arm);
