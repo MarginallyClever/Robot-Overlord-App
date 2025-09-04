@@ -19,7 +19,7 @@ import java.util.Map;
  * <p>{@link ShaderProgram} is a wrapper for shader programs made of several {@link Shader}s.  It also provides a
  * simple interface for setting uniforms.</p>
  */
-public class ShaderProgram {
+public class ShaderProgram implements OpenGL3Resource {
     private static final Logger logger = LoggerFactory.getLogger(ShaderProgram.class);
     private int programId = -1;
     private final List<Shader> shaders = new ArrayList<>();
@@ -73,6 +73,7 @@ public class ShaderProgram {
         OpenGLHelper.checkGLError(gl,logger);
     }
 
+    @Override
     public void unload(GL3 gl) {
         if(programId == -1) return; // not loaded
         for( Shader shader : shaders ) {

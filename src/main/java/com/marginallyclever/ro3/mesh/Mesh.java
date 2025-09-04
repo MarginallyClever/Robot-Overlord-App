@@ -6,6 +6,7 @@ import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.ro3.apps.pathtracer.PathMesh;
 import com.marginallyclever.ro3.apps.pathtracer.PathTriangle;
+import com.marginallyclever.ro3.apps.viewport.OpenGL3Resource;
 import com.marginallyclever.ro3.raypicking.Hit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ import java.util.List;
  * <p>It uses <a href="https://www.khronos.org/opengl/wiki/Vertex_Specification">Vertex Array Objects and Vertex
  * Buffer Objects</a> to optimize rendering large collections of triangles.</p>
  */
-public class Mesh {
+public class Mesh implements OpenGL3Resource {
 	private static final Logger logger = LoggerFactory.getLogger(Mesh.class);
 	public static final int NUM_BUFFERS=5;  // verts, normals, colors, textureCoordinates, index
 
@@ -58,7 +59,6 @@ public class Mesh {
 
 	public Mesh() {
 		super();
-		boundingBox.setShape(this);
 	}
 
 	public Mesh(int renderStyle) {
@@ -105,7 +105,8 @@ public class Mesh {
      * See also {@link Mesh#clear()}</p>
 	 * @param gl the OpenGL context
 	 */
-	public void unload(GL3 gl) {
+	@Override
+    public void unload(GL3 gl) {
 		if(!isLoaded) return;
 		destroyBuffers(gl);
 	}

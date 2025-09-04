@@ -8,13 +8,14 @@ import org.slf4j.LoggerFactory;
 /**
  * <p>{@link Shader} is a wrapper for a single shader (vertex, fragment, geometry, etc).</p>
  */
-public class Shader {
+public class Shader implements OpenGL3Resource {
     private static final Logger logger = LoggerFactory.getLogger(Shader.class);
 
+    private final int shaderType;
+    private final String name;
+    private final String [] shaderCode;
+
     private int shaderId=-1;
-    private int shaderType=-1;
-    private String name="";
-    private String [] shaderCode=null;
     private int refCount=0;
 
     /**
@@ -59,6 +60,7 @@ public class Shader {
         }
     }
 
+    @Override
     public void unload(GL3 gl3) {
         refCount--;
         if( shaderId != -1 && refCount == 0 ) {

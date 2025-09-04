@@ -20,7 +20,7 @@ public class MeshFactoryTest {
         var b = factory.get(Lifetime.SCENE,path);
         assert(a==b);
         assert(!factory.getAllSourcesForExport().isEmpty());
-        factory.reset();
+        factory.removeSceneResources();
         assert(factory.getAllResources().isEmpty());
     }
 }

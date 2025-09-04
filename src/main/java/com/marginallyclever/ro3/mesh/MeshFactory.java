@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.mesh;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.FileHelper;
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.factories.Factory;
 import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.factories.Resource;
@@ -155,7 +156,16 @@ public class MeshFactory extends Factory {
      * Clear all meshes with lifetime SCENE from the pool.
      */
     @Override
-    public void reset() {
+    public void removeSceneResources() {
+        var list = Registry.toBeUnloaded;
+        synchronized (list) {
+            // move scene resources to Registry.toBeUnloaded so they can be unloaded in the GL thread.
+            cache.values().stream()
+                    .filter(r -> r.lifetime() == Lifetime.SCENE)
+                    .map(Resource::item)
+                    .forEach(list::add);
+        }
+        
 		cache.values().removeIf(e->e.lifetime() == Lifetime.SCENE);
     }
 

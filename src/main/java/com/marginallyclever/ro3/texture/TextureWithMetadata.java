@@ -5,6 +5,7 @@ import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
+import com.marginallyclever.ro3.apps.viewport.OpenGL3Resource;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 
 import java.awt.*;
@@ -14,7 +15,7 @@ import java.awt.image.BufferedImage;
  * {@link TextureWithMetadata} is an OpenGL {@link Texture} with metadata about where it came from and the source
  * image.
  */
-public class TextureWithMetadata {
+public class TextureWithMetadata implements OpenGL3Resource {
     private final BufferedImage image;
     private Texture texture;
     private final String source;
@@ -84,6 +85,7 @@ public class TextureWithMetadata {
      * Must only be called when there is a valid OpenGL viewport context, likely from within
      * a {@link com.jogamp.opengl.GLAutoDrawable}.
      */
+    @Override
     public void unload(GL3 gl) {
         if(texture==null) return;
         texture.destroy(gl);

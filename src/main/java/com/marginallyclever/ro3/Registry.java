@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3;
 
+import com.marginallyclever.ro3.apps.viewport.OpenGL3Resource;
 import com.marginallyclever.ro3.apps.viewport.ShaderFactory;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgramFactory;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
@@ -13,6 +14,7 @@ import com.marginallyclever.ro3.texture.TextureFactory;
 import javax.swing.event.EventListenerList;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,6 +31,9 @@ public class Registry {
     public static final ListWithEvents<Camera> cameras = new ListWithEvents<>();
     public static final ListWithEvents<Node> selection = new ListWithEvents<>();
     private static final ODEPhysics physics = new ODEPhysics();
+
+    // a static final list of OpenGL3Reources that must thread-safe as it may be modified from the OpenGL thread while being read from the main thread.
+    public static final List<OpenGL3Resource> toBeUnloaded = Collections.synchronizedList(new ArrayList<>());
 
     public static void start() {
         nodeFactory.clear();
@@ -59,10 +64,10 @@ public class Registry {
             scene.removeChild(n);
         }
 
-        textureFactory.reset();
-        meshFactory.reset();
-        shaderFactory.reset();
-        shaderProgramFactory.reset();
+        textureFactory.removeSceneResources();
+        meshFactory.removeSceneResources();
+        shaderFactory.removeSceneResources();
+        shaderProgramFactory.removeSceneResources();
         physics.reset();
     }
 

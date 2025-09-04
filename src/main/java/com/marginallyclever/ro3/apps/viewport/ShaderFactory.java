@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.viewport;
 
 import com.jogamp.opengl.GL3;
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.factories.Factory;
 import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.factories.Resource;
@@ -10,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ShaderFactory extends Factory {
-    private final Map<String, Resource<Shader>> shaders = new HashMap<>();
+    private final Map<String, Resource<Shader>> cache = new HashMap<>();
 
     public Shader get(Lifetime lifetime, int type, String[] shaderCode) {
         String typeName = switch(type) {
@@ -23,7 +24,7 @@ public class ShaderFactory extends Factory {
             default -> throw new IllegalArgumentException("Invalid shader type: "+type);
         };
         String key = typeName+" "+ Integer.toHexString(Arrays.hashCode(shaderCode));
-        return shaders.computeIfAbsent(key, _ -> new Resource<>(
+        return cache.computeIfAbsent(key, _ -> new Resource<>(
                 new Shader(type,shaderCode,key),lifetime)
         ).item();
     }
@@ -33,11 +34,20 @@ public class ShaderFactory extends Factory {
      * @param gl3 the GL3 context
      */
     public void unloadAll(GL3 gl3) {
-        shaders.values().forEach(e -> e.item().unload(gl3));
+        cache.values().forEach(e -> e.item().unload(gl3));
     }
 
     @Override
-    public void reset() {
-        shaders.values().removeIf(entry -> entry.lifetime()==Lifetime.SCENE);
+    public void removeSceneResources() {
+        var list = Registry.toBeUnloaded;
+        synchronized (list) {
+            // move scene resources to Registry.toBeUnloaded so they can be unloaded in the GL thread.
+            cache.values().stream()
+                    .filter(r -> r.lifetime() == Lifetime.SCENE)
+                    .map(Resource::item)
+                    .forEach(list::add);
+        }
+
+        cache.values().removeIf(entry -> entry.lifetime()==Lifetime.SCENE);
     }
 }

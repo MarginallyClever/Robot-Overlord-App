@@ -208,10 +208,30 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
      * @param gl3 the GL3 context
      */
     private void unloadResources(GL3 gl3) {
+        unloadOrphanedResources(gl3);
         Registry.textureFactory.unloadAll(gl3);
         Registry.meshFactory.unloadAll(gl3);
         Registry.shaderProgramFactory.unloadAll(gl3);
         Registry.shaderFactory.unloadAll(gl3);
+    }
+
+    /**
+     * Unload any resources that have been marked for unloading.
+     * This is done in the GL thread to ensure that the OpenGL context is current.
+     * @param gl3 the GL3 context
+     */
+    private void unloadOrphanedResources(GL3 gl3) {
+        var list = Registry.toBeUnloaded;
+        synchronized (list) {
+            for(OpenGL3Resource r : list) {
+                try {
+                    r.unload(gl3);
+                } catch(Exception e) {
+                    logger.error("Failed to unload resource "+r,e);
+                }
+            }
+            list.clear();
+        }
     }
 
     @Override
