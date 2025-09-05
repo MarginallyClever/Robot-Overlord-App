@@ -74,6 +74,14 @@ public class MeshInstancePanel extends JPanel {
 
     private void changeMeshDetails() {
         detailsContainer.removeAll();
+
+        var activeButton = new JButton(meshInstance.isActive() ? "Yes" : "No");
+        activeButton.addActionListener(e->{
+            meshInstance.setActive( !meshInstance.isActive() );
+            activeButton.setText(meshInstance.isActive() ? "Yes" : "No");
+        });
+        PanelHelper.addLabelAndComponent(detailsContainer,"Active",activeButton);
+
         // mesh details
         Mesh mesh = meshInstance.getMesh();
         if(mesh==null) {
