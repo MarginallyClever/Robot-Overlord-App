@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.apps.viewport;
 
-import com.marginallyclever.convenience.swing.Dial;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.apps.App;

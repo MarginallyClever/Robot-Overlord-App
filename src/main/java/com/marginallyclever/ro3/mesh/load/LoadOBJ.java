@@ -54,7 +54,7 @@ public class LoadOBJ implements MeshLoader {
 					materials.putAll(loadMaterialLibrary(path));
 					PathHelper.setCurrentWorkingDirectory(oldPath);
 				} catch(Exception e) {
-					logger.warn("Error loading material: {}",e.getMessage());
+					logger.warn("Cannot load material {}",e.getMessage());
 				}
 			}
 			if(line.startsWith("usemtl ")) {

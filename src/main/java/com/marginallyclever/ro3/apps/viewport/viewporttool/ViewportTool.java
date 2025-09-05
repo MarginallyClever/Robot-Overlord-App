@@ -4,7 +4,6 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
-import com.marginallyclever.ro3.node.Node;
 
 import javax.swing.*;
 import javax.vecmath.Point3d;
@@ -80,17 +79,7 @@ public interface ViewportTool {
      */
     void setFrameOfReference(FrameOfReference index);
 
-    /**
-     * This is called when the OpenGL context is created.  It should create any resources.
-     * @param gl3 the OpenGL context.
-     */
-    void init(GL3 gl3);
 
-    /**
-     * This is called when the OpenGL context is destroyed.  It should release any resources.
-     * @param gl3 the OpenGL context.
-     */
-    void dispose(GL3 gl3);
 
     /**
      * Build a Swing Component that represents this Tool.

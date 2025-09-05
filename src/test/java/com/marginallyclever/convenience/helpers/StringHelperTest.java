@@ -1,6 +1,5 @@
 package com.marginallyclever.convenience.helpers;
 
-import com.marginallyclever.convenience.helpers.StringHelper;
 import org.junit.jupiter.api.Test;
 
 import javax.vecmath.Matrix3d;

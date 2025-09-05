@@ -2,13 +2,13 @@ package com.marginallyclever.ro3.apps.viewport.renderpass;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLContext;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
@@ -49,6 +49,7 @@ public class DrawMeshes extends AbstractRenderPass {
 
     public DrawMeshes() {
         super("Meshes");
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"DrawMeshes.shadowQuad",shadowQuad);
 
         shadowQuad.setRenderStyle(GL3.GL_QUADS);
         float v = 100;
@@ -63,27 +64,22 @@ public class DrawMeshes extends AbstractRenderPass {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
 
         try {
-            meshShader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "mesh.vert"),
-                    ResourceHelper.readResource(this.getClass(), "mesh.frag"));
+            var sf = Registry.shaderFactory;
+            var spf = Registry.shaderProgramFactory;
+            meshShader = spf.get(Lifetime.APPLICATION,"meshShader",
+                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"mesh.vert")),
+                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"mesh.frag"))
+            );
+            shadowShader = spf.get(Lifetime.APPLICATION,"shadowShader",
+                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"shadow.vert")),
+                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"shadow.frag"))
+            );
+            outlineShader = spf.get(Lifetime.APPLICATION,"outlineShader",
+                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"outline_330.vert")),
+                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"outline_330.frag"))
+            );
         } catch (Exception e) {
-            logger.error("Failed to load mesh shader", e);
-        }
-
-        try {
-            shadowShader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "shadow.vert"),
-                    ResourceHelper.readResource(this.getClass(), "shadow.frag"));
-        } catch (Exception e) {
-            logger.error("Failed to load shadow shader", e);
-        }
-
-        try {
-            outlineShader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "outline_330.vert"),
-                    ResourceHelper.readResource(this.getClass(), "outline_330.frag"));
-        } catch (Exception e) {
-            logger.error("Failed to load outline shader", e);
+            logger.error("Failed to load shader", e);
         }
 
         createShadowFBOandDepthMap(gl3);
@@ -172,40 +168,18 @@ public class DrawMeshes extends AbstractRenderPass {
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        unloadAllMeshes(gl3);
-        meshShader.delete(gl3);
-        shadowShader.delete(gl3);
-        outlineShader.delete(gl3);
-        shadowQuad.unload(gl3);
-
         gl3.glDeleteFramebuffers(1, shadowFBO,0);
         gl3.glDeleteTextures(1, depthMap,0);
     }
 
-    private void unloadAllMeshes(GL3 gl3) {
-        List<Node> toScan = new ArrayList<>(Registry.getScene().getChildren());
-        while(!toScan.isEmpty()) {
-            Node node = toScan.remove(0);
-
-            if(node instanceof MeshInstance meshInstance) {
-                Mesh mesh = meshInstance.getMesh();
-                if(mesh==null) continue;
-                mesh.unload(gl3);
-            }
-
-            toScan.addAll(node.getChildren());
-        }
-    }
-
     @Override
-    public void draw(Viewport viewport) {
+    public void draw(Viewport viewport, GL3 gl3) {
         Camera camera = viewport.getActiveCamera();
         if (camera == null) return;
 
         getSunlight();
 
         boolean originShift = viewport.isOriginShift();
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
 
         var meshMaterial = collectAllMeshes();
         sortMeshMaterialList(meshMaterial);
@@ -298,15 +272,6 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setMatrix4d(gl3,"modelMatrix",m);
         shadowQuad.render(gl3);
         gl3.glEnable(GL3.GL_DEPTH_TEST);
-    }
-
-    private Vector3d getSunlightSource() {
-        Environment env = Registry.getScene().findFirstChild(Environment.class);
-        if(null==env) {
-            env = new Environment();
-            Registry.getScene().addChild(env);
-        }
-        return env.getSunlightSource();
     }
 
     /**

@@ -5,11 +5,13 @@ import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.Plane;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.apps.viewport.renderpass.RenderPassHelper;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
@@ -29,7 +31,6 @@ import java.util.List;
  *
  */
 public class TranslateToolTwoAxis implements ViewportTool {
-    private static final Logger logger = LoggerFactory.getLogger(TranslateToolTwoAxis.class);
     private static double padSize = 1;
     private double localScale = 1;
 
@@ -73,6 +74,8 @@ public class TranslateToolTwoAxis implements ViewportTool {
     public TranslateToolTwoAxis(ColorRGB color) {
         super();
         this.color = color;
+
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"TranslateToolTwoAxis.quadMesh",quadMesh);
 
         quadMesh.addVertex( 0, 0,0);
         quadMesh.addVertex(1, 0,0);
@@ -276,15 +279,6 @@ public class TranslateToolTwoAxis implements ViewportTool {
         if(selectedItems!=null) {
             updatePivotMatrix();
         }
-    }
-
-    @Override
-    public void init(GL3 gl3) {
-    }
-
-    @Override
-    public void dispose(GL3 gl3) {
-        quadMesh.unload(gl3);
     }
 
     @Override

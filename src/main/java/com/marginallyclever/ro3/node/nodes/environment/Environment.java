@@ -1,13 +1,14 @@
 package com.marginallyclever.ro3.node.nodes.environment;
 
 import com.jogamp.opengl.GL3;
-import com.jogamp.opengl.GLAutoDrawable;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.pathtracer.ColorDouble;
 import com.marginallyclever.ro3.apps.pathtracer.PathMesh;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.proceduralmesh.GenerativeMesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
@@ -46,14 +47,6 @@ public class Environment extends Node {
 
     public Environment(String name) {
         super(name);
-
-        if(skyShapeIsSphere) {
-            skyTexture = Registry.textureFactory.load("/com/marginallyclever/ro3/node/nodes/pose/poses/space/milkyway_2020_4k_print.jpg");
-        } else {
-            skyTexture = Registry.textureFactory.load("/com/marginallyclever/ro3/node/nodes/environment/skybox.png");
-        }
-        skyTexture.setDoNotExport(true);
-        updateSkyMesh();
     }
 
     /**
@@ -69,7 +62,7 @@ public class Environment extends Node {
      * +---+---+---+---+</pre>
      */
     private void buildBox() {
-        mesh = new Mesh();
+        mesh = new GenerativeMesh();
         mesh.setRenderStyle(GL3.GL_TRIANGLES);
 
         float adj = 1f/256f;
@@ -83,13 +76,13 @@ public class Environment extends Node {
         int v = 100;
 
         // Top face (z+), split into two triangles
-        mesh.addTexCoord(b, g); mesh.addVertex(-v, v, v); mesh.addNormal(0, 0, -1);
-        mesh.addTexCoord(c, g); mesh.addVertex(v, v, v); mesh.addNormal(0, 0, -1);
-        mesh.addTexCoord(c, e); mesh.addVertex(v, -v, v); mesh.addNormal(0, 0, -1);
+        mesh.addTexCoord(b, g); mesh.addVertex(-v,  v,  v); mesh.addNormal(0, 0, -1);
+        mesh.addTexCoord(c, g); mesh.addVertex( v,  v,  v); mesh.addNormal(0, 0, -1);
+        mesh.addTexCoord(c, e); mesh.addVertex( v, -v,  v); mesh.addNormal(0, 0, -1);
 
-        mesh.addTexCoord(b, g); mesh.addVertex(-v, v, v); mesh.addNormal(0, 0, -1);
-        mesh.addTexCoord(c, e); mesh.addVertex(v, -v, v); mesh.addNormal(0, 0, -1);
-        mesh.addTexCoord(b, e); mesh.addVertex(-v, -v, v); mesh.addNormal(0, 0, -1);
+        mesh.addTexCoord(b, g); mesh.addVertex(-v,  v,  v); mesh.addNormal(0, 0, -1);
+        mesh.addTexCoord(c, e); mesh.addVertex( v, -v,  v); mesh.addNormal(0, 0, -1);
+        mesh.addTexCoord(b, e); mesh.addVertex(-v, -v,  v); mesh.addNormal(0, 0, -1);
 
         // Bottom face (z-), split into two triangles
         mesh.addTexCoord(b, a); mesh.addVertex(-v,  v, -v); mesh.addNormal(0, 0, 1);
@@ -119,20 +112,20 @@ public class Environment extends Node {
         mesh.addTexCoord(e, f); mesh.addVertex(-v, -v, -v); mesh.addNormal(0, 1, 0);
 
         // East face (x+), split into two triangles
-        mesh.addTexCoord(d, g); mesh.addVertex(v, -v,  v); mesh.addNormal(-1, 0, 0);
-        mesh.addTexCoord(c, g); mesh.addVertex(v,  v,  v); mesh.addNormal(-1, 0, 0);
-        mesh.addTexCoord(c, f); mesh.addVertex(v,  v, -v); mesh.addNormal(-1, 0, 0);
+        mesh.addTexCoord(d, g); mesh.addVertex( v, -v,  v); mesh.addNormal(-1, 0, 0);
+        mesh.addTexCoord(c, g); mesh.addVertex( v,  v,  v); mesh.addNormal(-1, 0, 0);
+        mesh.addTexCoord(c, f); mesh.addVertex( v,  v, -v); mesh.addNormal(-1, 0, 0);
 
-        mesh.addTexCoord(d, g); mesh.addVertex(v, -v,  v); mesh.addNormal(-1, 0, 0);
-        mesh.addTexCoord(c, f); mesh.addVertex(v,  v, -v); mesh.addNormal(-1, 0, 0);
-        mesh.addTexCoord(d, f); mesh.addVertex(v, -v, -v); mesh.addNormal(-1, 0, 0);
+        mesh.addTexCoord(d, g); mesh.addVertex( v, -v,  v); mesh.addNormal(-1, 0, 0);
+        mesh.addTexCoord(c, f); mesh.addVertex( v,  v, -v); mesh.addNormal(-1, 0, 0);
+        mesh.addTexCoord(d, f); mesh.addVertex( v, -v, -v); mesh.addNormal(-1, 0, 0);
 
         // West face (x-), split into two triangles
-        mesh.addTexCoord(a, g); mesh.addVertex(-v, -v, v); mesh.addNormal(1, 0, 0);
-        mesh.addTexCoord(b, g); mesh.addVertex(-v,  v, v); mesh.addNormal(1, 0, 0);
+        mesh.addTexCoord(a, g); mesh.addVertex(-v, -v,  v); mesh.addNormal(1, 0, 0);
+        mesh.addTexCoord(b, g); mesh.addVertex(-v,  v,  v); mesh.addNormal(1, 0, 0);
         mesh.addTexCoord(b, f); mesh.addVertex(-v,  v, -v); mesh.addNormal(1, 0, 0);
 
-        mesh.addTexCoord(a, g); mesh.addVertex(-v, -v, v); mesh.addNormal(1, 0, 0);
+        mesh.addTexCoord(a, g); mesh.addVertex(-v, -v,  v); mesh.addNormal(1, 0, 0);
         mesh.addTexCoord(b, f); mesh.addVertex(-v,  v, -v); mesh.addNormal(1, 0, 0);
         mesh.addTexCoord(a, f); mesh.addVertex(-v, -v, -v); mesh.addNormal(1, 0, 0);
     }
@@ -140,13 +133,6 @@ public class Environment extends Node {
     private void buildSphere() {
         mesh = new Sphere(-100);
         ((Sphere)mesh).updateModel();
-    }
-
-    // TODO don't mention opengl directly outside of the rendering code
-    public void dispose(GLAutoDrawable glAutoDrawable) {
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        mesh.unload(gl3);
-        skyTexture.unload();
     }
 
     @Override
@@ -171,7 +157,7 @@ public class Environment extends Node {
         sunlightStrength = from.optDouble("sunlightStrength", sunlightStrength);
         ambientColor = new Color(from.optInt("ambientColor", ambientColor.getRGB()));
         if(from.has("skyTexture")) {
-            skyTexture = Registry.textureFactory.load(from.optString("skyTexture"));
+            skyTexture = Registry.textureFactory.get(Lifetime.SCENE,from.optString("skyTexture"));
         }
         skyShapeIsSphere = from.optBoolean("skyShapeIsSphere", skyShapeIsSphere);
         updateSunlightSource();
@@ -281,13 +267,44 @@ public class Environment extends Node {
     }
 
     private void updateSkyMesh() {
-        // TODO unload the old mesh from opengl
+        maybeUnregister();
         if(isSkyShapeIsSphere()) {
             buildSphere();
         } else {
             buildBox();
         }
+        // register the mesh so it persists if the renderer reloads all meshes
+        Registry.meshFactory.addToPool(Lifetime.SCENE,"Environment.mesh",mesh);
+
         pathMesh = mesh.createPathMesh(MatrixHelper.createIdentityMatrix4());
+    }
+
+    private void maybeUnregister() {
+        if(mesh!=null) {
+            // unregister the old mesh
+            Registry.meshFactory.removeFromPool(mesh);
+            mesh=null;
+        }
+    }
+
+    @Override
+    protected void onAttach() {
+        super.onAttach();
+
+        if(skyShapeIsSphere) {
+            skyTexture = Registry.textureFactory.get(Lifetime.APPLICATION,"/com/marginallyclever/ro3/node/nodes/pose/poses/space/milkyway_2020_4k_print.jpg");
+        } else {
+            skyTexture = Registry.textureFactory.get(Lifetime.APPLICATION,"/com/marginallyclever/ro3/node/nodes/environment/skybox.png");
+        }
+        skyTexture.setDoNotExport(true);
+
+        updateSkyMesh();
+    }
+
+    @Override
+    protected void onDetach() {
+        super.onDetach();
+        maybeUnregister();
     }
 
     public Mesh getSkyMesh() {
@@ -316,8 +333,8 @@ public class Environment extends Node {
     /**
      * Locate the Environment in the scene.  If there is a texture assigned, look up the UV color.
      * If there is no texture, return the sky/sun color.
-     * @param ray
-     * @return
+     * @param ray the ray to check
+     * @return the color of the environment
      */
     public ColorDouble getEnvironmentColor(Ray ray) {
         if(skyTexture == null || pathMesh == null) {

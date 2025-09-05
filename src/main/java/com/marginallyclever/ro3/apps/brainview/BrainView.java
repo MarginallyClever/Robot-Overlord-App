@@ -5,8 +5,7 @@ import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
-import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
-import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
+import com.marginallyclever.ro3.listwithevents.ListListener;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.neuralnetwork.Brain;
 import com.marginallyclever.ro3.node.nodes.neuralnetwork.Neuron;
@@ -22,7 +21,7 @@ import java.util.function.Supplier;
 /**
  * {@link BrainView} visualizes the details of a {@link Brain}, its {@link Neuron}s, and {@link Synapse}s.
  */
-public class BrainView extends App implements ItemAddedListener<Node>, ItemRemovedListener<Node>, ActionListener,
+public class BrainView extends App implements ListListener<Node>, ActionListener,
         MouseListener, MouseMotionListener, MouseWheelListener, SceneChangeListener {
     private final NodeSelector<Brain> brainPath = new NodeSelector<>(Brain.class);
 
@@ -97,8 +96,7 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     @Override
     public void addNotify() {
         super.addNotify();
-        Registry.selection.addItemAddedListener(this);
-        Registry.selection.addItemRemovedListener(this);
+        Registry.selection.addItemListener(this);
         Registry.getPhysics().addActionListener(this);
         Registry.addSceneChangeListener(this);
 
@@ -110,8 +108,7 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
     @Override
     public void removeNotify() {
         super.removeNotify();
-        Registry.selection.removeItemAddedListener(this);
-        Registry.selection.removeItemRemovedListener(this);
+        Registry.selection.removeItemListener(this);
         Registry.removeSceneChangeListener(this);
         if(timer != null) {
             timer.cancel();
@@ -333,7 +330,7 @@ public class BrainView extends App implements ItemAddedListener<Node>, ItemRemov
         } else {
             // if no shift or ctrl, clear the selection.
             if ((e.getModifiersEx() & (InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK)) == 0) {
-                Registry.selection.removeAll();
+                Registry.selection.clear();
             }
         }
     }

@@ -2,13 +2,13 @@ package com.marginallyclever.ro3.apps.viewport.renderpass;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLContext;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.DHParameter;
@@ -34,6 +34,7 @@ public class DrawDHParameters extends AbstractRenderPass {
 
     public DrawDHParameters() {
         super("DH Parameters");
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"DrawDHParameters.mesh",mesh);
 
         // add mesh to a list that can be unloaded and reloaded as needed.
         mesh.setRenderStyle(GL3.GL_LINES);
@@ -47,31 +48,25 @@ public class DrawDHParameters extends AbstractRenderPass {
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
         try {
-            shader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.vert"),
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.frag"));
+            var sf = Registry.shaderFactory;
+            var spf = Registry.shaderProgramFactory;
+            shader = spf.get(Lifetime.APPLICATION,"DHParameterShader",
+                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
+                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
+            );
         } catch(IOException e) {
             logger.error("Failed to create default shader.",e);
         }
     }
 
     @Override
-    public void dispose(GLAutoDrawable glAutoDrawable) {
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        mesh.unload(gl3);
-        shader.delete(gl3);
-    }
-
-    @Override
-    public void draw(Viewport viewport) {
+    public void draw(Viewport viewport, GL3 gl3) {
         Camera camera = viewport.getActiveCamera();
         if(camera==null) return;
 
         boolean originShift = viewport.isOriginShift();
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
 
         gl3.glDisable(GL3.GL_DEPTH_TEST);
         gl3.glDisable(GL3.GL_TEXTURE_2D);
@@ -97,7 +92,7 @@ public class DrawDHParameters extends AbstractRenderPass {
         List<Node> toScan = new ArrayList<>();
         toScan.add(Registry.getScene());
         while(!toScan.isEmpty()) {
-            Node node = toScan.remove(0);
+            Node node = toScan.removeFirst();
             toScan.addAll(node.getChildren());
 
             if(!(node instanceof DHParameter parameter)) continue;

@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.pathtracer.*;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.raypicking.Hit;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
@@ -102,9 +103,9 @@ public class Material extends Node {
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        if(from.has("texture")) diffuseTexture = Registry.textureFactory.load(from.getString("texture"));
-        if(from.has("specularTexture")) specularTexture = Registry.textureFactory.load(from.getString("specularTexture"));
-        if(from.has("normalTexture")) normalTexture = Registry.textureFactory.load(from.getString("normalTexture"));
+        if(from.has("texture")) diffuseTexture = Registry.textureFactory.get(Lifetime.SCENE,from.getString("texture"));
+        if(from.has("specularTexture")) specularTexture = Registry.textureFactory.get(Lifetime.SCENE,from.getString("specularTexture"));
+        if(from.has("normalTexture")) normalTexture = Registry.textureFactory.get(Lifetime.SCENE,from.getString("normalTexture"));
         if(from.has("diffuseColor")) diffuseColor = new Color(from.getInt("diffuseColor"),true);
         if(from.has("specularColor")) specularColor = new Color(from.getInt("specularColor"),true);
         if(from.has("emissionColor")) emissionColor = new Color(from.getInt("emissionColor"),true);

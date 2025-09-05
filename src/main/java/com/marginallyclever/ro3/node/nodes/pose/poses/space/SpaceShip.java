@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.node.nodes.pose.poses.space;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
@@ -25,7 +26,7 @@ public class SpaceShip extends Pose {
 
         var mesh = new MeshInstance();
         this.addChild(mesh);
-        mesh.setMesh(Registry.meshFactory.load("C:/Users/aggra/Desktop/RO3 test scenes/serenity.obj"));
+        mesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE,"C:/Users/aggra/Desktop/RO3 test scenes/serenity.obj"));
         var mat = new Material();
         this.addChild(mat);
     }

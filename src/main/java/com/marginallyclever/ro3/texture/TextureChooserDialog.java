@@ -1,8 +1,7 @@
 package com.marginallyclever.ro3.texture;
 
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.listwithevents.ItemAddedListener;
-import com.marginallyclever.ro3.listwithevents.ItemRemovedListener;
+import com.marginallyclever.ro3.listwithevents.ListListener;
 import com.marginallyclever.ro3.mesh.MeshFactoryDialog;
 
 import javax.swing.*;
@@ -17,7 +16,7 @@ import java.util.Objects;
  * <p>TODO In the future it would be nice to count references and unload it when no longer needed.</p>
  */
 public class TextureChooserDialog extends JPanel
-        implements ItemAddedListener<TextureWithMetadata>, ItemRemovedListener<TextureWithMetadata> {
+        implements ListListener<TextureWithMetadata> {
     private final DefaultListModel<TextureWithMetadata> model = new DefaultListModel<>();
     private final JList<TextureWithMetadata> list = new JList<>();
     private final JToolBar toolBar = new JToolBar();
@@ -89,7 +88,7 @@ public class TextureChooserDialog extends JPanel
             }
         });
 
-        for (TextureWithMetadata mesh : Registry.textureFactory.getPool().getList()) {
+        for (TextureWithMetadata mesh : Registry.textureFactory.getAllResources()) {
             model.addElement(mesh);
         }
         list.setModel(model);
@@ -100,15 +99,13 @@ public class TextureChooserDialog extends JPanel
     @Override
     public void addNotify() {
         super.addNotify();
-        Registry.textureFactory.getPool().addItemAddedListener(this);
-        Registry.textureFactory.getPool().addItemRemovedListener(this);
+        Registry.textureFactory.addItemListener(this);
     }
 
     @Override
     public void removeNotify() {
         super.removeNotify();
-        Registry.textureFactory.getPool().removeItemAddedListener(this);
-        Registry.textureFactory.getPool().removeItemRemovedListener(this);
+        Registry.textureFactory.removeItemListener(this);
     }
 
     private void updateView() {

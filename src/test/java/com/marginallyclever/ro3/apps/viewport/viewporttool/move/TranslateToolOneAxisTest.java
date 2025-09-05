@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.apps.viewport.viewporttool.move;
 
-import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;

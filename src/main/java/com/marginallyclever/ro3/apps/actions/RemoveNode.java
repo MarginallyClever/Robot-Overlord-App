@@ -27,7 +27,7 @@ public class RemoveNode extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         logger.info("Removing node(s).");
         var selection = new ArrayList<>(Registry.selection.getList());
-        Registry.selection.removeAll();
+        Registry.selection.clear();
         UndoSystem.addEvent(new com.marginallyclever.ro3.apps.commands.RemoveNode(selection));
     }
 }

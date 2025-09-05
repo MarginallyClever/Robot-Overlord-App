@@ -15,9 +15,6 @@ public class AABB implements BoundingVolume, Serializable {
 	private final Point3d max = new Point3d(-Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE);  // max limits
 	private final Point3d min = new Point3d(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);  // min limits
 
-	private Mesh myShape;
-
-
 	public AABB() {
 		super();
 	}
@@ -27,10 +24,19 @@ public class AABB implements BoundingVolume, Serializable {
 		set(aabb);
 	}
 
+    /**
+     * Create an AABB with the given bounds.
+     * @param max upper bounds
+     * @param min lower bounds
+     */
+    public AABB(Point3d max, Point3d min) {
+        this();
+        setBounds(max, min);
+    }
+
 	public void set(AABB b) {
 		max.set(b.max);
 		min.set(b.min);
-		myShape = b.myShape;
 	}
 
 	/**
@@ -67,14 +73,6 @@ public class AABB implements BoundingVolume, Serializable {
 		return max.z- min.z;
 	}
 
-	public void setShape(Mesh shape) {
-		myShape=shape;
-	}
-	
-	public Mesh getShape() {
-		return myShape;
-	}
-
 	public RayAABBHit intersect(Ray ray) {
 		return IntersectionHelper.rayBox(ray, min, max);
 	}
@@ -84,24 +82,19 @@ public class AABB implements BoundingVolume, Serializable {
 	 * @return 8 new AABBs that are subdivisions of this AABB.
 	 */
 	public AABB [] subdivide() {
-		AABB [] children = new AABB[8];
-		for(int i=0;i<children.length;++i) {
-			children[i] = new AABB();
-			children[i].setShape(myShape);
-		}
-
 		Point3d mid = new Point3d(max);
 		mid.add(min);
 		mid.scale(0.5);
 
-		children[0].setBounds(new Point3d(mid.x, mid.y, mid.z), new Point3d(min.x, min.y, min.z));
-		children[1].setBounds(new Point3d(mid.x, mid.y, max.z), new Point3d(min.x, min.y, mid.z));
-		children[2].setBounds(new Point3d(mid.x, max.y, mid.z), new Point3d(min.x, mid.y, min.z));
-		children[3].setBounds(new Point3d(mid.x, max.y, max.z), new Point3d(min.x, mid.y, mid.z));
-		children[4].setBounds(new Point3d(max.x, mid.y, mid.z), new Point3d(mid.x, min.y, min.z));
-		children[5].setBounds(new Point3d(max.x, mid.y, max.z), new Point3d(mid.x, min.y, mid.z));
-		children[6].setBounds(new Point3d(max.x, max.y, mid.z), new Point3d(mid.x, mid.y, min.z));
-		children[7].setBounds(new Point3d(max.x, max.y, max.z), new Point3d(mid.x, mid.y, mid.z));
+        AABB [] children = new AABB[8];
+		children[0] = new AABB(new Point3d(mid.x, mid.y, mid.z), new Point3d(min.x, min.y, min.z));
+		children[1] = new AABB(new Point3d(mid.x, mid.y, max.z), new Point3d(min.x, min.y, mid.z));
+		children[2] = new AABB(new Point3d(mid.x, max.y, mid.z), new Point3d(min.x, mid.y, min.z));
+		children[3] = new AABB(new Point3d(mid.x, max.y, max.z), new Point3d(min.x, mid.y, mid.z));
+		children[4] = new AABB(new Point3d(max.x, mid.y, mid.z), new Point3d(mid.x, min.y, min.z));
+		children[5] = new AABB(new Point3d(max.x, mid.y, max.z), new Point3d(mid.x, min.y, mid.z));
+		children[6] = new AABB(new Point3d(max.x, max.y, mid.z), new Point3d(mid.x, mid.y, min.z));
+		children[7] = new AABB(new Point3d(max.x, max.y, max.z), new Point3d(mid.x, mid.y, mid.z));
 
 		return children;
 	}

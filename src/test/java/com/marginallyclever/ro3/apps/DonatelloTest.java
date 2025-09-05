@@ -1,11 +1,9 @@
 package com.marginallyclever.ro3.apps;
 
-import com.marginallyclever.ro3.apps.donatello.Donatello;
 import com.marginallyclever.ro3.apps.donatello.GraphViewPanel;
 import org.junit.jupiter.api.Test;
 
 import java.awt.*;
-import java.util.Random;
 
 public class DonatelloTest {
     @Test

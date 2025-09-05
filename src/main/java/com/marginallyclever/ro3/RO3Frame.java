@@ -10,15 +10,15 @@ import com.marginallyclever.communications.application.TextInterfaceToSessionLay
 import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.about.AboutPanel;
+import com.marginallyclever.ro3.apps.brainview.BrainView;
 import com.marginallyclever.ro3.apps.donatello.Donatello;
 import com.marginallyclever.ro3.apps.editor.EditorPanel;
 import com.marginallyclever.ro3.apps.log.LogPanel;
-import com.marginallyclever.ro3.apps.brainview.BrainView;
 import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.ode4j.ODE4JPanel;
 import com.marginallyclever.ro3.apps.pathtracer.PathTracerPanel;
-import com.marginallyclever.ro3.apps.viewport.OpenGLPanel;
+import com.marginallyclever.ro3.apps.viewport.OpenGL3Panel;
 import com.marginallyclever.ro3.apps.viewport.ViewportSettingsPanel;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportToolPanel;
 import com.marginallyclever.ro3.apps.webcam.WebCamPanel;
@@ -50,7 +50,7 @@ public class RO3Frame extends JFrame {
 
     private final List<DockingPanel> windows = new ArrayList<>();
 
-    private final OpenGLPanel viewportPanel;
+    private final OpenGL3Panel viewportPanel;
     private final LogPanel logPanel;
     private final EditorPanel editPanel;
     private final WebCamPanel webCamPanel;
@@ -72,7 +72,7 @@ public class RO3Frame extends JFrame {
 
         logPanel = new LogPanel();
         editPanel = new EditorPanel();
-        viewportPanel = new OpenGLPanel();
+        viewportPanel = new OpenGL3Panel();
         viewportSettingsPanel = new ViewportSettingsPanel(viewportPanel);
         viewportToolPanel = new ViewportToolPanel(viewportPanel);
         webCamPanel = new WebCamPanel();

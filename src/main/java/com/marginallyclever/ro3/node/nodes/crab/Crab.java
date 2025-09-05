@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.node.nodes.crab;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Box;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
@@ -99,8 +100,6 @@ public class Crab extends Node {
 
     // animation strategies
     private CrabWalkStategy chosenStrategy = CrabWalkStategy.SIT_DOWN;
-    // animation timer
-    private double gaitCycleTime = 0;
     // flags for sit and stand
     boolean firstSit = false;
     boolean firstStand = false;
@@ -156,7 +155,7 @@ public class Crab extends Node {
     private void fixMeshes() {
         // body
         var bodyMesh = body.findFirstChild(MeshInstance.class);
-        bodyMesh.setMesh(Registry.meshFactory.load(RESOURCE_PATH+"body.stl"));
+        bodyMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE,RESOURCE_PATH+"body.stl"));
         var m = new Matrix4d();
         var m2 = new Matrix4d();
         m.setIdentity();
@@ -168,13 +167,13 @@ public class Crab extends Node {
         for(var leg : legs) {
             // coxa
             var meshCoxa = leg.coxa.findFirstChild(MeshInstance.class);
-            meshCoxa.setMesh(Registry.meshFactory.load(RESOURCE_PATH+"coxa.stl"));
+            meshCoxa.setMesh(Registry.meshFactory.get(Lifetime.SCENE,RESOURCE_PATH+"coxa.stl"));
             // femur
             var meshFemur = leg.femur.findFirstChild(MeshInstance.class);
-            meshFemur.setMesh(Registry.meshFactory.load(RESOURCE_PATH+"femur.stl"));
+            meshFemur.setMesh(Registry.meshFactory.get(Lifetime.SCENE,RESOURCE_PATH+"femur.stl"));
             // tibia
             var meshTibia = leg.tibia.findFirstChild(MeshInstance.class);
-            meshTibia.setMesh(Registry.meshFactory.load(RESOURCE_PATH+"tibia.stl"));
+            meshTibia.setMesh(Registry.meshFactory.get(Lifetime.SCENE,RESOURCE_PATH+"tibia.stl"));
         }
     }
 
@@ -232,8 +231,6 @@ public class Crab extends Node {
     @Override
     public void update(double dt) {
         super.update(dt);
-
-        gaitCycleTime+=dt;
 
         if(chosenStrategy != CrabWalkStategy.TAP_ONE_TOE) {
             checkAllLegsTouchingGround();
@@ -355,10 +352,11 @@ public class Crab extends Node {
             adjustBodyHeight(dt, standingHeight);
 
             var bodyWorld = body.getWorld();
+            /*
             if (bodyWorld.m23 >= standingHeight &&
                 bodyWorld.m23 < standingHeight + STANDING_EPSILON) {
                 // now we are standing.
-            }
+            }*/
             if( bodyWorld.m23 >= 0.01) {
                 // we are standing.
                 firstStand = true;

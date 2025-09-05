@@ -31,48 +31,39 @@ public class TestListWithEvents {
     }
 
     @Test
-    public void testAddItemAddedListenerAndFireItemAdded() {
-        ItemAddedListener<String> listener = (source, item) -> assertEquals(testItem, item);
-        listWithEvents.addItemAddedListener(listener);
-        listWithEvents.add(testItem);
-    }
+    public void testListeners() {
+        final boolean[] add = {false};
+        final boolean[] remove = {false};
 
-    @Test
-    public void testRemoveItemAddedListener() {
-        ItemAddedListener<String> listener = (source, item) -> fail("Listener should have been removed");
-        listWithEvents.addItemAddedListener(listener);
-        listWithEvents.removeItemAddedListener(listener);
-        listWithEvents.add(testItem);
-    }
+        var listener = new ListListener<String>() {
+            @Override
+            public void itemAdded(Object source, String item) {
+                add[0] = true;
+            }
 
-    @Test
-    public void testAddItemRemovedListenerAndFireItemRemoved() {
+            @Override
+            public void itemRemoved(Object source, String item) {
+                remove[0] = true;
+            }
+        };
+        listWithEvents.addItemListener(listener);
         listWithEvents.add(testItem);
-        ItemRemovedListener<String> listener = (source, item) -> assertEquals(testItem, item);
-        listWithEvents.addItemRemovedListener(listener);
         listWithEvents.remove(testItem);
-    }
-
-    @Test
-    public void testRemoveItemRemovedListener() {
-        listWithEvents.add(testItem);
-        ItemRemovedListener<String> listener = (source, item) -> fail("Listener should have been removed");
-        listWithEvents.addItemRemovedListener(listener);
-        listWithEvents.removeItemRemovedListener(listener);
-        listWithEvents.remove(testItem);
+        assertTrue(add[0]);
+        assertTrue(remove[0]);
     }
 
     @Test
     public void testGetList() {
         listWithEvents.add(testItem);
         assertEquals(1, listWithEvents.getList().size());
-        assertEquals(testItem, listWithEvents.getList().get(0));
+        assertEquals(testItem, listWithEvents.getList().getFirst());
     }
 
     @Test
-    public void testRemoveAll() {
+    public void testClear() {
         listWithEvents.add(testItem);
-        listWithEvents.removeAll();
+        listWithEvents.clear();
         assertEquals(0, listWithEvents.getList().size());
     }
 

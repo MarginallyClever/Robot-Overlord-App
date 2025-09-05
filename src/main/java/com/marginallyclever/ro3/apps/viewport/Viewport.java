@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.apps.viewport;
 
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
@@ -8,8 +9,8 @@ import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.viewport.renderpass.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.move.RotateToolMulti;
-import com.marginallyclever.ro3.apps.viewport.viewporttool.move.RotateToolOneAxis;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.move.TranslateToolMulti;
+import com.marginallyclever.ro3.listwithevents.ListListener;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
@@ -284,6 +285,30 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
         for( var t : viewportTools) t.setFrameOfReference(frameOfReference);
     }
 
+    private final ListListener<Camera> cameraListener = new ListListener<>() {
+        @Override
+        public void itemAdded(Object source, Camera item) {
+            addCamera(source,item);
+        }
+
+        @Override
+        public void itemRemoved(Object source, Camera item) {
+            removeCamera(source,item);
+        }
+    };
+
+    private final ListListener<Node> selectionChangedListener = new ListListener<>() {
+        @Override
+        public void itemAdded(Object source, Node item) {
+            selectionChanged(source,item);
+        }
+
+        @Override
+        public void itemRemoved(Object source, Node item) {
+            selectionChanged(source,item);
+        }
+    };
+
     @Override
     public void addNotify() {
         super.addNotify();
@@ -294,10 +319,8 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
         }
 
         Registry.addSceneChangeListener(this);
-        Registry.cameras.addItemAddedListener(this::addCamera);
-        Registry.cameras.addItemRemovedListener(this::removeCamera);
-        Registry.selection.addItemAddedListener(this::selectionChanged);
-        Registry.selection.addItemRemovedListener(this::selectionChanged);
+        Registry.cameras.addItemListener(cameraListener);
+        Registry.selection.addItemListener(selectionChangedListener);
         updateCameraList();
     }
 
@@ -306,10 +329,8 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
         super.removeNotify();
         saveRenderPassState();
         Registry.removeSceneChangeListener(this);
-        Registry.cameras.removeItemAddedListener(this::addCamera);
-        Registry.cameras.removeItemRemovedListener(this::removeCamera);
-        Registry.selection.removeItemAddedListener(this::selectionChanged);
-        Registry.selection.removeItemRemovedListener(this::selectionChanged);
+        Registry.cameras.removeItemListener(cameraListener);
+        Registry.selection.removeItemListener(selectionChangedListener);
     }
 
     protected void addRenderPass(Object source,RenderPass renderPass) {
@@ -405,11 +426,11 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
         toolBar.add(cameraSelector);
     }
 
-    public void renderAllPasses() {
+    public void renderAllPasses(GL3 gl3) {
         // renderPasses that are always on
         for(RenderPass pass : renderPasses.getList()) {
             if(pass.getActiveStatus()==RenderPass.NEVER) continue;
-            pass.draw(this);
+            pass.draw(this,gl3);
         }
     }
 
@@ -735,6 +756,6 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
 
     public void setTraceGL(boolean traceGL) {
         Preferences pref = Preferences.userNodeForPackage(this.getClass());
-        pref.putBoolean("traceGL",traceGL);
+        pref.putBoolean("traceGL", traceGL);
     }
 }

@@ -7,7 +7,6 @@ import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
-import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 
@@ -262,16 +261,6 @@ public class RotateToolMulti implements ViewportTool {
         frameOfReference = index;
         for (ViewportTool t : tools) t.setFrameOfReference(index);
         updatePivotMatrix();
-    }
-
-    @Override
-    public void init(GL3 gl3) {
-        for (ViewportTool t : tools) t.init(gl3);
-    }
-
-    @Override
-    public void dispose(GL3 gl3) {
-        for (ViewportTool t : tools) t.dispose(gl3);
     }
 
     @Override

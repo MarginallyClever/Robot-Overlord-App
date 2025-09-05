@@ -2,13 +2,13 @@ package com.marginallyclever.ro3.apps.viewport.renderpass;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLContext;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.AABB;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.node.Node;
@@ -37,6 +37,7 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
 
     public DrawBoundingBoxes() {
         super("Bounding Boxes");
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"DrawBoundingBoxes.mesh",mesh);
 
         mesh.setRenderStyle(GL3.GL_LINES);
         // add 8 points of a unit cube centered on the origin
@@ -67,29 +68,24 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
         try {
-            shader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.vert"),
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.frag"));
+            var sf = Registry.shaderFactory;
+            var spf = Registry.shaderProgramFactory;
+            shader = spf.get(Lifetime.APPLICATION,"boundingBoxShader",
+                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
+                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
+            );
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }
     }
 
     @Override
-    public void dispose(GLAutoDrawable glAutoDrawable) {
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        mesh.unload(gl3);
-        shader.delete(gl3);
-    }
-
-    @Override
-    public void draw(Viewport viewport) {
+    public void draw(Viewport viewport, GL3 gl3) {
         Camera camera = viewport.getActiveCamera();
         if(camera==null) return;
         boolean originShift = viewport.isOriginShift();
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
+
         shader.use(gl3);
         shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix(originShift));
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));
@@ -110,7 +106,7 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
         var list = Registry.selection.getList();
         var toScan = new ArrayList<>(Registry.getScene().getChildren());
         while(!toScan.isEmpty()) {
-            Node node = toScan.remove(0);
+            Node node = toScan.removeFirst();
             toScan.addAll(node.getChildren());
 
             if(!(node instanceof MeshInstance meshInstance)) continue;

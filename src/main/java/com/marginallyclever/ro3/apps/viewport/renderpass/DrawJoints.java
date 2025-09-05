@@ -2,12 +2,12 @@ package com.marginallyclever.ro3.apps.viewport.renderpass;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLContext;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.CircleXY;
 import com.marginallyclever.ro3.node.Node;
@@ -38,6 +38,9 @@ public class DrawJoints extends AbstractRenderPass {
 
     public DrawJoints() {
         super("Joints");
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "DrawJoints.currentAngleMesh", currentAngleMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "DrawJoints.circleFanMesh", circleFanMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "DrawJoints.linearRangeMesh", linearRangeMesh);
 
         currentAngleMesh.setRenderStyle(GL3.GL_LINES);
         currentAngleMesh.addColor(1.0f,1.0f,1.0f,1);  currentAngleMesh.addVertex(0,0,0);  // origin
@@ -50,33 +53,25 @@ public class DrawJoints extends AbstractRenderPass {
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
         try {
-            shader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.vert"),
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.frag"));
+            var sf = Registry.shaderFactory;
+            var spf = Registry.shaderProgramFactory;
+            shader = spf.get(Lifetime.APPLICATION,"jointShader",
+                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
+                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
+            );
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }
     }
 
     @Override
-    public void dispose(GLAutoDrawable glAutoDrawable) {
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        currentAngleMesh.unload(gl3);
-        circleFanMesh.unload(gl3);
-        linearRangeMesh.unload(gl3);
-        shader.delete(gl3);
-    }
-
-    @Override
-    public void draw(Viewport viewport) {
+    public void draw(Viewport viewport, GL3 gl3) {
         Camera camera = viewport.getActiveCamera();
         if(camera==null) return;
 
         boolean originShift = viewport.isOriginShift();
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
 
         shader.use(gl3);
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));
@@ -97,13 +92,16 @@ public class DrawJoints extends AbstractRenderPass {
 
         var toScan = new ArrayList<>(Registry.getScene().getChildren());
         while(!toScan.isEmpty()) {
-            Node node = toScan.remove(0);
+            Node node = toScan.removeFirst();
             toScan.addAll(node.getChildren());
 
-            if(getActiveStatus()==SOMETIMES && !list.contains(node)) continue;
+            if( getActiveStatus() == SOMETIMES && !list.contains(node) ) continue;
 
-            if(node instanceof HingeJoint joint) renderHinge(gl3,joint,list,originShift,cameraWorldPos);
-            else if(node instanceof LinearJoint joint) renderLinear(gl3,joint,list,originShift,cameraWorldPos);
+            if(node instanceof HingeJoint hinge) {
+                renderHinge(gl3,hinge,list,originShift,cameraWorldPos);
+            } else if(node instanceof LinearJoint linear) {
+                renderLinear(gl3,linear,list,originShift,cameraWorldPos);
+            }
         }
 
         gl3.glEnable(GL3.GL_DEPTH_TEST);

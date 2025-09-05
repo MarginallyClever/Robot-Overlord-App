@@ -46,7 +46,7 @@ public class AboutPanel extends App {
     }
 
     private void loadAboutFile(JEditorPane editorPane) {
-        // Get the URL of the "about.html" resource file
+        // Get the URL of the "about.html" item file
         try(BufferedInputStream stream = new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(("about.html"))))) {
             // Read the file content into a String
             String aboutFileContent = new String(stream.readAllBytes());

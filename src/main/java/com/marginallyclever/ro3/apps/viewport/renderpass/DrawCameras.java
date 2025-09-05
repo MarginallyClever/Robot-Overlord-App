@@ -2,13 +2,13 @@ package com.marginallyclever.ro3.apps.viewport.renderpass;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLContext;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import org.slf4j.Logger;
@@ -32,6 +32,9 @@ public class DrawCameras extends AbstractRenderPass {
 
     public DrawCameras() {
         super("Cameras");
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"DrawCameras.frustumMesh",frustumMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"DrawCameras.rayMesh",rayMesh);
+
         setupMeshFrustum();
         setupMeshRay();
     }
@@ -75,11 +78,13 @@ public class DrawCameras extends AbstractRenderPass {
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
         try {
-            shader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.vert"),
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.frag"));
+            var sf = Registry.shaderFactory;
+            var spf = Registry.shaderProgramFactory;
+            shader = spf.get(Lifetime.APPLICATION,"CameraShader",
+                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
+                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
+            );
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }
@@ -88,19 +93,16 @@ public class DrawCameras extends AbstractRenderPass {
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        rayMesh.unload(gl3);
-        frustumMesh.unload(gl3);
-        shader.delete(gl3);
+        shader.unload(gl3);
     }
 
     @Override
-    public void draw(Viewport viewport) {
+    public void draw(Viewport viewport, GL3 gl3) {
         Camera camera = viewport.getActiveCamera();
         if(camera==null) return;
 
         boolean originShift = viewport.isOriginShift();
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
 
         shader.use(gl3);
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));

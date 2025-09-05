@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.texture;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
+import com.marginallyclever.ro3.factories.Lifetime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,7 @@ public class TextureFactoryDialog {
         List<FileFilter> filters = Registry.textureFactory.getAllExtensions();
         if (filters.isEmpty()) throw new RuntimeException("No filters found?!");
         if (filters.size() == 1) {
-            chooser.setFileFilter(filters.get(0));
+            chooser.setFileFilter(filters.getFirst());
         } else {
             for (FileFilter f : filters) {
                 chooser.addChoosableFileFilter(f);
@@ -42,7 +43,7 @@ public class TextureFactoryDialog {
         int returnVal = chooser.showOpenDialog(parent);
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             String absPath = chooser.getSelectedFile().getAbsolutePath();
-            lastTextureLoaded = Registry.textureFactory.load(absPath);
+            lastTextureLoaded = Registry.textureFactory.get(Lifetime.SCENE,absPath);
             if(lastTextureLoaded==null) {
                 logger.error("Failed to load from "+absPath);
                 returnVal = JFileChooser.CANCEL_OPTION;

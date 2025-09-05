@@ -4,6 +4,7 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.pathtracer.PathMesh;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
@@ -54,11 +55,11 @@ public class MeshInstance extends Pose {
     public void setMesh(Mesh mesh) {
         if (this.mesh == mesh) return;
         if(mesh!=null) {
-            mesh.removePropertyChangeListener((e)->fireMeshChanged());
+            mesh.removePropertyChangeListener((_)->fireMeshChanged());
         }
         this.mesh = mesh;
         if(mesh!=null) {
-            mesh.addPropertyChangeListener((e) -> fireMeshChanged());
+            mesh.addPropertyChangeListener((_) -> fireMeshChanged());
         }
         fireMeshChanged();
     }
@@ -127,11 +128,11 @@ public class MeshInstance extends Pose {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/poses/icons8-mesh-16.png")));
     }
 
-    public void addPropertyChangedListener(PropertyChangeListener listener) {
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
         listeners.add(PropertyChangeListener.class,listener);
     }
 
-    public void removePropertyChangedListener(PropertyChangeListener listener) {
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
         listeners.remove(PropertyChangeListener.class,listener);
     }
 
@@ -161,7 +162,7 @@ public class MeshInstance extends Pose {
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
         if(from.has("mesh")) {
-            mesh = Registry.meshFactory.load(from.getString("mesh"));
+            mesh = Registry.meshFactory.get(Lifetime.SCENE,from.getString("mesh"));
         } else if(from.has("proceduralMesh")) {
             var procMesh = from.getJSONObject("proceduralMesh");
             var pmesh = ProceduralMeshFactory.createMesh(procMesh.getString("type"));

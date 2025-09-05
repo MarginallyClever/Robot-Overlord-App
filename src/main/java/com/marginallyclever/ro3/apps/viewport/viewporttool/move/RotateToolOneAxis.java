@@ -3,11 +3,13 @@ package com.marginallyclever.ro3.apps.viewport.viewporttool.move;
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.apps.viewport.renderpass.RenderPassHelper;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.CircleXY;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Waldo;
@@ -52,11 +54,6 @@ public class RotateToolOneAxis implements ViewportTool {
     private static double gripRadius = 1.0;
 
     /**
-     * The number of segments to use when drawing the ring.
-     */
-    private final int ringResolution = 64;
-
-    /**
      * The viewport to which this tool is attached.
      */
     private Viewport viewport;
@@ -89,7 +86,7 @@ public class RotateToolOneAxis implements ViewportTool {
     /**
      * which axis of rotation will be used?  0,1,2 = x,y,z
      */
-    private int axisOfRotation = 2;
+    private int axisOfRotation;
     private boolean cursorOverHandle = false;
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
     private final Color color;
@@ -103,6 +100,11 @@ public class RotateToolOneAxis implements ViewportTool {
     public RotateToolOneAxis(Color color) {
         super();
         this.color = color;
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "RotateToolOneAxis.markerMesh", markerMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "RotateToolOneAxis.angleMesh", angleMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "RotateToolOneAxis.ringMesh", ringMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "RotateToolOneAxis.waldo", waldo);
+
         buildMarkerMesh();
         buildAngleMesh();
         ringMesh.updateModel();
@@ -585,16 +587,6 @@ public class RotateToolOneAxis implements ViewportTool {
         }
     }
 
-    @Override
-    public void init(GL3 gl3) {
-    }
-
-    @Override
-    public void dispose(GL3 gl3) {
-        markerMesh.unload(gl3);
-        ringMesh.unload(gl3);
-        waldo.unload(gl3);
-    }
 
     @Override
     public void getComponents(List<JPanel> list) {}

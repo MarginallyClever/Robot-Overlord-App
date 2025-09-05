@@ -5,27 +5,20 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
+import java.awt.*;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 
 /**
- * <p>Use JOGL to open a GLJPanel in a JFrame and render a triangle.
- * Color each corner of the triangle RGB and interpolate the colors across the triangle.
- * Use GL3 (the old fixed-function pipeline) to do this, which also means creating minimal shader programs.</p>
- * <p>To use GL3 every mesh mush now be compiled into a special buffer that requires at least one Vertex Access Object
- * (VAO) and a Vertex Buffer Object (VBO), which is filled with your actual coordinates.  This data can now be loaded
- * once.  A GLSL program compiled and executed on the video card will use the VBO to render the dots on the screen.
- * Because the high-performance pipeline has taken over everything, you must also do your transforms in the GLSL script.</p>
- * <p>CC-BY-SA 2025-08-16 Dan Royer (dan@marginallyclever.com)</p>
+ * Simple test of a shader program with vertex and fragment shaders.
  */
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless environment")
-public class MinimalOpenGL3 extends JPanel implements GLEventListener {
-    private static final Logger logger = LoggerFactory.getLogger(MinimalOpenGL3.class);
+public class ShaderProgramTest extends JPanel implements GLEventListener {
+    private static final Logger logger = LoggerFactory.getLogger(ShaderProgramTest.class);
     private static final long startTime = System.currentTimeMillis();
 
     private final GLJPanel glPanel;
@@ -36,10 +29,8 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
     private static final int FSAA_SAMPLES = 2;
     private static final int FPS = 60;
 
-    // shader stuff
-    private int shaderId;
     private final String[] vertexCode = {
-            "#version 330 core\n",
+            "#version 400 core\n",
             "layout(location = 0) in vec3 position;\n",
             "layout(location = 1) in vec4 color;\n",
             "uniform mat4 model;\n",
@@ -50,16 +41,17 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
             "}",
     };
     private final String[] fragmentCode = {
-            "#version 330 core\n",
+            "#version 400 core\n",
             "in  vec4 thruColor;\n",
             "out vec4 color;\n",
             "void main() {\n",
             "    color = thruColor;\n",
             "}",
     };
-    private int vertexShaderId;
-    private int fragmentShaderId;
     // connects the matrix on the CPU to the 'model' matrix in the shader script.
+    private Shader vertexShader;
+    private Shader fragmentShader;
+    private ShaderProgram shaderProgram;
     private int matrixId;
 
     // mesh stuff
@@ -79,30 +71,28 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
     private static final int VERTEX_COMPONENTS = 3;
     private static final int COLOR_COMPONENTS = 4;
 
-
     public static void main(String[] args) {
         logger.info("start time "+startTime);
         // create a JFrame, add a JHelloWorldGL2 to it, and make it visible.
         JFrame frame = new JFrame("Hello World GL3");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
-        MinimalOpenGL3 panel = new MinimalOpenGL3();
+        var panel = new ShaderProgramTest();
         frame.setLocationRelativeTo(null);
         frame.add(panel);
         frame.setVisible(true);
     }
 
-    public MinimalOpenGL3() {
+    public ShaderProgramTest() {
         super();
         var capabilities = getCapabilities();
         glPanel = new GLJPanel(capabilities);
-        this.setLayout(new java.awt.BorderLayout());
-        this.add(glPanel, java.awt.BorderLayout.CENTER);
+        this.setLayout(new BorderLayout());
+        this.add(glPanel, BorderLayout.CENTER);
         animator = new FPSAnimator(glPanel, FPS);
     }
 
     private GLCapabilities getCapabilities() {
-        //GLProfile profile = GLProfile.getMaxProgrammable(true);
         GLProfile profile = GLProfile.get(GLProfile.GL3bc);
         GLCapabilities capabilities = new GLCapabilities(profile);
         capabilities.setHardwareAccelerated(HARDWARE_ACCELERATED);
@@ -147,7 +137,7 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
 
         // enable vsync to prevent screen tearing effect
         gl.setSwapInterval(1);
-        
+
         gl.glHint(GL3.GL_LINE_SMOOTH_HINT, GL3.GL_NICEST);
         gl.glEnable(GL3.GL_LINE_SMOOTH);
 
@@ -159,40 +149,16 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
     }
 
     private void initShader(GL3 gl) {
-        shaderId = gl.glCreateProgram();
-        vertexShaderId = loadShader(gl, GL3.GL_VERTEX_SHADER, vertexCode,"vertex");
-        fragmentShaderId = loadShader(gl, GL3.GL_FRAGMENT_SHADER, fragmentCode,"fragment");
+        vertexShader = new Shader(GL3.GL_VERTEX_SHADER, vertexCode,"vertex");
+        fragmentShader = new Shader(GL3.GL_FRAGMENT_SHADER, fragmentCode,"fragment");
+        var list = new ArrayList<Shader>();
+        list.add(vertexShader);
+        list.add(fragmentShader);
+        shaderProgram = new ShaderProgram(list);
 
-        gl.glAttachShader(shaderId, vertexShaderId);
-        gl.glAttachShader(shaderId, fragmentShaderId);
+        shaderProgram.use(gl);
 
-        gl.glLinkProgram(shaderId);
-
-        if (!checkCompileStatus(gl, shaderId, GL3.GL_LINK_STATUS)) {
-            throw new IllegalStateException("Failed to link shader program.");
-        }
-        gl.glValidateProgram(shaderId);
-        if (!checkCompileStatus(gl, shaderId, GL3.GL_VALIDATE_STATUS)) {
-            throw new IllegalStateException("Failed to validate shader program.");
-        }
-
-        matrixId = gl.glGetUniformLocation(shaderId, "model");
-    }
-
-    private int loadShader(GL3 gl, int type, String[] shaderCode, String name) {
-        int shaderId = gl.glCreateShader(type);
-        gl.glShaderSource(shaderId, shaderCode.length, shaderCode, null, 0);
-        gl.glCompileShader(shaderId);
-        if (!checkCompileStatus(gl, shaderId, GL3.GL_COMPILE_STATUS)) {
-            int[] logLength = new int[1];
-            gl.glGetShaderiv(shaderId, GL3.GL_INFO_LOG_LENGTH, logLength, 0);
-
-            byte[] log = new byte[logLength[0]];
-            gl.glGetShaderInfoLog(shaderId, logLength[0], null, 0, log, 0);
-
-            logger.error("Failed to compile "+name+" shader code: " + new String(log));
-        }
-        return shaderId;
+        matrixId = gl.glGetUniformLocation(shaderProgram.getProgramId(), "model");
     }
 
     private void initMesh(GL3 gl) {
@@ -226,7 +192,7 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
         gl.glEnableVertexAttribArray(attribIndex);
         OpenGLHelper.checkGLError(gl,logger);
     }
-    
+
     private void createBuffers(GL3 gl) {
         // init vao
         gl.glGenVertexArrays(1, vao, 0);
@@ -237,30 +203,12 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
         checkGLError(gl);
     }
 
-    public static void checkGLError(GL3 gl3) {
-        int err = gl3.glGetError();
+    public static void checkGLError(GL3 GL3) {
+        int err = GL3.glGetError();
         if(err != GL.GL_NO_ERROR) {
-            GLU glu = GLU.createGLU(gl3);
+            GLU glu = GLU.createGLU(GL3);
             logger.error("GL error {}: {}", err, glu.gluErrorString(err));
         }
-    }
-
-    /**
-     * Check the status of a shader or program.
-     *
-     * @param gl    The OpenGL context
-     * @param id    The shader or program id
-     * @param param The parameter to check
-     * @return true if the status is OK
-     */
-    private boolean checkCompileStatus(GL3 gl, int id, int param) {
-        int[] result = new int[]{GL3.GL_FALSE};
-        if (param == GL3.GL_COMPILE_STATUS) {
-            gl.glGetShaderiv(id, param, result, 0);
-        } else {
-            gl.glGetProgramiv(id, param, result, 0);
-        }
-        return result[0] != GL3.GL_FALSE;
     }
 
     @Override
@@ -269,7 +217,6 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
 
         disposeMesh(gl);
         disposeShader(gl);
-
         gl.glFinish(); // Ensure all OpenGL commands are completed before disposing
         logger.info("OpenGL resources disposed.");
     }
@@ -280,11 +227,7 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
     }
 
     private void disposeShader(GL3 gl) {
-        gl.glDetachShader(shaderId, vertexShaderId);
-        gl.glDetachShader(shaderId, fragmentShaderId);
-        gl.glDeleteShader(vertexShaderId);
-        gl.glDeleteShader(fragmentShaderId);
-        gl.glDeleteProgram(shaderId);
+        shaderProgram.unload(gl);
     }
 
     /**
@@ -296,7 +239,7 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
         var gl = glAutoDrawable.getGL().getGL3();
         gl.glClear(GL3.GL_COLOR_BUFFER_BIT);
 
-        gl.glUseProgram(shaderId);
+        shaderProgram.use(gl);
         spinTriangle(gl);
         drawTriangle(gl);
         gl.glUseProgram(0);

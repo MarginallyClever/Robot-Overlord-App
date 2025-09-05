@@ -3,7 +3,6 @@ package com.marginallyclever.ro3.node.nodes.pose.poses;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.pathtracer.PathTracer;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 import org.slf4j.Logger;

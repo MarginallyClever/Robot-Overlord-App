@@ -69,7 +69,7 @@ public class MeshInstancePanel extends JPanel {
         gbc.gridy++;
         add(detailsContainer,gbc);
 
-        meshInstance.addPropertyChangedListener(e->changeMeshDetails());
+        meshInstance.addPropertyChangeListener(e->changeMeshDetails());
     }
 
     private void changeMeshDetails() {

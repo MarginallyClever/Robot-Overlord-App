@@ -6,6 +6,7 @@ import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.ro3.apps.pathtracer.PathMesh;
 import com.marginallyclever.ro3.apps.pathtracer.PathTriangle;
+import com.marginallyclever.ro3.apps.viewport.OpenGL3Resource;
 import com.marginallyclever.ro3.raypicking.Hit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ import java.util.List;
  * <p>It uses <a href="https://www.khronos.org/opengl/wiki/Vertex_Specification">Vertex Array Objects and Vertex
  * Buffer Objects</a> to optimize rendering large collections of triangles.</p>
  */
-public class Mesh {
+public class Mesh implements OpenGL3Resource {
 	private static final Logger logger = LoggerFactory.getLogger(Mesh.class);
 	public static final int NUM_BUFFERS=5;  // verts, normals, colors, textureCoordinates, index
 
@@ -58,7 +59,6 @@ public class Mesh {
 
 	public Mesh() {
 		super();
-		boundingBox.setShape(this);
 	}
 
 	public Mesh(int renderStyle) {
@@ -101,13 +101,13 @@ public class Mesh {
 	}
 
 	/**
-	 * Destroy the optimized rendering buffers for the fixed function pipeline.
-	 * This does not free the memory used by the mesh.  See also {@link Mesh#clear()}
+	 * <p>Destroy the buffers stored in the video card memory.  This does not free the arrays used by the mesh.
+     * See also {@link Mesh#clear()}</p>
 	 * @param gl the OpenGL context
 	 */
-	public void unload(GL3 gl) {
+	@Override
+    public void unload(GL3 gl) {
 		if(!isLoaded) return;
-		isLoaded=false;
 		destroyBuffers(gl);
 	}
 	
@@ -119,17 +119,21 @@ public class Mesh {
 		VBO = new int[NUM_BUFFERS];
 		gl.glGenBuffers(NUM_BUFFERS, VBO, 0);
 		OpenGLHelper.checkGLError(gl,logger);
+        isLoaded=true;
 	}
 
 	private void destroyBuffers(GL3 gl) {
 		if(VBO != null) {
 			gl.glDeleteBuffers(NUM_BUFFERS, VBO, 0);
+            OpenGLHelper.checkGLError(gl,logger);
 			VBO = null;
 		}
 		if(VAO != null) {
 			gl.glDeleteVertexArrays(1, VAO, 0);
+            OpenGLHelper.checkGLError(gl,logger);
 			VAO = null;
 		}
+        isLoaded=false;
 	}
 	
 	/**
@@ -160,6 +164,7 @@ public class Mesh {
 		}
 
 		gl.glBindVertexArray(0);
+        OpenGLHelper.checkGLError(gl,logger);
 
 		getVertexProvider();
 	}
@@ -261,11 +266,10 @@ public class Mesh {
 	 */
 	public void render(GL3 gl,int startIndex,int count) {
 		if(!isLoaded) {
-			isLoaded=true;
+            createBuffers(gl);
 			isDirty=true;
 		}
 		if(isDirty) {
-			createBuffers(gl);
 			updateBuffers(gl);
 			isDirty=false;
 		}
@@ -341,7 +345,7 @@ public class Mesh {
 	 * Done automatically every time updateBuffers() is called.
 	 * Meaningless if there is no vertexArray of points.
 	 */
-	public void updateCuboid() {
+	public void updateBoundingBox() {
 		Point3d boundBottom = new Point3d(Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE);
 		Point3d boundTop = new Point3d(-Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE);
 		
@@ -363,7 +367,7 @@ public class Mesh {
 	}
 
 	/**
-	 * @return axially-aligned bounding box in the mesh's local space.
+	 * @return {@link AABB} in the mesh's local space.
 	 */
 	public AABB getBoundingBox() {
 		return boundingBox;

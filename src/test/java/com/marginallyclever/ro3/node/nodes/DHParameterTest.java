@@ -1,10 +1,8 @@
 package com.marginallyclever.ro3.node.nodes;
-import com.marginallyclever.convenience.helpers.MatrixHelper;
+
 import org.junit.jupiter.api.Test;
 
-import javax.vecmath.Matrix4d;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DHParameterTest {
     @Test

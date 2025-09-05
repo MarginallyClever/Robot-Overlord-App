@@ -10,7 +10,7 @@ import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
-import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
@@ -21,7 +21,6 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Rectangle2D;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +61,7 @@ public class TranslateToolMulti implements ViewportTool {
         tools.add(toolXZ);
         tools.add(toolYZ);
 
-        texture = Registry.textureFactory.load("/com/marginallyclever/ro3/apps/viewport/renderpass/navball.png");
+        texture = Registry.textureFactory.get(Lifetime.APPLICATION,"/com/marginallyclever/ro3/apps/viewport/renderpass/navball.png");
         texture.setDoNotExport(true);
     }
 
@@ -142,7 +141,7 @@ public class TranslateToolMulti implements ViewportTool {
             case ANTINORMAL: v = MatrixHelper.getYAxis(pivot);  v.scale(-1);  break;
             case RETROGRADE: v = MatrixHelper.getZAxis(pivot);  v.scale(-1);  break;
             default: throw new InvalidParameterException("axis must be 0...5.");
-        };
+        }
         // the pivot plane has a z axis that points at the camera.
         Vector3d z = new Vector3d(camera.getPosition());
         z.sub(o);
@@ -156,10 +155,10 @@ public class TranslateToolMulti implements ViewportTool {
         y.cross(z,v);
         // build the matrix for the pivot plane
         Matrix4d result = new Matrix4d();
-        result.m00 = v.x;   result.m10 = v.y;   result.m20 = v.z;
-        result.m01 = y.x;   result.m11 = y.y;   result.m21 = y.z;
-        result.m02 = z.x;   result.m12 = z.y;   result.m22 = z.z;
-        result.m03 = o.x;   result.m13 = o.y;   result.m23 = o.z;
+        MatrixHelper.setXAxis(result, v);
+        MatrixHelper.setYAxis(result, y);
+        MatrixHelper.setZAxis(result, z);
+        MatrixHelper.setPosition(result, o);
         result.m33 = 1;
         return result;
     }
@@ -345,17 +344,6 @@ public class TranslateToolMulti implements ViewportTool {
         frameOfReference = index;
         for (ViewportTool t : tools) t.setFrameOfReference(index);
         updatePivotMatrix();
-    }
-
-    @Override
-    public void init(GL3 gl3) {
-        for (ViewportTool t : tools) t.init(gl3);
-    }
-
-    @Override
-    public void dispose(GL3 gl3) {
-        for (ViewportTool t : tools) t.dispose(gl3);
-        texture.unload();
     }
 
     @Override

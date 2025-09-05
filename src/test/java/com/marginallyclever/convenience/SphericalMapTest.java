@@ -1,6 +1,5 @@
 package com.marginallyclever.convenience;
 
-import com.marginallyclever.convenience.SphericalMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

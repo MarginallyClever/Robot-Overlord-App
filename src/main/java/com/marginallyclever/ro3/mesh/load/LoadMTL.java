@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.mesh.load;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.node.nodes.Material;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,7 @@ public class LoadMTL {
                 specular = readColorFromString(line);
             } else if (line.startsWith("map_Kd")) {
                 // diffuse texture map
-                material.setDiffuseTexture(Registry.textureFactory.load(line.substring(7)));
+                material.setDiffuseTexture(Registry.textureFactory.get(Lifetime.SCENE,line.substring(7)));
             } else if(line.startsWith("Ni")) {
                 // index of refraction 0.001 to 10.  1 means light does not bend.
                 material.setIOR(Double.parseDouble(line.substring(4)));

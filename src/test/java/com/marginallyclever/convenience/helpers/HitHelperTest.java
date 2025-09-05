@@ -4,12 +4,11 @@ import com.marginallyclever.convenience.Cylinder;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.mesh.AABB;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
-import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
-import javax.vecmath.Tuple3d;
 import javax.vecmath.Vector3d;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class HitHelperTest {
     @Test

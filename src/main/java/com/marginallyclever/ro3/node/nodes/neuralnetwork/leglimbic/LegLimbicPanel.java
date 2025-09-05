@@ -1,7 +1,5 @@
 package com.marginallyclever.ro3.node.nodes.neuralnetwork.leglimbic;
 
-import com.marginallyclever.ro3.PanelHelper;
-
 import javax.swing.*;
 import java.awt.*;
 

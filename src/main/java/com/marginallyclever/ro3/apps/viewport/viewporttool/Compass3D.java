@@ -8,9 +8,9 @@ import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.CircleXY;
-import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 
@@ -51,7 +51,11 @@ public class Compass3D implements ViewportTool {
 
     public Compass3D() {
         super();
-        texture = Registry.textureFactory.load("/com/marginallyclever/ro3/apps/viewport/viewporttool/axisLetters.png");
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"Compass3D.gizmoMesh",gizmoMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"Compass3D.circleMesh",circleMesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"Compass3D.quadMesh",quadMesh);
+
+        texture = Registry.textureFactory.get(Lifetime.APPLICATION,"/com/marginallyclever/ro3/apps/viewport/viewporttool/axisLetters.png");
         texture.setDoNotExport(true);
 
         createQuadMesh();
@@ -285,17 +289,6 @@ public class Compass3D implements ViewportTool {
 
     @Override
     public void setFrameOfReference(FrameOfReference index) {}
-
-    @Override
-    public void init(GL3 gl3) {}
-
-    @Override
-    public void dispose(GL3 gl3) {
-        texture.unload();
-        circleMesh.unload(gl3);
-        gizmoMesh.unload(gl3);
-        quadMesh.unload(gl3);
-    }
 
     @Override
     public void getComponents(List<JPanel> list) {}

@@ -16,7 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.vecmath.*;
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -126,12 +129,6 @@ public class SelectionTool extends MouseAdapter implements ViewportTool {
      */
     @Override
     public void setFrameOfReference(FrameOfReference index) {}
-
-    @Override
-    public void init(GL3 gl3) {}
-
-    @Override
-    public void dispose(GL3 gl3) {}
 
     private void pickItemUnderCursor(boolean isShiftDown) {
         Node hit = findNodeUnderCursor();

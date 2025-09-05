@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.apps.pathtracer;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
+import com.marginallyclever.ro3.listwithevents.ListListener;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 
@@ -19,7 +20,7 @@ import java.beans.PropertyChangeListener;
  * <p>Special thanks to <a href='https://raytracing.github.io/books/RayTracingInOneWeekend.html'>Ray Tracing in One Weekend</a></p>
  */
 public class PathTracerPanel extends JPanel
-        implements SceneChangeListener, ProgressListener, PropertyChangeListener {
+        implements SceneChangeListener, ProgressListener, PropertyChangeListener, ListListener<Camera> {
     private final PathTracer pathTracer;
     private final JToolBar toolBar = new JToolBar();
     private final DefaultComboBoxModel<Camera> cameraListModel = new DefaultComboBoxModel<>();
@@ -67,8 +68,7 @@ public class PathTracerPanel extends JPanel
     public void addNotify() {
         super.addNotify();
         Registry.addSceneChangeListener(this);
-        Registry.cameras.addItemAddedListener(this::addCamera);
-        Registry.cameras.addItemRemovedListener(this::removeCamera);
+        Registry.cameras.addItemListener(this);
         updateCameraList();
     }
 
@@ -76,8 +76,17 @@ public class PathTracerPanel extends JPanel
     public void removeNotify() {
         super.removeNotify();
         Registry.removeSceneChangeListener(this);
-        Registry.cameras.removeItemAddedListener(this::addCamera);
-        Registry.cameras.removeItemRemovedListener(this::removeCamera);
+        Registry.cameras.removeItemListener(this);
+    }
+
+    @Override
+    public void itemAdded(Object source, Camera item) {
+        addCamera(source,item);
+    }
+
+    @Override
+    public void itemRemoved(Object source, Camera item) {
+        removeCamera(source,item);
     }
 
     private void updateCameraList() {

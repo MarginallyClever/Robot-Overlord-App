@@ -1,13 +1,10 @@
 package com.marginallyclever.ro3.node.nodes;
 
-import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
-import com.marginallyclever.ro3.texture.TextureChooserDialog;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 
 public class MaterialPanel extends JPanel {
     private final Material material;

@@ -1,9 +1,11 @@
 package com.marginallyclever.ro3.node;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class NodeListenerTest {
     private Node parentNode;

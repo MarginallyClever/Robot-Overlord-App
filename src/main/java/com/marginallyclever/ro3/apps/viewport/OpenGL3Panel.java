@@ -6,8 +6,11 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.apps.viewport.renderpass.RenderPass;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
+import com.marginallyclever.ro3.factories.Lifetime;
+import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,21 +21,25 @@ import java.io.PrintStream;
 import java.util.prefs.Preferences;
 
 /**
- * {@link OpenGLPanel} manages a {@link GLJPanel} and an {@link FPSAnimator}.
+ * {@link OpenGL3Panel} manages a {@link GLJPanel} and an {@link FPSAnimator} running OpenGL 3.0.
  * It is a concrete implementation of {@link Viewport}.
  */
-public class OpenGLPanel extends Viewport implements GLEventListener {
-    private static final Logger logger = LoggerFactory.getLogger(OpenGLPanel.class);
+public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChangeListener {
+    private static final Logger logger = LoggerFactory.getLogger(OpenGL3Panel.class);
+    public static final int DEFAULT_FPS = 30;
+
     protected GLJPanel glCanvas;
     private boolean hardwareAccelerated = true;
     private boolean doubleBuffered = true;
     private int fsaaSamples = 2;
     private boolean verticalSync = true;
-    private int fps = 30;
+    private int fps = DEFAULT_FPS;
     private final FPSAnimator animator;
     private ShaderProgram toolShader;
+    // resources can only be unloaded in the GL thread.  So we set a flag to unload them in the next frame.
+    private boolean unloadOrphansNextFrame = false;
 
-    public OpenGLPanel() {
+    public OpenGL3Panel() {
         super(new BorderLayout());
 
         loadPrefs();
@@ -76,6 +83,7 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
         glCanvas.addMouseListener(this);
         glCanvas.addMouseMotionListener(this);
         glCanvas.addMouseWheelListener(this);
+        Registry.addSceneChangeListener(this);
     }
 
     @Override
@@ -85,6 +93,8 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
         glCanvas.removeMouseListener(this);
         glCanvas.removeMouseMotionListener(this);
         glCanvas.removeMouseWheelListener(this);
+        Registry.removeSceneChangeListener(this);
+        // factories will unload all in dispose()
     }
 
     private GLCapabilities getCapabilities() {
@@ -158,13 +168,15 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
         gl3.glActiveTexture(GL3.GL_TEXTURE0);
 
         try {
-            toolShader = new ShaderProgram(gl3,
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.vert"),
-                    ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/default.frag"));
+            var sf = Registry.shaderFactory;
+            var spf = Registry.shaderProgramFactory;
+            toolShader = spf.get(Lifetime.APPLICATION,"toolShader",
+                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
+                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
+            );
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }
-        for(ViewportTool tool : viewportTools) tool.init(gl3);
     }
 
     /**
@@ -188,33 +200,66 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         logger.info("dispose");
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        toolShader.delete(gl3);
-        for(ViewportTool tool : viewportTools) tool.dispose(gl3);
-        Registry.textureFactory.unloadAll();
+        unloadResources(glAutoDrawable.getGL().getGL3());
+    }
+
+    /**
+     * Unload all resources from all factories.
+     * @param gl3 the GL3 context
+     */
+    private void unloadResources(GL3 gl3) {
+        unloadOrphanedResources(gl3);
+        Registry.textureFactory.unloadAll(gl3);
+        Registry.meshFactory.unloadAll(gl3);
+        Registry.shaderProgramFactory.unloadAll(gl3);
+        Registry.shaderFactory.unloadAll(gl3);
+    }
+
+    /**
+     * Unload any resources that have been marked for unloading.
+     * This is done in the GL thread to ensure that the OpenGL context is current.
+     * @param gl3 the GL3 context
+     */
+    private void unloadOrphanedResources(GL3 gl3) {
+        var list = Registry.toBeUnloaded;
+        synchronized (list) {
+            for(OpenGL3Resource r : list) {
+                try {
+                    r.unload(gl3);
+                } catch(Exception e) {
+                    logger.error("Failed to unload resource "+r,e);
+                }
+            }
+            list.clear();
+        }
     }
 
     @Override
     public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
         canvasWidth = width;
         canvasHeight = height;
-        logger.info("reshape "+width+"x"+height);
     }
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
+        GL3 gl3 = glAutoDrawable.getGL().getGL3();
+        if(unloadOrphansNextFrame) {
+            unloadOrphanedResources(gl3);
+            unloadOrphansNextFrame = false;
+        }
+
         double dt = 1.0 / (double)this.getFPS();
         for(ViewportTool tool : viewportTools) tool.update(dt);
         updateAllNodes(dt);
-        renderAllPasses();
-        renderViewportTools();
+
+        renderAllPasses(gl3);
+        renderViewportTools(gl3);
     }
 
-    public void renderViewportTools() {
+    public void renderViewportTools(GL3 gl3) {
         Camera camera = getActiveCamera();
         assert camera != null;
 
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
         toolShader.use(gl3);
         toolShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix(isOriginShift()));
         toolShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
@@ -288,5 +333,11 @@ public class OpenGLPanel extends Viewport implements GLEventListener {
     protected void removeRenderPass(Object source,RenderPass renderPass) {
         removeGLEventListener(renderPass);
         super.removeRenderPass(source,renderPass);
+    }
+
+    @Override
+    public void beforeSceneChange(Node oldScene) {
+        super.beforeSceneChange(oldScene);
+        unloadOrphansNextFrame = true;
     }
 }

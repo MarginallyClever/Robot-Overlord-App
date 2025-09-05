@@ -9,9 +9,8 @@ import org.reflections.util.ClasspathHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
 import javax.swing.*;
+import java.util.List;
 
 /**
  * <p>Display a card layout of all the {@link JPanel}s in the project.  This would be handy for translators to see all

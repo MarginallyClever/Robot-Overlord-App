@@ -3,7 +3,6 @@ package com.marginallyclever.convenience.helpers;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 
 public class BigMatrixHelperTest {

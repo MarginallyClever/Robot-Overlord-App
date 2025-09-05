@@ -5,12 +5,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
-public class OpenGLPanelTest {
+public class OpenGL3PanelTest {
     @Test
     public void test() {
         Registry.start();
 
-        OpenGLPanel panel = new OpenGLPanel();
+        OpenGL3Panel panel = new OpenGL3Panel();
 
         // create and display a frame
         javax.swing.JFrame frame = new javax.swing.JFrame("OpenGLPanel Test");
