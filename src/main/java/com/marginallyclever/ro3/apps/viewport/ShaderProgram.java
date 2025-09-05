@@ -39,7 +39,9 @@ public class ShaderProgram implements OpenGL3Resource {
         programId = gl.glCreateProgram();
 
         for( Shader shader : shaders ) {
+            OpenGLHelper.checkGLError(gl,logger);
             shader.load(gl);
+            OpenGLHelper.checkGLError(gl,logger);
             gl.glAttachShader(programId, shader.getShaderId());
             OpenGLHelper.checkGLError(gl,logger);
         }
@@ -79,6 +81,7 @@ public class ShaderProgram implements OpenGL3Resource {
         for( Shader shader : shaders ) {
             gl.glDetachShader(programId, shader.getShaderId());
             OpenGLHelper.checkGLError(gl, logger);
+            shader.unload(gl);
         }
         gl.glDeleteProgram(programId);
         OpenGLHelper.checkGLError(gl, logger);
