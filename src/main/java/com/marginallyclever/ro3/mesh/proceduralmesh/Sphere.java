@@ -89,7 +89,7 @@ public class Sphere extends ProceduralMesh {
             this.addIndex( (height-3)*width + i );
         }
 
-        boundingBox.setBounds(new Point3d(radius,radius,radius),new Point3d(-radius,-radius,-radius));
+        updateBoundingBox();
         fireMeshChanged();
     }
 

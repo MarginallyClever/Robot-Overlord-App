@@ -32,7 +32,7 @@ public class CircleXY extends ProceduralMesh {
             addVertex(x,y,0);
         }
 
-        boundingBox.setBounds(new Point3d(1,1,0),new Point3d(-1,-1,0));
+        updateBoundingBox();
         fireMeshChanged();
     }
 }

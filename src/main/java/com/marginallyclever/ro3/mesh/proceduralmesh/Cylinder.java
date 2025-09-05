@@ -44,8 +44,7 @@ public class Cylinder extends ProceduralMesh {
         this.setRenderStyle(GL3.GL_TRIANGLES);
         addCylinder(height, radius0, radius1);
 
-        var rBig = Math.max(radius0,radius1);
-        boundingBox.setBounds(new Point3d(rBig,rBig,height/2),new Point3d(-rBig,-rBig,-height/2));
+        updateBoundingBox();
         fireMeshChanged();
     }
 

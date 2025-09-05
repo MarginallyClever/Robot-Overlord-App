@@ -134,6 +134,7 @@ public class Capsule extends ProceduralMesh {
             }
         }
 
+        updateBoundingBox();
         fireMeshChanged();
     }
 

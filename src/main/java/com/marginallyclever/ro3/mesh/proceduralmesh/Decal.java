@@ -37,7 +37,7 @@ public class Decal extends ProceduralMesh {
 		//createTwoSidedDecal();
 		createOneSidedDecal();
 
-		boundingBox.setBounds(new Point3d(width/2,height/2,0),new Point3d(-width/2,-height/2,0));
+        updateBoundingBox();
 		fireMeshChanged();
 	}
 

@@ -30,11 +30,7 @@ public class Box extends ProceduralMesh {
         super();
 
         this.setRenderStyle(GL3.GL_TRIANGLES);
-        this.width = width;
-        this.length = length;
-        this.height = height;
-
-        updateModel();
+        setSize(width,length,height);
     }
 
     @Override
@@ -105,7 +101,7 @@ public class Box extends ProceduralMesh {
         p3.set(-w,-d,-h);
         addSubdividedPlane(n,p0,p1,p2,p3,dParts,hParts);
 
-        boundingBox.setBounds(new Point3d(w,d,h),new Point3d(-w,-d,-h));
+        updateBoundingBox();
         fireMeshChanged();
     }
 
@@ -224,9 +220,17 @@ public class Box extends ProceduralMesh {
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        if(from.has("width")) width = from.getDouble("width");
-        if(from.has("length")) length = from.getDouble("length");
-        if(from.has("height")) height = from.getDouble("height");
+        width = from.optDouble("width", width);
+        length = from.optDouble("length", length);
+        height = from.optDouble("height", height);
+        updateModel();
+    }
+
+    public void setSize(double width, double height, double length) {
+        this.width = width;
+        this.length = length;
+        this.height = height;
+
         updateModel();
     }
 }
