@@ -146,13 +146,13 @@ public class Pose extends Node implements PoseChangeListener {
     /**
      * Set the local rotation of this pose using Euler angles.
      *
-     * @param r Euler angles in degrees.
+     * @param eulerDegrees Euler angles in degrees.
      * @param orderOfRotation the order of rotation.
      */
-    public void setRotationEuler(Vector3d r, MatrixHelper.EulerSequence orderOfRotation) {
+    public void setRotationEuler(Vector3d eulerDegrees, MatrixHelper.EulerSequence orderOfRotation) {
         //System.out.println("setRotationEuler("+r+","+orderOfRotation+")");
         Vector3d p = getPosition();
-        Vector3d rRad = new Vector3d(r);
+        Vector3d rRad = new Vector3d(eulerDegrees);
         rRad.scale(Math.PI/180.0);
 
         var m4 = new Matrix4d();
