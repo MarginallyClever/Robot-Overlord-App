@@ -61,6 +61,8 @@ public class RayPickSystem {
             Node node = toTest.remove();
             toTest.addAll(node.getChildren());
             if(node instanceof MeshInstance meshInstance) {
+                if(!meshInstance.isActive()) continue;
+
                 sceneElements.add(meshInstance);
 
                 if(optimize) {
