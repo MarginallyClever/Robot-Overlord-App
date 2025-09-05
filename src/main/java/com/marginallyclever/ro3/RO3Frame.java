@@ -11,6 +11,7 @@ import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.about.AboutPanel;
 import com.marginallyclever.ro3.apps.brainview.BrainView;
+import com.marginallyclever.ro3.apps.dheditor.DHEditor;
 import com.marginallyclever.ro3.apps.donatello.Donatello;
 import com.marginallyclever.ro3.apps.editor.EditorPanel;
 import com.marginallyclever.ro3.apps.log.LogPanel;
@@ -61,6 +62,7 @@ public class RO3Frame extends JFrame {
     private final Donatello donatello;
     private final BrainView brainView;
     private final PathTracerPanel pathTracer;
+    private final DHEditor dhEditor;
 
     public RO3Frame() {
         super();
@@ -81,6 +83,7 @@ public class RO3Frame extends JFrame {
         donatello = new Donatello();
         brainView = new BrainView();
         pathTracer = new PathTracerPanel();
+        dhEditor = new DHEditor();
 
         createDefaultLayout();
         resetDefaultLayout();
@@ -206,6 +209,7 @@ public class RO3Frame extends JFrame {
         addDockingPanel("2b463642-9932-43f7-87be-04480cc5d5ba", "Donatello",donatello);
         addDockingPanel("3fdd39fd-389f-481f-8e4e-144fdf9a34d0", "BrainView", brainView);
         addDockingPanel("4f23c247-7136-4815-b10e-7b1a10fd08b5", "PathTracer", pathTracer);
+        addDockingPanel("a5f3c6a1-1d2b-4e6f-8f3c-9e7b8c6a1d2b", "DHEditor", dhEditor);
     }
 
     private void addDockingPanel(String persistentID,String tabText,Component component) {
