@@ -10,12 +10,14 @@ import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.proceduralmesh.Box;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.environment.Environment;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
+import org.apache.batik.css.engine.value.svg12.MarginShorthandManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +47,6 @@ public class DrawMeshes extends AbstractRenderPass {
     private Color sunlightColor = Color.WHITE;
     private final Vector3d sunlightSource = new Vector3d(50,150,350);
     private Color ambientColor = Color.BLACK;
-
 
     public DrawMeshes() {
         super("Meshes");
@@ -193,14 +194,11 @@ public class DrawMeshes extends AbstractRenderPass {
 
     private void getSunlight() {
         Environment env = Registry.getScene().findFirstChild(Environment.class);
-        if(null==env) {
-            env = new Environment();
-            Registry.getScene().addChild(env);
+        if(null!=env) {
+            sunlightSource.set(env.getSunlightSource());
+            sunlightColor = env.getSunlightColor();
+            ambientColor = env.getAmbientColor();
         }
-
-        sunlightSource.set(env.getSunlightSource());
-        sunlightColor = env.getSunlightColor();
-        ambientColor = env.getAmbientColor();
     }
 
     private void keepOnlySelectedMeshMaterials(List<MeshMaterialMatrix> list) {
