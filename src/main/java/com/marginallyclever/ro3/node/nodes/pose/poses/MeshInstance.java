@@ -29,6 +29,7 @@ import java.util.Objects;
  */
 public class MeshInstance extends Pose {
     private Mesh mesh;
+    private boolean isActive=true;
 
     public MeshInstance() {
         super("MeshInstance");
@@ -155,6 +156,7 @@ public class MeshInstance extends Pose {
                 json.put("mesh", mesh.getSourceName());
             }
         }
+        json.put("isActive", isActive);
         return json;
     }
 
@@ -171,6 +173,7 @@ public class MeshInstance extends Pose {
                 this.setMesh(pmesh);
             }
         }
+        isActive = from.optBoolean("isActive",isActive);
     }
 
     @Override
@@ -184,5 +187,13 @@ public class MeshInstance extends Pose {
 
     public PathMesh createPathMesh() {
         return mesh.createPathMesh(getWorld());
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }

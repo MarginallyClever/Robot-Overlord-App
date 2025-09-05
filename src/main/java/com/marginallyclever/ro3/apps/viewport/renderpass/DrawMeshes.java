@@ -294,7 +294,7 @@ public class DrawMeshes extends AbstractRenderPass {
         if (node instanceof MeshInstance meshInstance) {
             // if they have a mesh, collect it.
             Mesh mesh = meshInstance.getMesh();
-            if (mesh != null) {
+            if (mesh != null && meshInstance.isActive()) {
                 meshMaterialMatrices.add(new MeshMaterialMatrix(meshInstance,lastMaterialSeen,meshInstance.getWorld()));
             }
         }
