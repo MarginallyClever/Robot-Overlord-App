@@ -135,6 +135,7 @@ public class NodeTreeView extends App
         Registry.addSceneChangeListener(this);
         Registry.selection.addItemListener(this);
         listenTo(Registry.getScene());
+        scanTree(Registry.getScene());
     }
 
     private void listenTo(Node node) {
