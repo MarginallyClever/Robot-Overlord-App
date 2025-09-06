@@ -4,6 +4,7 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.App;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.node.nodes.DHParameter;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
@@ -80,20 +81,20 @@ public class DHEditor extends App {
 
         // Toolbar with ComboBox for number of axes
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        String[] options = {"1", "2", "3", "4", "5", "6"}; // Options for axes count
+        String[] options = {"0","1", "2", "3", "4", "5", "6"}; // Options for axes count
         comboBox = new JComboBox<>(options);
-        comboBox.addActionListener(e -> updateAxes(comboBox.getSelectedIndex() + 1));
-        toolbar.add(new JLabel("Number of Axes:"));
+        comboBox.addActionListener(e -> updateAxes(comboBox.getSelectedIndex()));
+        toolbar.add(new JLabel("Axes:"));
         toolbar.add(comboBox);
 
         // Center panel for DH parameter rows
-        centerPanel = new JPanel(new GridLayout(0, 4, 5, 2)); // 4 columns for D, R, Alpha, Theta
+        centerPanel = new JPanel(new GridLayout(0, 4, 5, 0)); // 4 columns for D, R, Alpha, Theta
         centerPanel.setBorder(BorderFactory.createLoweredBevelBorder());
         add(toolbar, BorderLayout.NORTH);
         add(new JScrollPane(centerPanel), BorderLayout.CENTER);
 
         // Initialize with one axis
-        updateAxes(1);
+        updateAxes(0);
     }
 
     @Override
@@ -102,14 +103,17 @@ public class DHEditor extends App {
 
         var scene = Registry.getScene();
         if(!scene.getChildren().contains(basePose)) {
-            Registry.getScene().addChild(basePose);
+            scene.addChild(basePose);
         }
     }
 
     @Override
     public void removeNotify() {
         super.removeNotify();
-        Registry.getScene().removeChild(basePose);
+        var scene = Registry.getScene();
+        if(scene.getChildren().contains(basePose)) {
+            scene.removeChild(basePose);
+        }
     }
 
     private void updateAxes(int numAxes) {
@@ -184,6 +188,7 @@ public class DHEditor extends App {
         MeshInstance dMeshInstance = new MeshInstance("Cylinder "+jointIndex);
         dPose.addChild(dMeshInstance);
         Cylinder cylinder = new Cylinder(); // Procedural mesh
+        Registry.meshFactory.addToPool(Lifetime.SCENE, dMeshInstance.getName(),cylinder);
         dMeshInstance.setMesh(cylinder);
         cylinder.setLength(1.0); // Default dimensions
         cylinder.setRadius(startingSize * scaleA); // Default radius
@@ -195,6 +200,7 @@ public class DHEditor extends App {
         MeshInstance rMeshInstance = new MeshInstance("Box "+jointIndex);
         rPose.addChild(rMeshInstance);
         Box box = new Box(1.0f, startingSize * 2 * scaleB, startingSize * 2 * scaleB); // Procedural Box mesh
+        Registry.meshFactory.addToPool(Lifetime.SCENE, rMeshInstance.getName(),box);
         rMeshInstance.setMesh(box);
         rMeshInstance.setPosition(new Vector3d(box.length / 2, 0, 0)); // Offset for Box
 

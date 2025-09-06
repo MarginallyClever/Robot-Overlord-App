@@ -9,7 +9,7 @@ import java.util.EventListener;
  */
 public interface SceneChangeListener extends EventListener {
     /**
-     * Called before the scene changes.  This is a good time to unregister listeners.
+     * Called before the scene changes.  This is a good time to unregister listeners and clean up resources.
      * @param oldScene the scene that is about to be replaced.
      */
     void beforeSceneChange(Node oldScene);

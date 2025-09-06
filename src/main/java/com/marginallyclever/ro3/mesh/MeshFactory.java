@@ -176,6 +176,12 @@ public class MeshFactory extends Factory {
      * @param mesh the mesh to add
      */
     public void addToPool(Lifetime lifetime,String key,Mesh mesh) {
+        if(key==null) throw new IllegalArgumentException("Key is null");
+
+        if(cache.containsKey(key) && cache.get(key).item() != mesh) {
+            throw new IllegalArgumentException("Key is already in use: "+key);
+        }
+
         cache.putIfAbsent(key, new Resource<>(mesh,lifetime) );
     }
 
@@ -184,7 +190,7 @@ public class MeshFactory extends Factory {
      * @param mesh the mesh to remove
      */
     public void removeFromPool(Mesh mesh) {
-        cache.remove(mesh);
+        cache.values().removeIf(e->e.item() == mesh);
     }
 
     /**

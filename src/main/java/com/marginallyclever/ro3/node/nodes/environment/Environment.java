@@ -38,7 +38,7 @@ public class Environment extends Node {
     private boolean skyShapeIsSphere=true;
 
     // sky mesh - either a box or a sphere
-    private Mesh mesh;
+    private Mesh skyMesh;
     private PathMesh pathMesh;
 
     public Environment() {
@@ -62,8 +62,8 @@ public class Environment extends Node {
      * +---+---+---+---+</pre>
      */
     private void buildBox() {
-        mesh = new GenerativeMesh();
-        mesh.setRenderStyle(GL3.GL_TRIANGLES);
+        skyMesh = new GenerativeMesh();
+        skyMesh.setRenderStyle(GL3.GL_TRIANGLES);
 
         float adj = 1f/256f;
         float a=0.00f+adj;
@@ -76,63 +76,63 @@ public class Environment extends Node {
         int v = 100;
 
         // Top face (z+), split into two triangles
-        mesh.addTexCoord(b, g); mesh.addVertex(-v,  v,  v); mesh.addNormal(0, 0, -1);
-        mesh.addTexCoord(c, g); mesh.addVertex( v,  v,  v); mesh.addNormal(0, 0, -1);
-        mesh.addTexCoord(c, e); mesh.addVertex( v, -v,  v); mesh.addNormal(0, 0, -1);
+        skyMesh.addTexCoord(b, g); skyMesh.addVertex(-v,  v,  v); skyMesh.addNormal(0, 0, -1);
+        skyMesh.addTexCoord(c, g); skyMesh.addVertex( v,  v,  v); skyMesh.addNormal(0, 0, -1);
+        skyMesh.addTexCoord(c, e); skyMesh.addVertex( v, -v,  v); skyMesh.addNormal(0, 0, -1);
 
-        mesh.addTexCoord(b, g); mesh.addVertex(-v,  v,  v); mesh.addNormal(0, 0, -1);
-        mesh.addTexCoord(c, e); mesh.addVertex( v, -v,  v); mesh.addNormal(0, 0, -1);
-        mesh.addTexCoord(b, e); mesh.addVertex(-v, -v,  v); mesh.addNormal(0, 0, -1);
+        skyMesh.addTexCoord(b, g); skyMesh.addVertex(-v,  v,  v); skyMesh.addNormal(0, 0, -1);
+        skyMesh.addTexCoord(c, e); skyMesh.addVertex( v, -v,  v); skyMesh.addNormal(0, 0, -1);
+        skyMesh.addTexCoord(b, e); skyMesh.addVertex(-v, -v,  v); skyMesh.addNormal(0, 0, -1);
 
         // Bottom face (z-), split into two triangles
-        mesh.addTexCoord(b, a); mesh.addVertex(-v,  v, -v); mesh.addNormal(0, 0, 1);
-        mesh.addTexCoord(c, a); mesh.addVertex( v,  v, -v); mesh.addNormal(0, 0, 1);
-        mesh.addTexCoord(c, f); mesh.addVertex( v, -v, -v); mesh.addNormal(0, 0, 1);
+        skyMesh.addTexCoord(b, a); skyMesh.addVertex(-v,  v, -v); skyMesh.addNormal(0, 0, 1);
+        skyMesh.addTexCoord(c, a); skyMesh.addVertex( v,  v, -v); skyMesh.addNormal(0, 0, 1);
+        skyMesh.addTexCoord(c, f); skyMesh.addVertex( v, -v, -v); skyMesh.addNormal(0, 0, 1);
 
-        mesh.addTexCoord(b, a); mesh.addVertex(-v,  v, -v); mesh.addNormal(0, 0, 1);
-        mesh.addTexCoord(c, f); mesh.addVertex( v, -v, -v); mesh.addNormal(0, 0, 1);
-        mesh.addTexCoord(b, f); mesh.addVertex(-v, -v, -v); mesh.addNormal(0, 0, 1);
+        skyMesh.addTexCoord(b, a); skyMesh.addVertex(-v,  v, -v); skyMesh.addNormal(0, 0, 1);
+        skyMesh.addTexCoord(c, f); skyMesh.addVertex( v, -v, -v); skyMesh.addNormal(0, 0, 1);
+        skyMesh.addTexCoord(b, f); skyMesh.addVertex(-v, -v, -v); skyMesh.addNormal(0, 0, 1);
 
         // North face (y+), split into two triangles
-        mesh.addTexCoord(b, g); mesh.addVertex(-v, v,  v); mesh.addNormal(0, -1, 0);
-        mesh.addTexCoord(c, g); mesh.addVertex( v, v,  v); mesh.addNormal(0, -1, 0);
-        mesh.addTexCoord(c, f); mesh.addVertex( v, v, -v); mesh.addNormal(0, -1, 0);
+        skyMesh.addTexCoord(b, g); skyMesh.addVertex(-v, v,  v); skyMesh.addNormal(0, -1, 0);
+        skyMesh.addTexCoord(c, g); skyMesh.addVertex( v, v,  v); skyMesh.addNormal(0, -1, 0);
+        skyMesh.addTexCoord(c, f); skyMesh.addVertex( v, v, -v); skyMesh.addNormal(0, -1, 0);
 
-        mesh.addTexCoord(b, g); mesh.addVertex(-v, v,  v); mesh.addNormal(0, -1, 0);
-        mesh.addTexCoord(c, f); mesh.addVertex( v, v, -v); mesh.addNormal(0, -1, 0);
-        mesh.addTexCoord(b, f); mesh.addVertex(-v, v, -v); mesh.addNormal(0, -1, 0);
+        skyMesh.addTexCoord(b, g); skyMesh.addVertex(-v, v,  v); skyMesh.addNormal(0, -1, 0);
+        skyMesh.addTexCoord(c, f); skyMesh.addVertex( v, v, -v); skyMesh.addNormal(0, -1, 0);
+        skyMesh.addTexCoord(b, f); skyMesh.addVertex(-v, v, -v); skyMesh.addNormal(0, -1, 0);
 
         // South face (y-), split into two triangles
-        mesh.addTexCoord(e, g); mesh.addVertex(-v, -v,  v); mesh.addNormal(0, 1, 0);
-        mesh.addTexCoord(d, g); mesh.addVertex( v, -v,  v); mesh.addNormal(0, 1, 0);
-        mesh.addTexCoord(d, f); mesh.addVertex( v, -v, -v); mesh.addNormal(0, 1, 0);
+        skyMesh.addTexCoord(e, g); skyMesh.addVertex(-v, -v,  v); skyMesh.addNormal(0, 1, 0);
+        skyMesh.addTexCoord(d, g); skyMesh.addVertex( v, -v,  v); skyMesh.addNormal(0, 1, 0);
+        skyMesh.addTexCoord(d, f); skyMesh.addVertex( v, -v, -v); skyMesh.addNormal(0, 1, 0);
 
-        mesh.addTexCoord(e, g); mesh.addVertex(-v, -v,  v); mesh.addNormal(0, 1, 0);
-        mesh.addTexCoord(d, f); mesh.addVertex( v, -v, -v); mesh.addNormal(0, 1, 0);
-        mesh.addTexCoord(e, f); mesh.addVertex(-v, -v, -v); mesh.addNormal(0, 1, 0);
+        skyMesh.addTexCoord(e, g); skyMesh.addVertex(-v, -v,  v); skyMesh.addNormal(0, 1, 0);
+        skyMesh.addTexCoord(d, f); skyMesh.addVertex( v, -v, -v); skyMesh.addNormal(0, 1, 0);
+        skyMesh.addTexCoord(e, f); skyMesh.addVertex(-v, -v, -v); skyMesh.addNormal(0, 1, 0);
 
         // East face (x+), split into two triangles
-        mesh.addTexCoord(d, g); mesh.addVertex( v, -v,  v); mesh.addNormal(-1, 0, 0);
-        mesh.addTexCoord(c, g); mesh.addVertex( v,  v,  v); mesh.addNormal(-1, 0, 0);
-        mesh.addTexCoord(c, f); mesh.addVertex( v,  v, -v); mesh.addNormal(-1, 0, 0);
+        skyMesh.addTexCoord(d, g); skyMesh.addVertex( v, -v,  v); skyMesh.addNormal(-1, 0, 0);
+        skyMesh.addTexCoord(c, g); skyMesh.addVertex( v,  v,  v); skyMesh.addNormal(-1, 0, 0);
+        skyMesh.addTexCoord(c, f); skyMesh.addVertex( v,  v, -v); skyMesh.addNormal(-1, 0, 0);
 
-        mesh.addTexCoord(d, g); mesh.addVertex( v, -v,  v); mesh.addNormal(-1, 0, 0);
-        mesh.addTexCoord(c, f); mesh.addVertex( v,  v, -v); mesh.addNormal(-1, 0, 0);
-        mesh.addTexCoord(d, f); mesh.addVertex( v, -v, -v); mesh.addNormal(-1, 0, 0);
+        skyMesh.addTexCoord(d, g); skyMesh.addVertex( v, -v,  v); skyMesh.addNormal(-1, 0, 0);
+        skyMesh.addTexCoord(c, f); skyMesh.addVertex( v,  v, -v); skyMesh.addNormal(-1, 0, 0);
+        skyMesh.addTexCoord(d, f); skyMesh.addVertex( v, -v, -v); skyMesh.addNormal(-1, 0, 0);
 
         // West face (x-), split into two triangles
-        mesh.addTexCoord(a, g); mesh.addVertex(-v, -v,  v); mesh.addNormal(1, 0, 0);
-        mesh.addTexCoord(b, g); mesh.addVertex(-v,  v,  v); mesh.addNormal(1, 0, 0);
-        mesh.addTexCoord(b, f); mesh.addVertex(-v,  v, -v); mesh.addNormal(1, 0, 0);
+        skyMesh.addTexCoord(a, g); skyMesh.addVertex(-v, -v,  v); skyMesh.addNormal(1, 0, 0);
+        skyMesh.addTexCoord(b, g); skyMesh.addVertex(-v,  v,  v); skyMesh.addNormal(1, 0, 0);
+        skyMesh.addTexCoord(b, f); skyMesh.addVertex(-v,  v, -v); skyMesh.addNormal(1, 0, 0);
 
-        mesh.addTexCoord(a, g); mesh.addVertex(-v, -v,  v); mesh.addNormal(1, 0, 0);
-        mesh.addTexCoord(b, f); mesh.addVertex(-v,  v, -v); mesh.addNormal(1, 0, 0);
-        mesh.addTexCoord(a, f); mesh.addVertex(-v, -v, -v); mesh.addNormal(1, 0, 0);
+        skyMesh.addTexCoord(a, g); skyMesh.addVertex(-v, -v,  v); skyMesh.addNormal(1, 0, 0);
+        skyMesh.addTexCoord(b, f); skyMesh.addVertex(-v,  v, -v); skyMesh.addNormal(1, 0, 0);
+        skyMesh.addTexCoord(a, f); skyMesh.addVertex(-v, -v, -v); skyMesh.addNormal(1, 0, 0);
     }
 
     private void buildSphere() {
-        mesh = new Sphere(-100);
-        ((Sphere)mesh).updateModel();
+        skyMesh = new Sphere(-100);
+        ((Sphere) skyMesh).updateModel();
     }
 
     @Override
@@ -274,16 +274,16 @@ public class Environment extends Node {
             buildBox();
         }
         // register the mesh so it persists if the renderer reloads all meshes
-        Registry.meshFactory.addToPool(Lifetime.SCENE,"Environment.mesh",mesh);
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"Environment.skyMesh", skyMesh);
 
-        pathMesh = mesh.createPathMesh(MatrixHelper.createIdentityMatrix4());
+        pathMesh = skyMesh.createPathMesh(MatrixHelper.createIdentityMatrix4());
     }
 
     private void maybeUnregister() {
-        if(mesh!=null) {
+        if(skyMesh !=null) {
             // unregister the old mesh
-            Registry.meshFactory.removeFromPool(mesh);
-            mesh=null;
+            Registry.meshFactory.removeFromPool(skyMesh);
+            skyMesh =null;
         }
     }
 
@@ -308,7 +308,7 @@ public class Environment extends Node {
     }
 
     public Mesh getSkyMesh() {
-        return mesh;
+        return skyMesh;
     }
 
     /**

@@ -1,5 +1,7 @@
 package com.marginallyclever.ro3.mesh.proceduralmesh;
 
+import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.factories.Lifetime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +41,9 @@ public class ProceduralMeshFactory {
             String className = "com.marginallyclever.ro3.mesh.proceduralmesh." + shapeName;
             Class<?> clazz = Class.forName(className);
             if (ProceduralMesh.class.isAssignableFrom(clazz)) {
-                return (ProceduralMesh) clazz.getDeclaredConstructor().newInstance();
+                var mesh = (ProceduralMesh) clazz.getDeclaredConstructor().newInstance();
+                Registry.meshFactory.addToPool(Lifetime.SCENE,shapeName+mesh.hashCode(),mesh);
+                return mesh;
             } else {
                 logger.error("Class {} is not a ProceduralMesh", className);
             }

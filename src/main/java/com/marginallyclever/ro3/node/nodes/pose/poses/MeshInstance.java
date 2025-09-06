@@ -170,7 +170,7 @@ public class MeshInstance extends Pose {
             var pmesh = ProceduralMeshFactory.createMesh(procMesh.getString("type"));
             if(pmesh!=null) {
                 pmesh.fromJSON(procMesh);
-                this.setMesh(pmesh);
+                mesh = pmesh;
             }
         }
         isActive = from.optBoolean("isActive",isActive);

@@ -12,6 +12,7 @@ import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
 import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.CircleXY;
+import com.marginallyclever.ro3.mesh.proceduralmesh.GenerativeMesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Waldo;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
@@ -90,10 +91,10 @@ public class RotateToolOneAxis implements ViewportTool {
     private boolean cursorOverHandle = false;
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
     private final Color color;
-    private final Mesh markerMesh = new Mesh();
-    private final Mesh angleMesh = new Mesh();
-    private final CircleXY ringMesh = new CircleXY();
-    private final Waldo waldo = new Waldo();
+    private static final Mesh markerMesh = new GenerativeMesh();
+    private static final Mesh angleMesh = new GenerativeMesh();
+    private static final CircleXY ringMesh = new CircleXY();
+    private static final Waldo waldo = new Waldo();
 
     private boolean drawPivotPoint=true;
 

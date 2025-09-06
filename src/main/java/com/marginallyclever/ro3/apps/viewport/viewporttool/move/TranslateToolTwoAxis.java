@@ -13,6 +13,7 @@ import com.marginallyclever.ro3.apps.viewport.viewporttool.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
 import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.proceduralmesh.GenerativeMesh;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
@@ -69,7 +70,7 @@ public class TranslateToolTwoAxis implements ViewportTool {
     private boolean cursorOverHandle = false;
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
     private final ColorRGB color;
-    private final Mesh quadMesh = new Mesh();
+    private static final Mesh quadMesh = new GenerativeMesh();
 
     public TranslateToolTwoAxis(ColorRGB color) {
         super();

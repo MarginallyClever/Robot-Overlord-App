@@ -62,8 +62,9 @@ public class Shader implements OpenGL3Resource {
 
     @Override
     public void unload(GL3 gl3) {
+        if( shaderId == -1 ) return; // not loaded
         refCount--;
-        if( shaderId != -1 && refCount == 0 ) {
+        if( refCount == 0 ) {
             gl3.glDeleteShader(shaderId);
             OpenGLHelper.checkGLError(gl3, logger);
             shaderId = -1;

@@ -148,12 +148,14 @@ public class DrawMeshes extends AbstractRenderPass {
         shadowShader.use(gl3);
         shadowShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
         shadowShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
+        OpenGLHelper.checkGLError(gl3,logger);
 
         for(MeshMaterialMatrix meshMaterialMatrix : meshes) {
             MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
             var w = meshMaterialMatrix.matrix();
             if(originShift) w = RenderPassHelper.getOriginShiftedMatrix(w,cameraWorldPos);
             shadowShader.setMatrix4d(gl3,"modelMatrix",w);
+            OpenGLHelper.checkGLError(gl3,logger);
             meshInstance.getMesh().render(gl3);
         }
         // viewport scene as normal with shadow mapping (using depth map)

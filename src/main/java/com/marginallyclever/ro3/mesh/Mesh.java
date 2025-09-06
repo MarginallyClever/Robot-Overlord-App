@@ -112,6 +112,8 @@ public class Mesh implements OpenGL3Resource {
 	}
 	
 	private void createBuffers(GL3 gl) {
+        if(isLoaded) return;
+
 		VAO = new int[1];
 		gl.glGenVertexArrays(1, VAO, 0);
 		OpenGLHelper.checkGLError(gl,logger);
@@ -123,6 +125,8 @@ public class Mesh implements OpenGL3Resource {
 	}
 
 	private void destroyBuffers(GL3 gl) {
+        if(!isLoaded) return;
+
 		if(VBO != null) {
 			gl.glDeleteBuffers(NUM_BUFFERS, VBO, 0);
             OpenGLHelper.checkGLError(gl,logger);
@@ -273,6 +277,7 @@ public class Mesh implements OpenGL3Resource {
 			updateBuffers(gl);
 			isDirty=false;
 		}
+        OpenGLHelper.checkGLError(gl,logger);
 
 		gl.glBindVertexArray(VAO[0]);
 		OpenGLHelper.checkGLError(gl,logger);

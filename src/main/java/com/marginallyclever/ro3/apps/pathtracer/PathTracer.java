@@ -135,9 +135,11 @@ public class PathTracer {
             // get the first hit along the ray
             Hit hit = rayPickSystem.getFirstHit(ray);
             pixel.addRayHistory(new Ray(ray), hit);
-            if (hit == null && environment != null ) {
+            if (hit == null) {
                 // hit nothing
-                ColorDouble sky = environment.getEnvironmentColor(ray);
+                ColorDouble sky = (environment!=null)
+                        ? environment.getEnvironmentColor(ray)
+                        : new ColorDouble(0,0,0);
                 sky.multiply(throughput);
                 radiance.add(sky);
                 break;

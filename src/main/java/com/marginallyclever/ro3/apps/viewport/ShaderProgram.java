@@ -79,6 +79,8 @@ public class ShaderProgram implements OpenGL3Resource {
     public void unload(GL3 gl) {
         if(programId == -1) return; // not loaded
         for( Shader shader : shaders ) {
+            if (shader.getShaderId() == -1) continue; // not loaded
+            OpenGLHelper.checkGLError(gl, logger);
             gl.glDetachShader(programId, shader.getShaderId());
             OpenGLHelper.checkGLError(gl, logger);
             shader.unload(gl);

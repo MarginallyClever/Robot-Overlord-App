@@ -40,6 +40,7 @@ public class Registry {
         nodeFactory.scan("com.marginallyclever.ro3");
         nodeFactory.addKnownNodes();
 
+        reset();
         setScene(new Node("Scene"));
     }
 
@@ -81,7 +82,6 @@ public class Registry {
 
     public static void setScene(Node newScene) {
         fireBeforeSceneChange(newScene);
-        reset();
         scene = newScene;
         fireAfterSceneChange(newScene);
     }

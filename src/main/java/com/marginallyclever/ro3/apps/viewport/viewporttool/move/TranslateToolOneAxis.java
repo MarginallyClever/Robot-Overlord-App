@@ -13,6 +13,7 @@ import com.marginallyclever.ro3.apps.viewport.viewporttool.SelectedItems;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
 import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.proceduralmesh.GenerativeMesh;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
@@ -25,7 +26,6 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,9 +74,10 @@ public class TranslateToolOneAxis implements ViewportTool {
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
     private final Color color;
     private TextureWithMetadata texture;
-    private final Mesh handleLineMesh = new Mesh(GL3.GL_LINES);
-    private final Sphere handleSphere = new Sphere();
-    private final Mesh quad = new Mesh(GL3.GL_QUADS);
+    // these meshes are identical across all instances of this tool, but when registered the name collision causes
+    // all instances after the first to not register.
+    private static final Mesh handleLineMesh = new GenerativeMesh();
+    private static final Sphere handleSphere = new Sphere();
 
     public TranslateToolOneAxis(Color color) {
         super();
@@ -84,20 +85,11 @@ public class TranslateToolOneAxis implements ViewportTool {
 
         Registry.meshFactory.addToPool(Lifetime.APPLICATION, "TranslateToolOneAxis.handleLineMesh", handleLineMesh);
         Registry.meshFactory.addToPool(Lifetime.APPLICATION, "TranslateToolOneAxis.handleSphere", handleSphere);
-        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "TranslateToolOneAxis.quad", quad);
 
         // handle line
+        handleLineMesh.setRenderStyle(GL3.GL_LINES);
         handleLineMesh.addVertex(0, 0, 0);
         handleLineMesh.addVertex((float)1.0, 0, 0);
-
-        quad.addVertex(-1, -1, 0);
-        quad.addVertex(1, -1, 0);
-        quad.addVertex(1, 1, 0);
-        quad.addVertex(-1, 1, 0);
-        quad.addTexCoord(0, 0);
-        quad.addTexCoord(1, 0);
-        quad.addTexCoord(1, 1);
-        quad.addTexCoord(0, 1);
     }
 
     @Override
@@ -335,19 +327,6 @@ public class TranslateToolOneAxis implements ViewportTool {
 
     private double getGripRadiusScaled() {
         return gripRadius * localScale;
-    }
-
-    public void setTexture(TextureWithMetadata texture, Rectangle2D textureBounds) {
-        this.texture = texture;
-        double u = textureBounds.getX();
-        double v = textureBounds.getY();
-        double w = textureBounds.getWidth();
-        double h = textureBounds.getHeight();
-        // update the quad texture coordinates.
-        quad.setTexCoord(0,u,v);
-        quad.setTexCoord(1,u+w,v);
-        quad.setTexCoord(2,u+w,v+h);
-        quad.setTexCoord(3,u,v+h);
     }
 
     @Override

@@ -22,6 +22,12 @@ public class OpenGLHelper {
 		return depthFunc.get();
 	}
 
+    /**
+     * Check for OpenGL errors and log them.  Note that the error state is no reset on every gl call, so
+     * you may want to investigate further up the call stack to find the real source of the error.
+     * @param gl3 the GL3 context
+     * @param logger the logger to use
+     */
 	public static void checkGLError(GL3 gl3,org.slf4j.Logger logger) {
 		int err = gl3.glGetError();
 		if(err != GL.GL_NO_ERROR) {
