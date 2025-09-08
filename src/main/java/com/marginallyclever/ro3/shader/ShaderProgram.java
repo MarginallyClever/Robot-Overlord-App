@@ -62,7 +62,7 @@ public class ShaderProgram implements OpenGL3Resource {
         gl.glGetProgramiv(programId, GL3.GL_INFO_LOG_LENGTH, logLength, 0);
         byte[] log = new byte[logLength[0]];
         gl.glGetProgramInfoLog(programId, logLength[0], null, 0, log, 0);
-        logger.error(message + new String(log));
+        throw new RuntimeException(message + new String(log));
     }
 
 

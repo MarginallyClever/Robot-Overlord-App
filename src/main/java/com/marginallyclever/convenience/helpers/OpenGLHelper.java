@@ -25,12 +25,7 @@ public class OpenGLHelper {
 		int err = gl3.glGetError();
 		if(err != GL.GL_NO_ERROR) {
 			GLU glu = GLU.createGLU(gl3);
-			logger.error("GL error {}: {}", err, glu.gluErrorString(err));
-
-            if (!gl3.getContext().isCurrent()) {
-                logger.error("OpenGL context is not current at glBindVertexArray");
-                throw new IllegalStateException("No active OpenGL context");
-            }
+            throw new IllegalStateException("GL error "+err+": "+ glu.gluErrorString(err));
         }
 	}
 
