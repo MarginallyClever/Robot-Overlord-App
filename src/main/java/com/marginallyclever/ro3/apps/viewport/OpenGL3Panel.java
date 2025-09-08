@@ -45,9 +45,9 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
         loadPrefs();
 
         try {
-            logger.info("availability="+ GLProfile.glAvailabilityToString());
+            logger.debug("availability="+ GLProfile.glAvailabilityToString());
             GLCapabilities capabilities = getCapabilities();
-            logger.info("create canvas");
+            logger.debug("create canvas");
             glCanvas = new GLJPanel(capabilities);
         } catch(GLException e) {
             logger.error("Failed to create canvas.  Are your native drivers missing?");
