@@ -6,6 +6,7 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.mesh.proceduralmesh.GenerativeMesh;
 import com.marginallyclever.ro3.shader.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.factories.Lifetime;
@@ -22,6 +23,9 @@ import org.slf4j.LoggerFactory;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,14 +35,16 @@ import java.util.List;
  */
 public class DrawMeshes extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawMeshes.class);
-    private ShaderProgram meshShader, shadowShader, outlineShader;
-    private final Mesh shadowQuad = new Mesh();
-    private int outlineThickness = 25;
+    private ShaderProgram meshShader;
+
+    private ShaderProgram shadowShader;
+    private final Mesh shadowQuad = new GenerativeMesh();
     private final int [] shadowFBO = new int[1];  // Frame Buffer Object
-    private final int [] depthMap = new int[1];  // texture for the FBO
+    private final int [] shadowTexture = new int[1];  // texture for the FBO
     private final int shadowMapUnit = 1;
     public static final int SHADOW_WIDTH = 1024;
     public static final int SHADOW_HEIGHT = 1024;
+
     public static final double DEPTH_BUFFER_LIMIT = Environment.SUN_DISTANCE*1.5;
     public static final Matrix4d lightProjection = new Matrix4d();
     public static final Matrix4d lightView = new Matrix4d();
@@ -46,10 +52,21 @@ public class DrawMeshes extends AbstractRenderPass {
     private final Vector3d sunlightSource = new Vector3d(50,150,350);
     private Color ambientColor = Color.BLACK;
 
+    private ShaderProgram outlineShader;
+    private int outlineThickness = 5;
+    private final int [] stencilFBO = new int[1]; // Framebuffer for offscreen stencil rendering
+    private final int [] stencilTexture = new int [1]; // Texture to capture stencil data
+    private final Mesh fullScreenQuad = new GenerativeMesh();
+
 
     public DrawMeshes() {
         super("Meshes");
         Registry.meshFactory.addToPool(Lifetime.APPLICATION,"DrawMeshes.shadowQuad",shadowQuad);
+
+        generateFullscreenQuad();
+
+        stencilFBO[0] = -1;
+        stencilTexture[0] = -1;
 
         shadowQuad.setRenderStyle(GL3.GL_QUADS);
         float v = 100;
@@ -57,6 +74,15 @@ public class DrawMeshes extends AbstractRenderPass {
         shadowQuad.addVertex( v,-v,0);  shadowQuad.addTexCoord(1,0);
         shadowQuad.addVertex( v, v,0);  shadowQuad.addTexCoord(1,1);
         shadowQuad.addVertex(-v, v,0);  shadowQuad.addTexCoord(0,1);
+    }
+
+    private void generateFullscreenQuad() {
+        float v = 1.0f;
+        fullScreenQuad.setRenderStyle(GL3.GL_TRIANGLE_STRIP);
+        fullScreenQuad.addVertex(-v,-v,0);  fullScreenQuad.addTexCoord(0,0);  // Bottom-left
+        fullScreenQuad.addVertex( v,-v,0);  fullScreenQuad.addTexCoord(1,0);  // Bottom-right
+        fullScreenQuad.addVertex(-v, v,0);  fullScreenQuad.addTexCoord(0,1);  // Top-left
+        fullScreenQuad.addVertex( v, v,0);  fullScreenQuad.addTexCoord(1,1);  // Top-right
     }
 
     @Override
@@ -85,14 +111,53 @@ public class DrawMeshes extends AbstractRenderPass {
         createShadowFBOandDepthMap(gl3);
     }
 
+    @Override
+    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
+        super.reshape(glAutoDrawable, x, y, width, height);
+
+        GL3 gl3 = glAutoDrawable.getGL().getGL3();
+        setupStencilFramebuffer(gl3,canvasWidth,canvasHeight);
+    }
+
+    private void setupStencilFramebuffer(GL3 gl3, int width, int height) {
+        deleteStencilBuffer(gl3);
+        // Create FBO if not already created
+        gl3.glGenFramebuffers(1, stencilFBO, 0);
+        // Create stencil texture if not created
+        gl3.glGenTextures(1, stencilTexture, 0);
+
+        gl3.glBindTexture(GL3.GL_TEXTURE_2D, stencilTexture[0]);
+        // create a channel with a single 8-bit red channel for stencil data
+        gl3.glTexImage2D(GL3.GL_TEXTURE_2D, 0, GL3.GL_R8, width, height, 0, GL3.GL_RED, GL3.GL_UNSIGNED_BYTE, null);
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_MIN_FILTER, GL3.GL_NEAREST);
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_MAG_FILTER, GL3.GL_NEAREST);
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_S, GL3.GL_CLAMP_TO_EDGE);
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_T, GL3.GL_CLAMP_TO_EDGE);
+
+        // Bind the FBO and attach the stencil texture
+        gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, stencilFBO[0]);
+        gl3.glFramebufferTexture2D(GL3.GL_FRAMEBUFFER, GL3.GL_COLOR_ATTACHMENT0, GL3.GL_TEXTURE_2D, stencilTexture[0], 0);
+        gl3.glDrawBuffer(GL3.GL_COLOR_ATTACHMENT0);
+
+        // Check FBO status
+        int status = gl3.glCheckFramebufferStatus(GL3.GL_FRAMEBUFFER);
+        if (status != GL3.GL_FRAMEBUFFER_COMPLETE) {
+            throw new RuntimeException("Failed to setup stencil framebuffer: " + status);
+        }
+
+        // Unbind FBO
+        gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, 0);
+    }
+
+
     private void createShadowFBOandDepthMap(GL3 gl3) {
         //logger.debug("Creating shadow FBO");
         gl3.glGenFramebuffers(1, shadowFBO, 0);
         OpenGLHelper.checkGLError(gl3,logger);
 
         //logger.debug("Creating depth map");
-        gl3.glGenTextures(1, depthMap,0);
-        gl3.glBindTexture(GL3.GL_TEXTURE_2D, depthMap[0]);
+        gl3.glGenTextures(1, shadowTexture,0);
+        gl3.glBindTexture(GL3.GL_TEXTURE_2D, shadowTexture[0]);
         gl3.glTexImage2D(GL3.GL_TEXTURE_2D,0,GL3.GL_DEPTH_COMPONENT,SHADOW_WIDTH,SHADOW_HEIGHT,0,GL3.GL_DEPTH_COMPONENT,GL3.GL_FLOAT,null);
 
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MIN_FILTER,GL3.GL_NEAREST);
@@ -106,7 +171,7 @@ public class DrawMeshes extends AbstractRenderPass {
 
         //logger.debug("Binding depth map {} to shadow FBO",depthMap[0]);
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, shadowFBO[0]);
-        gl3.glFramebufferTexture2D(GL3.GL_FRAMEBUFFER, GL3.GL_DEPTH_ATTACHMENT, GL3.GL_TEXTURE_2D, depthMap[0], 0);
+        gl3.glFramebufferTexture2D(GL3.GL_FRAMEBUFFER, GL3.GL_DEPTH_ATTACHMENT, GL3.GL_TEXTURE_2D, shadowTexture[0], 0);
         gl3.glDrawBuffer(GL3.GL_NONE);
         gl3.glReadBuffer(GL3.GL_NONE);
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER,0);
@@ -161,7 +226,7 @@ public class DrawMeshes extends AbstractRenderPass {
         gl3.glViewport(0,0,canvasWidth,canvasHeight);
         // bind the shadow map to texture unit 1
         gl3.glActiveTexture(GL3.GL_TEXTURE0 + shadowMapUnit);
-        gl3.glBindTexture(GL3.GL_TEXTURE_2D,depthMap[0]);
+        gl3.glBindTexture(GL3.GL_TEXTURE_2D, shadowTexture[0]);
         gl3.glActiveTexture(GL3.GL_TEXTURE0);
     }
 
@@ -169,7 +234,20 @@ public class DrawMeshes extends AbstractRenderPass {
     public void dispose(GLAutoDrawable glAutoDrawable) {
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         gl3.glDeleteFramebuffers(1, shadowFBO,0);
-        gl3.glDeleteTextures(1, depthMap,0);
+        gl3.glDeleteTextures(1, shadowTexture,0);
+
+        deleteStencilBuffer(gl3);
+    }
+
+    private void deleteStencilBuffer(GL3 gl3) {
+        if(stencilFBO[0]!=-1) {
+            gl3.glDeleteFramebuffers(1, stencilFBO,0);
+            stencilFBO[0] = -1;
+        }
+        if(stencilTexture[0]!=-1) {
+            gl3.glDeleteTextures(1, stencilTexture,0);
+            stencilTexture[0] = -1;
+        }
     }
 
     @Override
@@ -264,7 +342,7 @@ public class DrawMeshes extends AbstractRenderPass {
         gl3.glBindTexture(GL3.GL_TEXTURE_2D,0);
 
         gl3.glActiveTexture(GL3.GL_TEXTURE0);
-        gl3.glBindTexture(GL3.GL_TEXTURE_2D,depthMap[0]);
+        gl3.glBindTexture(GL3.GL_TEXTURE_2D, shadowTexture[0]);
 
         var m = MatrixHelper.createIdentityMatrix4();
         m.setTranslation(new Vector3d(cameraWorldPos.x,cameraWorldPos.y,cameraWorldPos.z-50));
@@ -309,16 +387,26 @@ public class DrawMeshes extends AbstractRenderPass {
         }
     }
 
-    private void drawAllMeshes(GL3 gl3, List<MeshMaterialMatrix> meshMaterialMatrices, Camera camera,boolean originShift) {
+    /**
+     * Draw all the meshes in the list with the given camera.
+     * @param gl3 the OpenGL context
+     * @param m3 the list of {@link MeshInstance}, {@link Material}, and {@link Matrix4d} to draw.
+     * @param camera
+     * @param originShift
+     */
+    private void drawAllMeshes(GL3 gl3, List<MeshMaterialMatrix> m3, Camera camera,boolean originShift) {
         meshShader.use(gl3);
-        meshShader.set1i(gl3, "shadowMap", shadowMapUnit);
-        meshShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
-        meshShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
         meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix(originShift));
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
         meshShader.setVector3d(gl3, "cameraPos",originShift ? new Vector3d() : cameraWorldPos);  // Camera position in world space
 
+        // shadow map stuff
+        meshShader.set1i(gl3, "shadowMap", shadowMapUnit);
+        meshShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
+        meshShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
+
+        // coloring
         var lightPos = new Vector3d(sunlightSource);
         if(!originShift) lightPos.add(cameraWorldPos);
         meshShader.setVector3d(gl3, "lightPos", lightPos);  // Light position in world space
@@ -326,15 +414,16 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setColor(gl3, "diffuseColor", Color.WHITE);
         meshShader.setColor(gl3, "specularColor", Color.WHITE);
         meshShader.setColor(gl3, "ambientColor", ambientColor);
+
         meshShader.set1i(gl3, "useVertexColor", 0);
         meshShader.set1i(gl3, "useLighting", 1);
         meshShader.set1i(gl3, "diffuseTexture", 0);
-        OpenGLHelper.checkGLError(gl3, logger);
+        //OpenGLHelper.checkGLError(gl3, logger);
 
         Material lastSeen = null;
         TextureWithMetadata texture = null;
 
-        for(MeshMaterialMatrix meshMaterialMatrix : meshMaterialMatrices) {
+        for(MeshMaterialMatrix meshMaterialMatrix : m3) {
             MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
             Material material = meshMaterialMatrix.material();
 
@@ -373,72 +462,75 @@ public class DrawMeshes extends AbstractRenderPass {
         }
     }
 
-    private void outlineSelectedMeshes(GL3 gl3, List<MeshMaterialMatrix> meshMaterialMatrices, Camera camera,boolean originShift) {
-        gl3.glEnable(GL3.GL_STENCIL_TEST);
+    private void outlineSelectedMeshes(GL3 gl3, List<MeshMaterialMatrix> selectedM3, Camera camera,boolean originShift) {
+        // Step 1: Render the stencil into an offscreen texture using the FBO
+        gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, stencilFBO[0]);
+        gl3.glViewport(0, 0, canvasWidth, canvasHeight);
+        // Clear stencil texture
+        gl3.glClearColor(0,0,0,0);
+        gl3.glClear(GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT);
 
-        // we're working with stencil and depth buffers.  clear them.
-        gl3.glClear(GL3.GL_STENCIL_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT);
-        // do not change the color buffer, only the stencil and depth buffers.
-        gl3.glColorMask(false,false,false,false);
-        gl3.glDepthMask(true);
-        gl3.glStencilMask(0xFF);
+        // draw all meshes in white
+        meshShader.use(gl3);
+        meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix(originShift));
+        meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
+        meshShader.set1i(gl3, "useVertexColor", 0);
+        meshShader.set1i(gl3, "useLighting", 0);
+        meshShader.setColor(gl3,"diffuseColor",Color.WHITE);
 
-        // update the stencil buffer only when stencil and depth tests pass
-        gl3.glStencilFunc(GL3.GL_ALWAYS,1,0xFF);
-        gl3.glStencilOp(GL3.GL_KEEP,GL3.GL_KEEP,GL3.GL_REPLACE);
+        Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
 
-        drawAllMeshes(gl3, meshMaterialMatrices,camera,originShift);
-
-        // resume editing the color buffer, do not change the depth mask or the stencil buffer.
-        gl3.glColorMask(true,true,true,true);
-        gl3.glDepthMask(false);
-        gl3.glStencilMask(0x00);
-
-        // only draw where the stencil buffer is not 1
-        gl3.glStencilFunc(GL3.GL_NOTEQUAL,1,0xFF);
-        gl3.glStencilOp(GL3.GL_KEEP,GL3.GL_KEEP,GL3.GL_KEEP);
-        // draw the outlines of things, without depth testing or face culling.
-        gl3.glDisable(GL3.GL_CULL_FACE);
-        gl3.glPolygonMode(GL3.GL_FRONT_AND_BACK,GL3.GL_LINE);
-
-        // give it a thick line effect
-        gl3.glLineWidth(outlineThickness);
-
-        // use the outline shader
-        outlineShader.use(gl3);
-        // tell the shader some important information
-
-        var vm = camera.getViewMatrix(originShift);
-        var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
-        //var vm = MatrixHelper.createIdentityMatrix4();
-        outlineShader.setMatrix4d(gl3, "viewMatrix", vm);
-        outlineShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
-        outlineShader.setColor(gl3, "outlineColor", Color.GREEN);
-        outlineShader.set1f(gl3,"outlineSize",0.0f);
-
-        // render the set
-        for(MeshMaterialMatrix meshMaterialMatrix : meshMaterialMatrices) {
+        for(MeshMaterialMatrix meshMaterialMatrix : selectedM3) {
             MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
-            // set the model matrix
-            var w = meshMaterialMatrix.matrix();
-            if(originShift) w = RenderPassHelper.getOriginShiftedMatrix(w,cameraWorldPos);
-            outlineShader.setMatrix4d(gl3,"modelMatrix",w);
+            Mesh mesh = meshInstance.getMesh();
+            var m = meshMaterialMatrix.matrix();
+            if(originShift) m = RenderPassHelper.getOriginShiftedMatrix(m,cameraWorldPos);
+            meshShader.setMatrix4d(gl3,"modelMatrix",m);
             // draw it
-            meshInstance.getMesh().render(gl3);
-            OpenGLHelper.checkGLError(gl3,logger);
+            mesh.render(gl3);
         }
 
-        // restore settings
-        gl3.glPolygonMode(GL3.GL_FRONT_AND_BACK,GL3.GL_FILL);
+        // resume editing the color buffer, do not change the depth mask or the stencil buffer.
+        gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER, 0);
+
+        // Step 2: Render outlines using the stencil texture
+        gl3.glActiveTexture(GL3.GL_TEXTURE0);
+        gl3.glBindTexture(GL3.GL_TEXTURE_2D, stencilTexture[0]);
+        gl3.glViewport(0, 0, canvasWidth, canvasHeight);
+
+        //captureTextureData(gl3,canvasWidth,canvasHeight);
+
+        outlineShader.use(gl3);
+        // Pass stencil texture and viewport size to the shader
+        outlineShader.set1i(gl3, "stencilTexture", 0); // Texture unit 0
+        outlineShader.set2f(gl3, "textureSize", canvasWidth, canvasHeight);
+
+        // Configure projection and view matrices
+        outlineShader.setColor(gl3, "outlineColor", Color.GREEN);
+        outlineShader.set1f(gl3, "outlineSize", outlineThickness);
+
+        // Render the quad with the stencil texture to the screen
+        gl3.glDisable(GL3.GL_CULL_FACE);
+        fullScreenQuad.render(gl3);
         gl3.glEnable(GL3.GL_CULL_FACE);
-        gl3.glLineWidth(1);
-        gl3.glDepthMask(true);
+    }
 
-        // turn off stencil testing
-        gl3.glStencilFunc(GL3.GL_ALWAYS,1,0xFF);
-        gl3.glStencilOp(GL3.GL_KEEP, GL3.GL_KEEP, GL3.GL_REPLACE);
-
-        gl3.glDisable(GL3.GL_STENCIL_TEST);
+    /**
+     * Capture the texture data from the active texture for potential saving or processing.
+     * @param gl3 the OpenGL context
+     * @param width the width of the texture
+     * @param height the height of the texture
+     */
+    private void captureTextureData(GL3 gl3,int width,int height) {
+        // Allocate a buffer to read texture data
+        ByteBuffer buffer = ByteBuffer.allocateDirect(width * height);
+        gl3.glGetTexImage(GL3.GL_TEXTURE_2D, 0, GL3.GL_RED, GL3.GL_UNSIGNED_BYTE, buffer);
+        // Create a BufferedImage (grayscale image for single-channel data)
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+        // Get the raw byte array from the BufferedImage
+        byte[] imageData = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+        // Copy the buffer data into the BufferedImage
+        buffer.get(imageData);
     }
 
     // not the same as MatrixHelper.lookAt().  This is for the light source.
