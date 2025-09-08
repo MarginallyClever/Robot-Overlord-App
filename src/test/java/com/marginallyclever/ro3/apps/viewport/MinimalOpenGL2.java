@@ -4,10 +4,9 @@ import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * <p>Use JOGL to open a GLJPanel in a JFrame and render a triangle.
@@ -17,90 +16,61 @@ import javax.swing.*;
  */
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless environment")
 public class MinimalOpenGL2 extends JPanel implements GLEventListener {
-    private static final Logger logger = LoggerFactory.getLogger(MinimalOpenGL2.class);
-    private static final long startTime = System.currentTimeMillis();
-
-    private final GLJPanel glPanel;
     private final FPSAnimator animator;
-
-    private static final boolean HARDWARE_ACCELERATED = true;
-    private static final boolean DOUBLE_BUFFERED = true;
-    private static final int FSAA_SAMPLES = 2;
-    private static final int FPS = 60;
+    private final long startTime = System.currentTimeMillis();
 
     public static void main(String[] args) {
-        logger.info("start time "+startTime);
-        // create a JFrame, add a JHelloWorldGL2 to it, and make it visible.
-        JFrame frame = new JFrame("Hello World GL2");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
-        MinimalOpenGL2 panel = new MinimalOpenGL2();
-        frame.setLocationRelativeTo(null);
-        frame.add(panel);
-        frame.setVisible(true);
+        JFrame frame = new JFrame("Hello World GL2");  // create a JFrame
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  // make sure to exit when it is closed
+        frame.setSize(800, 600);  // set the size of the window
+        MinimalOpenGL2 panel = new MinimalOpenGL2();  // create an instance of our panel
+        frame.setLocationRelativeTo(null);  // center the frame on the screen
+        frame.add(panel);  // add our panel to the frame
+        frame.setVisible(true);  // make the frame visible
     }
 
     public MinimalOpenGL2() {
-        super();
-        var capabilities = getCapabilities();
-        glPanel = new GLJPanel(capabilities);
-        glPanel.addGLEventListener(this);
-        this.setLayout(new java.awt.BorderLayout());
-        this.add(glPanel, java.awt.BorderLayout.CENTER);
-        animator = new FPSAnimator(glPanel, FPS);
+        super(new BorderLayout());
+        GLJPanel glPanel = new GLJPanel(getCapabilities());  // create a GLJPanel with the desired capabilities
+        glPanel.addGLEventListener(this);  // add this class as a GLEventListener
+        add(glPanel, BorderLayout.CENTER);  // add the GLJPanel to this JPanel
+        animator = new FPSAnimator(glPanel, 30);  // create an animator to drive the display() method at 30 FPS
     }
 
     private GLCapabilities getCapabilities() {
-        //GLProfile profile = GLProfile.getMaxProgrammable(true);
-        GLProfile profile = GLProfile.getGL2ES1();
-        GLCapabilities capabilities = new GLCapabilities(profile);
-        capabilities.setHardwareAccelerated(HARDWARE_ACCELERATED);
-        capabilities.setBackgroundOpaque(true);
-        capabilities.setDoubleBuffered(DOUBLE_BUFFERED);
-        //capabilities.setStencilBits(8);
-        capabilities.setDepthBits(32);  // 32 bit depth buffer is floating point
-        if(FSAA_SAMPLES > 0) {
-            capabilities.setSampleBuffers(true);
-            capabilities.setNumSamples(1<< FSAA_SAMPLES);
-        }
-        StringBuilder sb = new StringBuilder();
-        capabilities.toString(sb);
-        logger.info("capabilities="+sb);
+        GLCapabilities capabilities = new GLCapabilities(GLProfile.getGL2ES1());
+        capabilities.setHardwareAccelerated(true);  // request hardware acceleration
+        capabilities.setDoubleBuffered(true);  // request double buffering
+        capabilities.setDepthBits(32);  // request a 32-bit depth buffer
         return capabilities;
     }
 
     @Override
     public void addNotify() {
         super.addNotify();
-        animator.start();
+        animator.start();  // start the animator when the panel is added to its parent
     }
 
     @Override
     public void removeNotify() {
         super.removeNotify();
-        animator.stop();
+        animator.stop();  // stop the animator when the panel is removed from its parent
     }
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
         var gl = glAutoDrawable.getGL().getGL2();
-        gl.glClearColor(0.8f,0.8f,0.8f,1);
-
-        // enable vsync to prevent screen tearing effect
-        gl.setSwapInterval(1);
-
-        gl.glHint(GL2.GL_LINE_SMOOTH_HINT, GL2.GL_NICEST);
-        gl.glEnable(GL2.GL_LINE_SMOOTH);
+        gl.glClearColor(0.8f,0.8f,0.8f,1);  // light grey background
+        gl.setSwapInterval(1);  // enable vsync to prevent screen tearing effect
         gl.glEnable(GL2.GL_BLEND);
         gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
     }
 
     @Override
-    public void dispose(GLAutoDrawable glAutoDrawable) {
-        var gl = glAutoDrawable.getGL().getGL2();
-        gl.glFinish(); // Ensure all OpenGL commands are completed before disposing
-        logger.info("OpenGL resources disposed.");
-    }
+    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {}
+
+    @Override
+    public void dispose(GLAutoDrawable glAutoDrawable) {}
 
     /**
      * Render one frame of the scene.
@@ -110,23 +80,16 @@ public class MinimalOpenGL2 extends JPanel implements GLEventListener {
     public void display(GLAutoDrawable glAutoDrawable) {
         var gl = glAutoDrawable.getGL().getGL2();
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT);
-
         spinTriangle(gl);
         drawTriangle(gl);
     }
 
     private void spinTriangle(GL2 gl2) {
-        // get time since last frame, in seconds.
-        double dt = 1.0 / FPS;
-        double secondsSinceStart = (System.currentTimeMillis() - startTime) / 1000.0;
-
-        System.out.println("A "+secondsSinceStart);
-        // rotate the triangle around the Z axis
-        //gl2.glPushMatrix();
-        gl2.glMatrixMode(GL2.GL_MODELVIEW);
-        gl2.glLoadIdentity(); // Reset the modelview matrix
-        gl2.glRotated(secondsSinceStart * 90, 0, 0, 1);
-        // draw the triangle again with the new rotation
+        double seconds = (System.currentTimeMillis()-startTime) / 1000.0;
+        gl2.glMatrixMode(GL2.GL_MODELVIEW);  // move the model, not the view or the projection.
+        gl2.glLoadIdentity(); // Reset the matrix
+        gl2.glRotated(seconds * 90,  // 90 degrees per second
+                0, 0, 1);  // rotate around the Z axis
     }
 
     private void drawTriangle(GL2 gl) {
@@ -136,7 +99,4 @@ public class MinimalOpenGL2 extends JPanel implements GLEventListener {
         gl.glColor3f(0, 0, 1);        gl.glVertex2f( 0.0f,  0.5f); // Blue
         gl.glEnd();
     }
-
-    @Override
-    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {}
 }
