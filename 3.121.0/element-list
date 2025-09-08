@@ -33,6 +33,7 @@ com.marginallyclever.ro3.apps.viewport.renderpass
 com.marginallyclever.ro3.apps.viewport.viewporttool
 com.marginallyclever.ro3.apps.viewport.viewporttool.move
 com.marginallyclever.ro3.apps.webcam
+com.marginallyclever.ro3.factories
 com.marginallyclever.ro3.listwithevents
 com.marginallyclever.ro3.mesh
 com.marginallyclever.ro3.mesh.load
