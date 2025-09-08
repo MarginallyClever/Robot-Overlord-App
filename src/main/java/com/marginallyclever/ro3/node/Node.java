@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.node;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -8,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
+import java.awt.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -38,6 +41,7 @@ import java.util.UUID;
  * <p>Nodes can be serialized to and from JSON.</p>
  */
 public class Node {
+    public static final URL ICON = Node.class.getResource("icons8-node-16.png");
     private static final Logger logger = LoggerFactory.getLogger(Node.class);
     private String name;
     private final List<Node> children = new ArrayList<>();
@@ -467,12 +471,15 @@ public class Node {
     }
 
     /**
-     * Find the node in the tree with the given path.
-     * @param path the path to the node.  can be relative or absolute.  understands ".." to go up one level.
-     * @return the node, or null if none found.
+     * Check if this node has a child of the given type.
+     * @param clazz the class to check for.
+     * @return true if this node has a child of the given type.
      */
-    public Node findByPath(String path) {
-        return findNodeByPath(path,Node.class);
+    public boolean hasChild(Class<?> clazz) {
+        for(Node child : children) {
+            if(clazz.isInstance(child)) return true;
+        }
+        return false;
     }
 
     /**
@@ -480,6 +487,15 @@ public class Node {
      * @return the icon, or null if none.
      */
     public Icon getIcon() {
-        return null;
+        return new ImageIcon(Toolkit.getDefaultToolkit().getImage(Node.class.getResource("icons8-node-16.png")));
+    }
+
+    /**
+     * Find the node in the tree with the given path.
+     * @param path the path to the node.  can be relative or absolute.  understands ".." to go up one level.
+     * @return the node, or null if none found.
+     */
+    public Node findByPath(String path) {
+        return findNodeByPath(path,Node.class);
     }
 }
