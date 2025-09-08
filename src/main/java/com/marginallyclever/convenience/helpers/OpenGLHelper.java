@@ -3,7 +3,6 @@ package com.marginallyclever.convenience.helpers;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.glu.GLU;
-import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;

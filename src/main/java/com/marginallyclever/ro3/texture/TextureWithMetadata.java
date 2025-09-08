@@ -6,7 +6,7 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 import com.marginallyclever.ro3.apps.viewport.OpenGL3Resource;
-import com.marginallyclever.ro3.apps.viewport.ShaderProgram;
+import com.marginallyclever.ro3.shader.ShaderProgram;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

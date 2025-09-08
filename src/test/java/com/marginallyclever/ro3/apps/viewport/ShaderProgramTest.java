@@ -5,6 +5,8 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
+import com.marginallyclever.ro3.shader.Shader;
+import com.marginallyclever.ro3.shader.ShaderProgram;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

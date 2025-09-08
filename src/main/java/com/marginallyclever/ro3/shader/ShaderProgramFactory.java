@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.apps.viewport;
+package com.marginallyclever.ro3.shader;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.ro3.Registry;
@@ -10,23 +10,17 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ShaderFactory extends Factory {
-    private final Map<String, Resource<Shader>> cache = new HashMap<>();
+/**
+ * Maintains a list of the loaded {@link ShaderProgram} and prevents duplication.  Also provides a centralized place to
+ * destroy them when the OpenGL context goes away.
+ */
+public class ShaderProgramFactory extends Factory {
+    private final Map<String, Resource<ShaderProgram>> cache = new HashMap<>();
 
-    public Shader get(Lifetime lifetime, int type, String[] shaderCode) {
-        String typeName = switch(type) {
-            case GL3.GL_VERTEX_SHADER -> "VERTEX";
-            case GL3.GL_FRAGMENT_SHADER -> "FRAGMENT";
-            case GL3.GL_GEOMETRY_SHADER -> "GEOMETRY";
-            case GL3.GL_TESS_CONTROL_SHADER -> "TESS_CONTROL";
-            case GL3.GL_TESS_EVALUATION_SHADER -> "TESS_EVALUATION";
-            case GL3.GL_COMPUTE_SHADER -> "COMPUTE";
-            default -> throw new IllegalArgumentException("Invalid shader type: "+type);
-        };
-        String key = typeName+" "+ Integer.toHexString(Arrays.hashCode(shaderCode));
-        return cache.computeIfAbsent(key, _ -> new Resource<>(
-                new Shader(type,shaderCode,key),lifetime)
-        ).item();
+    public ShaderProgram get(Lifetime lifetime, String key, Shader... shaders) {
+        return cache.computeIfAbsent(key, _-> new Resource<>(
+                        new ShaderProgram(Arrays.stream(shaders).toList()),lifetime)
+                ).item();
     }
 
     /**

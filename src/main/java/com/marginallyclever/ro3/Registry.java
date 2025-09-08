@@ -1,8 +1,8 @@
 package com.marginallyclever.ro3;
 
 import com.marginallyclever.ro3.apps.viewport.OpenGL3Resource;
-import com.marginallyclever.ro3.apps.viewport.ShaderFactory;
-import com.marginallyclever.ro3.apps.viewport.ShaderProgramFactory;
+import com.marginallyclever.ro3.shader.ShaderFactory;
+import com.marginallyclever.ro3.shader.ShaderProgramFactory;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.mesh.MeshFactory;
 import com.marginallyclever.ro3.node.Node;

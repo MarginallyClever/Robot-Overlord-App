@@ -12,6 +12,7 @@ import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
 import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
+import com.marginallyclever.ro3.shader.ShaderProgram;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
