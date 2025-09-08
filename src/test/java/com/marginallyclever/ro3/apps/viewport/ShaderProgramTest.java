@@ -5,8 +5,11 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.shader.Shader;
+import com.marginallyclever.ro3.shader.ShaderFactory;
 import com.marginallyclever.ro3.shader.ShaderProgram;
+import com.marginallyclever.ro3.shader.ShaderProgramFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +25,9 @@ import java.util.ArrayList;
 public class ShaderProgramTest extends JPanel implements GLEventListener {
     private static final Logger logger = LoggerFactory.getLogger(ShaderProgramTest.class);
     private static final long startTime = System.currentTimeMillis();
+
+    private final ShaderProgramFactory spf = new ShaderProgramFactory();
+    private final ShaderFactory sf = new ShaderFactory();
 
     private final GLJPanel glPanel;
     private final FPSAnimator animator;
@@ -151,13 +157,9 @@ public class ShaderProgramTest extends JPanel implements GLEventListener {
     }
 
     private void initShader(GL3 gl) {
-        vertexShader = new Shader(GL3.GL_VERTEX_SHADER, vertexCode,"vertex");
-        fragmentShader = new Shader(GL3.GL_FRAGMENT_SHADER, fragmentCode,"fragment");
-        var list = new ArrayList<Shader>();
-        list.add(vertexShader);
-        list.add(fragmentShader);
-        shaderProgram = new ShaderProgram(list);
-
+        vertexShader = sf.get(Lifetime.SCENE,GL3.GL_VERTEX_SHADER, vertexCode);
+        fragmentShader = sf.get(Lifetime.SCENE,GL3.GL_FRAGMENT_SHADER, fragmentCode);
+        shaderProgram = spf.get(Lifetime.SCENE,"shader",vertexShader,fragmentShader);
         shaderProgram.use(gl);
 
         matrixId = gl.glGetUniformLocation(shaderProgram.getProgramId(), "model");
