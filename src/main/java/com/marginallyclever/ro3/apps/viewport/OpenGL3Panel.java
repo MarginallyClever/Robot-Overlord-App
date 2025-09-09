@@ -12,6 +12,7 @@ import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportTool;
 import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
+import com.marginallyclever.ro3.shader.ShaderProgram;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,9 +46,9 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
         loadPrefs();
 
         try {
-            logger.info("availability="+ GLProfile.glAvailabilityToString());
+            logger.debug("availability="+ GLProfile.glAvailabilityToString());
             GLCapabilities capabilities = getCapabilities();
-            logger.info("create canvas");
+            logger.debug("create canvas");
             glCanvas = new GLJPanel(capabilities);
         } catch(GLException e) {
             logger.error("Failed to create canvas.  Are your native drivers missing?");
