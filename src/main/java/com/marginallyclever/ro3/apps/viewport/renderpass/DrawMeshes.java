@@ -58,16 +58,16 @@ public class DrawMeshes extends AbstractRenderPass {
     private final int [] stencilTexture = new int [1]; // Texture to capture stencil data
     private final Mesh fullScreenQuad = new GenerativeMesh();
 
-
     public DrawMeshes() {
         super("Meshes");
-        Registry.meshFactory.addToPool(Lifetime.APPLICATION,"DrawMeshes.shadowQuad",shadowQuad);
-
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "DrawMeshes.shadowQuad", shadowQuad);
+        generateShadowQuad();
         generateFullscreenQuad();
-
         stencilFBO[0] = -1;
         stencilTexture[0] = -1;
+    }
 
+    private void generateShadowQuad() {
         shadowQuad.setRenderStyle(GL3.GL_QUADS);
         float v = 100;
         shadowQuad.addVertex(-v,-v,0);  shadowQuad.addTexCoord(0,0);
@@ -476,6 +476,7 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
         meshShader.set1i(gl3, "useVertexColor", 0);
         meshShader.set1i(gl3, "useLighting", 0);
+        meshShader.set1i(gl3, "useTexture", 0);
         meshShader.setColor(gl3,"diffuseColor",Color.WHITE);
 
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
@@ -496,16 +497,12 @@ public class DrawMeshes extends AbstractRenderPass {
         // Step 2: Render outlines using the stencil texture
         gl3.glActiveTexture(GL3.GL_TEXTURE0);
         gl3.glBindTexture(GL3.GL_TEXTURE_2D, stencilTexture[0]);
-        gl3.glViewport(0, 0, canvasWidth, canvasHeight);
 
         //captureTextureData(gl3,canvasWidth,canvasHeight);
 
         outlineShader.use(gl3);
-        // Pass stencil texture and viewport size to the shader
         outlineShader.set1i(gl3, "stencilTexture", 0); // Texture unit 0
-        outlineShader.set2f(gl3, "textureSize", canvasWidth, canvasHeight);
-
-        // Configure projection and view matrices
+        outlineShader.set2f(gl3, "canvasSize", canvasWidth, canvasHeight);
         outlineShader.setColor(gl3, "outlineColor", Color.GREEN);
         outlineShader.set1f(gl3, "outlineSize", outlineThickness);
 
