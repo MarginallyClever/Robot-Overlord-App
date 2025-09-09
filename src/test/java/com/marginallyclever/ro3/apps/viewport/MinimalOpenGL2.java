@@ -62,6 +62,8 @@ public class MinimalOpenGL2 extends JPanel implements GLEventListener {
         var gl = glAutoDrawable.getGL().getGL2();
         gl.glClearColor(0.8f,0.8f,0.8f,1);  // light grey background
         gl.setSwapInterval(1);  // enable vsync to prevent screen tearing effect
+        gl.glHint(GL3.GL_POLYGON_SMOOTH_HINT, GL3.GL_NICEST);
+        gl.glEnable(GL3.GL_POLYGON_SMOOTH);
         gl.glEnable(GL2.GL_BLEND);
         gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
     }

@@ -2,15 +2,12 @@ package com.marginallyclever.ro3.apps.viewport;
 
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
-import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
-import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
+import java.awt.*;
 import java.nio.FloatBuffer;
 
 /**
@@ -25,16 +22,9 @@ import java.nio.FloatBuffer;
  */
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless environment")
 public class MinimalOpenGL3 extends JPanel implements GLEventListener {
-    private static final Logger logger = LoggerFactory.getLogger(MinimalOpenGL3.class);
     private static final long startTime = System.currentTimeMillis();
 
-    private final GLJPanel glPanel;
     private final FPSAnimator animator;
-
-    private static boolean HARDWARE_ACCELERATED = true;
-    private static boolean DOUBLE_BUFFERED = true;
-    private static final int FSAA_SAMPLES = 2;
-    private static final int FPS = 60;
 
     // shader stuff
     private int shaderId;
@@ -81,56 +71,40 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
 
 
     public static void main(String[] args) {
-        logger.info("start time "+startTime);
-        // create a JFrame, add a JHelloWorldGL2 to it, and make it visible.
         JFrame frame = new JFrame("Hello World GL3");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
-        MinimalOpenGL3 panel = new MinimalOpenGL3();
         frame.setLocationRelativeTo(null);
-        frame.add(panel);
+        frame.add(new MinimalOpenGL3());
         frame.setVisible(true);
     }
 
     public MinimalOpenGL3() {
-        super();
-        var capabilities = getCapabilities();
-        glPanel = new GLJPanel(capabilities);
-        this.setLayout(new java.awt.BorderLayout());
-        this.add(glPanel, java.awt.BorderLayout.CENTER);
-        animator = new FPSAnimator(glPanel, FPS);
+        super(new BorderLayout());
+        GLJPanel glPanel = new GLJPanel(getCapabilities());
+        glPanel.addGLEventListener(this);
+        add(glPanel, BorderLayout.CENTER);
+        animator = new FPSAnimator(glPanel, 30);
     }
 
     private GLCapabilities getCapabilities() {
-        //GLProfile profile = GLProfile.getMaxProgrammable(true);
-        GLProfile profile = GLProfile.get(GLProfile.GL3bc);
-        GLCapabilities capabilities = new GLCapabilities(profile);
-        capabilities.setHardwareAccelerated(HARDWARE_ACCELERATED);
+        GLCapabilities capabilities = new GLCapabilities(GLProfile.get(GLProfile.GL3bc));
+        capabilities.setHardwareAccelerated(true);
         capabilities.setBackgroundOpaque(true);
-        capabilities.setDoubleBuffered(DOUBLE_BUFFERED);
-        //capabilities.setStencilBits(8);
+        capabilities.setDoubleBuffered(true);
         capabilities.setDepthBits(32);  // 32 bit depth buffer is floating point
-        if(FSAA_SAMPLES > 0) {
-            capabilities.setSampleBuffers(true);
-            capabilities.setNumSamples(1<< FSAA_SAMPLES);
-        }
-        StringBuilder sb = new StringBuilder();
-        capabilities.toString(sb);
-        logger.info("capabilities="+sb);
         return capabilities;
     }
 
     @Override
     public void addNotify() {
         super.addNotify();
-        if(glPanel!=null) glPanel.addGLEventListener(this);
         animator.start();
     }
 
     @Override
     public void removeNotify() {
         super.removeNotify();
-        if(glPanel!=null) glPanel.removeGLEventListener(this);
         animator.stop();
     }
 
@@ -143,17 +117,10 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
     }
 
     private void initPreferences(GL3 gl) {
-        gl.glClearColor(0.8f,0.8f,0.8f,1);
-
-        // enable vsync to prevent screen tearing effect
-        gl.setSwapInterval(1);
-        
-        gl.glHint(GL3.GL_LINE_SMOOTH_HINT, GL3.GL_NICEST);
-        gl.glEnable(GL3.GL_LINE_SMOOTH);
-
+        gl.glClearColor(0.8f,0.8f,0.8f,1);  // light grey background
+        gl.setSwapInterval(1);  // enable vsync to prevent screen tearing effect
         gl.glHint(GL3.GL_POLYGON_SMOOTH_HINT, GL3.GL_NICEST);
         gl.glEnable(GL3.GL_POLYGON_SMOOTH);
-
         gl.glEnable(GL3.GL_BLEND);
         gl.glBlendFunc(GL3.GL_SRC_ALPHA, GL3.GL_ONE_MINUS_SRC_ALPHA);
     }
@@ -165,7 +132,6 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
 
         gl.glAttachShader(shaderId, vertexShaderId);
         gl.glAttachShader(shaderId, fragmentShaderId);
-
         gl.glLinkProgram(shaderId);
 
         if (!checkCompileStatus(gl, shaderId, GL3.GL_LINK_STATUS)) {
@@ -190,7 +156,7 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
             byte[] log = new byte[logLength[0]];
             gl.glGetShaderInfoLog(shaderId, logLength[0], null, 0, log, 0);
 
-            logger.error("Failed to compile "+name+" shader code: " + new String(log));
+            System.out.println("Failed to compile "+name+" shader code: " + new String(log));
         }
         return shaderId;
     }
@@ -203,7 +169,6 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
     private void updateBuffers(GL3 gl) {
         // put the vertices and colors into the vbo.
         gl.glBindVertexArray(vao[0]);
-        OpenGLHelper.checkGLError(gl,logger);
 
         setupOneBuffer(gl,0, VERTEX_COMPONENTS, vertices);
         setupOneBuffer(gl,1, COLOR_COMPONENTS, colors  );
@@ -213,36 +178,18 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
 
     private void bindOneBuffer(GL3 gl, int attribIndex) {
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo[attribIndex]);
-        OpenGLHelper.checkGLError(gl,logger);
     }
 
     private void setupOneBuffer(GL3 gl, int attribIndex, int size, float [] data) {
         bindOneBuffer(gl, attribIndex);
-        OpenGLHelper.checkGLError(gl,logger);
         gl.glBufferData(GL3.GL_ARRAY_BUFFER, (long) data.length * Float.BYTES, FloatBuffer.wrap(data), GL3.GL_STATIC_DRAW);
-        OpenGLHelper.checkGLError(gl,logger);
         gl.glVertexAttribPointer(attribIndex,size,GL3.GL_FLOAT,false,0,0);
-        OpenGLHelper.checkGLError(gl,logger);
         gl.glEnableVertexAttribArray(attribIndex);
-        OpenGLHelper.checkGLError(gl,logger);
     }
     
     private void createBuffers(GL3 gl) {
-        // init vao
-        gl.glGenVertexArrays(1, vao, 0);
-        checkGLError(gl);
-
-        // init vbo
-        gl.glGenBuffers(NUM_BUFFERS, vbo, 0);
-        checkGLError(gl);
-    }
-
-    public static void checkGLError(GL3 gl3) {
-        int err = gl3.glGetError();
-        if(err != GL.GL_NO_ERROR) {
-            GLU glu = GLU.createGLU(gl3);
-            logger.error("GL error {}: {}", err, glu.gluErrorString(err));
-        }
+        gl.glGenVertexArrays(1, vao, 0);  // init vao
+        gl.glGenBuffers(NUM_BUFFERS, vbo, 0);  // init vbo
     }
 
     /**
@@ -264,14 +211,13 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
     }
 
     @Override
+    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {}
+
+    @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
         var gl = glAutoDrawable.getGL().getGL3();
-
         disposeMesh(gl);
         disposeShader(gl);
-
-        gl.glFinish(); // Ensure all OpenGL commands are completed before disposing
-        logger.info("OpenGL resources disposed.");
     }
 
     private void disposeMesh(GL3 gl) {
@@ -303,13 +249,9 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
     }
 
     private void spinTriangle(GL3 gl) {
-        // get time since last frame, in seconds.
-        double dt = 1.0 / FPS;
-        double secondsSinceStart = (System.currentTimeMillis() - startTime) / 1000.0;
-        System.out.println("A " + secondsSinceStart);
-
+        double seconds = (System.currentTimeMillis() - startTime) / 1000.0;
         var m = new Matrix4d();
-        m.rotZ(Math.toRadians(secondsSinceStart * 90));
+        m.rotZ(Math.toRadians(seconds * 90));  // 90 degrees per second
         uploadMatrixToCurrentShader(gl,m);
     }
 
@@ -324,13 +266,9 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
         gl.glUniformMatrix4fv(matrixId, 1, false, list, 0);
     }
 
-
     private void drawTriangle(GL3 gl) {
         gl.glBindVertexArray(vao[0]);
         gl.glDrawArrays(GL3.GL_TRIANGLES, 0, 3);
         gl.glBindVertexArray(0);
     }
-
-    @Override
-    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {}
 }
