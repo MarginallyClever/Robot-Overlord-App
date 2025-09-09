@@ -67,5 +67,6 @@ com.marginallyclever.ro3.node.nodes.pose.poses.space
 com.marginallyclever.ro3.node.nodes.tests
 com.marginallyclever.ro3.physics
 com.marginallyclever.ro3.raypicking
+com.marginallyclever.ro3.shader
 com.marginallyclever.ro3.texture
 com.marginallyclever.robotoverlord
