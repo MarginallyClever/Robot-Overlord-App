@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.mesh;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.listwithevents.ListListener;
 import com.marginallyclever.ro3.texture.TextureFactoryDialog;
 
@@ -83,12 +84,16 @@ public class MeshChooserDialog extends JPanel implements ListListener<Mesh> {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 Mesh mesh = (Mesh) value;
-                String text = mesh.getSourceName() + " (" + mesh.getNumVertices() + " vertices)";
+                String shortName = mesh.getSourceName();
+                if(shortName.length()>30) {
+                    shortName = "..." + shortName.substring(shortName.length()-27);
+                }
+                String text = shortName + " (" + mesh.getNumVertices() + " vertices)";
                 return super.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
             }
         });
 
-        for (Mesh mesh : Registry.meshFactory.getAllResources()) {
+        for (Mesh mesh : Registry.meshFactory.getResources(Lifetime.SCENE)) {
             model.addElement(mesh);
         }
         list.setModel(model);
