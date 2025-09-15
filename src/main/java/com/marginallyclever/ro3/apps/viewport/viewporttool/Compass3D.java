@@ -6,6 +6,7 @@ import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.mesh.proceduralmesh.Waldo;
 import com.marginallyclever.ro3.shader.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.factories.Lifetime;
@@ -35,7 +36,7 @@ public class Compass3D implements ViewportTool {
     private final int compassRadius = 50;
     private final int handleLength = 30;
     private final int handleRadius = 8;
-    private final Mesh gizmoMesh = MatrixHelper.createMesh();
+    private final Mesh gizmoMesh = new Waldo();
     private final Mesh circleMesh = new CircleXY();
     private final Mesh quadMesh = new Mesh();
     private final TextureWithMetadata texture;

@@ -5,6 +5,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.mesh.proceduralmesh.Waldo;
 import com.marginallyclever.ro3.shader.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.factories.Lifetime;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
  */
 public class DrawPoses extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawPoses.class);
-    private final Mesh mesh = MatrixHelper.createMesh();
+    private final Mesh mesh = new Waldo();
     private ShaderProgram shader;
 
     public DrawPoses() {
