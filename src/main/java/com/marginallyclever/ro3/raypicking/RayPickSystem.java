@@ -9,6 +9,7 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 
+import javax.vecmath.Point3d;
 import java.util.*;
 
 /**
@@ -164,7 +165,9 @@ public class RayPickSystem {
             PathTriangle pt = worldMesh.getRandomTriangle();
             if(pt==null) continue;
 
-            return new Hit(meshInstance, 0, pt.normal, pt.getRandomPointInside(), pt);
+            Point3d inside = pt.getRandomPointInside();
+
+            return new Hit(meshInstance, 0, pt.getNormalAt(inside), inside, pt);
         }
         return null;
     }

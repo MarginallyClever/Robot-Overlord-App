@@ -226,9 +226,12 @@ public class Material extends Node {
      * @return the color from the diffuse texture at the UV coordinates of the ray hit, or white if no texture is set.
      */
     private Color getDiffuseTextureAt(Hit hit) {
-        if (diffuseTexture == null) return Color.WHITE;
-        var uv = hit.triangle().getUVAt(hit.point());
-        return diffuseTexture.getColorAt(uv.x, uv.y);
+        if (diffuseTexture != null) {
+            var uv = hit.triangle().getUVAt(hit.point());
+            return diffuseTexture.getColorAt(uv.x, uv.y);
+        }
+        // TODO get vertex color?
+        return hit.triangle().getColorAt(hit.point());
     }
 
     /**
@@ -263,13 +266,16 @@ public class Material extends Node {
         Vector3d wo = ray.getWo();
         var p = hit.point();
 
-        if(this.reflectivity==1) {
-            // perfect mirror
-            Vector3d reflectDir = reflect(ray.getDirection(), n);
-            var F0 = new ColorDouble(1,1,1,1);
-            var record = new ScatterRecord(new Ray(p, reflectDir), F0, 1.0, true);
-            record.type = ScatterRecord.ScatterType.SPECULAR;
-            return record;
+        if(this.reflectivity>0) {
+            double r = pixel.halton.nextDouble(PathTracer.CHANNEL_BSDF_SAMPLING);
+            if(r <= this.reflectivity) {
+                // imperfect reflection
+                Vector3d reflectDir = reflect(ray.getDirection(), n);
+                var F0 = new ColorDouble(1,1,1,1);
+                var record = new ScatterRecord(new Ray(p, reflectDir), F0, 1.0, true);
+                record.type = ScatterRecord.ScatterType.SPECULAR;
+                return record;
+            }
         }
 
         // Fresnel reflectance using Schlick
@@ -278,7 +284,6 @@ public class Material extends Node {
 
         // cosθ for Fresnel and diffuse
         double cosTheta = Math.max(0, ray.getDirection().dot(n));
-
         var F0 = new ColorDouble(spec);
         double R = schlickFresnel(cosTheta, F0);
 

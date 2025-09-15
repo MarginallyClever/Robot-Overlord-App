@@ -5,6 +5,7 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.IntersectionHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.ro3.apps.pathtracer.PathMesh;
+import com.marginallyclever.ro3.apps.pathtracer.PathPoint;
 import com.marginallyclever.ro3.apps.pathtracer.PathTriangle;
 import com.marginallyclever.ro3.apps.viewport.OpenGL3Resource;
 import com.marginallyclever.ro3.raypicking.Hit;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.event.EventListenerList;
 import javax.vecmath.*;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.nio.FloatBuffer;
@@ -189,7 +191,11 @@ public class Mesh implements OpenGL3Resource {
 					public Point2d provideTextureCoordinate(int index) {
 						return getTexCoord(indexArray.get(index));
 					}
-				};
+                    @Override
+                    public Color provideColor(int index) {
+                        return getColor(indexArray.get(index));
+                    }
+                };
 			} else {
 				vertexProvider = new VertexProvider() {
 					@Override
@@ -208,6 +214,10 @@ public class Mesh implements OpenGL3Resource {
 					public Point2d provideTextureCoordinate(int index) {
 						return getTexCoord(index);
 					}
+                    @Override
+                    public Color provideColor(int index) {
+                        return getColor(index);
+                    }
 				};
 			}
 		}
@@ -405,6 +415,16 @@ public class Mesh implements OpenGL3Resource {
 		return new Point2d(u,v);
 	}
 
+    public Color getColor(int t) {
+        if(!hasColors) return Color.WHITE;
+        t*=4;
+        float r = colorArray.get(t++);
+        float g = colorArray.get(t++);
+        float b = colorArray.get(t++);
+        float a = colorArray.get(t);
+        return new Color(r,g,b,a);
+    }
+
 	public boolean isDirty() {
 		return isDirty;
 	}
@@ -578,12 +598,17 @@ public class Mesh implements OpenGL3Resource {
             worldMatrix.transform(p0);
             worldMatrix.transform(p1);
             worldMatrix.transform(p2);
-            Vector3d n = vertexProvider.provideNormal(i);
-            worldMatrix.transform(n);
-            Point2d ta = vertexProvider.provideTextureCoordinate(i);
-            Point2d tb = vertexProvider.provideTextureCoordinate(i + 1);
-            Point2d tc = vertexProvider.provideTextureCoordinate(i + 2);
-            newMesh.addTriangle(new PathTriangle(p0,p1,p2,n,ta,tb,tc));
+            Vector3d n0 = vertexProvider.provideNormal(i);
+            Vector3d n1 = vertexProvider.provideNormal(i+1);
+            Vector3d n2 = vertexProvider.provideNormal(i+2);
+            worldMatrix.transform(n0);
+            worldMatrix.transform(n1);
+            worldMatrix.transform(n2);
+            newMesh.addTriangle(new PathTriangle(
+                    new PathPoint(p0, n0, vertexProvider.provideColor(i), vertexProvider.provideTextureCoordinate(i)),
+                    new PathPoint(p1, n1, vertexProvider.provideColor(i+1), vertexProvider.provideTextureCoordinate(i+1)),
+                    new PathPoint(p2, n2, vertexProvider.provideColor(i+2), vertexProvider.provideTextureCoordinate(i+2))));
+
         }
         newMesh.buildSAS();
         return newMesh;

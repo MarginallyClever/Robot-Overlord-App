@@ -7,34 +7,29 @@ import com.marginallyclever.ro3.mesh.AABB;
 import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
+import java.awt.*;
 
 /**
  * Triangle optimized for path tracing
  */
 public class PathTriangle {
-    public final Point3d a,b,c;
-    public final Point2d tA,tB,tC;
-    public final Vector3d normal;
+    public final PathPoint a,b,c;
     private final Vector3d edge1, edge2;
     public final AABB bounds = new AABB();
     // for finding texture UVs
     private final double d00, d01, d11, denom;
-    private double area;
+    private final double area;
     private final double [] centroid = new double[3];
 
-    public PathTriangle(Point3d a, Point3d b, Point3d c, Vector3d normal,Point2d tA,Point2d tB,Point2d tC) {
+    public PathTriangle(PathPoint a, PathPoint b, PathPoint c) {
         this.a = a;
         this.b = b;
         this.c = c;
-        this.tA = tA;
-        this.tB = tB;
-        this.tC = tC;
-        this.normal = normal;
-        edge1 = new Vector3d(b.x - a.x, b.y - a.y, b.z - a.z);
-        edge2 = new Vector3d(c.x - a.x, c.y - a.y, c.z - a.z);
-        bounds.setBounds(a,a);
-        bounds.grow(b);
-        bounds.grow(c);
+        edge1 = new Vector3d(b.p.x - a.p.x, b.p.y - a.p.y, b.p.z - a.p.z);
+        edge2 = new Vector3d(c.p.x - a.p.x, c.p.y - a.p.y, c.p.z - a.p.z);
+        bounds.setBounds(a.p,a.p);
+        bounds.grow(b.p);
+        bounds.grow(c.p);
 
         d00 = edge1.dot(edge1);
         d01 = edge1.dot(edge2);
@@ -74,7 +69,7 @@ public class PathTriangle {
 
         double invDet = 1.0 / det;
         Vector3d tVec = new Vector3d();
-        tVec.sub(ray.getOrigin(), a);
+        tVec.sub(ray.getOrigin(), a.p);
         double u = tVec.dot(pVec) * invDet;
         if (u < 0.0 || u > 1.0) return Double.MAX_VALUE;
 
@@ -102,9 +97,9 @@ public class PathTriangle {
         double w = 1.0 - u - v;
 
         return new Point3d(
-                u * a.x + v * b.x + w * c.x,
-                u * a.y + v * b.y + w * c.y,
-                u * a.z + v * b.z + w * c.z
+                u * a.p.x + v * b.p.x + w * c.p.x,
+                u * a.p.y + v * b.p.y + w * c.p.y,
+                u * a.p.z + v * b.p.z + w * c.p.z
         );
     }
 
@@ -119,7 +114,7 @@ public class PathTriangle {
      */
     public Point2d getUVAt(Point3d point) {
         Vector3d v2 = new Vector3d();
-        v2.sub(point, a);
+        v2.sub(point, a.p);
 
         double d20 = v2.dot(edge1);
         double d21 = v2.dot(edge2);
@@ -129,9 +124,28 @@ public class PathTriangle {
         double u = 1.0 - v - w;
 
         return new Point2d(
-                u * tA.x + v * tB.x + w * tC.x,
-                u * tA.y + v * tB.y + w * tC.y
+                u * a.t.x + v * b.t.x + w * c.t.x,
+                u * a.t.y + v * b.t.y + w * c.t.y
         );
+    }
+
+    public Color getColorAt(Point3d point) {
+        Vector3d v2 = new Vector3d();
+        v2.sub(point, a.p);
+
+        double d20 = v2.dot(edge1);
+        double d21 = v2.dot(edge2);
+
+        double v = (d11 * d20 - d01 * d21) / denom;
+        double w = (d00 * d21 - d01 * d20) / denom;
+        double u = 1.0 - v - w;
+
+        int red   = (int)(u * a.c.getRed() + v * b.c.getRed() + w * c.c.getRed());
+        int green = (int)(u * a.c.getGreen() + v * b.c.getGreen() + w * c.c.getGreen());
+        int blue  = (int)(u * a.c.getBlue() + v * b.c.getBlue() + w * c.c.getBlue());
+        int alpha = (int)(u * a.c.getAlpha() + v * b.c.getAlpha() + w * c.c.getAlpha());
+
+        return new Color(red, green, blue, alpha);
     }
 
     /**
@@ -141,5 +155,26 @@ public class PathTriangle {
      */
     public double getCentroidAxis(int axis) {
         return centroid[axis];
+    }
+
+    public Vector3d getNormalAt(Point3d inside) {
+        // interpolate the normals using barycentric coordinates
+        Vector3d v2 = new Vector3d();
+        v2.sub(inside, a.p);
+
+        double d20 = v2.dot(edge1);
+        double d21 = v2.dot(edge2);
+
+        double v = (d11 * d20 - d01 * d21) / denom;
+        double w = (d00 * d21 - d01 * d20) / denom;
+        double u = 1.0 - v - w;
+
+        Vector3d normal = new Vector3d(
+                u * a.n.x + v * b.n.x + w * c.n.x,
+                u * a.n.y + v * b.n.y + w * c.n.y,
+                u * a.n.z + v * b.n.z + w * c.n.z
+        );
+        normal.normalize();
+        return normal;
     }
 }

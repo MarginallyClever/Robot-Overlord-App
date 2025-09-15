@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.mesh;
 import javax.vecmath.Point2d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
+import java.awt.*;
 
 /**
  * <p>{@link VertexProvider} is an interface for providing vertices and normals to a {@link Mesh}.  Historically
@@ -32,4 +33,6 @@ public interface VertexProvider {
      * Provides a new instance of a Point2d for the texture coordinate.
      */
     Point2d provideTextureCoordinate(int index);
+
+    Color provideColor(int index);
 }
