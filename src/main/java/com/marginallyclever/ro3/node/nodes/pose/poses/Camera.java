@@ -39,7 +39,7 @@ public class Camera extends Pose {
     private static final Logger logger = LoggerFactory.getLogger(Camera.class);
     private boolean drawOrthographic = false;
     private double fovY = 60;
-    private double nearZ = 1;
+    private double nearZ = 0.1;
     private double farZ = 1000;
     private double orbitRadius = 50;
     private boolean canTranslate = true;
@@ -253,7 +253,7 @@ public class Camera extends Pose {
     public void moveToNewRadius(double newRadius) {
         var w = this.getWorld();
         var point = getOrbitPoint();
-        orbitRadius = Math.max(1,newRadius);
+        orbitRadius = Math.max(0.01,newRadius);
 
         //logger.debug("wheel "+dz + " orbitRadius=" + orbitRadius);
         Vector3d orbitVector = MatrixHelper.getZAxis(w);
