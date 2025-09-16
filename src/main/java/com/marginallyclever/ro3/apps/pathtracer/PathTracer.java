@@ -135,11 +135,13 @@ public class PathTracer {
             // get the first hit along the ray
             Hit hit = rayPickSystem.getFirstHit(ray);
             pixel.addRayHistory(new Ray(ray), hit);
-            if (hit == null && environment != null ) {
-                // hit nothing
-                ColorDouble sky = environment.getEnvironmentColor(ray);
-                sky.multiply(throughput);
-                radiance.add(sky);
+            if (hit == null) {
+                if( environment != null ) {
+                    // hit nothing
+                    ColorDouble sky = environment.getEnvironmentColor(ray);
+                    sky.multiply(throughput);
+                    radiance.add(sky);
+                }
                 break;
             }
 
@@ -580,24 +582,30 @@ public class PathTracer {
 
             startTime = System.currentTimeMillis();
 
-            while(!isCancelled()) {
-                pixels.stream().parallel().forEach(pixel -> {
-                    if (isCancelled()) return;
+            try {
+                while (!isCancelled()) {
+                    pixels.stream().parallel().forEach(pixel -> {
+                        if (isCancelled()) {
+                            return;
+                        }
 
-                    pixel.halton.resetMemory(getSeed(pixel));
+                        pixel.halton.resetMemory(getSeed(pixel));
 
-                    // get the jiggled ray
-                    var ray = getStratifiedSample(pixel);
-                    // sum the total color of all samples
-                    trace(ray, pixel);
-                    // store the result in the buffer
-                    drawPixel(pixel,pixel.radianceAverage.getColor());
-                });
-                int done = completed.incrementAndGet();
-                publish(done);
-                if (done >= samplesPerPixel) {
-                    cancel(true);
+                        // get the jiggled ray
+                        var ray = getStratifiedSample(pixel);
+                        // sum the total color of all samples
+                        trace(ray, pixel);
+                        // store the result in the buffer
+                        drawPixel(pixel, pixel.radianceAverage.getColor());
+                    });
+                    int done = completed.incrementAndGet();
+                    publish(done);
+                    if (done >= samplesPerPixel) {
+                        cancel(true);
+                    }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
             return null;

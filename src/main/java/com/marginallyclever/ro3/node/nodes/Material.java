@@ -226,6 +226,9 @@ public class Material extends Node {
      * @return the color from the diffuse texture at the UV coordinates of the ray hit, or white if no texture is set.
      */
     private Color getDiffuseTextureAt(Hit hit) {
+        if(hit.triangle()==null) {
+            return Color.WHITE;
+        }
         if (diffuseTexture != null) {
             var uv = hit.triangle().getUVAt(hit.point());
             return diffuseTexture.getColorAt(uv.x, uv.y);
