@@ -39,6 +39,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
     private ShaderProgram toolShader;
     // resources can only be unloaded in the GL thread.  So we set a flag to unload them in the next frame.
     private boolean unloadOrphansNextFrame = false;
+    private boolean initialized = false;
 
     public OpenGL3Panel() {
         super(new BorderLayout());
@@ -178,6 +179,8 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
         }
+
+        initialized = true;
     }
 
     /**
@@ -202,6 +205,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
     public void dispose(GLAutoDrawable glAutoDrawable) {
         logger.info("dispose");
         unloadResources(glAutoDrawable.getGL().getGL3());
+        initialized = false;
     }
 
     /**
@@ -243,6 +247,8 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
+        if(!initialized) return; // sometimes display() is called before init() is finished.
+
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         if(unloadOrphansNextFrame) {
             unloadOrphanedResources(gl3);

@@ -91,12 +91,6 @@ public class DrawCameras extends AbstractRenderPass {
     }
 
     @Override
-    public void dispose(GLAutoDrawable glAutoDrawable) {
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        shader.unload(gl3);
-    }
-
-    @Override
     public void draw(Viewport viewport, GL3 gl3) {
         Camera camera = viewport.getActiveCamera();
         if(camera==null) return;

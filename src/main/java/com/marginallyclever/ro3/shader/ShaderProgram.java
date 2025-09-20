@@ -37,22 +37,27 @@ public class ShaderProgram implements OpenGL3Resource {
     }
 
     private void load(GL3 gl) {
+        if(programId!= -1) return; // already loaded
         programId = gl.glCreateProgram();
 
         for( Shader shader : shaders ) {
+            // load the shader
             shader.load(gl);
+            // attach the shader
             gl.glAttachShader(programId, shader.getShaderId());
-            OpenGLHelper.checkGLError(gl,logger);
+            OpenGLHelper.checkGLError(gl, logger);
         }
         gl.glLinkProgram(programId);
         if (!OpenGLHelper.checkStatus(gl, programId, GL3.GL_LINK_STATUS)) {
             showProgramError(gl,"Failed to link shader program.");
+            gl.glDeleteProgram(programId);
             programId=-1;
             return;
         }
         gl.glValidateProgram(programId);
         if (!OpenGLHelper.checkStatus(gl, programId, GL3.GL_VALIDATE_STATUS)) {
             showProgramError(gl,"Failed to validate shader program.");
+            gl.glDeleteProgram(programId);
             programId=-1;
         }
     }
@@ -67,9 +72,7 @@ public class ShaderProgram implements OpenGL3Resource {
 
 
     public void use(GL3 gl) {
-        if(programId == -1) {
-            load(gl);
-        }
+        load(gl);
         gl.glUseProgram(programId);
         OpenGLHelper.checkGLError(gl,logger);
     }
@@ -78,8 +81,11 @@ public class ShaderProgram implements OpenGL3Resource {
     public void unload(GL3 gl) {
         if(programId == -1) return; // not loaded
         for( Shader shader : shaders ) {
+            // detach the shader
             gl.glDetachShader(programId, shader.getShaderId());
             OpenGLHelper.checkGLError(gl, logger);
+            // unload the shader.  The reverse of loading.
+            shader.unload(gl);
         }
         gl.glDeleteProgram(programId);
         OpenGLHelper.checkGLError(gl, logger);
