@@ -167,13 +167,21 @@ public class CameraTest {
     @Test
     public void getProjectionMatrix() {
         Camera camera = new Camera();
+        camera.setNearZ(1.0);
         Matrix4d m = camera.getChosenProjectionMatrix(800,600);
         Matrix4d p = new Matrix4d(
                 1.299038105676658, 0.0, 0.0, 0.0,
                 0.0, 1.7320508075688772, 0.0, 0.0,
-                0.0, 0.0, -1.0002000200020002, -2.0020002000200020002,
+                0.0, 0.0, -1.0002000200020002, -2.00020002000200020002,
                 0.0, 0.0, -1.0, 0.0
         );
+        Assertions.assertArrayEquals(
+                BigMatrixHelper.matrix4dToArray(m),
+                BigMatrixHelper.matrix4dToArray(p), 0.01);
+
+        camera.setNearZ(0.1);
+        m = camera.getChosenProjectionMatrix(800,600);
+        p.m23 = -0.2002000200020002;
         Assertions.assertArrayEquals(
                 BigMatrixHelper.matrix4dToArray(m),
                 BigMatrixHelper.matrix4dToArray(p), 0.01);
