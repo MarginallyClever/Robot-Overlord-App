@@ -38,9 +38,6 @@ public class RotateToolMulti implements ViewportTool {
         tools.add(toolX);
         tools.add(toolY);
         tools.add(toolZ);
-        toolX.setAxisOfRotation(0);
-        toolY.setAxisOfRotation(1);
-        toolZ.setAxisOfRotation(2);
         toolX.setDrawPivotPoint(false);
         toolY.setDrawPivotPoint(false);
     }
@@ -183,15 +180,9 @@ public class RotateToolMulti implements ViewportTool {
         if( !MoveUtils.listContainsAPose(selectedItems.getNodes()) ) return;
 
         int i = getIndexInUse();
-        if(0==i || -1==i) {
-            toolX.render(gl,shaderProgram);
-        }
-        if(1==i || -1==i) {
-            toolY.render(gl,shaderProgram);
-        }
-        if(2==i || -1==i) {
-            toolZ.render(gl,shaderProgram);
-        }
+        if(0==i || -1==i) toolX.render(gl,shaderProgram);
+        if(1==i || -1==i) toolY.render(gl,shaderProgram);
+        if(2==i || -1==i) toolZ.render(gl,shaderProgram);
 
         toolZ.drawPivotPoint(gl,shaderProgram);
     }
