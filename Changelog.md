@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added "cast no shadow" toggle in MeshInstance
 ### Changed
 - Rotating an object "snap" feature starts at your current rotation instead of 0. [#325](https://github.com/MarginallyClever/Robot-Overlord-App/issues/325)
+- Bumped Jogamp to 2.6.0
 ### Deprecated
 ### Removed
 ### Fixed
