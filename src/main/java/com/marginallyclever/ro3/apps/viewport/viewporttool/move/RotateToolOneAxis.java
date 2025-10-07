@@ -456,7 +456,6 @@ public class RotateToolOneAxis implements ViewportTool {
         rot.rotZ(startingRotationAngleRadians);
         mt.mul(pivotMatrix, rot);  // turn it so 0 degrees faces the start angle
         mt.mul(mt, MatrixHelper.createScaleMatrix4(localScale));
-        System.out.println(mt.m03);
         if(originShift) mt = RenderPassHelper.getOriginShiftedMatrix(mt, cameraWorldPos);
 
         shaderProgram.set4f(gl, "diffuseColor", 1,1,1,1);
