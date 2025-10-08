@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swing.robotlibrarypanel;
+package com.marginallyclever.ro3.apps.plugins;
 
 /**
  * Used to notify the listeners that a robot has been installed.

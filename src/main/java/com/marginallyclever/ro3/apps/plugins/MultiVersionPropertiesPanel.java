@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swing.robotlibrarypanel;
+package com.marginallyclever.ro3.apps.plugins;
 
 import javax.swing.*;
 import java.awt.*;
