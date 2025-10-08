@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swing.robotlibrarypanel;
+package com.marginallyclever.ro3.apps.plugins;
 
 import com.marginallyclever.ro3.apps.shared.SearchBar;
 import org.slf4j.Logger;

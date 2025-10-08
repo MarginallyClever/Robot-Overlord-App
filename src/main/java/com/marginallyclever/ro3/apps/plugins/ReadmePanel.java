@@ -1,4 +1,4 @@
-package com.marginallyclever.robotoverlord.swing.robotlibrarypanel;
+package com.marginallyclever.ro3.apps.plugins;
 
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;

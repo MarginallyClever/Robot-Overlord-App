@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped Jogamp to 2.6.0
 ### Deprecated
 ### Removed
+- Removed remaining ro2 code
 ### Fixed
 - Fixed an OpenGL exception when rearranging tabs caused by shader management. [#324](https://github.com/MarginallyClever/Robot-Overlord-App/issues/324)
 ### Security
