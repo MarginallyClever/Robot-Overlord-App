@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.viewport;
 
 import com.jogamp.opengl.*;
+import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
@@ -85,14 +86,14 @@ public class MinimalOpenGL4 extends JPanel implements GLEventListener {
 
     public MinimalOpenGL4() {
         super(new BorderLayout());
-        GLJPanel glPanel = new GLJPanel(getCapabilities());
+        var glPanel = new GLCanvas(getCapabilities());
         glPanel.addGLEventListener(this);
         add(glPanel, BorderLayout.CENTER);
         animator = new FPSAnimator(glPanel, 30);
     }
 
     private GLCapabilities getCapabilities() {
-        GLCapabilities capabilities = new GLCapabilities(GLProfile.get(GLProfile.GL4bc));
+        GLCapabilities capabilities = new GLCapabilities(GLProfile.getMaximum(true));
         capabilities.setHardwareAccelerated(true);
         capabilities.setBackgroundOpaque(true);
         capabilities.setDoubleBuffered(true);
@@ -114,7 +115,8 @@ public class MinimalOpenGL4 extends JPanel implements GLEventListener {
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
-        var gl = glAutoDrawable.getGL().getGL4();
+        var gl = new DebugGL4(glAutoDrawable.getGL().getGL4());
+        glAutoDrawable.setGL(gl);
         initPreferences(gl);
         initShader(gl);
         initMesh(gl);
@@ -179,7 +181,7 @@ public class MinimalOpenGL4 extends JPanel implements GLEventListener {
         gl.glBindVertexArray(vao[0]);
         setupOneBuffer(gl,0, VERTEX_COMPONENTS, vertices);
         setupOneBuffer(gl,1, COLOR_COMPONENTS, colors  );
-        gl.glBindVertexArray(0);
+        //gl.glBindVertexArray(0);
     }
 
     private void bindOneBuffer(GL4 gl, int attribIndex) {
@@ -196,7 +198,6 @@ public class MinimalOpenGL4 extends JPanel implements GLEventListener {
     private void createBuffers(GL4 gl) {
         // init vao
         gl.glGenVertexArrays(1, vao, 0);
-
         // init vbo
         gl.glGenBuffers(NUM_BUFFERS, vbo, 0);
     }
@@ -253,10 +254,15 @@ public class MinimalOpenGL4 extends JPanel implements GLEventListener {
         var gl = glAutoDrawable.getGL().getGL4();
         gl.glClear(GL4.GL_COLOR_BUFFER_BIT);
 
+        if(vao[0]==0) {
+            gl.glGenVertexArrays(1, vao, 0);
+            gl.glBindVertexArray(vao[0]);
+        }
+
         gl.glUseProgram(shaderId);
         spinTriangle(gl);
         drawTriangle(gl);
-        gl.glUseProgram(0);
+        //gl.glUseProgram(0);
     }
 
     private void spinTriangle(GL4 gl) {
@@ -280,6 +286,6 @@ public class MinimalOpenGL4 extends JPanel implements GLEventListener {
     private void drawTriangle(GL4 gl) {
         gl.glBindVertexArray(vao[0]);
         gl.glDrawArrays(GL4.GL_TRIANGLES, 0, 3);
-        gl.glBindVertexArray(0);
+        //gl.glBindVertexArray(0);
     }
 }
