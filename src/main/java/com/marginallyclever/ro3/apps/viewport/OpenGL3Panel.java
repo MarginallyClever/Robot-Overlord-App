@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.viewport;
 
 import com.jogamp.opengl.*;
+import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
@@ -29,7 +30,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
     private static final Logger logger = LoggerFactory.getLogger(OpenGL3Panel.class);
     public static final int DEFAULT_FPS = 30;
 
-    protected GLJPanel glCanvas;
+    protected GLCanvas glCanvas;
     private boolean hardwareAccelerated = true;
     private boolean doubleBuffered = true;
     private int fsaaSamples = 2;
@@ -49,7 +50,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
             logger.debug("availability="+ GLProfile.glAvailabilityToString());
             GLCapabilities capabilities = getCapabilities();
             logger.debug("create canvas");
-            glCanvas = new GLJPanel(capabilities);
+            glCanvas = new GLCanvas(capabilities);
         } catch(GLException e) {
             logger.error("Failed to create canvas.  Are your native drivers missing?");
         }
