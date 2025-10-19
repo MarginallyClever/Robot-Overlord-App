@@ -163,7 +163,7 @@ public class Mesh implements OpenGL3Resource {
 			gl.glBufferData(GL3.GL_ELEMENT_ARRAY_BUFFER, (long) indexArray.size() *Integer.BYTES, data, GL3.GL_STATIC_DRAW);
 		}
 
-		gl.glBindVertexArray(0);
+		//gl.glBindVertexArray(0);
         OpenGLHelper.checkGLError(gl,logger);
 
 		getVertexProvider();
@@ -283,7 +283,7 @@ public class Mesh implements OpenGL3Resource {
 			gl.glDrawArrays(renderStyle, startIndex, count);
 		}
 		OpenGLHelper.checkGLError(gl,logger);
-		gl.glBindVertexArray(0);
+		//gl.glBindVertexArray(0);
 		OpenGLHelper.checkGLError(gl,logger);
 	}
 	
