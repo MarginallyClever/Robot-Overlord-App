@@ -27,7 +27,7 @@ import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.*;
 import com.marginallyclever.ro3.node.nodes.pose.poses.space.SpaceShip;
 import com.marginallyclever.ro3.node.nodes.tests.RandomHemisphereTest;
-import org.reflections.Reflections;
+import io.github.classgraph.ScanResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,13 +90,17 @@ public class NodeFactory {
      */
     public void scan(String packageName) {
         // Create a new instance of Reflections
-        Reflections reflections = new Reflections(packageName);
-        // Get all classes that extend T
-        Set<Class<? extends Node>> found = reflections.getSubTypesOf(Node.class);
-        // log it
-        found.stream().sorted(Comparator.comparing(Class::getName)).forEach((clazz)->{
-            logger.info("Found " + clazz.getName());
-        });
+        try(ScanResult result = new io.github.classgraph.ClassGraph()
+                .enableClassInfo()
+                .acceptPackages(packageName)
+                .scan()) {
+            // Get all classes that extend T
+            var classes = result.getClassesImplementing(Node.class.getName()).loadClasses();
+            for (var clazz : classes) {
+                // log it
+                logger.info("Found " + clazz.getName());
+            }
+        }
     }
 
     public void clear() {
