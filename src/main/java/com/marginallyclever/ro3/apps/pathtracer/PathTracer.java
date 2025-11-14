@@ -107,6 +107,9 @@ public class PathTracer {
         pathTracingWorker.execute();
     }
 
+    /**
+     * Allocate rays for each pixel in the canvas.
+     */
     private void allocateRays() {
         rays.clear();
         for(int y=0;y<canvasHeight;y++) {
@@ -137,7 +140,7 @@ public class PathTracer {
             pixel.addRayHistory(new Ray(ray), hit);
             if (hit == null) {
                 if( environment != null ) {
-                    // hit nothing
+                    // hit nothing, get the environment color
                     ColorDouble sky = environment.getEnvironmentColor(ray);
                     sky.multiply(throughput);
                     radiance.add(sky);
@@ -435,6 +438,12 @@ public class PathTracer {
         return pixel;
     }
 
+    /**
+     * Get the ray that passes through the pixel at (x,y)
+     * @param x the x coordinate of the pixel
+     * @param y the y coordinate of the pixel
+     * @return the ray through the pixel
+     */
     private Ray getRayForXY(int x,int y) {
         return activeCamera.getRayThroughPoint(
                 (2.0 * x / canvasWidth) - 1.0,
@@ -442,6 +451,11 @@ public class PathTracer {
                 canvasWidth, canvasHeight);
     }
 
+    /**
+     * Display the rays in the scene by collecting them into a mesh.
+     * @param list the list of rays to display
+     * @param showWholeRay if true, show the whole ray from origin to hit point.  If false, show only
+     */
     private void showRays(List<RayXY> list,boolean showWholeRay) {
         if(displayContainer==null) {
             // create container mesh
@@ -488,8 +502,7 @@ public class PathTracer {
                 p2.add(h.point());
                 displayLine(p1,p2,Color.BLUE);
                 */
-                if(showWholeRay)
-                {
+                if(showWholeRay) {
                     displayLine(hit.point(), p0, new Color(0.2f, 0.2f, 0, 0.1f),new Color(0.2f, 0.2f, 0, 0.1f));
                 }
 
