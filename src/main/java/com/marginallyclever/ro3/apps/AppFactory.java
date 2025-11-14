@@ -12,7 +12,7 @@ import java.util.Map;
  * Then DockingPanel can call on the factory to create instances of those Apps as needed.
  */
 public class AppFactory {
-    private final Map<String, AppCreator> appCreators = new HashMap<>();
+    private static final Map<String, AppCreator> appCreators = new HashMap<>();
 
     /**
      * Use Reflection to find and register all Apps in the given package.
@@ -21,7 +21,7 @@ public class AppFactory {
      * but App is not an interface, so it finds none.
      * @param sourcePath the package to scan for Apps
      */
-    public void registerApps(String sourcePath) {
+    public static void registerApps(String sourcePath) {
         System.out.println("Scanning package: " + sourcePath);
         try(ScanResult result = new ClassGraph()
                 //.verbose() // Enable verbose output to debug the scanning process
@@ -33,21 +33,28 @@ public class AppFactory {
             var appClasses = result.getSubclasses(App.class.getName()).loadClasses();
             for (var appClass : appClasses) {
                 // Every App has a default constructor.  Store a reference to a lambda that creates one.
-                System.out.println("Registering App: " + appClass.getName());
+                String appName = appClass.getName();
+                System.out.println("Registering App: " + appName);
 
-                appCreators.put(appClass.getName(), () -> {
+                appCreators.put(appName, () -> {
                     try {
-                        return (App)appClass.getDeclaredConstructor().newInstance();
+                        App instance = (App)appClass.getDeclaredConstructor().newInstance();
+                        return instance;
                     } catch (Exception e) {
                         throw new RuntimeException("Failed to create App instance for " + appClass.getName(), e);
                     }
                 });
             }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to scan package for Apps: " + sourcePath, e);
         }
-
     }
 
-    public void listApps(PrintStream out) {
+    /**
+     * List all registered Apps to the given PrintStream.
+     * @param out the PrintStream to write to
+     */
+    public static void listApps(PrintStream out) {
         out.println("Registered Apps:");
         for (var appName : appCreators.keySet()) {
             out.println(" - " + appName);
@@ -55,8 +62,22 @@ public class AppFactory {
     }
 
     public static void main(String[] args) {
-        var f = new AppFactory();
-        f.registerApps("com.marginallyclever.ro3.apps");
-        f.listApps(System.out);
+        AppFactory.registerApps("com.marginallyclever.ro3.apps");
+        AppFactory.listApps(System.out);
+    }
+
+    public static int getRegisteredAppsCount() {
+        return appCreators.size();
+    }
+
+    public static App create(String name) {
+        for(String s : appCreators.keySet()) {
+            if(s.endsWith(name)) {
+                name = s;
+                break;
+            }
+        }
+        var creator = appCreators.get(name);
+        return  (creator == null) ? null :  creator.createApp();
     }
 }

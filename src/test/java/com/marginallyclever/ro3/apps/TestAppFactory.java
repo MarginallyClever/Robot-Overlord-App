@@ -8,8 +8,8 @@ public class TestAppFactory {
      */
     @Test
     public void createAppFactory() {
-        var f = new AppFactory();
-        f.registerApps("com.marginallyclever.ro3.apps");
-        f.listApps(System.out);
+        AppFactory.registerApps("com.marginallyclever.ro3.apps");
+        assert AppFactory.getRegisteredAppsCount() > 0 : "No apps registered";
+        AppFactory.listApps(System.out);
     }
 }
