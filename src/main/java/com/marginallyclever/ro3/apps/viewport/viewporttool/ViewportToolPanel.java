@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.apps.viewport.viewporttool;
 
+import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import org.slf4j.Logger;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
  * <p>Displays the settings for the currently active {@link ViewportTool}</p>
  * <p>TODO I don't love that one Viewport is tied to one ViewportToolPanel.</p>
  */
-public class ViewportToolPanel extends JPanel implements ViewportToolChangeListener {
+public class ViewportToolPanel extends App implements ViewportToolChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(ViewportToolPanel.class);
     private final JScrollPane scroll = new JScrollPane();
 
