@@ -83,7 +83,10 @@ public class TextureChooserDialog extends JPanel
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 TextureWithMetadata item = (TextureWithMetadata) value;
-                String text = item.getSource() + " (" + item.getWidth()+"x"+item.getHeight()+")";
+                if(item==null) {
+                    return super.getListCellRendererComponent(list, "None", index, isSelected, cellHasFocus);
+                }
+                String text = item.getSource() + " (" + item.getWidth() + "x" + item.getHeight() + ")";
                 return super.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
             }
         });
