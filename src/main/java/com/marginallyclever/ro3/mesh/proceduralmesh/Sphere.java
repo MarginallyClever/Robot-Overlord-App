@@ -11,7 +11,9 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
 /**
- * <p>{@link Sphere} is a {@link Mesh} with a radius of 1.  The origin is at the center of the sphere.</p>
+ * <p>{@link Sphere} is a {@link Mesh} generated using the UV sphere algorithm.
+ * The origin is at the center of the sphere.</p>
+ * <p>Other sphere types include icosphere, quad sphere, and Goldberg polyhedra.</p>
  */
 public class Sphere extends ProceduralMesh {
     public int detail = 32;  // level of detail
@@ -125,11 +127,7 @@ public class Sphere extends ProceduralMesh {
         // calculate intersection of ray and sphere
         var d = IntersectionHelper.raySphere(ray, new Vector3d(0,0,0), this.radius);
         if(d>0) {
-            Point3d p = new Point3d(ray.getDirection());
-            p.scaleAdd(d,ray.getOrigin());
-            Vector3d normal = new Vector3d(p);
-            normal.normalize();
-            return new Hit(null, d, normal,p,null);
+            return super.intersect(ray);
         }
         return null;
     }
