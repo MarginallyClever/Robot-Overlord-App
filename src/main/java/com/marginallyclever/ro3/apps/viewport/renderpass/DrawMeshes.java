@@ -6,6 +6,7 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.viewport.TextureLayerIndex;
 import com.marginallyclever.ro3.mesh.proceduralmesh.GenerativeMesh;
 import com.marginallyclever.ro3.shader.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
@@ -417,11 +418,12 @@ public class DrawMeshes extends AbstractRenderPass {
 
         meshShader.set1i(gl3, "useVertexColor", 0);
         meshShader.set1i(gl3, "useLighting", 1);
-        meshShader.set1i(gl3, "diffuseTexture", 0);
+
+        //meshShader.set1i(gl3, "diffuseTexture", TextureLayerIndex.ALBEDO.getIndex());
+
         //OpenGLHelper.checkGLError(gl3, logger);
 
         Material lastSeen = null;
-        TextureWithMetadata texture = null;
 
         for(MeshMaterialMatrix meshMaterialMatrix : m3) {
             MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
@@ -430,24 +432,44 @@ public class DrawMeshes extends AbstractRenderPass {
             // set the texture to the first sibling that is a material and has a texture
             if( material != lastSeen ) {
                 lastSeen = material;
-                texture = material.getDiffuseTexture();
                 meshShader.setColor(gl3,"diffuseColor",material.getDiffuseColor());
                 meshShader.setColor(gl3,"specularColor",material.getSpecularColor());
                 meshShader.setColor(gl3,"emissionColor",material.getEmissionColor());
                 meshShader.set1i(gl3,"useLighting",material.isLit() ? 1 : 0);
                 meshShader.set1i(gl3,"shininess",material.getShininess());
-                meshShader.set1f(gl3, "specularStrength", (float)material.getSpecularStrength());
+                meshShader.set1f(gl3, "specularStrength", (float)material.getSpecularStrength()*10);
                 // TODO add material settings for texture filters and apply them here.
                 gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MIN_FILTER,GL3.GL_LINEAR);
                 gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MAG_FILTER,GL3.GL_LINEAR);
                 gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_S,GL3.GL_CLAMP_TO_BORDER);
                 gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_T,GL3.GL_CLAMP_TO_BORDER);
             }
-            if(texture == null) {
+            if(lastSeen == null) {
                 gl3.glDisable(GL3.GL_TEXTURE_2D);
                 meshShader.set1i(gl3,"useTexture",0);
             } else {
-                texture.use(meshShader);
+                //texture.use(meshShader);
+                meshShader.set1i(gl3,"useTexture",1);
+
+                try {
+                    for (TextureLayerIndex tli : TextureLayerIndex.values()) {
+                        int i = tli.getIndex();
+                        meshShader.set1i(gl3, tli.getName(), i);
+                        gl3.glActiveTexture(GL3.GL_TEXTURE0 + i);
+
+                        var tex = lastSeen.getTexture(i);
+                        if(tex!=null) {
+                            tex.use(meshShader,i);
+                            gl3.glBindTexture(GL3.GL_TEXTURE_2D, tex.getTexture().getTextureObject());
+                        } else {
+                            gl3.glBindTexture(GL3.GL_TEXTURE_2D, 0);
+                        }
+                        OpenGLHelper.checkGLError(gl3, logger);
+                    }
+                } catch(Exception e) {
+                    logger.error("Failed to set texture layer indices in shader",e);
+                }
+
             }
 
             Mesh mesh = meshInstance.getMesh();

@@ -6,6 +6,7 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 import com.marginallyclever.ro3.apps.viewport.OpenGL3Resource;
+import com.marginallyclever.ro3.shader.Shader;
 import com.marginallyclever.ro3.shader.ShaderProgram;
 
 import java.awt.*;
@@ -45,6 +46,10 @@ public class TextureWithMetadata implements OpenGL3Resource {
      * @param shader the shader to use.
      */
     public void use(ShaderProgram shader) {
+        use(shader, -1);
+    }
+
+    public void use(ShaderProgram shader, int target) {
         if(texture==null) {
             BufferedImage flip = new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_ARGB);
             for(int y=0;y<image.getHeight();++y) {
@@ -64,9 +69,10 @@ public class TextureWithMetadata implements OpenGL3Resource {
             shader.set1i(gl3,"useTexture",0);
         } else {
             gl3.glEnable(GL3.GL_TEXTURE_2D);
-            texture.bind(gl3);
             shader.set1i(gl3,"useTexture",1);
-            shader.set1i(gl3,"diffuseTexture",0);
+
+            texture.bind(gl3);
+            //shader.set1i(gl3,"diffuseTexture",0);
         }
 
         // turn on texture wrapping
