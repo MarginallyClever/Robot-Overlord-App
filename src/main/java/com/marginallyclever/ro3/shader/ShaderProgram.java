@@ -100,7 +100,9 @@ public class ShaderProgram implements OpenGL3Resource {
         Integer result = uniformLocations.get(name);
         if(result == null) {
             result = gl.glGetUniformLocation(programId, name);
-            if(result==-1) throw new InvalidParameterException("Could not find uniform "+name);
+            if(result==-1) {
+                throw new InvalidParameterException("Could not find uniform "+name);
+            }
             uniformLocations.put(name,result);
         }
         return result;
