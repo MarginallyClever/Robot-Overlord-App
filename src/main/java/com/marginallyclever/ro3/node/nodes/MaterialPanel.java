@@ -2,10 +2,14 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
+import com.marginallyclever.ro3.apps.viewport.TextureLayerIndex;
 
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Detail panel for an instance of {@link Material}.
+ */
 public class MaterialPanel extends JPanel {
     private final Material material;
 
@@ -25,8 +29,16 @@ public class MaterialPanel extends JPanel {
         gbc.gridy=0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        PanelHelper.addTextureField(this,"Texture",material::getDiffuseTexture,material::setDiffuseTexture,gbc);
-        gbc.gridy++;
+        var list = TextureLayerIndex.values();
+        for( var i : list ) {
+            PanelHelper.addTextureField(
+                    this,
+                    i.getName(),
+                    ()->material.getTexture(i.getIndex()),
+                    e->material.setTexture(i.getIndex(),e),
+                    gbc);
+            gbc.gridy++;
+        }
 
         PanelHelper.addColorChooser(this,"Diffuse",material::getDiffuseColor,material::setDiffuseColor,gbc);
         gbc.gridy++;

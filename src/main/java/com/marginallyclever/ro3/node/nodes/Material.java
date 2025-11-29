@@ -3,6 +3,7 @@ package com.marginallyclever.ro3.node.nodes;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.pathtracer.*;
+import com.marginallyclever.ro3.apps.viewport.TextureLayerIndex;
 import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.raypicking.Hit;
@@ -12,8 +13,9 @@ import org.json.JSONObject;
 import javax.swing.*;
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * <p>{@link Material} contains properties for rendering a surface.  The first use case is to apply a texture to a
@@ -31,9 +33,7 @@ import java.util.Objects;
  * </ul>
  */
 public class Material extends Node {
-    private TextureWithMetadata diffuseTexture;
-    private TextureWithMetadata normalTexture;
-    private TextureWithMetadata specularTexture;
+    private final List<TextureWithMetadata> textures = new ArrayList<>();
     private Color diffuseColor = new Color(255,255,255);
     private Color specularColor = new Color(255,255,255);
     private Color emissionColor = new Color(0,0,0);
@@ -50,6 +50,10 @@ public class Material extends Node {
 
     public Material(String name) {
         super(name);
+
+        for(int i=0;i<TextureLayerIndex.values().length;i++) {
+            textures.add(null);
+        }
     }
 
     @Override
@@ -59,35 +63,32 @@ public class Material extends Node {
     }
 
     public void setDiffuseTexture(TextureWithMetadata texture) {
-        diffuseTexture = texture;
+        textures.set(TextureLayerIndex.ALBEDO.getIndex(),texture);
     }
 
     public TextureWithMetadata getDiffuseTexture() {
-        return diffuseTexture;
+        return getTexture(TextureLayerIndex.ALBEDO.getIndex());
     }
 
     public void setNormalTexture(TextureWithMetadata texture) {
-        normalTexture = texture;
+        textures.set(TextureLayerIndex.NORMAL.getIndex(), texture);
     }
 
     public TextureWithMetadata getNormalTexture() {
-        return normalTexture;
+        return getTexture(TextureLayerIndex.NORMAL.getIndex());
     }
 
     public void setSpecularTexture(TextureWithMetadata texture) {
-        specularTexture = texture;
+        textures.set(TextureLayerIndex.METALLIC.getIndex(), texture);
     }
 
     public TextureWithMetadata getSpecularTexture() {
-        return specularTexture;
+        return getTexture(TextureLayerIndex.METALLIC.getIndex());
     }
 
     @Override
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
-        if(diffuseTexture !=null) json.put("texture", diffuseTexture.getSource());
-        if(specularTexture !=null) json.put("specularTexture", specularTexture.getSource());
-        if(normalTexture !=null) json.put("normalTexture", normalTexture.getSource());
         json.put("diffuseColor", diffuseColor.getRGB());
         json.put("specularColor", specularColor.getRGB());
         json.put("emissionColor", emissionColor.getRGB());
@@ -97,15 +98,23 @@ public class Material extends Node {
         json.put("isLit", isLit);
         json.put("ior", ior);
         json.put("reflectivity", reflectivity);
+
+        json.put("version",1);
+        JSONObject texturesJson = new JSONObject();
+        for(var ti : TextureLayerIndex.values()) {
+            var tex = getTexture(ti.getIndex());
+            if(tex!=null) {
+                texturesJson.put(ti.getName(), tex.getSource());
+            }
+        }
+        json.put("textures", texturesJson);
+
         return json;
     }
 
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        if(from.has("texture")) diffuseTexture = Registry.textureFactory.get(Lifetime.SCENE,from.getString("texture"));
-        if(from.has("specularTexture")) specularTexture = Registry.textureFactory.get(Lifetime.SCENE,from.getString("specularTexture"));
-        if(from.has("normalTexture")) normalTexture = Registry.textureFactory.get(Lifetime.SCENE,from.getString("normalTexture"));
         if(from.has("diffuseColor")) diffuseColor = new Color(from.getInt("diffuseColor"),true);
         if(from.has("specularColor")) specularColor = new Color(from.getInt("specularColor"),true);
         if(from.has("emissionColor")) emissionColor = new Color(from.getInt("emissionColor"),true);
@@ -115,6 +124,28 @@ public class Material extends Node {
         if(from.has("isLit")) isLit = from.getBoolean("isLit");
         if(from.has("ior")) ior = from.getDouble("ior");
         if(from.has("reflectivity")) reflectivity = from.getDouble("reflectivity");
+
+        int version = from.optInt("version",0);  // future use
+        if(version==0) {
+            // old format: single texture
+            if(from.has("texture")) {
+                setDiffuseTexture(Registry.textureFactory.get(Lifetime.SCENE,from.getString("texture")));
+            }
+            if(from.has("specularTexture")) setSpecularTexture(Registry.textureFactory.get(Lifetime.SCENE,from.getString("specularTexture")));
+            if(from.has("normalTexture")) setNormalTexture(Registry.textureFactory.get(Lifetime.SCENE,from.getString("normalTexture")));
+        }
+        if(version==1) {
+            var texturesFrom = from.optJSONObject("textures");
+            if(texturesFrom!=null) {
+                for(var ti : TextureLayerIndex.values()) {
+                    var source = texturesFrom.optString(ti.getName());
+                    if(source!=null && !source.isEmpty()) {
+                        var tex = Registry.textureFactory.get(Lifetime.SCENE,source);
+                        setTexture(ti.getIndex(),tex);
+                    }
+                }
+            }
+        }
     }
 
     public Color getDiffuseColor() {
@@ -229,6 +260,7 @@ public class Material extends Node {
         if(hit.triangle()==null) {
             return Color.WHITE;
         }
+        var diffuseTexture = getDiffuseTexture();
         if (diffuseTexture != null) {
             var uv = hit.triangle().getUVAt(hit.point());
             return diffuseTexture.getColorAt(uv.x, uv.y);
@@ -511,5 +543,16 @@ public class Material extends Node {
         kd.scale(1.0 / Math.PI);
 
         return kd;
+    }
+
+    public TextureWithMetadata getTexture(int index) {
+        if(index<0) throw new IllegalArgumentException("Invalid texture index: "+index);
+        if(index>= TextureLayerIndex.values().length) throw new IllegalArgumentException("Invalid texture index: "+index);
+
+        return textures.get(index);
+    }
+
+    public void setTexture(int index, TextureWithMetadata e) {
+        textures.set(index, e);
     }
 }
