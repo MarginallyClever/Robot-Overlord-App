@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import com.marginallyclever.ro3.apps.viewport.OpenGL3Panel;
 import com.marginallyclever.ro3.node.Node;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
@@ -13,7 +12,6 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * This class should be in tests but cannot because Reflections does not work across the
@@ -66,7 +64,7 @@ public class AllPanels {
 
     // create one of every panel that extends JPanel
     private void collectAllJPanels(ScanResult scanResults, JPanel cardPanel, List<String> names, List<Class<?>> exceptions) {
-        var allClasses = scanResults.getClassesImplementing(Node.class.getName()).loadClasses();
+        List<Class<?>> allClasses = new ArrayList<>(scanResults.getClassesImplementing(Node.class.getName()).loadClasses());
         if(allClasses.isEmpty()) {
             logger.debug("No classes found by reflections.  Using handmade list.");
             allClasses.addAll(getHandmadeList());
