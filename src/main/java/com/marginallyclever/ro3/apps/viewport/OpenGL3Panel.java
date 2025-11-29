@@ -229,6 +229,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
         var list = Registry.toBeUnloaded;
         synchronized (list) {
             for(OpenGL3Resource r : list) {
+                if(r==null) continue;
                 try {
                     r.unload(gl3);
                 } catch(Exception e) {
