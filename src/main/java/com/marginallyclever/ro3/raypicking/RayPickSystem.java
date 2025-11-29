@@ -125,7 +125,7 @@ public class RayPickSystem {
         List<Hit> hits = new LinkedList<>();
 
         for(var meshInstance : sceneElements) {
-            if(!optimize || meshInstance.getMesh() instanceof Sphere) {
+            if(!optimize /*|| meshInstance.getMesh() instanceof Sphere*/) {
                 Hit hit = meshInstance.intersect(ray);
                 if (hit != null) hits.add(hit);
                 continue;
