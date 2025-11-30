@@ -104,7 +104,7 @@ public class DrawBackground extends AbstractRenderPass {
         shader.set1i(gl3,"useTexture",1);
 
         shader.setMatrix4d(gl3,"modelMatrix",MatrixHelper.createIdentityMatrix4());
-        env.getSkyTexture().use(shader);
+        env.getSkyTexture().use(gl3,shader);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_S, GL3.GL_CLAMP_TO_EDGE);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_T, GL3.GL_CLAMP_TO_EDGE);
         gl3.glDisable(GL3.GL_CULL_FACE);

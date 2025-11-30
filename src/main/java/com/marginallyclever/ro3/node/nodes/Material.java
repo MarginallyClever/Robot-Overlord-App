@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.pathtracer.*;
@@ -7,15 +8,17 @@ import com.marginallyclever.ro3.apps.viewport.TextureLayerIndex;
 import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.raypicking.Hit;
+import com.marginallyclever.ro3.shader.ShaderProgram;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * <p>{@link Material} contains properties for rendering a surface.  The first use case is to apply a texture to a
@@ -33,6 +36,8 @@ import java.util.function.Supplier;
  * </ul>
  */
 public class Material extends Node {
+    private static final Logger logger = LoggerFactory.getLogger(Material.class);
+
     private final List<TextureWithMetadata> textures = new ArrayList<>();
     private Color diffuseColor = new Color(255,255,255);
     private Color specularColor = new Color(255,255,255);
@@ -51,8 +56,9 @@ public class Material extends Node {
     public Material(String name) {
         super(name);
 
-        for(int i=0;i<TextureLayerIndex.values().length;i++) {
-            textures.add(null);
+        for (TextureLayerIndex ti : TextureLayerIndex.values()) {
+            String filename = "src/main/resources/com/marginallyclever/ro3/node/nodes/material/" + ti.getName() + ".jpg";
+            textures.add(Registry.textureFactory.get(Lifetime.APPLICATION, filename));
         }
     }
 
@@ -554,5 +560,40 @@ public class Material extends Node {
 
     public void setTexture(int index, TextureWithMetadata e) {
         textures.set(index, e);
+    }
+
+    public void use(GL3 gl3, ShaderProgram shaderProgram) {
+        shaderProgram.setColor(gl3,"diffuseColor",this.getDiffuseColor());
+        shaderProgram.setColor(gl3,"specularColor",this.getSpecularColor());
+        shaderProgram.setColor(gl3,"emissionColor",this.getEmissionColor());
+        shaderProgram.set1i(gl3,"useLighting",this.isLit() ? 1 : 0);
+        shaderProgram.set1i(gl3,"shininess",this.getShininess());
+        shaderProgram.set1f(gl3, "specularStrength", (float)this.getSpecularStrength()*10);
+        // TODO add this settings for texture filters and apply them here.
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MIN_FILTER,GL3.GL_LINEAR);
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MAG_FILTER,GL3.GL_LINEAR);
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_S,GL3.GL_CLAMP_TO_BORDER);
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_T,GL3.GL_CLAMP_TO_BORDER);
+
+        shaderProgram.set1i(gl3,"useTexture",1);
+        gl3.glEnable(GL3.GL_TEXTURE_2D);
+
+        try {
+            for(TextureLayerIndex tli : TextureLayerIndex.values()) {
+                int i = tli.getIndex();
+                shaderProgram.set1i(gl3, tli.getName(), i);
+                gl3.glActiveTexture(GL3.GL_TEXTURE0 + i);
+
+                TextureWithMetadata tex = this.getTexture(i);
+                if( tex != null ) {
+                    tex.use(gl3,shaderProgram);
+                    gl3.glBindTexture(GL3.GL_TEXTURE_2D, tex.getTexture().getTextureObject());
+                } else {
+                    gl3.glBindTexture(GL3.GL_TEXTURE_2D, 0);
+                }
+            }
+        } catch(Exception e) {
+            logger.error("Failed to set texture layer indices in shader.",e);
+        }
     }
 }

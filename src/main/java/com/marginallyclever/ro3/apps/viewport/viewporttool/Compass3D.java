@@ -187,7 +187,7 @@ public class Compass3D implements ViewportTool {
 
         if(handleUnderCursor==handleIndex) tileIndex++;
 
-        texture.use(shaderProgram);
+        texture.use(gl3,shaderProgram);
         quadMesh.render(gl3,tileIndex*4,4);
     }
 
