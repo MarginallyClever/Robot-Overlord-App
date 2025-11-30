@@ -9,6 +9,7 @@ import ModernDocking.ext.ui.DockingUI;
 import com.marginallyclever.communications.application.TextInterfaceToSessionLayer;
 import com.marginallyclever.convenience.helpers.FileHelper;
 import com.marginallyclever.ro3.apps.App;
+import com.marginallyclever.ro3.apps.AppFactory;
 import com.marginallyclever.ro3.apps.about.AboutPanel;
 import com.marginallyclever.ro3.apps.brainview.BrainView;
 import com.marginallyclever.ro3.apps.donatello.Donatello;
@@ -51,16 +52,8 @@ public class RO3Frame extends JFrame {
     private final List<DockingPanel> windows = new ArrayList<>();
 
     private final OpenGL3Panel viewportPanel;
-    private final LogPanel logPanel;
-    private final EditorPanel editPanel;
-    private final WebCamPanel webCamPanel;
     private final ViewportSettingsPanel viewportSettingsPanel;
     private final ViewportToolPanel viewportToolPanel;
-    private final TextInterfaceToSessionLayer textInterface;
-    private final ODE4JPanel ode4jPanel;
-    private final Donatello donatello;
-    private final BrainView brainView;
-    private final PathTracerPanel pathTracer;
 
     public RO3Frame() {
         super();
@@ -70,19 +63,14 @@ public class RO3Frame extends JFrame {
         setLocationByPlatform(true);
         initDocking();
 
-        logPanel = new LogPanel();
-        editPanel = new EditorPanel();
         viewportPanel = new OpenGL3Panel();
         viewportSettingsPanel = new ViewportSettingsPanel(viewportPanel);
         viewportToolPanel = new ViewportToolPanel(viewportPanel);
-        webCamPanel = new WebCamPanel();
-        textInterface = new TextInterfaceToSessionLayer();
-        ode4jPanel = new ODE4JPanel();
-        donatello = new Donatello();
-        brainView = new BrainView();
-        pathTracer = new PathTracerPanel();
 
-        createDefaultLayout();
+        AppFactory.registerApps("com.marginallyclever.ro3.apps");
+        AppFactory.listApps(System.out);
+
+        registerDefaultWindows();
         resetDefaultLayout();
         saveAndRestoreLayout();
 
@@ -185,27 +173,25 @@ public class RO3Frame extends JFrame {
     }
 
     /**
-     * Persistent IDs were generated using <code>UUID.randomUUID().toString()</code>
-     * or <a href="https://www.uuidgenerator.net/">one of many websites</a>.
+     * PersistentIDs must match the name of the class the {@link DockingPanel} will create by using an
+     * {@link com.marginallyclever.ro3.apps.AppFactory}.  Then a AppFactory could recreate the views from AppState.
+     * Also remember <a href="https://github.com/andrewauclair/ModernDocking/discussions/240#discussioncomment-10897811">this Modern Docking discussion</a>
      */
-    private void createDefaultLayout() {
-        // TODO all persistentIDs should match the name of the class.  Then a DockingPanelFactory could recreate the
-        //  views from AppState.  Also remember https://github.com/andrewauclair/ModernDocking/discussions/240#discussioncomment-10897811
-
-        addDockingPanel("8e50154c-a149-4e95-9db5-4611d24cc0cc", "OpenGL",viewportPanel);
-        addDockingPanel("c6b04902-7e53-42bc-8096-fa5d43289362", "Scene",new NodeTreeView());
-        addDockingPanel("67e45223-79f5-4ce2-b15a-2912228b356f", "Details",new NodeDetailView());
-        addDockingPanel("5e565f83-9734-4281-9828-92cd711939df", "Log",logPanel);
-        addDockingPanel("3f8f54e1-af78-4994-a1c2-21a68ec294c9", "Editor",editPanel);
-        addDockingPanel("976af87b-90f3-42ce-a5d6-e4ab663fbb15", "About",new AboutPanel());
-        addDockingPanel("1331fbb0-ceda-4c67-b343-6539d4f939a1", "Camera",webCamPanel);
-        addDockingPanel("801706cf-c346-4229-a39e-b3665e5a0d94", "ODE4J",ode4jPanel);
-        addDockingPanel("7796a733-8e33-417a-b363-b28174901e40", "Serial",textInterface);
-        addDockingPanel("c0651f5b-d5f0-49ab-88f9-66ae4a8c095e", "Viewport",viewportSettingsPanel);
-        addDockingPanel("11230778-22ab-48c9-b822-998538660cd6", "Tool",viewportToolPanel);
-        addDockingPanel("2b463642-9932-43f7-87be-04480cc5d5ba", "Donatello",donatello);
-        addDockingPanel("3fdd39fd-389f-481f-8e4e-144fdf9a34d0", "BrainView", brainView);
-        addDockingPanel("4f23c247-7136-4815-b10e-7b1a10fd08b5", "PathTracer", pathTracer);
+    private void registerDefaultWindows() {
+        addDockingPanel("ViewportPanel", "OpenGL",viewportPanel);
+        addDockingPanel("NodeTreeView", "Scene",new NodeTreeView());
+        addDockingPanel("NodeDetailView", "Details",new NodeDetailView());
+        addDockingPanel("LogPanel", "Log",new LogPanel());
+        addDockingPanel("EditorPanel", "Editor",new EditorPanel());
+        addDockingPanel("AboutPanel", "About",new AboutPanel());
+        addDockingPanel("WebCamPanel", "Camera",new WebCamPanel());
+        addDockingPanel("ODE4JPanel", "ODE4J",new ODE4JPanel());
+        addDockingPanel("TextInterfaceToSessionLayer", "Serial",new TextInterfaceToSessionLayer());
+        addDockingPanel("ViewportSettingsPanel", "Viewport",viewportSettingsPanel);
+        addDockingPanel("ViewportToolPanel", "Tool",viewportToolPanel);
+        addDockingPanel("Donatello", "Donatello",new Donatello());
+        addDockingPanel("BrainView", "BrainView", new BrainView());
+        addDockingPanel("PathTracerPanel", "PathTracer", new PathTracerPanel());
     }
 
     private void addDockingPanel(String persistentID,String tabText,Component component) {
