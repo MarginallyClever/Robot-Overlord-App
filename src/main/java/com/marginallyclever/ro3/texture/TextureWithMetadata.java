@@ -45,11 +45,7 @@ public class TextureWithMetadata implements OpenGL3Resource {
      * a {@link com.jogamp.opengl.GLAutoDrawable}.
      * @param shader the shader to use.
      */
-    public void use(ShaderProgram shader) {
-        use(shader, -1);
-    }
-
-    public void use(ShaderProgram shader, int target) {
+    public void use(GL3 gl3, ShaderProgram shader) {
         if(texture==null) {
             BufferedImage flip = new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_ARGB);
             for(int y=0;y<image.getHeight();++y) {
@@ -63,16 +59,13 @@ public class TextureWithMetadata implements OpenGL3Resource {
                     true);  // generate mipmaps
         }
 
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
         if(texture==null) {
             gl3.glDisable(GL3.GL_TEXTURE_2D);
             shader.set1i(gl3,"useTexture",0);
         } else {
             gl3.glEnable(GL3.GL_TEXTURE_2D);
             shader.set1i(gl3,"useTexture",1);
-
             texture.bind(gl3);
-            //shader.set1i(gl3,"diffuseTexture",0);
         }
 
         // turn on texture wrapping
