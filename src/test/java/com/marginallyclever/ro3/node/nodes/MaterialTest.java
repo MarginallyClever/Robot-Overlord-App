@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.ro3.apps.viewport.TextureLayerIndex;
-import com.marginallyclever.ro3.texture.TextureFactory;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.junit.jupiter.api.Test;
 
@@ -67,7 +66,7 @@ class MaterialTest {
         for (var ti : TextureLayerIndex.values()) {
             TextureWithMetadata texture = new TextureWithMetadata(
                     new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB),
-                    "src/test/resources/com/marginallyclever/ro3/node/nodes/" + ti.getName()+".jpg");
+                    "src/test/resources/com/marginallyclever/ro3/node/nodes/material/" + ti.getName()+".jpg");
             before.setTexture(ti.getIndex(), texture);
         }
 
