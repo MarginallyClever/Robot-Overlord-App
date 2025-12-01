@@ -29,7 +29,6 @@ uniform sampler2D AO;
 
 uniform sampler2D shadowMap;
 
-uniform bool useTexture;
 uniform bool useLighting;
 uniform bool useVertexColor;  // per-vertex color
 
@@ -62,7 +61,7 @@ float shadowCalculation(vec4 fragPosLightSpace,vec3 normal,vec3 lightDir) {
 void main() {
     vec4 result = diffuseColor;
     if(useVertexColor) result *= fs_in.fragmentColor;
-    if(useTexture) result *= texture(Albedo, fs_in.textureCoord);
+    result *= texture(Albedo, fs_in.textureCoord);
     if(useLighting) {
         vec3 norm = normalize(fs_in.normalVector);
         vec3 lightDir = normalize(lightPos - fs_in.fragmentPosition);
@@ -78,9 +77,9 @@ void main() {
         vec4 specWithTexture = specularStrength * spec * texture(Metallic, fs_in.textureCoord) * specularColor;
         vec4 specularLight = specWithTexture * lightColor;
 
-        texture(Normal, fs_in.textureCoord);
-        texture(Roughness, fs_in.textureCoord);
-        texture(AO, fs_in.textureCoord);
+        vec4 normalMap = texture(Normal, fs_in.textureCoord);
+        vec4 roughnessMap = texture(Roughness, fs_in.textureCoord);
+        vec4 aoMap = texture(AO, fs_in.textureCoord);
 
         // Shadow
         float shadow = shadowCalculation(fs_in.fragPosLightSpace,norm,lightDir);

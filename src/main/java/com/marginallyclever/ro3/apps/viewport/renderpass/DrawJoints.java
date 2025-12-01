@@ -83,9 +83,8 @@ public class DrawJoints extends AbstractRenderPass {
         shader.setColor(gl3,"ambientColor",Color.BLACK);
         shader.set1i(gl3,"useVertexColor",0);
         shader.set1i(gl3,"useLighting",0);
-        shader.set1i(gl3,"diffuseTexture",0);
         gl3.glDisable(GL3.GL_DEPTH_TEST);
-        gl3.glDisable(GL3.GL_TEXTURE_2D);
+        //gl3.glDisable(GL3.GL_TEXTURE_2D);
         gl3.glDisable(GL3.GL_CULL_FACE);
 
         var list = Registry.selection.getList();

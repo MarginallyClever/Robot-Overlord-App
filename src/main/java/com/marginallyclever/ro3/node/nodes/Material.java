@@ -259,20 +259,32 @@ public class Material extends Node {
     }
 
     /**
+     * Calculates the combination of the overall diffuse color, the diffuse texture, and the per-vertex color at the hit
+     * point.
      * @param hit the ray hit record containing the triangle and point of intersection.
-     * @return the color from the diffuse texture at the UV coordinates of the ray hit, or white if no texture is set.
+     * @return the color from the diffuse components at the UV coordinates of the ray hit, or white if no texture is set.
      */
-    private Color getDiffuseTextureAt(Hit hit) {
+    private Color getDiffuseColorAt(Hit hit) {
         if(hit.triangle()==null) {
             return Color.WHITE;
         }
+        ColorDouble diffuseColor = new ColorDouble(getDiffuseColor());
+        diffuseColor.multiply(new ColorDouble(hit.triangle().getColorAt(hit.point())));
+
         var diffuseTexture = getDiffuseTexture();
         if (diffuseTexture != null) {
             var uv = hit.triangle().getUVAt(hit.point());
-            return diffuseTexture.getColorAt(uv.x, uv.y);
+            var textureColor = diffuseTexture.getColorAt(uv.x, uv.y);
+            diffuseColor.multiply(new ColorDouble(textureColor));
         }
-        // TODO get vertex color?
-        return hit.triangle().getColorAt(hit.point());
+
+        Color finalColor = new Color(
+                (int)(diffuseColor.r * 255),
+                (int)(diffuseColor.g * 255),
+                (int)(diffuseColor.b * 255),
+                (int)(diffuseColor.a * 255)
+        );
+        return finalColor;
     }
 
     /**
@@ -307,6 +319,10 @@ public class Material extends Node {
         Vector3d wo = ray.getWo();
         var p = hit.point();
 
+        var albedoMap = textures.get(TextureLayerIndex.ALBEDO.getIndex());
+        var metalMap = textures.get(TextureLayerIndex.METALLIC.getIndex());
+        var uv = hit.triangle().getUVAt(hit.point());
+/*
         if(this.reflectivity>0) {
             double r = pixel.halton.nextDouble(PathTracer.CHANNEL_BSDF_SAMPLING);
             if(r <= this.reflectivity) {
@@ -317,21 +333,33 @@ public class Material extends Node {
                 record.type = ScatterRecord.ScatterType.SPECULAR;
                 return record;
             }
-        }
+        }*/
+
+        ColorDouble diffuse = new ColorDouble(getDiffuseColorAt(hit));
 
         // Fresnel reflectance using Schlick
         ColorDouble spec = new ColorDouble(getSpecularColor());
         spec.scale(getSpecularStrength());
 
+        // Mix dielectric F0 (spec) with albedo for metallic behavior
+
+        Color metalColor = (metalMap != null) ? metalMap.getColorAt(uv.x, uv.y) : new Color(0,0,0,0);
+        double mR = Math.clamp(metalColor.getRed()   / 255.0, 0.0, 1.0 );
+        double mG = Math.clamp(metalColor.getGreen() / 255.0, 0.0, 1.0 );
+        double mB = Math.clamp(metalColor.getBlue()  / 255.0, 0.0, 1.0 );
+
+        // where specular/metallic map is black, reflect nothing (use diffuse color)
+        ColorDouble F0 = new ColorDouble(
+            spec.r * mR + diffuse.r * (1.0 - mR),
+            spec.g * mG + diffuse.g * (1.0 - mG),
+            spec.b * mB + diffuse.b * (1.0 - mB),
+            1.0);
+
         // cosθ for Fresnel and diffuse
         double cosTheta = Math.max(0, ray.getDirection().dot(n));
-        var F0 = new ColorDouble(spec);
-        double R = schlickFresnel(cosTheta, F0);
+        double R = schlickFresnel(cosTheta, spec);
 
         // Lobe weights
-
-        ColorDouble diffuse = new ColorDouble(getDiffuseTextureAt(hit));
-        diffuse.multiply(new ColorDouble(getDiffuseColor()));
 
         double wt = (1.0-diffuse.a);  // transmission weight
         double wd = (diffuse.r+diffuse.g+diffuse.b)/3.0 * (1.0 - wt);  // diffuse weight
@@ -340,7 +368,6 @@ public class Material extends Node {
         double sum = wd + ws + wt;
         wd /= sum;
         ws /= sum;
-        wt /= sum;
 
         // Random choice
         double r = pixel.halton.nextDouble(PathTracer.CHANNEL_BSDF_SAMPLING);
@@ -396,16 +423,16 @@ public class Material extends Node {
                 record.type = ScatterRecord.ScatterType.SPECULAR;
                 return record;
             } else {
-                // glossy reflection
+                // glossy reflection: use metal-tinted F0 in the Phong BRDF
                 Vector3d wi = samplePhongLobe(reflectDir, shininess, pixel);
                 double pdf = phongPdf(wi, reflectDir, shininess);
                 double cosi = Math.max(0, wi.dot(n));
-                ColorDouble brdf = phongBrdf(wi, wo, reflectDir, spec, shininess);
+                ColorDouble brdf = phongBrdf(wi, wo, reflectDir, F0, shininess);
                 var attenuation = new ColorDouble(brdf);
                 attenuation.scale(cosi / pdf);
 
                 var record = new ScatterRecord(new Ray(p, wi), attenuation, pdf, false);
-                record.type = ScatterRecord.ScatterType.DIFFUSE;
+                record.type = ScatterRecord.ScatterType.SPECULAR;
                 return record;
             }
         } else {
@@ -574,8 +601,6 @@ public class Material extends Node {
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MAG_FILTER,GL3.GL_LINEAR);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_S,GL3.GL_CLAMP_TO_BORDER);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_T,GL3.GL_CLAMP_TO_BORDER);
-
-        shaderProgram.set1i(gl3,"useTexture",1);
         gl3.glEnable(GL3.GL_TEXTURE_2D);
 
         try {

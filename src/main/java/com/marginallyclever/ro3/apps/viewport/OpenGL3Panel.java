@@ -280,7 +280,6 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
         toolShader.setColor(gl3, "specularColor", Color.WHITE);
         toolShader.setColor(gl3,"ambientColor",Color.BLACK);
 
-        toolShader.set1i(gl3,"useTexture",0);
         toolShader.set1i(gl3,"useLighting",0);
         toolShader.set1i(gl3,"useVertexColor",0);
 

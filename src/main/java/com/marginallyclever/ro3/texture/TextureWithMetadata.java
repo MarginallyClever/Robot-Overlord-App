@@ -61,10 +61,8 @@ public class TextureWithMetadata implements OpenGL3Resource {
 
         if(texture==null) {
             gl3.glDisable(GL3.GL_TEXTURE_2D);
-            shader.set1i(gl3,"useTexture",0);
         } else {
             gl3.glEnable(GL3.GL_TEXTURE_2D);
-            shader.set1i(gl3,"useTexture",1);
             texture.bind(gl3);
         }
 

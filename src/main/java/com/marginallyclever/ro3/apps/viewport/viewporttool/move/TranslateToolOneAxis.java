@@ -6,6 +6,7 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.shader.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.apps.viewport.renderpass.RenderPassHelper;
@@ -74,6 +75,7 @@ public class TranslateToolOneAxis implements ViewportTool {
     private FrameOfReference frameOfReference = FrameOfReference.WORLD;
     private final Color color;
     private TextureWithMetadata texture;
+    private final Material defaultMaterial = new Material();
     private final Mesh handleLineMesh = new Mesh(GL3.GL_LINES);
     private final Sphere handleSphere = new Sphere();
     private final Mesh quad = new Mesh(GL3.GL_QUADS);
@@ -98,6 +100,8 @@ public class TranslateToolOneAxis implements ViewportTool {
         quad.addTexCoord(1, 0);
         quad.addTexCoord(1, 1);
         quad.addTexCoord(0, 1);
+
+        defaultMaterial.setLit(false);
     }
 
     @Override
@@ -259,6 +263,8 @@ public class TranslateToolOneAxis implements ViewportTool {
         if (selectedItems == null || selectedItems.isEmpty()) return;
         if( !MoveUtils.listContainsAPose(selectedItems.getNodes()) ) return;
 
+        defaultMaterial.use(gl,shaderProgram);
+
         float colorScale = cursorOverHandle ? 1.0f : 0.75f;
         var r = color.getRed()/255.0f;
         var g = color.getGreen()/255.0f;
@@ -266,7 +272,6 @@ public class TranslateToolOneAxis implements ViewportTool {
         var a = color.getAlpha()/255.0f;
         Color c2 = new Color(r * colorScale, g * colorScale, b * colorScale, a);
         shaderProgram.setColor(gl, "diffuseColor", c2);
-        shaderProgram.set1i(gl,"useTexture",0);
         shaderProgram.set1i(gl,"useLighting",0);
         shaderProgram.set1i(gl,"useVertexColor",0);
 
@@ -300,11 +305,8 @@ public class TranslateToolOneAxis implements ViewportTool {
 
             if(originShift) model = RenderPassHelper.getOriginShiftedMatrix(model, cameraWorldPos);
             shaderProgram.setMatrix4d(gl,"modelMatrix",model);
-            shaderProgram.set1i(gl,"diffuseTexture",0);
-            shaderProgram.set1i(gl,"useTexture",1);
             texture.use(shaderProgram);
             quad.render(gl);
-            shaderProgram.set1i(gl,"useTexture",0);
         } else */
     }
 

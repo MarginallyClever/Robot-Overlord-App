@@ -56,7 +56,7 @@ public class RayXY {
         // apply exposure
         exposureMap(radianceAverage,exposure);
         // tone map the result.
-        if(activateToneMap) toneMap(radianceAverage);
+        //if(activateToneMap) toneMap(radianceAverage);
     }
 
     private void exposureMap(ColorDouble d, double exposure) {
@@ -133,7 +133,24 @@ public class RayXY {
         // Step 4: XYZ → RGB
         double[] rgb = mul(M_XYZ2RGB, xyz);
 
+        // Clamp negatives (avoid sending negatives to gamma)
+        for (int i = 0; i < 3; ++i) {
+            if (Double.isNaN(rgb[i]) || rgb[i] < 0.0) rgb[i] = 0.0;
+        }
+
+        // Step 5: Convert linear RGB → sRGB (apply sRGB transfer function)
+        double r_srgb = linearToSrgbDouble(rgb[0]);
+        double g_srgb = linearToSrgbDouble(rgb[1]);
+        double b_srgb = linearToSrgbDouble(rgb[2]);
+
         v.set(rgb[0], rgb[1], rgb[2], v.a);
+    }
+
+    private static double linearToSrgbDouble(double c) {
+        // c in [0, inf) (linear)
+        c = Math.max(0.0, c);
+        if (c <= 0.0031308) return 12.92 * c;
+        return 1.055 * Math.pow(c, 1.0 / 2.4) - 0.055;
     }
 
     public int getSamples() {

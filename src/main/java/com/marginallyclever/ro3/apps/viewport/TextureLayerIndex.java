@@ -9,7 +9,7 @@ public enum TextureLayerIndex {
     NORMAL("Normal",1),
     METALLIC("Metallic",2),  // aka reflectance
     ROUGHNESS("Roughness",3),  // aka the bump map
-    AO("AO",4);
+    AO("AO",4);  // Ambient occlusion (baked in shadowing)
 
     private final String name;
     private final int index;

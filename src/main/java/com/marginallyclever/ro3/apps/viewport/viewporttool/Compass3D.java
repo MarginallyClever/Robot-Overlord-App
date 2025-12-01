@@ -7,6 +7,7 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Waldo;
+import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.shader.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.factories.Lifetime;
@@ -50,6 +51,9 @@ public class Compass3D implements ViewportTool {
             new Point3d(0,0,-handleLength)  // z-
     };
 
+    private final Material defaultMaterial = new Material();
+    private final Material handleMaterial = new Material();
+
     public Compass3D() {
         super();
         Registry.meshFactory.addToPool(Lifetime.APPLICATION,"Compass3D.gizmoMesh",gizmoMesh);
@@ -60,6 +64,10 @@ public class Compass3D implements ViewportTool {
         texture.setDoNotExport(true);
 
         createQuadMesh();
+
+        defaultMaterial.setLit(false);
+        handleMaterial.setDiffuseTexture(texture);
+        handleMaterial.setLit(false);
     }
 
     private void createQuadMesh() {
@@ -106,11 +114,11 @@ public class Compass3D implements ViewportTool {
 
     @Override
     public void render(GL3 gl3, ShaderProgram shaderProgram) {
+        defaultMaterial.use(gl3,shaderProgram);
         shaderProgram.setColor(gl3,"lightColor", Color.WHITE);
         shaderProgram.setColor(gl3,"specularColor",Color.DARK_GRAY);
         shaderProgram.setColor(gl3,"ambientColor",Color.BLACK);
         shaderProgram.set1i(gl3,"useLighting",0);
-        shaderProgram.set1i(gl3,"diffuseTexture",0);
 
         // set the projection matrix such that the drawing area is the top right corner of the viewport.
         double w = viewport.getWidth()/2d;
@@ -147,6 +155,7 @@ public class Compass3D implements ViewportTool {
         // for the handles, do not use vertex color.
         shaderProgram.set1i(gl3,"useVertexColor",0);
 
+        handleMaterial.use(gl3,shaderProgram);
         drawHandle(gl3,shaderProgram,new Vector3d( handleLength,0,0),12, 0);  // x+
         drawHandle(gl3,shaderProgram,new Vector3d(-handleLength,0,0),14, 1);  // x-
         drawHandle(gl3,shaderProgram,new Vector3d(0, handleLength,0), 8, 2);  // y+
@@ -187,7 +196,6 @@ public class Compass3D implements ViewportTool {
 
         if(handleUnderCursor==handleIndex) tileIndex++;
 
-        texture.use(gl3,shaderProgram);
         quadMesh.render(gl3,tileIndex*4,4);
     }
 

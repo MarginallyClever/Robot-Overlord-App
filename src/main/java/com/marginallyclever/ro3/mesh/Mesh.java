@@ -408,7 +408,7 @@ public class Mesh implements OpenGL3Resource {
 	}
 
 	public Point2d getTexCoord(int t) {
-		if(!hasTextures) return null;
+		if(!hasTextures) return new Point2d(0,0);
 		t*=2;
 		double u = textureArray.get(t++);
 		double v = textureArray.get(t);

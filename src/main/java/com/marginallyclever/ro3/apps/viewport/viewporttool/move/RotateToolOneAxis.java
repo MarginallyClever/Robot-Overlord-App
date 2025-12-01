@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.FrameOfReference;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.shader.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.apps.viewport.renderpass.RenderPassHelper;
@@ -94,6 +95,7 @@ public class RotateToolOneAxis implements ViewportTool {
     private final Waldo waldo = new Waldo();
 
     private boolean drawPivotPoint=true;
+    private Material defaultMaterial = new Material();
 
     public RotateToolOneAxis(Color color) {
         super();
@@ -105,6 +107,7 @@ public class RotateToolOneAxis implements ViewportTool {
         buildTickMarkMesh();
         ringMesh.updateModel();
         ringMesh.setRenderStyle(GL3.GL_LINE_LOOP);
+        defaultMaterial.setLit(false);
     }
 
     public void setDrawPivotPoint(boolean b) {
@@ -399,19 +402,21 @@ public class RotateToolOneAxis implements ViewportTool {
     /**
      * Renders any tool-specific visuals to the 3D scene.
      *
-     * @param gl The OpenGL systems context.
+     * @param gl3 The OpenGL systems context.
      */
     @Override
-    public void render(GL3 gl, ShaderProgram shaderProgram) {
+    public void render(GL3 gl3, ShaderProgram shaderProgram) {
         if(selectedItems==null || selectedItems.isEmpty()) return;
         if( !MoveUtils.listContainsAPose(selectedItems.getNodes()) ) return;
 
-        drawMainRingAndHandles(gl,shaderProgram);
+        defaultMaterial.use(gl3,shaderProgram);
+
+        drawMainRingAndHandles(gl3,shaderProgram);
         if(dragging) {
-            drawWhileDragging(gl,shaderProgram);
+            drawWhileDragging(gl3,shaderProgram);
         }
 
-        if(drawPivotPoint) drawPivotPoint(gl,shaderProgram);
+        if(drawPivotPoint) drawPivotPoint(gl3,shaderProgram);
     }
 
     // draw waldo at the pivot point
@@ -474,7 +479,6 @@ public class RotateToolOneAxis implements ViewportTool {
     private void drawMainRingAndHandles(GL3 gl,ShaderProgram shaderProgram) {
         shaderProgram.set1i(gl,"useLighting",0);
         shaderProgram.set1i(gl,"useVertexColor",0);
-        shaderProgram.set1i(gl,"useTexture",0);
         float colorScale = cursorOverHandle ? 1:0.75f;
         Color c2 = new Color(
                 Math.clamp(color.getRed()/255.0f*colorScale, 0, 1),

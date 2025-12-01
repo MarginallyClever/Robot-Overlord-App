@@ -6,6 +6,7 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.viewport.TextureLayerIndex;
 import com.marginallyclever.ro3.mesh.proceduralmesh.GenerativeMesh;
 import com.marginallyclever.ro3.shader.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
@@ -40,7 +41,7 @@ public class DrawMeshes extends AbstractRenderPass {
     private final Mesh shadowQuad = new GenerativeMesh();
     private final int [] shadowFBO = new int[1];  // Frame Buffer Object
     private final int [] shadowTexture = new int[1];  // texture for the FBO
-    private final int shadowMapUnit = 1;
+    private final int shadowMapUnit = TextureLayerIndex.values().length+1;
     public static final int SHADOW_WIDTH = 1024;
     public static final int SHADOW_HEIGHT = 1024;
 
@@ -56,6 +57,8 @@ public class DrawMeshes extends AbstractRenderPass {
     private final int [] stencilFBO = new int[1]; // Framebuffer for offscreen stencil rendering
     private final int [] stencilTexture = new int [1]; // Texture to capture stencil data
     private final Mesh fullScreenQuad = new GenerativeMesh();
+
+    private final Material defaultMaterial = new Material();
 
     public DrawMeshes() {
         super("Meshes");
@@ -321,6 +324,8 @@ public class DrawMeshes extends AbstractRenderPass {
     // draw the shadow quad into the world for debugging.
     private void drawShadowMapOnQuad(GL3 gl3, Camera camera,boolean originShift) {
         meshShader.use(gl3);
+        //defaultMaterial.use(gl3,meshShader);
+
         meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix(originShift));
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
         var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
@@ -334,7 +339,6 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setColor(gl3,"ambientColor", ambientColor);
         meshShader.set1i(gl3, "useVertexColor", 0);
         meshShader.set1i(gl3, "useLighting", 0);
-        meshShader.set1i(gl3, "useTexture",1);
 
         gl3.glDisable(GL3.GL_DEPTH_TEST);
         gl3.glActiveTexture(GL3.GL_TEXTURE0 + shadowMapUnit);
@@ -456,7 +460,6 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
         meshShader.set1i(gl3, "useVertexColor", 0);
         meshShader.set1i(gl3, "useLighting", 0);
-        meshShader.set1i(gl3, "useTexture", 0);
         meshShader.setColor(gl3,"diffuseColor",Color.WHITE);
 
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());

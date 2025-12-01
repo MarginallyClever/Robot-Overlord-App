@@ -6,6 +6,7 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.shader.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.factories.Lifetime;
@@ -34,10 +35,12 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
 
     private ShaderProgram shader;
     private final Mesh mesh = new Mesh();
+    private final Material defaultMaterial = new Material();
 
     public DrawBoundingBoxes() {
         super("Bounding Boxes");
         Registry.meshFactory.addToPool(Lifetime.APPLICATION,"DrawBoundingBoxes.mesh",mesh);
+        defaultMaterial.setLit(false);
 
         mesh.setRenderStyle(GL3.GL_LINES);
         // add 8 points of a unit cube centered on the origin
@@ -87,6 +90,8 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
         boolean originShift = viewport.isOriginShift();
 
         shader.use(gl3);
+
+        defaultMaterial.use(gl3,shader);
         shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix(originShift));
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
@@ -96,11 +101,7 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
         shader.setColor(gl3,"specularColor",Color.GRAY);
         shader.setColor(gl3,"ambientColor",new Color(255/5,255/5,255/5,255));
         shader.set1i(gl3,"useVertexColor",0);
-        shader.set1i(gl3,"useLighting",0);
-        shader.set1i(gl3,"diffuseTexture",0);
-        shader.set1i(gl3,"useTexture",0);
         OpenGLHelper.checkGLError(gl3,logger);
-        gl3.glDisable(GL3.GL_TEXTURE_2D);
         gl3.glDisable(GL3.GL_DEPTH_TEST);
 
         var list = Registry.selection.getList();
