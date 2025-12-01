@@ -1,6 +1,7 @@
 package com.marginallyclever.ro3.apps.viewport;
 
 import com.jogamp.opengl.*;
+import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
@@ -29,10 +30,10 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
     private static final Logger logger = LoggerFactory.getLogger(OpenGL3Panel.class);
     public static final int DEFAULT_FPS = 30;
 
-    protected GLJPanel glCanvas;
+    protected GLCanvas glCanvas;
     private boolean hardwareAccelerated = true;
     private boolean doubleBuffered = true;
-    private int fsaaSamples = 2;
+    private int fsaaSamples = 0;
     private boolean verticalSync = true;
     private int fps = DEFAULT_FPS;
     private final FPSAnimator animator;
@@ -46,25 +47,24 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
 
         loadPrefs();
 
+        logger.debug("availability="+ GLProfile.glAvailabilityToString());
+        GLCapabilities capabilities = getCapabilities();
+        logger.debug("create canvas");
         try {
-            logger.debug("availability="+ GLProfile.glAvailabilityToString());
-            GLCapabilities capabilities = getCapabilities();
-            logger.debug("create canvas");
-            glCanvas = new GLJPanel(capabilities);
+            glCanvas = new GLCanvas(capabilities);
         } catch(GLException e) {
             logger.error("Failed to create canvas.  Are your native drivers missing?");
         }
         add(glCanvas, BorderLayout.CENTER);
         animator = new FPSAnimator(fps);
         animator.add(glCanvas);
-        animator.start();
     }
 
     private void loadPrefs() {
         Preferences pref = Preferences.userNodeForPackage(this.getClass());
         hardwareAccelerated = pref.getBoolean("hardwareAccelerated",true);
         doubleBuffered = pref.getBoolean("doubleBuffered",true);
-        fsaaSamples = pref.getInt("fsaaSamples",2);
+        fsaaSamples = pref.getInt("fsaaSamples",fsaaSamples);
         verticalSync = pref.getBoolean("verticalSync",true);
         fps = pref.getInt("fps",30);
     }
@@ -100,6 +100,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
     }
 
     private GLCapabilities getCapabilities() {
+        GLProfile.initSingleton();
         GLProfile profile = GLProfile.getMaxProgrammable(true);
         GLCapabilities capabilities = new GLCapabilities(profile);
         capabilities.setHardwareAccelerated(hardwareAccelerated);
@@ -113,7 +114,8 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
         }
         StringBuilder sb = new StringBuilder();
         capabilities.toString(sb);
-        logger.info("capabilities="+sb);
+        logger.info("Profile="+profile.getName());
+        logger.info("Capabilities="+sb);
         return capabilities;
     }
 
@@ -132,6 +134,9 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
         logger.info("init");
+
+        logger.debug("init vendor "+glAutoDrawable.getContext().getGLVendorVersionNumber());
+        logger.debug("init version "+glAutoDrawable.getContext().getGLVersion());
 
         attachPipelines(glAutoDrawable);
 
@@ -181,6 +186,8 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
         }
 
         initialized = true;
+        // this is needed to satisfy macOS requirements
+        gl3.glBindVertexArray(gl3.getContext().getDefaultVAO());
     }
 
     /**
@@ -262,6 +269,9 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
 
         renderAllPasses(gl3);
         renderViewportTools(gl3);
+
+        // this is needed to satisfy macOS requirements
+        gl3.glBindVertexArray(gl3.getContext().getDefaultVAO());
     }
 
     public void renderViewportTools(GL3 gl3) {
