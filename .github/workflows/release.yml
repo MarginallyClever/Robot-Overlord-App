@@ -1,8 +1,6 @@
 name: Release Build
 
 on:
-  push:
-    branches: [ dev ]
   release:
     types:
       - created
@@ -112,7 +110,7 @@ jobs:
         run: |
           set -euo pipefail
           APP_VERSION=$(ls -1 target/package/RobotOverlord-*-with-dependencies.jar | sed "s/.*RobotOverlord-\([^-]*\)-with-dependencies.jar/\1/")
-          sed -i.bak "s/\(--app-version\).*/\1 $APP_VERSION/" src/main/package/jpackage.cfg
+          sed -i.bak "s/\(--app-version\).*/\1 $APP_VERSION/" src/main/package/jpackage.cfg 
           APP_NAME="Makelangelo-${{ matrix.os_label }}"
           
           # compute module list from the fat jar, ignore missing deps to avoid failure on unknown automatic modules
