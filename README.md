@@ -1,7 +1,9 @@
 # Robot Overlord
+[![Open Source](https://badges.frapsoft.com/os/v3/open-source.svg?v=103)](https://opensource.org/)
 ![workflow](https://github.com/MarginallyClever/Robot-Overlord-App/actions/workflows/main.yml/badge.svg)
 ![coverage](https://github.com/MarginallyClever/Robot-Overlord-App/blob/master/.github/badges/jacoco.svg)
 [![Javadoc](https://img.shields.io/badge/JavaDoc-Online-green)](https://marginallyclever.github.io/Robot-Overlord-App/)
+[![Discord](https://img.shields.io/discord/521753686238560256?label=Discord)](https://discord.gg/QtvHqAv8yp)
 
 Robot Overlord is an open-source 3D interface for simulating and controlling robots through a node-based visual programming system. Think of it as a lightweight, easier-to-use alternative to ROS, with a built-in 3D engine and real-time feedback.
 

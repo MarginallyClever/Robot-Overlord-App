@@ -107,6 +107,9 @@ public class PathTracer {
         pathTracingWorker.execute();
     }
 
+    /**
+     * Allocate rays for each pixel in the canvas.
+     */
     private void allocateRays() {
         rays.clear();
         for(int y=0;y<canvasHeight;y++) {
@@ -135,11 +138,13 @@ public class PathTracer {
             // get the first hit along the ray
             Hit hit = rayPickSystem.getFirstHit(ray);
             pixel.addRayHistory(new Ray(ray), hit);
-            if (hit == null && environment != null ) {
-                // hit nothing
-                ColorDouble sky = environment.getEnvironmentColor(ray);
-                sky.multiply(throughput);
-                radiance.add(sky);
+            if (hit == null) {
+                if( environment != null ) {
+                    // hit nothing, get the environment color
+                    ColorDouble sky = environment.getEnvironmentColor(ray);
+                    sky.multiply(throughput);
+                    radiance.add(sky);
+                }
                 break;
             }
 
@@ -433,6 +438,12 @@ public class PathTracer {
         return pixel;
     }
 
+    /**
+     * Get the ray that passes through the pixel at (x,y)
+     * @param x the x coordinate of the pixel
+     * @param y the y coordinate of the pixel
+     * @return the ray through the pixel
+     */
     private Ray getRayForXY(int x,int y) {
         return activeCamera.getRayThroughPoint(
                 (2.0 * x / canvasWidth) - 1.0,
@@ -440,6 +451,11 @@ public class PathTracer {
                 canvasWidth, canvasHeight);
     }
 
+    /**
+     * Display the rays in the scene by collecting them into a mesh.
+     * @param list the list of rays to display
+     * @param showWholeRay if true, show the whole ray from origin to hit point.  If false, show only
+     */
     private void showRays(List<RayXY> list,boolean showWholeRay) {
         if(displayContainer==null) {
             // create container mesh
@@ -486,8 +502,7 @@ public class PathTracer {
                 p2.add(h.point());
                 displayLine(p1,p2,Color.BLUE);
                 */
-                if(showWholeRay)
-                {
+                if(showWholeRay) {
                     displayLine(hit.point(), p0, new Color(0.2f, 0.2f, 0, 0.1f),new Color(0.2f, 0.2f, 0, 0.1f));
                 }
 
@@ -580,24 +595,30 @@ public class PathTracer {
 
             startTime = System.currentTimeMillis();
 
-            while(!isCancelled()) {
-                pixels.stream().parallel().forEach(pixel -> {
-                    if (isCancelled()) return;
+            try {
+                while (!isCancelled()) {
+                    pixels.stream().parallel().forEach(pixel -> {
+                        if (isCancelled()) {
+                            return;
+                        }
 
-                    pixel.halton.resetMemory(getSeed(pixel));
+                        pixel.halton.resetMemory(getSeed(pixel));
 
-                    // get the jiggled ray
-                    var ray = getStratifiedSample(pixel);
-                    // sum the total color of all samples
-                    trace(ray, pixel);
-                    // store the result in the buffer
-                    drawPixel(pixel,pixel.radianceAverage.getColor());
-                });
-                int done = completed.incrementAndGet();
-                publish(done);
-                if (done >= samplesPerPixel) {
-                    cancel(true);
+                        // get the jiggled ray
+                        var ray = getStratifiedSample(pixel);
+                        // sum the total color of all samples
+                        trace(ray, pixel);
+                        // store the result in the buffer
+                        drawPixel(pixel, pixel.radianceAverage.getColor());
+                    });
+                    int done = completed.incrementAndGet();
+                    publish(done);
+                    if (done >= samplesPerPixel) {
+                        cancel(true);
+                    }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
             return null;

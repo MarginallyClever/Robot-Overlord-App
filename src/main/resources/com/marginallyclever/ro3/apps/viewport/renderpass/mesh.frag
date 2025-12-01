@@ -21,10 +21,14 @@ uniform float specularStrength = 0.5;
 uniform vec3 lightPos; // Light position in world space
 uniform vec3 cameraPos;  // Camera position in world space
 
-uniform sampler2D diffuseTexture;
+uniform sampler2D Albedo;
+uniform sampler2D Normal;
+uniform sampler2D Metallic;
+uniform sampler2D Roughness;
+uniform sampler2D AO;
+
 uniform sampler2D shadowMap;
 
-uniform bool useTexture;
 uniform bool useLighting;
 uniform bool useVertexColor;  // per-vertex color
 
@@ -57,7 +61,7 @@ float shadowCalculation(vec4 fragPosLightSpace,vec3 normal,vec3 lightDir) {
 void main() {
     vec4 result = diffuseColor;
     if(useVertexColor) result *= fs_in.fragmentColor;
-    if(useTexture) result *= texture(diffuseTexture, fs_in.textureCoord);
+    result *= texture(Albedo, fs_in.textureCoord);
     if(useLighting) {
         vec3 norm = normalize(fs_in.normalVector);
         vec3 lightDir = normalize(lightPos - fs_in.fragmentPosition);
@@ -70,7 +74,12 @@ void main() {
         vec3 viewDir = normalize(cameraPos - fs_in.fragmentPosition);
         vec3 reflectDir = reflect(-lightDir, norm);
         float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-        vec4 specularLight = specularStrength * spec * specularColor * lightColor;
+        vec4 specWithTexture = specularStrength * spec * texture(Metallic, fs_in.textureCoord) * specularColor;
+        vec4 specularLight = specWithTexture * lightColor;
+
+        vec4 normalMap = texture(Normal, fs_in.textureCoord);
+        vec4 roughnessMap = texture(Roughness, fs_in.textureCoord);
+        vec4 aoMap = texture(AO, fs_in.textureCoord);
 
         // Shadow
         float shadow = shadowCalculation(fs_in.fragPosLightSpace,norm,lightDir);

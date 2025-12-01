@@ -14,14 +14,20 @@ public class RO3 {
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RO3.class);
 
     public static void main(String[] args) {
-        Registry.start();
+        try {
+            Registry.start();
 
-        if(GraphicsEnvironment.isHeadless()) {
-            System.out.println("This app must be run with a display, keyboard, and mouse.");
+            if (GraphicsEnvironment.isHeadless()) {
+                System.out.println("This app must be run with a display, keyboard, and mouse.");
+            }
+
+            setLookAndFeel();
+            SwingUtilities.invokeLater(() -> (new RO3Frame()).setVisible(true));
+        } catch(Exception ex) {
+            // catch super-fatal exceptions
+            logger.error("Fatal error starting RO3", ex);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-
-        setLookAndFeel();
-        SwingUtilities.invokeLater(() -> (new RO3Frame()).setVisible(true));
     }
 
     public static void setLookAndFeel() {

@@ -7,11 +7,14 @@ import com.marginallyclever.convenience.ColorRGB;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.viewport.TextureLayerIndex;
+import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.shader.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.node.nodes.environment.Environment;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
+import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +29,11 @@ public class DrawBackground extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawBackground.class);
     private final ColorRGB clearColor = new ColorRGB(64,64,128);
     private ShaderProgram shader;
+    private final Material defaultMaterial = new Material();
 
     public DrawBackground() {
         super("Sky/Background");
+        defaultMaterial.setLit(false);
     }
 
     /**
@@ -86,6 +91,17 @@ public class DrawBackground extends AbstractRenderPass {
      */
     private void drawSkyMesh(GL3 gl3, Camera camera, Environment env) {
         shader.use(gl3);
+
+        defaultMaterial.setDiffuseTexture(env.getSkyTexture());
+        defaultMaterial.use(gl3, shader);
+/*
+        for(TextureLayerIndex tli : TextureLayerIndex.values()) {
+            int i = tli.getIndex();
+            shader.set1i(gl3, tli.getName(), i);
+            gl3.glActiveTexture(GL3.GL_TEXTURE0 + i);
+            gl3.glBindTexture(GL3.GL_TEXTURE_2D, 0);
+        }*/
+
         Matrix4d inverseCamera = camera.getWorld();
         inverseCamera.setTranslation(new Vector3d(0,0,0));
         inverseCamera.invert();
@@ -100,11 +116,9 @@ public class DrawBackground extends AbstractRenderPass {
         shader.setColor(gl3,"ambientColor",Color.BLACK);
         shader.set1i(gl3,"useVertexColor",0);
         shader.set1i(gl3,"useLighting",0);
-        shader.set1i(gl3,"diffuseTexture",0);
-        shader.set1i(gl3,"useTexture",1);
 
         shader.setMatrix4d(gl3,"modelMatrix",MatrixHelper.createIdentityMatrix4());
-        env.getSkyTexture().use(shader);
+        //env.getSkyTexture().use(gl3,shader);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_S, GL3.GL_CLAMP_TO_EDGE);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_WRAP_T, GL3.GL_CLAMP_TO_EDGE);
         gl3.glDisable(GL3.GL_CULL_FACE);

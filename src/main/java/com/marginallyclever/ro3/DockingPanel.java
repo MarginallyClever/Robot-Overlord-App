@@ -2,12 +2,15 @@ package com.marginallyclever.ro3;
 
 import ModernDocking.Dockable;
 import ModernDocking.app.Docking;
+import com.marginallyclever.ro3.apps.AppFactory;
 
 import javax.swing.*;
 import java.awt.*;
 
 /**
- * {@link DockingPanel} is a {@link JPanel} that implements {@link Dockable}.
+ * {@link DockingPanel} is a {@link JPanel} that implements {@link Dockable}.  It is aware of the {@link AppFactory}
+ * and will create and add the appropriate {@link com.marginallyclever.ro3.apps.App} when it is added to the component
+ * hierarchy.
  */
 public class DockingPanel extends JPanel implements Dockable {
     private final String tabText;
@@ -28,6 +31,22 @@ public class DockingPanel extends JPanel implements Dockable {
     @Override
     public String getTabText() {
         return tabText;
+    }
+
+    @Override
+    public void addNotify() {
+        super.addNotify();
+        // attempt to create and add the app.
+        var app = AppFactory.create(persistentID);
+        if (app != null) {
+            this.add(app, BorderLayout.CENTER);
+        }
+    }
+
+    @Override
+    public void removeNotify() {
+        super.removeNotify();
+        this.removeAll();  // lose the app
     }
 
     /**

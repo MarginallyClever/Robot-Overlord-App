@@ -91,12 +91,6 @@ public class DrawCameras extends AbstractRenderPass {
     }
 
     @Override
-    public void dispose(GLAutoDrawable glAutoDrawable) {
-        GL3 gl3 = glAutoDrawable.getGL().getGL3();
-        shader.unload(gl3);
-    }
-
-    @Override
     public void draw(Viewport viewport, GL3 gl3) {
         Camera camera = viewport.getActiveCamera();
         if(camera==null) return;
@@ -114,10 +108,8 @@ public class DrawCameras extends AbstractRenderPass {
         shader.setColor(gl3,"ambientColor",Color.BLACK);
         shader.set1i(gl3,"useVertexColor",0);
         shader.set1i(gl3,"useLighting",0);
-        shader.set1i(gl3,"useTexture",0);
-        shader.set1i(gl3,"diffuseTexture",0);
         gl3.glDisable(GL3.GL_DEPTH_TEST);
-        gl3.glDisable(GL3.GL_TEXTURE_2D);
+        //gl3.glDisable(GL3.GL_TEXTURE_2D);
 
         var list = Registry.selection.getList();
         var normalizedCoordinates = viewport.getCursorAsNormalized();

@@ -235,14 +235,14 @@ public class PanelHelper {
      * <p>A convenience method to add a texture field to a panel.</p>
      * @param panel the panel to add to
      * @param label the label for the field
-     * @param getDiffuseTexture the supplier to get the texture
-     * @param setDiffuseTexture the consumer to set the texture
+     * @param textureSupplier the supplier to get the texture
+     * @param textureConsumer the consumer to set the texture
      * @param gbc the {@link GridBagConstraints} to use
      */
     public static void addTextureField(JPanel panel,
                                        String label,
-                                       Supplier<TextureWithMetadata> getDiffuseTexture,
-                                       Consumer<TextureWithMetadata> setDiffuseTexture,
+                                       Supplier<TextureWithMetadata> textureSupplier,
+                                       Consumer<TextureWithMetadata> textureConsumer,
                                        GridBagConstraints gbc) {
         JButton button = new JButton();
         JLabel sizeLabel = new JLabel();
@@ -255,18 +255,18 @@ public class PanelHelper {
 
         button.addActionListener(e -> {
             var textureChooserDialog = new TextureChooserDialog();
-            var texture = getDiffuseTexture.get();
+            var texture = textureSupplier.get();
             textureChooserDialog.setSelectedItem(texture);
             int result = textureChooserDialog.run(panel);
             if(result == JFileChooser.APPROVE_OPTION) {
                 var newTexture = textureChooserDialog.getSelectedItem();
-                setDiffuseTexture.accept(newTexture);
+                textureConsumer.accept(newTexture);
                 setTextureButtonLabel(button,newTexture);
                 updateTexturePreview(sizeLabel,imgLabel,newTexture);
             }
         });
 
-        var texture = getDiffuseTexture.get();
+        var texture = textureSupplier.get();
         setTextureButtonLabel(button,texture);
         updateTexturePreview(sizeLabel,imgLabel,texture);
     }

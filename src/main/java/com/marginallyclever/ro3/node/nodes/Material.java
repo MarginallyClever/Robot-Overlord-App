@@ -1,19 +1,24 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.pathtracer.*;
+import com.marginallyclever.ro3.apps.viewport.TextureLayerIndex;
 import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.raypicking.Hit;
+import com.marginallyclever.ro3.shader.ShaderProgram;
 import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * <p>{@link Material} contains properties for rendering a surface.  The first use case is to apply a texture to a
@@ -31,9 +36,10 @@ import java.util.Objects;
  * </ul>
  */
 public class Material extends Node {
-    private TextureWithMetadata diffuseTexture;
-    private TextureWithMetadata normalTexture;
-    private TextureWithMetadata specularTexture;
+    private static final Logger logger = LoggerFactory.getLogger(Material.class);
+    private static final String RESOURCE_PATH = "/com/marginallyclever/ro3/node/nodes/material/";
+
+    private final List<TextureWithMetadata> textures = new ArrayList<>();
     private Color diffuseColor = new Color(255,255,255);
     private Color specularColor = new Color(255,255,255);
     private Color emissionColor = new Color(0,0,0);
@@ -50,6 +56,11 @@ public class Material extends Node {
 
     public Material(String name) {
         super(name);
+
+        for (TextureLayerIndex ti : TextureLayerIndex.values()) {
+            String filename = RESOURCE_PATH + ti.getName() + ".jpg";
+            textures.add(Registry.textureFactory.get(Lifetime.APPLICATION, filename));
+        }
     }
 
     @Override
@@ -59,35 +70,32 @@ public class Material extends Node {
     }
 
     public void setDiffuseTexture(TextureWithMetadata texture) {
-        diffuseTexture = texture;
+        textures.set(TextureLayerIndex.ALBEDO.getIndex(),texture);
     }
 
     public TextureWithMetadata getDiffuseTexture() {
-        return diffuseTexture;
+        return getTexture(TextureLayerIndex.ALBEDO.getIndex());
     }
 
     public void setNormalTexture(TextureWithMetadata texture) {
-        normalTexture = texture;
+        textures.set(TextureLayerIndex.NORMAL.getIndex(), texture);
     }
 
     public TextureWithMetadata getNormalTexture() {
-        return normalTexture;
+        return getTexture(TextureLayerIndex.NORMAL.getIndex());
     }
 
     public void setSpecularTexture(TextureWithMetadata texture) {
-        specularTexture = texture;
+        textures.set(TextureLayerIndex.METALLIC.getIndex(), texture);
     }
 
     public TextureWithMetadata getSpecularTexture() {
-        return specularTexture;
+        return getTexture(TextureLayerIndex.METALLIC.getIndex());
     }
 
     @Override
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
-        if(diffuseTexture !=null) json.put("texture", diffuseTexture.getSource());
-        if(specularTexture !=null) json.put("specularTexture", specularTexture.getSource());
-        if(normalTexture !=null) json.put("normalTexture", normalTexture.getSource());
         json.put("diffuseColor", diffuseColor.getRGB());
         json.put("specularColor", specularColor.getRGB());
         json.put("emissionColor", emissionColor.getRGB());
@@ -97,15 +105,23 @@ public class Material extends Node {
         json.put("isLit", isLit);
         json.put("ior", ior);
         json.put("reflectivity", reflectivity);
+
+        json.put("version",1);
+        JSONObject texturesJson = new JSONObject();
+        for(var ti : TextureLayerIndex.values()) {
+            var tex = getTexture(ti.getIndex());
+            if(tex!=null) {
+                texturesJson.put(ti.getName(), tex.getSource());
+            }
+        }
+        json.put("textures", texturesJson);
+
         return json;
     }
 
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
-        if(from.has("texture")) diffuseTexture = Registry.textureFactory.get(Lifetime.SCENE,from.getString("texture"));
-        if(from.has("specularTexture")) specularTexture = Registry.textureFactory.get(Lifetime.SCENE,from.getString("specularTexture"));
-        if(from.has("normalTexture")) normalTexture = Registry.textureFactory.get(Lifetime.SCENE,from.getString("normalTexture"));
         if(from.has("diffuseColor")) diffuseColor = new Color(from.getInt("diffuseColor"),true);
         if(from.has("specularColor")) specularColor = new Color(from.getInt("specularColor"),true);
         if(from.has("emissionColor")) emissionColor = new Color(from.getInt("emissionColor"),true);
@@ -115,6 +131,28 @@ public class Material extends Node {
         if(from.has("isLit")) isLit = from.getBoolean("isLit");
         if(from.has("ior")) ior = from.getDouble("ior");
         if(from.has("reflectivity")) reflectivity = from.getDouble("reflectivity");
+
+        int version = from.optInt("version",0);  // future use
+        if(version==0) {
+            // old format: single texture
+            if(from.has("texture")) {
+                setDiffuseTexture(Registry.textureFactory.get(Lifetime.SCENE,from.getString("texture")));
+            }
+            if(from.has("specularTexture")) setSpecularTexture(Registry.textureFactory.get(Lifetime.SCENE,from.getString("specularTexture")));
+            if(from.has("normalTexture")) setNormalTexture(Registry.textureFactory.get(Lifetime.SCENE,from.getString("normalTexture")));
+        }
+        if(version==1) {
+            var texturesFrom = from.optJSONObject("textures");
+            if(texturesFrom!=null) {
+                for(var ti : TextureLayerIndex.values()) {
+                    var source = texturesFrom.optString(ti.getName());
+                    if(source!=null && !source.isEmpty()) {
+                        var tex = Registry.textureFactory.get(Lifetime.SCENE,source);
+                        setTexture(ti.getIndex(),tex);
+                    }
+                }
+            }
+        }
     }
 
     public Color getDiffuseColor() {
@@ -222,13 +260,32 @@ public class Material extends Node {
     }
 
     /**
+     * Calculates the combination of the overall diffuse color, the diffuse texture, and the per-vertex color at the hit
+     * point.
      * @param hit the ray hit record containing the triangle and point of intersection.
-     * @return the color from the diffuse texture at the UV coordinates of the ray hit, or white if no texture is set.
+     * @return the color from the diffuse components at the UV coordinates of the ray hit, or white if no texture is set.
      */
-    private Color getDiffuseTextureAt(Hit hit) {
-        if (diffuseTexture == null) return Color.WHITE;
-        var uv = hit.triangle().getUVAt(hit.point());
-        return diffuseTexture.getColorAt(uv.x, uv.y);
+    private Color getDiffuseColorAt(Hit hit) {
+        if(hit.triangle()==null) {
+            return Color.WHITE;
+        }
+        ColorDouble diffuseColor = new ColorDouble(getDiffuseColor());
+        diffuseColor.multiply(new ColorDouble(hit.triangle().getColorAt(hit.point())));
+
+        var diffuseTexture = getDiffuseTexture();
+        if (diffuseTexture != null) {
+            var uv = hit.triangle().getUVAt(hit.point());
+            var textureColor = diffuseTexture.getColorAt(uv.x, uv.y);
+            diffuseColor.multiply(new ColorDouble(textureColor));
+        }
+
+        Color finalColor = new Color(
+                (int)(diffuseColor.r * 255),
+                (int)(diffuseColor.g * 255),
+                (int)(diffuseColor.b * 255),
+                (int)(diffuseColor.a * 255)
+        );
+        return finalColor;
     }
 
     /**
@@ -263,29 +320,47 @@ public class Material extends Node {
         Vector3d wo = ray.getWo();
         var p = hit.point();
 
-        if(this.reflectivity==1) {
-            // perfect mirror
-            Vector3d reflectDir = reflect(ray.getDirection(), n);
-            var F0 = new ColorDouble(1,1,1,1);
-            var record = new ScatterRecord(new Ray(p, reflectDir), F0, 1.0, true);
-            record.type = ScatterRecord.ScatterType.SPECULAR;
-            return record;
-        }
+        var albedoMap = textures.get(TextureLayerIndex.ALBEDO.getIndex());
+        var metalMap = textures.get(TextureLayerIndex.METALLIC.getIndex());
+        var uv = hit.triangle().getUVAt(hit.point());
+/*
+        if(this.reflectivity>0) {
+            double r = pixel.halton.nextDouble(PathTracer.CHANNEL_BSDF_SAMPLING);
+            if(r <= this.reflectivity) {
+                // imperfect reflection
+                Vector3d reflectDir = reflect(ray.getDirection(), n);
+                var F0 = new ColorDouble(1,1,1,1);
+                var record = new ScatterRecord(new Ray(p, reflectDir), F0, 1.0, true);
+                record.type = ScatterRecord.ScatterType.SPECULAR;
+                return record;
+            }
+        }*/
+
+        ColorDouble diffuse = new ColorDouble(getDiffuseColorAt(hit));
 
         // Fresnel reflectance using Schlick
         ColorDouble spec = new ColorDouble(getSpecularColor());
         spec.scale(getSpecularStrength());
 
+        // Mix dielectric F0 (spec) with albedo for metallic behavior
+
+        Color metalColor = (metalMap != null) ? metalMap.getColorAt(uv.x, uv.y) : new Color(0,0,0,0);
+        double mR = Math.clamp(metalColor.getRed()   / 255.0, 0.0, 1.0 );
+        double mG = Math.clamp(metalColor.getGreen() / 255.0, 0.0, 1.0 );
+        double mB = Math.clamp(metalColor.getBlue()  / 255.0, 0.0, 1.0 );
+
+        // where specular/metallic map is black, reflect nothing (use diffuse color)
+        ColorDouble F0 = new ColorDouble(
+            spec.r * mR + diffuse.r * (1.0 - mR),
+            spec.g * mG + diffuse.g * (1.0 - mG),
+            spec.b * mB + diffuse.b * (1.0 - mB),
+            1.0);
+
         // cosθ for Fresnel and diffuse
         double cosTheta = Math.max(0, ray.getDirection().dot(n));
-
-        var F0 = new ColorDouble(spec);
-        double R = schlickFresnel(cosTheta, F0);
+        double R = schlickFresnel(cosTheta, spec);
 
         // Lobe weights
-
-        ColorDouble diffuse = new ColorDouble(getDiffuseTextureAt(hit));
-        diffuse.multiply(new ColorDouble(getDiffuseColor()));
 
         double wt = (1.0-diffuse.a);  // transmission weight
         double wd = (diffuse.r+diffuse.g+diffuse.b)/3.0 * (1.0 - wt);  // diffuse weight
@@ -294,7 +369,6 @@ public class Material extends Node {
         double sum = wd + ws + wt;
         wd /= sum;
         ws /= sum;
-        wt /= sum;
 
         // Random choice
         double r = pixel.halton.nextDouble(PathTracer.CHANNEL_BSDF_SAMPLING);
@@ -350,16 +424,16 @@ public class Material extends Node {
                 record.type = ScatterRecord.ScatterType.SPECULAR;
                 return record;
             } else {
-                // glossy reflection
+                // glossy reflection: use metal-tinted F0 in the Phong BRDF
                 Vector3d wi = samplePhongLobe(reflectDir, shininess, pixel);
                 double pdf = phongPdf(wi, reflectDir, shininess);
                 double cosi = Math.max(0, wi.dot(n));
-                ColorDouble brdf = phongBrdf(wi, wo, reflectDir, spec, shininess);
+                ColorDouble brdf = phongBrdf(wi, wo, reflectDir, F0, shininess);
                 var attenuation = new ColorDouble(brdf);
                 attenuation.scale(cosi / pdf);
 
                 var record = new ScatterRecord(new Ray(p, wi), attenuation, pdf, false);
-                record.type = ScatterRecord.ScatterType.DIFFUSE;
+                record.type = ScatterRecord.ScatterType.SPECULAR;
                 return record;
             }
         } else {
@@ -503,5 +577,49 @@ public class Material extends Node {
         kd.scale(1.0 / Math.PI);
 
         return kd;
+    }
+
+    public TextureWithMetadata getTexture(int index) {
+        if(index<0) throw new IllegalArgumentException("Invalid texture index: "+index);
+        if(index>= TextureLayerIndex.values().length) throw new IllegalArgumentException("Invalid texture index: "+index);
+
+        return textures.get(index);
+    }
+
+    public void setTexture(int index, TextureWithMetadata e) {
+        textures.set(index, e);
+    }
+
+    public void use(GL3 gl3, ShaderProgram shaderProgram) {
+        shaderProgram.setColor(gl3,"diffuseColor",this.getDiffuseColor());
+        shaderProgram.setColor(gl3,"specularColor",this.getSpecularColor());
+        shaderProgram.setColor(gl3,"emissionColor",this.getEmissionColor());
+        shaderProgram.set1i(gl3,"useLighting",this.isLit() ? 1 : 0);
+        shaderProgram.set1i(gl3,"shininess",this.getShininess());
+        shaderProgram.set1f(gl3, "specularStrength", (float)this.getSpecularStrength()*10);
+        // TODO add this settings for texture filters and apply them here.
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MIN_FILTER,GL3.GL_LINEAR);
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MAG_FILTER,GL3.GL_LINEAR);
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_S,GL3.GL_CLAMP_TO_BORDER);
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_T,GL3.GL_CLAMP_TO_BORDER);
+        gl3.glEnable(GL3.GL_TEXTURE_2D);
+
+        try {
+            for(TextureLayerIndex tli : TextureLayerIndex.values()) {
+                int i = tli.getIndex();
+                shaderProgram.set1i(gl3, tli.getName(), i);
+                gl3.glActiveTexture(GL3.GL_TEXTURE0 + i);
+
+                TextureWithMetadata tex = this.getTexture(i);
+                if( tex != null ) {
+                    tex.use(gl3,shaderProgram);
+                    gl3.glBindTexture(GL3.GL_TEXTURE_2D, tex.getTexture().getTextureObject());
+                } else {
+                    gl3.glBindTexture(GL3.GL_TEXTURE_2D, 0);
+                }
+            }
+        } catch(Exception e) {
+            logger.error("Failed to set texture layer indices in shader.",e);
+        }
     }
 }

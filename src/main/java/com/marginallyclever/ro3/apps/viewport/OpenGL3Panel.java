@@ -40,6 +40,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
     private ShaderProgram toolShader;
     // resources can only be unloaded in the GL thread.  So we set a flag to unload them in the next frame.
     private boolean unloadOrphansNextFrame = false;
+    private boolean initialized = false;
 
     public OpenGL3Panel() {
         super(new BorderLayout());
@@ -184,6 +185,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
             logger.error("Failed to load shader", e);
         }
 
+        initialized = true;
         // this is needed to satisfy macOS requirements
         gl3.glBindVertexArray(gl3.getContext().getDefaultVAO());
     }
@@ -210,6 +212,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
     public void dispose(GLAutoDrawable glAutoDrawable) {
         logger.info("dispose");
         unloadResources(glAutoDrawable.getGL().getGL3());
+        initialized = false;
     }
 
     /**
@@ -233,6 +236,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
         var list = Registry.toBeUnloaded;
         synchronized (list) {
             for(OpenGL3Resource r : list) {
+                if(r==null) continue;
                 try {
                     r.unload(gl3);
                 } catch(Exception e) {
@@ -251,6 +255,8 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
+        if(!initialized) return; // sometimes display() is called before init() is finished.
+
         GL3 gl3 = glAutoDrawable.getGL().getGL3();
         if(unloadOrphansNextFrame) {
             unloadOrphanedResources(gl3);
@@ -284,7 +290,6 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
         toolShader.setColor(gl3, "specularColor", Color.WHITE);
         toolShader.setColor(gl3,"ambientColor",Color.BLACK);
 
-        toolShader.set1i(gl3,"useTexture",0);
         toolShader.set1i(gl3,"useLighting",0);
         toolShader.set1i(gl3,"useVertexColor",0);
 

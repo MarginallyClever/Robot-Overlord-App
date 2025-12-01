@@ -1,4 +1,4 @@
-open module com.marginallyclever.robotoverlord {
+open module com.marginallyclever.ro3 {
 	requires transitive java.desktop;
 	requires transitive java.prefs;
 	requires transitive java.logging;
@@ -19,7 +19,6 @@ open module com.marginallyclever.robotoverlord {
 	requires modern_docking.ui_ext;
 	requires com.formdev.flatlaf;
 	requires com.github.weisj.jsvg;
-	requires org.reflections;
 	
 	requires vecmath;
 	requires jsch;
@@ -34,4 +33,5 @@ open module com.marginallyclever.robotoverlord {
     requires ch.qos.logback.classic;
     requires ch.qos.logback.core;
     requires core;
+    requires io.github.classgraph;
 }

@@ -41,7 +41,7 @@ import java.util.Objects;
  */
 public class Crab extends Node {
     public static final int NUM_LEGS = 6;  // number of legs on the crab robot
-    static final String RESOURCE_PATH = "src/main/resources/com/marginallyclever/ro3/node/nodes/crab/";
+    static final String RESOURCE_PATH = "/com/marginallyclever/ro3/node/nodes/crab/";
     // size of each bone
     public static final double COXA = 6.2;  // coxa 62mm
     public static final double FEMUR = 15.0;  // femur 150mm

@@ -5,6 +5,8 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.mesh.proceduralmesh.Waldo;
+import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.shader.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.factories.Lifetime;
@@ -25,12 +27,14 @@ import java.util.ArrayList;
  */
 public class DrawPoses extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawPoses.class);
-    private final Mesh mesh = MatrixHelper.createMesh();
+    private final Mesh mesh = new Waldo();
+    private final Material waldoMaterial = new Material();
     private ShaderProgram shader;
 
     public DrawPoses() {
         super("Poses");
         Registry.meshFactory.addToPool(Lifetime.APPLICATION,"DrawPoses.mesh",mesh);
+        waldoMaterial.setLit(false);
     }
 
     @Override
@@ -60,15 +64,14 @@ public class DrawPoses extends AbstractRenderPass {
         shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix(viewport.isOriginShift()));
         shader.setVector3d(gl3,"cameraPos",originShift ? new Vector3d() : cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",originShift ? new Vector3d() : cameraWorldPos);  // Light position in world space
+
         shader.setColor(gl3,"lightColor", Color.WHITE);
         shader.setColor(gl3,"diffuseColor",Color.WHITE);
         shader.setColor(gl3,"specularColor",Color.DARK_GRAY);
         shader.setColor(gl3,"ambientColor",Color.BLACK);
         shader.set1i(gl3,"useVertexColor",1);
         shader.set1i(gl3,"useLighting",0);
-        shader.set1i(gl3,"diffuseTexture",0);
         gl3.glDisable(GL3.GL_DEPTH_TEST);
-        gl3.glDisable(GL3.GL_TEXTURE_2D);
 
         // collect all poses, separating out the selected ones
         var list = Registry.selection.getList();
@@ -84,6 +87,9 @@ public class DrawPoses extends AbstractRenderPass {
             if (getActiveStatus() == SOMETIMES && !selected) continue;
 
             shader.setColor(gl3, "diffuseColor", selected ? Color.WHITE : Color.GRAY);
+
+            //waldoMaterial.setDiffuseColor(selected ? Color.WHITE : Color.GRAY);
+            waldoMaterial.use(gl3, shader);
 
             Matrix4d w = pose.getWorld();
             w.mul(w, MatrixHelper.createScaleMatrix4(selected ? 2 : 1));

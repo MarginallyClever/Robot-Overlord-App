@@ -1,8 +1,9 @@
 package com.marginallyclever.ro3;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import com.marginallyclever.ro3.apps.viewport.OpenGL3Panel;
-import org.reflections.Reflections;
+import com.marginallyclever.ro3.node.Node;
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ScanResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,11 +12,10 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
- * This class should be in tests but cannot because {@link Reflections} does not work across the
- * production/test boundary.
+ * This class should be in tests but cannot because Reflections does not work across the
+ * production/test boundary.  TODO if Reflections is replaced with ClassGraph, re-evaluate this statement.
  */
 public class AllPanels {
     private static final Logger logger = LoggerFactory.getLogger(AllPanels.class);
@@ -42,8 +42,12 @@ public class AllPanels {
             com.marginallyclever.ro3.apps.App.class  // abstract
         );
 
-        Reflections reflections = new Reflections("com.marginallyclever");
-        collectAllJPanels(reflections, cardPanel, names, exceptions);
+        try(ScanResult result = new ClassGraph()
+                .enableClassInfo()
+                .acceptPackages("com.marginallyclever")
+                .scan()) {
+            collectAllJPanels(result, cardPanel, names, exceptions);
+        }
 
         // build the combo box
         names.sort(String::compareTo);
@@ -59,8 +63,8 @@ public class AllPanels {
     }
 
     // create one of every panel that extends JPanel
-    private void collectAllJPanels(Reflections reflections, JPanel cardPanel, List<String> names, List<Class<?>> exceptions) {
-        Set<Class<? extends JPanel>> allClasses = reflections.getSubTypesOf(JPanel.class);
+    private void collectAllJPanels(ScanResult scanResults, JPanel cardPanel, List<String> names, List<Class<?>> exceptions) {
+        List<Class<?>> allClasses = new ArrayList<>(scanResults.getClassesImplementing(Node.class.getName()).loadClasses());
         if(allClasses.isEmpty()) {
             logger.debug("No classes found by reflections.  Using handmade list.");
             allClasses.addAll(getHandmadeList());
@@ -68,7 +72,7 @@ public class AllPanels {
         for(var panelClass : allClasses) {
             try {
                 if(exceptions.contains(panelClass)) continue;  // skip
-                JPanel panelInstance = panelClass.getDeclaredConstructor().newInstance();
+                JPanel panelInstance = (JPanel)panelClass.getDeclaredConstructor().newInstance();
                 logger.debug("Adding {}", panelClass.getName());
                 cardPanel.add(panelInstance, panelClass.getName());
                 names.add(panelClass.getName());

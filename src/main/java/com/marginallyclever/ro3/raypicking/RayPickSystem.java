@@ -4,11 +4,11 @@ import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.pathtracer.PathMesh;
 import com.marginallyclever.ro3.apps.pathtracer.PathTriangle;
-import com.marginallyclever.ro3.mesh.proceduralmesh.Sphere;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 
+import javax.vecmath.Point3d;
 import java.util.*;
 
 /**
@@ -124,7 +124,7 @@ public class RayPickSystem {
         List<Hit> hits = new LinkedList<>();
 
         for(var meshInstance : sceneElements) {
-            if(!optimize || meshInstance.getMesh() instanceof Sphere) {
+            if(!optimize /*|| meshInstance.getMesh() instanceof Sphere*/) {
                 Hit hit = meshInstance.intersect(ray);
                 if (hit != null) hits.add(hit);
                 continue;
@@ -164,7 +164,9 @@ public class RayPickSystem {
             PathTriangle pt = worldMesh.getRandomTriangle();
             if(pt==null) continue;
 
-            return new Hit(meshInstance, 0, pt.normal, pt.getRandomPointInside(), pt);
+            Point3d inside = pt.getRandomPointInside();
+
+            return new Hit(meshInstance, 0, pt.getNormalAt(inside), inside, pt);
         }
         return null;
     }

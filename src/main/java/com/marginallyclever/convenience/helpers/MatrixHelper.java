@@ -1,8 +1,6 @@
 package com.marginallyclever.convenience.helpers;
 
-import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Plane;
-import com.marginallyclever.ro3.mesh.Mesh;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
@@ -30,18 +28,6 @@ public class MatrixHelper {
 		m.m00 = m.m11 = m.m22 = scale;
 		m.m33 = 1;
 		return m;
-	}
-
-	public static Mesh createMesh() {
-		Mesh mesh = new Mesh();
-		mesh.setRenderStyle(GL3.GL_LINES);
-		mesh.addColor(1,0,0,1);		mesh.addVertex(0,0,0);
-		mesh.addColor(1,0,0,1);		mesh.addVertex(1,0,0);
-		mesh.addColor(0,1,0,1);		mesh.addVertex(0,0,0);
-		mesh.addColor(0,1,0,1);		mesh.addVertex(0,1,0);
-		mesh.addColor(0,0,1,1);		mesh.addVertex(0,0,0);
-		mesh.addColor(0,0,1,1);		mesh.addVertex(0,0,1);
-		return mesh;
 	}
 
 	/**

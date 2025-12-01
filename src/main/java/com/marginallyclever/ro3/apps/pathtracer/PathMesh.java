@@ -42,9 +42,9 @@ public class PathMesh {
         if( bestTriangle == null ) return null;  // no hit
 
         double nearest = bestTriangle.intersectRay(ray);
-        Vector3d normal = bestTriangle.normal;
         Point3d p = new Point3d();
         p.scaleAdd(nearest, ray.getDirection(), ray.getOrigin());
+        Vector3d normal = bestTriangle.getNormalAt(p);
         return new Hit(null,nearest,normal,p, bestTriangle);
     }
 

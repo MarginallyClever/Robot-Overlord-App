@@ -69,7 +69,7 @@ public class DrawDHParameters extends AbstractRenderPass {
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
 
         gl3.glDisable(GL3.GL_DEPTH_TEST);
-        gl3.glDisable(GL3.GL_TEXTURE_2D);
+        //gl3.glDisable(GL3.GL_TEXTURE_2D);
         shader.use(gl3);
         shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix(originShift));
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));
@@ -81,11 +81,7 @@ public class DrawDHParameters extends AbstractRenderPass {
         shader.setColor(gl3,"ambientColor",Color.BLACK);
         shader.set1i(gl3,"useVertexColor",1);
         shader.set1i(gl3,"useLighting",0);
-        shader.set1i(gl3,"diffuseTexture",0);
-        shader.set1i(gl3,"useTexture",0);
         OpenGLHelper.checkGLError(gl3,logger);
-        gl3.glDisable(GL3.GL_TEXTURE_2D);
-        gl3.glDisable(GL3.GL_DEPTH_TEST);
 
         var list = Registry.selection.getList();
 

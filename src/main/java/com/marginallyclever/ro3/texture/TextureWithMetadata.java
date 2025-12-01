@@ -6,6 +6,7 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 import com.marginallyclever.ro3.apps.viewport.OpenGL3Resource;
+import com.marginallyclever.ro3.shader.Shader;
 import com.marginallyclever.ro3.shader.ShaderProgram;
 
 import java.awt.*;
@@ -44,7 +45,7 @@ public class TextureWithMetadata implements OpenGL3Resource {
      * a {@link com.jogamp.opengl.GLAutoDrawable}.
      * @param shader the shader to use.
      */
-    public void use(ShaderProgram shader) {
+    public void use(GL3 gl3, ShaderProgram shader) {
         if(texture==null) {
             BufferedImage flip = new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_ARGB);
             for(int y=0;y<image.getHeight();++y) {
@@ -58,15 +59,11 @@ public class TextureWithMetadata implements OpenGL3Resource {
                     true);  // generate mipmaps
         }
 
-        GL3 gl3 = GLContext.getCurrentGL().getGL3();
         if(texture==null) {
             gl3.glDisable(GL3.GL_TEXTURE_2D);
-            shader.set1i(gl3,"useTexture",0);
         } else {
             gl3.glEnable(GL3.GL_TEXTURE_2D);
             texture.bind(gl3);
-            shader.set1i(gl3,"useTexture",1);
-            shader.set1i(gl3,"diffuseTexture",0);
         }
 
         // turn on texture wrapping

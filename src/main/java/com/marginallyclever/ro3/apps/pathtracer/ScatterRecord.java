@@ -4,7 +4,6 @@ import com.marginallyclever.convenience.Ray;
 
 /**
  * Represents a record of scattering events in a path tracer.
- * This class is currently empty and serves as a placeholder for future implementation.
  */
 public class ScatterRecord {
     public enum ScatterType {

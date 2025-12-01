@@ -52,7 +52,7 @@ public class RO3FrameDropTarget extends DropTargetAdapter {
                 }
             }
             if(complete>0) {
-                logger.debug("Drop ok: {}", complete);
+                //logger.debug("Drop ok: {}", complete);
                 event.dropComplete(true);
                 return;
             }

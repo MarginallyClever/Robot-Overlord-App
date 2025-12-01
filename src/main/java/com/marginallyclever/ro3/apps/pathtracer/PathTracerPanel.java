@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.apps.pathtracer;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.SceneChangeListener;
+import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.listwithevents.ListListener;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
@@ -19,7 +20,7 @@ import java.beans.PropertyChangeListener;
  * <p>{@link PathTracerPanel} controls a {@link PathTracer} and displays the results.</p>
  * <p>Special thanks to <a href='https://raytracing.github.io/books/RayTracingInOneWeekend.html'>Ray Tracing in One Weekend</a></p>
  */
-public class PathTracerPanel extends JPanel
+public class PathTracerPanel extends App
         implements SceneChangeListener, ProgressListener, PropertyChangeListener, ListListener<Camera> {
     private final PathTracer pathTracer;
     private final JToolBar toolBar = new JToolBar();

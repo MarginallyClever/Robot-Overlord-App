@@ -33,7 +33,7 @@ public class Environment extends Node {
     public double sunlightStrength = 1;
     public Color ambientColor = new Color(0x20,0x20,0x20,255);
     private double declination = 0;  // degrees, +/-90
-    private double timeOfDay = 12;  // 0-24
+    private double timeOfDay = 180;  // 0-360 (scale by 24/360 to get hours)
     private TextureWithMetadata skyTexture;
     private boolean skyShapeIsSphere=true;
 
@@ -47,6 +47,7 @@ public class Environment extends Node {
 
     public Environment(String name) {
         super(name);
+        updateSunlightSource();
     }
 
     /**
@@ -213,6 +214,10 @@ public class Environment extends Node {
         return timeOfDay;
     }
 
+    /**
+     * 0..360 (scale by 24/360 to get hours)
+     * @param timeOfDay 0..360
+     */
     public void setTimeOfDay(double timeOfDay) {
         this.timeOfDay = timeOfDay;
         updateSunlightSource();

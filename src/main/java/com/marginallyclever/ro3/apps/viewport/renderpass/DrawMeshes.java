@@ -6,6 +6,7 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.viewport.TextureLayerIndex;
 import com.marginallyclever.ro3.mesh.proceduralmesh.GenerativeMesh;
 import com.marginallyclever.ro3.shader.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
@@ -16,7 +17,6 @@ import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.environment.Environment;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
-import com.marginallyclever.ro3.texture.TextureWithMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public class DrawMeshes extends AbstractRenderPass {
     private final Mesh shadowQuad = new GenerativeMesh();
     private final int [] shadowFBO = new int[1];  // Frame Buffer Object
     private final int [] shadowTexture = new int[1];  // texture for the FBO
-    private final int shadowMapUnit = 1;
+    private final int shadowMapUnit = TextureLayerIndex.values().length+1;
     public static final int SHADOW_WIDTH = 1024;
     public static final int SHADOW_HEIGHT = 1024;
 
@@ -57,6 +57,8 @@ public class DrawMeshes extends AbstractRenderPass {
     private final int [] stencilFBO = new int[1]; // Framebuffer for offscreen stencil rendering
     private final int [] stencilTexture = new int [1]; // Texture to capture stencil data
     private final Mesh fullScreenQuad = new GenerativeMesh();
+
+    private final Material defaultMaterial = new Material();
 
     public DrawMeshes() {
         super("Meshes");
@@ -322,6 +324,8 @@ public class DrawMeshes extends AbstractRenderPass {
     // draw the shadow quad into the world for debugging.
     private void drawShadowMapOnQuad(GL3 gl3, Camera camera,boolean originShift) {
         meshShader.use(gl3);
+        //defaultMaterial.use(gl3,meshShader);
+
         meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix(originShift));
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
         var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
@@ -335,7 +339,6 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setColor(gl3,"ambientColor", ambientColor);
         meshShader.set1i(gl3, "useVertexColor", 0);
         meshShader.set1i(gl3, "useLighting", 0);
-        meshShader.set1i(gl3, "useTexture",1);
 
         gl3.glDisable(GL3.GL_DEPTH_TEST);
         gl3.glActiveTexture(GL3.GL_TEXTURE0 + shadowMapUnit);
@@ -417,41 +420,22 @@ public class DrawMeshes extends AbstractRenderPass {
 
         meshShader.set1i(gl3, "useVertexColor", 0);
         meshShader.set1i(gl3, "useLighting", 1);
-        meshShader.set1i(gl3, "diffuseTexture", 0);
+
         //OpenGLHelper.checkGLError(gl3, logger);
 
         Material lastSeen = null;
-        TextureWithMetadata texture = null;
 
         for(MeshMaterialMatrix meshMaterialMatrix : m3) {
             MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
-            Material material = meshMaterialMatrix.material();
 
-            // set the texture to the first sibling that is a material and has a texture
+            Material material = meshMaterialMatrix.material();
             if( material != lastSeen ) {
-                lastSeen = material;
-                texture = material.getDiffuseTexture();
-                meshShader.setColor(gl3,"diffuseColor",material.getDiffuseColor());
-                meshShader.setColor(gl3,"specularColor",material.getSpecularColor());
-                meshShader.setColor(gl3,"emissionColor",material.getEmissionColor());
-                meshShader.set1i(gl3,"useLighting",material.isLit() ? 1 : 0);
-                meshShader.set1i(gl3,"shininess",material.getShininess());
-                meshShader.set1f(gl3, "specularStrength", (float)material.getSpecularStrength());
-                // TODO add material settings for texture filters and apply them here.
-                gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MIN_FILTER,GL3.GL_LINEAR);
-                gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MAG_FILTER,GL3.GL_LINEAR);
-                gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_S,GL3.GL_CLAMP_TO_BORDER);
-                gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_T,GL3.GL_CLAMP_TO_BORDER);
-            }
-            if(texture == null) {
-                gl3.glDisable(GL3.GL_TEXTURE_2D);
-                meshShader.set1i(gl3,"useTexture",0);
-            } else {
-                texture.use(meshShader);
+                material.use(gl3,meshShader);
             }
 
             Mesh mesh = meshInstance.getMesh();
             meshShader.set1i(gl3, "useVertexColor", mesh.getHasColors()?1:0);
+
             // set the model matrix
             var m = meshMaterialMatrix.matrix();
             if(originShift) m = RenderPassHelper.getOriginShiftedMatrix(m,cameraWorldPos);
@@ -476,7 +460,6 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
         meshShader.set1i(gl3, "useVertexColor", 0);
         meshShader.set1i(gl3, "useLighting", 0);
-        meshShader.set1i(gl3, "useTexture", 0);
         meshShader.setColor(gl3,"diffuseColor",Color.WHITE);
 
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
