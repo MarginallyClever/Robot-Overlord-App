@@ -1,4 +1,4 @@
-module:com.marginallyclever.robotoverlord
+module:com.marginallyclever.ro3
 com.marginallyclever.communications.application
 com.marginallyclever.communications.session
 com.marginallyclever.communications.transport
@@ -27,6 +27,7 @@ com.marginallyclever.ro3.apps.ode4j
 com.marginallyclever.ro3.apps.pathtracer
 com.marginallyclever.ro3.apps.pathtracer.halton
 com.marginallyclever.ro3.apps.pathtracer.spatialaccelerationstructure
+com.marginallyclever.ro3.apps.plugins
 com.marginallyclever.ro3.apps.shared
 com.marginallyclever.ro3.apps.viewport
 com.marginallyclever.ro3.apps.viewport.renderpass
@@ -69,4 +70,3 @@ com.marginallyclever.ro3.physics
 com.marginallyclever.ro3.raypicking
 com.marginallyclever.ro3.shader
 com.marginallyclever.ro3.texture
-com.marginallyclever.robotoverlord
