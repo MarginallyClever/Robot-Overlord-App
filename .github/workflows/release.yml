@@ -1,6 +1,8 @@
 name: Release Build
 
 on:
+  push:
+    branches: [ dev ]
   release:
     types:
       - created
