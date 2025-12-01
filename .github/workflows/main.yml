@@ -5,6 +5,7 @@ env:
   # in your browser and copy the full "upload_url" value including the {?name,label} part.
   UPLOAD_URL: https://uploads.github.com/repos/MarginallyClever/Robot-Overlord-App/releases/28206919/assets{?name,label}
   RELEASE_ID: 28206919 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+  JAVA_VERSION: '22'    # add once here
 
 on:
   push:
@@ -19,7 +20,7 @@ jobs:
     - uses: actions/setup-java@v4.7.1
       with:
         distribution: 'temurin'
-        java-version: '22'
+        java-version: ${{ env.JAVA_VERSION }}
         cache: 'maven'
 
     - name: Build and Test with Maven
@@ -119,7 +120,7 @@ jobs:
       - uses: actions/setup-java@v4.7.1
         with:
           distribution: 'temurin'
-          java-version: '22'
+          java-version: ${{ env.JAVA_VERSION }}
           architecture: ${{ matrix.java_arch }}
 
       - uses: actions/download-artifact@v4.3.0
@@ -138,9 +139,12 @@ jobs:
           sed -i.bak "s/\(--app-version\).*/\1 $APP_VERSION/" src/main/package/jpackage.cfg 
           APP_NAME="Makelangelo-${{ matrix.os_label }}"
 
+          # copy runtime dependencies into `target/dependency`
+          mvn dependency:copy-dependencies -DincludeScope=runtime -DoutputDirectory=target/dependency
+
           # compute module list from the fat jar, ignore missing deps to avoid failure on unknown automatic modules
           JAR="target/package/RobotOverlord-$APP_VERSION-with-dependencies.jar"
-          MODULES=$(jdeps --multi-release 22 --print-module-deps --ignore-missing-deps "$JAR")
+          MODULES=$(jdeps --multi-release ${{ env.JAVA_VERSION }} --module-path target/dependency --print-module-deps --ignore-missing-deps "$JAR")
           echo "jdeps modules: $MODULES"  
         
           # add any known extras (e.g. jdk.zipfs) and run jlink
