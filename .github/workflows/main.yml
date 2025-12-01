@@ -44,7 +44,7 @@ jobs:
       uses: actions/upload-artifact@v4.6.2
       with:
         name: jdeps-modules
-        path: `target/modules.txt`
+        path: target/modules.txt
 
     - name: Generate JaCoCo Badge
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
