@@ -27,7 +27,24 @@ jobs:
       timeout-minutes: 15
       run: ./mvnw -B test -Djava.awt.headless=true
 
-    # build job: compute modules and upload them
+    - name: Generate JaCoCo Badge
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+      uses: cicirello/jacoco-badge-generator@v2.12.0
+      with:
+        generate-branches-badge: true
+
+    - name: Commit and push the badge (if it changed)
+      if: github.ref != 'refs/heads/master' || github.ref == 'refs/heads/main'
+      uses: EndBug/add-and-commit@v9.1.4
+      with:
+        default_author: github_actions
+        message: 'commit badge'
+        add: '*.svg'
+
+    - name: Package with Maven
+      run: ./mvnw -B clean package -DskipTests
+
+      # build job: compute modules and upload them
     - name: Compute jdeps module list
       shell: bash
       run: |
@@ -50,23 +67,6 @@ jobs:
       with:
         name: jdeps-modules
         path: target/modules.txt
-
-    - name: Generate JaCoCo Badge
-      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
-      uses: cicirello/jacoco-badge-generator@v2.12.0
-      with:
-        generate-branches-badge: true
-
-    - name: Commit and push the badge (if it changed)
-      if: github.ref != 'refs/heads/master' || github.ref == 'refs/heads/main'
-      uses: EndBug/add-and-commit@v9.1.4
-      with:
-        default_author: github_actions
-        message: 'commit badge'
-        add: '*.svg'
-
-    - name: Package with Maven
-      run: ./mvnw -B clean package -DskipTests
 
     - name: Prepare universal package
       shell: bash
