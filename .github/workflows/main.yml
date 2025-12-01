@@ -27,6 +27,25 @@ jobs:
       timeout-minutes: 15
       run: ./mvnw -B test -Djava.awt.headless=true
 
+    # build job: compute modules and upload them
+    - name: Compute jdeps module list
+      shell: bash
+      run: |
+        set -euxo pipefail
+        # copy runtime deps so jdeps can resolve modules
+        mvn dependency:copy-dependencies -DincludeScope=runtime -DoutputDirectory=target/dependency
+        # locate fat jar produced by the build
+        JAR=$(ls target/*-with-dependencies.jar | head -n1)
+        # run jdeps and write comma-separated list to file
+        jdeps --multi-release ${{ env.JAVA_VERSION }} --module-path target/dependency --print-module-deps --ignore-missing-deps "$JAR" > target/modules.txt
+        echo "Wrote jdeps module list to `target/modules.txt`"
+
+    - name: Upload jdeps module list
+      uses: actions/upload-artifact@v4.6.2
+      with:
+        name: jdeps-modules
+        path: `target/modules.txt`
+
     - name: Generate JaCoCo Badge
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
       uses: cicirello/jacoco-badge-generator@v2.12.0
@@ -130,6 +149,11 @@ jobs:
       - name: Check files
         run: ls -l target/package/
 
+      # package job: download the module list (add before Build installation package)
+      - uses: actions/download-artifact@v4.3.0
+        with:
+          name: jdeps-modules
+
       - name: Build installation package
         shell: bash
         run: |
@@ -139,13 +163,10 @@ jobs:
           sed -i.bak "s/\(--app-version\).*/\1 $APP_VERSION/" src/main/package/jpackage.cfg 
           APP_NAME="Makelangelo-${{ matrix.os_label }}"
 
-          # copy runtime dependencies into `target/dependency`
-          mvn dependency:copy-dependencies -DincludeScope=runtime -DoutputDirectory=target/dependency
-
-          # compute module list from the fat jar, ignore missing deps to avoid failure on unknown automatic modules
-          JAR="target/package/RobotOverlord-$APP_VERSION-with-dependencies.jar"
-          MODULES=$(jdeps --multi-release ${{ env.JAVA_VERSION }} --module-path target/dependency --print-module-deps --ignore-missing-deps "$JAR")
-          echo "jdeps modules: $MODULES"  
+          # inside Build installation package step replace the mvn/jdeps lines with:
+          # read modules from artifact instead of recomputing
+          MODULES=$(cat target/modules.txt)
+          echo "jdeps modules: $MODULES"
         
           # add any known extras (e.g. jdk.zipfs) and run jlink
           EXTRAS="jdk.zipfs"
