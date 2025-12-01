@@ -35,7 +35,12 @@ jobs:
         # copy runtime deps so jdeps can resolve modules
         mvn dependency:copy-dependencies -DincludeScope=runtime -DoutputDirectory=target/dependency
         # locate fat jar produced by the build
-        JAR=$(ls target/*.jar | head -n1)
+        JAR=$(ls target/*-with-dependencies.jar target/*-jar-with-dependencies.jar target/*.jar 2>/dev/null | head -n1 || true)
+        if [ -z "$JAR" ]; then
+          echo "No jar found in target/ — listing `target/`"
+          ls -la target || true
+          exit 1
+        fi
         # run jdeps and write comma-separated list to file
         jdeps --multi-release ${{ env.JAVA_VERSION }} --module-path target/dependency --print-module-deps --ignore-missing-deps "$JAR" > target/modules.txt
         echo "Wrote jdeps module list to `target/modules.txt`"
