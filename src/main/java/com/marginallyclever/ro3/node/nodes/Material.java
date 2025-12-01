@@ -37,6 +37,7 @@ import java.util.List;
  */
 public class Material extends Node {
     private static final Logger logger = LoggerFactory.getLogger(Material.class);
+    private static final String RESOURCE_PATH = "/com/marginallyclever/ro3/node/nodes/material/";
 
     private final List<TextureWithMetadata> textures = new ArrayList<>();
     private Color diffuseColor = new Color(255,255,255);
@@ -57,7 +58,7 @@ public class Material extends Node {
         super(name);
 
         for (TextureLayerIndex ti : TextureLayerIndex.values()) {
-            String filename = "src/main/resources/com/marginallyclever/ro3/node/nodes/material/" + ti.getName() + ".jpg";
+            String filename = RESOURCE_PATH + ti.getName() + ".jpg";
             textures.add(Registry.textureFactory.get(Lifetime.APPLICATION, filename));
         }
     }
