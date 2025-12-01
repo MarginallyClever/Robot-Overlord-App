@@ -112,8 +112,19 @@ jobs:
           APP_VERSION=$(ls -1 target/package/RobotOverlord-*-with-dependencies.jar | sed "s/.*RobotOverlord-\([^-]*\)-with-dependencies.jar/\1/")
           sed -i.bak "s/\(--app-version\).*/\1 $APP_VERSION/" src/main/package/jpackage.cfg
           APP_NAME="Makelangelo-${{ matrix.os_label }}"
+          
+          # compute module list from the fat jar, ignore missing deps to avoid failure on unknown automatic modules
+          JAR="target/package/RobotOverlord-$APP_VERSION-with-dependencies.jar"
+          MODULES=$(jdeps --multi-release 22 --print-module-deps --ignore-missing-deps "$JAR")
+          echo "jdeps modules: $MODULES"  
+        
+          # add any known extras (e.g. jdk.zipfs) and run jlink
+          EXTRAS="jdk.zipfs"
+          jlink --add-modules "${MODULES},${EXTRAS}" --output img
+
           jpackage "@src/main/package/jpackage.cfg" "@src/main/package/jpackage-${{matrix.runs_on}}.cfg" \
-            --main-jar "RobotOverlord-$APP_VERSION-with-dependencies.jar" && \
+            --main-jar "RobotOverlord-$APP_VERSION-with-dependencies.jar" \
+            --runtime-image img \
             --name "$APP_NAME"
           BINARY=$(find . -maxdepth 1 -iname 'robotoverlord*' | grep -E '(msi$|dmg$|deb$)' | sed "s,./,," | head -1)
           EXT="${BINARY##*.}"
