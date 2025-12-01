@@ -1,9 +1,15 @@
 package com.marginallyclever.ro3.apps.viewport;
 
 import com.jogamp.opengl.*;
+import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.awt.GLJPanel;
+import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.FPSAnimator;
+import com.marginallyclever.convenience.helpers.OSHelper;
+import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
@@ -22,9 +28,11 @@ import java.nio.FloatBuffer;
  */
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless environment")
 public class MinimalOpenGL3 extends JPanel implements GLEventListener {
+    private static final Logger logger = LoggerFactory.getLogger(MinimalOpenGL3.class);
+
     private static final long startTime = System.currentTimeMillis();
 
-    private final FPSAnimator animator;
+    private final Animator animator;
 
     // shader stuff
     private int shaderId;
@@ -81,18 +89,20 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
 
     public MinimalOpenGL3() {
         super(new BorderLayout());
-        GLJPanel glPanel = new GLJPanel(getCapabilities());
+        var glPanel = new GLJPanel(getCapabilities());
         glPanel.addGLEventListener(this);
         add(glPanel, BorderLayout.CENTER);
-        animator = new FPSAnimator(glPanel, 30);
+        animator = new Animator(glPanel);
     }
 
     private GLCapabilities getCapabilities() {
-        GLCapabilities capabilities = new GLCapabilities(GLProfile.get(GLProfile.GL3bc));
+        GLProfile.initSingleton();
+        GLCapabilities capabilities = new GLCapabilities(GLProfile.get(GLProfile.GL3));
         capabilities.setHardwareAccelerated(true);
         capabilities.setBackgroundOpaque(true);
         capabilities.setDoubleBuffered(true);
         capabilities.setDepthBits(32);  // 32 bit depth buffer is floating point
+        logger.debug("capabilities: {}", capabilities);
         return capabilities;
     }
 
@@ -110,10 +120,14 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
-        var gl = glAutoDrawable.getGL().getGL3();
+        var gl = new DebugGL3(glAutoDrawable.getGL().getGL3());
+        logger.debug(JoglVersion.getGLStrings(gl, null, false).toString());
+        glAutoDrawable.setGL(gl);
         initPreferences(gl);
         initShader(gl);
         initMesh(gl);
+        // this is needed to satisfy macOS requirements
+        gl.glBindVertexArray(gl.getContext().getDefaultVAO());
     }
 
     private void initPreferences(GL3 gl) {
@@ -171,9 +185,9 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
         gl.glBindVertexArray(vao[0]);
 
         setupOneBuffer(gl,0, VERTEX_COMPONENTS, vertices);
-        setupOneBuffer(gl,1, COLOR_COMPONENTS, colors  );
+        setupOneBuffer(gl,1, COLOR_COMPONENTS,  colors  );
 
-        gl.glBindVertexArray(0);
+        if(!OSHelper.isMac()) gl.glBindVertexArray(0);
     }
 
     private void bindOneBuffer(GL3 gl, int attribIndex) {
@@ -211,10 +225,14 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
     }
 
     @Override
-    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {}
+    public void reshape(GLAutoDrawable glAutoDrawable, int x, int y, int width, int height) {
+        logger.debug("reshape "+width+"x"+height);
+        var gl = glAutoDrawable.getGL().getGL3();
+    }
 
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
+        logger.debug("dispose");
         var gl = glAutoDrawable.getGL().getGL3();
         disposeMesh(gl);
         disposeShader(gl);
@@ -239,13 +257,14 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
      */
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
+        //logger.debug("display");
         var gl = glAutoDrawable.getGL().getGL3();
         gl.glClear(GL3.GL_COLOR_BUFFER_BIT);
-
         gl.glUseProgram(shaderId);
         spinTriangle(gl);
         drawTriangle(gl);
-        gl.glUseProgram(0);
+        // this is needed to satisfy macOS requirements
+        gl.glBindVertexArray(gl.getContext().getDefaultVAO());
     }
 
     private void spinTriangle(GL3 gl) {
@@ -269,6 +288,5 @@ public class MinimalOpenGL3 extends JPanel implements GLEventListener {
     private void drawTriangle(GL3 gl) {
         gl.glBindVertexArray(vao[0]);
         gl.glDrawArrays(GL3.GL_TRIANGLES, 0, 3);
-        gl.glBindVertexArray(0);
     }
 }
