@@ -30,7 +30,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
     private static final Logger logger = LoggerFactory.getLogger(OpenGL3Panel.class);
     public static final int DEFAULT_FPS = 30;
 
-    protected GLCanvas glCanvas;
+    private GLCanvas glCanvas;
     private boolean hardwareAccelerated = true;
     private boolean doubleBuffered = true;
     private int fsaaSamples = 0;
@@ -55,9 +55,14 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
         } catch(GLException e) {
             logger.error("Failed to create canvas.  Are your native drivers missing?");
         }
+
         add(glCanvas, BorderLayout.CENTER);
+
+        // start animation system
+        logger.debug("  starting animator...");
         animator = new FPSAnimator(fps);
         animator.add(glCanvas);
+        animator.start();
     }
 
     private void loadPrefs() {
@@ -82,6 +87,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
     public void addNotify() {
         super.addNotify();
         addGLEventListener(this);
+        glCanvas.addGLEventListener(this);
         glCanvas.addMouseListener(this);
         glCanvas.addMouseMotionListener(this);
         glCanvas.addMouseWheelListener(this);
@@ -92,6 +98,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
     public void removeNotify() {
         super.removeNotify();
         removeGLEventListener(this);
+        glCanvas.removeGLEventListener(this);
         glCanvas.removeMouseListener(this);
         glCanvas.removeMouseMotionListener(this);
         glCanvas.removeMouseWheelListener(this);
@@ -116,6 +123,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
         capabilities.toString(sb);
         logger.info("Profile="+profile.getName());
         logger.info("Capabilities="+sb);
+        if(!profile.isGL3()) throw new GLException("OpenGL 3.0 or higher is required.");
         return capabilities;
     }
 
