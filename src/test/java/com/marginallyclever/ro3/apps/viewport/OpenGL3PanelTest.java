@@ -4,7 +4,7 @@ import com.marginallyclever.ro3.Registry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "headless environment")
 public class OpenGL3PanelTest {
     @Test
     public void test() {
@@ -13,7 +13,7 @@ public class OpenGL3PanelTest {
         OpenGL3Panel panel = new OpenGL3Panel();
 
         // create and display a frame
-        javax.swing.JFrame frame = new javax.swing.JFrame("OpenGLPanel Test");
+        javax.swing.JFrame frame = new javax.swing.JFrame("OpenGL3Panel Test");
         frame.setContentPane(panel);
         frame.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
         frame.setSize(500, 600);
