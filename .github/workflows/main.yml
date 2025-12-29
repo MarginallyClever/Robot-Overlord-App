@@ -139,7 +139,7 @@ jobs:
           set -o pipefail
           APP_VERSION=$(ls -1 target/package/RobotOverlord-*-with-dependencies.jar | sed "s/.*RobotOverlord-\([^-]*\)-with-dependencies.jar/\1/")
           sed -i.bak "s/\(--app-version\).*/\1 $APP_VERSION/" src/main/package/jpackage.cfg 
-          APP_NAME="Makelangelo-${{ matrix.os_label }}"
+          APP_NAME="RobotOverlord-${{ matrix.os_label }}"
 
           # copy runtime dependencies into `target/dependency`
           mvn dependency:copy-dependencies -DincludeScope=runtime -DoutputDirectory=target/dependency
