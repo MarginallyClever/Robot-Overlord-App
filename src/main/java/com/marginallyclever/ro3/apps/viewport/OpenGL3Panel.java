@@ -30,7 +30,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
     private static final Logger logger = LoggerFactory.getLogger(OpenGL3Panel.class);
     public static final int DEFAULT_FPS = 30;
 
-    private GLCanvas glCanvas;
+    private GLJPanel glCanvas;
     private boolean hardwareAccelerated = true;
     private boolean doubleBuffered = true;
     private int fsaaSamples = 0;
@@ -51,7 +51,7 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
         GLCapabilities capabilities = getCapabilities();
         logger.debug("create canvas");
         try {
-            glCanvas = new GLCanvas(capabilities);
+            glCanvas = new GLJPanel(capabilities);
         } catch(GLException e) {
             logger.error("Failed to create canvas.  Are your native drivers missing?");
         }
