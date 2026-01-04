@@ -51,7 +51,7 @@ public class RO3Frame extends JFrame {
 
     private final List<DockingPanel> windows = new ArrayList<>();
 
-    private final OpenGL3Panel viewportPanel;
+    private final OpenGL3Panel opengl3Panel;
     private final ViewportSettingsPanel viewportSettingsPanel;
     private final ViewportToolPanel viewportToolPanel;
 
@@ -63,9 +63,9 @@ public class RO3Frame extends JFrame {
         setLocationByPlatform(true);
         initDocking();
 
-        viewportPanel = new OpenGL3Panel();
-        viewportSettingsPanel = new ViewportSettingsPanel(viewportPanel);
-        viewportToolPanel = new ViewportToolPanel(viewportPanel);
+        opengl3Panel = new OpenGL3Panel();
+        viewportSettingsPanel = new ViewportSettingsPanel(opengl3Panel);
+        viewportToolPanel = new ViewportToolPanel(opengl3Panel);
 
         AppFactory.registerApps("com.marginallyclever.ro3.apps");
         AppFactory.listApps(System.out);
@@ -164,7 +164,7 @@ public class RO3Frame extends JFrame {
         if (result == JOptionPane.YES_OPTION) {
             // Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
             new Thread(() -> {
-                viewportPanel.stopAnimationSystem();
+                opengl3Panel.stopAnimation();
                 this.dispose();
             }).start();
             return true;
@@ -178,7 +178,7 @@ public class RO3Frame extends JFrame {
      * Also remember <a href="https://github.com/andrewauclair/ModernDocking/discussions/240#discussioncomment-10897811">this Modern Docking discussion</a>
      */
     private void registerDefaultWindows() {
-        addDockingPanel("ViewportPanel", "OpenGL",viewportPanel);
+        addDockingPanel("OpenGL3Panel", "OpenGL", opengl3Panel);
         addDockingPanel("NodeTreeView", "Scene",new NodeTreeView());
         addDockingPanel("NodeDetailView", "Details",new NodeDetailView());
         addDockingPanel("LogPanel", "Log",new LogPanel());
