@@ -2,7 +2,10 @@ package com.marginallyclever.ro3;
 
 import ModernDocking.Dockable;
 import ModernDocking.app.Docking;
+import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.AppFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,6 +16,8 @@ import java.awt.*;
  * hierarchy.
  */
 public class DockingPanel extends JPanel implements Dockable {
+    private static final Logger logger = LoggerFactory.getLogger(DockingPanel.class);
+
     private final String tabText;
     private final String persistentID;
 
@@ -35,18 +40,20 @@ public class DockingPanel extends JPanel implements Dockable {
 
     @Override
     public void addNotify() {
-        super.addNotify();
         // attempt to create and add the app.
         var app = AppFactory.create(persistentID);
         if (app != null) {
             this.add(app, BorderLayout.CENTER);
+        } else {
+            logger.warn("no app found for "+persistentID);
         }
+        super.addNotify();
     }
 
     @Override
     public void removeNotify() {
-        super.removeNotify();
         this.removeAll();  // lose the app
+        super.removeNotify();
     }
 
     /**
