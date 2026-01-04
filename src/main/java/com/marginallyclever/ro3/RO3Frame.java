@@ -164,7 +164,7 @@ public class RO3Frame extends JFrame {
         if (result == JOptionPane.YES_OPTION) {
             // Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
             new Thread(() -> {
-                opengl3Panel.stopAnimation();
+                opengl3Panel.stopAnimationSystem();
                 this.dispose();
             }).start();
             return true;
