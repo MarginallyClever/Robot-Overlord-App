@@ -19,6 +19,7 @@ import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.ode4j.ODE4JPanel;
 import com.marginallyclever.ro3.apps.pathtracer.PathTracerPanel;
+import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
 import com.marginallyclever.ro3.apps.viewport.OpenGL3Panel;
 import com.marginallyclever.ro3.apps.viewport.ViewportSettingsPanel;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportToolPanel;
@@ -45,8 +46,11 @@ import java.util.Properties;
  */
 public class RO3Frame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(RO3Frame.class);
-
     public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
+    public static final FileNameExtensionFilter MESH_FILTER = new FileNameExtensionFilter("Mesh files", "stl", "obj", "3mf","ply"/*,"dae"*/);
+    public static final FileNameExtensionFilter URDF_FILTER = new FileNameExtensionFilter("URDF files", "urdf");
+    public static final FileNameExtensionFilter ALL_IMPORT_FILTER = new FileNameExtensionFilter("All supported files", "ro", "urdf", "stl", "obj", "3mf","ply"/*,"dae"*/);
+
     public static String VERSION;
 
     private final List<DockingPanel> windows = new ArrayList<>();
@@ -237,5 +241,20 @@ public class RO3Frame extends JFrame {
 
     public List<DockingPanel> getDockingPanels() {
         return windows;
+    }
+
+    /**
+     * Get a {@link JFileChooser} configured for Robot Overlord 3 import and load actions.
+     * @return A {@link JFileChooser} configured for Robot Overlord 3 import and load actions.
+     */
+    public static JFileChooser getFileChooser() {
+        JFileChooser chooser = new PersistentJFileChooser();
+        chooser.resetChoosableFileFilters();
+        chooser.addChoosableFileFilter(RO3Frame.ALL_IMPORT_FILTER);
+        chooser.addChoosableFileFilter(RO3Frame.FILE_FILTER);
+        chooser.addChoosableFileFilter(RO3Frame.URDF_FILTER);
+        chooser.addChoosableFileFilter(RO3Frame.MESH_FILTER);
+        chooser.setFileFilter(RO3Frame.ALL_IMPORT_FILTER);
+        return chooser;
     }
 }

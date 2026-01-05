@@ -3,13 +3,14 @@ package com.marginallyclever.ro3.mesh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 
 /**
- * {@link MeshSmoother} will smooth the normals of a {@link Mesh}.
+ * {@link MeshHelper} has tools for manipulating an existing {@link Mesh}.
  */
-public class MeshSmoother {
-	private static final Logger logger = LoggerFactory.getLogger(MeshSmoother.class);
+public class MeshHelper {
+	private static final Logger logger = LoggerFactory.getLogger(MeshHelper.class);
 
 	/**
 	 * Smooth normals.  Find points within vertexEpsilon of each other, sharing normals within normalEpsilon 
@@ -114,4 +115,27 @@ public class MeshSmoother {
 	private static float length(float dx,float dy,float dz) {
 		return (float)Math.sqrt(lengthSquared(dx,dy,dz));
 	}
+
+    /**
+     * Scale the mesh by the given factor.
+     * @param mesh the mesh to scale
+     * @param scaleFactor the scale factor
+     */
+    public static void scale(Mesh mesh, Vector3d scaleFactor) {
+        float [] scale = new float[] {
+                (float)scaleFactor.x,
+                (float)scaleFactor.y,
+                (float)scaleFactor.z
+        };
+        int j=0;
+
+        for (int i = 0; i < mesh.vertexArray.size(); i++) {
+            float v = mesh.vertexArray.get(i);
+            v *= scale[j];
+            j = (j + 1) % 3;
+            mesh.vertexArray.set(i, v);
+        }
+
+        mesh.setDirty(true);
+    }
 }

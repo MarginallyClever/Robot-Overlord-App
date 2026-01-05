@@ -6,7 +6,7 @@ import com.marginallyclever.ro3.PanelHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.mesh.MeshChooserDialog;
-import com.marginallyclever.ro3.mesh.MeshSmoother;
+import com.marginallyclever.ro3.mesh.MeshHelper;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactoryPanel;
 
 import javax.swing.*;
@@ -97,7 +97,7 @@ public class MeshInstancePanel extends JPanel {
         PanelHelper.addLabelAndComponent(detailsContainer,"Style",renderStyle);
 
         JButton smooth = new JButton("Smooth");
-        smooth.addActionListener(e -> MeshSmoother.smoothNormals(mesh,0.01f,0.25f) );
+        smooth.addActionListener(e -> MeshHelper.smoothNormals(mesh,0.01f,0.25f) );
         PanelHelper.addLabelAndComponent(detailsContainer,"Normals",smooth);
 
         JButton adjust = new JButton("Adjust");

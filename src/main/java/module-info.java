@@ -34,4 +34,5 @@ open module com.marginallyclever.ro3 {
     requires ch.qos.logback.core;
     requires core;
     requires io.github.classgraph;
+    requires java.xml;
 }
