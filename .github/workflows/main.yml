@@ -73,7 +73,7 @@ jobs:
       uses: WebFreak001/deploy-nightly@v3.2.0
       with:
         upload_url: ${{ env.UPLOAD_URL }}
-        release_id: ${{ env.RELEASE_ID }}{
+        release_id: ${{ env.RELEASE_ID }}
         asset_path: RobotOverlord.zip # path to archive to upload
         asset_name: RobotOverlord-nightly-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
         asset_content_type: application/zip # required by GitHub API
