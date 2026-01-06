@@ -1,26 +1,29 @@
 package com.marginallyclever.ro3.node.nodes.pose.poses;
 
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.apps.actions.Import;
 import com.marginallyclever.ro3.apps.actions.LoadScene;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LimbTest {
     static Limb limb;
 
-    private static Limb build6AxisArm() {
-        var load = new LoadScene(null,null);
-        File file = new File("src/test/resources/com/marginallyclever/ro3/apps/node/nodes/marlinrobotarm/Sixi3-5.RO");
-        load.commitLoad(file);
+    private Limb build6AxisArm() {
+        var load = new Import();
+        File file = new File(Objects.requireNonNull(this.getClass().getResource("/com/marginallyclever/ro3/apps/node/nodes/marlinrobotarm/Sixi3-5.RO")).getFile());
+        load.commitImport(file);
         return (Limb) Registry.getScene().findByPath("./Sixi3");
     }
 
-    @BeforeAll
-    public static void setUp() {
+    @BeforeEach
+    public void setUp() {
         Registry.start();
         limb = build6AxisArm();
     }

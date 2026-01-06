@@ -85,10 +85,11 @@ public class MarlinRobotArm extends MarlinRobot {
             limb1.fromJSON(from);
             limb1.getChildren().stream().filter(n -> n.getName().equals("target")).forEach(toRemove::add);
             for(Node n : toRemove) limb1.removeChild(n);
-            toRemove.clear();
             limb1.setName("Limb");
             getParent().addChild(limb1);
             limb.setUniqueIDByNode(limb1);
+
+            toRemove.clear();
 
             // solver
             LimbSolver solver1 = new LimbSolver();
@@ -98,6 +99,7 @@ public class MarlinRobotArm extends MarlinRobot {
             solver1.setName("LimbSolver");
             getParent().addChild(solver1);
             solver.setUniqueIDByNode(solver1);
+
             solver1.setLimb(limb1);
 
             // gripper

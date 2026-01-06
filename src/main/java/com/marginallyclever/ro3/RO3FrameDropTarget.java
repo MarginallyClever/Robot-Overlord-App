@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3;
 
-import com.marginallyclever.ro3.apps.commands.ImportMesh;
-import com.marginallyclever.ro3.apps.commands.ImportScene;
+import com.marginallyclever.ro3.apps.actions.Import;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,18 +33,16 @@ public class RO3FrameDropTarget extends DropTargetAdapter {
             for (DataFlavor flavor : flavors) {
                 logger.debug("Possible flavor: {}", flavor.getMimeType());
                 if (flavor.isFlavorJavaFileListType()) {
+                    Import importer = new Import();
+
                     event.acceptDrop(DnDConstants.ACTION_COPY);
                     Object object = tr.getTransferData(flavor);
                     if (object instanceof List<?> list) {
                         for(Object item : list) {
                             if (item instanceof File file) {
-                                if(importMesh(file.getAbsolutePath())) {
-                                    // drop a mesh
+                                if(importer.commitImport(file)) {
                                     complete++;
-                                } else if(importScene(file)) {
-                                    // drop a scene
-                                    complete++;
-                                } // else silently ignore
+                                }
                             }
                         }
                     }
@@ -62,33 +59,5 @@ public class RO3FrameDropTarget extends DropTargetAdapter {
             logger.error("Drop error", e);
             event.rejectDrop();
         }
-    }
-
-    private boolean importMesh(String absolutePath) {
-        logger.debug("drag importMesh {}",absolutePath);
-        if(!Registry.meshFactory.canLoad(absolutePath)) {
-            logger.error("can't load file.");
-            return false;
-        }
-        try {
-            UndoSystem.addEvent(new ImportMesh(new File(absolutePath)));
-        } catch (Exception e) {
-            logger.error("Error importing mesh",e);
-            return false;
-        }
-        logger.info("done.");
-        return true;
-    }
-
-    private boolean importScene(File file) {
-        logger.debug("drag importScene {}",file);
-        try {
-            UndoSystem.addEvent(new ImportScene(file));
-        } catch (Exception e) {
-            logger.error("Error importing scene",e);
-            return false;
-        }
-        logger.info("done.");
-        return true;
     }
 }

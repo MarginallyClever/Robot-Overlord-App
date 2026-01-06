@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.vecmath.Vector3d;
 import java.io.BufferedInputStream;
 import java.util.*;
 
@@ -35,19 +36,34 @@ public class MeshFactory extends Factory {
 	
 	/**
 	 * Makes sure to only load one instance of each source file.  Loads all the data immediately.
-	 * @param filename file from which to load.  May be "filename.ext" or "zipfile.zip:filename.ext"
+     * Loads at the default scale.
+     * @param lifetime the lifetime of the mesh
+	 * @param filename file from which to load.  It may be "filename.ext" or "zipfile.zip:filename.ext"
 	 * @return a non-null instance of Mesh.  It may contain nothing.
 	 */
 	public Mesh get(Lifetime lifetime,String filename) {
-		if(filename == null || filename.trim().isEmpty()) return null;
+        return get(lifetime,filename, new Vector3d(1,1,1));
+	}
+
+    /**
+     * Get a mesh from the pool, loading it if necessary, and applying a scale factor.
+     * @param lifetime the lifetime of the mesh
+     * @param filename file from which to load.  It may be "filename.ext" or "zipfile.zip:filename.ext"
+     * @param scaleFactor the scale factor to apply to the mesh
+     * @return a non-null instance of Mesh.  It may contain nothing.
+     */
+    public Mesh get(Lifetime lifetime,String filename, Vector3d scaleFactor) {
+        if(filename == null || filename.trim().isEmpty()) return null;
 
         String absolutePath = FileHelper.getAbsolutePathOrFilename(filename);
         return cache.computeIfAbsent(absolutePath, _-> {
-                var mesh = new Mesh();
-                attemptLoad(absolutePath,mesh);
-                return new Resource<>(mesh, lifetime);
+            var mesh = new Mesh();
+            attemptLoad(absolutePath,mesh);
+            MeshHelper.scale(mesh,scaleFactor);
+            return new Resource<>(mesh, lifetime);
         }).item();
-	}
+
+    }
 
 	/**
 	 * Try to load a mesh from a file using one of the available loaders.

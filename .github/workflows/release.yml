@@ -1,8 +1,9 @@
 name: Release Build
 
+env:
+  JAVA_VERSION: '22'    # add once here
+
 on:
-  push:
-    branches: [ dev ]
   release:
     types:
       - created
@@ -15,7 +16,7 @@ jobs:
     - uses: actions/setup-java@v4.7.1
       with:
         distribution: 'temurin'
-        java-version: '22'
+        java-version: ${{ env.JAVA_VERSION }}
         cache: 'maven'
 
     # from https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
@@ -100,7 +101,7 @@ jobs:
       - uses: actions/setup-java@v4.7.1
         with:
           distribution: 'temurin'
-          java-version: '22'
+          java-version: ${{ env.JAVA_VERSION }}
           architecture: ${{ matrix.java_arch }}
 
       - uses: actions/download-artifact@v4.3.0
@@ -112,12 +113,12 @@ jobs:
         run: |
           set -euo pipefail
           APP_VERSION=$(ls -1 target/package/RobotOverlord-*-with-dependencies.jar | sed "s/.*RobotOverlord-\([^-]*\)-with-dependencies.jar/\1/")
-          sed -i.bak "s/\(--app-version\).*/\1 $APP_VERSION/" src/main/package/jpackage.cfg
+          sed -i.bak "s/\(--app-version\).*/\1 $APP_VERSION/" src/main/package/jpackage.cfg 
           APP_NAME="Makelangelo-${{ matrix.os_label }}"
           
           # compute module list from the fat jar, ignore missing deps to avoid failure on unknown automatic modules
           JAR="target/package/RobotOverlord-$APP_VERSION-with-dependencies.jar"
-          MODULES=$(jdeps --multi-release 22 --print-module-deps --ignore-missing-deps "$JAR")
+          MODULES=$(jdeps --multi-release ${{ env.JAVA_VERSION }} --print-module-deps --ignore-missing-deps "$JAR")
           echo "jdeps modules: $MODULES"  
         
           # add any known extras (e.g. jdk.zipfs) and run jlink

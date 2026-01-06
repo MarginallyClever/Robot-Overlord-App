@@ -6,7 +6,7 @@
 
 	<groupId>com.marginallyclever</groupId>
 	<artifactId>RobotOverlord</artifactId>
-	<version>3.121.0</version>
+	<version>3.123.0</version>
 	<name>Robot Overlord</name>
 	<description>A friendly 3D user interface for controlling robots.</description>
 	<url>https://www.marginallyclever.com/</url>
@@ -500,11 +500,6 @@
 			<artifactId>joml</artifactId>
 			<version>1.10.5</version>
 		</dependency>
-        <dependency>
-            <groupId>io.github.classgraph</groupId>
-            <artifactId>classgraph</artifactId>
-            <version>4.8.171</version>
-        </dependency>
 
 		<dependency>
 			<groupId>com.github.sarxos</groupId>

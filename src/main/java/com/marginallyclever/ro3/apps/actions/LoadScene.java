@@ -5,6 +5,7 @@ import com.marginallyclever.ro3.RO3Frame;
 import com.marginallyclever.ro3.RecentFilesMenu;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.UndoSystem;
+import com.marginallyclever.ro3.apps.commands.ImportScene;
 import com.marginallyclever.ro3.node.Node;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -23,7 +24,7 @@ import java.security.InvalidParameterException;
 import java.util.Objects;
 
 /**
- * Load a scene from a file.  Completely replaces the current Scene.
+ * Load assets from a file.  Completely replaces the current Scene.  Effectively new + import.
  */
 public class LoadScene extends AbstractAction {
     private static final Logger logger = LoggerFactory.getLogger(LoadScene.class);
@@ -98,7 +99,7 @@ public class LoadScene extends AbstractAction {
 
     private File runFileDialog(Component source) {
         if( chooser == null ) throw new InvalidParameterException("file chooser cannot be null");
-        chooser.setFileFilter(RO3Frame.FILE_FILTER);
+
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
         if (chooser.showOpenDialog(parentFrame) == JFileChooser.APPROVE_OPTION) {
             return chooser.getSelectedFile();
@@ -109,40 +110,18 @@ public class LoadScene extends AbstractAction {
     public void commitLoad(File selectedFile) {
         if( selectedFile == null ) throw new InvalidParameterException("File cannot be null");
         if( !selectedFile.exists() ) {
-            menu.removePath(selectedFile.getAbsolutePath());
+            if(menu!=null) menu.removePath(selectedFile.getAbsolutePath());
             throw new InvalidParameterException("File does not exist");
         }
 
+        // Reset the previous scene.
+        NewScene newScene = new NewScene();
+        newScene.commitNewScene();
+
         logger.info("Load from {}",selectedFile.getAbsolutePath());
 
-        // remember the current working directory so we can restore it later
-        String newCWD = selectedFile.getParent() + File.separator;
-        String oldCWD = PathHelper.getCurrentWorkingDirectory();
-        PathHelper.setCurrentWorkingDirectory(newCWD);
-
-        try {
-            String content = new String(Files.readAllBytes(Paths.get(selectedFile.getAbsolutePath())));
-            // if the json is bad, this will throw an exception before removing the previous scene.
-            JSONObject json = new JSONObject(content);
-
-            // Reset the previous scene.
-            NewScene newScene = new NewScene();
-            newScene.commitNewScene();
-
-            // JSON has parsed OK.
-            Node loaded = new Node("Scene");
-            loaded.fromJSON(json);
-
-            Registry.setScene(loaded);
-            Registry.getPhysics().deferredAction(loaded);
-
-            if(menu!=null) menu.addPath(selectedFile.getAbsolutePath());
-        } catch (IOException e) {
-            logger.error("Error loading file.", e);
-        }
-
-        // restore the current working directory
-        PathHelper.setCurrentWorkingDirectory(oldCWD);
+        Import importScene = new Import();
+        importScene.commitImport(selectedFile);
 
         if(saveScene!=null) {
             saveScene.setPath(selectedFile.getAbsolutePath());

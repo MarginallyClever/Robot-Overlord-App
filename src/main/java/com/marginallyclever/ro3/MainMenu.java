@@ -2,7 +2,6 @@ package com.marginallyclever.ro3;
 
 import ModernDocking.app.DockableMenuItem;
 import com.marginallyclever.ro3.apps.actions.*;
-import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,8 +23,7 @@ public class MainMenu extends JMenuBar {
         super();
         this.frame = frame;
 
-        fileChooser = new PersistentJFileChooser();
-        fileChooser.setFileFilter(RO3Frame.FILE_FILTER);
+        fileChooser = RO3Frame.getFileChooser();
 
         setSystemLookAndFeelForMacos();
         add(buildFileMenu());
@@ -61,7 +59,7 @@ public class MainMenu extends JMenuBar {
         menuFile.add(new JSeparator());
         menuFile.add(new JMenuItem(load));
         menuFile.add(loadRecentMenu);
-        menuFile.add(new JMenuItem(new ImportScene(fileChooser)));
+        menuFile.add(new JMenuItem(new Import(fileChooser)));
         menuFile.add(new JMenuItem(save));
         menuFile.add(new JMenuItem(saveAs));
         menuFile.add(new JMenuItem(new ExportScene(fileChooser)));

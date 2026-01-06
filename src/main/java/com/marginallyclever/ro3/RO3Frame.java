@@ -19,6 +19,7 @@ import com.marginallyclever.ro3.apps.nodedetailview.NodeDetailView;
 import com.marginallyclever.ro3.apps.nodetreeview.NodeTreeView;
 import com.marginallyclever.ro3.apps.ode4j.ODE4JPanel;
 import com.marginallyclever.ro3.apps.pathtracer.PathTracerPanel;
+import com.marginallyclever.ro3.apps.shared.PersistentJFileChooser;
 import com.marginallyclever.ro3.apps.viewport.OpenGL3Panel;
 import com.marginallyclever.ro3.apps.viewport.ViewportSettingsPanel;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.ViewportToolPanel;
@@ -45,13 +46,16 @@ import java.util.Properties;
  */
 public class RO3Frame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(RO3Frame.class);
-
     public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
+    public static final FileNameExtensionFilter MESH_FILTER = new FileNameExtensionFilter("Mesh files", "stl", "obj", "3mf","ply"/*,"dae"*/);
+    public static final FileNameExtensionFilter URDF_FILTER = new FileNameExtensionFilter("URDF files", "urdf");
+    public static final FileNameExtensionFilter ALL_IMPORT_FILTER = new FileNameExtensionFilter("All supported files", "ro", "urdf", "stl", "obj", "3mf","ply"/*,"dae"*/);
+
     public static String VERSION;
 
     private final List<DockingPanel> windows = new ArrayList<>();
 
-    private final OpenGL3Panel viewportPanel;
+    private final OpenGL3Panel opengl3Panel;
     private final ViewportSettingsPanel viewportSettingsPanel;
     private final ViewportToolPanel viewportToolPanel;
 
@@ -63,9 +67,9 @@ public class RO3Frame extends JFrame {
         setLocationByPlatform(true);
         initDocking();
 
-        viewportPanel = new OpenGL3Panel();
-        viewportSettingsPanel = new ViewportSettingsPanel(viewportPanel);
-        viewportToolPanel = new ViewportToolPanel(viewportPanel);
+        opengl3Panel = new OpenGL3Panel();
+        viewportSettingsPanel = new ViewportSettingsPanel(opengl3Panel);
+        viewportToolPanel = new ViewportToolPanel(opengl3Panel);
 
         AppFactory.registerApps("com.marginallyclever.ro3.apps");
         AppFactory.listApps(System.out);
@@ -164,7 +168,7 @@ public class RO3Frame extends JFrame {
         if (result == JOptionPane.YES_OPTION) {
             // Run this on another thread than the AWT event queue to make sure the call to Animator.stop() completes before exiting
             new Thread(() -> {
-                viewportPanel.stopAnimationSystem();
+                opengl3Panel.stopAnimationSystem();
                 this.dispose();
             }).start();
             return true;
@@ -178,7 +182,7 @@ public class RO3Frame extends JFrame {
      * Also remember <a href="https://github.com/andrewauclair/ModernDocking/discussions/240#discussioncomment-10897811">this Modern Docking discussion</a>
      */
     private void registerDefaultWindows() {
-        addDockingPanel("ViewportPanel", "OpenGL",viewportPanel);
+        addDockingPanel("OpenGL3Panel", "OpenGL", opengl3Panel);
         addDockingPanel("NodeTreeView", "Scene",new NodeTreeView());
         addDockingPanel("NodeDetailView", "Details",new NodeDetailView());
         addDockingPanel("LogPanel", "Log",new LogPanel());
@@ -237,5 +241,20 @@ public class RO3Frame extends JFrame {
 
     public List<DockingPanel> getDockingPanels() {
         return windows;
+    }
+
+    /**
+     * Get a {@link JFileChooser} configured for Robot Overlord 3 import and load actions.
+     * @return A {@link JFileChooser} configured for Robot Overlord 3 import and load actions.
+     */
+    public static JFileChooser getFileChooser() {
+        JFileChooser chooser = new PersistentJFileChooser();
+        chooser.resetChoosableFileFilters();
+        chooser.addChoosableFileFilter(RO3Frame.ALL_IMPORT_FILTER);
+        chooser.addChoosableFileFilter(RO3Frame.FILE_FILTER);
+        chooser.addChoosableFileFilter(RO3Frame.URDF_FILTER);
+        chooser.addChoosableFileFilter(RO3Frame.MESH_FILTER);
+        chooser.setFileFilter(RO3Frame.ALL_IMPORT_FILTER);
+        return chooser;
     }
 }

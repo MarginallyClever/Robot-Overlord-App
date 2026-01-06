@@ -67,7 +67,6 @@ public class SaveAsScene extends AbstractAction {
 
     private String askUserForDestinationPath(Component source) {
         if( chooser == null ) throw new InvalidParameterException("file chooser cannot be null");
-        chooser.setFileFilter(RO3Frame.FILE_FILTER);
 
         JFrame parentFrame = (JFrame)SwingUtilities.getWindowAncestor(source);
 
