@@ -150,9 +150,9 @@ jobs:
           #echo "jdeps modules: $MODULES"  
         
           # add any known extras (e.g. jdk.zipfs) and run jlink
-          MODULES="java.base,java.desktop,java.logging,java.scripting,java.xml,java.sql,java.naming,java.management,java.instrument,java.compiler,java.security.jgss,java.security.sasl,java.net.http"
-          EXTRAS="jdk.zipfs"
-          jlink --add-modules "${MODULES},${EXTRAS}" --output img
+          #MODULES="java.base,java.desktop,java.logging,java.scripting,java.xml,java.sql,java.naming,java.management,java.instrument,java.compiler,java.security.jgss,java.security.sasl,java.net.http"
+          #EXTRAS="jdk.zipfs"
+          #jlink --add-modules "${MODULES},${EXTRAS}" --output img
   
           jpackage "@src/main/package/jpackage.cfg" "@src/main/package/jpackage-${{matrix.runs_on}}.cfg" \
             --main-jar "RobotOverlord-$APP_VERSION-with-dependencies.jar" \
