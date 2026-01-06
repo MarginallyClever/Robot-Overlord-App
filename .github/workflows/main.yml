@@ -98,7 +98,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - runs_on: macos-13
+          - runs_on: macos-15-intel
             arch: x64
             java_arch: x64
             os_label: mac-intel
@@ -172,8 +172,6 @@ jobs:
       - name: Deploy installation release
         if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
         uses: WebFreak001/deploy-nightly@v3.2.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
         with:
           upload_url: ${{ env.UPLOAD_URL }}
           release_id: ${{ env.RELEASE_ID }}
