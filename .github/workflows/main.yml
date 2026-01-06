@@ -161,12 +161,13 @@ jobs:
             --name "$APP_NAME" \
             --dest .
           
-          BINARY=$(find . -maxdepth 1 -iname 'robotoverlord*' | grep -E '(msi$|dmg$|deb$)' | sed "s,./,," | head -1)
+          BINARY=$(find "$PWD" -maxdepth 1 -iname 'robotoverlord*' | grep -E '(msi$|dmg$|deb$)' | head -1)
+          #BINARY=$(find . -maxdepth 1 -iname 'robotoverlord*' | grep -E '(msi$|dmg$|deb$)' | sed "s,./,," | head -1)
           BINARY_NIGHTLY=$(echo $BINARY | sed 's/\(.*\)\.\(.*\)/\1-nightly-$$.\2/')
           EXT="${BINARY##*.}"
           DATE=$(date +%Y%m%d)
           BINARY_NIGHTLY="$APP_NAME-$DATE.$EXT"
-          echo "BINARY=$BINARY_NIGHTLY" >> $GITHUB_ENV    # <-- Add this line
+          echo "BINARY=$BINARY_NIGHTLY" >> $GITHUB_ENV
           echo "BINARY_NIGHTLY=$BINARY_NIGHTLY" >> $GITHUB_ENV
 
       - name: Deploy installation release
