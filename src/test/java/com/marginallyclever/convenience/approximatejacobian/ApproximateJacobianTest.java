@@ -23,7 +23,7 @@ public class ApproximateJacobianTest {
 
     private Limb build6AxisArm() throws Exception {
         var load = new LoadScene(null,null);
-        File file = new File("src/test/resources/com/marginallyclever/ro3/apps/node/nodes/marlinrobotarm/Sixi3-5.RO");
+        File file = new File("src/test/resources/com/marginallyclever/ro3/node/nodes/marlinrobotarm/Sixi3-5.RO");
         load.commitLoad(file);
         return (Limb) Registry.getScene().findByPath("./Sixi3/MarlinRobotArm");
     }

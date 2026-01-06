@@ -110,7 +110,7 @@ public class LoadScene extends AbstractAction {
     public void commitLoad(File selectedFile) {
         if( selectedFile == null ) throw new InvalidParameterException("File cannot be null");
         if( !selectedFile.exists() ) {
-            menu.removePath(selectedFile.getAbsolutePath());
+            if(menu!=null) menu.removePath(selectedFile.getAbsolutePath());
             throw new InvalidParameterException("File does not exist");
         }
 

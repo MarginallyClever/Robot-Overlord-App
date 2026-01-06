@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 public class TextureFactoryTest {
     @Test
     public void test() {
-        var path = "src/test/resources/com/marginallyclever/ro3/apps/node/nodes/marlinrobotarm/SIXI3_BASE.png";
+        var path = "src/test/resources/com/marginallyclever/ro3/node/nodes/marlinrobotarm/SIXI3_BASE.png";
         TextureFactory factory = new TextureFactory();
         assert(factory.getAllResources().isEmpty());
         assert(factory.getAllResources().isEmpty());
