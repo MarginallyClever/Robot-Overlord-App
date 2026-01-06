@@ -69,11 +69,6 @@
 
 	<repositories>
 		<repository>
-			<id>jogamp</id>
-			<name>JogAmp Repository</name>
-			<url>https://jogamp.org/deployment/maven/</url>
-		</repository>
-		<repository>
 			<id>maven_central</id>
 			<name>Maven Central</name>
 			<url>https://repo.maven.apache.org/maven2/</url>
@@ -81,6 +76,11 @@
 		<repository>
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
+		</repository>
+		<repository>
+			<id>jogamp</id>
+			<name>JogAmp Repository</name>
+			<url>https://jogamp.org/deployment/maven/</url>
 		</repository><!--
 		<repository>
 			<id>my-local-repo</id>
