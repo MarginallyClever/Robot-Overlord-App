@@ -71,8 +71,6 @@ jobs:
     - name: Deploy universal release
       if: github.repository == 'MarginallyClever/Robot-Overlord-App' && github.ref == 'refs/heads/master'
       uses: WebFreak001/deploy-nightly@v3.2.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
       with:
         upload_url: ${{ env.UPLOAD_URL }}
         release_id: ${{ env.RELEASE_ID }}{
