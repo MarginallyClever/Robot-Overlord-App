@@ -158,7 +158,9 @@ jobs:
           
           jpackage "@src/main/package/jpackage.cfg" "@src/main/package/jpackage-${{matrix.runs_on}}.cfg" \
             --main-jar "RobotOverlord-$APP_VERSION-with-dependencies.jar" \
-            --name "$APP_NAME"
+            --name "$APP_NAME" \
+            --dest .
+          
           BINARY=$(find . -maxdepth 1 -iname 'robotoverlord*' | grep -E '(msi$|dmg$|deb$)' | sed "s,./,," | head -1)
           BINARY_NIGHTLY=$(echo $BINARY | sed 's/\(.*\)\.\(.*\)/\1-nightly-$$.\2/')
           EXT="${BINARY##*.}"
