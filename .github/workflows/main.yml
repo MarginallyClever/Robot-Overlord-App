@@ -145,9 +145,9 @@ jobs:
           mvn dependency:copy-dependencies -DincludeScope=runtime -DoutputDirectory=target/dependency
 
           # compute module list from the fat jar, ignore missing deps to avoid failure on unknown automatic modules
-          JAR="target/package/RobotOverlord-$APP_VERSION-with-dependencies.jar"
-          MODULES=$(jdeps --multi-release ${{ env.JAVA_VERSION }} --module-path target/dependency --print-module-deps --ignore-missing-deps "$JAR")
-          echo "jdeps modules: $MODULES"  
+          #JAR="target/package/RobotOverlord-$APP_VERSION-with-dependencies.jar"
+          #MODULES=$(jdeps --multi-release ${{ env.JAVA_VERSION }} --module-path target/dependency --print-module-deps --ignore-missing-deps "$JAR")
+          #echo "jdeps modules: $MODULES"  
         
           # add any known extras (e.g. jdk.zipfs) and run jlink
           EXTRAS="jdk.zipfs"
