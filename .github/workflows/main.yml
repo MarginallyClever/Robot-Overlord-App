@@ -164,7 +164,7 @@ jobs:
           EXT="${BINARY##*.}"
           DATE=$(date +%Y%m%d)
           BINARY_NIGHTLY="$APP_NAME-$DATE.$EXT"
-          mv "$BINARY" "$BINARY_NIGHTLY"
+          echo "BINARY=$BINARY_NIGHTLY" >> $GITHUB_ENV    # <-- Add this line
           echo "BINARY_NIGHTLY=$BINARY_NIGHTLY" >> $GITHUB_ENV
 
       - name: Deploy installation release
