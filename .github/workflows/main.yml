@@ -153,10 +153,13 @@ jobs:
           #MODULES="java.base,java.desktop,java.logging,java.scripting,java.xml,java.sql,java.naming,java.management,java.instrument,java.compiler,java.security.jgss,java.security.sasl,java.net.http"
           #EXTRAS="jdk.zipfs"
           #jlink --add-modules "${MODULES},${EXTRAS}" --output img
-  
+          #jpackage "@src/main/package/jpackage.cfg" "@src/main/package/jpackage-${{matrix.runs_on}}.cfg" \
+          #  --main-jar "RobotOverlord-$APP_VERSION-with-dependencies.jar" \
+          #  --runtime-image img \
+          #  --name "$APP_NAME"
+          
           jpackage "@src/main/package/jpackage.cfg" "@src/main/package/jpackage-${{matrix.runs_on}}.cfg" \
             --main-jar "RobotOverlord-$APP_VERSION-with-dependencies.jar" \
-          #  --runtime-image img \
             --name "$APP_NAME"
           BINARY=$(find . -maxdepth 1 -iname 'robotoverlord*' | grep -E '(msi$|dmg$|deb$)' | sed "s,./,," | head -1)
           BINARY_NIGHTLY=$(echo $BINARY | sed 's/\(.*\)\.\(.*\)/\1-nightly-$$.\2/')
