@@ -9,9 +9,7 @@ import com.marginallyclever.ro3.mesh.proceduralmesh.Box;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Cylinder;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
 import com.marginallyclever.ro3.node.Node;
-import com.marginallyclever.ro3.node.nodes.HingeJoint;
-import com.marginallyclever.ro3.node.nodes.Material;
-import com.marginallyclever.ro3.node.nodes.Motor;
+import com.marginallyclever.ro3.node.nodes.*;
 import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
@@ -194,26 +192,29 @@ public class ImportURDF extends AbstractUndoableEdit {
      */
     private static void parseVisual(org.w3c.dom.Node visual, Node linkNode) {
         Pose p = (Pose)Registry.nodeFactory.create("Pose");
-        p.setName("Visual");
-        linkNode.addChild(p);
-
-        // geometry is required inside visual
-        MeshInstance myMesh = parseGeometry(visual);
-        p.addChild(myMesh);
-        // material is optional
-        Material myMaterial = parseMaterial(visual);
-        if(myMaterial!=null) p.addChild(myMaterial);
 
         // name is optional
         org.w3c.dom.Node nameAttr = visual.getAttributes().getNamedItem("name");
         if(nameAttr!=null) {
             String name = nameAttr.getNodeValue();
             logger.debug("  Found name: {}", name);
-            myMesh.setName(name);
+            p.setName(name);
+        } else {
+            p.setName("Visual");
         }
+
+        // geometry is required inside visual
+        MeshInstance myMesh = parseGeometry(visual);
+        p.addChild(myMesh);
+
+        // material is optional
+        Material myMaterial = parseMaterial(visual);
+        if(myMaterial!=null) p.addChild(myMaterial);
 
         // origin is optional
         adjustOrigin(visual,myMesh);
+
+        linkNode.addChild(p);
     }
 
     private static void adjustOrigin(org.w3c.dom.Node xmlNode, Pose pose) {
@@ -269,18 +270,11 @@ public class ImportURDF extends AbstractUndoableEdit {
         logger.debug("  Found material");
         Material myMaterial = new Material();
 
-        // get the optional name
-        org.w3c.dom.Node nameAttr = visual.getAttributes().getNamedItem("name");
-        if(nameAttr!=null) {
-            String name = nameAttr.getNodeValue();
-            logger.debug("  Found name: " + name);
-            myMaterial.setName(name);
-        }
         // get the optional color
         org.w3c.dom.Node colorAttr = visual.getAttributes().getNamedItem("color");
         if(colorAttr!=null) {
             String colorStr = colorAttr.getNodeValue();
-            logger.debug("  Found color: {}", colorStr);
+            logger.debug("    Found color: {}", colorStr);
             String [] rgba = colorStr.split(" ");
             int r = (int)(Double.parseDouble(rgba[0]) * 255);
             int g = (int)(Double.parseDouble(rgba[1]) * 255);
@@ -292,7 +286,7 @@ public class ImportURDF extends AbstractUndoableEdit {
         org.w3c.dom.Node textureAttr = visual.getAttributes().getNamedItem("texture");
         if(textureAttr!=null) {
             String textureStr = textureAttr.getNodeValue();
-            logger.debug("  Found texture: {}", textureStr);
+            logger.debug("    Found texture: {}", textureStr);
             myMaterial.setDiffuseTexture(Registry.textureFactory.get(Lifetime.SCENE, textureStr));
         }
 
@@ -396,68 +390,128 @@ public class ImportURDF extends AbstractUndoableEdit {
     }
 
     /**
-     * Parse joint elements from URDF XML.
+     * Parse joint elements from URDF XML.  They are declared in no particular order, so special care is taken to
+     * build the hierarchy properly.
      * @param doc the XML document
      * @param root the root Node to attach parsed joints
      * @param links the list of links
      */
     private static void parseJoints(Document doc, Node root, List<Pose> links) {
         List<Motor> motors = new ArrayList<>();
-        Map<Pose,Pose> parentChildMap = new HashMap<>();
+        List<Pose> children = new ArrayList<>();
 
         // find all 'joint' elements
         NodeList list = doc.getElementsByTagName("joint");
         logger.debug("Found "+list.getLength()+" joint elements.");
+        int motorCount=0;
+        // Iterates joint elements; creates motors and hinge joints
         for (int i = 0; i < list.getLength(); i++) {
             org.w3c.dom.Node xmlJoint = list.item(i);
+            // name is required
+            String name = xmlJoint.getAttributes().getNamedItem("name").getNodeValue();
+            // type is required
+            String type = xmlJoint.getAttributes().getNamedItem("type").getNodeValue();
 
             // parent and child names are required
-            Pose parent = findPoseWithName(links, Objects.requireNonNull(findChildByName(xmlJoint, "parent")).getAttributes().getNamedItem("link").getNodeValue());
-            Pose child = findPoseWithName(links, Objects.requireNonNull(findChildByName(xmlJoint, "child")).getAttributes().getNamedItem("link").getNodeValue());
+            Pose parent = findLinkPoseWithName(links, Objects.requireNonNull(findChildByName(xmlJoint, "parent")).getAttributes().getNamedItem("link").getNodeValue());
+            Pose child = findLinkPoseWithName(links, Objects.requireNonNull(findChildByName(xmlJoint, "child")).getAttributes().getNamedItem("link").getNodeValue());
             assert child != null;
             assert parent != null;
-            parentChildMap.put(parent,child);
-
-            Pose axle = (Pose)Registry.nodeFactory.create("Pose");
-            axle.setName("Axle "+i);
-
             parent.addChild(child);
-            List<Node> myChildren = new ArrayList<>(child.getChildren());
-            for(Node n : myChildren) {
-                child.removeChild(n);
-                axle.addChild(n);
-            }
+            children.add(child);
+
+            // create an axle
+            Pose axle = (Pose) Registry.nodeFactory.create("Pose");
+            axle.setName(name);
             child.addChild(axle);
 
-            HingeJoint j = (HingeJoint)Registry.nodeFactory.create("HingeJoint");
-            j.setName("Joint "+i);
-            parent.addChild(j);
-            j.setAxle(axle);
+            // handle revolute joints
+            // TODO handle other types of joints
+            if(type.equals("revolute") || type.equals("continuous")) {
+                // create joint that connects child to axle
+                HingeJoint j = (HingeJoint) Registry.nodeFactory.create("HingeJoint");
+                j.setName("Joint " + motorCount);
+                child.addChild(j);
+                j.setAxle(axle);
 
-            Motor m = (Motor)Registry.nodeFactory.create("Motor");
-            m.setName("Motor "+i);
-            parent.addChild(m);
-            m.setHinge(j);
-            motors.add(m);
+                // only revolute joints have limits.
+                if(type.equals("revolute")) {
+                    // optional joint limit
+                    parseJointLimits(xmlJoint, j);
+                }
+
+                // attach motor to drive the joint
+                Motor m = (Motor) Registry.nodeFactory.create("Motor");
+                m.setName("Motor " + motorCount);
+                child.addChild(m);
+                m.setHinge(j);
+                motors.add(m);
+
+                // warn if the optional axis param is not 0,0,1
+                org.w3c.dom.Node axis = findChildByName(xmlJoint,"axis");
+                if(axis!=null) {
+                    String xyz = axis.getAttributes().getNamedItem("xyz").getNodeValue();
+                    if(!xyz.equals("0 0 1")) {
+                        logger.warn("Joint axis is not the expected 0 0 1: {}", xyz);
+                    }
+                }
+                motorCount++;
+            }
 
             // origin is optional
             adjustOrigin(xmlJoint,child);
         }
 
-        // at least one of the links should have no parent - attach it to the root.
+        // now that all links have been created, set up the hierarchy properly.
+        // for any given axle, all siblings that are not a joint or a motor must become a child of the axle.
+        for(Motor m : motors) {
+            Pose axle = m.getHinge().getAxle();
+            Pose parent = (Pose)axle.getParent();
+            // move all siblings of axle to be children of axle
+            List<Node> siblings = new ArrayList<>(parent.getChildren());
+            for(Node n : siblings) {
+                if(n!=axle && !(n instanceof MechanicalJoint) && !(n instanceof Motor)) {
+                    parent.removeChild(n);
+                    axle.addChild(n);
+                }
+            }
+        }
+
+        // links with no parents are at the root - attach them accordingly.
         for(Pose p : links) {
             if(p.getParent()==null) {
                 root.addChild(p);
             }
         }
 
-        // sort the motors such that they are in the order of the joint hierarchy.
-        List<Motor> sortedMotors = sortMotorsByHierarchy(motors, parentChildMap);
+        // TODO The following assumes every URDF is for a single-limb robot arm and it shouldn't.
+
+        // Sort the motors such that they are in the order of the joint hierarchy.
+        List<Motor> sortedMotors = sortMotorsByHierarchy(motors,root);
 
         // add the sorted motors to a limb in the root of the URDF.
         Limb limb = (Limb)Registry.nodeFactory.create("Limb");
         root.addChild(limb);
-        limb.setEndEffector((Pose)sortedMotors.getLast().getHinge().getAxle().getParent());
+
+        // the child-most link is the end effector.  that is to say the child with the most parents.
+        Pose endEffector = null;
+        int maxDepth = -1;
+        for(Pose c : children) {
+            // count hierarchy depth
+            int depth = 0;
+            Node current = c;
+            while(current.getParent()!=null) {
+                depth++;
+                current = current.getParent();
+            }
+            if(depth>maxDepth) {
+                maxDepth = depth;
+                endEffector = c;
+            }
+        }
+        limb.setEndEffector(endEffector);
+        //limb.setEndEffector((Pose)sortedMotors.getLast().getHinge().getAxle().getParent());
+
 
         int max = Math.min(sortedMotors.size(), 6);
         for(int i=0;i<max;i++) {
@@ -465,48 +519,77 @@ public class ImportURDF extends AbstractUndoableEdit {
             limb.setJoint(i,m);
         }
 
-        // add a limbSolver, put a target beneath limbsolver, and associate limbsolver with limb.
+        // Add a limbSolver, put a target beneath limbsolver, and associate limbsolver with limb.
         LimbSolver limbSolver = (LimbSolver)Registry.nodeFactory.create("LimbSolver");
         limbSolver.setLimb(limb);
         root.addChild(limbSolver);
         Pose target = (Pose)Registry.nodeFactory.create("Pose");
+        target.setName("target");
         limbSolver.addChild(target);
         limbSolver.setTarget(target);
-        limbSolver.freeze();
-        limbSolver.setLinearVelocity(1.0);
+        limbSolver.moveTargetToEndEffector();
     }
 
-    // sort motors so that the order matches the order of the joint hierarchy as described by parentChildMap.
-    private static List<Motor> sortMotorsByHierarchy(List<Motor> motors, Map<Pose, Pose> parentChildMap) {
+    /**
+     * Parses joint limits from XML node
+     */
+    private static void parseJointLimits(org.w3c.dom.Node xmlJoint, HingeJoint j) {
+        var limit = findChildByName(xmlJoint,"limit");
+        if(limit!=null) {
+            logger.debug("  Found limit");
+            // Set maximum angle from XML attribute
+            var upper = limit.getAttributes().getNamedItem("upper");
+            if(upper!=null) {
+                logger.debug("    Found upper: " + upper.getNodeValue());
+                j.setMaxAngle(Math.toDegrees(Double.parseDouble(upper.getNodeValue())));
+            }
+            // Set minimum angle from XML attribute
+            var lower = limit.getAttributes().getNamedItem("lower");
+            if(lower!=null) {
+                logger.debug("    Found lower: " + lower.getNodeValue());
+                j.setMinAngle(Math.toDegrees(Double.parseDouble(lower.getNodeValue())));
+            }
+        }
+    }
+
+    /**
+     * <p>Sort motors so that the order matches the order of the joint hierarchy as described by parentChildMap.
+     * Motors are connected to HingeJoints connected to Axles somewhere in the hierarchy.  The first joint is the hinge
+     * closest to the root, the second the nearest to the first, and so on.</p>
+     * @param motors the list of motors to sort
+     * @return the sorted list of motors
+     */
+    private static List<Motor> sortMotorsByHierarchy(List<Motor> motors,Node root) {
         List<Motor> sortedMotors = new ArrayList<>();
-
-        Pose current = null;
-        // find the root link (a link that is a parent but not a child)
-        for(Pose p : parentChildMap.keySet()) {
-            if(!parentChildMap.containsValue(p)) {
-                current = p;
-                break;
-            }
+        // get a list of all axles so that we can find them in the hierarchy
+        Map<Pose,Motor> axleToMotor = new HashMap<>();
+        for(Motor m : motors) {
+            axleToMotor.put(m.getHinge().getAxle(),m);
         }
 
-        while(current!=null) {
-            Pose child = parentChildMap.get(current);
-            if(child==null) break;
-            // find the motor that connects current to child.
-            // any motor is in a joint that has a child that has the axle.
-            for(Motor m : motors) {
-                var axle = m.getHinge().getAxle();
-                if(child.getChildren().contains(axle)) {
-                    sortedMotors.add(m);
-                    break;
-                }
+        // starting from the root, walk the hierarchy looking for axles.
+        Queue<Node> toVisit = new LinkedList<>();
+        toVisit.add(root);
+        while(!toVisit.isEmpty()) {
+            Node current = toVisit.poll();
+            Motor m = axleToMotor.get(current);
+            if(m!=null) {
+                // found an axle motor, add it to the sorted list.
+                sortedMotors.add(m);
             }
-            current = child;
+            toVisit.addAll(current.getChildren());
         }
+
         return sortedMotors;
     }
 
-    private static  Pose findPoseWithName(List<Pose> links, String name) {
+    /**
+     * Find a link Pose by name from a list of links.
+     * @param links the list of links
+     * @param name the name to find
+     * @return the Pose with the given name, or null if not found
+     */
+    private static  Pose findLinkPoseWithName(List<Pose> links, String name) {
         for(Pose p : links) {
             if(p.getName().equals(name)) {
                 return p;
