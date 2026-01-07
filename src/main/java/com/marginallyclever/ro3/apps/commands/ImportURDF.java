@@ -12,6 +12,7 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.Motor;
+import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
@@ -420,8 +421,13 @@ public class ImportURDF extends AbstractUndoableEdit {
             Pose axle = (Pose)Registry.nodeFactory.create("Pose");
             axle.setName("Axle "+i);
 
-            parent.addChild(axle);
-            axle.addChild(child);
+            parent.addChild(child);
+            List<Node> myChildren = new ArrayList<>(child.getChildren());
+            for(Node n : myChildren) {
+                child.removeChild(n);
+                axle.addChild(n);
+            }
+            child.addChild(axle);
 
             HingeJoint j = (HingeJoint)Registry.nodeFactory.create("HingeJoint");
             j.setName("Joint "+i);
@@ -445,17 +451,29 @@ public class ImportURDF extends AbstractUndoableEdit {
             }
         }
 
+        // sort the motors such that they are in the order of the joint hierarchy.
         List<Motor> sortedMotors = sortMotorsByHierarchy(motors, parentChildMap);
 
         // add the sorted motors to a limb in the root of the URDF.
         Limb limb = (Limb)Registry.nodeFactory.create("Limb");
         root.addChild(limb);
+        limb.setEndEffector((Pose)sortedMotors.getLast().getHinge().getAxle().getParent());
 
         int max = Math.min(sortedMotors.size(), 6);
         for(int i=0;i<max;i++) {
             Motor m = sortedMotors.get(i);
             limb.setJoint(i,m);
         }
+
+        // add a limbSolver, put a target beneath limbsolver, and associate limbsolver with limb.
+        LimbSolver limbSolver = (LimbSolver)Registry.nodeFactory.create("LimbSolver");
+        limbSolver.setLimb(limb);
+        root.addChild(limbSolver);
+        Pose target = (Pose)Registry.nodeFactory.create("Pose");
+        limbSolver.addChild(target);
+        limbSolver.setTarget(target);
+        limbSolver.freeze();
+        limbSolver.setLinearVelocity(1.0);
     }
 
     // sort motors so that the order matches the order of the joint hierarchy as described by parentChildMap.
@@ -474,10 +492,11 @@ public class ImportURDF extends AbstractUndoableEdit {
         while(current!=null) {
             Pose child = parentChildMap.get(current);
             if(child==null) break;
-            // find the motor that connects current to child
+            // find the motor that connects current to child.
+            // any motor is in a joint that has a child that has the axle.
             for(Motor m : motors) {
-                var axleChild = m.getHinge().getAxle().getChildren().getFirst();
-                if(axleChild == child) {
+                var axle = m.getHinge().getAxle();
+                if(child.getChildren().contains(axle)) {
                     sortedMotors.add(m);
                     break;
                 }

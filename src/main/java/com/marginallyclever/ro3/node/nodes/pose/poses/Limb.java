@@ -50,6 +50,10 @@ public class Limb extends Pose {
         return endEffector;
     }
 
+    public void setEndEffector(Pose pose) {
+        endEffector.setUniqueIDByNode(pose);
+    }
+
     public List<NodePath<Motor>> getMotors() {
         return motors;
     }
