@@ -250,14 +250,6 @@ public class LimbSolver extends Node {
     /**
      * Move the target to the end effector's current pose, stopping all motion of the arm (because it is now at the target).
      */
-    public void freeze() {
-        moveTargetToEndEffector();
-    }
-
-
-    /**
-     * Move the target to the end effector's current pose, stopping all motion of the arm (because it is now at the target).
-     */
     public void moveTargetToEndEffector() {
         if(getTarget().getSubject()!=null && getEndEffector()!=null) {
             getTarget().getSubject().setWorld(getEndEffector().getWorld());
