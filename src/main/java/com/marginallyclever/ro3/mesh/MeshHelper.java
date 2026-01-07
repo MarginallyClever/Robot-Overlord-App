@@ -136,6 +136,7 @@ public class MeshHelper {
             mesh.vertexArray.set(i, v);
         }
 
+		mesh.updateBoundingBox();
         mesh.setDirty(true);
     }
 }

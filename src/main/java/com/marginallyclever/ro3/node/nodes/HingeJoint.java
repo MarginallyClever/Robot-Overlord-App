@@ -6,6 +6,8 @@ import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
 
 import javax.swing.*;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector3d;
 import java.util.List;
 import java.util.Objects;
 
@@ -46,7 +48,12 @@ public class HingeJoint extends Node {
             // set the axle's location in space.
             var subject = axle.getSubject();
             var m = subject.getLocal();
+            Vector3d translation = new Vector3d();
+            m.get(translation);
+
             m.rotZ(Math.toRadians(angle));
+
+            m.setTranslation(translation);
             subject.setLocal(m);
         }
     }
@@ -136,6 +143,13 @@ public class HingeJoint extends Node {
 
     public void setAxle(Pose subject) {
         axle.setUniqueIDByNode(subject);
+        if (subject != null) {
+            Matrix4d m = subject.getLocal();
+            // Extract rotation around Z from the local matrix basis vectors.
+            // m00 is cos(theta), m10 is sin(theta) for a Z-axis rotation.
+            double rad = Math.atan2(m.m10, m.m00);
+            setAngle(Math.toDegrees(rad));
+        }
     }
 
     @Override

@@ -9,8 +9,12 @@ import com.marginallyclever.ro3.mesh.proceduralmesh.Box;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Cylinder;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Material;
+import com.marginallyclever.ro3.node.nodes.Motor;
+import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,15 +26,14 @@ import javax.swing.undo.CannotUndoException;
 import javax.vecmath.Vector3d;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.awt.*;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.InvalidParameterException;
-import java.util.Objects;
+import java.util.List;
 
 /**
  * <p>Loads a URDF file into the current scene.  See also <a href="https://wiki.ros.org/urdf/XML">URDF XML format</a>.</p>
@@ -118,14 +121,7 @@ public class ImportURDF extends AbstractUndoableEdit {
 
             List<Pose> links = parseLinks(doc,loaded);
             parseJoints(doc,loaded,links);
-            // at least one of the links should have no parent - attach it to the root.
-            for(Pose p : links) {
-                if(p.getParent()==null) {
-                    loaded.addChild(p);
-                }
-            }
 
-            loaded.witnessProtection();
             return loaded;
         } catch (Exception e) {
             e.printStackTrace();
@@ -406,6 +402,9 @@ public class ImportURDF extends AbstractUndoableEdit {
      * @param links the list of links
      */
     private static void parseJoints(Document doc, Node root, List<Pose> links) {
+        List<Motor> motors = new ArrayList<>();
+        Map<Pose,Pose> parentChildMap = new HashMap<>();
+
         // find all 'joint' elements
         NodeList list = doc.getElementsByTagName("joint");
         logger.debug("Found "+list.getLength()+" joint elements.");
@@ -417,11 +416,94 @@ public class ImportURDF extends AbstractUndoableEdit {
             Pose child = findPoseWithName(links, Objects.requireNonNull(findChildByName(xmlJoint, "child")).getAttributes().getNamedItem("link").getNodeValue());
             assert child != null;
             assert parent != null;
+            parentChildMap.put(parent,child);
+
+            Pose axle = (Pose)Registry.nodeFactory.create("Pose");
+            axle.setName("Axle "+i);
+
             parent.addChild(child);
+            List<Node> myChildren = new ArrayList<>(child.getChildren());
+            for(Node n : myChildren) {
+                child.removeChild(n);
+                axle.addChild(n);
+            }
+            child.addChild(axle);
+
+            HingeJoint j = (HingeJoint)Registry.nodeFactory.create("HingeJoint");
+            j.setName("Joint "+i);
+            parent.addChild(j);
+            j.setAxle(axle);
+
+            Motor m = (Motor)Registry.nodeFactory.create("Motor");
+            m.setName("Motor "+i);
+            parent.addChild(m);
+            m.setHinge(j);
+            motors.add(m);
 
             // origin is optional
             adjustOrigin(xmlJoint,child);
         }
+
+        // at least one of the links should have no parent - attach it to the root.
+        for(Pose p : links) {
+            if(p.getParent()==null) {
+                root.addChild(p);
+            }
+        }
+
+        // sort the motors such that they are in the order of the joint hierarchy.
+        List<Motor> sortedMotors = sortMotorsByHierarchy(motors, parentChildMap);
+
+        // add the sorted motors to a limb in the root of the URDF.
+        Limb limb = (Limb)Registry.nodeFactory.create("Limb");
+        root.addChild(limb);
+        limb.setEndEffector((Pose)sortedMotors.getLast().getHinge().getAxle().getParent());
+
+        int max = Math.min(sortedMotors.size(), 6);
+        for(int i=0;i<max;i++) {
+            Motor m = sortedMotors.get(i);
+            limb.setJoint(i,m);
+        }
+
+        // add a limbSolver, put a target beneath limbsolver, and associate limbsolver with limb.
+        LimbSolver limbSolver = (LimbSolver)Registry.nodeFactory.create("LimbSolver");
+        limbSolver.setLimb(limb);
+        root.addChild(limbSolver);
+        Pose target = (Pose)Registry.nodeFactory.create("Pose");
+        limbSolver.addChild(target);
+        limbSolver.setTarget(target);
+        limbSolver.freeze();
+        limbSolver.setLinearVelocity(1.0);
+    }
+
+    // sort motors so that the order matches the order of the joint hierarchy as described by parentChildMap.
+    private static List<Motor> sortMotorsByHierarchy(List<Motor> motors, Map<Pose, Pose> parentChildMap) {
+        List<Motor> sortedMotors = new ArrayList<>();
+
+        Pose current = null;
+        // find the root link (a link that is a parent but not a child)
+        for(Pose p : parentChildMap.keySet()) {
+            if(!parentChildMap.containsValue(p)) {
+                current = p;
+                break;
+            }
+        }
+
+        while(current!=null) {
+            Pose child = parentChildMap.get(current);
+            if(child==null) break;
+            // find the motor that connects current to child.
+            // any motor is in a joint that has a child that has the axle.
+            for(Motor m : motors) {
+                var axle = m.getHinge().getAxle();
+                if(child.getChildren().contains(axle)) {
+                    sortedMotors.add(m);
+                    break;
+                }
+            }
+            current = child;
+        }
+        return sortedMotors;
     }
 
     private static  Pose findPoseWithName(List<Pose> links, String name) {

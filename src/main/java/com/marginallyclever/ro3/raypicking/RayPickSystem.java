@@ -126,7 +126,9 @@ public class RayPickSystem {
         for(var meshInstance : sceneElements) {
             if(!optimize /*|| meshInstance.getMesh() instanceof Sphere*/) {
                 Hit hit = meshInstance.intersect(ray);
-                if (hit != null) hits.add(hit);
+                if (hit != null) {
+                    hits.add(hit);
+                }
                 continue;
             }
             // optimized path: use the cached world mesh.
