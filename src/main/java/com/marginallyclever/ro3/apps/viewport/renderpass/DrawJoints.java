@@ -135,7 +135,7 @@ public class DrawJoints extends AbstractRenderPass {
 
         Matrix4d modelMatrix = new Matrix4d();
         // draw the range fan
-        modelMatrix.rotZ(Math.toRadians(joint.getMinAngle()-joint.getAngle()));
+        modelMatrix.rotZ(Math.toRadians(joint.getMinAngle()));
         modelMatrix.mul(world,modelMatrix);
         modelMatrix.mul(modelMatrix,MatrixHelper.createScaleMatrix4(scale));
         shader.setColor(gl3,"diffuseColor",new Color(255,255,0,isSelected ? 128 : 64));
@@ -145,7 +145,7 @@ public class DrawJoints extends AbstractRenderPass {
         circleFanMesh.render(gl3,0,1+range);
 
         // draw the current angle line
-        modelMatrix.rotZ(0);
+        modelMatrix.rotZ(Math.toRadians(joint.getAngle()));
         modelMatrix.mul(world,modelMatrix);
         modelMatrix.mul(modelMatrix,MatrixHelper.createScaleMatrix4(scale));
         shader.setColor(gl3,"diffuseColor",new Color(255,255,255,isSelected ? 255 : 64));
@@ -160,9 +160,9 @@ public class DrawJoints extends AbstractRenderPass {
             modelMatrix.rotZ(Math.toRadians(joint.getAngle()+v));
             modelMatrix.mul(world, modelMatrix);
             modelMatrix.mul(modelMatrix, MatrixHelper.createScaleMatrix4(scale));
-            shader.setColor(gl3, "diffuseColor", new Color(255, 0, 0, isSelected ? 255 : 64));
             if(originShift) modelMatrix = RenderPassHelper.getOriginShiftedMatrix(modelMatrix,cameraWorldPos);
             shader.setMatrix4d(gl3,"modelMatrix",modelMatrix);
+            shader.setColor(gl3, "diffuseColor", new Color(255, 0, 0, isSelected ? 255 : 64));
             circleFanMesh.render(gl3, 0, 1+vAbs);
         }
     }

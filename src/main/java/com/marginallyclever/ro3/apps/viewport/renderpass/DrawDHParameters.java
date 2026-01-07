@@ -103,7 +103,7 @@ public class DrawDHParameters extends AbstractRenderPass {
             double c = Math.cos(Math.toRadians(parameter.getTheta()));
             double r = parameter.getR();
             mesh.setVertex(3,c*r,s*r,d);
-            mesh.updateVertexBuffers(gl3);
+            mesh.setDirty(true);
 
             // set modelView to world
             Pose parentPose = parameter.findParent(Pose.class);

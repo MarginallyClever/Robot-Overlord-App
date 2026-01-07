@@ -124,15 +124,15 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
             mesh.setVertex(5, max.x, max.y, min.z);
             mesh.setVertex(6, max.x, min.y, min.z);
             mesh.setVertex(7, min.x, min.y, min.z);
-            mesh.updateVertexBuffers(gl3);
+            mesh.setDirty(true);
 
             // set the model matrix
             Matrix4d w = meshInstance.getWorld();
             if(originShift) w = RenderPassHelper.getOriginShiftedMatrix(w,cameraWorldPos);
-            shader.setMatrix4d(gl3,"modelMatrix",w);
-
             // highlight selected items
             shader.setColor(gl3,"diffuseColor", list.contains(meshInstance) || list.contains(meshInstance.getParent()) ? SELECTED : UNSELECTED );
+            shader.setMatrix4d(gl3,"modelMatrix",w);
+
             // draw it
             mesh.render(gl3);
         }
