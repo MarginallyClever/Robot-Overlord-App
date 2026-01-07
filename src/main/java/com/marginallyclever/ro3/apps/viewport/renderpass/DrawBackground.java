@@ -94,13 +94,6 @@ public class DrawBackground extends AbstractRenderPass {
 
         defaultMaterial.setDiffuseTexture(env.getSkyTexture());
         defaultMaterial.use(gl3, shader);
-/*
-        for(TextureLayerIndex tli : TextureLayerIndex.values()) {
-            int i = tli.getIndex();
-            shader.set1i(gl3, tli.getName(), i);
-            gl3.glActiveTexture(GL3.GL_TEXTURE0 + i);
-            gl3.glBindTexture(GL3.GL_TEXTURE_2D, 0);
-        }*/
 
         Matrix4d inverseCamera = camera.getWorld();
         inverseCamera.setTranslation(new Vector3d(0,0,0));
@@ -110,12 +103,6 @@ public class DrawBackground extends AbstractRenderPass {
         Vector3d cameraWorldPos = new Vector3d(0,0,0);
         shader.setVector3d(gl3,"cameraPos",cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",cameraWorldPos);  // Light position in world space
-        shader.setColor(gl3,"lightColor", Color.WHITE);
-        shader.setColor(gl3,"diffuseColor",Color.WHITE);
-        shader.setColor(gl3,"specularColor",Color.BLACK);
-        shader.setColor(gl3,"ambientColor",Color.BLACK);
-        shader.set1i(gl3,"useVertexColor",0);
-        shader.set1i(gl3,"useLighting",0);
 
         shader.setMatrix4d(gl3,"modelMatrix",MatrixHelper.createIdentityMatrix4());
         //env.getSkyTexture().use(gl3,shader);
