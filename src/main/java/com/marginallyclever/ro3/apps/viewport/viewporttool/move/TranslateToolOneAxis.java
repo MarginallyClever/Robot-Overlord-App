@@ -77,6 +77,7 @@ public class TranslateToolOneAxis implements ViewportTool {
     private TextureWithMetadata texture;
     private final Material defaultMaterial = new Material();
     private final Mesh handleLineMesh = new Mesh(GL3.GL_LINES);
+    private final Mesh distanceMovedMesh = new Mesh(GL3.GL_LINES);
     private final Sphere handleSphere = new Sphere();
     private final Mesh quad = new Mesh(GL3.GL_QUADS);
 
@@ -84,13 +85,20 @@ public class TranslateToolOneAxis implements ViewportTool {
         super();
         this.color = color;
 
+        Registry.meshFactory.addToPool(Lifetime.APPLICATION, "TranslateToolOneAxis.distanceMovedMesh", distanceMovedMesh);
         Registry.meshFactory.addToPool(Lifetime.APPLICATION, "TranslateToolOneAxis.handleLineMesh", handleLineMesh);
         Registry.meshFactory.addToPool(Lifetime.APPLICATION, "TranslateToolOneAxis.handleSphere", handleSphere);
         Registry.meshFactory.addToPool(Lifetime.APPLICATION, "TranslateToolOneAxis.quad", quad);
 
         // handle line
         handleLineMesh.addVertex(0, 0, 0);
-        handleLineMesh.addVertex((float)1.0, 0, 0);
+        handleLineMesh.addVertex(1, 0, 0);
+
+        // distance moved line
+        distanceMovedMesh.addVertex(0,0,0);
+        distanceMovedMesh.addVertex(1,0,0);
+        distanceMovedMesh.addColor(1,1,1,1);
+        distanceMovedMesh.addColor(1,1,1,1);
 
         quad.addVertex(-1, -1, 0);
         quad.addVertex(1, -1, 0);
@@ -265,6 +273,47 @@ public class TranslateToolOneAxis implements ViewportTool {
 
         defaultMaterial.use(gl,shaderProgram);
 
+        drawHandle(gl,shaderProgram);
+        if(dragging) {
+            drawDistanceMoved(gl,shaderProgram);
+        }
+    }
+
+    private void drawDistanceMoved(GL3 gl, ShaderProgram shaderProgram) {
+        float colorScale = cursorOverHandle ? 1.0f : 0.75f;
+        var r = 255.0f/255.0f;
+        var g = 255.0f/255.0f;
+        var b = 255.0f/255.0f;
+        var a = 255.0f/255.0f;
+        Color c2 = new Color(r * colorScale, g * colorScale, b * colorScale, a);
+        shaderProgram.setColor(gl, "diffuseColor", c2);
+
+        Camera camera = viewport.getActiveCamera();
+        var originShift = viewport.isOriginShift();
+        var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
+
+        // handle
+        var m = new Matrix4d(pivotMatrix);
+        //m.mul(m,MatrixHelper.createScaleMatrix4(getHandleLengthScaled()));
+        if(originShift) m = RenderPassHelper.getOriginShiftedMatrix(m, cameraWorldPos);
+        shaderProgram.setMatrix4d(gl,"modelMatrix",m);
+
+        // update distanceMovedMesh to show how far the selectedItems have moved.
+        // get distance moved
+        Vector3d delta = new Vector3d();
+        delta.sub(startPoint,previousPoint);
+        float d = (float)delta.length();
+        // adjust for direction along axis relative to start point
+        if(delta.dot(MatrixHelper.getXAxis(pivotMatrix))<0) d = -d;
+        // modify mesh vertexes to reflect the motion
+        distanceMovedMesh.setVertex(0,0,0,0);
+        distanceMovedMesh.setVertex(1, d, 0, 0);
+        distanceMovedMesh.setDirty(true);
+        // draw it
+        distanceMovedMesh.render(gl);
+    }
+
+    private void drawHandle(GL3 gl, ShaderProgram shaderProgram) {
         float colorScale = cursorOverHandle ? 1.0f : 0.75f;
         var r = color.getRed()/255.0f;
         var g = color.getGreen()/255.0f;
@@ -272,8 +321,6 @@ public class TranslateToolOneAxis implements ViewportTool {
         var a = color.getAlpha()/255.0f;
         Color c2 = new Color(r * colorScale, g * colorScale, b * colorScale, a);
         shaderProgram.setColor(gl, "diffuseColor", c2);
-        shaderProgram.set1i(gl,"useLighting",0);
-        shaderProgram.set1i(gl,"useVertexColor",0);
 
         Camera camera = viewport.getActiveCamera();
         var originShift = viewport.isOriginShift();
