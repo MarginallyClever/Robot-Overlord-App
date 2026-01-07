@@ -51,8 +51,8 @@ public class RotateToolOneAxis implements ViewportTool {
     /**
      * The size of the handle and ring.
      */
-    private static final double ringRadius = 5.0;
-    private static final double gripRadius = 1.0;
+    private static final double RING_RADIUS = 4.0;
+    private static final double GRIP_RADIUS = 0.5;
 
     /**
      * The viewport to which this tool is attached.
@@ -122,7 +122,7 @@ public class RotateToolOneAxis implements ViewportTool {
 
         // major line
         tickMarkMesh.addVertex(0,0,0);
-        tickMarkMesh.addVertex((float)ringRadius,0,0);
+        tickMarkMesh.addVertex((float) RING_RADIUS,0,0);
 
         // 45 degree lines
         addTickMarkerGroup(45, TICK_RATIO_INSIDE_45, TICK_RATIO_OUTSIDE_45);
@@ -141,8 +141,8 @@ public class RotateToolOneAxis implements ViewportTool {
      * @param od outer distance ratio
      */
     private void addTickMarkerGroup(int stepSize,double id,double od) {
-        float d0 = (float)(ringRadius * id);
-        float d1 = (float)(ringRadius * od);
+        float d0 = (float)(RING_RADIUS * id);
+        float d1 = (float)(RING_RADIUS * od);
         for(int i=0;i<360;i+=stepSize) {
             Vector3d a = new Vector3d(Math.cos(Math.toRadians(i)),Math.sin(Math.toRadians(i)),0);
             addTickMarkerItem(a,d0,d1);
@@ -414,15 +414,13 @@ public class RotateToolOneAxis implements ViewportTool {
         drawMainRingAndHandles(gl3,shaderProgram);
         if(dragging) {
             drawWhileDragging(gl3,shaderProgram);
+            if(drawPivotPoint) drawPivotPoint(gl3,shaderProgram);
         }
-
-        if(drawPivotPoint) drawPivotPoint(gl3,shaderProgram);
     }
 
     // draw waldo at the pivot point
     public void drawPivotPoint(GL3 gl,ShaderProgram shaderProgram) {
-        Matrix4d m = new Matrix4d();
-        m.set(pivotMatrix);
+        Matrix4d m = new Matrix4d(pivotMatrix);
         m.mul(MatrixHelper.createScaleMatrix4(localScale));
         if (viewport.isOriginShift()) {
             var cameraWorldPos = MatrixHelper.getPosition(viewport.getActiveCamera().getWorld());
@@ -477,8 +475,6 @@ public class RotateToolOneAxis implements ViewportTool {
     }
 
     private void drawMainRingAndHandles(GL3 gl,ShaderProgram shaderProgram) {
-        shaderProgram.set1i(gl,"useLighting",0);
-        shaderProgram.set1i(gl,"useVertexColor",0);
         float colorScale = cursorOverHandle ? 1:0.75f;
         Color c2 = new Color(
                 Math.clamp(color.getRed()/255.0f*colorScale, 0, 1),
@@ -587,11 +583,11 @@ public class RotateToolOneAxis implements ViewportTool {
     }
 
     private double getGripRadiusScaled() {
-        return gripRadius * localScale;
+        return GRIP_RADIUS * localScale;
     }
 
     private double getRingRadiusScaled() {
-        return ringRadius * localScale;
+        return RING_RADIUS * localScale;
     }
 
     /**

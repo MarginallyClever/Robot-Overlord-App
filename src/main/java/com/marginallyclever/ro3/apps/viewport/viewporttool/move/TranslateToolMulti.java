@@ -270,12 +270,10 @@ public class TranslateToolMulti implements ViewportTool {
         */
 
         int i = getIndexInUse();
-        if(-1==i) {
-            for(ViewportTool t : tools) {
+        for(ViewportTool t : tools) {
+            if (i == -1 || tools.indexOf(t) == i) {
                 t.render(gl, shaderProgram);
             }
-        } else {
-            tools.stream().filter(ViewportTool::isInUse).forEach(t -> t.render(gl, shaderProgram));
         }
     }
 

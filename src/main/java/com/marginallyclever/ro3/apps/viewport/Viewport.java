@@ -8,6 +8,7 @@ import com.marginallyclever.ro3.SceneChangeListener;
 import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.viewport.renderpass.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.*;
+import com.marginallyclever.ro3.apps.viewport.viewporttool.move.MoveMultiTool;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.move.RotateToolMulti;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.move.TranslateToolMulti;
 import com.marginallyclever.ro3.listwithevents.ListListener;
@@ -80,24 +81,21 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
 
     private void addViewportTools() {
         var selectionTool = new SelectionTool();
-        var translateToolMulti = new TranslateToolMulti();
-        var rotateToolMulti = new RotateToolMulti();
+        var moveMultiTool = new MoveMultiTool();
         var compass3D = new Compass3D();
 
         viewportTools.add(selectionTool);
-        viewportTools.add(translateToolMulti);
-        viewportTools.add(rotateToolMulti);
+        viewportTools.add(moveMultiTool);
         viewportTools.add(compass3D);
 
         for (ViewportTool tool : viewportTools) {
             tool.setViewport(this);
         }
 
-        String[] toolOptions = {"Select", "Move", "Rotate"};
+        String[] toolOptions = {"Select", "Move"};
         ImageIcon[] toolIcons = {
                 new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-select-16.png"))),
                 new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-move-16.png"))),
-                new ImageIcon(Objects.requireNonNull(getClass().getResource("icons8-rotate-16.png")))
         };
 
         JComboBox<String> toolDropdown = new JComboBox<>(toolOptions);
@@ -121,8 +119,7 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
         toolDropdown.addActionListener(e -> {
             switch ((String) Objects.requireNonNull(toolDropdown.getSelectedItem())) {
                 default -> setActiveToolIndex(viewportTools.indexOf(selectionTool));
-                case "Move" -> setActiveToolIndex(viewportTools.indexOf(translateToolMulti));
-                case "Rotate" -> setActiveToolIndex(viewportTools.indexOf(rotateToolMulti));
+                case "Move" -> setActiveToolIndex(viewportTools.indexOf(moveMultiTool));
             }
         });
 
