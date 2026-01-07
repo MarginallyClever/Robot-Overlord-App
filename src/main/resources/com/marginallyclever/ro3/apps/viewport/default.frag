@@ -28,6 +28,11 @@ uniform bool useLighting;
 uniform bool useVertexColor;  // per-vertex color
 
 void main() {
+    vec4 metallicMap = texture(Metallic, textureCoord);
+    vec4 normalMap = texture(Normal, textureCoord);
+    vec4 roughnessMap = texture(Roughness, textureCoord);
+    vec4 aoMap = texture(AO, textureCoord);
+
     vec4 myColor = diffuseColor;
     if(useVertexColor) myColor *= fragmentColor;
     myColor *= texture(Albedo, textureCoord);
@@ -50,10 +55,6 @@ void main() {
 
         // these are unused currently, but here so the shader compiles
         float temp = specularStrength;
-        vec4 metallicMap = texture(Metallic, textureCoord);
-        vec4 normalMap = texture(Normal, textureCoord);
-        vec4 roughnessMap = texture(Roughness, textureCoord);
-        vec4 aoMap = texture(AO, textureCoord);
 
         // put it all together.
         result *= ambientColor + diffuseLight + specularLight;
