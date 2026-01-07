@@ -605,6 +605,7 @@ public class Material extends Node {
         gl3.glEnable(GL3.GL_TEXTURE_2D);
 
         try {
+            // Iterates texture layers; binds textures to shader indices
             for(TextureLayerIndex tli : TextureLayerIndex.values()) {
                 int i = tli.getIndex();
                 shaderProgram.set1i(gl3, tli.getName(), i);

@@ -14,9 +14,13 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * <p>{@link Limb} is a linear chain of bones driven by joints powered by muscles.  Bones are represented by
- * {@link Pose}s.  Joints are represented by {@link HingeJoint}s.  Muscles are represented by {@link Motor}s.
- * The end of the chain - at the wrist - is a {@link Pose} called the <i>end effector</i>.</p>
+ * <p>{@link Limb} is a linear chain of bones driven by joints powered by muscles.</p>
+ * <ul>
+ *     <li>Bones are represented by {@link Pose}s.</li>
+ *     <li>Joints are represented by {@link HingeJoint}s.</li>
+ *     <li>Muscles are represented by {@link Motor}s.</li>
+ *     <li>The end of the chain - at the wrist - is a {@link Pose} called the <i>end effector</i>.</li>
+ * </ul>
  * <p>{@link Limb}s only perform <a href="https://en.wikipedia.org/wiki/Forward_kinematics">Forward Kinematics</a> -
  * given the angle of each joint, they calculate the world space position of the end effector.  For more sophisticated
  * behavior, use a {@link LimbSolver}.</p>

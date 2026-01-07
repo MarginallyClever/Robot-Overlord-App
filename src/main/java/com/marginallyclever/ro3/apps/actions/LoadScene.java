@@ -127,6 +127,9 @@ public class LoadScene extends AbstractAction {
             saveScene.setPath(selectedFile.getAbsolutePath());
             saveScene.setEnabled(true);
         }
+        if(menu!=null) {
+            menu.addPath(selectedFile.getAbsolutePath());
+        }
 
         logger.info("done.");
     }
