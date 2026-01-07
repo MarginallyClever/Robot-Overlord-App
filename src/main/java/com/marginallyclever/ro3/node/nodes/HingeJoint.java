@@ -16,7 +16,7 @@ import java.util.Objects;
  * <p>a {@link HingeJoint} should be attached to a child {@link Pose} referenced as the axle.  In this way the axle's
  * parent {@link Pose} can be thought of as the initial pose.  This helps prevent drift over time.</p>
  */
-public class HingeJoint extends Node {
+public class HingeJoint extends MechanicalJoint {
     private double angle = 0;  // degrees
     private double minAngle = 0;  // degrees
     private double maxAngle = 360;  // degrees
