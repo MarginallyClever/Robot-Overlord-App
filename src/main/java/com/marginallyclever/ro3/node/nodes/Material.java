@@ -606,29 +606,21 @@ public class Material extends Node {
 
         // Iterates texture layers; binds textures to shader indices
         for(TextureLayerIndex tli : TextureLayerIndex.values()) {
-            try {
-                int i = tli.getIndex();
-                shaderProgram.set1i(gl3, tli.getName(), i);
+            int i = tli.getIndex();
+            // nvidia drivers may optimize a texture unit away, which causes this to fail.
+            // To mitigate, we catch exceptions and only log the first occurrence per material-layer combination.
+            // better would be to pre-check active texture units, but this is simpler for now.
+            shaderProgram.set1i(gl3, tli.getName(), i);
 
-                gl3.glActiveTexture(GL3.GL_TEXTURE0 + i);
+            gl3.glActiveTexture(GL3.GL_TEXTURE0 + i);
 
-                TextureWithMetadata tex = this.getTexture(i);
-                if (tex != null) {
-                    tex.use(gl3, shaderProgram);
-                    gl3.glBindTexture(GL3.GL_TEXTURE_2D, tex.getTexture().getTextureObject());
-                } else {
-                    gl3.glBindTexture(GL3.GL_TEXTURE_2D, 0);
-                }
-            } catch(Exception exception) {
-                // make a hash of the material - layer combination.
-                long hash = Objects.hash(this.getName(), tli.getName());
-                if(once.contains(hash)) continue;
-                once.add(hash);
-                // Individual texture layer failed; continue
-                logger.warn("Failed to bind texture layer {} in material {}", tli.getName(), this.getName(), exception);
+            TextureWithMetadata tex = this.getTexture(i);
+            if (tex != null) {
+                tex.use(gl3, shaderProgram);
+                gl3.glBindTexture(GL3.GL_TEXTURE_2D, tex.getTexture().getTextureObject());
+            } else {
+                gl3.glBindTexture(GL3.GL_TEXTURE_2D, 0);
             }
         }
     }
-
-    private static final List<Long> once = new ArrayList<>();
 }
