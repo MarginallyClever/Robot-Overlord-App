@@ -95,26 +95,29 @@ public class MarlinRobot extends Node implements SessionLayerListener {
         logger.debug("sendGCode: {}",gcode);
         // if this MarlinRobot has a connected NetworkSession as a child, try to send the gcode to it.
         if(networkSession!=null && networkSession.isConnected()) {
-            // this app does everything in cm.  Marlin wants mm.  parse the gcode and multiply all numbers by 10.
-            String [] parts = gcode.split(" ");
-            for(int i=1;i<parts.length;++i) {
-                if(parts[i].startsWith("F")) continue; // ignore feedrate
-                try {
-                    double value = Double.parseDouble(parts[i].substring(1));
-                    value *= 10;
-                    parts[i] = parts[i].charAt(0) + String.format("%.2f",value);
-                } catch (NumberFormatException e) {
-                    // ignore
-                }
-            }
-            String newGcode = String.join(" ",parts);
-
+            String newGcode = scaleGcode(gcode,1f);
             networkSession.send(newGcode);
         } else {
             logger.debug("not connected.");
             // else not connected to a network session
             fireMarlinMessage("Error: unknown command " + gcode);
         }
+    }
+
+    // Parse the gcode and multiply all numbers by scale.
+    private String scaleGcode(String gcode, float scale) {
+        String [] parts = gcode.split(" ");
+        for(int i=1;i<parts.length;++i) {
+            if(parts[i].startsWith("F")) continue; // ignore feedrate
+            try {
+                double value = Double.parseDouble(parts[i].substring(1));
+                value *= scale;
+                parts[i] = parts[i].charAt(0) + String.format("%.2f",value);
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        }
+        return String.join(" ",parts);
     }
 
     @Override
