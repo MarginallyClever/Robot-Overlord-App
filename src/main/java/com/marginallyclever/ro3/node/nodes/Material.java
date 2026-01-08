@@ -608,9 +608,10 @@ public class Material extends Node {
         for(TextureLayerIndex tli : TextureLayerIndex.values()) {
             int i = tli.getIndex();
             // nvidia drivers may optimize a texture unit away, which causes this to fail.
-            // To mitigate, we catch exceptions and only log the first occurrence per material-layer combination.
-            // better would be to pre-check active texture units, but this is simpler for now.
-            shaderProgram.set1i(gl3, tli.getName(), i);
+            // To work around this, the uniform is cached and only generates an error the first time.
+
+            // thus if this fails, we just skip this texture.
+            if(!shaderProgram.set1i(gl3, tli.getName(), i)) continue;
 
             gl3.glActiveTexture(GL3.GL_TEXTURE0 + i);
 

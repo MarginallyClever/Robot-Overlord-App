@@ -97,8 +97,12 @@ public class ShaderProgram implements OpenGL3Resource {
     public int getUniformLocation(GL3 gl, String name) {
         Integer result = uniformLocations.get(name);
         if(result == null) {
-            result = gl.glGetUniformLocation(programId, name);
-            if(result==-1) {
+            try {
+                result = gl.glGetUniformLocation(programId, name);
+                if(result==-1) {
+                    logger.warn("Could not find uniform {} in program {}", name, programId);
+                }
+            } catch(Exception e) {
                 logger.warn("Could not find uniform {} in program {}", name, programId);
             }
             uniformLocations.put(name,result);
@@ -106,37 +110,44 @@ public class ShaderProgram implements OpenGL3Resource {
         return result;
     }
 
-    public void set1f(GL3 gl, String name, float v0) {
+    public boolean set1f(GL3 gl, String name, float v0) {
         var u = getUniformLocation(gl, name);
-        if(u==-1) return;
+        if(u==-1) return false;
         gl.glUniform1f(u, v0);
+        OpenGLHelper.checkGLError(gl,logger);
+        return true;
     }
 
-    public void set2f(GL3 gl, String name, float v0, float v1) {
+    public boolean set2f(GL3 gl, String name, float v0, float v1) {
         var u = getUniformLocation(gl, name);
-        if(u==-1) return;
+        if(u==-1) return false;
         gl.glUniform2f(u, v0, v1);
+        OpenGLHelper.checkGLError(gl,logger);
+        return true;
     }
 
-    public void set3f(GL3 gl, String name, float v0, float v1, float v2) {
+    public boolean set3f(GL3 gl, String name, float v0, float v1, float v2) {
         var u = getUniformLocation(gl, name);
-        if(u==-1) return;
+        if(u==-1) return false;
         gl.glUniform3f(u, v0, v1, v2);
         OpenGLHelper.checkGLError(gl,logger);
+        return true;
     }
 
-    public void set4f(GL3 gl, String name, float v0, float v1, float v2, float v3) {
+    public boolean set4f(GL3 gl, String name, float v0, float v1, float v2, float v3) {
         var u = getUniformLocation(gl, name);
-        if(u==-1) return;
+        if(u==-1) return false;
         gl.glUniform4f(u, v0, v1, v2, v3);
         OpenGLHelper.checkGLError(gl,logger);
+        return true;
     }
 
-    public void setVector3d(GL3 gl, String name, Vector3d value) {
+    public boolean setVector3d(GL3 gl, String name, Vector3d value) {
         var u = getUniformLocation(gl, name);
-        if(u==-1) return;
+        if(u==-1) return false;
         gl.glUniform3f(u, (float) value.x, (float) value.y, (float) value.z);
         OpenGLHelper.checkGLError(gl,logger);
+        return true;
     }
 
     private FloatBuffer matrixToFloatBuffer(Matrix4d m) {
@@ -172,18 +183,20 @@ public class ShaderProgram implements OpenGL3Resource {
      * @param name the name of the uniform variable
      * @param value the matrix to set
      */
-    public void setMatrix4d(GL3 gl, String name, Matrix4d value) {
+    public boolean setMatrix4d(GL3 gl, String name, Matrix4d value) {
         var u = getUniformLocation(gl, name);
-        if(u==-1) return;
+        if(u==-1) return false;
         gl.glUniformMatrix4fv(u, 1, true, matrixToFloatBuffer(value));
         OpenGLHelper.checkGLError(gl,logger);
+        return true;
     }
 
-    public void set1i(GL3 gl, String name, int value) {
+    public boolean set1i(GL3 gl, String name, int value) {
         var u = getUniformLocation(gl, name);
-        if(u==-1) return;
+        if(u==-1) return false;
         gl.glUniform1i(u, value);
         OpenGLHelper.checkGLError(gl,logger);
+        return true;
     }
 
     // Sets RGBA color by normalizing components
