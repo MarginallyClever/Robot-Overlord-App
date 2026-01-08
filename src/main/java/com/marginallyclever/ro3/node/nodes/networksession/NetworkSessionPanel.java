@@ -10,8 +10,6 @@ import java.awt.*;
  * A panel that allows the user to open and close a connection in a {@link NetworkSession}.
  */
 public class NetworkSessionPanel extends JPanel {
-    public static final int CONNECTION_OPENED = 1;
-    public static final int CONNECTION_CLOSED = 2;
     private final JButton bConnect = new JButton();
     private final JLabel connectionName = new JLabel("Not connected",JLabel.LEADING);
     private final NetworkSession networkSession;
