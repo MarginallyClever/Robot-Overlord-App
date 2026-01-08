@@ -82,12 +82,17 @@ public class MarlinRobot extends Node implements SessionLayerListener {
         }
     }
 
+    public String getMotorsAndFeedrateAsString() {
+        return "";
+    }
+
     /**
      * <p>Send a single gcode command to the marlin robot.  It will reply by firing a
      * {@link MarlinListener#messageFromMarlin} event with the String response.</p>
      * @param gcode GCode command
      */
     public void sendGCode(String gcode) {
+        logger.debug("sendGCode: {}",gcode);
         // if this MarlinRobot has a connected NetworkSession as a child, try to send the gcode to it.
         if(networkSession!=null && networkSession.isConnected()) {
             // this app does everything in cm.  Marlin wants mm.  parse the gcode and multiply all numbers by 10.
@@ -106,6 +111,7 @@ public class MarlinRobot extends Node implements SessionLayerListener {
 
             networkSession.send(newGcode);
         } else {
+            logger.debug("not connected.");
             // else not connected to a network session
             fireMarlinMessage("Error: unknown command " + gcode);
         }

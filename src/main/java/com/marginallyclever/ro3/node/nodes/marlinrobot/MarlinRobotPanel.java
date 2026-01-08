@@ -41,6 +41,13 @@ public class MarlinRobotPanel extends JPanel {
         PanelHelper.addLabelAndComponent(this, "Home", G28, gbc);
         G28.setToolTipText("Move all motors to their home position.");
 
+        gbc.gridy++;
+        JButton G0 = new JButton("G0");
+        G0.addActionListener(e-> marlinRobot.sendGCode("G0 "+marlinRobot.getMotorsAndFeedrateAsString()));
+        PanelHelper.addLabelAndComponent(this, "Go", G0, gbc);
+        G0.setToolTipText("Move the robot.");
+
+
         gbc.gridx=0;
         gbc.gridwidth=2;
         this.add(getReceiver(),gbc);
