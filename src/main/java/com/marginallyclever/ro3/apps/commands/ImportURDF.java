@@ -42,7 +42,7 @@ import java.util.List;
 public class ImportURDF extends AbstractUndoableEdit {
     private static final Logger logger = LoggerFactory.getLogger(ImportURDF.class);
     private final static double SCALE = 100; // URDF is in meters, RO3 is in centimeters.
-
+    private final static String [] MOTOR_NAMES = {"X","Y","Z","A","B","C","U","V","W"};
     private final File selectedFile;
     private Node created;
 
@@ -442,7 +442,7 @@ public class ImportURDF extends AbstractUndoableEdit {
 
                 // attach motor to drive the joint
                 Motor m = (Motor) Registry.nodeFactory.create("Motor");
-                m.setName("Motor " + motorCount);
+                m.setName(MOTOR_NAMES[motorCount]);
                 child.addChild(m);
                 m.setHinge(j);
                 motors.add(m);
@@ -510,7 +510,6 @@ public class ImportURDF extends AbstractUndoableEdit {
             }
         }
         limb.setEndEffector(endEffector);
-        //limb.setEndEffector((Pose)sortedMotors.getLast().getHinge().getAxle().getParent());
 
 
         int max = Math.min(sortedMotors.size(), 6);
