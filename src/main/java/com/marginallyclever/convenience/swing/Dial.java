@@ -1,5 +1,7 @@
 package com.marginallyclever.convenience.swing;
 
+import com.marginallyclever.convenience.helpers.StringHelper;
+
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import javax.vecmath.Vector2d;
@@ -125,6 +127,7 @@ public class Dial extends JComponent {
 	public void setValue(double arg0) {
 		this.change = arg0 - this.value;
 		this.value = arg0;
+		this.setToolTipText(StringHelper.formatDouble(arg0));
 		repaint();
 	}
 
