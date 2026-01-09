@@ -60,23 +60,23 @@ class LimbSolverTest {
         var limb = new Limb("a");
         var target = new Pose("b");
 
-        LimbSolver ls = new LimbSolver();
-        ls.setLinearVelocity(ls.getLinearVelocity()+10);
-        ls.setGoalMarginOfError(ls.getGoalMarginOfError()+10);
-        ls.setIsAtGoal(!ls.getIsAtGoal());
-        ls.addChild(limb);
-        ls.addChild(target);
-        ls.setLimb(limb);
-        ls.setTarget(target);
+        LimbSolver solver = new LimbSolver();
+        solver.setLinearVelocity(solver.getLinearVelocity()+10);
+        solver.setGoalMarginOfError(solver.getGoalMarginOfError()+10);
+        solver.setIsAtGoal(!solver.getIsAtGoal());
+        solver.addChild(limb);
+        solver.addChild(target);
+        solver.setLimb(limb);
+        solver.setTarget(target);
 
-        var json = ls.toJSON();
+        var json = solver.toJSON();
         LimbSolver ls2 = new LimbSolver();
         ls2.fromJSON(json);
 
-        assertEquals(ls.getLinearVelocity(),ls2.getLinearVelocity());
-        assertEquals(ls.getGoalMarginOfError(),ls2.getGoalMarginOfError());
-        assertEquals(ls.getIsAtGoal(),ls2.getIsAtGoal());
-        assertEquals(ls.getLimb().getSubject().getName(),ls2.getLimb().getSubject().getName());
-        assertEquals(ls.getTarget().getSubject().getName(),ls2.getTarget().getSubject().getName());
+        assertEquals(solver.getLinearVelocity(),ls2.getLinearVelocity());
+        assertEquals(solver.getGoalMarginOfError(),ls2.getGoalMarginOfError());
+        assertEquals(solver.getIsAtGoal(),ls2.getIsAtGoal());
+        assertEquals(solver.getLimb().getSubject().getName(),ls2.getLimb().getSubject().getName());
+        assertEquals(solver.getTarget().getSubject().getName(),ls2.getTarget().getSubject().getName());
     }
 }

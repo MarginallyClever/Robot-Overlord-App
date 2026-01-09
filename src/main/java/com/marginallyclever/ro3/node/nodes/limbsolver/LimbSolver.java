@@ -95,7 +95,9 @@ public class LimbSolver extends Node implements PropertyChangeListener {
             oldLimb.removePropertyChangeListener(this);
         }
         this.limb.setUniqueIDByNode(limb);
-        limb.addPropertyChangeListener(this);
+        if(limb!=null) {
+            limb.addPropertyChangeListener(this);
+        }
     }
 
     @Override
@@ -219,7 +221,7 @@ public class LimbSolver extends Node implements PropertyChangeListener {
             if(version==1||version==2) {
                 setLimb(this.findNodeByPath(s,Limb.class));
             } else if(version==0 || version==3) {
-                setLimb(this.findNodeByPath(s,Limb.class));
+                setLimb(this.findNodeByID(s,Limb.class));
             }
         }
         if(from.has("target")) {
