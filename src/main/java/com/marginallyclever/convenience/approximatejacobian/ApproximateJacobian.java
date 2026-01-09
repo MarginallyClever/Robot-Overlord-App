@@ -103,6 +103,9 @@ public abstract class ApproximateJacobian {
                 throw new Exception("Bad inverse Jacobian.  Singularity?");
             }
             jointVelocity[j] = Math.toDegrees(sum);
+            // constrain the velocity to between -180 and 180.  anything else would be redundant.
+            while(jointVelocity[j] > 180) jointVelocity[j] -= 360;
+            while(jointVelocity[j] < -180) jointVelocity[j] += 360;
         }
 
         return jointVelocity;
