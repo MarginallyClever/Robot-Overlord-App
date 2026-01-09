@@ -43,19 +43,24 @@ public class HingeJoint extends MechanicalJoint {
         super.update(dt);
         velocity += acceleration * dt;
         setAngle(angle + velocity * dt);
+        setAxleLocationInSpace();
+    }
 
-        if(axle.getSubject()!=null) {
-            // set the axle's location in space.
-            var subject = axle.getSubject();
-            var m = subject.getLocal();
-            Vector3d translation = new Vector3d();
-            m.get(translation);
+    /**
+     * Set the axle's location in space.
+     */
+    public void setAxleLocationInSpace() {
+        if(axle.getSubject()==null) return;
 
-            m.rotZ(Math.toRadians(angle));
+        var subject = axle.getSubject();
+        var m = subject.getLocal();
+        Vector3d translation = new Vector3d();
+        m.get(translation);
 
-            m.setTranslation(translation);
-            subject.setLocal(m);
-        }
+        m.rotZ(Math.toRadians(angle));
+
+        m.setTranslation(translation);
+        subject.setLocal(m);
     }
 
     @Override
