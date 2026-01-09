@@ -446,7 +446,7 @@ public class LoadURDF {
         for(int i=0;i<max;i++) {
             Motor m = sortedMotors.get(i);
             limb.setJoint(i,m);
-            m.setName(MOTOR_NAMES[motorCount]);
+            m.setName(MOTOR_NAMES[i]);
         }
 
         // Add a limbSolver, put a target beneath limbsolver, and associate limbsolver with limb.
