@@ -16,7 +16,7 @@ import java.util.Objects;
  * <p>a {@link HingeJoint} should be attached to a child {@link Pose} referenced as the axle.  In this way the axle's
  * parent {@link Pose} can be thought of as the initial pose.  This helps prevent drift over time.</p>
  */
-public class HingeJoint extends Node {
+public class HingeJoint extends MechanicalJoint {
     private double angle = 0;  // degrees
     private double minAngle = 0;  // degrees
     private double maxAngle = 360;  // degrees
@@ -43,19 +43,24 @@ public class HingeJoint extends Node {
         super.update(dt);
         velocity += acceleration * dt;
         setAngle(angle + velocity * dt);
+        setAxleLocationInSpace();
+    }
 
-        if(axle.getSubject()!=null) {
-            // set the axle's location in space.
-            var subject = axle.getSubject();
-            var m = subject.getLocal();
-            Vector3d translation = new Vector3d();
-            m.get(translation);
+    /**
+     * Set the axle's location in space.
+     */
+    public void setAxleLocationInSpace() {
+        if(axle.getSubject()==null) return;
 
-            m.rotZ(Math.toRadians(angle));
+        var subject = axle.getSubject();
+        var m = subject.getLocal();
+        Vector3d translation = new Vector3d();
+        m.get(translation);
 
-            m.setTranslation(translation);
-            subject.setLocal(m);
-        }
+        m.rotZ(Math.toRadians(angle));
+
+        m.setTranslation(translation);
+        subject.setLocal(m);
     }
 
     @Override

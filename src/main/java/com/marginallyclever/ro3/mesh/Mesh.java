@@ -518,11 +518,6 @@ public class Mesh implements OpenGL3Resource {
 		textureArray.set(i  , (float)v);
 	}
 
-    public void updateVertexBuffers(GL3 gl3) {
-		if(VBO==null) return;
-		setupArray(gl3,0,3,getNumVertices(),vertexArray);
-    }
-
     public void removePropertyChangeListener(PropertyChangeListener listener) {
 		listeners.remove(PropertyChangeListener.class,listener);
     }

@@ -5,6 +5,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.shader.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
 import com.marginallyclever.ro3.factories.Lifetime;
@@ -30,17 +31,21 @@ import java.util.List;
  */
 public class DrawJoints extends AbstractRenderPass {
     private static final Logger logger = LoggerFactory.getLogger(DrawJoints.class);
+
+    private final float ringScale = 3;
+
     private final Mesh currentAngleMesh = new Mesh();
     private final Mesh circleFanMesh = new CircleXY();
     private final Mesh linearRangeMesh = new Mesh();
     private ShaderProgram shader;
-    private final float ringScale = 3;
+    private final Material defaultMaterial = new Material();
 
     public DrawJoints() {
         super("Joints");
         Registry.meshFactory.addToPool(Lifetime.APPLICATION, "DrawJoints.currentAngleMesh", currentAngleMesh);
         Registry.meshFactory.addToPool(Lifetime.APPLICATION, "DrawJoints.circleFanMesh", circleFanMesh);
         Registry.meshFactory.addToPool(Lifetime.APPLICATION, "DrawJoints.linearRangeMesh", linearRangeMesh);
+        defaultMaterial.setLit(false);
 
         currentAngleMesh.setRenderStyle(GL3.GL_LINES);
         currentAngleMesh.addColor(1.0f,1.0f,1.0f,1);  currentAngleMesh.addVertex(0,0,0);  // origin
@@ -74,17 +79,12 @@ public class DrawJoints extends AbstractRenderPass {
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
 
         shader.use(gl3);
+        defaultMaterial.use(gl3,shader);
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));
         shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix(originShift));
         shader.setVector3d(gl3,"cameraPos",originShift ? new Vector3d() : cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",originShift ? new Vector3d() : cameraWorldPos);  // Light position in world space
-        shader.setColor(gl3,"lightColor", Color.WHITE);
-        shader.setColor(gl3,"specularColor",Color.DARK_GRAY);
-        shader.setColor(gl3,"ambientColor",Color.BLACK);
-        shader.set1i(gl3,"useVertexColor",0);
-        shader.set1i(gl3,"useLighting",0);
         gl3.glDisable(GL3.GL_DEPTH_TEST);
-        //gl3.glDisable(GL3.GL_TEXTURE_2D);
         gl3.glDisable(GL3.GL_CULL_FACE);
 
         var list = Registry.selection.getList();
@@ -96,10 +96,11 @@ public class DrawJoints extends AbstractRenderPass {
 
             if( getActiveStatus() == SOMETIMES && !list.contains(node) ) continue;
 
+            boolean isSelected = list.contains(node);
             if(node instanceof HingeJoint hinge) {
-                renderHinge(gl3,hinge,list,originShift,cameraWorldPos);
+                renderHinge(gl3,hinge,originShift,cameraWorldPos,isSelected);
             } else if(node instanceof LinearJoint linear) {
-                renderLinear(gl3,linear,list,originShift,cameraWorldPos);
+                renderLinear(gl3,linear,originShift,cameraWorldPos,isSelected);
             }
         }
 
@@ -107,9 +108,8 @@ public class DrawJoints extends AbstractRenderPass {
         gl3.glEnable(GL3.GL_CULL_FACE);
     }
 
-    private void renderLinear(GL3 gl3, LinearJoint joint, List<Node> list,boolean originShift,Vector3d cameraWorldPos) {
+    private void renderLinear(GL3 gl3, LinearJoint joint, boolean originShift, Vector3d cameraWorldPos, boolean isSelected) {
         // make brighter if selected
-        boolean active = list.contains(joint);
         double min = joint.getMinPosition();
         double range = joint.getMaxPosition()-min;
 
@@ -120,28 +120,27 @@ public class DrawJoints extends AbstractRenderPass {
         modelMatrix.mul(world,modelMatrix);
         modelMatrix.mul(MatrixHelper.createScaleMatrix4(range));
         if(originShift) modelMatrix = RenderPassHelper.getOriginShiftedMatrix(modelMatrix,cameraWorldPos);
-        shader.setColor(gl3,"diffuseColor",new Color(255,255,0,active ? 255 : 64));
+        shader.setColor(gl3,"diffuseColor",new Color(255,255,0,isSelected ? 255 : 64));
         shader.setMatrix4d(gl3,"modelMatrix",modelMatrix);
         linearRangeMesh.render(gl3);
     }
 
-    private void renderHinge(GL3 gl3, HingeJoint joint, List<Node> list,boolean originShift,Vector3d cameraWorldPos) {
+    private void renderHinge(GL3 gl3, HingeJoint joint,boolean originShift,Vector3d cameraWorldPos,boolean isSelected) {
         // make bigger if selected
-        boolean active = list.contains(joint);
-        double scale = ringScale * (active ? 2 : 1);
+        double scale = ringScale * (isSelected ? 2 : 1);
 
         // adjust the position of the mesh based on the joint's minimum angle.
         Pose pose = joint.findParent(Pose.class);
         Matrix4d world = (pose==null) ? MatrixHelper.createIdentityMatrix4() : pose.getWorld();
 
         Matrix4d modelMatrix = new Matrix4d();
+        // draw the range fan
         modelMatrix.rotZ(Math.toRadians(joint.getMinAngle()));
         modelMatrix.mul(world,modelMatrix);
         modelMatrix.mul(modelMatrix,MatrixHelper.createScaleMatrix4(scale));
-        shader.setColor(gl3,"diffuseColor",new Color(255,255,0,active ? 255 : 64));
+        shader.setColor(gl3,"diffuseColor",new Color(255,255,0,isSelected ? 128 : 64));
         if(originShift) modelMatrix = RenderPassHelper.getOriginShiftedMatrix(modelMatrix,cameraWorldPos);
         shader.setMatrix4d(gl3,"modelMatrix",modelMatrix);
-        // draw the range fan
         int range = Math.max(0, (int)(joint.getMaxAngle()-joint.getMinAngle()) );
         circleFanMesh.render(gl3,0,1+range);
 
@@ -149,7 +148,7 @@ public class DrawJoints extends AbstractRenderPass {
         modelMatrix.rotZ(Math.toRadians(joint.getAngle()));
         modelMatrix.mul(world,modelMatrix);
         modelMatrix.mul(modelMatrix,MatrixHelper.createScaleMatrix4(scale));
-        shader.setColor(gl3,"diffuseColor",new Color(255,255,255,active ? 255 : 64));
+        shader.setColor(gl3,"diffuseColor",new Color(255,255,255,isSelected ? 255 : 64));
         if(originShift) modelMatrix = RenderPassHelper.getOriginShiftedMatrix(modelMatrix,cameraWorldPos);
         shader.setMatrix4d(gl3,"modelMatrix",modelMatrix);
         currentAngleMesh.render(gl3);
@@ -161,9 +160,9 @@ public class DrawJoints extends AbstractRenderPass {
             modelMatrix.rotZ(Math.toRadians(joint.getAngle()+v));
             modelMatrix.mul(world, modelMatrix);
             modelMatrix.mul(modelMatrix, MatrixHelper.createScaleMatrix4(scale));
-            shader.setColor(gl3, "diffuseColor", new Color(255, 0, 0, active ? 255 : 64));
             if(originShift) modelMatrix = RenderPassHelper.getOriginShiftedMatrix(modelMatrix,cameraWorldPos);
             shader.setMatrix4d(gl3,"modelMatrix",modelMatrix);
+            shader.setColor(gl3, "diffuseColor", new Color(255, 0, 0, isSelected ? 255 : 64));
             circleFanMesh.render(gl3, 0, 1+vAbs);
         }
     }

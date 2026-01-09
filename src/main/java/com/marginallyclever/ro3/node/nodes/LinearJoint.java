@@ -14,7 +14,7 @@ import java.util.Objects;
  * <p>a {@link LinearJoint} should be attached to a child {@link Pose} referenced as the car.  In this way the car's
  * parent {@link Pose} can be thought of as the initial pose at zero mm.  This helps prevent drift over time.</p>
  */
-public class LinearJoint extends Node {
+public class LinearJoint extends MechanicalJoint {
     private double position = 0;  // cm
     private double minPosition = 0;  // cm
     private double maxPosition = 100;  // cm

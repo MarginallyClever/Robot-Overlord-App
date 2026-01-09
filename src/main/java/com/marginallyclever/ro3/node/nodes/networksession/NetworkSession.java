@@ -111,7 +111,11 @@ public class NetworkSession extends Node {
 
     private void recv(SessionLayerEvent e) {
         if(e.flag == SessionLayerEvent.DATA_AVAILABLE) {
-            logger.debug("recv: {}",e.data);
+            String data = e.data.toString();
+            // remove trailing newline
+            if(data.endsWith("\n")) data = data.substring(0,data.length()-1);
+
+            logger.debug("recv: {}",data);
         }
     }
 }

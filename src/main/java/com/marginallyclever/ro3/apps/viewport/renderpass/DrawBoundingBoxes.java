@@ -87,20 +87,16 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
     public void draw(Viewport viewport, GL3 gl3) {
         Camera camera = viewport.getActiveCamera();
         if(camera==null) return;
+
         boolean originShift = viewport.isOriginShift();
+        Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
 
         shader.use(gl3);
-
         defaultMaterial.use(gl3,shader);
-        shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix(originShift));
         shader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));
-        Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
+        shader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix(originShift));
         shader.setVector3d(gl3,"cameraPos",originShift?new Vector3d() : cameraWorldPos);  // Camera position in world space
         shader.setVector3d(gl3,"lightPos",originShift?new Vector3d() : cameraWorldPos);  // Light position in world space
-        shader.setColor(gl3,"lightColor", Color.WHITE);
-        shader.setColor(gl3,"specularColor",Color.GRAY);
-        shader.setColor(gl3,"ambientColor",new Color(255/5,255/5,255/5,255));
-        shader.set1i(gl3,"useVertexColor",0);
         OpenGLHelper.checkGLError(gl3,logger);
         gl3.glDisable(GL3.GL_DEPTH_TEST);
 
@@ -128,15 +124,15 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
             mesh.setVertex(5, max.x, max.y, min.z);
             mesh.setVertex(6, max.x, min.y, min.z);
             mesh.setVertex(7, min.x, min.y, min.z);
-            mesh.updateVertexBuffers(gl3);
+            mesh.setDirty(true);
 
             // set the model matrix
             Matrix4d w = meshInstance.getWorld();
             if(originShift) w = RenderPassHelper.getOriginShiftedMatrix(w,cameraWorldPos);
-            shader.setMatrix4d(gl3,"modelMatrix",w);
-
             // highlight selected items
             shader.setColor(gl3,"diffuseColor", list.contains(meshInstance) || list.contains(meshInstance.getParent()) ? SELECTED : UNSELECTED );
+            shader.setMatrix4d(gl3,"modelMatrix",w);
+
             // draw it
             mesh.render(gl3);
         }

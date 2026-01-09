@@ -12,6 +12,7 @@ import javax.vecmath.Point3d;
 public class CircleXY extends ProceduralMesh {
     public CircleXY() {
         super();
+        updateModel();
     }
 
     @Override

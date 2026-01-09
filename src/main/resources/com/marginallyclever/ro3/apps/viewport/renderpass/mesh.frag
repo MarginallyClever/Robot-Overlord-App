@@ -59,33 +59,44 @@ float shadowCalculation(vec4 fragPosLightSpace,vec3 normal,vec3 lightDir) {
 }
 
 void main() {
+    vec4 normalMap = texture(Normal, fs_in.textureCoord);
+    vec4 roughnessMap = texture(Roughness, fs_in.textureCoord);
+    vec4 aoMap = texture(AO, fs_in.textureCoord);
+    vec4 metallicMap = texture(Metallic, fs_in.textureCoord);
+
     vec4 result = diffuseColor;
     if(useVertexColor) result *= fs_in.fragmentColor;
     result *= texture(Albedo, fs_in.textureCoord);
+
     if(useLighting) {
+        // Apply normal map (simple version: blend with vertex normal)
         vec3 norm = normalize(fs_in.normalVector);
+        if (length(normalMap.rgb) > 0.0) {
+            vec3 tangentNormal = normalMap.rgb * 2.0 - 1.0;
+            norm = normalize(norm + tangentNormal * 0.5); // Blended for stability without full TBN
+        }
         vec3 lightDir = normalize(lightPos - fs_in.fragmentPosition);
 
         // Diffuse
         float diff = max(dot(norm, lightDir), 0.0);
         vec4 diffuseLight = diff * lightColor;
 
-        // Specular
+        // Specular (Roughness affects the exponent)
         vec3 viewDir = normalize(cameraPos - fs_in.fragmentPosition);
         vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-        vec4 specWithTexture = specularStrength * spec * texture(Metallic, fs_in.textureCoord) * specularColor;
-        vec4 specularLight = specWithTexture * lightColor;
+        float roughness = roughnessMap.r;
+        float currentShininess = shininess * (1.0 - roughness);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), max(1.0, currentShininess));
 
-        vec4 normalMap = texture(Normal, fs_in.textureCoord);
-        vec4 roughnessMap = texture(Roughness, fs_in.textureCoord);
-        vec4 aoMap = texture(AO, fs_in.textureCoord);
+        // Metallic affects the specular tint
+        vec4 specWithTexture = specularStrength * spec * metallicMap * specularColor;
+        vec4 specularLight = specWithTexture * lightColor;
 
         // Shadow
         float shadow = shadowCalculation(fs_in.fragPosLightSpace,norm,lightDir);
 
         // put it all together.
-        result *= ambientColor + (diffuseLight + specularLight) * (1.0 - shadow);
+        result *= (ambientColor * aoMap) + (diffuseLight + specularLight) * (1.0 - shadow);
         result += emissionColor;
     }
 

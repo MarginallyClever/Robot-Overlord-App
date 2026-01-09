@@ -184,7 +184,7 @@ public class DrawCameras extends AbstractRenderPass {
             frustumMesh.setVertex(6, wNear, hNear, -near);
             frustumMesh.setVertex(7,-wNear, hNear, -near);
         }
-        frustumMesh.updateVertexBuffers(gl3);
+        frustumMesh.setDirty(true);
     }
 
     private void changeRayMesh(GL3 gl3, Ray ray,double farZ) {
@@ -194,6 +194,6 @@ public class DrawCameras extends AbstractRenderPass {
         direction.scale(farZ);
         rayMesh.setVertex(0,origin.x,origin.y,origin.z);
         rayMesh.setVertex(1,origin.x+direction.x,origin.y+direction.y,origin.z+direction.z);
-        rayMesh.updateVertexBuffers(gl3);
+        rayMesh.setDirty(true);
     }
 }

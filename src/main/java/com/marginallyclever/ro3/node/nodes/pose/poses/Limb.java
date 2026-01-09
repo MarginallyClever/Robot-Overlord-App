@@ -9,6 +9,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.swing.*;
+import javax.swing.event.EventListenerList;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,6 +33,7 @@ public class Limb extends Pose {
     public static final int MAX_JOINTS = 6;
     private final List<NodePath<Motor>> motors = new ArrayList<>();
     private final NodePath<Pose> endEffector = new NodePath<>(this,Pose.class);
+    private final EventListenerList listenerList = new EventListenerList();
 
     public Limb() {
         this("Limb");
@@ -113,7 +117,7 @@ public class Limb extends Pose {
                 HingeJoint axle = motor.getHinge();
                 if(axle!=null) {
                     axle.setAngle(values[i]);
-                    axle.update(0);
+                    axle.setAxleLocationInSpace();
                 }
             }
             i++;
@@ -190,5 +194,33 @@ public class Limb extends Pose {
     @Override
     public Icon getIcon() {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/pose/poses/icons8-mechanical-arm-16.png")));
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        listenerList.add(PropertyChangeListener.class,listener);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        listenerList.remove(PropertyChangeListener.class,listener);
+    }
+
+    private void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+        PropertyChangeEvent event = new PropertyChangeEvent(this,propertyName,oldValue,newValue);
+        for(PropertyChangeListener listener : listenerList.getListeners(PropertyChangeListener.class)) {
+            listener.propertyChange(event);
+        }
+    }
+
+    /**
+     * Move a motor to a specific angle and notify listeners that the pose has changed.
+     * @param motor the motor to move
+     * @param angle the angle to move the motor to
+     */
+    public void setMotorAngle(Motor motor, double angle) {
+        if(!motor.hasHinge()) return;
+        var hinge = motor.getHinge();
+        hinge.setAngle(angle);
+        hinge.setAxleLocationInSpace();
+        firePropertyChange("poseChanged",null,this);
     }
 }

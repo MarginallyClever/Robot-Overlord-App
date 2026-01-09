@@ -604,23 +604,24 @@ public class Material extends Node {
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_T,GL3.GL_CLAMP_TO_BORDER);
         gl3.glEnable(GL3.GL_TEXTURE_2D);
 
-        try {
-            // Iterates texture layers; binds textures to shader indices
-            for(TextureLayerIndex tli : TextureLayerIndex.values()) {
-                int i = tli.getIndex();
-                shaderProgram.set1i(gl3, tli.getName(), i);
-                gl3.glActiveTexture(GL3.GL_TEXTURE0 + i);
+        // Iterates texture layers; binds textures to shader indices
+        for(TextureLayerIndex tli : TextureLayerIndex.values()) {
+            int i = tli.getIndex();
+            // nvidia drivers may optimize a texture unit away, which causes this to fail.
+            // To work around this, the uniform is cached and only generates an error the first time.
 
-                TextureWithMetadata tex = this.getTexture(i);
-                if( tex != null ) {
-                    tex.use(gl3,shaderProgram);
-                    gl3.glBindTexture(GL3.GL_TEXTURE_2D, tex.getTexture().getTextureObject());
-                } else {
-                    gl3.glBindTexture(GL3.GL_TEXTURE_2D, 0);
-                }
+            // thus if this fails, we just skip this texture.
+            if(!shaderProgram.set1i(gl3, tli.getName(), i)) continue;
+
+            gl3.glActiveTexture(GL3.GL_TEXTURE0 + i);
+
+            TextureWithMetadata tex = this.getTexture(i);
+            if (tex != null) {
+                tex.use(gl3, shaderProgram);
+                gl3.glBindTexture(GL3.GL_TEXTURE_2D, tex.getTexture().getTextureObject());
+            } else {
+                gl3.glBindTexture(GL3.GL_TEXTURE_2D, 0);
             }
-        } catch(Exception e) {
-            logger.error("Failed to set texture layer indices in shader.",e);
         }
     }
 }

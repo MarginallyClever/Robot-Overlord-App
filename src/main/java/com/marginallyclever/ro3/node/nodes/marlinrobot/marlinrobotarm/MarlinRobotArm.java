@@ -141,7 +141,8 @@ public class MarlinRobotArm extends MarlinRobot {
         return solver;
     }
 
-    private String getMotorsAndFeedrateAsString() {
+    @Override
+    public String getMotorsAndFeedrateAsString() {
         var myLimb = limb.getSubject();
         if(myLimb==null) return "";
         StringBuilder sb = new StringBuilder();
@@ -181,16 +182,13 @@ public class MarlinRobotArm extends MarlinRobot {
 
         if(gcode.startsWith("G0")) {  // fast non-linear move (FK)
             fireMarlinMessage( parseG0(gcode) );
-            return;
         } else if(gcode.startsWith("G1")) {
             fireMarlinMessage( parseG1(gcode) );
-            return;
         } else if(gcode.equals("G28")) {
             fireMarlinMessage( parseG28(gcode) );
         } else if(gcode.equals("M114")) {
             String response = getM114();
             fireMarlinMessage( "Ok: "+response );
-            return;
         }
         super.sendGCode(gcode);
     }

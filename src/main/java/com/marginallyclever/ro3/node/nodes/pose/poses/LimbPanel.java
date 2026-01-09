@@ -66,10 +66,9 @@ public class LimbPanel extends JPanel {
         JPanel panel = new JPanel(new BorderLayout());
         Dial dial = new Dial();
         dial.addActionListener(e -> {
-            if(motor.hasHinge()) {
-                motor.getHinge().setAngle(dial.getValue());
-                dial.setValue(motor.getHinge().getAngle());
-            }
+            limb.setMotorAngle(motor, dial.getValue());
+            // update the dial to match the motor's hinge angle (in case of limits)
+            dial.setValue(motor.getHinge().getAngle());
         });
         // TODO subscribe to motor.getAxle().getAngle() so the dial matches reality.
         // TODO but also dial.setValue() without triggering an action event, because that's a feedback loop.

@@ -180,11 +180,12 @@ public class RotateToolMulti implements ViewportTool {
         if( !MoveUtils.listContainsAPose(selectedItems.getNodes()) ) return;
 
         int i = getIndexInUse();
-        if(0==i || -1==i) toolX.render(gl,shaderProgram);
-        if(1==i || -1==i) toolY.render(gl,shaderProgram);
-        if(2==i || -1==i) toolZ.render(gl,shaderProgram);
-
-        toolZ.drawPivotPoint(gl,shaderProgram);
+        for(ViewportTool t : tools) {
+            // if no tools is in use or this tool is in use, render it.
+            if (i == -1 || tools.indexOf(t) == i) {
+                t.render(gl, shaderProgram);
+            }
+        }
     }
 
     @Override

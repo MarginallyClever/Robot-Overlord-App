@@ -69,7 +69,7 @@ jobs:
         cp README.md target/package/
 
     - name: Deploy universal release
-      if: github.repository == 'MarginallyClever/Robot-Overlord-App' && github.ref == 'refs/heads/master'
+      if: github.repository == 'MarginallyClever/Robot-Overlord-App'
       uses: WebFreak001/deploy-nightly@v3.2.0
       with:
         upload_url: ${{ env.UPLOAD_URL }}
@@ -172,7 +172,6 @@ jobs:
           echo "BINARY_NIGHTLY=$BINARY_NIGHTLY" >> $GITHUB_ENV
 
       - name: Deploy installation release
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
         uses: WebFreak001/deploy-nightly@v3.2.0
         with:
           upload_url: ${{ env.UPLOAD_URL }}
