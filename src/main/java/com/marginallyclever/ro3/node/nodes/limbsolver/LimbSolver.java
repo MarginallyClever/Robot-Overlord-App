@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,7 +25,7 @@ import java.util.Objects;
  * joint velocities required to move the end effector towards the target in a straight line.  When the end effector
  * reaches the target (with a margin of error), {@link LimbSolver} will fire an ActionEvent "arrivedAtGoal".
  */
-public class LimbSolver extends Node {
+public class LimbSolver extends Node implements PropertyChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(LimbSolver.class);
 
     private final NodePath<Limb> limb = new NodePath<>(this,Limb.class);
@@ -88,7 +90,30 @@ public class LimbSolver extends Node {
      * @param limb the limb to control
      */
     public void setLimb(Limb limb) {
+        var oldLimb = this.limb.getSubject();
+        if(oldLimb != null && oldLimb != limb) {
+            oldLimb.removePropertyChangeListener(this);
+        }
         this.limb.setUniqueIDByNode(limb);
+        limb.addPropertyChangeListener(this);
+    }
+
+    @Override
+    protected void onAttach() {
+        super.onAttach();
+        var myLimb = getLimb().getSubject();
+        if(myLimb!=null) {
+            myLimb.addPropertyChangeListener(this);
+        }
+    }
+
+    @Override
+    protected void onDetach() {
+        super.onDetach();
+        var myLimb = getLimb().getSubject();
+        if(myLimb!=null) {
+            myLimb.removePropertyChangeListener(this);
+        }
     }
 
     private Pose getEndEffector() {
@@ -101,7 +126,9 @@ public class LimbSolver extends Node {
      * @return true if the solver has a limb, an end effector, and a target.  Does not guarantee that a solution exists.
      */
     public boolean readyToSolve() {
-        return getLimb().getSubject()!=null && getEndEffector()!=null && getTarget().getSubject()!=null;
+        return getLimb().getSubject()!=null
+                && getEndEffector()!=null
+                && getTarget().getSubject()!=null;
     }
 
     private void moveTowardsTarget() {
@@ -190,9 +217,9 @@ public class LimbSolver extends Node {
         if(from.has("limb")) {
             String s = from.getString("limb");
             if(version==1||version==2) {
-                limb.setUniqueIDByNode(this.findNodeByPath(s,Limb.class));
+                setLimb(this.findNodeByPath(s,Limb.class));
             } else if(version==0 || version==3) {
-                this.limb.setUniqueID(s);
+                setLimb(this.findNodeByPath(s,Limb.class));
             }
         }
         if(from.has("target")) {
@@ -327,5 +354,20 @@ public class LimbSolver extends Node {
     @Override
     public Icon getIcon() {
         return new ImageIcon(Objects.requireNonNull(getClass().getResource("/com/marginallyclever/ro3/node/nodes/icons8-rubik's-cube-16.png")));
+    }
+
+    /**
+     * Called when a bound property is changed.
+     * @param evt A PropertyChangeEvent object describing the event source
+     *          and the property that has changed.
+     */
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if(evt.getSource()==getLimb().getSubject()) {
+            if(evt.getPropertyName().equals("poseChanged")) {
+                // limb's end effector changed.  Update our target so that the arm doesn't drift.
+                moveTargetToEndEffector();
+            }
+        }
     }
 }
