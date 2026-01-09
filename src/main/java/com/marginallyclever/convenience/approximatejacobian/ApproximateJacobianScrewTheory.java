@@ -9,9 +9,8 @@ import javax.vecmath.Vector3d;
 import java.security.InvalidParameterException;
 
 /**
- * Given the current pose of the robot, find the approximate jacobian, which describe the relationship between joint
+ * Given the current pose of the robot, find the approximate jacobian, which describes the relationship between joint
  * velocity and cartesian velocity.  This version uses screw theory.
- *
  */
 public class ApproximateJacobianScrewTheory extends ApproximateJacobian {
 	/**

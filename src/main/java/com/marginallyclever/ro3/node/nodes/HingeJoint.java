@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.node.nodes;
 
-import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
@@ -43,13 +42,13 @@ public class HingeJoint extends MechanicalJoint {
         super.update(dt);
         velocity += acceleration * dt;
         setAngle(angle + velocity * dt);
-        setAxleLocationInSpace();
+        updateAxleLocationInSpace();
     }
 
     /**
-     * Set the axle's location in space.
+     * Set the axle's location in space based on the current angle.
      */
-    public void setAxleLocationInSpace() {
+    public void updateAxleLocationInSpace() {
         if(axle.getSubject()==null) return;
 
         var subject = axle.getSubject();
@@ -101,6 +100,10 @@ public class HingeJoint extends MechanicalJoint {
         return angle;
     }
 
+    /**
+     * Set the angle in degrees, clamped to minAngle and maxAngle if they are set.
+     * @param degrees the angle in degrees
+     */
     public void setAngle(double degrees) {
         angle = degrees;
 
@@ -108,6 +111,14 @@ public class HingeJoint extends MechanicalJoint {
             if (angle > maxAngle) angle = maxAngle;
             if (angle < minAngle) angle = minAngle;
         }
+    }
+
+    /**
+     * Set the angle in degrees without clamping to minAngle and maxAngle.
+     * @param degrees the angle in degrees
+     */
+    public void setAngleUnsafe(double degrees) {
+        angle = degrees;
     }
 
     public double getMinAngle() {

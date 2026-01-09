@@ -31,7 +31,7 @@ public class ApproximateJacobianFiniteDifferences extends ApproximateJacobian {
                 // use anglesB to get the hand matrix after a tiny adjustment on one joint.
                 double[] jointAnglesPlusDelta = Arrays.copyOf(jointAnglesOriginal, jointAnglesOriginal.length);
                 jointAnglesPlusDelta[i] += ANGLE_STEP_SIZE_DEGREES;
-                limb.setAllJointAngles(jointAnglesPlusDelta);
+                limb.setAllJointAnglesUnsafe(jointAnglesPlusDelta);
                 Matrix4d endEffectorPosePlusDelta = endEffector.getWorld();
 
                 // use the finite difference in the two matrixes

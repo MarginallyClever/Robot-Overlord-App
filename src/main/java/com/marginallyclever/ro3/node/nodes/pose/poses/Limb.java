@@ -106,6 +106,10 @@ public class Limb extends Pose {
         motors.get(index).setUniqueIDByNode(newValue);
     }
 
+    /**
+     * Set all joint angles at once while respecting the joint range limits.
+     * @param values the angles to set each joint to.
+     */
     public void setAllJointAngles(double[] values) {
         if(values.length != getNumJoints()) {
             throw new IllegalArgumentException("setAllJointValues: one value for every motor");
@@ -117,7 +121,29 @@ public class Limb extends Pose {
                 HingeJoint axle = motor.getHinge();
                 if(axle!=null) {
                     axle.setAngle(values[i]);
-                    axle.setAxleLocationInSpace();
+                    axle.updateAxleLocationInSpace();
+                }
+            }
+            i++;
+        }
+    }
+
+    /**
+     * Set all joint angles at once without respecting the joint range limits.
+     * @param values the angles to set each joint to.
+     */
+    public void setAllJointAnglesUnsafe(double[] values) {
+        if(values.length != getNumJoints()) {
+            throw new IllegalArgumentException("setAllJointValues: one value for every motor");
+        }
+        int i=0;
+        for(NodePath<Motor> paths : motors) {
+            Motor motor = paths.getSubject();
+            if(motor!=null) {
+                HingeJoint axle = motor.getHinge();
+                if(axle!=null) {
+                    axle.setAngleUnsafe(values[i]);
+                    axle.updateAxleLocationInSpace();
                 }
             }
             i++;
@@ -220,7 +246,7 @@ public class Limb extends Pose {
         if(!motor.hasHinge()) return;
         var hinge = motor.getHinge();
         hinge.setAngle(angle);
-        hinge.setAxleLocationInSpace();
+        hinge.updateAxleLocationInSpace();
         firePropertyChange("poseChanged",null,this);
     }
 }
