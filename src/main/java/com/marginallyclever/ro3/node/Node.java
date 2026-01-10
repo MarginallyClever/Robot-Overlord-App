@@ -77,6 +77,9 @@ public class Node {
         if(index<0|| index>children.size()) {
             throw new IndexOutOfBoundsException("Index "+index+" is out of bounds.");
         }
+        // if child is this or a parent of this, throw exception
+        if(child == this) throw new IllegalArgumentException("Cannot add node as a child of itself.");
+        if(this.hasParent(child)) throw new IllegalArgumentException("Cannot add a parent node as a child.");
 
         children.add(index,child);
         child.setParent(this);
