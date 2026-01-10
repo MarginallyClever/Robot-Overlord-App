@@ -40,7 +40,7 @@ public class LimbPlannerPanel extends JPanel implements ActionListener {
         gbc.gridy=0;
         gbc.gridwidth=1;
 
-        PanelHelper.addNodeSelector(this, "LimbSolver", limbPlanner.getSolver(), gbc);
+        PanelHelper.addNodeSelector(this, "LimbSolver", limbPlanner.getLimb(), gbc);
 
         gbc.gridy++;
         PanelHelper.addNodeSelector(this, "Path start", limbPlanner.getPathStart(), gbc);

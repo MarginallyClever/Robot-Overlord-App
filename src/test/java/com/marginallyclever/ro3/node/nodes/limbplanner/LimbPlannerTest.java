@@ -1,10 +1,7 @@
 package com.marginallyclever.ro3.node.nodes.limbplanner;
 
-import com.marginallyclever.convenience.helpers.StringHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.actions.Import;
-import com.marginallyclever.ro3.apps.actions.LoadScene;
-import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,11 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.util.Arrays;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class LimbPlannerTest {
     private static final Logger logger = LoggerFactory.getLogger(LimbPlannerTest.class);
     Limb limb;
-    LimbSolver limbSolver;
     LimbPlanner limbPlanner;
     Pose pathStart;
 
@@ -41,12 +34,10 @@ class LimbPlannerTest {
         limb = build6AxisArm();
 
         // the Sixi3-5.RO file has a limb named "Sixi3" which has a LimbSolver.
-        limbSolver = limb.findFirstChild(LimbSolver.class);
-
         // the Sixi3-5.RO file does not have a LimbPlanner.
         limbPlanner = new LimbPlanner();
         limb.addChild(limbPlanner);
-        limbPlanner.setSolver(limbSolver);
+        limbPlanner.setLimb(limb);
 
         // the Sixi3-5.RO file does not have a path.
         pathStart = new Pose("path");

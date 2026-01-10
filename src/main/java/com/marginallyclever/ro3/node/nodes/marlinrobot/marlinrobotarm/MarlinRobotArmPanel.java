@@ -28,8 +28,6 @@ public class MarlinRobotArmPanel extends JPanel {
 
         PanelHelper.addNodeSelector(this, "Limb", marlinRobotArm.getLimb(), gbc);
         gbc.gridy++;
-        PanelHelper.addNodeSelector(this, "Solver", marlinRobotArm.getSolver(), gbc);
-        gbc.gridy++;
         PanelHelper.addNodeSelector(this, "Gripper motor", marlinRobotArm.getGripperMotor(), gbc);
     }
 }

@@ -6,7 +6,6 @@ import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Motor;
-import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinListener;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinRobot;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation.MarlinCoordinate;
@@ -29,15 +28,14 @@ import java.util.List;
  * <p>{@link MarlinRobotArm} converts the state of a robot arm into GCode and back.</p>
  * <p>In order to work it requires references to:</p>
  * <ul>
- *     <li>a {@link Limb} of no more than six {@link Motor}s, whose names match those in Marlin;</li>
- *     <li>a {@link LimbSolver} to calculate the inverse kinematics;</li>
+ *     <li>a {@link Limb} of no more than six {@link Motor}s for sovling kinematics,</li>
+ *     <li>whose {@link Motor} names match those in Marlin</li>
  *     <li>an optional {@link Motor} for the tool on arm.</li>
  * </ul>
  */
 public class MarlinRobotArm extends MarlinRobot {
     private static final Logger logger = LoggerFactory.getLogger(MarlinRobotArm.class);
     public final NodePath<Limb> limb = new NodePath<>(this,Limb.class);
-    public final NodePath<LimbSolver> solver = new NodePath<>(this,LimbSolver.class);
     private final NodePath<Motor> gripperMotor = new NodePath<>(this,Motor.class);
     private final MarlinSettings settings = new MarlinSettings();
     private MarlinSimulation simulation;
@@ -60,7 +58,6 @@ public class MarlinRobotArm extends MarlinRobot {
         JSONObject json = super.toJSON();
         json.put("version",2);
         if(limb.getSubject()!=null) json.put("limb",limb.getUniqueID());
-        if(solver.getSubject()!=null) json.put("solver",solver.getUniqueID());
         if(gripperMotor.getSubject()!=null) json.put("gripperMotor",gripperMotor.getUniqueID());
         return json;
     }
@@ -71,7 +68,6 @@ public class MarlinRobotArm extends MarlinRobot {
         int version = from.has("version") ? from.getInt("version") : 0;
         if(version==2) {
             if(from.has("limb")) limb.setUniqueID(from.getString("limb"));
-            if(from.has("solver")) solver.setUniqueID(from.getString("solver"));
             if(from.has("gripperMotor")) gripperMotor.setUniqueID(from.getString("gripperMotor"));
         }
         if(version<2) {
@@ -91,17 +87,6 @@ public class MarlinRobotArm extends MarlinRobot {
 
             toRemove.clear();
 
-            // solver
-            LimbSolver solver1 = new LimbSolver();
-            solver1.fromJSON(from);
-            solver1.getChildren().stream().filter(n -> !n.getName().equals("target")).forEach(toRemove::add);
-            for(Node n : toRemove) solver1.removeChild(n);
-            solver1.setName("LimbSolver");
-            getParent().addChild(solver1);
-            solver.setUniqueIDByNode(solver1);
-
-            solver1.setLimb(limb1);
-
             // gripper
             if (from.has("gripperMotor")) {
                 String s = from.getString("gripperMotor");
@@ -114,7 +99,6 @@ public class MarlinRobotArm extends MarlinRobot {
             }
 
             limb.setUniqueIDByNode(limb1);
-            solver.setUniqueIDByNode(solver1);
         }
     }
 
@@ -135,10 +119,6 @@ public class MarlinRobotArm extends MarlinRobot {
 
     NodePath<Limb> getLimb() {
         return limb;
-    }
-
-    NodePath<LimbSolver> getSolver() {
-        return solver;
     }
 
     @Override
@@ -162,11 +142,9 @@ public class MarlinRobotArm extends MarlinRobot {
               .append(StringHelper.formatDouble(gripperMotor.getHinge().getAngle()));
         }
 
-        if(getSolver()!=null) {
-            // feedrate
-            sb.append(" F")
-              .append(StringHelper.formatDouble(getSolver().getSubject().getLinearVelocity()));
-        }
+        // feedrate
+        sb.append(" F")
+          .append(StringHelper.formatDouble(myLimb.getLinearVelocity()));
 
         return sb.toString();
     }
@@ -200,7 +178,8 @@ public class MarlinRobotArm extends MarlinRobot {
      * @return response from robot arm
      */
     private String parseG0(String gcode) {
-        if(getLimb()==null) {
+        Limb myLimb = getLimb().getSubject();
+        if(myLimb==null) {
             logger.warn("no limb");
             return "Error: no limb";
         }
@@ -209,7 +188,7 @@ public class MarlinRobotArm extends MarlinRobot {
             var destination = new MarlinCoordinate();
 
             int i=0;
-            for (NodePath<Motor> paths : getLimb().getSubject().getMotors()) {
+            for (NodePath<Motor> paths : myLimb.getMotors()) {
                 Motor motor = paths.getSubject();
                 if (motor != null && motor.hasHinge()) {
                     String motorName = motor.getName();
@@ -238,9 +217,8 @@ public class MarlinRobotArm extends MarlinRobot {
                 i++;
                 if(i>=MarlinCoordinate.SIZE) throw new RuntimeException("too many motors for MarlinSimulation!");
             }
-            // else ignore unused parts
-            var mySolver = getSolver().getSubject();
-            var myFeedrate = mySolver==null ? this.feedrate : mySolver.getLinearVelocity();
+            // else ignore unused
+            var myFeedrate = myLimb.getLinearVelocity();
             simulation.bufferLine(destination,myFeedrate,acceleration);
         } catch( NumberFormatException e ) {
             logger.error("Number format exception: "+e.getMessage());
@@ -311,7 +289,7 @@ public class MarlinRobotArm extends MarlinRobot {
      * <p>G1 Linear move.</p>
      * <p>Parse gcode for names and values, then set the new target world position.  [letter][position] where letter is
      * the name of the {@link Motor} known to the {@link Limb} and position is the new angle in degrees.</p>
-     * <p>Movement will occur on {@link #update(double)} provided the {@link LimbSolver} linear velocity and the update
+     * <p>Movement will occur on {@link #update(double)} provided the {@link Limb} linear velocity and the update
      * time are greater than zero.</p>
      * @param gcode GCode command
      * @return response from robot arm
@@ -326,13 +304,7 @@ public class MarlinRobotArm extends MarlinRobot {
             logger.warn("no end effector");
             return "Error: no end effector";
         }
-
-        LimbSolver mySolver = getSolver().getSubject();
-        if(mySolver==null) {
-            logger.warn("no solver");
-            return "Error: no solver";
-        }
-        if(mySolver.getTarget().getSubject()==null) {
+        if(myLimb.getTarget().getSubject()==null) {
             logger.warn("no target");
             return "Error: no target";
         }
@@ -363,7 +335,7 @@ public class MarlinRobotArm extends MarlinRobot {
         myLimb.setAllJointAngles(jointAngles);
         Matrix4d m = myLimb.getEndEffector().getSubject().getWorld();
         myLimb.setAllJointAngles(jointAnglesOriginal);
-        mySolver.getTarget().getSubject().setWorld(m);
+        getTarget().setWorld(m);
         // If solver has non zero linear velocity, then the robot will move on the next update().
         return "Ok";
     }
@@ -416,8 +388,9 @@ public class MarlinRobotArm extends MarlinRobot {
      * @return the target pose or null if not set.
      */
     public Pose getTarget() {
-        LimbSolver solver = getSolver().getSubject();
-        return solver == null ? null : solver.getTarget().getSubject();
+        var limb = getLimb().getSubject();
+        if(limb==null) return null;
+        return limb.getTarget().getSubject();
     }
 
     /**
@@ -427,15 +400,6 @@ public class MarlinRobotArm extends MarlinRobot {
      */
     public void setLimb(Limb limb) {
         this.limb.setUniqueIDByNode(limb);
-    }
-
-    /**
-     * Set the solver to be used by this instance.
-     * solver must be in the same node tree as this instance.
-     * @param solver the solver to use
-     */
-    public void setSolver(LimbSolver solver) {
-        this.solver.setUniqueIDByNode(solver);
     }
 
     public NodePath<Motor> getGripperMotor() {
