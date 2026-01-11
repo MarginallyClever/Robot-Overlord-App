@@ -13,7 +13,6 @@ import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.MechanicalJoint;
 import com.marginallyclever.ro3.node.nodes.Motor;
-import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
@@ -449,15 +448,12 @@ public class LoadURDF {
             m.setName(MOTOR_NAMES[i]);
         }
 
-        // Add a limbSolver, put a target beneath limbsolver, and associate limbsolver with limb.
-        LimbSolver limbSolver = (LimbSolver)Registry.nodeFactory.create("LimbSolver");
-        limbSolver.setLimb(limb);
-        root.addChild(limbSolver);
+        // give the limb a target.
         Pose target = (Pose)Registry.nodeFactory.create("Pose");
         target.setName("target");
-        limbSolver.addChild(target);
-        limbSolver.setTarget(target);
-        limbSolver.moveTargetToEndEffector();
+        limb.addChild(target);
+        limb.setTarget(target);
+        limb.moveTargetToEndEffector();
     }
 
     /**

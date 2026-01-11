@@ -1,30 +1,15 @@
 package com.marginallyclever.ro3.apps.commands;
 
-import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.PathHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.factories.Lifetime;
-import com.marginallyclever.ro3.mesh.Mesh;
-import com.marginallyclever.ro3.mesh.proceduralmesh.Box;
-import com.marginallyclever.ro3.mesh.proceduralmesh.Cylinder;
-import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.*;
-import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
-import com.marginallyclever.ro3.node.nodes.pose.Pose;
-import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
-import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import com.marginallyclever.ro3.urdf.LoadURDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotUndoException;
-import javax.vecmath.Vector3d;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.util.*;
 import java.awt.*;
 import java.io.BufferedInputStream;
@@ -32,7 +17,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.InvalidParameterException;
-import java.util.List;
 
 /**
  * <p>Loads a URDF file into the current scene.  See also <a href="https://wiki.ros.org/urdf/XML">URDF XML format</a>.</p>

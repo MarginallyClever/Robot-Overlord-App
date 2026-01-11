@@ -109,7 +109,6 @@ public class AllPanels {
                 com.marginallyclever.ro3.node.nodes.behavior.actions.LimbMoveToTargetPanel.class,
                 com.marginallyclever.ro3.node.nodes.behavior.decorators.RepeatPanel.class,
                 com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlannerPanel.class,
-                com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolverPanel.class,
                 com.marginallyclever.ro3.node.nodes.marlinrobot.linearstewartplatform.LinearStewartPlatformPanel.class,
                 com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.MarlinRobotArmPanel.class,
                 com.marginallyclever.ro3.node.nodes.networksession.NetworkSessionPanel.class,

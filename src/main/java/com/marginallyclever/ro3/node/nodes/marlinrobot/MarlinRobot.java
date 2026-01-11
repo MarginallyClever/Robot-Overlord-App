@@ -98,9 +98,9 @@ public class MarlinRobot extends Node implements SessionLayerListener {
             String newGcode = scaleGcode(gcode,1f);
             networkSession.send(newGcode);
         } else {
-            logger.debug("not connected.");
             // else not connected to a network session
-            fireMarlinMessage("Error: unknown command " + gcode);
+            logger.debug("not connected.");
+            //fireMarlinMessage("Error: unknown command " + gcode);
         }
     }
 

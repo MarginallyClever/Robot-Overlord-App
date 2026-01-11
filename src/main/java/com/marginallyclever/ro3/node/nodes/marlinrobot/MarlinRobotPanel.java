@@ -47,7 +47,6 @@ public class MarlinRobotPanel extends JPanel {
         PanelHelper.addLabelAndComponent(this, "Go", G0, gbc);
         G0.setToolTipText("Move the robot.");
 
-
         gbc.gridx=0;
         gbc.gridwidth=2;
         this.add(getReceiver(),gbc);
@@ -74,15 +73,17 @@ public class MarlinRobotPanel extends JPanel {
     // Add a text field to receive messages from the arm.
     private JPanel getReceiver() {
         JPanel outputPanel = new JPanel(new BorderLayout());
+
         JLabel outputLabel = new JLabel("Output");
-        JTextField output = new JTextField();
+        JTextArea output = new JTextArea(10,20);
         output.setEditable(false);
         outputLabel.setLabelFor(output);
         outputLabel.setBorder(BorderFactory.createEmptyBorder(0,0,0,5));
-        outputPanel.add(output,BorderLayout.CENTER);
-        outputPanel.add(outputLabel,BorderLayout.LINE_START);
+        outputPanel.add(new JScrollPane(output),BorderLayout.CENTER);
+        outputPanel.add(outputLabel,BorderLayout.NORTH);
         output.setMaximumSize(new Dimension(100, output.getPreferredSize().height));
         marlinRobot.addMarlinListener(output::setText);
+
         return outputPanel;
     }
 }

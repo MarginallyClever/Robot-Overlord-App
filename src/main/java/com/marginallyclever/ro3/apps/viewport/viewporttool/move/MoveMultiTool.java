@@ -169,6 +169,7 @@ public class MoveMultiTool implements ViewportTool {
         for(ViewportTool t : tools) {
             if(t.isInUse()) {
                 Point3d point = t.getStartPoint();
+                if(point==null) continue;
                 double d = point.distance(cameraPosition);
                 if(nearestDistance>d) {
                     nearestDistance=d;

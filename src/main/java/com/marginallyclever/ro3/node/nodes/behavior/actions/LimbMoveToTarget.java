@@ -2,8 +2,8 @@ package com.marginallyclever.ro3.node.nodes.behavior.actions;
 
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.behavior.Action;
-import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * <p>{@link LimbMoveToTarget} is a {@link Action} that moves a {@link LimbSolver} target to a {@link Pose}.</p>
+ * <p>{@link LimbMoveToTarget} is a {@link Action} that moves a {@link Limb} target to a {@link Pose}.</p>
  * <p>While the solver is working the action returns RUNNING.  When the target arrives at the pose, the action
  * returns SUCCESS.</p>
  * <p>When the action is attached to the scene tree, it looks at all parents and </p>
@@ -23,7 +23,7 @@ import java.util.Objects;
 public class LimbMoveToTarget extends Action implements ActionListener {
     private static final Logger logger = LoggerFactory.getLogger(LimbMoveToTarget.class);
     private final NodePath<Pose> target = new NodePath<>(this,Pose.class);
-    private final NodePath<LimbSolver> solver = new NodePath<>(this,LimbSolver.class);
+    private final NodePath<Limb> limb = new NodePath<>(this, Limb.class);
     private Status result = Status.RUNNING;
 
     public LimbMoveToTarget() {
@@ -39,7 +39,7 @@ public class LimbMoveToTarget extends Action implements ActionListener {
         logger.debug("tick {}",getAbsolutePath());
 
         if(result==Status.RUNNING) {
-            var mySolver = solver.getSubject();
+            var mySolver = limb.getSubject();
             var myTarget = target.getSubject();
             if(mySolver==null || myTarget==null) {
                 result = Status.FAILURE;
@@ -61,8 +61,8 @@ public class LimbMoveToTarget extends Action implements ActionListener {
     @Override
     protected void onAttach() {
         super.onAttach();
-        // look in the parents for a LimbSolver
-        solver.setUniqueIDByNode(findParent(LimbSolver.class));
+        // look in the parents for a Limb
+        limb.setUniqueIDByNode(findParent(Limb.class));
     }
 
     @Override
@@ -80,7 +80,7 @@ public class LimbMoveToTarget extends Action implements ActionListener {
     }
 
     private void removeSolverListener() {
-        var mySolver = solver.getSubject();
+        var mySolver = limb.getSubject();
         if(mySolver!=null) {
             mySolver.removeActionListener(this);
         }
@@ -96,7 +96,7 @@ public class LimbMoveToTarget extends Action implements ActionListener {
     public JSONObject toJSON() {
         var json = super.toJSON();
         json.put("target",target.getUniqueID());
-        json.put("solver",solver.getUniqueID());
+        json.put("solver", limb.getUniqueID());
         return json;
     }
 
@@ -104,7 +104,7 @@ public class LimbMoveToTarget extends Action implements ActionListener {
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
         target.setUniqueID(from.getString("target"));
-        solver.setUniqueID(from.getString("solver"));
+        limb.setUniqueID(from.getString("solver"));
     }
 
     @Override
@@ -121,11 +121,11 @@ public class LimbMoveToTarget extends Action implements ActionListener {
         target.setUniqueIDByNode(subject);
     }
 
-    public LimbSolver getSolver() {
-        return solver.getSubject();
+    public Limb getLimb() {
+        return limb.getSubject();
     }
 
-    public void setSolver(LimbSolver subject) {
-        solver.setUniqueIDByNode(subject);
+    public void setLimb(Limb subject) {
+        limb.setUniqueIDByNode(subject);
     }
 }

@@ -1,13 +1,19 @@
 package com.marginallyclever.ro3.node.nodes.pose.poses;
 
 import com.marginallyclever.convenience.swing.Dial;
+import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.nodedetailview.CollapsiblePanel;
 import com.marginallyclever.ro3.apps.nodeselector.NodeSelector;
+import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Motor;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.Objects;
 
 public class LimbPanel extends JPanel {
     private final Limb limb;
@@ -32,11 +38,51 @@ public class LimbPanel extends JPanel {
 
         gbc.gridx=0;
         gbc.gridwidth=2;
+
+        gbc.gridy++;
+        this.add(addMotorPanel(),gbc);
+
         gbc.gridy++;
         this.add(createFKDials(),gbc);
 
         gbc.gridy++;
-        this.add(addMotorPanel(),gbc);
+        this.add(createIKControls(),gbc);
+    }
+
+    private JPanel createIKControls() {
+        var containerPanel = new CollapsiblePanel("Inverse Kinematics");
+        var outerPanel = containerPanel.getContentPane();
+        outerPanel.setLayout(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridx=0;
+        gbc.gridy=0;
+
+        PanelHelper.addNodeSelector(outerPanel, "Target", limb.getTarget(), gbc);
+        gbc.gridy++;
+        addMoveTargetToEndEffector(outerPanel,gbc);
+        gbc.gridy++;
+        addMoveTargetToFirstSelected(outerPanel,gbc);
+        gbc.gridy++;
+
+        var formatter = NumberFormatHelper.getNumberFormatterDouble();
+        formatter.setMinimum(0.0);
+        JFormattedTextField marginField = new JFormattedTextField(formatter);
+        marginField.setValue(limb.getGoalMarginOfError());
+        marginField.addPropertyChangeListener("value", evt -> {
+            limb.setGoalMarginOfError( ((Number) marginField.getValue()).doubleValue() );
+        });
+        marginField.setToolTipText("The distance between the target and the end effector that is considered 'close enough'.");
+        PanelHelper.addLabelAndComponent(outerPanel, "Goal Margin", marginField, gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth=2;
+        outerPanel.add(createVelocitySlider(),gbc);
+
+        return containerPanel;
     }
 
     private JComponent createFKDials() {
@@ -69,6 +115,8 @@ public class LimbPanel extends JPanel {
             limb.setMotorAngle(motor, dial.getValue());
             // update the dial to match the motor's hinge angle (in case of limits)
             dial.setValue(motor.getHinge().getAngle());
+            // update the target pose to match the end effector so the arm doesn't drift.
+            limb.moveTargetToEndEffector();
         });
         // TODO subscribe to motor.getAxle().getAngle() so the dial matches reality.
         // TODO but also dial.setValue() without triggering an action event, because that's a feedback loop.
@@ -109,5 +157,62 @@ public class LimbPanel extends JPanel {
             PanelHelper.addLabelAndComponent(outerPanel, "Motor "+i, motorSelector[i],gbc);
         }
         return containerPanel;
+    }
+
+    private void addMoveTargetToFirstSelected(JPanel parent, GridBagConstraints gbc) {
+        JButton targetToFirstSelected = new JButton(new AbstractAction() {
+            {
+                putValue(Action.NAME,"Move");
+                putValue(Action.SHORT_DESCRIPTION,"Move the Target Pose to the first selected Pose.");
+                putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource(
+                        "/com/marginallyclever/ro3/apps/shared/icons8-move-16.png"))));
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for(Node node : Registry.selection.getList()) {
+                    if(node instanceof Pose pose) {
+                        limb.getTarget().getSubject().setWorld(pose.getWorld());
+                        break;
+                    }
+                }
+            }
+        });
+        PanelHelper.addLabelAndComponent(parent, "Target to First Selected", targetToFirstSelected,gbc);
+    }
+
+    private void addMoveTargetToEndEffector(JPanel pane,GridBagConstraints gbc) {
+        JButton targetToEE = new JButton(new AbstractAction() {
+            {
+                putValue(Action.NAME,"Freeze!");
+                putValue(Action.SHORT_DESCRIPTION,"Move the Target Pose to the End Effector.");
+                putValue(Action.SMALL_ICON,new ImageIcon(Objects.requireNonNull(getClass().getResource(
+                        "/com/marginallyclever/ro3/apps/shared/icons8-snowflake-16.png"))));
+            }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                limb.moveTargetToEndEffector();
+            }
+        });
+        PanelHelper.addLabelAndComponent(pane, "Target to EE", targetToEE,gbc);
+    }
+
+    private JComponent createVelocitySlider() {
+        JPanel container = new JPanel(new BorderLayout());
+        // add a slider to control linear velocity
+        JSlider slider = new JSlider(0,20,(int)limb.getLinearVelocity());
+        slider.addChangeListener(e-> limb.setLinearVelocity( slider.getValue() ));
+
+        // Make the slider fill the available horizontal space
+        slider.setMaximumSize(new Dimension(Integer.MAX_VALUE, slider.getPreferredSize().height));
+        slider.setMinimumSize(new Dimension(50, slider.getPreferredSize().height));
+        slider.setMajorTickSpacing(10);
+        slider.setMinorTickSpacing(1);
+        slider.setPaintTicks(true);
+        slider.setSnapToTicks(true);
+
+        container.add(new JLabel("Linear Vel"), BorderLayout.LINE_START);
+        container.add(slider, BorderLayout.CENTER); // Add slider to the center of the container
+
+        return container;
     }
 }

@@ -10,7 +10,6 @@ import com.marginallyclever.ro3.node.nodes.behavior.decorators.*;
 import com.marginallyclever.ro3.node.nodes.crab.Crab;
 import com.marginallyclever.ro3.node.nodes.environment.Environment;
 import com.marginallyclever.ro3.node.nodes.limbplanner.LimbPlanner;
-import com.marginallyclever.ro3.node.nodes.limbsolver.LimbSolver;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.linearstewartplatform.LinearStewartPlatform;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.MarlinRobotArm;
 import com.marginallyclever.ro3.node.nodes.Material;
@@ -134,7 +133,6 @@ public class NodeFactory {
             node.add("Environment", Environment::new);
             node.add("HingeJoint", HingeJoint::new);
             node.add("LimbPlanner", LimbPlanner::new);
-            node.add("LimbSolver", LimbSolver::new);
             node.add("LinearStewartPlatform", LinearStewartPlatform::new);
             node.add("LinearJoint", LinearJoint::new);
             node.add("MarlinRobotArm", MarlinRobotArm::new);

@@ -206,4 +206,16 @@ public class NodeTest {
         newNode.witnessProtection();
         assertNotEquals(parentNode.getUniqueID(), newNode.getUniqueID());
     }
+
+    @Test
+    public void cannotAddParentToItself() {
+        parentNode.addChild(childNode);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            parentNode.addChild(parentNode);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            childNode.addChild(0,parentNode);
+        });
+    }
 }
