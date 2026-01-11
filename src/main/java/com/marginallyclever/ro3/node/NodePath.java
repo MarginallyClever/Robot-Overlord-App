@@ -33,6 +33,9 @@ public class NodePath<T extends Node> {
     }
 
     public void setUniqueID(String uniqueID) {
+        // check if uniqueID is changing.  either one may be null.
+        if(uniqueID == null) uniqueID = "";
+        if(this.uniqueID == null) this.uniqueID = "";
         if(uniqueID.equals(this.uniqueID)) return;
 
         String oldID = this.uniqueID;
