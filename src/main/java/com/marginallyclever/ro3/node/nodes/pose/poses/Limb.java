@@ -7,6 +7,7 @@ import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.HingeJoint;
 import com.marginallyclever.ro3.node.nodes.Motor;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -41,6 +42,8 @@ public class Limb extends Pose {
     public static final int MAX_JOINTS = 6;
     public static final double DEFAULT_LINEAR_VELOCITY = 0.0;  // cm/s
     public static final double DEFAULT_GOAL_MARGIN_OF_ERROR = 0.1;  // not degrees or mm.  Just a number.
+    public static final String ACTION_ARRIVED_AT_GOAL = "arrivedAtGoal";
+    public static final String PROPERTY_POSE_CHANGED = "poseChanged";
 
     private final List<NodePath<Motor>> motors = new ArrayList<>();
     private final NodePath<Pose> endEffector = new NodePath<>(this,Pose.class);
@@ -127,6 +130,7 @@ public class Limb extends Pose {
 
     /**
      * Set all joint angles at once while respecting the joint range limits.
+     * Then notify listeners that the pose has changed.
      * @param values the angles to set each joint to.
      */
     public void setAllJointAngles(double[] values) {
@@ -145,6 +149,7 @@ public class Limb extends Pose {
             }
             i++;
         }
+        firePropertyChange(PROPERTY_POSE_CHANGED,null,this);
     }
 
     /**
@@ -169,7 +174,7 @@ public class Limb extends Pose {
         }
     }
 
-    public void setAllJointVelocities(double[] values) {
+    public void setAllJointVelocities(double @NotNull [] values) {
         if(values.length != getNumJoints()) {
             throw new IllegalArgumentException("One value for every motor");
         }
@@ -267,8 +272,12 @@ public class Limb extends Pose {
     }
 
     private void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
-        PropertyChangeEvent event = new PropertyChangeEvent(this,propertyName,oldValue,newValue);
+        PropertyChangeEvent event=null;
         for(PropertyChangeListener listener : listenerList.getListeners(PropertyChangeListener.class)) {
+            if(event==null) {
+                // Lazily create the event
+                event = new PropertyChangeEvent(this, propertyName, oldValue, newValue);
+            }
             listener.propertyChange(event);
         }
     }
@@ -283,8 +292,7 @@ public class Limb extends Pose {
         var hinge = motor.getHinge();
         hinge.setAngle(angle);
         hinge.updateAxleLocationInSpace();
-        moveTargetToEndEffector();
-        firePropertyChange("poseChanged",null,this);
+        firePropertyChange(PROPERTY_POSE_CHANGED,null,this);
     }
 
     public NodePath<Pose> getTarget() {
@@ -482,10 +490,10 @@ public class Limb extends Pose {
      * Fire the "arrivedAtGoal" event to any {@link ActionListener} subscribed to this node.
      */
     private void fireArrivedAtGoal() {
-        logger.debug("Arrived at goal.");
-        ActionEvent e = new ActionEvent(this,0,"arrivedAtGoal");
-        // Dispatch the event to the listeners
+        //logger.debug("Arrived at goal.");
+        ActionEvent e = null;
         for (ActionListener listener : listeners.getListeners(ActionListener.class)) {
+            if(e==null) e = new ActionEvent(this,0,ACTION_ARRIVED_AT_GOAL);  // lazy create event
             listener.actionPerformed(e);
         }
     }
