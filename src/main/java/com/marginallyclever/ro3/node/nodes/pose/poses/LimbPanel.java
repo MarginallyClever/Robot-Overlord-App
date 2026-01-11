@@ -38,18 +38,36 @@ public class LimbPanel extends JPanel {
 
         gbc.gridx=0;
         gbc.gridwidth=2;
+
+        gbc.gridy++;
+        this.add(addMotorPanel(),gbc);
+
         gbc.gridy++;
         this.add(createFKDials(),gbc);
 
         gbc.gridy++;
-        this.add(addMotorPanel(),gbc);
-        PanelHelper.addNodeSelector(this, "Target", limb.getTarget(), gbc);
-        gbc.gridy++;
-        addMoveTargetToEndEffector(this,gbc);
-        gbc.gridy++;
-        addMoveTargetToFirstSelected(this,gbc);
+        this.add(createIKControls(),gbc);
+    }
 
+    private JPanel createIKControls() {
+        var containerPanel = new CollapsiblePanel("Inverse Kinematics");
+        var outerPanel = containerPanel.getContentPane();
+        outerPanel.setLayout(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridx=0;
+        gbc.gridy=0;
+
+        PanelHelper.addNodeSelector(outerPanel, "Target", limb.getTarget(), gbc);
         gbc.gridy++;
+        addMoveTargetToEndEffector(outerPanel,gbc);
+        gbc.gridy++;
+        addMoveTargetToFirstSelected(outerPanel,gbc);
+        gbc.gridy++;
+
         var formatter = NumberFormatHelper.getNumberFormatterDouble();
         formatter.setMinimum(0.0);
         JFormattedTextField marginField = new JFormattedTextField(formatter);
@@ -58,11 +76,13 @@ public class LimbPanel extends JPanel {
             limb.setGoalMarginOfError( ((Number) marginField.getValue()).doubleValue() );
         });
         marginField.setToolTipText("The distance between the target and the end effector that is considered 'close enough'.");
-        PanelHelper.addLabelAndComponent(this, "Goal Margin", marginField, gbc);
+        PanelHelper.addLabelAndComponent(outerPanel, "Goal Margin", marginField, gbc);
 
         gbc.gridy++;
         gbc.gridwidth=2;
-        add(createVelocitySlider(),gbc);
+        outerPanel.add(createVelocitySlider(),gbc);
+
+        return containerPanel;
     }
 
     private JComponent createFKDials() {
@@ -95,6 +115,8 @@ public class LimbPanel extends JPanel {
             limb.setMotorAngle(motor, dial.getValue());
             // update the dial to match the motor's hinge angle (in case of limits)
             dial.setValue(motor.getHinge().getAngle());
+            // update the target pose to match the end effector so the arm doesn't drift.
+            limb.moveTargetToEndEffector();
         });
         // TODO subscribe to motor.getAxle().getAngle() so the dial matches reality.
         // TODO but also dial.setValue() without triggering an action event, because that's a feedback loop.
@@ -137,7 +159,7 @@ public class LimbPanel extends JPanel {
         return containerPanel;
     }
 
-    private void addMoveTargetToFirstSelected(LimbPanel limbPanel, GridBagConstraints gbc) {
+    private void addMoveTargetToFirstSelected(JPanel parent, GridBagConstraints gbc) {
         JButton targetToFirstSelected = new JButton(new AbstractAction() {
             {
                 putValue(Action.NAME,"Move");
@@ -155,7 +177,7 @@ public class LimbPanel extends JPanel {
                 }
             }
         });
-        PanelHelper.addLabelAndComponent(limbPanel, "Target to First Selected", targetToFirstSelected,gbc);
+        PanelHelper.addLabelAndComponent(parent, "Target to First Selected", targetToFirstSelected,gbc);
     }
 
     private void addMoveTargetToEndEffector(JPanel pane,GridBagConstraints gbc) {
