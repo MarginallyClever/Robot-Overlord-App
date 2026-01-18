@@ -42,16 +42,20 @@ public class CopyNode extends AbstractUndoableEdit {
     }
 
     public void execute() {
-        JSONArray list = new JSONArray();
-        for(Node node : selection) {
-            logger.debug("Copying {}",node.getAbsolutePath());
-            list.put(node.toJSON());
+        try {
+            JSONArray list = new JSONArray();
+            for (Node node : selection) {
+                logger.debug("Copying {}", node.getAbsolutePath());
+                list.put(node.toJSON());
+            }
+            JSONObject jsonWrapper = new JSONObject();
+            jsonWrapper.put("copied", list);
+            // store the json in the clipboard.
+            StringSelection stringSelection = new StringSelection(jsonWrapper.toString());
+            clipboard.setContents(stringSelection, null);
+        } catch (Exception e) {
+            logger.error("Error copying nodes to clipboard", e);
         }
-        JSONObject jsonWrapper = new JSONObject();
-        jsonWrapper.put("copied",list);
-        // store the json in the clipboard.
-        StringSelection stringSelection = new StringSelection(jsonWrapper.toString());
-        clipboard.setContents(stringSelection, null);
     }
 
     @Override

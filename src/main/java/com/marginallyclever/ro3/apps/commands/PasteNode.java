@@ -61,6 +61,7 @@ public class PasteNode extends AbstractUndoableEdit {
                     // import this json as a child of every selected node.
                     // guarantees the nodes go through witness protection.
                     Node child = ImportScene.createFromJSON(jsonObject);
+                    child.witnessProtection();
                     parent.addChild(child);
                     children.add(child);
                 }
