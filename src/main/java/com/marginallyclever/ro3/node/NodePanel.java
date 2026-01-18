@@ -35,5 +35,10 @@ public class NodePanel extends JPanel {
         pathField.setEditable(false);
         pathField.setColumns(10);
         PanelHelper.addLabelAndComponent(this,"Path",pathField,gbc);
+
+        JTextField idField = new JTextField(node.getUniqueID());
+        idField.setEditable(false);
+        idField.setColumns(10);
+        PanelHelper.addLabelAndComponent(this,"Unique ID",idField,gbc);
     }
 }
