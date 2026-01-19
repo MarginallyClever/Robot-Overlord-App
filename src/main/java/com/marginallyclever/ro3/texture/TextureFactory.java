@@ -44,7 +44,7 @@ public class TextureFactory extends Factory {
             BufferedImage image = ImageIO.read(FileHelper.open(filename));
             return new TextureWithMetadata(image, filename);
         } catch (IOException e) {
-            logger.error("Failed to load from "+filename,e);
+            logger.error("Failed to load texture {}",filename,e);
             return null;
         }
     }

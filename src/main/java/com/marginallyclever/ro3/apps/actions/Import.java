@@ -92,7 +92,7 @@ public class Import extends AbstractAction {
     }
 
     private boolean importScene(File file) {
-        logger.debug("drag importScene {}",file);
+        logger.debug("importScene {}",file);
         try {
             UndoSystem.addEvent(new com.marginallyclever.ro3.apps.commands.ImportScene(file));
         } catch (Exception e) {
@@ -104,7 +104,7 @@ public class Import extends AbstractAction {
     }
 
     private boolean importURDF(File file) {
-        logger.debug("drag importURDF {}",file);
+        logger.debug("importURDF {}",file);
         try {
             UndoSystem.addEvent(new ImportURDF(file));
         } catch (Exception e) {
