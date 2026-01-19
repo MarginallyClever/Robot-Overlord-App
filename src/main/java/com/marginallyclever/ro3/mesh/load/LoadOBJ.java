@@ -49,10 +49,7 @@ public class LoadOBJ implements MeshLoader {
 					// get the path from model.getSourceName() aka remove the filename at the end.
 					String fullName = model.getSourceName();
 					String path = fullName.substring(0,fullName.lastIndexOf(File.separator)+1) + line.substring(7);
-					String oldPath = PathHelper.getCurrentWorkingDirectory();
-					PathHelper.setCurrentWorkingDirectory(path);
 					materials.putAll(loadMaterialLibrary(path));
-					PathHelper.setCurrentWorkingDirectory(oldPath);
 				} catch(Exception e) {
 					logger.warn("Cannot load material {}",e.getMessage());
 				}
