@@ -42,12 +42,13 @@ class LimbPlannerTest {
         // the Sixi3-5.RO file does not have a path.
         pathStart = new Pose("path");
         limbPlanner.addChild(pathStart);
-        limbPlanner.setPathStart(pathStart);
+        limbPlanner.setPathContainer(pathStart);
         limb.addChild(pathStart);
     }
 
     @Test
     void testStartStopEvent() {
+        // should fail if there's no path start.
         limbPlanner.startRun();
         assertFalse(limbPlanner.isRunning());
         limbPlanner.stopRun();
