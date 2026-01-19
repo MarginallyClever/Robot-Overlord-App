@@ -223,7 +223,7 @@ public class Limb extends Pose {
                     String s = motorArray.getString(i);
                     if(version==1) {
                         motors.get(i).setUniqueIDByNode(this.findNodeByPath(s,Motor.class));
-                    } else if(version==0||version==2) {
+                    } else if(version==0||version>=2) {
                         motors.get(i).setUniqueID(s);
                     }
                 }
