@@ -30,6 +30,7 @@ import java.util.Objects;
 public class MeshInstance extends Pose {
     private Mesh mesh;
     private boolean isActive=true;
+    private Vector3d localScale = new Vector3d(1,1,1);
 
     public MeshInstance() {
         super("MeshInstance");
@@ -157,14 +158,25 @@ public class MeshInstance extends Pose {
             }
         }
         json.put("isActive", isActive);
+        if(localScale.x!=1.0 || localScale.y!=1.0 || localScale.z!=1.0) {
+            json.put("localScale.x", localScale.x);
+            json.put("localScale.y", localScale.y);
+            json.put("localScale.z", localScale.z);
+        }
         return json;
     }
 
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
+
+        double sx = from.optDouble("localScale.x",1.0);
+        double sy = from.optDouble("localScale.y",1.0);
+        double sz = from.optDouble("localScale.z",1.0);
+        localScale.set(sx,sy,sz);
+
         if(from.has("mesh")) {
-            mesh = Registry.meshFactory.get(Lifetime.SCENE,from.getString("mesh"));
+            mesh = Registry.meshFactory.get(Lifetime.SCENE,from.getString("mesh"),localScale);
         } else if(from.has("proceduralMesh")) {
             var procMesh = from.getJSONObject("proceduralMesh");
             var pmesh = ProceduralMeshFactory.createMesh(procMesh.getString("type"));
@@ -195,5 +207,9 @@ public class MeshInstance extends Pose {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public void setScale(Vector3d scale) {
+        this.localScale = scale;
     }
 }

@@ -228,14 +228,10 @@ public class LoadURDF {
      * <p><b>geometry</b> (required)<br/>
      * The shape of the visual object. This can be one of the following:</p>
      * <ul>
-     *     <li><b>box</b><br/>
-     *     size attribute contains the three side lengths of the box. The origin of the box is in its center.</li>
-     *     <li><b>cylinder</b><br/>
-     *     Specify the radius and length. The origin of the cylinder is in its center. cylinder_coordinates.png</li>
-     *     <li><b>sphere</b><br/>
-     *     Specify the radius. The origin of the sphere is in its center.</li>
-     *     <li><b>mesh</b><br/>
-     *     A trimesh element specified by a filename, and an optional scale that scales the mesh's axis-aligned-bounding-box.
+     *     <li><b>box</b>: Size attribute contains the three side lengths of the box. The origin of the box is in its center.</li>
+     *     <li><b>cylinder</b>: Specify the radius and length. The origin of the cylinder is in its center. cylinder_coordinates.png</li>
+     *     <li><b>sphere</b>: Specify the radius. The origin of the sphere is in its center.</li>
+     *     <li><b>mesh</b>: A trimesh element specified by a filename, and an optional scale that scales the mesh's axis-aligned-bounding-box.
      *     Any geometry format is acceptable but specific application compatibility is dependent on implementation.
      *     The recommended format for best texture and color support is Collada .dae files. The mesh file is not transferred between machines referencing the same model.
      *     It must be a local file. Prefix the filename with <code>package://&lt;packagename&gt;/&lt;path&gt;</code> to make the path to the mesh file relative to the package <code>&lt;packagename&gt;</code>.</li>
@@ -250,69 +246,84 @@ public class LoadURDF {
         assert geometry != null;
 
         MeshInstance myMesh = new MeshInstance();
-
-        org.w3c.dom.Node box = findChildByName(geometry,"box");
-        if(box!=null) {
-            String sizeStr = box.getAttributes().getNamedItem("size").getNodeValue();
-            logger.debug("Found visual box with size: "+sizeStr);
-            String [] dimensions = sizeStr.split(" ");
-            var boxMesh = (Box) ProceduralMeshFactory.createMesh("Box");
-            assert boxMesh != null;
-            boxMesh.length = Double.parseDouble(dimensions[0])*SCALE;
-            boxMesh.height = Double.parseDouble(dimensions[1])*SCALE;
-            boxMesh.width  = Double.parseDouble(dimensions[2])*SCALE;
-            boxMesh.updateModel();
-            myMesh.setMesh(boxMesh);
-        }
-        org.w3c.dom.Node cylinder = findChildByName(geometry,"cylinder");
-        if(cylinder!=null) {
-            String radiusStr = cylinder.getAttributes().getNamedItem("radius").getNodeValue();
-            String lengthStr = cylinder.getAttributes().getNamedItem("length").getNodeValue();
-            logger.debug("Found visual cylinder with radius: "+radiusStr+" length: "+lengthStr);
-            var cylinderMesh = (Cylinder)ProceduralMeshFactory.createMesh("Cylinder");
-            assert cylinderMesh != null;
-            cylinderMesh.setRadius(Double.parseDouble(radiusStr)*SCALE);
-            cylinderMesh.setLength(Double.parseDouble(lengthStr)*SCALE);
-            cylinderMesh.updateModel();
-            myMesh.setMesh(cylinderMesh);
-        }
-        org.w3c.dom.Node sphere = findChildByName(geometry,"sphere");
-        if(sphere!=null) {
-            String radiusStr = sphere.getAttributes().getNamedItem("radius").getNodeValue();
-            logger.debug("Found visual sphere with radius: "+radiusStr);
-            var sphereMesh = (com.marginallyclever.ro3.mesh.proceduralmesh.Sphere)ProceduralMeshFactory.createMesh("Sphere");
-            assert sphereMesh != null;
-            sphereMesh.radius = (float)(Double.parseDouble(radiusStr)*SCALE);
-            sphereMesh.updateModel();
-            myMesh.setMesh(sphereMesh);
-        }
-        org.w3c.dom.Node mesh = findChildByName(geometry,"mesh");
-        if(mesh!=null) {
-            String filename = mesh.getAttributes().getNamedItem("filename").getNodeValue();
-            logger.debug("Found visual mesh with filename: "+filename);
-            if(filename.startsWith("package://")) {
-                filename = filename.replace("package://","");
-                // remaining filename is relative to current working directory?
-                filename = PathHelper.getCurrentWorkingDirectory() + filename;
-            }
-            // does the mesh already exist in the registry?
-
-            Vector3d scale = new Vector3d(SCALE,SCALE,SCALE); // default scale
-            // optional scale
-            org.w3c.dom.Node scaleAttr = mesh.getAttributes().getNamedItem("scale");
-            if(scaleAttr!=null) {
-                String scaleStr = scaleAttr.getNodeValue();
-                logger.debug("  Found scale: " + scaleStr);
-                String[] scaleComponents = scaleStr.split(" ");
-                scale.x *= Double.parseDouble(scaleComponents[0]);
-                scale.y *= Double.parseDouble(scaleComponents[1]);
-                scale.z *= Double.parseDouble(scaleComponents[2]);
-            }
-            Mesh fileMesh = Registry.meshFactory.get(Lifetime.SCENE,filename,scale);
-            myMesh.setMesh(fileMesh);
-        }
-
+        maybeLoadBox(geometry,myMesh);
+        maybeLoadCylinder(geometry,myMesh);
+        maybeLoadSphere(geometry,myMesh);
+        maybeLoadMesh(geometry,myMesh);
         return myMesh;
+    }
+
+    private void maybeLoadMesh(org.w3c.dom.Node geometry, MeshInstance myMesh) {
+        org.w3c.dom.Node mesh = findChildByName(geometry,"mesh");
+        if(mesh==null) return;
+
+        String filename = mesh.getAttributes().getNamedItem("filename").getNodeValue();
+        logger.debug("Found visual mesh with filename: "+filename);
+        if(filename.startsWith("package://")) {
+            filename = filename.replace("package://","");
+            // the remaining filename is relative to the current working directory?
+            filename = PathHelper.getCurrentWorkingDirectory() + filename;
+        }
+        // does the mesh already exist in the registry?
+
+        // optional scale
+        Vector3d scale = new Vector3d(SCALE,SCALE,SCALE);
+        org.w3c.dom.Node scaleAttr = mesh.getAttributes().getNamedItem("scale");
+        if(scaleAttr!=null) {
+            String scaleStr = scaleAttr.getNodeValue();
+            logger.debug("  Found scale: " + scaleStr);
+            String[] scaleComponents = scaleStr.split(" ");
+            scale.x *= Double.parseDouble(scaleComponents[0]);
+            scale.y *= Double.parseDouble(scaleComponents[1]);
+            scale.z *= Double.parseDouble(scaleComponents[2]);
+        }
+        Mesh fileMesh = Registry.meshFactory.get(Lifetime.SCENE,filename,scale);
+        myMesh.setMesh(fileMesh);
+        myMesh.setScale(scale);
+    }
+
+    private void maybeLoadSphere(org.w3c.dom.Node geometry, MeshInstance myMesh) {
+        org.w3c.dom.Node sphere = findChildByName(geometry,"sphere");
+        if(sphere==null) return;
+
+        String radiusStr = sphere.getAttributes().getNamedItem("radius").getNodeValue();
+        logger.debug("Found visual sphere with radius: "+radiusStr);
+        var sphereMesh = (com.marginallyclever.ro3.mesh.proceduralmesh.Sphere)ProceduralMeshFactory.createMesh("Sphere");
+        assert sphereMesh != null;
+        sphereMesh.radius = (float)(Double.parseDouble(radiusStr)*SCALE);
+        sphereMesh.updateModel();
+        myMesh.setMesh(sphereMesh);
+    }
+
+    private void maybeLoadCylinder(org.w3c.dom.Node geometry, MeshInstance myMesh) {
+        org.w3c.dom.Node cylinder = findChildByName(geometry,"cylinder");
+        if(cylinder==null) return;
+
+        String radiusStr = cylinder.getAttributes().getNamedItem("radius").getNodeValue();
+        String lengthStr = cylinder.getAttributes().getNamedItem("length").getNodeValue();
+        logger.debug("Found visual cylinder with radius: "+radiusStr+" length: "+lengthStr);
+        var cylinderMesh = (Cylinder)ProceduralMeshFactory.createMesh("Cylinder");
+        assert cylinderMesh != null;
+        cylinderMesh.setRadius(Double.parseDouble(radiusStr)*SCALE);
+        cylinderMesh.setLength(Double.parseDouble(lengthStr)*SCALE);
+        cylinderMesh.updateModel();
+        myMesh.setMesh(cylinderMesh);
+    }
+
+    private void maybeLoadBox(org.w3c.dom.Node geometry, MeshInstance myMesh) {
+        org.w3c.dom.Node box = findChildByName(geometry,"box");
+        if(box==null) return;
+
+        String sizeStr = box.getAttributes().getNamedItem("size").getNodeValue();
+        logger.debug("Found visual box with size: "+sizeStr);
+        String [] dimensions = sizeStr.split(" ");
+        var boxMesh = (Box) ProceduralMeshFactory.createMesh("Box");
+        assert boxMesh != null;
+        boxMesh.length = Double.parseDouble(dimensions[0])*SCALE;
+        boxMesh.height = Double.parseDouble(dimensions[1])*SCALE;
+        boxMesh.width  = Double.parseDouble(dimensions[2])*SCALE;
+        boxMesh.updateModel();
+        myMesh.setMesh(boxMesh);
     }
 
     private void parseCollision(org.w3c.dom.Node xmlLink, Node linkNode) {
