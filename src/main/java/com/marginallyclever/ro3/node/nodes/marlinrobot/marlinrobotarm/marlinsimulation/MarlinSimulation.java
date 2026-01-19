@@ -1,5 +1,8 @@
 package com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation;
 
+import com.marginallyclever.ro3.node.NodePath;
+import com.marginallyclever.ro3.node.nodes.HingeJoint;
+import com.marginallyclever.ro3.node.nodes.Motor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,11 +34,35 @@ public class MarlinSimulation {
 	private final MarlinCoordinate previousNormal = new MarlinCoordinate();	// Unit vector of previous path line segment
 	private double previousNominalSpeed = 0;
 	private final MarlinCoordinate maxJerk = new MarlinCoordinate();
-	
+
+	private MarlinSimulationBlock currentBlock = null;
+	private MarlinCoordinate currentPosition = new MarlinCoordinate();
+
 	public MarlinSimulation(MarlinSettings settings) {
 		this.settings = settings;
 	}
-	
+
+	/**
+	 * Add this destination to the queue and attempt to optimize travel between destinations.
+	 * @param destination destination (mm)
+	 */
+	public void bufferLine(final MarlinCoordinate destination) {
+		bufferLine(destination,
+				settings.getDouble(MarlinSettings.MAX_FEEDRATE),
+				settings.getDouble(MarlinSettings.MAX_ACCELERATION));
+	}
+
+	/**
+	 * Add this destination to the queue and attempt to optimize travel between destinations.
+	 * @param destination destination (mm)
+	 * @param feedrate (mm/s)
+	 */
+	public void bufferLine(final MarlinCoordinate destination, double feedrate) {
+		bufferLine(destination,
+				feedrate,
+				settings.getDouble(MarlinSettings.MAX_ACCELERATION));
+	}
+
 	/**
 	 * Add this destination to the queue and attempt to optimize travel between destinations. 
 	 * @param destination destination (mm)
@@ -46,7 +73,8 @@ public class MarlinSimulation {
 		var delta = new MarlinCoordinate();
 		delta.sub(destination,poseNow);
 
-		acceleration = Math.min(settings.getDouble(MarlinSettings.MAX_ACCELERATION), acceleration);
+		feedrate = Math.clamp(feedrate,1e-5,settings.getDouble(MarlinSettings.MAX_FEEDRATE));
+		acceleration = Math.clamp(acceleration,1e-5,settings.getDouble(MarlinSettings.MAX_ACCELERATION));
 		
 		double len = delta.length();		
 		double seconds = len / feedrate;
@@ -419,5 +447,58 @@ public class MarlinSimulation {
 	private double intersectionDistance(final double startRate, final double endRate, final double accel, final double distance) {
 		if(accel == 0) return 0;
 		return ( 2.0 * accel * distance - (startRate*startRate) + (endRate*endRate) ) / (4.0 * accel);
+	}
+
+	private MarlinSimulationBlock findBlock() {
+		return (getQueue().isEmpty()) ? null : getQueue().peek();
+	}
+
+	public void update(double dt) {
+		// Simulate Marlin behavior.
+		if(currentBlock==null) {
+			currentBlock = findBlock();
+			if(currentBlock!=null) {
+				startBlock(currentBlock);
+			}
+		}
+		if(currentBlock==null) return;
+
+		// advance time in the block
+		currentBlock.now_s += dt;
+		double extra = currentBlock.now_s - currentBlock.end_s;
+		if (currentBlock.now_s >= currentBlock.end_s) {
+			// no overflow!
+			currentBlock.now_s = currentBlock.end_s;
+		}
+
+		// Drive motors using trapezoidal velocity profiles.  Update motors according to currentBlock
+		double fraction = currentBlock.now_s / currentBlock.end_s;
+		currentPosition.set(currentBlock.delta);
+		currentPosition.scale(fraction);
+		currentPosition.add(currentBlock.start);
+
+		// is block done?
+		if (currentBlock.now_s >= currentBlock.end_s) {
+			logger.debug("ending block " + currentBlock.id);
+			currentBlock.busy = false;
+			getQueue().remove(currentBlock);
+
+			currentBlock = findBlock();
+			if(currentBlock!=null) {
+				startBlock(currentBlock);
+				currentBlock.now_s = extra;
+			}
+		}
+
+		// Queue up gcode commands and send "Ok" at the appropriate time.
+	}
+
+	private void startBlock(MarlinSimulationBlock currentBlock) {
+		logger.debug("starting block " + currentBlock.id);
+		currentBlock.busy = true;
+	}
+
+	public MarlinCoordinate getCurrentPosition() {
+		return currentPosition;
 	}
 }

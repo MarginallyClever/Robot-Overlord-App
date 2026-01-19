@@ -11,7 +11,6 @@ import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinRobot;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation.MarlinCoordinate;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation.MarlinSettings;
 import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation.MarlinSimulation;
-import com.marginallyclever.ro3.node.nodes.marlinrobot.marlinrobotarm.marlinsimulation.MarlinSimulationBlock;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Limb;
 import org.json.JSONObject;
@@ -28,12 +27,13 @@ import java.util.List;
 
 /**
  * <p>{@link MarlinRobotArm} converts the state of a robot arm into GCode and back.</p>
- * <p>In order to work it requires references to:</p>
+ * <p>To work it requires:</p>
  * <ul>
- *     <li>a {@link Limb} of no more than six {@link Motor}s for sovling kinematics,</li>
- *     <li>whose {@link Motor} names match those in Marlin</li>
- *     <li>an optional {@link Motor} for the tool on arm.</li>
+ *     <li>a {@link Limb} of no more than six {@link Motor}s for solving kinematics</li>
+ *     <li>an optional {@link Motor} for the tool on the End Effector.</li>
  * </ul>
+ * <p>The gcode generated uses the {@link Motor} names.  To make it work for your robot make sure
+ * the names match Marlin's expectations.</p>
  */
 public class MarlinRobotArm extends MarlinRobot implements PropertyChangeListener {
     private static final Logger logger = LoggerFactory.getLogger(MarlinRobotArm.class);
@@ -41,10 +41,6 @@ public class MarlinRobotArm extends MarlinRobot implements PropertyChangeListene
     private final NodePath<Motor> gripperMotor = new NodePath<>(this,Motor.class);
     private final MarlinSettings settings = new MarlinSettings();
     private MarlinSimulation simulation;
-    private MarlinSimulationBlock currentBlock = null;
-    private double feedrate;
-    private double acceleration;
-
 
     public MarlinRobotArm() {
         this("MarlinRobotArm");
@@ -265,7 +261,7 @@ public class MarlinRobotArm extends MarlinRobot implements PropertyChangeListene
             }
             // else ignore unused
             var myFeedrate = myLimb.getLinearVelocity();
-            simulation.bufferLine(destination,myFeedrate,acceleration);
+            simulation.bufferLine(destination,myFeedrate);
         } catch( NumberFormatException e ) {
             logger.error("Number format exception: "+e.getMessage());
             return "Error: "+e.getMessage();
@@ -332,58 +328,7 @@ public class MarlinRobotArm extends MarlinRobot implements PropertyChangeListene
     @Override
     public void update(double dt) {
         super.update(dt);
-
-        // Simulate Marlin behavior.
-        if(currentBlock==null) {
-            currentBlock = findBlock();
-            if(currentBlock!=null) {
-                logger.debug("starting block " + currentBlock.id);
-                currentBlock.busy = true;
-            }
-        }
-        if(currentBlock==null) return;
-
-        // advance time in the block
-        currentBlock.now_s += dt;
-        double extra = currentBlock.now_s - currentBlock.end_s;
-        if (currentBlock.now_s >= currentBlock.end_s) {
-            // no overflow!
-            currentBlock.now_s = currentBlock.end_s;
-        }
-
-        // Drive motors using trapezoidal velocity profiles.
-        // update motors according to currentBlock
-        logger.debug("working block " + currentBlock.id);
-        int i=0;
-        for(NodePath<Motor> paths : getLimb().getSubject().getMotors()) {
-            Motor motor = paths.getSubject();
-            double fraction = currentBlock.now_s / currentBlock.end_s;
-            if(motor!=null && motor.hasHinge()) {
-                HingeJoint hinge = motor.getHinge();
-                hinge.setAngle(currentBlock.start.p[i] + currentBlock.delta.p[i] * fraction);
-            }
-            ++i;
-        }
-
-        // is block done?
-        if (currentBlock.now_s >= currentBlock.end_s) {
-            logger.debug("ending block " + currentBlock.id);
-            currentBlock.busy = false;
-            simulation.getQueue().remove(currentBlock);
-
-            currentBlock = findBlock();
-            if(currentBlock!=null) {
-                logger.debug("starting block " + currentBlock.id);
-                currentBlock.busy = true;
-                currentBlock.now_s = extra;
-            }
-        }
-
-        // Queue up gcode commands and send "Ok" at the appropriate time.
-    }
-
-    private MarlinSimulationBlock findBlock() {
-        return (simulation.getQueue().isEmpty()) ? null : simulation.getQueue().peek();
+        simulation.update(dt);
     }
 
     private String parseG28(String gcode) {
@@ -463,9 +408,6 @@ public class MarlinRobotArm extends MarlinRobot implements PropertyChangeListene
      */
     public void reset() {
         simulation = new MarlinSimulation(settings);
-        currentBlock = null;
-        feedrate = settings.getDouble(MarlinSettings.MAX_FEEDRATE);
-        acceleration = settings.getDouble(MarlinSettings.MAX_ACCELERATION);
     }
 
     @Override
