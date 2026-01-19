@@ -104,7 +104,7 @@ public class MeshFactory extends Factory {
 			loader.load(stream,mesh);
 		}
 		catch(Exception e) {
-			logger.error("Failed to load mesh: "+e.getMessage());
+			logger.error("Failed to load mesh: {}",e.getMessage());
 		}
 
 		mesh.updateBoundingBox();
