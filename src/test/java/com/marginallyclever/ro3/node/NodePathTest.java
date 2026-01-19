@@ -2,8 +2,7 @@ package com.marginallyclever.ro3.node;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class NodePathTest {
     @Test
@@ -43,5 +42,34 @@ class NodePathTest {
         NodePath<Node> nodePath = new NodePath<>(owner, Node.class);
         nodePath.setUniqueIDByNode(goal);
         assertEquals(goal.getUniqueID(), nodePath.getUniqueID());
+    }
+
+    // test changing the subject fires an event; setting the same subject does not fire an event
+    @Test
+    void testSetSubjectFiresEvent() {
+        Node owner = new Node();
+        Node goal1 = new Node();
+        Node goal2 = new Node();
+        owner.addChild(goal1);
+        owner.addChild(goal2);
+        NodePath<Node> nodePath = new NodePath<>(owner, Node.class);
+
+        final boolean[] eventFired = {false};
+        nodePath.addPropertyChangeListener((e) -> eventFired[0] = true);
+
+        // Set to goal1, should fire event
+        nodePath.setUniqueIDByNode(goal1);
+        assertTrue(eventFired[0]);
+
+        // Reset event flag
+        eventFired[0] = false;
+
+        // Set to goal1 again, should not fire event
+        nodePath.setUniqueIDByNode(goal1);
+        assertFalse(eventFired[0]);
+
+        // Set to goal2, should fire event
+        nodePath.setUniqueIDByNode(goal2);
+        assertTrue(eventFired[0]);
     }
 }
