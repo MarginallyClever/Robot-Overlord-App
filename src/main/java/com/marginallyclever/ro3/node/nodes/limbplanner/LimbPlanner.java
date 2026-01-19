@@ -22,7 +22,7 @@ import java.util.Objects;
 public class LimbPlanner extends Node implements ActionListener {
     private static final Logger logger = LoggerFactory.getLogger(LimbPlanner.class);
     private final NodePath<Limb> limb = new NodePath<>(this, Limb.class);
-    private final NodePath<Pose> pathStart = new NodePath<>(this, Pose.class);
+    private final NodePath<Pose> pathContainer = new NodePath<>(this, Pose.class);
     private final NodePath<Pose> nextGoal = new NodePath<>(this, Pose.class);  // relative to pathStart
     private boolean isRunning = false;
     private double executionTime = 0;
@@ -43,21 +43,21 @@ public class LimbPlanner extends Node implements ActionListener {
     }
 
     public void startRun() {
-        if(limb.getSubject()==null) throw new IllegalArgumentException("Solver is null.");
-        if(pathStart.getSubject()==null) throw new IllegalArgumentException("PathStart is null.");
+        Limb myLimb = limb.getSubject();
+        if(myLimb == null) throw new IllegalArgumentException("Solver is null.");
+        var myPathContainer = pathContainer.getSubject();
+        if(myPathContainer == null) throw new IllegalArgumentException("PathStart is null.");
 
         logger.debug("Starting run");
         previousExecutionTime = executionTime;
         executionTime = 0;
-        if(limb.getSubject()!=null) {
-            Limb mySolver = limb.getSubject();
-            mySolver.addActionListener( this );
 
-            // set nextGoal to the first child of type Pose
-            nextGoal.setUniqueID(pathStart.getUniqueID());
-            isRunning=true;
-            onSolverDone();
-        }
+        myLimb.addActionListener( this );
+
+        // set nextGoal to the first child of type Pose
+        nextGoal.setUniqueIDByNode(myPathContainer);
+        isRunning = true;
+        onSolverDone();
     }
 
     /**
@@ -66,19 +66,32 @@ public class LimbPlanner extends Node implements ActionListener {
     private void onSolverDone() {
         setNextGoalOrStop();
         if(isRunning && limb.getSubject()!=null && nextGoal.getSubject()!=null) {
-            logger.debug("Updating solver to {}",nextGoal.getSubject().getAbsolutePath());
-            limb.getSubject().setTarget(nextGoal.getSubject());
+            setTargetToNextGoal();
         }
     }
 
+    private void setTargetToNextGoal() {
+        var myNextGoal = nextGoal.getSubject();
+        if(myNextGoal==null) return;
+        var limbTarget = limb.getSubject().getTarget().getSubject();
+        if(limbTarget==null) return;
+
+        logger.debug("Updating target to {}",myNextGoal.getAbsolutePath());
+        limbTarget.setWorld(myNextGoal.getWorld());
+    }
+
+    /**
+     * Find the next goal in the path, or stop if there are no more goals.
+     * pathContainer may have multiple nested children of type Pose.
+     */
     private void setNextGoalOrStop() {
-        if(nextGoal.getSubject()==null) return;
+        var myNextGoal = nextGoal.getSubject();
+        if(myNextGoal==null) return;
 
         logger.debug("Finding next goal");
 
-        // nextGoal has just been reached.  Find the next goal.
-        // look in children, first.
-        var kids = nextGoal.getSubject().getChildren();
+        // Goal has been reached.  Find the next goal.  Look in children, first.
+        var kids = myNextGoal.getChildren();
         if(!kids.isEmpty()) {
             int index=0;
             while(index<kids.size() && !(kids.get(index) instanceof Pose)) {
@@ -86,7 +99,7 @@ public class LimbPlanner extends Node implements ActionListener {
             }
             if(index<kids.size()) {
                 // set to first viable child.
-                var child = kids.get(0);
+                var child = kids.getFirst();
                 logger.debug("set to first child {}.",child.getAbsolutePath());
                 setNextGoal((Pose)child);
                 return;
@@ -94,19 +107,20 @@ public class LimbPlanner extends Node implements ActionListener {
         }
 
         // move on to the next sibling of type Pose
-        Node parent = nextGoal.getSubject().getParent();
+        Node parent = myNextGoal.getParent();
         if(parent==null) {
             // no siblings.  stop!
-            logger.debug("No siblings.");
+            logger.debug("NextGoal has no parent.");
             stopRun();
             return;
         }
+
         // what is my index?
         kids = parent.getChildren();
         int index = kids.indexOf(nextGoal.getSubject());
         if(index<0 || index>=kids.size()) {
             // nextGoal is not longer a child of parent?  Stop!
-            logger.debug("Orphaned?!");
+            logger.debug("NextGoal orphaned?!");
             stopRun();
             return;
         }
@@ -130,7 +144,7 @@ public class LimbPlanner extends Node implements ActionListener {
     private void setNextGoal(Pose pose) {
         logger.debug("Setting next goal to {}",pose.getAbsolutePath());
         nextGoal.setUniqueIDByNode(pose);
-        limb.getSubject().setTarget(nextGoal.getSubject());
+        setTargetToNextGoal();
         limb.getSubject().setIsAtGoal(false);
     }
 
@@ -141,7 +155,7 @@ public class LimbPlanner extends Node implements ActionListener {
         }
         logger.debug("Stopping run at "+executionTime+" seconds.");
         isRunning=false;
-        nextGoal.setUniqueID(pathStart.getUniqueID());
+        nextGoal.setUniqueID(pathContainer.getUniqueID());
 
         if(limb.getSubject()!=null) {
             Limb mySolver = this.limb.getSubject();
@@ -155,7 +169,7 @@ public class LimbPlanner extends Node implements ActionListener {
     public JSONObject toJSON() {
         var json = super.toJSON();
         if(limb.getSubject()!=null) json.put("solver", limb.getUniqueID());
-        if(pathStart.getSubject()!=null) json.put("pathStart",pathStart.getUniqueID());
+        if(pathContainer.getSubject()!=null) json.put("pathStart", pathContainer.getUniqueID());
         return json;
     }
 
@@ -163,7 +177,7 @@ public class LimbPlanner extends Node implements ActionListener {
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
         if(from.has("solver")) limb.setUniqueID(from.getString("solver"));
-        if(from.has("pathStart")) pathStart.setUniqueID(from.getString("pathStart"));
+        if(from.has("pathStart")) pathContainer.setUniqueID(from.getString("pathStart"));
     }
 
     public void addActionListener(ActionListener l) {
@@ -208,8 +222,8 @@ public class LimbPlanner extends Node implements ActionListener {
         }
     }
 
-    public NodePath<Pose> getPathStart() {
-        return pathStart;
+    public NodePath<Pose> getPathContainer() {
+        return pathContainer;
     }
 
     public NodePath<Limb> getLimb() {
@@ -230,12 +244,11 @@ public class LimbPlanner extends Node implements ActionListener {
     }
 
     /**
-     * Set the start of the path.
-     * pose must be in the same node tree as this instance.
+     * Set the path container, which must be a {@link Pose}.
      * @param pose the pose to use.
      */
-    public void setPathStart(Pose pose) {
-        pathStart.setUniqueIDByNode(pose);
+    public void setPathContainer(Pose pose) {
+        pathContainer.setUniqueIDByNode(pose);
     }
 
     public void setLinearVelocity(double v) {
