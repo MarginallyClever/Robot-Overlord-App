@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * {@link MarlinRobot} represents a robot with Marlin firmware installed.
+ * {@link MarlinRobot} manages communication with a robot with Marlin firmware installed.
+ * In the OSI network model it is the Presentation layer.
  */
 public class MarlinRobot extends Node implements SessionLayerListener {
     private final Logger logger = LoggerFactory.getLogger(MarlinRobot.class);
@@ -93,31 +94,13 @@ public class MarlinRobot extends Node implements SessionLayerListener {
      */
     public void sendGCode(String gcode) {
         logger.debug("sendGCode: {}",gcode);
-        // if this MarlinRobot has a connected NetworkSession as a child, try to send the gcode to it.
-        if(networkSession!=null && networkSession.isConnected()) {
-            String newGcode = scaleGcode(gcode,1f);
-            networkSession.send(newGcode);
-        } else {
-            // else not connected to a network session
+        if(networkSession==null || !networkSession.isConnected()) {
+            // not connected to a network session
             logger.debug("not connected.");
             //fireMarlinMessage("Error: unknown command " + gcode);
+            return;
         }
-    }
-
-    // Parse the gcode and multiply all numbers by scale.
-    private String scaleGcode(String gcode, float scale) {
-        String [] parts = gcode.split(" ");
-        for(int i=1;i<parts.length;++i) {
-            if(parts[i].startsWith("F")) continue; // ignore feedrate
-            try {
-                double value = Double.parseDouble(parts[i].substring(1));
-                value *= scale;
-                parts[i] = parts[i].charAt(0) + String.format("%.2f",value);
-            } catch (NumberFormatException e) {
-                // ignore
-            }
-        }
-        return String.join(" ",parts);
+        networkSession.send(gcode);
     }
 
     @Override
