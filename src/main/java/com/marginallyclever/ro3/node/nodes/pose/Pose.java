@@ -182,8 +182,6 @@ public class Pose extends Node implements PoseChangeListener {
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
 
-        //double[] localArray = BigMatrixHelper.matrix4dToArray(local);
-        //json.put("local", new JSONArray(localArray));
         double[] worldArray = BigMatrixHelper.matrix4dToArray(getWorld());
         json.put("world", new JSONArray(worldArray));
 
