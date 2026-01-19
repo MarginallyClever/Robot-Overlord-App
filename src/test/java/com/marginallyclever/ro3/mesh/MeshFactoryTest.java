@@ -4,7 +4,7 @@ import com.marginallyclever.ro3.factories.Lifetime;
 import org.junit.jupiter.api.Test;
 
 public class MeshFactoryTest {
-    public static final String path = "src/test/resources/com/marginallyclever/ro3/apps/node/nodes/marlinrobotarm/j0.obj";
+    public static final String path = "src/test/resources/com/marginallyclever/ro3/node/nodes/marlinrobotarm/j0.obj";
 
     @Test
     public void test() {

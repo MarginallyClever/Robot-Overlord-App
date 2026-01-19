@@ -23,7 +23,7 @@ class LimbPlannerTest {
 
     private Limb build6AxisArm() {
         var load = new Import();
-        File file = new File(Objects.requireNonNull(this.getClass().getResource("/com/marginallyclever/ro3/apps/node/nodes/marlinrobotarm/Sixi3-5.RO")).getFile());
+        File file = new File(Objects.requireNonNull(this.getClass().getResource("/com/marginallyclever/ro3/node/nodes/marlinrobotarm/Sixi3-5.RO")).getFile());
         load.commitImport(file);
         return (Limb) Registry.getScene().findByPath("./Sixi3");
     }
