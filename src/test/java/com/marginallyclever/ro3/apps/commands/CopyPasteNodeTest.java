@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.apps.commands;
 
+import com.marginallyclever.convenience.helpers.ClipboardHelper;
 import com.marginallyclever.convenience.helpers.JSONHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
@@ -37,7 +38,7 @@ public class CopyPasteNodeTest {
         // check initial conditions.
         assert(root.getChildren().size() == list.length);
 
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        Clipboard clipboard = ClipboardHelper.getClipboard();
 
         var beforeClip = clipboard.getContents(null);
         var copy = new CopyNode(selection);

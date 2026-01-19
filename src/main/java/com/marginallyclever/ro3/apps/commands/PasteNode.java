@@ -1,5 +1,6 @@
 package com.marginallyclever.ro3.apps.commands;
 
+import com.marginallyclever.convenience.helpers.ClipboardHelper;
 import com.marginallyclever.convenience.helpers.JSONHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.Node;
@@ -22,7 +23,6 @@ public class PasteNode extends AbstractUndoableEdit {
     private final Logger logger = LoggerFactory.getLogger(PasteNode.class);
     private final List<Node> children = new ArrayList<>();
     private final List<Node> parents;
-    private final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
     private final Transferable transfer;
 
     /**
@@ -32,7 +32,7 @@ public class PasteNode extends AbstractUndoableEdit {
     public PasteNode(List<Node> parents) {
         super();
         this.parents = parents;
-        transfer = clipboard.getContents(null);
+        transfer = ClipboardHelper.getClipboard().getContents(null);
         execute();
     }
 
