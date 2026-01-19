@@ -72,6 +72,11 @@ public class PanelHelper {
         selector.addPropertyChangeListener("subject", (e) -> {
             nodePath.setUniqueIDByNode((T)e.getNewValue());
         });
+        nodePath.addPropertyChangeListener(e->{
+            if(NodePath.PROP_UNIQUEID.equals(e.getPropertyName())) {
+                selector.setSubject(nodePath.getSubject());
+            }
+        });
         PanelHelper.addLabelAndComponent(pane, label, selector, gbc);
         return selector;
     }
