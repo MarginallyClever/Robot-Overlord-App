@@ -182,21 +182,38 @@ public class Pose extends Node implements PoseChangeListener {
     public JSONObject toJSON() {
         JSONObject json = super.toJSON();
 
-        double[] localArray = BigMatrixHelper.matrix4dToArray(local);
-        json.put("local", new JSONArray(localArray));
+        //double[] localArray = BigMatrixHelper.matrix4dToArray(local);
+        //json.put("local", new JSONArray(localArray));
+        double[] worldArray = BigMatrixHelper.matrix4dToArray(getWorld());
+        json.put("world", new JSONArray(worldArray));
+
         return json;
     }
 
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
+
         if(from.has("local")) {
+            // Extracts and sets local matrix data from JSON
             JSONArray localArray = from.getJSONArray("local");
             double[] localData = new double[16];
             for (int i = 0; i < 16; i++) {
                 localData[i] = localArray.getDouble(i);
             }
             local.set(localData);
+        }
+
+        if(from.has("world")) {
+            // Extracts and sets world matrix data from JSON
+            JSONArray worldArray = from.getJSONArray("world");
+            double[] worldData = new double[16];
+            for (int i = 0; i < 16; i++) {
+                worldData[i] = worldArray.getDouble(i);
+            }
+            Matrix4d worldMatrix = new Matrix4d();
+            worldMatrix.set(worldData);
+            setWorld(worldMatrix);
         }
     }
 
