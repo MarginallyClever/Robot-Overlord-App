@@ -81,7 +81,9 @@ public class NodeSelector<T extends Node> extends JPanel {
         T oldValue = this.subject;
         this.subject = subject;
         setButtonLabel();
-        firePropertyChange("subject",oldValue,subject);
+        if((oldValue != null && !oldValue.equals(subject)) || (oldValue == null && subject != null)) {
+            firePropertyChange("subject", oldValue, subject);
+        }
     }
 
     public T getSubject() {
