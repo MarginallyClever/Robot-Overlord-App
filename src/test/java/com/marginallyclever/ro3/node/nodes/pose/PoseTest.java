@@ -14,9 +14,18 @@ class PoseTest {
     @Test
     void testGetSetLocal() {
         Pose pose = new Pose();
-        Matrix4d matrix = MatrixHelper.createIdentityMatrix4();
-        pose.setLocal(matrix);
-        assertEquals(matrix, pose.getLocal());
+        double r = Math.random();
+
+        Matrix4d before = MatrixHelper.createIdentityMatrix4();
+        before.rotX(r);
+        before.setTranslation(new Vector3d(1,2,3));
+        pose.setLocal(before);
+
+        Matrix4d after = MatrixHelper.createIdentityMatrix4();
+        after.rotX(r);
+        after.setTranslation(new Vector3d(1,2,3));
+
+        assertEquals(after, pose.getLocal());
     }
 
     @Test
@@ -28,8 +37,10 @@ class PoseTest {
         matrix.setTranslation(new Vector3d(1,2,3));
         a.setLocal(matrix);
         b.setLocal(matrix);
-        matrix.setTranslation(new Vector3d(2,4,6));
-        assertEquals(matrix, b.getWorld());
+
+        Matrix4d after = MatrixHelper.createIdentityMatrix4();
+        after.setTranslation(new Vector3d(2,4,6));
+        assertEquals(after, b.getWorld());
     }
 
     @Test
