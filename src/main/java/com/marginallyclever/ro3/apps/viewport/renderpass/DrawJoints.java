@@ -148,7 +148,7 @@ public class DrawJoints extends AbstractRenderPass {
         modelMatrix.rotZ(Math.toRadians(joint.getAngle()));
         modelMatrix.mul(world,modelMatrix);
         modelMatrix.mul(modelMatrix,MatrixHelper.createScaleMatrix4(scale));
-        shader.setColor(gl3,"diffuseColor",new Color(255,255,255,isSelected ? 255 : 64));
+        shader.setColor(gl3,"diffuseColor",new Color(255,255,255,isSelected ? 255 : 128));
         if(originShift) modelMatrix = RenderPassHelper.getOriginShiftedMatrix(modelMatrix,cameraWorldPos);
         shader.setMatrix4d(gl3,"modelMatrix",modelMatrix);
         currentAngleMesh.render(gl3);
