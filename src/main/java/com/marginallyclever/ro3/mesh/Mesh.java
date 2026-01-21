@@ -584,28 +584,34 @@ public class Mesh implements OpenGL3Resource {
      */
     public PathMesh createPathMesh(Matrix4d worldMatrix) {
         PathMesh newMesh = new PathMesh();
-        VertexProvider vertexProvider = getVertexProvider();
-        var numVertexes = vertexProvider.provideCount();
-        for(int i = 0; i < numVertexes; i+=3) {
-            Point3d p0 = vertexProvider.provideVertex(i);
-            Point3d p1 = vertexProvider.provideVertex(i + 1);
-            Point3d p2 = vertexProvider.provideVertex(i + 2);
-            worldMatrix.transform(p0);
-            worldMatrix.transform(p1);
-            worldMatrix.transform(p2);
-            Vector3d n0 = vertexProvider.provideNormal(i);
-            Vector3d n1 = vertexProvider.provideNormal(i+1);
-            Vector3d n2 = vertexProvider.provideNormal(i+2);
-            worldMatrix.transform(n0);
-            worldMatrix.transform(n1);
-            worldMatrix.transform(n2);
-            newMesh.addTriangle(new PathTriangle(
-                    new PathPoint(p0, n0, vertexProvider.provideColor(i), vertexProvider.provideTextureCoordinate(i)),
-                    new PathPoint(p1, n1, vertexProvider.provideColor(i+1), vertexProvider.provideTextureCoordinate(i+1)),
-                    new PathPoint(p2, n2, vertexProvider.provideColor(i+2), vertexProvider.provideTextureCoordinate(i+2))));
+		try {
+			if(!normalArray.isEmpty()) {
+				VertexProvider vertexProvider = getVertexProvider();
+				var numVertexes = vertexProvider.provideCount();
+				for (int i = 0; i < numVertexes; i += 3) {
+					Point3d p0 = vertexProvider.provideVertex(i);
+					Point3d p1 = vertexProvider.provideVertex(i + 1);
+					Point3d p2 = vertexProvider.provideVertex(i + 2);
+					worldMatrix.transform(p0);
+					worldMatrix.transform(p1);
+					worldMatrix.transform(p2);
+					Vector3d n0 = vertexProvider.provideNormal(i);
+					Vector3d n1 = vertexProvider.provideNormal(i + 1);
+					Vector3d n2 = vertexProvider.provideNormal(i + 2);
+					worldMatrix.transform(n0);
+					worldMatrix.transform(n1);
+					worldMatrix.transform(n2);
+					newMesh.addTriangle(new PathTriangle(
+							new PathPoint(p0, n0, vertexProvider.provideColor(i), vertexProvider.provideTextureCoordinate(i)),
+							new PathPoint(p1, n1, vertexProvider.provideColor(i + 1), vertexProvider.provideTextureCoordinate(i + 1)),
+							new PathPoint(p2, n2, vertexProvider.provideColor(i + 2), vertexProvider.provideTextureCoordinate(i + 2))));
 
-        }
-        newMesh.buildSAS();
+				}
+			}
+		} catch(Exception ignored) {
+			// probably caused by not having any normals in this mesh.
+		}
+		newMesh.buildSAS();
         return newMesh;
     }
 }
