@@ -53,10 +53,17 @@ public class Waldo extends ProceduralMesh {
         fireMeshChanged();
     }
 
+    @Override
+    public JSONObject toJSON() {
+        var json = super.toJSON();
+        json.put("radius", radius);
+        return json;
+    }
 
     @Override
     public void fromJSON(JSONObject from) {
         super.fromJSON(from);
+        radius = from.optFloat("radius", DEFAULT_RADIUS);
         updateModel();
     }
 
