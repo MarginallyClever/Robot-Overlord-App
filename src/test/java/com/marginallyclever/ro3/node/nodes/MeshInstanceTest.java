@@ -14,10 +14,12 @@ public class MeshInstanceTest {
 
         before.setMesh(new Box(10,5,2));
         before.setActive(false);
+        before.setHasShadow(false);
 
         after.fromJSON(before.toJSON());
 
         Assertions.assertEquals(before.isActive(), after.isActive());
+        Assertions.assertEquals(before.getHasShadow(), after.getHasShadow());
         Assertions.assertEquals(before.getMesh().getClass(), after.getMesh().getClass());
         Assertions.assertEquals(before.getMesh().getSourceName(), after.getMesh().getSourceName());
         Assertions.assertEquals(before.getMesh().getNumVertices(), after.getMesh().getNumVertices());

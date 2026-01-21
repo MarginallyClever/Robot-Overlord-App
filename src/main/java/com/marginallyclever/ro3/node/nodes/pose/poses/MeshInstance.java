@@ -29,7 +29,8 @@ import java.util.Objects;
  */
 public class MeshInstance extends Pose {
     private Mesh mesh;
-    private boolean isActive=true;
+    private boolean isActive = true;
+    private boolean hasShadow = true;
     private Vector3d localScale = new Vector3d(1,1,1);
 
     public MeshInstance() {
@@ -158,6 +159,7 @@ public class MeshInstance extends Pose {
             }
         }
         json.put("isActive", isActive);
+        json.put("hasShadow", hasShadow);
         if(localScale.x!=1.0 || localScale.y!=1.0 || localScale.z!=1.0) {
             json.put("localScale.x", localScale.x);
             json.put("localScale.y", localScale.y);
@@ -186,6 +188,7 @@ public class MeshInstance extends Pose {
             }
         }
         isActive = from.optBoolean("isActive",isActive);
+        hasShadow = from.optBoolean("hasShadow",hasShadow);
     }
 
     @Override
@@ -211,5 +214,13 @@ public class MeshInstance extends Pose {
 
     public void setScale(Vector3d scale) {
         this.localScale = scale;
+    }
+
+    public void setHasShadow(boolean shadows) {
+        this.hasShadow = shadows;
+    }
+
+    public boolean getHasShadow() {
+        return hasShadow;
     }
 }

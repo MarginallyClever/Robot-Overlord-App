@@ -82,6 +82,13 @@ public class MeshInstancePanel extends JPanel {
         });
         PanelHelper.addLabelAndComponent(detailsContainer,"Active",activeButton);
 
+        var shadowButton = new JButton(meshInstance.getHasShadow() ? "Yes" : "No");
+        shadowButton.addActionListener(e->{
+            meshInstance.setHasShadow( !meshInstance.getHasShadow() );
+            shadowButton.setText(meshInstance.getHasShadow() ? "Yes" : "No");
+        });
+        PanelHelper.addLabelAndComponent(detailsContainer,"Has shadow",shadowButton);
+
         // mesh details
         Mesh mesh = meshInstance.getMesh();
         if(mesh==null) {

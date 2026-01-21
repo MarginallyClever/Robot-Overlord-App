@@ -217,6 +217,7 @@ public class DrawMeshes extends AbstractRenderPass {
 
         for(MeshMaterialMatrix meshMaterialMatrix : meshes) {
             MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
+            if(!meshInstance.getHasShadow()) continue;
             var w = meshMaterialMatrix.matrix();
             if(originShift) w = RenderPassHelper.getOriginShiftedMatrix(w,cameraWorldPos);
             shadowShader.setMatrix4d(gl3,"modelMatrix",w);
