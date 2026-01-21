@@ -72,7 +72,7 @@ public class AppFactory {
 
     public static App create(String name) {
         for(String s : appCreators.keySet()) {
-            if(s.endsWith(name)) {
+            if(s.equals(name)) {
                 name = s;
                 break;
             }
