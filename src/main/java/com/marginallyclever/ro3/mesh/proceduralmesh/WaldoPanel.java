@@ -1,6 +1,9 @@
 package com.marginallyclever.ro3.mesh.proceduralmesh;
 
+import com.marginallyclever.ro3.PanelHelper;
+
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * WaldoPanel provides a settings panel for the {@link Waldo} procedural mesh.
@@ -23,7 +26,7 @@ public class WaldoPanel extends JPanel {
     }
 
     private void initComponents() {
-        JLabel radiusLabel = new JLabel("Radius:");
+        JLabel radiusLabel = new JLabel("Radius");
         radiusSpinner = new JSpinner(new SpinnerNumberModel(1.0, 0.1, 100.0, 0.1));
         radiusSpinner.addChangeListener(e -> {
             double value = (double) radiusSpinner.getValue();
@@ -31,7 +34,7 @@ public class WaldoPanel extends JPanel {
             waldo.updateModel();
         });
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setLayout(new GridLayout(0,2));
         add(radiusLabel);
         add(radiusSpinner);
     }
