@@ -26,6 +26,7 @@ import com.marginallyclever.ro3.node.nodes.odenode.odebody.odebodies.ODESphere;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.*;
 import com.marginallyclever.ro3.node.nodes.pose.poses.space.SpaceShip;
+import com.marginallyclever.ro3.node.nodes.stewartplatform.linear.LinearStewartPlatform2;
 import com.marginallyclever.ro3.node.nodes.tests.RandomHemisphereTest;
 import io.github.classgraph.ScanResult;
 import org.slf4j.Logger;
@@ -134,6 +135,7 @@ public class NodeFactory {
             node.add("HingeJoint", HingeJoint::new);
             node.add("LimbPlanner", LimbPlanner::new);
             node.add("LinearStewartPlatform", LinearStewartPlatform::new);
+            node.add("LinearStewartPlatform2", LinearStewartPlatform2::new);
             node.add("LinearJoint", LinearJoint::new);
             node.add("MarlinRobotArm", MarlinRobotArm::new);
             node.add("Material", Material::new);

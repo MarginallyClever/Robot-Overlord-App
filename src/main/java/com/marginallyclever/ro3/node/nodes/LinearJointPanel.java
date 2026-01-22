@@ -18,35 +18,28 @@ public class LinearJointPanel extends JPanel {
         super(new GridLayout(0,2));
         this.setName(LinearJoint.class.getSimpleName());
 
-        NumberFormatter formatter = NumberFormatHelper.getNumberFormatterDouble();
-
         var angle = LinearJoint.getPosition();
-        JFormattedTextField positionField = new JFormattedTextField(formatter);
-        positionField.setValue(angle);
+        JFormattedTextField positionField = PanelHelper.addNumberFieldDouble("Position",angle);
         positionField.addPropertyChangeListener("value", (evt) ->{
             LinearJoint.setPosition( ((Number) positionField.getValue()).doubleValue() );
         });
 
-        JFormattedTextField maxPositionField = new JFormattedTextField(formatter);
-        maxPositionField.setValue(LinearJoint.getMaxPosition());
+        JFormattedTextField maxPositionField = PanelHelper.addNumberFieldDouble("Maximum",LinearJoint.getMaxPosition());
         maxPositionField.addPropertyChangeListener("value", (evt) ->{
             LinearJoint.setMaxPosition( ((Number) maxPositionField.getValue()).doubleValue() );
         });
 
-        JFormattedTextField minPositionField = new JFormattedTextField(formatter);
-        minPositionField.setValue(LinearJoint.getMinPosition());
+        JFormattedTextField minPositionField = PanelHelper.addNumberFieldDouble("Minimum",LinearJoint.getMinPosition());
         minPositionField.addPropertyChangeListener("value", (evt) ->{
             LinearJoint.setMinPosition( ((Number)minPositionField.getValue()).doubleValue() );
         });
 
-        JFormattedTextField velocityField = new JFormattedTextField(formatter);
-        velocityField.setValue(LinearJoint.getVelocity());
+        JFormattedTextField velocityField = PanelHelper.addNumberFieldDouble("Velocity",LinearJoint.getVelocity());
         velocityField.addPropertyChangeListener("value", (evt) ->{
             LinearJoint.setVelocity( ((Number)velocityField.getValue()).doubleValue() );
         });
 
-        JFormattedTextField accelerationField = new JFormattedTextField(formatter);
-        accelerationField.setValue(LinearJoint.getPosition());
+        JFormattedTextField accelerationField = PanelHelper.addNumberFieldDouble("Acceleration",LinearJoint.getPosition());
         accelerationField.addPropertyChangeListener("value", (evt) ->{
             LinearJoint.setAcceleration( ((Number)accelerationField.getValue()).doubleValue() );
         });
