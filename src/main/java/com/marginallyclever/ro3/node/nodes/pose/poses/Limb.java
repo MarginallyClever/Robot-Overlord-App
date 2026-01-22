@@ -41,8 +41,9 @@ public class Limb extends Pose {
 
     public static final int MAX_JOINTS = 6;
     public static final double DEFAULT_LINEAR_VELOCITY = 0.0;  // cm/s
-    public static final double DEFAULT_GOAL_MARGIN_OF_ERROR = 0.1;  // not degrees or mm.  Just a number.
-    public static final String ACTION_ARRIVED_AT_GOAL = "arrivedAtGoal";
+    public static final double DEFAULT_LINEAR_ACCELERATION = 10.0;  // units/s²
+    public static final double DEFAULT_TARGET_MARGIN_OF_ERROR = 0.1;  // not degrees or mm.  Just a number.
+    public static final String ARRIVED_AT_TARGET = "arrivedAtTarget";
     public static final String PROPERTY_POSE_CHANGED = "poseChanged";
 
     private final List<NodePath<Motor>> motors = new ArrayList<>();
@@ -51,11 +52,12 @@ public class Limb extends Pose {
 
     private final NodePath<Pose> target = new NodePath<>(this,Pose.class);
     private double linearVelocity = DEFAULT_LINEAR_VELOCITY;
+    private double linearAcceleration = DEFAULT_LINEAR_ACCELERATION;
     private double distanceToTarget = 0;
-    private double goalMarginOfError = DEFAULT_GOAL_MARGIN_OF_ERROR; // not degrees or mm.  Just a number.
+    private double targetMarginOfError = DEFAULT_TARGET_MARGIN_OF_ERROR; // not degrees or mm.  Just a number.
     private final double[] cartesianDistance = new double[6];  // 3 linear, 3 angular
     private final double[] cartesianVelocity = new double[cartesianDistance.length];
-    private boolean isAtGoal = false;
+    private boolean isAtTarget = false;
 
     public Limb() {
         this("Limb");
@@ -203,8 +205,8 @@ public class Limb extends Pose {
         if(endEffector.getSubject()!=null) json.put("endEffector",endEffector.getUniqueID());
         if(getTarget()!=null) json.put("target",target.getUniqueID());
         json.put("linearVelocity",linearVelocity);
-        json.put("goalMarginOfError",goalMarginOfError);
-        json.put("isAtGoal",isAtGoal);
+        json.put("goalMarginOfError", targetMarginOfError);
+        json.put("isAtGoal", isAtTarget);
 
         return json;
     }
@@ -248,8 +250,8 @@ public class Limb extends Pose {
         }
 
         linearVelocity = from.optDouble("linearVelocity",DEFAULT_LINEAR_VELOCITY);
-        goalMarginOfError = from.optDouble("goalMarginOfError",DEFAULT_GOAL_MARGIN_OF_ERROR);
-        isAtGoal = from.optBoolean("isAtGoal",false);
+        targetMarginOfError = from.optDouble("goalMarginOfError", DEFAULT_TARGET_MARGIN_OF_ERROR);
+        isAtTarget = from.optBoolean("isAtGoal",false);
     }
 
     @Override
@@ -315,19 +317,19 @@ public class Limb extends Pose {
         moveTowardsTarget();
 
         if(areWeThereYet()) {
-            if(!isAtGoal) {
-                isAtGoal = true;
-                fireArrivedAtGoal();
+            if(!isAtTarget) {
+                isAtTarget = true;
+                fireArrivedAtTarget();
             }
         } else {
-            isAtGoal = false;
+            isAtTarget = false;
         }
     }
 
     // are we there yet?
     private boolean areWeThereYet() {
-        distanceToTarget = sumCartesianVelocityComponents(cartesianDistance);
-        return distanceToTarget < goalMarginOfError;
+        distanceToTarget = sumCartesianComponents(cartesianDistance);
+        return distanceToTarget < targetMarginOfError;
     }
 
     /**
@@ -343,7 +345,7 @@ public class Limb extends Pose {
             return;
         }
 
-        if(Math.abs(linearVelocity) < 0.0001) {
+        if(Math.abs(linearVelocity) < 1e-4) {
             // no velocity.  Make sure the arm doesn't drift.
             this.setAllJointVelocities(new double[this.getNumJoints()]);
             return;
@@ -355,7 +357,7 @@ public class Limb extends Pose {
                 cartesianDistance);
         // limit the velocity
         System.arraycopy(cartesianDistance,0,cartesianVelocity,0,cartesianDistance.length);
-        scaleVectorToMagnitude(cartesianVelocity,linearVelocity);
+        capVelocity(cartesianVelocity);
         // set motor velocities.
         setMotorVelocitiesFromCartesianVelocity(cartesianVelocity);
     }
@@ -403,33 +405,33 @@ public class Limb extends Pose {
 
 
     /**
-     * <p>Make sure the given vector's length does not exceed linearVelocity.  This means as the limb approaches the
-     * target the velocity will slow down.</p>
-     * <p>Store the results in the original array.</p>
+     * <p>Make sure the given vector's length does not exceed some maximum.  It does not increase the vector to
+     * match the maximum.  Store the results in the original array.</p>
      * @param vector the vector to cap
      * @param maxLen the max length of the vector.
      */
-    public static void scaleVectorToMagnitude(double[] vector, double maxLen) {
-        // get the length of the vector
-        double len = 0;
-        for (double v : vector) {
-            len += v * v;
-        }
-        len = Math.sqrt(len);
-
-        var linearMagnitude = Math.abs(maxLen);
-        if(linearMagnitude>len) maxLen = Math.signum(maxLen) * len;
+    public void capVelocity(double @NotNull [] vector) {
+        double len = getVectorLength(vector);
 
         // scale the vector
-        double scale = (len == 0) ? 0 : maxLen / len;  // catch len==0
+        double scale = (len == 0) ? 0 : Math.abs(linearVelocity) / len;  // catch len==0
         for(int i=0;i<vector.length;i++) {
             vector[i] *= scale;
         }
     }
 
-    private double sumCartesianVelocityComponents(double [] cartesianVelocity) {
+    // get the length of the vector
+    private double getVectorLength(double @NotNull [] vector) {
+        double len = 0;
+        for (double v : vector) {
+            len += v * v;
+        }
+        return Math.sqrt(len);
+    }
+
+    private double sumCartesianComponents(double @NotNull [] cartesianDistance) {
         double sum = 0;
-        for (double v : cartesianVelocity) {
+        for (double v : cartesianDistance) {
             sum += Math.abs(v);
         }
         return sum;
@@ -467,16 +469,16 @@ public class Limb extends Pose {
     /**
      * @return the distance to the target that is a combination of linear and angular distances.
      */
-    public double getGoalMarginOfError() {
-        return goalMarginOfError;
+    public double getTargetMarginOfError() {
+        return targetMarginOfError;
     }
 
     /**
-     * @param goalMarginOfError the distance to the target that is a combination of linear and angular distances.
+     * @param targetMarginOfError the distance to the target that is a combination of linear and angular distances.
      */
-    public void setGoalMarginOfError(double goalMarginOfError) {
-        if(goalMarginOfError<0) throw new IllegalArgumentException("goalMarginOfError must be >= 0");
-        this.goalMarginOfError = goalMarginOfError;
+    public void setTargetMarginOfError(double targetMarginOfError) {
+        if(targetMarginOfError<0) throw new IllegalArgumentException("targetMarginOfError must be >= 0");
+        this.targetMarginOfError = targetMarginOfError;
     }
     public void addActionListener(ActionListener listener) {
         listeners.add(ActionListener.class,listener);
@@ -487,23 +489,22 @@ public class Limb extends Pose {
     }
 
     /**
-     * Fire the "arrivedAtGoal" event to any {@link ActionListener} subscribed to this node.
+     * Fire the {@link #ARRIVED_AT_TARGET} event to any {@link ActionListener} subscribed to this node.
      */
-    private void fireArrivedAtGoal() {
-        //logger.debug("Arrived at goal.");
+    private void fireArrivedAtTarget() {
+        //logger.debug("Arrived at target.");
         ActionEvent e = null;
         for (ActionListener listener : listeners.getListeners(ActionListener.class)) {
-            if(e==null) e = new ActionEvent(this,0,ACTION_ARRIVED_AT_GOAL);  // lazy create event
+            if(e==null) e = new ActionEvent(this,0, ARRIVED_AT_TARGET);  // lazy create event
             listener.actionPerformed(e);
         }
     }
 
-    public void setIsAtGoal(boolean isAtGoal) {
-        this.isAtGoal = isAtGoal;
+    public void setIsAtTarget(boolean isAtTarget) {
+        this.isAtTarget = isAtTarget;
     }
 
-    public boolean getIsAtGoal() {
-        return isAtGoal;
+    public boolean getIsAtTarget() {
+        return isAtTarget;
     }
-
 }

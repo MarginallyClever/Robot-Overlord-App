@@ -2,9 +2,7 @@ package com.marginallyclever.ro3.node.nodes.pose.poses;
 
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.actions.Import;
-import com.marginallyclever.ro3.apps.actions.LoadScene;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -81,8 +79,8 @@ public class LimbTest {
         var target = new Pose("b");
 
         limb.setLinearVelocity(limb.getLinearVelocity()+10);
-        limb.setGoalMarginOfError(limb.getGoalMarginOfError()+10);
-        limb.setIsAtGoal(!limb.getIsAtGoal());
+        limb.setTargetMarginOfError(limb.getTargetMarginOfError()+10);
+        limb.setIsAtTarget(!limb.getIsAtTarget());
         limb.addChild(target);
         limb.setTarget(target);
 
@@ -91,8 +89,8 @@ public class LimbTest {
         limb2.fromJSON(json);
 
         assertEquals(limb.getLinearVelocity(),limb2.getLinearVelocity());
-        assertEquals(limb.getGoalMarginOfError(),limb2.getGoalMarginOfError());
-        assertEquals(limb.getIsAtGoal(),limb2.getIsAtGoal());
+        assertEquals(limb.getTargetMarginOfError(),limb2.getTargetMarginOfError());
+        assertEquals(limb.getIsAtTarget(),limb2.getIsAtTarget());
         assertEquals(limb.getTarget().getSubject().getName(),limb2.getTarget().getSubject().getName());
         assertEquals(limb.getNumJoints(),limb2.getNumJoints());
         for(int i=0;i<limb.getNumJoints();++i) {
@@ -130,9 +128,9 @@ public class LimbTest {
     }
 
     @Test
-    void testGetSetGoalMarginOfError() {
+    void testGetSetTargetMarginOfError() {
         Limb limb = new Limb();
-        limb.setGoalMarginOfError(0.1);
-        assertEquals(0.1, limb.getGoalMarginOfError());
+        limb.setTargetMarginOfError(0.1);
+        assertEquals(0.1, limb.getTargetMarginOfError());
     }
 }

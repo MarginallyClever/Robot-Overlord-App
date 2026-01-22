@@ -71,9 +71,9 @@ public class LimbPanel extends JPanel {
         var formatter = NumberFormatHelper.getNumberFormatterDouble();
         formatter.setMinimum(0.0);
         JFormattedTextField marginField = new JFormattedTextField(formatter);
-        marginField.setValue(limb.getGoalMarginOfError());
+        marginField.setValue(limb.getTargetMarginOfError());
         marginField.addPropertyChangeListener("value", evt -> {
-            limb.setGoalMarginOfError( ((Number) marginField.getValue()).doubleValue() );
+            limb.setTargetMarginOfError( ((Number) marginField.getValue()).doubleValue() );
         });
         marginField.setToolTipText("The distance between the target and the end effector that is considered 'close enough'.");
         PanelHelper.addLabelAndComponent(outerPanel, "Goal Margin", marginField, gbc);

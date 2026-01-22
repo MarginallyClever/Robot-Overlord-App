@@ -21,6 +21,7 @@ public class LimbPlannerPanel extends JPanel implements ActionListener {
     private Timer timer;
     private final JLabel previousExecutionTimeLabel = new JLabel();
     private final JLabel executionTimeLabel = new JLabel();
+    private final JLabel distanceToTargetLabel = new JLabel();
 
     public LimbPlannerPanel() {
         this(new LimbPlanner());
@@ -83,11 +84,21 @@ public class LimbPlannerPanel extends JPanel implements ActionListener {
         gbc.gridy++;
         previousExecutionTimeLabel.setText( StringHelper.formatTime(limbPlanner.getPreviousExecutionTime()) );
         PanelHelper.addLabelAndComponent(this, "Previous time", previousExecutionTimeLabel, gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth=1;
+        setDistanceToTargetLabel();
+        PanelHelper.addLabelAndComponent(this, "Distance to target", distanceToTargetLabel, gbc);
     }
 
     private void setRunButtonText() {
         runButton.setSelected(limbPlanner.isRunning());
         runButton.setText(limbPlanner.isRunning() ? "Stop" : "Run");
+    }
+
+    private void setDistanceToTargetLabel() {
+        var myLimb = limbPlanner.getLimb().getSubject();
+        distanceToTargetLabel.setText(myLimb != null ? StringHelper.formatTime(myLimb.getDistanceToTarget()) : "N/A");
     }
 
     @Override
@@ -97,6 +108,7 @@ public class LimbPlannerPanel extends JPanel implements ActionListener {
         timer = new Timer(100, (e)-> {
             if (limbPlanner.isRunning()) {
                 executionTimeLabel.setText(StringHelper.formatTime(limbPlanner.getExecutionTime()));
+                setDistanceToTargetLabel();
             }
         });
         timer.start();

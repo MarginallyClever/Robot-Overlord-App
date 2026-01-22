@@ -62,7 +62,7 @@ class LimbPlannerTest {
         assertFalse(limbPlanner.isRunning());
 
         limbPlanner.startRun();
-        ActionEvent event = new ActionEvent(limbPlanner, ActionEvent.ACTION_PERFORMED, "arrivedAtGoal");
+        ActionEvent event = new ActionEvent(limbPlanner, ActionEvent.ACTION_PERFORMED, Limb.ARRIVED_AT_TARGET);
         limbPlanner.actionPerformed(event);
         assertFalse(limbPlanner.isRunning());
     }

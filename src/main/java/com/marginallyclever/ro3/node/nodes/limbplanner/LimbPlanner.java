@@ -145,7 +145,7 @@ public class LimbPlanner extends Node implements ActionListener {
         logger.debug("Setting next goal to {}",pose.getAbsolutePath());
         nextGoal.setUniqueIDByNode(pose);
         setTargetToNextGoal();
-        limb.getSubject().setIsAtGoal(false);
+        limb.getSubject().setIsAtTarget(false);
     }
 
     public void stopRun() {
@@ -197,7 +197,7 @@ public class LimbPlanner extends Node implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getActionCommand().equals("arrivedAtGoal")) {
+        if(e.getActionCommand().equals(Limb.ARRIVED_AT_TARGET)) {
             onSolverDone();
         }
     }

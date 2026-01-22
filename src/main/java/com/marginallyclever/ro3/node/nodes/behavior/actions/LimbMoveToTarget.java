@@ -73,7 +73,7 @@ public class LimbMoveToTarget extends Action implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getActionCommand().equals("arrivedAtGoal")) {
+        if(e.getActionCommand().equals(Limb.ARRIVED_AT_TARGET)) {
             result = Status.SUCCESS;
             removeSolverListener();
         }
