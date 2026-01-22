@@ -1,7 +1,9 @@
 package com.marginallyclever.ro3.apps.commands;
 
+import com.marginallyclever.convenience.helpers.BigMatrixHelper;
 import com.marginallyclever.convenience.helpers.ClipboardHelper;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -42,13 +44,22 @@ public class CopyNode extends AbstractUndoableEdit {
 
     public void execute() {
         try {
+            JSONObject poses = new JSONObject();
             JSONArray list = new JSONArray();
             for (Node node : selection) {
                 logger.debug("Copying {}", node.getAbsolutePath());
                 list.put(node.toJSON());
+                // store the world matrix for poses.
+                if(node instanceof Pose pose) {
+                    System.out.println("Storing world matrix for copied pose " + pose.getAbsolutePath());
+                    double[] worldArray = BigMatrixHelper.matrix4dToArray(pose.getWorld());
+                    poses.put(pose.getUniqueID(),new JSONArray(worldArray));
+                }
             }
             JSONObject jsonWrapper = new JSONObject();
             jsonWrapper.put("copied", list);
+            jsonWrapper.put("poses", poses);
+
             // store the json in the clipboard.
             StringSelection stringSelection = new StringSelection(jsonWrapper.toString());
             ClipboardHelper.getClipboard().setContents(stringSelection, null);
