@@ -19,7 +19,7 @@ import java.util.function.Supplier;
  * {@link PanelHelper} is a collection of static methods to help build panels.
  */
 public class PanelHelper {
-    public static final int THUMBNAIL_SIZE = 64;
+    public static final int THUMBNAIL_SIZE = 20;
 
     /**
      * <p>A convenience method to add a label and component to a panel that is built with
@@ -251,12 +251,7 @@ public class PanelHelper {
                                        GridBagConstraints gbc) {
         JButton button = new JButton();
         JLabel sizeLabel = new JLabel();
-        JLabel imgLabel = new JLabel();
         PanelHelper.addLabelAndComponent(panel,label,button,gbc);
-        gbc.gridy++;
-        PanelHelper.addLabelAndComponent(panel,"Size",sizeLabel,gbc);
-        gbc.gridy++;
-        PanelHelper.addLabelAndComponent(panel,"Preview",imgLabel,gbc);
 
         button.addActionListener(e -> {
             var textureChooserDialog = new TextureChooserDialog();
@@ -267,24 +262,11 @@ public class PanelHelper {
                 var newTexture = textureChooserDialog.getSelectedItem();
                 textureConsumer.accept(newTexture);
                 setTextureButtonLabel(button,newTexture);
-                updateTexturePreview(sizeLabel,imgLabel,newTexture);
             }
         });
 
         var texture = textureSupplier.get();
         setTextureButtonLabel(button,texture);
-        updateTexturePreview(sizeLabel,imgLabel,texture);
-    }
-
-    private static void updateTexturePreview(JLabel sizeLabel, JLabel imgLabel, TextureWithMetadata texture) {
-        if(texture!=null) {
-            sizeLabel.setText(texture.getWidth()+"x"+texture.getHeight());
-            imgLabel.setIcon(new ImageIcon(scaleImage(texture.getImage())));
-            imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        } else {
-            sizeLabel.setText("");
-            imgLabel.setIcon(null);
-        }
     }
 
     private static void setTextureButtonLabel(JButton button,TextureWithMetadata texture) {
@@ -301,7 +283,8 @@ public class PanelHelper {
         } else if(name.contains("/")) {
             name = name.substring(name.lastIndexOf('/')+1);
         }
-        button.setText(name);
+        button.setText("");
+        button.setIcon(new ImageIcon(scaleImage(texture.getImage())));
     }
 
     private static BufferedImage scaleImage(BufferedImage sourceImage) {

@@ -595,8 +595,8 @@ public class Material extends Node {
         shaderProgram.setColor(gl3,"specularColor",this.getSpecularColor());
         shaderProgram.setColor(gl3,"emissionColor",this.getEmissionColor());
         shaderProgram.set1i(gl3,"useLighting",this.isLit() ? 1 : 0);
-        shaderProgram.set1i(gl3,"shininess",this.getShininess());
-        shaderProgram.set1f(gl3, "specularStrength", (float)this.getSpecularStrength()*10);
+        shaderProgram.set1i(gl3,"shininess",shininess);
+        shaderProgram.set1f(gl3, "specularStrength", (float)this.getSpecularStrength());
         // TODO add this settings for texture filters and apply them here.
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MIN_FILTER,GL3.GL_LINEAR);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MAG_FILTER,GL3.GL_LINEAR);
