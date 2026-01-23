@@ -31,6 +31,7 @@ public class Environment extends Node {
     public static final double SUN_DISTANCE = 200;
     public Color sunlightColor = new Color(0xfd,0xfb,0xd3,255);
     public double sunlightStrength = 1;
+    public double sunDiscExponent = 5;
     public Color ambientColor = new Color(0x20,0x20,0x20,255);
     private double declination = 0;  // degrees, +/-90
     private double timeOfDay = 180;  // 0-360 (scale by 24/360 to get hours)
@@ -143,6 +144,7 @@ public class Environment extends Node {
         json.put("timeOfDay", timeOfDay);
         json.put("sunlightColor", sunlightColor.getRGB());
         json.put("sunlightStrength", sunlightStrength);
+        json.put("sunDiscExponent", sunDiscExponent);
         json.put("ambientColor", ambientColor.getRGB());
         if(skyTexture!=null) json.put("skyTexture", skyTexture.getSource());
         json.put("skyShapeIsSphere", skyShapeIsSphere);
@@ -156,6 +158,7 @@ public class Environment extends Node {
         timeOfDay = from.optDouble("timeOfDay", timeOfDay);
         sunlightColor = new Color(from.optInt("sunlightColor", sunlightColor.getRGB()));
         sunlightStrength = from.optDouble("sunlightStrength", sunlightStrength);
+        sunDiscExponent = from.optDouble("sunDiscExponent", sunDiscExponent);
         ambientColor = new Color(from.optInt("ambientColor", ambientColor.getRGB()));
         if(from.has("skyTexture")) {
             skyTexture = Registry.textureFactory.get(Lifetime.SCENE,from.optString("skyTexture"));
@@ -184,6 +187,14 @@ public class Environment extends Node {
 
     public void setSunlightStrength(double strength) {
         sunlightStrength = strength;
+    }
+
+    public double getSunDiscExponent() {
+        return sunDiscExponent;
+    }
+
+    public void setSunDiscExponent(double sunDiscExponent) {
+        this.sunDiscExponent = sunDiscExponent;
     }
 
     public Color getAmbientColor() {
@@ -324,7 +335,7 @@ public class Environment extends Node {
     public ColorDouble getSkyColor(Ray ray) {
         Vector3d d = ray.getDirection();
         var dot = Math.clamp(sunlightSourceNormalized.dot(d),0,1);
-        var sd = Math.pow(dot,5);
+        var sd = Math.pow(dot, sunDiscExponent);
         var a = 1.0-sd;
 
         var sunlightColorD = new ColorDouble(getSunlightColor());
@@ -349,8 +360,8 @@ public class Environment extends Node {
 
         Vector3d d = ray.getDirection();
         double dot = Math.clamp(sunlightSourceNormalized.dot(d),0,1);
-        double sd = Math.pow(dot,5);
-        double a = Math.pow(1.0-sd,5);
+        double sd = Math.pow(dot, sunDiscExponent);
+        double a = Math.pow(1.0-sd, 5); // Falloff for sky texture blending is hardcoded, but sd uses exponent
 
         // get the texture coordinate
         Ray r2 = new Ray(ray);

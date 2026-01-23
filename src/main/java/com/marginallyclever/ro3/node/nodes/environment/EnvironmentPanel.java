@@ -51,6 +51,12 @@ public class EnvironmentPanel extends JPanel {
         PanelHelper.addLabelAndComponent(this,"Sunlight strength",esField,gbc);
         gbc.gridy++;
 
+        // sun disc exponent
+        var sdeField = PanelHelper.addNumberField("sun disc exponent", environment.getSunDiscExponent(), nfPos);
+        sdeField.addPropertyChangeListener("value", e -> environment.setSunDiscExponent(((Number)e.getNewValue()).doubleValue()));
+        PanelHelper.addLabelAndComponent(this, "Sun disc exponent", sdeField, gbc);
+        gbc.gridy++;
+
         // sun position
         gbc.gridy++;
         PanelHelper.addLabelAndComponent(this, "Time of day (24h)", timeOfDay,gbc);
