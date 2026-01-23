@@ -164,7 +164,7 @@ public class LinearStewartPlatform2 extends Node {
         while(getShortestActuatorLength() < getMinActuatorLength()) {
             topPos.z += 0.1;
             top.setPosition(topPos);
-        };
+        }
     }
 
     private double getShortestActuatorLength() {
@@ -347,5 +347,243 @@ public class LinearStewartPlatform2 extends Node {
             m4.setTranslation(tp);
             topWaldos.get(i).setWorld(m4);
         }
+    }
+
+    private double frobeniusNorm(double[][] m) {
+        double s = 0.0;
+        for (int i = 0; i < m.length; ++i) {
+            for (int j = 0; j < m[i].length; ++j) {
+                double v = m[i][j];
+                s += v * v;
+            }
+        }
+        return Math.sqrt(s);
+    }
+
+    /**
+     * Compute condition number of the 6x6 Jacobian using Frobenius norm:
+     * cond = ||J||_F * ||J^{-1}||_F. Returns Double.POSITIVE_INFINITY if J is singular.
+     */
+    public double evaluateJacobianConditionNumber() {
+        double[][] J = getJacobian();
+
+        // scale J by average radius to make condition number more meaningful.
+        // Jnormalized = J * diag(1/L, 1/L, 1/L, 1, 1, 1)
+        double L = getAverageRadius();
+        for (int i = 0; i < J.length; ++i) {
+            for (int j = 0; j < J[i].length; ++j) {
+                if (j < 3) {
+                    J[i][j] /= L;
+                }
+            }
+        }
+
+        try {
+            double[][] inv = BigMatrixHelper.invert(J);
+            double nJ = frobeniusNorm(J);
+            double nInv = frobeniusNorm(inv);
+            return nJ * nInv;
+        } catch (Exception e) {
+            return Double.POSITIVE_INFINITY;
+        }
+    }
+
+    private double getAverageRadius() {
+        return (topOffset.length()+bottomOffset.length())/2.0;
+    }
+
+    /**
+     * Compute numeric rank of a matrix using Gaussian elimination with partial pivoting.
+     * tol is the pivot threshold (e.g. 1e-6).
+     */
+    private int matrixRank(double[][] in, double tol) {
+        int m = in.length;
+        int n = in[0].length;
+        double[][] a = new double[m][n];
+        for (int i = 0; i < m; ++i) System.arraycopy(in[i], 0, a[i], 0, n);
+
+        int rank = 0;
+        int row = 0;
+        for (int col = 0; col < n && row < m; ++col) {
+            // find pivot
+            int sel = row;
+            double max = Math.abs(a[sel][col]);
+            for (int r = row + 1; r < m; ++r) {
+                double v = Math.abs(a[r][col]);
+                if (v > max) { max = v; sel = r; }
+            }
+            if (max < tol) continue;
+            // swap
+            if (sel != row) {
+                double[] tmp = a[sel]; a[sel] = a[row]; a[row] = tmp;
+            }
+            // eliminate below
+            double piv = a[row][col];
+            for (int r = row + 1; r < m; ++r) {
+                double factor = a[r][col] / piv;
+                if (factor == 0.0) continue;
+                for (int c = col; c < n; ++c) {
+                    a[r][c] -= factor * a[row][c];
+                }
+            }
+            row++;
+            rank++;
+        }
+        return rank;
+    }
+
+    /**
+     * Evaluate rank of current Jacobian.
+     */
+    public int evaluateJacobianRank() {
+        double[][] J = getJacobian();
+        // tolerance chosen empirically; adjust if needed
+        return matrixRank(J, 1e-6);
+    }
+
+    /**
+     * Grid search scaling factors for top and bottom plate offsets.
+     * - minScale...maxScale inclusive, using steps per axis.
+     * Prints best found scales (closest condition to 1) and restores original offsets.
+     */
+    public void searchBestScale(double minScale, double maxScale, int steps) {
+        if (steps < 2) steps = 2;
+        var origTop = new Vector2d(topOffset);
+        var origBottom = new Vector2d(bottomOffset);
+
+        double bestScore = Double.POSITIVE_INFINITY;
+        double bestTopScale = 1.0;
+        double bestBottomScale = 1.0;
+        double bestCond = Double.NaN;
+        int bestRank = 0;
+
+        for (int i = 0; i < steps; ++i) {
+            double topScale = minScale + (maxScale - minScale) * i / (steps - 1);
+            for (int j = 0; j < steps; ++j) {
+                double bottomScale = minScale + (maxScale - minScale) * j / (steps - 1);
+                // apply scales
+                topOffset.set(origTop);
+                bottomOffset.set(origBottom);
+                topOffset.scale(topScale);
+                bottomOffset.scale(bottomScale);
+                refreshShape();
+
+                double cond = evaluateJacobianConditionNumber();
+                int rank = evaluateJacobianRank();
+                double score = Double.isFinite(cond) ? Math.abs(cond - 1.0) : Double.POSITIVE_INFINITY;
+
+                if (Double.isFinite(score) && (score < bestScore || (Math.abs(score - bestScore) < 1e-12 && rank > bestRank))) {
+                    bestScore = score;
+                    bestTopScale = topScale;
+                    bestBottomScale = bottomScale;
+                    bestCond = cond;
+                    bestRank = rank;
+                }
+            }
+        }
+
+        // restore original offsets and shape
+        topOffset.set(origTop);
+        bottomOffset.set(origBottom);
+        refreshShape();
+
+        System.out.println("searchBestScale result: topScale=" + bestTopScale +
+                " bottomScale=" + bestBottomScale +
+                " cond=" + bestCond +
+                " rank=" + bestRank +
+                " score=" + bestScore);
+    }
+
+    /**
+     * a gradient-descent based optimizer to adjust the four offset components (top.x, top.y, bottom.x, bottom.y).
+     * The method uses a squared-error objective (cond - 1)^2 with a large penalty for non-finite condition numbers,
+     * computes gradients by central finite differences, runs gradient steps until convergence or max iterations,
+     * records the best found offsets, restores the original offsets, and prints the result.
+     * @param learningRate
+     * @param maxIter
+     * @param tol
+     */
+    public void searchBestOffsetsByGradientDescent(double learningRate, int maxIter, double tol) {
+        if (maxIter <= 0) maxIter = 100;
+        if (learningRate <= 0) learningRate = 1e-2;
+        if (tol <= 0) tol = 1e-6;
+
+        // save originals
+        var origTop = new Vector2d(topOffset);
+        var origBottom = new Vector2d(bottomOffset);
+
+        // parameter vector: [top.x, top.y, bottom.x, bottom.y]
+        double[] p = { topOffset.x, topOffset.y, bottomOffset.x, bottomOffset.y };
+        double[] bestP = p.clone();
+        double bestScore = Double.POSITIVE_INFINITY;
+        int bestIter = 0;
+
+        final double fdStep = 1e-3; // finite difference step
+        for (int iter = 0; iter < maxIter; ++iter) {
+            // apply current params
+            topOffset.set(p[0], p[1]);
+            bottomOffset.set(p[2], p[3]);
+            refreshShape();
+
+            // objective: squared error (cond - 1)^2, large penalty if non-finite
+            double cond = evaluateJacobianConditionNumber();
+            double score = Double.isFinite(cond) ? (cond - 1.0) * (cond - 1.0) : 1e12;
+            if (Double.isFinite(score) && score < bestScore) {
+                bestScore = score;
+                bestP = p.clone();
+                bestIter = iter;
+            }
+
+            // compute gradient by central differences
+            double[] grad = new double[4];
+            double gradNormSq = 0.0;
+            for (int k = 0; k < 4; ++k) {
+                double orig = p[k];
+
+                p[k] = orig + fdStep;
+                topOffset.set(p[0], p[1]);
+                bottomOffset.set(p[2], p[3]);
+                refreshShape();
+                double c1 = evaluateJacobianConditionNumber();
+                double s1 = Double.isFinite(c1) ? (c1 - 1.0) * (c1 - 1.0) : 1e12;
+
+                p[k] = orig - fdStep;
+                topOffset.set(p[0], p[1]);
+                bottomOffset.set(p[2], p[3]);
+                refreshShape();
+                double c2 = evaluateJacobianConditionNumber();
+                double s2 = Double.isFinite(c2) ? (c2 - 1.0) * (c2 - 1.0) : 1e12;
+
+                // restore
+                p[k] = orig;
+
+                grad[k] = (s1 - s2) / (2.0 * fdStep);
+                gradNormSq += grad[k] * grad[k];
+            }
+
+            double gradNorm = Math.sqrt(gradNormSq);
+            if (gradNorm < tol) {
+                break;
+            }
+
+            // gradient descent update
+            for (int k = 0; k < 4; ++k) {
+                p[k] -= learningRate * grad[k];
+            }
+        }
+
+        // restore original offsets/shape
+        topOffset.set(origTop);
+        bottomOffset.set(origBottom);
+        refreshShape();
+
+        System.out.println("result: bestIter=" + bestIter +
+                " top=(" + bestP[0] + "," + bestP[1] + ")" +
+                " bottom=(" + bestP[2] + "," + bestP[3] + ")" +
+                " bestScore=" + bestScore +
+                " learningRate="+learningRate +
+                " maxIter="+maxIter +
+                " tol="+tol);
+
     }
 }
