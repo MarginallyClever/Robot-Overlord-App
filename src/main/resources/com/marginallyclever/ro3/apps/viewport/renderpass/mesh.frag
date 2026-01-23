@@ -27,7 +27,7 @@ uniform sampler2D Metallic;
 uniform sampler2D Roughness;
 uniform sampler2D AO;
 
-uniform sampler2D shadowMap;
+uniform sampler2DShadow shadowMap;
 
 uniform bool useLighting;
 uniform bool useVertexColor;  // per-vertex color
@@ -37,25 +37,24 @@ float shadowCalculation(vec4 fragPosLightSpace,vec3 normal,vec3 lightDir) {
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     // transform to [0,1] range
     projCoords = projCoords * 0.5 + 0.5;
-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    float closestDepth = texture(shadowMap, projCoords.xy).r;
-    // get depth of current fragment from light's perspective
-    float currentDepth = projCoords.z;
-
-    float bias = max(0.0005 * (1.0 - dot(normal, lightDir)), 0.00005);
-    // check whether current frag pos is in shadow
 
     if(projCoords.z > 1.0) return 0.0f;
 
+    float bias = max(0.0005 * (1.0 - dot(normal, lightDir)), 0.00005);
+    
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
     for(int x = -1; x <= 1; ++x) {
         for(int y = -1; y <= 1; ++y) {
-            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
-            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+            shadow += texture(shadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, projCoords.z - bias));
         }
     }
-    return shadow / 9.0f;
+    shadow /= 9.0;
+    
+    // Smooth out the transition at the light edge
+    float lightIntensity = clamp(dot(normal, lightDir) * 10.0, 0.0, 1.0);
+    shadow *= lightIntensity;
+    return 1.0 - shadow;
 }
 
 void main() {
@@ -93,18 +92,16 @@ void main() {
         vec4 specularLight = specWithTexture * lightColor;
 
         // Shadow
-        float shadow = shadowCalculation(fs_in.fragPosLightSpace,norm,lightDir);
+        vec3 geoNorm = normalize(fs_in.normalVector);
+        float shadow = shadowCalculation(fs_in.fragPosLightSpace,geoNorm,lightDir);
+
+        // Don't show highlights if we are facing away from the light
+        if (dot(geoNorm, lightDir) <= 0.0) shadow = 1.0;
 
         // put it all together.
         result *= (ambientColor * aoMap) + (diffuseLight + specularLight) * (1.0 - shadow);
         result += emissionColor;
     }
 
-    //finalColor = vec4(fs_in.textureCoord.x,fs_in.textureCoord.y,0,1);  // for testing texture coordinates
-    finalColor = result;
-    finalColor.a = diffuseColor.a;
-
-    // log depth for more accuracy at far distances
-    float far = 1e9;
-    gl_FragDepth = log2(gl_FragCoord.z * far) / log2(far+1.0);
+    finalColor = vec4(result.rgb, diffuseColor.a);
 }

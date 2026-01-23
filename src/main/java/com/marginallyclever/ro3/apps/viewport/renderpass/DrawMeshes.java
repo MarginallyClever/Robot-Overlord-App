@@ -42,8 +42,8 @@ public class DrawMeshes extends AbstractRenderPass {
     private final int [] shadowFBO = new int[1];  // Frame Buffer Object
     private final int [] shadowTexture = new int[1];  // texture for the FBO
     private final int shadowMapUnit = TextureLayerIndex.values().length+1;
-    public static final int SHADOW_WIDTH = 1024;
-    public static final int SHADOW_HEIGHT = 1024;
+    public static final int SHADOW_WIDTH = 4096;
+    public static final int SHADOW_HEIGHT = 4096;
 
     public static final double DEPTH_BUFFER_LIMIT = Environment.SUN_DISTANCE*1.5;
     public static final Matrix4d lightProjection = new Matrix4d();
@@ -162,10 +162,13 @@ public class DrawMeshes extends AbstractRenderPass {
         gl3.glBindTexture(GL3.GL_TEXTURE_2D, shadowTexture[0]);
         gl3.glTexImage2D(GL3.GL_TEXTURE_2D,0,GL3.GL_DEPTH_COMPONENT,SHADOW_WIDTH,SHADOW_HEIGHT,0,GL3.GL_DEPTH_COMPONENT,GL3.GL_FLOAT,null);
 
-        gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MIN_FILTER,GL3.GL_NEAREST);
-        gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MAG_FILTER,GL3.GL_NEAREST);
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MIN_FILTER,GL3.GL_LINEAR);
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MAG_FILTER,GL3.GL_LINEAR);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_S,GL3.GL_CLAMP_TO_BORDER);
         gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_T,GL3.GL_CLAMP_TO_BORDER);
+
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_COMPARE_MODE, GL3.GL_COMPARE_REF_TO_TEXTURE);
+        gl3.glTexParameteri(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_COMPARE_FUNC, GL3.GL_LEQUAL);
 
         float [] borderColor = { 1.0f, 1.0f, 1.0f, 1.0f };
         gl3.glTexParameterfv(GL3.GL_TEXTURE_2D, GL3.GL_TEXTURE_BORDER_COLOR, borderColor,0);
@@ -210,11 +213,14 @@ public class DrawMeshes extends AbstractRenderPass {
         // setup shader and viewport to depth map
         gl3.glClear(GL3.GL_DEPTH_BUFFER_BIT);
         gl3.glEnable(GL3.GL_DEPTH_TEST);
-        gl3.glCullFace(GL3.GL_FRONT);
+        gl3.glCullFace(GL3.GL_BACK);
         shadowShader.use(gl3);
         shadowShader.setMatrix4d(gl3, "lightProjectionMatrix", lightProjection);
         shadowShader.setMatrix4d(gl3, "lightViewMatrix", lightView);
-
+        
+        gl3.glEnable(GL3.GL_POLYGON_OFFSET_FILL);
+        gl3.glPolygonOffset(2.5f, 10.0f);
+        
         for(MeshMaterialMatrix meshMaterialMatrix : meshes) {
             MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
             if(!meshInstance.getHasShadow()) continue;
@@ -223,6 +229,8 @@ public class DrawMeshes extends AbstractRenderPass {
             shadowShader.setMatrix4d(gl3,"modelMatrix",w);
             meshInstance.getMesh().render(gl3);
         }
+
+        gl3.glDisable(GL3.GL_POLYGON_OFFSET_FILL);
         // viewport scene as normal with shadow mapping (using depth map)
         gl3.glCullFace(GL3.GL_BACK);
         gl3.glBindFramebuffer(GL3.GL_FRAMEBUFFER,0);
