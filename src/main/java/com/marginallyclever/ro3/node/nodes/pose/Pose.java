@@ -109,7 +109,7 @@ public class Pose extends Node implements PoseChangeListener {
     public Matrix4d getWorld() {
         // search up the tree to find the world transform.
         if(parentPose==null) {
-            return getLocal();
+            return new Matrix4d(getLocal());
         }
         Matrix4d result = parentPose.getWorld();
         result.mul(getLocal());
