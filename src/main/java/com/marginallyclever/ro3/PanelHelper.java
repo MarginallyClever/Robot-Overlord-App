@@ -19,8 +19,6 @@ import java.util.function.Supplier;
  * {@link PanelHelper} is a collection of static methods to help build panels.
  */
 public class PanelHelper {
-    public static final int THUMBNAIL_SIZE = 20;
-
     /**
      * <p>A convenience method to add a label and component to a panel that is built with
      * {@link GridLayout}.</p>
@@ -92,6 +90,9 @@ public class PanelHelper {
     public static void addColorChooser(JPanel parent, String title, Supplier<Color> startColor, Consumer<Color> consumer, GridBagConstraints gbc) {
         JButton button = new JButton();
         button.setBackground(startColor.get());
+        int fontHeight = button.getFontMetrics(button.getFont()).getHeight();
+        button.setMinimumSize(new Dimension(0, fontHeight + 8));
+        button.setPreferredSize(new Dimension(button.getPreferredSize().width, fontHeight + 8));
         button.addActionListener(e -> {
             Color color = JColorChooser.showDialog(parent,title,startColor.get());
             if(color!=null) {
@@ -283,13 +284,15 @@ public class PanelHelper {
         } else if(name.contains("/")) {
             name = name.substring(name.lastIndexOf('/')+1);
         }
-        button.setText("");
-        button.setIcon(new ImageIcon(scaleImage(texture.getImage())));
+        button.removeAll();
+        button.setLayout(new BoxLayout(button,BoxLayout.X_AXIS));
+        button.add(new JLabel(new ImageIcon(scaleImage(texture.getImage(),button.getFont().getSize()))));
+        button.add(new JLabel(" "+name));
     }
 
-    private static BufferedImage scaleImage(BufferedImage sourceImage) {
-        Image tmp = sourceImage.getScaledInstance(THUMBNAIL_SIZE, THUMBNAIL_SIZE, Image.SCALE_SMOOTH);
-        BufferedImage scaledImage = new BufferedImage(THUMBNAIL_SIZE, THUMBNAIL_SIZE, BufferedImage.TYPE_INT_ARGB);
+    private static BufferedImage scaleImage(BufferedImage sourceImage,int size) {
+        Image tmp = sourceImage.getScaledInstance(size, size, Image.SCALE_SMOOTH);
+        BufferedImage scaledImage = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D g2d = scaledImage.createGraphics();
         g2d.drawImage(tmp, 0, 0, null);
