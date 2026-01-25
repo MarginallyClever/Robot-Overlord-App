@@ -2,7 +2,9 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.marginallyclever.convenience.swing.NumberFormatHelper;
 import com.marginallyclever.ro3.PanelHelper;
-import com.marginallyclever.ro3.apps.viewport.TextureLayerIndex;
+import com.marginallyclever.ro3.apps.viewport.MaterialLayers;
+
+import com.marginallyclever.ro3.texture.TextureWithMetadata;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,23 +31,43 @@ public class MaterialPanel extends JPanel {
         gbc.gridy=0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        var list = TextureLayerIndex.values();
-        for( var i : list ) {
-            PanelHelper.addTextureField(
-                    this,
-                    i.getName(),
-                    ()->material.getTexture(i.getIndex()),
-                    e->material.setTexture(i.getIndex(),e),
-                    gbc);
+        MaterialLayers[] list = MaterialLayers.values();
+        for (MaterialLayers i : list) {
+            if (i == MaterialLayers.ALBEDO || i == MaterialLayers.METALLIC || i == MaterialLayers.EMISSIVE) {
+                PanelHelper.addColorSourceControl(
+                        this,
+                        i.getName(),
+                        () -> material.isTextureMode(i),
+                        () -> switch (i) {
+                            case ALBEDO -> material.getDiffuseColor();
+                            case METALLIC -> material.getSpecularColor();
+                            case EMISSIVE -> material.getEmissionColor();
+                            default -> Color.WHITE;
+                        },
+                        () -> material.getTexture(i.getIndex()),
+                        (isTexture, value) -> {
+                            material.setTextureMode(i, isTexture);
+                            if (isTexture) {
+                                material.setTexture(i.getIndex(), (TextureWithMetadata) value);
+                            } else {
+                                switch (i) {
+                                    case ALBEDO -> material.setDiffuseColor((Color) value);
+                                    case METALLIC -> material.setSpecularColor((Color) value);
+                                    case EMISSIVE -> material.setEmissionColor((Color) value);
+                                }
+                            }
+                        },
+                        gbc);
+            } else {
+                PanelHelper.addTextureField(
+                        this,
+                        i.getName(),
+                        () -> material.getTexture(i.getIndex()),
+                        e -> material.setTexture(i.getIndex(), e),
+                        gbc);
+            }
             gbc.gridy++;
         }
-
-        PanelHelper.addColorChooser(this,"Diffuse",material::getDiffuseColor,material::setDiffuseColor,gbc);
-        gbc.gridy++;
-        PanelHelper.addColorChooser(this,"Specular",material::getSpecularColor,material::setSpecularColor,gbc);
-        gbc.gridy++;
-        PanelHelper.addColorChooser(this,"Emissive",material::getEmissionColor,material::setEmissionColor,gbc);
-        gbc.gridy++;
 
         // emission strength
         var nfPos = NumberFormatHelper.getNumberFormatterDouble();
@@ -62,10 +84,22 @@ public class MaterialPanel extends JPanel {
         gbc.gridy++;
 
         // shininess
-        gbc.gridwidth=2;
-        this.add(createShininessSlider(),gbc);
+        JSlider shininessSlider = new JSlider(0,128,material.getShininess());
+        shininessSlider.addChangeListener(e -> material.setShininess(shininessSlider.getValue()));
+        // Make the slider fill the available horizontal space
+        shininessSlider.setMaximumSize(new Dimension(Integer.MAX_VALUE, shininessSlider.getPreferredSize().height));
+        shininessSlider.setMinimumSize(new Dimension(50, shininessSlider.getPreferredSize().height));
+        PanelHelper.addLabelAndComponent(this,"Shininess",shininessSlider,gbc);
+
         gbc.gridy++;
-        this.add(createSpecularStrengthSlider(),gbc);
+
+        var specularStrength = material.getSpecularStrength();
+        JSlider specularSlider = new JSlider(0,100,(int)(specularStrength*100));
+        specularSlider.addChangeListener(e -> material.setSpecularStrength(specularSlider.getValue()/100.0));
+        // Make the slider fill the available horizontal space
+        specularSlider.setMaximumSize(new Dimension(Integer.MAX_VALUE, specularSlider.getPreferredSize().height));
+        specularSlider.setMinimumSize(new Dimension(50, specularSlider.getPreferredSize().height));
+        PanelHelper.addLabelAndComponent(this,"Specular strength",specularSlider,gbc);
         gbc.gridy++;
 
         var iorField = PanelHelper.createSlider(5.0, 1.0, Math.max(1,material.getIOR()), material::setIOR);
@@ -75,38 +109,5 @@ public class MaterialPanel extends JPanel {
         var reflectivity = PanelHelper.createSlider(1.0, 0.0, Math.clamp(material.getReflectivity(),0,1), material::setReflectivity);
         PanelHelper.addLabelAndComponent(this,"Reflectivity",reflectivity,gbc);
         gbc.gridy++;
-    }
-
-    private JComponent createShininessSlider() {
-        JPanel container = new JPanel(new BorderLayout());
-
-        JSlider slider = new JSlider(0,128,material.getShininess());
-        slider.addChangeListener(e -> material.setShininess(slider.getValue()));
-
-        // Make the slider fill the available horizontal space
-        slider.setMaximumSize(new Dimension(Integer.MAX_VALUE, slider.getPreferredSize().height));
-        slider.setMinimumSize(new Dimension(50, slider.getPreferredSize().height));
-
-        container.add(new JLabel("Shininess"), BorderLayout.LINE_START);
-        container.add(slider, BorderLayout.CENTER); // Add slider to the center of the container
-
-        return container;
-    }
-
-    private JComponent createSpecularStrengthSlider() {
-        JPanel container = new JPanel(new BorderLayout());
-
-        var specularStrength = material.getSpecularStrength();
-        JSlider slider = new JSlider(0,100,(int)(specularStrength*100));
-        slider.addChangeListener(e -> material.setSpecularStrength(slider.getValue()/100.0));
-
-        // Make the slider fill the available horizontal space
-        slider.setMaximumSize(new Dimension(Integer.MAX_VALUE, slider.getPreferredSize().height));
-        slider.setMinimumSize(new Dimension(50, slider.getPreferredSize().height));
-
-        container.add(new JLabel("Specular strength"), BorderLayout.LINE_START);
-        container.add(slider, BorderLayout.CENTER); // Add slider to the center of the container
-
-        return container;
     }
 }

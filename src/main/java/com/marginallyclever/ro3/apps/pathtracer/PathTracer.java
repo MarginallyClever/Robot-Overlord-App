@@ -32,9 +32,9 @@ import java.util.prefs.Preferences;
  */
 public class PathTracer {
     public static final int CHANNEL_VIEWPORT_U = 0;
-    public static final int CHANNEL_VIEWPORT_V = 0;
-    public static final int CHANNEL_HEMISPHERE_U = 0;
-    public static final int CHANNEL_HEMISPHERE_V = 0;
+    public static final int CHANNEL_VIEWPORT_V = 1;
+    public static final int CHANNEL_HEMISPHERE_U = 2;
+    public static final int CHANNEL_HEMISPHERE_V = 3;
     public static final int CHANNEL_RUSSIAN_ROULETTE = 4;
     public static final int CHANNEL_LIGHT_SAMPLING = 5;
     public static final int CHANNEL_BSDF_SAMPLING = 6;
@@ -240,7 +240,7 @@ public class PathTracer {
         double wBSDF = misWeight(pb,pl);
 
         // contribution
-        ColorDouble contribution = new ColorDouble(mat2.getEmittedLight());
+        ColorDouble contribution = new ColorDouble(mat2.getEmittedLight(lightHit));
         contribution.multiply(brdf);
         contribution.scale( 1.0 / (pdfLight*p));
         contribution.multiply(throughput);
@@ -279,7 +279,7 @@ public class PathTracer {
     private void handleEmissiveHit(Ray ray, Hit hit, Ray prevRay, Hit prevHit, ColorDouble throughput, ColorDouble radiance, Material mat, ScatterRecord prevScatter) {
         if(prevHit == null) {
             // First bounce: no MIS, just add light directly
-            ColorDouble emittedLight = mat.getEmittedLight();
+            ColorDouble emittedLight = mat.getEmittedLight(hit);
             emittedLight.multiply(throughput);
             emittedLight.clamp(0, maxContribution);
             radiance.add(emittedLight);
@@ -301,7 +301,7 @@ public class PathTracer {
         lightDir.normalize();
         double cosThetaLight = Math.max(0.0, -hit.normal().dot(lightDir));
 
-        ColorDouble emittedLight = mat.getEmittedLight();
+        ColorDouble emittedLight = mat.getEmittedLight(hit);
 
         // if the previous bounce was specular we can only have come from the BSDF sampling
         // so we don't need to do MIS.
@@ -446,8 +446,8 @@ public class PathTracer {
      */
     private Ray getRayForXY(int x,int y) {
         return activeCamera.getRayThroughPoint(
-                (2.0 * x / canvasWidth) - 1.0,
-                1.0 - (2.0 * y / canvasHeight),
+                (2.0 * (x + 0.5) / canvasWidth) - 1.0,
+                1.0 - (2.0 * (y + 0.5) / canvasHeight),
                 canvasWidth, canvasHeight);
     }
 

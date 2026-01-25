@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.apps.pathtracer.*;
-import com.marginallyclever.ro3.apps.viewport.TextureLayerIndex;
+import com.marginallyclever.ro3.apps.viewport.MaterialLayers;
 import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.raypicking.Hit;
@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.vecmath.Vector3d;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
 
@@ -40,6 +41,7 @@ public class Material extends Node {
     private static final String RESOURCE_PATH = "/com/marginallyclever/ro3/node/nodes/material/";
 
     private final List<TextureWithMetadata> textures = new ArrayList<>();
+    private final Map<MaterialLayers, Boolean> isTextureMode = new HashMap<>();
     private Color diffuseColor = new Color(255,255,255);
     private Color specularColor = new Color(255,255,255);
     private Color emissionColor = new Color(0,0,0);
@@ -57,9 +59,17 @@ public class Material extends Node {
     public Material(String name) {
         super(name);
 
-        for (TextureLayerIndex ti : TextureLayerIndex.values()) {
-            String filename = RESOURCE_PATH + ti.getName() + ".jpg";
-            textures.add(Registry.textureFactory.get(Lifetime.APPLICATION, filename));
+        for (MaterialLayers ti : MaterialLayers.values()) {
+            if (ti == MaterialLayers.ALBEDO
+                    || ti == MaterialLayers.METALLIC
+                    || ti == MaterialLayers.EMISSIVE) {
+                String filename = RESOURCE_PATH + ti.getName() + ".jpg";
+                textures.add(Registry.textureFactory.get(Lifetime.APPLICATION, filename));
+                isTextureMode.put(ti, true);
+            } else {
+                String filename = RESOURCE_PATH + ti.getName() + ".jpg";
+                textures.add(Registry.textureFactory.get(Lifetime.APPLICATION, filename));
+            }
         }
     }
 
@@ -70,27 +80,46 @@ public class Material extends Node {
     }
 
     public void setDiffuseTexture(TextureWithMetadata texture) {
-        textures.set(TextureLayerIndex.ALBEDO.getIndex(),texture);
+        textures.set(MaterialLayers.ALBEDO.getIndex(),texture);
+        isTextureMode.put(MaterialLayers.ALBEDO, texture!=null);
     }
 
     public TextureWithMetadata getDiffuseTexture() {
-        return getTexture(TextureLayerIndex.ALBEDO.getIndex());
+        return getTexture(MaterialLayers.ALBEDO.getIndex());
     }
 
     public void setNormalTexture(TextureWithMetadata texture) {
-        textures.set(TextureLayerIndex.NORMAL.getIndex(), texture);
+        textures.set(MaterialLayers.NORMAL.getIndex(), texture);
     }
 
     public TextureWithMetadata getNormalTexture() {
-        return getTexture(TextureLayerIndex.NORMAL.getIndex());
+        return getTexture(MaterialLayers.NORMAL.getIndex());
     }
 
     public void setSpecularTexture(TextureWithMetadata texture) {
-        textures.set(TextureLayerIndex.METALLIC.getIndex(), texture);
+        textures.set(MaterialLayers.METALLIC.getIndex(), texture);
+        isTextureMode.put(MaterialLayers.METALLIC, texture!=null);
     }
 
     public TextureWithMetadata getSpecularTexture() {
-        return getTexture(TextureLayerIndex.METALLIC.getIndex());
+        return getTexture(MaterialLayers.METALLIC.getIndex());
+    }
+
+    public void setEmissiveTexture(TextureWithMetadata texture) {
+        textures.set(MaterialLayers.EMISSIVE.getIndex(), texture);
+        isTextureMode.put(MaterialLayers.EMISSIVE, texture!=null);
+    }
+
+    public TextureWithMetadata getEmissiveTexture() {
+        return getTexture(MaterialLayers.EMISSIVE.getIndex());
+    }
+
+    public boolean isTextureMode(MaterialLayers index) {
+        return isTextureMode.getOrDefault(index, false);
+    }
+
+    public void setTextureMode(MaterialLayers index, boolean isTexture) {
+        isTextureMode.put(index, isTexture);
     }
 
     @Override
@@ -106,9 +135,15 @@ public class Material extends Node {
         json.put("ior", ior);
         json.put("reflectivity", reflectivity);
 
-        json.put("version",1);
+        JSONObject isTextureModeJson = new JSONObject();
+        for (var entry : isTextureMode.entrySet()) {
+            isTextureModeJson.put(entry.getKey().getName(), entry.getValue());
+        }
+        json.put("isTextureMode", isTextureModeJson);
+
+        json.put("version", 2);
         JSONObject texturesJson = new JSONObject();
-        for(var ti : TextureLayerIndex.values()) {
+        for(var ti : MaterialLayers.values()) {
             var tex = getTexture(ti.getIndex());
             if(tex!=null) {
                 texturesJson.put(ti.getName(), tex.getSource());
@@ -132,7 +167,16 @@ public class Material extends Node {
         if(from.has("ior")) ior = from.getDouble("ior");
         if(from.has("reflectivity")) reflectivity = from.getDouble("reflectivity");
 
-        int version = from.optInt("version",0);  // future use
+        if (from.has("isTextureMode")) {
+            JSONObject isTextureModeJson = from.getJSONObject("isTextureMode");
+            for (MaterialLayers ti : MaterialLayers.values()) {
+                if (isTextureModeJson.has(ti.getName())) {
+                    isTextureMode.put(ti, isTextureModeJson.getBoolean(ti.getName()));
+                }
+            }
+        }
+
+        int version = from.optInt("version",0);
         if(version==0) {
             // old format: single texture
             if(from.has("texture")) {
@@ -141,14 +185,22 @@ public class Material extends Node {
             if(from.has("specularTexture")) setSpecularTexture(Registry.textureFactory.get(Lifetime.SCENE,from.getString("specularTexture")));
             if(from.has("normalTexture")) setNormalTexture(Registry.textureFactory.get(Lifetime.SCENE,from.getString("normalTexture")));
         }
-        if(version==1) {
+        if(version>=1) {
             var texturesFrom = from.optJSONObject("textures");
             if(texturesFrom!=null) {
-                for(var ti : TextureLayerIndex.values()) {
+                for(var ti : MaterialLayers.values()) {
                     var source = texturesFrom.optString(ti.getName());
                     if(source!=null && !source.isEmpty()) {
-                        var tex = Registry.textureFactory.get(Lifetime.SCENE,source);
-                        setTexture(ti.getIndex(),tex);
+                        var tex = Registry.textureFactory.get(Lifetime.APPLICATION, source);
+                        if (tex == null && source.startsWith("color_")) {
+                            try {
+                                int argb = (int) Long.parseLong(source.substring(6), 16);
+                                tex = createColorTexture(new Color(argb, true));
+                            } catch (NumberFormatException e) {
+                                logger.error("Failed to parse color from source: {}", source);
+                            }
+                        }
+                        setTexture(ti.getIndex(), tex);
                     }
                 }
             }
@@ -161,6 +213,7 @@ public class Material extends Node {
 
     public void setDiffuseColor(Color color) {
         diffuseColor = color;
+        isTextureMode.put(MaterialLayers.ALBEDO, false);
     }
 
     public Color getSpecularColor() {
@@ -169,6 +222,7 @@ public class Material extends Node {
 
     public void setSpecularColor(Color color) {
         specularColor = color;
+        isTextureMode.put(MaterialLayers.METALLIC, false);
     }
 
     public Color getEmissionColor() {
@@ -177,6 +231,7 @@ public class Material extends Node {
 
     public void setEmissionColor(Color color) {
         emissionColor = color;
+        isTextureMode.put(MaterialLayers.EMISSIVE, false);
     }
 
     /**
@@ -194,7 +249,11 @@ public class Material extends Node {
     }
 
     public boolean isEmissive() {
-        return emissionStrength>0 && (emissionColor.getRed()>0 || emissionColor.getGreen()>0 || emissionColor.getBlue()>0);
+        if (emissionStrength <= 0) return false;
+        if (isTextureMode(MaterialLayers.EMISSIVE)) {
+            return getEmissiveTexture() != null;
+        }
+        return emissionColor.getRed() > 0 || emissionColor.getGreen() > 0 || emissionColor.getBlue() > 0;
     }
 
     public void setShininess(int arg0) {
@@ -269,23 +328,28 @@ public class Material extends Node {
         if(hit.triangle()==null) {
             return Color.WHITE;
         }
-        ColorDouble diffuseColor = new ColorDouble(getDiffuseColor());
-        diffuseColor.multiply(new ColorDouble(hit.triangle().getColorAt(hit.point())));
 
-        var diffuseTexture = getDiffuseTexture();
-        if (diffuseTexture != null) {
-            var uv = hit.triangle().getUVAt(hit.point());
-            var textureColor = diffuseTexture.getColorAt(uv.x, uv.y);
-            diffuseColor.multiply(new ColorDouble(textureColor));
+        ColorDouble diffuseColor;
+        if (isTextureMode(MaterialLayers.ALBEDO)) {
+            var diffuseTexture = getDiffuseTexture();
+            if (diffuseTexture != null) {
+                var uv = hit.triangle().getUVAt(hit.point());
+                diffuseColor = new ColorDouble(diffuseTexture.getColorAt(uv.x, uv.y));
+            } else {
+                diffuseColor = new ColorDouble(Color.WHITE);
+            }
+        } else {
+            diffuseColor = new ColorDouble(getDiffuseColor());
         }
 
-        Color finalColor = new Color(
-                (int)(diffuseColor.r * 255),
-                (int)(diffuseColor.g * 255),
-                (int)(diffuseColor.b * 255),
-                (int)(diffuseColor.a * 255)
+        diffuseColor.multiply(new ColorDouble(hit.triangle().getColorAt(hit.point())));
+
+        return new Color(
+                (int)(Math.clamp(diffuseColor.r, 0, 1) * 255),
+                (int)(Math.clamp(diffuseColor.g, 0, 1) * 255),
+                (int)(Math.clamp(diffuseColor.b, 0, 1) * 255),
+                (int)(Math.clamp(diffuseColor.a, 0, 1) * 255)
         );
-        return finalColor;
     }
 
     /**
@@ -310,7 +374,25 @@ public class Material extends Node {
      * @return the emitted light as a ColorDouble
      */
     public ColorDouble getEmittedLight() {
-        var emittedLight = new ColorDouble(getEmissionColor());
+        return getEmittedLight(null);
+    }
+
+    public ColorDouble getEmittedLight(Hit hit) {
+        ColorDouble emittedLight;
+        if (isTextureMode(MaterialLayers.EMISSIVE)) {
+            var tex = getEmissiveTexture();
+            if (tex != null && hit != null && hit.triangle() != null) {
+                var uv = hit.triangle().getUVAt(hit.point());
+                emittedLight = new ColorDouble(tex.getColorAt(uv.x, uv.y));
+            } else if (tex != null) {
+                // If we don't have a hit, we can't sample, so return white as a fallback if texture exists
+                emittedLight = new ColorDouble(1,1,1,1);
+            } else {
+                emittedLight = new ColorDouble(0,0,0,1);
+            }
+        } else {
+            emittedLight = new ColorDouble(getEmissionColor());
+        }
         emittedLight.scale(getEmissionStrength());
         return emittedLight;
     }
@@ -320,41 +402,50 @@ public class Material extends Node {
         Vector3d wo = ray.getWo();
         var p = hit.point();
 
-        var albedoMap = textures.get(TextureLayerIndex.ALBEDO.getIndex());
-        var metalMap = textures.get(TextureLayerIndex.METALLIC.getIndex());
         var uv = hit.triangle().getUVAt(hit.point());
-/*
-        if(this.reflectivity>0) {
-            double r = pixel.halton.nextDouble(PathTracer.CHANNEL_BSDF_SAMPLING);
-            if(r <= this.reflectivity) {
-                // imperfect reflection
-                Vector3d reflectDir = reflect(ray.getDirection(), n);
-                var F0 = new ColorDouble(1,1,1,1);
-                var record = new ScatterRecord(new Ray(p, reflectDir), F0, 1.0, true);
-                record.type = ScatterRecord.ScatterType.SPECULAR;
-                return record;
-            }
-        }*/
 
         ColorDouble diffuse = new ColorDouble(getDiffuseColorAt(hit));
 
         // Fresnel reflectance using Schlick
-        ColorDouble spec = new ColorDouble(getSpecularColor());
+        ColorDouble spec;
+        if (isTextureMode(MaterialLayers.METALLIC)) {
+            var metalMap = textures.get(MaterialLayers.METALLIC.getIndex());
+            if (metalMap != null) {
+                spec = new ColorDouble(metalMap.getColorAt(uv.x, uv.y));
+            } else {
+                spec = new ColorDouble(Color.BLACK);
+            }
+        } else {
+            spec = new ColorDouble(getSpecularColor());
+        }
         spec.scale(getSpecularStrength());
 
         // Mix dielectric F0 (spec) with albedo for metallic behavior
-
-        Color metalColor = (metalMap != null) ? metalMap.getColorAt(uv.x, uv.y) : new Color(0,0,0,0);
-        double mR = Math.clamp(metalColor.getRed()   / 255.0, 0.0, 1.0 );
-        double mG = Math.clamp(metalColor.getGreen() / 255.0, 0.0, 1.0 );
-        double mB = Math.clamp(metalColor.getBlue()  / 255.0, 0.0, 1.0 );
-
-        // where specular/metallic map is black, reflect nothing (use diffuse color)
-        ColorDouble F0 = new ColorDouble(
-            spec.r * mR + diffuse.r * (1.0 - mR),
-            spec.g * mG + diffuse.g * (1.0 - mG),
-            spec.b * mB + diffuse.b * (1.0 - mB),
-            1.0);
+        // In simplified PBR: F0 = mix(0.04, albedo, metallic)
+        // Here we use spec as the dielectric F0 and metalMap to interpolate.
+        // If we are in color mode for METALLIC, we just use the spec color.
+        
+        ColorDouble F0;
+        if (isTextureMode(MaterialLayers.METALLIC)) {
+            var metalMap = textures.get(MaterialLayers.METALLIC.getIndex());
+            if (metalMap != null) {
+                Color metalColor = metalMap.getColorAt(uv.x, uv.y);
+                double mR = Math.clamp(metalColor.getRed()   / 255.0, 0.0, 1.0 );
+                double mG = Math.clamp(metalColor.getGreen() / 255.0, 0.0, 1.0 );
+                double mB = Math.clamp(metalColor.getBlue()  / 255.0, 0.0, 1.0 );
+                // where specular/metallic map is black, reflect nothing (use diffuse color)
+                F0 = new ColorDouble(
+                        spec.r * mR + diffuse.r * (1.0 - mR),
+                        spec.g * mG + diffuse.g * (1.0 - mG),
+                        spec.b * mB + diffuse.b * (1.0 - mB),
+                        1.0);
+            } else {
+                F0 = new ColorDouble(spec);
+            }
+        } else {
+            // In color mode, we treat specularColor as the full F0 for now to match previous behavior
+            F0 = new ColorDouble(spec);
+        }
 
         // cosθ for Fresnel and diffuse
         double cosTheta = Math.max(0, ray.getDirection().dot(n));
@@ -566,10 +657,10 @@ public class Material extends Node {
         double cosI = n.dot(wi);
         if (cosI <= 0.0) return new ColorDouble(0,0,0);
 
-        // Base diffuse reflectance (optionally could sample texture)
-        ColorDouble kd = new ColorDouble(getDiffuseColor());
+        // Base diffuse reflectance
+        ColorDouble kd = new ColorDouble(getDiffuseColorAt(hit));
 
-        // Transmission weight encoded in alpha (as in scatter()).
+        // Transmission weight encoded in alpha
         double wt = (1.0-kd.a);
         if (wt >= 0.999) return new ColorDouble(0,0,0); // effectively transparent: no surface shading
 
@@ -581,7 +672,7 @@ public class Material extends Node {
 
     public TextureWithMetadata getTexture(int index) {
         if(index<0) throw new IllegalArgumentException("Invalid texture index: "+index);
-        if(index>= TextureLayerIndex.values().length) throw new IllegalArgumentException("Invalid texture index: "+index);
+        if(index>= MaterialLayers.values().length) throw new IllegalArgumentException("Invalid texture index: "+index);
 
         return textures.get(index);
     }
@@ -590,22 +681,33 @@ public class Material extends Node {
         textures.set(index, e);
     }
 
+    private TextureWithMetadata createColorTexture(Color color) {
+        String name = "color_" + String.format("%08x", color.getRGB());
+        TextureWithMetadata tex = Registry.textureFactory.get(Lifetime.APPLICATION, name);
+        if (tex != null) return tex;
+
+        BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        img.setRGB(0, 0, color.getRGB());
+        tex = new TextureWithMetadata(img, name);
+        tex.setDoNotExport(true);
+        Registry.textureFactory.register(Lifetime.APPLICATION, tex);
+        return tex;
+    }
+
     public void use(GL3 gl3, ShaderProgram shaderProgram) {
-        shaderProgram.setColor(gl3,"diffuseColor",this.getDiffuseColor());
-        shaderProgram.setColor(gl3,"specularColor",this.getSpecularColor());
-        shaderProgram.setColor(gl3,"emissionColor",this.getEmissionColor());
         shaderProgram.set1i(gl3,"useLighting",this.isLit() ? 1 : 0);
+        shaderProgram.set1i(gl3,"useVertexColor", 0);
         shaderProgram.set1i(gl3,"shininess",shininess);
         shaderProgram.set1f(gl3, "specularStrength", (float)this.getSpecularStrength());
-        // TODO add this settings for texture filters and apply them here.
-        gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MIN_FILTER,GL3.GL_LINEAR);
-        gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MAG_FILTER,GL3.GL_LINEAR);
-        gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_S,GL3.GL_CLAMP_TO_BORDER);
-        gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_T,GL3.GL_CLAMP_TO_BORDER);
+        shaderProgram.setColor(gl3, "diffuseColor", Color.WHITE);
+        shaderProgram.setColor(gl3, "specularColor", Color.WHITE);
+        shaderProgram.setColor(gl3, "emissionColor", Color.WHITE);
+        shaderProgram.setColor(gl3, "lightColor", Color.WHITE); // Default or get from somewhere
+        shaderProgram.setColor(gl3, "ambientColor", new Color(51, 51, 51)); // Default ambient
         gl3.glEnable(GL3.GL_TEXTURE_2D);
 
         // Iterates texture layers; binds textures to shader indices
-        for(TextureLayerIndex tli : TextureLayerIndex.values()) {
+        for(MaterialLayers tli : MaterialLayers.values()) {
             int i = tli.getIndex();
             // nvidia drivers may optimize a texture unit away, which causes this to fail.
             // To work around this, the uniform is cached and only generates an error the first time.
@@ -614,8 +716,25 @@ public class Material extends Node {
             if(!shaderProgram.set1i(gl3, tli.getName(), i)) continue;
 
             gl3.glActiveTexture(GL3.GL_TEXTURE0 + i);
+            // TODO add material settings for texture filters and apply them here.
+            gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MIN_FILTER,GL3.GL_LINEAR);
+            gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_MAG_FILTER,GL3.GL_LINEAR);
+            gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_S,GL3.GL_CLAMP_TO_BORDER);
+            gl3.glTexParameteri(GL3.GL_TEXTURE_2D,GL3.GL_TEXTURE_WRAP_T,GL3.GL_CLAMP_TO_BORDER);
 
-            TextureWithMetadata tex = this.getTexture(i);
+            TextureWithMetadata tex;
+            if (isTextureMode(tli)) {
+                tex = this.getTexture(i);
+            } else {
+                Color c = switch (tli) {
+                    case ALBEDO -> getDiffuseColor();
+                    case METALLIC -> getSpecularColor();
+                    case EMISSIVE -> getEmissionColor();
+                    default -> Color.WHITE;
+                };
+                tex = createColorTexture(c);
+            }
+
             if (tex != null) {
                 tex.use(gl3, shaderProgram);
                 gl3.glBindTexture(GL3.GL_TEXTURE_2D, tex.getTexture().getTextureObject());

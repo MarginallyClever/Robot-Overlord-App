@@ -12,6 +12,8 @@ import javax.swing.*;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -270,12 +272,109 @@ public class PanelHelper {
         setTextureButtonLabel(button,texture);
     }
 
+    /**
+     * <p>A convenience method to add a control for selecting a color source.  Currently that means a toggle between
+     * a color selector and a texture selector.</p>
+     * @param panel the panel to add to
+     * @param label the label for the field
+     * @param isTextureSupplier supplier to check if the current mode is texture
+     * @param colorSupplier supplier to get the current color
+     * @param textureSupplier supplier to get the current texture
+     * @param updateConsumer consumer to accept the mode and the value (Color or TextureWithMetadata)
+     * @param gbc the {@link GridBagConstraints} to use
+     */
+    public static void addColorSourceControl(JPanel panel,
+                                             String label,
+                                             Supplier<Boolean> isTextureSupplier,
+                                             Supplier<Color> colorSupplier,
+                                             Supplier<TextureWithMetadata> textureSupplier,
+                                             BiConsumer<Boolean, Object> updateConsumer,
+                                             GridBagConstraints gbc) {
+        JPanel container = new JPanel(new BorderLayout());
+
+        JButton modeButton = new JButton();
+        int fontHeight = modeButton.getFontMetrics(modeButton.getFont()).getHeight();
+        var insets = modeButton.getBorder().getBorderInsets(modeButton);
+        var height = fontHeight + insets.top + insets.bottom;
+
+        modeButton.setMinimumSize(new Dimension(0, height));
+        modeButton.setPreferredSize(new Dimension(24, height));
+        modeButton.setMargin(new Insets(0, 0, 0, 0));
+
+        JButton valueButton = new JButton();
+        fontHeight = valueButton.getFontMetrics(valueButton.getFont()).getHeight();
+        valueButton.setMinimumSize(new Dimension(0, height));
+        valueButton.setPreferredSize(new Dimension(valueButton.getPreferredSize().width, fontHeight + 8));
+
+        Runnable updateUI = () -> {
+            boolean isTexture = isTextureSupplier.get();
+            if (isTexture) {
+                modeButton.setIcon(new ImageIcon(Objects.requireNonNull(PanelHelper.class.getResource("/com/marginallyclever/ro3/node/nodes/icons8-texture-16.png"))));
+                modeButton.setToolTipText("Switch to Color");
+                modeButton.setText("");
+                setTextureButtonLabel(valueButton, textureSupplier.get());
+                valueButton.setBackground(null);
+            } else {
+                modeButton.setIcon(null); // TODO: find a color icon? maybe just a colored square.
+                modeButton.setText("C");
+                modeButton.setToolTipText("Switch to Texture");
+                valueButton.setIcon(null);
+                valueButton.setText("");
+                valueButton.removeAll();
+                valueButton.setLayout(new BorderLayout());
+                valueButton.setToolTipText(null);
+                valueButton.setBackground(colorSupplier.get());
+                valueButton.revalidate();
+                valueButton.repaint();
+            }
+        };
+
+        modeButton.addActionListener(e -> {
+            boolean wasTexture = isTextureSupplier.get();
+            if (wasTexture) {
+                updateConsumer.accept(false, colorSupplier.get());
+            } else {
+                updateConsumer.accept(true, textureSupplier.get());
+            }
+            updateUI.run();
+        });
+
+        valueButton.addActionListener(e -> {
+            boolean isTexture = isTextureSupplier.get();
+            if (isTexture) {
+                var textureChooserDialog = new TextureChooserDialog();
+                textureChooserDialog.setSelectedItem(textureSupplier.get());
+                int result = textureChooserDialog.run(panel);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    var newTexture = textureChooserDialog.getSelectedItem();
+                    updateConsumer.accept(true, newTexture);
+                    updateUI.run();
+                }
+            } else {
+                Color color = JColorChooser.showDialog(panel, label, colorSupplier.get());
+                if (color != null) {
+                    updateConsumer.accept(false, color);
+                    updateUI.run();
+                }
+            }
+        });
+
+        container.add(modeButton, BorderLayout.WEST);
+        container.add(valueButton, BorderLayout.CENTER);
+
+        updateUI.run();
+        PanelHelper.addLabelAndComponent(panel, label, container, gbc);
+    }
+
     private static void setTextureButtonLabel(JButton button,TextureWithMetadata texture) {
+        button.removeAll();
         if(texture==null) {
+            button.setLayout(new BorderLayout());
             button.setText("...");
             button.setToolTipText(null);
             return;
         }
+        button.setText("");
         // truncate name if it is too long.
         var name = texture.getSource();
         button.setToolTipText(name);
@@ -284,10 +383,12 @@ public class PanelHelper {
         } else if(name.contains("/")) {
             name = name.substring(name.lastIndexOf('/')+1);
         }
-        button.removeAll();
         button.setLayout(new BoxLayout(button,BoxLayout.X_AXIS));
-        button.add(new JLabel(new ImageIcon(scaleImage(texture.getImage(),button.getFont().getSize()))));
+        var height = button.getFontMetrics(button.getFont()).getHeight();
+        button.add(new JLabel(new ImageIcon(scaleImage(texture.getImage(),height))));
         button.add(new JLabel(" "+name));
+        button.revalidate();
+        button.repaint();
     }
 
     private static BufferedImage scaleImage(BufferedImage sourceImage,int size) {

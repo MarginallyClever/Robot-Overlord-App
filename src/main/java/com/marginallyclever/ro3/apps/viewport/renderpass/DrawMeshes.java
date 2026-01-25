@@ -6,7 +6,7 @@ import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.convenience.helpers.OpenGLHelper;
 import com.marginallyclever.convenience.helpers.ResourceHelper;
 import com.marginallyclever.ro3.Registry;
-import com.marginallyclever.ro3.apps.viewport.TextureLayerIndex;
+import com.marginallyclever.ro3.apps.viewport.MaterialLayers;
 import com.marginallyclever.ro3.mesh.proceduralmesh.GenerativeMesh;
 import com.marginallyclever.ro3.shader.ShaderProgram;
 import com.marginallyclever.ro3.apps.viewport.Viewport;
@@ -41,7 +41,7 @@ public class DrawMeshes extends AbstractRenderPass {
     private final Mesh shadowQuad = new GenerativeMesh();
     private final int [] shadowFBO = new int[1];  // Frame Buffer Object
     private final int [] shadowTexture = new int[1];  // texture for the FBO
-    private final int shadowMapUnit = TextureLayerIndex.values().length+1;
+    private final int shadowMapUnit = MaterialLayers.values().length+1;
     public static final int SHADOW_WIDTH = 4096;
     public static final int SHADOW_HEIGHT = 4096;
 

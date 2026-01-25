@@ -33,6 +33,11 @@ public class TextureFactory extends Factory {
      * @return the texture, or null if the file could not be loaded.
      */
     public TextureWithMetadata get(Lifetime lifetime,String filename) {
+        if (filename == null || filename.isEmpty()) return null;
+        if (filename.startsWith("color_")) {
+            Resource<TextureWithMetadata> res = cache.get(filename);
+            return res != null ? res.item() : null;
+        }
         String absolutePath = FileHelper.getAbsolutePathOrFilename(filename);
         return cache.computeIfAbsent(absolutePath, _->
                 new Resource<>(loadTexture(absolutePath), lifetime)
@@ -73,6 +78,14 @@ public class TextureFactory extends Factory {
         return cache.values().stream()
                 .map(Resource::item)
                 .toList();
+    }
+
+    public void register(Lifetime lifetime, TextureWithMetadata texture) {
+        String absolutePath = texture.getSource().startsWith("color_")
+                ? texture.getSource()
+                : FileHelper.getAbsolutePathOrFilename(texture.getSource());
+        cache.put(absolutePath, new Resource<>(texture, lifetime));
+        fireItemAdded(texture);
     }
 
     public List<FileFilter> getAllExtensions() {

@@ -578,6 +578,7 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
                     normalizedX*t*getAspectRatio(),
                     normalizedY*t,
                     -1);
+            direction.normalize();
             var origin = new Point3d();
 
             return new Ray(origin,direction);
@@ -598,8 +599,8 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
      */
     public Vector3d getCursorAsNormalized(double x,double y) {
         return new Vector3d(
-                (2.0*x/canvasWidth) - 1.0,
-                1.0 - (2.0*y/canvasHeight),
+                (2.0*(x + 0.5)/canvasWidth) - 1.0,
+                1.0 - (2.0*(y + 0.5)/canvasHeight),
                 0);
     }
 

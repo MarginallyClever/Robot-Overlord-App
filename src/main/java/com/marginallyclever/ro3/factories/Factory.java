@@ -29,4 +29,18 @@ public abstract class Factory {
     public void removeItemListener(ListListener<?> listener) {
         listenerList.remove(ListListener.class, listener);
     }
+
+    @SuppressWarnings("unchecked")  // because getListeners is not generic
+    protected <T> void fireItemAdded(T item) {
+        for (ListListener<T> listener : listenerList.getListeners(ListListener.class)) {
+            listener.itemAdded(this, item);
+        }
+    }
+
+    @SuppressWarnings("unchecked")  // because getListeners is not generic
+    protected <T> void fireItemRemoved(T item) {
+        for (ListListener<T> listener : listenerList.getListeners(ListListener.class)) {
+            listener.itemRemoved(this, item);
+        }
+    }
 }

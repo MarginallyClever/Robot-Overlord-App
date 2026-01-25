@@ -92,7 +92,9 @@ public class TextureChooserDialog extends JPanel
         });
 
         for (TextureWithMetadata mesh : Registry.textureFactory.getAllResources()) {
-            model.addElement(mesh);
+            if (!mesh.isDoNotExport()) {
+                model.addElement(mesh);
+            }
         }
         list.setModel(model);
         list.setSelectedValue(selectedItem, true);
@@ -123,7 +125,9 @@ public class TextureChooserDialog extends JPanel
 
     @Override
     public void itemAdded(Object source, TextureWithMetadata item) {
-        model.addElement(item);
+        if (!item.isDoNotExport()) {
+            model.addElement(item);
+        }
     }
 
     @Override

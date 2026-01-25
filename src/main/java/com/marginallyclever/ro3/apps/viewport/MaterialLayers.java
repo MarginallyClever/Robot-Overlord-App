@@ -4,17 +4,18 @@ package com.marginallyclever.ro3.apps.viewport;
  * Associates layer enums, names, and indexes for easy global reference.
  * Shaders should use these indexes to access the correct texture layers.
  */
-public enum TextureLayerIndex {
+public enum MaterialLayers {
     ALBEDO("Albedo",0),  // aka the diffuse layer
     NORMAL("Normal",1),
     METALLIC("Metallic",2),  // aka reflectance
     ROUGHNESS("Roughness",3),  // aka the bump map
-    AO("AO",4);  // Ambient occlusion (baked in shadowing)
+    AO("AO",4),  // Ambient occlusion (baked in shadowing)
+    EMISSIVE("Emissive", 5);
 
     private final String name;
     private final int index;
 
-    TextureLayerIndex(String name, int index) {
+    MaterialLayers(String name, int index) {
         this.name = name;
         this.index = index;
     }

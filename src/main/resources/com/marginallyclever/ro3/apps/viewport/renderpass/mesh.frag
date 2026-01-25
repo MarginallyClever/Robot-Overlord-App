@@ -11,9 +11,6 @@ in VS_OUT {
 } fs_in;
 
 uniform vec4 ambientColor = vec4(0, 0, 0, 1);
-uniform vec4 diffuseColor = vec4(1,1,1,1);
-uniform vec4 emissionColor = vec4(0,0,0,1);
-uniform vec4 specularColor = vec4(0, 0, 0, 1);
 uniform vec4 lightColor = vec4(1,1,1,1);
 uniform int shininess = 0;
 uniform float specularStrength = 0.5;
@@ -26,6 +23,7 @@ uniform sampler2D Normal;
 uniform sampler2D Metallic;
 uniform sampler2D Roughness;
 uniform sampler2D AO;
+uniform sampler2D Emissive;
 
 uniform sampler2DShadow shadowMap;
 
@@ -62,10 +60,11 @@ void main() {
     vec4 roughnessMap = texture(Roughness, fs_in.textureCoord);
     vec4 aoMap = texture(AO, fs_in.textureCoord);
     vec4 metallicMap = texture(Metallic, fs_in.textureCoord);
+    vec4 albedoMap = texture(Albedo, fs_in.textureCoord);
+    vec4 emissiveMap = texture(Emissive, fs_in.textureCoord);
 
-    vec4 result = diffuseColor;
+    vec4 result = albedoMap;
     if(useVertexColor) result *= fs_in.fragmentColor;
-    result *= texture(Albedo, fs_in.textureCoord);
 
     if(useLighting) {
         // Apply normal map (simple version: blend with vertex normal)
@@ -88,7 +87,7 @@ void main() {
         float spec = pow(max(dot(viewDir, reflectDir), 0.0), max(1.0, currentShininess));
 
         // Metallic affects the specular tint
-        vec4 specWithTexture = specularStrength * spec * metallicMap * specularColor;
+        vec4 specWithTexture = specularStrength * spec * metallicMap;
         vec4 specularLight = specWithTexture * lightColor;
 
         // Shadow
@@ -100,8 +99,8 @@ void main() {
 
         // put it all together.
         result *= (ambientColor * aoMap) + (diffuseLight + specularLight) * (1.0 - shadow);
-        result += emissionColor;
+        result += emissiveMap;
     }
 
-    finalColor = vec4(result.rgb, diffuseColor.a);
+    finalColor = vec4(result.rgb, albedoMap.a);
 }

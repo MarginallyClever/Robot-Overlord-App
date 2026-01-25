@@ -20,6 +20,7 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -411,6 +412,7 @@ public class Limb extends Pose {
      */
     public void capVelocity(double @NotNull [] vector) {
         double len = getVectorLength(vector);
+        if(len<linearVelocity) return;
 
         // scale the vector
         double scale = (len == 0) ? 0 : Math.abs(linearVelocity) / len;  // catch len==0

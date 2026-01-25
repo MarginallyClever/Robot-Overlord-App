@@ -196,7 +196,7 @@ public class MarlinRobotArm extends MarlinRobot implements PropertyChangeListene
      */
     @Override
     public void sendGCode(String gcode) {
-        logger.debug("heard "+gcode);
+        //logger.debug("heard "+gcode);
 
         if(gcode.startsWith("G0")) {
             fireMarlinMessage( parseG0(gcode) );
