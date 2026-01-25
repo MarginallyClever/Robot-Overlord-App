@@ -365,8 +365,40 @@ public class LinearStewartPlatform2 extends Node {
      * cond = ||J||_F * ||J^{-1}||_F. Returns Double.POSITIVE_INFINITY if J is singular.
      */
     public double evaluateJacobianConditionNumber() {
+        return evaluateJacobianUsingSVD();
+        //return evaluateJacobianUsingFrobeniusNorm();
+    }
+
+    /**
+     * Evaluate the condition number using Single Value Decomposition (SVD).
+     * @return condition number of the Jacobian matrix.
+     */
+    private double evaluateJacobianUsingSVD() {
+        double[][] J = getJacobian();
+        scaleByAverageRadius(J);
+        double[] s = BigMatrixHelper.singularValues(J);
+        if (s[s.length - 1] < 1e-12) {
+            return Double.POSITIVE_INFINITY;
+        }
+        return s[0] / s[s.length - 1];
+    }
+
+    private double evaluateJacobianUsingFrobeniusNorm() {
         double[][] J = getJacobian();
 
+        scaleByAverageRadius(J);
+
+        try {
+            double[][] inv = BigMatrixHelper.invert(J);
+            double nJ = frobeniusNorm(J);
+            double nInv = frobeniusNorm(inv);
+            return nJ * nInv;
+        } catch (Exception e) {
+            return Double.POSITIVE_INFINITY;
+        }
+    }
+
+    private void scaleByAverageRadius(double[][] J) {
         // scale J by average radius to make condition number more meaningful.
         // Jnormalized = J * diag(1/L, 1/L, 1/L, 1, 1, 1)
         double L = getAverageRadius();
@@ -376,15 +408,6 @@ public class LinearStewartPlatform2 extends Node {
                     J[i][j] /= L;
                 }
             }
-        }
-
-        try {
-            double[][] inv = BigMatrixHelper.invert(J);
-            double nJ = frobeniusNorm(J);
-            double nInv = frobeniusNorm(inv);
-            return nJ * nInv;
-        } catch (Exception e) {
-            return Double.POSITIVE_INFINITY;
         }
     }
 

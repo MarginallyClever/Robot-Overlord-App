@@ -73,5 +73,42 @@ public class BigMatrixHelperTest {
         Assert.assertArrayEquals(expected, result, 0.001);
     }
 
-    
+    @Test
+    public void testSingularValues() {
+        // Identity matrix
+        double[][] identity = {
+                {1, 0, 0},
+                {0, 1, 0},
+                {0, 0, 1}
+        };
+        double[] sIdentity = BigMatrixHelper.singularValues(identity);
+        Assert.assertArrayEquals(new double[]{1, 1, 1}, sIdentity, 1e-9);
+
+        // Simple diagonal matrix
+        double[][] diagonal = {
+                {3, 0},
+                {0, 2}
+        };
+        double[] sDiagonal = BigMatrixHelper.singularValues(diagonal);
+        Assert.assertArrayEquals(new double[]{3, 2}, sDiagonal, 1e-9);
+
+        // A matrix with known singular values
+        // A = [1 1; 0 1]
+        // A^T*A = [1 1; 1 2]
+        // eigenvalues of A^T*A: (3 +/- sqrt(5))/2
+        // singular values: sqrt((3 + sqrt(5))/2) and sqrt((3 - sqrt(5))/2)
+        // ~ 1.618 and 0.618
+        double[][] a = {{1, 1}, {0, 1}};
+        double[] sA = BigMatrixHelper.singularValues(a);
+        double s1 = Math.sqrt((3 + Math.sqrt(5)) / 2.0);
+        double s2 = Math.sqrt((3 - Math.sqrt(5)) / 2.0);
+        Assert.assertEquals(s1, sA[0], 1e-9);
+        Assert.assertEquals(s2, sA[1], 1e-9);
+
+        // Singular matrix
+        double[][] singular = {{1, 1}, {1, 1}};
+        double[] sSingular = BigMatrixHelper.singularValues(singular);
+        Assert.assertEquals(Math.sqrt(4), sSingular[0], 1e-9);
+        Assert.assertEquals(0.0, sSingular[1], 1e-9);
+    }
 }

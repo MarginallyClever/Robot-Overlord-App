@@ -204,4 +204,73 @@ public abstract class BigMatrixHelper {
             m.m30, m.m31, m.m32, m.m33,
         };
     }
+
+    /**
+     * Compute the singular values of a matrix using the Jacobi SVD algorithm.
+     * This is a simple implementation for small matrices.
+     * @param matrix the matrix to decompose
+     * @return an array of singular values in descending order
+     */
+    public static double[] singularValues(double[][] matrix) {
+        int m = matrix.length;
+        int n = matrix[0].length;
+        // We compute SVD of A by computing eigenvalues of A^T * A (if m >= n) or A * A^T (if m < n)
+        // or we can use a direct Jacobi SVD on A itself.
+        // For simplicity and since it's 6x6, let's use the one-sided Jacobi SVD algorithm.
+        
+        double[][] A = new double[m][n];
+        for (int i = 0; i < m; i++) System.arraycopy(matrix[i], 0, A[i], 0, n);
+
+        int maxSweep = 100;
+        double eps = 1e-12;
+        
+        // One-sided Jacobi SVD
+        for (int sweep = 0; sweep < maxSweep; sweep++) {
+            double maxErr = 0;
+            for (int i = 0; i < n; i++) {
+                for (int j = i + 1; j < n; j++) {
+                    double aii = 0, ajj = 0, aij = 0;
+                    for (int k = 0; k < m; k++) {
+                        aii += A[k][i] * A[k][i];
+                        ajj += A[k][j] * A[k][j];
+                        aij += A[k][i] * A[k][j];
+                    }
+                    
+                    maxErr = Math.max(maxErr, Math.abs(aij) / Math.sqrt(aii * ajj));
+                    
+                    if (Math.abs(aij) > eps) {
+                        double tau = (ajj - aii) / (2 * aij);
+                        double t = Math.signum(tau) / (Math.abs(tau) + Math.sqrt(1 + tau * tau));
+                        double c = 1 / Math.sqrt(1 + t * t);
+                        double s = c * t;
+                        
+                        for (int k = 0; k < m; k++) {
+                            double aki = A[k][i];
+                            double akj = A[k][j];
+                            A[k][i] = c * aki - s * akj;
+                            A[k][j] = s * aki + c * akj;
+                        }
+                    }
+                }
+            }
+            if (maxErr < eps) break;
+        }
+        
+        double[] s = new double[n];
+        for (int j = 0; j < n; j++) {
+            double norm = 0;
+            for (int i = 0; i < m; i++) norm += A[i][j] * A[i][j];
+            s[j] = Math.sqrt(norm);
+        }
+        
+        // Sort in descending order
+        java.util.Arrays.sort(s);
+        for (int i = 0; i < s.length / 2; i++) {
+            double tmp = s[i];
+            s[i] = s[s.length - 1 - i];
+            s[s.length - 1 - i] = tmp;
+        }
+        
+        return s;
+    }
 }
