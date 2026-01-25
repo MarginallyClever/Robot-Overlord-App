@@ -405,10 +405,9 @@ public class Limb extends Pose {
 
 
     /**
-     * <p>Make sure the given vector's length does not exceed some maximum.  It does not increase the vector to
-     * match the maximum.  Store the results in the original array.</p>
+     * <p>Make sure the given vector's length does not exceed the linear maximum.
+     * It does not increase the vector to match the maximum.  Store the results in the original array.</p>
      * @param vector the vector to cap
-     * @param maxLen the max length of the vector.
      */
     public void capVelocity(double @NotNull [] vector) {
         double len = getVectorLength(vector);
