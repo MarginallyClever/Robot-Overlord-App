@@ -1,7 +1,10 @@
 package com.marginallyclever.ro3.node.nodes.pose.poses;
 
+import com.jogamp.opengl.GL3;
+import com.marginallyclever.convenience.Frustum;
 import com.marginallyclever.convenience.Ray;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import org.json.JSONObject;
@@ -35,22 +38,109 @@ import java.util.Objects;
  * </ul>
  *
  */
-public class Camera extends Pose {
+public class Camera extends Pose implements MeshProvider {
     private static final Logger logger = LoggerFactory.getLogger(Camera.class);
     private boolean drawOrthographic = false;
-    private double fovY = 60;
-    private double nearZ = 0.1;
-    private double farZ = 1000;
+    private final Frustum frustum = new Frustum(0.1, 1000, 0, 0, 60, 1.0);
     private double orbitRadius = 50;
+    private final Mesh frustumMesh = new Mesh();
     private boolean canTranslate = true;
     private boolean canRotate = true;
 
     public Camera() {
         super("Camera");
+        setupFrustumMesh();
     }
 
     public Camera(String name) {
         super(name);
+        setupFrustumMesh();
+    }
+
+    public Frustum getFrustrum() {
+        return frustum;
+    }
+
+    private void setupFrustumMesh() {
+        frustumMesh.setRenderStyle(GL3.GL_LINES);
+        // bottom (far plane): 4 corners
+        frustumMesh.addVertex(-2,-2,-2);  // 0
+        frustumMesh.addVertex( 2,-2,-2);  // 1
+        frustumMesh.addVertex( 2, 2,-2);  // 2
+        frustumMesh.addVertex(-2, 2,-2);  // 3
+        // top (near plane): 4 corners
+        frustumMesh.addVertex(-1,-1,-1);  // 4
+        frustumMesh.addVertex( 1,-1,-1);  // 5
+        frustumMesh.addVertex( 1, 1,-1);  // 6
+        frustumMesh.addVertex(-1, 1,-1);  // 7
+        // far rect
+        frustumMesh.addIndex(0);  frustumMesh.addIndex(1);
+        frustumMesh.addIndex(1);  frustumMesh.addIndex(2);
+        frustumMesh.addIndex(2);  frustumMesh.addIndex(3);
+        frustumMesh.addIndex(3);  frustumMesh.addIndex(0);
+        // near rect
+        frustumMesh.addIndex(4);  frustumMesh.addIndex(5);
+        frustumMesh.addIndex(5);  frustumMesh.addIndex(6);
+        frustumMesh.addIndex(6);  frustumMesh.addIndex(7);
+        frustumMesh.addIndex(7);  frustumMesh.addIndex(4);
+        // connecting edges
+        frustumMesh.addIndex(0);  frustumMesh.addIndex(4);
+        frustumMesh.addIndex(1);  frustumMesh.addIndex(5);
+        frustumMesh.addIndex(2);  frustumMesh.addIndex(6);
+        frustumMesh.addIndex(3);  frustumMesh.addIndex(7);
+    }
+
+    // ---- MeshProvider ----
+
+    @Override
+    public boolean isActive() {
+        return true;
+    }
+
+    @Override
+    public boolean getHasShadow() {
+        return false;
+    }
+
+    /**
+     * Updates the frustum mesh vertices to match the camera projection and current canvas size.
+     */
+
+    @Override
+    public Mesh getMesh() {
+        if (drawOrthographic) {
+            float far  = (float) getFarZ();
+            float near = (float) getNearZ();
+            double h = frustum.getHeight() / 2.0;
+            double w = frustum.getWidth()  / 2.0;
+            frustumMesh.setVertex(0, -w, -h, -far);
+            frustumMesh.setVertex(1,  w, -h, -far);
+            frustumMesh.setVertex(2,  w,  h, -far);
+            frustumMesh.setVertex(3, -w,  h, -far);
+            frustumMesh.setVertex(4, -w, -h, -near);
+            frustumMesh.setVertex(5,  w, -h, -near);
+            frustumMesh.setVertex(6,  w,  h, -near);
+            frustumMesh.setVertex(7, -w,  h, -near);
+        } else {
+            float far  = (float) getFarZ();
+            float near = (float) getNearZ();
+            float aspect = (float)( frustum.getWidth() / frustum.getHeight() );
+            double ratio = Math.tan(Math.toRadians(getFovY()) / 2.0);
+            float hNear = (float)(ratio * near);
+            float wNear = hNear * aspect;
+            float hFar  = (float)(ratio * far);
+            float wFar  = hFar  * aspect;
+            frustumMesh.setVertex(0, -wFar,  -hFar,  -far);
+            frustumMesh.setVertex(1,  wFar,  -hFar,  -far);
+            frustumMesh.setVertex(2,  wFar,   hFar,  -far);
+            frustumMesh.setVertex(3, -wFar,   hFar,  -far);
+            frustumMesh.setVertex(4, -wNear, -hNear, -near);
+            frustumMesh.setVertex(5,  wNear, -hNear, -near);
+            frustumMesh.setVertex(6,  wNear,  hNear, -near);
+            frustumMesh.setVertex(7, -wNear,  hNear, -near);
+        }
+        frustumMesh.setDirty(true);
+        return frustumMesh;
     }
 
     @Override
@@ -83,27 +173,27 @@ public class Camera extends Pose {
     }
 
     public double getFovY() {
-        return fovY;
+        return frustum.getFov();
     }
 
     public void setFovY(double fovY) {
-        this.fovY = fovY;
+        frustum.setFOV(fovY);
     }
 
     public double getNearZ() {
-        return nearZ;
+        return frustum.getZNear();
     }
 
     public void setNearZ(double nearZ) {
-        this.nearZ = nearZ;
+        frustum.setZNear(nearZ);
     }
 
     public double getFarZ() {
-        return farZ;
+        return frustum.getZFar();
     }
 
     public void setFarZ(double farZ) {
-        this.farZ = farZ;
+        frustum.setZFar(farZ);
     }
 
     /**
@@ -206,8 +296,8 @@ public class Camera extends Pose {
     }
 
     public Matrix4d getPerspectiveFrustum(int width,int height) {
-        double aspect = (double)width / (double)height;
-        return MatrixHelper.getPerspectiveMatrix4d(this.getFovY(),aspect,getNearZ(),getFarZ());
+        frustum.setAspectRatio((double)width / (double)height);
+        return frustum.getMatrix();
     }
 
     /**
@@ -365,9 +455,9 @@ public class Camera extends Pose {
     public JSONObject toJSON() {
         var json = super.toJSON();
         json.put("drawOrthographic",drawOrthographic);
-        json.put("fovY",fovY);
-        json.put("nearZ",nearZ);
-        json.put("farZ",farZ);
+        json.put("fovY",getFovY());
+        json.put("nearZ",getNearZ());
+        json.put("farZ",getFarZ());
         json.put("orbitRadius",orbitRadius);
         json.put("canTranslate",canTranslate);
         json.put("canRotate",canRotate);
@@ -378,9 +468,9 @@ public class Camera extends Pose {
     public void fromJSON(JSONObject json) {
         super.fromJSON(json);
         drawOrthographic = json.optBoolean("drawOrthographic",drawOrthographic);
-        fovY = json.optDouble("fovY",fovY);
-        nearZ = json.optDouble("nearZ",nearZ);
-        farZ = json.optDouble("farZ",farZ);
+        frustum.setFOV(json.optDouble("fovY",getFovY()));
+        frustum.setZNear(json.optDouble("nearZ",getNearZ()));
+        frustum.setZFar(json.optDouble("farZ",getFarZ()));
         orbitRadius = json.optDouble("orbitRadius",orbitRadius);
         canTranslate = json.optBoolean("canTranslate",canTranslate);
         canRotate = json.optBoolean("canRotate",canRotate);
@@ -456,5 +546,21 @@ public class Camera extends Pose {
         // adjust by the camera world orientation.
         transformedRay.transform(getWorld(),r);
         return transformedRay;
+    }
+
+    public double getWidth() {
+        return getFrustrum().getWidth();
+    }
+
+    public double getHeight() {
+        return getFrustrum().getHeight();
+    }
+
+    public void setWidth(double value) {
+        getFrustrum().setWidth(value);
+    }
+
+    public void setHeight(double value) {
+        getFrustrum().setHeight(value);
     }
 }
