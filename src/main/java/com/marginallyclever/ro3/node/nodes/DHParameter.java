@@ -1,8 +1,12 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.jogamp.opengl.GL3;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
+import com.marginallyclever.ro3.node.nodes.pose.poses.MeshProvider;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -33,11 +37,52 @@ import java.util.Objects;
  * <li><b>theta</b>: the angle about the previous z for the common normal.</li>
  * </ul>
  */
-public class DHParameter extends Node {
+public class DHParameter extends Node implements MeshProvider {
     private transient double d=0, r=0, alpha=0, theta=0;
+    private final Mesh dhMesh = new Mesh();
 
     public DHParameter() {
         super("DH Parameter");
+        setupDHMesh();
+    }
+
+    private void setupDHMesh() {
+        dhMesh.setRenderStyle(GL3.GL_LINES);
+        // line d (blue): origin to (0,0,d)
+        dhMesh.addColor(0,0,1,1);  dhMesh.addVertex(0,0,0);  // 0 - fixed origin
+        dhMesh.addColor(0,0,1,1);  dhMesh.addVertex(0,0,0);  // 1 - tip of d
+        // line r (red): (0,0,d) to (cos(theta)*r, sin(theta)*r, d)
+        dhMesh.addColor(1,0,0,1);  dhMesh.addVertex(0,0,0);  // 2 - base of r
+        dhMesh.addColor(1,0,0,1);  dhMesh.addVertex(0,0,0);  // 3 - tip of r
+    }
+
+    // ---- MeshProvider ----
+
+    @Override
+    public Mesh getMesh() {
+        dhMesh.setVertex(1, 0, 0, d);
+        dhMesh.setVertex(2, 0, 0, d);
+        double s = Math.sin(Math.toRadians(theta));
+        double c = Math.cos(Math.toRadians(theta));
+        dhMesh.setVertex(3, c*r, s*r, d);
+        dhMesh.setDirty(true);
+        return dhMesh;
+    }
+
+    @Override
+    public boolean isActive() {
+        return true;
+    }
+
+    @Override
+    public boolean getHasShadow() {
+        return false;
+    }
+
+    @Override
+    public Matrix4d getWorld() {
+        Pose parentPose = findParent(Pose.class);
+        return (parentPose == null) ? MatrixHelper.createIdentityMatrix4() : parentPose.getWorld();
     }
 
     private void toPose() {
