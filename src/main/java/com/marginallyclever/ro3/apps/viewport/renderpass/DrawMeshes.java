@@ -17,6 +17,7 @@ import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.environment.Environment;
 import com.marginallyclever.ro3.node.nodes.pose.poses.Camera;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
+import com.marginallyclever.ro3.node.nodes.pose.poses.MeshProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -222,12 +223,12 @@ public class DrawMeshes extends AbstractRenderPass {
         gl3.glPolygonOffset(2.5f, 10.0f);
         
         for(MeshMaterialMatrix meshMaterialMatrix : meshes) {
-            MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
-            if(!meshInstance.getHasShadow()) continue;
+            MeshProvider meshProvider = meshMaterialMatrix.meshProvider();
+            if(!meshProvider.getHasShadow()) continue;
             var w = meshMaterialMatrix.matrix();
             if(originShift) w = RenderPassHelper.getOriginShiftedMatrix(w,cameraWorldPos);
             shadowShader.setMatrix4d(gl3,"modelMatrix",w);
-            meshInstance.getMesh().render(gl3);
+            meshProvider.getMesh().render(gl3);
         }
 
         gl3.glDisable(GL3.GL_POLYGON_OFFSET_FILL);
@@ -297,11 +298,13 @@ public class DrawMeshes extends AbstractRenderPass {
         var toKeep = new ArrayList<MeshMaterialMatrix>();
         var selected = Registry.selection.getList();
         for(MeshMaterialMatrix mm : list) {
-            // if node is parent of a meshInstance, keep it.
-            var me = mm.meshInstance();
-            var parent = me.getParent();
-            if(selected.contains(parent) || selected.contains(me)) {
-                toKeep.add(mm);
+            // if node is parent of a meshProvider, keep it.
+            var meshProvider = mm.meshProvider();
+            if(meshProvider instanceof Node meNode) {
+                var parent = meNode.getParent();
+                if(selected.contains(parent) || selected.contains(meNode)) {
+                    toKeep.add(mm);
+                }
             }
         }
         list.retainAll(toKeep);
@@ -381,11 +384,11 @@ public class DrawMeshes extends AbstractRenderPass {
      * @param lastMaterialSeen the last Material found in the scene.
      */
     private void collAllMeshesRecursively(Node node, List<MeshMaterialMatrix> meshMaterialMatrices, Material lastMaterialSeen) {
-        if (node instanceof MeshInstance meshInstance) {
+        if (node instanceof MeshProvider meshProvider) {
             // if they have a mesh, collect it.
-            Mesh mesh = meshInstance.getMesh();
-            if (mesh != null && meshInstance.isActive()) {
-                meshMaterialMatrices.add(new MeshMaterialMatrix(meshInstance,lastMaterialSeen,meshInstance.getWorld()));
+            Mesh mesh = meshProvider.getMesh();
+            if (mesh != null && meshProvider.isActive()) {
+                meshMaterialMatrices.add(new MeshMaterialMatrix(meshProvider,lastMaterialSeen,meshProvider.getWorld()));
             }
         }
 
@@ -435,14 +438,14 @@ public class DrawMeshes extends AbstractRenderPass {
         Material lastSeen = null;
 
         for(MeshMaterialMatrix meshMaterialMatrix : m3) {
-            MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
+            MeshProvider meshProvider = meshMaterialMatrix.meshProvider();
 
             Material material = meshMaterialMatrix.material();
             if( material != lastSeen ) {
                 material.use(gl3,meshShader);
             }
 
-            Mesh mesh = meshInstance.getMesh();
+            Mesh mesh = meshProvider.getMesh();
             meshShader.set1i(gl3, "useVertexColor", mesh.getHasColors()?1:0);
 
             // set the model matrix
@@ -474,8 +477,8 @@ public class DrawMeshes extends AbstractRenderPass {
         Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
 
         for(MeshMaterialMatrix meshMaterialMatrix : selectedM3) {
-            MeshInstance meshInstance = meshMaterialMatrix.meshInstance();
-            Mesh mesh = meshInstance.getMesh();
+            MeshProvider meshProvider = meshMaterialMatrix.meshProvider();
+            Mesh mesh = meshProvider.getMesh();
             var m = meshMaterialMatrix.matrix();
             if(originShift) m = RenderPassHelper.getOriginShiftedMatrix(m,cameraWorldPos);
             meshShader.setMatrix4d(gl3,"modelMatrix",m);

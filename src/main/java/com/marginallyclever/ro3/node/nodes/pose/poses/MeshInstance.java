@@ -27,7 +27,7 @@ import java.util.Objects;
  * <p>MeshInstance fires a {@link PropertyChangeEvent} to all {@link PropertyChangeListener}s when the {@link Mesh} is
  * changed.</p>
  */
-public class MeshInstance extends Pose {
+public class MeshInstance extends Pose implements MeshProvider {
     private Mesh mesh;
     private boolean isActive = true;
     private boolean hasShadow = true;
