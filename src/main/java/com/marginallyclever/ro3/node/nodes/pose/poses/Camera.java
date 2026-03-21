@@ -461,6 +461,8 @@ public class Camera extends Pose implements MeshProvider {
         json.put("orbitRadius",orbitRadius);
         json.put("canTranslate",canTranslate);
         json.put("canRotate",canRotate);
+        json.put("width",getWidth());
+        json.put("height",getHeight());
         return json;
     }
 
@@ -474,6 +476,8 @@ public class Camera extends Pose implements MeshProvider {
         orbitRadius = json.optDouble("orbitRadius",orbitRadius);
         canTranslate = json.optBoolean("canTranslate",canTranslate);
         canRotate = json.optBoolean("canRotate",canRotate);
+        frustum.setWidth(json.optDouble("width",getWidth()));
+        frustum.setHeight(json.optDouble("height",getHeight()));
     }
 
     @Override
