@@ -134,7 +134,6 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
         renderPasses.add(new DrawBackground());
         renderPasses.add(new DrawMeshes());
         renderPasses.add(new DrawBoundingBoxes());
-        renderPasses.add(new DrawJoints());
         renderPasses.add(new DrawPoses());
         renderPasses.add(new DrawDepthBuffer());
         renderPasses.add(new DrawStencilBuffer());

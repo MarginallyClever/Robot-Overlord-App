@@ -1,11 +1,16 @@
- package com.marginallyclever.ro3.node.nodes;
+package com.marginallyclever.ro3.node.nodes;
 
+import com.jogamp.opengl.GL3;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.poses.MeshProvider;
 import org.json.JSONObject;
 
 import javax.swing.*;
+import javax.vecmath.Matrix4d;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,7 +19,7 @@ import java.util.Objects;
  * <p>a {@link LinearJoint} should be attached to a child {@link Pose} referenced as the car.  In this way the car's
  * parent {@link Pose} can be thought of as the initial pose at zero mm.  This helps prevent drift over time.</p>
  */
-public class LinearJoint extends MechanicalJoint {
+public class LinearJoint extends MechanicalJoint implements MeshProvider {
     private double position = 0;  // cm
     private double minPosition = 0;  // cm
     private double maxPosition = 100;  // cm
@@ -22,12 +27,50 @@ public class LinearJoint extends MechanicalJoint {
     private double acceleration = 0;  // cm/s/s
     private final NodePath<Pose> car = new NodePath<>(this,Pose.class);
 
+    private final Mesh rangeMesh = new Mesh();
+
     public LinearJoint() {
         this("LinearJoint");
     }
 
     public LinearJoint(String name) {
         super(name);
+        setupRangeMesh();
+    }
+
+    private void setupRangeMesh() {
+        rangeMesh.setRenderStyle(GL3.GL_LINES);
+        rangeMesh.addColor(1, 1, 0, 1);  rangeMesh.addVertex(0, 0, 0);  // 0: min end
+        rangeMesh.addColor(1, 1, 0, 1);  rangeMesh.addVertex(0, 0, 1);  // 1: max end
+        rangeMesh.addIndex(0);
+        rangeMesh.addIndex(1);
+    }
+
+    // ---- MeshProvider ----
+
+    @Override
+    public Mesh getMesh() {
+        rangeMesh.setVertex(0, 0, 0, minPosition);
+        rangeMesh.setVertex(1, 0, 0, maxPosition);
+        rangeMesh.setDirty(true);
+        return rangeMesh;
+    }
+
+    @Override
+    public boolean isActive() {
+        return Registry.selection.getList().contains(this)
+            || Registry.pinned.getList().contains(this);
+    }
+
+    @Override
+    public boolean getHasShadow() {
+        return false;
+    }
+
+    @Override
+    public Matrix4d getWorld() {
+        Pose parentPose = findParent(Pose.class);
+        return (parentPose == null) ? MatrixHelper.createIdentityMatrix4() : parentPose.getWorld();
     }
 
     @Override

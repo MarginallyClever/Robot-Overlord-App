@@ -1,7 +1,11 @@
 package com.marginallyclever.ro3.node.nodes;
 
+import com.jogamp.opengl.GL3;
+import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
+import com.marginallyclever.ro3.node.nodes.pose.poses.MeshProvider;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -15,7 +19,9 @@ import java.util.Objects;
  * <p>a {@link HingeJoint} should be attached to a child {@link Pose} referenced as the axle.  In this way the axle's
  * parent {@link Pose} can be thought of as the initial pose.  This helps prevent drift over time.</p>
  */
-public class HingeJoint extends MechanicalJoint {
+public class HingeJoint extends MechanicalJoint implements MeshProvider {
+    private static final float RING_SCALE = 3.0f;
+
     private double angle = 0;  // degrees
     private double minAngle = 0;  // degrees
     private double maxAngle = 360;  // degrees
@@ -23,12 +29,80 @@ public class HingeJoint extends MechanicalJoint {
     private double acceleration = 0;  // degrees/s/s
     private final NodePath<Pose> axle = new NodePath<>(this,Pose.class);
 
+    private final Mesh jointMesh = new Mesh();
+
     public HingeJoint() {
         this("HingeJoint");
     }
 
     public HingeJoint(String name) {
         super(name);
+        setupJointMesh();
+    }
+
+    private void setupJointMesh() {
+        jointMesh.setRenderStyle(GL3.GL_LINES);
+        // vertex 0: origin (angle line start, always fixed)
+        jointMesh.addVertex(0, 0, 0);
+        // vertex 1: angle line tip (updated in getMesh)
+        jointMesh.addVertex(RING_SCALE, 0, 0);
+        // vertices 2..362: arc ring points, one per degree 0..360 (updated in getMesh)
+        for (int i = 0; i <= 360; i++) {
+            jointMesh.addVertex(RING_SCALE, 0, 0);
+        }
+        // angle indicator line
+        jointMesh.addIndex(0);  jointMesh.addIndex(1);
+        // arc segments: 360 consecutive pairs
+        for (int i = 0; i < 360; i++) {
+            jointMesh.addIndex(2 + i);
+            jointMesh.addIndex(3 + i);
+        }
+    }
+
+    // ---- MeshProvider ----
+
+    @Override
+    public Mesh getMesh() {
+        // Update angle line tip
+        double angleRad = Math.toRadians(angle);
+        jointMesh.setVertex(1,
+                RING_SCALE * Math.cos(angleRad),
+                RING_SCALE * Math.sin(angleRad), 0);
+
+        // Update arc: active range from minAngle to maxAngle, collapse rest
+        int range = Math.max(0, (int)(maxAngle - minAngle));
+        double endX = RING_SCALE * Math.cos(Math.toRadians(maxAngle));
+        double endY = RING_SCALE * Math.sin(Math.toRadians(maxAngle));
+        for (int i = 0; i <= 360; i++) {
+            if (i <= range) {
+                double rad = Math.toRadians(minAngle + i);
+                jointMesh.setVertex(2 + i,
+                        RING_SCALE * Math.cos(rad),
+                        RING_SCALE * Math.sin(rad), 0);
+            } else {
+                // Collapse to the last active point — zero-length lines are invisible
+                jointMesh.setVertex(2 + i, endX, endY, 0);
+            }
+        }
+        jointMesh.setDirty(true);
+        return jointMesh;
+    }
+
+    @Override
+    public boolean isActive() {
+        return Registry.selection.getList().contains(this)
+            || Registry.pinned.getList().contains(this);
+    }
+
+    @Override
+    public boolean getHasShadow() {
+        return false;
+    }
+
+    @Override
+    public Matrix4d getWorld() {
+        Pose parentPose = findParent(Pose.class);
+        return (parentPose == null) ? MatrixHelper.createIdentityMatrix4() : parentPose.getWorld();
     }
 
     @Override
