@@ -36,6 +36,10 @@ public class CameraPanel extends JPanel {
         JSpinner farZSpinner = new JSpinner(farZModel);
         JSpinner nearZSpinner = new JSpinner(nearZModel);
         JSpinner fovSpinner = new JSpinner(new SpinnerNumberModel(camera.getFovY(), 1, 180, 1));
+        JSpinner widthSpinner = new JSpinner(new SpinnerNumberModel(camera.getWidth(), 0, 1e10, 1));
+        widthSpinner.setToolTipText("px");
+        JSpinner heightSpinner = new JSpinner(new SpinnerNumberModel(camera.getHeight(), 0, 1e10, 1));
+        heightSpinner.setToolTipText("px");
 
         // orthographic?
         JCheckBox ortho = new JCheckBox();
@@ -85,6 +89,22 @@ public class CameraPanel extends JPanel {
         });
         farZSpinner.setToolTipText("cm");
         PanelHelper.addLabelAndComponent(this,"Far",farZSpinner,gbc);
+        gbc.gridy++;
+
+        // width
+        widthSpinner.setValue(camera.getWidth());
+        widthSpinner.addChangeListener(e -> {
+            camera.setWidth( (double) widthSpinner.getValue() );
+        });
+        PanelHelper.addLabelAndComponent(this,"Width",widthSpinner,gbc);
+        gbc.gridy++;
+
+        // height
+        heightSpinner.setValue(camera.getHeight());
+        heightSpinner.addChangeListener(e -> {
+            camera.setHeight( (double) heightSpinner.getValue() );
+        });
+        PanelHelper.addLabelAndComponent(this,"Height",heightSpinner,gbc);
         gbc.gridy++;
 
         // can rotate
