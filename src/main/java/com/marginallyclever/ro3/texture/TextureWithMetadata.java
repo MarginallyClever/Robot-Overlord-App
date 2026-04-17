@@ -108,6 +108,8 @@ public class TextureWithMetadata implements OpenGL3Resource {
     }
 
     public Color getColorAt(double x, double y) {
+        if(image==null) return Color.BLACK;
+
         int width = image.getWidth();
         int height = image.getHeight();
         x*=width;
