@@ -27,5 +27,12 @@ public class RandomHemisphereTestPanel extends JPanel {
 
         JComboBox<String> typeField = PanelHelper.createComboBox(options, randomHemisphereTest.type, randomHemisphereTest::setType);
         PanelHelper.addLabelAndComponent(this, "Type", typeField);
+
+        var countField = PanelHelper.addNumberFieldInt("number of points",10000);
+        countField.addPropertyChangeListener(e-> {
+            randomHemisphereTest.setCount(((Number)countField.getValue()).intValue());
+            randomHemisphereTest.updateModel();
+        });
+        PanelHelper.addLabelAndComponent(this,"Count",countField);
     }
 }

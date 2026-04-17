@@ -30,6 +30,7 @@ public class RandomHemisphereTest extends Node {
     private final MeshInstance meshInstance = new MeshInstance();
     private final Material material = new Material();
     private final GenerativeMesh mesh = new GenerativeMesh();
+    private int count=10000;
 
     public RandomHemisphereTest() {
         super("RandomHemisphereTest");
@@ -75,7 +76,7 @@ public class RandomHemisphereTest extends Node {
     }
 
     private void createRandomHemispherePoints(Supplier<Vector3d> supplier) {
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < count; i++) {
             Vector3d v = supplier.get();
             v.scale(3);
             // Assuming addVertex(double x,double y,double z) exists; adjust if API differs
@@ -86,5 +87,9 @@ public class RandomHemisphereTest extends Node {
     public void setType(int type) {
         this.type = Math.clamp(type,0,2);
         updateModel();
+    }
+
+    public void setCount(int value) {
+        count=value;
     }
 }
