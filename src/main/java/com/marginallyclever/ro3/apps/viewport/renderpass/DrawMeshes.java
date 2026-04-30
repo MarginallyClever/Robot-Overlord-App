@@ -59,6 +59,8 @@ public class DrawMeshes extends AbstractRenderPass {
     private final int [] stencilTexture = new int [1]; // Texture to capture stencil data
     private final Mesh fullScreenQuad = new GenerativeMesh();
 
+    private ShaderProgram overlayShader;
+
     private final Material defaultMaterial = new Material();
 
     public DrawMeshes() {
@@ -106,6 +108,10 @@ public class DrawMeshes extends AbstractRenderPass {
             outlineShader = spf.get(Lifetime.APPLICATION,"outlineShader",
                     sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"outline_330.vert")),
                     sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"outline_330.frag"))
+            );
+            overlayShader = spf.get(Lifetime.APPLICATION,"overlayShader",
+                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"default.vert")),
+                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"default.frag"))
             );
         } catch (Exception e) {
             logger.error("Failed to load shader", e);
@@ -205,6 +211,10 @@ public class DrawMeshes extends AbstractRenderPass {
         lightView.transpose();
     }
 
+    /**
+     * Updates shadow map via light-view render pass then restores viewport.  Ignores overlay meshes and meshes
+     * that do not cast shadows.
+     */
     private void updateShadowMap(GL3 gl3, List<MeshMaterialMatrix> meshes,Camera camera,boolean originShift) {
         var cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
 
@@ -224,7 +234,7 @@ public class DrawMeshes extends AbstractRenderPass {
         
         for(MeshMaterialMatrix meshMaterialMatrix : meshes) {
             MeshProvider meshProvider = meshMaterialMatrix.meshProvider();
-            if(!meshProvider.getHasShadow()) continue;
+            if(!meshProvider.getHasShadow() || meshProvider.isOverlay()) continue;
             var w = meshMaterialMatrix.matrix();
             if(originShift) w = RenderPassHelper.getOriginShiftedMatrix(w,cameraWorldPos);
             shadowShader.setMatrix4d(gl3,"modelMatrix",w);
@@ -276,9 +286,11 @@ public class DrawMeshes extends AbstractRenderPass {
         updateLightMatrix(camera,originShift);
         updateShadowMap(gl3,meshMaterial,camera,originShift);
         drawAllMeshes(gl3,meshMaterial,camera,originShift);
+        drawOverlays(gl3,meshMaterial,camera,originShift);
         //drawShadowMapOnQuad(gl3,camera,originShift);
-        keepOnlySelectedMeshMaterials(meshMaterial);
-        outlineSelectedMeshes(gl3,meshMaterial,camera,originShift);
+
+        var list = keepOnlySelectedMeshMaterials(meshMaterial);
+        outlineSelectedMeshes(gl3,list,camera,originShift);
     }
 
     private void getSunlight() {
@@ -293,24 +305,40 @@ public class DrawMeshes extends AbstractRenderPass {
         ambientColor = env.getAmbientColor();
     }
 
-    private void keepOnlySelectedMeshMaterials(List<MeshMaterialMatrix> list) {
+    /**
+     * Filters the provided list of {@link MeshMaterialMatrix} objects to include only those
+     * associated with currently selected nodes or their parents in the scene.
+     * Any mesh material that does not belong to the selected nodes or their parents is removed.
+     *
+     * @param list The list of {@link MeshMaterialMatrix} objects to filter. Only the elements
+     *             that belong to currently selected nodes or their parents remain in this list
+     *             after the operation.
+     */
+    private List<MeshMaterialMatrix> keepOnlySelectedMeshMaterials(List<MeshMaterialMatrix> list) {
         // remove from meshMaterial anything that is not in the list Registry.selected
         var toKeep = new ArrayList<MeshMaterialMatrix>();
         var selected = Registry.selection.getList();
         for(MeshMaterialMatrix mm : list) {
             // if node is parent of a meshProvider, keep it.
             var meshProvider = mm.meshProvider();
-            if(meshProvider instanceof Node meNode) {
-                var parent = meNode.getParent();
-                if(selected.contains(parent) || selected.contains(meNode)) {
+            if(meshProvider.isOverlay()) continue;
+
+            if(meshProvider instanceof Node meshProviderNode) {
+                var parent = meshProviderNode.getParent();
+                if(selected.contains(parent) || selected.contains(meshProviderNode)) {
                     toKeep.add(mm);
                 }
             }
         }
-        list.retainAll(toKeep);
+        return toKeep;
     }
 
-    // sort meshMaterial list by material
+    /**
+     * Sorts meshMaterialMatrix list in place by material
+     * @param meshMaterialMatrix the list of {@link MeshMaterialMatrix} to sort.  Sorted in place by material, with
+     *                          opaque materials first, then transparent materials sorted by distance from camera, then
+     *                          by UniqueID.
+     */
     private void sortMeshMaterialList(List<MeshMaterialMatrix> meshMaterialMatrix) {
         meshMaterialMatrix.sort((o1, o2) -> {
             Material m1 = o1.material();
@@ -403,18 +431,19 @@ public class DrawMeshes extends AbstractRenderPass {
     }
 
     /**
-     * Draw all the meshes in the list with the given camera.
+     * Draw the entire list of normal depth-tested geometry meshes with the given camera.
      * @param gl3 the OpenGL context
      * @param m3 the list of {@link MeshInstance}, {@link Material}, and {@link Matrix4d} to draw.
      * @param camera
      * @param originShift
      */
     private void drawAllMeshes(GL3 gl3, List<MeshMaterialMatrix> m3, Camera camera,boolean originShift) {
+        Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
+
         meshShader.use(gl3);
         meshShader.setMatrix4d(gl3, "viewMatrix", camera.getViewMatrix(originShift));
         meshShader.setMatrix4d(gl3, "projectionMatrix", camera.getChosenProjectionMatrix(canvasWidth, canvasHeight));
-        Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
-        meshShader.setVector3d(gl3, "cameraPos",originShift ? new Vector3d() : cameraWorldPos);  // Camera position in world space
+        meshShader.setVector3d(gl3, "cameraPos", originShift ? new Vector3d() : cameraWorldPos);  // Camera position in world space
 
         // shadow map stuff
         meshShader.set1i(gl3, "shadowMap", shadowMapUnit);
@@ -423,7 +452,7 @@ public class DrawMeshes extends AbstractRenderPass {
 
         // coloring
         var lightPos = new Vector3d(sunlightSource);
-        if(!originShift) lightPos.add(cameraWorldPos);
+        if (!originShift) lightPos.add(cameraWorldPos);
         meshShader.setVector3d(gl3, "lightPos", lightPos);  // Light position in world space
         meshShader.setColor(gl3, "lightColor", sunlightColor);
         meshShader.setColor(gl3, "diffuseColor", Color.WHITE);
@@ -434,28 +463,66 @@ public class DrawMeshes extends AbstractRenderPass {
         meshShader.set1i(gl3, "useLighting", 1);
 
         //OpenGLHelper.checkGLError(gl3, logger);
-
         Material lastSeen = null;
 
         for(MeshMaterialMatrix meshMaterialMatrix : m3) {
             MeshProvider meshProvider = meshMaterialMatrix.meshProvider();
+            if(meshProvider.isOverlay()) continue;
 
             Material material = meshMaterialMatrix.material();
             if( material != lastSeen ) {
                 material.use(gl3,meshShader);
+                lastSeen = material;
             }
 
             Mesh mesh = meshProvider.getMesh();
             meshShader.set1i(gl3, "useVertexColor", mesh.getHasColors()?1:0);
 
-            // set the model matrix
             var m = meshMaterialMatrix.matrix();
             if(originShift) m = RenderPassHelper.getOriginShiftedMatrix(m,cameraWorldPos);
             meshShader.setMatrix4d(gl3,"modelMatrix",m);
-            // draw it
             mesh.render(gl3);
             OpenGLHelper.checkGLError(gl3,logger);
         }
+    }
+
+    /**
+     * Draws the list of overlay meshes with the given camera.  they are always on top, always unlit, and cast no shadow.
+     * @param gl3
+     * @param m3
+     * @param camera
+     * @param originShift
+     */
+    private void drawOverlays(GL3 gl3, List<MeshMaterialMatrix> m3, Camera camera,boolean originShift) {
+        Vector3d cameraWorldPos = MatrixHelper.getPosition(camera.getWorld());
+
+        overlayShader.use(gl3);
+        defaultMaterial.use(gl3,overlayShader);
+        overlayShader.setMatrix4d(gl3,"projectionMatrix",camera.getChosenProjectionMatrix(canvasWidth,canvasHeight));
+        overlayShader.setMatrix4d(gl3,"viewMatrix",camera.getViewMatrix(originShift));
+        overlayShader.setVector3d(gl3,"cameraPos",originShift ? new Vector3d() : cameraWorldPos);  // Camera position in world space
+        overlayShader.setVector3d(gl3,"lightPos",originShift ? new Vector3d() : cameraWorldPos);  // Light position in world space
+
+        gl3.glDisable(GL3.GL_CULL_FACE);
+        gl3.glDisable(GL3.GL_DEPTH_TEST);
+        overlayShader.set1i(gl3, "useLighting", 0);
+
+        for(MeshMaterialMatrix meshMaterialMatrix : m3) {
+            MeshProvider meshProvider = meshMaterialMatrix.meshProvider();
+            if(!meshProvider.isOverlay()) continue;
+
+            Mesh mesh = meshProvider.getMesh();
+            overlayShader.set1i(gl3, "useVertexColor", mesh.getHasColors()?1:0);
+
+            var m = meshMaterialMatrix.matrix();
+            if(originShift) m = RenderPassHelper.getOriginShiftedMatrix(m,cameraWorldPos);
+            overlayShader.setMatrix4d(gl3,"modelMatrix",m);
+            mesh.render(gl3);
+            OpenGLHelper.checkGLError(gl3,logger);
+        }
+
+        gl3.glEnable(GL3.GL_DEPTH_TEST);
+        gl3.glEnable(GL3.GL_CULL_FACE);
     }
 
     private void outlineSelectedMeshes(GL3 gl3, List<MeshMaterialMatrix> selectedM3, Camera camera,boolean originShift) {

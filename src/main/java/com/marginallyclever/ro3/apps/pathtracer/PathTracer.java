@@ -23,7 +23,9 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.prefs.Preferences;
 
@@ -56,13 +58,14 @@ public class PathTracer {
     private int canvasWidth = 640;
     private int canvasHeight = 480;
     // stores the final color image of the scene
-    private BufferedImage image;
+    private BufferedImage colorMap;
     // depth map
     private BufferedImage depthMap;
     private double deepestHit = 0.0; // the deepest hit in the scene, used for depth map scaling
     // normal map
     private BufferedImage normalMap;
-
+    private BufferedImage sampleMap;
+    private final Map<String,BufferedImage> maps = new HashMap<>();
 
     private Environment environment;
     private final Material defaultMaterial = new Material();
@@ -103,7 +106,7 @@ public class PathTracer {
         rayPickSystem.reset(true);
         deepestHit = 0;
         fireStarted();
-        pathTracingWorker = new PathTracingWorker(rays, image);
+        pathTracingWorker = new PathTracingWorker(rays, colorMap);
         pathTracingWorker.execute();
     }
 
@@ -363,32 +366,24 @@ public class PathTracer {
     public void setSize(int width, int height) {
         canvasWidth = width;
         canvasHeight = height;
-        image = new BufferedImage(canvasWidth,canvasHeight,BufferedImage.TYPE_INT_RGB);
-        depthMap = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_RGB);
+        colorMap  = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_RGB);
+        depthMap  = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_RGB);
         normalMap = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_RGB);
+        sampleMap = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_RGB);
+        maps.put("Color", colorMap);
+        maps.put("Depth",depthMap);
+        maps.put("Normal",normalMap);
+        maps.put("Sample",sampleMap);
         allocateRays();
     }
 
     /**
-     * Get the rendered image buffer containing the path traced scene.
-     *
-     * @return the rendered image as a BufferedImage
-     */
-    public BufferedImage getImage() {
-        return image;
-    }
-
-    /**
-     * Get the depth map buffer containing the distance information for each pixel.
+     * Get various maps
      *
      * @return the depth map as a BufferedImage
      */
-    public BufferedImage getDepthMap() {
-        return depthMap;
-    }
-
-    public BufferedImage getNormalMap() {
-        return normalMap;
+    public Map<String,BufferedImage> getMaps() {
+        return maps;
     }
 
     /**
@@ -641,7 +636,7 @@ public class PathTracer {
             // Convert Ray’s coordinate to pixel indices and set the pixel’s color
             image.setRGB(pixel.x, pixel.y, c.getRGB());
 
-            if(pixel.samples==1) {
+            if(pixel.samples<5) {
                 // Update depth map.  Convert pixel.depth to a rainbow heatmap color
                 if (pixel.depth == Double.POSITIVE_INFINITY) {
                     // no hit, set to black
@@ -652,13 +647,18 @@ public class PathTracer {
                     depthMap.setRGB(pixel.x, pixel.y, unitToRainbow(depthValue).getRGB());
                 }
             }
-            if(pixel.samples==0) {
+
+            //if(pixel.samples==0)
+            {
                 // update normal map
                 if (pixel.normal != null) {
                     Color n = new Color((float) (0.5 + 0.5 * pixel.normal.x), (float) (0.5 + 0.5 * pixel.normal.y), (float) (0.5 + 0.5 * pixel.normal.z));
                     normalMap.setRGB(pixel.x, pixel.y, n.getRGB());
                 }
             }
+
+            // the sample map counts the number of samples per pixel accumulated so far
+            sampleMap.setRGB(pixel.x,pixel.y,pixel.radianceSum.getColor().getRGB());
         }
     }
 

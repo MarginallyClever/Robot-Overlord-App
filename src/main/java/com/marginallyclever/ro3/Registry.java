@@ -30,6 +30,8 @@ public class Registry {
     private static Node scene = new Node("Scene");
     public static final ListWithEvents<Camera> cameras = new ListWithEvents<>();
     public static final ListWithEvents<Node> selection = new ListWithEvents<>();
+    /** Nodes that remain visible in the viewport regardless of selection state. */
+    public static final ListWithEvents<Node> pinned = new ListWithEvents<>();
     private static final ODEPhysics physics = new ODEPhysics();
 
     // a static final list of OpenGL3Reources that must thread-safe as it may be modified from the OpenGL thread while being read from the main thread.
@@ -49,6 +51,7 @@ public class Registry {
      */
     public static void reset() {
         selection.clear();
+        pinned.clear();
 
         // reset camera
         cameras.clear();

@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.node.NodePath;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
@@ -11,6 +12,7 @@ import org.json.JSONObject;
 import javax.swing.*;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
+import java.awt.*;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,14 +43,18 @@ public class HingeJoint extends MechanicalJoint implements MeshProvider {
     }
 
     private void setupJointMesh() {
-        jointMesh.setRenderStyle(GL3.GL_LINES);
+        jointMesh.setRenderStyle(GL3.GL_TRIANGLE_FAN);
         // vertex 0: origin (angle line start, always fixed)
         jointMesh.addVertex(0, 0, 0);
+        jointMesh.addColor(1,1,1,1);
         // vertex 1: angle line tip (updated in getMesh)
         jointMesh.addVertex(RING_SCALE, 0, 0);
+        jointMesh.addColor(1,1,1,1);
+
         // vertices 2..362: arc ring points, one per degree 0..360 (updated in getMesh)
         for (int i = 0; i <= 360; i++) {
             jointMesh.addVertex(RING_SCALE, 0, 0);
+            jointMesh.addColor(1,1,0,1);
         }
         // angle indicator line
         jointMesh.addIndex(0);  jointMesh.addIndex(1);
@@ -97,6 +103,11 @@ public class HingeJoint extends MechanicalJoint implements MeshProvider {
     @Override
     public boolean getHasShadow() {
         return false;
+    }
+
+    @Override
+    public boolean isOverlay() {
+        return true;
     }
 
     @Override

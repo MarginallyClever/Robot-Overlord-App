@@ -52,7 +52,7 @@ public class RayXY {
         samples++;
         // recalculate the average.
         radianceAverage.set(radianceSum);
-        radianceAverage.scale(1.0/samples);
+        radianceAverage.scale(1.0/(double)samples);
         // apply exposure
         exposureMap(radianceAverage,exposure);
         // tone map the result.

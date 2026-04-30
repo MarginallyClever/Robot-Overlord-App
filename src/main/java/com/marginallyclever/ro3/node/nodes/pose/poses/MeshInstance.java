@@ -208,6 +208,11 @@ public class MeshInstance extends Pose implements MeshProvider {
         return isActive;
     }
 
+    @Override
+    public boolean isOverlay() {
+        return false;
+    }
+
     public void setActive(boolean active) {
         isActive = active;
     }

@@ -26,7 +26,7 @@ public class PathTracerPanel extends App
     private final JToolBar toolBar = new JToolBar();
     private final DefaultComboBoxModel<Camera> cameraListModel = new DefaultComboBoxModel<>();
     private Camera activeCamera;
-    private final JComboBox<String> comboBox = new JComboBox<>(new String[]{"Color","Depth","Normal"});
+    private JComboBox<String> comboBox;
     private final PathTracerResultPanel centerLabel = new PathTracerResultPanel();
     private AbstractAction startButton;
     private final JLabel runTime = new JLabel("Ready");
@@ -35,7 +35,6 @@ public class PathTracerPanel extends App
                     .getScaledInstance(16,16, Image.SCALE_SMOOTH)
     ));
     private static final JFileChooser saveImageFileChooser = new JFileChooser();
-    private final JPanel statusBar = new JPanel(new FlowLayout(FlowLayout.LEFT,5,1));
 
 
     public PathTracerPanel() {
@@ -44,15 +43,17 @@ public class PathTracerPanel extends App
 
     public PathTracerPanel(PathTracer pathTracer) {
         super(new BorderLayout());
+
         this.pathTracer = pathTracer;
         pathTracer.addProgressListener(this);
         pathTracer.addPropertyChangeListener(this);
         pathTracer.setSize(1, 1);
+
         setupBars();
         setupCenter();
         add(toolBar, BorderLayout.NORTH);
         add(centerLabel, BorderLayout.CENTER);
-        add(statusBar, BorderLayout.SOUTH);
+
     }
 
     private void setupCenter() {
@@ -128,8 +129,11 @@ public class PathTracerPanel extends App
             }
         });
 
+        String [] keys = pathTracer.getMaps().keySet().toArray(new String[0]);
+        comboBox = new JComboBox<>(keys);
         comboBox.setToolTipText("Select which render mode to display.");
         comboBox.addActionListener(e -> setCenterLabel(comboBox.getSelectedIndex()));
+        comboBox.setSelectedItem("Color");
 
         addCameraSelector();
 
@@ -164,12 +168,12 @@ public class PathTracerPanel extends App
         saveButton.addActionListener(e -> saveImage());
         toolBar.add(saveButton);
 
-        statusBar.add(runTime);
-        statusBar.setBorder(BorderFactory.createLoweredBevelBorder());
+        toolBar.add(runTime);
     }
 
     private void saveImage() {
-        if(pathTracer.getImage() == null) {
+        BufferedImage colorMap = pathTracer.getMaps().get("color");
+        if(colorMap == null) {
             JOptionPane.showMessageDialog(this, "No image to save. Please render the scene first.", "No Image", JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -182,7 +186,8 @@ public class PathTracerPanel extends App
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             java.io.File fileToSave = saveImageFileChooser.getSelectedFile();
             try {
-                var image = getPathTracerImage(comboBox.getSelectedIndex());
+                String name = comboBox.getModel().getElementAt(comboBox.getSelectedIndex());
+                var image = getPathTracerImage(name);
                 javax.imageio.ImageIO.write(image, "png", fileToSave);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error saving image: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -191,15 +196,11 @@ public class PathTracerPanel extends App
     }
 
     private void setCenterLabel(int index) {
-        centerLabel.setImage(getPathTracerImage(index));
+        centerLabel.setImage(getPathTracerImage(comboBox.getModel().getElementAt(index)));
     }
 
-    private BufferedImage getPathTracerImage(int index) {
-        return switch (index) {
-            case 1 -> pathTracer.getDepthMap();
-            case 2 -> pathTracer.getNormalMap();
-            default -> pathTracer.getImage();
-        };
+    private BufferedImage getPathTracerImage(String name) {
+        return pathTracer.getMaps().get(name);
     }
 
     private void addCameraSelector() {

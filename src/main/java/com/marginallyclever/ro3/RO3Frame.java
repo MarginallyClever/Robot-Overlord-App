@@ -182,20 +182,20 @@ public class RO3Frame extends JFrame {
      * Also remember <a href="https://github.com/andrewauclair/ModernDocking/discussions/240#discussioncomment-10897811">this Modern Docking discussion</a>
      */
     private void registerDefaultWindows() {
-        addDockingPanel("OpenGL3Panel", "OpenGL", opengl3Panel);
-        addDockingPanel("NodeTreeView", "Scene",new NodeTreeView());
-        addDockingPanel("NodeDetailView", "Details",new NodeDetailView());
-        addDockingPanel("LogPanel", "Log",new LogPanel());
-        addDockingPanel("EditorPanel", "Editor",new EditorPanel());
         addDockingPanel("AboutPanel", "About",new AboutPanel());
-        addDockingPanel("WebCamPanel", "Camera",new WebCamPanel());
+        addDockingPanel("BrainView", "BrainView", new BrainView());
+        addDockingPanel("Donatello", "Donatello",new Donatello());
+        addDockingPanel("EditorPanel", "Editor",new EditorPanel());
+        addDockingPanel("LogPanel", "Log",new LogPanel());
+        addDockingPanel("NodeDetailView", "Details",new NodeDetailView());
+        addDockingPanel("NodeTreeView", "Scene",new NodeTreeView());
         addDockingPanel("ODE4JPanel", "ODE4J",new ODE4JPanel());
+        addDockingPanel("OpenGL3Panel", "OpenGL", opengl3Panel);
+        addDockingPanel("PathTracerPanel", "PathTracer", new PathTracerPanel());
         addDockingPanel("TextInterfaceToSessionLayer", "Serial",new TextInterfaceToSessionLayer());
         addDockingPanel("ViewportSettingsPanel", "Viewport",viewportSettingsPanel);
         addDockingPanel("ViewportToolPanel", "Tool",viewportToolPanel);
-        addDockingPanel("Donatello", "Donatello",new Donatello());
-        addDockingPanel("BrainView", "BrainView", new BrainView());
-        addDockingPanel("PathTracerPanel", "PathTracer", new PathTracerPanel());
+        addDockingPanel("WebCamPanel", "Camera",new WebCamPanel());
     }
 
     private void addDockingPanel(String persistentID,String tabText,Component component) {

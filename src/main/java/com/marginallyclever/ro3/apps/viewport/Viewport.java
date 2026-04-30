@@ -9,8 +9,6 @@ import com.marginallyclever.ro3.apps.App;
 import com.marginallyclever.ro3.apps.viewport.renderpass.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.*;
 import com.marginallyclever.ro3.apps.viewport.viewporttool.move.MoveMultiTool;
-import com.marginallyclever.ro3.apps.viewport.viewporttool.move.RotateToolMulti;
-import com.marginallyclever.ro3.apps.viewport.viewporttool.move.TranslateToolMulti;
 import com.marginallyclever.ro3.listwithevents.ListListener;
 import com.marginallyclever.ro3.listwithevents.ListWithEvents;
 import com.marginallyclever.ro3.node.Node;
@@ -134,9 +132,6 @@ public class Viewport extends App implements SceneChangeListener, MouseListener,
         renderPasses.add(new DrawBackground());
         renderPasses.add(new DrawMeshes());
         renderPasses.add(new DrawBoundingBoxes());
-        renderPasses.add(new DrawPoses());
-        renderPasses.add(new DrawDepthBuffer());
-        renderPasses.add(new DrawStencilBuffer());
     }
 
     /**

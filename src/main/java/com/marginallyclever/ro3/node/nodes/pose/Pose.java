@@ -2,7 +2,11 @@ package com.marginallyclever.ro3.node.nodes.pose;
 
 import com.marginallyclever.convenience.helpers.BigMatrixHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.mesh.Mesh;
+import com.marginallyclever.ro3.mesh.proceduralmesh.Waldo;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.pose.poses.MeshProvider;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -17,8 +21,9 @@ import java.util.Objects;
 /**
  * <p>A {@link Pose} is a {@link Node} that has a position and rotation in space.</p>
  */
-public class Pose extends Node implements PoseChangeListener {
+public class Pose extends Node implements PoseChangeListener, MeshProvider {
     private static final Logger logger = LoggerFactory.getLogger(Pose.class);
+    private static final Mesh POSE_MESH = new Waldo();
     private final Matrix4d local = MatrixHelper.createIdentityMatrix4();
     private MatrixHelper.EulerSequence rotationIndex = MatrixHelper.EulerSequence.YXZ;
     private Pose parentPose;
@@ -71,6 +76,29 @@ public class Pose extends Node implements PoseChangeListener {
             parentPose.removePoseChangeListener(this);
             parentPose = null;
         }
+    }
+
+    // ---- MeshProvider ----
+
+    @Override
+    public Mesh getMesh() {
+        return POSE_MESH;
+    }
+
+    @Override
+    public boolean isActive() {
+        return Registry.selection.getList().contains(this)
+            || Registry.pinned.getList().contains(this);
+    }
+
+    @Override
+    public boolean getHasShadow() {
+        return false;
+    }
+
+    @Override
+    public boolean isOverlay() {
+        return true;
     }
 
     /**

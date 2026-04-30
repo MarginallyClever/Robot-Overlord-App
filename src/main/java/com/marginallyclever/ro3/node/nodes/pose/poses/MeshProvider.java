@@ -29,4 +29,11 @@ public interface MeshProvider {
      * @return the world transform matrix for this node.
      */
     Matrix4d getWorld();
+
+    /**
+     * Returns true if this mesh should render without depth testing (always on top).
+     * Diagnostic visualisations (camera frustums, joint arcs, DH lines) return true.
+     * Regular scene geometry returns false (the default).
+     */
+    default boolean isOverlay() { return false; }
 }

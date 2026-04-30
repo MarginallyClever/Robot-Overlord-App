@@ -2,6 +2,7 @@ package com.marginallyclever.ro3.node.nodes;
 
 import com.jogamp.opengl.GL3;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.mesh.Mesh;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
@@ -71,12 +72,18 @@ public class DHParameter extends Node implements MeshProvider {
 
     @Override
     public boolean isActive() {
-        return true;
+        return Registry.selection.getList().contains(this)
+            || Registry.pinned.getList().contains(this);
     }
 
     @Override
     public boolean getHasShadow() {
         return false;
+    }
+
+    @Override
+    public boolean isOverlay() {
+        return true;
     }
 
     @Override

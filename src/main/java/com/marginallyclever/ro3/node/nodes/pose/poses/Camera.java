@@ -94,12 +94,18 @@ public class Camera extends Pose implements MeshProvider {
 
     @Override
     public boolean isActive() {
-        return true;
+        return Registry.selection.getList().contains(this)
+            || Registry.pinned.getList().contains(this);
     }
 
     @Override
     public boolean getHasShadow() {
         return false;
+    }
+
+    @Override
+    public boolean isOverlay() {
+        return true;
     }
 
     /**

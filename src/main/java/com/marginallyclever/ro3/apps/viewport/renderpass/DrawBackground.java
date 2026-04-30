@@ -47,8 +47,8 @@ public class DrawBackground extends AbstractRenderPass {
             var sf = Registry.shaderFactory;
             var spf = Registry.shaderProgramFactory;
             shader = spf.get(Lifetime.APPLICATION,"BackgroundShader",
-                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
-                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
+                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(), "default.vert")),
+                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(), "default.frag"))
             );
         } catch(Exception e) {
             logger.error("Failed to load shader", e);

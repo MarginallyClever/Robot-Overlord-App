@@ -75,8 +75,8 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
             var sf = Registry.shaderFactory;
             var spf = Registry.shaderProgramFactory;
             shader = spf.get(Lifetime.APPLICATION,"boundingBoxShader",
-                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
-                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
+                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(), "default.vert")),
+                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(), "default.frag"))
             );
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
@@ -113,25 +113,29 @@ public class DrawBoundingBoxes extends AbstractRenderPass {
             Mesh mesh2 = meshInstance.getMesh();
             if(mesh2==null) continue;
 
+            // compute bounding-box center and size and use the unit-cube mesh with a model matrix
             AABB boundingBox = mesh2.getBoundingBox();
             Point3d max = boundingBox.getBoundsTop();
             Point3d min = boundingBox.getBoundsBottom();
-            mesh.setVertex(0, min.x, max.y, max.z);
-            mesh.setVertex(1, max.x, max.y, max.z);
-            mesh.setVertex(2, max.x, min.y, max.z);
-            mesh.setVertex(3, min.x, min.y, max.z);
-            mesh.setVertex(4, min.x, max.y, min.z);
-            mesh.setVertex(5, max.x, max.y, min.z);
-            mesh.setVertex(6, max.x, min.y, min.z);
-            mesh.setVertex(7, min.x, min.y, min.z);
-            mesh.setDirty(true);
-
-            // set the model matrix
+            Vector3d c = new Vector3d(min);
+            c.add(max);
+            c.scale(0.5);
+            Point3d s = new Point3d(max);
+            s.sub(min);
+            // set the model matrix = world * translate(center) * scale(size)
             Matrix4d w = meshInstance.getWorld();
-            if(originShift) w = RenderPassHelper.getOriginShiftedMatrix(w,cameraWorldPos);
-            // highlight selected items
-            shader.setColor(gl3,"diffuseColor", list.contains(meshInstance) || list.contains(meshInstance.getParent()) ? SELECTED : UNSELECTED );
-            shader.setMatrix4d(gl3,"modelMatrix",w);
+            Matrix4d T = new Matrix4d();
+            T.setIdentity();
+            T.m00 = s.x;
+            T.m11 = s.y;
+            T.m22 = s.z;
+            T.setTranslation(c);
+            w.mul(T); // model = w * T
+
+            // highlight selected items and set model
+            if (originShift) w = RenderPassHelper.getOriginShiftedMatrix(w, cameraWorldPos);
+            shader.setColor(gl3, "diffuseColor", list.contains(meshInstance) || list.contains(meshInstance.getParent()) ? SELECTED : UNSELECTED );
+            shader.setMatrix4d(gl3, "modelMatrix", w);
 
             // draw it
             mesh.render(gl3);

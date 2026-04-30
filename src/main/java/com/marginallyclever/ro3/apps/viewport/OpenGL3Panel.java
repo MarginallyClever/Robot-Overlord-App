@@ -1,7 +1,6 @@
 package com.marginallyclever.ro3.apps.viewport;
 
 import com.jogamp.opengl.*;
-import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
@@ -186,8 +185,8 @@ public class OpenGL3Panel extends Viewport implements GLEventListener, SceneChan
             var sf = Registry.shaderFactory;
             var spf = Registry.shaderProgramFactory;
             toolShader = spf.get(Lifetime.APPLICATION,"toolShader",
-                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.vert")),
-                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(),"/com/marginallyclever/ro3/apps/viewport/default.frag"))
+                    sf.get(Lifetime.APPLICATION,GL3.GL_VERTEX_SHADER, ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/renderpass/default.vert")),
+                    sf.get(Lifetime.APPLICATION,GL3.GL_FRAGMENT_SHADER, ResourceHelper.readResource(this.getClass(), "/com/marginallyclever/ro3/apps/viewport/renderpass/default.frag"))
             );
         } catch(Exception e) {
             logger.error("Failed to load shader", e);
