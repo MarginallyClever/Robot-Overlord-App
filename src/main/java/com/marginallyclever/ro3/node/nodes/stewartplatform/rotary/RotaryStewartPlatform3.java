@@ -1,6 +1,5 @@
 package com.marginallyclever.ro3.node.nodes.stewartplatform.rotary;
 
-import com.marginallyclever.convenience.helpers.BigMatrixHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.factories.Lifetime;
@@ -53,8 +52,8 @@ import java.util.List;
  */
 public class RotaryStewartPlatform3 extends Node {
     public static final int NUM_ACTUATORS = 6;
-    public static final int NUM_DOF = 6;
     private static final int [] CARDINALITY = {0,5,2,1,4,3};
+    private static final double TOP_AT_HOME_POSITION = 20.045;  // from Fusion360 model
 
     private Pose bottom = null;
     private Pose top = null;
@@ -67,7 +66,8 @@ public class RotaryStewartPlatform3 extends Node {
         public Pose shoulder;
         public Pose elbow;
         public Pose wrist;
-        public double kfAngle;  // degrees
+        public double motorAngle;  // degrees
+        public double previousAngle;  // degrees
     }
     private final Arm [] arms = new Arm[NUM_ACTUATORS];
 
@@ -88,6 +88,8 @@ public class RotaryStewartPlatform3 extends Node {
         attachTopMesh();
         attachAllArmMeshes();
         refreshShape();
+        updateLimbs();
+        storePreviousAngles();
     }
 
     private void attachAllArmMeshes() {
@@ -195,7 +197,7 @@ public class RotaryStewartPlatform3 extends Node {
     }
 
     private void adjustTopToMinimumHeight() {
-        top.setPosition(new Vector3d(0,0,20.045));
+        top.setPosition(new Vector3d(0,0,TOP_AT_HOME_POSITION));
     }
 
     private void setWaldoPositions(Pose pose, Vector3d v,double offsetAngleDegrees,int [] cardinality) {
@@ -246,14 +248,62 @@ public class RotaryStewartPlatform3 extends Node {
     @Override
     public void update(double dt) {
         super.update(dt);
+        updateLimbs();
+        if(poseHasChanged()) {
+            firePoseUpdate();
+            storePreviousAngles();
+        }
+    }
+
+    private void updateLimbs() {
         findElbowPositions();
         pointForearmsTowardElbows();
         pointBicepTowardsElbows();
-        checkForPoseUpdate();
+        calculateMotorAngles();
     }
 
-    private void checkForPoseUpdate() {
+    private void storePreviousAngles() {
+        for(Arm a : arms) {
+            a.previousAngle = a.motorAngle;
+        }
+    }
 
+    /**
+     * for each motor, find the angle of the bicep relative to the z=0 plane of the bottom.
+     * make sure to account for the mirrored position of every other motor and the 120 degree offset of each pair.
+     */
+    private void calculateMotorAngles() {
+        var bottomWorld = bottom.getWorld();
+        var ibw = new Matrix4d(bottomWorld);
+        ibw.invert();
+
+        for(int i=0;i<NUM_ACTUATORS;i++) {
+            var elbowWorld = arms[i].elbow.getWorld();
+            elbowWorld.mul(ibw);
+            var elbowPos = MatrixHelper.getPosition(elbowWorld);
+            var shoulderWorld = arms[i].shoulder.getWorld();
+            shoulderWorld.mul(ibw);
+            var shoulderPos = MatrixHelper.getPosition(shoulderWorld);
+            double z = elbowPos.z - shoulderPos.z;
+            // given z (opposite) and bicep length (hypotenuse) find angle theta.
+            if (bicepLength <= 0) {
+                arms[i].motorAngle = 0.0;
+                continue;
+            }
+            double ratio = z / bicepLength;
+            // clamp to valid domain for asin to avoid NaN from small numerical errors
+            if (ratio > 1.0) ratio = 1.0;
+            if (ratio < -1.0) ratio = -1.0;
+            // store the computed angle (degrees) in the arm for later use
+            arms[i].motorAngle = Math.toDegrees(Math.asin(ratio));
+        }
+    }
+
+    private boolean poseHasChanged() {
+        for(Arm a : arms) {
+            if(a.previousAngle != a.motorAngle) return true;
+        }
+        return false;
     }
 
     private void pointBicepTowardsElbows() {
@@ -496,5 +546,13 @@ public class RotaryStewartPlatform3 extends Node {
             }
             pcl.propertyChange(event);
         }
+    }
+
+    public Double [] getMotorAngles() {
+        Double [] angles = new Double[NUM_ACTUATORS];
+        for(int i = 0; i < NUM_ACTUATORS; i++) {
+            angles[i] = arms[i].motorAngle;
+        }
+        return angles;
     }
 }

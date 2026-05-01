@@ -29,7 +29,6 @@ public class MarlinRobotPanel extends JPanel {
         gbc.gridy=0;
         gbc.gridwidth=1;
 
-        gbc.gridy++;
         JButton M114 = new JButton("M114");
         M114.addActionListener(e-> marlinRobot.sendGCode("M114"));
         PanelHelper.addLabelAndComponent(this, "Get state", M114,gbc);
