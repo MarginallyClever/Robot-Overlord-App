@@ -1,7 +1,10 @@
-package com.marginallyclever.ro3.node.nodes.stewartplatform.linear;
+package com.marginallyclever.ro3.node.nodes.stewartplatform.rotary;
 
 import com.marginallyclever.convenience.helpers.BigMatrixHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
+import com.marginallyclever.ro3.Registry;
+import com.marginallyclever.ro3.factories.Lifetime;
+import com.marginallyclever.ro3.mesh.MeshFactory;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Cylinder;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Waldo;
@@ -18,18 +21,36 @@ import javax.vecmath.Vector3d;
 import java.util.List;
 
 /**
- * <p>A Stewart Platform node with linear actuators.  Automatically adds a "top" Pose node and a "bottom" Pose node as
- * children.  The top and bottom poses each have six connection points for the six linear actuators.  The top and
- * bottom also get a {@link com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance} child to visualize the platform.
- * A single Material is added to this node and applied to both MeshInstances.</p>
+ * <p>A Stewart Platform node with rotary actuators.  Automatically adds a "top" Pose node and a "bottom" Pose node as
+ * children.  The top and bottom poses each have six connection points.  The top and
+ * bottom also get a {@link MeshInstance} child to visualize the platform.
+ *
+ * A single Material is added to the root node and applied to all MeshInstances.
+ *
+ * The bottom connection points (shoulders) have six rotating "biceps".  each bicep has a MeshInstance.
+ * The top connection points (wrists) have ball joint links to "forearms".  each forearms has a MeshInstance.
+ * The biceps and the forearms meet at the ball joint "elbows".</p>
+ *
  * <p>Several parameters can be tweaked at run time:</p>
  * <ul>
- *     <li>The XY offset of the base and top platform connection points</li>
- *     <li>The minium and maximum actuator length</li>
+ *     <li>the xyz offset of the first bottom connection point relative to the base.  the second is a mirror of the
+ *     first; the rest are 120 and 240 degree offset repeats of the first two.</li>
+ *     <li>the xyz offset of the top connection point relative to the end effector.  the second is a mirror of the
+ *     first; the rest are 120 and 240 degree offset repeats of the first two.</li>
+ *     <li>The length of the bicep</li>
+ *     <li>The length of the forearm</li>
+ *     <li>The radius of the ball joints</li>
  * </ul>
- * <p>The system should be able to generate approximate jacobians at any given pose.</p>
+ * <p>The system should be able to generate approximate jacobians at any given pose.  When the top is moved the system
+ * should generate a list of angle values for each motor and display that value as gcode in the control panel.</p>
+ * <p>When the system is homed the biceps rest on the z=0 plane of the base.  The offset of the
+ * first bottom connection point minus the radius of the ball joint gives the opposite of the right angle triangle.  the
+ * hypotenuse is the length of the bicep.  The home angle of the bicep can be found with this information.</p>
+ * <p>Given the homed position of the bottom connection point; the offset of the top connection point; and the fact
+ * that, when homed, the end effector's origin is at x=0 and y=0... it should be possible to calculate the initial z
+ * height of the end effector.</p>
  */
-public class LinearStewartPlatform2 extends Node {
+public class RotaryStewartPlatform3 extends Node {
     public static final int NUM_ACTUATORS = 6;
     public static final int NUM_DOF = 6;
     private static final int [] BOTTOM_CARDINALITY = {0,5,2,1,4,3};
@@ -37,43 +58,33 @@ public class LinearStewartPlatform2 extends Node {
 
     private Pose bottom = null;
     private Pose top = null;
-    private final Vector2d topOffset = new Vector2d(25.0, 5.36);
-    private final Vector2d bottomOffset = new Vector2d(35.0, 7.511);
-    private double minActuatorLength = 38.0;
-    private double maxActuatorLength = 60.0;
+    private final Vector3d topOffset = new Vector3d(4.4452, .70,1.75);
+    private final Vector3d bottomOffset = new Vector3d(8.7, 2.2, 2.4);
+    private double bicepLength=5.0;
+    private double forearmLength=18.3;
 
-    public LinearStewartPlatform2() {
-        super("LinearStewartPlatform2");
+    private class Arm {
+        public Pose shoulder;
+        public Pose wrist;
+    }
+    private final Arm [] arms = new Arm[NUM_ACTUATORS];
+
+    public RotaryStewartPlatform3() {
+        super("RotaryStewartPlatform3");
     }
 
     @Override
     public void getComponents(List<JPanel> list) {
-        list.add(new LinearStewartPlatform2Panel(this));
+        list.add(new RotaryStewartPlatform3Panel(this));
         super.getComponents(list);
     }
 
     @Override
     protected void onAttach() {
         super.onAttach();
-        bottom = this.findNodeByPath("Bottom", Pose.class);
-        if(bottom==null) {
-            bottom = new Pose("Bottom");
-            this.addChild(bottom);
-            // add a mesh instance to visualize the bottom plate
-            var bottomMesh = new MeshInstance();
-            bottom.addChild(bottomMesh);
-            bottomMesh.setMesh(ProceduralMeshFactory.createMesh("Cylinder"));
-        }
-
-        top = this.findNodeByPath("Top", Pose.class);
-        if(top==null) {
-            top = new Pose("Top");
-            this.addChild(top);
-            // add a mesh instance to visualize the top plate
-            var topMesh = new MeshInstance();
-            top.addChild(topMesh);
-            topMesh.setMesh(ProceduralMeshFactory.createMesh("Cylinder"));
-        }
+        attachBottomMesh();
+        attachTopMesh();
+        attachAllArmMeshes();
         // add a material for the entire platform if one does not already exist
         if(!this.hasChild(Material.class)) {
             this.addChild(new Material("Material"));
@@ -81,15 +92,66 @@ public class LinearStewartPlatform2 extends Node {
         refreshShape();
     }
 
+    private void attachAllArmMeshes() {
+        for(int i=0;i<NUM_ACTUATORS;i++) {
+            if(arms[i]==null) {
+                attachOneArmMesh(i);
+            }
+        }
+    }
+
+    private void attachOneArmMesh(int i) {
+        arms[i] = new Arm();
+        var shoulder = new Pose("shoulder"+(i+1));
+        arms[i].shoulder = shoulder;
+        bottom.addChild(shoulder);
+        var bicepMesh = new MeshInstance();
+        shoulder.addChild(bicepMesh);
+        bicepMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE,"/com/marginallyclever/ro3/node/nodes/rotarystewartplatform3/bicep.obj"));
+
+        var wrist =  new Pose("wrist"+(i+1));
+        arms[i].wrist = wrist;
+        top.addChild(wrist);
+        var forearmMesh = new MeshInstance();
+        wrist.addChild(forearmMesh);
+        forearmMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE,"/com/marginallyclever/ro3/node/nodes/rotarystewartplatform3/forearm.obj"));
+    }
+
+    // attach the top mesh
+    private void attachTopMesh() {
+        top = this.findNodeByPath("Top", Pose.class);
+        if(top!=null) return;
+        top = new Pose("Top");
+        this.addChild(top);
+        // add a mesh instance to visualize the top plate
+        var topMesh = new MeshInstance();
+        top.addChild(topMesh);
+        topMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE,"/com/marginallyclever/ro3/node/nodes/rotarystewartplatform3/top.obj"));
+    }
+
+    // attach the bottom mesh
+    private void attachBottomMesh() {
+        bottom = this.findNodeByPath("Bottom", Pose.class);
+        if(bottom!=null) return;
+        bottom = new Pose("Bottom");
+        this.addChild(bottom);
+        // add a mesh instance to visualize the bottom plate
+        var bottomMesh = new MeshInstance();
+        bottom.addChild(bottomMesh);
+        bottomMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE,"/com/marginallyclever/ro3/node/nodes/rotarystewartplatform3/base.obj"));
+    }
+
     @Override
     public JSONObject toJSON() {
         var json = super.toJSON();
         json.put("topOffsetX", topOffset.x);
         json.put("topOffsetY", topOffset.y);
+        json.put("topOffsetZ", topOffset.z);
         json.put("bottomOffsetX", bottomOffset.x);
         json.put("bottomOffsetY", bottomOffset.y);
-        json.put("minActuatorLength", minActuatorLength);
-        json.put("maxActuatorLength", maxActuatorLength);
+        json.put("bottomOffsetZ", bottomOffset.z);
+        json.put("bicepLength", bicepLength);
+        json.put("forearmLength", forearmLength);
         return json;
     }
 
@@ -98,48 +160,52 @@ public class LinearStewartPlatform2 extends Node {
         super.fromJSON(json);
         topOffset.x = json.optDouble("topOffsetX", topOffset.x);
         topOffset.y = json.optDouble("topOffsetY", topOffset.y);
+        topOffset.z = json.optDouble("topOffsetZ", topOffset.z);
         bottomOffset.x = json.optDouble("bottomOffsetX", bottomOffset.x);
         bottomOffset.y = json.optDouble("bottomOffsetY", bottomOffset.y);
-        minActuatorLength = json.optDouble("minActuatorLength", minActuatorLength);
-        maxActuatorLength = json.optDouble("maxActuatorLength", maxActuatorLength);
+        bottomOffset.z = json.optDouble("bottomOffsetZ", bottomOffset.z);
+        bicepLength = json.optDouble("bicepLength", bicepLength);
+        forearmLength = json.optDouble("forearmLength", forearmLength);
         refreshShape();
     }
 
     // Getters and setters
-    public Vector2d getTopOffset() {
-        return new Vector2d(topOffset);
+    public Vector3d getTopOffset() {
+        return new Vector3d(topOffset);
     }
-    public void setTopOffset(Vector2d v) {
+    public void setTopOffset(Vector3d v) {
         this.topOffset.set(v);
         refreshShape();
     }
 
-    public Vector2d getBottomOffset() {
-        return new Vector2d(bottomOffset);
+    public Vector3d getBottomOffset() {
+        return new Vector3d(bottomOffset);
     }
-    public void setBottomOffset(Vector2d v) {
+    public void setBottomOffset(Vector3d v) {
         this.bottomOffset.set(v);
         refreshShape();
     }
 
-    public double getMinActuatorLength() {
-        return minActuatorLength;
+    public double getBicepLength() {
+        return bicepLength;
     }
-    public void setMinActuatorLength(double v) {
-        this.minActuatorLength = v;
-    }
-
-    public double getMaxActuatorLength() {
-        return maxActuatorLength;
-    }
-    public void setMaxActuatorLength(double v) {
-        this.maxActuatorLength = v;
+    public void setBicepLength(double v) {
+        this.bicepLength = v;
     }
 
+    public double getForearmLength() {
+        return forearmLength;
+    }
+    public void setForearmLength(double v) {
+        this.forearmLength = v;
+    }
 
-    // find or add 6 MeshInstances with Waldos into the top and bottom.
-    // then adjust the position of each Waldo according to the offsets.
-    // remember the top plate is rotated 60 degrees from the bottom and each "arm" is 120 degrees from the previous.
+
+    /**
+     * Find or add 6 MeshInstances with Waldos into the top and bottom.
+     * Then adjust the position of each Waldo according to the offsets.
+     * Remember the top plate is rotated 60 degrees from the bottom and each "arm" is 120 degrees from the previous.
+     */
     private void refreshShape() {
         if(bottom!=null) {
             setWaldoPositions(bottom,bottomOffset,0,BOTTOM_CARDINALITY);
@@ -152,28 +218,6 @@ public class LinearStewartPlatform2 extends Node {
     }
 
     private void adjustTopToMinimumHeight() {
-        // adjust the top pose to be near minActuatorLength above the bottom pose
-        var bottomPos = bottom.getPosition();
-        var topPos = top.getPosition();
-        double minZ = bottomPos.z + minActuatorLength*0.8;
-        if(topPos.z < minZ) {
-            topPos.z = minZ;
-            top.setPosition(topPos);
-        }
-        // because top has a smaller radius than bottom, our best guess so far is still too close.
-        while(getShortestActuatorLength() < getMinActuatorLength()) {
-            topPos.z += 0.1;
-            top.setPosition(topPos);
-        }
-    }
-
-    private double getShortestActuatorLength() {
-        double [] len = getActuatorLengths();
-        double min = Double.MAX_VALUE;
-        for(int i=0;i<len.length;++i) {
-            if(len[i]<min) min = len[i];
-        }
-        return min;
     }
 
     /**
@@ -271,17 +315,17 @@ public class LinearStewartPlatform2 extends Node {
         return lengths;
     }
 
-    private void setWaldoPositions(Pose pose, Vector2d v,double offsetAngleDegrees,int [] cardinality) {
+    private void setWaldoPositions(Pose pose, Vector3d v,double offsetAngleDegrees,int [] cardinality) {
         List<Pose> waldoes = getOrCreateWaldos(pose);
         for(int i=0;i<NUM_ACTUATORS;i+=2) {
             var angle = Math.toRadians(i * 120 + offsetAngleDegrees);
             var px = new Vector3d(Math.cos(angle), Math.sin(angle),0);
             var py = new Vector3d(-Math.sin(angle), Math.cos(angle),0);
-            var sum = new Vector3d();
+            var sum = new Vector3d(0,0,v.z);
             sum.scaleAdd(v.x, px, sum);
             sum.scaleAdd(-v.y, py, sum);
             waldoes.get(cardinality[i]).setPosition(sum);
-            sum.set(0,0,0);
+            sum.set(0,0,v.z);
             sum.scaleAdd(v.x, px, sum);
             sum.scaleAdd(v.y, py, sum);
             waldoes.get(cardinality[i+1]).setPosition(sum);
@@ -462,151 +506,5 @@ public class LinearStewartPlatform2 extends Node {
         double[][] J = getJacobian();
         // tolerance chosen empirically; adjust if needed
         return matrixRank(J, 1e-6);
-    }
-
-    /**
-     * Grid search scaling factors for top and bottom plate offsets.
-     * - minScale...maxScale inclusive, using steps per axis.
-     * Prints best found scales (closest condition to 1) and restores original offsets.
-     */
-    public void searchBestScale(double minScale, double maxScale, int steps) {
-        if (steps < 2) steps = 2;
-        var origTop = new Vector2d(topOffset);
-        var origBottom = new Vector2d(bottomOffset);
-
-        double bestScore = Double.POSITIVE_INFINITY;
-        double bestTopScale = 1.0;
-        double bestBottomScale = 1.0;
-        double bestCond = Double.NaN;
-        int bestRank = 0;
-
-        for (int i = 0; i < steps; ++i) {
-            double topScale = minScale + (maxScale - minScale) * i / (steps - 1);
-            for (int j = 0; j < steps; ++j) {
-                double bottomScale = minScale + (maxScale - minScale) * j / (steps - 1);
-                // apply scales
-                topOffset.set(origTop);
-                bottomOffset.set(origBottom);
-                topOffset.scale(topScale);
-                bottomOffset.scale(bottomScale);
-                refreshShape();
-
-                double cond = evaluateJacobianConditionNumber();
-                int rank = evaluateJacobianRank();
-                double score = Double.isFinite(cond) ? Math.abs(cond - 1.0) : Double.POSITIVE_INFINITY;
-
-                if (Double.isFinite(score) && (score < bestScore || (Math.abs(score - bestScore) < 1e-12 && rank > bestRank))) {
-                    bestScore = score;
-                    bestTopScale = topScale;
-                    bestBottomScale = bottomScale;
-                    bestCond = cond;
-                    bestRank = rank;
-                }
-            }
-        }
-
-        // restore original offsets and shape
-        topOffset.set(origTop);
-        bottomOffset.set(origBottom);
-        refreshShape();
-
-        System.out.println("searchBestScale result: topScale=" + bestTopScale +
-                " bottomScale=" + bestBottomScale +
-                " cond=" + bestCond +
-                " rank=" + bestRank +
-                " score=" + bestScore);
-    }
-
-    /**
-     * a gradient-descent based optimizer to adjust the four offset components (top.x, top.y, bottom.x, bottom.y).
-     * The method uses a squared-error objective (cond - 1)^2 with a large penalty for non-finite condition numbers,
-     * computes gradients by central finite differences, runs gradient steps until convergence or max iterations,
-     * records the best found offsets, restores the original offsets, and prints the result.
-     * @param learningRate
-     * @param maxIter
-     * @param tol
-     */
-    public void searchBestOffsetsByGradientDescent(double learningRate, int maxIter, double tol) {
-        if (maxIter <= 0) maxIter = 100;
-        if (learningRate <= 0) learningRate = 1e-2;
-        if (tol <= 0) tol = 1e-6;
-
-        // save originals
-        var origTop = new Vector2d(topOffset);
-        var origBottom = new Vector2d(bottomOffset);
-
-        // parameter vector: [top.x, top.y, bottom.x, bottom.y]
-        double[] p = { topOffset.x, topOffset.y, bottomOffset.x, bottomOffset.y };
-        double[] bestP = p.clone();
-        double bestScore = Double.POSITIVE_INFINITY;
-        int bestIter = 0;
-
-        final double fdStep = 1e-3; // finite difference step
-        for (int iter = 0; iter < maxIter; ++iter) {
-            // apply current params
-            topOffset.set(p[0], p[1]);
-            bottomOffset.set(p[2], p[3]);
-            refreshShape();
-
-            // objective: squared error (cond - 1)^2, large penalty if non-finite
-            double cond = evaluateJacobianConditionNumber();
-            double score = Double.isFinite(cond) ? (cond - 1.0) * (cond - 1.0) : 1e12;
-            if (Double.isFinite(score) && score < bestScore) {
-                bestScore = score;
-                bestP = p.clone();
-                bestIter = iter;
-            }
-
-            // compute gradient by central differences
-            double[] grad = new double[4];
-            double gradNormSq = 0.0;
-            for (int k = 0; k < 4; ++k) {
-                double orig = p[k];
-
-                p[k] = orig + fdStep;
-                topOffset.set(p[0], p[1]);
-                bottomOffset.set(p[2], p[3]);
-                refreshShape();
-                double c1 = evaluateJacobianConditionNumber();
-                double s1 = Double.isFinite(c1) ? (c1 - 1.0) * (c1 - 1.0) : 1e12;
-
-                p[k] = orig - fdStep;
-                topOffset.set(p[0], p[1]);
-                bottomOffset.set(p[2], p[3]);
-                refreshShape();
-                double c2 = evaluateJacobianConditionNumber();
-                double s2 = Double.isFinite(c2) ? (c2 - 1.0) * (c2 - 1.0) : 1e12;
-
-                // restore
-                p[k] = orig;
-
-                grad[k] = (s1 - s2) / (2.0 * fdStep);
-                gradNormSq += grad[k] * grad[k];
-            }
-
-            double gradNorm = Math.sqrt(gradNormSq);
-            if (gradNorm < tol) {
-                break;
-            }
-
-            // gradient descent update
-            for (int k = 0; k < 4; ++k) {
-                p[k] -= learningRate * grad[k];
-            }
-        }
-
-        // restore original offsets/shape
-        topOffset.set(origTop);
-        bottomOffset.set(origBottom);
-        refreshShape();
-
-        System.out.println("result: bestIter=" + bestIter +
-                " top=(" + bestP[0] + "," + bestP[1] + ")" +
-                " bottom=(" + bestP[2] + "," + bestP[3] + ")" +
-                " bestScore=" + bestScore +
-                " learningRate="+learningRate +
-                " maxIter="+maxIter +
-                " tol="+tol);
-
     }
 }
