@@ -4,8 +4,6 @@ import com.marginallyclever.convenience.helpers.BigMatrixHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.factories.Lifetime;
-import com.marginallyclever.ro3.mesh.MeshFactory;
-import com.marginallyclever.ro3.mesh.proceduralmesh.Cylinder;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Waldo;
 import com.marginallyclever.ro3.node.Node;
@@ -15,9 +13,12 @@ import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONObject;
 
 import javax.swing.*;
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
+import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
 /**
@@ -53,19 +54,20 @@ import java.util.List;
 public class RotaryStewartPlatform3 extends Node {
     public static final int NUM_ACTUATORS = 6;
     public static final int NUM_DOF = 6;
-    private static final int [] BOTTOM_CARDINALITY = {0,5,2,1,4,3};
-    private static final int [] TOP_CARDINALITY = {5,4,1,0,3,2};
+    private static final int [] CARDINALITY = {0,5,2,1,4,3};
 
     private Pose bottom = null;
     private Pose top = null;
-    private final Vector3d topOffset = new Vector3d(4.4452, .70,1.75);
+    private final Vector3d topOffset = new Vector3d(4.4452, .70,-1.75);
     private final Vector3d bottomOffset = new Vector3d(8.7, 2.2, 2.4);
     private double bicepLength=5.0;
-    private double forearmLength=18.3;
+    private double forearmLength=19.3;
 
-    private class Arm {
+    private static class Arm {
         public Pose shoulder;
+        public Pose elbow;
         public Pose wrist;
+        public double kfAngle;  // degrees
     }
     private final Arm [] arms = new Arm[NUM_ACTUATORS];
 
@@ -85,10 +87,6 @@ public class RotaryStewartPlatform3 extends Node {
         attachBottomMesh();
         attachTopMesh();
         attachAllArmMeshes();
-        // add a material for the entire platform if one does not already exist
-        if(!this.hasChild(Material.class)) {
-            this.addChild(new Material("Material"));
-        }
         refreshShape();
     }
 
@@ -102,18 +100,25 @@ public class RotaryStewartPlatform3 extends Node {
 
     private void attachOneArmMesh(int i) {
         arms[i] = new Arm();
-        var shoulder = new Pose("shoulder"+(i+1));
-        arms[i].shoulder = shoulder;
+
+        var shoulder = arms[i].shoulder = new Pose("shoulder"+(i+1));
         bottom.addChild(shoulder);
         var bicepMesh = new MeshInstance();
         shoulder.addChild(bicepMesh);
+        var m = new Material();
+        m.setDiffuseColor(new Color(0xFF,0,0));
+        shoulder.addChild(m);
         bicepMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE,"/com/marginallyclever/ro3/node/nodes/rotarystewartplatform3/bicep.obj"));
 
-        var wrist =  new Pose("wrist"+(i+1));
-        arms[i].wrist = wrist;
+        arms[i].elbow = new Pose("elbow"+(i+1));
+
+        var wrist = arms[i].wrist = new Pose("wrist"+(i+1));
         top.addChild(wrist);
         var forearmMesh = new MeshInstance();
         wrist.addChild(forearmMesh);
+        m = new Material();
+        m.setDiffuseColor(new Color(0x0,0xCC,0xCC));
+        wrist.addChild(m);
         forearmMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE,"/com/marginallyclever/ro3/node/nodes/rotarystewartplatform3/forearm.obj"));
     }
 
@@ -126,6 +131,9 @@ public class RotaryStewartPlatform3 extends Node {
         // add a mesh instance to visualize the top plate
         var topMesh = new MeshInstance();
         top.addChild(topMesh);
+        var m = new Material();
+        m.setDiffuseColor(new Color(0xFF,0xCC,0x00));
+        top.addChild(m);
         topMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE,"/com/marginallyclever/ro3/node/nodes/rotarystewartplatform3/top.obj"));
     }
 
@@ -138,6 +146,7 @@ public class RotaryStewartPlatform3 extends Node {
         // add a mesh instance to visualize the bottom plate
         var bottomMesh = new MeshInstance();
         bottom.addChild(bottomMesh);
+        bottom.addChild(new Material());
         bottomMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE,"/com/marginallyclever/ro3/node/nodes/rotarystewartplatform3/base.obj"));
     }
 
@@ -169,38 +178,6 @@ public class RotaryStewartPlatform3 extends Node {
         refreshShape();
     }
 
-    // Getters and setters
-    public Vector3d getTopOffset() {
-        return new Vector3d(topOffset);
-    }
-    public void setTopOffset(Vector3d v) {
-        this.topOffset.set(v);
-        refreshShape();
-    }
-
-    public Vector3d getBottomOffset() {
-        return new Vector3d(bottomOffset);
-    }
-    public void setBottomOffset(Vector3d v) {
-        this.bottomOffset.set(v);
-        refreshShape();
-    }
-
-    public double getBicepLength() {
-        return bicepLength;
-    }
-    public void setBicepLength(double v) {
-        this.bicepLength = v;
-    }
-
-    public double getForearmLength() {
-        return forearmLength;
-    }
-    public void setForearmLength(double v) {
-        this.forearmLength = v;
-    }
-
-
     /**
      * Find or add 6 MeshInstances with Waldos into the top and bottom.
      * Then adjust the position of each Waldo according to the offsets.
@@ -208,111 +185,17 @@ public class RotaryStewartPlatform3 extends Node {
      */
     private void refreshShape() {
         if(bottom!=null) {
-            setWaldoPositions(bottom,bottomOffset,0,BOTTOM_CARDINALITY);
+            setWaldoPositions(bottom,bottomOffset,0, CARDINALITY);
         }
 
         if(top!=null) {
-            setWaldoPositions(top,topOffset,60,TOP_CARDINALITY);
+            setWaldoPositions(top,topOffset,0, CARDINALITY);
         }
         adjustTopToMinimumHeight();
     }
 
     private void adjustTopToMinimumHeight() {
-    }
-
-    /**
-     * <p>Calculate the Jacobian matrix at the current pose using damped least squares inverse of the inverse jacobian.</p>
-     * @return A 6x6 Jacobian matrix
-     */
-    private double [][] getJacobian() {
-        double lambda = 1e-6;
-        double [][] ij = getApproximateInverseJacobian();
-
-        double[][] jt = BigMatrixHelper.transpose(ij);
-        double[][] jjt = BigMatrixHelper.multiplyMatrices(ij, jt);
-
-        // Add lambda^2 * identity matrix to jjt
-        for (int i = 0; i < ij.length; i++) {
-            jjt[i][i] += lambda * lambda;
-        }
-
-        double[][] jjt_inv = BigMatrixHelper.invert(jjt);
-        return BigMatrixHelper.multiplyMatrices(jt, jjt_inv);
-    }
-
-    /**
-     * <p>Calculate the approximate inverse Jacobian matrix at the current pose.  This is done by making a copy
-     * of the current top pose, then perturbing each degree of freedom slightly and measuring the change in actuator
-     * lengths.</p>
-     * @return A 6x6 Jacobian matrix
-     */
-    private double [][] getApproximateInverseJacobian() {
-        // save original state
-        double [][] iJacobian = new double[NUM_ACTUATORS][NUM_DOF];
-        Matrix4d original = top.getLocal();
-        Matrix4d after = new Matrix4d();
-        double [] originalLength = getActuatorLengths();
-        final double stepSize = 0.1;
-        final double stepRadians = Math.toRadians(stepSize);
-
-        try {
-            // for each degree of freedom
-            for(int i=0;i<NUM_DOF;++i) {
-                // perturb the DOF,
-                after.set(original);
-                switch(i) {
-                    case 0 -> after.m03 += stepSize; // x
-                    case 1 -> after.m13 += stepSize; // y
-                    case 2 -> after.m23 += stepSize; // z
-                    case 3 -> after.mul(new Matrix4d(new double[]{
-                            1,0,0,0,
-                            0,Math.cos(stepRadians), -Math.sin(stepRadians),0,
-                            0,Math.sin(stepRadians),  Math.cos(stepRadians),0,
-                            0,0,0,1
-                    })); // roll
-                    case 4 -> after.mul(new Matrix4d(new double[]{
-                             Math.cos(stepRadians),0,Math.sin(stepRadians),0,
-                            0,1,0,0,
-                            -Math.sin(stepRadians),0,Math.cos(stepRadians),0,
-                            0,0,0,1
-                    })); // pitch
-                    case 5 -> after.mul(new Matrix4d(new double[]{
-                            Math.cos(stepRadians),-Math.sin(stepRadians),0,0,
-                            Math.sin(stepRadians), Math.cos(stepRadians),0,0,
-                            0,0,1,0,
-                            0,0,0,1
-                    })); // yaw
-                }
-                // set the new pose,
-                top.setLocal(after);
-                // measure new lengths,
-                double [] length = getActuatorLengths();
-                // and approximate the derivative.
-                for(int j=0;j<NUM_ACTUATORS;++j) {
-                    iJacobian[j][i] = (length[j] - originalLength[j]) / stepSize;
-                }
-            }
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-
-        // restore state and return inverse jacobian.
-        top.setLocal(original);
-        return iJacobian;
-    }
-
-    // measure actuator lengths
-    private double [] getActuatorLengths() {
-        double [] lengths = new double[NUM_ACTUATORS];
-        List<Pose> bottomWaldos = getOrCreateWaldos(bottom);  // lazy and expensive
-        List<Pose> topWaldos = getOrCreateWaldos(top);  // lazy and expensive
-        for(int j=0;j<NUM_ACTUATORS;++j) {
-            var bl = MatrixHelper.getPosition(bottomWaldos.get(j).getWorld());
-            var tl = MatrixHelper.getPosition(topWaldos.get(j).getWorld());
-            bl.sub(tl);
-            lengths[j] = bl.length();
-        }
-        return lengths;
+        top.setPosition(new Vector3d(0,0,20.045));
     }
 
     private void setWaldoPositions(Pose pose, Vector3d v,double offsetAngleDegrees,int [] cardinality) {
@@ -329,13 +212,6 @@ public class RotaryStewartPlatform3 extends Node {
             sum.scaleAdd(v.x, px, sum);
             sum.scaleAdd(v.y, py, sum);
             waldoes.get(cardinality[i+1]).setPosition(sum);
-        }
-        var mi = pose.findFirstChild(MeshInstance.class);
-        if(mi!=null) {
-            if(mi.getMesh() instanceof Cylinder c) {
-                c.setRadius(Math.sqrt(v.x * v.x + v.y * v.y));
-                c.updateModel();
-            }
         }
     }
 
@@ -370,141 +246,255 @@ public class RotaryStewartPlatform3 extends Node {
     @Override
     public void update(double dt) {
         super.update(dt);
-        // make all bottom waldoes lookAt the matching top waldoes
-        List<Pose> bottomWaldos = getOrCreateWaldos(bottom);  // lazy and expensive
-        List<Pose> topWaldos = getOrCreateWaldos(top);  // lazy and expensive
+        findElbowPositions();
+        pointForearmsTowardElbows();
+        pointBicepTowardsElbows();
+        checkForPoseUpdate();
+    }
+
+    private void checkForPoseUpdate() {
+
+    }
+
+    private void pointBicepTowardsElbows() {
+        // the z axis of the model aligns with the motor axle.
+        // the bicep mesh is attached to the shoulder pose, which is at the bottom connection point.
+        // to orient the bicep, we can point the shoulder's x axis at the elbow.
         for(int i=0;i<NUM_ACTUATORS;++i) {
-            var bw = bottomWaldos.get(i).getWorld();
-            var tw = topWaldos.get(i).getWorld();
-            // make bottom waldo look at top waldo
-            var bp = MatrixHelper.getPosition(bw);
-            var tp = MatrixHelper.getPosition(tw);
-            var m3 = MatrixHelper.lookAt(bp, tp);
+            if (arms[i] == null) continue;
+            Pose shoulder = arms[i].shoulder;
+            Pose elbowPose = arms[i].elbow;
+            if (shoulder == null || elbowPose == null) continue;
+
+            try {
+                Vector3d sp = MatrixHelper.getPosition(shoulder.getWorld());
+                Vector3d ep = MatrixHelper.getPosition(elbowPose.getWorld());
+
+                Vector3d x = new Vector3d();
+                x.sub(ep, sp);
+                x.normalize();
+
+                double theta = switch(i) {
+                    case 0 -> 0;
+                    case 1 -> -120;
+                    case 2 -> -120;
+                    case 3 -> -240;
+                    case 4 -> -240;
+                    default -> 0;
+                };
+                theta = Math.toRadians(theta);
+                Vector3d y = new Vector3d(Math.cos(theta),Math.sin(theta),0);
+                y.normalize();
+
+                Vector3d z = new Vector3d();
+                z.cross(x, y);
+                z.normalize();
+
+                //y.cross(z, x);
+
+                // build world matrix with columns X,Y,Z and translation sp
+                Matrix4d m = new Matrix4d();
+                m.setIdentity();
+                MatrixHelper.setXAxis(m, x);
+                MatrixHelper.setYAxis(m, y);
+                MatrixHelper.setZAxis(m, z);
+                MatrixHelper.setPosition(m, sp);
+
+                shoulder.setWorld(m);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void pointForearmsTowardElbows() {
+        for (int i = 0; i < NUM_ACTUATORS; ++i) {
+            // wrist is the pose at the top that holds the forearm mesh
+            Pose wrist = arms[i].wrist;
+            Pose elbow = arms[i].elbow;
+            if (wrist == null || elbow == null) continue;
+
+            // compute world-space positions
+            Vector3d wp = MatrixHelper.getPosition(wrist.getWorld());
+            Vector3d ep = MatrixHelper.getPosition(elbow.getWorld());
+
+            // if wrist and elbow coincide or are extremely close, skip orientation
+            Vector3d diff = new Vector3d();
+            diff.sub(ep, wp);
+            if (diff.length() < 1e-6) continue;
+
+            // build a lookAt orientation so the wrist's forward axis points at the elbow
+            Matrix3d look = MatrixHelper.lookAt(wp, ep);
             Matrix4d m4 = new Matrix4d();
-            m4.set(m3);
-            m4.setTranslation(bp);
-            bottomWaldos.get(i).setWorld(m4);
-            // make the top look at the bottom waldo
-            m3 = MatrixHelper.lookAt(tp, bp);
-            m4 = new Matrix4d();
-            m4.set(m3);
-            m4.setTranslation(tp);
-            topWaldos.get(i).setWorld(m4);
+            m4.set(look);
+            m4.setTranslation(wp);
+            wrist.setWorld(m4);
         }
-    }
-
-    private double frobeniusNorm(double[][] m) {
-        double s = 0.0;
-        for (int i = 0; i < m.length; ++i) {
-            for (int j = 0; j < m[i].length; ++j) {
-                double v = m[i][j];
-                s += v * v;
-            }
-        }
-        return Math.sqrt(s);
     }
 
     /**
-     * Compute condition number of the 6x6 Jacobian using Frobenius norm:
-     * cond = ||J||_F * ||J^{-1}||_F. Returns Double.POSITIVE_INFINITY if J is singular.
+     * <p>Given:</p>
+     * <ul>
+     *     <li>The position of each wrist</li>
+     *     <li>The position of each shoulder</li>
+     *     <li>The length of the biceps</li>
+     *     <li>The length of the forearms</li>
+     * </ul>
+     * <p>Project the wrist position onto the plane of rotation of the bicep, adjust the length of the forearm
+     * accordingly, and use intersection of circles to find the position of the elbow.</p>
+     * <p>The first plane of rotation has normal x=1.
+     * The second is rotated 120 degrees from the first.
+     * The third is rotated 240 degrees from the first.</p>
      */
-    public double evaluateJacobianConditionNumber() {
-        return evaluateJacobianUsingSVD();
-        //return evaluateJacobianUsingFrobeniusNorm();
-    }
+    private void findElbowPositions() {
+        // get shoulder and wrist reference poses (lazy)
+        List<Pose> bottomWaldos = getOrCreateWaldos(bottom);
+        List<Pose> topWaldos = getOrCreateWaldos(top);
 
-    /**
-     * Evaluate the condition number using Single Value Decomposition (SVD).
-     * @return condition number of the Jacobian matrix.
-     */
-    private double evaluateJacobianUsingSVD() {
-        double[][] J = getJacobian();
-        scaleByAverageRadius(J);
-        double[] s = BigMatrixHelper.singularValues(J);
-        if (s[s.length - 1] < 1e-12) {
-            return Double.POSITIVE_INFINITY;
-        }
-        return s[0] / s[s.length - 1];
-    }
+        for (int i = 0; i < NUM_ACTUATORS; ++i) {
+            Pose shoulderPose = bottomWaldos.get(i);
+            Pose wristPose = topWaldos.get(i);
 
-    private double evaluateJacobianUsingFrobeniusNorm() {
-        double[][] J = getJacobian();
+            Vector3d shoulder = MatrixHelper.getPosition(shoulderPose.getWorld());
+            Vector3d wrist = MatrixHelper.getPosition(wristPose.getWorld());
 
-        scaleByAverageRadius(J);
-
-        try {
-            double[][] inv = BigMatrixHelper.invert(J);
-            double nJ = frobeniusNorm(J);
-            double nInv = frobeniusNorm(inv);
-            return nJ * nInv;
-        } catch (Exception e) {
-            return Double.POSITIVE_INFINITY;
-        }
-    }
-
-    private void scaleByAverageRadius(double[][] J) {
-        // scale J by average radius to make condition number more meaningful.
-        // Jnormalized = J * diag(1/L, 1/L, 1/L, 1, 1, 1)
-        double L = getAverageRadius();
-        for (int i = 0; i < J.length; ++i) {
-            for (int j = 0; j < J[i].length; ++j) {
-                if (j < 3) {
-                    J[i][j] /= L;
+            // determine the plane normal for this actuator.
+            // The platform has three rotation planes with normals at 0, 120, and 240 degrees in XY.
+            // Find which cardinality pair this actuator belongs to so we pick the correct plane.
+            int posIndex = -1;
+            for (int k = 0; k < CARDINALITY.length; ++k) {
+                if (CARDINALITY[k] == i) {
+                    posIndex = k;
+                    break;
                 }
             }
-        }
-    }
+            int planeIndex = Math.max(0, posIndex / 2); // 0..2
+            double planeAngle = Math.toRadians(planeIndex * -120.0);
+            Vector3d n = new Vector3d(Math.cos(planeAngle), Math.sin(planeAngle), 0); // plane normal in XY
+            // in-plane axes: u is in-plane horizontal (perp to normal in XY), v is world Z
+            Vector3d u = new Vector3d(-n.y, n.x, 0);
+            u.normalize();
+            Vector3d v = new Vector3d(0, 0, 1);
 
-    private double getAverageRadius() {
-        return (topOffset.length()+bottomOffset.length())/2.0;
-    }
+            // vector from shoulder to wrist
+            Vector3d ST = new Vector3d();
+            ST.sub(wrist, shoulder);
 
-    /**
-     * Compute numeric rank of a matrix using Gaussian elimination with partial pivoting.
-     * tol is the pivot threshold (e.g. 1e-6).
-     */
-    private int matrixRank(double[][] in, double tol) {
-        int m = in.length;
-        int n = in[0].length;
-        double[][] a = new double[m][n];
-        for (int i = 0; i < m; ++i) System.arraycopy(in[i], 0, a[i], 0, n);
+            // signed perpendicular offset of wrist from the bicep plane
+            double h = ST.dot(n);
 
-        int rank = 0;
-        int row = 0;
-        for (int col = 0; col < n && row < m; ++col) {
-            // find pivot
-            int sel = row;
-            double max = Math.abs(a[sel][col]);
-            for (int r = row + 1; r < m; ++r) {
-                double v = Math.abs(a[r][col]);
-                if (v > max) { max = v; sel = r; }
-            }
-            if (max < tol) continue;
-            // swap
-            if (sel != row) {
-                double[] tmp = a[sel]; a[sel] = a[row]; a[row] = tmp;
-            }
-            // eliminate below
-            double piv = a[row][col];
-            for (int r = row + 1; r < m; ++r) {
-                double factor = a[r][col] / piv;
-                if (factor == 0.0) continue;
-                for (int c = col; c < n; ++c) {
-                    a[r][c] -= factor * a[row][c];
+            // project wrist onto the plane through the shoulder
+            Vector3d P = new Vector3d();
+            P.scaleAdd(-h,n,wrist);  // wrist - n*h
+
+            // effective radius of forearm circle in the plane
+            double r2sq = forearmLength * forearmLength - h * h;
+            double r2 = r2sq <= 0 ? 0.0 : Math.sqrt(r2sq);
+
+            // coordinates of P relative to S in (u,v) basis
+            Vector3d PS = new Vector3d();
+            PS.sub(P, shoulder);
+            double dx = PS.dot(u);
+            double dy = PS.dot(v);
+            double d = Math.hypot(dx, dy);
+
+            double r1 = bicepLength;
+            Vector3d chosen = new Vector3d();
+
+            if (d < 1e-9) {
+                // The wrist projects onto the shoulder. Pick a default elbow along +u
+                chosen.scaleAdd(r1,u,shoulder);
+            } else {
+                // circle-circle intersection in plane
+                if (d > r1 + r2 || d < Math.abs(r1 - r2)) {
+                    // no proper intersection; choose the closest point on the bicep circle toward P
+                    double scale = r1 / d;
+                    Vector3d dir = new Vector3d(dx, dy, 0);
+                    dir.scale(scale);
+                    // map dir (in u,v coords) back to world
+                    chosen.scaleAdd(dir.x,u,shoulder);
+                    chosen.scaleAdd(dir.y,v,chosen);
+                } else {
+                    double a = (r1 * r1 - r2 * r2 + d * d) / (2.0 * d);
+                    double h_inter = Math.sqrt(Math.max(0.0, r1 * r1 - a * a));
+
+                    // point p2 in (u,v) coords
+                    double p2x = dx * (a / d);
+                    double p2y = dy * (a / d);
+
+                    // perpendicular direction in plane (normalized)
+                    double px = -dy / d;
+                    double py = dx / d;
+
+                    double ix, iy;
+
+                    // two intersection candidates in (u,v)
+                    // map both back to world and choose the one closer to the wrist-midpoint
+                    if(posIndex%2 == 0) {
+                        ix = p2x + h_inter * px;
+                        iy = p2y + h_inter * py;
+                    } else {
+                        ix = p2x - h_inter * px;
+                        iy = p2y - h_inter * py;
+                    }
+                    chosen.scaleAdd(ix, u, shoulder);
+                    chosen.scaleAdd(iy, v, chosen);
                 }
             }
-            row++;
-            rank++;
+
+            // set elbow world position (Pose.setPosition uses local position relative to parent;
+            // since elbow parent is this node (whose local is identity for the platform) this acts as world)
+            arms[i].elbow.setPosition(chosen);
         }
-        return rank;
     }
 
     /**
-     * Evaluate rank of current Jacobian.
+     * Find or create a marker Pose under bottom with the given name, and position it at the given world position.
+     * This was used to visualize debug information while solving the kinematics.
+     * @param markerName
+     * @param pos
      */
-    public int evaluateJacobianRank() {
-        double[][] J = getJacobian();
-        // tolerance chosen empirically; adjust if needed
-        return matrixRank(J, 1e-6);
+    private void adjustCandidatePosition(String markerName, Vector3d pos) {
+        Pose marker = null;
+        for (Node n : bottom.getChildren()) {
+            if (n instanceof Pose p && p.getName().equals(markerName)) {
+                marker = p;
+                break;
+            }
+        }
+        if (marker == null) {
+            marker = new Pose(markerName);
+            bottom.addChild(marker);
+            var mi = new MeshInstance();
+            marker.addChild(mi);
+            marker.addChild(new Material());
+            Waldo w = (Waldo) ProceduralMeshFactory.createMesh("Waldo");
+            assert w != null;
+            w.setRadius(5);
+            w.updateModel();
+            mi.setMesh(w);
+            mi.setHasShadow(false);
+        }
+        // position it
+        marker.setPosition(pos);
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        listeners.add(PropertyChangeListener.class, listener);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        listeners.remove(PropertyChangeListener.class, listener);
+    }
+
+    private void firePoseUpdate() {
+        PropertyChangeEvent event = null;
+        for( PropertyChangeListener pcl : listeners.getListeners(PropertyChangeListener.class)) {
+            if(event==null) {
+                // lazy allocation
+                event = new PropertyChangeEvent(this, "pose", null, null);
+            }
+            pcl.propertyChange(event);
+        }
     }
 }
