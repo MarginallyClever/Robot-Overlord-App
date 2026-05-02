@@ -54,6 +54,7 @@ public class RotaryStewartPlatform3 extends Node {
     public static final int NUM_ACTUATORS = 6;
     private static final int [] CARDINALITY = {0,5,2,1,4,3};
     private static final double TOP_AT_HOME_POSITION = 20.045;  // from Fusion360 model
+    private static final double HOME_ANGLE = -22.42;
 
     private Pose bottom = null;
     private Pose top = null;
@@ -102,26 +103,31 @@ public class RotaryStewartPlatform3 extends Node {
 
     private void attachOneArmMesh(int i) {
         arms[i] = new Arm();
-
-        var shoulder = arms[i].shoulder = new Pose("shoulder"+(i+1));
-        bottom.addChild(shoulder);
-        var bicepMesh = new MeshInstance();
-        shoulder.addChild(bicepMesh);
-        var m = new Material();
-        m.setDiffuseColor(new Color(0xFF,0,0));
-        shoulder.addChild(m);
-        bicepMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE,"/com/marginallyclever/ro3/node/nodes/rotarystewartplatform3/bicep.obj"));
+        arms[i].shoulder = bottom.findNodeByPath("shoulder"+(i+1),Pose.class);
+        if(arms[i].shoulder==null) {
+            var shoulder = arms[i].shoulder = new Pose("shoulder" + (i + 1));
+            bottom.addChild(shoulder);
+            var bicepMesh = new MeshInstance();
+            shoulder.addChild(bicepMesh);
+            var m = new Material();
+            m.setDiffuseColor(new Color(0xFF, 0, 0));
+            shoulder.addChild(m);
+            bicepMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE, "/com/marginallyclever/ro3/node/nodes/rotarystewartplatform3/bicep.obj"));
+        }
 
         arms[i].elbow = new Pose("elbow"+(i+1));
 
-        var wrist = arms[i].wrist = new Pose("wrist"+(i+1));
-        top.addChild(wrist);
-        var forearmMesh = new MeshInstance();
-        wrist.addChild(forearmMesh);
-        m = new Material();
-        m.setDiffuseColor(new Color(0x0,0xCC,0xCC));
-        wrist.addChild(m);
-        forearmMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE,"/com/marginallyclever/ro3/node/nodes/rotarystewartplatform3/forearm.obj"));
+        arms[i].wrist = top.findNodeByPath("wrist"+(i+1),Pose.class);
+        if(arms[i].wrist==null) {
+            var wrist = arms[i].wrist = new Pose("wrist" + (i + 1));
+            top.addChild(wrist);
+            var forearmMesh = new MeshInstance();
+            wrist.addChild(forearmMesh);
+            var m = new Material();
+            m.setDiffuseColor(new Color(0x0, 0xCC, 0xCC));
+            wrist.addChild(m);
+            forearmMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE, "/com/marginallyclever/ro3/node/nodes/rotarystewartplatform3/forearm.obj"));
+        }
     }
 
     // attach the top mesh
@@ -177,7 +183,6 @@ public class RotaryStewartPlatform3 extends Node {
         bottomOffset.z = json.optDouble("bottomOffsetZ", bottomOffset.z);
         bicepLength = json.optDouble("bicepLength", bicepLength);
         forearmLength = json.optDouble("forearmLength", forearmLength);
-        refreshShape();
     }
 
     /**
@@ -287,7 +292,7 @@ public class RotaryStewartPlatform3 extends Node {
             double z = elbowPos.z - shoulderPos.z;
             // given z (opposite) and bicep length (hypotenuse) find angle theta.
             if (bicepLength <= 0) {
-                arms[i].motorAngle = 0.0;
+                arms[i].motorAngle = -HOME_ANGLE;
                 continue;
             }
             double ratio = z / bicepLength;
@@ -295,7 +300,7 @@ public class RotaryStewartPlatform3 extends Node {
             if (ratio > 1.0) ratio = 1.0;
             if (ratio < -1.0) ratio = -1.0;
             // store the computed angle (degrees) in the arm for later use
-            arms[i].motorAngle = Math.toDegrees(Math.asin(ratio));
+            arms[i].motorAngle = Math.toDegrees(Math.asin(ratio)) - HOME_ANGLE;
         }
     }
 

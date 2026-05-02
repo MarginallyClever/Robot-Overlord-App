@@ -446,7 +446,7 @@ public class Node {
      * @return the first node found with a matching ID and type, or null if none found.
      * @param <T> the type of node to search for
      */
-    protected <T extends Node> T findNodeByPath(String target, Class<T> type) {
+    public <T extends Node> T findNodeByPath(String target, Class<T> type) {
         if(target==null) return null;
 
         String[] parts = target.split("/");
