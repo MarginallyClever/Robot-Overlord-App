@@ -60,16 +60,8 @@ public class Material extends Node {
         super(name);
 
         for (MaterialLayers ti : MaterialLayers.values()) {
-            if (ti == MaterialLayers.ALBEDO
-                    || ti == MaterialLayers.METALLIC
-                    || ti == MaterialLayers.EMISSIVE) {
-                String filename = RESOURCE_PATH + ti.getName() + ".jpg";
-                textures.add(Registry.textureFactory.get(Lifetime.APPLICATION, filename));
-                isTextureMode.put(ti, true);
-            } else {
-                String filename = RESOURCE_PATH + ti.getName() + ".jpg";
-                textures.add(Registry.textureFactory.get(Lifetime.APPLICATION, filename));
-            }
+            String filename = RESOURCE_PATH + ti.getName() + ".jpg";
+            textures.add(Registry.textureFactory.get(Lifetime.APPLICATION, filename));
         }
     }
 
@@ -171,7 +163,7 @@ public class Material extends Node {
             JSONObject isTextureModeJson = from.getJSONObject("isTextureMode");
             for (MaterialLayers ti : MaterialLayers.values()) {
                 if (isTextureModeJson.has(ti.getName())) {
-                    isTextureMode.put(ti, isTextureModeJson.getBoolean(ti.getName()));
+                    setTextureMode(ti, isTextureModeJson.getBoolean(ti.getName()));
                 }
             }
         }
