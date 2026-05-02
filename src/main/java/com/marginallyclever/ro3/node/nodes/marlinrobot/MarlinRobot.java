@@ -12,8 +12,46 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * {@link MarlinRobot} manages communication with a robot with Marlin firmware installed.
- * In the OSI network model it is the Presentation layer.
+ * High-level helper node for communicating with a Marlin-based robot.
+ *
+ * <p>This node acts as the "presentation" layer for Marlin G-code communication. It
+ * will ensure a {@link com.marginallyclever.ro3.node.nodes.networksession.NetworkSession}
+ * child exists (created on attach if missing) and registers itself as a
+ * {@link com.marginallyclever.communications.session.SessionLayerListener} to receive
+ * incoming Marlin replies.</p>
+ *
+ * Usage summary:
+ * <ul>
+ *   <li>Add an instance of {@code MarlinRobot} to your scene graph (or obtain a
+ *       reference to an existing one).</li>
+ *   <li>Listen for responses from Marlin by registering a {@code MarlinListener}
+ *       with {@link #addMarlinListener}.</li>
+ *   <li>Call {@link #sendGCode(String)} to send a single G-code command. Responses
+ *       from the firmware are delivered asynchronously via {@code MarlinListener}.</li>
+ *   <li>Test connectivity with {@link #isConnected()}.</li>
+ * </ul>
+ *
+ * Integration notes:
+ * <ul>
+ *   <li>{@code MarlinRobotArm} and {@code LinearStewartPlatform} are existing
+ *       consumers/examples in this project that use a {@code MarlinRobot} node to
+ *       send motion commands. Follow those implementations as usage examples.</li>
+ *   <li>The helper stores no blocking state — sending is delegated to the
+ *       {@code NetworkSession}. Responses arrive on the session thread and are
+ *       re-fired to listeners on this node.</li>
+ *   <li>Implementations wanting to format kinematic commands can call
+ *       {@link #getMotorsAndFeedrateAsString()} (currently a placeholder) or build
+ *       their own G-code strings and call {@link #sendGCode(String)}.</li>
+ * </ul>
+ *
+ * Threading and error handling:
+ * <ul>
+ *   <li>Connect/disconnect events are propagated via the attached
+ *       {@code NetworkSession} and this node updates {@link #isConnected}.
+ *   <li>Network errors and I/O are managed by the {@code NetworkSession}; code
+ *       that calls {@link #sendGCode} should not block and should expect asynchronous
+ *       replies.</li>
+ * </ul>
  */
 public class MarlinRobot extends Node implements SessionLayerListener {
     private final Logger logger = LoggerFactory.getLogger(MarlinRobot.class);
