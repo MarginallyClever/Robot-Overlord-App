@@ -9,25 +9,20 @@ import java.awt.*;
  * Control panel for a {@link RotaryStewartPlatform3}.
  */
 public class RotaryStewartPlatform3Panel extends JPanel {
-    private static final JLabel angles = new JLabel("");
+    private static final JTextField angles = new JTextField("G0 X0 Y0 Z0 A0 B0 C0");
 
     public RotaryStewartPlatform3Panel() {
         this(new RotaryStewartPlatform3());
     }
 
     public RotaryStewartPlatform3Panel(RotaryStewartPlatform3 rotaryStewartPlatform3) {
-        super(new GridLayout(0,2));
+        super(new BorderLayout());
         this.setName(RotaryStewartPlatform3.class.getSimpleName());
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.gridx=0;
-        gbc.gridy=0;
-        gbc.gridwidth=1;
-
-        PanelHelper.addLabelAndComponent(this, "angles", angles, gbc);
+        angles.setEditable(false);
+        angles.setMaximumSize(new Dimension(50, angles.getPreferredSize().height));
+        this.add(new JLabel("angles"),BorderLayout.LINE_START);
+        this.add(angles,BorderLayout.CENTER);
 
         rotaryStewartPlatform3.addPropertyChangeListener(e-> {
             if (e.getPropertyName().equals("pose")) {
