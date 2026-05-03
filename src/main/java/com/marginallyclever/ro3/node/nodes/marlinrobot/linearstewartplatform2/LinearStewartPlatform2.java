@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.stewartplatform.linear;
+package com.marginallyclever.ro3.node.nodes.marlinrobot.linearstewartplatform2;
 
 import com.marginallyclever.convenience.helpers.BigMatrixHelper;
 import com.marginallyclever.convenience.helpers.MatrixHelper;
@@ -7,6 +7,7 @@ import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Waldo;
 import com.marginallyclever.ro3.node.Node;
 import com.marginallyclever.ro3.node.nodes.Material;
+import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinRobot;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
 import org.json.JSONObject;
@@ -29,7 +30,7 @@ import java.util.List;
  * </ul>
  * <p>The system should be able to generate approximate jacobians at any given pose.</p>
  */
-public class LinearStewartPlatform2 extends Node {
+public class LinearStewartPlatform2 extends MarlinRobot {
     public static final int NUM_ACTUATORS = 6;
     public static final int NUM_DOF = 6;
     private static final int [] BOTTOM_CARDINALITY = {0,5,2,1,4,3};

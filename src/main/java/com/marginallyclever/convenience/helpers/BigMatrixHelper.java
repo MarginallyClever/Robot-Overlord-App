@@ -240,10 +240,17 @@ public abstract class BigMatrixHelper {
                     
                     if (Math.abs(aij) > eps) {
                         double tau = (ajj - aii) / (2 * aij);
-                        double t = Math.signum(tau) / (Math.abs(tau) + Math.sqrt(1 + tau * tau));
+                        double t;
+                        // handle the special case where aii == ajj to avoid t==0 (no rotation)
+                        // which can occur for identical columns and leaves A unmodified.
+                        if (Math.abs(tau) < 1e-15) {
+                            t = 1.0; // 45 degree rotation
+                        } else {
+                            t = Math.signum(tau) / (Math.abs(tau) + Math.sqrt(1 + tau * tau));
+                        }
                         double c = 1 / Math.sqrt(1 + t * t);
                         double s = c * t;
-                        
+
                         for (int k = 0; k < m; k++) {
                             double aki = A[k][i];
                             double akj = A[k][j];

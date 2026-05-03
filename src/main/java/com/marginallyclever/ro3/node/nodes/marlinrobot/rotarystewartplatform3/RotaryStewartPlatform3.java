@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.stewartplatform.rotary;
+package com.marginallyclever.ro3.node.nodes.marlinrobot.rotarystewartplatform3;
 
 import com.marginallyclever.convenience.helpers.MatrixHelper;
 import com.marginallyclever.ro3.Registry;
@@ -6,6 +6,7 @@ import com.marginallyclever.ro3.factories.Lifetime;
 import com.marginallyclever.ro3.mesh.proceduralmesh.ProceduralMeshFactory;
 import com.marginallyclever.ro3.mesh.proceduralmesh.Waldo;
 import com.marginallyclever.ro3.node.Node;
+import com.marginallyclever.ro3.node.nodes.marlinrobot.MarlinRobot;
 import com.marginallyclever.ro3.node.nodes.Material;
 import com.marginallyclever.ro3.node.nodes.pose.Pose;
 import com.marginallyclever.ro3.node.nodes.pose.poses.MeshInstance;
@@ -50,18 +51,18 @@ import java.util.List;
  * that, when homed, the end effector's origin is at x=0 and y=0... it should be possible to calculate the initial z
  * height of the end effector.</p>
  */
-public class RotaryStewartPlatform3 extends Node {
-    public static final int NUM_ACTUATORS = 6;
-    private static final int [] CARDINALITY = {0,5,2,1,4,3};
-    private static final double TOP_AT_HOME_POSITION = 20.045;  // from Fusion360 model
-    private static final double HOME_ANGLE = -22.42;
+public class RotaryStewartPlatform3 extends MarlinRobot {
+    public static final int NUM_MOTORS = 6;
+    public static final String [] MOTOR_NAMES = {"X","Y","Z","A","B","C"};
+    public static final double TOP_AT_HOME_POSITION = 20.045;  // from Fusion360 model
+    public static final double HOME_ANGLE = -22.42;
+    private final Vector3d TOP_OFFSET = new Vector3d(4.4452, .70,-1.75);
+    private final Vector3d BOTTOM_OFFSET = new Vector3d(8.7, 2.2, 2.4);
+    private final double BICEP_LENGTH = 5.0;
+    private final double FOREARM_LENGTH = 19.3;
 
     private Pose bottom = null;
     private Pose top = null;
-    private final Vector3d topOffset = new Vector3d(4.4452, .70,-1.75);
-    private final Vector3d bottomOffset = new Vector3d(8.7, 2.2, 2.4);
-    private double bicepLength=5.0;
-    private double forearmLength=19.3;
 
     private static class Arm {
         public Pose shoulder;
@@ -70,7 +71,9 @@ public class RotaryStewartPlatform3 extends Node {
         public double motorAngle;  // degrees
         public double previousAngle;  // degrees
     }
-    private final Arm [] arms = new Arm[NUM_ACTUATORS];
+    private final Arm [] arms = new Arm[NUM_MOTORS];
+
+    private double feedrate = 6000.0;  // units/minute
 
     public RotaryStewartPlatform3() {
         super("RotaryStewartPlatform3");
@@ -84,7 +87,7 @@ public class RotaryStewartPlatform3 extends Node {
 
     @Override
     protected void onAttach() {
-        super.onAttach();
+        super.onAttach(); // ensure Marlin network session exists
         attachBottomMesh();
         attachTopMesh();
         attachAllArmMeshes();
@@ -94,7 +97,7 @@ public class RotaryStewartPlatform3 extends Node {
     }
 
     private void attachAllArmMeshes() {
-        for(int i=0;i<NUM_ACTUATORS;i++) {
+        for(int i = 0; i< NUM_MOTORS; i++) {
             if(arms[i]==null) {
                 attachOneArmMesh(i);
             }
@@ -103,30 +106,33 @@ public class RotaryStewartPlatform3 extends Node {
 
     private void attachOneArmMesh(int i) {
         arms[i] = new Arm();
-        arms[i].shoulder = bottom.findNodeByPath("shoulder"+(i+1),Pose.class);
+        String mName = MOTOR_NAMES[i];
+        String sName = "shoulder"+(i+1) + mName;
+        arms[i].shoulder = bottom.findNodeByPath(sName,Pose.class);
         if(arms[i].shoulder==null) {
-            var shoulder = arms[i].shoulder = new Pose("shoulder" + (i + 1));
+            var shoulder = arms[i].shoulder = new Pose(sName);
             bottom.addChild(shoulder);
             var bicepMesh = new MeshInstance();
             shoulder.addChild(bicepMesh);
             var m = new Material();
             m.setDiffuseColor(new Color(0xFF, 0, 0));
             shoulder.addChild(m);
-            bicepMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE, "/com/marginallyclever/ro3/node/nodes/rotarystewartplatform3/bicep.obj"));
+            bicepMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE, "/com/marginallyclever/ro3/node/nodes/marlinrobot/rotarystewartplatform3/bicep.obj"));
         }
 
-        arms[i].elbow = new Pose("elbow"+(i+1));
+        arms[i].elbow = new Pose("elbow"+(i+1) + mName);
 
-        arms[i].wrist = top.findNodeByPath("wrist"+(i+1),Pose.class);
+        String wName = "shoulder"+(i+1) + mName;
+        arms[i].wrist = top.findNodeByPath(wName,Pose.class);
         if(arms[i].wrist==null) {
-            var wrist = arms[i].wrist = new Pose("wrist" + (i + 1));
+            var wrist = arms[i].wrist = new Pose(wName);
             top.addChild(wrist);
             var forearmMesh = new MeshInstance();
             wrist.addChild(forearmMesh);
             var m = new Material();
             m.setDiffuseColor(new Color(0x0, 0xCC, 0xCC));
             wrist.addChild(m);
-            forearmMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE, "/com/marginallyclever/ro3/node/nodes/rotarystewartplatform3/forearm.obj"));
+            forearmMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE, "/com/marginallyclever/ro3/node/nodes/marlinrobot/rotarystewartplatform3/forearm.obj"));
         }
     }
 
@@ -142,7 +148,7 @@ public class RotaryStewartPlatform3 extends Node {
         var m = new Material();
         m.setDiffuseColor(new Color(0xFF,0xCC,0x00));
         top.addChild(m);
-        topMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE,"/com/marginallyclever/ro3/node/nodes/rotarystewartplatform3/top.obj"));
+        topMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE, "/com/marginallyclever/ro3/node/nodes/marlinrobot/rotarystewartplatform3/top.obj"));
     }
 
     // attach the bottom mesh
@@ -155,34 +161,7 @@ public class RotaryStewartPlatform3 extends Node {
         var bottomMesh = new MeshInstance();
         bottom.addChild(bottomMesh);
         bottom.addChild(new Material());
-        bottomMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE,"/com/marginallyclever/ro3/node/nodes/rotarystewartplatform3/base.obj"));
-    }
-
-    @Override
-    public JSONObject toJSON() {
-        var json = super.toJSON();
-        json.put("topOffsetX", topOffset.x);
-        json.put("topOffsetY", topOffset.y);
-        json.put("topOffsetZ", topOffset.z);
-        json.put("bottomOffsetX", bottomOffset.x);
-        json.put("bottomOffsetY", bottomOffset.y);
-        json.put("bottomOffsetZ", bottomOffset.z);
-        json.put("bicepLength", bicepLength);
-        json.put("forearmLength", forearmLength);
-        return json;
-    }
-
-    @Override
-    public void fromJSON(JSONObject json) {
-        super.fromJSON(json);
-        topOffset.x = json.optDouble("topOffsetX", topOffset.x);
-        topOffset.y = json.optDouble("topOffsetY", topOffset.y);
-        topOffset.z = json.optDouble("topOffsetZ", topOffset.z);
-        bottomOffset.x = json.optDouble("bottomOffsetX", bottomOffset.x);
-        bottomOffset.y = json.optDouble("bottomOffsetY", bottomOffset.y);
-        bottomOffset.z = json.optDouble("bottomOffsetZ", bottomOffset.z);
-        bicepLength = json.optDouble("bicepLength", bicepLength);
-        forearmLength = json.optDouble("forearmLength", forearmLength);
+        bottomMesh.setMesh(Registry.meshFactory.get(Lifetime.SCENE, "/com/marginallyclever/ro3/node/nodes/marlinrobot/rotarystewartplatform3/base.obj"));
     }
 
     /**
@@ -192,11 +171,11 @@ public class RotaryStewartPlatform3 extends Node {
      */
     private void refreshShape() {
         if(bottom!=null) {
-            setWaldoPositions(bottom,bottomOffset,0, CARDINALITY);
+            setWaldoPositions(bottom, BOTTOM_OFFSET);
         }
 
         if(top!=null) {
-            setWaldoPositions(top,topOffset,0, CARDINALITY);
+            setWaldoPositions(top, TOP_OFFSET);
         }
         adjustTopToMinimumHeight();
     }
@@ -205,20 +184,20 @@ public class RotaryStewartPlatform3 extends Node {
         top.setPosition(new Vector3d(0,0,TOP_AT_HOME_POSITION));
     }
 
-    private void setWaldoPositions(Pose pose, Vector3d v,double offsetAngleDegrees,int [] cardinality) {
+    private void setWaldoPositions(Pose pose, Vector3d offset) {
         List<Pose> waldoes = getOrCreateWaldos(pose);
-        for(int i=0;i<NUM_ACTUATORS;i+=2) {
-            var angle = Math.toRadians(i * 120 + offsetAngleDegrees);
-            var px = new Vector3d(Math.cos(angle), Math.sin(angle),0);
-            var py = new Vector3d(-Math.sin(angle), Math.cos(angle),0);
-            var sum = new Vector3d(0,0,v.z);
-            sum.scaleAdd(v.x, px, sum);
-            sum.scaleAdd(-v.y, py, sum);
-            waldoes.get(cardinality[i]).setPosition(sum);
-            sum.set(0,0,v.z);
-            sum.scaleAdd(v.x, px, sum);
-            sum.scaleAdd(v.y, py, sum);
-            waldoes.get(cardinality[i+1]).setPosition(sum);
+        for(int i = 0; i< NUM_MOTORS; i+=2) {
+            var angle = Math.toRadians(i * -120);
+            var n = new Vector3d( Math.cos(angle), Math.sin(angle),0);
+            var u = new Vector3d(-Math.sin(angle), Math.cos(angle),0);
+            var sum = new Vector3d(0,0,offset.z);
+            sum.scaleAdd(offset.x, n, sum);
+            sum.scaleAdd(-offset.y, u, sum);
+            waldoes.get(i).setPosition(sum);
+            sum.set(0,0,offset.z);
+            sum.scaleAdd(offset.x, n, sum);
+            sum.scaleAdd(offset.y, u, sum);
+            waldoes.get(i+1).setPosition(sum);
         }
     }
 
@@ -230,10 +209,10 @@ public class RotaryStewartPlatform3 extends Node {
             if(n instanceof Pose child && !(n instanceof MeshInstance)) {
                 found++;
                 waldoes.add(child);
-                if(found==NUM_ACTUATORS) break;
+                if(found== NUM_MOTORS) break;
             }
         }
-        while(waldoes.size()<NUM_ACTUATORS) {
+        while(waldoes.size()< NUM_MOTORS) {
             var p = new Pose("joint"+waldoes.size());
             parent.addChild(p);
             waldoes.add(p);
@@ -282,7 +261,7 @@ public class RotaryStewartPlatform3 extends Node {
         var ibw = new Matrix4d(bottomWorld);
         ibw.invert();
 
-        for(int i=0;i<NUM_ACTUATORS;i++) {
+        for(int i = 0; i< NUM_MOTORS; i++) {
             var elbowWorld = arms[i].elbow.getWorld();
             elbowWorld.mul(ibw);
             var elbowPos = MatrixHelper.getPosition(elbowWorld);
@@ -291,16 +270,16 @@ public class RotaryStewartPlatform3 extends Node {
             var shoulderPos = MatrixHelper.getPosition(shoulderWorld);
             double z = elbowPos.z - shoulderPos.z;
             // given z (opposite) and bicep length (hypotenuse) find angle theta.
-            if (bicepLength <= 0) {
-                arms[i].motorAngle = -HOME_ANGLE;
+            if (BICEP_LENGTH <= 0) {
+                arms[i].motorAngle = 0;
                 continue;
             }
-            double ratio = z / bicepLength;
+            double ratio = z / BICEP_LENGTH;
             // clamp to valid domain for asin to avoid NaN from small numerical errors
             if (ratio > 1.0) ratio = 1.0;
             if (ratio < -1.0) ratio = -1.0;
             // store the computed angle (degrees) in the arm for later use
-            arms[i].motorAngle = Math.toDegrees(Math.asin(ratio)) - HOME_ANGLE;
+            arms[i].motorAngle = Math.toDegrees(Math.asin(ratio));
         }
     }
 
@@ -315,7 +294,7 @@ public class RotaryStewartPlatform3 extends Node {
         // the z axis of the model aligns with the motor axle.
         // the bicep mesh is attached to the shoulder pose, which is at the bottom connection point.
         // to orient the bicep, we can point the shoulder's x axis at the elbow.
-        for(int i=0;i<NUM_ACTUATORS;++i) {
+        for(int i = 0; i< NUM_MOTORS; ++i) {
             if (arms[i] == null) continue;
             Pose shoulder = arms[i].shoulder;
             Pose elbowPose = arms[i].elbow;
@@ -329,14 +308,7 @@ public class RotaryStewartPlatform3 extends Node {
                 x.sub(ep, sp);
                 x.normalize();
 
-                double theta = switch(i) {
-                    case 0 -> 0;
-                    case 1 -> -120;
-                    case 2 -> -120;
-                    case 3 -> -240;
-                    case 4 -> -240;
-                    default -> 0;
-                };
+                double theta = (int)(i/2) * 120;
                 theta = Math.toRadians(theta);
                 Vector3d y = new Vector3d(Math.cos(theta),Math.sin(theta),0);
                 y.normalize();
@@ -363,7 +335,7 @@ public class RotaryStewartPlatform3 extends Node {
     }
 
     private void pointForearmsTowardElbows() {
-        for (int i = 0; i < NUM_ACTUATORS; ++i) {
+        for (int i = 0; i < NUM_MOTORS; ++i) {
             // wrist is the pose at the top that holds the forearm mesh
             Pose wrist = arms[i].wrist;
             Pose elbow = arms[i].elbow;
@@ -406,32 +378,16 @@ public class RotaryStewartPlatform3 extends Node {
         List<Pose> bottomWaldos = getOrCreateWaldos(bottom);
         List<Pose> topWaldos = getOrCreateWaldos(top);
 
-        for (int i = 0; i < NUM_ACTUATORS; ++i) {
-            Pose shoulderPose = bottomWaldos.get(i);
-            Pose wristPose = topWaldos.get(i);
-
-            Vector3d shoulder = MatrixHelper.getPosition(shoulderPose.getWorld());
-            Vector3d wrist = MatrixHelper.getPosition(wristPose.getWorld());
-
-            // determine the plane normal for this actuator.
-            // The platform has three rotation planes with normals at 0, 120, and 240 degrees in XY.
-            // Find which cardinality pair this actuator belongs to so we pick the correct plane.
-            int posIndex = -1;
-            for (int k = 0; k < CARDINALITY.length; ++k) {
-                if (CARDINALITY[k] == i) {
-                    posIndex = k;
-                    break;
-                }
-            }
-            int planeIndex = Math.max(0, posIndex / 2); // 0..2
-            double planeAngle = Math.toRadians(planeIndex * -120.0);
-            Vector3d n = new Vector3d(Math.cos(planeAngle), Math.sin(planeAngle), 0); // plane normal in XY
-            // in-plane axes: u is in-plane horizontal (perp to normal in XY), v is world Z
-            Vector3d u = new Vector3d(-n.y, n.x, 0);
-            u.normalize();
-            Vector3d v = new Vector3d(0, 0, 1);
+        for (int i = 0; i < NUM_MOTORS; ++i) {
+            int planeIndex = (int)(i / 2); // 0..2
+            double angle = Math.toRadians(planeIndex * 120.0);
+            var n = new Vector3d( Math.cos(angle), Math.sin(angle), 0); // plane normal in XY
+            var u = new Vector3d(-Math.sin(angle), Math.cos(angle), 0);
+            var v = new Vector3d(0, 0, 1);
 
             // vector from shoulder to wrist
+            Vector3d shoulder = MatrixHelper.getPosition(bottomWaldos.get(i).getWorld());
+            Vector3d wrist = MatrixHelper.getPosition(topWaldos.get(i).getWorld());
             Vector3d ST = new Vector3d();
             ST.sub(wrist, shoulder);
 
@@ -440,10 +396,10 @@ public class RotaryStewartPlatform3 extends Node {
 
             // project wrist onto the plane through the shoulder
             Vector3d P = new Vector3d();
-            P.scaleAdd(-h,n,wrist);  // wrist - n*h
+            P.scaleAdd(-h,n,wrist);  // p = wrist - n*h
 
             // effective radius of forearm circle in the plane
-            double r2sq = forearmLength * forearmLength - h * h;
+            double r2sq = FOREARM_LENGTH * FOREARM_LENGTH - h * h;
             double r2 = r2sq <= 0 ? 0.0 : Math.sqrt(r2sq);
 
             // coordinates of P relative to S in (u,v) basis
@@ -453,7 +409,7 @@ public class RotaryStewartPlatform3 extends Node {
             double dy = PS.dot(v);
             double d = Math.hypot(dx, dy);
 
-            double r1 = bicepLength;
+            double r1 = BICEP_LENGTH;
             Vector3d chosen = new Vector3d();
 
             if (d < 1e-9) {
@@ -485,7 +441,7 @@ public class RotaryStewartPlatform3 extends Node {
 
                     // two intersection candidates in (u,v)
                     // map both back to world and choose the one closer to the wrist-midpoint
-                    if(posIndex%2 == 0) {
+                    if(i%2 == 0) {
                         ix = p2x + h_inter * px;
                         iy = p2y + h_inter * py;
                     } else {
@@ -500,6 +456,8 @@ public class RotaryStewartPlatform3 extends Node {
             // set elbow world position (Pose.setPosition uses local position relative to parent;
             // since elbow parent is this node (whose local is identity for the platform) this acts as world)
             arms[i].elbow.setPosition(chosen);
+
+            //adjustCandidatePosition("elbow"+i,P);
         }
     }
 
@@ -554,10 +512,27 @@ public class RotaryStewartPlatform3 extends Node {
     }
 
     public Double [] getMotorAngles() {
-        Double [] angles = new Double[NUM_ACTUATORS];
-        for(int i = 0; i < NUM_ACTUATORS; i++) {
+        Double [] angles = new Double[NUM_MOTORS];
+        for(int i = 0; i < NUM_MOTORS; i++) {
             angles[i] = arms[i].motorAngle;
         }
         return angles;
+    }
+    /**
+     * Build a simple G-code-style string that encodes the current motor angles and feedrate.
+     * Format: ";motors a0 a1 a2 a3 a4 a5 F{feedrate}" (leading semicolon keeps it a comment in Marlin;
+     * replace with actual motion command if desired)
+     */
+    public String getMotorsAndFeedrateAsString() {
+        Double [] angleList = getMotorAngles();
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < NUM_MOTORS; i++) {
+            sb.append(" ");
+            sb.append(MOTOR_NAMES[i]);
+            sb.append(String.format("%.2f", angleList[i]));
+        }
+        sb.append(" F");
+        sb.append(String.format("%.2f", feedrate));
+        return sb.toString();
     }
 }

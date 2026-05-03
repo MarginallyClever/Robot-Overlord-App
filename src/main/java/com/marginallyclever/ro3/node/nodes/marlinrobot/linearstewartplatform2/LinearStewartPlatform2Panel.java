@@ -1,4 +1,4 @@
-package com.marginallyclever.ro3.node.nodes.stewartplatform.linear;
+package com.marginallyclever.ro3.node.nodes.marlinrobot.linearstewartplatform2;
 
 import com.marginallyclever.ro3.PanelHelper;
 import org.slf4j.Logger;

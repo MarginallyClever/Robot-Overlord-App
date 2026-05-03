@@ -1,6 +1,6 @@
-package com.marginallyclever.ro3.node.nodes.stewartplatform.linear;
+package com.marginallyclever.ro3.node.nodes.marlinrobot.linearstewartplatform2;
 
-import org.junit.jupiter.api.Test;
+import com.marginallyclever.ro3.node.nodes.marlinrobot.linearstewartplatform2.LinearStewartPlatform2;
 
 import javax.vecmath.Vector2d;
 import java.io.ByteArrayOutputStream;

@@ -29,16 +29,10 @@ public class MarlinRobotPanel extends JPanel {
         gbc.gridy=0;
         gbc.gridwidth=1;
 
-        JButton M114 = new JButton("M114");
-        M114.addActionListener(e-> marlinRobot.sendGCode("M114"));
-        PanelHelper.addLabelAndComponent(this, "Get state", M114,gbc);
-        M114.setToolTipText("Get the current position of the robot arm.");
-
-        gbc.gridy++;
-        JButton G28 = new JButton("G28");
-        G28.addActionListener(e-> marlinRobot.sendGCode("G28"));
-        PanelHelper.addLabelAndComponent(this, "Home", G28, gbc);
-        G28.setToolTipText("Move all motors to their home position.");
+        addMarlinButton(marlinRobot,gbc,"M114","Get state","Get the current position of the robot.");
+        addMarlinButton(marlinRobot,gbc,"G28","Find home","Move all motors to their home position.");
+        addMarlinButton(marlinRobot,gbc,"M17","Enable motors","Enable all motors. The robot arm will be able to move and report its position.");
+        addMarlinButton(marlinRobot,gbc,"M18","Disable motors","Disable all motors. The robot arm will be free to move, but will not report its position until the motors are re-enabled.");
 
         gbc.gridy++;
         JButton G0 = new JButton("G0");
@@ -46,12 +40,22 @@ public class MarlinRobotPanel extends JPanel {
         PanelHelper.addLabelAndComponent(this, "Go", G0, gbc);
         G0.setToolTipText("Move the robot.");
 
+
         gbc.gridx=0;
         gbc.gridwidth=2;
         this.add(getReceiver(),gbc);
         gbc.gridy++;
         this.add(getSender(),gbc);
     }
+
+    private void addMarlinButton(MarlinRobot marlinRobot, GridBagConstraints gbc, String gcode, String label, String tooltip) {
+        gbc.gridy++;
+        JButton button = new JButton(gcode);
+        button.setToolTipText(tooltip);
+        button.addActionListener(e-> marlinRobot.sendGCode(gcode));
+        PanelHelper.addLabelAndComponent(this, label, button, gbc);
+    }
+
 
     // Add a text field that will be sent to the robot arm.
     private JPanel getSender() {
@@ -81,7 +85,7 @@ public class MarlinRobotPanel extends JPanel {
         outputPanel.add(new JScrollPane(output),BorderLayout.CENTER);
         outputPanel.add(outputLabel,BorderLayout.NORTH);
         output.setMaximumSize(new Dimension(100, output.getPreferredSize().height));
-        marlinRobot.addMarlinListener(output::setText);
+        marlinRobot.addMarlinListener(output::append);
 
         return outputPanel;
     }
