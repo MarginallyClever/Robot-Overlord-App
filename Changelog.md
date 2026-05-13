@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+## [3.127.0]
+
+### Added
+- Rotary Stewart Platform 3, a Marlin-based 6-DOF motion platform, is now supported.
+
+## [3.126.0]
+
+### Added
 - Added "cast no shadow" toggle in MeshInstance
 ### Changed
 - Rotating an object "snap" feature starts at your current rotation instead of 0. [#325](https://github.com/MarginallyClever/Robot-Overlord-App/issues/325)
