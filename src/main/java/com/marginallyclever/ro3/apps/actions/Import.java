@@ -4,6 +4,7 @@ import com.marginallyclever.ro3.RO3Frame;
 import com.marginallyclever.ro3.Registry;
 import com.marginallyclever.ro3.UndoSystem;
 import com.marginallyclever.ro3.apps.commands.ImportMesh;
+import com.marginallyclever.ro3.apps.commands.ImportSTEP;
 import com.marginallyclever.ro3.apps.commands.ImportScene;
 import com.marginallyclever.ro3.apps.commands.ImportURDF;
 import org.slf4j.Logger;
@@ -63,8 +64,11 @@ public class Import extends AbstractAction {
         if (dotIndex < 0) extension = "";
         else extension = extension.substring(dotIndex + 1).toLowerCase();
 
-        if (extension.equals("urdf")) {
-            if (importURDF(selectedFile)) return true;
+        if(extension.equals("urdf")) {
+            if(importURDF(selectedFile)) return true;
+        }
+        if(extension.equals("step")) {
+            if(importSTEP(selectedFile)) return true;
         }
         if(extension.equals("ro")) {
             if(importScene(selectedFile)) return true;
@@ -107,6 +111,18 @@ public class Import extends AbstractAction {
         logger.debug("importURDF {}",file);
         try {
             UndoSystem.addEvent(new ImportURDF(file));
+        } catch (Exception e) {
+            logger.error("Error importing URDF",e);
+            return false;
+        }
+        logger.info("done.");
+        return true;
+    }
+
+    private boolean importSTEP(File file) {
+        logger.debug("importSTEP {}",file);
+        try {
+            UndoSystem.addEvent(new ImportSTEP(file));
         } catch (Exception e) {
             logger.error("Error importing URDF",e);
             return false;

@@ -49,6 +49,7 @@ public class RO3Frame extends JFrame {
     public static final FileNameExtensionFilter FILE_FILTER = new FileNameExtensionFilter("RO files", "RO");
     public static final FileNameExtensionFilter MESH_FILTER = new FileNameExtensionFilter("Mesh files", "stl", "obj", "3mf","ply"/*,"dae"*/);
     public static final FileNameExtensionFilter URDF_FILTER = new FileNameExtensionFilter("URDF files", "urdf");
+    public static final FileNameExtensionFilter STEP_FILTER = new FileNameExtensionFilter("STEP files", "step");
     public static final FileNameExtensionFilter ALL_IMPORT_FILTER = new FileNameExtensionFilter("All supported files", "ro", "urdf", "stl", "obj", "3mf","ply"/*,"dae"*/);
 
     public static String VERSION;
@@ -253,6 +254,7 @@ public class RO3Frame extends JFrame {
         chooser.addChoosableFileFilter(RO3Frame.ALL_IMPORT_FILTER);
         chooser.addChoosableFileFilter(RO3Frame.FILE_FILTER);
         chooser.addChoosableFileFilter(RO3Frame.URDF_FILTER);
+        chooser.addChoosableFileFilter(RO3Frame.STEP_FILTER);
         chooser.addChoosableFileFilter(RO3Frame.MESH_FILTER);
         chooser.setFileFilter(RO3Frame.ALL_IMPORT_FILTER);
         return chooser;
